@@ -54,6 +54,7 @@ import com.espressif.idf.ui.UIPlugin;
 @SuppressWarnings("restriction")
 public class NewIDFProjectWizard extends BasicNewResourceWizard {
 
+	private static final String RESOURCES_ESP_IDF_TEMPLATE = "resources/esp-idf-default-template"; //$NON-NLS-1$
 	private WizardNewProjectCreationPage page;
 
 	public NewIDFProjectWizard() {
@@ -159,7 +160,7 @@ public class NewIDFProjectWizard extends BasicNewResourceWizard {
 	protected File getTempalteLocationPath() {
 
 		Bundle bundle = Platform.getBundle(UIPlugin.PLUGIN_ID);
-		URL templateURL = bundle.getEntry("resources/esp-idf-template");
+		URL templateURL = bundle.getEntry(RESOURCES_ESP_IDF_TEMPLATE);
 		File file = null;
 		try {
 			file = new File(FileLocator.resolve(templateURL).toURI());
