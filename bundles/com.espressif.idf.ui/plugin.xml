@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="com.espressif.idf.ui.new.wizard.category"
+            name="EspressIf">
+      </category>
+      <wizard
+            category="com.espressif.idf.ui.new.wizard.category"
+            class="com.espressif.idf.ui.wizard.NewIDFProjectWizard"
+            icon="icons/espressif.png"
+            id="com.espressif.idf.ui.new.project.wizard"
+            name="Espressif IDF Project"
+            project="true">
+         <description>
+            Create a new EspressIf IDF project
+         </description>
+      </wizard>
+   </extension>
+
+</plugin>
