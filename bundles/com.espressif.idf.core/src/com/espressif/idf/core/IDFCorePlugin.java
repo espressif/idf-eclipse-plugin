@@ -2,37 +2,44 @@
  * Copyright 2018-2019 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.ui;
-
-import org.eclipse.ui.plugin.AbstractUIPlugin;
+package com.espressif.idf.core;
+import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
- * 
- * The activator class controls the plug-in life cycle
  *
  */
-public class UIPlugin extends AbstractUIPlugin {
+public class IDFCorePlugin extends Plugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "com.espressif.idf.ui"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "com.espressif.idf.core"; //$NON-NLS-1$
 
 	// The shared instance
-	private static UIPlugin plugin;
+	private static IDFCorePlugin plugin;
 
-	/**
-	 * The constructor
+	private BundleContext context;
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.core.runtime.Plugins#start(org.osgi.framework.BundleContext)
 	 */
-	public UIPlugin() {
-	}
-
 	@Override
 	public void start(BundleContext context) throws Exception {
+		this.context = context;
 		super.start(context);
+
 		plugin = this;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.core.runtime.Plugin#stop(org.osgi.framework.BundleContext)
+	 */
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
@@ -44,8 +51,11 @@ public class UIPlugin extends AbstractUIPlugin {
 	 *
 	 * @return the shared instance
 	 */
-	public static UIPlugin getDefault() {
+	public static IDFCorePlugin getDefault() {
 		return plugin;
 	}
 
+	public BundleContext getContext() {
+		return context;
+	}
 }

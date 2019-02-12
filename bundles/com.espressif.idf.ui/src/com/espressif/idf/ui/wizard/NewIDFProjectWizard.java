@@ -1,8 +1,6 @@
 /*******************************************************************************
- * Copyright 2018-2019 Espressif Systems (Shanghai) PTE LTD
- *
- * Contributors:
- *     Kondal Kolipaka -  Espressif Systems
+ * Copyright 2018-2019 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
  *******************************************************************************/
 package com.espressif.idf.ui.wizard;
 
@@ -34,7 +32,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -45,72 +42,91 @@ import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 import org.osgi.framework.Bundle;
 
+import com.espressif.idf.core.util.FileUtil;
 import com.espressif.idf.ui.UIPlugin;
 
 /**
  * Creates a wizard for creating a new IDF project resource in the workspace.
- *
+ * 
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  */
 @SuppressWarnings("restriction")
-public class NewIDFProjectWizard extends BasicNewResourceWizard {
+public class NewIDFProjectWizard extends BasicNewResourceWizard
+{
 
-	private static final String RESOURCES_ESP_IDF_TEMPLATE = "resources/esp-idf-default-template"; //$NON-NLS-1$
+	public static final String GCC_TOOLCHAIN = "cdt.managedbuild.toolchain.gnu.cross.base"; //$NON-NLS-1$
+	private static final String IDF_TEMPLATE_PATH = "resources/esp-idf-default-template"; //$NON-NLS-1$
 	private WizardNewProjectCreationPage page;
 
-	public NewIDFProjectWizard() {
+	public NewIDFProjectWizard()
+	{
 		IDialogSettings workbenchSettings = IDEWorkbenchPlugin.getDefault().getDialogSettings();
 		IDialogSettings section = workbenchSettings.getSection("BasicNewProjectResourceWizard");//$NON-NLS-1$
-		if (section == null) {
+		if (section == null)
+		{
 			section = workbenchSettings.addNewSection("BasicNewProjectResourceWizard");//$NON-NLS-1$
 		}
 		setDialogSettings(section);
 	}
 
 	@Override
-	public void addPages() {
+	public void addPages()
+	{
 		super.addPages();
 
-		page = new WizardNewProjectCreationPage("basicNewProjectPage") { //$NON-NLS-1$
+		page = new WizardNewProjectCreationPage("basicNewProjectPage") //$NON-NLS-1$
+		{
 			@Override
-			public void createControl(Composite parent) {
+			public void createControl(Composite parent)
+			{
 				super.createControl(parent);
 				Dialog.applyDialogFont(getControl());
 			}
 		};
-		page.setTitle("IDF Project");
-		page.setDescription("Create a new IDF(IoT Development Framework) project.");
+		page.setTitle(Messages.NewIDFProjectWizard_Project_Title);
+		page.setDescription(Messages.NewIDFProjectWizard_ProjectDesc);
 		this.addPage(page);
 
 	}
 
 	@Override
-	public boolean performFinish() {
+	public boolean performFinish()
+	{
 
 		final String projectName = page.getProjectName();
-		final String templateLocStr = getTempalteLocationPath().getAbsolutePath();
-		final IToolChain toolChain = getToolChain();
+		final File templateLocation = getTemplateLocationPath();
+		final IToolChain toolChain = getToolChain(GCC_TOOLCHAIN);
+		final IPath targetLocation = page.getLocationPath();
 
-		IRunnableWithProgress op = new WorkspaceModifyOperation() {
+		IRunnableWithProgress op = new WorkspaceModifyOperation()
+		{
 			@Override
 			protected void execute(IProgressMonitor monitor)
-					throws CoreException, InvocationTargetException, InterruptedException {
-				monitor.beginTask("Creating IDF Project...", 10);
+					throws CoreException, InvocationTargetException, InterruptedException
+			{
+				monitor.beginTask(Messages.NewIDFProjectWizard_TaskName, 10);
 
 				// Create Project
-				try {
+				try
+				{
 					IWorkspace workspace = ResourcesPlugin.getWorkspace();
 					IProject project = workspace.getRoot().getProject(projectName);
 
 					IProjectDescription description = workspace.newProjectDescription(projectName);
-					IPath defaultLocation = workspace.getRoot().getLocation().append(projectName);
-					Path location = new Path(templateLocStr);
-					if (!location.isEmpty() && !location.equals(defaultLocation)) {
-						description.setLocation(location);
+					IPath defaultWorkspaceLocation = workspace.getRoot().getLocation().append(projectName);
+
+					IPath targetLocationPath = targetLocation.append(projectName);
+					if (!targetLocation.isEmpty() && !targetLocationPath.equals(defaultWorkspaceLocation))
+					{
+						description.setLocation(targetLocationPath);
 					}
 
 					CCorePlugin.getDefault().createCDTProject(description, project, monitor);
 
-					// TODO Shall we add IDF nature? Will add based on the need
+					// Copy the default IDF template to the workspace
+					copyIDFTemplateToWorkspace(projectName, templateLocation, project);
+
+					// TODO Shall we add IDF nature?
 
 					// Set up build information
 					ICProjectDescriptionManager pdMgr = CoreModel.getDefault().getProjectDescriptionManager();
@@ -132,19 +148,23 @@ public class NewIDFProjectWizard extends BasicNewResourceWizard {
 					monitor.worked(1);
 
 					pdMgr.setProjectDescription(project, projDesc);
-				} catch (Throwable e) {
+				} catch (Throwable e)
+				{
 					ManagedBuilderUIPlugin.log(e);
 				}
 				monitor.done();
 			}
 		};
 
-		try {
+		try
+		{
 			getContainer().run(true, true, op);
-		} catch (InvocationTargetException e) {
+		} catch (InvocationTargetException e)
+		{
 			e.printStackTrace();
 			return false;
-		} catch (InterruptedException e) {
+		} catch (InterruptedException e)
+		{
 			e.printStackTrace();
 			return false;
 		}
@@ -157,16 +177,20 @@ public class NewIDFProjectWizard extends BasicNewResourceWizard {
 	 * 
 	 * @return File path for project template
 	 */
-	protected File getTempalteLocationPath() {
+	protected File getTemplateLocationPath()
+	{
 
 		Bundle bundle = Platform.getBundle(UIPlugin.PLUGIN_ID);
-		URL templateURL = bundle.getEntry(RESOURCES_ESP_IDF_TEMPLATE);
+		URL templateURL = bundle.getEntry(IDF_TEMPLATE_PATH);
 		File file = null;
-		try {
+		try
+		{
 			file = new File(FileLocator.resolve(templateURL).toURI());
-		} catch (URISyntaxException e1) {
+		} catch (URISyntaxException e1)
+		{
 			e1.printStackTrace();
-		} catch (IOException e1) {
+		} catch (IOException e1)
+		{
 			e1.printStackTrace();
 		}
 
@@ -178,17 +202,48 @@ public class NewIDFProjectWizard extends BasicNewResourceWizard {
 	 * 
 	 * @return Cross GCC toolchain instance
 	 */
-	private IToolChain getToolChain() {
+	protected IToolChain getToolChain(String toolChainId)
+	{
 		IToolChain[] toolChains = ManagedBuildManager.getRealToolChains();
-		for (IToolChain iToolChain : toolChains) {
+		for (IToolChain iToolChain : toolChains)
+		{
 
 			// Cross GCC
-			if (iToolChain.getId().equals("cdt.managedbuild.toolchain.gnu.cross.base")) //$NON-NLS-1$
+			if (iToolChain.getId().equals(toolChainId))
 			{
 				return iToolChain;
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Copy template project into the workspace or user selected directory in the wizard
+	 * 
+	 * @param projectName
+	 * @param sourceTemplateLocation
+	 * @param project
+	 * @throws IOException
+	 */
+	private void copyIDFTemplateToWorkspace(String projectName, File sourceTemplateLocation, IProject project)
+			throws IOException
+	{
+
+		File projectFile = project.getLocation().toFile();
+		File[] files = sourceTemplateLocation.listFiles();
+
+		for (File file : files)
+		{
+			// create the file/directory
+			File dest = new File(projectFile, file.getName());
+			if (file.isDirectory())
+			{
+				FileUtil.copyDirectory(file, dest); // TODO: log the IStatus
+			} else
+			{
+				FileUtil.copyFile(file, dest);
+			}
+		}
 	}
 
 }

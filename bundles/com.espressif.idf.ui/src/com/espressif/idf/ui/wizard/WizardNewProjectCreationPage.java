@@ -29,7 +29,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.util.BidiUtils;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -38,9 +37,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.dialogs.WorkingSetGroup;
 import org.eclipse.ui.internal.ide.IDEWorkbenchMessages;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import org.eclipse.ui.internal.ide.IIDEHelpContextIds;
@@ -49,18 +46,6 @@ import org.eclipse.ui.internal.ide.dialogs.ProjectContentsLocationArea.IErrorMes
 
 /**
  * Standard main page for a wizard that is creates a project resource.
- * <p>
- * This page may be used by clients as-is; it may be also be subclassed to suit.
- * </p>
- * <p>
- * Example usage:
- * 
- * <pre>
- * mainPage = new WizardNewProjectCreationPage("basicNewProjectPage");
- * mainPage.setTitle("Project");
- * mainPage.setDescription("Create a new project resource.");
- * </pre>
- * </p>
  */
 @SuppressWarnings("restriction")
 public class WizardNewProjectCreationPage extends WizardPage {
@@ -80,8 +65,6 @@ public class WizardNewProjectCreationPage extends WizardPage {
 
 	private ProjectContentsLocationArea locationArea;
 
-	private WorkingSetGroup workingSetGroup;
-
 	// constants
 	private static final int SIZING_TEXT_FIELD_WIDTH = 250;
 
@@ -93,25 +76,6 @@ public class WizardNewProjectCreationPage extends WizardPage {
 	public WizardNewProjectCreationPage(String pageName) {
 		super(pageName);
 		setPageComplete(false);
-	}
-
-	/**
-	 * Creates a new project creation wizard page.
-	 *
-	 * @param pageName
-	 * @param selection
-	 * @param workingSetTypes
-	 *
-	 * @deprecated default placement of the working set group has been removed. If
-	 *             you wish to use the working set block please call
-	 *             {@link #createWorkingSetGroup(Composite, IStructuredSelection, String[])}
-	 *             in your overridden {@link #createControl(Composite)}
-	 *             implementation.
-	 * @since 3.4
-	 */
-	@Deprecated
-	public WizardNewProjectCreationPage(String pageName, IStructuredSelection selection, String[] workingSetTypes) {
-		this(pageName);
 	}
 
 	@Override
@@ -140,27 +104,6 @@ public class WizardNewProjectCreationPage extends WizardPage {
 		setMessage(null);
 		setControl(composite);
 		Dialog.applyDialogFont(composite);
-	}
-
-	/**
-	 * Create a working set group for this page. This method can only be called
-	 * once.
-	 *
-	 * @param composite                the composite in which to create the group
-	 * @param selection                the current workbench selection
-	 * @param supportedWorkingSetTypes an array of working set type IDs that will
-	 *                                 restrict what types of working sets can be
-	 *                                 chosen in this group
-	 * @return the created group. If this method has been called previously the
-	 *         original group will be returned.
-	 * @since 3.4
-	 */
-	public WorkingSetGroup createWorkingSetGroup(Composite composite, IStructuredSelection selection,
-			String[] supportedWorkingSetTypes) {
-		if (workingSetGroup != null)
-			return workingSetGroup;
-		workingSetGroup = new WorkingSetGroup(composite, selection, supportedWorkingSetTypes);
-		return workingSetGroup;
 	}
 
 	/**
@@ -376,14 +319,4 @@ public class WizardNewProjectCreationPage extends WizardPage {
 		return locationArea.isDefault();
 	}
 
-	/**
-	 * Return the selected working sets, if any. If this page is not configured to
-	 * interact with working sets this will be an empty array.
-	 *
-	 * @return the selected working sets
-	 * @since 3.4
-	 */
-	public IWorkingSet[] getSelectedWorkingSets() {
-		return workingSetGroup == null ? new IWorkingSet[0] : workingSetGroup.getSelectedWorkingSets();
-	}
 }
