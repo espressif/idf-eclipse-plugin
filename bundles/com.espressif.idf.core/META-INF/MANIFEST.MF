@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Espressif IDE Core
+Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: com.espressif.idf.core
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: Espressif Systems (Shanghai) PTE LTD
+Bundle-Vendor: %Bundle-Vendor
 Automatic-Module-Name: com.espressif.idf.core
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: com.espressif.idf.core,
@@ -13,5 +13,5 @@ Require-Bundle: org.eclipse.swt,
  org.eclipse.osgi.util;visibility:=reexport,
  org.eclipse.osgi;visibility:=reexport,
  org.eclipse.core.runtime;visibility:=reexport
-Bundle-Activator: IDFCorePlugin
+Bundle-Activator: com.espressif.idf.core.IDFCorePlugin
 Bundle-ActivationPolicy: lazy
