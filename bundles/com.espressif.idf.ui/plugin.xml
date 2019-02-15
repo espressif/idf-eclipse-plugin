@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="com.espressif.idf.ui.new.wizard.category"
+            name="%category.name">
+      </category>
+      <wizard
+            category="com.espressif.idf.ui.new.wizard.category"
+            class="com.espressif.idf.ui.wizard.NewIDFProjectWizard"
+            icon="icons/espressif.png"
+            id="com.espressif.idf.ui.new.project.wizard"
+            name="%wizard.name"
+            project="true">
+         <description>
+            %wizard.description
+         </description>
+      </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.cdt.ui.CPerspective">
+         <newWizardShortcut
+               id="com.espressif.idf.ui.new.project.wizard">
+         </newWizardShortcut>
+      </perspectiveExtension>
+   </extension>
+
+</plugin>

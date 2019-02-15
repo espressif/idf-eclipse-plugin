@@ -1,0 +1,15 @@
+<templateManifest>
+	<file src="/templates/esp-idf-template/CMakeLists.txt"
+		dest="/${projectName}/CMakeLists.txt"/>
+	<file src="/templates/esp-idf-template/LICENSE"
+		dest="/${projectName}/LICENSE"/>
+	<file src="/templates/esp-idf-template/README.md"
+		dest="/${projectName}/README.md"
+		open="true"/>
+	<file src="/templates/esp-idf-template/main/CMakeLists.txt"
+		dest="/${projectName}/main/CMakeLists.txt"/>
+	<file src="/templates/esp-idf-template/main/Kconfig.projbuild"
+		dest="/${projectName}/main/Kconfig.projbuild"/>
+	<file src="/templates/esp-idf-template/main/main.c"
+		dest="/${projectName}/main/main.c"/>
+</templateManifest>
