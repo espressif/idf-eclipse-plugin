@@ -2,8 +2,8 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.espressif.ide</groupId>
-	<artifactId>com.espressif.ide.configuration</artifactId>
+	<groupId>com.espressif.idf</groupId>
+	<artifactId>com.espressif.idf.configuration</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
@@ -31,8 +31,8 @@
 					<!-- Target definition-->
 					<target>
 						<artifact>
-							<groupId>com.espressif.ide</groupId>
-							<artifactId>com.espressif.ide.target</artifactId>
+							<groupId>com.espressif.idf</groupId>
+							<artifactId>com.espressif.idf.target</artifactId>
 							<version>1.0.0-SNAPSHOT</version>
 						</artifact>
 					</target>

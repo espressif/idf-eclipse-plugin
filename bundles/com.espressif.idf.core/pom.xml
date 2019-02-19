@@ -7,8 +7,8 @@
 	<packaging>eclipse-plugin</packaging>
 
 	<parent>
-		<groupId>com.espressif.ide</groupId>
-		<artifactId>com.espressif.ide.bundles</artifactId>
+		<groupId>com.espressif.idf</groupId>
+		<artifactId>com.espressif.idf.bundles</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 </project>

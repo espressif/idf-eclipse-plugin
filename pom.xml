@@ -4,16 +4,16 @@
 	xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.espressif.ide</groupId>
-	<artifactId>com.espressif.ide.root</artifactId>
+	<groupId>com.espressif.idf</groupId>
+	<artifactId>com.espressif.idf.root</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<parent>
-		<groupId>com.espressif.ide</groupId>
-		<artifactId>com.espressif.ide.configuration</artifactId>
+		<groupId>com.espressif.idf</groupId>
+		<artifactId>com.espressif.idf.configuration</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
-		<relativePath>./releng/com.espressif.ide.configuration</relativePath>
+		<relativePath>./releng/com.espressif.idf.configuration</relativePath>
 	</parent>
 
 	<modules>
