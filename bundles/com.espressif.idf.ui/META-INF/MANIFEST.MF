@@ -5,20 +5,15 @@ Bundle-SymbolicName: com.espressif.idf.ui;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: com.espressif.idf.ui.UIPlugin
 Bundle-Vendor: %Bundle-Vendor
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
+Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui.ide,
  org.eclipse.core.resources,
- org.eclipse.pde.runtime;visibility:=reexport,
- org.eclipse.pde.ui;visibility:=reexport,
- org.eclipse.cdt;visibility:=reexport,
- org.eclipse.cdt.core;visibility:=reexport,
- org.eclipse.cdt.managedbuilder.ui;visibility:=reexport,
- org.eclipse.cdt.managedbuilder.core;visibility:=reexport,
  com.espressif.idf.core;visibility:=reexport,
  org.eclipse.cdt.cmake.core,
  org.eclipse.cdt.cmake.ui,
- org.eclipse.tools.templates.ui
-Bundle-RequiredExecutionEnvironment: JavaSE-9
+ org.eclipse.tools.templates.ui,
+ org.eclipse.swt;visibility:=reexport,
+ org.eclipse.ui;visibility:=reexport
 Automatic-Module-Name: com.espressif.idf.ui
 Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-11

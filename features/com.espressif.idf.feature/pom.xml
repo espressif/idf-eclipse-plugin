@@ -1,11 +1,13 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.espressif.idf.feature</groupId>
-  <artifactId>com.espressif.idf.feature</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
-  <packaging>eclipse-feature</packaging>
-  
-  <parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.espressif.idf.feature</groupId>
+	<artifactId>com.espressif.idf.feature</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>eclipse-feature</packaging>
+
+	<parent>
 		<groupId>com.espressif.ide</groupId>
 		<artifactId>com.espressif.ide.features</artifactId>
 		<version>1.0.0-SNAPSHOT</version>

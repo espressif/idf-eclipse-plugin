@@ -8,10 +8,8 @@ Automatic-Module-Name: com.espressif.idf.core
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: com.espressif.idf.core,
  com.espressif.idf.core.util
-Require-Bundle: org.eclipse.swt,
- org.eclipse.core.filesystem,
- org.eclipse.osgi.util;visibility:=reexport,
- org.eclipse.osgi;visibility:=reexport,
- org.eclipse.core.runtime;visibility:=reexport
+Require-Bundle: org.eclipse.osgi.util;visibility:=reexport,
+ org.eclipse.core.runtime;visibility:=reexport,
+ org.eclipse.core.filesystem;visibility:=reexport
 Bundle-Activator: com.espressif.idf.core.IDFCorePlugin
 Bundle-ActivationPolicy: lazy
