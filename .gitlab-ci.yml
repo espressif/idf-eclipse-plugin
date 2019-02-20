@@ -1,0 +1,49 @@
+stages:
+  - build
+  - deploy
+  - release_draft
+  - release_submit
+
+image: ${CI_DOCKER_REGISTRY}/esp32-ci-env
+
+variables:
+  ARCHIVE_DIR: "dist"
+  ARCHIVE_NAME: "com.espressif.idf.update-1.0.0-SNAPSHOT.zip"
+
+before_script:
+  # Use CI Tools
+  - curl -sSL ${CIT_LOADER_URL} | sh
+  - source citools/import_functions
+
+.add_gh_remote_key: &add_gh_remote_key |
+  cit_add_ssh_key "${GH_SSH_KEY}"
+  git remote remove gh || true
+  git remote add gh ${GH_PUSH_REPO}
+
+.release_tag_filter: &release_tag_filter
+  only:
+    - /^v[0-9].*$/
+
+.release_submit_action: &release_submit_action
+  when: manual
+  allow_failure: true
+
+build:
+  stage: build
+  image: jimador/docker-jdk-8-maven-node
+  tags:
+    - build
+  artifacts:
+    paths:
+      - ${ARCHIVE_DIR}
+    expire_in: 2 weeks
+  variables:
+    GIT_STRATEGY: fetch
+  script:
+    - echo "Hello Kondal Kolipaka!"
+    - ls
+    - mvn clean install
+    - ls com.espressif.idf.update
+    - ls com.espressif.idf.update/target
+    - mkdir -p ${ARCHIVE_DIR}
+    - mv -v com.espressif.idf.update/target/${ARCHIVE_NAME} ${ARCHIVE_DIR}/
