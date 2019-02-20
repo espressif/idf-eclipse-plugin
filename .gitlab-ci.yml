@@ -35,7 +35,7 @@ build:
     - build
   artifacts:
     paths:
-      - ${ARCHIVE_DIR}
+      - ${ARCHIVE_DIR}/
     expire_in: 2 weeks
   variables:
     GIT_STRATEGY: fetch
@@ -43,7 +43,10 @@ build:
     - echo "Hello Kondal Kolipaka!"
     - ls
     - mvn clean install
-    - ls com.espressif.idf.update
-    - ls com.espressif.idf.update/target
+    - ls releng/com.espressif.idf.update
+    - ls releng/com.espressif.idf.update/target
     - mkdir -p ${ARCHIVE_DIR}
-    - mv -v com.espressif.idf.update/target/${ARCHIVE_NAME} ${ARCHIVE_DIR}/
+    - mv -v releng/com.espressif.idf.update/target/${ARCHIVE_NAME} ${ARCHIVE_DIR}/
+    - ls
+    - ls ${ARCHIVE_DIR}
+  
