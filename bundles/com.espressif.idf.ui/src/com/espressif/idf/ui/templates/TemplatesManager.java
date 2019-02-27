@@ -14,7 +14,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 
 import com.espressif.idf.core.IDFConstants;
-import com.espressif.idf.core.StringUtil;
+import com.espressif.idf.core.util.StringUtil;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>

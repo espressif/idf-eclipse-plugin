@@ -15,10 +15,10 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.swt;visibility:=reexport,
  org.eclipse.ui;visibility:=reexport,
  org.eclipse.jface,
- org.eclipse.pde.ui;bundle-version="3.10.500",
- org.eclipse.pde.ui.templates;bundle-version="3.6.400",
  org.eclipse.cdt.core.native,
- org.eclipse.cdt.core
+ org.eclipse.cdt.core,
+ org.eclipse.ui.forms,
+ org.eclipse.cdt.ui
 Automatic-Module-Name: com.espressif.idf.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11

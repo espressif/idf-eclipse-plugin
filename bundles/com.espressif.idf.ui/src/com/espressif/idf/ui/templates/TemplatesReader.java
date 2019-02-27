@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.Path;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFEnvironmentVariables;
-import com.espressif.idf.core.StringUtil;
+import com.espressif.idf.core.util.StringUtil;
 
 /**
  * IDF Templates/examples reader from the IDF_PATH

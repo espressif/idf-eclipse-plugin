@@ -11,7 +11,6 @@ import java.io.IOException;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.pde.ui.IPluginContentWizard;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
@@ -86,13 +85,13 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 		setDescriptionText(description);
 	}
 
-	@Override
-	public IPluginContentWizard getSelectedWizard()
-	{
-		if (fUseTemplate.getSelection())
-			return super.getSelectedWizard();
-		return null;
-	}
+//	@Override
+//	public IPluginContentWizard getSelectedWizard()
+//	{
+//		if (fUseTemplate.getSelection())
+//			return super.getSelectedWizard();
+//		return null;
+//	}
 
 	@Override
 	public boolean isPageComplete()

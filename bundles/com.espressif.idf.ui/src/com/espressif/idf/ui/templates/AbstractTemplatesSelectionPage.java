@@ -20,7 +20,6 @@ import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.IWizardNode;
 import org.eclipse.jface.wizard.IWizardPage;
-import org.eclipse.pde.ui.IPluginContentWizard;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.GridData;
@@ -28,7 +27,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import com.espressif.idf.core.StringUtil;
+import com.espressif.idf.core.util.StringUtil;
 
 /**
  * IDF Templates selection wizard page
@@ -216,13 +215,13 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 	{
 	}
 
-	public IPluginContentWizard getSelectedWizard()
-	{
-		IWizardNode node = getSelectedNode();
-		if (node != null)
-			return (IPluginContentWizard) node.getWizard();
-		return null;
-	}
+//	public IPluginContentWizard getSelectedWizard()
+//	{
+//		IWizardNode node = getSelectedNode();
+//		if (node != null)
+//			return (IPluginContentWizard) node.getWizard();
+//		return null;
+//	}
 
 	@Override
 	public boolean canFlipToNextPage()

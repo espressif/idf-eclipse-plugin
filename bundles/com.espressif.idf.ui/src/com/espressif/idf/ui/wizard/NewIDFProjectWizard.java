@@ -6,7 +6,6 @@ package com.espressif.idf.ui.wizard;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.pde.internal.ui.PDEUIMessages;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.tools.templates.core.IGenerator;
 import org.eclipse.tools.templates.ui.TemplateWizard;
@@ -65,7 +64,7 @@ public class NewIDFProjectWizard extends TemplateWizard
 		if (!hasTemplates)
 		{
 			templatesPage = new TemplateListSelectionPage(templateRoot,
-					PDEUIMessages.WizardListSelectionPage_templates);
+					Messages.NewIDFProjectWizard_TemplatesHeader);
 			ITemplateNode templateNode = templatesManager.getTemplateNode(IDFConstants.DEFAULT_TEMPLATE_ID);
 			if (templateNode != null)
 			{

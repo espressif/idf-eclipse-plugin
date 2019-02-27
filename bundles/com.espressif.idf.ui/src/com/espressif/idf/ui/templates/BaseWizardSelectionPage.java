@@ -6,7 +6,6 @@ package com.espressif.idf.ui.templates;
 
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.wizard.WizardSelectionPage;
-import org.eclipse.pde.internal.ui.parts.FormBrowser;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
@@ -17,7 +16,6 @@ import org.eclipse.swt.widgets.Control;
  * 
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  */
-@SuppressWarnings("restriction")
 public abstract class BaseWizardSelectionPage extends WizardSelectionPage implements ISelectionChangedListener
 {
 	private String label;
