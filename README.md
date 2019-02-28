@@ -3,9 +3,10 @@
 Eclipse IDE for Espressif IoT Development Framework(IDF)
 
 ## Setting up an Eclipse Development Environment
-1. Download the latest `Eclipse RCP package` which you can find here https://www.eclipse.org/downloads/packages/
-2. Install the `m2eclipse` feature into eclipse from the update site: https://www.eclipse.org/m2e/
-3. Import the plugins, features, and test plugins into your workspace. `File > Import > Maven > Existing Maven Projects`. Select the directory this repo was cloned into.
+1. Download and install `Java SE`(latest Java 11). Here is the download link https://www.oracle.com/technetwork/java/javase/downloads/index.html
+2. Download and install `Eclipse RCP package` (latest Eclipse 2018-12) which you can find here https://www.eclipse.org/downloads/packages/
+3. Install the `m2eclipse` feature into eclipse from the update site: https://www.eclipse.org/m2e/
+4. Import the plugins, features, and test plugins into your workspace. `File > Import > Maven > Existing Maven Projects`. Select the directory this repo was cloned into.
 
 
 ## How to contribute:
@@ -20,14 +21,14 @@ Eclipse IDE for Espressif IoT Development Framework(IDF)
 
 1. Download `Eclipse CDT package` and install it. https://www.eclipse.org/downloads/packages/release/2018-12/r/eclipse-ide-cc-developers
 2. Download the Espressif IDF eclipse `artifacts.zip` file from https://gitlab.espressif.cn:6688/idf/idf-eclipse-plugin/-/jobs/artifacts/master/download?job=build
-2. Extract the above downloaded zip file
-3. Launch Eclipse
-4. Go to `Help` -> `Install New Software`
-5. Click `Add…` button
-5. Select `Achieve` from Add repository dialog and select the file ``com.espressif.idf.update-1.0.0-SNAPSHOT.zip`` from the exacted folder
-7. Click `Add`
-8. Select `Espressif IDF` from the list and proceed with the installation 
-9. Restart the Eclipse
+3. Extract the above downloaded zip file
+4. Launch Eclipse
+5. Go to `Help` -> `Install New Software`
+6. Click `Add…` button
+7. Select `Achieve` from Add repository dialog and select the file ``com.espressif.idf.update-1.0.0-SNAPSHOT.zip`` from the exacted folder
+8. Click `Add`
+9. Select `Espressif IDF` from the list and proceed with the installation 
+10. Restart the Eclipse
 
 
 ## To create a new Project using default esp-idf-template:
@@ -53,4 +54,6 @@ Please follow the instructions from here https://docs.espressif.com/projects/esp
 Please follow the instructions from here https://cdtdoug.ca/2018/07/02/cdt-for-esp32.html
 
 
+## How to raise bugs
+Raise issues directly under espressif JIRA here https://jira.espressif.com:8443/projects/IEP/issues/ with the project name `IDF Eclipse Plugin(IEP)`
 
