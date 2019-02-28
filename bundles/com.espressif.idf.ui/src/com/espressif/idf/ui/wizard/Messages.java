@@ -15,6 +15,7 @@ public class Messages extends NLS {
 	public static String NewIDFProjectWizard_Project_Title;
 	public static String NewIDFProjectWizard_ProjectDesc;
 	public static String NewIDFProjectWizard_TaskName;
+	public static String NewIDFProjectWizard_TemplatesHeader;
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

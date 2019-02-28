@@ -4,16 +4,18 @@
  *******************************************************************************/
 package com.espressif.idf.ui.wizard;
 
-import org.eclipse.cdt.cmake.core.CMakeProjectGenerator;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.tools.templates.core.IGenerator;
 import org.eclipse.tools.templates.ui.TemplateWizard;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
-import org.osgi.framework.Bundle;
 
-import com.espressif.idf.ui.UIPlugin;
+import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.ui.templates.IDFProjectGenerator;
+import com.espressif.idf.ui.templates.ITemplateNode;
+import com.espressif.idf.ui.templates.TemplateListSelectionPage;
+import com.espressif.idf.ui.templates.TemplatesManager;
 
 /**
  * Creates a wizard for creating a new IDF project resource in the workspace.
@@ -24,7 +26,8 @@ import com.espressif.idf.ui.UIPlugin;
 public class NewIDFProjectWizard extends TemplateWizard
 {
 
-	private WizardNewProjectCreationPage page;
+	private WizardNewProjectCreationPage mainPage;
+	private TemplateListSelectionPage templatesPage;
 
 	public NewIDFProjectWizard()
 	{
@@ -42,7 +45,7 @@ public class NewIDFProjectWizard extends TemplateWizard
 	{
 		super.addPages();
 
-		page = new WizardNewProjectCreationPage("basicNewProjectPage") //$NON-NLS-1$
+		mainPage = new WizardNewProjectCreationPage("basicNewProjectPage") //$NON-NLS-1$
 		{
 			@Override
 			public void createControl(Composite parent)
@@ -51,28 +54,54 @@ public class NewIDFProjectWizard extends TemplateWizard
 				Dialog.applyDialogFont(getControl());
 			}
 		};
-		page.setTitle(Messages.NewIDFProjectWizard_Project_Title);
-		page.setDescription(Messages.NewIDFProjectWizard_ProjectDesc);
-		this.addPage(page);
+		mainPage.setTitle(Messages.NewIDFProjectWizard_Project_Title);
+		mainPage.setDescription(Messages.NewIDFProjectWizard_ProjectDesc);
+
+		TemplatesManager templatesManager = new TemplatesManager();
+		ITemplateNode templateRoot = templatesManager.getTemplates();
+
+		boolean hasTemplates = templateRoot.getChildren().isEmpty();
+		if (!hasTemplates)
+		{
+			templatesPage = new TemplateListSelectionPage(templateRoot,
+					Messages.NewIDFProjectWizard_TemplatesHeader);
+			ITemplateNode templateNode = templatesManager.getTemplateNode(IDFConstants.DEFAULT_TEMPLATE_ID);
+			if (templateNode != null)
+			{
+				templatesPage.setInitialTemplateId(templateNode);
+			}
+		}
+
+		this.addPage(mainPage);
+
+		// Add templates page only if templates are available
+		if (!hasTemplates)
+		{
+			this.addPage(templatesPage);
+		}
 
 	}
 
 	@Override
-	protected IGenerator getGenerator() {
-		CMakeProjectGenerator generator = new CMakeProjectGenerator("templates/esp-idf-template/manifest.xml") //$NON-NLS-1$
+	protected IGenerator getGenerator()
+	{
+
+		String manifest = IDFConstants.IDF_TEMPLATE_MANIFEST_PATH;
+		ITemplateNode selectedNode = null;
+		if (templatesPage != null && templatesPage.getSelection() != null)
 		{
-			@Override
-			public Bundle getSourceBundle() {
-				return UIPlugin.getDefault().getBundle();
-			}
-		};
-		generator.setProjectName(page.getProjectName());
-		if (!page.useDefaults()) {
-			generator.setLocationURI(page.getLocationURI());
-			
+			selectedNode = templatesPage.getSelection();
+			manifest = null;
+		}
+
+		IDFProjectGenerator generator = new IDFProjectGenerator(manifest, selectedNode);
+		generator.setProjectName(mainPage.getProjectName());
+		if (!mainPage.useDefaults())
+		{
+			generator.setLocationURI(mainPage.getLocationURI());
+
 		}
 		return generator;
 	}
-	
 
 }
