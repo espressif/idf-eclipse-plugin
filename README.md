@@ -2,8 +2,8 @@
 
 Eclipse IDE for Espressif IoT Development Framework(IDF)
 
-## Setting up an Eclipse Development Environment
-1. Download and install `Java SE`(latest Java 11). Here is the download link https://www.oracle.com/technetwork/java/javase/downloads/index.html
+## Setting up an Eclipse Development Environment:
+1. Download and install `Java SE 11`(latest Java 11). Here is the download link https://www.oracle.com/technetwork/java/javase/downloads/index.html
 2. Download and install `Eclipse RCP package` (latest Eclipse 2018-12) which you can find here https://www.eclipse.org/downloads/packages/
 3. Install the `m2eclipse` feature into eclipse from the update site: https://www.eclipse.org/m2e/
 4. Import the plugins, features, and test plugins into your workspace. `File > Import > Maven > Existing Maven Projects`. Select the directory this repo was cloned into.
@@ -32,18 +32,20 @@ Eclipse IDE for Espressif IoT Development Framework(IDF)
 
 
 ## To create a new Project using default esp-idf-template:
-1. Go to `File` Menu > `Espressif IDF Project`
-2. Provide the project Name
-3. Click `Finish`
+1. Make sure you're in C/C++ perspective.
+2. Go to `File` > `New` > `Espressif IDF Project` (If you don't see this, please reset the perspective from `Window` > `Perspective` > `Reset Perspective..`)
+3. Provide the project Name
+4. Click `Finish`
 
 
 ## To create a new project using idf examples/templates:
-1. Go to `File` Menu > `Espressif IDF Project`
-2. Provide the project Name
-3. Click `Next`
-4. Check `Create a project using one of the templates`
-5. Select the required template from the tree
-6. Click `Finish`
+1. Make sure you're in C/C++ perspective.
+2. Go to `File` > `New` > `Espressif IDF Project` (If you don't see this, please reset the perspective from `Window` > `Perspective` > `Reset Perspective..`)
+3. Provide the project Name
+4. Click `Next`
+5. Check `Create a project using one of the templates`
+6. Select the required template from the tree
+7. Click `Finish`
 
 ## Building the IDF projects
 
