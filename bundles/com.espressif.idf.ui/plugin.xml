@@ -28,5 +28,19 @@
          </newWizardShortcut>
       </perspectiveExtension>
    </extension>
+   <extension
+         point="org.eclipse.ui.importWizards">
+      <category
+            id="com.espressif.idf.ui.category.import"
+            name="%category.name.0">
+      </category>
+      <wizard
+            category="com.espressif.idf.ui.category.import"
+            class="com.espressif.idf.ui.wizard.ImportIDFProjectWizard"
+            icon="icons/espressif.png"
+            id="com.espressif.idf.ui.wizard.import.idf"
+            name="%wizard.name.0">
+      </wizard>
+   </extension>
 
 </plugin>

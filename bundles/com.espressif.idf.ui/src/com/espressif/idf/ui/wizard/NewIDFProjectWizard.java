@@ -4,6 +4,8 @@
  *******************************************************************************/
 package com.espressif.idf.ui.wizard;
 
+import java.io.File;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.swt.widgets.Composite;
@@ -87,14 +89,14 @@ public class NewIDFProjectWizard extends TemplateWizard
 	{
 
 		String manifest = IDFConstants.IDF_TEMPLATE_MANIFEST_PATH;
-		ITemplateNode selectedNode = null;
+		File selectedTemplate = null;
 		if (templatesPage != null && templatesPage.getSelection() != null)
 		{
-			selectedNode = templatesPage.getSelection();
+			selectedTemplate = templatesPage.getSelection().getFilePath();
 			manifest = null;
 		}
 
-		IDFProjectGenerator generator = new IDFProjectGenerator(manifest, selectedNode);
+		IDFProjectGenerator generator = new IDFProjectGenerator(manifest, selectedTemplate);
 		generator.setProjectName(mainPage.getProjectName());
 		if (!mainPage.useDefaults())
 		{

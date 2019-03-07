@@ -26,28 +26,25 @@ import com.espressif.idf.ui.UIPlugin;
 public class IDFProjectGenerator extends CMakeProjectGenerator
 {
 
-	private ITemplateNode selectedNode;
+	private File sourceTemplatePath;
 
-	public IDFProjectGenerator(String manifestFile, ITemplateNode selectedNode)
+	public IDFProjectGenerator(String manifestFile, File source)
 	{
 		super(manifestFile);
-		this.selectedNode = selectedNode;
+		this.sourceTemplatePath = source;
 	}
 
 	@Override
 	public void generate(Map<String, Object> model, IProgressMonitor monitor) throws CoreException
 	{
 		super.generate(model, monitor);
-		if (selectedNode == null)
+		if (sourceTemplatePath == null)
 		{
 			return; // let's go with the default generate
 		}
 
 		// Target project
 		IProject project = getProject();
-
-		// source project template path
-		File sourceTemplatePath = selectedNode.getFilePath();
 
 		// copy IDF template resources
 		try

@@ -12,6 +12,17 @@ import org.eclipse.osgi.util.NLS;
  */
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "com.espressif.idf.ui.wizard.messages"; //$NON-NLS-1$
+	public static String ImportIDFProjectWizard_0;
+	public static String ImportIDFProjectWizardPage_0;
+	public static String ImportIDFProjectWizardPage_1;
+	public static String ImportIDFProjectWizardPage_2;
+	public static String ImportIDFProjectWizardPage_3;
+	public static String ImportIDFProjectWizardPage_4;
+	public static String ImportIDFProjectWizardPage_5;
+	public static String ImportIDFProjectWizardPage_6;
+	public static String ImportIDFProjectWizardPage_7;
+	public static String ImportIDFProjectWizardPage_8;
+	public static String ImportIDFProjectWizardPage_9;
 	public static String NewIDFProjectWizard_Project_Title;
 	public static String NewIDFProjectWizard_ProjectDesc;
 	public static String NewIDFProjectWizard_TaskName;
