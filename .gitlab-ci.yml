@@ -42,7 +42,7 @@ build:
   script:
     - echo "Hello Kondal Kolipaka!"
     - ls
-    - mvn clean install
+    - mvn clean install -Djarsigner.keystore=${JARSIGNER_KEYSTORE} -Djarsigner.alias=${JARSIGNER_ALIAS} -Djarsigner.storepass=${JARSIGNER_STOREPASS}
     - ls releng/com.espressif.idf.update
     - ls releng/com.espressif.idf.update/target
     - mkdir -p ${ARCHIVE_DIR}
