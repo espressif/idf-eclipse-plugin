@@ -96,7 +96,7 @@
 				<version>3.0.0</version>
 				<configuration>
 					<keystore>${jarsigner.keystore}</keystore>
-					<alias>${jarsigner.alias}}</alias>
+					<alias>${jarsigner.alias}</alias>
 					<storepass>${jarsigner.storepass}</storepass>
 					<storetype>pkcs12</storetype>
 					<verbose>true</verbose>
