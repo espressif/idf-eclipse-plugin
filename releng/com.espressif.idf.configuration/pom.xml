@@ -88,7 +88,29 @@
 					<jgit.dirtyWorkingTree>ignore</jgit.dirtyWorkingTree>
 				</configuration>
 			</plugin>
+
+			<!-- Sign the JARs -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jarsigner-plugin</artifactId>
+				<version>3.0.0</version>
+				<configuration>
+					<keystore>${jarsigner.keystore}</keystore>
+					<alias>${jarsigner.alias}</alias>
+					<storepass>${jarsigner.storepass}</storepass>
+					<storetype>pkcs12</storetype>
+					<verbose>true</verbose>
+					<certs>true</certs>
+				</configuration>
+				<executions>
+					<execution>
+						<id>sign</id>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
-
 </project>

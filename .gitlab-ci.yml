@@ -41,12 +41,14 @@ build:
     GIT_STRATEGY: fetch
   script:
     - echo "Hello Kondal Kolipaka!"
+    - CERT_FILE="${PWD}/${JARSIGNER_KEYSTORE}"
+    - printf "%s" "${JARSIGNER_KEY_B64}" | base64 -d --ignore-garbage - > "${CERT_FILE}"
     - ls
-    - mvn clean install
+    - mvn -e -X clean install -Djarsigner.keystore="${CERT_FILE}" -Djarsigner.alias="${JARSIGNER_ALIAS}" -Djarsigner.storepass="${JARSIGNER_STOREPASS}"
+    - rm -v "${CERT_FILE}"
     - ls releng/com.espressif.idf.update
     - ls releng/com.espressif.idf.update/target
     - mkdir -p ${ARCHIVE_DIR}
     - mv -v releng/com.espressif.idf.update/target/${ARCHIVE_NAME} ${ARCHIVE_DIR}/
     - ls
     - ls ${ARCHIVE_DIR}
-  
