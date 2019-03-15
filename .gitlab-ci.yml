@@ -8,12 +8,15 @@ image: ${CI_DOCKER_REGISTRY}/esp32-ci-env
 
 variables:
   ARCHIVE_DIR: "dist"
-  ARCHIVE_NAME: "com.espressif.idf.update-1.0.0-SNAPSHOT.zip"
+  ORIGIN_NAME: "com.espressif.idf.update-1.0.0-SNAPSHOT.zip"
 
 before_script:
   # Use CI Tools
   - curl -sSL ${CIT_LOADER_URL} | sh
   - source citools/import_functions
+  # Use an unique name for the archive
+  - UNIQ_SUFFIX="g$(git describe --always --tags --dirty --abbrev=8)"
+  - ARCHIVE_NAME=${ORIGIN_NAME/SNAPSHOT/$UNIQ_SUFFIX}
 
 .add_gh_remote_key: &add_gh_remote_key |
   cit_add_ssh_key "${GH_SSH_KEY}"
@@ -49,6 +52,6 @@ build:
     - ls releng/com.espressif.idf.update
     - ls releng/com.espressif.idf.update/target
     - mkdir -p ${ARCHIVE_DIR}
-    - mv -v releng/com.espressif.idf.update/target/${ARCHIVE_NAME} ${ARCHIVE_DIR}/
+    - mv -v releng/com.espressif.idf.update/target/${ORIGIN_NAME} ${ARCHIVE_DIR}/${ARCHIVE_NAME}
     - ls
     - ls ${ARCHIVE_DIR}
