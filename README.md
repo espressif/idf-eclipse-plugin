@@ -111,6 +111,17 @@ Next we need to tell CDT to use the toolchain for our project. This is accomplis
 
 **ADDITIONAL NOTE:**  When everything configured correctly as specified above - you will see that `cmake.run.esp32.xtensa` folder is created under the project build folder, this is where the application build articats will be generated. 
 
+## Configuring the Launch Terminal
+To see what program does we need to configure eclipse terminal to connect the serial port.
+
+* Click on the "Open a Terminal" icon from the toolbar
+* Choose `Serial Terminal` from the terminal drop-down
+* Select `Serial Port` for your board. Example: /dev/cu.SLAB_USBtoUART and configure the remaining settings
+* Click on Ok to launch the eclipse terminal and which will listen the USB port
+
+**ADDITIONAL NOTE:** This won't display anything immediately until the application is flashed to the board. 
+
+
 
 
 ## How to raise bugs
