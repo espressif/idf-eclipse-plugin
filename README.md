@@ -1,6 +1,6 @@
 # idf-eclipse-plugin
 
-Eclipse IDE for Espressif IoT Development Framework(IDF)
+Eclipse Plugins for Espressif IoT Development Framework(IDF)
 
 # Contribution Guide
 
@@ -10,6 +10,7 @@ Eclipse IDE for Espressif IoT Development Framework(IDF)
 * Install the `m2eclipse` feature into eclipse from the update site: https://www.eclipse.org/m2e/
 * Import the plugins, features, and test plugins into your workspace. `File > Import > Maven > Existing Maven Projects`. Select the directory this repo was cloned into.
 
+![](images/1_espressif_idffeature_install.png)
 
 ## How to contribute:
 * Fork this repo https://gitlab.espressif.cn:6688/idf/idf-eclipse-plugin
@@ -36,7 +37,7 @@ Eclipse IDE for Espressif IoT Development Framework(IDF)
 
 # Configuring Environment Variables:
 * Click on the `Environment` preference page under `C/C++ Build`. 
-* Click “Add…” and enter name `BATCH_BUILD` and value 1.
+* Click “Add…” and enter name `BATCH_BUILD` and value `1`.
 * Click “Add…” again, and enter name `IDF_PATH`. The value should be the full path where ESP-IDF is installed. Windows users can copy the IDF_PATH from windows explorer.
 * Edit the `PATH` environment variable. Keep the current value, and append the path to the Xtensa toolchain installed as part of IDF setup, if this is not already listed on the PATH. A typical path to the toolchain looks like `/home/user-name/esp/xtensa-esp32-elf/bin`. Note that you need to add a colon : before the appended path. Windows users will need to prepend `C:\msys32\mingw32\bin;C:\msys32\opt\xtensa-esp32-elf\bin;C:\msys32\usr\bin` to PATH environment variable (If you installed msys32 to a different directory then you’ll need to change these paths to match).
 
