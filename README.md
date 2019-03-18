@@ -116,10 +116,25 @@ To see what program does we need to configure eclipse terminal to connect the se
 
 * Click on the "Open a Terminal" icon from the toolbar
 * Choose `Serial Terminal` from the terminal drop-down
-* Select `Serial Port` for your board. Example: /dev/cu.SLAB_USBtoUART and configure the remaining settings
-* Click on Ok to launch the eclipse terminal and which will listen the USB port
+* Select `Serial Port` for your board. Example: /dev/cu.SLAB_USBtoUART
+* And, configure the remaining settings and click on Ok to launch the eclipse terminal and which will listen the USB port
 
 **ADDITIONAL NOTE:** This won't display anything immediately until the application is flashed to the board. 
+
+## Flashing the Application
+ESP-IDF has a tool called "idf.py" which is a wrapper around make flash command with some handy operations. Follow the below instructions to hook the idf.py to the launch configuration
+
+* Click on the `Launch Configuration` edit button
+* Switch to the `Main` tab
+* Specify the `Location` where this application has to run on. Since idf.py is a python file, will configure the python system path. Example:{system_path:python}
+* Specify `Working directory` of the application. Example: `${workspace_loc:/hello_world}`
+* In additional arguments, provide a flashing command which will run in the specified working directory
+* Flash command looks like this: `/Users/kondal/esp/esp-idf/tools/idf.py -p /dev/cu.SLAB_USBtoUART flash`
+* Click OK to save the settings
+* Click on the `Launch` icon to flash the application to the selected board 
+
+**ADDITIONAL NOTE:** Launch configuration has issues in accessing eclipse C/C++ environment variables, hence we need to define PATH again in the Lauch configuration `Environment` tab to get the access to the CMake command.
+
 
 
 
