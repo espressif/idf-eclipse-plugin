@@ -12,7 +12,7 @@ Eclipse IDE for Espressif IoT Development Framework(IDF)
 
 
 ## How to contribute:
-* Fork this repo 
+* Fork this repo https://gitlab.espressif.cn:6688/idf/idf-eclipse-plugin
 * Ensure you’ve installed Maven locally https://www.vogella.com/tutorials/ApacheMaven/article.html#maven_installation 
 * Make changes locally on your fork
 * Test with Maven Tycho using `$ mvn clean verify`
@@ -80,8 +80,8 @@ Eclipse IDE for Espressif IoT Development Framework(IDF)
 * Click on `Next>`
 * Provide the GCC Toolchain Settings:
 
-**Compiler:** /Users/kondal/esp/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc
-**Operating System:** esp32
+**Compiler:** /Users/kondal/esp/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc,
+**Operating System:** esp32,
 **CPU Architecture:** xtensa
 
 ## Configuring CMake Toolchain
@@ -90,9 +90,9 @@ We now need to tell CDT which toolchain to use when building the project. This w
 * Navigate to “C/C++  -> “CMake” preference page
 * Click `Add..` and this will launch the New CMake Toolchain configuration dialog
 * Browse CMake toolchain `Path`. Example: `/Users/kondal/esp/esp-idf/tools/cmake/toolchain-esp32.cmake`
-* Select GCC Xtensa Toolchain compiler from the drop-down list. example: `esp32 xtensa /Users/kondal/esp/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc`
+* Select GCC Xtensa Toolchain compiler from the drop-down list. Example: `esp32 xtensa /Users/kondal/esp/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc`
 
-**ADDITIONAL NOTE:**  Eclipse CDT has a bug in saving the toolchain preferences, hence it's recommenmded to restart the Eclipse before we move further configuring the launch target.
+**NOTE:**  Eclipse CDT has a bug in saving the toolchain preferences, hence it's recommenmded to restart the Eclipse before we move further configuring the launch target.
 
 ## Configuring Launch target
 Next we need to tell CDT to use the toolchain for our project. This is accomplished through the Launch Bar, the new widget set you see on the far left of the toolbar. And this will be shown only when you've a project in the project explorer.
@@ -109,7 +109,7 @@ Next we need to tell CDT to use the toolchain for our project. This is accomplis
 * Select target from the third drop-down, which is called `Launch Target`
 * Now click on the `Build` button widget which you see on the far left of the toolbar
 
-**ADDITIONAL NOTE:**  When everything configured correctly as specified above - you will see that `cmake.run.esp32.xtensa` folder is created under the project build folder, this is where the application build articats will be generated. 
+**NOTE:**  When everything configured correctly as specified above - you will see that `cmake.run.esp32.xtensa` folder is created under the project build folder, this is where the application build articats will be generated. 
 
 ## Configuring the Launch Terminal
 To see what program does we need to configure eclipse terminal to connect the serial port.
@@ -119,7 +119,7 @@ To see what program does we need to configure eclipse terminal to connect the se
 * Select `Serial Port` for your board. Example: /dev/cu.SLAB_USBtoUART
 * And, configure the remaining settings and click on Ok to launch the eclipse terminal and which will listen the USB port
 
-**ADDITIONAL NOTE:** This won't display anything immediately until the application is flashed on to the board. 
+**NOTE:** This won't display anything immediately until the application is flashed on to the board. 
 
 ## Flashing the Application
 ESP-IDF has a tool called "idf.py" which is a wrapper around make flash command with some handy operations. Follow the below instructions to hook the idf.py to the launch configuration
@@ -133,7 +133,7 @@ ESP-IDF has a tool called "idf.py" which is a wrapper around make flash command 
 * Click OK to save the settings
 * Click on the `Launch` icon to flash the application to the selected board 
 
-**ADDITIONAL NOTE:** Eclipse CDT Launch configuration has issues in accessing eclipse C/C++ environment variables, hence we need to define `PATH` again in the Lauch configuration `Environment` tab to get the access to the CMake command during the build.
+**NOTE:** Eclipse CDT Launch configuration has issues in accessing eclipse C/C++ environment variables, hence we need to define `PATH` again in the Lauch configuration `Environment` tab to get the access to the CMake command during the build.
 
 
 
