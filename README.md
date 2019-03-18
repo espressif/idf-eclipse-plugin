@@ -30,6 +30,8 @@ Eclipse IDE for Espressif IoT Development Framework(IDF)
 9. Select `Espressif IDF` from the list and proceed with the installation 
 10. Restart the Eclipse
 
+
+
 ## Configuring Environment Variables:
 * Click on the `Environment` preference page under `C/C++ Build`. 
 * Click “Add…” and enter name `BATCH_BUILD` and value 1.
@@ -115,7 +117,7 @@ To see what program does we need to configure eclipse terminal to connect the se
 * Select `Serial Port` for your board. Example: /dev/cu.SLAB_USBtoUART
 * And, configure the remaining settings and click on Ok to launch the eclipse terminal and which will listen the USB port
 
-**ADDITIONAL NOTE:** This won't display anything immediately until the application is flashed to the board. 
+**ADDITIONAL NOTE:** This won't display anything immediately until the application is flashed on to the board. 
 
 ## Flashing the Application
 ESP-IDF has a tool called "idf.py" which is a wrapper around make flash command with some handy operations. Follow the below instructions to hook the idf.py to the launch configuration
