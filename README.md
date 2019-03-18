@@ -2,72 +2,74 @@
 
 Eclipse IDE for Espressif IoT Development Framework(IDF)
 
+# Contribution Guide
+
 ## Setting up an Eclipse Development Environment:
-1. Download and install `Java SE 11`(latest Java 11). Here is the download link https://www.oracle.com/technetwork/java/javase/downloads/index.html
-2. Download and install `Eclipse RCP package` (latest Eclipse 2018-12) which you can find here https://www.eclipse.org/downloads/packages/
-3. Install the `m2eclipse` feature into eclipse from the update site: https://www.eclipse.org/m2e/
-4. Import the plugins, features, and test plugins into your workspace. `File > Import > Maven > Existing Maven Projects`. Select the directory this repo was cloned into.
+* Download and install `Java SE 11`(latest Java 11). Here is the download link https://www.oracle.com/technetwork/java/javase/downloads/index.html
+* Download and install `Eclipse RCP package` (latest Eclipse 2018-12) which you can find here https://www.eclipse.org/downloads/packages/
+* Install the `m2eclipse` feature into eclipse from the update site: https://www.eclipse.org/m2e/
+* Import the plugins, features, and test plugins into your workspace. `File > Import > Maven > Existing Maven Projects`. Select the directory this repo was cloned into.
 
 
 ## How to contribute:
-1. Fork this repo 
-2. Ensure you’ve installed Maven locally https://www.vogella.com/tutorials/ApacheMaven/article.html#maven_installation 
-3. Make changes locally on your fork
-4. Test with Maven Tycho using `$ mvn clean verify`
-5. Submit a Merge Request(MR)
+* Fork this repo 
+* Ensure you’ve installed Maven locally https://www.vogella.com/tutorials/ApacheMaven/article.html#maven_installation 
+* Make changes locally on your fork
+* Test with Maven Tycho using `$ mvn clean verify`
+* Submit a Merge Request(MR)
 
 
-## Download and Installation:
+# Getting started with the Eclipse IDF Plugins:
 
-1. Download `Eclipse CDT package` and install it. https://www.eclipse.org/downloads/packages/release/2018-12/r/eclipse-ide-cc-developers
-2. Download the Espressif IDF eclipse `artifacts.zip` file from https://gitlab.espressif.cn:6688/idf/idf-eclipse-plugin/-/jobs/artifacts/master/download?job=build
-3. Extract the above downloaded zip file
-4. Launch Eclipse
-5. Go to `Help` -> `Install New Software`
-6. Click `Add…` button
-7. Select `Achieve` from Add repository dialog and select the file ``com.espressif.idf.update-1.0.0-SNAPSHOT.zip`` from the exacted folder
-8. Click `Add`
-9. Select `Espressif IDF` from the list and proceed with the installation 
-10. Restart the Eclipse
+* Download `Eclipse CDT package` and install it. https://www.eclipse.org/downloads/packages/release/2018-12/r/eclipse-ide-cc-developers
+* Download the Espressif IDF eclipse `artifacts.zip` file from https://gitlab.espressif.cn:6688/idf/idf-eclipse-plugin/-/jobs/artifacts/master/download?job=build
+* Extract the above downloaded zip file
+* Launch Eclipse
+* Go to `Help` -> `Install New Software`
+* Click `Add…` button
+* Select `Achieve` from Add repository dialog and select the file ``com.espressif.idf.update-1.0.0-SNAPSHOT.zip`` from the exacted folder
+* Click `Add`
+* Select `Espressif IDF` from the list and proceed with the installation 
+* Restart the Eclipse
 
 
 
-## Configuring Environment Variables:
+# Configuring Environment Variables:
 * Click on the `Environment` preference page under `C/C++ Build`. 
 * Click “Add…” and enter name `BATCH_BUILD` and value 1.
 * Click “Add…” again, and enter name `IDF_PATH`. The value should be the full path where ESP-IDF is installed. Windows users can copy the IDF_PATH from windows explorer.
 * Edit the `PATH` environment variable. Keep the current value, and append the path to the Xtensa toolchain installed as part of IDF setup, if this is not already listed on the PATH. A typical path to the toolchain looks like `/home/user-name/esp/xtensa-esp32-elf/bin`. Note that you need to add a colon : before the appended path. Windows users will need to prepend `C:\msys32\mingw32\bin;C:\msys32\opt\xtensa-esp32-elf\bin;C:\msys32\usr\bin` to PATH environment variable (If you installed msys32 to a different directory then you’ll need to change these paths to match).
 
-## CMake IDF Project
+# CMake IDF Project
 
-# To create a new Project using default esp-idf-template:
-1. Make sure you're in C/C++ perspective.
-2. Go to `File` > `New` > `Espressif IDF Project` (If you don't see this, please reset the perspective from `Window` > `Perspective` > `Reset Perspective..`)
-3. Provide the project Name
-4. Click `Finish`
-
-
-# To create a new project using idf examples/templates:
-1. Make sure you're in C/C++ perspective.
-2. Go to `File` > `New` > `Espressif IDF Project` (If you don't see this, please reset the perspective from `Window` > `Perspective` > `Reset Perspective..`)
-3. Provide the project Name
-4. Click `Next`
-5. Check `Create a project using one of the templates`
-6. Select the required template from the tree
-7. Click `Finish`
-
-#  Import an existing IDF Project
-1. Make sure you're in `C/C++ Perspective`.
-2. Right click on the Project Explorer
-3. Select `Import..` Menu
-4. Select `Existing IDF Project` from `Espressif` import wizard menu list
-5. Click `Next`
-6. Click on `Browse...` to choose an existing project location directory
-7. Provide project name if you wish you have a different name
-8. Click `Finish` to import the selected project into eclipse workspace as a CMake project
+## To create a new Project using default esp-idf-template:
+* Make sure you're in C/C++ perspective.
+* Go to `File` > `New` > `Espressif IDF Project` (If you don't see this, please reset the perspective from `Window` > `Perspective` > `Reset Perspective..`)
+* Provide the project Name
+* Click `Finish`
 
 
-## Building the IDF projects
+## To create a new project using idf examples/templates:
+* Make sure you're in C/C++ perspective.
+* Go to `File` > `New` > `Espressif IDF Project` (If you don't see this, please reset the perspective from `Window` > `Perspective` > `Reset Perspective..`)
+* Provide the project Name
+* Click `Next`
+* Check `Create a project using one of the templates`
+* Select the required template from the tree
+* Click `Finish`
+
+##  Import an existing IDF Project
+* Make sure you're in `C/C++ Perspective`.
+* Right click on the Project Explorer
+* Select `Import..` Menu
+* Select `Existing IDF Project` from `Espressif` import wizard menu list
+* Click `Next`
+* Click on `Browse...` to choose an existing project location directory
+* Provide project name if you wish you have a different name
+* Click `Finish` to import the selected project into eclipse workspace as a CMake project
+
+
+# Building the IDF projects
 
 ## Configuring Core Build Toolchains
 
