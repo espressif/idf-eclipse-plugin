@@ -30,15 +30,24 @@ Eclipse IDE for Espressif IoT Development Framework(IDF)
 9. Select `Espressif IDF` from the list and proceed with the installation 
 10. Restart the Eclipse
 
+## Configuring Environment Variables:
+* Click on the “Environment” properties page under “C/C++ Build”. Click “Add…” and enter name `BATCH_BUILD` and value 1.
+* Click “Add…” again, and enter name `IDF_PATH`. The value should be the full path where ESP-IDF is installed. Windows users can copy the IDF_PATH from windows explorer.
+* Edit the `PATH` environment variable. Keep the current value, and append the path to the Xtensa toolchain installed as part of IDF setup, if this is not already listed on the PATH. A typical path to the toolchain looks like `/home/user-name/esp/xtensa-esp32-elf/bin`. Note that you need to add a colon : before the appended path. Windows users will need to prepend `C:\msys32\mingw32\bin;C:\msys32\opt\xtensa-esp32-elf\bin;C:\msys32\usr\bin` to PATH environment variable (If you installed msys32 to a different directory then you’ll need to change these paths to match).
+* On macOS, add a PYTHONPATH environment variable and set it to /Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages. This is so that the system Python, which has pyserial installed as part of the setup steps, overrides any built-in Eclipse Python.
 
-## To create a new Project using default esp-idf-template:
+**ADDITIONAL NOTE:** If either the IDF_PATH directory or the project directory is located outside C:\msys32\home directory, you will have to give custom build command in C/C++ Build properties as: python ${IDF_PATH}/tools/windows/eclipse_make.py (Please note that the build time may get significantly increased by this method.) 
+
+## CMake IDF Project
+
+# To create a new Project using default esp-idf-template:
 1. Make sure you're in C/C++ perspective.
 2. Go to `File` > `New` > `Espressif IDF Project` (If you don't see this, please reset the perspective from `Window` > `Perspective` > `Reset Perspective..`)
 3. Provide the project Name
 4. Click `Finish`
 
 
-## To create a new project using idf examples/templates:
+# To create a new project using idf examples/templates:
 1. Make sure you're in C/C++ perspective.
 2. Go to `File` > `New` > `Espressif IDF Project` (If you don't see this, please reset the perspective from `Window` > `Perspective` > `Reset Perspective..`)
 3. Provide the project Name
@@ -47,13 +56,61 @@ Eclipse IDE for Espressif IoT Development Framework(IDF)
 6. Select the required template from the tree
 7. Click `Finish`
 
+#  Import an existing IDF Project
+1. Make sure you're in `C/C++ Perspective`.
+2. Right click on the Project Explorer
+3. Select `Import..` Menu
+4. Select `Existing IDF Project` from `Espressif` import wizard menu list
+5. Click `Next`
+6. Click on `Browse...` to choose an existing project location directory
+7. Provide project name if you wish you have a different name
+8. Click `Finish` to import the selected project into eclipse workspace as a CMake project
+
+
 ## Building the IDF projects
 
-### Tools setup and infrastructure:
-Please follow the instructions from here https://docs.espressif.com/projects/esp-idf/en/latest/get-started-cmake/index.html
+## Configuring Core Build Toolchains
 
-### Configuring Eclipse for CMake IDF projects
-Please follow the instructions from here https://cdtdoug.ca/2018/07/02/cdt-for-esp32.html
+* Open Eclipse Preferences
+* Navigate to “C/C++  -> “Core Build Toolchains” preference page
+* Click on `Add..` from the User defined Toolchians tables
+* Select `GCC` as a toolchain type
+* Click on `Next>`
+* Provide the GCC Toolchain Settings:
+
+**Compiler:** /Users/kondal/esp/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc
+**Operating System:** esp32
+**CPU Architecture:** xtensa
+
+## Configuring CMake Toolchain
+We now need to tell CDT which toolchain to use when building the project. This will pass the required arguments to CMake when generating the Ninja files.
+
+In the Preferences, select C/C++ and then CMake to see the list of toolchain files CDT will use with CMake. Click Add. Each CMake toolchain file is associated with a toolchain. Since we have the xtensa toolchain in our PATH, CDT will auto discover it and it will appear in the dropdown. Also enter the location of the esp-idf toolchain file which is in the esp-idf repo under tools/cmake/toolchain-esp32.cmake.
+
+* Navigate to “C/C++  -> “CMake” preference page
+* Click `Add..` and this will launch the New CMake Toolchain configuration dialog
+* Browse CMake toolchain `Path`. Example: `/Users/kondal/esp/esp-idf/tools/cmake/toolchain-esp32.cmake`
+* Select GCC Xtensa Toolchain compiler from the drop-down list. example: `esp32 xtensa /Users/kondal/esp/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc`
+
+**ADDITIONAL NOTE:**  Eclipse need to be restared before we move further configuring the launch target for your application.
+
+## Configuring Launch target
+Next we need to tell CDT to use the toolchain for our project. This is accomplished through the Launch Bar, the new widget set you see on the far left of the toolbar. And this will be shown only when you've a project in the project explorer.
+
+* Click on the third dropdown 
+* Select `New Launch Target`
+* Select `Serial Flash Target`
+* Provide properties for the target where you would like to launch the application. Enter a name for the target, “esp32” as the operating system, “xtensa” as the CPU architecture, and select the serial port your ESP32 device is connected to on your machine. The OS and architecture need to match the settings for the toolchain. You can see those settings in the Preferences by selecting C/C++ and Core Build Toolchains. For GCC toolchains, CDT autodetects those settings by asking GCC for it’s target triple.
+
+## Building the Application
+* Select a project from the Project Explorer
+* Select `Run` from the first drop-down, which is called `Launch Mode`
+* Select your applicaton from the second drop-down, which is called `Launch Configuration`
+* Select target from the third drop-down, which is called `Launch Target`
+* Now click on the `Build` button widget which you see on the far left of the toolbar
+
+**ADDITIONAL NOTE:**  When everything configured correctly as specified above - you will see that `cmake.run.esp32.xtensa` folder is created under the project build folder, this is where the application build articats will be generated. 
+
 
 
 ## How to raise bugs
