@@ -129,7 +129,7 @@ ESP-IDF has a tool called "idf.py" which is a wrapper around make flash command 
 * Click OK to save the settings
 * Click on the `Launch` icon to flash the application to the selected board 
 
-**ADDITIONAL NOTE:** Launch configuration has issues in accessing eclipse C/C++ environment variables, hence we need to define PATH again in the Lauch configuration `Environment` tab to get the access to the CMake command.
+**ADDITIONAL NOTE:** Eclipse CDT Launch configuration has issues in accessing eclipse C/C++ environment variables, hence we need to define `PATH` again in the Lauch configuration `Environment` tab to get the access to the CMake command during the build.
 
 
 
