@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            delegate="com.espressif.idf.launch.serial.internal.SerialFlashLaunchConfigDelegate"
+            id="com.espressif.idf.launch.serial.launchConfigurationType"
+            modes="run"
+            name="ESP32 Application">
+      </launchConfigurationType>
+   </extension>
+   <extension
+         point="org.eclipse.launchbar.core.launchTargetTypes">
+      <launchTargetType
+            id="com.espressif.idf.launch.serial.core.serialFlashTarget"
+            provider="com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider">
+      </launchTargetType>
+   </extension>
+   <extension
+         point="org.eclipse.launchbar.core.launchBarContributions">
+      <configProvider
+            class="com.espressif.idf.launch.serial.internal.SerialFlashLaunchConfigProvider"
+            descriptorType="org.eclipse.cdt.debug.core.coreBuildDescriptorType"
+            priority="10">
+            <enablement>
+            </enablement>
+      </configProvider>
+   </extension>
+
+</plugin>

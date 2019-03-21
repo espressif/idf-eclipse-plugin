@@ -313,13 +313,14 @@ jury trial in any resulting litigation.
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.cdt.launch.serial.core"
+         id="com.espressif.idf.launch.serial.core"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
-         id="org.eclipse.cdt.launch.serial.ui"
+         id="com.espressif.idf.launch.serial.ui"
          download-size="0"
          install-size="0"
          version="0.0.0"

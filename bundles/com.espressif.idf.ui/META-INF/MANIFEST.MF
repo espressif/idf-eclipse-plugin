@@ -24,7 +24,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.cdt.make.ui,
  org.eclipse.debug.ui,
  org.eclipse.cdt.build.gcc.core,
- com.espressif.launch.serial.core,
  org.eclipse.cdt.debug.core,
  org.eclipse.launchbar.core,
  org.eclipse.launchbar.ui
