@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SDK Configuration Editor
+Bundle-SymbolicName: com.espressif.idf.sdk.config.ui
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: com.espressif.idf.sdk.config.ui.SDKConfigUIPlugin
+Bundle-Vendor: ESPRESSIF
+Require-Bundle: org.eclipse.core.runtime,
+ com.espressif.idf.ui;visibility:=reexport,
+ com.espressif.idf.sdk.config.core;visibility:=reexport
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: com.espressif.idf.sdkconfig.ui
+Bundle-ActivationPolicy: lazy

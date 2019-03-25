@@ -20,6 +20,8 @@
 		<module>com.espressif.idf.ui</module>
 		<module>com.espressif.idf.launch.serial.core</module>
 		<module>com.espressif.idf.launch.serial.ui</module>
+		<module>com.espressif.idf.sdk.config.ui</module>
+		<module>com.espressif.idf.sdk.config.core</module>
 	</modules>
 	
 	<build>
