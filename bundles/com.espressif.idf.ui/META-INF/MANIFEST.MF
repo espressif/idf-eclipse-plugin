@@ -19,7 +19,14 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.cdt.core,
  org.eclipse.ui.forms,
  org.eclipse.cdt.ui,
- org.eclipse.cdt.managedbuilder.core
+ org.eclipse.cdt.managedbuilder.core,
+ org.eclipse.cdt.launch,
+ org.eclipse.cdt.make.ui,
+ org.eclipse.debug.ui,
+ org.eclipse.cdt.build.gcc.core,
+ org.eclipse.cdt.debug.core,
+ org.eclipse.launchbar.core,
+ org.eclipse.launchbar.ui
 Automatic-Module-Name: com.espressif.idf.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11

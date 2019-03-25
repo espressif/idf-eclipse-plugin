@@ -18,6 +18,8 @@
 	<modules>
 		<module>com.espressif.idf.core</module>
 		<module>com.espressif.idf.ui</module>
+		<module>com.espressif.idf.launch.serial.core</module>
+		<module>com.espressif.idf.launch.serial.ui</module>
 	</modules>
 	
 	<build>

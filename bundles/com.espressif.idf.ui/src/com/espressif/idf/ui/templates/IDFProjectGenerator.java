@@ -8,13 +8,20 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+import org.eclipse.cdt.cmake.core.CMakeNature;
 import org.eclipse.cdt.cmake.core.CMakeProjectGenerator;
+import org.eclipse.cdt.core.CCProjectNature;
+import org.eclipse.cdt.core.CProjectNature;
+import org.eclipse.cdt.core.build.CBuilder;
+import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.osgi.framework.Bundle;
 
+import com.espressif.idf.core.IDFProjectNature;
 import com.espressif.idf.core.util.FileUtil;
 import com.espressif.idf.ui.UIPlugin;
 
@@ -32,6 +39,15 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 	{
 		super(manifestFile);
 		this.sourceTemplatePath = source;
+	}
+	
+	@Override
+	protected void initProjectDescription(IProjectDescription description) {
+		description.setNatureIds(
+				new String[] { CProjectNature.C_NATURE_ID, CCProjectNature.CC_NATURE_ID, CMakeNature.ID, IDFProjectNature.ID });
+		ICommand command = description.newCommand();
+		CBuilder.setupBuilder(command);
+		description.setBuildSpec(new ICommand[] { command });
 	}
 
 	@Override
