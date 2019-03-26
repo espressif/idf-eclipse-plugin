@@ -109,7 +109,7 @@ Next we need to tell CDT to use the toolchain for our project. This is accomplis
 
 * Click on the third dropdown 
 * Select `New Launch Target`
-* Select `Serial Flash Target`
+* Select `ESP32 Target`
 * Provide properties for the target where you would like to launch the application. Enter a name for the target, “esp32” as the operating system, “xtensa” as the CPU architecture, and select the serial port your ESP32 device is connected to on your machine. The OS and architecture need to match the settings for the toolchain. You can see those settings in the Preferences by selecting C/C++ and Core Build Toolchains.
 
 ![](docs/images/8_launch_target.png)
