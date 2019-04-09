@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="com.espressif.idf.sdk.config.ui.SDKConfigurationEditor"
+            default="false"
+            filenames="sdkconfig"
+            icon="icons/espressif.png"
+            id="com.espressif.idf.sdk.config.ui.editor"
+            matchingStrategy="com.espressif.idf.sdk.config.ui.SDKConfigEdittorMatchingStrategy"
+            name="SDK Configuration">
+      </editor>
+   </extension>
+
+</plugin>
