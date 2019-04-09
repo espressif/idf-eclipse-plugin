@@ -15,6 +15,7 @@ public interface IJsonServerConfig
 	String BOOL_TYPE = "bool";
 	String INT_TYPE = "int";
 	String CHOICE_TYPE = "choice";
+	String MENU_TYPE = "menu";
 
 	// Operations
 	String SET = "set";

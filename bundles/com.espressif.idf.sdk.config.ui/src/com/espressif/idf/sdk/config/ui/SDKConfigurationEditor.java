@@ -3,6 +3,7 @@ package com.espressif.idf.sdk.config.ui;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -24,6 +25,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -51,6 +53,7 @@ import com.espressif.idf.sdk.config.core.server.IMessageHandlerListener;
 import com.espressif.idf.sdk.config.core.server.JsonConfigProcessor;
 import com.espressif.idf.sdk.config.core.server.JsonConfigServer;
 
+@SuppressWarnings("unchecked")
 public class SDKConfigurationEditor extends MultiPageEditorPart implements ISaveablePart, IMessageHandlerListener
 {
 
@@ -68,9 +71,9 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 
 	private JSONObject visibleJsonMap;
 
-	private JSONObject modifiedValuesJsonMap = new JSONObject();
-
 	private String serverMessage;
+
+	private KConfigMenuItem selectedElement;
 
 	public SDKConfigurationEditor()
 	{
@@ -254,10 +257,43 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 		}
 	}
 
+	protected void update() throws ParseException
+	{
+		JsonConfigProcessor jsonProcessor = new JsonConfigProcessor();
+		String output = jsonProcessor.getInitialOutput(serverMessage);
+		if (output == null)
+		{
+			return;
+		}
+
+		JSONParser parser = new JSONParser();
+		JSONObject jsonObj = (JSONObject) parser.parse(output);
+		if (jsonObj != null)
+		{
+			// newly updated values and visible items
+			JSONObject visibleJson = (JSONObject) jsonObj.get(IJsonServerConfig.VISIBLE);
+			JSONObject valuesJson = (JSONObject) jsonObj.get(IJsonServerConfig.VALUES);
+
+			// Updated visible items
+			Set<String> newVisibleKeyset = visibleJson.keySet();
+			for (String key : newVisibleKeyset)
+			{
+				visibleJsonMap.put(key, visibleJson.get(key));
+			}
+
+			// Updated values
+			Set<String> newValuesKeyset = valuesJson.keySet();
+			for (String key : newValuesKeyset)
+			{
+				valuesJsonMap.put(key, valuesJson.get(key));
+			}
+		}
+	}
+
 	/**
 	 * @param maxAttempts
 	 * @param sleepInterval
-	 * @param jsonProcessor 
+	 * @param jsonProcessor
 	 * @return
 	 * @throws IOException
 	 */
@@ -297,20 +333,17 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 	/**
 	 * Saves the SDK configuration editor
 	 */
-	@SuppressWarnings("unchecked")
 	public void doSave(IProgressMonitor monitor)
 	{
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put(IJsonServerConfig.VERSION, 2);
-		jsonObject.put(IJsonServerConfig.SET, modifiedValuesJsonMap);
 		jsonObject.put(IJsonServerConfig.SAVE, null);
-//		jsonObject.put("load", null);
 
 		String command = jsonObject.toJSONString();
 		configServer.execute(command);
 
-		modifiedValuesJsonMap.clear();
 		isDirty = false;
+		editorDirtyStateChanged();
 	}
 
 	public void doSaveAs()
@@ -398,13 +431,14 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 		return transfersTree;
 	}
 
-	@SuppressWarnings("unchecked")
 	private void updateUI(KConfigMenuItem selectedElement)
 	{
 		if (selectedElement == null)
 		{
 			return;
 		}
+
+		this.selectedElement = selectedElement;
 
 		// dispose old elements
 		Control[] updateUICompositeControls = updateUIComposite.getChildren();
@@ -419,6 +453,14 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 		updateCompsiteGD.verticalIndent = 10;
 		updateUIComposite.setLayoutData(updateCompsiteGD);
 
+		renderMenuItems(selectedElement);
+		updateUIComposite.layout(true);
+		updateUIComposite.getParent().layout(true);
+	}
+
+	protected void renderMenuItems(KConfigMenuItem selectedElement)
+	{
+
 		// add children here
 		List<KConfigMenuItem> children = selectedElement.getChildren();
 		for (KConfigMenuItem kConfigMenuItem : children)
@@ -429,17 +471,11 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 			Object configValue = valuesJsonMap.get(configKey);
 			Object isEnabled = visibleJsonMap.get(configKey);
 
-			// if it's modified will take the new value
-			Object newConfigValue = modifiedValuesJsonMap.get(configKey);
-			if (newConfigValue != null)
-			{
-				configValue = newConfigValue;
-			}
-
 			if (type.equals(IJsonServerConfig.STRING_TYPE))
 			{
 				Label labelName = new Label(updateUIComposite, SWT.NONE);
 				labelName.setText(kConfigMenuItem.getTitle());
+				labelName.setEnabled(Boolean.valueOf((boolean) isEnabled));
 
 				Text textControl = new Text(updateUIComposite, SWT.SINGLE | SWT.BORDER);
 				GridData gridData = new GridData();
@@ -450,22 +486,14 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 				{
 					textControl.setText((String) configValue);
 				}
-				textControl.addModifyListener(new ModifyListener()
-				{
-					@Override
-					public void modifyText(ModifyEvent e)
-					{
-						modifiedValuesJsonMap.put(configKey, textControl.getText().trim());
-						isDirty = true;
-						editorDirtyStateChanged();
-					}
-				});
+				textControl.addModifyListener(addModifyListener(configKey, textControl));
 
 			}
 			else if (type.equals(IJsonServerConfig.HEX_TYPE))
 			{
 				Label labelName = new Label(updateUIComposite, SWT.NONE);
 				labelName.setText(kConfigMenuItem.getTitle());
+				labelName.setEnabled(Boolean.valueOf((boolean) isEnabled));
 
 				Text textControl = new Text(updateUIComposite, SWT.SINGLE | SWT.BORDER);
 				GridData gridData = new GridData();
@@ -476,45 +504,39 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 				{
 					textControl.setText(Long.toString((long) configValue));
 				}
-				textControl.addModifyListener(new ModifyListener()
-				{
-					@Override
-					public void modifyText(ModifyEvent e)
-					{
-						modifiedValuesJsonMap.put(configKey, textControl.getText().trim());
-						isDirty = true;
-						editorDirtyStateChanged();
-					}
-				});
+				textControl.addModifyListener(addModifyListener(configKey, textControl));
 
 			}
 			else if (type.equals(IJsonServerConfig.BOOL_TYPE))
 			{
-				Button labelName = new Button(updateUIComposite, SWT.CHECK);
-				labelName.setText(kConfigMenuItem.getTitle());
-				labelName.setLayoutData(new GridData(SWT.NONE, SWT.NONE, false, false, 2, 1));
-				labelName.setEnabled(Boolean.valueOf((boolean) isEnabled));
+
+				Button button = new Button(updateUIComposite, SWT.CHECK);
+				button.setText(kConfigMenuItem.getTitle());
+				button.setLayoutData(new GridData(SWT.NONE, SWT.NONE, false, false, 2, 1));
+				button.setEnabled(Boolean.valueOf((boolean) isEnabled));
 				if (configValue != null)
 				{
-					labelName.setSelection((boolean) configValue);
+					button.setSelection((boolean) configValue);
 				}
-				labelName.addSelectionListener(new SelectionAdapter()
+				button.addSelectionListener(new SelectionAdapter()
 				{
 					@Override
 					public void widgetSelected(SelectionEvent e)
 					{
-						// record change
-						modifiedValuesJsonMap.put(configKey, labelName.getSelection());
-						isDirty = true;
-						editorDirtyStateChanged();
+						JSONObject jsonObj = new JSONObject();
+						jsonObj.put(configKey, button.getSelection());
+						executeCommand(jsonObj);
 					}
+
 				});
+
 			}
 
 			else if (type.equals(IJsonServerConfig.INT_TYPE))
 			{
 				Label labelName = new Label(updateUIComposite, SWT.NONE);
 				labelName.setText(kConfigMenuItem.getTitle());
+				labelName.setEnabled(Boolean.valueOf((boolean) isEnabled));
 
 				Text text = new Text(updateUIComposite, SWT.SINGLE | SWT.BORDER);
 				GridData gridData = new GridData();
@@ -526,24 +548,14 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 				{
 					text.setText(String.valueOf(configValue));
 				}
-				text.addModifyListener(new ModifyListener()
-				{
-					@Override
-					public void modifyText(ModifyEvent e)
-					{
-						// record change
-						modifiedValuesJsonMap.put(configKey, text.getText().trim());
-
-						isDirty = true;
-						editorDirtyStateChanged();
-					}
-				});
+				text.addModifyListener(addModifyListener(configKey, text));
 
 			}
 			else if (type.equals(IJsonServerConfig.CHOICE_TYPE))
 			{
 				Label labelName = new Label(updateUIComposite, SWT.NONE);
 				labelName.setText(kConfigMenuItem.getTitle());
+				labelName.setEnabled(false);
 
 				Combo choiceCombo = new Combo(updateUIComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
 				choiceCombo.setLayoutData(new GridData(SWT.NONE, SWT.NONE, false, false, 1, 1));
@@ -551,25 +563,22 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 				GridData gridData = new GridData();
 				gridData.widthHint = 250;
 				choiceCombo.setLayoutData(gridData);
+				choiceCombo.setEnabled(false);
 
 				List<KConfigMenuItem> choiceItems = kConfigMenuItem.getChildren();
 				int index = 0;
 				for (KConfigMenuItem item : choiceItems)
 				{
 					String localConfigKey = item.getName();
-
 					choiceCombo.add(item.getTitle());
 					choiceCombo.setData(item.getTitle(), localConfigKey);
 
-					Object object = modifiedValuesJsonMap.get(localConfigKey);
-
-					if (object == null)
-					{
-						object = valuesJsonMap.get(localConfigKey);
-					}
-					if (object != null && object.equals(true))
+					isEnabled = valuesJsonMap.get(localConfigKey);
+					if (isEnabled != null && isEnabled.equals(true))
 					{
 						choiceCombo.select(index);
+						choiceCombo.setEnabled(Boolean.valueOf((boolean) isEnabled));
+						labelName.setEnabled(Boolean.valueOf((boolean) isEnabled));
 					}
 					index++;
 				}
@@ -579,21 +588,53 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 					@Override
 					public void widgetSelected(SelectionEvent e)
 					{
-						Object data = choiceCombo.getData(choiceCombo.getText());
-						if (data != null)
+						Object key = choiceCombo.getData(choiceCombo.getText());
+						if (key != null)
 						{
-							modifiedValuesJsonMap.put(data, true);
-
-							isDirty = true;
-							editorDirtyStateChanged();
+							JSONObject jsonObj = new JSONObject();
+							jsonObj.put(key, true);
+							executeCommand(jsonObj);
 
 						}
 					}
 				});
 			}
+
+			// kConfigMenuItem has children?
+			if (!type.equals(IJsonServerConfig.CHOICE_TYPE) && !type.equals(IJsonServerConfig.MENU_TYPE)
+					&& kConfigMenuItem.hasChildren())
+			{
+				renderMenuItems(kConfigMenuItem);
+			}
 		}
-		updateUIComposite.layout(true);
-		updateUIComposite.getParent().layout(true);
+	}
+
+	protected ModifyListener addModifyListener(String configKey, Text textControl)
+	{
+		return new ModifyListener()
+		{
+			@Override
+			public void modifyText(ModifyEvent e)
+			{
+				JSONObject jsonObj = new JSONObject();
+				jsonObj.put(configKey, textControl.getText().trim());
+				executeCommand(jsonObj);
+
+			}
+		};
+	}
+
+	protected void executeCommand(JSONObject jsonObj)
+	{
+		isDirty = true;
+		editorDirtyStateChanged();
+
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put(IJsonServerConfig.VERSION, 2);
+		jsonObject.put(IJsonServerConfig.SET, jsonObj);
+
+		String command = jsonObject.toJSONString();
+		configServer.execute(command);
 	}
 
 	@Override
@@ -610,11 +651,38 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 		firePropertyChange(IEditorPart.PROP_DIRTY);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.espressif.idf.sdk.config.core.server.IMessageHandlerListener#notifyRequestServed(java.lang.String)
+	 */
 	@Override
 	public void notifyRequestServed(String message)
 	{
 		this.serverMessage = message;
-//		System.out.println("server message:" + message);
+
+		if (selectedElement != null)
+		{
+			try
+			{
+				update();
+
+				// Update in UI thread
+				Display.getDefault().asyncExec(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						updateUI(selectedElement);
+					}
+				});
+			}
+			catch (ParseException e1)
+			{
+				IDFCorePlugin.log(e1);
+			}
+
+		}
 	}
 
 }

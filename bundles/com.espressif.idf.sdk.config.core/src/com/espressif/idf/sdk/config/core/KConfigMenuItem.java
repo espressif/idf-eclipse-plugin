@@ -100,5 +100,9 @@ public class KConfigMenuItem
 	{
 		this.type = type;
 	}
-
+	
+	public boolean hasChildren()
+	{
+		return this.children.size() > 0;
+	}
 }

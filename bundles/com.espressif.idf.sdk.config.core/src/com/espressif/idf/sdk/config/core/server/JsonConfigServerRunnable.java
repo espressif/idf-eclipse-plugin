@@ -2,6 +2,7 @@
 package com.espressif.idf.sdk.config.core.server;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -10,13 +11,11 @@ import java.text.MessageFormat;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import com.aptana.core.CorePlugin;
-import com.aptana.core.logging.IdeLog;
 import com.aptana.core.util.ProcessRunnable;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.sdk.config.core.SDKConfigCorePlugin;
 
-public class ConfigServerProcessRunnable extends ProcessRunnable
+public class JsonConfigServerRunnable extends ProcessRunnable
 {
 
 	private StringBuilder builder;
@@ -24,7 +23,7 @@ public class ConfigServerProcessRunnable extends ProcessRunnable
 	private InputStream out;
 	private JsonConfigServer configServer;
 
-	public ConfigServerProcessRunnable(Process process, JsonConfigServer configServer)
+	public JsonConfigServerRunnable(Process process, JsonConfigServer configServer)
 	{
 		super(process, null, true);
 		this.configServer = configServer;
@@ -75,9 +74,10 @@ public class ConfigServerProcessRunnable extends ProcessRunnable
 				}
 			}
 		}
-		catch (Exception e)
+		
+		catch (IOException e)
 		{
-			IdeLog.logError(CorePlugin.getDefault(), e);
+			//ignore
 		} finally
 		{
 			if (br != null)

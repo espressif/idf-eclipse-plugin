@@ -1,0 +1,47 @@
+package com.espressif.idf.sdk.config.core.server;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+
+public class ProcessRunner
+{
+
+	public Process run(IPath workingDirectory, Map<String, String> environment, String... arguments)
+			throws IOException, CoreException
+	{
+		List<String> commands = new ArrayList<String>(Arrays.asList(arguments));
+		return doRun(commands, workingDirectory, environment);
+	}
+
+	private Process doRun(List<String> command, IPath workingDirectory, Map<String, String> environment)
+			throws IOException, CoreException
+	{
+		ProcessBuilder processBuilder = createProcessBuilder(command);
+		if (workingDirectory != null)
+		{
+			processBuilder.directory(workingDirectory.toFile());
+		}
+
+		if (environment != null && !environment.isEmpty())
+		{
+			processBuilder.environment().putAll(environment);
+		}
+		return startProcess(processBuilder);
+	}
+
+	protected Process startProcess(ProcessBuilder processBuilder) throws IOException
+	{
+		return processBuilder.start();
+	}
+
+	protected ProcessBuilder createProcessBuilder(List<String> command)
+	{
+		return new ProcessBuilder(command);
+	}
+}

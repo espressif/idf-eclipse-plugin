@@ -16,13 +16,12 @@ import com.aptana.core.util.ProcessRunner;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.sdk.config.core.IJsonServerConfig;
 
 public class JsonConfigServer extends Thread implements IMessagesHandlerNotifier
 {
 
 	private IProject project;
-	private ConfigServerProcessRunnable runnable;
+	private JsonConfigServerRunnable runnable;
 	private List<IMessageHandlerListener> listeners;
 
 	public JsonConfigServer(IProject project)
@@ -52,7 +51,7 @@ public class JsonConfigServer extends Thread implements IMessagesHandlerNotifier
 //
 //			DebugPlugin.newProcess(fLaunch, process,  "JSON Configuration Server - "+ project.getName()); //$NON-NLS-1$ ;
 
-			runnable = new ConfigServerProcessRunnable(process, this);
+			runnable = new JsonConfigServerRunnable(process, this);
 			Thread t = new Thread(runnable);
 			t.start();
 
