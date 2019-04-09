@@ -44,7 +44,7 @@ public class ConfigServerProcessRunnable extends ProcessRunnable
 			while (isAlive(p))
 			{
 				int no = out.available();
-				if (no == 0)
+				if (no == 0 && !builder.toString().isEmpty())
 				{
 					// notify and reset
 					configServer.notifyHandler(builder.toString());

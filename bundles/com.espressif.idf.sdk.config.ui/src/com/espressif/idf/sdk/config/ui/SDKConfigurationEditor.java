@@ -239,9 +239,9 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 		configServer.start();
 
 		// will wait and check for the server response
-		if (isReady(5, 1000))
+		JsonConfigProcessor jsonProcessor = new JsonConfigProcessor();
+		if (isReady(5, 1000, jsonProcessor))
 		{
-			JsonConfigProcessor jsonProcessor = new JsonConfigProcessor();
 			String initialOutput = jsonProcessor.getInitialOutput(serverMessage);
 
 			JSONParser parser = new JSONParser();
@@ -257,13 +257,14 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 	/**
 	 * @param maxAttempts
 	 * @param sleepInterval
+	 * @param jsonProcessor 
 	 * @return
 	 * @throws IOException
 	 */
-	private boolean isReady(int maxAttempts, long sleepInterval) throws IOException
+	private boolean isReady(int maxAttempts, long sleepInterval, JsonConfigProcessor jsonProcessor) throws IOException
 	{
 		int waitCount = 0;
-		while (serverMessage == null)
+		while (serverMessage == null || jsonProcessor.getInitialOutput(serverMessage) == null)
 		{
 			if (waitCount >= maxAttempts)
 			{
@@ -613,6 +614,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 	public void notifyRequestServed(String message)
 	{
 		this.serverMessage = message;
+//		System.out.println("server message:" + message);
 	}
 
 }
