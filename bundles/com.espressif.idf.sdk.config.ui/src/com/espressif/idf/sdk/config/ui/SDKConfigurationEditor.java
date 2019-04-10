@@ -66,7 +66,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 {
 
 	public static String EDITOR_ID = "com.espressif.idf.sdk.config.ui.editor"; //$NON-NLS-1$
-	
+
 	private TreeViewer treeViewer;
 
 	private Group updateUIComposite;
@@ -81,9 +81,16 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 
 	private JSONObject visibleJsonMap;
 
+	private JSONObject rangesJsonMap;
+
 	private String serverMessage;
 
 	private KConfigMenuItem selectedElement;
+
+	/**
+	 * Captures only text field changes
+	 */
+	private JSONObject modifiedJsonMap = new JSONObject();
 
 	public SDKConfigurationEditor()
 	{
@@ -263,6 +270,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 			{
 				valuesJsonMap = (JSONObject) jsonObj.get(IJsonServerConfig.VALUES);
 				visibleJsonMap = (JSONObject) jsonObj.get(IJsonServerConfig.VISIBLE);
+				rangesJsonMap = (JSONObject) jsonObj.get(IJsonServerConfig.RANGES);
 			}
 		}
 	}
@@ -283,6 +291,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 			// newly updated values and visible items
 			JSONObject visibleJson = (JSONObject) jsonObj.get(IJsonServerConfig.VISIBLE);
 			JSONObject valuesJson = (JSONObject) jsonObj.get(IJsonServerConfig.VALUES);
+			JSONObject rangesJson = (JSONObject) jsonObj.get(IJsonServerConfig.RANGES);
 
 			// Updated visible items
 			Set<String> newVisibleKeyset = visibleJson.keySet();
@@ -296,6 +305,13 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 			for (String key : newValuesKeyset)
 			{
 				valuesJsonMap.put(key, valuesJson.get(key));
+			}
+
+			// Updated ranges
+			Set<String> newRangesKeyset = rangesJson.keySet();
+			for (String key : newRangesKeyset)
+			{
+				rangesJsonMap.put(key, rangesJson.get(key));
 			}
 		}
 	}
@@ -347,11 +363,13 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 	{
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put(IJsonServerConfig.VERSION, 2);
+		jsonObject.put(IJsonServerConfig.SET, modifiedJsonMap);
 		jsonObject.put(IJsonServerConfig.SAVE, null);
 
 		String command = jsonObject.toJSONString();
 		configServer.execute(command);
 
+		modifiedJsonMap.clear();
 		isDirty = false;
 		editorDirtyStateChanged();
 	}
@@ -480,6 +498,9 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 			String configKey = kConfigMenuItem.getName();
 			Object configValue = valuesJsonMap.get(configKey);
 			Object isEnabled = visibleJsonMap.get(configKey);
+			Object newConfigValue = modifiedJsonMap.get(configKey);
+
+			String tooltip = kConfigMenuItem.getHelp();
 
 			if (type.equals(IJsonServerConfig.STRING_TYPE))
 			{
@@ -492,12 +513,12 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 				gridData.widthHint = 250;
 				textControl.setLayoutData(gridData);
 				textControl.setEnabled(Boolean.valueOf((boolean) isEnabled));
+				textControl.setToolTipText(tooltip);
 				if (configValue != null)
 				{
-					textControl.setText((String) configValue);
+					textControl.setText(newConfigValue != null ? (String) newConfigValue : (String) configValue);
 				}
 				textControl.addModifyListener(addModifyListener(configKey, textControl));
-
 			}
 			else if (type.equals(IJsonServerConfig.HEX_TYPE))
 			{
@@ -510,9 +531,11 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 				gridData.widthHint = 250;
 				textControl.setLayoutData(gridData);
 				textControl.setEnabled(Boolean.valueOf((boolean) isEnabled));
+				textControl.setToolTipText(tooltip);
 				if (configValue != null)
 				{
-					textControl.setText(Long.toString((long) configValue));
+					textControl.setText(newConfigValue != null ? Long.toString((long) newConfigValue)
+							: Long.toString((long) configValue));
 				}
 				textControl.addModifyListener(addModifyListener(configKey, textControl));
 
@@ -524,6 +547,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 				button.setText(kConfigMenuItem.getTitle());
 				button.setLayoutData(new GridData(SWT.NONE, SWT.NONE, false, false, 2, 1));
 				button.setEnabled(Boolean.valueOf((boolean) isEnabled));
+				button.setToolTipText(tooltip);
 				if (configValue != null)
 				{
 					button.setSelection((boolean) configValue);
@@ -553,10 +577,12 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 				gridData.widthHint = 250;
 				text.setLayoutData(gridData);
 				text.setEnabled(Boolean.valueOf((boolean) isEnabled));
+				text.setToolTipText(tooltip);
 
 				if (configValue != null)
 				{
-					text.setText(String.valueOf(configValue));
+					text.setText(newConfigValue != null ? String.valueOf(newConfigValue) : String.valueOf(configValue));
+
 				}
 				text.addModifyListener(addModifyListener(configKey, text));
 
@@ -626,10 +652,9 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 			@Override
 			public void modifyText(ModifyEvent e)
 			{
-				JSONObject jsonObj = new JSONObject();
-				jsonObj.put(configKey, textControl.getText().trim());
-				executeCommand(jsonObj);
-
+				isDirty = true;
+				editorDirtyStateChanged();
+				modifiedJsonMap.put(configKey, textControl.getText().trim());
 			}
 		};
 	}
