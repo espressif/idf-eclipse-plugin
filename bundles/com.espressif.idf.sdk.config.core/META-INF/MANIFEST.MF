@@ -6,7 +6,6 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: com.espressif.idf.sdk.config.core.SDKConfigCorePlugin
 Bundle-Vendor: ESPRESSIF
 Require-Bundle: org.eclipse.core.runtime,
- com.fasterxml.jackson.core.jackson-databind;bundle-version="2.9.2",
  com.espressif.idf.core,
  org.eclipse.equinox.preferences,
  org.eclipse.cdt.core,

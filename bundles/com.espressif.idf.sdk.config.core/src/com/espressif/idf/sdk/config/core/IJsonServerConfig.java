@@ -12,21 +12,21 @@ public interface IJsonServerConfig
 {
 
 	// json output constants
-	String VALUES = Messages.IJsonServerConfig_values;
-	String VISIBLE = Messages.IJsonServerConfig_visible;
-	String RANGES = Messages.IJsonServerConfig_ranges;
-	String VERSION = Messages.IJsonServerConfig_version;
+	String VALUES = "values"; //$NON-NLS-1$
+	String VISIBLE = "visible"; //$NON-NLS-1$
+	String RANGES = "ranges"; //$NON-NLS-1$
+	String VERSION = "version"; //$NON-NLS-1$
 
 	// data types
-	String HEX_TYPE = Messages.IJsonServerConfig_hex;
-	String STRING_TYPE = Messages.IJsonServerConfig_string;
-	String BOOL_TYPE = Messages.IJsonServerConfig_bool;
-	String INT_TYPE = Messages.IJsonServerConfig_int;
-	String CHOICE_TYPE = Messages.IJsonServerConfig_choice;
-	String MENU_TYPE = Messages.IJsonServerConfig_menu;
+	String HEX_TYPE = "hex"; //$NON-NLS-1$
+	String STRING_TYPE = "string"; //$NON-NLS-1$
+	String BOOL_TYPE = "bool"; //$NON-NLS-1$
+	String INT_TYPE = "int"; //$NON-NLS-1$
+	String CHOICE_TYPE = "choice"; //$NON-NLS-1$
+	String MENU_TYPE = "menu"; //$NON-NLS-1$
 
 	// Operations
-	String SET = Messages.IJsonServerConfig_set;
-	String SAVE = Messages.IJsonServerConfig_save;
-	String LOAD = Messages.IJsonServerConfig_load;
+	String SET = "set"; //$NON-NLS-1$
+	String SAVE = "save"; //$NON-NLS-1$
+	String LOAD = "load"; //$NON-NLS-1$
 }

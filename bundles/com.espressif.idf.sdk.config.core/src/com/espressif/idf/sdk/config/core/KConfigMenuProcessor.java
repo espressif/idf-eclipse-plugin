@@ -43,7 +43,7 @@ public class KConfigMenuProcessor
 		String menuConfigPath = sdkConfigUtil.getConfigMenuFilePath(project);
 		if (!new File(menuConfigPath).exists())
 		{
-			throw new Exception(MessageFormat.format(Messages.KConfigMenuProcessor_kconfigMenuNotfound, menuConfigPath));
+			throw new Exception(MessageFormat.format(Messages.KconfMenuJsonNotFound, menuConfigPath));
 		}
 
 		JSONParser parser = new JSONParser();
@@ -79,11 +79,11 @@ public class KConfigMenuProcessor
 			JSONObject jsonObject = (JSONObject) iterator.next();
 
 			childMenu.setName((String) jsonObject.get("name")); //$NON-NLS-1$
-			childMenu.setType((String) jsonObject.get(Messages.KConfigMenuProcessor_type));
-			childMenu.setHelp((String) jsonObject.get(Messages.KConfigMenuProcessor_help));
-			childMenu.setDepends_on((String) jsonObject.get(Messages.KConfigMenuProcessor_depends_on));
+			childMenu.setType((String) jsonObject.get("type")); //$NON-NLS-1$
+			childMenu.setHelp((String) jsonObject.get("help")); //$NON-NLS-1$
+			childMenu.setDepends_on((String) jsonObject.get("depends_on")); //$NON-NLS-1$
 
-			String title = (String) jsonObject.get(Messages.KConfigMenuProcessor_title);
+			String title = (String) jsonObject.get("title"); //$NON-NLS-1$
 			childMenu.setTitle(title);
 
 			if (title != null)
@@ -92,7 +92,7 @@ public class KConfigMenuProcessor
 			}
 
 			// loop array
-			JSONArray children = (JSONArray) jsonObject.get(Messages.KConfigMenuProcessor_children);
+			JSONArray children = (JSONArray) jsonObject.get("children"); //$NON-NLS-1$
 			read(children, childMenu);
 
 		}
