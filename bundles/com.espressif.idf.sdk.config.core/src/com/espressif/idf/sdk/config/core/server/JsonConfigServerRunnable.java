@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2018-2019 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 
 package com.espressif.idf.sdk.config.core.server;
 
@@ -15,6 +19,10 @@ import com.aptana.core.util.ProcessRunnable;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.sdk.config.core.SDKConfigCorePlugin;
 
+/**
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ *
+ */
 public class JsonConfigServerRunnable extends ProcessRunnable
 {
 
@@ -118,7 +126,7 @@ public class JsonConfigServerRunnable extends ProcessRunnable
 
 	public void executeCommand(String command)
 	{
-		String msg = MessageFormat.format("Command to be executed: {0}", command);
+		String msg = MessageFormat.format(Messages.JsonConfigServerRunnable_CmdToBeExecuted, command);
 		IDFCorePlugin.getPlugin().getLog().log(new Status(IStatus.INFO, SDKConfigCorePlugin.PLUGIN_ID, msg));
 
 		PrintWriter pwdWriter = new PrintWriter(in);

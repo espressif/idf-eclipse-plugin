@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2018-2019 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.sdk.config.ui;
 
 import java.util.ArrayList;
@@ -9,6 +13,10 @@ import org.eclipse.jface.viewers.Viewer;
 
 import com.espressif.idf.sdk.config.core.KConfigMenuItem;
 
+/**
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ *
+ */
 public class ConfigContentProvider extends TreeNodeContentProvider
 {
 	private static Object[] EMPTY_ARRAY = new Object[0];

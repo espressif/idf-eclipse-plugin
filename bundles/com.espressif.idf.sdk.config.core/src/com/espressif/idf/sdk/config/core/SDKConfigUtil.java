@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2018-2019 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.sdk.config.core;
 
 import java.io.File;
@@ -15,6 +19,10 @@ import org.eclipse.core.runtime.IPath;
 
 import com.espressif.idf.core.IDFConstants;
 
+/**
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ *
+ */
 public class SDKConfigUtil
 {
 
@@ -28,7 +36,7 @@ public class SDKConfigUtil
 		File buildDirectory = getBuildDirectory(project);
 		if (buildDirectory == null || !buildDirectory.exists())
 		{
-			throw new Exception(MessageFormat.format("Could not find the build directory {0}", buildDirectory));
+			throw new Exception(MessageFormat.format(Messages.SDKConfigUtil_CouldNotFindBuildDir, buildDirectory));
 		}
 		return buildDirectory.getAbsolutePath() + IPath.SEPARATOR + IDFConstants.CONFIG_FOLDER + IPath.SEPARATOR
 				+ IDFConstants.KCONFIG_MENUS_JSON;
@@ -42,7 +50,7 @@ public class SDKConfigUtil
 	 */
 	public File getBuildDirectory(IProject project) throws CoreException
 	{
-		assert (project == null || !project.exists()) : "Either project is null or doesn't exist: " + project;
+		assert (project == null || !project.exists()) : Messages.SDKConfigUtil_ProjectNull + project;
 
 		IBuildConfiguration config = project.getActiveBuildConfig();
 

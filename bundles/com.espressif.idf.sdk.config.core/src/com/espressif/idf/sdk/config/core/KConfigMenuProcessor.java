@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2018-2019 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.sdk.config.core;
 
 import java.io.File;
@@ -12,6 +16,10 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+/**
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ *
+ */
 public class KConfigMenuProcessor
 {
 
@@ -35,7 +43,7 @@ public class KConfigMenuProcessor
 		String menuConfigPath = sdkConfigUtil.getConfigMenuFilePath(project);
 		if (!new File(menuConfigPath).exists())
 		{
-			throw new Exception(MessageFormat.format("kconfig_menus.json file couldn't find {0}", menuConfigPath));
+			throw new Exception(MessageFormat.format(Messages.KConfigMenuProcessor_kconfigMenuNotfound, menuConfigPath));
 		}
 
 		JSONParser parser = new JSONParser();
@@ -71,11 +79,11 @@ public class KConfigMenuProcessor
 			JSONObject jsonObject = (JSONObject) iterator.next();
 
 			childMenu.setName((String) jsonObject.get("name")); //$NON-NLS-1$
-			childMenu.setType((String) jsonObject.get("type"));
-			childMenu.setHelp((String) jsonObject.get("help"));
-			childMenu.setDepends_on((String) jsonObject.get("depends_on"));
+			childMenu.setType((String) jsonObject.get(Messages.KConfigMenuProcessor_type));
+			childMenu.setHelp((String) jsonObject.get(Messages.KConfigMenuProcessor_help));
+			childMenu.setDepends_on((String) jsonObject.get(Messages.KConfigMenuProcessor_depends_on));
 
-			String title = (String) jsonObject.get("title");
+			String title = (String) jsonObject.get(Messages.KConfigMenuProcessor_title);
 			childMenu.setTitle(title);
 
 			if (title != null)
@@ -84,7 +92,7 @@ public class KConfigMenuProcessor
 			}
 
 			// loop array
-			JSONArray children = (JSONArray) jsonObject.get("children");
+			JSONArray children = (JSONArray) jsonObject.get(Messages.KConfigMenuProcessor_children);
 			read(children, childMenu);
 
 		}

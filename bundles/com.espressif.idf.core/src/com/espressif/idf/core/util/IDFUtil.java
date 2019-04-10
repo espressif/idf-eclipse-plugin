@@ -38,7 +38,7 @@ public class IDFUtil
 	{
 		if (projBuildDir == null || !projBuildDir.exists())
 		{
-			throw new Exception(MessageFormat.format("Could not find the build directory {0}", projBuildDir));
+			throw new Exception(MessageFormat.format(Messages.IDFUtil_CouldNotFindDir, projBuildDir));
 		}
 		return projBuildDir.getAbsolutePath() + IPath.SEPARATOR + IDFConstants.CONFIG_FOLDER + IPath.SEPARATOR
 				+ IDFConstants.KCONFIG_MENUS_JSON;

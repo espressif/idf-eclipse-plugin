@@ -1,11 +1,18 @@
+/*******************************************************************************
+ * Copyright 2018-2019 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.sdk.config.core;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ *
+ */
 public class KConfigMenuItem
 {
-
 	public List<KConfigMenuItem> children;
 	public KConfigMenuItem parent;
 	public String depends_on;
@@ -100,7 +107,7 @@ public class KConfigMenuItem
 	{
 		this.type = type;
 	}
-	
+
 	public boolean hasChildren()
 	{
 		return this.children.size() > 0;
