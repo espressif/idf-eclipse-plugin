@@ -83,7 +83,7 @@ public class ProcessRunner implements IProcessRunner
 			throws IOException, CoreException
 	{
 		List<String> commands = new ArrayList<String>(Arrays.asList(arguments));
-		return doRun(commands, workingDirectory, environment, false, new File ("/Users/kondal/runtime-EclipseApplication/template/output2.txt"), null);
+		return doRun(commands, workingDirectory, environment, false, null, null);
 	}
 
 	/**
@@ -140,11 +140,10 @@ public class ProcessRunner implements IProcessRunner
 			logInfo(MessageFormat.format(Messages.ProcessUtil_RunningProcess,
 					getObfuscatedCommandString(command, textToObfuscate), path, map), IDebugScopes.SHELL);
 		}
-//		if (environment != null && environment.containsKey(REDIRECT_ERROR_STREAM))
-//		{
-//			processBuilder.redirectErrorStream(true);
-//		}
-		processBuilder.redirectErrorStream(true); //duplicate
+		if (environment != null && environment.containsKey(REDIRECT_ERROR_STREAM))
+		{
+			processBuilder.redirectErrorStream(true);
+		}
 		return startProcess(processBuilder);
 	}
 

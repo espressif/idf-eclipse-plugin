@@ -65,6 +65,8 @@ import com.espressif.idf.sdk.config.core.server.JsonConfigServer;
 public class SDKConfigurationEditor extends MultiPageEditorPart implements ISaveablePart, IMessageHandlerListener
 {
 
+	public static String EDITOR_ID = "com.espressif.idf.sdk.config.ui.editor"; //$NON-NLS-1$
+	
 	private TreeViewer treeViewer;
 
 	private Group updateUIComposite;

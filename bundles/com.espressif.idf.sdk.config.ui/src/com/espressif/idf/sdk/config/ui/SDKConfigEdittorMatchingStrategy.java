@@ -18,7 +18,7 @@ public class SDKConfigEdittorMatchingStrategy implements IEditorMatchingStrategy
 	@Override
 	public boolean matches(IEditorReference editorRef, IEditorInput input)
 	{
-		if (editorRef.getId().equals("com.espressif.idf.sdk.config.ui.editor")) //$NON-NLS-1$
+		if (editorRef.getId().equals(SDKConfigurationEditor.EDITOR_ID))
 		{
 			return true;
 		}

@@ -11,6 +11,7 @@ import org.eclipse.jface.viewers.TreeNodeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 
+import com.espressif.idf.sdk.config.core.IJsonServerConfig;
 import com.espressif.idf.sdk.config.core.KConfigMenuItem;
 
 /**
@@ -70,7 +71,7 @@ public class ConfigContentProvider extends TreeNodeContentProvider
 		List<KConfigMenuItem> menuList = new ArrayList<KConfigMenuItem>();
 		for (KConfigMenuItem kConfigMenuItem : children)
 		{
-			if (kConfigMenuItem.getType() != null && kConfigMenuItem.getType().equals("menu"))
+			if (kConfigMenuItem.getType() != null && kConfigMenuItem.getType().equals(IJsonServerConfig.MENU_TYPE))
 			{
 				menuList.add(kConfigMenuItem);
 			}
@@ -86,7 +87,7 @@ public class ConfigContentProvider extends TreeNodeContentProvider
 	{
 		if (element instanceof KConfigMenuItem)
 		{
-			return ((KConfigMenuItem) element).getType().equals("menu");
+			return ((KConfigMenuItem) element).getType().equals(IJsonServerConfig.MENU_TYPE);
 		}
 
 		return false;
