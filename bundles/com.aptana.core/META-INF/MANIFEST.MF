@@ -18,10 +18,7 @@ Export-Package: com.aptana.core,
  com.aptana.core.build,
  com.aptana.core.diagnostic,
  com.aptana.core.logging,
- com.aptana.core.projects.templates,
  com.aptana.core.resources,
- com.aptana.core.sourcemap,
  com.aptana.core.util,
- com.aptana.core.util.replace,
- com.aptana.plist
+ com.aptana.core.util.replace
 Eclipse-ExtensibleAPI: true

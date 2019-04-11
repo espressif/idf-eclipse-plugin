@@ -21,9 +21,7 @@ import org.osgi.framework.BundleContext;
 import com.aptana.core.diagnostic.IDiagnosticManager;
 import com.aptana.core.internal.UserAgentManager;
 import com.aptana.core.internal.diagnostic.DiagnosticManager;
-import com.aptana.core.internal.sourcemap.SourceMapRegistry;
 import com.aptana.core.logging.IdeLog;
-import com.aptana.core.sourcemap.ISourceMapRegistry;
 import com.aptana.core.util.EclipseUtil;
 
 /**
@@ -35,9 +33,6 @@ public class CorePlugin extends Plugin implements IPreferenceChangeListener
 	// The plug-in ID
 	public static final String PLUGIN_ID = "com.aptana.core"; //$NON-NLS-1$
 
-	// The machine id
-	private static final String MID_SEPARATOR = "-"; //$NON-NLS-1$
-	private static String mid;
 
 	// The shared instance
 	private static CorePlugin plugin;
@@ -45,7 +40,6 @@ public class CorePlugin extends Plugin implements IPreferenceChangeListener
 	private BundleContext context;
 
 	private UserAgentManager fUserAgentManager;
-	private ISourceMapRegistry sourceMapRegistry;
 	private IDiagnosticManager diagnosticManager;
 
 	/**
@@ -118,7 +112,6 @@ public class CorePlugin extends Plugin implements IPreferenceChangeListener
 	@Override
 	public void stop(BundleContext context) throws Exception
 	{
-		sourceMapRegistry = null;
 		diagnosticManager = null;
 		try
 		{
@@ -142,20 +135,6 @@ public class CorePlugin extends Plugin implements IPreferenceChangeListener
 	public static CorePlugin getDefault()
 	{
 		return plugin;
-	}
-
-	/**
-	 * Returns the {@link ISourceMapRegistry}.
-	 *
-	 * @return {@link ISourceMapRegistry}.
-	 */
-	public synchronized ISourceMapRegistry getSourceMapRegistry()
-	{
-		if (sourceMapRegistry == null)
-		{
-			sourceMapRegistry = new SourceMapRegistry();
-		}
-		return sourceMapRegistry;
 	}
 
 	/**
@@ -203,61 +182,6 @@ public class CorePlugin extends Plugin implements IPreferenceChangeListener
 			IdeLog.setCurrentSeverity(IdeLog.getSeverityPreference());
 		}
 	}
-
-//	public static String getMID()
-//	{
-//		// we don't synchronize because it's no big deal if we generate mid multiple times on initial access (by
-//		// multiple threads, if it happens). Should always be same.
-//		if (mid == null)
-//		{
-//			mid = generateMID();
-//		}
-//		return mid;
-//	}
-//
-//	private static String generateMID()
-//	{
-//		Formatter formatter = new Formatter();
-//		try
-//		{
-//			MessageDigest md = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
-//			byte[] result = md.digest(MACAddress.getMACAddress().getBytes(IOUtil.UTF_8));
-//			for (byte b : result)
-//			{
-//				formatter.format("%02x", b); //$NON-NLS-1$
-//			}
-//			// puts mid in 8-4-4-4-12 format
-//			String value = formatter.toString();
-//			StringBuilder buildMe = new StringBuilder();
-//			buildMe.append(value.substring(0, 8));
-//			buildMe.append(MID_SEPARATOR);
-//			buildMe.append(value.substring(8, 12));
-//			buildMe.append(MID_SEPARATOR);
-//			buildMe.append(value.substring(12, 16));
-//			buildMe.append(MID_SEPARATOR);
-//			buildMe.append(value.substring(16, 20));
-//			buildMe.append(MID_SEPARATOR);
-//			buildMe.append(value.substring(20, 32));
-//			return buildMe.toString();
-//		}
-//		catch (NoSuchAlgorithmException e)
-//		{
-//			IdeLog.logWarning(getDefault(), Messages.CorePlugin_MD5_generation_error, e);
-//		}
-//		catch (UnsupportedEncodingException e)
-//		{
-//			IdeLog.logWarning(getDefault(), e);
-//		}
-//		finally
-//		{
-//			if (formatter != null)
-//			{
-//				formatter.close();
-//			}
-//		}
-//		return null;
-//	}
-
 
 	public synchronized IUserAgentManager getUserAgentManager()
 	{
