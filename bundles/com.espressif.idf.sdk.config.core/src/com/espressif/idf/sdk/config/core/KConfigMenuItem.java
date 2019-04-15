@@ -13,14 +13,14 @@ import java.util.List;
  */
 public class KConfigMenuItem
 {
-	public List<KConfigMenuItem> children;
-	public KConfigMenuItem parent;
-	public String depends_on;
-	public String help;
-	public String name;
-	public String range;
-	public String title;
-	public String type;
+	private List<KConfigMenuItem> children;
+	private KConfigMenuItem parent;
+	private String depends_on;
+	private String help;
+	private String name;
+	private String range;
+	private String title;
+	private String type;
 
 	public KConfigMenuItem(KConfigMenuItem parent)
 	{

@@ -201,7 +201,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 		KConfigMenuItem initalInput = getInitalInput();
 		treeViewer.setInput(initalInput);
-		treeViewer.expandAll();
+		treeViewer.expandToLevel(getComponentConfigElement(initalInput), 1);
 
 		// UI for the selected element
 		updateUIComposite = new Group(parent, SWT.V_SCROLL);
@@ -223,6 +223,29 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 		int index = addPage(parent);
 		setPageText(index, Messages.SDKConfigurationEditor_Design);
+	}
+
+	/**
+	 * @param initalInput
+	 * @return
+	 */
+	private KConfigMenuItem getComponentConfigElement(KConfigMenuItem initalInput)
+	{
+		if (initalInput == null)
+		{
+			return null;
+		}
+		
+		List<KConfigMenuItem> children = initalInput.getChildren();
+		for (KConfigMenuItem kConfigMenuItem : children)
+		{
+			if (kConfigMenuItem.getTitle().equals(IJsonServerConfig.COMPONENT_CONFIG_ID))
+			{
+				return kConfigMenuItem;
+			}
+		}
+			
+		return null;
 	}
 
 	/**
