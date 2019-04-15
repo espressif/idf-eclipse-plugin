@@ -87,7 +87,9 @@ public class ConfigContentProvider extends TreeNodeContentProvider
 	{
 		if (element instanceof KConfigMenuItem)
 		{
-			return ((KConfigMenuItem) element).getType().equals(IJsonServerConfig.MENU_TYPE);
+			KConfigMenuItem configMenuItem = (KConfigMenuItem) element;
+			List<KConfigMenuItem> children = configMenuItem.getChildren();
+			return getMenuItems(children).size() > 0;
 		}
 
 		return false;
