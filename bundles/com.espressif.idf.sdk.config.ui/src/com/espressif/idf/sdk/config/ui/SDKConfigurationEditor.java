@@ -6,6 +6,7 @@ package com.espressif.idf.sdk.config.ui;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Set;
 
@@ -13,12 +14,17 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.dialogs.IPageChangedListener;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.PageChangedEvent;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -44,6 +50,7 @@ import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.MultiPageEditorPart;
+import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -62,7 +69,8 @@ import com.espressif.idf.sdk.config.core.server.JsonConfigServer;
  *
  */
 @SuppressWarnings("unchecked")
-public class SDKConfigurationEditor extends MultiPageEditorPart implements ISaveablePart, IMessageHandlerListener
+public class SDKConfigurationEditor extends MultiPageEditorPart
+		implements ISaveablePart, IMessageHandlerListener, IPageChangedListener
 {
 
 	public static String EDITOR_ID = "com.espressif.idf.sdk.config.ui.editor"; //$NON-NLS-1$
@@ -95,6 +103,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 	public SDKConfigurationEditor()
 	{
 		super();
+		addPageChangedListener(this);
 	}
 
 	/**
@@ -131,12 +140,17 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 		try
 		{
 			TextEditor editor = new TextEditor();
+			Object control = ((AbstractTextEditor) editor).getAdapter(Control.class);
+			if (control instanceof StyledText)
+			{
+				((StyledText) control).setEditable(false);
+			}
 			int index = addPage(editor, getEditorInput());
-			setPageText(index, "Source");
+			setPageText(index, Messages.SDKConfigurationEditor_Preview);
 		}
 		catch (PartInitException e)
 		{
-			ErrorDialog.openError(getSite().getShell(), "Error creating nested text editor", null, e.getStatus());
+			ErrorDialog.openError(getSite().getShell(), Messages.SDKConfigurationEditor_Error, null, e.getStatus());
 		}
 	}
 
@@ -208,7 +222,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 		}
 
 		int index = addPage(parent);
-		setPageText(index, "Design");
+		setPageText(index, Messages.SDKConfigurationEditor_Design);
 	}
 
 	/**
@@ -224,10 +238,10 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 		parent.setLayout(layout);
 
 		new Label(parent, SWT.NONE)
-				.setText("Unable to find kconfig_menus.json in the build config folder.\n" + kconfigMenuJsonFile);
+				.setText(Messages.SDKConfigurationEditor_UnableFindKConfigFile + kconfigMenuJsonFile);
 
 		int index = addPage(parent);
-		setPageText(index, "Design");
+		setPageText(index, Messages.SDKConfigurationEditor_Design);
 
 	}
 
@@ -395,7 +409,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 	public void init(IEditorSite site, IEditorInput editorInput) throws PartInitException
 	{
 		if (!(editorInput instanceof IFileEditorInput))
-			throw new PartInitException("Invalid Input: Must be IFileEditorInput");
+			throw new PartInitException(Messages.SDKConfigurationEditor_InvalidInput);
 		super.init(site, editorInput);
 
 		this.project = getProject();
@@ -718,6 +732,32 @@ public class SDKConfigurationEditor extends MultiPageEditorPart implements ISave
 			}
 
 		}
+	}
+
+	@Override
+	public void pageChanged(PageChangedEvent event)
+	{
+		IEditorPart activeEditor = getActiveEditor();
+		if (activeEditor instanceof TextEditor)
+		{
+			String msg1 = Messages.SDKConfigurationEditor_SaveChanges;
+			String msg2 = Messages.SDKConfigurationEditor_ChangesWontbeSaved;
+			String title = Messages.SDKConfigurationEditor_SDKConfiguration;
+
+			if (isDirty())
+			{
+				boolean isOkay = MessageDialog.openQuestion(Display.getDefault().getActiveShell(), title,
+						MessageFormat.format("{0} \n\n{1}", msg1, msg2)); //$NON-NLS-1$
+				if (isOkay)
+				{
+					doSave(new NullProgressMonitor());
+				}
+				return;
+			}
+
+			MessageDialog.openWarning(Display.getDefault().getActiveShell(), title, msg2);
+		}
+
 	}
 
 }
