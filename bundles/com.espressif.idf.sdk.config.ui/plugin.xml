@@ -13,5 +13,54 @@
             name="%editor.name">
       </editor>
    </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?before=additions">
+         <separator
+               name="com.espressif.idf.sdk.config.ui.separator"
+               visible="true">
+         </separator>
+         <command
+               commandId="com.espressif.idf.sdk.config.ui.command.setdefault"
+               label="Load sdkconfig"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="com.espressif.idf.sdk.config.ui.isSDKConfig">
+               </reference>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="com.espressif.idf.sdk.config.ui.LoadSdkConfigHandler"
+            id="com.espressif.idf.sdk.config.ui.command.setdefault"
+            name="Load sdkconfig">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="com.espressif.idf.sdk.config.ui.isSDKConfig">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false">
+               <adapt
+                     type="org.eclipse.core.resources.IFile">
+                  <test
+                        property="com.espressif.idf.sdk.config.core.isSDKConfig"
+                        value="true">
+                  </test>
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
+   </extension>
 
 </plugin>

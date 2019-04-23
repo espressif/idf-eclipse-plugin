@@ -27,22 +27,6 @@ public class SDKConfigUtil
 {
 
 	/**
-	 * @param buildDirectory
-	 * @return
-	 * @throws Exception 
-	 */
-	public String getConfigMenuFilePath(IProject project) throws Exception
-	{
-		File buildDirectory = getBuildDirectory(project);
-		if (buildDirectory == null || !buildDirectory.exists())
-		{
-			throw new Exception(MessageFormat.format(Messages.SDKConfigUtil_CouldNotFindBuildDir, buildDirectory));
-		}
-		return buildDirectory.getAbsolutePath() + IPath.SEPARATOR + IDFConstants.CONFIG_FOLDER + IPath.SEPARATOR
-				+ IDFConstants.KCONFIG_MENUS_JSON;
-	}
-
-	/**
 	 * Default build directory which used by CDT
 	 * 
 	 * @return
@@ -70,6 +54,22 @@ public class SDKConfigUtil
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * @param buildDirectory
+	 * @return
+	 * @throws Exception 
+	 */
+	public String getConfigMenuFilePath(IProject project) throws Exception
+	{
+		File buildDirectory = getBuildDirectory(project);
+		if (buildDirectory == null || !buildDirectory.exists())
+		{
+			throw new Exception(MessageFormat.format(Messages.SDKConfigUtil_CouldNotFindBuildDir, buildDirectory));
+		}
+		return buildDirectory.getAbsolutePath() + IPath.SEPARATOR + IDFConstants.CONFIG_FOLDER + IPath.SEPARATOR
+				+ IDFConstants.KCONFIG_MENUS_JSON;
 	}
 
 }

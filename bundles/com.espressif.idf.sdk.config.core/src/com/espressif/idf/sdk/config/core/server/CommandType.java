@@ -4,26 +4,16 @@
  *******************************************************************************/
 package com.espressif.idf.sdk.config.core.server;
 
-
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ * 
+ * JSON Configuration server command type - this will be helpful in taking action based on the command type when
+ *         editor received the response from the server
  *
  */
-public interface IMessagesHandlerNotifier
+public enum CommandType
 {
-	/**
-	 * @param listener
-	 */
-	public void addListener(IMessageHandlerListener listener);
-
-	/**
-	 * @param message
-	 * @param type
-	 */
-	public void notifyHandler(String message, CommandType type);
-
-	/**
-	 * @param listener
-	 */
-	public void removeListener(IMessageHandlerListener listener);
+	LOAD, 
+	SAVE, 
+	SET
 }

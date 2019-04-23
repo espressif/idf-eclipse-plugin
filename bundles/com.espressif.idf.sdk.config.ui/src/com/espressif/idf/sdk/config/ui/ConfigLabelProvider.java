@@ -18,6 +18,7 @@ public class ConfigLabelProvider extends LabelProvider
 
 	public static final String SETTINGS_ICON = "icons/settings.png"; //$NON-NLS-1$
 
+	@Override
 	public Image getImage(Object element)
 	{
 		if (element instanceof KConfigMenuItem)
@@ -31,6 +32,7 @@ public class ConfigLabelProvider extends LabelProvider
 	/*
 	 * @see ILabelProvider#getText(Object)
 	 */
+	@Override
 	public String getText(Object element)
 	{
 		if (element instanceof KConfigMenuItem)

@@ -60,6 +60,8 @@ import com.espressif.idf.sdk.config.core.IJsonServerConfig;
 import com.espressif.idf.sdk.config.core.KConfigMenuItem;
 import com.espressif.idf.sdk.config.core.KConfigMenuProcessor;
 import com.espressif.idf.sdk.config.core.SDKConfigUtil;
+import com.espressif.idf.sdk.config.core.server.CommandType;
+import com.espressif.idf.sdk.config.core.server.ConfigServerManager;
 import com.espressif.idf.sdk.config.core.server.IMessageHandlerListener;
 import com.espressif.idf.sdk.config.core.server.JsonConfigProcessor;
 import com.espressif.idf.sdk.config.core.server.JsonConfigServer;
@@ -109,6 +111,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	/**
 	 * Creates the pages of the SDK configuration editor.
 	 */
+	@Override
 	protected void createPages()
 	{
 		String configMenuJsonPath = null;
@@ -182,7 +185,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		FilteredTree transfersTree = createFilteredTree(treeComposite);
 		transfersTree.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		treeViewer = (TreeViewer) transfersTree.getViewer();
+		treeViewer = transfersTree.getViewer();
 
 		// Create the tree viewer as a child of the composite parent
 		treeViewer.setContentProvider(new ConfigContentProvider());
@@ -235,16 +238,16 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		{
 			return null;
 		}
-		
+
 		List<KConfigMenuItem> children = initalInput.getChildren();
 		for (KConfigMenuItem kConfigMenuItem : children)
 		{
-			if (kConfigMenuItem.getTitle().equals(IJsonServerConfig.COMPONENT_CONFIG_ID))
+			if (kConfigMenuItem.getTitle().equals(IJsonServerConfig.COMPONENT_CONFIG_TITLE))
 			{
 				return kConfigMenuItem;
 			}
 		}
-			
+
 		return null;
 	}
 
@@ -289,11 +292,10 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	 */
 	protected void initConfigServer(IProject project) throws IOException, ParseException
 	{
-		configServer = new JsonConfigServer(project);
+		configServer = ConfigServerManager.INSTANCE.getServer(project);
 
 		// register the editor with the server to notify about the events
 		configServer.addListener(this);
-		configServer.start();
 
 		// will wait and check for the server response
 		JsonConfigProcessor jsonProcessor = new JsonConfigProcessor();
@@ -386,16 +388,19 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	 * The <code>MultiPageEditorPart</code> implementation of this <code>IWorkbenchPart</code> method disposes all
 	 * nested editors. Subclasses may extend.
 	 */
+	@Override
 	public void dispose()
 	{
 		// Kill the Config server process
 		configServer.destroy();
+		ConfigServerManager.INSTANCE.deleteServer(project);
 		super.dispose();
 	}
 
 	/**
 	 * Saves the SDK configuration editor
 	 */
+	@Override
 	public void doSave(IProgressMonitor monitor)
 	{
 		JSONObject jsonObject = new JSONObject();
@@ -404,13 +409,14 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		jsonObject.put(IJsonServerConfig.SAVE, null);
 
 		String command = jsonObject.toJSONString();
-		configServer.execute(command);
+		configServer.execute(command, CommandType.SAVE);
 
 		modifiedJsonMap.clear();
 		isDirty = false;
 		editorDirtyStateChanged();
 	}
 
+	@Override
 	public void doSaveAs()
 	{
 		// No-op
@@ -429,6 +435,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	 * The <code>MultiPageEditorExample</code> implementation of this method checks that the input is an instance of
 	 * <code>IFileEditorInput</code>.
 	 */
+	@Override
 	public void init(IEditorSite site, IEditorInput editorInput) throws PartInitException
 	{
 		if (!(editorInput instanceof IFileEditorInput))
@@ -441,6 +448,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	/*
 	 * (non-Javadoc) Method declared on IEditorPart.
 	 */
+	@Override
 	public boolean isSaveAsAllowed()
 	{
 		return true;
@@ -468,6 +476,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	{
 		treeViewer.addSelectionChangedListener(new ISelectionChangedListener()
 		{
+			@Override
 			public void selectionChanged(SelectionChangedEvent event)
 			{
 				if (event.getSelection() instanceof IStructuredSelection)
@@ -498,7 +507,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 	private void updateUI(KConfigMenuItem selectedElement)
 	{
-		if (selectedElement == null)
+		if (selectedElement == null || updateUIComposite == null || updateUIComposite.isDisposed())
 		{
 			return;
 		}
@@ -706,7 +715,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		jsonObject.put(IJsonServerConfig.SET, jsonObj);
 
 		String command = jsonObject.toJSONString();
-		configServer.execute(command);
+		configServer.execute(command, CommandType.SET);
 	}
 
 	@Override
@@ -729,7 +738,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	 * @see com.espressif.idf.sdk.config.core.server.IMessageHandlerListener#notifyRequestServed(java.lang.String)
 	 */
 	@Override
-	public void notifyRequestServed(String message)
+	public void notifyRequestServed(String message, CommandType type)
 	{
 		this.serverMessage = message;
 
@@ -737,6 +746,15 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		{
 			try
 			{
+				// reset the modified map
+				if (type == CommandType.LOAD)
+				{
+					modifiedJsonMap.clear();
+					isDirty = false;
+					editorDirtyStateChanged();
+				}
+
+				// fetch the latest values
 				update();
 
 				// Update in UI thread
@@ -782,5 +800,4 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		}
 
 	}
-
 }

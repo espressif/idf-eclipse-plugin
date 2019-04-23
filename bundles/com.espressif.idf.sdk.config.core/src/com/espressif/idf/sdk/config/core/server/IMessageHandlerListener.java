@@ -4,11 +4,12 @@
  *******************************************************************************/
 package com.espressif.idf.sdk.config.core.server;
 
+
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
 public interface IMessageHandlerListener
 {
-	public void notifyRequestServed(String message);
+	public void notifyRequestServed(String message, CommandType type);
 }

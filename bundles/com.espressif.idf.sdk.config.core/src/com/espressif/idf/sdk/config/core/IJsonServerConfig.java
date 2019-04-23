@@ -30,5 +30,5 @@ public interface IJsonServerConfig
 	String SAVE = "save"; //$NON-NLS-1$
 	String LOAD = "load"; //$NON-NLS-1$
 	
-	String COMPONENT_CONFIG_ID = "Component config"; //$NON-NLS-1$
+	String COMPONENT_CONFIG_TITLE = "Component config"; //$NON-NLS-1$
 }

@@ -14,7 +14,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.debug.core.Launch;
 
 import com.aptana.core.ShellExecutable;
 import com.aptana.core.util.ProcessRunner;
@@ -26,12 +25,12 @@ import com.espressif.idf.core.util.IDFUtil;
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
-public class JsonConfigServer extends Thread implements IMessagesHandlerNotifier
+public class JsonConfigServer implements IMessagesHandlerNotifier
 {
 
+	private List<IMessageHandlerListener> listeners;
 	private IProject project;
 	private JsonConfigServerRunnable runnable;
-	private List<IMessageHandlerListener> listeners;
 
 	public JsonConfigServer(IProject project)
 	{
@@ -39,8 +38,35 @@ public class JsonConfigServer extends Thread implements IMessagesHandlerNotifier
 		listeners = new ArrayList<IMessageHandlerListener>();
 	}
 
-	@Override
-	public void run()
+	public void addListener(IMessageHandlerListener listener)
+	{
+		listeners.add(listener);
+	}
+
+	public void destroy()
+	{
+		runnable.destory();
+	}
+
+	public void execute(String command, CommandType type)
+	{
+		runnable.executeCommand(command, type);
+	}
+
+	public void notifyHandler(String message, CommandType type)
+	{
+		for (IMessageHandlerListener listener : listeners)
+		{
+			listener.notifyRequestServed(message, type);
+		}
+	}
+
+	public void removeListener(IMessageHandlerListener listener)
+	{
+		listeners.remove(listener);
+	}
+	
+	public void start()
 	{
 		IPath workingDir = project.getLocation();
 
@@ -70,41 +96,13 @@ public class JsonConfigServer extends Thread implements IMessagesHandlerNotifier
 		}
 	}
 
-	protected ILaunchManager getLaunchManager()
-	{
-		return DebugPlugin.getDefault().getLaunchManager();
-	}
-
 	protected Map<String, String> getEnvironment(IPath location)
 	{
 		return ShellExecutable.getEnvironment(location);
 	}
 
-	public void execute(String command)
+	protected ILaunchManager getLaunchManager()
 	{
-		runnable.executeCommand(command);
-	}
-
-	public void destroy()
-	{
-		runnable.destory();
-	}
-	
-	public void addListener(IMessageHandlerListener listener)
-	{
-		listeners.add(listener);
-	}
-
-	public void notifyHandler(String message)
-	{
-		for (IMessageHandlerListener listener : listeners)
-		{
-			listener.notifyRequestServed(message);
-		}
-	}
-
-	public void removeListener(IMessageHandlerListener listener)
-	{
-		listeners.remove(listener);
+		return DebugPlugin.getDefault().getLaunchManager();
 	}
 }

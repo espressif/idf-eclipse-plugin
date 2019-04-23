@@ -27,14 +27,48 @@ public class JsonConfigServerRunnable extends ProcessRunnable
 {
 
 	private StringBuilder builder;
+	private JsonConfigServer configServer;
 	private OutputStream in;
 	private InputStream out;
-	private JsonConfigServer configServer;
+	private CommandType type;
 
 	public JsonConfigServerRunnable(Process process, JsonConfigServer configServer)
 	{
 		super(process, null, true);
 		this.configServer = configServer;
+	}
+
+	public void destory()
+	{
+		if (p != null)
+		{
+			p.destroy();
+		}
+	}
+
+	public void executeCommand(String command, CommandType type)
+	{
+		this.type = type;
+		
+		String msg = MessageFormat.format(Messages.JsonConfigServerRunnable_CmdToBeExecuted, command);
+		IDFCorePlugin.getPlugin().getLog().log(new Status(IStatus.INFO, SDKConfigCorePlugin.PLUGIN_ID, msg));
+
+		PrintWriter pwdWriter = new PrintWriter(in);
+		pwdWriter.println(command);
+		pwdWriter.flush();
+	}
+
+	public boolean isAlive(Process p)
+	{
+		try
+		{
+			p.exitValue();
+			return false;
+		}
+		catch (IllegalThreadStateException e)
+		{
+			return true;
+		}
 	}
 
 	public void run()
@@ -54,7 +88,7 @@ public class JsonConfigServerRunnable extends ProcessRunnable
 				if (no == 0 && !builder.toString().isEmpty())
 				{
 					// notify and reset
-					configServer.notifyHandler(builder.toString());
+					configServer.notifyHandler(builder.toString(), type);
 					builder = new StringBuilder();
 				}
 				else if (no > 0)
@@ -102,36 +136,6 @@ public class JsonConfigServerRunnable extends ProcessRunnable
 		}
 
 	}
-
-	public boolean isAlive(Process p)
-	{
-		try
-		{
-			p.exitValue();
-			return false;
-		}
-		catch (IllegalThreadStateException e)
-		{
-			return true;
-		}
-	}
-
-	public void destory()
-	{
-		if (p != null)
-		{
-			p.destroy();
-		}
-	}
-
-	public void executeCommand(String command)
-	{
-		String msg = MessageFormat.format(Messages.JsonConfigServerRunnable_CmdToBeExecuted, command);
-		IDFCorePlugin.getPlugin().getLog().log(new Status(IStatus.INFO, SDKConfigCorePlugin.PLUGIN_ID, msg));
-
-		PrintWriter pwdWriter = new PrintWriter(in);
-		pwdWriter.println(command);
-		pwdWriter.flush();
-	}
+	
 
 }

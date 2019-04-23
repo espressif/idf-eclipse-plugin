@@ -43,13 +43,13 @@ public class ProcessRunner
 		return startProcess(processBuilder);
 	}
 
-	protected Process startProcess(ProcessBuilder processBuilder) throws IOException
-	{
-		return processBuilder.start();
-	}
-
 	protected ProcessBuilder createProcessBuilder(List<String> command)
 	{
 		return new ProcessBuilder(command);
+	}
+
+	protected Process startProcess(ProcessBuilder processBuilder) throws IOException
+	{
+		return processBuilder.start();
 	}
 }

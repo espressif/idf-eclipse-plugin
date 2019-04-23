@@ -26,6 +26,7 @@ public class ConfigContentProvider extends TreeNodeContentProvider
 	/*
 	 * @see IContentProvider#dispose()
 	 */
+	@Override
 	public void dispose()
 	{
 	}
@@ -45,6 +46,7 @@ public class ConfigContentProvider extends TreeNodeContentProvider
 	 * @param oldInput the old input element, or <code>null</code> if the viewer did not previously have an input
 	 * @param newInput the new input element, or <code>null</code> if the viewer does not have an input
 	 */
+	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput)
 	{
 		this.viewer = (TreeViewer) viewer;
@@ -53,6 +55,7 @@ public class ConfigContentProvider extends TreeNodeContentProvider
 	/*
 	 * @see ITreeContentProvider#getChildren(Object)
 	 */
+	@Override
 	public Object[] getChildren(Object parentElement)
 	{
 		if (parentElement instanceof KConfigMenuItem)
@@ -83,6 +86,7 @@ public class ConfigContentProvider extends TreeNodeContentProvider
 	/*
 	 * @see ITreeContentProvider#hasChildren(Object)
 	 */
+	@Override
 	public boolean hasChildren(Object element)
 	{
 		if (element instanceof KConfigMenuItem)
@@ -98,6 +102,7 @@ public class ConfigContentProvider extends TreeNodeContentProvider
 	/*
 	 * @see IStructuredContentProvider#getElements(Object)
 	 */
+	@Override
 	public Object[] getElements(Object inputElement)
 	{
 		return getChildren(inputElement);

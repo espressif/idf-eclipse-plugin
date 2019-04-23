@@ -25,14 +25,21 @@ public class SDKConfigCorePlugin extends Plugin
 		return plugin.getBundle().getBundleContext();
 	}
 
+	public static String getId()
+	{
+		return PLUGIN_ID;
+	}
+
 	public static Plugin getPlugin()
 	{
 		return plugin;
 	}
 
-	public static String getId()
+	public static <T> T getService(Class<T> service)
 	{
-		return PLUGIN_ID;
+		BundleContext context = plugin.getBundle().getBundleContext();
+		ServiceReference<T> ref = context.getServiceReference(service);
+		return ref != null ? context.getService(ref) : null;
 	}
 
 	@Override
@@ -45,13 +52,6 @@ public class SDKConfigCorePlugin extends Plugin
 	public void stop(BundleContext bundleContext) throws Exception
 	{
 		plugin = null;
-	}
-
-	public static <T> T getService(Class<T> service)
-	{
-		BundleContext context = plugin.getBundle().getBundleContext();
-		ServiceReference<T> ref = context.getServiceReference(service);
-		return ref != null ? context.getService(ref) : null;
 	}
 
 	

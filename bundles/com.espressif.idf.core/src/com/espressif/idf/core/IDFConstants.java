@@ -60,4 +60,9 @@ public interface IDFConstants
 	 */
 	String KCONFIG_MENUS_JSON = "kconfig_menus.json"; //$NON-NLS-1$
 	
+	/**
+	 * SDK configuration file
+	 */
+	String SDKCONFIG_FILE_NAME = "sdkconfig"; //$NON-NLS-1$
+	
 }

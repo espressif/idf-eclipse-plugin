@@ -14,10 +14,10 @@ import java.util.List;
 public class KConfigMenuItem
 {
 	private List<KConfigMenuItem> children;
-	private KConfigMenuItem parent;
 	private String depends_on;
 	private String help;
 	private String name;
+	private KConfigMenuItem parent;
 	private String range;
 	private String title;
 	private String type;
@@ -28,24 +28,14 @@ public class KConfigMenuItem
 		this.parent = parent;
 	}
 
-	public List<KConfigMenuItem> getChildren()
-	{
-		return children;
-	}
-
-	public void setChildren(List<KConfigMenuItem> children)
-	{
-		this.children = children;
-	}
-
 	public void addChild(KConfigMenuItem item)
 	{
 		this.children.add(item);
 	}
 
-	public KConfigMenuItem getParent()
+	public List<KConfigMenuItem> getChildren()
 	{
-		return parent;
+		return children;
 	}
 
 	public String getDepends_on()
@@ -53,19 +43,9 @@ public class KConfigMenuItem
 		return depends_on;
 	}
 
-	public void setDepends_on(String depends_on)
-	{
-		this.depends_on = depends_on;
-	}
-
 	public String getHelp()
 	{
 		return help;
-	}
-
-	public void setHelp(String help)
-	{
-		this.help = help;
 	}
 
 	public String getName()
@@ -73,9 +53,9 @@ public class KConfigMenuItem
 		return name;
 	}
 
-	public void setName(String name)
+	public KConfigMenuItem getParent()
 	{
-		this.name = name;
+		return parent;
 	}
 
 	public String getRange()
@@ -83,19 +63,9 @@ public class KConfigMenuItem
 		return range;
 	}
 
-	public void setRange(String range)
-	{
-		this.range = range;
-	}
-
 	public String getTitle()
 	{
 		return title;
-	}
-
-	public void setTitle(String title)
-	{
-		this.title = title;
 	}
 
 	public String getType()
@@ -103,13 +73,43 @@ public class KConfigMenuItem
 		return type;
 	}
 
-	public void setType(String type)
-	{
-		this.type = type;
-	}
-
 	public boolean hasChildren()
 	{
 		return this.children.size() > 0;
+	}
+
+	public void setChildren(List<KConfigMenuItem> children)
+	{
+		this.children = children;
+	}
+
+	public void setDepends_on(String depends_on)
+	{
+		this.depends_on = depends_on;
+	}
+
+	public void setHelp(String help)
+	{
+		this.help = help;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public void setRange(String range)
+	{
+		this.range = range;
+	}
+
+	public void setTitle(String title)
+	{
+		this.title = title;
+	}
+
+	public void setType(String type)
+	{
+		this.type = type;
 	}
 }
