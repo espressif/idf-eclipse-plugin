@@ -5,10 +5,11 @@
 package com.espressif.idf.sdk.config.core.server;
 
 /**
- * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  * 
- * JSON Configuration server command type - this will be helpful in taking action based on the command type when
- *         editor received the response from the server
+ * JSON Configuration server command type - this will be helpful in taking action based on the command type when editor
+ * received the response from the server
+ * 
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
 public enum CommandType

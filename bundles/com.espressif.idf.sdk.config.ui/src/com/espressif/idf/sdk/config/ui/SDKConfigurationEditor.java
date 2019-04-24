@@ -36,8 +36,11 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -45,6 +48,7 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.ISaveablePart;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.editors.text.TextEditor;
@@ -65,8 +69,11 @@ import com.espressif.idf.sdk.config.core.server.ConfigServerManager;
 import com.espressif.idf.sdk.config.core.server.IMessageHandlerListener;
 import com.espressif.idf.sdk.config.core.server.JsonConfigProcessor;
 import com.espressif.idf.sdk.config.core.server.JsonConfigServer;
+import com.espressif.idf.ui.dialogs.HelpPopupDialog;
 
 /**
+ * SDK Configuration editor which represents the UI for the all sdkconfig fields
+ * 
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
@@ -76,6 +83,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 {
 
 	public static String EDITOR_ID = "com.espressif.idf.sdk.config.ui.editor"; //$NON-NLS-1$
+
+	private static final String ICONS_INFO_OBJ_GIF = "icons/help.gif"; //$NON-NLS-1$
 
 	private TreeViewer treeViewer;
 
@@ -101,6 +110,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	 * Captures only text field changes
 	 */
 	private JSONObject modifiedJsonMap = new JSONObject();
+
+	private HelpPopupDialog infoDialog;
 
 	public SDKConfigurationEditor()
 	{
@@ -521,7 +532,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			control.dispose();
 		}
 
-		updateUIComposite.setLayout((new GridLayout(2, false)));
+		updateUIComposite.setLayout((new GridLayout(3, false)));
 		updateUIComposite.setText(selectedElement.getTitle());
 		GridData updateCompsiteGD = new GridData(SWT.FILL, SWT.FILL, true, true);
 		updateCompsiteGD.verticalIndent = 10;
@@ -545,8 +556,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			Object configValue = valuesJsonMap.get(configKey);
 			Object isEnabled = visibleJsonMap.get(configKey);
 			Object newConfigValue = modifiedJsonMap.get(configKey);
-
-			String tooltip = kConfigMenuItem.getHelp();
+			String helpInfo = kConfigMenuItem.getHelp();
 
 			if (type.equals(IJsonServerConfig.STRING_TYPE))
 			{
@@ -559,12 +569,14 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				gridData.widthHint = 250;
 				textControl.setLayoutData(gridData);
 				textControl.setEnabled(Boolean.valueOf((boolean) isEnabled));
-				textControl.setToolTipText(tooltip);
+				textControl.setToolTipText(helpInfo);
 				if (configValue != null)
 				{
 					textControl.setText(newConfigValue != null ? (String) newConfigValue : (String) configValue);
 				}
 				textControl.addModifyListener(addModifyListener(configKey, textControl));
+				addTooltipImage(configKey, helpInfo);
+
 			}
 			else if (type.equals(IJsonServerConfig.HEX_TYPE))
 			{
@@ -577,14 +589,14 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				gridData.widthHint = 250;
 				textControl.setLayoutData(gridData);
 				textControl.setEnabled(Boolean.valueOf((boolean) isEnabled));
-				textControl.setToolTipText(tooltip);
+				textControl.setToolTipText(helpInfo);
 				if (configValue != null)
 				{
 					textControl.setText(newConfigValue != null ? Long.toString((long) newConfigValue)
 							: Long.toString((long) configValue));
 				}
 				textControl.addModifyListener(addModifyListener(configKey, textControl));
-
+				addTooltipImage(configKey, helpInfo);
 			}
 			else if (type.equals(IJsonServerConfig.BOOL_TYPE))
 			{
@@ -593,7 +605,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				button.setText(kConfigMenuItem.getTitle());
 				button.setLayoutData(new GridData(SWT.NONE, SWT.NONE, false, false, 2, 1));
 				button.setEnabled(Boolean.valueOf((boolean) isEnabled));
-				button.setToolTipText(tooltip);
+				button.setToolTipText(helpInfo);
 				if (configValue != null)
 				{
 					button.setSelection((boolean) configValue);
@@ -609,7 +621,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 					}
 
 				});
-
+				addTooltipImage(configKey, helpInfo);
 			}
 
 			else if (type.equals(IJsonServerConfig.INT_TYPE))
@@ -623,7 +635,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				gridData.widthHint = 250;
 				text.setLayoutData(gridData);
 				text.setEnabled(Boolean.valueOf((boolean) isEnabled));
-				text.setToolTipText(tooltip);
+				text.setToolTipText(helpInfo);
 
 				if (configValue != null)
 				{
@@ -631,6 +643,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 				}
 				text.addModifyListener(addModifyListener(configKey, text));
+				addTooltipImage(configKey, helpInfo);
 
 			}
 			else if (type.equals(IJsonServerConfig.CHOICE_TYPE))
@@ -680,6 +693,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 						}
 					}
 				});
+				addTooltipImage(configKey, helpInfo);
 			}
 
 			// kConfigMenuItem has children?
@@ -689,6 +703,34 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				renderMenuItems(kConfigMenuItem);
 			}
 		}
+	}
+
+	protected void addTooltipImage(String configKey, String helpInfo)
+	{
+		Label labelName = new Label(updateUIComposite, SWT.NONE);
+		labelName.setImage(SDKConfigUIPlugin.getImage(ICONS_INFO_OBJ_GIF));
+		labelName.addListener(SWT.MouseUp, getMouseClickListener(configKey, helpInfo));
+		labelName.setToolTipText(Messages.SDKConfigurationEditor_Help);
+	}
+
+	private Listener getMouseClickListener(String configKey, String helpInfo)
+	{
+		return new Listener()
+		{
+			@Override
+			public void handleEvent(Event event)
+			{
+				Shell activeShell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+				if (infoDialog != null)
+				{
+					infoDialog.close();
+				}
+				infoDialog = new HelpPopupDialog(activeShell, Messages.SDKConfigurationEditor_Help + " > " + configKey,
+						helpInfo); // $NON-NLS-2$
+				infoDialog.open();
+
+			}
+		};
 	}
 
 	protected ModifyListener addModifyListener(String configKey, Text textControl)

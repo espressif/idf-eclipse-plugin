@@ -16,6 +16,7 @@ public class Messages extends NLS
 	public static String SDKConfigurationEditor_ChangesWontbeSaved;
 	public static String SDKConfigurationEditor_Design;
 	public static String SDKConfigurationEditor_Error;
+	public static String SDKConfigurationEditor_Help;
 	public static String SDKConfigurationEditor_InvalidInput;
 	public static String SDKConfigurationEditor_Preview;
 	public static String SDKConfigurationEditor_SaveChanges;
