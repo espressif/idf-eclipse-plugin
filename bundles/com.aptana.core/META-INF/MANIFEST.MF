@@ -17,7 +17,6 @@ Bundle-ActivationPolicy: lazy
 Export-Package: com.aptana.core,
  com.aptana.core.build,
  com.aptana.core.diagnostic,
- com.aptana.core.logging,
  com.aptana.core.resources,
  com.aptana.core.util,
  com.aptana.core.util.replace

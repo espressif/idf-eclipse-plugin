@@ -31,4 +31,6 @@ public interface IJsonServerConfig
 	String LOAD = "load"; //$NON-NLS-1$
 	
 	String COMPONENT_CONFIG_TITLE = "Component config"; //$NON-NLS-1$
+	
+	String IDF_CMAKE = "IDF_CMAKE";
 }

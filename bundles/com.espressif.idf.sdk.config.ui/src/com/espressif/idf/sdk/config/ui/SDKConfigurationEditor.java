@@ -60,6 +60,8 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.logging.IdfLog;
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.sdk.config.core.IJsonServerConfig;
 import com.espressif.idf.sdk.config.core.KConfigMenuItem;
 import com.espressif.idf.sdk.config.core.KConfigMenuProcessor;
@@ -551,10 +553,17 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		for (KConfigMenuItem kConfigMenuItem : children)
 		{
 			String type = kConfigMenuItem.getType();
+			boolean isDependencyEnabled = isDependencyEnabled(kConfigMenuItem);
+			boolean isIDFCMakeEnabled = hasCMakeVisibility(kConfigMenuItem);
+			if (!isIDFCMakeEnabled)
+			{
+				continue;
+			}
 
 			String configKey = kConfigMenuItem.getName();
 			Object configValue = valuesJsonMap.get(configKey);
-			Object isEnabled = visibleJsonMap.get(configKey);
+			boolean isEnabled = (visibleJsonMap.get(configKey) != null ? (boolean) visibleJsonMap.get(configKey)
+					: false) && isDependencyEnabled;
 			Object newConfigValue = modifiedJsonMap.get(configKey);
 			String helpInfo = kConfigMenuItem.getHelp();
 
@@ -562,13 +571,13 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			{
 				Label labelName = new Label(updateUIComposite, SWT.NONE);
 				labelName.setText(kConfigMenuItem.getTitle());
-				labelName.setEnabled(Boolean.valueOf((boolean) isEnabled));
+				labelName.setEnabled(isEnabled);
 
 				Text textControl = new Text(updateUIComposite, SWT.SINGLE | SWT.BORDER);
 				GridData gridData = new GridData();
 				gridData.widthHint = 250;
 				textControl.setLayoutData(gridData);
-				textControl.setEnabled(Boolean.valueOf((boolean) isEnabled));
+				textControl.setEnabled(isEnabled);
 				textControl.setToolTipText(helpInfo);
 				if (configValue != null)
 				{
@@ -582,13 +591,13 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			{
 				Label labelName = new Label(updateUIComposite, SWT.NONE);
 				labelName.setText(kConfigMenuItem.getTitle());
-				labelName.setEnabled(Boolean.valueOf((boolean) isEnabled));
+				labelName.setEnabled(isEnabled);
 
 				Text textControl = new Text(updateUIComposite, SWT.SINGLE | SWT.BORDER);
 				GridData gridData = new GridData();
 				gridData.widthHint = 250;
 				textControl.setLayoutData(gridData);
-				textControl.setEnabled(Boolean.valueOf((boolean) isEnabled));
+				textControl.setEnabled(isEnabled);
 				textControl.setToolTipText(helpInfo);
 				if (configValue != null)
 				{
@@ -600,11 +609,10 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			}
 			else if (type.equals(IJsonServerConfig.BOOL_TYPE))
 			{
-
 				Button button = new Button(updateUIComposite, SWT.CHECK);
 				button.setText(kConfigMenuItem.getTitle());
 				button.setLayoutData(new GridData(SWT.NONE, SWT.NONE, false, false, 2, 1));
-				button.setEnabled(Boolean.valueOf((boolean) isEnabled));
+				button.setEnabled(isEnabled);
 				button.setToolTipText(helpInfo);
 				if (configValue != null)
 				{
@@ -628,13 +636,13 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			{
 				Label labelName = new Label(updateUIComposite, SWT.NONE);
 				labelName.setText(kConfigMenuItem.getTitle());
-				labelName.setEnabled(Boolean.valueOf((boolean) isEnabled));
+				labelName.setEnabled(isEnabled);
 
 				Text text = new Text(updateUIComposite, SWT.SINGLE | SWT.BORDER);
 				GridData gridData = new GridData();
 				gridData.widthHint = 250;
 				text.setLayoutData(gridData);
-				text.setEnabled(Boolean.valueOf((boolean) isEnabled));
+				text.setEnabled(isEnabled);
 				text.setToolTipText(helpInfo);
 
 				if (configValue != null)
@@ -668,12 +676,13 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 					choiceCombo.add(item.getTitle());
 					choiceCombo.setData(item.getTitle(), localConfigKey);
 
-					isEnabled = valuesJsonMap.get(localConfigKey);
-					if (isEnabled != null && isEnabled.equals(true))
+					isEnabled = valuesJsonMap.get(localConfigKey) != null ? (boolean) valuesJsonMap.get(localConfigKey)
+							: false;
+					if (isEnabled)
 					{
 						choiceCombo.select(index);
-						choiceCombo.setEnabled(Boolean.valueOf((boolean) isEnabled));
-						labelName.setEnabled(Boolean.valueOf((boolean) isEnabled));
+						choiceCombo.setEnabled(isEnabled);
+						labelName.setEnabled(isEnabled);
 					}
 					index++;
 				}
@@ -705,6 +714,53 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		}
 	}
 
+	private boolean hasCMakeVisibility(KConfigMenuItem kConfigMenuItem) // IDF_CMAKE = true > !IDF_CMAKE > Return >
+																		// false
+	{
+		String depends_on = kConfigMenuItem.getDepends_on();
+		if (!StringUtil.isEmpty(depends_on) && depends_on.contains(IJsonServerConfig.IDF_CMAKE))
+		{
+			return isDependencyEnabled(kConfigMenuItem);
+		}
+		return true;
+	}
+
+	protected boolean isDependencyEnabled(KConfigMenuItem kConfigMenuItem)
+	{
+		String depends_on = kConfigMenuItem.getDepends_on();
+		IdfLog.logTrace(SDKConfigUIPlugin.getDefault(), "depends_on >" + depends_on); //$NON-NLS-1$
+		if (depends_on == null) // no dependency
+		{
+			return true;
+		}
+
+		String regex = "\\|\\||&&"; //$NON-NLS-1$
+		String[] split = depends_on.split(regex);
+		for (String sdkConfigKey : split)
+		{
+			String originalKey = sdkConfigKey;
+			if (sdkConfigKey.startsWith("!")) //$NON-NLS-1$
+			{
+				originalKey = sdkConfigKey.substring(1);
+			}
+			else if (sdkConfigKey.startsWith("<choice")) //$NON-NLS-1$
+			{
+				originalKey = sdkConfigKey.substring("<choice".length(), sdkConfigKey.length() - 1); //$NON-NLS-1$
+			}
+			depends_on = depends_on.replace(sdkConfigKey, Boolean.toString(hasVisibility(originalKey.trim())));
+		}
+
+		IdfLog.logTrace(SDKConfigUIPlugin.getDefault(), "Evaluated expression > " + depends_on); //$NON-NLS-1$
+
+		// evaluate original expression
+		return Boolean.valueOf(depends_on);
+	}
+
+	protected boolean hasVisibility(String originalKey)
+	{
+		return visibleJsonMap.get(originalKey) != null ? (boolean) visibleJsonMap.get(originalKey) : false;
+	}
+
 	protected void addTooltipImage(String configKey, String helpInfo)
 	{
 		Label labelName = new Label(updateUIComposite, SWT.NONE);
@@ -720,12 +776,18 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			@Override
 			public void handleEvent(Event event)
 			{
+				if (StringUtil.isEmpty(helpInfo))
+				{
+					String msg = MessageFormat.format(Messages.SDKConfigurationEditor_NoHelpAvailable, configKey);
+					IdfLog.logInfo(SDKConfigUIPlugin.getDefault(), msg);
+					return;
+				}
 				Shell activeShell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 				if (infoDialog != null)
 				{
 					infoDialog.close();
 				}
-				infoDialog = new HelpPopupDialog(activeShell, Messages.SDKConfigurationEditor_Help + " > " + configKey,
+				infoDialog = new HelpPopupDialog(activeShell, Messages.SDKConfigurationEditor_Help + " > " + configKey, //$NON-NLS-1$
 						helpInfo); // $NON-NLS-2$
 				infoDialog.open();
 

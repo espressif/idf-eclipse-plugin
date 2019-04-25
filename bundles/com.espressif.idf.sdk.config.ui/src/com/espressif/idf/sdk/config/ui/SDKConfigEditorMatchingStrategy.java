@@ -12,7 +12,7 @@ import org.eclipse.ui.IEditorReference;
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
-public class SDKConfigEdittorMatchingStrategy implements IEditorMatchingStrategy
+public class SDKConfigEditorMatchingStrategy implements IEditorMatchingStrategy
 {
 
 	@Override

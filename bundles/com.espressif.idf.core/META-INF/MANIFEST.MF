@@ -8,8 +8,11 @@ Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.filesystem;visibility:=reexport,
  org.eclipse.core.resources;visibility:=reexport,
- org.eclipse.cdt.core
+ org.eclipse.cdt.core,
+ com.aptana.core
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: com.espressif.idf.core
 Bundle-ActivationPolicy: lazy
-Export-Package: com.espressif.idf.core,com.espressif.idf.core.util
+Export-Package: com.espressif.idf.core,
+ com.espressif.idf.core.logging,
+ com.espressif.idf.core.util
