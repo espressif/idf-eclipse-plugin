@@ -14,7 +14,18 @@ package com.espressif.idf.sdk.config.core.server;
  */
 public enum CommandType
 {
+	/**
+	 * LOAD COMMAND - Discard the current changes and load the changes from the config server
+	 */
 	LOAD, 
+	
+	/**
+	 * SAVE COMMAND - Save the current changes to the file system
+	 */
 	SAVE, 
+	
+	/**
+	 * SET COMMAND - Save the changes to cache. It won't be saved to the file system until save command is invoked
+	 */
 	SET
 }

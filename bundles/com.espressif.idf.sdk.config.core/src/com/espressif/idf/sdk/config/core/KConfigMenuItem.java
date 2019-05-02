@@ -7,6 +7,8 @@ package com.espressif.idf.sdk.config.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.simple.JSONObject;
+
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
@@ -14,7 +16,6 @@ import java.util.List;
 public class KConfigMenuItem
 {
 	private List<KConfigMenuItem> children;
-	private String depends_on;
 	private String help;
 	private String name;
 	private KConfigMenuItem parent;
@@ -36,11 +37,6 @@ public class KConfigMenuItem
 	public List<KConfigMenuItem> getChildren()
 	{
 		return children;
-	}
-
-	public String getDepends_on()
-	{
-		return depends_on;
 	}
 
 	public String getHelp()
@@ -83,11 +79,6 @@ public class KConfigMenuItem
 		this.children = children;
 	}
 
-	public void setDepends_on(String depends_on)
-	{
-		this.depends_on = depends_on;
-	}
-
 	public void setHelp(String help)
 	{
 		this.help = help;
@@ -111,5 +102,65 @@ public class KConfigMenuItem
 	public void setType(String type)
 	{
 		this.type = type;
+	}
+	
+	public boolean isVisible(JSONObject visibleJsonMap)
+	{
+		if (visibleJsonMap == null || visibleJsonMap.isEmpty())
+		{
+			return false;
+		}
+		
+		if (getType() != null && getType().equals(IJsonServerConfig.MENU_TYPE))
+		{
+			return isVisible(children, visibleJsonMap);
+		}
+		return isVisible(visibleJsonMap, getName());
+	}
+
+	private boolean isVisible(List<KConfigMenuItem> children, JSONObject visibleJsonMap)
+	{
+		for (KConfigMenuItem kConfigMenuItem : children)
+		{
+			String type = kConfigMenuItem.getType();
+			String configKey = kConfigMenuItem.getName();
+			boolean isVisible = false; 
+			if (type.equals(IJsonServerConfig.STRING_TYPE)
+					|| type.equals(IJsonServerConfig.HEX_TYPE)
+					|| type.equals(IJsonServerConfig.BOOL_TYPE)
+					|| type.equals(IJsonServerConfig.INT_TYPE)
+					)
+			{
+				isVisible = isVisible(visibleJsonMap, configKey);
+				if (isVisible)
+				{
+					return true;
+				}
+			}
+			else if (type.equals(IJsonServerConfig.CHOICE_TYPE))
+			{
+				List<KConfigMenuItem> choiceItems = kConfigMenuItem.getChildren();
+				for (KConfigMenuItem item : choiceItems)
+				{
+					String localConfigKey = item.getName();
+					isVisible = isVisible(visibleJsonMap, localConfigKey);
+					if (isVisible)
+					{
+						return true;
+					}
+				}
+			}
+			else if (type.equals(IJsonServerConfig.MENU_TYPE))
+			{
+				
+				return isVisible(kConfigMenuItem.getChildren(), visibleJsonMap);
+			}
+		}
+		return false;
+	}
+
+	private boolean isVisible(JSONObject visibleJsonMap, String configKey)
+	{
+		return visibleJsonMap.get(configKey) != null ? (boolean) visibleJsonMap.get(configKey): false;
 	}
 }

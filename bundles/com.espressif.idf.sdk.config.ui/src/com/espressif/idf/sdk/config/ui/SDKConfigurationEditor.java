@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -56,7 +55,6 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.MultiPageEditorPart;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.espressif.idf.core.IDFCorePlugin;
@@ -68,6 +66,7 @@ import com.espressif.idf.sdk.config.core.KConfigMenuProcessor;
 import com.espressif.idf.sdk.config.core.SDKConfigUtil;
 import com.espressif.idf.sdk.config.core.server.CommandType;
 import com.espressif.idf.sdk.config.core.server.ConfigServerManager;
+import com.espressif.idf.sdk.config.core.server.IJsonConfigOutput;
 import com.espressif.idf.sdk.config.core.server.IMessageHandlerListener;
 import com.espressif.idf.sdk.config.core.server.JsonConfigProcessor;
 import com.espressif.idf.sdk.config.core.server.JsonConfigServer;
@@ -201,7 +200,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		treeViewer = transfersTree.getViewer();
 
 		// Create the tree viewer as a child of the composite parent
-		treeViewer.setContentProvider(new ConfigContentProvider());
+		treeViewer.setContentProvider(new ConfigContentProvider(project));
 		treeViewer.setLabelProvider(new ConfigLabelProvider());
 
 		treeViewer.setUseHashlookup(true);
@@ -314,58 +313,28 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		JsonConfigProcessor jsonProcessor = new JsonConfigProcessor();
 		if (isReady(5, 1000, jsonProcessor))
 		{
-			String initialOutput = jsonProcessor.getInitialOutput(serverMessage);
-
-			JSONParser parser = new JSONParser();
-			JSONObject jsonObj = (JSONObject) parser.parse(initialOutput);
-			if (jsonObj != null)
-			{
-				valuesJsonMap = (JSONObject) jsonObj.get(IJsonServerConfig.VALUES);
-				visibleJsonMap = (JSONObject) jsonObj.get(IJsonServerConfig.VISIBLE);
-				rangesJsonMap = (JSONObject) jsonObj.get(IJsonServerConfig.RANGES);
-			}
+			String response = jsonProcessor.getInitialOutput(serverMessage);
+			IJsonConfigOutput output = configServer.getOutput(response, false);
+			valuesJsonMap = output.getValuesJsonMap();
+			visibleJsonMap = output.getVisibleJsonMap();
+			rangesJsonMap = output.getRangesJsonMap();
 		}
 	}
 
 	protected void update() throws ParseException
 	{
 		JsonConfigProcessor jsonProcessor = new JsonConfigProcessor();
-		String output = jsonProcessor.getInitialOutput(serverMessage);
-		if (output == null)
+		String response = jsonProcessor.getInitialOutput(serverMessage);
+		if (response == null)
 		{
 			return;
 		}
+		
+		IJsonConfigOutput output = configServer.getOutput(response, true);
+		valuesJsonMap = output.getValuesJsonMap();
+		visibleJsonMap = output.getVisibleJsonMap();
+		rangesJsonMap = output.getRangesJsonMap();
 
-		JSONParser parser = new JSONParser();
-		JSONObject jsonObj = (JSONObject) parser.parse(output);
-		if (jsonObj != null)
-		{
-			// newly updated values and visible items
-			JSONObject visibleJson = (JSONObject) jsonObj.get(IJsonServerConfig.VISIBLE);
-			JSONObject valuesJson = (JSONObject) jsonObj.get(IJsonServerConfig.VALUES);
-			JSONObject rangesJson = (JSONObject) jsonObj.get(IJsonServerConfig.RANGES);
-
-			// Updated visible items
-			Set<String> newVisibleKeyset = visibleJson.keySet();
-			for (String key : newVisibleKeyset)
-			{
-				visibleJsonMap.put(key, visibleJson.get(key));
-			}
-
-			// Updated values
-			Set<String> newValuesKeyset = valuesJson.keySet();
-			for (String key : newValuesKeyset)
-			{
-				valuesJsonMap.put(key, valuesJson.get(key));
-			}
-
-			// Updated ranges
-			Set<String> newRangesKeyset = rangesJson.keySet();
-			for (String key : newRangesKeyset)
-			{
-				rangesJsonMap.put(key, rangesJson.get(key));
-			}
-		}
 	}
 
 	/**
@@ -520,7 +489,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 	private void updateUI(KConfigMenuItem selectedElement)
 	{
-		if (selectedElement == null || updateUIComposite == null || updateUIComposite.isDisposed())
+		if (selectedElement == null || updateUIComposite == null || updateUIComposite.isDisposed() || valuesJsonMap == null)
 		{
 			return;
 		}
@@ -554,12 +523,12 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			String type = kConfigMenuItem.getType();
 			String configKey = kConfigMenuItem.getName();
 			Object configValue = valuesJsonMap.get(configKey);
-			boolean isEnabled = (visibleJsonMap.get(configKey) != null ? (boolean) visibleJsonMap.get(configKey)
+			boolean isVisible = (visibleJsonMap.get(configKey) != null ? (boolean) visibleJsonMap.get(configKey)
 					: false);
 			Object newConfigValue = modifiedJsonMap.get(configKey);
 			String helpInfo = kConfigMenuItem.getHelp();
 
-			if (isEnabled && type.equals(IJsonServerConfig.STRING_TYPE))
+			if (isVisible && type.equals(IJsonServerConfig.STRING_TYPE))
 			{
 				Label labelName = new Label(updateUIComposite, SWT.NONE);
 				labelName.setText(kConfigMenuItem.getTitle());
@@ -577,7 +546,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				addTooltipImage(configKey, helpInfo);
 
 			}
-			else if (isEnabled && type.equals(IJsonServerConfig.HEX_TYPE))
+			else if (isVisible && type.equals(IJsonServerConfig.HEX_TYPE))
 			{
 				Label labelName = new Label(updateUIComposite, SWT.NONE);
 				labelName.setText(kConfigMenuItem.getTitle());
@@ -595,7 +564,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				textControl.addModifyListener(addModifyListener(configKey, textControl));
 				addTooltipImage(configKey, helpInfo);
 			}
-			else if (isEnabled && type.equals(IJsonServerConfig.BOOL_TYPE))
+			else if (isVisible && type.equals(IJsonServerConfig.BOOL_TYPE))
 			{
 				Button button = new Button(updateUIComposite, SWT.CHECK);
 				button.setText(kConfigMenuItem.getTitle());
@@ -619,7 +588,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				addTooltipImage(configKey, helpInfo);
 			}
 
-			else if (isEnabled && type.equals(IJsonServerConfig.INT_TYPE))
+			else if (isVisible && type.equals(IJsonServerConfig.INT_TYPE))
 			{
 				Label labelName = new Label(updateUIComposite, SWT.NONE);
 				labelName.setText(kConfigMenuItem.getTitle());
@@ -641,16 +610,16 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			}
 			else if (type.equals(IJsonServerConfig.CHOICE_TYPE))
 			{
-				IdfLog.logInfo(SDKConfigUIPlugin.getDefault(), "Config key >" + configKey + " visiblity status >" + isEnabled);
+				IdfLog.logInfo(SDKConfigUIPlugin.getDefault(), "Config key >" + configKey + " visiblity status >" + isVisible); //$NON-NLS-1$ //$NON-NLS-2$
 				List<KConfigMenuItem> choiceItems = kConfigMenuItem.getChildren();
 				for (KConfigMenuItem item : choiceItems)
 				{
 					String localConfigKey = item.getName();
-					isEnabled = (visibleJsonMap.get(localConfigKey) != null ? (boolean) visibleJsonMap.get(localConfigKey) : false);
-					IdfLog.logInfo(SDKConfigUIPlugin.getDefault(),"local key:"+ localConfigKey + " Visibility >" + isEnabled);
+					isVisible = (visibleJsonMap.get(localConfigKey) != null ? (boolean) visibleJsonMap.get(localConfigKey) : false);
+					IdfLog.logInfo(SDKConfigUIPlugin.getDefault(),"local key:"+ localConfigKey + " Visibility >" + isVisible); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				
-				if (isEnabled)
+				if (isVisible)
 				{
 					Label labelName = new Label(updateUIComposite, SWT.NONE);
 					labelName.setText(kConfigMenuItem.getTitle());
@@ -669,8 +638,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 						choiceCombo.add(item.getTitle());
 						choiceCombo.setData(item.getTitle(), localConfigKey);
 
-						isEnabled = valuesJsonMap.get(localConfigKey) != null ? (boolean) valuesJsonMap.get(localConfigKey): false;
-						if (isEnabled)
+						isVisible = valuesJsonMap.get(localConfigKey) != null ? (boolean) valuesJsonMap.get(localConfigKey): false;
+						if (isVisible)
 						{
 							choiceCombo.select(index);
 						}
@@ -816,6 +785,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 					@Override
 					public void run()
 					{
+						treeViewer.refresh();
 						updateUI(selectedElement);
 					}
 				});

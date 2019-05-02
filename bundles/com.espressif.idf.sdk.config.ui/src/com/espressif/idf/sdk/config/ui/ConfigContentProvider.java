@@ -7,12 +7,18 @@ package com.espressif.idf.sdk.config.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.TreeNodeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.json.simple.JSONObject;
 
+import com.espressif.idf.core.logging.IdfLog;
 import com.espressif.idf.sdk.config.core.IJsonServerConfig;
 import com.espressif.idf.sdk.config.core.KConfigMenuItem;
+import com.espressif.idf.sdk.config.core.SDKConfigCorePlugin;
+import com.espressif.idf.sdk.config.core.server.ConfigServerManager;
+import com.espressif.idf.sdk.config.core.server.JsonConfigServer;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -22,6 +28,12 @@ public class ConfigContentProvider extends TreeNodeContentProvider
 {
 	private static Object[] EMPTY_ARRAY = new Object[0];
 	protected TreeViewer viewer;
+	private IProject project;
+
+	public ConfigContentProvider(IProject project)
+	{
+		this.project = project;
+	}
 
 	/*
 	 * @see IContentProvider#dispose()
@@ -70,13 +82,22 @@ public class ConfigContentProvider extends TreeNodeContentProvider
 
 	private List<KConfigMenuItem> getMenuItems(List<KConfigMenuItem> children)
 	{
-
+		
+		JsonConfigServer configServer = ConfigServerManager.INSTANCE.getServer(project);
 		List<KConfigMenuItem> menuList = new ArrayList<KConfigMenuItem>();
 		for (KConfigMenuItem kConfigMenuItem : children)
 		{
 			if (kConfigMenuItem.getType() != null && kConfigMenuItem.getType().equals(IJsonServerConfig.MENU_TYPE))
 			{
-				menuList.add(kConfigMenuItem);
+				JSONObject visibleJsonMap = configServer.getOutput().getVisibleJsonMap();
+				IdfLog.logTrace(SDKConfigCorePlugin.getPlugin(), "item >" + kConfigMenuItem.getTitle() + " type >"+ kConfigMenuItem.getType()); //$NON-NLS-1$ //$NON-NLS-2$
+				
+				boolean visible = kConfigMenuItem.isVisible(visibleJsonMap);
+				IdfLog.logTrace(SDKConfigCorePlugin.getPlugin(), "visibility >" + kConfigMenuItem.isVisible(visibleJsonMap)); //$NON-NLS-1$
+				if (visible)
+				{
+					menuList.add(kConfigMenuItem);
+				}
 			}
 		}
 

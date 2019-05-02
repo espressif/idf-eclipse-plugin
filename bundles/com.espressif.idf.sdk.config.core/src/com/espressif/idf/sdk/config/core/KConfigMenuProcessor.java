@@ -81,7 +81,6 @@ public class KConfigMenuProcessor
 			childMenu.setName((String) jsonObject.get("name")); //$NON-NLS-1$
 			childMenu.setType((String) jsonObject.get("type")); //$NON-NLS-1$
 			childMenu.setHelp((String) jsonObject.get("help")); //$NON-NLS-1$
-			childMenu.setDepends_on((String) jsonObject.get("depends_on")); //$NON-NLS-1$
 
 			String title = (String) jsonObject.get("title"); //$NON-NLS-1$
 			childMenu.setTitle(title);

@@ -14,12 +14,15 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchManager;
+import org.json.simple.parser.ParseException;
 
 import com.aptana.core.ShellExecutable;
 import com.aptana.core.util.ProcessRunner;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.logging.IdfLog;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.sdk.config.core.SDKConfigCorePlugin;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -31,11 +34,13 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 	private List<IMessageHandlerListener> listeners;
 	private IProject project;
 	private JsonConfigServerRunnable runnable;
+	private JsonConfigOutput configOutput;
 
 	public JsonConfigServer(IProject project)
 	{
 		this.project = project;
 		listeners = new ArrayList<IMessageHandlerListener>();
+		configOutput = new JsonConfigOutput();
 	}
 
 	public void addListener(IMessageHandlerListener listener)
@@ -104,5 +109,24 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 	protected ILaunchManager getLaunchManager()
 	{
 		return DebugPlugin.getDefault().getLaunchManager();
+	}
+
+	public IJsonConfigOutput getOutput(String response, boolean isUpdate)
+	{
+		try
+		{
+			configOutput.parse(response, isUpdate);
+		}
+		catch (ParseException e)
+		{
+			IdfLog.logError(SDKConfigCorePlugin.getPlugin(), e);
+		}
+
+		return configOutput;
+	}
+	
+	public IJsonConfigOutput getOutput()
+	{
+		return configOutput;
 	}
 }
