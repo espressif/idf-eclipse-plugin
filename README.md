@@ -142,7 +142,7 @@ ESP-IDF has a tool called "idf.py" which is a wrapper around make flash command 
 
 * Click on the `Launch Configuration` edit button
 * Switch to the `Main` tab
-* Specify the `Location` where this application has to run on. Since idf.py is a python file, will configure the python system path. Example:{system_path:python}
+* Specify the `Location` where this application has to run on. Since idf.py is a python file, will configure the python system path. Example:`${system_path:python}`
 * Specify `Working directory` of the application. Example: `${workspace_loc:/hello_world}`
 * In additional arguments, provide a flashing command which will run in the specified working directory
 * Flash command looks like this: `/Users/kondal/esp/esp-idf/tools/idf.py -p /dev/cu.SLAB_USBtoUART flash`
