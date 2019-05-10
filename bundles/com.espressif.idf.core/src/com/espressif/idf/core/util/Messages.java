@@ -18,6 +18,7 @@ public class Messages extends NLS {
 	public static String FileUtil_SourceDirNotavailable;
 	public static String FileUtil_UnableToCopy;
 	public static String FileUtil_WritableProblemMsg;
+	public static String IDFUtil_CouldNotFindDir;
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

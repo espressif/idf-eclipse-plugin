@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="com.espressif.idf.sdk.config.core.SDKConfigPropertyTester"
+            id="com.espressif.idf.sdk.config.core.sdkconfigPropertyTester"
+            namespace="com.espressif.idf.sdk.config.core"
+            properties="isSDKConfig"
+            type="org.eclipse.core.resources.IFile">
+      </propertyTester>
+   </extension>
+
+</plugin>

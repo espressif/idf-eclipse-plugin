@@ -30,3 +30,4 @@ Require-Bundle: org.eclipse.core.runtime,
 Automatic-Module-Name: com.espressif.idf.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: com.espressif.idf.ui.dialogs

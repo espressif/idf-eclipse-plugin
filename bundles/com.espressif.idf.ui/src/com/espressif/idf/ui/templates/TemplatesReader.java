@@ -37,13 +37,7 @@ public class TemplatesReader
 		// build a root
 		TemplateNode root = new TemplateNode(null, null, null, IResource.ROOT);
 
-		IEnvironmentVariable variable = getIDFEnv();
-
-		String idf_path = StringUtil.EMPTY;
-		if (variable != null)
-		{
-			idf_path = variable.getValue();
-		}
+		String idf_path =  new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PATH);
 
 		File idfpath_file = new File(idf_path + IPath.SEPARATOR + IDFConstants.TEMPLATE_FOLDER_NAME);
 		if (idfpath_file.isDirectory())
@@ -54,17 +48,6 @@ public class TemplatesReader
 			return root;
 		}
 		return root;
-	}
-
-	/**
-	 * @return
-	 */
-	protected IEnvironmentVariable getIDFEnv()
-	{
-		IEnvironmentVariableManager buildEnvironmentManager = CCorePlugin.getDefault().getBuildEnvironmentManager();
-		IContributedEnvironment contributedEnvironment = buildEnvironmentManager.getContributedEnvironment();
-		IEnvironmentVariable variable = contributedEnvironment.getVariable(IDFEnvironmentVariables.IDF_PATH, null);
-		return variable;
 	}
 
 	/**

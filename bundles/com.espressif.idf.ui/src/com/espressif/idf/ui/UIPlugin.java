@@ -4,6 +4,8 @@
  *******************************************************************************/
 package com.espressif.idf.ui;
 
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -46,6 +48,37 @@ public class UIPlugin extends AbstractUIPlugin {
 	 */
 	public static UIPlugin getDefault() {
 		return plugin;
+	}
+	
+	/**
+	 * @param path
+	 * @return
+	 */
+	public static ImageDescriptor getImageDescriptor(String path)
+	{
+		ImageDescriptor imageDescriptor = getDefault().getImageRegistry().getDescriptor(path);
+		if (imageDescriptor == null)
+		{
+			imageDescriptor = imageDescriptorFromPlugin(PLUGIN_ID, path);
+			if (imageDescriptor != null)
+			{
+				getDefault().getImageRegistry().put(path, imageDescriptor);
+			}
+		}
+		return imageDescriptor;
+	}
+
+	/**
+	 * @param string
+	 * @return
+	 */
+	public static Image getImage(String string)
+	{
+		if (getImageDescriptor(string) != null)
+		{
+			return getDefault().getImageRegistry().get(string);
+		}
+		return null;
 	}
 
 }

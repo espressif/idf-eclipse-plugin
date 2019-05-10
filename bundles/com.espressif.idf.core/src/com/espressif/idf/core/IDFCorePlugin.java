@@ -6,6 +6,7 @@ package com.espressif.idf.core;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
@@ -48,7 +49,26 @@ public class IDFCorePlugin extends Plugin
 			plugin.getLog().log(new Status(IStatus.ERROR, IDFCorePlugin.getId(), e.getLocalizedMessage(), e));
 		}
 	}
+	
+	public static void log(Exception e, boolean onlyDebugMode)
+	{
+		if (!Platform.inDebugMode())
+		{
+			return;
+		}
+		log(e);
+	}
 
+	public static void logInfo(String message)
+	{
+		plugin.getLog().log(new Status(IStatus.INFO, IDFCorePlugin.getId(), message));
+	}
+	
+	public static void logInfo(String message,  boolean onlyDebugMode)
+	{
+		plugin.getLog().log(new Status(IStatus.INFO, IDFCorePlugin.getId(), message));
+	}
+	
 	@Override
 	public void start(BundleContext bundleContext) throws Exception
 	{
