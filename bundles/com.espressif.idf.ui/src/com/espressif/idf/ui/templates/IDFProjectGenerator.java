@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import org.eclipse.cdt.cmake.core.CMakeNature;
 import org.eclipse.cdt.cmake.core.CMakeProjectGenerator;
 import org.eclipse.cdt.core.CCProjectNature;
 import org.eclipse.cdt.core.CProjectNature;
@@ -44,7 +43,7 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 	@Override
 	protected void initProjectDescription(IProjectDescription description) {
 		description.setNatureIds(
-				new String[] { CProjectNature.C_NATURE_ID, CCProjectNature.CC_NATURE_ID, CMakeNature.ID, IDFProjectNature.ID });
+				new String[] { CProjectNature.C_NATURE_ID, CCProjectNature.CC_NATURE_ID, IDFProjectNature.ID });
 		ICommand command = description.newCommand();
 		CBuilder.setupBuilder(command);
 		description.setBuildSpec(new ICommand[] { command });
