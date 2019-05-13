@@ -1,25 +1,6 @@
 # idf-eclipse-plugin
 
 Eclipse Plugins for Espressif IoT Development Framework(IDF)
-
-# Contribution Guide
-
-## Setting up an Eclipse Development Environment:
-* Download and install `Java SE 11`(latest Java 11). Here is the download link https://www.oracle.com/technetwork/java/javase/downloads/index.html
-* Download and install `Eclipse RCP package` (latest Eclipse 2018-12) which you can find here https://www.eclipse.org/downloads/packages/
-* Install `CDT` feature into eclipse from the update site: http://download.eclipse.org/tools/cdt/releases/9.6. 
-* Install the `m2eclipse` feature into eclipse from the update site: https://www.eclipse.org/m2e/
-* Import the plugins, features, and test plugins into your workspace. `File > Import > Maven > Existing Maven Projects`. Select the directory this repo was cloned into.
-
-
-## How to contribute:
-* Fork this repo https://gitlab.espressif.cn:6688/idf/idf-eclipse-plugin
-* Ensure you’ve installed Maven locally https://www.vogella.com/tutorials/ApacheMaven/article.html#maven_installation 
-* Make changes locally on your fork
-* Test with Maven Tycho using `$ mvn clean verify`
-* Submit a Merge Request(MR)
-
-
 # Getting started with the Eclipse IDF Plugins:
 
 * Download `Eclipse CDT package` and install it. https://www.eclipse.org/downloads/packages/release/2018-12/r/eclipse-ide-cc-developers
@@ -121,8 +102,6 @@ Next we need to tell CDT to use the toolchain for our project. This is accomplis
 * Select your applicaton from the second drop-down, which is called `Launch Configuration`
 * Select target from the third drop-down, which is called `Launch Target`
 * Now click on the `Build` button widget which you see on the far left of the toolbar
-
-**NOTE:**  When everything configured correctly as specified above - you will see that `cmake.run.esp32.xtensa` folder is created under the project build folder, this is where the application build articats will be generated. 
 
 ![](docs/images/9_cmake_build.png)
 
