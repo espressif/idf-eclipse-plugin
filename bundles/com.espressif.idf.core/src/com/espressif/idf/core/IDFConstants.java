@@ -65,4 +65,10 @@ public interface IDFConstants
 	 */
 	String SDKCONFIG_FILE_NAME = "sdkconfig"; //$NON-NLS-1$
 	
+	/**
+	 * build folder for idf projects
+	 */
+	String BUILD_FOLDER = "build"; //$NON-NLS-1$
+
+	
 }

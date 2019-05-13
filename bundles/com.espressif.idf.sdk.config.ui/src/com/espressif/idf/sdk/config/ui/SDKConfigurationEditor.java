@@ -374,8 +374,11 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	public void dispose()
 	{
 		// Kill the Config server process
-		configServer.destroy();
-		ConfigServerManager.INSTANCE.deleteServer(project);
+		if (configServer != null)
+		{
+			configServer.destroy();
+			ConfigServerManager.INSTANCE.deleteServer(project);
+		}
 		super.dispose();
 	}
 
