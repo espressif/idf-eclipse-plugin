@@ -9,8 +9,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.filesystem;visibility:=reexport,
  org.eclipse.core.resources;visibility:=reexport,
  org.eclipse.cdt.core,
- com.aptana.core,
- org.eclipse.cdt.cmake.core;visibility:=reexport
+ org.eclipse.cdt.cmake.core;visibility:=reexport,
+ org.eclipse.core.expressions;visibility:=reexport,
+ com.aptana.core;bundle-version="3.3.0";visibility:=reexport
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: com.espressif.idf.core
 Bundle-ActivationPolicy: lazy

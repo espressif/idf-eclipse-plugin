@@ -129,17 +129,27 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		String configMenuJsonPath = null;
 		try
 		{
+			//1. Getting kconfig_menus.json
 			configMenuJsonPath = new SDKConfigUtil().getConfigMenuFilePath(project);
 			if (configMenuJsonPath == null || !new File(configMenuJsonPath).exists())
 			{
-				createErrorPage(configMenuJsonPath);
+				String errorMsg = Messages.SDKConfigurationEditor_UnableFindKConfigFile + configMenuJsonPath;
+				createErrorPage(errorMsg);
+				return;
 			}
-			else
+			
+			//2. Getting output from the configuration server 
+			initConfigServer(project);
+			if (valuesJsonMap == null)
 			{
-				initConfigServer(project);
-				createDesignPage();
-				createSourcePage();
+				String errorMsg = "Error retrieving output from the json configserver, please check the error log.";
+				createErrorPage(errorMsg);
+				return;
 			}
+			
+			//3. Build the UI
+			createDesignPage();
+			createSourcePage();
 		}
 		catch (Exception e)
 		{
@@ -263,11 +273,11 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		return null;
 	}
 
+	
 	/**
-	 * 
-	 * @param kconfigMenuJsonFile
+	 * @param errorMessage
 	 */
-	private void createErrorPage(String kconfigMenuJsonFile)
+	private void createErrorPage(String errorMessage)
 	{
 		Composite parent = new Composite(getContainer(), SWT.V_SCROLL);
 
@@ -275,8 +285,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		layout.numColumns = 1;
 		parent.setLayout(layout);
 
-		new Label(parent, SWT.NONE)
-				.setText(Messages.SDKConfigurationEditor_UnableFindKConfigFile + kconfigMenuJsonFile);
+		new Label(parent, SWT.NONE).setText(errorMessage);
 
 		int index = addPage(parent);
 		setPageText(index, Messages.SDKConfigurationEditor_Design);
@@ -766,6 +775,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	public void notifyRequestServed(String message, CommandType type)
 	{
 		this.serverMessage = message;
+		IdfLog.logInfo(SDKConfigUIPlugin.getDefault(), message);
 
 		if (selectedElement != null)
 		{
