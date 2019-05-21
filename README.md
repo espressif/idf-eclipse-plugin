@@ -3,6 +3,7 @@
 Eclipse Plugins for Espressif IoT Development Framework(IDF)
 # Getting started with the Eclipse IDF Plugins:
 
+* Download and install Java SE 11. Here is the download link https://www.oracle.com/technetwork/java/javase/downloads/index.html
 * Download `Eclipse CDT package` and install it. https://www.eclipse.org/downloads/packages/release/2018-12/r/eclipse-ide-cc-developers
 * Download the Espressif IDF eclipse `artifacts.zip` file from https://gitlab.espressif.cn:6688/idf/idf-eclipse-plugin/-/jobs/artifacts/master/download?job=build
 * Extract the above downloaded zip file
