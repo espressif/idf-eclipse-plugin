@@ -144,3 +144,19 @@ ESP-IDF has a tool called "idf.py" which is a wrapper around make flash command 
 ## How to raise bugs
 Raise issues directly under espressif JIRA here https://jira.espressif.com:8443/projects/IEP/issues/ with the project name `IDF Eclipse Plugin(IEP)`
 
+## FAQ's
+
+1. Which version of Java should I use? 
+> Java 11
+2. Which version of Eclipse should I use?
+> Eclipse 2019-12 CDT and higher
+3. How do I know the installed version of Java in my system?
+> You can check using "java -version" command from the terminal
+4. Espressif Menu options and Espressif IDF Project menu is not visible in my eclipse
+> Make sure you're using Java 11 and in the C/C++ perspective
+5. How do I access the error log?
+> To view the Eclipse error log: From the main menu, select Window > Show View > Other. Then select General > Error Log.
+6. How do I know the installed eclipse IDF plugins version?
+> You can check using Eclipse menu > About Eclipse > Installation Details > Installed Software > Search for "espressif"
+7. How do I uninstall IDF plugins from the eclipse?
+> Eclipse menu > About Eclipse > Installation Details > Installed Software > Search for "espressif" > Select the espressif IDF plugins > Uninstall..
