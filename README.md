@@ -3,19 +3,17 @@
 Eclipse Plugins for Espressif IoT Development Framework(IDF)
 
 # Prerequisites
-* Java 11
-* Eclipse 2018-12 CDT Package
+* **Java 11** : Download and install Java SE 11 from here https://www.oracle.com/technetwork/java/javase/downloads/index.html
+* **Eclipse 2018-12 CDT Package** : Download and install Eclipse CDT package from here. https://www.eclipse.org/downloads/packages/release/2018-12/r/eclipse-ide-cc-developers
 
 # Getting started with the Eclipse IDF Plugins:
 
-* Download and install Java SE 11. Here is the download link https://www.oracle.com/technetwork/java/javase/downloads/index.html
-* Download `Eclipse CDT package` and install it. https://www.eclipse.org/downloads/packages/release/2018-12/r/eclipse-ide-cc-developers
 * Download the Espressif IDF eclipse `artifacts.zip` file from https://gitlab.espressif.cn:6688/idf/idf-eclipse-plugin/-/jobs/artifacts/master/download?job=build
-* Extract the above downloaded zip file
+* Extract the downloaded zip file
 * Launch Eclipse
 * Go to `Help` -> `Install New Software`
 * Click `Add…` button
-* Select `Achieve` from Add repository dialog and select the file ``com.espressif.idf.update-1.0.0-SNAPSHOT.zip`` from the exacted folder
+* Select `Archive` from Add repository dialog and select the file ``com.espressif.idf.update-1.0.0-SNAPSHOT.zip`` from the extracted folder
 * Click `Add`
 * Select `Espressif IDF` from the list and proceed with the installation 
 * Restart the Eclipse
@@ -33,7 +31,7 @@ Eclipse Plugins for Espressif IoT Development Framework(IDF)
 # CMake IDF Project
 
 ## To create a new Project using default esp-idf-template:
-* Make sure you're in C/C++ perspective.
+* Make sure you are in C/C++ perspective.
 * Go to `File` > `New` > `Espressif IDF Project` (If you don't see this, please reset the perspective from `Window` > `Perspective` > `Reset Perspective..`)
 * Provide the project Name
 * Click `Finish`
@@ -43,7 +41,7 @@ Eclipse Plugins for Espressif IoT Development Framework(IDF)
 ## To create a new project using idf examples/templates:
 * Make sure you're in C/C++ perspective.
 * Go to `File` > `New` > `Espressif IDF Project` (If you don't see this, please reset the perspective from `Window` > `Perspective` > `Reset Perspective..`)
-* Provide the project Name
+* Provide the Project Name
 * Click `Next`
 * Check `Create a project using one of the templates`
 * Select the required template from the tree
@@ -88,12 +86,12 @@ We now need to tell CDT which toolchain to use when building the project. This w
 * Browse CMake toolchain `Path`. Example: `/Users/kondal/esp/esp-idf/tools/cmake/toolchain-esp32.cmake`
 * Select GCC Xtensa Toolchain compiler from the drop-down list. Example: `esp32 xtensa /Users/kondal/esp/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc`
 
-**NOTE:**  Eclipse CDT has a bug in saving the toolchain preferences, hence it's recommenmded to restart the Eclipse before we move further configuring the launch target.
+**NOTE:**  Eclipse CDT has a bug in saving the toolchain preferences, hence it's recommended to restart the Eclipse before we move further configuring the launch target.
 
 ![](docs/images/7_cmake_toolchain.png)
 
 ## Configuring Launch target
-Next we need to tell CDT to use the toolchain for our project. This is accomplished through the Launch Bar, the new widget set you see on the far left of the toolbar. And this will be shown only when you've a project in the project explorer.
+Next, we need to tell CDT to use the toolchain for our project. This is accomplished through the Launch Bar, the new widget set you see on the far left of the toolbar. And this will be shown only when you have a project in the project explorer.
 
 * Click on the third dropdown 
 * Select `New Launch Target`
@@ -105,14 +103,14 @@ Next we need to tell CDT to use the toolchain for our project. This is accomplis
 ## Building the Application
 * Select a project from the Project Explorer
 * Select `Run` from the first drop-down, which is called `Launch Mode`
-* Select your applicaton from the second drop-down, which is called `Launch Configuration`
+* Select your application from the second drop-down, which is called `Launch Configuration`
 * Select target from the third drop-down, which is called `Launch Target`
 * Now click on the `Build` button widget which you see on the far left of the toolbar
 
 ![](docs/images/9_cmake_build.png)
 
 ## Configuring the Launch Terminal
-To see what program does we need to configure eclipse terminal to connect the serial port.
+To see what program do we need to configure eclipse terminal to connect the serial port.
 
 * Click on the "Open a Terminal" icon from the toolbar
 * Choose `Serial Terminal` from the terminal drop-down
@@ -135,7 +133,7 @@ ESP-IDF has a tool called "idf.py" which is a wrapper around make flash command 
 * Click OK to save the settings
 * Click on the `Launch` icon to flash the application to the selected board 
 
-**NOTE:** Eclipse CDT Launch configuration has issues in accessing eclipse C/C++ environment variables, hence we need to define `PATH` again in the Lauch configuration `Environment` tab to get the access to the CMake command during the build.
+**NOTE:** Eclipse CDT Launch configuration has issues in accessing eclipse C/C++ environment variables, hence we need to define `PATH` again in the Launch configuration `Environment` tab to get the access to the CMake command during the build.
 
 ![](docs/images/11_launch_configuration.png)
 
