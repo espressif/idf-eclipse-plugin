@@ -5,11 +5,22 @@
 
 package com.espressif.idf.core.build;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.eclipse.cdt.cmake.core.ICMakeToolChainFile;
 import org.eclipse.cdt.cmake.core.internal.CMakeBuildConfiguration;
 import org.eclipse.cdt.core.build.IToolChain;
 import org.eclipse.core.resources.IBuildConfiguration;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+
+import com.espressif.idf.core.IDFConstants;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -45,5 +56,29 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 			return (T) this;
 		}
 		return super.getAdapter(adapter);
+	}
+	
+	@Override
+	public Path getBuildDirectory() throws CoreException
+	{
+		IProject project = getProject();
+		String absolutePath = project.getLocation().toFile().getAbsolutePath();
+		return Paths.get(absolutePath, IDFConstants.BUILD_FOLDER);
+		 
+	}
+	
+	@Override
+	public IContainer getBuildContainer() throws CoreException
+	{
+		IProject project = getProject();
+		IFolder buildRootFolder = project.getFolder("build"); //$NON-NLS-1$
+
+		IProgressMonitor monitor = new NullProgressMonitor();
+		if (!buildRootFolder.exists())
+		{
+			buildRootFolder.create(IResource.FORCE | IResource.DERIVED, true, monitor);
+		}
+
+		return buildRootFolder;
 	}
 }

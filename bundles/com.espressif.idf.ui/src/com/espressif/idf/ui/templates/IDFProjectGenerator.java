@@ -22,6 +22,7 @@ import org.osgi.framework.Bundle;
 
 import com.espressif.idf.core.IDFProjectNature;
 import com.espressif.idf.core.util.FileUtil;
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
 
 /**
@@ -47,6 +48,7 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 		ICommand command = description.newCommand();
 		CBuilder.setupBuilder(command);
 		description.setBuildSpec(new ICommand[] { command });
+		description.setActiveBuildConfig(StringUtil.EMPTY);
 	}
 
 	@Override
