@@ -1,6 +1,11 @@
 # idf-eclipse-plugin
 
 Eclipse Plugins for Espressif IoT Development Framework(IDF)
+
+# Prerequisites
+* Java 11
+* Eclipse 2018-12 CDT Package
+
 # Getting started with the Eclipse IDF Plugins:
 
 * Download and install Java SE 11. Here is the download link https://www.oracle.com/technetwork/java/javase/downloads/index.html
