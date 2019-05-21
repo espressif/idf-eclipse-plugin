@@ -160,3 +160,9 @@ Raise issues directly under espressif JIRA here https://jira.espressif.com:8443/
 > You can check using Eclipse menu > About Eclipse > Installation Details > Installed Software > Search for "espressif"
 7. How do I uninstall IDF plugins from the eclipse?
 > Eclipse menu > About Eclipse > Installation Details > Installed Software > Search for "espressif" > Select the espressif IDF plugins > Uninstall..
+8. Unable to install idf plugins in eclipse?
+> Please check the error log from the main menu, select Window > Show View > Other. Then select General > Error Log. 
+9. Do IDF plugins support CMake project creation?
+> Yes, you can create idf CMake project using File > New > Espressif IDF Project
+10. Can I import my existing IDF project into eclipse?
+> Yes, you can import using Import Menu. Import... > Espressif > Existing IDF Project
