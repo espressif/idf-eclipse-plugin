@@ -7,10 +7,12 @@ Bundle-Activator: com.espressif.idf.sdk.config.ui.SDKConfigUIPlugin
 Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.core.runtime,
  com.espressif.idf.ui;visibility:=reexport,
- com.espressif.idf.sdk.config.core;visibility:=reexport,
  org.eclipse.ui.ide,
  org.eclipse.ui.editors,
- org.eclipse.text
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+ org.eclipse.text,
+ com.espressif.idf.sdk.config.core
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: com.espressif.idf.sdkconfig.ui
 Bundle-ActivationPolicy: lazy
+Import-Package: org.json.simple,
+ org.json.simple.parser
