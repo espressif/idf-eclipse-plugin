@@ -14,5 +14,3 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: com.espressif.idf.sdkconfig.ui
 Bundle-ActivationPolicy: lazy
-Import-Package: org.json.simple,
- org.json.simple.parser
