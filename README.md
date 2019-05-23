@@ -3,7 +3,7 @@
 Eclipse Plugins for Espressif IoT Development Framework(IDF)
 
 # Prerequisites
-* **Java 8 and Higher** : Download and install Java SE 11 from here https://www.oracle.com/technetwork/java/javase/downloads/index.html
+* **Java 8 and Higher** : Download and install Java SE from here https://www.oracle.com/technetwork/java/javase/downloads/index.html
 * **Eclipse 2018-12 CDT Package** : Download and install Eclipse CDT package from here. https://www.eclipse.org/downloads/packages/release/2018-12/r/eclipse-ide-cc-developers
 
 # Getting started with the Eclipse IDF Plugins:
@@ -153,7 +153,7 @@ Raise issues directly under espressif JIRA here https://jira.espressif.com:8443/
 3. How do I know the installed version of Java in my system?
 > You can check using "java -version" command from the terminal
 4. Espressif Menu options and Espressif IDF Project menu is not visible in my eclipse
-> Make sure you're using Java 11 and in the C/C++ perspective
+> Make sure you have installed Java 8 and higher and you're in the C/C++ perspective
 5. How do I access the error log?
 > To view the Eclipse error log: From the main menu, select Window > Show View > Other. Then select General > Error Log.
 6. How do I know the installed eclipse IDF plugins version?
