@@ -3,7 +3,7 @@
 Eclipse Plugins for Espressif IoT Development Framework(IDF)
 
 # Prerequisites
-* **Java 11** : Download and install Java SE 11 from here https://www.oracle.com/technetwork/java/javase/downloads/index.html
+* **Java 8 and Higher** : Download and install Java SE 11 from here https://www.oracle.com/technetwork/java/javase/downloads/index.html
 * **Eclipse 2018-12 CDT Package** : Download and install Eclipse CDT package from here. https://www.eclipse.org/downloads/packages/release/2018-12/r/eclipse-ide-cc-developers
 
 # Getting started with the Eclipse IDF Plugins:
@@ -147,7 +147,7 @@ Raise issues directly under espressif JIRA here https://jira.espressif.com:8443/
 ## FAQ's
 
 1. Which version of Java should I use? 
-> Java 11
+> Java 8 and higher
 2. Which version of Eclipse should I use?
 > Eclipse 2019-12 CDT and higher
 3. How do I know the installed version of Java in my system?
