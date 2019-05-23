@@ -12,7 +12,6 @@ import org.eclipse.jface.viewers.TreeNodeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.json.simple.JSONObject;
-
 import com.espressif.idf.core.logging.IdfLog;
 import com.espressif.idf.sdk.config.core.IJsonServerConfig;
 import com.espressif.idf.sdk.config.core.KConfigMenuItem;
