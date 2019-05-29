@@ -47,17 +47,6 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T getAdapter(Class<T> adapter)
-	{
-		if (adapter.equals(IDFBuildConfiguration.class))
-		{
-			return (T) this;
-		}
-		return super.getAdapter(adapter);
-	}
-	
 	@Override
 	public Path getBuildDirectory() throws CoreException
 	{
@@ -71,7 +60,7 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 	public IContainer getBuildContainer() throws CoreException
 	{
 		IProject project = getProject();
-		IFolder buildRootFolder = project.getFolder("build"); //$NON-NLS-1$
+		IFolder buildRootFolder = project.getFolder(IDFConstants.BUILD_FOLDER);
 
 		IProgressMonitor monitor = new NullProgressMonitor();
 		if (!buildRootFolder.exists())
