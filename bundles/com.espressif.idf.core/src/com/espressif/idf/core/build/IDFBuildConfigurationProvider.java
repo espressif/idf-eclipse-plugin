@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.eclipse.cdt.cmake.core.ICMakeToolChainFile;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
+import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.build.CBuildConfiguration;
 import org.eclipse.cdt.core.build.ICBuildConfiguration;
 import org.eclipse.cdt.core.build.ICBuildConfigurationManager;
@@ -24,7 +25,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 
 import com.espressif.idf.core.IDFCorePlugin;
-import com.espressif.idf.core.util.StringUtil;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -35,8 +35,8 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 
 	public static final String ID = "com.espressif.idf.cmake.core.provider"; //$NON-NLS-1$
 
-	private ICMakeToolChainManager manager = IDFCorePlugin.getService(ICMakeToolChainManager.class);
-	private ICBuildConfigurationManager configManager = IDFCorePlugin.getService(ICBuildConfigurationManager.class);
+	private ICMakeToolChainManager manager = CCorePlugin.getService(ICMakeToolChainManager.class);
+	private ICBuildConfigurationManager configManager = CCorePlugin.getService(ICBuildConfigurationManager.class);
 
 	@Override
 	public String getId()
@@ -130,7 +130,7 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 		}
 
 		// Let's generate build artifacts directly under the build folder so that CLI and eclipse IDF will be in sync
-		String name = StringUtil.EMPTY; // $NON-NLS-1$
+		String name = ICBuildConfiguration.DEFAULT_NAME;
 
 		IBuildConfiguration config = configManager.createBuildConfiguration(this, project, name, monitor);
 		CBuildConfiguration cmakeConfig = new IDFBuildConfiguration(config, name, toolChain, file, launchMode);

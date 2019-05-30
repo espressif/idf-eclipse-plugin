@@ -22,7 +22,6 @@ import org.osgi.framework.Bundle;
 
 import com.espressif.idf.core.IDFProjectNature;
 import com.espressif.idf.core.util.FileUtil;
-import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
 
 /**
@@ -40,15 +39,15 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 		super(manifestFile);
 		this.sourceTemplatePath = source;
 	}
-	
+
 	@Override
-	protected void initProjectDescription(IProjectDescription description) {
+	protected void initProjectDescription(IProjectDescription description)
+	{
 		description.setNatureIds(
 				new String[] { CProjectNature.C_NATURE_ID, CCProjectNature.CC_NATURE_ID, IDFProjectNature.ID });
 		ICommand command = description.newCommand();
 		CBuilder.setupBuilder(command);
 		description.setBuildSpec(new ICommand[] { command });
-		description.setActiveBuildConfig(StringUtil.EMPTY);
 	}
 
 	@Override
@@ -67,7 +66,8 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 		try
 		{
 			copyIDFTemplateToWorkspace(project.getName(), sourceTemplatePath, project);
-		} catch (IOException e)
+		}
+		catch (IOException e)
 		{
 			e.printStackTrace(); // something wrong with copying the template to the generated project
 		}
@@ -104,7 +104,8 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 			if (file.isDirectory())
 			{
 				FileUtil.copyDirectory(file, dest);
-			} else
+			}
+			else
 			{
 				FileUtil.copyFile(file, dest);
 			}
