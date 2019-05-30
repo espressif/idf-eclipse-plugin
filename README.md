@@ -2,10 +2,28 @@
 
 Eclipse Plugins for Espressif IoT Development Framework(IDF)
 
+# Table Of Contents
+1.[ Prerequisites ](#Prerequisites) <br>
+2.[ Getting Started ](#GettingStarted) <br>
+3.[ Configuring Environment Variables ](#configureEnvironmentVariables)<br>
+4.[ Create a new Project using default esp-idf-template ](#NewProjectUsingDefault)<br>
+5.[ Create a new project using idf examples/templates ](#NewProjectUsingTemplates)<br>
+6.[ Import an existing IDF Project ](#ImportProject)<br>
+7.[ Configuring Core Build Toolchains ](#ConfigureToolchains)<br>
+7.[ Configuring Core Build Toolchains ](#ConfigureToolchains)<br>
+7.[ Configuring Core Build Toolchains ](#ConfigureToolchains)<br>
+7.[ Configuring Core Build Toolchains ](#ConfigureToolchains)<br>
+7.[ Configuring Core Build Toolchains ](#ConfigureToolchains)<br>
+7.[ Configuring Core Build Toolchains ](#ConfigureToolchains)<br>
+7.[ Configuring Core Build Toolchains ](#ConfigureToolchains)<br>
+
+
+<a name="Prerequisites"></a>
 # Prerequisites
 * **Java 8 and Higher** : Download and install Java SE from here https://www.oracle.com/technetwork/java/javase/downloads/index.html
 * **Eclipse 2018-12 CDT Package** : Download and install Eclipse CDT package from here. https://www.eclipse.org/downloads/packages/release/2018-12/r/eclipse-ide-cc-developers
 
+<a name="GettingStarted"></a>
 # Getting started with the Eclipse IDF Plugins:
 
 * Download the Espressif IDF eclipse `artifacts.zip` file from https://gitlab.espressif.cn:6688/idf/idf-eclipse-plugin/-/jobs/artifacts/master/download?job=build
@@ -20,6 +38,7 @@ Eclipse Plugins for Espressif IoT Development Framework(IDF)
 
 ![](docs/images/1_idffeature_install.png)
 
+<a name="configureEnvironmentVariables"></a>
 # Configuring Environment Variables:
 * Click on the `Environment` preference page under `C/C++ Build`. 
 * Click “Add…” and enter name `BATCH_BUILD` and value `1`.
@@ -28,6 +47,7 @@ Eclipse Plugins for Espressif IoT Development Framework(IDF)
 
 ![](docs/images/2_environment_pref.png)
 
+<a name="NewProjectUsingDefault"></a>
 # CMake IDF Project
 
 ## To create a new Project using default esp-idf-template:
@@ -38,6 +58,7 @@ Eclipse Plugins for Espressif IoT Development Framework(IDF)
 
 ![](docs/images/3_new_project_default.png)
 
+<a name="NewProjectUsingTemplates"></a>
 ## To create a new project using idf examples/templates:
 * Make sure you're in C/C++ perspective.
 * Go to `File` > `New` > `Espressif IDF Project` (If you don't see this, please reset the perspective from `Window` > `Perspective` > `Reset Perspective..`)
@@ -49,6 +70,7 @@ Eclipse Plugins for Espressif IoT Development Framework(IDF)
 
 ![](docs/images/4_new_project_templates.png)
 
+<a name="ImportProject"></a>
 ##  Import an existing IDF Project
 * Make sure you're in `C/C++ Perspective`.
 * Right click on the Project Explorer
@@ -61,8 +83,10 @@ Eclipse Plugins for Espressif IoT Development Framework(IDF)
 
 ![](docs/images/5_import_project.png)
 
+<a name="BuildIDFProject"></a>
 # Building the IDF projects
 
+<a name="ConfigureToolchains"></a>
 ## Configuring Core Build Toolchains
 
 * Open Eclipse Preferences
@@ -78,6 +102,7 @@ Eclipse Plugins for Espressif IoT Development Framework(IDF)
 
 ![](docs/images/6_core_build_toolchains.png)
 
+<a name="ConfigureCMakeToolchain"></a>
 ## Configuring CMake Toolchain
 We now need to tell CDT which toolchain to use when building the project. This will pass the required arguments to CMake when generating the Ninja files.
 
@@ -90,6 +115,7 @@ We now need to tell CDT which toolchain to use when building the project. This w
 
 ![](docs/images/7_cmake_toolchain.png)
 
+<a name="ConfigureLaunchTarget"></a>
 ## Configuring Launch target
 Next, we need to tell CDT to use the toolchain for our project. This is accomplished through the Launch Bar, the new widget set you see on the far left of the toolbar. And this will be shown only when you have a project in the project explorer.
 
@@ -100,6 +126,7 @@ Next, we need to tell CDT to use the toolchain for our project. This is accompli
 
 ![](docs/images/8_launch_target.png)
 
+<a name="BuildApplication"></a>
 ## Building the Application
 * Select a project from the Project Explorer
 * Select `Run` from the first drop-down, which is called `Launch Mode`
@@ -109,6 +136,7 @@ Next, we need to tell CDT to use the toolchain for our project. This is accompli
 
 ![](docs/images/9_cmake_build.png)
 
+<a name="ConfigureLaunchTerminal"></a>
 ## Configuring the Launch Terminal
 To see what program do we need to configure eclipse terminal to connect the serial port.
 
@@ -121,6 +149,7 @@ To see what program do we need to configure eclipse terminal to connect the seri
 
 ![](docs/images/10_serial_terminal.png)
 
+<a name="FlashApplication"></a>
 ## Flashing the Application
 ESP-IDF has a tool called "idf.py" which is a wrapper around make flash command with some handy operations. Follow the below instructions to hook the idf.py to the launch configuration
 
@@ -137,6 +166,7 @@ ESP-IDF has a tool called "idf.py" which is a wrapper around make flash command 
 
 ![](docs/images/12_flashing.png)
 
+<a name="sdkconfigEditor"></a>
 # Project configuration options
 IDF plugin will allow you to configure `sdkconfig` without leaving the Eclipse environment.
 
@@ -148,10 +178,11 @@ IDF plugin will allow you to configure `sdkconfig` without leaving the Eclipse e
 
 ![](docs/images/13_sdkconfig_editor.png)
 
- 
+ <a name="howToRaiseBugs"></a>
 ## How to raise bugs
 Raise issues directly under espressif JIRA here https://jira.espressif.com:8443/projects/IEP/issues/ with the project name `IDF Eclipse Plugin(IEP)`
 
+<a name="faq"></a>
 ## FAQ
 
 * Which version of Java should I use? 
