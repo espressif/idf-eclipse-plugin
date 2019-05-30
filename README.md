@@ -6,16 +6,16 @@ Eclipse Plugins for Espressif IoT Development Framework(IDF)
 1.[ Prerequisites ](#Prerequisites) <br>
 2.[ Getting Started ](#GettingStarted) <br>
 3.[ Configuring Environment Variables ](#configureEnvironmentVariables)<br>
-4.[ Create a new Project using default esp-idf-template ](#NewProjectUsingDefault)<br>
+4.[ Create a new Project using default template ](#NewProjectUsingDefault)<br>
 5.[ Create a new project using idf examples/templates ](#NewProjectUsingTemplates)<br>
 6.[ Import an existing IDF Project ](#ImportProject)<br>
 7.[ Configuring Core Build Toolchains ](#ConfigureToolchains)<br>
-7.[ Configuring Core Build Toolchains ](#ConfigureToolchains)<br>
-7.[ Configuring Core Build Toolchains ](#ConfigureToolchains)<br>
-7.[ Configuring Core Build Toolchains ](#ConfigureToolchains)<br>
-7.[ Configuring Core Build Toolchains ](#ConfigureToolchains)<br>
-7.[ Configuring Core Build Toolchains ](#ConfigureToolchains)<br>
-7.[ Configuring Core Build Toolchains ](#ConfigureToolchains)<br>
+8.[ Configuring CMake Toolchain ](#ConfigureCMakeToolchain)<br>
+9.[ Configuring Launch Target ](#ConfigureLaunchTarget)<br>
+10.[ Building the Application ](#BuildApplication)<br>
+11.[ Configuring Launch Terminal ](#ConfigureLaunchTerminal)<br>
+12.[ Flashing the Application ](#FlashApplication)<br>
+13.[ SDK Configuration editor ](#sdkconfigEditor)<br>
 
 
 <a name="Prerequisites"></a>
