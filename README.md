@@ -133,36 +133,44 @@ ESP-IDF has a tool called "idf.py" which is a wrapper around make flash command 
 * Click OK to save the settings
 * Click on the `Launch` icon to flash the application to the selected board 
 
-**NOTE:** Eclipse CDT Launch configuration has issues in accessing eclipse C/C++ environment variables, hence we need to define `PATH` again in the Launch configuration `Environment` tab to get the access to the CMake command during the build.
-
 ![](docs/images/11_launch_configuration.png)
 
 ![](docs/images/12_flashing.png)
 
+# Project configuration options
+IDF plugin will allow you to configure `sdkconfig` without leaving the Eclipse environment.
 
+## Launching SDK Configuration editor
+* Navigate to `sdkconfig` file
+* Double click on the file to launch the SDK configuration editor
+* Use `Ctrl+S` or  `Command+S` based on the OS environment to save the changes. You can also use Eclipse `Save` button from the toolbar
+* To revert the sdkconfig editor changes, either you can close the editor without saving them. Or you can right click on the `sdkconfig` file and select `Load sdkconfig` menu option to revert the changes from the editor.
 
+![](docs/images/13_sdkconfig_editor.png)
+
+ 
 ## How to raise bugs
 Raise issues directly under espressif JIRA here https://jira.espressif.com:8443/projects/IEP/issues/ with the project name `IDF Eclipse Plugin(IEP)`
 
-## FAQ's
+## FAQ
 
-1. Which version of Java should I use? 
+* Which version of Java should I use? 
 > Java 8 and higher
-2. Which version of Eclipse should I use?
+*  Which version of Eclipse should I use?
 > Eclipse 2019-12 CDT and higher
-3. How do I know the installed version of Java in my system?
+*  How do I know the installed version of Java in my system?
 > You can check using "java -version" command from the terminal
-4. Espressif Menu options and Espressif IDF Project menu is not visible in my eclipse
+*  Espressif Menu options and Espressif IDF Project menu is not visible in my eclipse
 > Make sure you have installed Java 8 and higher and you're in the C/C++ perspective
-5. How do I access the error log?
+*  How do I access the error log?
 > To view the Eclipse error log: From the main menu, select Window > Show View > Other. Then select General > Error Log.
-6. How do I know the installed eclipse IDF plugins version?
-> You can check using Eclipse menu > About Eclipse > Installation Details > Installed Software > Search for "espressif"
-7. How do I uninstall IDF plugins from the eclipse?
+*  How do I know the installed Eclipse IDF plugin version?
+> You can check using Eclipse menu > About Eclipse > Installation Details > Installed Software > Search for "Espressif"
+*  How do I uninstall IDF plugins from the eclipse?
 > Eclipse menu > About Eclipse > Installation Details > Installed Software > Search for "espressif" > Select the espressif IDF plugins > Uninstall..
-8. Unable to install idf plugins in eclipse?
+*  Unable to install idf plugins in eclipse?
 > Please check the error log from the main menu, select Window > Show View > Other. Then select General > Error Log. 
-9. Do IDF plugins support CMake project creation?
+*  Do IDF plugins support CMake project creation?
 > Yes, you can create idf CMake project using File > New > Espressif IDF Project
-10. Can I import my existing IDF project into eclipse?
+* . Can I import my existing IDF project into eclipse?
 > Yes, you can import using Import Menu. Import... > Espressif > Existing IDF Project

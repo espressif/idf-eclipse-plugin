@@ -1,7 +1,7 @@
 # Contribution Guide (Developers)
 
 ## Setting up an Eclipse Development Environment:
-* Download and install `Java SE 11`(latest Java 11). Here is the download link https://www.oracle.com/technetwork/java/javase/downloads/index.html
+* Download and install `Java SE`(Java 8 and higher). Here is the download link https://www.oracle.com/technetwork/java/javase/downloads/index.html
 * Download and install `Eclipse RCP package` (latest Eclipse 2018-12) which you can find here https://www.eclipse.org/downloads/packages/
 * Install `CDT` feature into eclipse from the update site: http://download.eclipse.org/tools/cdt/releases/9.6. 
 * Install the `m2eclipse` feature into eclipse from the update site: https://www.eclipse.org/m2e/
