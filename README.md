@@ -16,6 +16,8 @@ Eclipse Plugins for Espressif IoT Development Framework(IDF)
 11.[ Configuring Launch Terminal ](#ConfigureLaunchTerminal)<br>
 12.[ Flashing the Application ](#FlashApplication)<br>
 13.[ SDK Configuration editor ](#sdkconfigEditor)<br>
+14.[ How to raise bugs ](#howToRaiseBugs)<br>
+15.[ FAQ ](#faq)<br>
 
 
 <a name="Prerequisites"></a>
@@ -187,21 +189,23 @@ Raise issues directly under espressif JIRA here https://jira.espressif.com:8443/
 
 * Which version of Java should I use? 
 > Java 8 and higher
-*  Which version of Eclipse should I use?
+* Which version of Eclipse should I use?
 > Eclipse 2019-12 CDT and higher
-*  How do I know the installed version of Java in my system?
+* How do I know the installed version of Java in my system?
 > You can check using "java -version" command from the terminal
-*  Espressif Menu options and Espressif IDF Project menu is not visible in my eclipse
+* Espressif Menu options and Espressif IDF Project menu is not visible in my eclipse
 > Make sure you have installed Java 8 and higher and you're in the C/C++ perspective
-*  How do I access the error log?
+* How do I access the error log?
 > To view the Eclipse error log: From the main menu, select Window > Show View > Other. Then select General > Error Log.
-*  How do I know the installed Eclipse IDF plugin version?
+* How do I know the installed Eclipse IDF plugin version?
 > You can check using Eclipse menu > About Eclipse > Installation Details > Installed Software > Search for "Espressif"
-*  How do I uninstall IDF plugins from the eclipse?
+* How do I uninstall IDF plugins from the eclipse?
 > Eclipse menu > About Eclipse > Installation Details > Installed Software > Search for "espressif" > Select the espressif IDF plugins > Uninstall..
-*  Unable to install idf plugins in eclipse?
+* Unable to install idf plugins in eclipse?
 > Please check the error log from the main menu, select Window > Show View > Other. Then select General > Error Log. 
-*  Do IDF plugins support CMake project creation?
+* Do IDF plugins support CMake project creation?
 > Yes, you can create idf CMake project using File > New > Espressif IDF Project
-* . Can I import my existing IDF project into eclipse?
+* Can I import my existing IDF project into eclipse?
 > Yes, you can import using Import Menu. Import... > Espressif > Existing IDF Project
+* Deleted C/C++ build envrionment variables still appearing?
+> Uncheck Eclipse Oomph Preference Recorder. Which can be performed by following. Eclipse Preferences >Oomph > Setup Tasks > Preference Recorder > Uncheck "Record into". Find more info here https://jira.espressif.com:8443/browse/IEP-12
