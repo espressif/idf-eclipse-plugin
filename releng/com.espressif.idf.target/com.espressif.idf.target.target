@@ -25,5 +25,9 @@
 			<unit id="javax.xml.bind" version="0.0.0"/>
 			<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20180905201904/repository"/>
 		</location>
+		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
+			<unit id="com.cthing.cmakeed.feature.feature.group" version="1.10.0"/>
+			<repository location="jar:https://dl.bintray.com/15knots/p2-zip/CMakeEd-1.10.0.zip!/"/>
+		</location>
 	</locations>
 </target>
