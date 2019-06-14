@@ -1,0 +1,22 @@
+/*******************************************************************************
+ * Copyright 2018-2019 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
+package com.espressif.idf.core.build;
+
+import org.eclipse.osgi.util.NLS;
+
+public class Messages extends NLS
+{
+	private static final String BUNDLE_NAME = "com.espressif.idf.core.build.messages"; //$NON-NLS-1$
+	public static String ESP32CMakeToolChainProvider_PathDoesnNotExist;
+	static
+	{
+		// initialize resource bundle
+		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
+	}
+
+	private Messages()
+	{
+	}
+}

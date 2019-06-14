@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.cdt.cmake.core;visibility:=reexport,
  org.eclipse.core.expressions;visibility:=reexport,
  com.aptana.core;bundle-version="3.3.0";visibility:=reexport,
- org.eclipse.cdt.managedbuilder.core;visibility:=reexport
+ org.eclipse.cdt.managedbuilder.core;visibility:=reexport,
+ org.eclipse.cdt.build.gcc.core;bundle-version="1.0.1"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: com.espressif.idf.core
 Bundle-ActivationPolicy: lazy
