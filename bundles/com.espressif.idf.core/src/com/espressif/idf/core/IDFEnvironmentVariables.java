@@ -21,8 +21,10 @@ public class IDFEnvironmentVariables
 	 * ESPRESSIF IDF_PATH environment variable identifier
 	 * 
 	 */
-	public static String IDF_PATH = "IDF_PATH";
-
+	public static String IDF_PATH = "IDF_PATH"; //$NON-NLS-1$
+	
+	public static String PATH = "PATH"; //$NON-NLS-1$
+	
 	/**
 	 * @param variableName Environment variable Name
 	 * @return IEnvironmentVariable

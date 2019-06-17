@@ -26,10 +26,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import com.aptana.core.ShellExecutable;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
-import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.core.util.IDFUtil;
 
 public class ESP32CMakeToolChainProvider implements ICMakeToolChainProvider, ICMakeToolChainListener
 {
@@ -50,13 +49,21 @@ public class ESP32CMakeToolChainProvider implements ICMakeToolChainProvider, ICM
 			for (IToolChain tc : tcManager.getToolChainsMatching(properties))
 			{
 
-				String idfPath = getIDFPath();
+				String idfPath = IDFUtil.getIDFPath();
 				if (!new File(idfPath).exists())
 				{
-					String errorMsg = MessageFormat.format(Messages.ESP32CMakeToolChainProvider_PathDoesnNotExist, idfPath);
+					String errorMsg = MessageFormat.format(Messages.ESP32CMakeToolChainProvider_PathDoesnNotExist,
+							idfPath);
 					throw new CoreException(new Status(IStatus.ERROR, IDFCorePlugin.PLUGIN_ID, errorMsg));
 				}
-				
+
+				// add the newly found IDF_PATH to the eclipse environment variables if it's not there
+				IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
+				if (!new File(idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).exists())
+				{
+					idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, idfPath);
+				}
+
 				String idfCMakeDir = idfPath + IPath.SEPARATOR + "tools" + IPath.SEPARATOR + "cmake"; //$NON-NLS-1$ //$NON-NLS-2$
 				Path toolChainFile = Paths.get(idfCMakeDir).resolve(TOOLCHAIN_ESP32_CMAKE);
 				if (Files.exists(toolChainFile))
@@ -76,33 +83,6 @@ public class ESP32CMakeToolChainProvider implements ICMakeToolChainProvider, ICM
 		{
 			IDFCorePlugin.getPlugin().getLog().log(e.getStatus());
 		}
-	}
-
-	/**
-	 * @return file path for IDF_PATH 
-	 */
-	protected String getIDFPath()
-	{
-		String idfPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PATH);
-		if (StringUtil.isEmpty(idfPath))
-		{
-
-			// Try to get it from the system properties
-			idfPath = System.getProperty(IDFEnvironmentVariables.IDF_PATH);
-			if (StringUtil.isEmpty(idfPath))
-			{
-				Map<String, String> environment = ShellExecutable.getEnvironment();
-				idfPath = environment.get(IDFEnvironmentVariables.IDF_PATH);
-			}
-
-			// Add this to C/C++ build environment variables - any issues?
-			if (!StringUtil.isEmpty(idfPath))
-			{
-				new IDFEnvironmentVariables().addEnvVariable(IDFEnvironmentVariables.IDF_PATH, idfPath);
-			}
-		}
-
-		return idfPath;
 	}
 
 	@Override

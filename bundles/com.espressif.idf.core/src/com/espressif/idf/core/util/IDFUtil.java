@@ -6,9 +6,11 @@ package com.espressif.idf.core.util;
 
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.Map;
 
 import org.eclipse.core.runtime.IPath;
 
+import com.aptana.core.ShellExecutable;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 
@@ -23,7 +25,7 @@ public class IDFUtil
 	 */
 	public static File getIDFPythonScriptFile()
 	{
-		String idf_path = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PATH);
+		String idf_path = getIDFPath();
 		String idf_py_script = idf_path + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
 				+ IDFConstants.IDF_PYTHON_SCRIPT;
 		return new File(idf_py_script);
@@ -42,5 +44,26 @@ public class IDFUtil
 		}
 		return projBuildDir.getAbsolutePath() + IPath.SEPARATOR + IDFConstants.CONFIG_FOLDER + IPath.SEPARATOR
 				+ IDFConstants.KCONFIG_MENUS_JSON;
+	}
+
+	/**
+	 * @return file path for IDF_PATH
+	 */
+	public static String getIDFPath()
+	{
+		String idfPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PATH);
+		if (StringUtil.isEmpty(idfPath))
+		{
+
+			// Try to get it from the system properties
+			idfPath = System.getProperty(IDFEnvironmentVariables.IDF_PATH);
+			if (StringUtil.isEmpty(idfPath))
+			{
+				Map<String, String> environment = ShellExecutable.getEnvironment();
+				idfPath = environment.get(IDFEnvironmentVariables.IDF_PATH);
+			}
+		}
+
+		return idfPath;
 	}
 }

@@ -85,12 +85,6 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 			process = processRunner.run(workingDir, getEnvironment(workingDir),
 					arguments.toArray(new String[arguments.size()]));
 
-//			Launch fLaunch = new Launch(null, ILaunchManager.RUN_MODE, null);
-//			fLaunch.setAttribute(DebugPlugin.ATTR_LAUNCH_TIMESTAMP, Long.toString(System.currentTimeMillis()));
-//			getLaunchManager().addLaunch(fLaunch);
-//
-//			DebugPlugin.newProcess(fLaunch, process,  "JSON Configuration Server - "+ project.getName()); //$NON-NLS-1$ ;
-
 			runnable = new JsonConfigServerRunnable(process, this);
 			Thread t = new Thread(runnable);
 			t.start();

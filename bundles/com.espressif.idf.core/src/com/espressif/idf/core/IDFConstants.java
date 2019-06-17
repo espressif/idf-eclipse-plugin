@@ -39,6 +39,11 @@ public interface IDFConstants
 	 * idf python file
 	 */
 	String IDF_PYTHON_SCRIPT = "idf.py"; //$NON-NLS-1$
+	
+	/**
+	 * idf tools file
+	 */
+	String IDF_TOOLS_SCRIPT = "idf_tools.py"; //$NON-NLS-1$
 
 	/**
 	 * <IDF_PATH>/tools
@@ -69,6 +74,11 @@ public interface IDFConstants
 	 * build folder for idf projects
 	 */
 	String BUILD_FOLDER = "build"; //$NON-NLS-1$
+	
+	/**
+	 * <IDF_PATH>/tools/idf_tools.py export
+	 */
+	String TOOLS_EXPORT_CMD = "export"; //$NON-NLS-1$
 
 	
 }
