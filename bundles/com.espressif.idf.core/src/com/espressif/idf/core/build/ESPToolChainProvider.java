@@ -34,10 +34,10 @@ import com.espressif.idf.core.util.StringUtil;
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
-public class ESP32ToolChainProvider implements IToolChainProvider
+public class ESPToolChainProvider implements IToolChainProvider
 {
 
-	public static final String ID = "com.espressif.idf.core.esp32.toolchainprovider"; //$NON-NLS-1$
+	public static final String ID = "com.espressif.idf.core.esp.toolchainprovider"; //$NON-NLS-1$
 	private static final Pattern gccPattern = Pattern.compile("xtensa-esp32-elf-gcc(\\.exe)?"); //$NON-NLS-1$
 
 	@Override
@@ -85,7 +85,7 @@ public class ESP32ToolChainProvider implements IToolChainProvider
 									if (tuple.length > 2) // xtensa-esp32-elf
 									{
 
-										ESP32ToolChain gcc = new ESP32ToolChain(this, file.toPath());
+										ESPToolChain gcc = new ESPToolChain(this, file.toPath());
 										try
 										{
 											if (manager.getToolChain(gcc.getTypeId(), gcc.getId()) == null)
@@ -157,22 +157,25 @@ public class ESP32ToolChainProvider implements IToolChainProvider
 		try
 		{
 			IStatus idf_tools_export_status = new ProcessRunner().runInBackground(tools_path,
-					IDFConstants.TOOLS_EXPORT_CMD);
+					IDFConstants.TOOLS_EXPORT_CMD, IDFConstants.TOOLS_EXPORT_CMD_FORMAT_VAL);
 			if (idf_tools_export_status != null && idf_tools_export_status.isOK())
 			{
 				String message = idf_tools_export_status.getMessage();
 				IDFCorePlugin.logInfo("idf_tools.py export output: " + message);
 				if (message != null)
 				{
-					if (message.contains("export PATH")) //$NON-NLS-1$
+					String[] exportEntries = message.split("\n"); //$NON-NLS-1$
+					for (String entry : exportEntries)
 					{
-						String path_str = message.substring(message.indexOf("export PATH") + 13, message.length() - 1);
-						IDFCorePlugin.logInfo("PATH: " + path_str);
-						return path_str;
+						String[] keyValue = entry.split("="); //$NON-NLS-1$
+						if (keyValue.length == 2 && keyValue[0].equals(IDFEnvironmentVariables.PATH)) // 0 - key, 1 - value
+						{
+							IDFCorePlugin.logInfo("PATH: " + keyValue[1]);
+							return keyValue[1];
+						}
 					}
 				}
 			}
-
 		}
 		catch (Exception e)
 		{

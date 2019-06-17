@@ -26,11 +26,16 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
+import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.util.IDFUtil;
 
-public class ESP32CMakeToolChainProvider implements ICMakeToolChainProvider, ICMakeToolChainListener
+/**
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ *
+ */
+public class ESPCMakeToolChainProvider implements ICMakeToolChainProvider, ICMakeToolChainListener
 {
 
 	private static final String TOOLCHAIN_ESP32_CMAKE = "toolchain-esp32.cmake"; //$NON-NLS-1$
@@ -42,8 +47,8 @@ public class ESP32CMakeToolChainProvider implements ICMakeToolChainProvider, ICM
 		manager.addListener(this);
 
 		Map<String, String> properties = new HashMap<>();
-		properties.put(IToolChain.ATTR_OS, ESP32ToolChain.OS);
-		properties.put(IToolChain.ATTR_ARCH, ESP32ToolChain.ARCH);
+		properties.put(IToolChain.ATTR_OS, ESPToolChain.OS);
+		properties.put(IToolChain.ATTR_ARCH, ESPToolChain.ARCH);
 		try
 		{
 			for (IToolChain tc : tcManager.getToolChainsMatching(properties))
@@ -64,13 +69,12 @@ public class ESP32CMakeToolChainProvider implements ICMakeToolChainProvider, ICM
 					idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, idfPath);
 				}
 
-				String idfCMakeDir = idfPath + IPath.SEPARATOR + "tools" + IPath.SEPARATOR + "cmake"; //$NON-NLS-1$ //$NON-NLS-2$
-				Path toolChainFile = Paths.get(idfCMakeDir).resolve(TOOLCHAIN_ESP32_CMAKE);
+				Path toolChainFile = Paths.get(getIdfCMakePath(idfPath)).resolve(TOOLCHAIN_ESP32_CMAKE);
 				if (Files.exists(toolChainFile))
 				{
 					ICMakeToolChainFile file = manager.newToolChainFile(toolChainFile);
-					file.setProperty(IToolChain.ATTR_OS, ESP32ToolChain.OS);
-					file.setProperty(IToolChain.ATTR_ARCH, ESP32ToolChain.ARCH);
+					file.setProperty(IToolChain.ATTR_OS, ESPToolChain.OS);
+					file.setProperty(IToolChain.ATTR_ARCH, ESPToolChain.ARCH);
 
 					file.setProperty(ICBuildConfiguration.TOOLCHAIN_TYPE, tc.getTypeId());
 					file.setProperty(ICBuildConfiguration.TOOLCHAIN_ID, tc.getId());
@@ -85,6 +89,11 @@ public class ESP32CMakeToolChainProvider implements ICMakeToolChainProvider, ICM
 		}
 	}
 
+	protected String getIdfCMakePath(String idfPath)
+	{
+		return idfPath + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR + IDFConstants.CMAKE_FOLDER;
+	}
+
 	@Override
 	public void handleCMakeToolChainEvent(CMakeToolChainEvent event)
 	{
@@ -94,7 +103,7 @@ public class ESP32CMakeToolChainProvider implements ICMakeToolChainProvider, ICM
 			try
 			{
 				// This will load up the toolchain
-				IToolChain toolChain = tcManager.getToolChain(ESP32ToolChainProvider.ID, ESP32ToolChain.ID);
+				IToolChain toolChain = tcManager.getToolChain(ESPToolChainProvider.ID, ESPToolChain.ID);
 				assert toolChain != null;
 			}
 			catch (CoreException e)

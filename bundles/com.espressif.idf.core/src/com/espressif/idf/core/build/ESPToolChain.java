@@ -10,14 +10,18 @@ import org.eclipse.cdt.build.gcc.core.GCCToolChain;
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.build.IToolChainProvider;
 
-public class ESP32ToolChain extends GCCToolChain
+/**
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ *
+ */
+public class ESPToolChain extends GCCToolChain
 {
 
 	public static final String ID = "xtensa-esp32-elf"; //$NON-NLS-1$
 	public static final String OS = "esp32"; //$NON-NLS-1$
 	public static final String ARCH = "xtensa"; //$NON-NLS-1$
 
-	public ESP32ToolChain(IToolChainProvider provider, Path pathToToolChain)
+	public ESPToolChain(IToolChainProvider provider, Path pathToToolChain)
 	{
 		super(provider, pathToToolChain, ARCH, null);
 		setProperty(ATTR_OS, OS);

@@ -4,6 +4,8 @@
  *******************************************************************************/
 package com.espressif.idf.core;
 
+import org.eclipse.core.runtime.IPath;
+
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
@@ -39,7 +41,7 @@ public interface IDFConstants
 	 * idf python file
 	 */
 	String IDF_PYTHON_SCRIPT = "idf.py"; //$NON-NLS-1$
-	
+
 	/**
 	 * idf tools file
 	 */
@@ -49,6 +51,11 @@ public interface IDFConstants
 	 * <IDF_PATH>/tools
 	 */
 	String TOOLS_FOLDER = "tools"; //$NON-NLS-1$
+
+	/**
+	 * <IDF_PATH>/tools/cmake
+	 */
+	String CMAKE_FOLDER = "cmake"; //$NON-NLS-1$
 
 	/**
 	 * kconfig_menus.json file folder name
@@ -64,21 +71,26 @@ public interface IDFConstants
 	 * Json config menu file name
 	 */
 	String KCONFIG_MENUS_JSON = "kconfig_menus.json"; //$NON-NLS-1$
-	
+
 	/**
 	 * SDK configuration file
 	 */
 	String SDKCONFIG_FILE_NAME = "sdkconfig"; //$NON-NLS-1$
-	
+
 	/**
 	 * build folder for idf projects
 	 */
 	String BUILD_FOLDER = "build"; //$NON-NLS-1$
-	
+
 	/**
 	 * <IDF_PATH>/tools/idf_tools.py export
 	 */
 	String TOOLS_EXPORT_CMD = "export"; //$NON-NLS-1$
 
-	
+	String TOOLS_EXPORT_FORMAT_KEYVALUE = "key-value"; //$NON-NLS-1$
+
+	String TOOLS_EXPORT_CMD_FORMAT = "--format"; //$NON-NLS-1$
+
+	String TOOLS_EXPORT_CMD_FORMAT_VAL = TOOLS_EXPORT_CMD_FORMAT + "=" + TOOLS_EXPORT_FORMAT_KEYVALUE; //$NON-NLS-1$
+
 }
