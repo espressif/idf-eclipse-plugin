@@ -79,5 +79,37 @@
               value="(var config [GENERATOR_EXPRESSION])">
         </usage>
      </command>
+     <command
+           deprecated="false"
+           desc="Retrieve a specified component&apos;s :ref:`component property&lt;cmake-component-properties&gt;`, property and store it in var accessible from the current scope. Specifying GENERATOR_EXPRESSION will retrieve the generator expression string for that property, instead of the actual value, which can be used with CMake commands that support generator expressions."
+           name="idf_component_get_property">
+        <usage
+              value="(var component property [GENERATOR_EXPRESSION])">
+        </usage>
+     </command>
+     <command
+           deprecated="false"
+           desc="Set a specified component&apos;s :ref:`component property&lt;cmake-component-properties&gt;`, property with value val. Specifying APPEND will append the specified value to the current value of the property. If the property does not previously exist or it is currently empty, the specified value becomes the first element/member instead."
+           name="idf_component_set_property">
+        <usage
+              value="(property val [APPEND])">
+        </usage>
+     </command>
+     <command
+           deprecated="false"
+           desc="Register a component to the build system. Much like the project() CMake command, this should be called from the component&apos;s CMakeLists.txt directly (not through a function or macro) and is recommended to be called before any other command"
+           name="idf_component_register">
+        <usage
+              value="([[SRCS src1 src2 ...] | [[SRC_DIRS dir1 dir2 ...] [EXCLUDE_SRCS src1 src2 ...]]
+                       [INCLUDE_DIRS dir1 dir2 ...]
+                       [PRIV_INCLUDE_DIRS dir1 dir2 ...]
+                       [REQUIRES component1 component2 ...]
+                       [PRIV_REQUIRES component1 component2 ...]
+                       [LDFRAGMENTS ldfragment1 ldfragment2 ...]
+                       [REQUIRED_IDF_TARGETS target1 target2 ...]
+                       [EMBED_FILES file1 file2 ...]
+                       [EMBED_TXTFILES file1 file2 ...])">
+        </usage>
+     </command>
   </extension>
 </plugin>
