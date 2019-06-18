@@ -30,5 +30,54 @@
            class="com.espressif.idf.core.build.ESPToolChainProvider"
            id="com.espressif.idf.core.esp.toolchainprovider">
      </provider>
+        point="com.cthing.cmakeed.core.commands">
+     <command
+           deprecated="false"
+           desc="Retrieve a build property property and store it in var accessible from the current scope. Specifying GENERATOR_EXPRESSION will retrieve the generator expression string for that property, instead of the actual value, which can be used with CMake commands that support generator expressions."
+           name="idf_build_get_property">
+        <usage
+              value="(var property [GENERATOR_EXPRESSION])">
+        </usage>
+     </command>
+     <command
+           deprecated="false"
+           desc="Set a build property property with value val. Specifying APPEND will append the specified value to the current value of the property. If the property does not previously exist or it is currently empty, the specified value becomes the first element/member instead."
+           name="idf_build_set_property">
+        <usage
+              value="(property val [APPEND])">
+        </usage>
+     </command>
+     <command
+           deprecated="false"
+           desc="Add a directory component_dir that contains a component to the build"
+           name="idf_build_component">
+        <usage
+              value="(component_dir)">
+        </usage>
+     </command>
+     <command
+           deprecated="false"
+           desc="Performs the bulk of the behind-the-scenes magic for including ESP-IDF components such as component configuration, libraries creation, dependency expansion and resolution."
+           name="idf_build_process">
+        <usage
+              value="(target [PROJECT_DIR project_dir] [PROJECT_VER project_ver] [PROJECT_NAME project_name] [SDKCONFIG sdkconfig] [SDKCONFIG_DEFAULTS sdkconfig_defaults] [BUILD_DIR build_dir] [COMPONENTS component1 component2 ...])">
+        </usage>
+     </command>
+     <command
+           deprecated="false"
+           desc="Specify the executable for ESP-IDF build. This attaches additional targets such as dependencies related to flashing, generating additional binary files, etc. Should be called after idf_build_process"
+           name="idf_build_executable">
+        <usage
+              value="(executable)">
+        </usage>
+     </command>
+     <command
+           deprecated="false"
+           desc="Get the value of the specified config. Much like build properties, specifying GENERATOR_EXPRESSION will retrieve the generator expression string for that config, instead of the actual value, which can be used with CMake commands that support generator expressions. Actual config values are only known after call to idf_build_process, however."
+           name="idf_build_get_config">
+        <usage
+              value="(var config [GENERATOR_EXPRESSION])">
+        </usage>
+     </command>
   </extension>
 </plugin>
