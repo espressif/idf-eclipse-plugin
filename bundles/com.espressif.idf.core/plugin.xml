@@ -112,4 +112,128 @@
         </usage>
      </command>
   </extension>
+  <extension
+        point="com.cthing.cmakeed.core.properties">
+     <property
+           deprecated="false"
+           desc="Directory of the project; defaults to CMAKE_SOURCE_DIR"
+           name="PROJECT_DIR">
+     </property>
+     <property
+           deprecated="false"
+           desc="Version/revision of the project; defaults to &quot;0.0.0&quot;"
+           name="PROJECT_VER">
+     </property>
+     <property
+           deprecated="false"
+           desc="Output path of generated sdkconfig file; defaults to PROJECT_DIR/sdkconfig or CMAKE_SOURCE_DIR/sdkconfig depending if PROJECT_DIR is set"
+           name="SDKCONFIG">
+     </property>
+     <property
+           deprecated="false"
+           desc="Defaults file to use for the build; defaults to empty"
+           name="SDKCONFIG_DEFAULTS ">
+     </property>
+     <property
+           deprecated="false"
+           desc="Directory to place ESP-IDF build-related artifacts, such as generated binaries, text files, components; defaults to CMAKE_BINARY_DIR"
+           name="BUILD_DIR">
+     </property>
+     <property
+           deprecated="false"
+           desc="Starting components for trimming the build; components not in the list are automatically if they are required in the expanded dependency tree"
+           name="COMPONENTS">
+     </property>
+     <property
+           deprecated="false"
+           desc="Component source files used for creating a static library for the component; if not specified, component is a treated as a
+config-only component and an interface library is created instead."
+           name="SRCS">
+     </property>
+     <property
+           deprecated="false"
+           desc="Used to glob source files (.c, .cpp, .S) by specifying directories, instead of specifying source files manually via SRCS."
+           name="SRC_DIRS">
+     </property>
+     <property
+           deprecated="false"
+           desc="Source files specified in EXCLUDE_SRCS are removed from the globbed files."
+           name="EXCLUDE_SRCS">
+     </property>
+     <property
+           deprecated="false"
+           desc="Paths, relative to the component directory, which will be added to the include search path for all other components which require the current component"
+           name="INCLUDE_DIRS">
+     </property>
+     <property
+           deprecated="false"
+           desc="Directory paths, must be relative to the component directory, which will be added to the include search path for this component&apos;s source files only"
+           name="PRIV_INCLUDE_DIRS">
+     </property>
+     <property
+           deprecated="false"
+           desc="Public component requirements for the component"
+           name="REQUIRES">
+     </property>
+     <property
+           deprecated="false"
+           desc="Private component requirements for the component; ignored on config-only components"
+           name="PRIV_REQUIRES">
+     </property>
+     <property
+           deprecated="false"
+           desc="Component linker fragment files"
+           name="LDFRAGMENTS">
+     </property>
+     <property
+           deprecated="false"
+           desc="Specify the only target the component supports"
+           name="REQUIRED_IDF_TARGETS">
+     </property>
+     <property
+           deprecated="false"
+           desc="Binary files to be embedded in the component"
+           name="EMBED_FILES">
+     </property>
+     <property
+           deprecated="false"
+           desc="Text files to be embedded in the component"
+           name="EMBED_TXTFILES">
+     </property>
+     <property
+           deprecated="false"
+           desc="Alias for COMPONENT_LIB used for linking the component to external targets; set by idf_build_component and alias library itself;is created by idf_component_register"
+           name="COMPONENT_ALIAS">
+     </property>
+     <property
+           deprecated="false"
+           desc="Component directory; set by idf_build_component"
+           name="COMPONENT_DIR">
+     </property>
+     <property
+           deprecated="false"
+           desc="Name for created component static/interface library; set by idf_build_component and library itself; is created by idf_component_register"
+           name="COMPONENT_LIB">
+     </property>
+     <property
+           deprecated="false"
+           desc="Name of the component; set by idf_build_component based on the component directory name"
+           name="COMPONENT_NAME">
+     </property>
+     <property
+           deprecated="false"
+           desc="Type of the component, whether LIBRARY or CONFIG_ONLY. A component is of type LIBRARY if it specifies"
+           name="COMPONENT_TYPE ">
+     </property>
+     <property
+           deprecated="false"
+           desc="Component Kconfig file; set by idf_build_component"
+           name="KCONFIG">
+     </property>
+     <property
+           deprecated="false"
+           desc="Component Kconfig.projbuild; set by idf_build_component"
+           name="KCONFIG_PROJBUILD">
+     </property>
+  </extension>
 </plugin>
