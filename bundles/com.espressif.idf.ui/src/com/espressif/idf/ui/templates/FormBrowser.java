@@ -1,11 +1,17 @@
 
 package com.espressif.idf.ui.templates;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.ui.forms.widgets.*;
+import org.eclipse.ui.forms.widgets.FormText;
+import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.forms.widgets.ScrolledFormText;
+
+import com.espressif.idf.core.IDFCorePlugin;
 
 public class FormBrowser {
 	FormToolkit toolkit;
@@ -57,6 +63,14 @@ public class FormBrowser {
 	public void setText(String text) {
 		this.text = text;
 		if (formText != null)
-			formText.setText(text);
+			try
+			{
+				formText.setText(text);
+			}
+			catch (Exception e)
+			{
+				Status status = new Status(IStatus.ERROR, IDFCorePlugin.PLUGIN_ID, "Error parsing the template description", e);
+				IDFCorePlugin.getPlugin().getLog().log(status);
+			}
 	}
 }
