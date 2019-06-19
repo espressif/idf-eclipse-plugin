@@ -49,7 +49,9 @@
      </command>
      <command
            deprecated="false"
-           desc="Add a directory component_dir that contains a component to the build"
+           desc="Present a directory *component_dir* that contains a component to the build system. Relative paths are converted to absolute paths with respect to current directory.
+           All calls to this command must be performed before `idf_build_process`. 
+           This command does not guarantee that the component will be processed during build (see the `COMPONENTS` argument description for `idf_build_process`)"
            name="idf_build_component">
         <usage
               value="(component_dir)">
@@ -141,7 +143,9 @@
      </property>
      <property
            deprecated="false"
-           desc="Starting components for trimming the build; components not in the list are automatically if they are required in the expanded dependency tree"
+           desc="Select components to process among the components known by the build system (added via `idf_build_component`). This argument is used to trim the build. 
+  Other components are automatically added if they are required in the dependency chain, i.e. the public and private requirements of the components in this list are automatically added, and in turn the public and private requirements of those requirements, 
+  so on and so forth. If not specified, all components known to the build system are processed."
            name="COMPONENTS">
      </property>
      <property
@@ -222,7 +226,7 @@ config-only component and an interface library is created instead."
      </property>
      <property
            deprecated="false"
-           desc="Type of the component, whether LIBRARY or CONFIG_ONLY. A component is of type LIBRARY if it specifies"
+           desc="Type of the component, whether LIBRARY or CONFIG_ONLY. A component is of type LIBRARY if it specifies source files or embeds a file"
            name="COMPONENT_TYPE ">
      </property>
      <property
