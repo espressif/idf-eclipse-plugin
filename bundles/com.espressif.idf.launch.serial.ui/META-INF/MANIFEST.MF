@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: ESP32 Launch Serial UI
+Bundle-Name: ESP Launch Serial UI
 Bundle-SymbolicName: com.espressif.idf.launch.serial.ui;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -15,4 +15,4 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.13.0",
 Bundle-Activator: com.espressif.idf.launch.serial.ui.internal.Activator
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: org.eclipse.cdt.launch.serial.ui
-Bundle-Vendor: Espressif
+Bundle-Vendor: ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD

@@ -11,7 +11,7 @@
             class="com.espressif.idf.launch.serial.ui.internal.NewSerialFlashTargetWizard"
             icon="icons/espressif.png"
             id="com.espressif.idf.launch.serial.core.serialFlashTarget"
-            name="ESP32 Target">
+            name="ESP Target">
       </wizard2>
    </extension>
    <extension

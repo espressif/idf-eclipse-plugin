@@ -34,6 +34,9 @@ import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 
 public class NewSerialFlashTargetWizardPage extends WizardPage {
 
+	private static final String OS = "esp32"; //$NON-NLS-1$
+	private static final String ARCH = "xtensa"; //$NON-NLS-1$
+
 	private ILaunchTarget launchTarget;
 
 	private Text nameText;
@@ -67,7 +70,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 		label.setText(Messages.NewSerialFlashTargetWizardPage_OperatingSystem);
 
 		osText = new Text(comp, SWT.BORDER);
-		osText.setMessage("esp32"); //$NON-NLS-1$
+		osText.setText(OS);
 		osText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		if (launchTarget != null) {
 			String os = launchTarget.getAttribute(ILaunchTarget.ATTR_OS, null);
@@ -80,7 +83,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 		label.setText(Messages.NewSerialFlashTargetWizardPage_CPUArchitecture);
 
 		archText = new Text(comp, SWT.BORDER);
-		archText.setMessage("xtensa"); //$NON-NLS-1$
+		archText.setText(ARCH);
 		archText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		if (launchTarget != null) {
 			String arch = launchTarget.getAttribute(ILaunchTarget.ATTR_ARCH, null);
