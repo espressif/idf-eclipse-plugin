@@ -18,4 +18,17 @@
             natureId="com.espressif.idf.core.idfNature">
       </provider>
    </extension>
+  <extension
+        point="org.eclipse.cdt.cmake.core.toolChainProvider">
+     <provider
+           class="com.espressif.idf.core.build.ESPCMakeToolChainProvider">
+     </provider>
+  </extension>
+  <extension
+        point="org.eclipse.cdt.core.toolChainProvider">
+     <provider
+           class="com.espressif.idf.core.build.ESPToolChainProvider"
+           id="com.espressif.idf.core.esp.toolchainprovider">
+     </provider>
+  </extension>
 </plugin>

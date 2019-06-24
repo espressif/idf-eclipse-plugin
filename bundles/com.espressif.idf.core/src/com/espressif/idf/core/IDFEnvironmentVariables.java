@@ -21,18 +21,26 @@ public class IDFEnvironmentVariables
 	 * ESPRESSIF IDF_PATH environment variable identifier
 	 * 
 	 */
-	public static String IDF_PATH = "IDF_PATH";
-
+	public static String IDF_PATH = "IDF_PATH"; //$NON-NLS-1$
+	
+	public static String PATH = "PATH"; //$NON-NLS-1$
+	
 	/**
 	 * @param variableName Environment variable Name
 	 * @return IEnvironmentVariable
 	 */
 	public IEnvironmentVariable getEnv(String variableName)
 	{
-		IEnvironmentVariableManager buildEnvironmentManager = CCorePlugin.getDefault().getBuildEnvironmentManager();
-		IContributedEnvironment contributedEnvironment = buildEnvironmentManager.getContributedEnvironment();
+		IContributedEnvironment contributedEnvironment = getEnvironment();
 		IEnvironmentVariable variable = contributedEnvironment.getVariable(variableName, null);
 		return variable;
+	}
+
+	protected IContributedEnvironment getEnvironment()
+	{
+		IEnvironmentVariableManager buildEnvironmentManager = CCorePlugin.getDefault().getBuildEnvironmentManager();
+		IContributedEnvironment contributedEnvironment = buildEnvironmentManager.getContributedEnvironment();
+		return contributedEnvironment;
 	}
 
 	/**
@@ -49,6 +57,12 @@ public class IDFEnvironmentVariables
 		}
 
 		return envValue;
+	}
+	
+	public void addEnvVariable(String name, String value)
+	{
+		IContributedEnvironment contributedEnvironment = getEnvironment();
+		contributedEnvironment.addVariable(name, value, IEnvironmentVariable.ENVVAR_REPLACE, null, null);
 	}
 
 }
