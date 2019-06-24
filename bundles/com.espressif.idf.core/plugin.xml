@@ -30,5 +30,214 @@
            class="com.espressif.idf.core.build.ESPToolChainProvider"
            id="com.espressif.idf.core.esp.toolchainprovider">
      </provider>
+        point="com.cthing.cmakeed.core.commands">
+     <command
+           deprecated="false"
+           desc="Retrieve a build property property and store it in var accessible from the current scope. Specifying GENERATOR_EXPRESSION will retrieve the generator expression string for that property, instead of the actual value, which can be used with CMake commands that support generator expressions."
+           name="idf_build_get_property">
+        <usage
+              value="(var property [GENERATOR_EXPRESSION])">
+        </usage>
+     </command>
+     <command
+           deprecated="false"
+           desc="Set a build property property with value val. Specifying APPEND will append the specified value to the current value of the property. If the property does not previously exist or it is currently empty, the specified value becomes the first element/member instead."
+           name="idf_build_set_property">
+        <usage
+              value="(property val [APPEND])">
+        </usage>
+     </command>
+     <command
+           deprecated="false"
+           desc="Present a directory *component_dir* that contains a component to the build system. Relative paths are converted to absolute paths with respect to current directory.
+           All calls to this command must be performed before `idf_build_process`. 
+           This command does not guarantee that the component will be processed during build (see the `COMPONENTS` argument description for `idf_build_process`)"
+           name="idf_build_component">
+        <usage
+              value="(component_dir)">
+        </usage>
+     </command>
+     <command
+           deprecated="false"
+           desc="Performs the bulk of the behind-the-scenes magic for including ESP-IDF components such as component configuration, libraries creation, dependency expansion and resolution."
+           name="idf_build_process">
+        <usage
+              value="(target [PROJECT_DIR project_dir] [PROJECT_VER project_ver] [PROJECT_NAME project_name] [SDKCONFIG sdkconfig] [SDKCONFIG_DEFAULTS sdkconfig_defaults] [BUILD_DIR build_dir] [COMPONENTS component1 component2 ...])">
+        </usage>
+     </command>
+     <command
+           deprecated="false"
+           desc="Specify the executable for ESP-IDF build. This attaches additional targets such as dependencies related to flashing, generating additional binary files, etc. Should be called after idf_build_process"
+           name="idf_build_executable">
+        <usage
+              value="(executable)">
+        </usage>
+     </command>
+     <command
+           deprecated="false"
+           desc="Get the value of the specified config. Much like build properties, specifying GENERATOR_EXPRESSION will retrieve the generator expression string for that config, instead of the actual value, which can be used with CMake commands that support generator expressions. Actual config values are only known after call to idf_build_process, however."
+           name="idf_build_get_config">
+        <usage
+              value="(var config [GENERATOR_EXPRESSION])">
+        </usage>
+     </command>
+     <command
+           deprecated="false"
+           desc="Retrieve a specified component&apos;s :ref:`component property&lt;cmake-component-properties&gt;`, property and store it in var accessible from the current scope. Specifying GENERATOR_EXPRESSION will retrieve the generator expression string for that property, instead of the actual value, which can be used with CMake commands that support generator expressions."
+           name="idf_component_get_property">
+        <usage
+              value="(var component property [GENERATOR_EXPRESSION])">
+        </usage>
+     </command>
+     <command
+           deprecated="false"
+           desc="Set a specified component&apos;s :ref:`component property&lt;cmake-component-properties&gt;`, property with value val. Specifying APPEND will append the specified value to the current value of the property. If the property does not previously exist or it is currently empty, the specified value becomes the first element/member instead."
+           name="idf_component_set_property">
+        <usage
+              value="(property val [APPEND])">
+        </usage>
+     </command>
+     <command
+           deprecated="false"
+           desc="Register a component to the build system. Much like the project() CMake command, this should be called from the component&apos;s CMakeLists.txt directly (not through a function or macro) and is recommended to be called before any other command"
+           name="idf_component_register">
+        <usage
+              value="([[SRCS src1 src2 ...] | [[SRC_DIRS dir1 dir2 ...] [EXCLUDE_SRCS src1 src2 ...]]
+                       [INCLUDE_DIRS dir1 dir2 ...]
+                       [PRIV_INCLUDE_DIRS dir1 dir2 ...]
+                       [REQUIRES component1 component2 ...]
+                       [PRIV_REQUIRES component1 component2 ...]
+                       [LDFRAGMENTS ldfragment1 ldfragment2 ...]
+                       [REQUIRED_IDF_TARGETS target1 target2 ...]
+                       [EMBED_FILES file1 file2 ...]
+                       [EMBED_TXTFILES file1 file2 ...])">
+        </usage>
+     </command>
+  </extension>
+  <extension
+        point="com.cthing.cmakeed.core.properties">
+     <property
+           deprecated="false"
+           desc="Directory of the project; defaults to CMAKE_SOURCE_DIR"
+           name="PROJECT_DIR">
+     </property>
+     <property
+           deprecated="false"
+           desc="Version/revision of the project; defaults to &quot;0.0.0&quot;"
+           name="PROJECT_VER">
+     </property>
+     <property
+           deprecated="false"
+           desc="Output path of generated sdkconfig file; defaults to PROJECT_DIR/sdkconfig or CMAKE_SOURCE_DIR/sdkconfig depending if PROJECT_DIR is set"
+           name="SDKCONFIG">
+     </property>
+     <property
+           deprecated="false"
+           desc="Defaults file to use for the build; defaults to empty"
+           name="SDKCONFIG_DEFAULTS ">
+     </property>
+     <property
+           deprecated="false"
+           desc="Directory to place ESP-IDF build-related artifacts, such as generated binaries, text files, components; defaults to CMAKE_BINARY_DIR"
+           name="BUILD_DIR">
+     </property>
+     <property
+           deprecated="false"
+           desc="Select components to process among the components known by the build system (added via `idf_build_component`). This argument is used to trim the build. 
+  Other components are automatically added if they are required in the dependency chain, i.e. the public and private requirements of the components in this list are automatically added, and in turn the public and private requirements of those requirements, 
+  so on and so forth. If not specified, all components known to the build system are processed."
+           name="COMPONENTS">
+     </property>
+     <property
+           deprecated="false"
+           desc="Component source files used for creating a static library for the component; if not specified, component is a treated as a
+config-only component and an interface library is created instead."
+           name="SRCS">
+     </property>
+     <property
+           deprecated="false"
+           desc="Used to glob source files (.c, .cpp, .S) by specifying directories, instead of specifying source files manually via SRCS."
+           name="SRC_DIRS">
+     </property>
+     <property
+           deprecated="false"
+           desc="Source files specified in EXCLUDE_SRCS are removed from the globbed files."
+           name="EXCLUDE_SRCS">
+     </property>
+     <property
+           deprecated="false"
+           desc="Paths, relative to the component directory, which will be added to the include search path for all other components which require the current component"
+           name="INCLUDE_DIRS">
+     </property>
+     <property
+           deprecated="false"
+           desc="Directory paths, must be relative to the component directory, which will be added to the include search path for this component&apos;s source files only"
+           name="PRIV_INCLUDE_DIRS">
+     </property>
+     <property
+           deprecated="false"
+           desc="Public component requirements for the component"
+           name="REQUIRES">
+     </property>
+     <property
+           deprecated="false"
+           desc="Private component requirements for the component; ignored on config-only components"
+           name="PRIV_REQUIRES">
+     </property>
+     <property
+           deprecated="false"
+           desc="Component linker fragment files"
+           name="LDFRAGMENTS">
+     </property>
+     <property
+           deprecated="false"
+           desc="Specify the only target the component supports"
+           name="REQUIRED_IDF_TARGETS">
+     </property>
+     <property
+           deprecated="false"
+           desc="Binary files to be embedded in the component"
+           name="EMBED_FILES">
+     </property>
+     <property
+           deprecated="false"
+           desc="Text files to be embedded in the component"
+           name="EMBED_TXTFILES">
+     </property>
+     <property
+           deprecated="false"
+           desc="Alias for COMPONENT_LIB used for linking the component to external targets; set by idf_build_component and alias library itself;is created by idf_component_register"
+           name="COMPONENT_ALIAS">
+     </property>
+     <property
+           deprecated="false"
+           desc="Component directory; set by idf_build_component"
+           name="COMPONENT_DIR">
+     </property>
+     <property
+           deprecated="false"
+           desc="Name for created component static/interface library; set by idf_build_component and library itself; is created by idf_component_register"
+           name="COMPONENT_LIB">
+     </property>
+     <property
+           deprecated="false"
+           desc="Name of the component; set by idf_build_component based on the component directory name"
+           name="COMPONENT_NAME">
+     </property>
+     <property
+           deprecated="false"
+           desc="Type of the component, whether LIBRARY or CONFIG_ONLY. A component is of type LIBRARY if it specifies source files or embeds a file"
+           name="COMPONENT_TYPE ">
+     </property>
+     <property
+           deprecated="false"
+           desc="Component Kconfig file; set by idf_build_component"
+           name="KCONFIG">
+     </property>
+     <property
+           deprecated="false"
+           desc="Component Kconfig.projbuild; set by idf_build_component"
+           name="KCONFIG_PROJBUILD">
+     </property>
   </extension>
 </plugin>
