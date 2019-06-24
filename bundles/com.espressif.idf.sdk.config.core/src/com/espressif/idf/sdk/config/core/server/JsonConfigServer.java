@@ -19,8 +19,7 @@ import org.json.simple.parser.ParseException;
 import com.aptana.core.ShellExecutable;
 import com.aptana.core.util.ProcessRunner;
 import com.espressif.idf.core.IDFConstants;
-import com.espressif.idf.core.IDFCorePlugin;
-import com.espressif.idf.core.logging.IdfLog;
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.sdk.config.core.SDKConfigCorePlugin;
 
@@ -70,7 +69,7 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 	{
 		listeners.remove(listener);
 	}
-	
+
 	public void start()
 	{
 		IPath workingDir = project.getLocation();
@@ -89,9 +88,11 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 			Thread t = new Thread(runnable);
 			t.start();
 
-		} catch (Exception e)
+		}
+		catch (Exception e)
 		{
-			IDFCorePlugin.log(e);
+			Logger.log(SDKConfigCorePlugin.getPlugin(), e);
+
 		}
 	}
 
@@ -113,12 +114,12 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 		}
 		catch (ParseException e)
 		{
-			IdfLog.logError(SDKConfigCorePlugin.getPlugin(), e);
+			Logger.log(SDKConfigCorePlugin.getPlugin(), e);
 		}
 
 		return configOutput;
 	}
-	
+
 	public IJsonConfigOutput getOutput()
 	{
 		return configOutput;

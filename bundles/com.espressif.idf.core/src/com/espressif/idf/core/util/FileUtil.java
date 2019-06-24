@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.logging.Logger;
 
 /**
  * General File IO operations
@@ -112,8 +113,7 @@ public class FileUtil
 				String message = MessageFormat.format(Messages.FileUtil_UnableToCopy, source, destination,
 						error);
 
-				// TODO: log the message
-				return new Status(IStatus.ERROR, IDFCorePlugin.PLUGIN_ID, IStatus.ERROR, message, null);
+				Logger.logError(message);
 			}
 		} else
 		{
@@ -273,7 +273,7 @@ public class FileUtil
 			writer.write(rawSource);
 		} catch (IOException e)
 		{
-			// TODO: log the exception
+			Logger.log(e);
 		} finally
 		{
 			try

@@ -57,8 +57,7 @@ import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
-import com.espressif.idf.core.IDFCorePlugin;
-import com.espressif.idf.core.logging.IdfLog;
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.sdk.config.core.IJsonServerConfig;
 import com.espressif.idf.sdk.config.core.KConfigMenuItem;
@@ -153,7 +152,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		}
 		catch (Exception e)
 		{
-			IDFCorePlugin.log(e);
+			Logger.log(SDKConfigUIPlugin.getDefault(), e);
 		}
 	}
 
@@ -460,7 +459,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		}
 		catch (Exception e)
 		{
-			IDFCorePlugin.log(e);
+			Logger.log(SDKConfigUIPlugin.getDefault(), e);
 		}
 		return null;
 
@@ -622,13 +621,13 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			}
 			else if (type.equals(IJsonServerConfig.CHOICE_TYPE))
 			{
-				IdfLog.logInfo(SDKConfigUIPlugin.getDefault(), "Config key >" + configKey + " visiblity status >" + isVisible); //$NON-NLS-1$ //$NON-NLS-2$
+				Logger.logTrace(SDKConfigUIPlugin.getDefault(), "Config key >" + configKey + " visiblity status >" + isVisible); //$NON-NLS-1$ //$NON-NLS-2$
 				List<KConfigMenuItem> choiceItems = kConfigMenuItem.getChildren();
 				for (KConfigMenuItem item : choiceItems)
 				{
 					String localConfigKey = item.getName();
 					isVisible = (visibleJsonMap.get(localConfigKey) != null ? (boolean) visibleJsonMap.get(localConfigKey) : false);
-					IdfLog.logInfo(SDKConfigUIPlugin.getDefault(),"local key:"+ localConfigKey + " Visibility >" + isVisible); //$NON-NLS-1$ //$NON-NLS-2$
+					Logger.logTrace(SDKConfigUIPlugin.getDefault(), "local key:"+ localConfigKey + " Visibility >" + isVisible); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				
 				if (isVisible)
@@ -709,7 +708,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				if (StringUtil.isEmpty(helpInfo))
 				{
 					String msg = MessageFormat.format(Messages.SDKConfigurationEditor_NoHelpAvailable, configKey);
-					IdfLog.logInfo(SDKConfigUIPlugin.getDefault(), msg);
+					Logger.log(SDKConfigUIPlugin.getDefault(), msg);
 					return;
 				}
 				Shell activeShell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
@@ -775,7 +774,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	public void notifyRequestServed(String message, CommandType type)
 	{
 		this.serverMessage = message;
-		IdfLog.logInfo(SDKConfigUIPlugin.getDefault(), message);
+		Logger.log(SDKConfigUIPlugin.getDefault(), message);
 
 		if (selectedElement != null)
 		{
@@ -805,7 +804,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			}
 			catch (ParseException e1)
 			{
-				IDFCorePlugin.log(e1);
+				Logger.log(SDKConfigUIPlugin.getDefault(), e1);
 			}
 
 		}

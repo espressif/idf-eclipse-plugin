@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.osgi.framework.Bundle;
 
 import com.espressif.idf.core.IDFProjectNature;
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.FileUtil;
 import com.espressif.idf.ui.UIPlugin;
 
@@ -54,11 +55,12 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 	public void generate(Map<String, Object> model, IProgressMonitor monitor) throws CoreException
 	{
 		super.generate(model, monitor);
+		Logger.log("Source Template path:" + sourceTemplatePath);
 		if (sourceTemplatePath == null)
 		{
 			return; // let's go with the default generate
 		}
-
+		
 		// Target project
 		IProject project = getProject();
 
@@ -69,7 +71,7 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace(); // something wrong with copying the template to the generated project
+			Logger.log(e);
 		}
 
 		// refresh to see the copied resources in the project explorer

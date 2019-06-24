@@ -12,11 +12,8 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.text.MessageFormat;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-
 import com.aptana.core.util.ProcessRunnable;
-import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.sdk.config.core.SDKConfigCorePlugin;
 
 /**
@@ -51,7 +48,7 @@ public class JsonConfigServerRunnable extends ProcessRunnable
 		this.type = type;
 		
 		String msg = MessageFormat.format(Messages.JsonConfigServerRunnable_CmdToBeExecuted, command);
-		IDFCorePlugin.getPlugin().getLog().log(new Status(IStatus.INFO, SDKConfigCorePlugin.PLUGIN_ID, msg));
+		Logger.log(SDKConfigCorePlugin.getPlugin(), msg);
 
 		PrintWriter pwdWriter = new PrintWriter(in);
 		pwdWriter.println(command);
