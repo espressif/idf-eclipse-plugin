@@ -26,7 +26,7 @@ import com.aptana.core.util.ProcessRunner;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
-import com.espressif.idf.core.logging.IdfLog;
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 
@@ -106,7 +106,7 @@ public class ESPToolChainProvider implements IToolChainProvider
 							}
 							catch (IOException e)
 							{
-								IdfLog.logError(IDFCorePlugin.getPlugin(), e);
+								Logger.log(IDFCorePlugin.getPlugin(), e);
 							}
 						}
 					}
@@ -147,10 +147,10 @@ public class ESPToolChainProvider implements IToolChainProvider
 		String tools_path = idf_path + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
 				+ IDFConstants.IDF_TOOLS_SCRIPT;
 
-		IDFCorePlugin.logInfo("idf_tools.py path: " + tools_path);
+		Logger.log("idf_tools.py path: " + tools_path);
 		if (!new File(tools_path).exists())
 		{
-			IDFCorePlugin.logInfo("idf_tools.py path doesn't exist");
+			Logger.log("idf_tools.py path doesn't exist");
 			return null;
 		}
 
@@ -161,7 +161,7 @@ public class ESPToolChainProvider implements IToolChainProvider
 			if (idf_tools_export_status != null && idf_tools_export_status.isOK())
 			{
 				String message = idf_tools_export_status.getMessage();
-				IDFCorePlugin.logInfo("idf_tools.py export output: " + message);
+				Logger.log("idf_tools.py export output: " + message);
 				if (message != null)
 				{
 					String[] exportEntries = message.split("\n"); //$NON-NLS-1$
@@ -170,7 +170,7 @@ public class ESPToolChainProvider implements IToolChainProvider
 						String[] keyValue = entry.split("="); //$NON-NLS-1$
 						if (keyValue.length == 2 && keyValue[0].equals(IDFEnvironmentVariables.PATH)) // 0 - key, 1 - value
 						{
-							IDFCorePlugin.logInfo("PATH: " + keyValue[1]);
+							Logger.log("PATH: " + keyValue[1]);
 							return keyValue[1];
 						}
 					}
@@ -179,7 +179,7 @@ public class ESPToolChainProvider implements IToolChainProvider
 		}
 		catch (Exception e)
 		{
-			IDFCorePlugin.log(e);
+			Logger.log(IDFCorePlugin.getPlugin(), e);
 		}
 		return null;
 	}

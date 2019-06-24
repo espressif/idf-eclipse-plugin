@@ -12,10 +12,10 @@ import org.eclipse.jface.viewers.TreeNodeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.json.simple.JSONObject;
-import com.espressif.idf.core.logging.IdfLog;
+
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.sdk.config.core.IJsonServerConfig;
 import com.espressif.idf.sdk.config.core.KConfigMenuItem;
-import com.espressif.idf.sdk.config.core.SDKConfigCorePlugin;
 import com.espressif.idf.sdk.config.core.server.ConfigServerManager;
 import com.espressif.idf.sdk.config.core.server.JsonConfigServer;
 
@@ -89,10 +89,10 @@ public class ConfigContentProvider extends TreeNodeContentProvider
 			if (kConfigMenuItem.getType() != null && kConfigMenuItem.getType().equals(IJsonServerConfig.MENU_TYPE))
 			{
 				JSONObject visibleJsonMap = configServer.getOutput().getVisibleJsonMap();
-				IdfLog.logTrace(SDKConfigCorePlugin.getPlugin(), "item >" + kConfigMenuItem.getTitle() + " type >"+ kConfigMenuItem.getType()); //$NON-NLS-1$ //$NON-NLS-2$
+				Logger.logTrace(SDKConfigUIPlugin.getDefault(), "item >" + kConfigMenuItem.getTitle() + " type >"+ kConfigMenuItem.getType()); //$NON-NLS-1$ //$NON-NLS-2$
 				
 				boolean visible = kConfigMenuItem.isVisible(visibleJsonMap);
-				IdfLog.logTrace(SDKConfigCorePlugin.getPlugin(), "visibility >" + kConfigMenuItem.isVisible(visibleJsonMap)); //$NON-NLS-1$
+				Logger.logTrace(SDKConfigUIPlugin.getDefault(), "visibility >" + kConfigMenuItem.isVisible(visibleJsonMap)); //$NON-NLS-1$
 				if (visible)
 				{
 					menuList.add(kConfigMenuItem);

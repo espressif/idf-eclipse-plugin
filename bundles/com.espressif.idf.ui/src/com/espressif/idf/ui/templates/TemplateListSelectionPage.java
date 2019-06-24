@@ -85,14 +85,6 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 		setDescriptionText(description);
 	}
 
-//	@Override
-//	public IPluginContentWizard getSelectedWizard()
-//	{
-//		if (fUseTemplate.getSelection())
-//			return super.getSelectedWizard();
-//		return null;
-//	}
-
 	@Override
 	public boolean isPageComplete()
 	{

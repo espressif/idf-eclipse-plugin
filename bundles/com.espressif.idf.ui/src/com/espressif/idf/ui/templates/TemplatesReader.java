@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.Path;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.logging.Logger;
 
 /**
  * IDF Templates/examples reader from the IDF_PATH
@@ -33,7 +34,7 @@ public class TemplatesReader
 		TemplateNode root = new TemplateNode(null, null, null, IResource.ROOT);
 
 		String idf_path =  new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PATH);
-
+		Logger.log("IDF path "+ idf_path); //$NON-NLS-1$
 		File idfpath_file = new File(idf_path + IPath.SEPARATOR + IDFConstants.TEMPLATE_FOLDER_NAME);
 		if (idfpath_file.isDirectory())
 		{
