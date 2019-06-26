@@ -4,8 +4,6 @@
  *******************************************************************************/
 package com.espressif.idf.core;
 
-import org.eclipse.core.runtime.IPath;
-
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
