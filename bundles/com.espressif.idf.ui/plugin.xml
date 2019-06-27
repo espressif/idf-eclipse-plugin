@@ -10,7 +10,7 @@
       <wizard
             category="com.espressif.idf.ui.new.wizard.category"
             class="com.espressif.idf.ui.wizard.NewIDFProjectWizard"
-            icon="icons/espressif.png"
+            icon="icons/espressif_idf_project.png"
             id="com.espressif.idf.ui.new.project.wizard"
             name="%wizard.name"
             project="true">
@@ -37,7 +37,7 @@
       <wizard
             category="com.espressif.idf.ui.category.import"
             class="com.espressif.idf.ui.wizard.ImportIDFProjectWizard"
-            icon="icons/espressif.png"
+            icon="icons/espressif_idf_project.png"
             id="com.espressif.idf.ui.wizard.import.idf"
             name="%wizard.name.0">
       </wizard>

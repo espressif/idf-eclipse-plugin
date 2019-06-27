@@ -16,7 +16,7 @@ import com.espressif.idf.sdk.config.core.KConfigMenuItem;
 public class ConfigLabelProvider extends LabelProvider
 {
 
-	public static final String SETTINGS_ICON = "icons/settings.png"; //$NON-NLS-1$
+	public static final String SETTINGS_ICON = "icons/sdk_tool_config.png"; //$NON-NLS-1$
 
 	@Override
 	public Image getImage(Object element)
