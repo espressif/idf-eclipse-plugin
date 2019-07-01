@@ -24,9 +24,11 @@ import org.osgi.framework.ServiceReference;
 
 public class Activator extends AbstractUIPlugin {
 
+	private static final String ESP_TARGET_PNG = "esp_target.png"; //$NON-NLS-1$
+
 	public static final String PLUGIN_ID = "com.espressif.idf.launch.serial.ui"; //$NON-NLS-1$
 
-	public static final String IMG_ESPRESSIF_LOGO = "com.espressif.idf.launch.serial.ui.espressif.png"; //$NON-NLS-1$
+	public static final String IMG_ESPRESSIF_LOGO = PLUGIN_ID + "." + ESP_TARGET_PNG; //$NON-NLS-1$
 
 	private static AbstractUIPlugin plugin;
 
@@ -40,7 +42,7 @@ public class Activator extends AbstractUIPlugin {
 	protected void initializeImageRegistry(ImageRegistry reg) {
 		super.initializeImageRegistry(reg);
 
-		reg.put(IMG_ESPRESSIF_LOGO, imageDescriptorFromPlugin(PLUGIN_ID, "icons/espressif.png")); //$NON-NLS-1$
+		reg.put(IMG_ESPRESSIF_LOGO, imageDescriptorFromPlugin(PLUGIN_ID, "icons/" + ESP_TARGET_PNG)); //$NON-NLS-1$
 	}
 
 	public static Image getImage(String key) {
