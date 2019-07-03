@@ -8,6 +8,7 @@ import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.envvar.IContributedEnvironment;
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
 import org.eclipse.cdt.core.envvar.IEnvironmentVariableManager;
+import org.eclipse.cdt.internal.core.envvar.EnvironmentVariableManager;
 
 import com.espressif.idf.core.util.StringUtil;
 
@@ -59,10 +60,14 @@ public class IDFEnvironmentVariables
 		return envValue;
 	}
 	
+	@SuppressWarnings("restriction")
 	public void addEnvVariable(String name, String value)
 	{
 		IContributedEnvironment contributedEnvironment = getEnvironment();
 		contributedEnvironment.addVariable(name, value, IEnvironmentVariable.ENVVAR_REPLACE, null, null);
+		
+		//Without this environment variables won't be persisted
+		EnvironmentVariableManager.fUserSupplier.storeWorkspaceEnvironment(true);
 	}
 
 }

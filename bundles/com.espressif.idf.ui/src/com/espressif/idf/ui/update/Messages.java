@@ -9,8 +9,9 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS
 {
 	private static final String BUNDLE_NAME = "com.espressif.idf.ui.update.messages"; //$NON-NLS-1$
-	public static String IDFToolsHandler_IDFPath;
-	public static String IDFToolsHandler_InstallationDirPath;
+	public static String DirectorySelectionDialog_Browse;
+	public static String DirectorySelectionDialog_IDFDirLabel;
+	public static String DirectorySelectionDialog_SelectIDFDirMessage;
 	public static String IDFToolsHandler_ToolsManagerConsole;
 	static
 	{

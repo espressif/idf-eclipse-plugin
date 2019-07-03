@@ -64,26 +64,6 @@
                optional="true">
          </commandParameter>
       </command>
-      <command
-            defaultHandler="com.espressif.idf.ui.update.IDFToolsHandler"
-            id="com.espressif.idf.ui.command.check"
-            name="%command.name.1">
-         <commandParameter
-               id="com.espressif.idf.ui.commandParameter.tools"
-               name="%commandParameter.name.1"
-               optional="true">
-         </commandParameter>
-      </command>
-      <command
-            defaultHandler="com.espressif.idf.ui.update.IDFToolsHandler"
-            id="com.espressif.idf.ui.command.export "
-            name="%command.name.2">
-         <commandParameter
-               id="com.espressif.idf.ui.commandParameter.tools"
-               name="%commandParameter.name.2"
-               optional="true">
-         </commandParameter>
-      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -97,37 +77,11 @@
                   commandId="com.espressif.idf.ui.command.install"
                   icon="icons/espressif.png"
                   style="push">
-               <parameter
-                     name="com.espressif.idf.ui.commandParameter.tools"
-                     value="install">
-               </parameter>
             </command>
             <command
                   commandId="com.espressif.idf.ui.command.list"
                   icon="icons/espressif.png"
                   style="push">
-               <parameter
-                     name="com.espressif.idf.ui.commandParameter.tools"
-                     value="list">
-               </parameter>
-            </command>
-            <command
-                  commandId="com.espressif.idf.ui.command.check"
-                  icon="icons/espressif.png"
-                  style="push">
-               <parameter
-                     name="com.espressif.idf.ui.commandParameter.tools"
-                     value="check">
-               </parameter>
-            </command>
-            <command
-                  commandId="com.espressif.idf.ui.command.export "
-                  icon="icons/espressif.png"
-                  style="push">
-               <parameter
-                     name="com.espressif.idf.ui.commandParameter.tools"
-                     value="export ">
-               </parameter>
             </command>
          </menu>
       </menuContribution>

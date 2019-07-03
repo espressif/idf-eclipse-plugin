@@ -85,6 +85,14 @@ public interface IDFConstants
 	 */
 	String TOOLS_EXPORT_CMD = "export"; //$NON-NLS-1$
 
+	String TOOLS_INSTALL_CMD = "install"; //$NON-NLS-1$
+
+	String TOOLS_INSTALL_ALL_CMD = "all"; //$NON-NLS-1$
+	
+	String TOOLS_INSTALL_PYTHON_CMD = "install-python-env"; //$NON-NLS-1$
+	
+	String TOOLS_LIST_CMD = "list"; //$NON-NLS-1$
+
 	String TOOLS_EXPORT_FORMAT_KEYVALUE = "key-value"; //$NON-NLS-1$
 
 	String TOOLS_EXPORT_CMD_FORMAT = "--format"; //$NON-NLS-1$
