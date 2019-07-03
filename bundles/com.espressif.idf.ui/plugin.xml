@@ -45,24 +45,14 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="com.espressif.idf.ui.update.IDFToolsHandler"
+            defaultHandler="com.espressif.idf.ui.update.InstallToolsHandler"
             id="com.espressif.idf.ui.command.install"
             name="%command.name">
-         <commandParameter
-               id="com.espressif.idf.ui.commandParameter.tools"
-               name="%commandParameter.name"
-               optional="true">
-         </commandParameter>
       </command>
       <command
-            defaultHandler="com.espressif.idf.ui.update.IDFToolsHandler"
+            defaultHandler="com.espressif.idf.ui.update.ListInstalledToolsHandler"
             id="com.espressif.idf.ui.command.list"
             name="%command.name.0">
-         <commandParameter
-               id="com.espressif.idf.ui.commandParameter.tools"
-               name="%commandParameter.name.0"
-               optional="true">
-         </commandParameter>
       </command>
    </extension>
    <extension
