@@ -12,12 +12,17 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.debug.core.Launch;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.console.ConsolePlugin;
+import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.console.IConsoleManager;
+import org.eclipse.ui.console.MessageConsole;
+import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.aptana.core.ShellExecutable;
 import com.aptana.core.util.ProcessRunner;
@@ -33,6 +38,11 @@ import com.espressif.idf.core.util.StringUtil;
  */
 public abstract class AbstractToolsHandler extends AbstractHandler
 {
+	/**
+	 * Tools console
+	 */
+	protected MessageConsoleStream console;
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
@@ -49,7 +59,13 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 			idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, idfPath);
 		}
 
+		// Create Tools console
+		MessageConsole msgConsole = findConsole(Messages.IDFToolsHandler_ToolsManagerConsole);
+		msgConsole.clearConsole();
+		console = msgConsole.newMessageStream();
+
 		execute();
+
 		return null;
 	}
 
@@ -61,20 +77,19 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 	protected void runCommand(List<String> arguments)
 	{
 		ProcessRunner processRunner = new ProcessRunner();
-		Process process;
+
 		try
 		{
 			// insert idf_tools.py
 			arguments.add(0, IDFUtil.getIDFToolsScriptFile().getAbsolutePath());
 
-			process = processRunner.run(Path.ROOT, getEnvironment(Path.ROOT),
+			console.println(Messages.AbstractToolsHandler_ExecutingMsg + getCommandString(arguments));
+
+			IStatus status = processRunner.runInBackground(Path.ROOT, getEnvironment(Path.ROOT),
 					arguments.toArray(new String[arguments.size()]));
 
-			Launch fLaunch = new Launch(null, ILaunchManager.RUN_MODE, null);
-			fLaunch.setAttribute(DebugPlugin.ATTR_LAUNCH_TIMESTAMP, Long.toString(System.currentTimeMillis()));
-			getLaunchManager().addLaunch(fLaunch);
-
-			DebugPlugin.newProcess(fLaunch, process, Messages.IDFToolsHandler_ToolsManagerConsole);
+			console.println(status.getMessage());
+			console.println();
 
 		}
 		catch (Exception e1)
@@ -82,6 +97,14 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 			Logger.log(IDFCorePlugin.getPlugin(), e1);
 
 		}
+	}
+
+	protected String getCommandString(List<String> arguments)
+	{
+		StringBuilder builder = new StringBuilder();
+		arguments.forEach(entry -> builder.append(entry + " ")); //$NON-NLS-1$
+
+		return builder.toString().trim();
 	}
 
 	/**
@@ -114,6 +137,28 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 		}
 
 		return null;
+	}
+
+	/**
+	 * Find a console for a given name. If not found, it will create a new one and return
+	 * 
+	 * @param name
+	 * @return
+	 */
+	private MessageConsole findConsole(String name)
+	{
+		ConsolePlugin plugin = ConsolePlugin.getDefault();
+		IConsoleManager conMan = plugin.getConsoleManager();
+		IConsole[] existing = conMan.getConsoles();
+		for (int i = 0; i < existing.length; i++)
+		{
+			if (name.equals(existing[i].getName()))
+				return (MessageConsole) existing[i];
+		}
+		// no console found, so create a new one
+		MessageConsole myConsole = new MessageConsole(name, null);
+		conMan.addConsoles(new IConsole[] { myConsole });
+		return myConsole;
 	}
 
 }

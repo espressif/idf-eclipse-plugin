@@ -12,8 +12,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 
 import com.aptana.core.util.ProcessRunner;
 import com.espressif.idf.core.IDFConstants;
@@ -34,8 +37,31 @@ public class InstallToolsHandler extends AbstractToolsHandler
 	@Override
 	protected void execute()
 	{
-		handleToolsInstall();
-		handleToolsExport();
+		Job installToolsJob = new Job(Messages.InstallToolsHandler_InstallingToolsMsg)
+		{
+			@Override
+			protected IStatus run(IProgressMonitor monitor)
+			{
+				monitor.beginTask(Messages.InstallToolsHandler_ItWilltakeTimeMsg, 4);
+				monitor.worked(1);
+
+				handleToolsInstall();
+				monitor.worked(1);
+
+				monitor.setTaskName(Messages.InstallToolsHandler_InstallingPythonMsg);
+				handleToolsInstallPython();
+				monitor.worked(1);
+
+				monitor.setTaskName(Messages.InstallToolsHandler_ExportingPathsMsg);
+				handleToolsExport();
+				monitor.worked(1);
+
+				return Status.OK_STATUS;
+			}
+
+		};
+		installToolsJob.schedule();
+
 	}
 
 	protected void handleToolsInstall()
@@ -44,8 +70,16 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		List<String> arguments = new ArrayList<String>();
 		arguments.add(IDFConstants.TOOLS_INSTALL_CMD);
 		arguments.add(IDFConstants.TOOLS_INSTALL_ALL_CMD);
+
+		console.println(Messages.InstallToolsHandler_InstallingToolsMsg);
+		console.println(Messages.InstallToolsHandler_ItWilltakeTimeMsg);
 		runCommand(arguments);
 
+	}
+
+	protected void handleToolsInstallPython()
+	{
+		List<String> arguments;
 		// idf_tools.py install-python-env
 		arguments = new ArrayList<String>();
 		arguments.add(IDFConstants.TOOLS_INSTALL_PYTHON_CMD);
@@ -59,12 +93,15 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		arguments.add(IDFConstants.TOOLS_EXPORT_CMD);
 		arguments.add(IDFConstants.TOOLS_EXPORT_CMD_FORMAT_VAL);
 
+		console.println(Messages.AbstractToolsHandler_ExecutingMsg + "> "+ getCommandString(arguments)); //$NON-NLS-1$
+
 		ProcessRunner processRunner = new ProcessRunner();
 		IStatus status = null;
 		try
 		{
 			status = processRunner.runInBackground(Path.ROOT, getEnvironment(Path.ROOT),
 					arguments.toArray(new String[arguments.size()]));
+			console.println(status.getMessage());
 		}
 		catch (Exception e1)
 		{
@@ -90,7 +127,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 			String[] keyValue = entry.split("="); //$NON-NLS-1$
 			if (keyValue.length == 2 && keyValue[0].equals(IDFEnvironmentVariables.PATH)) // 0 - key, 1 - value
 			{
-				Logger.log("PATH: " + keyValue[1]); //$NON-NLS-1$
+				Logger.log("PATH from tools export command: " + keyValue[1]); //$NON-NLS-1$
 
 				IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
 				IEnvironmentVariable env = idfEnvMgr.getEnv(IDFEnvironmentVariables.PATH);

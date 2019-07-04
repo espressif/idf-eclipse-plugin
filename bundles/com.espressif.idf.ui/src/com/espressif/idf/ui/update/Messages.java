@@ -9,10 +9,15 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS
 {
 	private static final String BUNDLE_NAME = "com.espressif.idf.ui.update.messages"; //$NON-NLS-1$
+	public static String AbstractToolsHandler_ExecutingMsg;
 	public static String DirectorySelectionDialog_Browse;
 	public static String DirectorySelectionDialog_IDFDirLabel;
 	public static String DirectorySelectionDialog_SelectIDFDirMessage;
 	public static String IDFToolsHandler_ToolsManagerConsole;
+	public static String InstallToolsHandler_ExportingPathsMsg;
+	public static String InstallToolsHandler_InstallingPythonMsg;
+	public static String InstallToolsHandler_InstallingToolsMsg;
+	public static String InstallToolsHandler_ItWilltakeTimeMsg;
 	static
 	{
 		// initialize resource bundle
