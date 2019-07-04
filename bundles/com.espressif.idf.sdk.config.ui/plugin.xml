@@ -7,7 +7,7 @@
             class="com.espressif.idf.sdk.config.ui.SDKConfigurationEditor"
             default="false"
             filenames="sdkconfig"
-            icon="icons/espressif.png"
+            icon="icons/sdkconfig.png"
             id="com.espressif.idf.sdk.config.ui.editor"
             matchingStrategy="com.espressif.idf.sdk.config.ui.SDKConfigEditorMatchingStrategy"
             name="%editor.name">
