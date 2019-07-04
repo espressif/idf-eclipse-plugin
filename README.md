@@ -3,21 +3,22 @@
 Eclipse Plugins for Espressif IoT Development Framework(IDF)
 
 # Table Of Contents
-1.[ Prerequisites ](#Prerequisites) <br>
-2.[ Getting Started ](#GettingStarted) <br>
-3.[ Configuring Environment Variables ](#configureEnvironmentVariables)<br>
-4.[ Create a new Project using default template ](#NewProjectUsingDefault)<br>
-5.[ Create a new project using idf examples/templates ](#NewProjectUsingTemplates)<br>
-6.[ Import an existing IDF Project ](#ImportProject)<br>
-7.[ Configuring Core Build Toolchains ](#ConfigureToolchains)<br>
-8.[ Configuring CMake Toolchain ](#ConfigureCMakeToolchain)<br>
-9.[ Configuring Launch Target ](#ConfigureLaunchTarget)<br>
-10.[ Building the Application ](#BuildApplication)<br>
-11.[ Configuring Launch Terminal ](#ConfigureLaunchTerminal)<br>
-12.[ Flashing the Application ](#FlashApplication)<br>
-13.[ SDK Configuration editor ](#sdkconfigEditor)<br>
-14.[ How to raise bugs ](#howToRaiseBugs)<br>
-15.[ FAQ ](#faq)<br>
+[ Prerequisites ](#Prerequisites) <br>
+[ Getting Started ](#GettingStarted) <br>
+[ Installation of Tools ](#InstallTools) <br>
+[ Configuring Environment Variables ](#configureEnvironmentVariables)<br>
+[ Create a new Project using default template ](#NewProjectUsingDefault)<br>
+[ Create a new project using idf examples/templates ](#NewProjectUsingTemplates)<br>
+[ Import an existing IDF Project ](#ImportProject)<br>
+[ Configuring Core Build Toolchains ](#ConfigureToolchains)<br>
+[ Configuring CMake Toolchain ](#ConfigureCMakeToolchain)<br>
+[ Configuring Launch Target ](#ConfigureLaunchTarget)<br>
+[ Building the Application ](#BuildApplication)<br>
+[ Configuring Launch Terminal ](#ConfigureLaunchTerminal)<br>
+[ Flashing the Application ](#FlashApplication)<br>
+[ SDK Configuration editor ](#sdkconfigEditor)<br>
+[ How to raise bugs ](#howToRaiseBugs)<br>
+[ FAQ ](#faq)<br>
 
 
 <a name="Prerequisites"></a>
@@ -39,6 +40,13 @@ Eclipse Plugins for Espressif IoT Development Framework(IDF)
 * Restart the Eclipse
 
 ![](docs/images/1_idffeature_install.png)
+
+<a name="InstallTools"></a>
+# Installation of IDF Tools:
+* Navigate to `Help` > `Espressif IDF Tools Manager` > `Install Tools`
+* Provide the ESP-IDF directory path to get started with the installation. Check the Console for the installation details. Installation might take a while if you're doing it for the first time since it has to download and install xtensa-esp32-elf, esp32ulp-elf, cmake, openocd-esp32 and ninja tools.
+
+![](docs/images/install_tools.png)
 
 <a name="configureEnvironmentVariables"></a>
 # Configuring Environment Variables:
