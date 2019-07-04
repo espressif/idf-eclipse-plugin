@@ -53,6 +53,10 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 		if (StringUtil.isEmpty(idfPath) || !new File(idfPath).exists())
 		{
 			idfPath = getIDFDirPath();
+			if (idfPath == null) //IDF directory selection dialog would have been cancelled
+			{
+				return null;
+			}
 
 			// add the IDF_PATH to the eclipse environment variables?
 			IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
