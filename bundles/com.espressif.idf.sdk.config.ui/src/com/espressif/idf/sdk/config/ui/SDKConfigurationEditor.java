@@ -100,8 +100,6 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 	private JSONObject visibleJsonMap;
 
-	private JSONObject rangesJsonMap;
-
 	private String serverMessage;
 
 	private KConfigMenuItem selectedElement;
@@ -128,7 +126,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		String configMenuJsonPath = null;
 		try
 		{
-			//1. Getting kconfig_menus.json
+			// 1. Getting kconfig_menus.json
 			configMenuJsonPath = new SDKConfigUtil().getConfigMenuFilePath(project);
 			if (configMenuJsonPath == null || !new File(configMenuJsonPath).exists())
 			{
@@ -136,8 +134,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				createErrorPage(errorMsg);
 				return;
 			}
-			
-			//2. Getting output from the configuration server 
+
+			// 2. Getting output from the configuration server
 			initConfigServer(project);
 			if (valuesJsonMap == null)
 			{
@@ -145,8 +143,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				createErrorPage(errorMsg);
 				return;
 			}
-			
-			//3. Build the UI
+
+			// 3. Build the UI
 			createDesignPage();
 			createSourcePage();
 		}
@@ -272,7 +270,6 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		return null;
 	}
 
-	
 	/**
 	 * @param errorMessage
 	 */
@@ -312,6 +309,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	 */
 	protected void initConfigServer(IProject project) throws IOException, ParseException
 	{
+
 		configServer = ConfigServerManager.INSTANCE.getServer(project);
 
 		// register the editor with the server to notify about the events
@@ -319,13 +317,13 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 		// will wait and check for the server response
 		JsonConfigProcessor jsonProcessor = new JsonConfigProcessor();
-		if (isReady(5, 1000, jsonProcessor))
+		final int MAX_NO_OF_ATTEMPTS = 15;
+		if (isReady(MAX_NO_OF_ATTEMPTS, 1000, jsonProcessor))
 		{
 			String response = jsonProcessor.getInitialOutput(serverMessage);
 			IJsonConfigOutput output = configServer.getOutput(response, false);
 			valuesJsonMap = output.getValuesJsonMap();
 			visibleJsonMap = output.getVisibleJsonMap();
-			rangesJsonMap = output.getRangesJsonMap();
 		}
 	}
 
@@ -337,11 +335,10 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		{
 			return;
 		}
-		
+
 		IJsonConfigOutput output = configServer.getOutput(response, true);
 		valuesJsonMap = output.getValuesJsonMap();
 		visibleJsonMap = output.getVisibleJsonMap();
-		rangesJsonMap = output.getRangesJsonMap();
 
 	}
 
@@ -500,7 +497,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 	private void updateUI(KConfigMenuItem selectedElement)
 	{
-		if (selectedElement == null || updateUIComposite == null || updateUIComposite.isDisposed() || valuesJsonMap == null)
+		if (selectedElement == null || updateUIComposite == null || updateUIComposite.isDisposed()
+				|| valuesJsonMap == null)
 		{
 			return;
 		}
@@ -621,15 +619,19 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			}
 			else if (type.equals(IJsonServerConfig.CHOICE_TYPE))
 			{
-				Logger.logTrace(SDKConfigUIPlugin.getDefault(), "Config key >" + configKey + " visiblity status >" + isVisible); //$NON-NLS-1$ //$NON-NLS-2$
+				Logger.logTrace(SDKConfigUIPlugin.getDefault(),
+						"Config key >" + configKey + " visiblity status >" + isVisible); //$NON-NLS-1$ //$NON-NLS-2$
 				List<KConfigMenuItem> choiceItems = kConfigMenuItem.getChildren();
 				for (KConfigMenuItem item : choiceItems)
 				{
 					String localConfigKey = item.getName();
-					isVisible = (visibleJsonMap.get(localConfigKey) != null ? (boolean) visibleJsonMap.get(localConfigKey) : false);
-					Logger.logTrace(SDKConfigUIPlugin.getDefault(), "local key:"+ localConfigKey + " Visibility >" + isVisible); //$NON-NLS-1$ //$NON-NLS-2$
+					isVisible = (visibleJsonMap.get(localConfigKey) != null
+							? (boolean) visibleJsonMap.get(localConfigKey)
+							: false);
+					Logger.logTrace(SDKConfigUIPlugin.getDefault(),
+							"local key:" + localConfigKey + " Visibility >" + isVisible); //$NON-NLS-1$ //$NON-NLS-2$
 				}
-				
+
 				if (isVisible)
 				{
 					Label labelName = new Label(updateUIComposite, SWT.NONE);
@@ -649,7 +651,9 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 						choiceCombo.add(item.getTitle());
 						choiceCombo.setData(item.getTitle(), localConfigKey);
 
-						isVisible = valuesJsonMap.get(localConfigKey) != null ? (boolean) valuesJsonMap.get(localConfigKey): false;
+						isVisible = valuesJsonMap.get(localConfigKey) != null
+								? (boolean) valuesJsonMap.get(localConfigKey)
+								: false;
 						if (isVisible)
 						{
 							choiceCombo.select(index);
