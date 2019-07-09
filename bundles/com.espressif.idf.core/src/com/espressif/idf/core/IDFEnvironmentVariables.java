@@ -4,11 +4,15 @@
  *******************************************************************************/
 package com.espressif.idf.core;
 
+import java.text.MessageFormat;
+
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.envvar.IContributedEnvironment;
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
 import org.eclipse.cdt.core.envvar.IEnvironmentVariableManager;
+import org.eclipse.cdt.internal.core.envvar.EnvironmentVariableManager;
 
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.StringUtil;
 
 /**
@@ -59,10 +63,15 @@ public class IDFEnvironmentVariables
 		return envValue;
 	}
 	
+	@SuppressWarnings("restriction")
 	public void addEnvVariable(String name, String value)
 	{
+		Logger.log(MessageFormat.format("Updating environment variables with key:{0} value:{1}", name, value));
 		IContributedEnvironment contributedEnvironment = getEnvironment();
 		contributedEnvironment.addVariable(name, value, IEnvironmentVariable.ENVVAR_REPLACE, null, null);
+		
+		//Without this environment variables won't be persisted
+		EnvironmentVariableManager.fUserSupplier.storeWorkspaceEnvironment(true);
 	}
 
 }

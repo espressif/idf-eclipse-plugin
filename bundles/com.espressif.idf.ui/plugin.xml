@@ -42,5 +42,39 @@
             name="%wizard.name.0">
       </wizard>
    </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="com.espressif.idf.ui.update.InstallToolsHandler"
+            id="com.espressif.idf.ui.command.install"
+            name="%command.name">
+      </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.update.ListInstalledToolsHandler"
+            id="com.espressif.idf.ui.command.list"
+            name="%command.name.0">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:help?after=org.eclipse.epp.mpc.ui.command.showMarketplaceWizard">
+         <menu
+               icon="icons/espressif.png"
+               label="%menu.label">
+            <command
+                  commandId="com.espressif.idf.ui.command.install"
+                  icon="icons/espressif.png"
+                  style="push">
+            </command>
+            <command
+                  commandId="com.espressif.idf.ui.command.list"
+                  icon="icons/espressif.png"
+                  style="push">
+            </command>
+         </menu>
+      </menuContribution>
+   </extension>
 
 </plugin>

@@ -147,10 +147,10 @@ public class ESPToolChainProvider implements IToolChainProvider
 		String tools_path = idf_path + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
 				+ IDFConstants.IDF_TOOLS_SCRIPT;
 
-		Logger.log("idf_tools.py path: " + tools_path);
+		Logger.log("idf_tools.py path: " + tools_path); //$NON-NLS-1$
 		if (!new File(tools_path).exists())
 		{
-			Logger.log("idf_tools.py path doesn't exist");
+			Logger.log("idf_tools.py path doesn't exist"); //$NON-NLS-1$
 			return null;
 		}
 
@@ -161,7 +161,7 @@ public class ESPToolChainProvider implements IToolChainProvider
 			if (idf_tools_export_status != null && idf_tools_export_status.isOK())
 			{
 				String message = idf_tools_export_status.getMessage();
-				Logger.log("idf_tools.py export output: " + message);
+				Logger.log("idf_tools.py export output: " + message); //$NON-NLS-1$
 				if (message != null)
 				{
 					String[] exportEntries = message.split("\n"); //$NON-NLS-1$
