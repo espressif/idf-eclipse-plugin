@@ -18,6 +18,7 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.PageChangedEvent;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -46,6 +47,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.ISaveablePart;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.FilteredTree;
@@ -53,6 +55,7 @@ import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.MultiPageEditorPart;
+import org.eclipse.ui.progress.IProgressService;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
@@ -123,35 +126,56 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	@Override
 	protected void createPages()
 	{
-		String configMenuJsonPath = null;
+
+		IWorkbench workbench = PlatformUI.getWorkbench();
+		IProgressService progressService = workbench.getProgressService();
+		final IRunnableWithProgress runnable = monitor -> {
+			monitor.beginTask(Messages.SDKConfigurationEditor_LaunchSDKConfigEditor, 3);
+
+			try
+			{
+				// 1. Getting kconfig_menus.json
+				String configMenuJsonPath = new SDKConfigUtil().getConfigMenuFilePath(project);
+				if (configMenuJsonPath == null || !new File(configMenuJsonPath).exists())
+				{
+					String errorMsg = Messages.SDKConfigurationEditor_UnableFindKConfigFile + configMenuJsonPath;
+					createErrorPage(errorMsg);
+					return;
+				}
+				monitor.worked(1);
+
+				monitor.setTaskName(Messages.SDKConfigurationEditor_StartingJSONConfigServer);
+
+				// 2. Getting output from the configuration server
+				initConfigServer(project);
+				if (valuesJsonMap == null)
+				{
+					String errorMsg = Messages.SDKConfigurationEditor_ErrorRetrievingOutput;
+					createErrorPage(errorMsg);
+					return;
+				}
+				monitor.worked(2);
+
+			}
+			catch (Exception e)
+			{
+				Logger.log(SDKConfigUIPlugin.getDefault(), e);
+			}
+
+		};
 		try
 		{
-			// 1. Getting kconfig_menus.json
-			configMenuJsonPath = new SDKConfigUtil().getConfigMenuFilePath(project);
-			if (configMenuJsonPath == null || !new File(configMenuJsonPath).exists())
-			{
-				String errorMsg = Messages.SDKConfigurationEditor_UnableFindKConfigFile + configMenuJsonPath;
-				createErrorPage(errorMsg);
-				return;
-			}
-
-			// 2. Getting output from the configuration server
-			initConfigServer(project);
-			if (valuesJsonMap == null)
-			{
-				String errorMsg = "Error retrieving output from the json configserver, please check the error log.";
-				createErrorPage(errorMsg);
-				return;
-			}
-
-			// 3. Build the UI
-			createDesignPage();
-			createSourcePage();
+			progressService.busyCursorWhile(runnable);
 		}
 		catch (Exception e)
 		{
 			Logger.log(SDKConfigUIPlugin.getDefault(), e);
 		}
+
+		// 3. Build the UI
+		createDesignPage();
+		createSourcePage();
+
 	}
 
 	/**
