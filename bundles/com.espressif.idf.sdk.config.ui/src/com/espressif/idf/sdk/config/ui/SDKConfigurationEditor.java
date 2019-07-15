@@ -18,6 +18,7 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.PageChangedEvent;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -46,6 +47,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.ISaveablePart;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.FilteredTree;
@@ -53,6 +55,7 @@ import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.MultiPageEditorPart;
+import org.eclipse.ui.progress.IProgressService;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
@@ -100,8 +103,6 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 	private JSONObject visibleJsonMap;
 
-	private JSONObject rangesJsonMap;
-
 	private String serverMessage;
 
 	private KConfigMenuItem selectedElement;
@@ -125,35 +126,56 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	@Override
 	protected void createPages()
 	{
-		String configMenuJsonPath = null;
+
+		IWorkbench workbench = PlatformUI.getWorkbench();
+		IProgressService progressService = workbench.getProgressService();
+		final IRunnableWithProgress runnable = monitor -> {
+			monitor.beginTask(Messages.SDKConfigurationEditor_LaunchSDKConfigEditor, 3);
+
+			try
+			{
+				// 1. Getting kconfig_menus.json
+				String configMenuJsonPath = new SDKConfigUtil().getConfigMenuFilePath(project);
+				if (configMenuJsonPath == null || !new File(configMenuJsonPath).exists())
+				{
+					String errorMsg = Messages.SDKConfigurationEditor_UnableFindKConfigFile + configMenuJsonPath;
+					createErrorPage(errorMsg);
+					return;
+				}
+				monitor.worked(1);
+
+				monitor.setTaskName(Messages.SDKConfigurationEditor_StartingJSONConfigServer);
+
+				// 2. Getting output from the configuration server
+				initConfigServer(project);
+				if (valuesJsonMap == null)
+				{
+					String errorMsg = Messages.SDKConfigurationEditor_ErrorRetrievingOutput;
+					createErrorPage(errorMsg);
+					return;
+				}
+				monitor.worked(2);
+
+			}
+			catch (Exception e)
+			{
+				Logger.log(SDKConfigUIPlugin.getDefault(), e);
+			}
+
+		};
 		try
 		{
-			//1. Getting kconfig_menus.json
-			configMenuJsonPath = new SDKConfigUtil().getConfigMenuFilePath(project);
-			if (configMenuJsonPath == null || !new File(configMenuJsonPath).exists())
-			{
-				String errorMsg = Messages.SDKConfigurationEditor_UnableFindKConfigFile + configMenuJsonPath;
-				createErrorPage(errorMsg);
-				return;
-			}
-			
-			//2. Getting output from the configuration server 
-			initConfigServer(project);
-			if (valuesJsonMap == null)
-			{
-				String errorMsg = "Error retrieving output from the json configserver, please check the error log.";
-				createErrorPage(errorMsg);
-				return;
-			}
-			
-			//3. Build the UI
-			createDesignPage();
-			createSourcePage();
+			progressService.busyCursorWhile(runnable);
 		}
 		catch (Exception e)
 		{
 			Logger.log(SDKConfigUIPlugin.getDefault(), e);
 		}
+
+		// 3. Build the UI
+		createDesignPage();
+		createSourcePage();
+
 	}
 
 	/**
@@ -272,7 +294,6 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		return null;
 	}
 
-	
 	/**
 	 * @param errorMessage
 	 */
@@ -312,6 +333,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	 */
 	protected void initConfigServer(IProject project) throws IOException, ParseException
 	{
+
 		configServer = ConfigServerManager.INSTANCE.getServer(project);
 
 		// register the editor with the server to notify about the events
@@ -319,13 +341,13 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 		// will wait and check for the server response
 		JsonConfigProcessor jsonProcessor = new JsonConfigProcessor();
-		if (isReady(5, 1000, jsonProcessor))
+		final int MAX_NO_OF_ATTEMPTS = 15;
+		if (isReady(MAX_NO_OF_ATTEMPTS, 1000, jsonProcessor))
 		{
 			String response = jsonProcessor.getInitialOutput(serverMessage);
 			IJsonConfigOutput output = configServer.getOutput(response, false);
 			valuesJsonMap = output.getValuesJsonMap();
 			visibleJsonMap = output.getVisibleJsonMap();
-			rangesJsonMap = output.getRangesJsonMap();
 		}
 	}
 
@@ -337,11 +359,10 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		{
 			return;
 		}
-		
+
 		IJsonConfigOutput output = configServer.getOutput(response, true);
 		valuesJsonMap = output.getValuesJsonMap();
 		visibleJsonMap = output.getVisibleJsonMap();
-		rangesJsonMap = output.getRangesJsonMap();
 
 	}
 
@@ -500,7 +521,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 	private void updateUI(KConfigMenuItem selectedElement)
 	{
-		if (selectedElement == null || updateUIComposite == null || updateUIComposite.isDisposed() || valuesJsonMap == null)
+		if (selectedElement == null || updateUIComposite == null || updateUIComposite.isDisposed()
+				|| valuesJsonMap == null)
 		{
 			return;
 		}
@@ -621,15 +643,19 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			}
 			else if (type.equals(IJsonServerConfig.CHOICE_TYPE))
 			{
-				Logger.logTrace(SDKConfigUIPlugin.getDefault(), "Config key >" + configKey + " visiblity status >" + isVisible); //$NON-NLS-1$ //$NON-NLS-2$
+				Logger.logTrace(SDKConfigUIPlugin.getDefault(),
+						"Config key >" + configKey + " visiblity status >" + isVisible); //$NON-NLS-1$ //$NON-NLS-2$
 				List<KConfigMenuItem> choiceItems = kConfigMenuItem.getChildren();
 				for (KConfigMenuItem item : choiceItems)
 				{
 					String localConfigKey = item.getName();
-					isVisible = (visibleJsonMap.get(localConfigKey) != null ? (boolean) visibleJsonMap.get(localConfigKey) : false);
-					Logger.logTrace(SDKConfigUIPlugin.getDefault(), "local key:"+ localConfigKey + " Visibility >" + isVisible); //$NON-NLS-1$ //$NON-NLS-2$
+					isVisible = (visibleJsonMap.get(localConfigKey) != null
+							? (boolean) visibleJsonMap.get(localConfigKey)
+							: false);
+					Logger.logTrace(SDKConfigUIPlugin.getDefault(),
+							"local key:" + localConfigKey + " Visibility >" + isVisible); //$NON-NLS-1$ //$NON-NLS-2$
 				}
-				
+
 				if (isVisible)
 				{
 					Label labelName = new Label(updateUIComposite, SWT.NONE);
@@ -649,7 +675,9 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 						choiceCombo.add(item.getTitle());
 						choiceCombo.setData(item.getTitle(), localConfigKey);
 
-						isVisible = valuesJsonMap.get(localConfigKey) != null ? (boolean) valuesJsonMap.get(localConfigKey): false;
+						isVisible = valuesJsonMap.get(localConfigKey) != null
+								? (boolean) valuesJsonMap.get(localConfigKey)
+								: false;
 						if (isVisible)
 						{
 							choiceCombo.select(index);

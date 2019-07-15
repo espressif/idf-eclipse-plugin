@@ -21,7 +21,7 @@ public class JsonConfigProcessor
 	public String getInitialOutput(String jsonConfigOp)
 	{
 		Logger.log(SDKConfigCorePlugin.getPlugin(), jsonConfigOp);
-		int startIndex = jsonConfigOp.indexOf("{\"ranges\":"); //$NON-NLS-1$
+		int startIndex = jsonConfigOp.indexOf("{\"version\":"); //$NON-NLS-1$
 		if (startIndex != -1)
 		{
 			return jsonConfigOp.substring(startIndex);
