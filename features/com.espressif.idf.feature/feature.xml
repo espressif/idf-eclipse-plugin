@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="com.espressif.idf.feature"
-      label="Espressif IDF Feature"
+      label="Espressif IDF Plugins for Eclipse"
       version="1.0.0.qualifier"
       provider-name="ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD">
 
@@ -297,6 +297,10 @@ year after the cause of action arose. Each party waives its rights
 to a
 jury trial in any resulting litigation.
    </license>
+
+   <url>
+      <update label="Espressif IDF Plugins Update Site" url="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/"/>
+   </url>
 
    <plugin
          id="com.espressif.idf.ui"
