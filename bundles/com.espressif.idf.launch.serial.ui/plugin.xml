@@ -30,5 +30,13 @@
             tabGroup="org.eclipse.cdt.launch.internal.corebuild.CoreBuildTabGroup">
       </buildTabGroup>
    </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            configTypeID="com.espressif.idf.launch.serial.launchConfigurationType"
+            icon="icons/esp_target.png"
+            id="com.espressif.idf.launch.serial.ui.launchConfigurationTypeImage">
+      </launchConfigurationTypeImage>
+   </extension>
 
 </plugin>
