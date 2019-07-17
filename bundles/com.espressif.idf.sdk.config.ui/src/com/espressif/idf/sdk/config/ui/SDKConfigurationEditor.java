@@ -148,12 +148,6 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 				// 2. Getting output from the configuration server
 				initConfigServer(project);
-				if (valuesJsonMap == null)
-				{
-					String errorMsg = Messages.SDKConfigurationEditor_ErrorRetrievingOutput;
-					createErrorPage(errorMsg);
-					return;
-				}
 				monitor.worked(2);
 
 			}
@@ -172,6 +166,13 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			Logger.log(SDKConfigUIPlugin.getDefault(), e);
 		}
 
+		if (valuesJsonMap == null)
+		{
+			String errorMsg = Messages.SDKConfigurationEditor_ErrorRetrievingOutput;
+			createErrorPage(errorMsg);
+			return;
+		}
+		
 		// 3. Build the UI
 		createDesignPage();
 		createSourcePage();
