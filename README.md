@@ -17,6 +17,7 @@ Eclipse Plugins for Espressif IoT Development Framework(IDF)
 [ Configuring Launch Terminal ](#ConfigureLaunchTerminal)<br>
 [ Flashing the Application ](#FlashApplication)<br>
 [ SDK Configuration editor ](#sdkconfigEditor)<br>
+[ Debugging ](#debugging)<br>
 [ How to raise bugs ](#howToRaiseBugs)<br>
 [ FAQ ](#faq)<br>
 
@@ -200,7 +201,11 @@ IDF plugin will allow you to configure `sdkconfig` without leaving the Eclipse e
 
 ![](docs/images/13_sdkconfig_editor.png)
 
- <a name="howToRaiseBugs"></a>
+<a name="debugging"></a>
+# Debugging
+Please refer to <a href ="https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/jtag-debugging/index.html" > JTAG Debugging guide</a>
+
+<a name="howToRaiseBugs"></a>
 ## How to raise bugs
 Raise issues directly under espressif JIRA here https://jira.espressif.com:8443/projects/IEP/issues/ with the project name `IDF Eclipse Plugin(IEP)`
 
