@@ -13,22 +13,23 @@ Eclipse Plugins for Espressif IoT Development Framework(IDF)
 [ Configuring Core Build Toolchains ](#ConfigureToolchains)<br>
 [ Configuring CMake Toolchain ](#ConfigureCMakeToolchain)<br>
 [ Configuring Launch Target ](#ConfigureLaunchTarget)<br>
-[ Building the Application ](#BuildApplication)<br>
-[ Configuring Launch Terminal ](#ConfigureLaunchTerminal)<br>
-[ Flashing the Application ](#FlashApplication)<br>
-[ SDK Configuration editor ](#sdkconfigEditor)<br>
-[ Debugging ](#debugging)<br>
+[ Compiling the Project ](#BuildApplication)<br>
+[ Viewing Serial Output ](#ConfigureLaunchTerminal)<br>
+[ Flashing the Project ](#FlashApplication)<br>
+[ Configuring the Project ](#sdkconfigEditor)<br>
+[ Debugging the Project ](#debugging)<br>
 [ How to raise bugs ](#howToRaiseBugs)<br>
 [ FAQ ](#faq)<br>
 
 
 <a name="Prerequisites"></a>
 # Prerequisites
-* **Java 8 and Higher** : Download and install Java SE from here https://www.oracle.com/technetwork/java/javase/downloads/index.html
-* **Eclipse 2018-12 CDT Package** : Download and install Eclipse CDT package from here. https://www.eclipse.org/downloads/packages/release/2018-12/r/eclipse-ide-cc-developers
+* **Java 8 and Higher** : Download and install Java SE from <a href= "https://www.oracle.com/technetwork/java/javase/downloads/index.html">here</a>
+* **Eclipse 2018-12 CDT Package** : Download and install Eclipse CDT package from <a href= "https://www.eclipse.org/downloads/packages/release/2018-12/r/eclipse-ide-cc-developers">here </a>
+*  **ESP-IDF** : Follow the download instructions from <a href ="https://docs.espressif.com/projects/esp-idf/en/latest/get-started/index.html#step-2-get-esp-idf">here</a>
 
 <a name="GettingStarted"></a>
-# Getting started with the Eclipse IDF Plugins:
+# Getting started with the Eclipse IDF Plugins
 
 # Install Plugins using Zip
 * Download the Espressif IDF eclipse `artifacts.zip` file from https://gitlab.espressif.cn:6688/idf/idf-eclipse-plugin/-/jobs/artifacts/master/download?job=build
@@ -152,7 +153,7 @@ Next, we need to tell CDT to use the toolchain for our project. This is accompli
 ![](docs/images/8_launch_target.png)
 
 <a name="BuildApplication"></a>
-## Building the Application
+## Compiling the Project
 * Select a project from the Project Explorer
 * Select `Run` from the first drop-down, which is called `Launch Mode`
 * Select your application from the second drop-down, which is called `Launch Configuration`
@@ -162,7 +163,7 @@ Next, we need to tell CDT to use the toolchain for our project. This is accompli
 ![](docs/images/9_cmake_build.png)
 
 <a name="ConfigureLaunchTerminal"></a>
-## Configuring the Launch Terminal
+## Viewing Serial Output
 To see what program do we need to configure eclipse terminal to connect the serial port.
 
 * Click on the "Open a Terminal" icon from the toolbar
@@ -175,7 +176,7 @@ To see what program do we need to configure eclipse terminal to connect the seri
 ![](docs/images/10_serial_terminal.png)
 
 <a name="FlashApplication"></a>
-## Flashing the Application
+## Flashing the Project
 ESP-IDF has a tool called "idf.py" which is a wrapper around make flash command with some handy operations. Follow the below instructions to hook the idf.py to the launch configuration
 
 * Click on the `Launch Configuration` edit button
@@ -192,7 +193,7 @@ ESP-IDF has a tool called "idf.py" which is a wrapper around make flash command 
 ![](docs/images/12_flashing.png)
 
 <a name="sdkconfigEditor"></a>
-# Project configuration options
+# Configuring the Project
 IDF plugin will allow you to configure `sdkconfig` without leaving the Eclipse environment.
 
 ## Launching SDK Configuration editor
@@ -204,7 +205,7 @@ IDF plugin will allow you to configure `sdkconfig` without leaving the Eclipse e
 ![](docs/images/13_sdkconfig_editor.png)
 
 <a name="debugging"></a>
-# Debugging
+# Debugging the Project
 Please refer to <a href ="https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/jtag-debugging/index.html" > JTAG Debugging guide</a>
 
 <a name="howToRaiseBugs"></a>
