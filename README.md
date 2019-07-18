@@ -59,6 +59,8 @@ Eclipse Plugins for Espressif IoT Development Framework(IDF)
 * Navigate to `Help` > `Espressif IDF Tools Manager` > `Install Tools`
 * Provide the ESP-IDF directory path to get started with the installation. Check the Console for the installation details. Installation might take a while if you're doing it for the first time since it has to download and install xtensa-esp32-elf, esp32ulp-elf, cmake, openocd-esp32 and ninja tools.
 
+**Note:** Make sure you run this step even if you've already installed the required tools, since it sets the IDF_PATH and PATH based on the install_tools.py export command.
+
 ![](docs/images/install_tools.png)
 
 <a name="configureEnvironmentVariables"></a>
