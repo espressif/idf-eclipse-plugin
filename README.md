@@ -112,6 +112,10 @@ Eclipse Plugins for Espressif IoT Development Framework(IDF)
 <a name="BuildIDFProject"></a>
 # Building the IDF projects
 
+We need to tell Eclipse CDT what is the CMake toolchain and toolchain file which need to be used to build the project. However, this will be auto-detected if you've installed the tools using the "Help > Espressif IDF Tools Manager > Install Tools" option from the eclipse. Make sure to restart the eclipse after installing the tools.
+
+If you see toolchain is not auto-detected you can always configure using the below instructions.
+
 <a name="ConfigureToolchains"></a>
 ## Configuring Core Build Toolchains
 
