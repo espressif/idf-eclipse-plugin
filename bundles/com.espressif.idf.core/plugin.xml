@@ -30,6 +30,8 @@
            class="com.espressif.idf.core.build.ESPToolChainProvider"
            id="com.espressif.idf.core.esp.toolchainprovider">
      </provider>
+   </extension> 
+   <extension
         point="com.cthing.cmakeed.core.commands">
      <command
            deprecated="false"
