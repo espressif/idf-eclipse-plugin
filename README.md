@@ -16,7 +16,7 @@ Eclipse Plugins for Espressif IoT Development Framework(IDF)
 [ Compiling the Project ](#BuildApplication)<br>
 [ Viewing Serial Output ](#ConfigureLaunchTerminal)<br>
 [ Flashing the Project ](#FlashApplication)<br>
-[ Configuring the Project ](#sdkconfigEditor)<br>
+[ Configuring the Project ](#projectconfigure)<br>
 [ Debugging the Project ](#debugging)<br>
 [ How to raise bugs ](#howToRaiseBugs)<br>
 [ FAQ ](#faq)<br>
@@ -196,17 +196,25 @@ ESP-IDF has a tool called "idf.py" which is a wrapper around make flash command 
 
 ![](docs/images/12_flashing.png)
 
-<a name="sdkconfigEditor"></a>
+<a name="projectconfigure"></a>
 # Configuring the Project
 IDF plugin will allow you to configure `sdkconfig` without leaving the Eclipse environment.
 
-## Launching SDK Configuration editor
+## SDK Configuration editor
+Project configuration is held in a single file called `sdkconfig` in the root directory of the project. This configuration file is modified using "SDK Configuration Editor" to customise the configuration of the project.
+
+To launch the SDK Configuration editor:
 * Navigate to `sdkconfig` file
 * Double click on the file to launch the SDK configuration editor
 * Use `Ctrl+S` or  `Command+S` based on the OS environment to save the changes. You can also use Eclipse `Save` button from the toolbar
 * To revert the sdkconfig editor changes, either you can close the editor without saving them. Or you can right click on the `sdkconfig` file and select `Load sdkconfig` menu option to revert the changes from the editor.
 
 ![](docs/images/13_sdkconfig_editor.png)
+
+## CMake Editor
+CMake Editor Plug-in is integrated with IDF plugins for editing CMake files such as CMakeLists.txt. It provides syntax coloring, CMake command content assist, and code templates.
+
+![](docs/images/cmake_editor_ca.png)
 
 <a name="debugging"></a>
 # Debugging the Project
