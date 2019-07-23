@@ -181,7 +181,9 @@ To see what program do we need to configure eclipse terminal to connect the seri
 
 <a name="FlashApplication"></a>
 ## Flashing the Project
-ESP-IDF has a tool called "idf.py" which is a wrapper around make flash command with some handy operations. Follow the below instructions to hook the idf.py to the launch configuration
+ESP-IDF has a tool called "idf.py" which is a wrapper around make flash command with some handy operations. Flash operation can be initiated with just a click of a launch button(second button from the left) and it's auto-configured to flash the application with the default flash command i.e, "idf.py -p PORT flash".
+
+To provide the customized flash arguments, follow the below instructions to launch the configuration UI
 
 * Click on the `Launch Configuration` edit button
 * Switch to the `Main` tab
