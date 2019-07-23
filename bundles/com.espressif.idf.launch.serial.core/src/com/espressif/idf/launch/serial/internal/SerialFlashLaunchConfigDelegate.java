@@ -41,12 +41,18 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.launch.ITargetedLaunch;
 
+import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
+
 /**
  * Flashing into esp32 board
  *
  */
 public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfigDelegate {
 
+	private static final String SYSTEM_PATH_PYTHON = "${system_path:python}"; //$NON-NLS-1$
 	public static final String TYPE_ID = "com.espressif.idf.launch.serial.launchConfigurationType"; //$NON-NLS-1$
 
 	@Override
@@ -68,7 +74,8 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 			IProgressMonitor monitor) throws CoreException {
 		IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
 
-		String location = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION, ""); //$NON-NLS-1$
+		String location = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION,
+				SYSTEM_PATH_PYTHON);
 		if (location.isEmpty()) {
 			launch.addProcess(new NullProcess(launch, Messages.CoreBuildGenericLaunchConfigDelegate_NoAction));
 			return;
@@ -89,7 +96,12 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		List<String> commands = new ArrayList<>();
 		commands.add(location);
 
-		String arguments = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS, ""); //$NON-NLS-1$
+		//build the flash command
+		String espFlashCommand = getEspFlashCommand(launch);
+		Logger.log(espFlashCommand);
+
+		String arguments = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS,
+				espFlashCommand);
 		if (!arguments.isEmpty()) {
 			commands.addAll(Arrays.asList(varManager.performStringSubstitution(arguments).split(" "))); //$NON-NLS-1$
 		}
@@ -146,6 +158,26 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 
 		Process p = DebugPlugin.exec(commands.toArray(new String[0]), workingDir, envp);
 		DebugPlugin.newProcess(launch, p, String.join(" ", commands)); //$NON-NLS-1$
+	}
+
+	/**
+	 * @param launch
+	 * @return command to flash the application
+	 */
+	private String getEspFlashCommand(ILaunch launch) {
+
+		List<String> commands = new ArrayList<>();
+		commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
+		commands.add("-p"); //$NON-NLS-1$
+
+		String serialPort = ((SerialFlashLaunch) launch).getLaunchTarget()
+				.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
+		commands.add(serialPort);
+
+		commands.add(IDFConstants.FLASH_CMD);
+
+		return String.join(" ", commands); //$NON-NLS-1$
+
 	}
 
 }

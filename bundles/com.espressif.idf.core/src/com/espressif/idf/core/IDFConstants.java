@@ -49,6 +49,8 @@ public interface IDFConstants
 	 * <IDF_PATH>/tools
 	 */
 	String TOOLS_FOLDER = "tools"; //$NON-NLS-1$
+	
+	String FLASH_CMD = "flash"; //$NON-NLS-1$
 
 	/**
 	 * <IDF_PATH>/tools/cmake
