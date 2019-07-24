@@ -18,8 +18,11 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
@@ -67,6 +70,9 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 		MessageConsole msgConsole = findConsole(Messages.IDFToolsHandler_ToolsManagerConsole);
 		msgConsole.clearConsole();
 		console = msgConsole.newMessageStream();
+		
+		//Open console view so that users can see the output
+		openConsoleView();
 
 		execute();
 
@@ -165,4 +171,15 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 		return myConsole;
 	}
 
+	protected void openConsoleView()
+	{
+		try
+		{
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(IConsoleConstants.ID_CONSOLE_VIEW);
+		}
+		catch (PartInitException e)
+		{
+			Logger.log(e);
+		}
+	}
 }
