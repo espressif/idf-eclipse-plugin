@@ -11,6 +11,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
+import org.eclipse.cdt.core.CCorePlugin;
+import org.eclipse.cdt.core.build.IToolChainManager;
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -22,6 +25,8 @@ import com.aptana.core.util.ProcessRunner;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.build.ESPToolChainManager;
+import com.espressif.idf.core.build.ESPToolChainProvider;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 
@@ -34,6 +39,9 @@ import com.espressif.idf.core.util.IDFUtil;
 public class InstallToolsHandler extends AbstractToolsHandler
 {
 
+	private IToolChainManager tcManager = CCorePlugin.getService(IToolChainManager.class);
+	private ICMakeToolChainManager cmakeTcManager = CCorePlugin.getService(ICMakeToolChainManager.class);
+
 	@Override
 	protected void execute()
 	{
@@ -42,7 +50,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 			@Override
 			protected IStatus run(IProgressMonitor monitor)
 			{
-				monitor.beginTask(Messages.InstallToolsHandler_ItWilltakeTimeMsg, 4);
+				monitor.beginTask(Messages.InstallToolsHandler_ItWilltakeTimeMsg, 5);
 				monitor.worked(1);
 
 				handleToolsInstall();
@@ -56,12 +64,26 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				handleToolsExport();
 				monitor.worked(1);
 
+				monitor.setTaskName(Messages.InstallToolsHandler_AutoConfigureToolchain);
+				configureToolChain();
+				monitor.worked(1);
+
 				return Status.OK_STATUS;
 			}
 
 		};
 		installToolsJob.schedule();
 
+	}
+
+	/**
+	 * Configure the toolchain and toolchain file in the preferences
+	 */
+	protected void configureToolChain()
+	{
+		ESPToolChainManager toolchainManager = new ESPToolChainManager();
+		toolchainManager.initToolChain(tcManager, ESPToolChainProvider.ID);
+		toolchainManager.initCMakeToolChain(tcManager, cmakeTcManager);
 	}
 
 	protected void handleToolsInstall()
@@ -93,7 +115,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		arguments.add(IDFConstants.TOOLS_EXPORT_CMD);
 		arguments.add(IDFConstants.TOOLS_EXPORT_CMD_FORMAT_VAL);
 
-		console.println(Messages.AbstractToolsHandler_ExecutingMsg + "> "+ getCommandString(arguments)); //$NON-NLS-1$
+		console.println(Messages.AbstractToolsHandler_ExecutingMsg + "> " + getCommandString(arguments)); //$NON-NLS-1$
 
 		ProcessRunner processRunner = new ProcessRunner();
 		IStatus status = null;
