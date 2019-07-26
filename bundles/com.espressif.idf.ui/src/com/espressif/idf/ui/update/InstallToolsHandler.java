@@ -115,7 +115,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		arguments.add(IDFConstants.TOOLS_EXPORT_CMD);
 		arguments.add(IDFConstants.TOOLS_EXPORT_CMD_FORMAT_VAL);
 
-		console.println(Messages.AbstractToolsHandler_ExecutingMsg + "> " + getCommandString(arguments)); //$NON-NLS-1$
+		console.println(Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments)); //$NON-NLS-1$
 
 		ProcessRunner processRunner = new ProcessRunner();
 		IStatus status = null;
