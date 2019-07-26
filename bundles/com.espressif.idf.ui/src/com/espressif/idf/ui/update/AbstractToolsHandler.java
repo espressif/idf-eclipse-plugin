@@ -93,7 +93,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 			// insert idf_tools.py
 			arguments.add(0, IDFUtil.getIDFToolsScriptFile().getAbsolutePath());
 
-			console.println(Messages.AbstractToolsHandler_ExecutingMsg + getCommandString(arguments));
+			console.println(Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments));
 
 			IStatus status = processRunner.runInBackground(Path.ROOT, getEnvironment(Path.ROOT),
 					arguments.toArray(new String[arguments.size()]));

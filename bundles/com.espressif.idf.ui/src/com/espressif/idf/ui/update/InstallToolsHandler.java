@@ -5,6 +5,7 @@
 package com.espressif.idf.ui.update;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -115,7 +116,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		arguments.add(IDFConstants.TOOLS_EXPORT_CMD);
 		arguments.add(IDFConstants.TOOLS_EXPORT_CMD_FORMAT_VAL);
 
-		console.println(Messages.AbstractToolsHandler_ExecutingMsg + "> " + getCommandString(arguments)); //$NON-NLS-1$
+		console.println(Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments)); //$NON-NLS-1$
 
 		ProcessRunner processRunner = new ProcessRunner();
 		IStatus status = null;
@@ -147,53 +148,56 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		for (String entry : exportEntries)
 		{
 			String[] keyValue = entry.split("="); //$NON-NLS-1$
-			if (keyValue.length == 2 && keyValue[0].equals(IDFEnvironmentVariables.PATH)) // 0 - key, 1 - value
+			if (keyValue.length == 2) // 0 - key, 1 - value
 			{
-				Logger.log("PATH from tools export command: " + keyValue[1]); //$NON-NLS-1$
+				String msg = MessageFormat.format("Key: {0} Value: {1}", keyValue[0], keyValue[1]); //$NON-NLS-1$ //$NON-NLS-2$
+				Logger.log(msg);
 
 				IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
-				IEnvironmentVariable env = idfEnvMgr.getEnv(IDFEnvironmentVariables.PATH);
+				IEnvironmentVariable env = idfEnvMgr.getEnv(keyValue[0]);
 
-				// PATH not found in the environment variables
+				// Environment variable not found
 				if (env == null)
 				{
-					idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.PATH, keyValue[1]);
-					return;
+					idfEnvMgr.addEnvVariable(keyValue[0], keyValue[1]);
 				}
 
-				// PATH is already defined in the environment variables - so let's identify and append the missing
-				// paths
-
-				// Process the old PATH
-				String oldPath = env.getValue();
-				String[] oldPathEntries = oldPath.split(File.pathSeparator);
-
-				// Prepare a new set of entries
-				Set<String> newPathSet = new HashSet<>(Arrays.asList(oldPathEntries));
-
-				// Process a new PATH
-				String[] newPathEntries = keyValue[1].split(File.pathSeparator);
-
-				// Combine old and new path entries
-				newPathSet.addAll(Arrays.asList(newPathEntries));
-
-				// Prepare PATH string
-				StringBuilder pathBuilder = new StringBuilder();
-				for (String newEntry : newPathSet)
+				// Special processing in case of PATH
+				if (keyValue[0].equals(IDFEnvironmentVariables.PATH))
 				{
-					pathBuilder.append(newEntry);
-					pathBuilder.append(File.pathSeparator);
+					// PATH is already defined in the environment variables - so let's identify and append the missing
+					// paths
+
+					// Process the old PATH
+					String oldPath = env.getValue();
+					String[] oldPathEntries = oldPath.split(File.pathSeparator);
+
+					// Prepare a new set of entries
+					Set<String> newPathSet = new HashSet<>(Arrays.asList(oldPathEntries));
+
+					// Process a new PATH
+					String[] newPathEntries = keyValue[1].split(File.pathSeparator);
+
+					// Combine old and new path entries
+					newPathSet.addAll(Arrays.asList(newPathEntries));
+
+					// Prepare PATH string
+					StringBuilder pathBuilder = new StringBuilder();
+					for (String newEntry : newPathSet)
+					{
+						pathBuilder.append(newEntry);
+						pathBuilder.append(File.pathSeparator);
+					}
+
+					// remove the last pathSeparator
+					pathBuilder.deleteCharAt(pathBuilder.length() - 1);
+
+					// Replace with a new PATH entry
+					Logger.log(pathBuilder.toString());
+					idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.PATH, pathBuilder.toString());
 				}
-
-				// remove the last pathSeparator
-				pathBuilder.deleteCharAt(pathBuilder.length() - 1);
-
-				// Replace with a new PATH entry
-				Logger.log(pathBuilder.toString());
-				idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.PATH, pathBuilder.toString());
-
-				return;
 			}
+
 		}
 	}
 
