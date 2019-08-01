@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.cdt.core.CCorePlugin;
+import org.eclipse.cdt.core.build.ICBuildConfiguration;
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
 import org.eclipse.cdt.core.envvar.IEnvironmentVariableManager;
 import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
@@ -29,6 +30,8 @@ import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.debug.core.launch.CoreBuildGenericLaunchConfigDelegate;
 import org.eclipse.cdt.debug.core.launch.NullProcess;
 import org.eclipse.cdt.debug.internal.core.Messages;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -42,6 +45,7 @@ import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.launch.ITargetedLaunch;
 
 import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.core.build.IDFBuildConfiguration;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
@@ -178,6 +182,24 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 
 		return String.join(" ", commands); //$NON-NLS-1$
 
+	}
+
+	@Override
+	public boolean buildForLaunch(ILaunchConfiguration configuration, String mode, ILaunchTarget target,
+			IProgressMonitor monitor) throws CoreException {
+		ICBuildConfiguration buildConfig = getBuildConfiguration(configuration, mode, target, monitor);
+		if (buildConfig != null && buildConfig instanceof IDFBuildConfiguration) {
+			IProject project = getProject(configuration);
+			IProjectDescription desc = project.getDescription();
+			desc.setActiveBuildConfig(buildConfig.getBuildConfiguration().getName());
+			project.setDescription(desc, monitor);
+
+			((IDFBuildConfiguration) buildConfig).setLaunchTarget(target);
+
+		}
+
+		// proceed with the build
+		return superBuildForLaunch(configuration, mode, monitor);
 	}
 
 }
