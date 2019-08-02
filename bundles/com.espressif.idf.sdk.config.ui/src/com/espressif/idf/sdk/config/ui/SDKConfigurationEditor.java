@@ -859,8 +859,6 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				}
 				return;
 			}
-
-			MessageDialog.openWarning(Display.getDefault().getActiveShell(), title, msg2);
 		}
 
 	}
