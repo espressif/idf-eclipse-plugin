@@ -9,7 +9,6 @@
             filenames="sdkconfig"
             icon="icons/sdkconfig.png"
             id="com.espressif.idf.sdk.config.ui.editor"
-            matchingStrategy="com.espressif.idf.sdk.config.ui.SDKConfigEditorMatchingStrategy"
             name="%editor.name">
       </editor>
    </extension>
