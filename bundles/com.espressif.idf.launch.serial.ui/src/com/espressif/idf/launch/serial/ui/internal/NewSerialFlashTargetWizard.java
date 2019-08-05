@@ -54,6 +54,7 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard {
 		wc.setAttribute(ILaunchTarget.ATTR_OS, page.getOS());
 		wc.setAttribute(ILaunchTarget.ATTR_ARCH, page.getArch());
 		wc.setAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, page.getSerialPortName());
+		wc.setAttribute(SerialFlashLaunchTargetProvider.ATTR_IDF_TARGET, page.getIDFTarget());
 		wc.save();
 
 		return true;

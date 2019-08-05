@@ -20,11 +20,11 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "com.espressif.idf.launch.serial.ui.internal.messages"; //$NON-NLS-1$
 	public static String NewSerialFlashTargetWizard_Title;
-	public static String NewSerialFlashTargetWizardPage_CPUArchitecture;
 	public static String NewSerialFlashTargetWizardPage_Description;
 	public static String NewSerialFlashTargetWizardPage_Fetching;
+	public static String NewSerialFlashTargetWizardPage_IDFTarget;
+	public static String NewSerialFlashTargetWizardPage_IDFTargetToolTipMsg;
 	public static String NewSerialFlashTargetWizardPage_Name;
-	public static String NewSerialFlashTargetWizardPage_OperatingSystem;
 	public static String NewSerialFlashTargetWizardPage_SerialPort;
 	public static String NewSerialFlashTargetWizardPage_Title;
 	static {

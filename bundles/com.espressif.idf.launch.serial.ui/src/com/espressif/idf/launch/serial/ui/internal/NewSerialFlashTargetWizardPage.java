@@ -40,9 +40,8 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 	private ILaunchTarget launchTarget;
 
 	private Text nameText;
-	private Text osText;
-	private Text archText;
 	private Combo serialPortCombo;
+	private Combo idfTargetCombo;
 
 	public NewSerialFlashTargetWizardPage(ILaunchTarget launchTarget) {
 		super(NewSerialFlashTargetWizardPage.class.getName());
@@ -67,29 +66,13 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 		}
 
 		label = new Label(comp, SWT.NONE);
-		label.setText(Messages.NewSerialFlashTargetWizardPage_OperatingSystem);
+		label.setText(Messages.NewSerialFlashTargetWizardPage_IDFTarget);
 
-		osText = new Text(comp, SWT.BORDER);
-		osText.setText(OS);
-		osText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		if (launchTarget != null) {
-			String os = launchTarget.getAttribute(ILaunchTarget.ATTR_OS, null);
-			if (os != null) {
-				osText.setText(os);
-			}
-		}
-
-		label = new Label(comp, SWT.NONE);
-		label.setText(Messages.NewSerialFlashTargetWizardPage_CPUArchitecture);
-
-		archText = new Text(comp, SWT.BORDER);
-		archText.setText(ARCH);
-		archText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		if (launchTarget != null) {
-			String arch = launchTarget.getAttribute(ILaunchTarget.ATTR_ARCH, null);
-			if (arch != null) {
-				archText.setText(arch);
-			}
+		idfTargetCombo = new Combo(comp, SWT.READ_ONLY);
+		idfTargetCombo.setItems(getIDFTargetList());
+		idfTargetCombo.setToolTipText(Messages.NewSerialFlashTargetWizardPage_IDFTargetToolTipMsg);
+		if (idfTargetCombo.getItemCount() > 0 && idfTargetCombo.getSelectionIndex() < 0) {
+			idfTargetCombo.select(0);
 		}
 
 		label = new Label(comp, SWT.NONE);
@@ -132,15 +115,24 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 	}
 
 	public String getOS() {
-		return osText.getText();
+		return OS;
 	}
 
 	public String getArch() {
-		return archText.getText();
+		return ARCH;
+	}
+
+	public String getIDFTarget() {
+		return idfTargetCombo.getText();
 	}
 
 	public String getSerialPortName() {
 		return serialPortCombo.getText();
+	}
+
+	private String[] getIDFTargetList() {
+		//Going forward we can support esp32s2 in the list
+		return new String[] { "esp32" }; //$NON-NLS-1$
 	}
 
 }
