@@ -35,7 +35,7 @@ build:
   stage: build
   image: jimador/docker-jdk-8-maven-node
   tags:
-    - build
+    - build_maven
   artifacts:
     paths:
       - ${ARCHIVE_DIR}/
@@ -43,15 +43,13 @@ build:
   variables:
     GIT_STRATEGY: fetch
   script:
-    - echo "Hello Kondal Kolipaka!"
-    - CERT_FILE="${PWD}/${JARSIGNER_KEYSTORE}"
-    - printf "%s" "${JARSIGNER_KEY_B64}" | base64 -d --ignore-garbage - > "${CERT_FILE}"
-    - ls
-    - mvn -e -X clean install -Djarsigner.keystore="${CERT_FILE}" -Djarsigner.alias="${JARSIGNER_ALIAS}" -Djarsigner.storepass="${JARSIGNER_STOREPASS}"
-    - rm -v "${CERT_FILE}"
-    - ls releng/com.espressif.idf.update
-    - ls releng/com.espressif.idf.update/target
+    - export JARSIGNER_KEYSTORE_B64=${JARSIGNER_REL_KEYSTORE_B64:-${JARSIGNER_DEV_KEYSTORE_B64}}
+    - export JARSIGNER_STOREPASS=${JARSIGNER_REL_STOREPASS:-${JARSIGNER_DEV_STOREPASS}}
+    - export JARSIGNER_ALIAS=${JARSIGNER_REL_ALIAS:-${JARSIGNER_DEV_ALIAS}}
+    - KEYSTORE_FILE="${PWD}/${JARSIGNER_KEYSTORE}"
+    - printf "%s" "${JARSIGNER_KEYSTORE_B64}" | base64 -d --ignore-garbage - > "${KEYSTORE_FILE}"
+    - mvn -e -X clean install -Djarsigner.keystore="${KEYSTORE_FILE}" -Djarsigner.alias="${JARSIGNER_ALIAS}" -Djarsigner.storepass="${JARSIGNER_STOREPASS}"
+    - rm -v "${KEYSTORE_FILE}"
     - mkdir -p ${ARCHIVE_DIR}
     - mv -v releng/com.espressif.idf.update/target/${ORIGIN_NAME} ${ARCHIVE_DIR}/${ARCHIVE_NAME}
-    - ls
-    - ls ${ARCHIVE_DIR}
+    - ls -l ${ARCHIVE_DIR}
