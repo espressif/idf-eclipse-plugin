@@ -23,6 +23,7 @@
 		<module>com.espressif.idf.sdk.config.ui</module>
 		<module>com.espressif.idf.sdk.config.core</module>
 		<module>com.aptana.core</module>
+		<module>com.espressif.idf.help</module>
 	</modules>
 	
 	<build>

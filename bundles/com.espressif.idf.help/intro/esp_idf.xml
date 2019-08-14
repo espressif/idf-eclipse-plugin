@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<introContent>
+  	<extensionContent id="comespressifidfhelp-introExtension" style="css/sample.css" name="Sample Extension" path="overview/@">
+		<group style-id="content-group" id="comespressifidfhelp-introLink-group">
+       		<link label="ESP-IDF Programming Guide" url="https://docs.espressif.com/projects/esp-idf/en/latest/index.html" id="comespressifidfhelp-introLink" style-id="content-link">
+          		<text>Learn about Espressif IoT Development Framework. Official development framework for ESP32</text>
+       		</link>
+       	</group>
+  	</extensionContent>
+</introContent>
