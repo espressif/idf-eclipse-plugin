@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="Espressif IDF Eclipse Plugin User Guide">
+ <topic href="html/esp_idf_guide.html" label="ESP-IDF Programming Guide">
+ </topic>
+</toc>
