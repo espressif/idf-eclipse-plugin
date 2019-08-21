@@ -24,7 +24,8 @@ Eclipse Plugins for Espressif IoT Development Framework(IDF)
 
 <a name="Prerequisites"></a>
 # Prerequisites
-* **Java 8 and Higher** : Download and install Java SE from <a href= "https://www.oracle.com/technetwork/java/javase/downloads/index.html">here</a>
+* **Java 8 and above** : Download and install Java SE from <a href= "https://www.oracle.com/technetwork/java/javase/downloads/index.html">here</a>
+* **Python 3.5 and above** : Download and install from <a href="https://www.python.org/downloads/">here</a>
 * **Eclipse 2018-12 CDT Package** : Download and install Eclipse CDT package from <a href= "https://www.eclipse.org/downloads/packages/release/2018-12/r/eclipse-ide-cc-developers">here </a>
 *  **ESP-IDF** : Follow the download instructions from <a href ="https://docs.espressif.com/projects/esp-idf/en/latest/get-started/index.html#step-2-get-esp-idf">here</a>
 
