@@ -112,6 +112,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 	protected void handleToolsExport()
 	{
 		List<String> arguments = new ArrayList<String>();
+		arguments.add(IDFUtil.getPythonExecutable());
 		arguments.add(IDFUtil.getIDFToolsScriptFile().getAbsolutePath());
 		arguments.add(IDFConstants.TOOLS_EXPORT_CMD);
 		arguments.add(IDFConstants.TOOLS_EXPORT_CMD_FORMAT_VAL);

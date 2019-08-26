@@ -90,8 +90,9 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 
 		try
 		{
-			// insert idf_tools.py
-			arguments.add(0, IDFUtil.getIDFToolsScriptFile().getAbsolutePath());
+			// insert python.sh/exe path and idf_tools.py
+			arguments.add(0, IDFUtil.getPythonExecutable());
+			arguments.add(1, IDFUtil.getIDFToolsScriptFile().getAbsolutePath());
 
 			console.println(Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments));
 

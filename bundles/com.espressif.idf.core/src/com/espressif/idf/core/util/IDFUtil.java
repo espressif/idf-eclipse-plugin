@@ -9,8 +9,10 @@ import java.text.MessageFormat;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 
 import com.aptana.core.ShellExecutable;
+import com.aptana.core.util.ExecutableUtil;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 
@@ -20,6 +22,8 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
  */
 public class IDFUtil
 {
+	private static final String PYTHON = "python"; //$NON-NLS-1$
+
 	/**
 	 * @return idf.py file path based on the IDF_PATH defined in the environment variables
 	 */
@@ -30,7 +34,7 @@ public class IDFUtil
 				+ IDFConstants.IDF_PYTHON_SCRIPT;
 		return new File(idf_py_script);
 	}
-	
+
 	/**
 	 * @return idf_tools.py file path based on the IDF_PATH defined in the environment variables
 	 */
@@ -76,5 +80,20 @@ public class IDFUtil
 		}
 
 		return idfPath;
+	}
+
+	public static IPath getPythonPath()
+	{
+		return Path.fromOSString(getPythonExecutable());
+	}
+
+	public static String getPythonExecutable()
+	{
+		IPath pythonPath = ExecutableUtil.find(PYTHON, true, null);
+		if (pythonPath != null)
+		{
+			return pythonPath.toOSString();
+		}
+		return PYTHON;
 	}
 }
