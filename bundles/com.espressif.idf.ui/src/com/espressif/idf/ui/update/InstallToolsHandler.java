@@ -164,7 +164,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				}
 
 				// Special processing in case of PATH
-				if (keyValue[0].equals(IDFEnvironmentVariables.PATH))
+				if (env != null && keyValue[0].equals(IDFEnvironmentVariables.PATH))
 				{
 					// PATH is already defined in the environment variables - so let's identify and append the missing
 					// paths
