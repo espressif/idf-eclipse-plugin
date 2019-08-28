@@ -9,12 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
-import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.cdt.core.build.IToolChain;
-import org.eclipse.cdt.core.build.IToolChain2;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -30,7 +26,6 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
  */
 public class IDFUtil
 {
-	private static final String PYTHON = "python"; //$NON-NLS-1$
 
 	/**
 	 * @return idf.py file path based on the IDF_PATH defined in the environment variables
@@ -98,20 +93,20 @@ public class IDFUtil
 	public static String getPythonExecutable()
 	{
 
-		IPath pythonPath = ExecutableUtil.find(PYTHON, true, null);
+		IPath pythonPath = ExecutableUtil.find(IDFConstants.PYTHON_CMD, true, null);
 		if (pythonPath != null)
 		{
 			return pythonPath.toOSString();
 		}
 
-		return PYTHON;
+		return IDFConstants.PYTHON_CMD;
 	}
-	
+
 	/**
 	 * Search for a command from the given path string
 	 * 
 	 * @param command to be searched
-	 * @param pathStr PATH string 
+	 * @param pathStr PATH string
 	 * @return
 	 */
 	public static java.nio.file.Path findCommand(String command, String pathStr)
@@ -153,7 +148,7 @@ public class IDFUtil
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Search for a command in the CDT build PATH environment variables
 	 * 
@@ -165,13 +160,13 @@ public class IDFUtil
 		String pathStr = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.PATH);
 		if (pathStr != null)
 		{
-			 java.nio.file.Path commandPath = findCommand(command, pathStr);
-			 if (commandPath != null)
-			 {
-				 return commandPath.toFile().getAbsolutePath();
-			 }
+			java.nio.file.Path commandPath = findCommand(command, pathStr);
+			if (commandPath != null)
+			{
+				return commandPath.toFile().getAbsolutePath();
+			}
 		}
 		return null;
-		
+
 	}
 }
