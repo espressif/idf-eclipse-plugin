@@ -8,7 +8,7 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -161,6 +161,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				if (env == null)
 				{
 					idfEnvMgr.addEnvVariable(keyValue[0], keyValue[1]);
+					
 				}
 
 				// Special processing in case of PATH
@@ -174,13 +175,14 @@ public class InstallToolsHandler extends AbstractToolsHandler
 					String[] oldPathEntries = oldPath.split(File.pathSeparator);
 
 					// Prepare a new set of entries
-					Set<String> newPathSet = new HashSet<>(Arrays.asList(oldPathEntries));
-
+					Set<String> newPathSet = new LinkedHashSet<>(); //Order is important here, check IEP-60
+					
 					// Process a new PATH
 					String[] newPathEntries = keyValue[1].split(File.pathSeparator);
-
-					// Combine old and new path entries
 					newPathSet.addAll(Arrays.asList(newPathEntries));
+					
+					//Add old entries
+					newPathSet.addAll(Arrays.asList(oldPathEntries));
 
 					// Prepare PATH string
 					StringBuilder pathBuilder = new StringBuilder();
