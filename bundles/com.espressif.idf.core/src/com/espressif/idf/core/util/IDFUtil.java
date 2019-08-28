@@ -89,11 +89,13 @@ public class IDFUtil
 
 	public static String getPythonExecutable()
 	{
+
 		IPath pythonPath = ExecutableUtil.find(PYTHON, true, null);
 		if (pythonPath != null)
 		{
 			return pythonPath.toOSString();
 		}
+
 		return PYTHON;
 	}
 }
