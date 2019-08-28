@@ -5,11 +5,19 @@
 package com.espressif.idf.core.util;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.cdt.core.build.IToolChain;
+import org.eclipse.cdt.core.build.IToolChain2;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 
 import com.aptana.core.ShellExecutable;
 import com.aptana.core.util.ExecutableUtil;
@@ -97,5 +105,73 @@ public class IDFUtil
 		}
 
 		return PYTHON;
+	}
+	
+	/**
+	 * Search for a command from the given path string
+	 * 
+	 * @param command to be searched
+	 * @param pathStr PATH string 
+	 * @return
+	 */
+	public static java.nio.file.Path findCommand(String command, String pathStr)
+	{
+		try
+		{
+			java.nio.file.Path cmdPath = Paths.get(command);
+			if (cmdPath.isAbsolute())
+			{
+				return cmdPath;
+			}
+
+			String[] path = pathStr.split(File.pathSeparator);
+			for (String dir : path)
+			{
+				java.nio.file.Path commandPath = Paths.get(dir, command);
+				if (Files.exists(commandPath) && commandPath.toFile().isFile())
+				{
+					return commandPath;
+				}
+				else
+				{
+					if (Platform.getOS().equals(Platform.OS_WIN32)
+							&& !(command.endsWith(".exe") || command.endsWith(".bat"))) //$NON-NLS-1$ //$NON-NLS-2$
+					{
+						commandPath = Paths.get(dir, command + ".exe"); //$NON-NLS-1$
+						if (Files.exists(commandPath))
+						{
+							return commandPath;
+						}
+					}
+				}
+			}
+
+		}
+		catch (InvalidPathException e)
+		{
+			// ignore
+		}
+		return null;
+	}
+	
+	/**
+	 * Search for a command in the CDT build PATH environment variables
+	 * 
+	 * @param command name <i>ex: python</i>
+	 * @return command complete path
+	 */
+	public static String findCommandFromBuildEnvPath(String command)
+	{
+		String pathStr = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.PATH);
+		if (pathStr != null)
+		{
+			 java.nio.file.Path commandPath = findCommand(command, pathStr);
+			 if (commandPath != null)
+			 {
+				 return commandPath.toFile().getAbsolutePath();
+			 }
+		}
+		return null;
+		
 	}
 }

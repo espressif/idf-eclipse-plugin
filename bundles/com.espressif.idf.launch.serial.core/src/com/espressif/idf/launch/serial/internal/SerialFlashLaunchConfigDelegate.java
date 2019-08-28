@@ -44,6 +44,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.launch.ITargetedLaunch;
 
+import com.aptana.core.util.StringUtil;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.build.IDFBuildConfiguration;
 import com.espressif.idf.core.logging.Logger;
@@ -78,9 +79,11 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 			IProgressMonitor monitor) throws CoreException {
 		IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
 
-		String location = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION,
-				SYSTEM_PATH_PYTHON);
-		if (location.isEmpty()) {
+		String location = IDFUtil.findCommandFromBuildEnvPath(IDFConstants.PYTHON_CMD);
+		if (StringUtil.isEmpty(location)) {
+			location = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION, SYSTEM_PATH_PYTHON);
+		}
+		if (StringUtil.isEmpty(location)) {
 			launch.addProcess(new NullProcess(launch, Messages.CoreBuildGenericLaunchConfigDelegate_NoAction));
 			return;
 		} else {

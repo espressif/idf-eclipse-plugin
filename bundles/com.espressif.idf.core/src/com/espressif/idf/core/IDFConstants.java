@@ -100,5 +100,7 @@ public interface IDFConstants
 	String TOOLS_EXPORT_CMD_FORMAT = "--format"; //$NON-NLS-1$
 
 	String TOOLS_EXPORT_CMD_FORMAT_VAL = TOOLS_EXPORT_CMD_FORMAT + "=" + TOOLS_EXPORT_FORMAT_KEYVALUE; //$NON-NLS-1$
+	
+	String PYTHON_CMD = "python"; //$NON-NLS-1$
 
 }
