@@ -18,7 +18,9 @@ package com.espressif.idf.launch.serial.internal;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.build.ICBuildConfiguration;
@@ -126,44 +128,31 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 			}
 		}
 
-		String[] envp = DebugPlugin.getDefault().getLaunchManager().getEnvironment(configuration);
+		//Reading CDT build environment variables
 		IEnvironmentVariableManager buildEnvironmentManager = CCorePlugin.getDefault().getBuildEnvironmentManager();
 		IEnvironmentVariable[] variables = buildEnvironmentManager.getVariables((ICConfigurationDescription) null,
 				true);
+		HashMap<String, String> envMap = new HashMap<>();
 		if (variables != null) {
-			String path = null;
 			for (IEnvironmentVariable iEnvironmentVariable : variables) {
-				if (iEnvironmentVariable.getName().equals("PATH")) { //$NON-NLS-1$
-					path = iEnvironmentVariable.getValue();
-					break;
-				}
+				String key = iEnvironmentVariable.getName();
+				String value = iEnvironmentVariable.getValue();
+				envMap.put(key, value);
 			}
 
-			if (path != null) {
-				if (envp != null) {
-					boolean pathFound = false;
-					for (int i = 0; i < envp.length; i++) {
-						if (envp[i].startsWith("PATH")) { //Add to the existing PATH //$NON-NLS-1$
-							envp[i] = envp[i].concat(":").concat(path); //$NON-NLS-1$
-							pathFound = true;
-							break;
-						}
-					}
-					if (!pathFound) //add new PATH variable
-					{
-						String[] newEnvp = new String[envp.length + 1];
-						System.arraycopy(envp, 0, newEnvp, 0, envp.length);
-
-						newEnvp[envp.length + 1] = "PATH=" + path; //$NON-NLS-1$
-						envp = newEnvp;
-					}
-				} else {
-					envp = new String[] { "PATH=" + path }; //$NON-NLS-1$
-				}
-			}
 		}
 
-		Process p = DebugPlugin.exec(commands.toArray(new String[0]), workingDir, envp);
+		// Turn it into an envp format
+		List<String> strings = new ArrayList<>(envMap.size());
+		for (Entry<String, String> entry : envMap.entrySet()) {
+			StringBuilder buffer = new StringBuilder(entry.getKey());
+			buffer.append('=').append(entry.getValue());
+			strings.add(buffer.toString());
+		}
+
+		String[] envArray = strings.toArray(new String[strings.size()]);
+
+		Process p = DebugPlugin.exec(commands.toArray(new String[0]), workingDir, envArray);
 		DebugPlugin.newProcess(launch, p, String.join(" ", commands)); //$NON-NLS-1$
 	}
 
