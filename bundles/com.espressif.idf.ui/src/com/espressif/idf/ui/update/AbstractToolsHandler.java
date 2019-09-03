@@ -14,6 +14,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jface.window.Window;
@@ -33,6 +34,7 @@ import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.PyWinRegistryReader;
 import com.espressif.idf.core.util.StringUtil;
 
 /**
@@ -45,6 +47,8 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 	 * Tools console
 	 */
 	protected MessageConsoleStream console;
+	protected String idfPath;
+	protected String pythonPath;
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
@@ -52,11 +56,53 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 		String commmand_id = event.getCommand().getId();
 		Logger.log("Command id:" + commmand_id); //$NON-NLS-1$
 
-		String idfPath = IDFUtil.getIDFPath();
-		if (StringUtil.isEmpty(idfPath) || !new File(idfPath).exists())
+		// Get IDF_PATH
+		idfPath = IDFUtil.getIDFPath();
+
+		// Get Python
+		Map<String, String> pythonVersions = null;
+		boolean userSelectionRequiredForPy = false;
+		if (Platform.OS_WIN32.equals(Platform.getOS()))
 		{
-			idfPath = getIDFDirPath();
-			if (idfPath == null) //IDF directory selection dialog would have been cancelled
+			PyWinRegistryReader pyWinRegistryReader = new PyWinRegistryReader();
+			pythonVersions = pyWinRegistryReader.getPythonVersions();
+			if (pythonVersions.isEmpty())
+			{
+				throw new ExecutionException("No Python installations found in the system.");
+			}
+			if (pythonVersions.size() == 1)
+			{
+				Map.Entry<String, String> entry = pythonVersions.entrySet().iterator().next();
+				pythonPath = entry.getValue();
+			}
+			else
+			{
+				userSelectionRequiredForPy = true;
+			}
+		}
+		else
+		{
+			pythonPath = IDFUtil.getPythonExecutable();
+		}
+
+		if (StringUtil.isEmpty(idfPath) || !new File(idfPath).exists() || userSelectionRequiredForPy)
+		{
+			DirectorySelectionDialog dir = new DirectorySelectionDialog(Display.getDefault().getActiveShell(),
+					pythonVersions, idfPath);
+			if (dir.open() == Window.OK)
+			{
+				idfPath = dir.getIDFDirectory();
+
+				if (Platform.OS_WIN32.equals(Platform.getOS()))
+				{
+					pythonPath = dir.getPythonExecutable();
+				}
+				else
+				{
+					pythonPath = IDFUtil.getPythonExecutable();
+				}
+			}
+			if (idfPath == null) // IDF directory selection dialog would have been cancelled
 			{
 				return null;
 			}
@@ -70,8 +116,8 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 		MessageConsole msgConsole = findConsole(Messages.IDFToolsHandler_ToolsManagerConsole);
 		msgConsole.clearConsole();
 		console = msgConsole.newMessageStream();
-		
-		//Open console view so that users can see the output
+
+		// Open console view so that users can see the output
 		openConsoleView();
 
 		execute();
@@ -90,8 +136,9 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 
 		try
 		{
-			// insert idf_tools.py
-			arguments.add(0, IDFUtil.getIDFToolsScriptFile().getAbsolutePath());
+			// insert python.sh/exe path and idf_tools.py
+			arguments.add(0, pythonPath);
+			arguments.add(1, IDFUtil.getIDFToolsScriptFile().getAbsolutePath());
 
 			console.println(Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments));
 
@@ -135,21 +182,6 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 	}
 
 	/**
-	 * @param current
-	 * @return
-	 */
-	protected String getIDFDirPath()
-	{
-		DirectorySelectionDialog dir = new DirectorySelectionDialog(Display.getDefault().getActiveShell());
-		if (dir.open() == Window.OK)
-		{
-			return dir.getValue();
-		}
-
-		return null;
-	}
-
-	/**
 	 * Find a console for a given name. If not found, it will create a new one and return
 	 * 
 	 * @param name
@@ -175,7 +207,8 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 	{
 		try
 		{
-			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(IConsoleConstants.ID_CONSOLE_VIEW);
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+					.showView(IConsoleConstants.ID_CONSOLE_VIEW);
 		}
 		catch (PartInitException e)
 		{

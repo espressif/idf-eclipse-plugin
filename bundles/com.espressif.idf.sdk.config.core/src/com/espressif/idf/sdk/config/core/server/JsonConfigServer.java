@@ -75,8 +75,9 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 		IPath workingDir = project.getLocation();
 
 		File idfPythonScriptFile = IDFUtil.getIDFPythonScriptFile();
+		String pythonPath = IDFUtil.findCommandFromBuildEnvPath(IDFConstants.PYTHON_CMD);
 		List<String> arguments = new ArrayList<String>(
-				Arrays.asList(idfPythonScriptFile.getAbsolutePath(), IDFConstants.CONF_SERVER_CMD));
+				Arrays.asList(pythonPath, idfPythonScriptFile.getAbsolutePath(), IDFConstants.CONF_SERVER_CMD));
 		ProcessRunner processRunner = new ProcessRunner();
 		Process process;
 		try
