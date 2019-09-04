@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 
 import org.eclipse.cdt.build.gcc.core.GCCToolChain.GCCInfo;
@@ -77,7 +78,11 @@ public class ESPToolChainManager
 		{
 			paths = getAllPaths();
 		}
-
+		Logger.log(paths.toString());
+		
+		//remove null paths if any
+		paths.removeIf(Objects::isNull);
+		
 		for (String path : paths)
 		{
 			for (String dirStr : path.split(File.pathSeparator))
@@ -150,7 +155,7 @@ public class ESPToolChainManager
 		}
 
 		path = ShellExecutable.getEnvironment().get(IDFEnvironmentVariables.PATH);
-		if (StringUtil.isEmpty(path))
+		if (!StringUtil.isEmpty(path))
 		{
 			paths.add(path);
 		}
