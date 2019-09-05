@@ -106,11 +106,11 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 			{
 				return null;
 			}
-
-			// add the IDF_PATH to the eclipse environment variables?
-			IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
-			idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, idfPath);
 		}
+		
+		// Add IDF_PATH to the eclipse CDT build environment variables
+		IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
+		idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, idfPath);
 
 		// Create Tools console
 		MessageConsole msgConsole = findConsole(Messages.IDFToolsHandler_ToolsManagerConsole);
