@@ -58,7 +58,8 @@ public class NewIDFProjectWizard extends TemplateWizard
 		};
 		mainPage.setTitle(Messages.NewIDFProjectWizard_Project_Title);
 		mainPage.setDescription(Messages.NewIDFProjectWizard_ProjectDesc);
-
+		this.setWindowTitle(Messages.NewIDFProjectWizard_NewIDFProject);
+		
 		TemplatesManager templatesManager = new TemplatesManager();
 		ITemplateNode templateRoot = templatesManager.getTemplates();
 
@@ -105,5 +106,7 @@ public class NewIDFProjectWizard extends TemplateWizard
 		}
 		return generator;
 	}
+	
+	
 
 }
