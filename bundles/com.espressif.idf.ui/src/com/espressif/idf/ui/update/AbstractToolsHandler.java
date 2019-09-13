@@ -116,6 +116,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 		MessageConsole msgConsole = findConsole(Messages.IDFToolsHandler_ToolsManagerConsole);
 		msgConsole.clearConsole();
 		console = msgConsole.newMessageStream();
+		msgConsole.activate();
 
 		// Open console view so that users can see the output
 		openConsoleView();
