@@ -48,7 +48,7 @@ Eclipse provides two ways to install the IDF Plugins
 ![](docs/images/idf_update_site_install.png)
 
 # Installing IDF Plugins from Local
-* Download the latest update site archive for IDF Eclipse Plugins here - `https://gitlab.espressif.cn:6688/idf/idf-eclipse-plugin/-/jobs/artifacts/master/download?job=build`
+* Download the latest update site archive for IDF Eclipse Plugins here - `https://github.com/espressif/idf-eclipse-plugin/releases`
 * Unzip the archive
 * In Eclipse, choose `Help` -> `Install New Software`
 * Click `Add…` button
