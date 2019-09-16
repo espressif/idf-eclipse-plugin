@@ -262,7 +262,7 @@ Please refer to <a href ="https://docs.espressif.com/projects/esp-idf/en/latest/
 
 <a name="howToRaiseBugs"></a>
 # How to raise bugs
-Raise issues directly under espressif JIRA here https://jira.espressif.com:8443/projects/IEP/issues/ with the project name `IDF Eclipse Plugin(IEP)`
+Please raise the issues here https://github.com/espressif/idf-eclipse-plugin/issues with the complete environment details and log.
 
 <a name="faq"></a>
 # FAQ
@@ -288,4 +288,4 @@ Raise issues directly under espressif JIRA here https://jira.espressif.com:8443/
 * Can I import my existing IDF project into Eclipse?
 > Yes, you can import using Import Menu. Import... > Espressif > Existing IDF Project
 * Deleted C/C++ build envrionment variables still appearing?
-> Uncheck Eclipse Oomph Preference Recorder. Which can be performed by following. Eclipse Preferences >Oomph > Setup Tasks > Preference Recorder > Uncheck "Record into". Find more info here https://jira.espressif.com:8443/browse/IEP-12
+> Uncheck Eclipse Oomph Preference Recorder. Which can be performed by following. Eclipse Preferences >Oomph > Setup Tasks > Preference Recorder > Uncheck "Record into".
