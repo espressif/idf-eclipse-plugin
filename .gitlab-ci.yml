@@ -1,8 +1,7 @@
 stages:
   - build
-  - deploy
-  - release_draft
-  - release_submit
+  - private_deploy
+  - public_deploy
 
 image: ${CI_DOCKER_REGISTRY}/esp32-ci-env
 
@@ -14,22 +13,6 @@ before_script:
   # Use CI Tools
   - curl -sSL ${CIT_LOADER_URL} | sh
   - source citools/import_functions
-  # Use an unique name for the archive
-  - UNIQ_SUFFIX="g$(git describe --always --tags --dirty --abbrev=8)"
-  - ARCHIVE_NAME=${ORIGIN_NAME/SNAPSHOT/$UNIQ_SUFFIX}
-
-.add_gh_remote_key: &add_gh_remote_key |
-  cit_add_ssh_key "${GH_SSH_KEY}"
-  git remote remove gh || true
-  git remote add gh ${GH_PUSH_REPO}
-
-.release_tag_filter: &release_tag_filter
-  only:
-    - /^v[0-9].*$/
-
-.release_submit_action: &release_submit_action
-  when: manual
-  allow_failure: true
 
 build:
   stage: build
@@ -40,9 +23,12 @@ build:
     paths:
       - ${ARCHIVE_DIR}/
     expire_in: 2 weeks
-  variables:
-    GIT_STRATEGY: fetch
   script:
+    # Use an unique name for the archive
+    - UNIQ_SUFFIX="$(git describe --dirty --abbrev=8)"
+    - mkdir -p ${ARCHIVE_DIR} && echo "${UNIQ_SUFFIX}" > ${ARCHIVE_DIR}/uniq_suffix_value
+    - ARCHIVE_NAME=${ORIGIN_NAME/1.0.0-SNAPSHOT/$UNIQ_SUFFIX}
+    # build
     - export JARSIGNER_KEYSTORE_B64=${JARSIGNER_REL_KEYSTORE_B64:-${JARSIGNER_DEV_KEYSTORE_B64}}
     - export JARSIGNER_STOREPASS=${JARSIGNER_REL_STOREPASS:-${JARSIGNER_DEV_STOREPASS}}
     - export JARSIGNER_ALIAS=${JARSIGNER_REL_ALIAS:-${JARSIGNER_DEV_ALIAS}}
@@ -50,6 +36,54 @@ build:
     - printf "%s" "${JARSIGNER_KEYSTORE_B64}" | base64 -d --ignore-garbage - > "${KEYSTORE_FILE}"
     - mvn -e -X clean install -Djarsigner.keystore="${KEYSTORE_FILE}" -Djarsigner.alias="${JARSIGNER_ALIAS}" -Djarsigner.storepass="${JARSIGNER_STOREPASS}"
     - rm -v "${KEYSTORE_FILE}"
-    - mkdir -p ${ARCHIVE_DIR}
-    - mv -v releng/com.espressif.idf.update/target/${ORIGIN_NAME} ${ARCHIVE_DIR}/${ARCHIVE_NAME}
+    - mkdir -p ${ARCHIVE_DIR} && mv -v releng/com.espressif.idf.update/target/${ORIGIN_NAME} ${ARCHIVE_DIR}/${ARCHIVE_NAME}
     - ls -l ${ARCHIVE_DIR}
+
+.upload_template: &upload_template
+  when: manual
+  tags:
+    - deploy
+  dependencies:
+    - build
+  script:
+    # getting the corresponding unique suffix
+    - UNIQ_SUFFIX=$(cat ${ARCHIVE_DIR}/uniq_suffix_value)
+    - ARCHIVE_NAME=${ORIGIN_NAME/1.0.0-SNAPSHOT/$UNIQ_SUFFIX}
+    # upload archive
+    - cit_add_ssh_key "${SRV_KEY}"
+    - cd ${ARCHIVE_DIR}
+    - scp ${ARCHIVE_NAME} ${SRV_UPLOAD_PATH}
+    # upload directory
+    - UNIQ_DIR=${UNIQ_SUFFIX}
+    - mkdir ${UNIQ_DIR} && cd ${UNIQ_DIR} && unzip -q ../${ARCHIVE_NAME} && cd ..
+    - scp -r ${UNIQ_DIR} ${SRV_UPLOAD_PATH}
+    - ssh ${SRV_SERVER_SSH} "cd ${SRV_DIR} && ln -srnf ${UNIQ_DIR} ${SRV_LATEST_NAME}"
+    # Show info
+    - echo -e "\nAn archives was published there:\n\n${SRV_HTTP_URL}/${ARCHIVE_NAME}"
+    - echo -e "\n\n\nThe plugin was published there:\n\n${SRV_HTTP_URL}/${SRV_LATEST_NAME}"
+
+internal_http:
+  <<: *upload_template
+  stage: private_deploy
+  variables:
+    GIT_STRATEGY: none
+    SRV_KEY: ${INTRNL_KEY}
+    SRV_DIR: ${INTRNL_SERVER_CD_DIR}
+    SRV_SERVER_SSH: ${INTRNL_SERVER_SSH}
+    SRV_UPLOAD_PATH: ${INTRNL_SERVER_SSH}:${SRV_DIR}
+    SRV_LATEST_NAME: latest
+    SRV_HTTP_URL: ${INTRNL_SERVER_HTTP}
+
+public_http:
+  <<: *upload_template
+  stage: public_deploy
+  only:
+    - /^v[0-9].*$/
+  variables:
+    GIT_STRATEGY: none
+    SRV_KEY: ${DL_KEY}
+    SRV_DIR: "${DL_SERVER_CD_DIR}"
+    SRV_SERVER_SSH: ${DL_SERVER_SSH}
+    SRV_UPLOAD_PATH: ${DL_SERVER_SSH}:${SRV_DIR}
+    SRV_LATEST_NAME: latest
+    SRV_HTTP_URL: ${DL_SERVER_HTTP}/${SRV_DIR}
