@@ -8,8 +8,10 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
@@ -23,6 +25,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
 import com.aptana.core.util.ProcessRunner;
+import com.aptana.core.util.StringUtil;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
@@ -188,8 +191,24 @@ public class InstallToolsHandler extends AbstractToolsHandler
 					StringBuilder pathBuilder = new StringBuilder();
 					for (String newEntry : newPathSet)
 					{
-						pathBuilder.append(newEntry);
-						pathBuilder.append(File.pathSeparator);
+						if (newEntry.equals("$PATH")) //$NON-NLS-1$
+						{
+							Map<String, String> systemEnv = new HashMap<>(System.getenv());
+							newEntry = systemEnv.get("PATH"); //$NON-NLS-1$
+							if (newEntry == null)
+							{
+								newEntry = systemEnv.get("Path"); // for Windows //$NON-NLS-1$
+								if (newEntry == null)  // no idea
+								{
+									Logger.log(new Exception("No PATH found in the system environment variables")); //$NON-NLS-1$
+								}
+							}
+						}
+						if (!StringUtil.isEmpty(newEntry))
+						{
+							pathBuilder.append(newEntry);
+							pathBuilder.append(File.pathSeparator);
+						}
 					}
 
 					// remove the last pathSeparator
