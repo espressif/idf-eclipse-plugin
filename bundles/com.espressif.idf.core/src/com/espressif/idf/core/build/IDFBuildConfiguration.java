@@ -118,6 +118,10 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 			ConsoleOutputStream outStream = console.getOutputStream();
 
 			Path buildDir = getBuildDirectory();
+			if (!buildDir.toFile().exists())
+			{
+				buildDir.toFile().mkdir();
+			}
 
 			outStream.write(String.format(Messages.CMakeBuildConfiguration_BuildingIn, buildDir.toString()));
 
