@@ -159,15 +159,6 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 					command.add("-DCMAKE_TOOLCHAIN_FILE=" + toolChainFile.getPath().toString()); //$NON-NLS-1$
 				}
 
-				switch (getLaunchMode())
-				{
-				case "debug": //$NON-NLS-1$
-					command.add("-DCMAKE_BUILD_TYPE=Debug"); //$NON-NLS-1$
-					break;
-				case "run": //$NON-NLS-1$
-					command.add("-DCMAKE_BUILD_TYPE=Release"); //$NON-NLS-1$
-					break;
-				}
 				command.add("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"); //$NON-NLS-1$
 
 				if (launchtarget != null)
