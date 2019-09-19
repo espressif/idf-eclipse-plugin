@@ -260,6 +260,35 @@ CMake editor preferences can be controlled using `Eclipse > Preferences > CMakeE
 # Debugging the Project
 Please refer to <a href ="https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/jtag-debugging/index.html" > JTAG Debugging guide</a>
 
+# Troubleshooting 
+
+## Error Log
+The Error Log view captures all the warnings and errors logged by plug-ins. The underlying log file is a .log file stored in the .metadata subdirectory of the workspace. 
+
+The Error Log view is available under Open the Log view `Window > Show View > Error Log` .
+
+To export the current log view content into a file, press the Export Log toolbar button or select `Export Log...` from the context menu. Then, enter a file name.
+
+Always provide an error log when reporting an issue.
+
+![](docs/images/export_log.png)
+
+## Console View Log
+The Console View provides all the warnings and errors related to the current running process or build. To access the console view.
+
+From the menu bar, `Window > Show View > Console`. 
+
+![](docs/images/CDT_Build_Console.png)
+
+## Espressif IDF Tools Console
+The Espressif IDF Tools Console is part of Console view, this will be opened only during the installation of IDF tools from the Eclipse. 
+
+If any issue while installing the IDF tools using `Help > Espressif Tools Manager > Install tools`, please check the Espressif IDF Tools Console to see the errors reported.
+
+If this is not active, it can be switched by clicking on the `Display Selected Console` icon from the console view.
+
+![](docs/images/IDF_tools_console.png)
+
 <a name="howToRaiseBugs"></a>
 # How to raise bugs
 Please raise the issues here https://github.com/espressif/idf-eclipse-plugin/issues with the complete environment details and log.
