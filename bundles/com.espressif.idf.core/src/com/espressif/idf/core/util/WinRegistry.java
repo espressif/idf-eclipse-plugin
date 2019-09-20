@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.prefs.Preferences;
 
+import com.espressif.idf.core.logging.Logger;
+
 /**
  * Original Implementation is based on
  * https://stackoverflow.com/questions/62289/read-write-to-windows-registry-using-java
@@ -79,7 +81,7 @@ public class WinRegistry
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			Logger.log(e);
 		}
 	}
 
