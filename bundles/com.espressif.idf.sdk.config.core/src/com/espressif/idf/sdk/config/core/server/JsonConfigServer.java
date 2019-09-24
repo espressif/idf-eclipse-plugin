@@ -19,6 +19,7 @@ import org.json.simple.parser.ParseException;
 import com.aptana.core.ShellExecutable;
 import com.aptana.core.util.ProcessRunner;
 import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.sdk.config.core.SDKConfigCorePlugin;
@@ -49,12 +50,18 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 
 	public void destroy()
 	{
-		runnable.destory();
+		if (runnable != null)
+		{
+			runnable.destory();
+		}
 	}
 
 	public void execute(String command, CommandType type)
 	{
-		runnable.executeCommand(command, type);
+		if (runnable != null)
+		{
+			runnable.executeCommand(command, type);
+		}
 	}
 
 	public void notifyHandler(String message, CommandType type)
@@ -73,17 +80,18 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 	public void start()
 	{
 		IPath workingDir = project.getLocation();
+		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
 
 		File idfPythonScriptFile = IDFUtil.getIDFPythonScriptFile();
-		String pythonPath = IDFUtil.findCommandFromBuildEnvPath(IDFConstants.PYTHON_CMD);
+		String pythonPath = IDFUtil.getIDFPythonEnvPath();
 		List<String> arguments = new ArrayList<String>(
 				Arrays.asList(pythonPath, idfPythonScriptFile.getAbsolutePath(), IDFConstants.CONF_SERVER_CMD));
+		Logger.log(arguments.toString());
 		ProcessRunner processRunner = new ProcessRunner();
 		Process process;
 		try
 		{
-			process = processRunner.run(workingDir, getEnvironment(workingDir),
-					arguments.toArray(new String[arguments.size()]));
+			process = processRunner.run(workingDir, envMap, arguments.toArray(new String[arguments.size()]));
 
 			runnable = new JsonConfigServerRunnable(process, this);
 			Thread t = new Thread(runnable);

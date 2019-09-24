@@ -18,15 +18,11 @@ package com.espressif.idf.launch.serial.internal;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.build.ICBuildConfiguration;
-import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
-import org.eclipse.cdt.core.envvar.IEnvironmentVariableManager;
-import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
 import org.eclipse.cdt.debug.core.CDebugCorePlugin;
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.debug.core.launch.CoreBuildGenericLaunchConfigDelegate;
@@ -48,6 +44,7 @@ import org.eclipse.launchbar.core.target.launch.ITargetedLaunch;
 
 import com.aptana.core.util.StringUtil;
 import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.IDFBuildConfiguration;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
@@ -81,7 +78,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 			IProgressMonitor monitor) throws CoreException {
 		IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
 
-		String location = IDFUtil.findCommandFromBuildEnvPath(IDFConstants.PYTHON_CMD);
+		String location = IDFUtil.getIDFPythonEnvPath();
 		if (StringUtil.isEmpty(location)) {
 			location = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION, SYSTEM_PATH_PYTHON);
 		}
@@ -129,18 +126,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		}
 
 		//Reading CDT build environment variables
-		IEnvironmentVariableManager buildEnvironmentManager = CCorePlugin.getDefault().getBuildEnvironmentManager();
-		IEnvironmentVariable[] variables = buildEnvironmentManager.getVariables((ICConfigurationDescription) null,
-				true);
-		HashMap<String, String> envMap = new HashMap<>();
-		if (variables != null) {
-			for (IEnvironmentVariable iEnvironmentVariable : variables) {
-				String key = iEnvironmentVariable.getName();
-				String value = iEnvironmentVariable.getValue();
-				envMap.put(key, value);
-			}
-
-		}
+		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
 
 		// Turn it into an envp format
 		List<String> strings = new ArrayList<>(envMap.size());

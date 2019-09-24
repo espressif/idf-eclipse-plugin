@@ -5,11 +5,14 @@
 package com.espressif.idf.core;
 
 import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.envvar.IContributedEnvironment;
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
 import org.eclipse.cdt.core.envvar.IEnvironmentVariableManager;
+import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
 import org.eclipse.cdt.internal.core.envvar.EnvironmentVariableManager;
 
 import com.espressif.idf.core.logging.Logger;
@@ -26,6 +29,8 @@ public class IDFEnvironmentVariables
 	 * 
 	 */
 	public static String IDF_PATH = "IDF_PATH"; //$NON-NLS-1$
+	
+	public static String IDF_PYTHON_ENV_PATH = "IDF_PYTHON_ENV_PATH"; //$NON-NLS-1$
 	
 	public static String PATH = "PATH"; //$NON-NLS-1$
 	
@@ -72,6 +77,28 @@ public class IDFEnvironmentVariables
 		
 		//Without this environment variables won't be persisted
 		EnvironmentVariableManager.fUserSupplier.storeWorkspaceEnvironment(true);
+	}
+	
+	/**
+	 * @return CDT build environment variables map
+	 */
+	public Map<String, String> getEnvMap()
+	{
+		IEnvironmentVariableManager buildEnvironmentManager = CCorePlugin.getDefault().getBuildEnvironmentManager();
+		IEnvironmentVariable[] variables = buildEnvironmentManager.getVariables((ICConfigurationDescription) null,
+				true);
+		Map<String, String> envMap = new HashMap<>();
+		if (variables != null)
+		{
+			for (IEnvironmentVariable iEnvironmentVariable : variables)
+			{
+				String key = iEnvironmentVariable.getName();
+				String value = iEnvironmentVariable.getValue();
+				envMap.put(key, value);
+			}
+		}
+
+		return envMap;
 	}
 
 }

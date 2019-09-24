@@ -84,6 +84,25 @@ public class IDFUtil
 
 		return idfPath;
 	}
+	
+	/**
+	 * @return value for IDF_PYTHON_ENV_PATH environment variable. If IDF_PYTHON_ENV_PATH not found, will identify python from the build environment PATH
+	 */
+	public static String getIDFPythonEnvPath()
+	{
+		String idfPyEnvPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH);
+		if (!StringUtil.isEmpty(idfPyEnvPath))
+		{
+			java.nio.file.Path commandPath = findCommand(IDFConstants.PYTHON_CMD, idfPyEnvPath);
+			if (commandPath != null)
+			{
+				return commandPath.toFile().getAbsolutePath();
+			}
+		}
+		return findCommandFromBuildEnvPath(IDFConstants.PYTHON_CMD);
+		
+		
+	}
 
 	public static IPath getPythonPath()
 	{
@@ -169,4 +188,5 @@ public class IDFUtil
 		return null;
 
 	}
+	
 }
