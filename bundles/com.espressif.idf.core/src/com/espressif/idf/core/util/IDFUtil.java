@@ -19,6 +19,7 @@ import com.aptana.core.ShellExecutable;
 import com.aptana.core.util.ExecutableUtil;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.logging.Logger;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -93,6 +94,15 @@ public class IDFUtil
 		String idfPyEnvPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH);
 		if (!StringUtil.isEmpty(idfPyEnvPath))
 		{
+			
+			if (Platform.getOS().equals(Platform.OS_WIN32))
+			{
+				idfPyEnvPath = idfPyEnvPath + "/" +  "Scripts"; //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			else
+			{
+				idfPyEnvPath = idfPyEnvPath + "/" +  "bin"; //$NON-NLS-1$ //$NON-NLS-2$
+			}
 			java.nio.file.Path commandPath = findCommand(IDFConstants.PYTHON_CMD, idfPyEnvPath);
 			if (commandPath != null)
 			{
@@ -163,7 +173,7 @@ public class IDFUtil
 		}
 		catch (InvalidPathException e)
 		{
-			// ignore
+			Logger.log(e);
 		}
 		return null;
 	}

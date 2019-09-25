@@ -82,6 +82,9 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 		IPath workingDir = project.getLocation();
 		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
 
+		// Disable buffering of output
+		envMap.put("PYTHONUNBUFFERED", "1");
+
 		File idfPythonScriptFile = IDFUtil.getIDFPythonScriptFile();
 		String pythonPath = IDFUtil.getIDFPythonEnvPath();
 		List<String> arguments = new ArrayList<String>(
