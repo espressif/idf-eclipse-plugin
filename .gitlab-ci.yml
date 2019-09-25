@@ -9,6 +9,11 @@ variables:
   ARCHIVE_DIR: "dist"
   ORIGIN_NAME: "com.espressif.idf.update-1.0.0-SNAPSHOT.zip"
 
+.add_gh_key_remote: &add_gh_key_remote |
+  cit_add_ssh_key "${GH_PUSH_KEY}"
+  git remote remove github || true
+  git remote add github ${GH_PUSH_REPO}
+
 before_script:
   # Use CI Tools
   - curl -sSL ${CIT_LOADER_URL} | sh
@@ -87,3 +92,26 @@ public_http:
     SRV_UPLOAD_PATH: ${DL_SERVER_SSH}:${SRV_DIR}
     SRV_LATEST_NAME: latest
     SRV_HTTP_URL: ${DL_SERVER_HTTP}/${SRV_DIR}
+
+.git_sync_template: &git_sync_template
+  stage: public_deploy
+  when: manual
+  tags:
+    - deploy
+  dependencies: []
+
+push_master_to_github:
+  <<: *git_sync_template
+  only:
+    - master
+  script:
+    - *add_gh_key_remote
+    - git push github "${CI_COMMIT_SHA}:${CI_COMMIT_REF_NAME}"
+
+push_tag_to_github:
+  <<: *git_sync_template
+  only:
+    - /^v[0-9].*$/
+  script:
+    - *add_gh_key_remote
+    - git push github "${CI_COMMIT_TAG}"
