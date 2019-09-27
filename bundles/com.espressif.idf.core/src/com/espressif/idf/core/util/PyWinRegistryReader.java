@@ -8,12 +8,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
+import org.eclipse.cdt.utils.WindowsRegistry;
 
 import com.espressif.idf.core.logging.Logger;
 
 /**
- * Python Windows registry Wrapper
+ * Python Windows registry Wrapper.
+ * 
+ * <br>
+ * Search for Python versions and identify the install location in the windows registry on the following locations: <br>
+ * 
+ * HKEY_CURRENT_USER/SOFTWARE/Python/PythonCore>/<version>/InstallPath/ExecutablePath <br>
+ * HKEY_LOCAL_MACHINE/SOFTWARE/Python/PythonCore>/<version>/InstallPath/ExecutablePath <br>
  * 
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
@@ -25,15 +32,6 @@ public class PyWinRegistryReader
 	private static String PY_INSTALL_PATH = "InstallPath"; //$NON-NLS-1$
 	private static String PY_EXE_PATH = "ExecutablePath"; //$NON-NLS-1$
 
-	protected List<Integer> getHKeyRootNodes()
-	{
-		List<Integer> rootNodes = new ArrayList<Integer>();
-		rootNodes.add(WinRegistry.HKEY_CURRENT_USER);
-		rootNodes.add(WinRegistry.HKEY_LOCAL_MACHINE);
-
-		return rootNodes;
-	}
-
 	/**
 	 * @return
 	 */
@@ -41,71 +39,43 @@ public class PyWinRegistryReader
 	{
 		Map<String, String> pythonRegistryMap = new HashMap<String, String>();
 
-		List<Integer> hKeyRootNodes = getHKeyRootNodes();
-		for (Integer rootNode : hKeyRootNodes)
+		WindowsRegistry registry = WindowsRegistry.getRegistry();
+		List<String> py_version_list = new ArrayList<String>();
+		String version;
+
+		// HKEY_CURRENT_USER
+		for (int i = 0; (version = registry.getCurrentUserKeyName(PY_REG_PATH, i)) != null; i++)
 		{
-			List<String> py_version_list = null;
-			try
+			py_version_list.add(version);
+			String compKey = PY_REG_PATH + '\\' + version + '\\' + PY_INSTALL_PATH; // $NON-NLS-1$ //$NON-NLS-2$
+			Logger.log(compKey);
+
+			String installLocation = registry.getCurrentUserValue(compKey, PY_EXE_PATH);
+			Logger.log(installLocation);
+			if (installLocation != null)
 			{
-				py_version_list = WinRegistry.subKeysForPath(rootNode, PY_REG_PATH);
-			}
-			catch (Exception e)
-			{
-				Logger.log(e.getMessage());
-			}
-			if (py_version_list == null)
-			{
-				return pythonRegistryMap;
+				pythonRegistryMap.put(version, installLocation);
 			}
 
-			Logger.log(py_version_list.toString());
-			for (String version : py_version_list)
-			{
-				String pyRegistryPath = PY_REG_PATH + "\\" + version + "\\" + PY_INSTALL_PATH;
-				Logger.log(pyRegistryPath);
-				List<String> py_exe_path_list = null;
-				try
-				{
-					py_exe_path_list = WinRegistry.valuesForKeyPath(rootNode, pyRegistryPath, PY_EXE_PATH);
-				}
-				catch (Exception e)
-				{
-					Logger.log(e.getMessage());
-				}
-				if (py_exe_path_list == null)
-				{
-					return pythonRegistryMap;
-				}
+		}
+		// HKEY_LOCAL_MACHINE
+		for (int i = 0; (version = registry.getLocalMachineKeyName(PY_REG_PATH, i)) != null; i++)
+		{
+			py_version_list.add(version);
+			String compKey = PY_REG_PATH + '\\' + version + '\\' + PY_INSTALL_PATH; // $NON-NLS-1$ //$NON-NLS-2$
+			Logger.log(compKey);
 
-				Logger.log(py_exe_path_list.toString());
-				if (!py_exe_path_list.isEmpty())
-				{
-					String pyExePath = py_exe_path_list.get(0);
-					pythonRegistryMap.put(version, pyExePath);
-				}
+			String installLocation = registry.getLocalMachineValue(compKey, PY_EXE_PATH);
+			Logger.log(installLocation);
+			if (installLocation != null)
+			{
+				pythonRegistryMap.put(version, installLocation);
 			}
+
 		}
 
 		return pythonRegistryMap;
 
-	}
-
-	// Test
-	public static void main(String[] args)
-	{
-		try
-		{
-			Map<String, String> pyVersions = new PyWinRegistryReader().getPythonVersions();
-			Set<String> versionNumbers = pyVersions.keySet();
-			for (String version : versionNumbers)
-			{
-				System.out.println("Python " + version + " Path: " + pyVersions.get(version));
-			}
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
 	}
 
 }
