@@ -19,6 +19,7 @@ import com.aptana.core.ShellExecutable;
 import com.aptana.core.util.ExecutableUtil;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.logging.Logger;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -84,6 +85,34 @@ public class IDFUtil
 
 		return idfPath;
 	}
+	
+	/**
+	 * @return value for IDF_PYTHON_ENV_PATH environment variable. If IDF_PYTHON_ENV_PATH not found, will identify python from the build environment PATH
+	 */
+	public static String getIDFPythonEnvPath()
+	{
+		String idfPyEnvPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH);
+		if (!StringUtil.isEmpty(idfPyEnvPath))
+		{
+			
+			if (Platform.getOS().equals(Platform.OS_WIN32))
+			{
+				idfPyEnvPath = idfPyEnvPath + "/" +  "Scripts"; //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			else
+			{
+				idfPyEnvPath = idfPyEnvPath + "/" +  "bin"; //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			java.nio.file.Path commandPath = findCommand(IDFConstants.PYTHON_CMD, idfPyEnvPath);
+			if (commandPath != null)
+			{
+				return commandPath.toFile().getAbsolutePath();
+			}
+		}
+		return findCommandFromBuildEnvPath(IDFConstants.PYTHON_CMD);
+		
+		
+	}
 
 	public static IPath getPythonPath()
 	{
@@ -144,7 +173,7 @@ public class IDFUtil
 		}
 		catch (InvalidPathException e)
 		{
-			// ignore
+			Logger.log(e);
 		}
 		return null;
 	}
@@ -169,4 +198,5 @@ public class IDFUtil
 		return null;
 
 	}
+	
 }
