@@ -69,13 +69,16 @@ build:
 
 internal_http:
   <<: *upload_template
+  tags:
+    - deploy
+    - shanghai
   stage: private_deploy
   variables:
     GIT_STRATEGY: none
     SRV_KEY: ${INTRNL_KEY}
     SRV_DIR: ${INTRNL_SERVER_CD_DIR}
     SRV_SERVER_SSH: ${INTRNL_SERVER_SSH}
-    SRV_UPLOAD_PATH: ${INTRNL_SERVER_SSH}:${SRV_DIR}
+    SRV_UPLOAD_PATH: ${INTRNL_SERVER_SSH}:${INTRNL_SERVER_CD_DIR}
     SRV_LATEST_NAME: latest
     SRV_HTTP_URL: ${INTRNL_SERVER_HTTP}
 
@@ -87,11 +90,11 @@ public_http:
   variables:
     GIT_STRATEGY: none
     SRV_KEY: ${DL_KEY}
-    SRV_DIR: "${DL_SERVER_CD_DIR}"
+    SRV_DIR: ${DL_SERVER_CD_DIR}
     SRV_SERVER_SSH: ${DL_SERVER_SSH}
-    SRV_UPLOAD_PATH: ${DL_SERVER_SSH}:${SRV_DIR}
+    SRV_UPLOAD_PATH: ${DL_SERVER_SSH}:${DL_SERVER_CD_DIR}
     SRV_LATEST_NAME: latest
-    SRV_HTTP_URL: ${DL_SERVER_HTTP}/${SRV_DIR}
+    SRV_HTTP_URL: ${DL_SERVER_HTTP}/${DL_SERVER_CD_DIR}
 
 .git_sync_template: &git_sync_template
   stage: public_deploy
