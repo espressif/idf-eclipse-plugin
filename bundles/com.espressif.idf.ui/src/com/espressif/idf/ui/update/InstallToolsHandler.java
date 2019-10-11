@@ -159,17 +159,23 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				Logger.log(msg);
 
 				IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
-				IEnvironmentVariable env = idfEnvMgr.getEnv(keyValue[0]);
+				String key = keyValue[0];
+				String value = keyValue[1];
+				if (key.equals(IDFEnvironmentVariables.PATH))
+				{
+					value = replacePathVariable(value);
+				}
+				
+				IEnvironmentVariable env = idfEnvMgr.getEnv(key);
 
 				// Environment variable not found
 				if (env == null)
 				{
-					idfEnvMgr.addEnvVariable(keyValue[0], keyValue[1]);
-					
+					idfEnvMgr.addEnvVariable(key, value);
 				}
 
 				// Special processing in case of PATH
-				if (env != null && keyValue[0].equals(IDFEnvironmentVariables.PATH))
+				if (env != null && key.equals(IDFEnvironmentVariables.PATH))
 				{
 					// PATH is already defined in the environment variables - so let's identify and append the missing
 					// paths
@@ -182,7 +188,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 					Set<String> newPathSet = new LinkedHashSet<>(); //Order is important here, check IEP-60
 					
 					// Process a new PATH
-					String[] newPathEntries = keyValue[1].split(File.pathSeparator);
+					String[] newPathEntries = value.split(File.pathSeparator);
 					newPathSet.addAll(Arrays.asList(newPathEntries));
 					
 					//Add old entries
@@ -192,19 +198,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 					StringBuilder pathBuilder = new StringBuilder();
 					for (String newEntry : newPathSet)
 					{
-						if (newEntry.equals("$PATH")) //$NON-NLS-1$
-						{
-							Map<String, String> systemEnv = new HashMap<>(System.getenv());
-							newEntry = systemEnv.get("PATH"); //$NON-NLS-1$
-							if (newEntry == null)
-							{
-								newEntry = systemEnv.get("Path"); // for Windows //$NON-NLS-1$
-								if (newEntry == null)  // no idea
-								{
-									Logger.log(new Exception("No PATH found in the system environment variables")); //$NON-NLS-1$
-								}
-							}
-						}
+						newEntry = replacePathVariable(newEntry);
 						if (!StringUtil.isEmpty(newEntry))
 						{
 							pathBuilder.append(newEntry);
@@ -223,5 +217,28 @@ public class InstallToolsHandler extends AbstractToolsHandler
 
 		}
 	}
+	
+	private String replacePathVariable(String value)
+	{
+		//Get system PATH
+		Map<String, String> systemEnv = new HashMap<>(System.getenv());
+		String pathEntry = systemEnv.get("PATH"); //$NON-NLS-1$
+		if (pathEntry == null)
+		{
+			pathEntry = systemEnv.get("Path"); // for Windows //$NON-NLS-1$
+			if (pathEntry == null)  // no idea
+			{
+				Logger.log(new Exception("No PATH found in the system environment variables")); //$NON-NLS-1$
+			}
+		}
+		
+		if (!StringUtil.isEmpty(pathEntry))
+		{
+			value = value.replace("$PATH", pathEntry); //macOS
+			value = value.replace("%PATH%", pathEntry); //Windows
+		}
+		return value;
+	}
+
 
 }
