@@ -20,6 +20,7 @@ IDF Eclipse Plugins aiming to provide better tooling capabilities, which simplif
 * [ Configuring Core Build Toolchain ](#ConfigureToolchains)<br>
 * [ Configuring CMake Toolchain ](#ConfigureCMakeToolchain)<br>
 * [ Configuring the flash arguments ](#customizeLaunchConfig)<br>
+* [ Upgrading IDF Eclipse Plugins ](#upgradePlugins)<br>
 * [ Troubleshooting Guide](#troubleshooting)<br>
 * [ How to raise bugs ](#howToRaiseBugs)<br>
 * [ FAQ ](#faq)<br>
@@ -290,6 +291,22 @@ If any issue while installing the IDF tools using `Help > Espressif Tools Manage
 If this is not active, it can be switched by clicking on the `Display Selected Console` icon from the console view.
 
 ![](docs/images/IDF_tools_console.png)
+
+<a name="upgradePlugins"></a>
+# How do I upgrade my existing IDF Eclipse Plugins?
+
+If you are installing IDF Eclipse Plugins into your Eclipse for the first time, you first need to add the new release's repository as follows:
+* Window > Preferences > Install/Update > Available Software Sites
+* Click `Add`
+* Enter the URL of the new repository https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/
+* Click `Ok`
+
+If you've already installed IDF Eclipse Plugins using update site URL, you can get the latest changes using below
+* Help > Check for Updates
+* If updates are found, select `Espressif IDF Plugins for Eclipse` and deselect all other items
+* Click `Next` to proceed with the installation
+
+![](docs/images/update_plugins.png)
 
 <a name="howToRaiseBugs"></a>
 # How to raise bugs
