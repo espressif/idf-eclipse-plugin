@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: ESP Launch Serial UI
+Bundle-Name: ESP-IDF Launch Serial UI
 Bundle-SymbolicName: com.espressif.idf.launch.serial.ui;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
