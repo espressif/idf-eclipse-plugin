@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: ESP32 Serial Core Plugin
+Bundle-Name: ESP-IDF Serial Core Plugin
 Bundle-SymbolicName: com.espressif.idf.launch.serial.core;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD

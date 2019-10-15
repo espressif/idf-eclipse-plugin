@@ -4,7 +4,7 @@ Bundle-Name: Help
 Bundle-SymbolicName: com.espressif.idf.help;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: com.espressif.idf.help.HelpActivator
-Bundle-Vendor: Espressif Systems
+Bundle-Vendor: ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui.intro,
  org.eclipse.ui.intro.universal,
