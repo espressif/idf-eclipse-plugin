@@ -151,7 +151,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		String[] exportEntries = exportCmdOp.split("\n"); //$NON-NLS-1$
 		for (String entry : exportEntries)
 		{
-			entry.replaceAll("\\r", ""); //$NON-NLS-1$
+			entry = entry.replaceAll("\\r", ""); //$NON-NLS-1$
 			String[] keyValue = entry.split("="); //$NON-NLS-1$
 			if (keyValue.length == 2) // 0 - key, 1 - value
 			{
