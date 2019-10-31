@@ -32,6 +32,7 @@ IDF Eclipse Plugins aiming to provide better tooling capabilities, which simplif
 * **Python 3.5 and above** : Download and install Python from <a href="https://www.python.org/downloads/">here</a>
 * **Eclipse 2018-12 CDT and above** : Download and install Eclipse CDT package from <a href= "https://www.eclipse.org/downloads/packages/release/2018-12/r/eclipse-ide-cc-developers">here </a>
 *  **ESP-IDF 4.0 and above** : Follow the download instructions from <a href ="https://github.com/espressif/esp-idf/releases">here</a>
+*  **Git** : Get the latest git from <a href ="https://git-scm.com/downloads">here</a>
 
 <a name="GettingStarted"></a>
 # Getting started with the IDF Eclipse Plugins
