@@ -21,6 +21,7 @@ IDF Eclipse Plugins aiming to provide better tooling capabilities, which simplif
 * [ Configuring CMake Toolchain ](#ConfigureCMakeToolchain)<br>
 * [ Configuring the flash arguments ](#customizeLaunchConfig)<br>
 * [ Upgrading IDF Eclipse Plugins ](#upgradePlugins)<br>
+* [ Importing an existing Debug launch configuration ](#importDebugLaunchConfig)<br>
 * [ Troubleshooting Guide](#troubleshooting)<br>
 * [ How to raise bugs ](#howToRaiseBugs)<br>
 * [ FAQ ](#faq)<br>
@@ -33,6 +34,8 @@ IDF Eclipse Plugins aiming to provide better tooling capabilities, which simplif
 * **Eclipse 2018-12 CDT and above** : Download and install Eclipse CDT package from <a href= "https://www.eclipse.org/downloads/packages/release/2018-12/r/eclipse-ide-cc-developers">here </a>
 *  **ESP-IDF 4.0 and above** : Follow the download instructions from <a href ="https://github.com/espressif/esp-idf/releases">here</a>
 *  **Git** : Get the latest git from <a href ="https://git-scm.com/downloads">here</a>
+
+**Note:** Make sure Java, Python and Git are available on the system environment PATH.
 
 <a name="GettingStarted"></a>
 # Getting started with the IDF Eclipse Plugins
@@ -181,6 +184,10 @@ CMake editor preferences can be controlled using `Eclipse > Preferences > CMakeE
 # Debugging the Project
 Please refer to <a href ="https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/jtag-debugging/index.html" > JTAG Debugging guide</a>
 
+Predefined debug launch configuration files can be found  <a href ="https://github.com/espressif/idf-eclipse-plugin/tree/master/resources/Debugging%20Launch%20Configurations" > here</a>. These can be used for reference.
+
+Please refer to [Importing Debug Launch Configuration](#customizeLaunchConfig) section for importing the existing configuration files into Eclipse. Make sure to modify the debug launch configuraton project specific settings after importing.
+
 <a name="configureEnvironmentVariables"></a>
 # Configuring Environment Variables
 Eclipse auto configure the required environment variables in the `Preferences > C/C++ Build > Environment` section If IDF Tools are installed using `Help` > `Espressif IDF Tools Manager` > `Install Tools` menu option.
@@ -307,7 +314,20 @@ If you've already installed IDF Eclipse Plugins using update site URL, you can g
 * If updates are found, select `Espressif IDF Plugins for Eclipse` and deselect all other items
 * Click `Next` to proceed with the installation
 
-![](docs/images/update_plugins.png)
+![](docs/images/Update_plugins.png)
+
+<a name="importDebugLaunchConfig"></a>
+# Importing an existing Debug launch configuration
+To import an existing launch configuration into Eclipse:
+* Select `Import...` from the `File` menu
+* In the Import dialog box, expand the `Run/Debug` group and select `Launch Configurations`
+* Click on `Next`
+* Click on `Browse...` to select the required location in the local file system
+* Select the folder containing the launch files and then click OK
+* Select the checkboxes for the required folder and launch file
+* If you are replacing an existing configuration with the same name then select `Overwrite existing launch configurations without warning`
+* Click on `Finish`
+
 
 <a name="howToRaiseBugs"></a>
 # How to raise bugs
