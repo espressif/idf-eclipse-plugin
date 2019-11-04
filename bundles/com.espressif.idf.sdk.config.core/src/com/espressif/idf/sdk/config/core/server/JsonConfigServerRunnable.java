@@ -5,12 +5,12 @@
 
 package com.espressif.idf.sdk.config.core.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.text.MessageFormat;
+import java.util.concurrent.TimeUnit;
 
 import com.aptana.core.util.ProcessRunnable;
 import com.espressif.idf.core.logging.Logger;
@@ -23,7 +23,6 @@ import com.espressif.idf.sdk.config.core.SDKConfigCorePlugin;
 public class JsonConfigServerRunnable extends ProcessRunnable
 {
 
-	private StringBuilder builder;
 	private JsonConfigServer configServer;
 	private OutputStream in;
 	private InputStream out;
@@ -33,6 +32,7 @@ public class JsonConfigServerRunnable extends ProcessRunnable
 	{
 		super(process, null, true);
 		this.configServer = configServer;
+
 	}
 
 	public void destory()
@@ -46,7 +46,7 @@ public class JsonConfigServerRunnable extends ProcessRunnable
 	public void executeCommand(String command, CommandType type)
 	{
 		this.type = type;
-		
+
 		String msg = MessageFormat.format(Messages.JsonConfigServerRunnable_CmdToBeExecuted, command);
 		Logger.log(SDKConfigCorePlugin.getPlugin(), msg);
 
@@ -70,16 +70,19 @@ public class JsonConfigServerRunnable extends ProcessRunnable
 
 	public void run()
 	{
-		builder = new StringBuilder();
-		BufferedReader br = null;
+		StringBuilder builder = new StringBuilder();
+
 		try
 		{
-
 			out = p.getInputStream();
 			in = p.getOutputStream();
 
 			byte[] buffer = new byte[4000];
-			while (isAlive(p))
+
+			// sleep to make process.getErrorStream()/getInputStream() to return an available stream.
+			p.waitFor(3000, TimeUnit.MILLISECONDS);
+			boolean isAlive = true;
+			while (isAlive)
 			{
 				int no = out.available();
 				if (no == 0 && !builder.toString().isEmpty())
@@ -92,47 +95,25 @@ public class JsonConfigServerRunnable extends ProcessRunnable
 				{
 					int n = out.read(buffer, 0, Math.min(no, buffer.length));
 					String string = new String(buffer, 0, n);
-					System.out.println(string);
+					configServer.console.print(string);
+					configServer.console.flush();
 					builder.append(string);
 				}
 
-				int ni = System.in.available();
-				if (ni > 0)
-				{
-					int n = System.in.read(buffer, 0, Math.min(ni, buffer.length));
-					in.write(buffer, 0, n);
-					in.flush();
-				}
+				p.waitFor(100, TimeUnit.MILLISECONDS);
+				isAlive = p.isAlive();
 
-				try
-				{
-					Thread.sleep(10);
-				}
-				catch (InterruptedException e)
-				{
-				}
 			}
 		}
-		
+
 		catch (IOException e)
 		{
-			//ignore
-		} finally
+			Logger.log(e);
+		}
+		catch (InterruptedException e1)
 		{
-			if (br != null)
-			{
-				try
-				{
-					br.close();
-				}
-				catch (Exception e)
-				{
-				}
-			}
-			monitor.done();
 		}
 
 	}
-	
 
 }
