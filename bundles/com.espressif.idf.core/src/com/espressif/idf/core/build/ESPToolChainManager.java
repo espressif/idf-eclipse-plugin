@@ -209,6 +209,12 @@ public class ESPToolChainManager
 
 	public void initCMakeToolChain(IToolChainManager tcManager, ICMakeToolChainManager manager)
 	{
+		String idfPath = IDFUtil.getIDFPath();
+		if (StringUtil.isEmpty(idfPath)) //not yet configured
+		{
+			return;
+		}
+		
 		Map<String, String> properties = new HashMap<>();
 		properties.put(IToolChain.ATTR_OS, ESPToolChain.OS);
 		properties.put(IToolChain.ATTR_ARCH, ESPToolChain.ARCH);
@@ -217,7 +223,6 @@ public class ESPToolChainManager
 			for (IToolChain tc : tcManager.getToolChainsMatching(properties))
 			{
 
-				String idfPath = IDFUtil.getIDFPath();
 				if (!new File(idfPath).exists())
 				{
 					String errorMsg = MessageFormat.format(Messages.ESP32CMakeToolChainProvider_PathDoesnNotExist,
