@@ -359,7 +359,13 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 		// will wait and check for the server response
 		JsonConfigProcessor jsonProcessor = new JsonConfigProcessor();
-		final int MAX_NO_OF_ATTEMPTS = 30; //timeout
+		
+		int MAX_NO_OF_ATTEMPTS = 120; //timeout
+		String sdkconfigTimeout = getSystemProperty("sdkconfig.timeout"); //$NON-NLS-1$
+		if (!StringUtil.isEmpty(sdkconfigTimeout))
+		{
+			MAX_NO_OF_ATTEMPTS = Integer.valueOf(sdkconfigTimeout);
+		}
 		if (isReady(MAX_NO_OF_ATTEMPTS, 1000, jsonProcessor))
 		{
 			String response = jsonProcessor.getInitialOutput(serverMessage);
@@ -918,5 +924,14 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				}
 			}
 		});
+	}
+	
+	public String getSystemProperty(String option)
+	{
+		if (option == null)
+		{
+			return null;
+		}
+		return System.getProperty(option);
 	}
 }

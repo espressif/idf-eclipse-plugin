@@ -4,9 +4,6 @@
  *******************************************************************************/
 package com.espressif.idf.sdk.config.core.server;
 
-import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.sdk.config.core.SDKConfigCorePlugin;
-
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
