@@ -217,6 +217,11 @@ This is how they looks like:
 ##### PATH #####
 `/Users/kondal/.espressif/tools/xtensa-esp32-elf/esp32-2019r1-8.2.0/xtensa-esp32-elf/bin:/Users/kondal/.espressif/tools/esp32ulp-elf/2.28.51.20170517/esp32ulp-elf-binutils/bin:/Users/kondal/.espressif/tools/cmake/3.13.4/CMake.app/Contents/bin:/Users/kondal/.espressif/tools/openocd-esp32/v0.10.0-esp32-20190313/openocd-esp32/bin:/Users/kondal/.espressif/tools/ninja/1.9.0/:/Users/kondal/.espressif/python_env/idf4.0_py3.7_env/bin:/Users/kondal/esp/esp-idf/tools:$PATH`
 
+In the above path, last segment `$PATH` need to be replaced with the system environment PATH based on the operating system.
+For example, to get the system environment PATH.
+- In macOS,  `$echo $PATH ` 
+- In Windows, `$echo %PATH%`
+
 ![](docs/images/2_environment_pref.png)
 
 # Configuring Toolchains
