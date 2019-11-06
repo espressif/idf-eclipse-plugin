@@ -120,6 +120,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 	private HelpPopupDialog infoDialog;
 
+	private CommandType type;
+
 	public SDKConfigurationEditor()
 	{
 		super();
@@ -357,7 +359,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 		// will wait and check for the server response
 		JsonConfigProcessor jsonProcessor = new JsonConfigProcessor();
-		final int MAX_NO_OF_ATTEMPTS = 15;
+		final int MAX_NO_OF_ATTEMPTS = 30; //timeout
 		if (isReady(MAX_NO_OF_ATTEMPTS, 1000, jsonProcessor))
 		{
 			String response = jsonProcessor.getInitialOutput(serverMessage);
@@ -394,7 +396,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		int waitCount = 0;
 		while (serverMessage == null || jsonProcessor.getInitialOutput(serverMessage) == null)
 		{
-			if (waitCount >= maxAttempts)
+			if (type == CommandType.CONNECTION_CLOSED || waitCount >= maxAttempts)
 			{
 				return false;
 			}
@@ -818,6 +820,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	public void notifyRequestServed(String message, CommandType type)
 	{
 		this.serverMessage = message;
+		this.type = type;
 		Logger.log(SDKConfigUIPlugin.getDefault(), message);
 
 		if (selectedElement != null)
@@ -841,8 +844,11 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 					@Override
 					public void run()
 					{
-						treeViewer.refresh();
-						updateUI(selectedElement);
+						if (!treeViewer.getControl().isDisposed())
+						{
+							treeViewer.refresh();
+							updateUI(selectedElement);
+						}
 					}
 				});
 			}

@@ -27,5 +27,10 @@ public enum CommandType
 	/**
 	 * SET COMMAND - Save the changes to cache. It won't be saved to the file system until save command is invoked
 	 */
-	SET
+	SET,
+	
+	/**
+	 * To represent server connection is closed
+	 */
+	CONNECTION_CLOSED
 }

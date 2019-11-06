@@ -12,8 +12,14 @@ import java.io.PrintWriter;
 import java.text.MessageFormat;
 import java.util.concurrent.TimeUnit;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import com.aptana.core.util.ProcessRunnable;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.sdk.config.core.IJsonServerConfig;
 import com.espressif.idf.sdk.config.core.SDKConfigCorePlugin;
 
 /**
@@ -85,10 +91,11 @@ public class JsonConfigServerRunnable extends ProcessRunnable
 			while (isAlive)
 			{
 				int no = out.available();
-				if (no == 0 && !builder.toString().isEmpty())
+				String output = builder.toString();
+				if (no == 0 && !output.isEmpty() && isValidJson(output))
 				{
 					// notify and reset
-					configServer.notifyHandler(builder.toString(), type);
+					configServer.notifyHandler(output, type);
 					builder = new StringBuilder();
 				}
 				else if (no > 0)
@@ -104,6 +111,9 @@ public class JsonConfigServerRunnable extends ProcessRunnable
 				isAlive = p.isAlive();
 
 			}
+
+			configServer.notifyHandler("Server connection closed", CommandType.CONNECTION_CLOSED); //$NON-NLS-1$
+
 		}
 
 		catch (IOException e)
@@ -114,6 +124,33 @@ public class JsonConfigServerRunnable extends ProcessRunnable
 		{
 		}
 
+	}
+
+	protected boolean isValidJson(String output)
+	{
+		String jsonOutput = new JsonConfigProcessor().getInitialOutput(output);
+		if (StringUtil.isEmpty(jsonOutput))
+		{
+			return false;
+		}
+		try
+		{
+			JSONObject jsonObj = (JSONObject) new JSONParser().parse(jsonOutput);
+			if (jsonObj != null)
+			{
+				if (jsonObj.get(IJsonServerConfig.VISIBLE) != null && jsonObj.get(IJsonServerConfig.VALUES) != null
+						&& jsonObj.get(IJsonServerConfig.RANGES) != null)
+				{
+					return true;
+				}
+			}
+		}
+		catch (ParseException e)
+		{
+			return false;
+		}
+
+		return false;
 	}
 
 }
