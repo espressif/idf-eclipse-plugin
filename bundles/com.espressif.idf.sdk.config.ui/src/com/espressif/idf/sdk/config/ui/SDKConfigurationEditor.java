@@ -24,6 +24,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -122,6 +123,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 	private CommandType type;
 
+	private ScrolledComposite sc;
+
 	public SDKConfigurationEditor()
 	{
 		super();
@@ -180,7 +183,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			createErrorPage(errorMsg);
 			return;
 		}
-		
+
 		// 3. Build the UI
 		createDesignPage();
 		createSourcePage();
@@ -258,10 +261,16 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		treeViewer.setInput(initalInput);
 		treeViewer.expandToLevel(getComponentConfigElement(initalInput), 1);
 
+		sc = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
+		sc.setLayout((new GridLayout(1, false)));
+		GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
+		gridData.heightHint = 500;
+		sc.setLayoutData(gridData);
+
 		// UI for the selected element
-		updateUIComposite = new Group(parent, SWT.V_SCROLL);
+		updateUIComposite = new Group(sc, SWT.V_SCROLL);
 		updateUIComposite.setLayout((new GridLayout(1, false)));
-		GridData gridData = new GridData(SWT.NONE, SWT.NONE, true, true);
+		gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gridData.heightHint = 500;
 		updateUIComposite.setLayoutData(gridData);
 
@@ -346,11 +355,11 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		// Create console
 		MessageConsole msgConsole = createConsole("JSON Configuration Server Console"); //$NON-NLS-1$
 		msgConsole.clearConsole();
-		
+
 		MessageConsoleStream console = msgConsole.newMessageStream();
 		msgConsole.activate();
 		openConsoleView();
-		
+
 		configServer = ConfigServerManager.INSTANCE.getServer(project);
 
 		// register the editor with the server to notify about the events
@@ -359,8 +368,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 		// will wait and check for the server response
 		JsonConfigProcessor jsonProcessor = new JsonConfigProcessor();
-		
-		int MAX_NO_OF_ATTEMPTS = 120; //timeout
+
+		int MAX_NO_OF_ATTEMPTS = 120; // timeout
 		String sdkconfigTimeout = getSystemProperty("sdkconfig.timeout"); //$NON-NLS-1$
 		if (!StringUtil.isEmpty(sdkconfigTimeout))
 		{
@@ -567,8 +576,14 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		updateUIComposite.setLayoutData(updateCompsiteGD);
 
 		renderMenuItems(selectedElement);
+
+		sc.setContent(updateUIComposite);
+		sc.setExpandHorizontal(true);
+		sc.setExpandVertical(true);
+		sc.setMinSize(updateUIComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		sc.setShowFocusedControl(true);
+
 		updateUIComposite.layout(true);
-		updateUIComposite.getParent().layout(true);
 	}
 
 	protected void renderMenuItems(KConfigMenuItem selectedElement)
@@ -889,7 +904,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		}
 
 	}
-	
+
 	private MessageConsole createConsole(String name)
 	{
 		ConsolePlugin plugin = ConsolePlugin.getDefault();
@@ -916,7 +931,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				try
 				{
 					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-					.showView(IConsoleConstants.ID_CONSOLE_VIEW);
+							.showView(IConsoleConstants.ID_CONSOLE_VIEW);
 				}
 				catch (PartInitException e)
 				{
@@ -925,7 +940,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			}
 		});
 	}
-	
+
 	public String getSystemProperty(String option)
 	{
 		if (option == null)
