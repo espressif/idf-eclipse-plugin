@@ -218,7 +218,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	private void createDesignPage()
 	{
 
-		Composite parent = new Composite(getContainer(), SWT.V_SCROLL);
+		Composite parent = new Composite(getContainer(), SWT.NONE);
 
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
