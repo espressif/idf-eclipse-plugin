@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
 import com.aptana.core.util.ProcessRunner;
+import com.aptana.core.util.ProcessStatus;
 import com.aptana.core.util.StringUtil;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
@@ -128,7 +129,11 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		{
 			status = processRunner.runInBackground(Path.ROOT, getEnvironment(Path.ROOT),
 					arguments.toArray(new String[arguments.size()]));
-			console.println(status.getMessage());
+			if (status instanceof ProcessStatus)
+			{
+				console.println(((ProcessStatus) status).getStdErr());
+				console.println(((ProcessStatus) status).getStdOut());
+			}
 		}
 		catch (Exception e1)
 		{
@@ -136,7 +141,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		}
 
 		Logger.log(IDFCorePlugin.getPlugin(), status);
-		if (status != null && status.isOK())
+		if (status != null)
 		{
 			String exportCmdOp = status.getMessage();
 
