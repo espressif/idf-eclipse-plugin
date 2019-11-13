@@ -156,11 +156,11 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		String[] exportEntries = exportCmdOp.split("\n"); //$NON-NLS-1$
 		for (String entry : exportEntries)
 		{
-			entry = entry.replaceAll("\\r", ""); //$NON-NLS-1$
+			entry = entry.replaceAll("\\r", ""); //$NON-NLS-1$ //$NON-NLS-2$
 			String[] keyValue = entry.split("="); //$NON-NLS-1$
 			if (keyValue.length == 2) // 0 - key, 1 - value
 			{
-				String msg = MessageFormat.format("Key: {0} Value: {1}", keyValue[0], keyValue[1]); //$NON-NLS-1$ //$NON-NLS-2$
+				String msg = MessageFormat.format("Key: {0} Value: {1}", keyValue[0], keyValue[1]); //$NON-NLS-1$ 
 				Logger.log(msg);
 
 				IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
@@ -239,8 +239,8 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		
 		if (!StringUtil.isEmpty(pathEntry))
 		{
-			value = value.replace("$PATH", pathEntry); //macOS
-			value = value.replace("%PATH%", pathEntry); //Windows
+			value = value.replace("$PATH", pathEntry); //macOS //$NON-NLS-1$
+			value = value.replace("%PATH%", pathEntry); //Windows //$NON-NLS-1$
 		}
 		return value;
 	}

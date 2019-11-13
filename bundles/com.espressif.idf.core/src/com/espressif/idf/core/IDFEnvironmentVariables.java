@@ -71,7 +71,7 @@ public class IDFEnvironmentVariables
 	@SuppressWarnings("restriction")
 	public void addEnvVariable(String name, String value)
 	{
-		Logger.log(MessageFormat.format("Updating environment variables with key:{0} value:{1}", name, value));
+		Logger.log(MessageFormat.format("Updating environment variables with key:{0} value:{1}", name, value)); //$NON-NLS-1$
 		IContributedEnvironment contributedEnvironment = getEnvironment();
 		contributedEnvironment.addVariable(name, value, IEnvironmentVariable.ENVVAR_REPLACE, null, null);
 		

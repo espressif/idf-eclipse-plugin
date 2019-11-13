@@ -55,7 +55,7 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 	public void generate(Map<String, Object> model, IProgressMonitor monitor) throws CoreException
 	{
 		super.generate(model, monitor);
-		Logger.log("Source Template path:" + sourceTemplatePath);
+		Logger.log("Source Template path:" + sourceTemplatePath); //$NON-NLS-1$
 		if (sourceTemplatePath == null)
 		{
 			return; // let's go with the default generate

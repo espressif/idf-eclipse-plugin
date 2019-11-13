@@ -193,7 +193,7 @@ public class ESPToolChainManager
 						if (keyValue.length == 2 && keyValue[0].equals(IDFEnvironmentVariables.PATH)) // 0 - key, 1 -
 																										// value
 						{
-							Logger.log("PATH: " + keyValue[1]);
+							Logger.log("PATH: " + keyValue[1]); //$NON-NLS-1$
 							return keyValue[1];
 						}
 					}

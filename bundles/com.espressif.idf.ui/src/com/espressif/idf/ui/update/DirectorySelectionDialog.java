@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -57,7 +58,7 @@ public class DirectorySelectionDialog extends Dialog
 	@Override
 	protected Control createDialogArea(Composite parent)
 	{
-		getShell().setText("Install Tools");
+		getShell().setText(Messages.DirectorySelectionDialog_InstallTools);
 
 		Composite composite = (Composite) super.createDialogArea(parent);
 		((GridLayout) composite.getLayout()).numColumns = 3;
@@ -75,6 +76,7 @@ public class DirectorySelectionDialog extends Dialog
 		button.setText(Messages.DirectorySelectionDialog_Browse);
 		button.addSelectionListener(new SelectionAdapter()
 		{
+			@Override
 			public void widgetSelected(SelectionEvent event)
 			{
 				DirectoryDialog dlg = new DirectoryDialog(shell);
@@ -90,7 +92,7 @@ public class DirectorySelectionDialog extends Dialog
 			}
 		});
 
-		new Label(composite, SWT.NONE).setText("Git executable Location:");
+		new Label(composite, SWT.NONE).setText(Messages.DirectorySelectionDialog_GitExeLocation);
 
 		gitLocationtext = new Text(composite, SWT.BORDER);
 		data = new GridData();
@@ -102,11 +104,11 @@ public class DirectorySelectionDialog extends Dialog
 		gitBrowseBtn.setText(Messages.DirectorySelectionDialog_Browse);
 		gitBrowseBtn.addSelectionListener(new SelectionAdapter()
 		{
+			@Override
 			public void widgetSelected(SelectionEvent event)
 			{
-				DirectoryDialog dlg = new DirectoryDialog(shell);
-				dlg.setText("Git Executable Location");
-				dlg.setMessage("Select git executable location");
+				FileDialog dlg = new FileDialog(shell);
+				dlg.setText(Messages.DirectorySelectionDialog_GitExecutableLocation);
 
 				String dir = dlg.open();
 				if (dir != null)
@@ -119,7 +121,7 @@ public class DirectorySelectionDialog extends Dialog
 		// Python version selection
 		if (Platform.OS_WIN32.equals(Platform.getOS()) && pythonVersions != null && !pythonVersions.isEmpty())
 		{
-			new Label(composite, SWT.NONE).setText("Choose Python version:");
+			new Label(composite, SWT.NONE).setText(Messages.DirectorySelectionDialog_ChoosePyVersion);
 
 			pythonVersionCombo = new Combo(composite, SWT.DROP_DOWN | SWT.READ_ONLY);
 			GridData gridData = new GridData(SWT.NONE, SWT.NONE, true, false, 2, 1);
@@ -133,7 +135,7 @@ public class DirectorySelectionDialog extends Dialog
 		}
 		else
 		{
-			new Label(composite, SWT.NONE).setText("Python executable Location:");
+			new Label(composite, SWT.NONE).setText(Messages.DirectorySelectionDialog_PyExeLocation);
 
 			pythonLocationtext = new Text(composite, SWT.BORDER);
 			data = new GridData();
@@ -145,11 +147,11 @@ public class DirectorySelectionDialog extends Dialog
 			pyBrowseBtn.setText(Messages.DirectorySelectionDialog_Browse);
 			pyBrowseBtn.addSelectionListener(new SelectionAdapter()
 			{
+				@Override
 				public void widgetSelected(SelectionEvent event)
 				{
-					DirectoryDialog dlg = new DirectoryDialog(shell);
-					dlg.setText("Python Executable Location");
-					dlg.setMessage("Select Python executable location");
+					FileDialog dlg = new FileDialog(shell);
+					dlg.setText(Messages.DirectorySelectionDialog_PyExecutableLocation);
 
 					String dir = dlg.open();
 					if (dir != null)
@@ -187,7 +189,10 @@ public class DirectorySelectionDialog extends Dialog
 			String version = pythonVersionCombo.getText();
 			pythonExecutablePath = pythonVersions.getOrDefault(version, null);
 		}
-
+		else
+		{
+			pythonExecutablePath = pythonLocationtext.getText();
+		}
 		gitPath = gitLocationtext.getText();
 		super.okPressed();
 	}
@@ -196,7 +201,7 @@ public class DirectorySelectionDialog extends Dialog
 	public void create()
 	{
 		super.create();
-		getButton(IDialogConstants.OK_ID).setText("Install Tools");
+		getButton(IDialogConstants.OK_ID).setText(Messages.DirectorySelectionDialog_InstallTools);
 	}
 	
 

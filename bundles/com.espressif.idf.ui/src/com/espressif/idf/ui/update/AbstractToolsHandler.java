@@ -59,11 +59,11 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 
 		// Get IDF_PATH
 		idfPath = IDFUtil.getIDFPath();
-		Logger.log("IDF_PATH :" + idfPath);
+		Logger.log("IDF_PATH :" + idfPath); //$NON-NLS-1$
 
 		// Look for git path
 		IPath gitPath = ExecutableUtil.find("git", true, null); //$NON-NLS-1$
-		Logger.log("GIT path:" + gitPath.toOSString());
+		Logger.log("GIT path:" + gitPath); //$NON-NLS-1$
 		if (gitPath != null)
 		{
 			this.gitExecutablePath = gitPath.toOSString();
@@ -179,7 +179,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 			}
 			else if (!StringUtil.isEmpty(path2) && !path2.contains(gitDir)) // Git not found on the Path environment
 			{
-				path2 = gitDir.concat(";").concat(path2);
+				path2 = gitDir.concat(";").concat(path2); //$NON-NLS-1$
 				environment.put("Path", path2); //$NON-NLS-1$
 			}
 		}
