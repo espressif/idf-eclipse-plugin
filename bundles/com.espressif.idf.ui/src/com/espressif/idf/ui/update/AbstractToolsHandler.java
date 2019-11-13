@@ -4,7 +4,6 @@
  *******************************************************************************/
 package com.espressif.idf.ui.update;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +28,7 @@ import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.aptana.core.ShellExecutable;
+import com.aptana.core.util.ExecutableUtil;
 import com.aptana.core.util.ProcessRunner;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
@@ -48,7 +48,8 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 	 */
 	protected MessageConsoleStream console;
 	protected String idfPath;
-	protected String pythonPath;
+	protected String pythonExecutablenPath;
+	private String gitExecutablePath;
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
@@ -58,56 +59,57 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 
 		// Get IDF_PATH
 		idfPath = IDFUtil.getIDFPath();
+		Logger.log("IDF_PATH :" + idfPath);
+
+		// Look for git path
+		IPath gitPath = ExecutableUtil.find("git", true, null); //$NON-NLS-1$
+		Logger.log("GIT path:" + gitPath.toOSString());
+		if (gitPath != null)
+		{
+			this.gitExecutablePath = gitPath.toOSString();
+		}
 
 		// Get Python
 		Map<String, String> pythonVersions = null;
-		boolean userSelectionRequiredForPy = false;
 		if (Platform.OS_WIN32.equals(Platform.getOS()))
 		{
 			PyWinRegistryReader pyWinRegistryReader = new PyWinRegistryReader();
 			pythonVersions = pyWinRegistryReader.getPythonVersions();
 			if (pythonVersions.isEmpty())
 			{
-				throw new ExecutionException("No Python installations found in the system.");
+				Logger.log("No Python installations found in the system."); //$NON-NLS-1$
 			}
 			if (pythonVersions.size() == 1)
 			{
 				Map.Entry<String, String> entry = pythonVersions.entrySet().iterator().next();
-				pythonPath = entry.getValue();
-			}
-			else
-			{
-				userSelectionRequiredForPy = true;
+				pythonExecutablenPath = entry.getValue();
 			}
 		}
 		else
 		{
-			pythonPath = IDFUtil.getPythonExecutable();
+			pythonExecutablenPath = IDFUtil.getPythonExecutable();
 		}
 
-		if (StringUtil.isEmpty(idfPath) || !new File(idfPath).exists() || userSelectionRequiredForPy)
+		// Let user choose
+		DirectorySelectionDialog dir = new DirectorySelectionDialog(Display.getDefault().getActiveShell(),
+				pythonExecutablenPath, pythonVersions, idfPath, gitExecutablePath);
+		if (dir.open() == Window.OK)
 		{
-			DirectorySelectionDialog dir = new DirectorySelectionDialog(Display.getDefault().getActiveShell(),
-					pythonVersions, idfPath);
-			if (dir.open() == Window.OK)
-			{
-				idfPath = dir.getIDFDirectory();
-
-				if (Platform.OS_WIN32.equals(Platform.getOS()))
-				{
-					pythonPath = dir.getPythonExecutable();
-				}
-				else
-				{
-					pythonPath = IDFUtil.getPythonExecutable();
-				}
-			}
-			if (idfPath == null) // IDF directory selection dialog would have been cancelled
-			{
-				return null;
-			}
+			idfPath = dir.getIDFDirectory();
+			gitExecutablePath = dir.getGitExecutable();
+			pythonExecutablenPath = dir.getPythonExecutable();
 		}
-		
+		else
+		{
+			return null; // dialog is cancelled
+		}
+
+		if (StringUtil.isEmpty(pythonExecutablenPath) || StringUtil.isEmpty(gitExecutablePath)
+				|| StringUtil.isEmpty(idfPath))
+		{
+			return null;
+		}
+
 		// Add IDF_PATH to the eclipse CDT build environment variables
 		IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
 		idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, idfPath);
@@ -138,12 +140,17 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 		try
 		{
 			// insert python.sh/exe path and idf_tools.py
-			arguments.add(0, pythonPath);
+			arguments.add(0, pythonExecutablenPath);
 			arguments.add(1, IDFUtil.getIDFToolsScriptFile().getAbsolutePath());
 
 			console.println(Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments));
 
-			IStatus status = processRunner.runInBackground(Path.ROOT, getEnvironment(Path.ROOT),
+			Map<String, String> environment = getEnvironment(Path.ROOT);
+			Logger.log(environment.toString());
+
+			addGitToEnvironment(environment, gitExecutablePath);
+
+			IStatus status = processRunner.runInBackground(Path.ROOT, environment,
 					arguments.toArray(new String[arguments.size()]));
 
 			console.println(status.getMessage());
@@ -154,6 +161,27 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 		{
 			Logger.log(IDFCorePlugin.getPlugin(), e1);
 
+		}
+	}
+
+	protected void addGitToEnvironment(Map<String, String> environment, String gitExecutablePath)
+	{
+		IPath gitPath = new Path(gitExecutablePath);
+		if (gitPath.toFile().exists())
+		{
+			String gitDir = gitPath.removeLastSegments(1).toOSString();
+			String path1 = environment.get("PATH"); //$NON-NLS-1$
+			String path2 = environment.get("Path"); //$NON-NLS-1$
+			if (!StringUtil.isEmpty(path1) && !path1.contains(gitDir)) // Git not found on the PATH environment
+			{
+				path1 = gitDir.concat(";").concat(path1);
+				environment.put("PATH", path1); //$NON-NLS-1$
+			}
+			else if (!StringUtil.isEmpty(path2) && !path2.contains(gitDir)) // Git not found on the Path environment
+			{
+				path2 = gitDir.concat(";").concat(path2);
+				environment.put("Path", path2); //$NON-NLS-1$
+			}
 		}
 	}
 

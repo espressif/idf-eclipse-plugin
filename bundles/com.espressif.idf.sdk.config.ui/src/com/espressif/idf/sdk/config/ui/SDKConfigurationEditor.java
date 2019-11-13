@@ -6,12 +6,14 @@ package com.espressif.idf.sdk.config.ui;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -162,11 +164,9 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				monitor.worked(2);
 
 			}
-			catch (Exception e)
-			{
-				Logger.log(SDKConfigUIPlugin.getDefault(), e);
+			catch (Exception x) {
+				throw new InvocationTargetException(x, x.getMessage());
 			}
-
 		};
 		try
 		{
@@ -439,8 +439,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		if (configServer != null)
 		{
 			configServer.destroy();
-			ConfigServerManager.INSTANCE.deleteServer(project);
 		}
+		ConfigServerManager.INSTANCE.deleteServer(project);
 		super.dispose();
 	}
 

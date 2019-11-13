@@ -4,6 +4,8 @@
  *******************************************************************************/
 package com.espressif.idf.sdk.config.ui;
 
+import java.io.IOException;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -54,16 +56,23 @@ public class LoadSdkConfigHandler extends AbstractHandler
 		// get the active server instance for the project
 		if (project instanceof IProject)
 		{
-			JsonConfigServer server = ConfigServerManager.INSTANCE.getServer((IProject) project);
+			try
+			{
+				JsonConfigServer server = ConfigServerManager.INSTANCE.getServer((IProject) project);
+				// load changes
+				JSONObject jsonObject = new JSONObject();
+				jsonObject.put(IJsonServerConfig.VERSION, 2);
+				jsonObject.put(IJsonServerConfig.LOAD, null);
+				String command = jsonObject.toJSONString();
 
-			// load changes
-			JSONObject jsonObject = new JSONObject();
-			jsonObject.put(IJsonServerConfig.VERSION, 2);
-			jsonObject.put(IJsonServerConfig.LOAD, null);
-			String command = jsonObject.toJSONString();
+				// execute load command
+				server.execute(command, CommandType.LOAD);
+			}
+			catch (IOException e)
+			{
+				throw new ExecutionException("Error while starting the json configuration server", e);
+			}
 
-			// execute load command
-			server.execute(command, CommandType.LOAD);
 		}
 
 		return null;

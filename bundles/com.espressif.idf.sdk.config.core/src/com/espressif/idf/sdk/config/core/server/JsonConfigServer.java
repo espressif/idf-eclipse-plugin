@@ -5,6 +5,8 @@
 package com.espressif.idf.sdk.config.core.server;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -79,7 +81,7 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 		listeners.remove(listener);
 	}
 
-	public void start()
+	public void start() throws IOException
 	{
 		IPath workingDir = project.getLocation();
 		Map<String, String> idfEnvMap = new IDFEnvironmentVariables().getEnvMap();
@@ -88,48 +90,44 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 		idfEnvMap.put("PYTHONUNBUFFERED", "1");
 
 		File idfPythonScriptFile = IDFUtil.getIDFPythonScriptFile();
+		if (!idfPythonScriptFile.exists())
+		{
+			throw new FileNotFoundException("File Not found:" + idfPythonScriptFile);
+		}
+		
 		String pythonPath = IDFUtil.getIDFPythonEnvPath();
 		List<String> arguments = new ArrayList<String>(
 				Arrays.asList(pythonPath, idfPythonScriptFile.getAbsolutePath(), IDFConstants.CONF_SERVER_CMD));
 		Logger.log(arguments.toString());
 
-		try
+		ProcessBuilder processBuilder = new ProcessBuilder(arguments);
+		if (workingDir != null)
 		{
-			ProcessBuilder processBuilder = new ProcessBuilder(arguments);
-			if (workingDir != null)
-			{
-				processBuilder.directory(workingDir.toFile());
-			}
-			Map<String, String> environment = processBuilder.environment();
-			environment.putAll(idfEnvMap);
-
-			Logger.log(environment.toString());
-
-			String idfPath = environment.get("PATH"); //$NON-NLS-1$
-			String processPath = environment.get("Path"); //$NON-NLS-1$
-			if (!StringUtil.isEmpty(idfPath) && !StringUtil.isEmpty(processPath)) // if both exist!
-			{
-				idfPath = idfPath.concat(";").concat(processPath); //$NON-NLS-1$
-				environment.put("PATH", idfPath); //$NON-NLS-1$
-				environment.remove("Path");//$NON-NLS-1$
-			}
-
-			Logger.log(environment.toString());
-
-			// redirect error stream to input stream
-			processBuilder.redirectErrorStream(true);
-
-			Process process = processBuilder.start();
-			runnable = new JsonConfigServerRunnable(process, this);
-			Thread t = new Thread(runnable);
-			t.start();
-
+			processBuilder.directory(workingDir.toFile());
 		}
-		catch (Exception e)
+		Map<String, String> environment = processBuilder.environment();
+		environment.putAll(idfEnvMap);
+
+		Logger.log(environment.toString());
+
+		String idfPath = environment.get("PATH"); //$NON-NLS-1$
+		String processPath = environment.get("Path"); //$NON-NLS-1$
+		if (!StringUtil.isEmpty(idfPath) && !StringUtil.isEmpty(processPath)) // if both exist!
 		{
-			Logger.log(SDKConfigCorePlugin.getPlugin(), e);
-
+			idfPath = idfPath.concat(";").concat(processPath); //$NON-NLS-1$
+			environment.put("PATH", idfPath); //$NON-NLS-1$
+			environment.remove("Path");//$NON-NLS-1$
 		}
+
+		Logger.log(environment.toString());
+
+		// redirect error stream to input stream
+		processBuilder.redirectErrorStream(true);
+
+		Process process = processBuilder.start();
+		runnable = new JsonConfigServerRunnable(process, this);
+		Thread t = new Thread(runnable);
+		t.start();
 	}
 
 	protected Map<String, String> getEnvironment(IPath location)
