@@ -42,8 +42,9 @@ public class DirectorySelectionDialog extends Dialog
 	private String gitPath;
 	private Text gitLocationtext;
 	private Text pythonLocationtext;
+	private String commandId;
 
-	protected DirectorySelectionDialog(Shell parentShell, String pythonExecutablePath,
+	protected DirectorySelectionDialog(Shell parentShell, String commandId, String pythonExecutablePath,
 			Map<String, String> pythonVersions, String idfPath, String gitExecutablePath)
 	{
 		super(parentShell);
@@ -52,6 +53,7 @@ public class DirectorySelectionDialog extends Dialog
 		this.pythonVersions = pythonVersions;
 		this.idfDirPath = idfPath;
 		this.gitPath = gitExecutablePath;
+		this.commandId = commandId;
 	}
 	
 
@@ -201,7 +203,14 @@ public class DirectorySelectionDialog extends Dialog
 	public void create()
 	{
 		super.create();
-		getButton(IDialogConstants.OK_ID).setText(Messages.DirectorySelectionDialog_InstallTools);
+		if (commandId != null && commandId.equals("com.espressif.idf.ui.command.install")) //$NON-NLS-1$
+		{
+			getButton(IDialogConstants.OK_ID).setText(Messages.DirectorySelectionDialog_InstallTools);
+		}
+		else
+		{
+			getButton(IDialogConstants.OK_ID).setText("Check Tools");
+		}
 	}
 	
 

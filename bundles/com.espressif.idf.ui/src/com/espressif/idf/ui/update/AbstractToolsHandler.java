@@ -92,7 +92,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 
 		// Let user choose
 		DirectorySelectionDialog dir = new DirectorySelectionDialog(Display.getDefault().getActiveShell(),
-				pythonExecutablenPath, pythonVersions, idfPath, gitExecutablePath);
+				commmand_id, pythonExecutablenPath, pythonVersions, idfPath, gitExecutablePath);
 		if (dir.open() == Window.OK)
 		{
 			idfPath = dir.getIDFDirectory();
