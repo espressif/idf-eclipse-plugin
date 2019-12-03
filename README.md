@@ -38,9 +38,9 @@ IDF Eclipse Plugins aiming to provide better tooling capabilities, which simplif
 **Note:** Make sure Java, Python and Git are available on the system environment PATH.
 
 <a name="GettingStarted"></a>
-# Getting started with the IDF Eclipse Plugins
+# Installing IDF Eclipse Plugins
 Eclipse provides two ways to install the IDF Plugins
-* Installing IDF Plugins using update site url
+* Installing IDF Plugins using update site url (Preferred approach)
 * Installing IDF Plugins from Local
 
 # Installing IDF Plugins using update site url
