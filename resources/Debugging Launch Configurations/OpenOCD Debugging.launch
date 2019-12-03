@@ -1,34 +1,32 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<launchConfiguration type="com.espressif.esp32.debug.gdbjtag.openocd.launchConfigurationType">
-<stringAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.SysviewAppCpuFile" value="app-cpu.SVDat"/>
-<stringAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.SysviewPoolPeriod" value=""/>
-<stringAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.SysviewProCpuFile" value="pro-cpu.SVDat"/>
-<stringAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.SysviewStopTmo" value=""/>
-<stringAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.SysviewTraceSize" value=""/>
-<booleanAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.doContinue" value="true"/>
-<booleanAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.doDebugInRam" value="false"/>
-<booleanAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.doFirstReset" value="false"/>
-<booleanAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.doGdbServerAllocateConsole" value="true"/>
-<booleanAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.doGdbServerAllocateTelnetConsole" value="false"/>
-<booleanAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.doSecondReset" value="false"/>
-<booleanAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.doStartGdbServer" value="true"/>
-<booleanAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.enableSemihosting" value="true"/>
-<stringAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.firstResetType" value="init"/>
-<stringAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.gdbClientOtherCommands" value="set mem inaccessible-by-default off"/>
-<stringAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.gdbClientOtherOptions" value=""/>
-<stringAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.gdbServerConnectionAddress" value=""/>
-<stringAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.gdbServerExecutable" value="/Users/kondal/esp/openocd-esp32/bin/openocd"/>
-<intAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.gdbServerGdbPortNumber" value="3333"/>
-<stringAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.gdbServerLog" value=""/>
-<stringAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.gdbServerOther" value="-s /Users/kondal/esp/openocd-esp32/share/openocd/scripts&#10;-f interface/ftdi/esp32_devkitj_v1.cfg&#10;-f board/esp32-wrover.cfg"/>
-<intAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.gdbServerTelnetPortNumber" value="4444"/>
-<stringAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.otherInitCommands" value="mon reset halt&#10;flushregs&#10;set remote hardware-watchpoint-limit 2"/>
-<stringAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.otherRunCommands" value=""/>
-<stringAttribute key="com.espressif.esp32.debug.gdbjtag.openocd.secondResetType" value="halt"/>
+<launchConfiguration type="ilg.gnumcueclipse.debug.gdbjtag.openocd.launchConfigurationType">
+<booleanAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.doContinue" value="true"/>
+<booleanAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.doDebugInRam" value="false"/>
+<booleanAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.doFirstReset" value="true"/>
+<booleanAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.doGdbServerAllocateConsole" value="true"/>
+<booleanAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.doGdbServerAllocateTelnetConsole" value="false"/>
+<booleanAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.doSecondReset" value="false"/>
+<booleanAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.doStartGdbCLient" value="true"/>
+<booleanAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.doStartGdbServer" value="true"/>
+<booleanAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.enableSemihosting" value="true"/>
+<stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.firstResetType" value="init"/>
+<stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbClientOtherCommands" value="set mem inaccessible-by-default off"/>
+<stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbClientOtherOptions" value=""/>
+<stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerConnectionAddress" value=""/>
+<stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerExecutable" value="/Users/kondal/.espressif/tools/openocd-esp32/v0.10.0-esp32-20190708/openocd-esp32/bin/openocd"/>
+<intAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerGdbPortNumber" value="3333"/>
+<stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerLog" value=""/>
+<stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerOther" value="-s /Users/kondal/.espressif/tools/openocd-esp32/v0.10.0-esp32-20190708/openocd-esp32/share/openocd/scripts&#10;-f interface/ftdi/esp32_devkitj_v1.cfg&#10;-f board/esp32-wrover.cfg"/>
+<stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerTclPortNumber" value="6666"/>
+<intAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerTelnetPortNumber" value="4444"/>
+<stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.otherInitCommands" value="mon reset halt&#10;flushregs&#10;set remote hardware-watchpoint-limit 2"/>
+<stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.otherRunCommands" value=""/>
+<stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.secondResetType" value="halt"/>
+<stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.svdPath" value=""/>
 <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.imageFileName" value=""/>
 <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.imageOffset" value=""/>
 <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.ipAddress" value="localhost"/>
-<stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.jtagDevice" value="ESP32 OpenOCD"/>
+<stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.jtagDevice" value="GNU MCU OpenOCD"/>
 <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.loadImage" value="false"/>
 <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.loadSymbols" value="true"/>
 <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.pcRegister" value=""/>
@@ -44,14 +42,20 @@
 <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.useProjBinaryForImage" value="true"/>
 <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.useProjBinaryForSymbols" value="true"/>
 <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.useRemoteTarget" value="true"/>
-<stringAttribute key="org.eclipse.cdt.dsf.gdb.DEBUG_NAME" value="/Users/kondal/esp/xtensa-esp32-elf/bin/xtensa-esp32-elf-gdb"/>
+<stringAttribute key="org.eclipse.cdt.dsf.gdb.DEBUG_NAME" value="/Users/kondal/.espressif/tools/xtensa-esp32-elf/esp32-2019r1-8.2.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-gdb"/>
 <booleanAttribute key="org.eclipse.cdt.dsf.gdb.UPDATE_THREADLIST_ON_SUSPEND" value="false"/>
 <intAttribute key="org.eclipse.cdt.launch.ATTR_BUILD_BEFORE_LAUNCH_ATTR" value="0"/>
 <stringAttribute key="org.eclipse.cdt.launch.COREFILE_PATH" value=""/>
-<stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="/Users/kondal/eclipse-workspace/demoblink/build/blink.elf"/>
-<stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="demoblink"/>
+<stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="build/blink.elf"/>
+<stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="blink"/>
 <booleanAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_AUTO_ATTR" value="false"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value=""/>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/blink"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="4"/>
+</listAttribute>
 <stringAttribute key="org.eclipse.dsf.launch.MEMORY_BLOCKS" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;memoryBlockExpressionList context=&quot;Context string&quot;/&gt;&#10;"/>
 <stringAttribute key="process_factory_id" value="org.eclipse.cdt.dsf.gdb.GdbProcessFactory"/>
 </launchConfiguration>
