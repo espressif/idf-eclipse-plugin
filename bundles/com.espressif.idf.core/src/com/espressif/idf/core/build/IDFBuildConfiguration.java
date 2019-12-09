@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import org.eclipse.cdt.core.ConsoleOutputStream;
 import org.eclipse.cdt.core.ErrorParserManager;
 import org.eclipse.cdt.core.IConsoleParser;
 import org.eclipse.cdt.core.build.IToolChain;
+import org.eclipse.cdt.core.build.IToolChain2;
 import org.eclipse.cdt.core.envvar.EnvironmentVariable;
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
 import org.eclipse.cdt.core.model.ICModelMarker;
@@ -327,4 +329,67 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 	{
 		this.launchtarget = target;
 	}
+
+	@Override
+	protected Path findCommand(String command)
+	{
+		try
+		{
+			Path cmdPath = Paths.get(command);
+			if (cmdPath.isAbsolute())
+			{
+				return cmdPath;
+			}
+
+			Map<String, String> env = new HashMap<>(System.getenv());
+			setBuildEnvironment(env);
+
+			String pathStr = env.get("PATH"); //$NON-NLS-1$
+			if (pathStr == null)
+			{
+				pathStr = env.get("Path"); // for Windows //$NON-NLS-1$
+				if (pathStr == null)
+				{
+					return null; // no idea
+				}
+			}
+			String[] path = pathStr.split(File.pathSeparator);
+			for (String dir : path)
+			{
+				Path commandPath = Paths.get(dir, command);
+				if (Files.exists(commandPath) && commandPath.toFile().isFile())
+				{
+					return commandPath;
+				}
+				else
+				{
+					if (Platform.getOS().equals(org.eclipse.core.runtime.Platform.OS_WIN32)
+							&& !(command.endsWith(".exe") || command.endsWith(".bat"))) //$NON-NLS-1$ //$NON-NLS-2$
+					{
+						commandPath = Paths.get(dir, command + ".exe"); //$NON-NLS-1$
+						if (Files.exists(commandPath))
+						{
+							return commandPath;
+						}
+					}
+				}
+			}
+			IToolChain tc = getToolChain();
+			if (tc instanceof IToolChain2)
+			{
+				// we may have a Container build...default to Path based on command
+				return Paths.get(command);
+			}
+		}
+		catch (InvalidPathException e)
+		{
+			// ignore
+		}
+		catch (CoreException e)
+		{
+			// ignore
+		}
+		return null;
+	}
+
 }
