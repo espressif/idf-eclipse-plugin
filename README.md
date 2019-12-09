@@ -3,12 +3,11 @@
 IDF Eclipse Plugins aiming to provide better tooling capabilities, which simplifies and enhances standard Eclipse CDT for developing and debugging ESP32 IoT applications.
 
 # Table Of Contents
-* [ Prerequisites ](#Prerequisites) <br>
+* [ Installing Prerequisites ](#Prerequisites) <br>
 * [ Installing IDF Eclipse Plugins ](#GettingStarted) <br>
 * [ Installing ESP-IDF Tools ](#InstallTools) <br>
 * [ Creating a new Project ](#NewProjectUsingDefault)<br>
 * [ Creating new project using ESP-IDF Templates ](#NewProjectUsingTemplates)<br>
-* [ Import an existing IDF Project ](#ImportProject)<br>
 * [ Configuring Launch Target ](#ConfigureLaunchTarget)<br>
 * [ Compiling the Project ](#BuildApplication)<br>
 * [ Flashing the Project ](#FlashApplication)<br>
@@ -20,7 +19,9 @@ IDF Eclipse Plugins aiming to provide better tooling capabilities, which simplif
 * [ Configuring Core Build Toolchain ](#ConfigureToolchains)<br>
 * [ Configuring CMake Toolchain ](#ConfigureCMakeToolchain)<br>
 * [ Configuring the flash arguments ](#customizeLaunchConfig)<br>
+* [ Installing IDF Eclipse Plugins using local archive ](#installPluginsUsingLocalFile) <br>
 * [ Upgrading IDF Eclipse Plugins ](#upgradePlugins)<br>
+* [ Importing an existing IDF Project ](#ImportProject)<br>
 * [ Importing an existing Debug launch configuration ](#importDebugLaunchConfig)<br>
 * [ Troubleshooting Guide](#troubleshooting)<br>
 * [ How to raise bugs ](#howToRaiseBugs)<br>
@@ -28,20 +29,17 @@ IDF Eclipse Plugins aiming to provide better tooling capabilities, which simplif
 
 
 <a name="Prerequisites"></a>
-# Prerequisites
+# Installing Prerequisites
 * **Java 8 and above** : Download and install Java SE from <a href= "https://www.oracle.com/technetwork/java/javase/downloads/index.html">here</a>
 * **Python 3.5 and above** : Download and install Python from <a href="https://www.python.org/downloads/">here</a>
 * **Eclipse 2018-12 CDT and above** : Download and install Eclipse CDT package from <a href= "https://www.eclipse.org/downloads/packages/release/2018-12/r/eclipse-ide-cc-developers">here </a>
-*  **ESP-IDF 4.0 and above** : Follow the download instructions from <a href ="https://github.com/espressif/esp-idf/releases">here</a>
 *  **Git** : Get the latest git from <a href ="https://git-scm.com/downloads">here</a>
+*  **ESP-IDF 4.0 and above** : Clone the ESP-IDF repo from <a href ="https://github.com/espressif/esp-idf/releases">here</a>
+
 
 **Note:** Make sure Java, Python and Git are available on the system environment PATH.
 
 <a name="GettingStarted"></a>
-# Installing IDF Eclipse Plugins
-Eclipse provides two ways to install the IDF Plugins
-* Installing IDF Plugins using update site url (Preferred approach)
-* Installing IDF Plugins from Local
 
 # Installing IDF Plugins using update site url
 You can install the IDF Eclipse plugins into an existing Eclipse CDT installation using the update site url. You first need to add the release repository url as follows:
@@ -53,17 +51,6 @@ You can install the IDF Eclipse plugins into an existing Eclipse CDT installatio
 * Select `Espressif IDF` from the list and proceed with the installation 
 
 ![](docs/images/idf_update_site_install.png)
-
-# Installing IDF Plugins from Local
-* Download the latest update site archive for IDF Eclipse Plugins here - https://github.com/espressif/idf-eclipse-plugin/releases
-* In Eclipse, choose `Help` -> `Install New Software`
-* Click `Add…` button
-* Select `Archive` from Add repository dialog and select the file `com.espressif.idf.update-vxxxxxxx.zip`
-* Click `Add`
-* Select `Espressif IDF` from the list and proceed with the installation 
-* Restart the Eclipse
-
-![](docs/images/1_idffeature_install.png)
 
 <a name="InstallTools"></a>
 # Installing ESP-IDF Tools
@@ -102,19 +89,6 @@ ESP-IDF Directory selection dialog:
 * Click `Finish`
 
 ![](docs/images/4_new_project_templates.png)
-
-<a name="ImportProject"></a>
-# Import an existing IDF Project
-* Make sure you're in `C/C++ Perspective`.
-* Right click in the Project Explorer
-* Select `Import..` Menu
-* Select `Existing IDF Project` from `Espressif` import wizard menu list
-* Click `Next`
-* Click on `Browse...` to choose an existing project location directory
-* Provide `Project name` if you wish you have a different name
-* Click `Finish` to import the selected project into eclipse workspace as a CMake project
-
-![](docs/images/5_import_project.png)
 
 <a name="ConfigureLaunchTarget"></a>
 # Configuring Launch target
@@ -304,6 +278,18 @@ If this is not active, it can be switched by clicking on the `Display Selected C
 
 ![](docs/images/IDF_tools_console.png)
 
+<a name="installPluginsUsingLocalFile"></a>
+# Installing IDF Plugins from Local Archive
+* Download the latest update site archive for IDF Eclipse Plugins here - https://github.com/espressif/idf-eclipse-plugin/releases
+* In Eclipse, choose `Help` -> `Install New Software`
+* Click `Add…` button
+* Select `Archive` from Add repository dialog and select the file `com.espressif.idf.update-vxxxxxxx.zip`
+* Click `Add`
+* Select `Espressif IDF` from the list and proceed with the installation 
+* Restart the Eclipse
+
+![](docs/images/1_idffeature_install.png)
+
 <a name="upgradePlugins"></a>
 # How do I upgrade my existing IDF Eclipse Plugins?
 
@@ -319,6 +305,19 @@ If you've already installed IDF Eclipse Plugins using update site URL, you can g
 * Click `Next` to proceed with the installation
 
 ![](docs/images/Update_plugins.png)
+
+<a name="ImportProject"></a>
+# Importing an existing IDF Project
+* Make sure you're in `C/C++ Perspective`.
+* Right click in the Project Explorer
+* Select `Import..` Menu
+* Select `Existing IDF Project` from `Espressif` import wizard menu list
+* Click `Next`
+* Click on `Browse...` to choose an existing project location directory
+* Provide `Project name` if you wish you have a different name
+* Click `Finish` to import the selected project into eclipse workspace as a CMake project
+
+![](docs/images/5_import_project.png)
 
 <a name="importDebugLaunchConfig"></a>
 # Importing an existing Debug launch configuration
