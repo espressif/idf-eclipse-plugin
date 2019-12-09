@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.sdk.config.core.server;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,8 +32,9 @@ public class ConfigServerManager
 	/**
 	 * @param project
 	 * @return
+	 * @throws IOException 
 	 */
-	public synchronized JsonConfigServer getServer(IProject project)
+	public synchronized JsonConfigServer getServer(IProject project) throws IOException
 	{
 		JsonConfigServer jsonConfigServer = jsonServermap.get(project);
 		if (jsonConfigServer == null)

@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -38,28 +39,38 @@ public class DirectorySelectionDialog extends Dialog
 	private String pythonExecutablePath;
 	private Combo pythonVersionCombo;
 	private Map<String, String> pythonVersions;
+	private String gitPath;
+	private Text gitLocationtext;
+	private Text pythonLocationtext;
+	private String commandId;
 
-	protected DirectorySelectionDialog(Shell parentShell, Map<String, String> pythonVersions, String idfPath)
+	protected DirectorySelectionDialog(Shell parentShell, String commandId, String pythonExecutablePath,
+			Map<String, String> pythonVersions, String idfPath, String gitExecutablePath)
 	{
 		super(parentShell);
 		this.shell = parentShell;
+		this.pythonExecutablePath = pythonExecutablePath;
 		this.pythonVersions = pythonVersions;
 		this.idfDirPath = idfPath;
+		this.gitPath = gitExecutablePath;
+		this.commandId = commandId;
 	}
+	
 
 	@Override
 	protected Control createDialogArea(Composite parent)
 	{
+		getShell().setText(Messages.DirectorySelectionDialog_InstallTools);
+
 		Composite composite = (Composite) super.createDialogArea(parent);
-		((GridLayout) composite.getLayout()).numColumns = 6;
+		((GridLayout) composite.getLayout()).numColumns = 3;
 
 		// IDF_PATH
 		new Label(composite, SWT.NONE).setText(Messages.DirectorySelectionDialog_IDFDirLabel);
 
 		text = new Text(composite, SWT.BORDER);
-		GridData data = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		GridData data = new GridData();
 		data.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
-		data.horizontalSpan = 4;
 		text.setLayoutData(data);
 		text.setText(idfDirPath != null ? idfDirPath : StringUtil.EMPTY);
 
@@ -67,6 +78,7 @@ public class DirectorySelectionDialog extends Dialog
 		button.setText(Messages.DirectorySelectionDialog_Browse);
 		button.addSelectionListener(new SelectionAdapter()
 		{
+			@Override
 			public void widgetSelected(SelectionEvent event)
 			{
 				DirectoryDialog dlg = new DirectoryDialog(shell);
@@ -82,25 +94,74 @@ public class DirectorySelectionDialog extends Dialog
 			}
 		});
 
-		// Python version selection
-		if (Platform.OS_WIN32.equals(Platform.getOS()))
+		new Label(composite, SWT.NONE).setText(Messages.DirectorySelectionDialog_GitExeLocation);
+
+		gitLocationtext = new Text(composite, SWT.BORDER);
+		data = new GridData();
+		data.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
+		gitLocationtext.setLayoutData(data);
+		gitLocationtext.setText(gitPath != null ? gitPath : StringUtil.EMPTY);
+
+		Button gitBrowseBtn = new Button(composite, SWT.PUSH);
+		gitBrowseBtn.setText(Messages.DirectorySelectionDialog_Browse);
+		gitBrowseBtn.addSelectionListener(new SelectionAdapter()
 		{
-			new Label(composite, SWT.NONE).setText("Choose Python version:");
+			@Override
+			public void widgetSelected(SelectionEvent event)
+			{
+				FileDialog dlg = new FileDialog(shell);
+				dlg.setText(Messages.DirectorySelectionDialog_GitExecutableLocation);
+
+				String dir = dlg.open();
+				if (dir != null)
+				{
+					gitLocationtext.setText(dir);
+				}
+			}
+		});
+
+		// Python version selection
+		if (Platform.OS_WIN32.equals(Platform.getOS()) && pythonVersions != null && !pythonVersions.isEmpty())
+		{
+			new Label(composite, SWT.NONE).setText(Messages.DirectorySelectionDialog_ChoosePyVersion);
 
 			pythonVersionCombo = new Combo(composite, SWT.DROP_DOWN | SWT.READ_ONLY);
-			pythonVersionCombo.setLayoutData(new GridData(SWT.NONE, SWT.NONE, false, false, 5, 1));
-
-			GridData gridData = new GridData();
+			GridData gridData = new GridData(SWT.NONE, SWT.NONE, true, false, 2, 1);
 			gridData.widthHint = 250;
 			pythonVersionCombo.setLayoutData(gridData);
 
-			if (!pythonVersions.isEmpty())
-			{
-				String[] versions = pythonVersions.keySet().toArray(new String[pythonVersions.size()]);
-				pythonVersionCombo.setItems(versions);
-				pythonVersionCombo.select(0); // select the first one
-			}
+			String[] versions = pythonVersions.keySet().toArray(new String[pythonVersions.size()]);
+			pythonVersionCombo.setItems(versions);
+			pythonVersionCombo.select(0); // select the first one
 
+		}
+		else
+		{
+			new Label(composite, SWT.NONE).setText(Messages.DirectorySelectionDialog_PyExeLocation);
+
+			pythonLocationtext = new Text(composite, SWT.BORDER);
+			data = new GridData();
+			data.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
+			pythonLocationtext.setLayoutData(data);
+			pythonLocationtext.setText(pythonExecutablePath != null ? pythonExecutablePath : StringUtil.EMPTY);
+
+			Button pyBrowseBtn = new Button(composite, SWT.PUSH);
+			pyBrowseBtn.setText(Messages.DirectorySelectionDialog_Browse);
+			pyBrowseBtn.addSelectionListener(new SelectionAdapter()
+			{
+				@Override
+				public void widgetSelected(SelectionEvent event)
+				{
+					FileDialog dlg = new FileDialog(shell);
+					dlg.setText(Messages.DirectorySelectionDialog_PyExecutableLocation);
+
+					String dir = dlg.open();
+					if (dir != null)
+					{
+						pythonLocationtext.setText(dir);
+					}
+				}
+			});
 		}
 
 		return composite;
@@ -116,6 +177,11 @@ public class DirectorySelectionDialog extends Dialog
 		return pythonExecutablePath;
 	}
 
+	public String getGitExecutable()
+	{
+		return gitPath;
+	}
+
 	@Override
 	protected void okPressed()
 	{
@@ -125,7 +191,27 @@ public class DirectorySelectionDialog extends Dialog
 			String version = pythonVersionCombo.getText();
 			pythonExecutablePath = pythonVersions.getOrDefault(version, null);
 		}
+		else
+		{
+			pythonExecutablePath = pythonLocationtext.getText();
+		}
+		gitPath = gitLocationtext.getText();
 		super.okPressed();
 	}
+	
+	@Override
+	public void create()
+	{
+		super.create();
+		if (commandId != null && commandId.equals("com.espressif.idf.ui.command.install")) //$NON-NLS-1$
+		{
+			getButton(IDialogConstants.OK_ID).setText(Messages.DirectorySelectionDialog_InstallTools);
+		}
+		else
+		{
+			getButton(IDialogConstants.OK_ID).setText("Check Tools");
+		}
+	}
+	
 
 }

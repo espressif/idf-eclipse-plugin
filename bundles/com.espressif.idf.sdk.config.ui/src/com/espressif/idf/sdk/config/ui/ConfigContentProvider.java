@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.sdk.config.ui;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,12 +75,19 @@ public class ConfigContentProvider extends TreeNodeContentProvider
 			KConfigMenuItem element = (KConfigMenuItem) parentElement;
 
 			List<KConfigMenuItem> children = element.getChildren();
-			return getMenuItems(children).toArray();
+			try
+			{
+				return getMenuItems(children).toArray();
+			}
+			catch (IOException e)
+			{
+				Logger.log(e);
+			}
 		}
 		return EMPTY_ARRAY;
 	}
 
-	private List<KConfigMenuItem> getMenuItems(List<KConfigMenuItem> children)
+	private List<KConfigMenuItem> getMenuItems(List<KConfigMenuItem> children) throws IOException
 	{
 		
 		JsonConfigServer configServer = ConfigServerManager.INSTANCE.getServer(project);
@@ -113,7 +121,14 @@ public class ConfigContentProvider extends TreeNodeContentProvider
 		{
 			KConfigMenuItem configMenuItem = (KConfigMenuItem) element;
 			List<KConfigMenuItem> children = configMenuItem.getChildren();
-			return getMenuItems(children).size() > 0;
+			try
+			{
+				return getMenuItems(children).size() > 0;
+			}
+			catch (IOException e)
+			{
+				Logger.log(e);
+			}
 		}
 
 		return false;
