@@ -51,6 +51,11 @@ public class TemplateNode implements ITemplateNode
 	{
 		children.add(templateNode);
 	}
+	
+	public void addFirst(TemplateNode templateNode)
+	{
+		children.add(0, templateNode);
+	}
 
 	@Override
 	public int getType()

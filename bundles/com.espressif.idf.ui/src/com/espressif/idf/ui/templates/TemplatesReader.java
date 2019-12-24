@@ -97,7 +97,7 @@ public class TemplatesReader
 			if (isCMakeFileExists(template))
 			{
 				// it's a cmake project - so add it to template
-				root.add(new TemplateNode(template.getName(), template, null, IResource.PROJECT));
+				root.addFirst(new TemplateNode(template.getName(), template, null, IResource.PROJECT));
 			}
 		}
 	}

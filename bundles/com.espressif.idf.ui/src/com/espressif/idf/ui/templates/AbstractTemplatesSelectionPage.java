@@ -215,14 +215,6 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 	{
 	}
 
-//	public IPluginContentWizard getSelectedWizard()
-//	{
-//		IWizardNode node = getSelectedNode();
-//		if (node != null)
-//			return (IPluginContentWizard) node.getWizard();
-//		return null;
-//	}
-
 	@Override
 	public boolean canFlipToNextPage()
 	{
