@@ -87,6 +87,11 @@ public class TemplatesReader
 	{
 		// let's add get-started projects directly
 		File[] basicTemplatesProjects = file.listFiles();
+		if (basicTemplatesProjects == null)
+		{
+			return;
+		}
+		
 		for (File template : basicTemplatesProjects)
 		{
 			if (isCMakeFileExists(template))
