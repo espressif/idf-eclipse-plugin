@@ -50,6 +50,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 	protected String idfPath;
 	protected String pythonExecutablenPath;
 	private String gitExecutablePath;
+	private Map<String, String> pythonVersions;
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
@@ -69,26 +70,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 			this.gitExecutablePath = gitPath.toOSString();
 		}
 
-		// Get Python
-		Map<String, String> pythonVersions = null;
-		if (Platform.OS_WIN32.equals(Platform.getOS()))
-		{
-			PyWinRegistryReader pyWinRegistryReader = new PyWinRegistryReader();
-			pythonVersions = pyWinRegistryReader.getPythonVersions();
-			if (pythonVersions.isEmpty())
-			{
-				Logger.log("No Python installations found in the system."); //$NON-NLS-1$
-			}
-			if (pythonVersions.size() == 1)
-			{
-				Map.Entry<String, String> entry = pythonVersions.entrySet().iterator().next();
-				pythonExecutablenPath = entry.getValue();
-			}
-		}
-		else
-		{
-			pythonExecutablenPath = IDFUtil.getPythonExecutable();
-		}
+		pythonExecutablenPath = getPythonExecutablePath();
 
 		// Let user choose
 		DirectorySelectionDialog dir = new DirectorySelectionDialog(Display.getDefault().getActiveShell(),
@@ -114,6 +96,15 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 		IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
 		idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, idfPath);
 
+		activateIDFConsoleView();
+
+		execute();
+
+		return null;
+	}
+
+	protected void activateIDFConsoleView()
+	{
 		// Create Tools console
 		MessageConsole msgConsole = findConsole(Messages.IDFToolsHandler_ToolsManagerConsole);
 		msgConsole.clearConsole();
@@ -122,10 +113,30 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 
 		// Open console view so that users can see the output
 		openConsoleView();
+	}
 
-		execute();
-
-		return null;
+	protected String getPythonExecutablePath()
+	{
+		// Get Python
+		if (Platform.OS_WIN32.equals(Platform.getOS()))
+		{
+			PyWinRegistryReader pyWinRegistryReader = new PyWinRegistryReader();
+			pythonVersions = pyWinRegistryReader.getPythonVersions();
+			if (pythonVersions.isEmpty())
+			{
+				Logger.log("No Python installations found in the system."); //$NON-NLS-1$
+			}
+			if (pythonVersions.size() == 1)
+			{
+				Map.Entry<String, String> entry = pythonVersions.entrySet().iterator().next();
+				pythonExecutablenPath = entry.getValue();
+			}
+		}
+		else
+		{
+			pythonExecutablenPath = IDFUtil.getPythonExecutable();
+		}
+		return pythonExecutablenPath;
 	}
 
 	/**
@@ -148,7 +159,10 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 			Map<String, String> environment = getEnvironment(Path.ROOT);
 			Logger.log(environment.toString());
 
-			addGitToEnvironment(environment, gitExecutablePath);
+			if (gitExecutablePath != null)
+			{
+				addGitToEnvironment(environment, gitExecutablePath);
+			}
 
 			IStatus status = processRunner.runInBackground(Path.ROOT, environment,
 					arguments.toArray(new String[arguments.size()]));
