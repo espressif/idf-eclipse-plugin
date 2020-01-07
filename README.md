@@ -59,9 +59,12 @@ ESP-IDF requires some prerequisite tools to be installed so you can build firmwa
 For this getting started follow the instructions below.
 
 * Navigate to `Help` > `Espressif IDF Tools Manager` > `Install Tools`
-* Provide the `ESP-IDF Directory` path to get started with the installation. Check the Console for the installation details. Installation might take a while if you're doing it for the first time since it has to download and install xtensa-esp32-elf, esp32ulp-elf, cmake, openocd-esp32 and ninja tools.
+* Provide the `ESP-IDF Directory` path
+* Provide `Git` and `Python` executable locations if they are not auto-detected.
+* Click on `Install Tools` to proceed with the installation process. Check the Console for the installation details.
+* Installation might take a while if you're doing it for the first time since it has to download and install xtensa-esp32-elf, esp32ulp-elf, cmake, openocd-esp32 and ninja tools.
 
-**Note:** Make sure you run this step even if you've already installed the required tools, since it sets the IDF_PATH,PATH,OPENOCD_SCRIPTS and IDF_PYTHON_ENV_PATH based on the idf_tools.py export command.
+**Note:** Make sure you run this step even if you've already installed the required tools, since it sets the IDF_PATH,PATH,OPENOCD_SCRIPTS and IDF_PYTHON_ENV_PATH to the Eclipse CDT build environment based on the idf_tools.py export command.
 
 ![](docs/images/install_tools.png)
 
@@ -97,7 +100,7 @@ Next, we need to tell CDT to use the toolchain for our project. This is accompli
 * Click on the third dropdown 
 * Select `New Launch Target`
 * Select `ESP Target`
-* Provide properties for the target where you would like to launch the application. Enter a `Name` for the target and select the `Serial Port` your ESP device is connected to on your machine. The OS and architecture need to match the settings for the toolchain. You can see those settings in the Preferences by selecting C/C++ and Core Build Toolchains.
+* Provide properties for the target where you would like to launch the application. Enter a `Name` for the target and select the `Serial Port` your ESP device is connected to on your machine.
 
 ![](docs/images/8_launch_target.png)
 
@@ -124,7 +127,7 @@ To see what program do we need to configure Eclipse terminal to connect the seri
 * Click on the `Open a Terminal` icon from the toolbar
 * Choose `Serial Terminal` from the terminal drop-down
 * Select `Serial Port` for your board. Example: `/dev/cu.SLAB_USBtoUART`
-* And, configure the remaining settings and click on Ok to launch the Eclipse terminal and which will listen the USB port
+* Configure the remaining settings and click on Ok to launch the Eclipse terminal and which will listen the USB port
 
 ![](docs/images/10_serial_terminal.png)
 
