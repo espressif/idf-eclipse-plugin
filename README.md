@@ -348,6 +348,8 @@ Please raise the issues here https://github.com/espressif/idf-eclipse-plugin/iss
 > Eclipse 2019-12 CDT and above
 * How do I know the installed version of Java in my system?
 > You can check using "java -version" command from the terminal
+* How to check the Java version used by Eclipse?
+> Help > About Eclipse >Installation Details > Configuration > Look for "-vm" argument
 * Espressif Menu options and Espressif IDF Project menu is not visible in my Eclipse
 > Make sure you have installed Java 8 and higher and you're in the C/C++ perspective
 * How do I access the error log?
