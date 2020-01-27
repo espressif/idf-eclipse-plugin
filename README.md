@@ -270,10 +270,10 @@ The Console View provides all the warnings and errors related to the current run
 
 From the menu bar, `Window > Show View > Console`. 
 
+![](docs/images/CDT_Build_Console.png)
+
 ## CDT Global Build Log
 Go to `Preferences > C/C++ > Build > Logging`
-
-![](docs/images/CDT_Build_Console.png)
 
 ## Espressif IDF Tools Console
 The Espressif IDF Tools Console is part of Console view, this will be opened only during the installation of IDF tools from the Eclipse. 
