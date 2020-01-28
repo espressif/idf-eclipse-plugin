@@ -348,7 +348,7 @@ Please raise the issues here https://github.com/espressif/idf-eclipse-plugin/iss
 * Which version of Java should I use? 
 > Java 8 and above
 * Which version of Eclipse should I use?
-> Eclipse 2019-12 CDT and above
+> Eclipse 2018-12 CDT and above (Eclipse IDE for C/C++ Developers)
 * How do I know the installed version of Java in my system?
 > You can check using "java -version" command from the terminal
 * How to check the Java version used by Eclipse?
