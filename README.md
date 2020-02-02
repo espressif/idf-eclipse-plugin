@@ -369,3 +369,5 @@ Please raise the issues here https://github.com/espressif/idf-eclipse-plugin/iss
 > Yes, you can import using Import Menu. Import... > Espressif > Existing IDF Project
 * Deleted C/C++ build envrionment variables still appearing?
 > Uncheck Eclipse Oomph Preference Recorder. Which can be performed by following. Eclipse Preferences >Oomph > Setup Tasks > Preference Recorder > Uncheck "Record into".
+* "Unresolved inclusion" errors in the editor
+> You need to select the esp "Launch Target" before you trigger the build so that CDT will correctly identify the toolchain to build and index the sources. Check "Configure Launch Target" for more details.
