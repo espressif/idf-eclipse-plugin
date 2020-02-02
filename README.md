@@ -95,7 +95,7 @@ ESP-IDF Directory selection dialog:
 
 <a name="ConfigureLaunchTarget"></a>
 # Configuring Launch target
-Next, we need to tell CDT to use the toolchain for our project. This is accomplished through the Launch Bar, the new widget set you see on the far left of the toolbar. And this will be shown only when you have a project in the project explorer.
+Next, we need to tell CDT to use the toolchain for our project so that all the headers will be indexed and resolved. This is accomplished through the Launch Bar, the new widget set you see on the far left of the toolbar. And this will be shown only when you have a project in the project explorer.
 
 * Click on the third dropdown 
 * Select `New Launch Target`
