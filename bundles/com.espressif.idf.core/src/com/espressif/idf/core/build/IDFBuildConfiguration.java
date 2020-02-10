@@ -67,6 +67,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
+import org.eclipse.osgi.service.environment.Constants;
 
 import com.espressif.idf.core.IDFConstants;
 import com.google.gson.Gson;
@@ -91,7 +92,8 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 	private ScannerInfoCache scannerInfoCache;
 	private String name;
 	private IToolChain toolchain;
-
+	
+	
 	public IDFBuildConfiguration(IBuildConfiguration config, String name) throws CoreException
 	{
 		super(config, name);
@@ -362,59 +364,70 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 		}
 	}
 
-	private List<String> stripArgs(String argString)
-	{
+	private List<String> stripArgs(String argString) {
 		String[] args = CommandLineUtil.argumentsToArray(argString);
 		return new ArrayList<>(Arrays.asList(args));
 	}
-
+	
 	private static final String NEED_REFRESH = "cdt.needScannerRefresh"; //$NON-NLS-1$
 	private boolean infoChanged = false;
 
+	private static boolean isWindows() {
+		boolean osWin;
+		try {
+			osWin = Platform.getOS().equals(Constants.OS_WIN32);
+		} catch (Exception e) {
+			osWin = false;
+		}
+		return osWin;
+	}
+	
 	/**
 	 * Process a compile line for Scanner info in a separate job
 	 *
-	 * @param line      - line to process
+	 * @param line - line to process
 	 * @param jobsArray - array of Jobs to keep track of open scanner info jobs
 	 * @return - true if line processed, false otherwise
 	 *
 	 * @since 6.5
 	 */
 	@Override
-	public boolean processLine(String line, List<Job> jobsArray)
-	{
+	public boolean processLine(String line, List<Job> jobsArray) {
 		// Split line into args, taking into account quotes
 		List<String> command = stripArgs(line);
-
+		
+		if (isWindows())
+		{
+			List<String> newcmds = new ArrayList<String>();
+			for (String cmd : command) {
+				String expandedCmd =  expandShortFileName(cmd);
+				newcmds.add(expandedCmd);
+			}
+			command.clear();
+			command = newcmds;
+		}
+		
 		String[] compileCommands = toolchain.getCompileCommands();
 		boolean found = false;
-		loop: for (String arg : command)
-		{
-			// arg = expandShortFileName(arg);
+		loop: for (String arg : command) {
 			// TODO we should really ask the toolchain, not all args start with '-'
-			if (arg.startsWith("-")) //$NON-NLS-1$
-			{
+			if (arg.startsWith("-")) { //$NON-NLS-1$
 				// option found, missed our command
 				return false;
 			}
 
-			for (String cc : compileCommands)
-			{
-				if (arg.endsWith(cc) && (arg.equals(cc) || arg.endsWith("/" + cc) || arg.endsWith("\\" + cc))) //$NON-NLS-1$ //$NON-NLS-2$
-				{
+			for (String cc : compileCommands) {
+				if (arg.endsWith(cc) && (arg.equals(cc) || arg.endsWith("/" + cc) || arg.endsWith("\\" + cc))) { //$NON-NLS-1$ //$NON-NLS-2$
 					found = true;
 					break loop;
 				}
 			}
 
-			if (Platform.getOS().equals("win32") && !arg.endsWith(".exe")) //$NON-NLS-1$
-			{
+			if (Platform.getOS().equals("win32") && !arg.endsWith(".exe")) { //$NON-NLS-1$
 				// Try with exe
 				arg = arg + ".exe"; //$NON-NLS-1$
-				for (String cc : compileCommands)
-				{
-					if (arg.endsWith(cc) && (arg.equals(cc) || arg.endsWith("/" + cc) || arg.endsWith("\\" + cc))) //$NON-NLS-1$ //$NON-NLS-2$
-					{
+				for (String cc : compileCommands) {
+					if (arg.endsWith(cc) && (arg.equals(cc) || arg.endsWith("/" + cc) || arg.endsWith("\\" + cc))) { //$NON-NLS-1$ //$NON-NLS-2$
 						found = true;
 						break loop;
 					}
@@ -422,60 +435,47 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 			}
 		}
 
-		if (!found)
-		{
+		if (!found) {
 			return false;
 		}
 
-		try
-		{
+		try {
 			IResource[] resources = toolchain.getResourcesFromCommand(command, getBuildDirectoryURI());
-			if (resources != null && resources.length > 0)
-			{
+			if (resources != null && resources.length > 0) {
 				List<String> commandStrings = toolchain.stripCommand(command, resources);
 
 				boolean needScannerRefresh = false;
 
-				if (toolchain instanceof IToolChain2)
-				{
+				if (toolchain instanceof IToolChain2) {
 					String needRefresh = toolchain.getProperty(NEED_REFRESH);
-					if ("true".equals(needRefresh)) //$NON-NLS-1$
-					{
+					if ("true".equals(needRefresh)) { //$NON-NLS-1$
 						needScannerRefresh = true;
 					}
 				}
 
-				for (IResource resource : resources)
-				{
+				for (IResource resource : resources) {
 					loadScannerInfoCache();
 					boolean hasCommand = true;
-					synchronized (scannerInfoLock)
-					{
-						if (scannerInfoCache.hasCommand(commandStrings))
-						{
+					synchronized (scannerInfoLock) {
+						if (scannerInfoCache.hasCommand(commandStrings)) {
 							IExtendedScannerInfo info = scannerInfoCache.getScannerInfo(commandStrings);
-							if (info.getIncludePaths().length == 0)
-							{
+							if (info.getIncludePaths().length == 0) {
 								needScannerRefresh = true;
 							}
-							if (!scannerInfoCache.hasResource(commandStrings, resource))
-							{
+							if (!scannerInfoCache.hasResource(commandStrings, resource)) {
 								scannerInfoCache.addResource(commandStrings, resource);
 								infoChanged = true;
 							}
-						}
-						else
-						{
+						} else {
 							hasCommand = false;
 						}
 					}
-					if (!hasCommand || needScannerRefresh)
-					{
+					if (!hasCommand || needScannerRefresh) {
 						Path commandPath = findCommand(command.get(0));
-						if (commandPath != null)
-						{
+						if (commandPath != null) {
 							command.set(0, commandPath.toString());
-							Job job = new ScannerInfoJob(String.format("Calculating scanner info for %s", resource),
+							Job job = new ScannerInfoJob(
+									String.format("Calculating scanner info for %s", resource),
 									getToolChain(), command, resource, getBuildDirectoryURI(), commandStrings);
 							job.schedule();
 							jobsArray.add(job);
@@ -483,21 +483,37 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 					}
 				}
 				return true;
-			}
-			else
-			{
+			} else {
 				return false;
 			}
-		}
-		catch (CoreException e)
-		{
+		} catch (CoreException e) {
 			CCorePlugin.log(e);
 			return false;
 		}
 	}
 
-	private class ScannerInfoJob extends Job
-	{
+	public String getExpandedCmdLine(String commandLine) {
+	      String command;
+	      // split at first space character
+	      StringBuilder commandLine2 = new StringBuilder();
+	      int idx = commandLine.indexOf(' ');
+	      if (idx != -1) {
+	        command = commandLine.substring(0, idx);
+	        commandLine2.append(commandLine.substring(idx));
+	      } else {
+	        command = commandLine;
+	      }
+	      // convert to long file name and retry lookup
+	      try {
+	        command = new File(command).getCanonicalPath();
+	        commandLine2.insert(0, command);
+	        return commandLine2.toString();
+	      } catch (IOException e) {
+	    }
+		return command;
+	  }
+
+	private class ScannerInfoJob extends Job {
 		private IToolChain toolchain;
 		private List<String> command;
 		private List<String> commandStrings;
@@ -505,8 +521,7 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 		private URI buildDirectoryURI;
 
 		public ScannerInfoJob(String msg, IToolChain toolchain, List<String> command, IResource resource,
-				URI buildDirectoryURI, List<String> commandStrings)
-		{
+				URI buildDirectoryURI, List<String> commandStrings) {
 			super(msg);
 			this.toolchain = toolchain;
 			this.command = command;
@@ -516,12 +531,10 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 		}
 
 		@Override
-		protected IStatus run(IProgressMonitor monitor)
-		{
+		protected IStatus run(IProgressMonitor monitor) {
 			IExtendedScannerInfo info = toolchain.getScannerInfo(getBuildConfiguration(), command, null, resource,
 					buildDirectoryURI);
-			synchronized (scannerInfoLock)
-			{
+			synchronized (scannerInfoLock) {
 				scannerInfoCache.addScannerInfo(commandStrings, info, resource);
 				infoChanged = true;
 			}
@@ -529,6 +542,32 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 		}
 	}
 
+	
+	private static String expandShortFileName(String commandLine) {
+	    if (commandLine.indexOf('~', 6) == -1) {
+	      // not a short file name
+	      return commandLine;
+	    }
+	    String command;
+	    StringBuilder commandLine2 = new StringBuilder();
+	    // split at first space character
+	    int idx = commandLine.indexOf(' ');
+	    if (idx != -1) {
+	      command = commandLine.substring(0, idx);
+	      commandLine2.append(commandLine.substring(idx));
+	    } else {
+	      command = commandLine;
+	    }
+	    // convert to long file name and retry lookup
+	    try {
+	      command = new File(command).getCanonicalPath();
+	      commandLine2.insert(0, command);
+	      return commandLine2.toString();
+	    } catch (IOException e) {
+	      //
+	    }
+	    return commandLine;
+	  }
 	public void setLaunchTarget(ILaunchTarget target)
 	{
 		this.launchtarget = target;
@@ -595,68 +634,55 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 		}
 		return null;
 	}
-
+	
+	
 	private static final List<String> DEFAULT_COMMAND = new ArrayList<>(0);
-
-	private IExtendedScannerInfo getBaseScannerInfo(IResource resource) throws CoreException
-	{
+	private IExtendedScannerInfo getBaseScannerInfo(IResource resource) throws CoreException {
 		IPath resPath = resource.getFullPath();
 		IIncludeEntry[] includeEntries = CoreModel.getIncludeEntries(resPath);
 		String[] includes = new String[includeEntries.length];
-		for (int i = 0; i < includeEntries.length; ++i)
-		{
+		for (int i = 0; i < includeEntries.length; ++i) {
 			includes[i] = includeEntries[i].getFullIncludePath().toOSString();
 		}
 
 		IIncludeFileEntry[] includeFileEntries = CoreModel.getIncludeFileEntries(resPath);
 		String[] includeFiles = new String[includeFileEntries.length];
-		for (int i = 0; i < includeFiles.length; ++i)
-		{
+		for (int i = 0; i < includeFiles.length; ++i) {
 			includeFiles[i] = includeFileEntries[i].getFullIncludeFilePath().toOSString();
 		}
 
 		IMacroEntry[] macros = CoreModel.getMacroEntries(resPath);
 		Map<String, String> symbolMap = new HashMap<>();
-		for (int i = 0; i < macros.length; ++i)
-		{
+		for (int i = 0; i < macros.length; ++i) {
 			symbolMap.put(macros[i].getMacroName(), macros[i].getMacroValue());
 		}
 
 		IMacroFileEntry[] macroFileEntries = CoreModel.getMacroFileEntries(resPath);
 		String[] macroFiles = new String[macroFileEntries.length];
-		for (int i = 0; i < macroFiles.length; ++i)
-		{
+		for (int i = 0; i < macroFiles.length; ++i) {
 			macroFiles[i] = macroFileEntries[i].getFullMacroFilePath().toOSString();
 		}
 		return new ExtendedScannerInfo(symbolMap, includes, includeFiles, macroFiles);
 	}
-
-	public IScannerInfo getScannerInformation(IResource resource)
-	{
+	
+	public IScannerInfo getScannerInformation(IResource resource) {
 		loadScannerInfoCache();
 		IExtendedScannerInfo info = null;
-		synchronized (scannerInfoLock)
-		{
+		synchronized (scannerInfoLock) {
 			info = scannerInfoCache.getScannerInfo(resource);
 		}
-		if (info == null || info.getIncludePaths().length == 0)
-		{
+		if (info == null || info.getIncludePaths().length == 0) {
 			ICElement celement = CCorePlugin.getDefault().getCoreModel().create(resource);
-			if (celement instanceof ITranslationUnit)
-			{
-				try
-				{
+			if (celement instanceof ITranslationUnit) {
+				try {
 					ITranslationUnit tu = (ITranslationUnit) celement;
 					info = getToolChain().getDefaultScannerInfo(getBuildConfiguration(), getBaseScannerInfo(resource),
 							tu.getLanguage(), getBuildDirectoryURI());
-					synchronized (scannerInfoLock)
-					{
+					synchronized (scannerInfoLock) {
 						scannerInfoCache.addScannerInfo(DEFAULT_COMMAND, info, resource);
 					}
 					saveScannerInfoCache();
-				}
-				catch (CoreException e)
-				{
+				} catch (CoreException e) {
 					CCorePlugin.log(e.getStatus());
 				}
 			}
@@ -664,95 +690,75 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 		return info;
 	}
 
-	protected void loadScannerInfoCache()
-	{
-		synchronized (scannerInfoLock)
-		{
-			if (scannerInfoCache == null)
-			{
+	protected void loadScannerInfoCache() {
+		synchronized (scannerInfoLock) {
+			if (scannerInfoCache == null) {
 				File cacheFile = getScannerInfoCacheFile();
-				if (cacheFile.exists())
-				{
-					try (FileReader reader = new FileReader(cacheFile))
-					{
+				if (cacheFile.exists()) {
+					try (FileReader reader = new FileReader(cacheFile)) {
 						GsonBuilder gsonBuilder = new GsonBuilder();
 						gsonBuilder.registerTypeAdapter(IExtendedScannerInfo.class, new IExtendedScannerInfoCreator());
 						Gson gson = gsonBuilder.create();
 						scannerInfoCache = gson.fromJson(reader, ScannerInfoCache.class);
-					}
-					catch (IOException e)
-					{
+					} catch (IOException e) {
 						CCorePlugin.log(e);
 						scannerInfoCache = new ScannerInfoCache();
 					}
-				}
-				else
-				{
+				} else {
 					scannerInfoCache = new ScannerInfoCache();
 				}
 				scannerInfoCache.initCache();
 			}
 		}
 	}
-
-	private File getScannerInfoCacheFile()
-	{
+	
+	private File getScannerInfoCacheFile() {
 		return CCorePlugin.getDefault().getStateLocation().append("infoCache") //$NON-NLS-1$
 				.append(getProject().getName()).append(name + ".json").toFile(); //$NON-NLS-1$
 	}
-
-	private static class IExtendedScannerInfoCreator implements JsonDeserializer<IExtendedScannerInfo>
-	{
+	
+	private static class IExtendedScannerInfoCreator implements JsonDeserializer<IExtendedScannerInfo> {
 		@Override
 		public IExtendedScannerInfo deserialize(JsonElement element, Type arg1, JsonDeserializationContext arg2)
-				throws JsonParseException
-		{
+				throws JsonParseException {
 			JsonObject infoObj = element.getAsJsonObject();
 
 			Map<String, String> definedSymbols = null;
-			if (infoObj.has("definedSymbols")) //$NON-NLS-1$
-			{
+			if (infoObj.has("definedSymbols")) { //$NON-NLS-1$
 				JsonObject definedSymbolsObj = infoObj.get("definedSymbols").getAsJsonObject(); //$NON-NLS-1$
 				definedSymbols = new HashMap<>();
-				for (Entry<String, JsonElement> entry : definedSymbolsObj.entrySet())
-				{
+				for (Entry<String, JsonElement> entry : definedSymbolsObj.entrySet()) {
 					definedSymbols.put(entry.getKey(), entry.getValue().getAsString());
 				}
 			}
 
 			String[] includePaths = null;
-			if (infoObj.has("includePaths")) //$NON-NLS-1$
-			{
+			if (infoObj.has("includePaths")) { //$NON-NLS-1$
 				JsonArray includePathsArray = infoObj.get("includePaths").getAsJsonArray(); //$NON-NLS-1$
 				List<String> includePathsList = new ArrayList<>(includePathsArray.size());
-				for (Iterator<JsonElement> i = includePathsArray.iterator(); i.hasNext();)
-				{
+				for (Iterator<JsonElement> i = includePathsArray.iterator(); i.hasNext();) {
 					includePathsList.add(i.next().getAsString());
 				}
 				includePaths = includePathsList.toArray(new String[includePathsList.size()]);
 			}
 
 			IncludeExportPatterns includeExportPatterns = null;
-			if (infoObj.has("includeExportPatterns")) //$NON-NLS-1$
-			{
+			if (infoObj.has("includeExportPatterns")) { //$NON-NLS-1$
 				JsonObject includeExportPatternsObj = infoObj.get("includeExportPatterns").getAsJsonObject(); //$NON-NLS-1$
 				String exportPattern = null;
-				if (includeExportPatternsObj.has("includeExportPattern")) //$NON-NLS-1$
-				{
+				if (includeExportPatternsObj.has("includeExportPattern")) { //$NON-NLS-1$
 					exportPattern = includeExportPatternsObj.get("includeExportPattern") //$NON-NLS-1$
 							.getAsJsonObject().get("pattern").getAsString(); //$NON-NLS-1$
 				}
 
 				String beginExportsPattern = null;
-				if (includeExportPatternsObj.has("includeBeginExportPattern")) //$NON-NLS-1$
-				{
+				if (includeExportPatternsObj.has("includeBeginExportPattern")) { //$NON-NLS-1$
 					beginExportsPattern = includeExportPatternsObj.get("includeBeginExportPattern") //$NON-NLS-1$
 							.getAsJsonObject().get("pattern").getAsString(); //$NON-NLS-1$
 				}
 
 				String endExportsPattern = null;
-				if (includeExportPatternsObj.has("includeEndExportPattern")) //$NON-NLS-1$
-				{
+				if (includeExportPatternsObj.has("includeEndExportPattern")) { //$NON-NLS-1$
 					endExportsPattern = includeExportPatternsObj.get("includeEndExportPattern") //$NON-NLS-1$
 							.getAsJsonObject().get("pattern").getAsString(); //$NON-NLS-1$
 				}
@@ -766,6 +772,6 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 			info.setParserSettings(new ParserSettings2());
 			return info;
 		}
-
+		
 	}
 }
