@@ -7,6 +7,7 @@ package com.espressif.idf.core.build;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -39,7 +40,9 @@ import org.eclipse.cdt.core.build.ScannerInfoCache;
 import org.eclipse.cdt.core.envvar.EnvironmentVariable;
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
 import org.eclipse.cdt.core.model.CoreModel;
+import org.eclipse.cdt.core.model.ElementChangedEvent;
 import org.eclipse.cdt.core.model.ICElement;
+import org.eclipse.cdt.core.model.ICElementDelta;
 import org.eclipse.cdt.core.model.ICModelMarker;
 import org.eclipse.cdt.core.model.IIncludeEntry;
 import org.eclipse.cdt.core.model.IIncludeFileEntry;
@@ -81,6 +84,8 @@ import com.google.gson.JsonParseException;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ * 
+ * All the processLine() dependent methods will be removed once the CDT indexing issue is fixed.
  *
  */
 @SuppressWarnings("restriction")
@@ -92,6 +97,7 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 	private ScannerInfoCache scannerInfoCache;
 	private String name;
 	private IToolChain toolchain;
+	private static final List<String> DEFAULT_COMMAND = new ArrayList<>(0);
 	
 	
 	public IDFBuildConfiguration(IBuildConfiguration config, String name) throws CoreException
@@ -304,6 +310,7 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 						epm.getWarningCount(), buildDir.toString()));
 			}
 
+			//This is specifically added to trigger the indexing sine in Windows OS it doesn't seem to happen!
 			refreshScannerInfo();
 			return new IProject[] { project };
 		}
@@ -370,7 +377,6 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 	}
 	
 	private static final String NEED_REFRESH = "cdt.needScannerRefresh"; //$NON-NLS-1$
-	private boolean infoChanged = false;
 
 	private static boolean isWindows() {
 		boolean osWin;
@@ -492,57 +498,6 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 		}
 	}
 
-	public String getExpandedCmdLine(String commandLine) {
-	      String command;
-	      // split at first space character
-	      StringBuilder commandLine2 = new StringBuilder();
-	      int idx = commandLine.indexOf(' ');
-	      if (idx != -1) {
-	        command = commandLine.substring(0, idx);
-	        commandLine2.append(commandLine.substring(idx));
-	      } else {
-	        command = commandLine;
-	      }
-	      // convert to long file name and retry lookup
-	      try {
-	        command = new File(command).getCanonicalPath();
-	        commandLine2.insert(0, command);
-	        return commandLine2.toString();
-	      } catch (IOException e) {
-	    }
-		return command;
-	  }
-
-	private class ScannerInfoJob extends Job {
-		private IToolChain toolchain;
-		private List<String> command;
-		private List<String> commandStrings;
-		private IResource resource;
-		private URI buildDirectoryURI;
-
-		public ScannerInfoJob(String msg, IToolChain toolchain, List<String> command, IResource resource,
-				URI buildDirectoryURI, List<String> commandStrings) {
-			super(msg);
-			this.toolchain = toolchain;
-			this.command = command;
-			this.commandStrings = commandStrings;
-			this.resource = resource;
-			this.buildDirectoryURI = buildDirectoryURI;
-		}
-
-		@Override
-		protected IStatus run(IProgressMonitor monitor) {
-			IExtendedScannerInfo info = toolchain.getScannerInfo(getBuildConfiguration(), command, null, resource,
-					buildDirectoryURI);
-			synchronized (scannerInfoLock) {
-				scannerInfoCache.addScannerInfo(commandStrings, info, resource);
-				infoChanged = true;
-			}
-			return Status.OK_STATUS;
-		}
-	}
-
-	
 	private static String expandShortFileName(String commandLine) {
 	    if (commandLine.indexOf('~', 6) == -1) {
 	      // not a short file name
@@ -636,87 +591,11 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 	}
 	
 	
-	private static final List<String> DEFAULT_COMMAND = new ArrayList<>(0);
-	private IExtendedScannerInfo getBaseScannerInfo(IResource resource) throws CoreException {
-		IPath resPath = resource.getFullPath();
-		IIncludeEntry[] includeEntries = CoreModel.getIncludeEntries(resPath);
-		String[] includes = new String[includeEntries.length];
-		for (int i = 0; i < includeEntries.length; ++i) {
-			includes[i] = includeEntries[i].getFullIncludePath().toOSString();
-		}
-
-		IIncludeFileEntry[] includeFileEntries = CoreModel.getIncludeFileEntries(resPath);
-		String[] includeFiles = new String[includeFileEntries.length];
-		for (int i = 0; i < includeFiles.length; ++i) {
-			includeFiles[i] = includeFileEntries[i].getFullIncludeFilePath().toOSString();
-		}
-
-		IMacroEntry[] macros = CoreModel.getMacroEntries(resPath);
-		Map<String, String> symbolMap = new HashMap<>();
-		for (int i = 0; i < macros.length; ++i) {
-			symbolMap.put(macros[i].getMacroName(), macros[i].getMacroValue());
-		}
-
-		IMacroFileEntry[] macroFileEntries = CoreModel.getMacroFileEntries(resPath);
-		String[] macroFiles = new String[macroFileEntries.length];
-		for (int i = 0; i < macroFiles.length; ++i) {
-			macroFiles[i] = macroFileEntries[i].getFullMacroFilePath().toOSString();
-		}
-		return new ExtendedScannerInfo(symbolMap, includes, includeFiles, macroFiles);
-	}
-	
-	public IScannerInfo getScannerInformation(IResource resource) {
-		loadScannerInfoCache();
-		IExtendedScannerInfo info = null;
-		synchronized (scannerInfoLock) {
-			info = scannerInfoCache.getScannerInfo(resource);
-		}
-		if (info == null || info.getIncludePaths().length == 0) {
-			ICElement celement = CCorePlugin.getDefault().getCoreModel().create(resource);
-			if (celement instanceof ITranslationUnit) {
-				try {
-					ITranslationUnit tu = (ITranslationUnit) celement;
-					info = getToolChain().getDefaultScannerInfo(getBuildConfiguration(), getBaseScannerInfo(resource),
-							tu.getLanguage(), getBuildDirectoryURI());
-					synchronized (scannerInfoLock) {
-						scannerInfoCache.addScannerInfo(DEFAULT_COMMAND, info, resource);
-					}
-					saveScannerInfoCache();
-				} catch (CoreException e) {
-					CCorePlugin.log(e.getStatus());
-				}
-			}
-		}
-		return info;
-	}
-
-	protected void loadScannerInfoCache() {
-		synchronized (scannerInfoLock) {
-			if (scannerInfoCache == null) {
-				File cacheFile = getScannerInfoCacheFile();
-				if (cacheFile.exists()) {
-					try (FileReader reader = new FileReader(cacheFile)) {
-						GsonBuilder gsonBuilder = new GsonBuilder();
-						gsonBuilder.registerTypeAdapter(IExtendedScannerInfo.class, new IExtendedScannerInfoCreator());
-						Gson gson = gsonBuilder.create();
-						scannerInfoCache = gson.fromJson(reader, ScannerInfoCache.class);
-					} catch (IOException e) {
-						CCorePlugin.log(e);
-						scannerInfoCache = new ScannerInfoCache();
-					}
-				} else {
-					scannerInfoCache = new ScannerInfoCache();
-				}
-				scannerInfoCache.initCache();
-			}
-		}
-	}
-	
 	private File getScannerInfoCacheFile() {
 		return CCorePlugin.getDefault().getStateLocation().append("infoCache") //$NON-NLS-1$
 				.append(getProject().getName()).append(name + ".json").toFile(); //$NON-NLS-1$
 	}
-	
+
 	private static class IExtendedScannerInfoCreator implements JsonDeserializer<IExtendedScannerInfo> {
 		@Override
 		public IExtendedScannerInfo deserialize(JsonElement element, Type arg1, JsonDeserializationContext arg2)
@@ -772,6 +651,208 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 			info.setParserSettings(new ParserSettings2());
 			return info;
 		}
-		
 	}
+
+	/**
+	 * @since 6.1
+	 */
+	protected void loadScannerInfoCache() {
+		synchronized (scannerInfoLock) {
+			if (scannerInfoCache == null) {
+				File cacheFile = getScannerInfoCacheFile();
+				if (cacheFile.exists()) {
+					try (FileReader reader = new FileReader(cacheFile)) {
+						GsonBuilder gsonBuilder = new GsonBuilder();
+						gsonBuilder.registerTypeAdapter(IExtendedScannerInfo.class, new IExtendedScannerInfoCreator());
+						Gson gson = gsonBuilder.create();
+						scannerInfoCache = gson.fromJson(reader, ScannerInfoCache.class);
+					} catch (IOException e) {
+						CCorePlugin.log(e);
+						scannerInfoCache = new ScannerInfoCache();
+					}
+				} else {
+					scannerInfoCache = new ScannerInfoCache();
+				}
+				scannerInfoCache.initCache();
+			}
+		}
+	}
+
+	/**
+	 * @since 6.1
+	 */
+	protected synchronized void saveScannerInfoCache() {
+		File cacheFile = getScannerInfoCacheFile();
+		if (!cacheFile.getParentFile().exists()) {
+			try {
+				Files.createDirectories(cacheFile.getParentFile().toPath());
+			} catch (IOException e) {
+				CCorePlugin.log(e);
+				return;
+			}
+		}
+
+		try (FileWriter writer = new FileWriter(getScannerInfoCacheFile())) {
+			Gson gson = new Gson();
+			synchronized (scannerInfoLock) {
+				gson.toJson(scannerInfoCache, writer);
+			}
+		} catch (IOException e) {
+			CCorePlugin.log(e);
+		}
+	}
+
+	/**
+	 * @since 6.1
+	 */
+	protected ScannerInfoCache getScannerInfoCache() {
+		return scannerInfoCache;
+	}
+
+	private IExtendedScannerInfo getBaseScannerInfo(IResource resource) throws CoreException {
+		IPath resPath = resource.getFullPath();
+		IIncludeEntry[] includeEntries = CoreModel.getIncludeEntries(resPath);
+		String[] includes = new String[includeEntries.length];
+		for (int i = 0; i < includeEntries.length; ++i) {
+			includes[i] = includeEntries[i].getFullIncludePath().toOSString();
+		}
+
+		IIncludeFileEntry[] includeFileEntries = CoreModel.getIncludeFileEntries(resPath);
+		String[] includeFiles = new String[includeFileEntries.length];
+		for (int i = 0; i < includeFiles.length; ++i) {
+			includeFiles[i] = includeFileEntries[i].getFullIncludeFilePath().toOSString();
+		}
+
+		IMacroEntry[] macros = CoreModel.getMacroEntries(resPath);
+		Map<String, String> symbolMap = new HashMap<>();
+		for (int i = 0; i < macros.length; ++i) {
+			symbolMap.put(macros[i].getMacroName(), macros[i].getMacroValue());
+		}
+
+		IMacroFileEntry[] macroFileEntries = CoreModel.getMacroFileEntries(resPath);
+		String[] macroFiles = new String[macroFileEntries.length];
+		for (int i = 0; i < macroFiles.length; ++i) {
+			macroFiles[i] = macroFileEntries[i].getFullMacroFilePath().toOSString();
+		}
+		return new ExtendedScannerInfo(symbolMap, includes, includeFiles, macroFiles);
+	}
+
+	@Override
+	public IScannerInfo getScannerInformation(IResource resource) {
+		loadScannerInfoCache();
+		IExtendedScannerInfo info = null;
+		synchronized (scannerInfoLock) {
+			info = scannerInfoCache.getScannerInfo(resource);
+		}
+		if (info == null || info.getIncludePaths().length == 0) {
+			ICElement celement = CCorePlugin.getDefault().getCoreModel().create(resource);
+			if (celement instanceof ITranslationUnit) {
+				try {
+					ITranslationUnit tu = (ITranslationUnit) celement;
+					info = getToolChain().getDefaultScannerInfo(getBuildConfiguration(), getBaseScannerInfo(resource),
+							tu.getLanguage(), getBuildDirectoryURI());
+					synchronized (scannerInfoLock) {
+						scannerInfoCache.addScannerInfo(DEFAULT_COMMAND, info, resource);
+					}
+					saveScannerInfoCache();
+				} catch (CoreException e) {
+					CCorePlugin.log(e.getStatus());
+				}
+			}
+		}
+		return info;
+	}
+
+	@Override
+	public void elementChanged(ElementChangedEvent event) {
+		// check if the path entries changed in the project and clear the cache if so
+		processElementDelta(event.getDelta());
+	}
+
+	private void processElementDelta(ICElementDelta delta) {
+		if (delta == null) {
+			return;
+		}
+
+		int flags = delta.getFlags();
+		int kind = delta.getKind();
+		if (kind == ICElementDelta.CHANGED) {
+			if ((flags
+					& (ICElementDelta.F_CHANGED_PATHENTRY_INCLUDE | ICElementDelta.F_CHANGED_PATHENTRY_MACRO)) != 0) {
+				IResource resource = delta.getElement().getResource();
+				if (resource.getProject().equals(getProject())) {
+					loadScannerInfoCache();
+					synchronized (scannerInfoLock) {
+						if (scannerInfoCache.hasResource(DEFAULT_COMMAND, resource)) {
+							scannerInfoCache.removeResource(resource);
+						} else {
+							// Clear the whole command and exit the delta
+							scannerInfoCache.removeCommand(DEFAULT_COMMAND);
+							return;
+						}
+					}
+				}
+			}
+		}
+
+		ICElementDelta[] affectedChildren = delta.getAffectedChildren();
+		for (int i = 0; i < affectedChildren.length; i++) {
+			processElementDelta(affectedChildren[i]);
+		}
+	}
+
+	private boolean infoChanged = false;
+
+	private class ScannerInfoJob extends Job {
+		private IToolChain toolchain;
+		private List<String> command;
+		private List<String> commandStrings;
+		private IResource resource;
+		private URI buildDirectoryURI;
+
+		public ScannerInfoJob(String msg, IToolChain toolchain, List<String> command, IResource resource,
+				URI buildDirectoryURI, List<String> commandStrings) {
+			super(msg);
+			this.toolchain = toolchain;
+			this.command = command;
+			this.commandStrings = commandStrings;
+			this.resource = resource;
+			this.buildDirectoryURI = buildDirectoryURI;
+		}
+
+		@Override
+		protected IStatus run(IProgressMonitor monitor) {
+			IExtendedScannerInfo info = toolchain.getScannerInfo(getBuildConfiguration(), command, null, resource,
+					buildDirectoryURI);
+			synchronized (scannerInfoLock) {
+				scannerInfoCache.addScannerInfo(commandStrings, info, resource);
+				infoChanged = true;
+			}
+			return Status.OK_STATUS;
+		}
+	}
+
+	/**
+	 * @since 6.5
+	 * @throws CoreException
+	 */
+	protected void refreshScannerInfo() throws CoreException {
+		CCorePlugin.getIndexManager().reindex(CoreModel.getDefault().create(getProject()));
+		infoChanged = false;
+	}
+
+	@Override
+	public void shutdown() {
+		// TODO persist changes
+
+		// Trigger a reindex if anything changed
+		// TODO be more surgical
+		if (infoChanged) {
+			saveScannerInfoCache();
+			CCorePlugin.getIndexManager().reindex(CoreModel.getDefault().create(getProject()));
+			infoChanged = false;
+		}
+	}
+	
+	
 }
