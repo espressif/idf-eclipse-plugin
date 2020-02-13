@@ -73,6 +73,7 @@ import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.osgi.service.environment.Constants;
 
 import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.core.logging.Logger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -416,6 +417,15 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 			}
 			command.clear();
 			command = newcmds;
+		}
+		
+		try
+		{
+			this.toolchain = getToolChain();
+		}
+		catch (CoreException e1)
+		{
+			Logger.log(e1);
 		}
 		
 		String[] compileCommands = toolchain.getCompileCommands();
