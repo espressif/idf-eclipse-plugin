@@ -665,7 +665,7 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 		synchronized (scannerInfoLock) {
 			if (scannerInfoCache == null) {
 				File cacheFile = getScannerInfoCacheFile();
-				if (cacheFile.exists()) {
+				if (cacheFile != null && cacheFile.exists()) {
 					try (FileReader reader = new FileReader(cacheFile)) {
 						GsonBuilder gsonBuilder = new GsonBuilder();
 						gsonBuilder.registerTypeAdapter(IExtendedScannerInfo.class, new IExtendedScannerInfoCreator());
