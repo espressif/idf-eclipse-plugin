@@ -16,6 +16,8 @@
 package com.espressif.idf.launch.serial.ui.internal;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.cdt.serial.SerialPort;
 import org.eclipse.core.runtime.IStatus;
@@ -68,11 +70,24 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 		label = new Label(comp, SWT.NONE);
 		label.setText(Messages.NewSerialFlashTargetWizardPage_IDFTarget);
 
-		idfTargetCombo = new Combo(comp, SWT.READ_ONLY);
-		idfTargetCombo.setItems(getIDFTargetList());
+		idfTargetCombo = new Combo(comp, SWT.NONE);
+		List<String> idfTargetList = getIDFTargetList();
+		idfTargetCombo.setItems(idfTargetList.toArray(new String[idfTargetList.size()]));
 		idfTargetCombo.setToolTipText(Messages.NewSerialFlashTargetWizardPage_IDFTargetToolTipMsg);
 		if (idfTargetCombo.getItemCount() > 0 && idfTargetCombo.getSelectionIndex() < 0) {
 			idfTargetCombo.select(0);
+		}
+
+		if (launchTarget != null) {
+			String idfTarget = launchTarget.getAttribute(SerialFlashLaunchTargetProvider.ATTR_IDF_TARGET, null);
+			if (idfTarget != null) {
+				int index = idfTargetList.indexOf(idfTarget);
+				if (index != -1) {
+					idfTargetCombo.select(index);
+				} else {
+					idfTargetCombo.setText(idfTarget);
+				}
+			}
 		}
 
 		label = new Label(comp, SWT.NONE);
@@ -115,6 +130,16 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 	}
 
 	public String getOS() {
+		return getModel();
+	}
+
+	private String getModel() {
+		String idfTarget = getIDFTarget();
+		List<String> idfTargetList = getIDFTargetList();
+		int index = idfTargetList.indexOf(idfTarget);
+		if (index != -1) {
+			return idfTarget;
+		}
 		return OS;
 	}
 
@@ -130,9 +155,13 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 		return serialPortCombo.getText();
 	}
 
-	private String[] getIDFTargetList() {
-		//Going forward we can support esp32s2 in the list
-		return new String[] { "esp32" }; //$NON-NLS-1$
-	}
+	//TODO: Going forward we can read targets from the tools.json schema
+	private List<String> getIDFTargetList() {
+		List<String> targetList = new ArrayList<>();
+		targetList.add("esp32"); //$NON-NLS-1$
+		targetList.add("esp32s2"); //$NON-NLS-1$
 
+		return targetList;
+
+	}
 }
