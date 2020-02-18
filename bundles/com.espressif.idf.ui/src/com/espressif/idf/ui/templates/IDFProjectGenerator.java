@@ -18,6 +18,7 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.osgi.framework.Bundle;
 
 import com.espressif.idf.core.IDFProjectNature;
@@ -34,11 +35,13 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 {
 
 	private File sourceTemplatePath;
+	private boolean copyIntoWorkspace;
 
-	public IDFProjectGenerator(String manifestFile, File source)
+	public IDFProjectGenerator(String manifestFile, File source, boolean copyIntoWorkspace)
 	{
 		super(manifestFile);
 		this.sourceTemplatePath = source;
+		this.copyIntoWorkspace = copyIntoWorkspace;
 	}
 
 	@Override
@@ -49,6 +52,10 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 		ICommand command = description.newCommand();
 		CBuilder.setupBuilder(command);
 		description.setBuildSpec(new ICommand[] { command });
+		if (!copyIntoWorkspace)
+		{
+			description.setLocation(new Path(sourceTemplatePath.getAbsolutePath()));
+		}
 	}
 
 	@Override
@@ -64,14 +71,17 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 		// Target project
 		IProject project = getProject();
 
-		// copy IDF template resources
-		try
+		if (copyIntoWorkspace)
 		{
-			copyIDFTemplateToWorkspace(project.getName(), sourceTemplatePath, project);
-		}
-		catch (IOException e)
-		{
-			Logger.log(e);
+			// copy IDF template resources
+			try
+			{
+				copyIDFTemplateToWorkspace(project.getName(), sourceTemplatePath, project);
+			}
+			catch (IOException e)
+			{
+				Logger.log(e);
+			}
 		}
 
 		// refresh to see the copied resources in the project explorer

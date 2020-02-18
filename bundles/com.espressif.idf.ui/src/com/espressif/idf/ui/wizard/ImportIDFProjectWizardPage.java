@@ -28,6 +28,7 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -46,20 +47,23 @@ import org.eclipse.ui.progress.WorkbenchJob;
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
-public class ImportIDFProjectWizardPage extends WizardPage {
+public class ImportIDFProjectWizardPage extends WizardPage
+{
 
 	private Text projectName;
 	private Text location;
 	private IWorkspaceRoot root;
 
 	/**
-	 * True if the user entered a non-empty string in the project name field. In that state, we avoid
-	 * automatically filling the project name field with the directory name (last segment of the location) he
-	 * has entered.
+	 * True if the user entered a non-empty string in the project name field. In that state, we avoid automatically
+	 * filling the project name field with the directory name (last segment of the location) he has entered.
 	 */
 	boolean projectNameSetByUser;
+	private Button copyCheckbox;
+	private boolean copyProject;
 
-	protected ImportIDFProjectWizardPage() {
+	protected ImportIDFProjectWizardPage()
+	{
 		super(Messages.ImportIDFProjectWizardPage_0);
 		setTitle(Messages.ImportIDFProjectWizardPage_1);
 		setDescription(Messages.ImportIDFProjectWizardPage_2);
@@ -68,7 +72,8 @@ public class ImportIDFProjectWizardPage extends WizardPage {
 	}
 
 	@Override
-	public void createControl(Composite parent) {
+	public void createControl(Composite parent)
+	{
 		Composite comp = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		comp.setLayout(layout);
@@ -77,9 +82,27 @@ public class ImportIDFProjectWizardPage extends WizardPage {
 		addProjectNameSelector(comp);
 		addSourceSelector(comp);
 		setControl(comp);
+		createOptions(comp);
 	}
 
-	public void addProjectNameSelector(Composite parent) {
+	public void createOptions(Composite comp)
+	{
+		copyCheckbox = new Button(comp, SWT.CHECK);
+		copyCheckbox.setText(Messages.ImportIDFProjectWizardPage_CopyIntoWorkspace);
+		copyCheckbox.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		copyCheckbox.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				copyProject = copyCheckbox.getSelection();
+			}
+		});
+
+	}
+
+	public void addProjectNameSelector(Composite parent)
+	{
 		Group group = new Group(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
@@ -89,11 +112,14 @@ public class ImportIDFProjectWizardPage extends WizardPage {
 
 		projectName = new Text(group, SWT.BORDER);
 		projectName.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		projectName.addModifyListener(new ModifyListener() {
+		projectName.addModifyListener(new ModifyListener()
+		{
 			@Override
-			public void modifyText(ModifyEvent e) {
+			public void modifyText(ModifyEvent e)
+			{
 				validatePage();
-				if (getProjectName().isEmpty()) {
+				if (getProjectName().isEmpty())
+				{
 					projectNameSetByUser = false;
 				}
 			}
@@ -101,9 +127,11 @@ public class ImportIDFProjectWizardPage extends WizardPage {
 
 		// Note that the modify listener gets called not only when the user enters text but also when we
 		// programatically set the field. This listener only gets called when the user modifies the field
-		projectName.addKeyListener(new KeyAdapter() {
+		projectName.addKeyListener(new KeyAdapter()
+		{
 			@Override
-			public void keyPressed(KeyEvent e) {
+			public void keyPressed(KeyEvent e)
+			{
 				projectNameSetByUser = true;
 			}
 		});
@@ -113,44 +141,61 @@ public class ImportIDFProjectWizardPage extends WizardPage {
 	 * Validates the contents of the page, setting the page error message and Finish button state accordingly
 	 *
 	 */
-	protected void validatePage() {
+	protected void validatePage()
+	{
 		// Don't generate an error if project name or location is empty, but do disable Finish button.
 		String msg = null;
 		boolean complete = true; // ultimately treated as false if msg != null
 
 		String name = getProjectName();
-		if (name.isEmpty()) {
+		if (name.isEmpty())
+		{
 			complete = false;
-		} else {
+		}
+		else
+		{
 			IStatus status = ResourcesPlugin.getWorkspace().validateName(name, IResource.PROJECT);
-			if (!status.isOK()) {
+			if (!status.isOK())
+			{
 				msg = status.getMessage();
-			} else {
+			}
+			else
+			{
 				IProject project = root.getProject(name);
-				if (project.exists()) {
+				if (project.exists())
+				{
 					msg = Messages.ImportIDFProjectWizardPage_4;
 
 				}
 			}
 		}
-		if (msg == null) {
+		if (msg == null)
+		{
 			String loc = getLocation();
-			if (loc.isEmpty()) {
+			if (loc.isEmpty())
+			{
 				complete = false;
-			} else {
+			}
+			else
+			{
 				final File file = new File(loc);
-				if (file.isDirectory()) {
+				if (file.isDirectory())
+				{
 					// Ensure we can create files in the directory.
 					if (!file.canWrite())
 						msg = Messages.ImportIDFProjectWizardPage_5;
 					// Set the project name to the directory name but not if the user has supplied a name
 					// (bugzilla 368987). Use a job to ensure proper sequence of activity, as setting the Text
 					// will invoke the listener, which will invoke this method.
-					else if (!projectNameSetByUser && !name.equals(file.getName())) {
-						WorkbenchJob wjob = new WorkbenchJob("update project name") { //$NON-NLS-1$
+					else if (!projectNameSetByUser && !name.equals(file.getName()))
+					{
+						WorkbenchJob wjob = new WorkbenchJob("update project name") //$NON-NLS-1$
+						{
 							@Override
-							public IStatus runInUIThread(IProgressMonitor monitor) {
-								if (!projectName.isDisposed()) {
+							public IStatus runInUIThread(IProgressMonitor monitor)
+							{
+								if (!projectName.isDisposed())
+								{
 									projectName.setText(file.getName());
 								}
 								return Status.OK_STATUS;
@@ -159,7 +204,9 @@ public class ImportIDFProjectWizardPage extends WizardPage {
 						wjob.setSystem(true);
 						wjob.schedule();
 					}
-				} else {
+				}
+				else
+				{
 					msg = Messages.ImportIDFProjectWizardPage_6;
 				}
 			}
@@ -171,11 +218,13 @@ public class ImportIDFProjectWizardPage extends WizardPage {
 
 	/** @deprecated Replaced by {@link #validatePage()} */
 	@Deprecated
-	public void validateProjectName() {
+	public void validateProjectName()
+	{
 		validatePage();
 	}
 
-	public void addSourceSelector(Composite parent) {
+	public void addSourceSelector(Composite parent)
+	{
 		Group group = new Group(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
@@ -185,9 +234,11 @@ public class ImportIDFProjectWizardPage extends WizardPage {
 
 		location = new Text(group, SWT.BORDER);
 		location.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		location.addModifyListener(new ModifyListener() {
+		location.addModifyListener(new ModifyListener()
+		{
 			@Override
-			public void modifyText(ModifyEvent e) {
+			public void modifyText(ModifyEvent e)
+			{
 				validatePage();
 			}
 		});
@@ -196,9 +247,11 @@ public class ImportIDFProjectWizardPage extends WizardPage {
 		Button browse = new Button(group, SWT.NONE);
 		browse.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true));
 		browse.setText(Messages.ImportIDFProjectWizardPage_8);
-		browse.addSelectionListener(new SelectionListener() {
+		browse.addSelectionListener(new SelectionListener()
+		{
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(SelectionEvent e)
+			{
 				DirectoryDialog dialog = new DirectoryDialog(location.getShell());
 				dialog.setMessage(Messages.ImportIDFProjectWizardPage_9);
 				String dir = dialog.open();
@@ -207,23 +260,32 @@ public class ImportIDFProjectWizardPage extends WizardPage {
 			}
 
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
+			public void widgetDefaultSelected(SelectionEvent e)
+			{
 			}
 		});
 	}
 
 	/** @deprecated Replaced by {@link #validatePage()} */
 	@Deprecated
-	void validateSource() {
+	void validateSource()
+	{
 		validatePage();
 	}
-	
-	public String getProjectName() {
+
+	public String getProjectName()
+	{
 		return projectName.getText().trim();
 	}
 
-	public String getLocation() {
+	public String getLocation()
+	{
 		return location.getText().trim();
+	}
+
+	public boolean canCopyIntoWorkspace()
+	{
+		return copyProject;
 	}
 
 }

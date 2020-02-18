@@ -97,7 +97,7 @@ public class NewIDFProjectWizard extends TemplateWizard
 			manifest = null;
 		}
 
-		IDFProjectGenerator generator = new IDFProjectGenerator(manifest, selectedTemplate);
+		IDFProjectGenerator generator = new IDFProjectGenerator(manifest, selectedTemplate, true);
 		generator.setProjectName(mainPage.getProjectName());
 		if (!mainPage.useDefaults())
 		{
