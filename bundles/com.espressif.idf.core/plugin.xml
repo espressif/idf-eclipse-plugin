@@ -23,6 +23,9 @@
      <provider
            class="com.espressif.idf.core.build.ESPCMakeToolChainProvider">
      </provider>
+     <provider
+           class="com.espressif.idf.core.build.ESP32S2CMakeToolChainProvider">
+     </provider>
   </extension>
   <extension
         point="org.eclipse.cdt.core.toolChainProvider">
