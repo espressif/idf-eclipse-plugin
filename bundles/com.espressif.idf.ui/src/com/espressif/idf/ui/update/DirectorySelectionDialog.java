@@ -73,6 +73,7 @@ public class DirectorySelectionDialog extends Dialog
 		data.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
 		text.setLayoutData(data);
 		text.setText(idfDirPath != null ? idfDirPath : StringUtil.EMPTY);
+		text.setMessage("/Users/esp/esp-idf"); //$NON-NLS-1$
 
 		Button button = new Button(composite, SWT.PUSH);
 		button.setText(Messages.DirectorySelectionDialog_Browse);
@@ -101,6 +102,7 @@ public class DirectorySelectionDialog extends Dialog
 		data.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
 		gitLocationtext.setLayoutData(data);
 		gitLocationtext.setText(gitPath != null ? gitPath : StringUtil.EMPTY);
+		gitLocationtext.setMessage("/usr/local/bin/git"); //$NON-NLS-1$
 
 		Button gitBrowseBtn = new Button(composite, SWT.PUSH);
 		gitBrowseBtn.setText(Messages.DirectorySelectionDialog_Browse);
@@ -144,6 +146,7 @@ public class DirectorySelectionDialog extends Dialog
 			data.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
 			pythonLocationtext.setLayoutData(data);
 			pythonLocationtext.setText(pythonExecutablePath != null ? pythonExecutablePath : StringUtil.EMPTY);
+			pythonLocationtext.setMessage("/../bin/python"); //$NON-NLS-1$
 
 			Button pyBrowseBtn = new Button(composite, SWT.PUSH);
 			pyBrowseBtn.setText(Messages.DirectorySelectionDialog_Browse);
