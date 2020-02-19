@@ -19,7 +19,7 @@ public class ESPToolChainProvider implements IToolChainProvider
 {
 
 	public static final String ID = "com.espressif.idf.core.esp.toolchainprovider"; //$NON-NLS-1$
-	public static final Pattern GCC_PATTERN = Pattern.compile("xtensa-esp32-elf-gcc(\\.exe)?"); //$NON-NLS-1$
+	public static final Pattern GCC_PATTERN = Pattern.compile("xtensa-esp32(.*)-elf-gcc(\\.exe)?"); //$NON-NLS-1$ xtensa-esp32s2-elf-readelf
 
 	@Override
 	public String getId()

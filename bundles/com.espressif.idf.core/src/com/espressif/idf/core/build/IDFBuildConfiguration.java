@@ -154,7 +154,7 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 
 		try
 		{
-			if (launchtarget == null || !launchtarget.getTypeId().equals("com.espressif.idf.launch.serial.core.serialFlashTarget")) //$NON-NLS-1$
+			if (!launchtarget.getTypeId().equals("com.espressif.idf.launch.serial.core.serialFlashTarget")) //$NON-NLS-1$
 			{
 				console.getErrorStream().write("No esp launch target found. Please create/select the correct 'Launch Target'"); //$NON-NLS-1$
 				return null;
