@@ -49,7 +49,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 	protected MessageConsoleStream console;
 	protected String idfPath;
 	protected String pythonExecutablenPath;
-	private String gitExecutablePath;
+	protected String gitExecutablePath;
 	private Map<String, String> pythonVersions;
 
 	@Override
