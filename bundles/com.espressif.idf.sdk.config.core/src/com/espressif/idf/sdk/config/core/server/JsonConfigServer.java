@@ -19,7 +19,6 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.ui.console.MessageConsoleStream;
 import org.json.simple.parser.ParseException;
 
-import com.aptana.core.ShellExecutable;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
@@ -128,11 +127,6 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 		runnable = new JsonConfigServerRunnable(process, this);
 		Thread t = new Thread(runnable);
 		t.start();
-	}
-
-	protected Map<String, String> getEnvironment(IPath location)
-	{
-		return ShellExecutable.getEnvironment(location);
 	}
 
 	protected ILaunchManager getLaunchManager()

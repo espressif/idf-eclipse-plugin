@@ -8,15 +8,14 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
-import java.text.MessageFormat;
-import java.util.Map;
 
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IScopeContext;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 
-import com.aptana.core.ShellExecutable;
-import com.aptana.core.util.ExecutableUtil;
+import com.espressif.idf.core.ExecutableFinder;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
@@ -51,21 +50,6 @@ public class IDFUtil
 	}
 
 	/**
-	 * @param projBuildDir project build directory which is used by CDT
-	 * @return kconfig_menus.json file path from the project active build directory
-	 * @throws Exception
-	 */
-	public static String getConfigMenuJsonFile(File projBuildDir) throws Exception
-	{
-		if (projBuildDir == null || !projBuildDir.exists())
-		{
-			throw new Exception(MessageFormat.format(Messages.IDFUtil_CouldNotFindDir, projBuildDir));
-		}
-		return projBuildDir.getAbsolutePath() + IPath.SEPARATOR + IDFConstants.CONFIG_FOLDER + IPath.SEPARATOR
-				+ IDFConstants.KCONFIG_MENUS_JSON;
-	}
-
-	/**
 	 * @return file path for IDF_PATH
 	 */
 	public static String getIDFPath()
@@ -78,8 +62,7 @@ public class IDFUtil
 			idfPath = System.getProperty(IDFEnvironmentVariables.IDF_PATH);
 			if (StringUtil.isEmpty(idfPath))
 			{
-				Map<String, String> environment = ShellExecutable.getEnvironment();
-				idfPath = environment.get(IDFEnvironmentVariables.IDF_PATH);
+				idfPath = System.getenv(IDFEnvironmentVariables.IDF_PATH);
 			}
 		}
 
@@ -114,15 +97,9 @@ public class IDFUtil
 		
 	}
 
-	public static IPath getPythonPath()
-	{
-		return Path.fromOSString(getPythonExecutable());
-	}
-
 	public static String getPythonExecutable()
 	{
-
-		IPath pythonPath = ExecutableUtil.find(IDFConstants.PYTHON_CMD, true, null);
+		IPath pythonPath = ExecutableFinder.find(IDFConstants.PYTHON_CMD, true);
 		if (pythonPath != null)
 		{
 			return pythonPath.toOSString();
@@ -199,4 +176,12 @@ public class IDFUtil
 
 	}
 	
+	public static String getLineSeparatorValue()
+	{
+		IScopeContext scope = InstanceScope.INSTANCE;
+
+		IScopeContext[] scopeContext = new IScopeContext[] { scope };
+		IEclipsePreferences node = scopeContext[0].getNode(Platform.PI_RUNTIME);
+		return node.get(Platform.PREF_LINE_SEPARATOR, System.getProperty("line.separator")); //$NON-NLS-1$
+	}
 }

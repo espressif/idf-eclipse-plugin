@@ -32,11 +32,10 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import com.aptana.core.ShellExecutable;
-import com.aptana.core.util.ProcessRunner;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
@@ -163,12 +162,6 @@ public class ESPToolChainManager
 			paths.add(path);
 		}
 
-		path = ShellExecutable.getEnvironment().get(IDFEnvironmentVariables.PATH);
-		if (!StringUtil.isEmpty(path))
-		{
-			paths.add(path);
-		}
-
 		return paths;
 	}
 
@@ -187,8 +180,12 @@ public class ESPToolChainManager
 
 		try
 		{
-			IStatus idf_tools_export_status = new ProcessRunner().runInBackground(tools_path,
-					IDFConstants.TOOLS_EXPORT_CMD, IDFConstants.TOOLS_EXPORT_CMD_FORMAT_VAL);
+			List<String> commands = new ArrayList<String>();
+			commands.add(IDFConstants.TOOLS_EXPORT_CMD);
+			commands.add(IDFConstants.TOOLS_EXPORT_CMD_FORMAT_VAL);
+
+			IStatus idf_tools_export_status = new ProcessBuilderFactory().runInBackground(commands,
+					new org.eclipse.core.runtime.Path(tools_path), null);
 			if (idf_tools_export_status != null && idf_tools_export_status.isOK())
 			{
 				String message = idf_tools_export_status.getMessage();
