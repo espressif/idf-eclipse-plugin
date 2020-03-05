@@ -24,7 +24,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.aptana.core.util.StringUtil;
+import com.espressif.idf.core.util.StringUtil;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
