@@ -69,6 +69,7 @@ public class ESPToolChainManager
 	 */
 	public void initToolChain(IToolChainManager manager, IToolChainProvider toolchainProvider)
 	{
+		Logger.log("Initializing toolchain..."); //$NON-NLS-1$
 		List<String> paths = new ArrayList<String>();
 		String idfToolsExportPath = getIdfToolsExportPath();
 		if (idfToolsExportPath != null)
@@ -177,15 +178,24 @@ public class ESPToolChainManager
 			Logger.log("idf_tools.py path doesn't exist"); //$NON-NLS-1$
 			return null;
 		}
+		
+		String idfPythonEnvPath = IDFUtil.getIDFPythonEnvPath();
 
 		try
 		{
 			List<String> commands = new ArrayList<String>();
+			if (!StringUtil.isEmpty(idfPythonEnvPath))
+			{
+				commands.add(idfPythonEnvPath);
+			}
+			commands.add(tools_path);
 			commands.add(IDFConstants.TOOLS_EXPORT_CMD);
 			commands.add(IDFConstants.TOOLS_EXPORT_CMD_FORMAT_VAL);
+			
+			Logger.log(commands.toString());
 
 			IStatus idf_tools_export_status = new ProcessBuilderFactory().runInBackground(commands,
-					new org.eclipse.core.runtime.Path(tools_path), null);
+					org.eclipse.core.runtime.Path.ROOT, System.getenv());
 			if (idf_tools_export_status != null && idf_tools_export_status.isOK())
 			{
 				String message = idf_tools_export_status.getMessage();
