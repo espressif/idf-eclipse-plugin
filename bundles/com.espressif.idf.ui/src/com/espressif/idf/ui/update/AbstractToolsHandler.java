@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.ui.update;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -155,7 +156,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 
 			console.println(Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments));
 
-			Map<String, String> environment = System.getenv();
+			Map<String, String> environment = new HashMap<>(System.getenv());
 			Logger.log(environment.toString());
 
 			if (gitExecutablePath != null)
