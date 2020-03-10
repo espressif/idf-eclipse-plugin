@@ -32,11 +32,10 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import com.aptana.core.ShellExecutable;
-import com.aptana.core.util.ProcessRunner;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
@@ -70,6 +69,7 @@ public class ESPToolChainManager
 	 */
 	public void initToolChain(IToolChainManager manager, IToolChainProvider toolchainProvider)
 	{
+		Logger.log("Initializing toolchain..."); //$NON-NLS-1$
 		List<String> paths = new ArrayList<String>();
 		String idfToolsExportPath = getIdfToolsExportPath();
 		if (idfToolsExportPath != null)
@@ -163,12 +163,6 @@ public class ESPToolChainManager
 			paths.add(path);
 		}
 
-		path = ShellExecutable.getEnvironment().get(IDFEnvironmentVariables.PATH);
-		if (!StringUtil.isEmpty(path))
-		{
-			paths.add(path);
-		}
-
 		return paths;
 	}
 
@@ -184,11 +178,24 @@ public class ESPToolChainManager
 			Logger.log("idf_tools.py path doesn't exist"); //$NON-NLS-1$
 			return null;
 		}
+		
+		String idfPythonEnvPath = IDFUtil.getIDFPythonEnvPath();
 
 		try
 		{
-			IStatus idf_tools_export_status = new ProcessRunner().runInBackground(tools_path,
-					IDFConstants.TOOLS_EXPORT_CMD, IDFConstants.TOOLS_EXPORT_CMD_FORMAT_VAL);
+			List<String> commands = new ArrayList<String>();
+			if (!StringUtil.isEmpty(idfPythonEnvPath))
+			{
+				commands.add(idfPythonEnvPath);
+			}
+			commands.add(tools_path);
+			commands.add(IDFConstants.TOOLS_EXPORT_CMD);
+			commands.add(IDFConstants.TOOLS_EXPORT_CMD_FORMAT_VAL);
+			
+			Logger.log(commands.toString());
+
+			IStatus idf_tools_export_status = new ProcessBuilderFactory().runInBackground(commands,
+					org.eclipse.core.runtime.Path.ROOT, System.getenv());
 			if (idf_tools_export_status != null && idf_tools_export_status.isOK())
 			{
 				String message = idf_tools_export_status.getMessage();

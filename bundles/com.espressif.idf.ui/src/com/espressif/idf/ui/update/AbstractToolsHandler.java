@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.ui.update;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,11 +28,10 @@ import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
-import com.aptana.core.ShellExecutable;
-import com.aptana.core.util.ExecutableUtil;
-import com.aptana.core.util.ProcessRunner;
+import com.espressif.idf.core.ExecutableFinder;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.PyWinRegistryReader;
@@ -63,7 +63,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 		Logger.log("IDF_PATH :" + idfPath); //$NON-NLS-1$
 
 		// Look for git path
-		IPath gitPath = ExecutableUtil.find("git", true, null); //$NON-NLS-1$
+		IPath gitPath = ExecutableFinder.find("git", true); //$NON-NLS-1$
 		Logger.log("GIT path:" + gitPath); //$NON-NLS-1$
 		if (gitPath != null)
 		{
@@ -146,7 +146,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 
 	protected void runCommand(List<String> arguments)
 	{
-		ProcessRunner processRunner = new ProcessRunner();
+		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 
 		try
 		{
@@ -156,16 +156,14 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 
 			console.println(Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments));
 
-			Map<String, String> environment = getEnvironment(Path.ROOT);
+			Map<String, String> environment = new HashMap<>(System.getenv());
 			Logger.log(environment.toString());
 
 			if (gitExecutablePath != null)
 			{
 				addGitToEnvironment(environment, gitExecutablePath);
 			}
-
-			IStatus status = processRunner.runInBackground(Path.ROOT, environment,
-					arguments.toArray(new String[arguments.size()]));
+			IStatus status =  processRunner.runInBackground(arguments, Path.ROOT, environment);
 
 			console.println(status.getMessage());
 			console.println();
@@ -205,15 +203,6 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 		arguments.forEach(entry -> builder.append(entry + " ")); //$NON-NLS-1$
 
 		return builder.toString().trim();
-	}
-
-	/**
-	 * @param location
-	 * @return
-	 */
-	protected Map<String, String> getEnvironment(IPath location)
-	{
-		return ShellExecutable.getEnvironment(location);
 	}
 
 	/**

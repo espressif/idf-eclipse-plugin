@@ -16,7 +16,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import com.aptana.core.util.ProcessRunnable;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.sdk.config.core.IJsonServerConfig;
@@ -26,26 +25,27 @@ import com.espressif.idf.sdk.config.core.SDKConfigCorePlugin;
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
-public class JsonConfigServerRunnable extends ProcessRunnable
+public class JsonConfigServerRunnable implements Runnable
 {
 
 	private JsonConfigServer configServer;
 	private OutputStream in;
 	private InputStream out;
 	private CommandType type;
+	private Process process;
 
 	public JsonConfigServerRunnable(Process process, JsonConfigServer configServer)
 	{
-		super(process, null, true);
+		this.process = process;
 		this.configServer = configServer;
 
 	}
 
 	public void destory()
 	{
-		if (p != null)
+		if (process != null)
 		{
-			p.destroy();
+			process.destroy();
 		}
 	}
 
@@ -80,13 +80,13 @@ public class JsonConfigServerRunnable extends ProcessRunnable
 
 		try
 		{
-			out = p.getInputStream();
-			in = p.getOutputStream();
+			out = process.getInputStream();
+			in = process.getOutputStream();
 
 			byte[] buffer = new byte[4000];
 
 			// sleep to make process.getErrorStream()/getInputStream() to return an available stream.
-			p.waitFor(3000, TimeUnit.MILLISECONDS);
+			process.waitFor(3000, TimeUnit.MILLISECONDS);
 			boolean isAlive = true;
 			while (isAlive)
 			{
@@ -107,8 +107,8 @@ public class JsonConfigServerRunnable extends ProcessRunnable
 					builder.append(string);
 				}
 
-				p.waitFor(100, TimeUnit.MILLISECONDS);
-				isAlive = p.isAlive();
+				process.waitFor(100, TimeUnit.MILLISECONDS);
+				isAlive = process.isAlive();
 
 			}
 

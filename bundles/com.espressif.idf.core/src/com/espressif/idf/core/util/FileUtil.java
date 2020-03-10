@@ -245,10 +245,6 @@ public class FileUtil
 		}
 	}
 
-	public static void write(OutputStream stream, String rawSource)
-	{
-		write(stream, rawSource, null);
-	}
 
 	public static void write(OutputStream stream, String rawSource, String charset)
 	{

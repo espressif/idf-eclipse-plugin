@@ -20,11 +20,6 @@ public class IDFCorePlugin extends Plugin
 
 	private static Plugin plugin;
 
-	public static BundleContext getContext()
-	{
-		return plugin.getBundle().getBundleContext();
-	}
-
 	public static Plugin getPlugin()
 	{
 		return plugin;

@@ -26,16 +26,15 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.osgi.util.NLS;
 
-import com.aptana.core.util.ProcessRunner;
-import com.aptana.core.util.ProcessStatus;
-import com.aptana.core.util.StringUtil;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.build.ESPToolChainManager;
 import com.espressif.idf.core.build.ESPToolChainProvider;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.StringUtil;
 
 /**
  * IDF Tools install command handler
@@ -125,17 +124,11 @@ public class InstallToolsHandler extends AbstractToolsHandler
 
 		console.println(Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments)); //$NON-NLS-1$
 
-		ProcessRunner processRunner = new ProcessRunner();
+		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 		IStatus status = null;
 		try
 		{
-			status = processRunner.runInBackground(Path.ROOT, getEnvironment(Path.ROOT),
-					arguments.toArray(new String[arguments.size()]));
-			if (status instanceof ProcessStatus)
-			{
-				console.println(((ProcessStatus) status).getStdErr());
-				console.println(((ProcessStatus) status).getStdOut());
-			}
+			status = processRunner.runInBackground(arguments, Path.ROOT, System.getenv());
 		}
 		catch (Exception e1)
 		{
@@ -146,7 +139,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		if (status != null)
 		{
 			String exportCmdOp = status.getMessage();
-
+			console.println(exportCmdOp);
 			processExportCmdOutput(exportCmdOp);
 		}
 

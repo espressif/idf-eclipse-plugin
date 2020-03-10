@@ -11,7 +11,7 @@ package com.espressif.idf.core.util;
 public class StringUtil
 {
 	public static String EMPTY = ""; //$NON-NLS-1$
-	
+
 	public static boolean isEmpty(String text)
 	{
 		return text == null || text.trim().length() == 0;

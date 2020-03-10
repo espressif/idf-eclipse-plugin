@@ -415,7 +415,6 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 				String expandedCmd =  expandShortFileName(cmd);
 				newcmds.add(expandedCmd);
 			}
-			command.clear();
 			command = newcmds;
 		}
 		
