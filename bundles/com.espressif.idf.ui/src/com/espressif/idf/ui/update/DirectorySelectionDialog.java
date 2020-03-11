@@ -73,7 +73,7 @@ public class DirectorySelectionDialog extends Dialog
 		data.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
 		text.setLayoutData(data);
 		text.setText(idfDirPath != null ? idfDirPath : StringUtil.EMPTY);
-		text.setMessage("/Users/esp/esp-idf"); //$NON-NLS-1$
+		text.setMessage(Platform.getOS().equals(Platform.OS_WIN32) ? "C:\\User\\esp\\esp-idf": "/Users/esp/esp-idf"); //$NON-NLS-1$
 
 		Button button = new Button(composite, SWT.PUSH);
 		button.setText(Messages.DirectorySelectionDialog_Browse);
@@ -102,7 +102,7 @@ public class DirectorySelectionDialog extends Dialog
 		data.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
 		gitLocationtext.setLayoutData(data);
 		gitLocationtext.setText(gitPath != null ? gitPath : StringUtil.EMPTY);
-		gitLocationtext.setMessage("/usr/local/bin/git"); //$NON-NLS-1$
+		gitLocationtext.setMessage(Platform.getOS().equals(Platform.OS_WIN32) ? "C:\\Program Files\\Git\\bin\\git.exe" : "/usr/local/bin/git"); //$NON-NLS-1$
 
 		Button gitBrowseBtn = new Button(composite, SWT.PUSH);
 		gitBrowseBtn.setText(Messages.DirectorySelectionDialog_Browse);
