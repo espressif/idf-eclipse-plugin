@@ -9,9 +9,11 @@ You can check using "java -version" command from the terminal
 ##  How to check the Java version used by Eclipse?
 Help > About Eclipse >Installation Details > Configuration > Look for "-vm" argument
 ## Espressif Menu options and Espressif IDF Project menu is not visible in my Eclipse
-Make sure you have installed Java 8 and higher and you're in the C/C++ perspective
+- Make sure you have installed Java 8 and above and you're in the C/C++ perspective. 
+- Reset the perspective from Window > Perspective > Reset Perspective..
 ##  How do I access the error log?
 To view the Eclipse error log: From the main menu, select Window > Show View > Other. Then select General > Error Log.
+Check more details here https://github.com/espressif/idf-eclipse-plugin#error-log
 ## How do I know the installed IDF Eclipse Plugins version?
 You can check using Eclipse menu > About Eclipse > Installation Details > Installed Software > Search for "Espressif"
 ## How do I uninstall IDF Eclipse Plugins from the Eclipse?
