@@ -8,6 +8,8 @@ Eclipse 2018-12 CDT and above (Eclipse IDE for C/C++ Developers)
 You can check using "java -version" command from the terminal
 ##  How to check the Java version used by Eclipse?
 Help > About Eclipse >Installation Details > Configuration > Look for "-vm" argument
+## How do I provide Eclipse envrionment and plugins information?
+Help > About Eclipse >Installation Details > Configuration > Copy to Clipboard (Copy to the file and attach as a file)
 ## Espressif Menu options and Espressif IDF Project menu is not visible in my Eclipse
 - Make sure you have installed Java 8 and above and you're in the C/C++ perspective. 
 - Reset the perspective from Window > Perspective > Reset Perspective..
