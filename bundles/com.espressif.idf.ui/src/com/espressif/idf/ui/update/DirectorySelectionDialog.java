@@ -269,6 +269,7 @@ public class DirectorySelectionDialog extends TitleAreaDialog
 		if (commandId != null && commandId.equals("com.espressif.idf.ui.command.install")) //$NON-NLS-1$
 		{
 			getButton(IDialogConstants.OK_ID).setText(Messages.DirectorySelectionDialog_InstallTools);
+			validate();
 		}
 		else
 		{
