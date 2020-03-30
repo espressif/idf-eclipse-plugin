@@ -9,7 +9,10 @@ import java.util.Map;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -25,12 +28,13 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.ui.UIPlugin;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
-public class DirectorySelectionDialog extends Dialog
+public class DirectorySelectionDialog extends TitleAreaDialog
 {
 
 	private Shell shell;
@@ -48,6 +52,7 @@ public class DirectorySelectionDialog extends Dialog
 			Map<String, String> pythonVersions, String idfPath, String gitExecutablePath)
 	{
 		super(parentShell);
+		setShellStyle(getShellStyle() | SWT.RESIZE);
 		this.shell = parentShell;
 		this.pythonExecutablePath = pythonExecutablePath;
 		this.pythonVersions = pythonVersions;
@@ -55,15 +60,21 @@ public class DirectorySelectionDialog extends Dialog
 		this.gitPath = gitExecutablePath;
 		this.commandId = commandId;
 	}
-	
 
 	@Override
 	protected Control createDialogArea(Composite parent)
 	{
 		getShell().setText(Messages.DirectorySelectionDialog_InstallTools);
+		setTitle("ESP-IDF Tools installation dialog");
+		setTitleImage(UIPlugin.getImage("icons/espressif_logo.png")); //$NON-NLS-1$
+		setMessage("Provide ESP-IDF directory, git and python executable paths to install the tools");
 
-		Composite composite = (Composite) super.createDialogArea(parent);
-		((GridLayout) composite.getLayout()).numColumns = 3;
+		Composite composite = new Composite(parent, SWT.NONE);
+		GridData gd = new GridData(GridData.FILL_BOTH);
+		GridLayout topLayout = new GridLayout();
+		topLayout.numColumns = 3;
+		composite.setLayout(topLayout);
+		composite.setLayoutData(gd);
 
 		// IDF_PATH
 		new Label(composite, SWT.NONE).setText(Messages.DirectorySelectionDialog_IDFDirLabel);
@@ -73,6 +84,14 @@ public class DirectorySelectionDialog extends Dialog
 		data.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
 		text.setLayoutData(data);
 		text.setText(idfDirPath != null ? idfDirPath : StringUtil.EMPTY);
+		text.addModifyListener(new ModifyListener()
+		{
+			@Override
+			public void modifyText(ModifyEvent e)
+			{
+				validate();
+			}
+		});
 
 		Button button = new Button(composite, SWT.PUSH);
 		button.setText(Messages.DirectorySelectionDialog_Browse);
@@ -101,6 +120,14 @@ public class DirectorySelectionDialog extends Dialog
 		data.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
 		gitLocationtext.setLayoutData(data);
 		gitLocationtext.setText(gitPath != null ? gitPath : StringUtil.EMPTY);
+		gitLocationtext.addModifyListener(new ModifyListener()
+		{
+			@Override
+			public void modifyText(ModifyEvent e)
+			{
+				validate();
+			}
+		});
 
 		Button gitBrowseBtn = new Button(composite, SWT.PUSH);
 		gitBrowseBtn.setText(Messages.DirectorySelectionDialog_Browse);
@@ -144,6 +171,14 @@ public class DirectorySelectionDialog extends Dialog
 			data.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
 			pythonLocationtext.setLayoutData(data);
 			pythonLocationtext.setText(pythonExecutablePath != null ? pythonExecutablePath : StringUtil.EMPTY);
+			pythonLocationtext.addModifyListener(new ModifyListener()
+			{
+				@Override
+				public void modifyText(ModifyEvent e)
+				{
+					validate();
+				}
+			});
 
 			Button pyBrowseBtn = new Button(composite, SWT.PUSH);
 			pyBrowseBtn.setText(Messages.DirectorySelectionDialog_Browse);
@@ -164,7 +199,34 @@ public class DirectorySelectionDialog extends Dialog
 			});
 		}
 
+		Dialog.applyDialogFont(composite);
 		return composite;
+	}
+
+	protected void validate()
+	{
+		idfDirPath = text.getText();
+		if (pythonVersionCombo != null)
+		{
+			String version = pythonVersionCombo.getText();
+			pythonExecutablePath = pythonVersions.getOrDefault(version, null);
+		}
+		else
+		{
+			pythonExecutablePath = pythonLocationtext.getText();
+		}
+		gitPath = gitLocationtext.getText();
+
+		if (StringUtil.isEmpty(pythonExecutablePath) || StringUtil.isEmpty(gitPath) || StringUtil.isEmpty(idfDirPath))
+		{
+			setErrorMessage("Fields can't be empty!");
+			getButton(IDialogConstants.OK_ID).setEnabled(false);
+		}
+		else
+		{
+			setErrorMessage(null);
+			getButton(IDialogConstants.OK_ID).setEnabled(true);
+		}
 	}
 
 	public String getIDFDirectory()
@@ -196,9 +258,10 @@ public class DirectorySelectionDialog extends Dialog
 			pythonExecutablePath = pythonLocationtext.getText();
 		}
 		gitPath = gitLocationtext.getText();
+
 		super.okPressed();
 	}
-	
+
 	@Override
 	public void create()
 	{
@@ -212,6 +275,5 @@ public class DirectorySelectionDialog extends Dialog
 			getButton(IDialogConstants.OK_ID).setText("Check Tools");
 		}
 	}
-	
 
 }

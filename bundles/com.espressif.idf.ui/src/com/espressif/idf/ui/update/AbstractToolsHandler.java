@@ -88,24 +88,10 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 			return null; // dialog is cancelled
 		}
 
-		if (StringUtil.isEmpty(pythonExecutablenPath))
-		{
-			console.println("Python executable path can't be empty!"); //$NON-NLS-1$
-		}
-
-		if (StringUtil.isEmpty(gitExecutablePath))
-		{
-			console.println("Git executable path can't be empty!"); //$NON-NLS-1$
-		}
-
-		if (StringUtil.isEmpty(idfPath))
-		{
-			console.println("IDF_PATH path can't be empty!"); //$NON-NLS-1$
-		}
-
 		if (StringUtil.isEmpty(pythonExecutablenPath) || StringUtil.isEmpty(gitExecutablePath)
 				|| StringUtil.isEmpty(idfPath))
 		{
+			console.print("One or more paths are empty! Make sure you provide IDF_PATH, git and python executables"); //$NON-NLS-1$
 			return null;
 		}
 
