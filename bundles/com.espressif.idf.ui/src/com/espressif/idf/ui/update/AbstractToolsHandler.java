@@ -55,6 +55,8 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
+		activateIDFConsoleView();
+
 		String commmand_id = event.getCommand().getId();
 		Logger.log("Command id:" + commmand_id); //$NON-NLS-1$
 
@@ -73,8 +75,8 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 		pythonExecutablenPath = getPythonExecutablePath();
 
 		// Let user choose
-		DirectorySelectionDialog dir = new DirectorySelectionDialog(Display.getDefault().getActiveShell(),
-				commmand_id, pythonExecutablenPath, pythonVersions, idfPath, gitExecutablePath);
+		DirectorySelectionDialog dir = new DirectorySelectionDialog(Display.getDefault().getActiveShell(), commmand_id,
+				pythonExecutablenPath, pythonVersions, idfPath, gitExecutablePath);
 		if (dir.open() == Window.OK)
 		{
 			idfPath = dir.getIDFDirectory();
@@ -86,6 +88,21 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 			return null; // dialog is cancelled
 		}
 
+		if (StringUtil.isEmpty(pythonExecutablenPath))
+		{
+			console.println("Python executable path can't be empty!"); //$NON-NLS-1$
+		}
+
+		if (StringUtil.isEmpty(gitExecutablePath))
+		{
+			console.println("Git executable path can't be empty!"); //$NON-NLS-1$
+		}
+
+		if (StringUtil.isEmpty(idfPath))
+		{
+			console.println("IDF_PATH path can't be empty!"); //$NON-NLS-1$
+		}
+
 		if (StringUtil.isEmpty(pythonExecutablenPath) || StringUtil.isEmpty(gitExecutablePath)
 				|| StringUtil.isEmpty(idfPath))
 		{
@@ -95,8 +112,6 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 		// Add IDF_PATH to the eclipse CDT build environment variables
 		IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
 		idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, idfPath);
-
-		activateIDFConsoleView();
 
 		execute();
 
@@ -163,7 +178,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 			{
 				addGitToEnvironment(environment, gitExecutablePath);
 			}
-			IStatus status =  processRunner.runInBackground(arguments, Path.ROOT, environment);
+			IStatus status = processRunner.runInBackground(arguments, Path.ROOT, environment);
 
 			console.println(status.getMessage());
 			console.println();
