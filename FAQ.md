@@ -26,6 +26,8 @@ Please check the error log from the main menu, select Window > Show View > Other
 Yes, you can create IDF CMake project using File > New > Espressif IDF Project
 ## Can I import my existing IDF project into Eclipse?
 Yes, you can import using Import Menu. Import... > Espressif > Existing IDF Project
+## Where can I find the IDF installed tools in my system?
+Default directory is $HOME/.espressif for Linux/MacOS users or %USER_PROFILE%.espressif for Windows users
 ## Deleted C/C++ build envrionment variables still appearing?
 Uncheck Eclipse Oomph Preference Recorder. Which can be performed by following. Eclipse Preferences >Oomph > Setup Tasks > Preference Recorder > Uncheck "Record into".
 ## "Unresolved inclusion" errors in the editor
