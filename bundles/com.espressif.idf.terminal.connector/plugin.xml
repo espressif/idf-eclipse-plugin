@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<!--
+    Copyright (c) 2018 Red Hat and others.
+    This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License 2.0
+    which accompanies this distribution, and is available at
+    https://www.eclipse.org/legal/epl-2.0/
+   
+    SPDX-License-Identifier: EPL-2.0
+ -->
+
+<plugin>
+
+<!-- Terminal connector contributions -->
+<!-- uses process connector -->
+   <extension point="org.eclipse.tm.terminal.control.connectors">
+      <connector
+            class="org.eclipse.tm.terminal.connector.process.ProcessConnector"
+            hidden="true"
+            id="com.espressif.idf.terminal.connector.espidfConnector"
+            name="%TerminalConnector.local"/>
+   </extension>
+   
+<!-- Terminal launcher delegate contributions -->
+   <extension point="org.eclipse.tm.terminal.view.ui.launcherDelegates">
+      <delegate
+            class="com.espressif.idf.terminal.connector.launcher.LocalLauncherDelegate"
+            id="com.espressif.idf.terminal.connector.launcher.local"
+            label="%LocalLauncherDelegate.label">
+      </delegate>
+   </extension>
+
+<!-- Menu contributions -->
+   <extension point="org.eclipse.ui.menus">
+      <!-- Project Explorer "Show In" contribution -->
+      <menuContribution locationURI="popup:org.eclipse.tm.terminal.view.ui.ProjectExplorer.menu.showIn?after=additions">
+         <command
+               commandId="org.eclipse.tm.terminal.connector.local.command.launch"
+               id="org.eclipse.tm.terminal.connector.local.commands.showin.launch"
+               label="%menu.showIn.localterminal.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <or>
+	              <with variable="selection">
+	                 <iterate operator="and" ifEmpty="false">
+	                    <adapt type="org.eclipse.core.resources.IResource">
+	                      <not>
+	                         <!-- The JDT Project Explorer contributions are adding the "Navigate -> Show In" quick menu.
+	                              See o.e.jdt.internal.ui.navigator.JavaNavigatorActionProvider -->
+	                         <test property="org.eclipse.core.resources.projectNature" value="org.eclipse.jdt.core.javanature" />
+	                      </not> 
+	                    </adapt>
+	                 </iterate>
+	              </with>
+                  <and>
+		              <with variable="selection">
+		                 <iterate operator="and" ifEmpty="false">
+		                    <adapt type="org.eclipse.core.resources.IResource">
+		                         <!-- The JDT Project Explorer contributions are adding the "Navigate -> Show In" quick menu.
+		                              See o.e.jdt.internal.ui.navigator.JavaNavigatorActionProvider -->
+		                         <test property="org.eclipse.core.resources.projectNature" value="org.eclipse.jdt.core.javanature" />
+		                    </adapt>
+		                 </iterate>
+		              </with>
+	                  <with
+	                        variable="org.eclipse.tm.terminal.external.executable.configured">
+	                     <equals
+	                           value="TRUE">
+	                     </equals>
+	                  </with>
+                  </and>
+               </or>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+
+      <!-- JDT Package Explorer "Show In" contribution -->
+      <menuContribution locationURI="popup:org.eclipse.tm.terminal.view.ui.PackageExplorer.menu.showIn?after=additions">
+         <command
+               commandId="org.eclipse.tm.terminal.connector.local.command.launch"
+               id="org.eclipse.tm.terminal.connector.local.commands.showin.launch"
+               label="%menu.showIn.localterminal.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <or>
+	              <with variable="selection">
+	                 <iterate operator="and" ifEmpty="false">
+	                    <adapt type="org.eclipse.core.resources.IResource">
+	                      <not>
+	                         <!-- The JDT Project Explorer contributions are adding the "Navigate -> Show In" quick menu.
+	                              See o.e.jdt.internal.ui.navigator.JavaNavigatorActionProvider -->
+	                         <test property="org.eclipse.core.resources.projectNature" value="org.eclipse.jdt.core.javanature" />
+	                      </not> 
+	                    </adapt>
+	                 </iterate>
+	              </with>
+                  <and>
+		              <with variable="selection">
+		                 <iterate operator="and" ifEmpty="false">
+		                    <adapt type="org.eclipse.core.resources.IResource">
+		                         <!-- The JDT Project Explorer contributions are adding the "Navigate -> Show In" quick menu.
+		                              See o.e.jdt.internal.ui.navigator.JavaNavigatorActionProvider -->
+		                         <test property="org.eclipse.core.resources.projectNature" value="org.eclipse.jdt.core.javanature" />
+		                    </adapt>
+		                 </iterate>
+		              </with>
+	                  <with
+	                        variable="org.eclipse.tm.terminal.external.executable.configured">
+	                     <equals
+	                           value="TRUE">
+	                     </equals>
+	                  </with>
+                  </and>
+               </or>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+   </extension>
+
+<!-- Command contributions -->
+   <extension point="org.eclipse.ui.commands">
+      <command
+            categoryId="org.eclipse.tm.terminal.view.ui.commands.category"
+            helpContextId="org.eclipse.tm.terminal.connector.local.command_Launch"
+            id="org.eclipse.tm.terminal.connector.local.command.launch"
+            name="%command.launch.name">
+      </command>
+   </extension>
+
+   <extension point="org.eclipse.ui.commandImages">
+      <image
+            commandId="org.eclipse.tm.terminal.connector.local.command.launch"
+            icon="icons/eview16/terminal_view.gif">
+      </image>
+   </extension>
+
+<!-- Key bindings -->
+   <extension point="org.eclipse.ui.bindings">
+      <key
+            commandId="org.eclipse.tm.terminal.connector.local.command.launch"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+M3+T"/> <!-- Bug 435111: Don't use M1 since COMMAND+Option T already taken on Mac -->
+   </extension>
+
+<!-- Handler contributions -->
+   <extension point="org.eclipse.ui.handlers">
+      <handler
+            class="com.espressif.idf.terminal.connector.launcher.LocalLauncherHandler"
+            commandId="org.eclipse.tm.terminal.connector.local.command.launch">
+      </handler>
+   </extension>
+   
+</plugin>

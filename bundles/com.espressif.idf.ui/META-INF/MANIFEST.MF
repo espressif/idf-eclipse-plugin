@@ -27,7 +27,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.cdt.debug.core,
  org.eclipse.launchbar.core,
  org.eclipse.launchbar.ui,
- org.eclipse.ui.console
+ org.eclipse.ui.console,
+ com.espressif.idf.terminal.connector
 Automatic-Module-Name: com.espressif.idf.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
