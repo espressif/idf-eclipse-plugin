@@ -8,7 +8,7 @@
  *
  * Contributors:
  * Wind River Systems - initial API and implementation
- * Espressif Systems - kkolipaka@espressif.com
+ * Kondal Kolipaka <kkolipaka@espressif.com> - ESP-IDF Console implementation
  *******************************************************************************/
 package com.espressif.idf.console.connector.controls;
 
@@ -34,7 +34,7 @@ import org.eclipse.ui.WorkbenchEncoding;
 import org.osgi.framework.Bundle;
 
 /**
- * Serial wizard configuration panel implementation.
+ * IDF console wizard configuration panel implementation.
  */
 public class IDFConsoleWizardConfigurationPanel extends AbstractExtendedConfigurationPanel {
 

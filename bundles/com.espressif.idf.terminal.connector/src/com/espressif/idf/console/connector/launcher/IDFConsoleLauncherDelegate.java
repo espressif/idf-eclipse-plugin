@@ -9,6 +9,7 @@
  * Contributors:
  * Wind River Systems - initial API and implementation
  * Dirk Fauth <dirk.fauth@googlemail.com> - Bug 460496
+ * Kondal Kolipaka <kkolipaka@espressif.com> - ESP-IDF Console implementation
  *******************************************************************************/
 package com.espressif.idf.console.connector.launcher;
 
@@ -66,6 +67,7 @@ import com.espressif.idf.core.util.StringUtil;
 @SuppressWarnings("restriction")
 public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 
+	private static final String ESP_IDF_CONSOLE_CONNECTOR_ID = "com.espressif.idf.console.connector.espidfConnector"; //$NON-NLS-1$
 	private final IMementoHandler mementoHandler = new IDFConsoleMementoHandler();
 
 	@Override
@@ -228,24 +230,10 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 	/**
 	 * Returns the terminal title string.
 	 * <p>
-	 * The default implementation constructs a title like &quot;Serial &lt;port&gt; (Start time) &quot;.
 	 *
-	 * @return The terminal title string or <code>null</code>.
+	 * @return The terminal title string
 	 */
 	private String getTerminalTitle(Map<String, Object> properties) {
-		// Try to see if the user set a title explicitly via the properties map.
-		//		String title = getDefaultTerminalTitle(properties);
-		//		if (title != null)
-		//			return title;
-		//
-		//		try {
-		//			String hostname = InetAddress.getLocalHost().getHostName();
-		//			if (hostname != null && !"".equals(hostname.trim())) { //$NON-NLS-1$
-		//				return hostname;
-		//			}
-		//		} catch (UnknownHostException e) {
-		//			/* ignored on purpose */ }
-
 		return "ESP-IDF Console"; //$NON-NLS-1$
 	}
 
@@ -294,7 +282,7 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 		// Check for the terminal connector id
 		String connectorId = (String) properties.get(ITerminalsConnectorConstants.PROP_TERMINAL_CONNECTOR_ID);
 		if (connectorId == null)
-			connectorId = "com.espressif.idf.console.connector.espidfConnector"; //$NON-NLS-1$
+			connectorId = ESP_IDF_CONSOLE_CONNECTOR_ID;
 
 		// Extract the process properties using defaults
 		String image;
@@ -382,12 +370,12 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 			}
 		}
 
-		//TODO:
+		//Set CDT build environment variables
 		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
 		Set<String> keySet = envMap.keySet();
 		for (String envKey : keySet) {
 			String envValue = envMap.get(envKey);
-			envpList.add(envKey + "=" + envValue);
+			envpList.add(envKey + "=" + envValue); //$NON-NLS-1$
 		}
 
 		// Convert back into a string array

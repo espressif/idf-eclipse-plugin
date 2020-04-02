@@ -8,6 +8,7 @@
  *
  * Contributors:
  * Wind River Systems - initial API and implementation
+ * Kondal Kolipaka <kkolipaka@espressif.com> - ESP-IDF Console implementation
  *******************************************************************************/
 package com.espressif.idf.console.connector.activator;
 

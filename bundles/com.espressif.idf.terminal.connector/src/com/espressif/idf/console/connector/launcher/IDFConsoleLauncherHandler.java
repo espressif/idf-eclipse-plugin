@@ -8,6 +8,7 @@
  *
  * Contributors:
  * Wind River Systems - initial API and implementation
+ * Kondal Kolipaka <kkolipaka@espressif.com> - ESP-IDF Console implementation
  *******************************************************************************/
 package com.espressif.idf.console.connector.launcher;
 
@@ -29,7 +30,7 @@ import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
- * Local terminal launcher handler implementation.
+ * IDF Console launcher handler implementation.
  */
 public class IDFConsoleLauncherHandler extends AbstractHandler {
 
