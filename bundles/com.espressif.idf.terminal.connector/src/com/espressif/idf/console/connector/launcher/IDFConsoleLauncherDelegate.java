@@ -10,7 +10,7 @@
  * Wind River Systems - initial API and implementation
  * Dirk Fauth <dirk.fauth@googlemail.com> - Bug 460496
  *******************************************************************************/
-package com.espressif.idf.terminal.connector.launcher;
+package com.espressif.idf.console.connector.launcher;
 
 import java.io.File;
 import java.net.URI;
@@ -54,19 +54,19 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchEncoding;
 import org.osgi.framework.Bundle;
 
+import com.espressif.idf.console.connector.activator.UIPlugin;
+import com.espressif.idf.console.connector.controls.IDFConsoleWizardConfigurationPanel;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
-import com.espressif.idf.terminal.connector.activator.UIPlugin;
-import com.espressif.idf.terminal.connector.controls.LocalWizardConfigurationPanel;
 
 /**
  * Serial launcher delegate implementation.
  */
 @SuppressWarnings("restriction")
-public class LocalLauncherDelegate extends AbstractLauncherDelegate {
+public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 
-	private final IMementoHandler mementoHandler = new LocalMementoHandler();
+	private final IMementoHandler mementoHandler = new IDFConsoleMementoHandler();
 
 	@Override
 	public boolean needsUserConfiguration() {
@@ -75,7 +75,7 @@ public class LocalLauncherDelegate extends AbstractLauncherDelegate {
 
 	@Override
 	public IConfigurationPanel getPanel(IConfigurationPanelContainer container) {
-		return new LocalWizardConfigurationPanel(container);
+		return new IDFConsoleWizardConfigurationPanel(container);
 	}
 
 	@Override
@@ -294,7 +294,7 @@ public class LocalLauncherDelegate extends AbstractLauncherDelegate {
 		// Check for the terminal connector id
 		String connectorId = (String) properties.get(ITerminalsConnectorConstants.PROP_TERMINAL_CONNECTOR_ID);
 		if (connectorId == null)
-			connectorId = "com.espressif.idf.terminal.connector.espidfConnector"; //$NON-NLS-1$
+			connectorId = "com.espressif.idf.console.connector.espidfConnector"; //$NON-NLS-1$
 
 		// Extract the process properties using defaults
 		String image;

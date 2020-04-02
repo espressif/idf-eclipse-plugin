@@ -9,7 +9,7 @@
  * Contributors:
  * Wind River Systems - initial API and implementation
  *******************************************************************************/
-package com.espressif.idf.terminal.connector.activator;
+package com.espressif.idf.console.connector.activator;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
@@ -52,7 +52,7 @@ public class UIPlugin extends AbstractUIPlugin {
 		if (getDefault() != null && getDefault().getBundle() != null) {
 			return getDefault().getBundle().getSymbolicName();
 		}
-		return "com.espressif.idf.terminal.connector"; //$NON-NLS-1$
+		return "com.espressif.idf.console.connector"; //$NON-NLS-1$
 	}
 
 	/**

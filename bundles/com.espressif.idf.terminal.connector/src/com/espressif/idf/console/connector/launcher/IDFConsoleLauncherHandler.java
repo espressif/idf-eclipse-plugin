@@ -9,7 +9,7 @@
  * Contributors:
  * Wind River Systems - initial API and implementation
  *******************************************************************************/
-package com.espressif.idf.terminal.connector.launcher;
+package com.espressif.idf.console.connector.launcher;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +31,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 /**
  * Local terminal launcher handler implementation.
  */
-public class LocalLauncherHandler extends AbstractHandler {
+public class IDFConsoleLauncherHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -58,7 +58,7 @@ public class LocalLauncherHandler extends AbstractHandler {
 		// Find the local terminal launcher delegate
 		ILauncherDelegate delegate = null;
 		for (ILauncherDelegate candidate : delegates) {
-			if ("com.espressif.idf.terminal.connector.launcher.local".equals(candidate.getId())) { //$NON-NLS-1$
+			if ("com.espressif.idf.console.connector.launcher.local".equals(candidate.getId())) { //$NON-NLS-1$
 				delegate = candidate;
 				break;
 			}

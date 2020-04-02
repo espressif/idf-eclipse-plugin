@@ -9,7 +9,7 @@
  * Contributors:
  * Wind River Systems - initial API and implementation
  *******************************************************************************/
-package com.espressif.idf.terminal.connector.launcher;
+package com.espressif.idf.console.connector.launcher;
 
 import java.util.Map;
 
@@ -20,7 +20,7 @@ import org.eclipse.ui.IMemento;
 /**
  * Local terminal connection memento handler implementation.
  */
-public class LocalMementoHandler implements IMementoHandler {
+public class IDFConsoleMementoHandler implements IMementoHandler {
 
 	@Override
 	public void saveState(IMemento memento, Map<String, Object> properties) {

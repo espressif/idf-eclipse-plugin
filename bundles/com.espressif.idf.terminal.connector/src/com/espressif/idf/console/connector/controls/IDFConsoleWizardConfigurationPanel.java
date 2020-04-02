@@ -8,8 +8,9 @@
  *
  * Contributors:
  * Wind River Systems - initial API and implementation
+ * Espressif Systems - kkolipaka@espressif.com
  *******************************************************************************/
-package com.espressif.idf.terminal.connector.controls;
+package com.espressif.idf.console.connector.controls;
 
 import java.util.Map;
 
@@ -35,7 +36,7 @@ import org.osgi.framework.Bundle;
 /**
  * Serial wizard configuration panel implementation.
  */
-public class LocalWizardConfigurationPanel extends AbstractExtendedConfigurationPanel {
+public class IDFConsoleWizardConfigurationPanel extends AbstractExtendedConfigurationPanel {
 
 	private Object resource;
 
@@ -44,7 +45,7 @@ public class LocalWizardConfigurationPanel extends AbstractExtendedConfiguration
 	 *
 	 * @param container The configuration panel container or <code>null</code>.
 	 */
-	public LocalWizardConfigurationPanel(IConfigurationPanelContainer container) {
+	public IDFConsoleWizardConfigurationPanel(IConfigurationPanelContainer container) {
 		super(container);
 	}
 
@@ -97,7 +98,7 @@ public class LocalWizardConfigurationPanel extends AbstractExtendedConfiguration
 	public void extractData(Map<String, Object> data) {
 		// set the terminal connector id for local terminal
 		data.put(ITerminalsConnectorConstants.PROP_TERMINAL_CONNECTOR_ID,
-				"com.espressif.idf.terminal.connector.espidfConnector"); //$NON-NLS-1$
+				"com.espressif.idf.console.connector.espidfConnector"); //$NON-NLS-1$
 
 		// Store the encoding
 		data.put(ITerminalsConnectorConstants.PROP_ENCODING, getEncoding());

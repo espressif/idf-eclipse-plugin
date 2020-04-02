@@ -18,15 +18,15 @@
       <connector
             class="org.eclipse.tm.terminal.connector.process.ProcessConnector"
             hidden="true"
-            id="com.espressif.idf.terminal.connector.espidfConnector"
+            id="com.espressif.idf.console.connector.espidfConnector"
             name="%TerminalConnector.local"/>
    </extension>
    
 <!-- Terminal launcher delegate contributions -->
    <extension point="org.eclipse.tm.terminal.view.ui.launcherDelegates">
       <delegate
-            class="com.espressif.idf.terminal.connector.launcher.LocalLauncherDelegate"
-            id="com.espressif.idf.terminal.connector.launcher.local"
+            class="com.espressif.idf.console.connector.launcher.IDFConsoleLauncherDelegate"
+            id="com.espressif.idf.console.connector.launcher.local"
             label="%LocalLauncherDelegate.label">
       </delegate>
    </extension>
@@ -149,7 +149,7 @@
 <!-- Handler contributions -->
    <extension point="org.eclipse.ui.handlers">
       <handler
-            class="com.espressif.idf.terminal.connector.launcher.LocalLauncherHandler"
+            class="com.espressif.idf.console.connector.launcher.IDFConsoleLauncherHandler"
             commandId="org.eclipse.tm.terminal.connector.local.command.launch">
       </handler>
    </extension>
