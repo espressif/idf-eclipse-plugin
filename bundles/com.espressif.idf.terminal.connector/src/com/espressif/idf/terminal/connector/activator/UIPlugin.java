@@ -10,7 +10,7 @@
  * Wind River Systems - initial API and implementation
  * Kondal Kolipaka <kkolipaka@espressif.com> - ESP-IDF Console implementation
  *******************************************************************************/
-package com.espressif.idf.console.connector.activator;
+package com.espressif.idf.terminal.connector.activator;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;

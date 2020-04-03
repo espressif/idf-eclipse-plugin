@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>com.espressif.idf.console.connector</name>
+	<name>com.espressif.idf.terminal.connector</name>
 	<comment></comment>
 	<projects>
 	</projects>

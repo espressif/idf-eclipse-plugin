@@ -11,7 +11,7 @@
  * Dirk Fauth <dirk.fauth@googlemail.com> - Bug 460496
  * Kondal Kolipaka <kkolipaka@espressif.com> - ESP-IDF Console implementation
  *******************************************************************************/
-package com.espressif.idf.console.connector.launcher;
+package com.espressif.idf.terminal.connector.launcher;
 
 import java.io.File;
 import java.net.URI;
@@ -55,11 +55,11 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchEncoding;
 import org.osgi.framework.Bundle;
 
-import com.espressif.idf.console.connector.activator.UIPlugin;
-import com.espressif.idf.console.connector.controls.IDFConsoleWizardConfigurationPanel;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.terminal.connector.activator.UIPlugin;
+import com.espressif.idf.terminal.connector.controls.IDFConsoleWizardConfigurationPanel;
 
 /**
  * Serial launcher delegate implementation.
@@ -67,7 +67,7 @@ import com.espressif.idf.core.util.StringUtil;
 @SuppressWarnings("restriction")
 public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 
-	private static final String ESP_IDF_CONSOLE_CONNECTOR_ID = "com.espressif.idf.console.connector.espidfConnector"; //$NON-NLS-1$
+	private static final String ESP_IDF_CONSOLE_CONNECTOR_ID = "com.espressif.idf.terminal.connector.espidfConnector"; //$NON-NLS-1$
 	private final IMementoHandler mementoHandler = new IDFConsoleMementoHandler();
 
 	@Override
@@ -234,7 +234,7 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 	 * @return The terminal title string
 	 */
 	private String getTerminalTitle(Map<String, Object> properties) {
-		return "ESP-IDF Console"; //$NON-NLS-1$
+		return "ESP-IDF Terminal"; //$NON-NLS-1$
 	}
 
 	@Override

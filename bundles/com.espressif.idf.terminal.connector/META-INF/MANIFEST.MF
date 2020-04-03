@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
-Bundle-SymbolicName: com.espressif.idf.console.connector;singleton:=true
+Bundle-SymbolicName: com.espressif.idf.terminal.connector;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: com.espressif.idf.console.connector.activator.UIPlugin
+Bundle-Activator: com.espressif.idf.terminal.connector.activator.UIPlugin
 Bundle-Vendor: ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD
 Import-Package: org.eclipse.cdt.utils.pty;mandatory:=native
 Require-Bundle: org.eclipse.cdt.core;bundle-version="5.6.0";resolution:=optional,
@@ -21,7 +21,7 @@ Require-Bundle: org.eclipse.cdt.core;bundle-version="5.6.0";resolution:=optional
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
-Export-Package: com.espressif.idf.console.connector.activator;x-internal:=true,
- com.espressif.idf.console.connector.controls,
- com.espressif.idf.console.connector.launcher
+Export-Package: com.espressif.idf.terminal.connector.activator;x-internal:=true,
+ com.espressif.idf.terminal.connector.controls,
+ com.espressif.idf.terminal.connector.launcher
 Automatic-Module-Name: org.eclipse.tm.terminal.connector.local

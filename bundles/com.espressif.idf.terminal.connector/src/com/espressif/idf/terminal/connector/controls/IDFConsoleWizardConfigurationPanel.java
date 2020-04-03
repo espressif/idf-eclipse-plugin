@@ -10,7 +10,7 @@
  * Wind River Systems - initial API and implementation
  * Kondal Kolipaka <kkolipaka@espressif.com> - ESP-IDF Console implementation
  *******************************************************************************/
-package com.espressif.idf.console.connector.controls;
+package com.espressif.idf.terminal.connector.controls;
 
 import java.util.Map;
 
@@ -98,7 +98,7 @@ public class IDFConsoleWizardConfigurationPanel extends AbstractExtendedConfigur
 	public void extractData(Map<String, Object> data) {
 		// set the terminal connector id for local terminal
 		data.put(ITerminalsConnectorConstants.PROP_TERMINAL_CONNECTOR_ID,
-				"com.espressif.idf.console.connector.espidfConnector"); //$NON-NLS-1$
+				"com.espressif.idf.terminal.connector.espidfConnector"); //$NON-NLS-1$
 
 		// Store the encoding
 		data.put(ITerminalsConnectorConstants.PROP_ENCODING, getEncoding());

@@ -10,7 +10,7 @@
  * Wind River Systems - initial API and implementation
  * Kondal Kolipaka <kkolipaka@espressif.com> - ESP-IDF Console implementationS
  *******************************************************************************/
-package com.espressif.idf.console.connector.launcher;
+package com.espressif.idf.terminal.connector.launcher;
 
 import java.util.Map;
 

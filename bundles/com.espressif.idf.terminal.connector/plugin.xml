@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<!--
+    Copyright (c) 2018 Red Hat and others.
+    This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License 2.0
+    which accompanies this distribution, and is available at
+    https://www.eclipse.org/legal/epl-2.0/
+   
+    SPDX-License-Identifier: EPL-2.0
+ -->
+
+<plugin>
+
+<!-- Terminal connector contributions -->
+<!-- uses process connector -->
+   <extension point="org.eclipse.tm.terminal.control.connectors">
+      <connector
+            class="org.eclipse.tm.terminal.connector.process.ProcessConnector"
+            hidden="true"
+            id="com.espressif.idf.terminal.connector.espidfConnector"
+            name="%TerminalConnector.local"/>
+   </extension>
+   
+<!-- Terminal launcher delegate contributions -->
+   <extension point="org.eclipse.tm.terminal.view.ui.launcherDelegates">
+      <delegate
+            class="com.espressif.idf.terminal.connector.launcher.IDFConsoleLauncherDelegate"
+            id="com.espressif.idf.terminal.connector.launcher.local"
+            label="%LocalLauncherDelegate.label">
+      </delegate>
+   </extension>
+
+<!-- Menu contributions -->
+
+<!-- Command contributions -->
+
+
+<!-- Key bindings -->
+
+<!-- Handler contributions -->
+   
+</plugin>
