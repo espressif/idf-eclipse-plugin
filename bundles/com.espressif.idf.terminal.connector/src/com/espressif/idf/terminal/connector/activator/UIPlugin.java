@@ -53,7 +53,7 @@ public class UIPlugin extends AbstractUIPlugin {
 		if (getDefault() != null && getDefault().getBundle() != null) {
 			return getDefault().getBundle().getSymbolicName();
 		}
-		return "com.espressif.idf.console.connector"; //$NON-NLS-1$
+		return "com.espressif.idf.terminal.connector"; //$NON-NLS-1$
 	}
 
 	/**

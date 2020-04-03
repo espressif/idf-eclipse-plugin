@@ -1,1 +1,1 @@
-com.espressif.idf.console.connector/debugmode = 0
+com.espressif.idf.terminal.connector/debugmode = 0
