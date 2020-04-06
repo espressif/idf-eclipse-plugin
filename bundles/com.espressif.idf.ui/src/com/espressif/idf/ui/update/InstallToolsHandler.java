@@ -69,11 +69,14 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				monitor.setTaskName(Messages.InstallToolsHandler_ExportingPathsMsg);
 				handleToolsExport();
 				monitor.worked(1);
-
+				console.println(Messages.InstallToolsHandler_ConfiguredBuildEnvVarMsg);
+				
 				monitor.setTaskName(Messages.InstallToolsHandler_AutoConfigureToolchain);
 				configureToolChain();
 				monitor.worked(1);
-
+				console.println(Messages.InstallToolsHandler_ConfiguredCMakeMsg);
+				
+				console.println(Messages.InstallToolsHandler_ToolsCompleted);
 				return Status.OK_STATUS;
 			}
 
@@ -253,14 +256,14 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		IPath gitPath = new Path(gitExecutablePath);
 		if (!gitPath.toFile().exists())
 		{
-			Logger.log(NLS.bind("{0} doesn't exist", gitExecutablePath));
+			Logger.log(NLS.bind("{0} doesn't exist", gitExecutablePath)); //$NON-NLS-1$
 			return path;
 		}
 
 		String gitDir = gitPath.removeLastSegments(1).toOSString(); // ../bin/git
 		if (!StringUtil.isEmpty(path) && !path.contains(gitDir)) // Git not found on the CDT build PATH environment
 		{
-			return path.concat(";").concat(gitDir); // append git path
+			return path.concat(";").concat(gitDir); // append git path //$NON-NLS-1$
 		}
 		return path;
 	}
