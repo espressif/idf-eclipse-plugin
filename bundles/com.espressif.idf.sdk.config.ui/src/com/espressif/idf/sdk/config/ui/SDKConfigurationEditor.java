@@ -537,6 +537,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		});
 	}
 
+	@SuppressWarnings("deprecation")
 	private FilteredTree createFilteredTree(Group group)
 	{
 		int style = SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER;
@@ -592,7 +593,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		for (KConfigMenuItem kConfigMenuItem : children)
 		{
 			String type = kConfigMenuItem.getType();
-			String configKey = kConfigMenuItem.getName();
+			String configKey = kConfigMenuItem.getId();
 			Object configValue = valuesJsonMap.get(configKey);
 			boolean isVisible = (visibleJsonMap.get(configKey) != null ? (boolean) visibleJsonMap.get(configKey)
 					: false);
@@ -683,19 +684,10 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			{
 				Logger.logTrace(SDKConfigUIPlugin.getDefault(),
 						"Config key >" + configKey + " visiblity status >" + isVisible); //$NON-NLS-1$ //$NON-NLS-2$
-				List<KConfigMenuItem> choiceItems = kConfigMenuItem.getChildren();
-				for (KConfigMenuItem item : choiceItems)
+				
+				if (isExist(visibleJsonMap, configKey))
 				{
-					String localConfigKey = item.getName();
-					isVisible = (visibleJsonMap.get(localConfigKey) != null
-							? (boolean) visibleJsonMap.get(localConfigKey)
-							: false);
-					Logger.logTrace(SDKConfigUIPlugin.getDefault(),
-							"local key:" + localConfigKey + " Visibility >" + isVisible); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-
-				if (isVisible)
-				{
+					List<KConfigMenuItem> choiceItems = kConfigMenuItem.getChildren();
 					Label labelName = new Label(updateUIComposite, SWT.NONE);
 					labelName.setText(kConfigMenuItem.getTitle());
 
@@ -709,18 +701,20 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 					int index = 0;
 					for (KConfigMenuItem item : choiceItems)
 					{
-						String localConfigKey = item.getName();
-						choiceCombo.add(item.getTitle());
-						choiceCombo.setData(item.getTitle(), localConfigKey);
-
-						isVisible = valuesJsonMap.get(localConfigKey) != null
-								? (boolean) valuesJsonMap.get(localConfigKey)
-								: false;
-						if (isVisible)
+						String localConfigKey = item.getId();
+						if (isExist(visibleJsonMap, localConfigKey))
 						{
-							choiceCombo.select(index);
+							choiceCombo.add(item.getTitle());
+							choiceCombo.setData(item.getTitle(), localConfigKey);
+							
+							//Check if this selected?
+							if (isExist(valuesJsonMap, localConfigKey))
+							{
+								choiceCombo.select(index);
+							}
+							index++;
 						}
-						index++;
+
 					}
 
 					choiceCombo.addSelectionListener(new SelectionAdapter()
@@ -751,9 +745,9 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		}
 	}
 
-	protected boolean hasVisibility(String originalKey)
+	protected boolean isExist(JSONObject jsonMap, String key)
 	{
-		return visibleJsonMap.get(originalKey) != null ? (boolean) visibleJsonMap.get(originalKey) : false;
+		return jsonMap.get(key) != null ? (boolean) jsonMap.get(key) : false;
 	}
 
 	protected void addTooltipImage(String configKey, String helpInfo)
