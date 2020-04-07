@@ -3,7 +3,7 @@
    <feature url="features/com.espressif.idf.feature_1.0.1.qualifier.jar" id="com.espressif.idf.feature" version="1.0.1.qualifier">
       <category name="com.espressif.idf"/>
    </feature>
-   <feature url="features/com.cthing.cmakeed.feature_1.10.0.jar" id="com.cthing.cmakeed.feature" version="1.10.0">
+   <feature url="features/com.cthing.cmakeed.feature_1.14.0.jar" id="com.cthing.cmakeed.feature" version="1.14.0">
       <category name="com.espressif.idf"/>
    </feature>
    <category-def name="com.espressif.idf" label="Espressif IDF"/>

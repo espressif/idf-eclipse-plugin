@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><?pde version="3.8"?><target name="com.espressif.idf.target" sequenceNumber="25">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="com.espressif.idf.target" sequenceNumber="25">
 	<locations>
 		
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
@@ -6,28 +8,30 @@
 			<unit id="org.eclipse.rcp.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.test.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.equinox.executable.feature.group" version="0.0.0"/>
-			<repository location="https://download.eclipse.org/eclipse/updates/4.9/"/>
+			<repository location="https://download.eclipse.org/eclipse/updates/4.15/"/>
 		</location>
 		
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
 			<unit id="org.eclipse.cdt.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.cdt.sdk.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.cdt.cmake.feature.group" version="0.0.0"/>
-			<repository location="http://download.eclipse.org/tools/cdt/releases/9.5"/>
+			<repository location="http://download.eclipse.org/tools/cdt/releases/9.11"/>
 		</location>	
 		
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
-			<unit id="org.eclipse.tm.terminal.control" version="0.0.0"/>
 			<repository location="https://download.eclipse.org/tm/updates/4.5.0/repository/"/>
+			<unit id="org.eclipse.tm.terminal.control.feature.feature.group" version="4.5.0.201809101428"/>
+			<unit id="org.eclipse.tm.terminal.feature.feature.group" version="4.5.0.201809101428"/>
+			<unit id="org.eclipse.tm.terminal.view.feature.feature.group" version="4.5.0.201809101428"/>
 		</location>	
 		
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
 			<unit id="javax.xml.bind" version="0.0.0"/>
-			<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20180905201904/repository"/>
+			<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20200224183213/repository"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
-			<unit id="com.cthing.cmakeed.feature.feature.group" version="1.10.0"/>
-			<repository location="jar:https://dl.bintray.com/15knots/p2-zip/CMakeEd-1.10.0.zip!/"/>
+			<unit id="com.cthing.cmakeed.feature.feature.group" version="1.14.0"/>
+			<repository location="jar:https://dl.bintray.com/15knots/p2-zip/CMakeEd-1.14.0.zip!/"/>
 		</location>
 	</locations>
 </target>

@@ -12,12 +12,12 @@ Require-Bundle: org.eclipse.cdt.core;resolution:=optional,
  org.eclipse.core.runtime,
  org.eclipse.core.variables,
  org.eclipse.debug.ui;resolution:=optional,
- org.eclipse.tm.terminal.view.core;resolution:=optional,
  org.eclipse.tm.terminal.connector.process,
  org.eclipse.tm.terminal.control,
  org.eclipse.ui,
  com.espressif.idf.core,
- org.eclipse.tm.terminal.view.ui
+ org.eclipse.tm.terminal.view.ui,
+ org.eclipse.tm.terminal.view.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
