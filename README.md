@@ -182,16 +182,16 @@ Due to any issues if the required environment variables are not configured, Plea
 This is how they looks like:
 
 ##### IDF_PATH #####
-`/Users/kondal/esp/esp-idf`
+`/Users/user-name/esp/esp-idf`
 
 ##### OPENOCD_SCRIPTS #####
-`/Users/kondal/.espressif/tools/openocd-esp32/v0.10.0-esp32-20190313/openocd-esp32/share/openocd/scripts`
+`/Users/user-name/.espressif/tools/openocd-esp32/v0.10.0-esp32-20190313/openocd-esp32/share/openocd/scripts`
 
 ##### IDF_PYTHON_ENV_PATH #####
-`/Users/kondal/.espressif/python_env/idf4.0_py3.7_env`
+`/Users/user-name/.espressif/python_env/idf4.0_py3.7_env`
 
 ##### PATH #####
-`/Users/kondal/.espressif/tools/xtensa-esp32-elf/esp32-2019r1-8.2.0/xtensa-esp32-elf/bin:/Users/kondal/.espressif/tools/esp32ulp-elf/2.28.51.20170517/esp32ulp-elf-binutils/bin:/Users/kondal/.espressif/tools/cmake/3.13.4/CMake.app/Contents/bin:/Users/kondal/.espressif/tools/openocd-esp32/v0.10.0-esp32-20190313/openocd-esp32/bin:/Users/kondal/.espressif/tools/ninja/1.9.0/:/Users/kondal/.espressif/python_env/idf4.0_py3.7_env/bin:/Users/kondal/esp/esp-idf/tools:$PATH`
+`/Users/user-name/.espressif/tools/xtensa-esp32-elf/esp32-2019r1-8.2.0/xtensa-esp32-elf/bin:/Users/user-name/.espressif/tools/esp32ulp-elf/2.28.51.20170517/esp32ulp-elf-binutils/bin:/Users/user-name/.espressif/tools/cmake/3.13.4/CMake.app/Contents/bin:/Users/user-name/.espressif/tools/openocd-esp32/v0.10.0-esp32-20190313/openocd-esp32/bin:/Users/user-name/.espressif/tools/ninja/1.9.0/:/Users/user-name/.espressif/python_env/idf4.0_py3.7_env/bin:/Users/user-name/esp/esp-idf/tools:$PATH`
 
 In the above path, last segment `$PATH` need to be replaced with the system environment PATH based on the operating system.
 For example, to get the system environment PATH.
@@ -215,7 +215,7 @@ If due to any issues if these toolchains are not detected, Please follow the ste
 * Click on `Next>`
 * Provide the GCC Toolchain Settings:
 
-**Compiler:** /Users/kondal/esp/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc,
+**Compiler:** /Users/user-name/esp/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc,
 **Operating System:** esp32,
 **CPU Architecture:** xtensa
 
@@ -227,8 +227,8 @@ We now need to tell CDT which toolchain to use when building the project. This w
 
 * Navigate to “C/C++  -> “CMake” preference page
 * Click `Add..` and this will launch the New CMake Toolchain configuration dialog
-* Browse CMake toolchain `Path`. Example: `/Users/kondal/esp/esp-idf/tools/cmake/toolchain-esp32.cmake`
-* Select GCC Xtensa Toolchain compiler from the drop-down list. Example: `esp32 xtensa /Users/kondal/esp/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc`
+* Browse CMake toolchain `Path`. Example: `/Users/user-name/esp/esp-idf/tools/cmake/toolchain-esp32.cmake`
+* Select GCC Xtensa Toolchain compiler from the drop-down list. Example: `esp32 xtensa /Users/user-name/esp/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc`
 
 **NOTE:**  Eclipse CDT has a bug in saving the toolchain preferences, hence it's recommended to restart the Eclipse before we move further configuring the launch target.
 
@@ -243,7 +243,7 @@ To provide the customized launch configuration and flash arguments, please follo
 * Specify the `Location` where this application has to run on. Since `idf.py` is a python file, will configure the python system path. Example:`${system_path:python}`
 * Specify `Working directory` of the application. Example: `${workspace_loc:/hello_world}`
 * In additional arguments, provide a flashing command which will run in the specified working directory
-* Flash command looks like this: `/Users/kondal/esp/esp-idf/tools/idf.py -p /dev/cu.SLAB_USBtoUART flash`
+* Flash command looks like this: `/Users/user-name/esp/esp-idf/tools/idf.py -p /dev/cu.SLAB_USBtoUART flash`
 * Click OK to save the settings
 * Click on the `Launch` icon to flash the application to the selected board 
 
