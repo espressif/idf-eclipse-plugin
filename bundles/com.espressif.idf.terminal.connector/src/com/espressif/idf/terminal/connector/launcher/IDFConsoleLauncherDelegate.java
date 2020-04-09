@@ -375,6 +375,14 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 		Set<String> keySet = envMap.keySet();
 		for (String envKey : keySet) {
 			String envValue = envMap.get(envKey);
+			if (envKey.equals("PATH")) //$NON-NLS-1$
+			{
+				String idfExtraPaths = IDFUtil.getIDFExtraPaths();
+				if(!StringUtil.isEmpty(idfExtraPaths))
+				{
+					envValue = envValue + ":" + idfExtraPaths;
+				}
+			}
 			envpList.add(envKey + "=" + envValue); //$NON-NLS-1$
 		}
 
@@ -419,4 +427,5 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 
 		return connector;
 	}
+
 }

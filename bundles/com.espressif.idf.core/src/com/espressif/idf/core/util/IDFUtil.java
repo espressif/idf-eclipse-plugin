@@ -10,6 +10,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
@@ -68,23 +69,24 @@ public class IDFUtil
 
 		return idfPath;
 	}
-	
+
 	/**
-	 * @return value for IDF_PYTHON_ENV_PATH environment variable. If IDF_PYTHON_ENV_PATH not found, will identify python from the build environment PATH
+	 * @return value for IDF_PYTHON_ENV_PATH environment variable. If IDF_PYTHON_ENV_PATH not found, will identify
+	 *         python from the build environment PATH
 	 */
 	public static String getIDFPythonEnvPath()
 	{
 		String idfPyEnvPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH);
 		if (!StringUtil.isEmpty(idfPyEnvPath))
 		{
-			
+
 			if (Platform.getOS().equals(Platform.OS_WIN32))
 			{
-				idfPyEnvPath = idfPyEnvPath + "/" +  "Scripts"; //$NON-NLS-1$ //$NON-NLS-2$
+				idfPyEnvPath = idfPyEnvPath + "/" + "Scripts"; //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			else
 			{
-				idfPyEnvPath = idfPyEnvPath + "/" +  "bin"; //$NON-NLS-1$ //$NON-NLS-2$
+				idfPyEnvPath = idfPyEnvPath + "/" + "bin"; //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			java.nio.file.Path commandPath = findCommand(IDFConstants.PYTHON_CMD, idfPyEnvPath);
 			if (commandPath != null)
@@ -93,8 +95,7 @@ public class IDFUtil
 			}
 		}
 		return findCommandFromBuildEnvPath(IDFConstants.PYTHON_CMD);
-		
-		
+
 	}
 
 	public static String getPythonExecutable()
@@ -175,7 +176,7 @@ public class IDFUtil
 		return null;
 
 	}
-	
+
 	public static String getLineSeparatorValue()
 	{
 		IScopeContext scope = InstanceScope.INSTANCE;
@@ -184,4 +185,25 @@ public class IDFUtil
 		IEclipsePreferences node = scopeContext[0].getNode(Platform.PI_RUNTIME);
 		return node.get(Platform.PREF_LINE_SEPARATOR, System.getProperty("line.separator")); //$NON-NLS-1$
 	}
+
+	public static String getIDFExtraPaths()
+	{
+		String IDF_PATH = getIDFPath();
+		if (!StringUtil.isEmpty(IDF_PATH))
+		{
+			IPath IDF_ADD_PATHS_EXTRAS = new Path(StringUtil.EMPTY);
+			IDF_ADD_PATHS_EXTRAS = IDF_ADD_PATHS_EXTRAS.append(IDF_PATH).append("components/esptool_py/esptool"); //$NON-NLS-1$
+			IDF_ADD_PATHS_EXTRAS = IDF_ADD_PATHS_EXTRAS.append(":"); //$NON-NLS-1$
+			IDF_ADD_PATHS_EXTRAS = IDF_ADD_PATHS_EXTRAS.append(IDF_PATH).append("components/espcoredump"); //$NON-NLS-1$
+			IDF_ADD_PATHS_EXTRAS = IDF_ADD_PATHS_EXTRAS.append(":"); //$NON-NLS-1$
+			IDF_ADD_PATHS_EXTRAS = IDF_ADD_PATHS_EXTRAS.append(IDF_PATH).append("components/partition_table"); //$NON-NLS-1$
+			IDF_ADD_PATHS_EXTRAS = IDF_ADD_PATHS_EXTRAS.append(":"); //$NON-NLS-1$
+			IDF_ADD_PATHS_EXTRAS = IDF_ADD_PATHS_EXTRAS.append(IDF_PATH).append("components/app_update"); //$NON-NLS-1$
+
+			return IDF_ADD_PATHS_EXTRAS.toString();
+		}
+
+		return StringUtil.EMPTY;
+	}
+
 }
