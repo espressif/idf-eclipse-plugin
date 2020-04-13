@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.cdt.utils.pty.PTY;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
@@ -35,6 +36,7 @@ import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
 import org.eclipse.tm.internal.terminal.provisional.api.ITerminalConnector;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalConnectorExtension;
@@ -391,6 +393,12 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 
 		Assert.isTrue(image != null || process != null);
 
+		String terminalWrkDir = getWorkingDir();
+		if (StringUtil.isEmpty(terminalWrkDir))
+		{
+			terminalWrkDir = workingDir;
+		}
+		
 		// Construct the terminal settings store
 		ISettingsStore store = new SettingsStore();
 
@@ -404,7 +412,7 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 		processSettings.setLineSeparator(lineSeparator);
 		processSettings.setStdOutListeners(stdoutListeners);
 		processSettings.setStdErrListeners(stderrListeners);
-		processSettings.setWorkingDir(!StringUtil.isEmpty(IDFUtil.getIDFPath()) ? IDFUtil.getIDFPath() : workingDir);//TODO:fix this
+		processSettings.setWorkingDir(terminalWrkDir);
 		processSettings.setEnvironment(envp);
 
 		if (properties.containsKey(ITerminalsConnectorConstants.PROP_PROCESS_MERGE_ENVIRONMENT)) {
@@ -426,6 +434,41 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 		}
 
 		return connector;
+	}
+	
+	/**
+	 * Returns the IResource from the current selection
+	 *
+	 * @return the IResource, or <code>null</code>.
+	 */
+	private org.eclipse.core.resources.IResource getSelectionResource() {
+		ISelectionService selectionService = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
+		ISelection selection = selectionService != null ? selectionService.getSelection() : StructuredSelection.EMPTY;
+
+		if (selection instanceof IStructuredSelection && !selection.isEmpty()) {
+			Object element = ((IStructuredSelection) selection).getFirstElement();
+			if (element instanceof org.eclipse.core.resources.IResource) {
+				return ((org.eclipse.core.resources.IResource) element);
+			}
+			if (element instanceof IAdaptable) {
+				return ((IAdaptable) element).getAdapter(org.eclipse.core.resources.IResource.class);
+			}
+		}
+		return null;
+	}
+	
+	@SuppressWarnings("cast")
+	protected String getWorkingDir() {
+		Bundle bundle = Platform.getBundle("org.eclipse.core.resources"); //$NON-NLS-1$
+		if (bundle != null && bundle.getState() != Bundle.UNINSTALLED && bundle.getState() != Bundle.STOPPING) {
+			// if we have a IResource selection use the location for working directory
+			IResource resource = getSelectionResource();
+			if (resource instanceof IResource) {
+				String dir = ((IResource) resource).getProject().getLocation().toString();
+				return dir;
+			}
+		}
+		return IDFUtil.getIDFPath();
 	}
 
 }
