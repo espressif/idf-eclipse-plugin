@@ -1,0 +1,2 @@
+org.eclipse.tm.terminal.connector.serial/debugmode = 0
+org.eclipse.tm.terminal.connector.serial/trace/serialLinePanel = false
