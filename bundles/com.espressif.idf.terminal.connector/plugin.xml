@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+<!-- Terminal connector contributions -->
+<!-- uses process connector -->
+   <extension point="org.eclipse.tm.terminal.control.connectors">
+      <connector
+            class="org.eclipse.tm.terminal.connector.process.ProcessConnector"
+            hidden="true"
+            id="com.espressif.idf.terminal.connector.espidfConnector"
+            name="%TerminalConnector.local"/>
+   </extension>
+   
+<!-- Terminal launcher delegate contributions -->
+   <extension point="org.eclipse.tm.terminal.view.ui.launcherDelegates">
+      <delegate
+            class="com.espressif.idf.terminal.connector.launcher.IDFConsoleLauncherDelegate"
+            id="com.espressif.idf.terminal.connector.launcher.local"
+            label="%LocalLauncherDelegate.label">
+      </delegate>
+   </extension>
+   
+</plugin>
