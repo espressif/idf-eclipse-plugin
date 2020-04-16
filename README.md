@@ -7,7 +7,6 @@ IDF Eclipse Plugins aiming to provide better tooling capabilities, which simplif
 * [ Installing IDF Eclipse Plugins ](#GettingStarted) <br>
 * [ Installing ESP-IDF Tools ](#InstallTools) <br>
 * [ Creating a new Project ](#NewProjectUsingDefault)<br>
-* [ Creating new project using ESP-IDF Templates ](#NewProjectUsingTemplates)<br>
 * [ Configuring Launch Target ](#ConfigureLaunchTarget)<br>
 * [ Compiling the Project ](#BuildApplication)<br>
 * [ Flashing the Project ](#FlashApplication)<br>
@@ -79,10 +78,12 @@ ESP-IDF Directory selection dialog:
 * Provide the `Project name`
 * Click `Finish`
 
+**Note:** You will see a lot of unresolved inclusion errors in the editor and those will be resolved only after the build.
+
 ![](docs/images/3_new_project_default.png)
 
 <a name="NewProjectUsingTemplates"></a>
-# Create a new project using ESP-IDF Templates
+## Create a new project using ESP-IDF Templates
 * Make sure you're in `C/C++ Perspective`
 * Go to `File` > `New` > `Espressif IDF Project` (If you don't see this, please reset the perspective from `Window` > `Perspective` > `Reset Perspective..`)
 * Provide the `Project name`
@@ -90,6 +91,8 @@ ESP-IDF Directory selection dialog:
 * Check `Create a project using one of the templates`
 * Select the required template from the tree
 * Click `Finish`
+
+**Note:** You will see a lot of unresolved inclusion errors in the editor and those will be resolved only after the build.
 
 ![](docs/images/4_new_project_templates.png)
 
