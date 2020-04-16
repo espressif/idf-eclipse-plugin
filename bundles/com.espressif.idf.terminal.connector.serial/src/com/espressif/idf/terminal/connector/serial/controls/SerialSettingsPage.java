@@ -19,6 +19,7 @@ import org.eclipse.cdt.serial.ByteSize;
 import org.eclipse.cdt.serial.Parity;
 import org.eclipse.cdt.serial.SerialPort;
 import org.eclipse.cdt.serial.StopBits;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.dialogs.DialogSettings;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -35,10 +36,14 @@ import org.eclipse.tm.terminal.view.ui.interfaces.IConfigurationPanel;
 import org.eclipse.tm.terminal.view.ui.interfaces.IConfigurationPanelContainer;
 import org.osgi.service.prefs.Preferences;
 
+import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.terminal.connector.serial.activator.Activator;
 import com.espressif.idf.terminal.connector.serial.connector.SerialConnector;
 import com.espressif.idf.terminal.connector.serial.connector.SerialSettings;
 import com.espressif.idf.terminal.connector.serial.nls.Messages;
+import com.espressif.idf.ui.EclipseUtil;
 
 public class SerialSettingsPage extends AbstractSettingsPage {
 
@@ -67,18 +72,20 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 		dialogSettings = DialogSettings.getOrCreateSection(Activator.getDefault().getDialogSettings(),
 				this.getClass().getSimpleName());
 		portName = dialogSettings.get(SerialSettings.PORT_NAME_ATTR);
+
 		lastUsedSerialPort = getLastUsedSerialPort();
 
-		String baudRateStr = dialogSettings.get(SerialSettings.BAUD_RATE_ATTR);
-		if (baudRateStr == null || baudRateStr.isEmpty()) {
-			baudRate = BaudRate.getDefault();
-		} else {
-			String[] rates = BaudRate.getStrings();
-			for (int i = 0; i < rates.length; ++i) {
-				if (baudRateStr.equals(rates[i])) {
-					baudRate = BaudRate.fromStringIndex(i);
-					break;
-				}
+		String sdkconfigBaudRate = getsdkconfigBaudRate();
+		if (!StringUtil.isEmpty(sdkconfigBaudRate)) {
+			baudRate = getBaudRate(sdkconfigBaudRate);
+		}
+
+		if (baudRate == null) {
+			String baudRateStr = dialogSettings.get(SerialSettings.BAUD_RATE_ATTR);
+			if (baudRateStr == null || baudRateStr.isEmpty()) {
+				baudRate = BaudRate.getDefault();
+			} else {
+				baudRate = getBaudRate(baudRateStr);
 			}
 		}
 
@@ -120,6 +127,31 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 				}
 			}
 		}
+	}
+
+	protected String getsdkconfigBaudRate() {
+		String sdkconfigBaudRate = null;
+		try {
+			IResource resource = EclipseUtil.getSelectionResource();
+			if (resource != null) {
+				String projectPath = resource.getProject().getLocation().toString();
+				sdkconfigBaudRate = IDFUtil.readBaudRate(projectPath);
+			}
+
+		} catch (IOException e) {
+			Logger.log(e);
+		}
+		return sdkconfigBaudRate;
+	}
+
+	protected BaudRate getBaudRate(String baudRateStr) {
+		String[] rates = BaudRate.getStrings();
+		for (int i = 0; i < rates.length; ++i) {
+			if (baudRateStr.equals(rates[i])) {
+				return BaudRate.fromStringIndex(i);
+			}
+		}
+		return baudRate;
 	}
 
 	protected String getLastUsedSerialPort() {
