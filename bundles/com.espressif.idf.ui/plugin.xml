@@ -76,5 +76,33 @@
          </menu>
       </menuContribution>
    </extension>
-
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="com.espressif.idf.ui.handlers.NewProjectHandler"
+            id="com.espressif.idf.ui.command.new"
+            name="%wizard.name">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:common.new.menu?after=new">
+         <command
+               commandId="com.espressif.idf.ui.command.new"
+               icon="icons/espressif_idf_project.png"
+               label="%wizard.name"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeWorkbenchWindow.activePerspective">
+                  <equals
+                        value="org.eclipse.cdt.ui.CPerspective">
+                  </equals>
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+   </extension>
 </plugin>
