@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.osgi.framework.Bundle;
 
+import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFProjectNature;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.FileUtil;
@@ -67,7 +68,7 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 		{
 			return; // let's go with the default generate
 		}
-		
+
 		// Target project
 		IProject project = getProject();
 
@@ -111,6 +112,12 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 
 		for (File file : files)
 		{
+			// Don't copy build folder as CMakeCache.txt file contains full path entries and leads to build issues.
+			if (file.getName().equals(IDFConstants.BUILD_FOLDER))
+			{
+				continue;
+			}
+
 			// create the file/directory
 			File dest = new File(projectFile, file.getName());
 			if (file.isDirectory())
