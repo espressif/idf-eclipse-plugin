@@ -63,3 +63,13 @@ Please follow this menu. `Project > C/C++ Index >  Create Parser Log`
 ##  How do I access the error log?
 To view the Eclipse error log: From the main menu, select `Window > Show View > Other`. Then select `General > Error Log`
 Check more details [here](https://github.com/espressif/idf-eclipse-plugin#error-log)
+## How do I report a deadlock or Eclipse hang?
+You can find the detailed instructions here https://wiki.eclipse.org/How_to_report_a_deadlock
+- On command line, use `jps -v` to find the PIDs of Java processes and jstack <pid> to show the stack trace of Java processes.
+<pre>
+<code>$ jps -v
+32308 org.eclipse.equinox.launcher_1.5.0.v20180119-0753.jar -Dosgi.requiredJavaVersion=1.8 -Dosgi.instance.area.default=@user.home/eclipse-workspace -XX:+UseG1GC -XX:+UseStringDeduplication -Dosgi.requiredJavaVersion=1.8 -Dosgi.dataAreaRequiresExplicitInit=true -Xms256m -Xmx1024m -Dswt.dbus.init
+8824 Jps -Dapplication.home=/usr/lib/jvm/java-8-oracle -Xms8m
+$ jstack 32308 > /tmp/jstack.txt
+</code></pre>
+Here 32308 and 8824 are PIDs of Java processes. 8824 is jps itself and is of no interest for us. 32308 is and Eclipse process judging from presence of org.eclipse.equinox.launcher in its command line. Jstack command saves stack trace of Eclipse process in a file /tmp/jstack.txt, attach the file to bug report.
