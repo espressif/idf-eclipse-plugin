@@ -29,7 +29,7 @@ IDF Eclipse Plugins aiming to provide better tooling capabilities, which simplif
 
 <a name="Prerequisites"></a>
 # Installing Prerequisites
-* **Java 8 and above** : Download and install Java SE from <a href= "https://www.oracle.com/technetwork/java/javase/downloads/index.html">here</a>
+* **Java 8 Update 212 and above** : Download and install Java SE from <a href= "https://www.oracle.com/technetwork/java/javase/downloads/index.html">here</a>
 * **Python 3.5 and above** : Download and install Python from <a href="https://www.python.org/downloads/">here</a>
 * **Eclipse 2018-12 CDT and above** : Download and install Eclipse CDT package from <a href= "https://www.eclipse.org/downloads/packages/release/2018-12/r/eclipse-ide-cc-developers">here </a>
 *  **Git** : Get the latest git from <a href ="https://git-scm.com/downloads">here</a>
