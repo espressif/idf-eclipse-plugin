@@ -60,7 +60,7 @@ public class TemplatesManager implements ITemplateManager
 	}
 
 	/**
-	 * Search for the template node for a given templateID
+	 * Search for the template node for a given templateID only at the root level
 	 * 
 	 * @param templateId unique identifier for template
 	 * @return TemplateNode for given templateId if found, otherwise <b>null</b> will be returned.
@@ -68,58 +68,15 @@ public class TemplatesManager implements ITemplateManager
 	public ITemplateNode getTemplateNode(String templateId)
 	{
 		ITemplateNode root = templateReader.getTemplates();
-
-		while (root.getChildren().size() > 0)
+		List<ITemplateNode> children = root.getChildren();
+		for (ITemplateNode iTemplateNode : children)
 		{
-			List<ITemplateNode> children = root.getChildren();
-			for (ITemplateNode iTemplateNode : children)
+			if (iTemplateNode.getType() == IResource.PROJECT && iTemplateNode.getName().equals(templateId))
 			{
-				if (iTemplateNode.getType() == IResource.FOLDER)
-				{
-					root = iTemplateNode;
-				} else
-					if (iTemplateNode.getType() == IResource.PROJECT && iTemplateNode.getName().equals(templateId))
-					{
-						return iTemplateNode;
-					}
+				return iTemplateNode;
 			}
 		}
 		return null;
 
 	}
-
-	/**
-	 * Recursively search for the template node
-	 * 
-	 * @param root
-	 * @param templateId
-	 * @param foundNode
-	 * @return
-	 */
-	protected ITemplateNode findTemplateNode(ITemplateNode root, String templateId, ITemplateNode foundNode)
-	{
-
-		if (foundNode != null)
-		{
-			return foundNode;
-		}
-
-		List<ITemplateNode> children = root.getChildren();
-		for (ITemplateNode iTemplateNode : children)
-		{
-			if (iTemplateNode.getType() == IResource.FOLDER)
-			{
-				findTemplateNode(iTemplateNode, templateId, foundNode);
-			} else
-				if (iTemplateNode.getType() == IResource.PROJECT && iTemplateNode.getName().equals(templateId))
-				{
-					foundNode = iTemplateNode;
-					break;
-				}
-		}
-
-		return foundNode;
-
-	}
-
 }
