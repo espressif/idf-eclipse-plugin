@@ -73,3 +73,10 @@ You can find the detailed instructions here https://wiki.eclipse.org/How_to_repo
 $ jstack 32308 > /tmp/jstack.txt
 </code></pre>
 Here 32308 and 8824 are PIDs of Java processes. 8824 is jps itself and is of no interest for us. 32308 is and Eclipse process judging from presence of org.eclipse.equinox.launcher in its command line. Jstack command saves stack trace of Eclipse process in a file /tmp/jstack.txt, attach the file to bug report.
+## `sun.security.validator.ValidatorException: PKIX path building failed:` error while installing the plugins through update site
+This would have caused by the Java version or Java certificates. Please make sure you've installed `Java 8 Update 212 and later` to fix this error. 
+Check below links:
+- https://esp32.com/viewtopic.php?f=13&t=12327&start=10#p50137 
+- https://stackoverflow.com/questions/6908948/java-sun-security-provider-certpath-suncertpathbuilderexception-unable-to-find
+
+
