@@ -159,6 +159,14 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 				console.getErrorStream().write("No esp launch target found. Please create/select the correct 'Launch Target'"); //$NON-NLS-1$
 				return null;
 			}
+			
+			//Check for spaces in the project path
+			if (project.getLocation().toOSString().contains(" ")) //$NON-NLS-1$
+			{
+				console.getErrorStream().write("Project path can’t include space " + project.getLocation().toOSString()); //$NON-NLS-1$
+				return null;
+			}
+			
 			String generator = getProperty(CMAKE_GENERATOR);
 			if (generator == null)
 			{
