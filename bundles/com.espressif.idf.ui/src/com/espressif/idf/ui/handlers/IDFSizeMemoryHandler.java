@@ -24,7 +24,6 @@ public class IDFSizeMemoryHandler extends AbstractIDFSizeHandler
 		arguments.add(pythonExecutablenPath);
 		arguments.add(IDFUtil.getIDFSizeScriptFile().getAbsolutePath());
 		arguments.add(mapPath.toOSString());
-		arguments.add("--json"); //$NON-NLS-1$
 
 		return arguments;
 	}

@@ -25,7 +25,6 @@ public class IDFSizeArchivesMemoryHandler extends AbstractIDFSizeHandler
 		arguments.add(IDFUtil.getIDFSizeScriptFile().getAbsolutePath());
 		arguments.add(mapPath.toOSString());
 		arguments.add("--archives"); //$NON-NLS-1$
-		arguments.add("--json");//$NON-NLS-1$
 
 		return arguments;
 	}
