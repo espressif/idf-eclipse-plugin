@@ -44,6 +44,11 @@ public interface IDFConstants
 	 * idf tools file
 	 */
 	String IDF_TOOLS_SCRIPT = "idf_tools.py"; //$NON-NLS-1$
+	
+	/**
+	 * idf size file
+	 */
+	String IDF_SIZE_SCRIPT = "idf_size.py"; //$NON-NLS-1$
 
 	/**
 	 * <IDF_PATH>/tools

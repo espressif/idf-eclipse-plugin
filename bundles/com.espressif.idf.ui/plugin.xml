@@ -120,4 +120,38 @@
          </command>
       </menuContribution>
    </extension>
+    <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?before=additions">
+         <separator
+               name="com.espressif.idf.espressif.seperator"
+               visible="true">
+         </separator>
+         <command
+               commandId="com.espressif.idf.ui.memoryanalysis"
+               label="ESP-IDF: Print Memory Size"
+               style="push">
+         </command>
+         <command
+               commandId="com.espressif.idf.ui.memoryanalysis.archives"
+               label="ESP-IDF: Print Per-archive Sizes"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="com.espressif.idf.ui.handlers.IDFSizeMemoryHandler"
+            id="com.espressif.idf.ui.memoryanalysis"
+            name="ESP-IDF: Print Memory Size">
+      </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.handlers.IDFSizeArchivesMemoryHandler"
+            id="com.espressif.idf.ui.memoryanalysis.archives"
+            name="ESP-IDF: Print Per-archive Sizes">
+      </command>
+   </extension>
 </plugin>
