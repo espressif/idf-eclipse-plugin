@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.ui.handlers;
 
+import java.io.File;
 import java.util.List;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -84,7 +85,7 @@ public abstract class AbstractIDFSizeHandler extends AbstractHandler
 		}
 
 		// Check /project/build/projectname.map
-		IPath mapPath = project.getLocation().append("build").append(project.getName() + ".map"); //$NON-NLS-1$ //$NON-NLS-2$
+		IPath mapPath = getMapFilePath(project);
 		if (!mapPath.toFile().exists())
 		{
 			String msg = NLS.bind("Couldn't find {0} map file in the project", mapPath.toOSString()); //$NON-NLS-1$
@@ -103,6 +104,28 @@ public abstract class AbstractIDFSizeHandler extends AbstractHandler
 			Logger.log(IDFCorePlugin.getPlugin(), e1);
 			return new Status(Status.ERROR, UIPlugin.PLUGIN_ID, e1.getMessage());
 		}
+	}
+
+	protected IPath getMapFilePath(IProject project)
+	{
+		IPath mapPath = project.getLocation().append("build").append(project.getName() + ".map"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (!mapPath.toFile().exists())
+		{
+			File buildDir = project.getLocation().append("build").toFile(); //$NON-NLS-1$
+			if (buildDir.exists())
+			{
+				// search for .map filea
+				File[] fileList = buildDir.listFiles();
+				for (File file : fileList)
+				{
+					if (file.getName().endsWith(".map")) // $NON-NLS-N$
+					{
+						return new Path(file.getAbsolutePath());
+					}
+				}
+			}
+		}
+		return mapPath;
 	}
 
 	protected abstract List<String> getCommandArgs(String pythonExecutablenPath, IPath mapPath);
