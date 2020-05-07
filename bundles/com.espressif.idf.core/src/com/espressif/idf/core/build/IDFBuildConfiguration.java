@@ -111,6 +111,7 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 	{
 		super(config, name, toolChain, null, "run"); //$NON-NLS-1$
 		this.toolchain = toolChain;
+		this.name = name;
 	}
 
 	public IDFBuildConfiguration(IBuildConfiguration config, String name, IToolChain toolChain,
@@ -118,6 +119,7 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 	{
 		super(config, name, toolChain, toolChainFile, launchMode);
 		this.toolchain = toolChain;
+		this.name = name;
 
 	}
 
