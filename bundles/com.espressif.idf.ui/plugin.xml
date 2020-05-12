@@ -54,6 +54,11 @@
             id="com.espressif.idf.ui.command.list"
             name="%command.name.0">
       </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.help.LaunchEspIdfDocHandler"
+            id="com.espressif.idf.ui.command.idfversiondoc"
+            name="ESP-IDF Programming Guide">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -74,6 +79,16 @@
                   style="push">
             </command>
          </menu>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:help?after=org.eclipse.epp.mpc.ui.command.showMarketplaceWizard">
+         <command
+               commandId="com.espressif.idf.ui.command.idfversiondoc"
+               icon="icons/espressif.png"
+               label="%command.label"
+               style="push">
+         </command>
       </menuContribution>
    </extension>
    <extension

@@ -33,5 +33,9 @@
 			<unit id="com.cthing.cmakeed.feature.feature.group" version="1.14.0"/>
 			<repository location="jar:https://dl.bintray.com/15knots/p2-zip/CMakeEd-1.14.0.zip!/"/>
 		</location>
+		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
+			<unit id="org.eclipse.jgit.feature.group" version="0.0.0"/>
+			<repository location="http://download.eclipse.org/releases/2019-09"/>
+		</location>
 	</locations>
 </target>
