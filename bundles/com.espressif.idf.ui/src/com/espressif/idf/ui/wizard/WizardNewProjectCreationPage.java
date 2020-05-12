@@ -265,11 +265,22 @@ public class WizardNewProjectCreationPage extends WizardPage {
 	 */
 	protected boolean validatePage() {
 		IWorkspace workspace = IDEWorkbenchPlugin.getPluginWorkspace();
-
+		
+		String worspaceLocation = workspace.getRoot().getLocation().toOSString();
+		if (worspaceLocation.contains(" ")) { //$NON-NLS-1$
+			setErrorMessage(Messages.WizardNewProjectCreationPage_WorkspaceLocCantIncludeSpaceErr);
+			return false;
+		}
+		
 		String projectFieldContents = getProjectNameFieldValue();
 		if (projectFieldContents.equals("")) { //$NON-NLS-1$
 			setErrorMessage(null);
 			setMessage(IDEWorkbenchMessages.WizardNewProjectCreationPage_projectNameEmpty);
+			return false;
+		}
+		
+		if (projectFieldContents.contains(" ")) { //$NON-NLS-1$
+			setErrorMessage(Messages.WizardNewProjectCreationPage_NameCantIncludeSpaceErr);
 			return false;
 		}
 
