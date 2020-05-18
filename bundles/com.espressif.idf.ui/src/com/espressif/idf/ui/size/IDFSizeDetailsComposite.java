@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2018-2019 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Copyright 2018-2020 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
 package com.espressif.idf.ui.size;
