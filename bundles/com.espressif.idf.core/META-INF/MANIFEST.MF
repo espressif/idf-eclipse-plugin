@@ -22,4 +22,8 @@ Bundle-ActivationPolicy: lazy
 Export-Package: com.espressif.idf.core,
  com.espressif.idf.core.build,
  com.espressif.idf.core.logging,
- com.espressif.idf.core.util
+ com.espressif.idf.core.util,
+ org.json.simple,
+ org.json.simple.parser
+Bundle-ClassPath: lib/json-simple-1.1.1.jar,
+ .

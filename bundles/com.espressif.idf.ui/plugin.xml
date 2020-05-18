@@ -144,7 +144,7 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="com.espressif.idf.ui.handlers.IDFSizeMemoryHandler"
+            defaultHandler="com.espressif.idf.ui.size.IDFSizeMemoryHandler"
             id="com.espressif.idf.ui.memoryanalysis"
             name="ESP-IDF: Print Memory Size">
       </command>
@@ -153,5 +153,14 @@
             id="com.espressif.idf.ui.memoryanalysis.archives"
             name="ESP-IDF: Print Per-archive Sizes">
       </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="com.espressif.idf.ui.size.IDFSizeAnalysisEditor"
+            default="false"
+            id="com.espressif.idf.ui.editor.idfsize"
+            name="ESP-IDF Size Analysis">
+      </editor>
    </extension>
 </plugin>
