@@ -54,7 +54,7 @@ public class IDFSizeMemoryHandler extends AbstractHandler
 		{
 			return null;
 		}
-		Logger.log("Found mapping file for project:" + mapFilePath.toOSString());
+		Logger.log("Found mapping file for project:" + mapFilePath.toOSString()); //$NON-NLS-1$
 		launchEditor(mapFilePath);
 
 		return null;
@@ -92,11 +92,11 @@ public class IDFSizeMemoryHandler extends AbstractHandler
 			File buildDir = project.getLocation().append("build").toFile(); //$NON-NLS-1$
 			if (buildDir.exists())
 			{
-				// search for .map filea
+				// search for .map file
 				File[] fileList = buildDir.listFiles();
 				for (File file : fileList)
 				{
-					if (file.getName().endsWith(".map")) // $NON-NLS-N$
+					if (file.getName().endsWith(".map")) // $NON-NLS-1$
 					{
 						return new Path(file.getAbsolutePath());
 					}

@@ -32,7 +32,7 @@ public class IDFSizeAnalysisEditor extends MultiPageEditorPart
 		FileEditorInput editorInput = (FileEditorInput) getEditorInput();
 		IFile file = editorInput.getFile();
 		String osString = file.getLocation().toOSString();
-		Logger.log("Editor input:" + osString);
+		Logger.log("Editor input:" + osString); //$NON-NLS-1$
 
 		createOverviewPage(file);
 		createDetailsPage(file);

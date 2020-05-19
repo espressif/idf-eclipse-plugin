@@ -21,7 +21,7 @@ public class IDFSizeDataContentProvider implements ITreeContentProvider
 			return ((List<?>) parentElement).toArray();
 		if (parentElement instanceof IDFSizeData)
 			return ((IDFSizeData) parentElement).getChildren().toArray();
-		return new Object[0]; // TODO:
+		return new Object[0];
 	}
 
 	public Object getParent(Object element)

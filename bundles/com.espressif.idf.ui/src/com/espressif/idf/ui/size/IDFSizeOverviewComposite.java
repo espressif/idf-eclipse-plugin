@@ -33,16 +33,14 @@ public class IDFSizeOverviewComposite
 	public void createPartControl(Composite parent, IFile file)
 	{
 
-		JSONObject idfSizeOverview = getIDFSizeOverviewData(file);
-
 		FormToolkit toolkit = new FormToolkit(parent.getDisplay());
 		Form form = toolkit.createForm(parent);
 		toolkit.decorateFormHeading(form);
-		form.setText("ESP-IDF Application Memory Usage");
+		form.setText("ESP-IDF Application Memory Usage"); //$NON-NLS-1$
 		form.getBody().setLayout(new GridLayout());
 
 		Section ec2 = toolkit.createSection(form.getBody(), Section.TITLE_BAR);
-		ec2.setText("Overview");
+		ec2.setText("Overview"); //$NON-NLS-1$
 		ec2.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
 
 		Composite overviewComp = new Composite(ec2, SWT.NONE);
@@ -51,19 +49,20 @@ public class IDFSizeOverviewComposite
 		overviewComp.setForeground(form.getBody().getForeground());
 		ec2.setClient(overviewComp);
 
-		long dram_data = (long) idfSizeOverview.get("dram_data");
-		long dram_bss = (long) idfSizeOverview.get("dram_bss");
-		long flash_code = (long) idfSizeOverview.get("flash_code");
-		long flash_rodata = (long) idfSizeOverview.get("flash_rodata");
-		long total_size = (long) idfSizeOverview.get("total_size");
+		JSONObject idfSizeOverview = getIDFSizeOverviewData(file);
+		long dram_data = (long) idfSizeOverview.get(IDFSizeConstants.DRAM_DATA);
+		long dram_bss = (long) idfSizeOverview.get(IDFSizeConstants.DRAM_BSS);
+		long flash_code = (long) idfSizeOverview.get(IDFSizeConstants.FLASH_CODE);
+		long flash_rodata = (long) idfSizeOverview.get(IDFSizeConstants.FLASH_RODATA);
+		long total_size = (long) idfSizeOverview.get(IDFSizeConstants.TOTAL_SIZE);
 
-		long used_iram = (long) idfSizeOverview.get("used_iram");
-		long available_iram = (long) idfSizeOverview.get("available_iram");
-		double used_iram_ratio = (double) idfSizeOverview.get("used_iram_ratio");
+		long used_iram = (long) idfSizeOverview.get(IDFSizeConstants.USED_IRAM);
+		long available_iram = (long) idfSizeOverview.get(IDFSizeConstants.AVAILABLE_IRAM);
+		double used_iram_ratio = (double) idfSizeOverview.get(IDFSizeConstants.USED_IRAM_RATIO);
 
-		long used_dram = (long) idfSizeOverview.get("used_dram");
-		long available_dram = (long) idfSizeOverview.get("available_dram");
-		double used_dram_ratio = (double) idfSizeOverview.get("used_dram_ratio");
+		long used_dram = (long) idfSizeOverview.get(IDFSizeConstants.USED_DRAM);
+		long available_dram = (long) idfSizeOverview.get(IDFSizeConstants.AVAILABLE_DRAM);
+		double used_dram_ratio = (double) idfSizeOverview.get(IDFSizeConstants.USED_DRAM_RATIO);
 
 		Label sizeLbl = toolkit.createLabel(overviewComp, "Total Size:"); //$NON-NLS-1$
 		Label sizeVal = toolkit.createLabel(overviewComp, convertToKB(total_size));
@@ -94,7 +93,7 @@ public class IDFSizeOverviewComposite
 		Label iramUsedVal = toolkit.createLabel(overviewComp, iramText); // $NON-NLS-1$
 		iramUsedVal.setFont(boldFont);
 
-		toolkit.createLabel(overviewComp, "FASH Code Size:"); //$NON-NLS-1$
+		toolkit.createLabel(overviewComp, "FLASH Code Size:"); //$NON-NLS-1$
 		Label b3Val = toolkit.createLabel(overviewComp, convertToKB(flash_code)); // $NON-NLS-1$
 		b3Val.setFont(boldFont);
 
@@ -103,7 +102,7 @@ public class IDFSizeOverviewComposite
 		b4Val.setFont(boldFont);
 
 		Section ec = toolkit.createSection(form.getBody(), Section.TITLE_BAR);
-		ec.setText("Memory Allocation");
+		ec.setText("Memory Allocation"); //$NON-NLS-1$
 		ec.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		Composite client = new Composite(ec, SWT.NONE);
@@ -112,8 +111,8 @@ public class IDFSizeOverviewComposite
 		client.setForeground(form.getBody().getForeground());
 		ec.setClient(client);
 
-		createChart(client, used_dram, available_dram, dramText, "DRAM");
-		createChart(client, used_iram, available_iram, iramText, "IRAM");
+		createChart(client, used_dram, available_dram, dramText, "DRAM"); //$NON-NLS-1$
+		createChart(client, used_iram, available_iram, iramText, "IRAM"); //$NON-NLS-1$
 
 	}
 
@@ -135,14 +134,15 @@ public class IDFSizeOverviewComposite
 	/**
 	 * create the chart.
 	 * 
-	 * @param parent         The parent composite
+	 * @param parent        The parent composite
 	 * @param available_ram
 	 * @param used_ram
 	 * @param chartText
-	 * @param chartName 
+	 * @param chartName
 	 * @return The created chart
 	 */
-	static public Chart createChart(Composite parent, long used_ram, long available_ram, String chartText, String chartName)
+	static public Chart createChart(Composite parent, long used_ram, long available_ram, String chartText,
+			String chartName)
 	{
 
 		double[] used = { used_ram / 1024 }; // KB
@@ -153,21 +153,21 @@ public class IDFSizeOverviewComposite
 		chart.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		// set titles
-		chart.getTitle().setText("Used " + chartText);
+		chart.getTitle().setText("Used " + chartText); //$NON-NLS-1$
 
-		chart.getAxisSet().getXAxis(0).getTitle().setText("");
-		chart.getAxisSet().getYAxis(0).getTitle().setText("");
-
+		chart.getAxisSet().getXAxis(0).getTitle().setText(""); //$NON-NLS-1$
+		chart.getAxisSet().getYAxis(0).getTitle().setText(""); //$NON-NLS-1$S
+ 
 		// set category
 		chart.getAxisSet().getXAxis(0).enableCategory(true);
-		chart.getAxisSet().getXAxis(0).setCategorySeries(new String[] {chartName});
+		chart.getAxisSet().getXAxis(0).setCategorySeries(new String[] { chartName });
 
 		// create bar series
-		IBarSeries<?> barSeries1 = (IBarSeries<?>) chart.getSeriesSet().createSeries(SeriesType.BAR, "Used");
+		IBarSeries<?> barSeries1 = (IBarSeries<?>) chart.getSeriesSet().createSeries(SeriesType.BAR, "Used"); //$NON-NLS-1$
 		barSeries1.setYSeries(used);
 		barSeries1.setBarColor(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 
-		IBarSeries<?> barSeries2 = (IBarSeries<?>) chart.getSeriesSet().createSeries(SeriesType.BAR, "Available");
+		IBarSeries<?> barSeries2 = (IBarSeries<?>) chart.getSeriesSet().createSeries(SeriesType.BAR, "Available"); //$NON-NLS-1$
 		barSeries2.setYSeries(available);
 		barSeries2.setBarColor(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GREEN));
 
@@ -183,7 +183,7 @@ public class IDFSizeOverviewComposite
 
 	protected String convertToKB(long value)
 	{
-		return String.valueOf(Math.round(value / 1024)) + " KB";
+		return String.valueOf(Math.round(value / 1024)) + " KB"; //$NON-NLS-1$
 	}
 
 }

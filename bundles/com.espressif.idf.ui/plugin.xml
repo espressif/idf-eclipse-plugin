@@ -142,12 +142,7 @@
       <command
             defaultHandler="com.espressif.idf.ui.size.IDFSizeMemoryHandler"
             id="com.espressif.idf.ui.memoryanalysis"
-            name="ESP-IDF: Print Memory Size">
-      </command>
-      <command
-            defaultHandler="com.espressif.idf.ui.handlers.IDFSizeArchivesMemoryHandler"
-            id="com.espressif.idf.ui.memoryanalysis.archives"
-            name="ESP-IDF: Print Per-archive Sizes">
+            name="ESP-IDF: Application Size Analysis">
       </command>
    </extension>
    <extension
@@ -155,6 +150,7 @@
       <editor
             class="com.espressif.idf.ui.size.IDFSizeAnalysisEditor"
             default="false"
+            icon="icons/espressif.png"
             id="com.espressif.idf.ui.editor.idfsize"
             name="ESP-IDF Size Analysis">
       </editor>

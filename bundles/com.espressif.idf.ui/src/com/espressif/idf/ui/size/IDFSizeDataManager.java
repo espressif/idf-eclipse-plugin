@@ -34,15 +34,6 @@ import com.espressif.idf.ui.UIPlugin;
 public class IDFSizeDataManager
 {
 
-	private String DATA = "data"; // DRAM .data
-	private String BSS = "bss"; // DRAM .bss
-	private String IRAM = "iram";
-	private String DIRAM = "diram";
-	private String FLASH_TEXT = "flash_text";
-	private String FLASH_RODATA = "flash_rodata";
-	private String OTHER = "other";
-	private String TOTAL = "total";
-
 	@SuppressWarnings("unchecked")
 	public List<IDFSizeData> getDataList(IFile mapFile) throws Exception
 	{
@@ -96,9 +87,15 @@ public class IDFSizeDataManager
 		{
 			JSONObject object = (JSONObject) archivesJsonObj.get(key);
 
-			IDFSizeData record = new IDFSizeData(key, (long) object.get(DATA), (long) object.get(BSS),
-					(long) object.get(DIRAM), (long) object.get(IRAM), (long) object.get(FLASH_TEXT),
-					(long) object.get(FLASH_RODATA), (long) object.get(OTHER), (long) object.get(TOTAL));
+			IDFSizeData record = new IDFSizeData(key, 
+					(long) object.get(IDFSizeConstants.DATA),
+					(long) object.get(IDFSizeConstants.BSS), 
+					(long) object.get(IDFSizeConstants.DIRAM),
+					(long) object.get(IDFSizeConstants.IRAM), 
+					(long) object.get(IDFSizeConstants.FLASH_TEXT),
+					(long) object.get(IDFSizeConstants.FLASH_RODATA), 
+					(long) object.get(IDFSizeConstants.OTHER),
+					(long) object.get(IDFSizeConstants.TOTAL));
 			arrayList.add(record);
 
 			// update children
@@ -111,10 +108,15 @@ public class IDFSizeDataManager
 					{
 						String symbolName = symbolsKey.substring(key.length() + 1); // libnet80211.a:ieee80211_output.o
 						JSONObject symbolObj = (JSONObject) symbolJsonObj.get(symbolsKey);
-						IDFSizeData symbolRecord = new IDFSizeData(symbolName, (long) symbolObj.get(DATA),
-								(long) symbolObj.get(BSS), (long) symbolObj.get(DIRAM), (long) symbolObj.get(IRAM),
-								(long) symbolObj.get(FLASH_TEXT), (long) symbolObj.get(FLASH_RODATA),
-								(long) symbolObj.get(OTHER), (long) symbolObj.get(TOTAL));
+						IDFSizeData symbolRecord = new IDFSizeData(symbolName,
+								(long) symbolObj.get(IDFSizeConstants.DATA), 
+								(long) symbolObj.get(IDFSizeConstants.BSS),
+								(long) symbolObj.get(IDFSizeConstants.DIRAM),
+								(long) symbolObj.get(IDFSizeConstants.IRAM),
+								(long) symbolObj.get(IDFSizeConstants.FLASH_TEXT),
+								(long) symbolObj.get(IDFSizeConstants.FLASH_RODATA),
+								(long) symbolObj.get(IDFSizeConstants.OTHER),
+								(long) symbolObj.get(IDFSizeConstants.TOTAL));
 						record.getChildren().add(symbolRecord);
 					}
 
@@ -179,8 +181,8 @@ public class IDFSizeDataManager
 		arguments.add(pythonExecutablenPath);
 		arguments.add(IDFUtil.getIDFSizeScriptFile().getAbsolutePath());
 		arguments.add(file.getLocation().toOSString());
-		arguments.add("--archives");
-		arguments.add("--json");
+		arguments.add("--archives"); //$NON-NLS-1$
+		arguments.add("--json"); //$NON-NLS-1$
 
 		return arguments;
 	}
@@ -191,8 +193,8 @@ public class IDFSizeDataManager
 		arguments.add(pythonExecutablenPath);
 		arguments.add(IDFUtil.getIDFSizeScriptFile().getAbsolutePath());
 		arguments.add(file.getLocation().toOSString());
-		arguments.add("--file");
-		arguments.add("--json");
+		arguments.add("--file"); //$NON-NLS-1$
+		arguments.add("--json"); //$NON-NLS-1$
 
 		return arguments;
 	}
@@ -203,7 +205,7 @@ public class IDFSizeDataManager
 		arguments.add(pythonExecutablenPath);
 		arguments.add(IDFUtil.getIDFSizeScriptFile().getAbsolutePath());
 		arguments.add(file.getLocation().toOSString());
-		arguments.add("--json");
+		arguments.add("--json"); //$NON-NLS-1$
 
 		return arguments;
 	}
