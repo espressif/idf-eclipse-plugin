@@ -69,11 +69,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.SDKConfigUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.sdk.config.core.IJsonServerConfig;
 import com.espressif.idf.sdk.config.core.KConfigMenuItem;
 import com.espressif.idf.sdk.config.core.KConfigMenuProcessor;
-import com.espressif.idf.sdk.config.core.SDKConfigUtil;
 import com.espressif.idf.sdk.config.core.server.CommandType;
 import com.espressif.idf.sdk.config.core.server.ConfigServerManager;
 import com.espressif.idf.sdk.config.core.server.IJsonConfigOutput;

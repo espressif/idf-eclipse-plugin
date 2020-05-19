@@ -5,6 +5,7 @@
 package com.espressif.idf.ui.size;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
@@ -16,6 +17,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
 
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.SDKConfigJsonReader;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -25,6 +27,7 @@ public class IDFSizeAnalysisEditor extends MultiPageEditorPart
 {
 
 	public static String EDITOR_ID = "com.espressif.idf.ui.editor.idfsize"; //$NON-NLS-1$
+	private IProject project;
 
 	@Override
 	protected void createPages()
@@ -32,6 +35,7 @@ public class IDFSizeAnalysisEditor extends MultiPageEditorPart
 		FileEditorInput editorInput = (FileEditorInput) getEditorInput();
 		IFile file = editorInput.getFile();
 		String osString = file.getLocation().toOSString();
+		project = file.getProject();
 		Logger.log("Editor input:" + osString); //$NON-NLS-1$
 
 		createOverviewPage(file);
@@ -107,10 +111,15 @@ public class IDFSizeAnalysisEditor extends MultiPageEditorPart
 		Composite parent = new Composite(getContainer(), SWT.NONE);
 		parent.setLayout(new FillLayout());
 
-		new IDFSizeOverviewComposite().createPartControl(parent, file);
+		new IDFSizeOverviewComposite().createPartControl(parent, file, getTarget());
 
 		int index = addPage(parent);
 		setPageText(index, "Overview"); //$NON-NLS-1$
+	}
+	
+	private String getTarget()
+	{
+		return new SDKConfigJsonReader(project).getValue("IDF_TARGET");
 	}
 
 }

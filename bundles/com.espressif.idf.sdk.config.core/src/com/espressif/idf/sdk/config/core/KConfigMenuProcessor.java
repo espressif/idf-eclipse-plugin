@@ -16,6 +16,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.espressif.idf.core.util.SDKConfigUtil;
+
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *

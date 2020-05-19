@@ -54,10 +54,10 @@ public class IDFSizeDataManager
 
 	}
 
-	public JSONObject getIDFSizeOverview(IFile mapFile) throws Exception
+	public JSONObject getIDFSizeOverview(IFile mapFile, String targetName) throws Exception
 	{
 		String pythonExecutablePath = preconditionsCheck();
-		List<String> commandArgs = getCommandArgs(pythonExecutablePath, mapFile);
+		List<String> commandArgs = getCommandArgs(pythonExecutablePath, mapFile, targetName);
 		String detailsJsonOp = getOutput(mapFile, commandArgs);
 		if (!StringUtil.isEmpty(detailsJsonOp))
 		{
@@ -199,13 +199,15 @@ public class IDFSizeDataManager
 		return arguments;
 	}
 
-	protected List<String> getCommandArgs(String pythonExecutablenPath, IFile file)
+	protected List<String> getCommandArgs(String pythonExecutablenPath, IFile file, String targetName)
 	{
 		List<String> arguments = new ArrayList<String>();
 		arguments.add(pythonExecutablenPath);
 		arguments.add(IDFUtil.getIDFSizeScriptFile().getAbsolutePath());
 		arguments.add(file.getLocation().toOSString());
 		arguments.add("--json"); //$NON-NLS-1$
+		arguments.add("--target"); //$NON-NLS-1$
+		arguments.add(targetName);
 
 		return arguments;
 	}

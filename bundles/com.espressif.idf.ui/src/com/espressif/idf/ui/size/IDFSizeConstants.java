@@ -30,5 +30,11 @@ public interface IDFSizeConstants
 	String USED_DRAM = "used_dram"; //$NON-NLS-1$
 	String AVAILABLE_DRAM = "available_dram"; //$NON-NLS-1$
 	String USED_DRAM_RATIO = "used_dram_ratio"; //$NON-NLS-1$
+	
+	//esp32-s2 specific
+	String USED_DIRAM = "used_diram"; //$NON-NLS-1$
+	String AVAILABLE_DIRAM = "available_diram"; //$NON-NLS-1$
+	String USED_DIRAM_RATIO = "used_diram_ratio"; //$NON-NLS-1$
+	
 
 }
