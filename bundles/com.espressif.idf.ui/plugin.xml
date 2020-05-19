@@ -131,12 +131,8 @@
          </separator>
          <command
                commandId="com.espressif.idf.ui.memoryanalysis"
-               label="ESP-IDF: Print Memory Size"
-               style="push">
-         </command>
-         <command
-               commandId="com.espressif.idf.ui.memoryanalysis.archives"
-               label="ESP-IDF: Print Per-archive Sizes"
+               icon="icons/espressif.png"
+               label="ESP-IDF: Application Size Analysis"
                style="push">
          </command>
       </menuContribution>

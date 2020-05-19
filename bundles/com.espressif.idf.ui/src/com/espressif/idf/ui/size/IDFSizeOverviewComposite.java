@@ -57,28 +57,50 @@ public class IDFSizeOverviewComposite
 		long flash_rodata = (long) idfSizeOverview.get("flash_rodata");
 		long total_size = (long) idfSizeOverview.get("total_size");
 
+		long used_iram = (long) idfSizeOverview.get("used_iram");
+		long available_iram = (long) idfSizeOverview.get("available_iram");
+		double used_iram_ratio = (double) idfSizeOverview.get("used_iram_ratio");
+
+		long used_dram = (long) idfSizeOverview.get("used_dram");
+		long available_dram = (long) idfSizeOverview.get("available_dram");
+		double used_dram_ratio = (double) idfSizeOverview.get("used_dram_ratio");
+
 		Label sizeLbl = toolkit.createLabel(overviewComp, "Total Size:"); //$NON-NLS-1$
-		Label sizeVal = toolkit.createLabel(overviewComp, String.valueOf(total_size));
+		Label sizeVal = toolkit.createLabel(overviewComp, convertToKB(total_size));
 
 		FontDescriptor boldDescriptor = FontDescriptor.createFrom(sizeLbl.getFont()).setStyle(SWT.BOLD);
 		Font boldFont = boldDescriptor.createFont(sizeLbl.getDisplay());
-		sizeLbl.setFont(boldFont);
+		sizeVal.setFont(boldFont);
 
-		Label b1 = toolkit.createLabel(overviewComp, "DRAM .DATA:"); //$NON-NLS-1$
-		Label b1Val = toolkit.createLabel(overviewComp, String.valueOf(dram_data));
-		b1.setFont(boldFont);
+		toolkit.createLabel(overviewComp, "DRAM .data Size:"); //$NON-NLS-1$
+		Label b1Val = toolkit.createLabel(overviewComp, convertToKB(dram_data));
+		b1Val.setFont(boldFont);
 
-		Label b2 = toolkit.createLabel(overviewComp, "DRAM .BSS:"); //$NON-NLS-1$
-		Label b2Val = toolkit.createLabel(overviewComp, String.valueOf(dram_bss)); // $NON-NLS-1$
-		b2.setFont(boldFont);
+		toolkit.createLabel(overviewComp, "DRAM .bss Size:"); //$NON-NLS-1$
+		Label b2Val = toolkit.createLabel(overviewComp, convertToKB(dram_bss)); // $NON-NLS-1$
+		b2Val.setFont(boldFont);
 
-		Label b3 = toolkit.createLabel(overviewComp, "FASH CODE:"); //$NON-NLS-1$
-		Label b3Val = toolkit.createLabel(overviewComp, String.valueOf(flash_code)); // $NON-NLS-1$
-		b3.setFont(boldFont);
+		// Used static DRAM
+		toolkit.createLabel(overviewComp, "Used static DRAM:"); //$NON-NLS-1$
+		String dramText = convertToKB(used_dram) + " (" + convertToKB(available_dram) + " available, "
+				+ Math.round(used_dram_ratio * 100) + "% used)";
+		Label dramUsedVal = toolkit.createLabel(overviewComp, dramText); // $NON-NLS-1$
+		dramUsedVal.setFont(boldFont);
 
-		Label b4 = toolkit.createLabel(overviewComp, "FLASH RODATA:"); //$NON-NLS-1$
-		Label b4Val = toolkit.createLabel(overviewComp, String.valueOf(flash_rodata)); // $NON-NLS-1$
-		b4.setFont(boldFont);
+		// Used static IRAM
+		toolkit.createLabel(overviewComp, "Used static IRAM:"); //$NON-NLS-1$
+		String iramText = convertToKB(used_iram) + " (" + convertToKB(available_iram) + " available, "
+				+ Math.round(used_iram_ratio * 100) + "% used)";
+		Label iramUsedVal = toolkit.createLabel(overviewComp, iramText); // $NON-NLS-1$
+		iramUsedVal.setFont(boldFont);
+
+		toolkit.createLabel(overviewComp, "FASH Code Size:"); //$NON-NLS-1$
+		Label b3Val = toolkit.createLabel(overviewComp, convertToKB(flash_code)); // $NON-NLS-1$
+		b3Val.setFont(boldFont);
+
+		toolkit.createLabel(overviewComp, "FLASH rodata Size:"); //$NON-NLS-1$
+		Label b4Val = toolkit.createLabel(overviewComp, convertToKB(flash_rodata)); // $NON-NLS-1$
+		b4Val.setFont(boldFont);
 
 		Section ec = toolkit.createSection(form.getBody(), Section.TITLE_BAR);
 		ec.setText("Memory Allocation");
@@ -90,14 +112,8 @@ public class IDFSizeOverviewComposite
 		client.setForeground(form.getBody().getForeground());
 		ec.setClient(client);
 
-		long used_iram = (long) idfSizeOverview.get("used_iram");
-		long available_iram = (long) idfSizeOverview.get("available_iram");
-
-		long used_dram = (long) idfSizeOverview.get("used_dram");
-		long available_diram = (long) idfSizeOverview.get("available_dram");
-
-		createChart(client, used_dram, available_diram);
-		createChart2(client, used_iram, available_iram);
+		createChart(client, used_dram, available_dram, dramText, "DRAM");
+		createChart(client, used_iram, available_iram, iramText, "IRAM");
 
 	}
 
@@ -119,30 +135,32 @@ public class IDFSizeOverviewComposite
 	/**
 	 * create the chart.
 	 * 
-	 * @param parent          The parent composite
-	 * @param available_diram
-	 * @param used_dram
+	 * @param parent         The parent composite
+	 * @param available_ram
+	 * @param used_ram
+	 * @param chartText
+	 * @param chartName 
 	 * @return The created chart
 	 */
-	static public Chart createChart(Composite parent, long used_dram, long available_diram)
+	static public Chart createChart(Composite parent, long used_ram, long available_ram, String chartText, String chartName)
 	{
 
-		double[] used = { used_dram };
-		double[] available = { available_diram };
+		double[] used = { used_ram / 1024 }; // KB
+		double[] available = { available_ram / 1024 }; // KB
 
 		// create a chart
 		Chart chart = new Chart(parent, SWT.NONE);
 		chart.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		// set titles
-		chart.getTitle().setText(String.valueOf(available_diram + "/" + (used_dram + available_diram)));
+		chart.getTitle().setText("Used " + chartText);
 
 		chart.getAxisSet().getXAxis(0).getTitle().setText("");
 		chart.getAxisSet().getYAxis(0).getTitle().setText("");
 
 		// set category
 		chart.getAxisSet().getXAxis(0).enableCategory(true);
-		chart.getAxisSet().getXAxis(0).setCategorySeries(new String[] { "DRAM" });
+		chart.getAxisSet().getXAxis(0).setCategorySeries(new String[] {chartName});
 
 		// create bar series
 		IBarSeries<?> barSeries1 = (IBarSeries<?>) chart.getSeriesSet().createSeries(SeriesType.BAR, "Used");
@@ -163,51 +181,9 @@ public class IDFSizeOverviewComposite
 		return chart;
 	}
 
-	/**
-	 * create the chart.
-	 * 
-	 * @param parent         The parent composite
-	 * @param available_iram
-	 * @param used_iram
-	 * @return The created chart
-	 */
-	static public Chart createChart2(Composite parent, long used_iram, long available_iram)
+	protected String convertToKB(long value)
 	{
-
-		double[] used = { used_iram };
-		double[] available = { available_iram };
-
-		// create a chart
-		Chart chart = new Chart(parent, SWT.NONE);
-		chart.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-
-		// set titles
-		chart.getTitle().setText(String.valueOf(used[0]) + "/" + String.valueOf(available[0] + used[0]));
-
-		chart.getAxisSet().getXAxis(0).getTitle().setText("");
-		chart.getAxisSet().getYAxis(0).getTitle().setText("");
-
-		// set category
-		chart.getAxisSet().getXAxis(0).enableCategory(true);
-		chart.getAxisSet().getXAxis(0).setCategorySeries(new String[] { "IRAM" });
-
-		// create bar series
-		IBarSeries<?> barSeries1 = (IBarSeries<?>) chart.getSeriesSet().createSeries(SeriesType.BAR, "Used");
-		barSeries1.setYSeries(used);
-		barSeries1.setBarColor(Display.getDefault().getSystemColor(SWT.COLOR_RED));
-
-		IBarSeries<?> barSeries2 = (IBarSeries<?>) chart.getSeriesSet().createSeries(SeriesType.BAR, "Available");
-		barSeries2.setYSeries(available);
-		barSeries2.setBarColor(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GREEN));
-
-		// enable stack series
-		barSeries1.enableStack(true);
-		barSeries2.enableStack(true);
-		chart.setSize(100, 200);
-
-		// adjust the axis range
-		chart.getAxisSet().adjustRange();
-		return chart;
+		return String.valueOf(Math.round(value / 1024)) + " KB";
 	}
 
 }
