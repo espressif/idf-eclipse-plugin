@@ -6,5 +6,8 @@
    <feature url="features/com.cthing.cmakeed.feature_1.14.0.jar" id="com.cthing.cmakeed.feature" version="1.14.0">
       <category name="com.espressif.idf"/>
    </feature>
+   <feature id="org.eclipse.swtchart.feature">
+      <category name="com.espressif.idf"/>
+   </feature>
    <category-def name="com.espressif.idf" label="Espressif IDF"/>
 </site>
