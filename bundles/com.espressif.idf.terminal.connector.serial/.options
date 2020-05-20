@@ -1,0 +1,2 @@
+com.espressif.idf.terminal.connector.serial/debugmode = 0
+com.espressif.idf.terminal.connector.serial/trace/serialLinePanel = false

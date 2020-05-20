@@ -17,7 +17,8 @@ Require-Bundle: org.eclipse.cdt.core;resolution:=optional,
  org.eclipse.ui,
  com.espressif.idf.core,
  org.eclipse.tm.terminal.view.ui,
- org.eclipse.tm.terminal.view.core
+ org.eclipse.tm.terminal.view.core,
+ com.espressif.idf.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin

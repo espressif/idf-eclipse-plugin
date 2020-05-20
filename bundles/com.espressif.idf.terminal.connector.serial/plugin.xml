@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<!--
+    Copyright (c) 2018 Red Hat and others.
+    This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License 2.0
+    which accompanies this distribution, and is available at
+    https://www.eclipse.org/legal/epl-2.0/
+   
+    SPDX-License-Identifier: EPL-2.0
+ -->
+
+<plugin>
+
+<!-- Terminal connector contributions -->
+   <extension point="org.eclipse.tm.terminal.control.connectors">
+      <connector
+            name="%SerialConnector.label" 
+            id="com.espressif.idf.terminal.connector.serial.SerialConnector"
+            class="com.espressif.idf.terminal.connector.serial.connector.SerialConnector"/>
+   </extension>
+   
+<!-- Terminal launcher delegate contributions -->
+   <extension point="org.eclipse.tm.terminal.view.ui.launcherDelegates">
+      <delegate
+            class="com.espressif.idf.terminal.connector.serial.launcher.SerialLauncherDelegate"
+            id="com.espressif.idf.terminal.connector.serial.launcher.serial"
+            label="%SerialLauncherDelegate.label">
+      </delegate>
+   </extension>
+
+</plugin>

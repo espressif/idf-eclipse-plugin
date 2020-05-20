@@ -15,10 +15,13 @@
  *******************************************************************************/
 package com.espressif.idf.launch.serial.ui.internal;
 
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.launchbar.core.target.ILaunchTargetWorkingCopy;
 import org.eclipse.launchbar.ui.target.LaunchTargetWizard;
+import org.osgi.service.prefs.BackingStoreException;
+import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 
@@ -57,7 +60,21 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard {
 		wc.setAttribute(SerialFlashLaunchTargetProvider.ATTR_IDF_TARGET, page.getIDFTarget());
 		wc.save();
 
+		storeLastUsedSerialPort();
+
 		return true;
+	}
+
+	private void storeLastUsedSerialPort() {
+		Preferences preferences = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
+		preferences.put(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, page.getSerialPortName());
+
+		try {
+			// forces the application to save the preferences
+			preferences.flush();
+		} catch (BackingStoreException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
