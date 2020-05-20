@@ -49,7 +49,17 @@ public class IDFUtil
 				+ IDFConstants.IDF_TOOLS_SCRIPT;
 		return new File(idf_py_script);
 	}
-
+	
+	/**
+	 * @return idf_size.py file path based on the IDF_PATH defined in the environment variables
+	 */
+	public static File getIDFSizeScriptFile()
+	{
+		String idf_path = getIDFPath();
+		String idf_py_script = idf_path + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
+				+ IDFConstants.IDF_SIZE_SCRIPT;
+		return new File(idf_py_script);
+	}
 	/**
 	 * @return file path for IDF_PATH
 	 */

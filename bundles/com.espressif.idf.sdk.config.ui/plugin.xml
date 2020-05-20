@@ -18,12 +18,12 @@
             allPopups="false"
             locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?before=additions">
          <separator
-               name="com.espressif.idf.sdk.config.ui.separator"
+               name="com.espressif.idf.espressif.seperator"
                visible="true">
          </separator>
          <command
                commandId="com.espressif.idf.sdk.config.ui.command.setdefault"
-               label="Load sdkconfig"
+               label="ESP-IDF: Load sdkconfig"
                style="push">
             <visibleWhen
                   checkEnabled="false">
@@ -39,7 +39,7 @@
       <command
             defaultHandler="com.espressif.idf.sdk.config.ui.LoadSdkConfigHandler"
             id="com.espressif.idf.sdk.config.ui.command.setdefault"
-            name="Load sdkconfig">
+            name="ESP-IDF: Load sdkconfig">
       </command>
    </extension>
    <extension

@@ -120,4 +120,39 @@
          </command>
       </menuContribution>
    </extension>
+    <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?before=additions">
+         <separator
+               name="com.espressif.idf.espressif.seperator"
+               visible="true">
+         </separator>
+         <command
+               commandId="com.espressif.idf.ui.memoryanalysis"
+               icon="icons/espressif.png"
+               label="ESP-IDF: Application Size Analysis"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="com.espressif.idf.ui.size.IDFSizeMemoryHandler"
+            id="com.espressif.idf.ui.memoryanalysis"
+            name="ESP-IDF: Application Size Analysis">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="com.espressif.idf.ui.size.IDFSizeAnalysisEditor"
+            default="false"
+            icon="icons/espressif.png"
+            id="com.espressif.idf.ui.editor.idfsize"
+            name="ESP-IDF Size Analysis">
+      </editor>
+   </extension>
 </plugin>
