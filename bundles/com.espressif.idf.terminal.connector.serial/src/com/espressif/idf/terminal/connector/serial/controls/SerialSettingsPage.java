@@ -19,6 +19,7 @@ import org.eclipse.cdt.serial.ByteSize;
 import org.eclipse.cdt.serial.Parity;
 import org.eclipse.cdt.serial.SerialPort;
 import org.eclipse.cdt.serial.StopBits;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.dialogs.DialogSettings;
@@ -36,8 +37,7 @@ import org.eclipse.tm.terminal.view.ui.interfaces.IConfigurationPanel;
 import org.eclipse.tm.terminal.view.ui.interfaces.IConfigurationPanelContainer;
 import org.osgi.service.prefs.Preferences;
 
-import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.SDKConfigJsonReader;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.terminal.connector.serial.activator.Activator;
 import com.espressif.idf.terminal.connector.serial.connector.SerialConnector;
@@ -130,18 +130,12 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 	}
 
 	protected String getsdkconfigBaudRate() {
-		String sdkconfigBaudRate = null;
-		try {
-			IResource resource = EclipseUtil.getSelectionResource();
-			if (resource != null) {
-				String projectPath = resource.getProject().getLocation().toString();
-				sdkconfigBaudRate = IDFUtil.readBaudRate(projectPath);
-			}
-
-		} catch (IOException e) {
-			Logger.log(e);
+		IResource resource = EclipseUtil.getSelectionResource();
+		if (resource != null) {
+			IProject project = resource.getProject();
+			return new SDKConfigJsonReader(project).getValue("ESPTOOLPY_MONITOR_BAUD"); //$NON-NLS-1$
 		}
-		return sdkconfigBaudRate;
+		return null;
 	}
 
 	protected BaudRate getBaudRate(String baudRateStr) {

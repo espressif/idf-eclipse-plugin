@@ -4,10 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.core.util;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
@@ -52,7 +49,7 @@ public class IDFUtil
 				+ IDFConstants.IDF_TOOLS_SCRIPT;
 		return new File(idf_py_script);
 	}
-	
+
 	/**
 	 * @return idf_size.py file path based on the IDF_PATH defined in the environment variables
 	 */
@@ -63,6 +60,7 @@ public class IDFUtil
 				+ IDFConstants.IDF_SIZE_SCRIPT;
 		return new File(idf_py_script);
 	}
+
 	/**
 	 * @return file path for IDF_PATH
 	 */
@@ -217,40 +215,6 @@ public class IDFUtil
 		}
 
 		return StringUtil.EMPTY;
-	}
-
-	public static String readBaudRate(String filePath) throws IOException
-	{
-		String fullPath = filePath + File.separator + "sdkconfig"; //$NON-NLS-1$
-		if (!new File(fullPath).exists())
-		{
-			return null;
-		}
-
-		BufferedReader reader = null;
-		try
-		{
-			reader = new BufferedReader(new FileReader(fullPath));
-			String line = reader.readLine();
-			while (line != null)
-			{
-				String key = "CONFIG_ESPTOOLPY_MONITOR_BAUD="; //$NON-NLS-1$
-				if (line.contains(key))
-				{
-					String value = line.substring(key.length());
-					return value;
-				}
-				line = reader.readLine();
-			}
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		} finally
-		{
-			reader.close();
-		}
-		return null;
 	}
 
 }
