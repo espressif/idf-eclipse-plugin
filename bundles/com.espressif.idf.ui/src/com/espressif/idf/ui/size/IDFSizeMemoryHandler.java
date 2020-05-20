@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -50,11 +51,14 @@ public class IDFSizeMemoryHandler extends AbstractHandler
 		}
 
 		IPath mapFilePath = getMapFilePath((IProject) project);
+		Logger.log("Mapping file path " + mapFilePath); //$NON-NLS-1$
 		if (mapFilePath == null)
 		{
+			MessageDialog.openError(Display.getDefault().getActiveShell(), "Error", //$NON-NLS-1$
+					"Project mapping file doesn't exist"); //$NON-NLS-1$
 			return null;
+
 		}
-		Logger.log("Found mapping file for project:" + mapFilePath.toOSString()); //$NON-NLS-1$
 		launchEditor(mapFilePath);
 
 		return null;
@@ -103,7 +107,7 @@ public class IDFSizeMemoryHandler extends AbstractHandler
 				}
 			}
 		}
-		return mapPath;
+		return null;
 	}
 
 }

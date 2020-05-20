@@ -24,7 +24,6 @@ import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
-import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.UIPlugin;
 
 /**
@@ -147,8 +146,6 @@ public class IDFSizeDataManager
 			Logger.log(message);
 			if (status.isOK() && !StringUtil.isEmpty(message))
 			{
-				IDFConsole idfConsole = new IDFConsole();
-				idfConsole.getConsoleStream().print(message);
 				return status.getMessage();
 			}
 		}
