@@ -22,7 +22,6 @@ import org.eclipse.ui.forms.widgets.Section;
 import org.json.simple.JSONObject;
 
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.util.StringUtil;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -95,18 +94,20 @@ public class IDFSizeOverviewComposite
 		chartComp.setForeground(form.getBody().getForeground());
 		ec.setClient(chartComp);
 
-		if (StringUtil.isEmpty(targetName) || targetName.equals("esp32")) //$NON-NLS-1$
+		//available_diram is non-zero for esp32
+		long available_diram = (long) overviewJson.get(IDFSizeConstants.AVAILABLE_DIRAM);
+		if (available_diram == 0)
 		{
-			createBlock1();
+			plotDoubleBar();
 		}
 		else
 		{
-			createBlock2();
+			plotSingleBar();
 		}
 
 	}
 
-	private void createBlock2()
+	private void plotSingleBar()
 	{
 		// esps2-s2 specific
 		long used_diram = (long) overviewJson.get(IDFSizeConstants.USED_DIRAM);
@@ -123,7 +124,7 @@ public class IDFSizeOverviewComposite
 
 	}
 
-	protected void createBlock1()
+	protected void plotDoubleBar()
 	{
 		long used_iram = (long) overviewJson.get(IDFSizeConstants.USED_IRAM);
 		long available_iram = (long) overviewJson.get(IDFSizeConstants.AVAILABLE_IRAM);
