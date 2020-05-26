@@ -155,4 +155,11 @@
             name="ESP-IDF Size Analysis">
       </editor>
    </extension>
+   <extension
+         point="org.eclipse.cdt.launch.coreBuildTab">
+      <provider
+            nature="com.espressif.idf.core.idfNature"
+            tabClass="com.espressif.idf.ui.dialogs.CMakeBuildTab2">
+      </provider>
+   </extension>
 </plugin>
