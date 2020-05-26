@@ -1,6 +1,6 @@
 # Espressif IDF Eclipse Plugins
 
-IDF Eclipse Plugins aiming to provide better tooling capabilities, which simplifies and enhances standard Eclipse CDT for developing and debugging ESP32 IoT applications.
+IDF Eclipse Plugins aim to provide better tooling capabilities, which simplifies and enhances standard Eclipse CDT for developing and debugging ESP32 IoT applications.
 
 # Table Of Contents
 * [ Installing Prerequisites ](#Prerequisites) <br>
@@ -40,8 +40,8 @@ IDF Eclipse Plugins aiming to provide better tooling capabilities, which simplif
 
 <a name="GettingStarted"></a>
 
-# Installing IDF Plugins using update site url
-You can install the IDF Eclipse plugins into an existing Eclipse CDT installation using the update site url. You first need to add the release repository url as follows:
+# Installing IDF Plugins using update site URL
+You can install the IDF Eclipse plugins into an existing Eclipse CDT installation using the update site URL. You first need to add the release repository URL as follows:
 * Go to `Help` -> `Install New Software`
 * Click `Add…`
 * Enter `Location` of the repository https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/
@@ -55,7 +55,7 @@ You can install the IDF Eclipse plugins into an existing Eclipse CDT installatio
 # Installing ESP-IDF Tools
 ESP-IDF requires some prerequisite tools to be installed so you can build firmware for the ESP32. The prerequisite tools include Python, Git, cross-compilers, menuconfig tool, CMake and Ninja build tools.
 
-For this getting started follow the instructions below.
+For this getting started guide, follow the instructions below.
 
 * Navigate to `Help` > `Espressif IDF Tools Manager` > `Install Tools`
 * Provide the `ESP-IDF Directory` path
@@ -63,7 +63,7 @@ For this getting started follow the instructions below.
 * Click on `Install Tools` to proceed with the installation process. Check the Console for the installation details.
 * Installation might take a while if you're doing it for the first time since it has to download and install xtensa-esp32-elf, esp32ulp-elf, cmake, openocd-esp32 and ninja tools.
 
-**Note:** Make sure you run this step even if you've already installed the required tools, since it sets the IDF_PATH,PATH,OPENOCD_SCRIPTS and IDF_PYTHON_ENV_PATH to the Eclipse CDT build environment based on the idf_tools.py export command.
+**Note:** Make sure you run this step even if you've already installed the required tools, since it sets the IDF_PATH, PATH, OPENOCD_SCRIPTS and IDF_PYTHON_ENV_PATH to the Eclipse CDT build environment based on the idf_tools.py export command.
 
 ![](docs/images/install_tools.png)
 
@@ -98,7 +98,7 @@ ESP-IDF Directory selection dialog:
 
 <a name="ConfigureLaunchTarget"></a>
 # Configuring Launch target
-Next, we need to tell CDT to use the toolchain for our project so that all the headers will be indexed and resolved. This is accomplished through the Launch Bar, the new widget set you see on the far left of the toolbar. And this will be shown only when you have a project in the project explorer.
+Next, we need to tell CDT to use the toolchain for our project so that all the headers will be indexed and resolved. This is accomplished through the Launch Bar, the new widget set you see on the far left of the toolbar. This will be shown only when you have a project in the project explorer.
 
 * Click on the third dropdown 
 * Select `New Launch Target`
@@ -125,12 +125,12 @@ To provide the customized flash arguments, please follow [this](#customizeLaunch
 
 <a name="ConfigureLaunchTerminal"></a>
 # Viewing Serial Output
-To see what program do we need to configure Eclipse terminal to connect the serial port.
+To see the serial output in Eclipse, we need to configure the Eclipse terminal to connect to the serial port.
 
 * Click on the `Open a Terminal` icon from the toolbar
 * Choose `Serial Terminal` from the terminal drop-down
 * Select `Serial Port` for your board. Example: `/dev/cu.SLAB_USBtoUART`
-* Configure the remaining settings and click on Ok to launch the Eclipse terminal and which will listen the USB port
+* Configure the remaining settings and click on Ok to launch the Eclipse terminal, which will listen to the USB port
 
 ![](docs/images/10_serial_terminal.png)
 
@@ -145,7 +145,7 @@ To launch the SDK Configuration editor:
 * Navigate to `sdkconfig` file
 * Double click on the file to launch the SDK configuration editor
 * Use `Ctrl+S` or  `Command+S` based on the OS environment to save the changes. You can also use Eclipse `Save` button from the toolbar
-* To revert the sdkconfig editor changes, either you can close the editor without saving them. Or you can right click on the `sdkconfig` file and select `Load sdkconfig` menu option to revert the changes from the editor.
+* To revert the sdkconfig editor changes, you can either close the editor without saving them or you can right click on the `sdkconfig` file and select `Load sdkconfig` menu option to revert the changes from the editor.
 
 ![](docs/images/13_sdkconfig_editor.png)
 
@@ -169,20 +169,20 @@ Please refer to [Importing Debug Launch Configuration](#customizeLaunchConfig) s
 
 <a name="configureEnvironmentVariables"></a>
 # Configuring Environment Variables
-Eclipse auto configure the required environment variables in the `Preferences > C/C++ Build > Environment` section If IDF Tools are installed using `Help` > `Espressif IDF Tools Manager` > `Install Tools` menu option.
+Eclipse auto configures the required environment variables in the `Preferences > C/C++ Build > Environment` section if IDF Tools are installed using `Help` > `Espressif IDF Tools Manager` > `Install Tools` menu option.
 
-Mandatory required environment variables:
+Required environment variables:
 * IDF_PATH
 * PATH
 * OPENOCD_SCRIPTS
 * IDF_PYTHON_ENV_PATH
 
-Due to any issues if the required environment variables are not configured, Please follow the step by step instructions below.
+If the required environment variables are not configured for any reason, please follow the step by step instructions below.
 * Click on the `Environment` preference page under `C/C++ Build`. 
 * Click “Add…” again, and enter name `IDF_PATH`. The value should be the full path where ESP-IDF is installed.
 * Similarly we shoud configure OPENOCD_SCRIPTS, IDF_PYTHON_ENV_PATH and PATH environment variables
 
-This is how they looks like:
+This is how they should look:
 
 ##### IDF_PATH #####
 `/Users/user-name/esp/esp-idf`
@@ -196,7 +196,7 @@ This is how they looks like:
 ##### PATH #####
 `/Users/user-name/.espressif/tools/xtensa-esp32-elf/esp32-2019r1-8.2.0/xtensa-esp32-elf/bin:/Users/user-name/.espressif/tools/esp32ulp-elf/2.28.51.20170517/esp32ulp-elf-binutils/bin:/Users/user-name/.espressif/tools/cmake/3.13.4/CMake.app/Contents/bin:/Users/user-name/.espressif/tools/openocd-esp32/v0.10.0-esp32-20190313/openocd-esp32/bin:/Users/user-name/.espressif/tools/ninja/1.9.0/:/Users/user-name/.espressif/python_env/idf4.0_py3.7_env/bin:/Users/user-name/esp/esp-idf/tools:$PATH`
 
-In the above path, last segment `$PATH` need to be replaced with the system environment PATH based on the operating system.
+In the above path, the last segment `$PATH` needs to be replaced with the system environment PATH based on the operating system.
 For example, to get the system environment PATH.
 - In macOS,  `$echo $PATH ` 
 - In Windows, `$echo %PATH%`
@@ -204,9 +204,9 @@ For example, to get the system environment PATH.
 ![](docs/images/2_environment_pref.png)
 
 # Configuring Toolchains
-We need to tell Eclipse CDT what is the core build toolchain and CMake toolchain which need to be used to build the project. However, this will be auto-detected if you've installed the tools using the `Help > Espressif IDF Tools Manager > Install Tools` option from the Eclipse.
+We need to tell Eclipse CDT what core build toolchain and CMake toolchain need to be used to build the project. However, this will be auto-detected if you've installed the tools using the `Help > Espressif IDF Tools Manager > Install Tools` option from the Eclipse.
 
-If due to any issues if these toolchains are not detected, Please follow the step by step instructions below to add a new toolchain.
+If these toolchains are not detected for any reason, please follow the step by step instructions below to add a new toolchain.
 
 <a name="ConfigureToolchains"></a>
 # Configuring Core Build Toolchains
@@ -233,7 +233,7 @@ We now need to tell CDT which toolchain to use when building the project. This w
 * Browse CMake toolchain `Path`. Example: `/Users/user-name/esp/esp-idf/tools/cmake/toolchain-esp32.cmake`
 * Select GCC Xtensa Toolchain compiler from the drop-down list. Example: `esp32 xtensa /Users/user-name/esp/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc`
 
-**NOTE:**  Eclipse CDT has a bug in saving the toolchain preferences, hence it's recommended to restart the Eclipse before we move further configuring the launch target.
+**NOTE:**  Eclipse CDT has a bug in saving the toolchain preferences, hence it's recommended to restart Eclipse before we move further configuring the launch target.
 
 ![](docs/images/7_cmake_toolchain.png)
 
@@ -243,7 +243,7 @@ To provide the customized launch configuration and flash arguments, please follo
 
 * Click on the `Launch Configuration` edit button
 * Switch to the `Main` tab
-* Specify the `Location` where this application has to run on. Since `idf.py` is a python file, will configure the python system path. Example:`${system_path:python}`
+* Specify the `Location` where this application has to run. Since `idf.py` is a python file, will configure the python system path. Example:`${system_path:python}`
 * Specify `Working directory` of the application. Example: `${workspace_loc:/hello_world}`
 * In additional arguments, provide a flashing command which will run in the specified working directory
 * Flash command looks like this: `/Users/user-name/esp/esp-idf/tools/idf.py -p /dev/cu.SLAB_USBtoUART flash`
@@ -260,7 +260,7 @@ To provide the customized launch configuration and flash arguments, please follo
 ## Error Log
 The Error Log view captures all the warnings and errors logged by plug-ins. The underlying log file is a .log file stored in the .metadata subdirectory of the workspace. 
 
-The Error Log view is available under Open the Log view `Window > Show View > Error Log` .
+The Error Log view is available in `Window > Show View > Error Log` .
 
 To export the current log view content into a file, press the Export Log toolbar button or select `Export Log...` from the context menu. Then, enter a file name.
 
@@ -281,7 +281,7 @@ Go to `Preferences > C/C++ > Build > Logging`
 ## Espressif IDF Tools Console
 The Espressif IDF Tools Console is part of Console view, this will be opened only during the installation of IDF tools from the Eclipse. 
 
-If any issue while installing the IDF tools using `Help > Espressif Tools Manager > Install tools`, please check the Espressif IDF Tools Console to see the errors reported.
+If you encounter any issue while installing the IDF tools using `Help > Espressif Tools Manager > Install tools`, please check the Espressif IDF Tools Console to see the errors reported.
 
 If this is not active, it can be switched by clicking on the `Display Selected Console` icon from the console view.
 
