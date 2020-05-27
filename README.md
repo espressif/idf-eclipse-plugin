@@ -186,6 +186,18 @@ To launch the Application Size Analysis editor:
 
 ![](docs/images/sizeanalysis_details.png)
 
+<a name="idfterminal"></a>
+# ESP-IDF Terminal
+This would launch a local terminal with all the environment variables which are set under `Preferences > C/C++ > Build > Environment`. The default working directory would be either the currently selected project or IDF_PATH if there is no project selected. 
+
+The terminal PATH is also configured with `esptool`, `espcoredump`, `partition_table`, and `app_update` component paths so that it will be handy to access them directly from the ESP-IDF terminal.
+
+To launch the ESP-IDF Terminal:
+* Click on `Open a Terminal` icon from  the Eclipse toolbar
+* Choose `ESP-IDF Terminal` from list and click `OK` to launch a terminal
+
+![](docs/images/idf_terminal.png)
+
 <a name="configureEnvironmentVariables"></a>
 # Configuring Environment Variables
 Eclipse auto configures the required environment variables in the `Preferences > C/C++ Build > Environment` section if IDF Tools are installed using `Help` > `ESP-IDF Tools Manager` > `Install Tools` menu option.
