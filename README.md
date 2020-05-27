@@ -14,6 +14,7 @@ IDF Eclipse Plugins aim to provide better tooling capabilities, which simplifies
 * [ Configuring the Project using sdkconfig Editor](#projectconfigure)<br>
 * [ CMake Editor](#cmakeproject)<br>
 * [ Debugging the Project ](#debugging)<br>
+* [ ESP-IDF Application Size Analysis Editor](#sizeanalysiseditor)<br>
 * [ Configuring Build Environment Variables ](#configureEnvironmentVariables)<br>
 * [ Configuring Core Build Toolchain ](#ConfigureToolchains)<br>
 * [ Configuring CMake Toolchain ](#ConfigureCMakeToolchain)<br>
@@ -166,6 +167,24 @@ Please refer to <a href ="https://docs.espressif.com/projects/esp-idf/en/latest/
 Predefined debug launch configuration files can be found  <a href ="https://github.com/espressif/idf-eclipse-plugin/tree/master/resources/Debugging%20Launch%20Configurations" > here</a>. These can be used for reference.
 
 Please refer to [Importing Debug Launch Configuration](#customizeLaunchConfig) section for importing the existing configuration files into Eclipse. Make sure to modify the debug launch configuraton project specific settings after importing.
+
+<a name="sizeanalysiseditor"></a>
+# ESP-IDF: Application Size Analysis
+Application Size Analysis editor provides a way to analyze the static memory footprint of your application. It has two sections - Overview and Details. The **Overview** section provides a summary of the application memory usage and the **Details** section will have in-depth details about components and per-symbol level memory information.
+
+Details table viewer also provides you with searching and sorting capabilities on various columns.
+
+To launch the Application Size Analysis editor:
+* Right-click on the project
+* Select `ESP-IDF: Application Size Analysis` menu option to launch the editor
+
+**Application Size Analysis - Overview**
+
+![](docs/images/sizeanalysis_overview.png)
+
+**Application Size Analysis - Details**
+
+![](docs/images/sizeanalysis_details.png)
 
 <a name="configureEnvironmentVariables"></a>
 # Configuring Environment Variables
