@@ -57,7 +57,7 @@ ESP-IDF requires some prerequisite tools to be installed so you can build firmwa
 
 For this getting started guide, follow the instructions below.
 
-* Navigate to `Help` > `Espressif IDF Tools Manager` > `Install Tools`
+* Navigate to `Help` > `ESP-IDF Tools Manager` > `Install Tools`
 * Provide the `ESP-IDF Directory` path
 * Provide `Git` and `Python` executable locations if they are not auto-detected.
 * Click on `Install Tools` to proceed with the installation process. Check the Console for the installation details.
@@ -169,7 +169,7 @@ Please refer to [Importing Debug Launch Configuration](#customizeLaunchConfig) s
 
 <a name="configureEnvironmentVariables"></a>
 # Configuring Environment Variables
-Eclipse auto configures the required environment variables in the `Preferences > C/C++ Build > Environment` section if IDF Tools are installed using `Help` > `Espressif IDF Tools Manager` > `Install Tools` menu option.
+Eclipse auto configures the required environment variables in the `Preferences > C/C++ Build > Environment` section if IDF Tools are installed using `Help` > `ESP-IDF Tools Manager` > `Install Tools` menu option.
 
 Required environment variables:
 * IDF_PATH
@@ -204,7 +204,7 @@ For example, to get the system environment PATH.
 ![](docs/images/2_environment_pref.png)
 
 # Configuring Toolchains
-We need to tell Eclipse CDT what core build toolchain and CMake toolchain need to be used to build the project. However, this will be auto-detected if you've installed the tools using the `Help > Espressif IDF Tools Manager > Install Tools` option from the Eclipse.
+We need to tell Eclipse CDT what core build toolchain and CMake toolchain need to be used to build the project. However, this will be auto-detected if you've installed the tools using the `Help > ESP-IDF Tools Manager > Install Tools` option from the Eclipse.
 
 If these toolchains are not detected for any reason, please follow the step by step instructions below to add a new toolchain.
 
@@ -281,7 +281,7 @@ Go to `Preferences > C/C++ > Build > Logging`
 ## Espressif IDF Tools Console
 The Espressif IDF Tools Console is part of Console view, this will be opened only during the installation of IDF tools from the Eclipse. 
 
-If you encounter any issue while installing the IDF tools using `Help > Espressif Tools Manager > Install tools`, please check the Espressif IDF Tools Console to see the errors reported.
+If you encounter any issue while installing the IDF tools using `Help > ESP-IDF Tools Manager > Install tools`, please check the Espressif IDF Tools Console to see the errors reported.
 
 If this is not active, it can be switched by clicking on the `Display Selected Console` icon from the console view.
 
