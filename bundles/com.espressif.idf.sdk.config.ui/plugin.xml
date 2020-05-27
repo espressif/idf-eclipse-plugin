@@ -23,6 +23,7 @@
          </separator>
          <command
                commandId="com.espressif.idf.sdk.config.ui.command.setdefault"
+               icon="icons/espressif.png"
                label="ESP-IDF: Load sdkconfig"
                style="push">
             <visibleWhen
