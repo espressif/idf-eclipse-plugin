@@ -15,6 +15,7 @@ IDF Eclipse Plugins aim to provide better tooling capabilities, which simplifies
 * [ CMake Editor](#cmakeproject)<br>
 * [ Debugging the Project ](#debugging)<br>
 * [ ESP-IDF Application Size Analysis Editor](#sizeanalysiseditor)<br>
+* [ ESP-IDF Terminal](#idfterminal)<br>
 * [ Configuring Build Environment Variables ](#configureEnvironmentVariables)<br>
 * [ Configuring Core Build Toolchain ](#ConfigureToolchains)<br>
 * [ Configuring CMake Toolchain ](#ConfigureCMakeToolchain)<br>
@@ -126,12 +127,12 @@ To provide the customized flash arguments, please follow [this](#customizeLaunch
 
 <a name="ConfigureLaunchTerminal"></a>
 # Viewing Serial Output
-To see the serial output in Eclipse, we need to configure the Eclipse terminal to connect to the serial port.
+To see the serial output in Eclipse, we need to configure the `ESP-IDF Serial Monitor` to connect to the serial port.
 
 * Click on the `Open a Terminal` icon from the toolbar
-* Choose `Serial Terminal` from the terminal drop-down
-* Select `Serial Port` for your board. Example: `/dev/cu.SLAB_USBtoUART`
-* Configure the remaining settings and click on Ok to launch the Eclipse terminal, which will listen to the USB port
+* Choose `ESP-IDF Serial Monitor` from the terminal drop-down
+* Select `Serial Port` for your board if it's not detected. Baud Rate and Serial Port settings are auto-configured by default. 
+* Click on `OK` to launch the terminal, which will listen to the USB port
 
 ![](docs/images/10_serial_terminal.png)
 
@@ -169,7 +170,7 @@ Predefined debug launch configuration files can be found  <a href ="https://gith
 Please refer to [Importing Debug Launch Configuration](#customizeLaunchConfig) section for importing the existing configuration files into Eclipse. Make sure to modify the debug launch configuraton project specific settings after importing.
 
 <a name="sizeanalysiseditor"></a>
-# ESP-IDF: Application Size Analysis
+# ESP-IDF Application Size Analysis
 Application Size Analysis editor provides a way to analyze the static memory footprint of your application. It has two sections - Overview and Details. The **Overview** section provides a summary of the application memory usage and the **Details** section will have in-depth details about components and per-symbol level memory information.
 
 Details table viewer also provides you with searching and sorting capabilities on various columns.
@@ -193,8 +194,8 @@ This would launch a local terminal with all the environment variables which are 
 The terminal PATH is also configured with `esptool`, `espcoredump`, `partition_table`, and `app_update` component paths so that it will be handy to access them directly from the ESP-IDF terminal.
 
 To launch the ESP-IDF Terminal:
-* Click on `Open a Terminal` icon from  the Eclipse toolbar
-* Choose `ESP-IDF Terminal` from list and click `OK` to launch a terminal
+* Click on the `Open a Terminal` icon from the toolbar
+* Choose `ESP-IDF Terminal` from the terminal drop-down and click `OK` to launch a terminal
 
 ![](docs/images/idf_terminal.png)
 
