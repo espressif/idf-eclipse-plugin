@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository version='1.1.0'?>
+<artifacts size='1'>
+  <artifact classifier='osgi.bundle' id='com.espressif.idf.branding' version='1.0.0.202005291025'>
+    <properties size='5'>
+      <property name='artifact.size' value='11450'/>
+      <property name='download.size' value='11450'/>
+      <property name='maven-groupId' value='com.espressif.idf'/>
+      <property name='maven-artifactId' value='com.espressif.idf.branding'/>
+      <property name='maven-version' value='1.0.0-SNAPSHOT'/>
+    </properties>
+  </artifact>
+</artifacts>

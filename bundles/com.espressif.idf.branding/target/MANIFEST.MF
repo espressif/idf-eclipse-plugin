@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %pluginName
+Bundle-SymbolicName: com.espressif.idf.branding;singleton:=true
+Bundle-Version: 1.0.0.202005291025
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
+
