@@ -3,7 +3,8 @@
       id="com.espressif.idf.feature"
       label="Espressif IDF Plugins for Eclipse"
       version="1.1.0.qualifier"
-      provider-name="ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD">
+      provider-name="ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD"
+      plugin="com.espressif.idf.branding">
 
    <description url="https://www.espressif.com/">
       Eclipse IDE for Espressif IoT Development Framework(IDF)
@@ -169,6 +170,13 @@ You may add additional accurate notices of copyright ownership.
          install-size="0"
          version="0.0.0"
          fragment="true"
+         unpack="false"/>
+         
+   <plugin
+         id="com.espressif.idf.branding"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
          unpack="false"/>
 
 </feature>
