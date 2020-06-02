@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Help
+Bundle-Name: ESP-IDF Help
 Bundle-SymbolicName: com.espressif.idf.help;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: com.espressif.idf.help.HelpActivator
