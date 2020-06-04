@@ -7,7 +7,7 @@ image: ${CI_DOCKER_REGISTRY}/esp32-ci-env
 
 variables:
   ARCHIVE_DIR: "dist"
-  ORIGIN_NAME: "com.espressif.idf.update-1.1.0-SNAPSHOT.zip"
+  ORIGIN_NAME: "com.espressif.idf.update-1.1.1-SNAPSHOT.zip"
 
 .add_gh_key_remote: &add_gh_key_remote |
   cit_add_ssh_key "${GH_PUSH_KEY}"
@@ -32,7 +32,7 @@ build:
     # Use an unique name for the archive
     - UNIQ_SUFFIX="$(git describe --dirty --abbrev=8)"
     - mkdir -p ${ARCHIVE_DIR} && echo "${UNIQ_SUFFIX}" > ${ARCHIVE_DIR}/uniq_suffix_value
-    - ARCHIVE_NAME=${ORIGIN_NAME/1.1.0-SNAPSHOT/$UNIQ_SUFFIX}
+    - ARCHIVE_NAME=${ORIGIN_NAME/1.1.1-SNAPSHOT/$UNIQ_SUFFIX}
     # build
     - export JARSIGNER_KEYSTORE_B64=${JARSIGNER_REL_KEYSTORE_B64:-${JARSIGNER_DEV_KEYSTORE_B64}}
     - export JARSIGNER_STOREPASS=${JARSIGNER_REL_STOREPASS:-${JARSIGNER_DEV_STOREPASS}}
@@ -53,7 +53,7 @@ build:
   script:
     # getting the corresponding unique suffix
     - UNIQ_SUFFIX=$(cat ${ARCHIVE_DIR}/uniq_suffix_value)
-    - ARCHIVE_NAME=${ORIGIN_NAME/1.1.0-SNAPSHOT/$UNIQ_SUFFIX}
+    - ARCHIVE_NAME=${ORIGIN_NAME/1.1.1-SNAPSHOT/$UNIQ_SUFFIX}
     # upload archive
     - cit_add_ssh_key "${SRV_KEY}"
     - cd ${ARCHIVE_DIR}
