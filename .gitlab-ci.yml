@@ -30,7 +30,7 @@ build:
     expire_in: 2 weeks
   script:
     # Use an unique name for the archive
-    - UNIQ_SUFFIX="$(git describe --dirty --abbrev=8)"
+    - UNIQ_SUFFIX="$(git describe --tags --dirty --abbrev=8)"
     - mkdir -p ${ARCHIVE_DIR} && echo "${UNIQ_SUFFIX}" > ${ARCHIVE_DIR}/uniq_suffix_value
     - ARCHIVE_NAME=${ORIGIN_NAME/1.1.1-SNAPSHOT/$UNIQ_SUFFIX}
     # build
