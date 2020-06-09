@@ -28,3 +28,8 @@ Eclipse > About Eclipse > Installation Details > Configuration > Copy to Clipboa
 
 **ESP-IDF Tools Information:**
 Help > Espressif Tools Manager > List Installed Tools
+
+**IDF Eclipse Plugin Version:** 
+Eclipse > About Eclipse > Installation Details > Installed Software > Search for "espressif"
+
+For v1.1.0 and above: Eclipse > About Eclipse > Click on "espresif" icon
