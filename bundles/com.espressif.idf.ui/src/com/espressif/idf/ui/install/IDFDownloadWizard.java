@@ -44,7 +44,10 @@ public class IDFDownloadWizard extends Wizard
 		if (configureExistingEnabled)
 		{
 			String existingIDFLocation = downloadPage.getExistingIDFLocation();
-			
+			Logger.log("Setting IDF_PATH to :" + existingIDFLocation);
+
+			// Configure IDF_PATH
+			new IDFEnvironmentVariables().addEnvVariable("IDF_PATH", existingIDFLocation);
 
 		}
 		else
@@ -97,7 +100,7 @@ public class IDFDownloadWizard extends Wizard
 		String folderName = zipName.substring(0, zipName.lastIndexOf(".zip"));
 
 		String idf_path = new File(destinationLocation, folderName).getAbsolutePath();
-		Logger.log("Setting IDF_PATH:" + idf_path);
+		Logger.log("Setting IDF_PATH to:" + idf_path);
 
 		// Configure IDF_PATH
 		new IDFEnvironmentVariables().addEnvVariable("IDF_PATH",

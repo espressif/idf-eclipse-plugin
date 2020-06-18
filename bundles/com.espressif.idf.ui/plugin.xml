@@ -196,7 +196,7 @@
          point="org.eclipse.ui.handlers">
       <handler
             class="com.espressif.idf.ui.install.IDFDownloadHandler"
-            commandId="com.espressif.idf.ui.commands.sampleCommand">
+            commandId="com.espressif.idf.ui.commands.installespidf">
       </handler>
    </extension>
    <extension
