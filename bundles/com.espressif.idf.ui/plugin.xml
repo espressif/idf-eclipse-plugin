@@ -59,14 +59,19 @@
             id="com.espressif.idf.ui.command.idfversiondoc"
             name="ESP-IDF Programming Guide">
       </command>
+      <command
+            id="com.espressif.idf.ui.commands.installespidf"
+            name="Configure and Install ESP-IDF">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
             allPopups="false"
-            locationURI="menu:help?after=org.eclipse.epp.mpc.ui.command.showMarketplaceWizard">
+            locationURI="menu:help?after=installespidf">
          <menu
                icon="icons/espressif.png"
+               id="espidftoolsInstall"
                label="%menu.label">
             <command
                   commandId="com.espressif.idf.ui.command.install"
@@ -86,7 +91,22 @@
          <command
                commandId="com.espressif.idf.ui.command.idfversiondoc"
                icon="icons/espressif.png"
+               id="idfversiondoc"
                label="%command.label"
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu?after=additions">
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:help?after=idfversiondoc">
+         <command
+               commandId="com.espressif.idf.ui.commands.installespidf"
+               icon="icons/espressif.png"
+               id="installespidf"
+               label="Configure and Install ESP-IDF"
                style="push">
          </command>
       </menuContribution>
@@ -171,5 +191,21 @@
             nature="com.espressif.idf.core.idfNature"
             tabClass="com.espressif.idf.ui.dialogs.CMakeBuildTab2">
       </provider>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="com.espressif.idf.ui.install.IDFDownloadHandler"
+            commandId="com.espressif.idf.ui.commands.sampleCommand">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="com.espressif.idf.ui.commands.sampleCommand"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+6">
+      </key>
    </extension>
 </plugin>
