@@ -29,9 +29,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.launchbar.ui,
  org.eclipse.ui.console,
  org.eclipse.jgit,
- org.eclipse.swtchart,
- org.eclipse.ui.cheatsheets,
- org.eclipse.ui.intro;bundle-version="3.5.800"
+ org.eclipse.swtchart
 Automatic-Module-Name: com.espressif.idf.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
