@@ -24,6 +24,9 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.ui.UIPlugin;
+
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
@@ -36,10 +39,12 @@ public class IDFDownloadPage extends WizardPage
 	private Text directoryTxt;
 	private Button fileSystemBtn;
 	private Text existingIdfDirTxt;
+	private Button browseBtn;
 
 	protected IDFDownloadPage(String pageName)
 	{
 		super(pageName);
+		setImageDescriptor(UIPlugin.getImageDescriptor("icons/espressif_logo.png"));
 	}
 
 	@Override
@@ -80,7 +85,17 @@ public class IDFDownloadPage extends WizardPage
 		}
 
 		createDownloadComposite(versionGrp);
+		
+		
+		Label noteLbl = new Label(composite, SWT.NONE);
+		noteLbl.setText("Note: The configured ESP-IDF directory will set as IDF_PATH in the CDT Build environment (Preferences > C/C++ > Build > Environment)");
+
+		gridData = new GridData(SWT.LEFT, SWT.NONE, true, false, 1, 1);
+		gridData.verticalIndent = 10;
+		noteLbl.setLayoutData(gridData);
+		
 		setControl(composite);
+		setPageComplete(false);
 	}
 
 	private void createExistingComposite(Composite parent)
@@ -107,11 +122,19 @@ public class IDFDownloadPage extends WizardPage
 		GridData data = new GridData();
 		data.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
 		existingIdfDirTxt.setLayoutData(data);
+		existingIdfDirTxt.addModifyListener(new ModifyListener()
+		{
+			@Override
+			public void modifyText(ModifyEvent e)
+			{
+				validate();
+			}
+		});
 
-		Button browseBtn = new Button(composite, SWT.PUSH);
-		browseBtn.setText("Browse...");
-		browseBtn.setEnabled(false);
-		browseBtn.addSelectionListener(new SelectionAdapter()
+		Button existingBrowseBtn = new Button(composite, SWT.PUSH);
+		existingBrowseBtn.setText("Browse...");
+		existingBrowseBtn.setEnabled(false);
+		existingBrowseBtn.addSelectionListener(new SelectionAdapter()
 		{
 			@Override
 			public void widgetSelected(SelectionEvent event)
@@ -137,25 +160,27 @@ public class IDFDownloadPage extends WizardPage
 				if (fileSystemBtn.getSelection())
 				{
 					existingIdfDirTxt.setEnabled(true);
-					browseBtn.setEnabled(true);
+					existingBrowseBtn.setEnabled(true);
+					
+					versionCombo.setEnabled(false);
+					directoryTxt.setEnabled(false);
+					browseBtn.setEnabled(false);
+					
 				}
 				else
 				{
 					existingIdfDirTxt.setEnabled(false);
-					browseBtn.setEnabled(false);
-					versionCombo.setEnabled(false);
-					directoryTxt.setEnabled(false);
+					existingBrowseBtn.setEnabled(false);
+					
+					versionCombo.setEnabled(true);
+					directoryTxt.setEnabled(true);
+					browseBtn.setEnabled(true);
+
 				}
+				validate();
 			}
 		});
 
-		Label noteLbl = new Label(composite, SWT.NONE);
-		noteLbl.setText(
-				"This will set as IDF_PATH in the CDT Build environment (Preferences > C/C++ > Build > Environment)");
-
-		GridData gridData = new GridData(SWT.LEFT, SWT.NONE, true, false, 3, 1);
-		gridData.verticalIndent = 10;
-		noteLbl.setLayoutData(gridData);
 	}
 
 	private void createDownloadComposite(Composite composite)
@@ -167,16 +192,19 @@ public class IDFDownloadPage extends WizardPage
 		GridData data = new GridData();
 		data.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
 		directoryTxt.setLayoutData(data);
+		directoryTxt.setFocus();
 		directoryTxt.addModifyListener(new ModifyListener()
 		{
 			@Override
 			public void modifyText(ModifyEvent e)
 			{
-				// validate();
+				validate();
 			}
 		});
+		
 
-		Button browseBtn = new Button(composite, SWT.PUSH);
+
+		browseBtn = new Button(composite, SWT.PUSH);
 		browseBtn.setText("Browse...");
 		browseBtn.addSelectionListener(new SelectionAdapter()
 		{
@@ -196,6 +224,28 @@ public class IDFDownloadPage extends WizardPage
 			}
 		});
 
+	}
+
+	protected void validate()
+	{
+		if (fileSystemBtn.getSelection())
+		{
+			//File system selection
+			if (StringUtil.isEmpty(existingIdfDirTxt.getText()))
+			{
+				setPageComplete(false);
+				return;
+			}
+		}
+		else
+		{
+			if (StringUtil.isEmpty(directoryTxt.getText()))
+			{
+				setPageComplete(false);
+				return;
+			}
+		}
+		setPageComplete(true);
 	}
 
 	public IDFVersion Version()

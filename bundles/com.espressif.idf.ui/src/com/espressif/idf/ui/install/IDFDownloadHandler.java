@@ -29,9 +29,10 @@ public class IDFDownloadHandler extends AbstractHandler
 		WizardDialog wizDialog = new WizardDialog(window.getShell(), wizard);
 		wizDialog.create();
 
-		wizDialog.setTitle("ESP-IDF Configuration");
+		wizDialog.setTitle("Install ESP-IDF");
 		wizDialog.setMessage("Configure and Install ESP-IDF");
-		wizDialog.getShell().setSize(850, 500);
+		wizDialog.getShell().setSize(Math.max(850,wizDialog.getShell().getSize().x), 500);
+		
 		wizDialog.open();
 
 		return null;

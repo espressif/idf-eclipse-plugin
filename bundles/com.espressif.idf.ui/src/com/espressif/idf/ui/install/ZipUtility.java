@@ -110,7 +110,7 @@ public class ZipUtility
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Logger.log(e);
 			return false;
 		}
 
