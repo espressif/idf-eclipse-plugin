@@ -85,15 +85,15 @@ public class IDFDownloadPage extends WizardPage
 		}
 
 		createDownloadComposite(versionGrp);
-		
-		
+
 		Label noteLbl = new Label(composite, SWT.NONE);
-		noteLbl.setText("Note: The configured ESP-IDF directory will set as IDF_PATH in the CDT Build environment (Preferences > C/C++ > Build > Environment)");
+		noteLbl.setText(
+				"Note: The configured ESP-IDF directory will set as IDF_PATH in the CDT Build environment (Preferences > C/C++ > Build > Environment)");
 
 		gridData = new GridData(SWT.LEFT, SWT.NONE, true, false, 1, 1);
 		gridData.verticalIndent = 10;
 		noteLbl.setLayoutData(gridData);
-		
+
 		setControl(composite);
 		setPageComplete(false);
 	}
@@ -161,17 +161,17 @@ public class IDFDownloadPage extends WizardPage
 				{
 					existingIdfDirTxt.setEnabled(true);
 					existingBrowseBtn.setEnabled(true);
-					
+
 					versionCombo.setEnabled(false);
 					directoryTxt.setEnabled(false);
 					browseBtn.setEnabled(false);
-					
+
 				}
 				else
 				{
 					existingIdfDirTxt.setEnabled(false);
 					existingBrowseBtn.setEnabled(false);
-					
+
 					versionCombo.setEnabled(true);
 					directoryTxt.setEnabled(true);
 					browseBtn.setEnabled(true);
@@ -201,8 +201,6 @@ public class IDFDownloadPage extends WizardPage
 				validate();
 			}
 		});
-		
-
 
 		browseBtn = new Button(composite, SWT.PUSH);
 		browseBtn.setText("Browse...");
@@ -230,7 +228,7 @@ public class IDFDownloadPage extends WizardPage
 	{
 		if (fileSystemBtn.getSelection())
 		{
-			//File system selection
+			// File system selection
 			if (StringUtil.isEmpty(existingIdfDirTxt.getText()))
 			{
 				setPageComplete(false);
