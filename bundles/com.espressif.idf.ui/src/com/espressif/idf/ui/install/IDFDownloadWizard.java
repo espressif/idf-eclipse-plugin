@@ -193,16 +193,21 @@ public class IDFDownloadWizard extends Wizard
 				{
 					int needToBeUpdated = unitsDownloadedSofar - noOfUnitedUpdated;
 					noOfUnitedUpdated = noOfUnitedUpdated + needToBeUpdated;
-					String taskName = MessageFormat.format(msg + "({0}/{1})", downloaded, contentLength);
+					String taskName = MessageFormat.format(msg + "({0}/{1})", convertToMB(downloaded),
+							convertToMB(contentLength));
 					monitor.setTaskName(taskName);
 					monitor.worked(needToBeUpdated);
+				}
+				if (monitor.isCanceled())
+				{
+					Logger.log("File download cancelled");
+					break;
 				}
 			}
 
 			outputStream.close();
 			inputStream.close();
 
-			Logger.log("File downloaded");
 			return saveFilePath;
 		}
 		else
@@ -211,5 +216,10 @@ public class IDFDownloadWizard extends Wizard
 		}
 		httpConn.disconnect();
 		return null;
+	}
+
+	protected String convertToMB(float value)
+	{
+		return String.format("%.2f", (value / (1024 * 1024))) + " MB"; //$NON-NLS-1$
 	}
 }
