@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 
@@ -60,7 +59,7 @@ public class IDFDownloadWizard extends Wizard
 				@Override
 				protected IStatus run(IProgressMonitor monitor)
 				{
-					downloadTask(monitor, url, destinationLocation);
+					download(monitor, url, destinationLocation);
 					syncWithUI();
 
 					return Status.OK_STATUS;
@@ -74,7 +73,7 @@ public class IDFDownloadWizard extends Wizard
 		return true;
 	}
 
-	protected void downloadTask(IProgressMonitor monitor, String url, String destinationLocation)
+	protected void download(IProgressMonitor monitor, String url, String destinationLocation)
 	{
 		try
 		{
@@ -121,12 +120,6 @@ public class IDFDownloadWizard extends Wizard
 				MessageDialog.openInformation(Display.getDefault().getActiveShell(), "Message", "Download Completed!");
 			}
 		});
-	}
-
-	@Override
-	public void createPageControls(Composite pageContainer)
-	{
-		super.createPageControls(pageContainer);
 	}
 
 	public void init(IWorkbench aWorkbench, IStructuredSelection currentSelection)
