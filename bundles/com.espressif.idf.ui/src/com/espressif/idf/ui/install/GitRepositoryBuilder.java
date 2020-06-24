@@ -67,12 +67,12 @@ public class GitRepositoryBuilder
 		// To release the lock on the file system resource
 		git.getRepository().close();
 
-		Logger.log(MessageFormat.format("ESP-IDF {0} cloning completed!", this.activeBranch));
+		Logger.log(MessageFormat.format("ESP-IDF {0} cloning completed!", this.activeBranch)); //$NON-NLS-1$
 	}
 
 	private String getBranchPath(final String branchName)
 	{
-		return "refs/heads/" + branchName;
+		return "refs/heads/" + branchName; //$NON-NLS-1$
 	}
 
 	public void repositoryURI(String uri)

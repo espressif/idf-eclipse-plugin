@@ -55,25 +55,25 @@ public class IDFVersionsReader
 	public Map<String, IDFVersion> getVersionsMap()
 	{
 		Map<String, IDFVersion> versionsMap = new LinkedHashMap<String, IDFVersion>();
-		String versionRegEx = "IDFZIPFileVersion";
+		String versionRegEx = "IDFZIPFileVersion"; //$NON-NLS-1$
 		List<String> versions = getVersions();
 		for (String version : versions)
 		{
-			if (version.startsWith("master"))
+			if (version.startsWith("master")) //$NON-NLS-1$
 			{
 				String gitHubVersionUrl = MASTER_URL;
 				String espressifVersionUrl = MASTER_URL;
 				versionsMap.put(version, new IDFVersion(version, gitHubVersionUrl, espressifVersionUrl));
 			}
-			else if (version.startsWith("v"))
+			else if (version.startsWith("v")) //$NON-NLS-1$
 			{
 				String gitHubVersionUrl = GITHUB_VERSION_URL.replace(versionRegEx, version);
 				String espressifVersionUrl = ESPRESSIF_VERSION_URL.replace(versionRegEx, version);
 				versionsMap.put(version, new IDFVersion(version, gitHubVersionUrl, espressifVersionUrl));
 			}
-			else if (version.startsWith("release/"))
+			else if (version.startsWith("release/")) //$NON-NLS-1$
 			{
-				String newVersion = version.replace("release/", "");
+				String newVersion = version.replace("release/", ""); //$NON-NLS-1$ //$NON-NLS-2$
 				String gitHubVersionUrl = GITHUB_VERSION_URL.replace(versionRegEx, newVersion);
 				String espressifVersionUrl = ESPRESSIF_VERSION_URL.replace(versionRegEx, newVersion);
 				versionsMap.put(version, new IDFVersion(version, gitHubVersionUrl, espressifVersionUrl));
@@ -91,10 +91,10 @@ public class IDFVersionsReader
 		for (String version : versionsMap.keySet())
 		{
 			IDFVersion idfVersion = versionsMap.get(version);
-			System.out.println("Version:" + version);
-			System.out.println("URL:" + idfVersion.getUrl());
-			System.out.println("Mirror URL:" + idfVersion.getMirrorUrl());
-			System.out.println("");
+			System.out.println("Version:" + version); //$NON-NLS-1$
+			System.out.println("URL:" + idfVersion.getUrl()); //$NON-NLS-1$
+			System.out.println("Mirror URL:" + idfVersion.getMirrorUrl()); //$NON-NLS-1$
+			System.out.println(""); //$NON-NLS-1$
 		}
 
 	}

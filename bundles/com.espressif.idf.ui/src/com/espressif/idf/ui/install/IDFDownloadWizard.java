@@ -47,12 +47,12 @@ public class IDFDownloadWizard extends Wizard
 		if (configureExistingEnabled)
 		{
 			String existingIDFLocation = downloadPage.getExistingIDFLocation();
-			Logger.log("Setting IDF_PATH to :" + existingIDFLocation);
+			Logger.log("Setting IDF_PATH to :" + existingIDFLocation); //$NON-NLS-1$
 
 			// Configure IDF_PATH
-			new IDFEnvironmentVariables().addEnvVariable("IDF_PATH", existingIDFLocation);
+			new IDFEnvironmentVariables().addEnvVariable("IDF_PATH", existingIDFLocation); //$NON-NLS-1$
 			
-			showMessage(MessageFormat.format("IDF_PATH configured with {0}. This might require a new set of tools to be installed. Do you want to install them?", existingIDFLocation));
+			showMessage(MessageFormat.format(Messages.IDFDownloadWizard_ConfigMessage, existingIDFLocation));
 
 		}
 		else
@@ -60,9 +60,9 @@ public class IDFDownloadWizard extends Wizard
 			new File(destinationLocation).mkdirs();
 			String url = version.getUrl();
 
-			if (version.getName().equals("master"))
+			if (version.getName().equals("master")) //$NON-NLS-1$
 			{
-				Job job = new Job(MessageFormat.format("Cloning ESP-IDF {0}...", version.getName()))
+				Job job = new Job(MessageFormat.format(Messages.IDFDownloadWizard_CloningJobMsg, version.getName()))
 				{
 					@Override
 					protected IStatus run(IProgressMonitor monitor)
@@ -77,7 +77,7 @@ public class IDFDownloadWizard extends Wizard
 			}
 			else
 			{
-				Job job = new Job(MessageFormat.format("Downloading ESP-IDF {0}...", version.getName()))
+				Job job = new Job(MessageFormat.format(Messages.IDFDownloadWizard_DownloadingJobMsg, version.getName()))
 				{
 					@Override
 					protected IStatus run(IProgressMonitor monitor)
@@ -99,12 +99,12 @@ public class IDFDownloadWizard extends Wizard
 		return true;
 	}
 
-	protected void openProgressView()
+	private void openProgressView()
 	{
 		try
 		{
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-					.showView("org.eclipse.ui.views.ProgressView");
+					.showView("org.eclipse.ui.views.ProgressView"); //$NON-NLS-1$
 		}
 		catch (PartInitException e)
 		{
@@ -124,10 +124,10 @@ public class IDFDownloadWizard extends Wizard
 				new File(downloadFile).delete();
 
 				// extracts file name from URL
-				String folderName = new File(url).getName().replace(".zip", "");
+				String folderName = new File(url).getName().replace(".zip", ""); //$NON-NLS-1$ //$NON-NLS-2$
 
 				configurePath(destinationLocation, folderName);
-				showMessage(MessageFormat.format("{0} download completed! This might require a new set of tools to be installed. Do you want to install them?", folderName));
+				showMessage(MessageFormat.format(Messages.IDFDownloadWizard_DownloadCompleteMsg, folderName));
 			}
 		}
 		catch (IOException e)
@@ -141,14 +141,14 @@ public class IDFDownloadWizard extends Wizard
 	{
 		GitRepositoryBuilder gitBuilder = new GitRepositoryBuilder();
 		gitBuilder.repositoryURI("https://github.com/espressif/esp-idf.git"); //$NON-NLS-1$
-		gitBuilder.repositoryDirectory(new File(destinationLocation + "/" + "esp-idf"));
+		gitBuilder.repositoryDirectory(new File(destinationLocation + "/" + "esp-idf")); //$NON-NLS-1$ //$NON-NLS-2$
 		gitBuilder.activeBranch(version);
 
 		try
 		{
 			gitBuilder.repositoryClone();
-			configurePath(destinationLocation, "esp-idf");
-			showMessage(MessageFormat.format("ESP-IDF {0} cloning completed! This might require a new set of tools to be installed. Do you want to install them?", version));
+			configurePath(destinationLocation, "esp-idf"); //$NON-NLS-1$
+			showMessage(MessageFormat.format(Messages.IDFDownloadWizard_CloningCompletedMsg, version));
 			
 		}
 		catch (Exception e)
@@ -161,10 +161,10 @@ public class IDFDownloadWizard extends Wizard
 	private void configurePath(String destinationDir, String folderName)
 	{
 		String idf_path = new File(destinationDir, folderName).getAbsolutePath();
-		Logger.log("Setting IDF_PATH to:" + idf_path);
+		Logger.log("Setting IDF_PATH to:" + idf_path); //$NON-NLS-1$
 
 		// Configure IDF_PATH
-		new IDFEnvironmentVariables().addEnvVariable("IDF_PATH",
+		new IDFEnvironmentVariables().addEnvVariable("IDF_PATH", //$NON-NLS-1$
 				new File(destinationDir, folderName).getAbsolutePath());
 	}
 
@@ -179,18 +179,18 @@ public class IDFDownloadWizard extends Wizard
 		{
 			public void run()
 			{
-				boolean isYes = MessageDialog.openQuestion(Display.getDefault().getActiveShell(), "Message", message);
+				boolean isYes = MessageDialog.openQuestion(Display.getDefault().getActiveShell(), Messages.IDFDownloadWizard_MessageTitle, message);
 				if (isYes)
 				{
 					InstallToolsHandler installToolsHandler = new InstallToolsHandler();
 					try
 					{
-						installToolsHandler.setCommandId("com.espressif.idf.ui.command.install");
+						installToolsHandler.setCommandId("com.espressif.idf.ui.command.install"); //$NON-NLS-1$
 						installToolsHandler.execute(null);
 					}
 					catch (ExecutionException e)
 					{
-						e.printStackTrace();
+						Logger.log(e);
 					}
 				}
 			}
@@ -203,7 +203,7 @@ public class IDFDownloadWizard extends Wizard
 		{
 			public void run()
 			{
-				MessageDialog.openError(Display.getDefault().getActiveShell(), "Error", errorMessage);
+				MessageDialog.openError(Display.getDefault().getActiveShell(), Messages.IDFDownloadWizard_ErrorTitle, errorMessage);
 			}
 		});
 	}
@@ -216,14 +216,14 @@ public class IDFDownloadWizard extends Wizard
 	@Override
 	public void addPages()
 	{
-		downloadPage = new IDFDownloadPage("Download page");
+		downloadPage = new IDFDownloadPage("Download page"); //$NON-NLS-1$
 		addPage(downloadPage);
 	}
 
-	public String downloadFile(String fileURL, String saveDir, IProgressMonitor monitor) throws IOException
+	protected String downloadFile(String fileURL, String saveDir, IProgressMonitor monitor) throws IOException
 	{
 
-		String msg = MessageFormat.format("Downloading {0}...", fileURL);
+		String msg = MessageFormat.format(Messages.IDFDownloadWizard_DownloadingMessage, fileURL);
 		Logger.log(msg);
 		monitor.beginTask(msg, 100);
 
@@ -234,8 +234,8 @@ public class IDFDownloadWizard extends Wizard
 		// always check HTTP response code first
 		if (responseCode == HttpURLConnection.HTTP_OK)
 		{
-			String fileName = "";
-			String disposition = httpConn.getHeaderField("Content-Disposition");
+			String fileName = ""; //$NON-NLS-1$
+			String disposition = httpConn.getHeaderField("Content-Disposition"); //$NON-NLS-1$
 			String contentType = httpConn.getContentType();
 			int contentLength = httpConn.getContentLength();
 
@@ -252,13 +252,13 @@ public class IDFDownloadWizard extends Wizard
 			else
 			{
 				// extracts file name from URL
-				fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1, fileURL.length());
+				fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1, fileURL.length()); //$NON-NLS-1$
 			}
 
-			Logger.log("Content-Type = " + contentType);
-			Logger.log("Content-Disposition = " + disposition);
-			Logger.log("Content-Length = " + contentLength);
-			Logger.log("fileName = " + fileName);
+			Logger.log("Content-Type = " + contentType); //$NON-NLS-1$
+			Logger.log("Content-Disposition = " + disposition); //$NON-NLS-1$
+			Logger.log("Content-Length = " + contentLength); //$NON-NLS-1$
+			Logger.log("fileName = " + fileName); //$NON-NLS-1$
 
 			// opens input stream from the HTTP connection
 			InputStream inputStream = httpConn.getInputStream();
@@ -280,14 +280,14 @@ public class IDFDownloadWizard extends Wizard
 				{
 					int needToBeUpdated = unitsDownloadedSofar - noOfUnitedUpdated;
 					noOfUnitedUpdated = noOfUnitedUpdated + needToBeUpdated;
-					String taskName = MessageFormat.format(msg + "({0}/{1})", convertToMB(downloaded),
+					String taskName = MessageFormat.format(msg + "({0}/{1})", convertToMB(downloaded), //$NON-NLS-1$
 							convertToMB(contentLength));
 					monitor.setTaskName(taskName);
 					monitor.worked(needToBeUpdated);
 				}
 				if (monitor.isCanceled())
 				{
-					Logger.log("File download cancelled");
+					Logger.log("File download cancelled"); //$NON-NLS-1$
 					break;
 				}
 			}
@@ -299,7 +299,7 @@ public class IDFDownloadWizard extends Wizard
 		}
 		else
 		{
-			Logger.log("No file to download. Server replied HTTP code: " + responseCode);
+			Logger.log("No file to download. Server replied HTTP code: " + responseCode); //$NON-NLS-1$
 		}
 		httpConn.disconnect();
 		return null;
@@ -307,7 +307,7 @@ public class IDFDownloadWizard extends Wizard
 
 	protected String convertToMB(float value)
 	{
-		return String.format("%.2f", (value / (1024 * 1024))) + " MB"; //$NON-NLS-1$
+		return String.format("%.2f", (value / (1024 * 1024))) + " MB"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 }
