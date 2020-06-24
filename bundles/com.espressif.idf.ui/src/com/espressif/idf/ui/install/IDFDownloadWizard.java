@@ -55,29 +55,46 @@ public class IDFDownloadWizard extends Wizard
 		{
 			new File(destinationLocation).mkdirs();
 			String url = version.getUrl();
-			
-			Job job = new Job("Downloading ESP-IDF")
+
+			if (version.getName().equals("master"))
 			{
-				@Override
-				protected IStatus run(IProgressMonitor monitor)
+				Job job = new Job(MessageFormat.format("Cloning ESP-IDF {0}...", version.getName()))
 				{
-					download(monitor, url, destinationLocation);
-					syncWithUI();
+					@Override
+					protected IStatus run(IProgressMonitor monitor)
+					{
+						repositoryClone(version.getName(), url, destinationLocation);
+						return Status.OK_STATUS;
+					}
+				};
 
-					return Status.OK_STATUS;
-				}
-			};
+				job.setUser(true);
+				job.schedule();
+			}
+			else
+			{
+				Job job = new Job(MessageFormat.format("Downloading ESP-IDF {0}...", version.getName()))
+				{
+					@Override
+					protected IStatus run(IProgressMonitor monitor)
+					{
+						download(monitor, url, destinationLocation);
+						return Status.OK_STATUS;
+					}
+				};
 
-			job.setUser(true);
-			job.schedule();
-			
-			//Show the progress in Progress View
+				job.setUser(true);
+				job.schedule();
+
+			}
+
+			// Show the progress in Progress View
 			openProgressView();
 		}
 
 		return true;
 	}
-	
+
 	protected void openProgressView()
 	{
 		try
@@ -89,7 +106,7 @@ public class IDFDownloadWizard extends Wizard
 		{
 			Logger.log(e);
 		}
-		
+
 	}
 
 	protected void download(IProgressMonitor monitor, String url, String destinationLocation)
@@ -101,28 +118,49 @@ public class IDFDownloadWizard extends Wizard
 			{
 				unZipFile(downloadFile, destinationLocation);
 				new File(downloadFile).delete();
-				configurePaths(destinationLocation, url);
 
+				// extracts file name from URL
+				String folderName = new File(url).getName().replace(".zip", "");
+
+				configurePath(destinationLocation, folderName);
+				showMessage(MessageFormat.format("ESP-IDF {0} download completed!", folderName));
 			}
 		}
 		catch (IOException e)
 		{
 			Logger.log(e);
+			showErrorMessage(e.getLocalizedMessage());
 		}
 	}
 
-	private void configurePaths(String destinationLocation, String fileURL)
+	protected void repositoryClone(String version, String url, String destinationLocation)
 	{
-		// extracts file name from URL
-		String zipName = new File(fileURL).getName();
-		String folderName = zipName.replace(".zip", "");
+		GitRepositoryBuilder gitBuilder = new GitRepositoryBuilder();
+		gitBuilder.repositoryURI("https://github.com/espressif/esp-idf.git"); //$NON-NLS-1$
+		gitBuilder.repositoryDirectory(new File(destinationLocation + "/" + "esp-idf"));
+		gitBuilder.activeBranch(version);
 
-		String idf_path = new File(destinationLocation, folderName).getAbsolutePath();
+		try
+		{
+			gitBuilder.repositoryClone();
+			configurePath(destinationLocation, "esp-idf");
+			showMessage(MessageFormat.format("ESP-IDF {0} cloning completed!", version));
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+			showErrorMessage(e.getLocalizedMessage());
+		}
+	}
+
+	private void configurePath(String destinationDir, String folderName)
+	{
+		String idf_path = new File(destinationDir, folderName).getAbsolutePath();
 		Logger.log("Setting IDF_PATH to:" + idf_path);
 
 		// Configure IDF_PATH
 		new IDFEnvironmentVariables().addEnvVariable("IDF_PATH",
-				new File(destinationLocation, folderName).getAbsolutePath());
+				new File(destinationDir, folderName).getAbsolutePath());
 	}
 
 	private void unZipFile(String downloadFile, String destinationLocation)
@@ -130,13 +168,24 @@ public class IDFDownloadWizard extends Wizard
 		new ZipUtility().decompress(new File(downloadFile), new File(destinationLocation));
 	}
 
-	private void syncWithUI()
+	private void showMessage(final String message)
 	{
 		Display.getDefault().asyncExec(new Runnable()
 		{
 			public void run()
 			{
-				MessageDialog.openInformation(Display.getDefault().getActiveShell(), "Message", "Download Completed!");
+				MessageDialog.openInformation(Display.getDefault().getActiveShell(), "Message", message);
+			}
+		});
+	}
+
+	private void showErrorMessage(String errorMessage)
+	{
+		Display.getDefault().asyncExec(new Runnable()
+		{
+			public void run()
+			{
+				MessageDialog.openError(Display.getDefault().getActiveShell(), "Error", errorMessage);
 			}
 		});
 	}
@@ -242,4 +291,5 @@ public class IDFDownloadWizard extends Wizard
 	{
 		return String.format("%.2f", (value / (1024 * 1024))) + " MB"; //$NON-NLS-1$
 	}
+
 }

@@ -106,7 +106,7 @@
                commandId="com.espressif.idf.ui.commands.installespidf"
                icon="icons/espressif.png"
                id="installespidf"
-               label="Configure and Install ESP-IDF"
+               label="Download and Configure ESP-IDF"
                style="push">
          </command>
       </menuContribution>
