@@ -12,6 +12,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.MessageFormat;
 
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -26,6 +27,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.ui.update.InstallToolsHandler;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -49,6 +51,8 @@ public class IDFDownloadWizard extends Wizard
 
 			// Configure IDF_PATH
 			new IDFEnvironmentVariables().addEnvVariable("IDF_PATH", existingIDFLocation);
+			
+			showMessage(MessageFormat.format("IDF_PATH configured with {0}. This might require a new set of tools to be installed. Do you want to install them?", existingIDFLocation));
 
 		}
 		else
@@ -123,7 +127,7 @@ public class IDFDownloadWizard extends Wizard
 				String folderName = new File(url).getName().replace(".zip", "");
 
 				configurePath(destinationLocation, folderName);
-				showMessage(MessageFormat.format("ESP-IDF {0} download completed!", folderName));
+				showMessage(MessageFormat.format("{0} download completed! This might require a new set of tools to be installed. Do you want to install them?", folderName));
 			}
 		}
 		catch (IOException e)
@@ -144,7 +148,8 @@ public class IDFDownloadWizard extends Wizard
 		{
 			gitBuilder.repositoryClone();
 			configurePath(destinationLocation, "esp-idf");
-			showMessage(MessageFormat.format("ESP-IDF {0} cloning completed!", version));
+			showMessage(MessageFormat.format("ESP-IDF {0} cloning completed! This might require a new set of tools to be installed. Do you want to install them?", version));
+			
 		}
 		catch (Exception e)
 		{
@@ -174,7 +179,20 @@ public class IDFDownloadWizard extends Wizard
 		{
 			public void run()
 			{
-				MessageDialog.openInformation(Display.getDefault().getActiveShell(), "Message", message);
+				boolean isYes = MessageDialog.openQuestion(Display.getDefault().getActiveShell(), "Message", message);
+				if (isYes)
+				{
+					InstallToolsHandler installToolsHandler = new InstallToolsHandler();
+					try
+					{
+						installToolsHandler.setCommandId("com.espressif.idf.ui.command.install");
+						installToolsHandler.execute(null);
+					}
+					catch (ExecutionException e)
+					{
+						e.printStackTrace();
+					}
+				}
 			}
 		});
 	}

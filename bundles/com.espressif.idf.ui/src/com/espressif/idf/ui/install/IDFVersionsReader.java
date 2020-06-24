@@ -33,8 +33,8 @@ public class IDFVersionsReader
 		List<String> versionList = new ArrayList<>();
 		try
 		{
-			URL oracle = new URL(VERSIONS_URL);
-			URLConnection yc = oracle.openConnection();
+			URL url = new URL(VERSIONS_URL);
+			URLConnection yc = url.openConnection();
 			BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
 
 			String inputLine;

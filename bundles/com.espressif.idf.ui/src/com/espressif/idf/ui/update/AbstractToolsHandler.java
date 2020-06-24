@@ -51,13 +51,19 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 	protected String pythonExecutablenPath;
 	protected String gitExecutablePath;
 	private Map<String, String> pythonVersions;
+	private String commandId;
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
 		activateIDFConsoleView();
-
-		String commmand_id = event.getCommand().getId();
+		
+		String commmand_id = commandId;;
+		if (event != null)
+		{
+			commmand_id = event.getCommand().getId();
+		}
+		
 		Logger.log("Command id:" + commmand_id); //$NON-NLS-1$
 
 		// Get IDF_PATH
@@ -247,5 +253,10 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 		{
 			Logger.log(e);
 		}
+	}
+	
+	public void setCommandId(String commandId)
+	{
+		this.commandId = commandId;
 	}
 }
