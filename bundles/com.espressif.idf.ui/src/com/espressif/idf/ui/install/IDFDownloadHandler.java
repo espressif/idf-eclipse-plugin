@@ -24,13 +24,13 @@ public class IDFDownloadHandler extends AbstractHandler
 		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 
 		IDFDownloadWizard wizard = new IDFDownloadWizard();
-		wizard.setWindowTitle("ESP-IDF Configuration");
+		wizard.setWindowTitle(Messages.IDFDownloadHandler_ESPIDFConfiguration);
 
 		WizardDialog wizDialog = new WizardDialog(window.getShell(), wizard);
 		wizDialog.create();
 
-		wizDialog.setTitle("Download ESP-IDF");
-		wizDialog.setMessage("Download and Configure ESP-IDF");
+		wizDialog.setTitle(Messages.IDFDownloadHandler_DownloadPage_Title);
+		wizDialog.setMessage(Messages.IDFDownloadHandler_DownloadPageMsg);
 		wizDialog.getShell().setSize(Math.max(850,wizDialog.getShell().getSize().x), 500);
 		
 		wizDialog.open();

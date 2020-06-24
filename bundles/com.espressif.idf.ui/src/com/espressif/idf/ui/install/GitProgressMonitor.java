@@ -27,21 +27,21 @@ public class GitProgressMonitor extends BatchingProgressMonitor
 
 	@Override
     protected void onUpdate(final String taskName, final int workCurr) {
-		console.println(MessageFormat.format("[{0}] -> [{1}]", taskName, workCurr));
+		console.println(MessageFormat.format("[{0}] -> [{1}]", taskName, workCurr)); //$NON-NLS-1$
     }
 
     @Override
     protected void onUpdate(final String taskName, final int workCurr, final int workTotal, final int percentDone) {
-    	console.println(MessageFormat.format("[{0}] -> [{1}], total [{2}] [{3}]% Completed", taskName, workCurr, workTotal, percentDone));
+    	console.println(MessageFormat.format("[{0}] -> [{1}], total [{2}] [{3}]% Completed", taskName, workCurr, workTotal, percentDone)); //$NON-NLS-1$
     }
 
     @Override
     protected void onEndTask(final String taskName, final int workCurr) {
-    	console.println(MessageFormat.format("Finished [{0}] -> [{1}]", taskName, workCurr));
+    	console.println(MessageFormat.format("Finished [{0}] -> [{1}]", taskName, workCurr)); //$NON-NLS-1$
     }
 
     @Override
     protected void onEndTask(final String taskName, final int workCurr, final int workTotal, final int percentDone) {
-    	console.println(MessageFormat.format("Finished [{0}] -> [{1}], total [{2}] [{3}]% Completed", taskName, workCurr, workTotal, percentDone));
+    	console.println(MessageFormat.format("Finished [{0}] -> [{1}], total [{2}] [{3}]% Completed", taskName, workCurr, workTotal, percentDone)); //$NON-NLS-1$
     }
 }

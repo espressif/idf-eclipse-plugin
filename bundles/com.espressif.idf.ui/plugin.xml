@@ -57,11 +57,11 @@
       <command
             defaultHandler="com.espressif.idf.ui.help.LaunchEspIdfDocHandler"
             id="com.espressif.idf.ui.command.idfversiondoc"
-            name="ESP-IDF Programming Guide">
+            name="%command.name.1">
       </command>
       <command
             id="com.espressif.idf.ui.commands.installespidf"
-            name="Configure and Install ESP-IDF">
+            name="%command.name.2">
       </command>
    </extension>
    <extension
@@ -106,7 +106,7 @@
                commandId="com.espressif.idf.ui.commands.installespidf"
                icon="icons/espressif.png"
                id="installespidf"
-               label="Download and Configure ESP-IDF"
+               label="%command.label.0"
                style="push">
          </command>
       </menuContribution>
@@ -152,7 +152,7 @@
          <command
                commandId="com.espressif.idf.ui.memoryanalysis"
                icon="icons/espressif.png"
-               label="ESP-IDF: Application Size Analysis"
+               label="%command.label.1"
                style="push">
             <visibleWhen
                   checkEnabled="false">
@@ -172,7 +172,7 @@
       <command
             defaultHandler="com.espressif.idf.ui.size.IDFSizeMemoryHandler"
             id="com.espressif.idf.ui.memoryanalysis"
-            name="ESP-IDF: Application Size Analysis">
+            name="%command.name.3">
       </command>
    </extension>
    <extension
@@ -182,7 +182,7 @@
             default="false"
             icon="icons/espressif.png"
             id="com.espressif.idf.ui.editor.idfsize"
-            name="ESP-IDF Size Analysis">
+            name="%editor.name">
       </editor>
    </extension>
    <extension

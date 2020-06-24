@@ -49,7 +49,7 @@ public class IDFDownloadPage extends WizardPage
 	protected IDFDownloadPage(String pageName)
 	{
 		super(pageName);
-		setImageDescriptor(UIPlugin.getImageDescriptor("icons/espressif_logo.png"));
+		setImageDescriptor(UIPlugin.getImageDescriptor(Messages.IDFDownloadPage_0));
 	}
 
 	@Override
@@ -70,11 +70,11 @@ public class IDFDownloadPage extends WizardPage
 		layout.numColumns = 3;
 		versionGrp.setLayout(layout);
 		versionGrp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		versionGrp.setText("Download ESP-IDF");
+		versionGrp.setText(Messages.IDFDownloadPage_DownloadIDF);
 		versionGrp.setFont(parent.getFont());
 
 		Label versionLbl = new Label(versionGrp, SWT.NONE);
-		versionLbl.setText("Please choose ESP-IDF version to download:");
+		versionLbl.setText(Messages.IDFDownloadPage_ChooseIDFVersion);
 
 		versionCombo = new Combo(versionGrp, SWT.DROP_DOWN | SWT.READ_ONLY);
 		GridData gridData = new GridData(SWT.NONE, SWT.NONE, false, false, 2, 1);
@@ -94,7 +94,7 @@ public class IDFDownloadPage extends WizardPage
 
 		Label noteLbl = new Label(composite, SWT.NONE);
 		noteLbl.setText(
-				"Note: The newly configured ESP-IDF will set to IDF_PATH in the CDT Build environment (Preferences > C/C++ > Build > Environment)");
+				Messages.IDFDownloadPage_Note);
 
 		gridData = new GridData(SWT.LEFT, SWT.NONE, true, false, 1, 1);
 		gridData.verticalIndent = 10;
@@ -108,7 +108,7 @@ public class IDFDownloadPage extends WizardPage
 	{
 		// File system selection
 		fileSystemBtn = new Button(parent, SWT.CHECK);
-		fileSystemBtn.setText("Choose an existing ESP-IDF from file system");
+		fileSystemBtn.setText(Messages.IDFDownloadPage_ChooseAnExistingIDF);
 		GridData gridData2 = new GridData(SWT.NONE, SWT.NONE, false, false, 1, 1);
 		gridData2.verticalIndent = 10;
 		fileSystemBtn.setLayoutData(gridData2);
@@ -121,7 +121,7 @@ public class IDFDownloadPage extends WizardPage
 		composite.setFont(parent.getFont());
 
 		Label label = new Label(composite, SWT.NONE);
-		label.setText("Choose a directory of an existing ESP-IDF:");
+		label.setText(Messages.IDFDownloadPage_ChooseDirIDF);
 
 		existingIdfDirTxt = new Text(composite, SWT.BORDER);
 		existingIdfDirTxt.setEnabled(false);
@@ -138,7 +138,7 @@ public class IDFDownloadPage extends WizardPage
 		});
 
 		Button existingBrowseBtn = new Button(composite, SWT.PUSH);
-		existingBrowseBtn.setText("Browse...");
+		existingBrowseBtn.setText(Messages.IDFDownloadPage_BrowseBtn);
 		existingBrowseBtn.setEnabled(false);
 		existingBrowseBtn.addSelectionListener(new SelectionAdapter()
 		{
@@ -147,8 +147,8 @@ public class IDFDownloadPage extends WizardPage
 			{
 				DirectoryDialog dlg = new DirectoryDialog(getShell());
 				dlg.setFilterPath(existingIdfDirTxt.getText());
-				dlg.setText("ESP-IDF Directory:");
-				dlg.setMessage("Select ESP-IDF Directory:");
+				dlg.setText(Messages.IDFDownloadPage_DirectoryDialogTxt);
+				dlg.setMessage(Messages.IDFDownloadPage_DirectoryDialogMsg);
 
 				String dir = dlg.open();
 				if (dir != null)
@@ -192,7 +192,7 @@ public class IDFDownloadPage extends WizardPage
 	private void createDownloadComposite(Composite composite)
 	{
 		Label descLbl = new Label(composite, SWT.NONE);
-		descLbl.setText("Choose a directory to download ESP-IDF to:");
+		descLbl.setText(Messages.IDFDownloadPage_ChooseIDFDir);
 
 		directoryTxt = new Text(composite, SWT.BORDER);
 		GridData data = new GridData();
@@ -209,7 +209,7 @@ public class IDFDownloadPage extends WizardPage
 		});
 
 		browseBtn = new Button(composite, SWT.PUSH);
-		browseBtn.setText("Browse...");
+		browseBtn.setText(Messages.IDFDownloadPage_BrowseBtnTxt);
 		browseBtn.addSelectionListener(new SelectionAdapter()
 		{
 			@Override
@@ -217,8 +217,8 @@ public class IDFDownloadPage extends WizardPage
 			{
 				DirectoryDialog dlg = new DirectoryDialog(getShell());
 				dlg.setFilterPath(directoryTxt.getText());
-				dlg.setText("Choose Directory");
-				dlg.setMessage("Choose Directory to download ESP-IDF");
+				dlg.setText(Messages.IDFDownloadPage_DirectoryDialogText);
+				dlg.setMessage(Messages.IDFDownloadPage_DirectoryDialogMessage);
 
 				String dir = dlg.open();
 				if (dir != null)
@@ -233,7 +233,7 @@ public class IDFDownloadPage extends WizardPage
 	private void createLinkArea(Composite parent)
 	{
 		Link link = new Link(parent, SWT.NONE);
-	    String message = "For more information about ESP-IDF versions, see <a href=\"https://docs.espressif.com/projects/esp-idf/en/latest/versions.html\">https://docs.espressif.com/projects/esp-idf/en/latest/versions.html</a>";
+	    String message = Messages.IDFDownloadPage_VersionLinkMsg;
 	    link.setText(message);
 	    link.setSize(400, 100);
 	  
@@ -257,7 +257,7 @@ public class IDFDownloadPage extends WizardPage
 	        }
 	    });
 	}
-	protected void validate()
+	private void validate()
 	{
 		if (fileSystemBtn.getSelection())
 		{
@@ -279,7 +279,7 @@ public class IDFDownloadPage extends WizardPage
 		setPageComplete(true);
 	}
 
-	public IDFVersion Version()
+	protected IDFVersion Version()
 	{
 		String versionTxt = versionCombo.getText();
 		IDFVersion version = versionsMap.get(versionTxt);
