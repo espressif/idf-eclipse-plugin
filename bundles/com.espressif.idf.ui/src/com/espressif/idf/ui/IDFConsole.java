@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.ui;
 
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
@@ -30,7 +31,14 @@ public class IDFConsole
 		msgConsole.activate();
 
 		// Open console view so that users can see the output
-		openConsoleView();
+		Display.getDefault().asyncExec(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				openConsoleView();
+			}
+		});
 
 		return console;
 	}
