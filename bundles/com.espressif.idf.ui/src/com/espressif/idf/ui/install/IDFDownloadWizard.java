@@ -21,6 +21,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
@@ -53,7 +55,7 @@ public class IDFDownloadWizard extends Wizard
 		{
 			new File(destinationLocation).mkdirs();
 			String url = version.getUrl();
-
+			
 			Job job = new Job("Downloading ESP-IDF")
 			{
 				@Override
@@ -68,9 +70,26 @@ public class IDFDownloadWizard extends Wizard
 
 			job.setUser(true);
 			job.schedule();
+			
+			//Show the progress in Progress View
+			openProgressView();
 		}
 
 		return true;
+	}
+	
+	protected void openProgressView()
+	{
+		try
+		{
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+					.showView("org.eclipse.ui.views.ProgressView");
+		}
+		catch (PartInitException e)
+		{
+			Logger.log(e);
+		}
+		
 	}
 
 	protected void download(IProgressMonitor monitor, String url, String destinationLocation)
@@ -96,7 +115,7 @@ public class IDFDownloadWizard extends Wizard
 	{
 		// extracts file name from URL
 		String zipName = new File(fileURL).getName();
-		String folderName = zipName.substring(0, zipName.lastIndexOf(".zip"));
+		String folderName = zipName.replace(".zip", "");
 
 		String idf_path = new File(destinationLocation, folderName).getAbsolutePath();
 		Logger.log("Setting IDF_PATH to:" + idf_path);
@@ -138,6 +157,7 @@ public class IDFDownloadWizard extends Wizard
 	{
 
 		String msg = MessageFormat.format("Downloading {0}...", fileURL);
+		Logger.log(msg);
 		monitor.beginTask(msg, 100);
 
 		URL url = new URL(fileURL);
