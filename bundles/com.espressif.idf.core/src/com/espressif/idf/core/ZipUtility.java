@@ -2,7 +2,7 @@
  * Copyright 2020 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.ui.install;
+package com.espressif.idf.core;
 
 import java.io.BufferedInputStream;
 import java.io.File;

@@ -26,6 +26,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.IDFVersion;
+import com.espressif.idf.core.ZipUtility;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.ui.update.InstallToolsHandler;
 
