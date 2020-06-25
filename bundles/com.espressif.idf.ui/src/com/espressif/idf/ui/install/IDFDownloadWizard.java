@@ -69,7 +69,7 @@ public class IDFDownloadWizard extends Wizard
 					@Override
 					protected IStatus run(IProgressMonitor monitor)
 					{
-						repositoryClone(version.getName(), url, destinationLocation);
+						repositoryClone(version.getName(), url, destinationLocation, monitor);
 						return Status.OK_STATUS;
 					}
 				};
@@ -139,12 +139,13 @@ public class IDFDownloadWizard extends Wizard
 		}
 	}
 
-	protected void repositoryClone(String version, String url, String destinationLocation)
+	protected void repositoryClone(String version, String url, String destinationLocation, IProgressMonitor monitor)
 	{
 		GitRepositoryBuilder gitBuilder = new GitRepositoryBuilder();
 		gitBuilder.repositoryURI("https://github.com/espressif/esp-idf.git"); //$NON-NLS-1$
 		gitBuilder.repositoryDirectory(new File(destinationLocation + "/" + "esp-idf")); //$NON-NLS-1$ //$NON-NLS-2$
 		gitBuilder.activeBranch(version);
+		gitBuilder.setProgressMonitor(monitor);
 
 		try
 		{

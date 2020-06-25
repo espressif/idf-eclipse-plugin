@@ -9,6 +9,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jgit.api.Git;
 
 import com.espressif.idf.core.logging.Logger;
@@ -23,6 +24,7 @@ public class GitRepositoryBuilder
 	private File repositoryDirectory;
 	private String activeBranch;
 	private String uri;
+	private IProgressMonitor monitor;
 
 	/**
 	 * Location of the repository, or where the repository should be cloned.
@@ -50,7 +52,7 @@ public class GitRepositoryBuilder
 		Collection<String> branchesToClone = new ArrayList<>();
 		branchesToClone.add(getBranchPath(this.activeBranch));
 
-		GitProgressMonitor gitProgressMonitor = new GitProgressMonitor();
+		GitProgressMonitor gitProgressMonitor = new GitProgressMonitor(monitor);
 
 		// @formatter:off
 		Git git = Git.cloneRepository()
@@ -61,8 +63,9 @@ public class GitRepositoryBuilder
 				  .setBranchesToClone(branchesToClone)
 				  .setBranch(getBranchPath(this.activeBranch))
 				  .call();
-					
+		
 		// @formatter:on
+		Logger.log(String.format("git clone result: %s", git.toString()));
 
 		// To release the lock on the file system resource
 		git.getRepository().close();
@@ -78,5 +81,10 @@ public class GitRepositoryBuilder
 	public void repositoryURI(String uri)
 	{
 		this.uri = uri;
+	}
+
+	public void setProgressMonitor(IProgressMonitor monitor)
+	{
+		this.monitor = monitor;
 	}
 }
