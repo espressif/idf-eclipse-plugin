@@ -53,7 +53,7 @@ public class IDFDownloadWizard extends Wizard
 
 			// Configure IDF_PATH
 			new IDFEnvironmentVariables().addEnvVariable("IDF_PATH", existingIDFLocation); //$NON-NLS-1$
-			
+
 			showMessage(MessageFormat.format(Messages.IDFDownloadWizard_ConfigMessage, existingIDFLocation));
 
 		}
@@ -151,7 +151,7 @@ public class IDFDownloadWizard extends Wizard
 			gitBuilder.repositoryClone();
 			configurePath(destinationLocation, "esp-idf"); //$NON-NLS-1$
 			showMessage(MessageFormat.format(Messages.IDFDownloadWizard_CloningCompletedMsg, version));
-			
+
 		}
 		catch (Exception e)
 		{
@@ -181,7 +181,8 @@ public class IDFDownloadWizard extends Wizard
 		{
 			public void run()
 			{
-				boolean isYes = MessageDialog.openQuestion(Display.getDefault().getActiveShell(), Messages.IDFDownloadWizard_MessageTitle, message);
+				boolean isYes = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
+						Messages.IDFDownloadWizard_MessageTitle, message);
 				if (isYes)
 				{
 					InstallToolsHandler installToolsHandler = new InstallToolsHandler();
@@ -205,7 +206,8 @@ public class IDFDownloadWizard extends Wizard
 		{
 			public void run()
 			{
-				MessageDialog.openError(Display.getDefault().getActiveShell(), Messages.IDFDownloadWizard_ErrorTitle, errorMessage);
+				MessageDialog.openError(Display.getDefault().getActiveShell(), Messages.IDFDownloadWizard_ErrorTitle,
+						errorMessage);
 			}
 		});
 	}
@@ -290,6 +292,7 @@ public class IDFDownloadWizard extends Wizard
 				if (monitor.isCanceled())
 				{
 					Logger.log("File download cancelled"); //$NON-NLS-1$
+					saveFilePath = null;
 					break;
 				}
 			}
