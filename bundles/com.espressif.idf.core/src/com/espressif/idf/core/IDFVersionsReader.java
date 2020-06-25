@@ -49,6 +49,7 @@ public class IDFVersionsReader
 		}
 		catch (IOException e)
 		{
+			Logger.log("Failed to load versions from " + VERSIONS_URL); //$NON-NLS-1$
 			Logger.log(e);
 		}
 
@@ -96,6 +97,7 @@ public class IDFVersionsReader
 		List<String> versions = applyPluginFilter(getVersions());
 		for (String version : versions)
 		{
+			Logger.log("Version: " + version);
 			if (version.startsWith("master")) //$NON-NLS-1$
 			{
 				String gitHubVersionUrl = MASTER_URL;
