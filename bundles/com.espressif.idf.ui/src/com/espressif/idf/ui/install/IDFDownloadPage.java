@@ -4,8 +4,10 @@
  *******************************************************************************/
 package com.espressif.idf.ui.install;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Set;
 
@@ -268,12 +270,46 @@ public class IDFDownloadPage extends WizardPage
 	{
 		if (fileSystemBtn.getSelection())
 		{
-			// File system selection
-			if (StringUtil.isEmpty(existingIdfDirTxt.getText()))
+			String idfPath = existingIdfDirTxt.getText();
+			if (StringUtil.isEmpty(idfPath))
 			{
 				setPageComplete(false);
 				return;
 			}
+			
+			if (!new File(idfPath).exists())
+			{
+				setErrorMessage("Directory doesn''t exist: "+ idfPath);
+				setPageComplete(false);
+				return;
+			}
+			
+			if (idfPath.contains(" "))
+			{
+				setErrorMessage("ESP-IDF build system does not support spaces in paths. Please choose a different directory.");
+				setPageComplete(false);
+				return;
+			}
+			
+			String idfPyPath = idfPath + File.separator + "tools" + File.separator + "idf.py";
+			if (!new File (idfPyPath).exists())
+			{
+				setErrorMessage(MessageFormat.format("Can not find idf.py in {0} tools", idfPath));
+				setPageComplete(false);
+				return;
+			}
+			
+			String requirementsPath = idfPath + File.separator + "requirements.txt";
+			if (!new File (requirementsPath).exists())
+			{
+				setErrorMessage(MessageFormat.format("Can not find requirements.txt in {0}", idfPath));
+				setPageComplete(false);
+				return;
+			}
+			
+			setPageComplete(true);
+			setErrorMessage(null);
+			setMessage("Click on `Finish` to configure IDF_PATH with "+ idfPath);
 		}
 		else
 		{
@@ -282,8 +318,12 @@ public class IDFDownloadPage extends WizardPage
 				setPageComplete(false);
 				return;
 			}
+			
+			setPageComplete(true);
+			setErrorMessage(null);
+			setMessage("Click on `Finish` to download");
 		}
-		setPageComplete(true);
+		
 	}
 
 	protected IDFVersion Version()
