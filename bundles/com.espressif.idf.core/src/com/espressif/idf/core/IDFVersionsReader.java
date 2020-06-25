@@ -2,7 +2,7 @@
  * Copyright 2020 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.ui.install;
+package com.espressif.idf.core;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,6 +14,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.osgi.framework.Version;
+
 import com.espressif.idf.core.logging.Logger;
 
 /**
@@ -23,10 +25,11 @@ import com.espressif.idf.core.logging.Logger;
 public class IDFVersionsReader
 {
 
-	private final String VERSIONS_URL = "https://dl.espressif.com/dl/esp-idf/idf_versions.txt"; //$NON-NLS-1$
+	private static final String VERSIONS_URL = "https://dl.espressif.com/dl/esp-idf/idf_versions.txt"; //$NON-NLS-1$
 	private static final String GITHUB_VERSION_URL = "https://github.com/espressif/esp-idf/releases/download/IDFZIPFileVersion/esp-idf-IDFZIPFileVersion.zip"; //$NON-NLS-1$
 	private static final String ESPRESSIF_VERSION_URL = "https://dl.espressif.com/dl/esp-idf/releases/esp-idf-IDFZIPFileVersion.zip"; //$NON-NLS-1$
 	private static final String MASTER_URL = " https://github.com/espressif/esp-idf/archive/master.zip"; //$NON-NLS-1$
+	private static final String MIN_VERSION_SUPPORT = "4.0.0"; //$NON-NLS-1$
 
 	public List<String> getVersions()
 	{
@@ -52,11 +55,45 @@ public class IDFVersionsReader
 		return versionList;
 	}
 
+	/**
+	 * Filter IDF Versions which are supported by Eclipse Plugin
+	 * 
+	 * @param versions
+	 * @return List of versions supported by eclipse plugin
+	 */
+	public List<String> applyPluginFilter(List<String> versions)
+	{
+		List<String> filterList = new ArrayList<>();
+		for (String version : versions)
+		{
+			if (version.startsWith("master")) //$NON-NLS-1$
+			{
+				filterList.add(version);
+			}
+			else if (version.startsWith("v")) //$NON-NLS-1$
+			{
+				if (new Version(MIN_VERSION_SUPPORT).compareTo(new Version(version.replace("v", ""))) <= 0)
+				{
+					filterList.add(version);
+				}
+			}
+			else if (version.startsWith("release/")) //$NON-NLS-1$
+			{
+				if (new Version(MIN_VERSION_SUPPORT).compareTo(new Version(version.replace("release/v", ""))) <= 0)
+				{
+					filterList.add(version);
+				}
+			}
+		}
+
+		return filterList;
+	}
+
 	public Map<String, IDFVersion> getVersionsMap()
 	{
 		Map<String, IDFVersion> versionsMap = new LinkedHashMap<String, IDFVersion>();
 		String versionRegEx = "IDFZIPFileVersion"; //$NON-NLS-1$
-		List<String> versions = getVersions();
+		List<String> versions = applyPluginFilter(getVersions());
 		for (String version : versions)
 		{
 			if (version.startsWith("master")) //$NON-NLS-1$

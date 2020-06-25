@@ -29,6 +29,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
+import com.espressif.idf.core.IDFVersion;
+import com.espressif.idf.core.IDFVersionsReader;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
 
@@ -93,8 +95,7 @@ public class IDFDownloadPage extends WizardPage
 		createLinkArea(versionGrp);
 
 		Label noteLbl = new Label(composite, SWT.NONE);
-		noteLbl.setText(
-				Messages.IDFDownloadPage_Note);
+		noteLbl.setText(Messages.IDFDownloadPage_Note);
 
 		gridData = new GridData(SWT.LEFT, SWT.NONE, true, false, 1, 1);
 		gridData.verticalIndent = 10;
@@ -227,36 +228,42 @@ public class IDFDownloadPage extends WizardPage
 				}
 			}
 		});
-		
+
 	}
 
 	private void createLinkArea(Composite parent)
 	{
 		Link link = new Link(parent, SWT.NONE);
-	    String message = Messages.IDFDownloadPage_VersionLinkMsg;
-	    link.setText(message);
-	    link.setSize(400, 100);
-	  
-	    GridData gridData = new GridData(SWT.NONE, SWT.NONE, false, false, 3, 1);
+		String message = Messages.IDFDownloadPage_VersionLinkMsg;
+		link.setText(message);
+		link.setSize(400, 100);
+
+		GridData gridData = new GridData(SWT.NONE, SWT.NONE, false, false, 3, 1);
 		gridData.verticalIndent = 10;
 		link.setLayoutData(gridData);
-		
-	    link.addSelectionListener(new SelectionAdapter(){
-	        @Override
-	        public void widgetSelected(SelectionEvent e) {
-	               try {
-	                //  Open default external browser 
-	                PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(e.text));
-	              } 
-	             catch (PartInitException ex) {
-	                 ex.printStackTrace();
-	            } 
-	            catch (MalformedURLException ex) {
-	                ex.printStackTrace();
-	            }
-	        }
-	    });
+
+		link.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				try
+				{
+					// Open default external browser
+					PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(e.text));
+				}
+				catch (PartInitException ex)
+				{
+					ex.printStackTrace();
+				}
+				catch (MalformedURLException ex)
+				{
+					ex.printStackTrace();
+				}
+			}
+		});
 	}
+
 	private void validate()
 	{
 		if (fileSystemBtn.getSelection())
