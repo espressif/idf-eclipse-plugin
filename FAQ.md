@@ -1,7 +1,8 @@
 # FAQ
 
 ## Which version of Java should I use? 
-Java 8 Update 212 and above. We suggest to use the latest LTS version. Check the plugin [Prerequisites](https://github.com/espressif/idf-eclipse-plugin#Prerequisites)
+Java 8 Update 212 and above. We suggest to use the latest LTS version. Check the plugin [Prerequisites](https://github.com/espressif/idf-eclipse-plugin#Prerequisites). 
+Also check [why we recommend Java 11](https://gitlab.espressif.cn:6688/idf/idf-eclipse-plugin/-/edit/master/FAQ.md#why-java-11-recommended-for-idf-eclipse-plugin) while using the IDF Eclipse plugin 
 ## Which version of Eclipse should I use?
 Eclipse 2018-12 CDT and above (Eclipse IDE for C/C++ Developers). Check the plugin [Prerequisites](https://github.com/espressif/idf-eclipse-plugin#Prerequisites)
 ## How do I know the installed version of Java in my system?
@@ -79,4 +80,15 @@ Check below links:
 - https://esp32.com/viewtopic.php?f=13&t=12327&start=10#p50137 
 - https://stackoverflow.com/questions/6908948/java-sun-security-provider-certpath-suncertpathbuilderexception-unable-to-find
 
+## Why Java 11 recommended for IDF Eclipse Plugin?
+We recommend using Java 11(that's the latest LTS version from Oracle) and above while working with IDF Eclipse Plugin considering Eclipse 2020-06 has a requirement for Java 11 to work with the CDT. Here are some important pointers from Eclipse.
 
+### Installing CDT 9.11 on Eclipse 2020-06 and later requires a workaround when using Java 8
+Check this - https://wiki.eclipse.org/CDT/User/NewIn911#Release
+
+CDT 9.11 only requires Java 8 to run. However, a new feature in Eclipse 2020-06 and later means that the install wizard may prevent installation. The workaround is to disable "Verify provisioning operation is compatible with currently running JRE" in Windows -> Preferences -> Install/Update. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=564407#c1
+
+### CDT 10.0 required Java 11 or later
+Check this - https://wiki.eclipse.org/CDT/User/NewIn100
+
+Starting with CDT 10.0 Java 11 or later is required to run CDT. This aligns with requirements of Eclipse IDE which also requires Java 11 to run starting in 2020-09.
