@@ -2,7 +2,7 @@
 
 ## Which version of Java should I use? 
 Java 8 Update 212 and above. We suggest to use the latest LTS version. Check the plugin [Prerequisites](https://github.com/espressif/idf-eclipse-plugin#Prerequisites). 
-Also check [why we recommend Java 11](https://gitlab.espressif.cn:6688/idf/idf-eclipse-plugin/-/edit/master/FAQ.md#why-java-11-recommended-for-idf-eclipse-plugin) while using the IDF Eclipse plugin 
+Also check [why we recommend Java 11](https://gitlab.espressif.cn:6688/idf/idf-eclipse-plugin/-/blob/master/FAQ.md#why-java-11-recommended-for-idf-eclipse-plugin) while using the IDF Eclipse plugin 
 ## Which version of Eclipse should I use?
 Eclipse 2018-12 CDT and above (Eclipse IDE for C/C++ Developers). Check the plugin [Prerequisites](https://github.com/espressif/idf-eclipse-plugin#Prerequisites)
 ## How do I know the installed version of Java in my system?
