@@ -24,10 +24,9 @@
 	<packaging>eclipse-plugin</packaging>
 
 	<parent>
-		<groupId>ilg.gnumcueclipse</groupId>
-		<artifactId>ilg.gnumcueclipse.parent</artifactId>
-		<version>5.1.1-SNAPSHOT</version>
-		<relativePath>../../parent/pom.xml</relativePath>
+		<groupId>com.espressif.idf</groupId>
+		<artifactId>com.espressif.idf.bundles</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
 	<name>Eclipse Embedded CDT managed build common code</name>
