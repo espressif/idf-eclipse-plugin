@@ -26,13 +26,14 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.launchbar.core.ILaunchBarManager;
+import org.eclipse.launchbar.core.ILaunchDescriptor;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.launchbar.core.target.ILaunchTargetWorkingCopy;
 import org.eclipse.launchbar.ui.target.LaunchTargetWizard;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
@@ -40,6 +41,7 @@ import org.osgi.service.prefs.Preferences;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.SDKConfigJsonReader;
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 
 public class NewSerialFlashTargetWizard extends LaunchTargetWizard {
@@ -90,9 +92,10 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard {
 				//Get old IDF target for the project
 				try {
 					ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
-					ILaunchConfiguration config = launchBarManager.getActiveLaunchConfiguration();
-					String projectName = config.getName();
-					if (projectName != null && projectName.length() > 0) {
+					ILaunchDescriptor activeLaunchDescriptor = launchBarManager.getActiveLaunchDescriptor();
+
+					String projectName = activeLaunchDescriptor.getName();
+					if (!StringUtil.isEmpty(projectName)) {
 
 						//Get IProject
 						IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -123,8 +126,10 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard {
 												monitor.beginTask("Deleting build folder...", 1); //$NON-NLS-1$
 												Logger.log("Deleting build folder " + buildLocation.getAbsolutePath()); //$NON-NLS-1$
 												deleteDirectory(buildLocation);
+												cleanSdkConfig(project);
 												project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 											}
+
 										};
 
 										//run workspace job
@@ -158,6 +163,25 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard {
 			}
 		}
 		return directoryToBeDeleted.delete();
+	}
+
+	private void cleanSdkConfig(IResource project) {
+		File sdkconfig = new File(project.getLocation().toOSString(), "sdkconfig"); //$NON-NLS-1$
+		if (sdkconfig.exists()) {
+			File sdkconfigOld = new File(project.getLocation().toOSString(), "sdkconfig.old"); //$NON-NLS-1$
+			boolean isRenamed = sdkconfig.renameTo(sdkconfigOld);
+			Logger.log(NLS.bind("Renaming {0} status...{1}", sdkconfig.getAbsolutePath(), isRenamed)); //$NON-NLS-1$
+
+			if (!isRenamed) //sdkconfig.old might already exist
+			{
+				//delete sdkconfig.old file!
+				Logger.log(
+						NLS.bind("Deleting {0} status...{1}", sdkconfigOld.getAbsolutePath(), sdkconfigOld.delete())); //$NON-NLS-1$
+
+				//attempting one more time!
+				sdkconfig.renameTo(sdkconfigOld);
+			}
+		}
 	}
 
 	private void storeLastUsedSerialPort() {
