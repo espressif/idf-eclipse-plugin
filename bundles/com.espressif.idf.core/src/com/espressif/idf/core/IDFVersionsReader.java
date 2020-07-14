@@ -28,7 +28,7 @@ public class IDFVersionsReader
 	private static final String VERSIONS_URL = "https://dl.espressif.com/dl/esp-idf/idf_versions.txt"; //$NON-NLS-1$
 	private static final String GITHUB_VERSION_URL = "https://github.com/espressif/esp-idf/releases/download/IDFZIPFileVersion/esp-idf-IDFZIPFileVersion.zip"; //$NON-NLS-1$
 	private static final String ESPRESSIF_VERSION_URL = "https://dl.espressif.com/dl/esp-idf/releases/esp-idf-IDFZIPFileVersion.zip"; //$NON-NLS-1$
-	private static final String MASTER_URL = " https://github.com/espressif/esp-idf/archive/master.zip"; //$NON-NLS-1$
+	private static final String MASTER_URL = "https://github.com/espressif/esp-idf.git"; //$NON-NLS-1$
 	private static final String MIN_VERSION_SUPPORT = "4.0.0"; //$NON-NLS-1$
 
 	public List<String> getVersions()
