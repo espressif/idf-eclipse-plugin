@@ -110,6 +110,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	private JSONObject valuesJsonMap;
 
 	private JSONObject visibleJsonMap;
+	
+	private JSONObject rangesJsonMap;
 
 	private String serverMessage;
 
@@ -380,6 +382,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			IJsonConfigOutput output = configServer.getOutput(response, false);
 			valuesJsonMap = output.getValuesJsonMap();
 			visibleJsonMap = output.getVisibleJsonMap();
+			rangesJsonMap = output.getRangesJsonMap();
 		}
 	}
 
@@ -395,6 +398,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		IJsonConfigOutput output = configServer.getOutput(response, true);
 		valuesJsonMap = output.getValuesJsonMap();
 		visibleJsonMap = output.getVisibleJsonMap();
+		rangesJsonMap = output.getRangesJsonMap();
 
 	}
 
@@ -615,7 +619,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 					textControl.setText(newConfigValue != null ? (String) newConfigValue : (String) configValue);
 				}
 				textControl.addModifyListener(addModifyListener(configKey, textControl));
-				addTooltipImage(configKey, helpInfo);
+				addTooltipImage(kConfigMenuItem);
 
 			}
 			else if (isVisible && type.equals(IJsonServerConfig.HEX_TYPE))
@@ -634,7 +638,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 							: Long.toString((long) configValue));
 				}
 				textControl.addModifyListener(addModifyListener(configKey, textControl));
-				addTooltipImage(configKey, helpInfo);
+				addTooltipImage(kConfigMenuItem);
 			}
 			else if (isVisible && type.equals(IJsonServerConfig.BOOL_TYPE))
 			{
@@ -657,7 +661,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 					}
 
 				});
-				addTooltipImage(configKey, helpInfo);
+				addTooltipImage(kConfigMenuItem);
 			}
 
 			else if (isVisible && type.equals(IJsonServerConfig.INT_TYPE))
@@ -677,8 +681,12 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 				}
 				text.addModifyListener(addModifyListener(configKey, text));
-				addTooltipImage(configKey, helpInfo);
+				addTooltipImage(kConfigMenuItem);
 
+			}
+			else if (isVisible && type.equals(IJsonServerConfig.MENU_TYPE))
+			{
+				renderMenuItems(kConfigMenuItem);
 			}
 			else if (type.equals(IJsonServerConfig.CHOICE_TYPE))
 			{
@@ -732,7 +740,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 							}
 						}
 					});
-					addTooltipImage(configKey, helpInfo);
+					addTooltipImage(kConfigMenuItem);
 				}
 			}
 
@@ -750,22 +758,42 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		return jsonMap.get(key) != null ? (boolean) jsonMap.get(key) : false;
 	}
 
-	protected void addTooltipImage(String configKey, String helpInfo)
+	protected void addTooltipImage(KConfigMenuItem kConfigMenuItem)
 	{
 		Label labelName = new Label(updateUIComposite, SWT.NONE);
 		labelName.setImage(SDKConfigUIPlugin.getImage(ICONS_INFO_OBJ_GIF));
-		labelName.addListener(SWT.MouseUp, getMouseClickListener(configKey, helpInfo));
+		labelName.addListener(SWT.MouseUp, getMouseClickListener(kConfigMenuItem));
 		labelName.setToolTipText(Messages.SDKConfigurationEditor_Help);
 	}
 
-	private Listener getMouseClickListener(String configKey, String helpInfo)
+	private Listener getMouseClickListener(KConfigMenuItem kConfigMenuItem)
 	{
 		return new Listener()
 		{
 			@Override
 			public void handleEvent(Event event)
 			{
-				if (StringUtil.isEmpty(helpInfo))
+				String help = kConfigMenuItem.getHelp();
+				String title = kConfigMenuItem.getTitle();
+				String configKey = kConfigMenuItem.getId();
+				
+				//frame message
+				StringBuilder message = new StringBuilder();
+				message.append(title);
+				message.append("\n\n");
+				message.append(help);
+				
+				//get range info
+				Object range = rangesJsonMap.get(configKey);
+				if (range != null)
+				{
+					message.append("\n\n");
+					message.append("Range Information:");
+					message.append("\n");
+					message.append(range.toString());
+				}
+				
+				if (StringUtil.isEmpty(help))
 				{
 					String msg = MessageFormat.format(Messages.SDKConfigurationEditor_NoHelpAvailable, configKey);
 					Logger.log(SDKConfigUIPlugin.getDefault(), msg);
@@ -777,7 +805,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 					infoDialog.close();
 				}
 				infoDialog = new HelpPopupDialog(activeShell, Messages.SDKConfigurationEditor_Help + " > " + configKey, //$NON-NLS-1$
-						helpInfo); // $NON-NLS-2$
+						message.toString()); // $NON-NLS-2$
 				infoDialog.open();
 
 			}
