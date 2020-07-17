@@ -19,7 +19,6 @@ public class KConfigMenuItem
 	private String help;
 	private String name;
 	private KConfigMenuItem parent;
-	private String range;
 	private String title;
 	private String type;
 	private String id;
@@ -49,20 +48,15 @@ public class KConfigMenuItem
 	{
 		return name;
 	}
-	
+
 	public String getId()
 	{
 		return id;
 	}
-	
+
 	public KConfigMenuItem getParent()
 	{
 		return parent;
-	}
-
-	public String getRange()
-	{
-		return range;
 	}
 
 	public String getTitle()
@@ -99,11 +93,6 @@ public class KConfigMenuItem
 	{
 		this.id = name;
 	}
-	
-	public void setRange(String range)
-	{
-		this.range = range;
-	}
 
 	public void setTitle(String title)
 	{
@@ -114,14 +103,14 @@ public class KConfigMenuItem
 	{
 		this.type = type;
 	}
-	
+
 	public boolean isVisible(JSONObject visibleJsonMap)
 	{
 		if (visibleJsonMap == null || visibleJsonMap.isEmpty())
 		{
 			return false;
 		}
-		
+
 		if (getType() != null && getType().equals(IJsonServerConfig.MENU_TYPE))
 		{
 			return isVisible(children, visibleJsonMap);
@@ -135,12 +124,9 @@ public class KConfigMenuItem
 		{
 			String type = kConfigMenuItem.getType();
 			String configKey = kConfigMenuItem.getId();
-			boolean isVisible = false; 
-			if (type.equals(IJsonServerConfig.STRING_TYPE)
-					|| type.equals(IJsonServerConfig.HEX_TYPE)
-					|| type.equals(IJsonServerConfig.BOOL_TYPE)
-					|| type.equals(IJsonServerConfig.INT_TYPE)
-					)
+			boolean isVisible = false;
+			if (type.equals(IJsonServerConfig.STRING_TYPE) || type.equals(IJsonServerConfig.HEX_TYPE)
+					|| type.equals(IJsonServerConfig.BOOL_TYPE) || type.equals(IJsonServerConfig.INT_TYPE))
 			{
 				isVisible = isVisible(visibleJsonMap, configKey);
 				if (isVisible)
@@ -163,7 +149,7 @@ public class KConfigMenuItem
 			}
 			else if (type.equals(IJsonServerConfig.MENU_TYPE))
 			{
-				
+
 				return isVisible(kConfigMenuItem.getChildren(), visibleJsonMap);
 			}
 		}
@@ -172,6 +158,6 @@ public class KConfigMenuItem
 
 	private boolean isVisible(JSONObject visibleJsonMap, String configKey)
 	{
-		return visibleJsonMap.get(configKey) != null ? (boolean) visibleJsonMap.get(configKey): false;
+		return visibleJsonMap.get(configKey) != null ? (boolean) visibleJsonMap.get(configKey) : false;
 	}
 }

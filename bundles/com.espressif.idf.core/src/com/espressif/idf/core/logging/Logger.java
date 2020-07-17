@@ -100,6 +100,11 @@ public class Logger
 	{
 		log(plugin, message, true);
 	}
+	
+	public static void logTrace(String message)
+	{
+		log(IDFCorePlugin.getPlugin(), message, true);
+	}
 
 	public static IStatus createStatus(String msg)
 	{
