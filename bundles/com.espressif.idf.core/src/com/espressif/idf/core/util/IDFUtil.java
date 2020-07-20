@@ -216,5 +216,21 @@ public class IDFUtil
 
 		return StringUtil.EMPTY;
 	}
+	
+	/**
+	 * OpenOCD Installation folder
+	 * 
+	 * @return
+	 */
+	public static String getOpenOCDInstallFolder()
+	{
+		String openOCDScriptPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS);
+		if (!StringUtil.isEmpty(openOCDScriptPath))
+		{
+			return openOCDScriptPath.replace("/share/openocd/scripts", ""); //$NON-NLS-1$
+		}
+
+		return StringUtil.EMPTY;
+	}
 
 }

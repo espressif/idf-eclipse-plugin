@@ -34,6 +34,8 @@ public class IDFEnvironmentVariables
 	
 	public static String PATH = "PATH"; //$NON-NLS-1$
 	
+	public static String OPENOCD_SCRIPTS = "OPENOCD_SCRIPTS"; //$NON-NLS-1$
+	
 	/**
 	 * @param variableName Environment variable Name
 	 * @return IEnvironmentVariable
