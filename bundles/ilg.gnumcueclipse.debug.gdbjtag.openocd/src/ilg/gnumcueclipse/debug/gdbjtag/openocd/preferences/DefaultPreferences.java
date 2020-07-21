@@ -85,7 +85,9 @@ public class DefaultPreferences extends ilg.gnumcueclipse.debug.gdbjtag.preferen
 	public static final String ENABLE_SEMIHOSTING_COMMAND = "monitor arm semihosting enable";
 	public static final String DO_SECOND_RESET_COMMAND = "monitor reset ";
 	public static final String DO_CONTINUE_COMMAND = "continue";
-	public static final String OTHER_INIT_COMMANDS_DEFAULT = "";
+	public static final String OTHER_INIT_COMMANDS_DEFAULT = "mon reset halt\n" + 
+			"flushregs\n" + 
+			"set remote hardware-watchpoint-limit 2";
 	public static final String OTHER_RUN_COMMANDS_DEFAULT = "";
 
 	// ------------------------------------------------------------------------
