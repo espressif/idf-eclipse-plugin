@@ -222,12 +222,12 @@ public class IDFUtil
 	 * 
 	 * @return
 	 */
-	public static String getOpenOCDInstallFolder()
+	public static String getOpenOCDLocation()
 	{
 		String openOCDScriptPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS);
 		if (!StringUtil.isEmpty(openOCDScriptPath))
 		{
-			return openOCDScriptPath.replace("/share/openocd/scripts", ""); //$NON-NLS-1$
+			return openOCDScriptPath.replace("/share/openocd/scripts", "") + "/bin"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		return StringUtil.EMPTY;
