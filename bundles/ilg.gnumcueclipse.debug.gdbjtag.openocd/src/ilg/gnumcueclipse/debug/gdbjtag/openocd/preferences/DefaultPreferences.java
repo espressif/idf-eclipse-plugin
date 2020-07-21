@@ -72,7 +72,7 @@ public class DefaultPreferences extends ilg.gnumcueclipse.debug.gdbjtag.preferen
 	public static final String SECOND_RESET_TYPE_DEFAULT = "halt";
 
 	public static final boolean DO_STOP_AT_DEFAULT = true;
-	public static final String STOP_AT_NAME_DEFAULT = "main";
+	public static final String STOP_AT_NAME_DEFAULT = "app_main";
 
 	public static final boolean DO_CONTINUE_DEFAULT = true;
 
