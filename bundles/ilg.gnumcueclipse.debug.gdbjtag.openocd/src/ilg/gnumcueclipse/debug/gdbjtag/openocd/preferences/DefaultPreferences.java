@@ -171,7 +171,7 @@ public class DefaultPreferences extends ilg.gnumcueclipse.debug.gdbjtag.preferen
 		
 		if (StringUtil.isEmpty(value))
 		{
-			value = IDFUtil.getOpenOCDInstallFolder();
+			value = IDFUtil.getOpenOCDLocation();
 		}
 
 		if (Activator.getInstance().isDebugging()) {
