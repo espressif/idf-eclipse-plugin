@@ -11,7 +11,9 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.13.0",
  org.eclipse.launchbar.ui;bundle-version="2.2.0",
  com.espressif.idf.launch.serial.core;bundle-version="1.0.0",
  org.eclipse.cdt.native.serial;bundle-version="1.1.0",
- org.eclipse.cdt.launch;bundle-version="9.2.0"
+ org.eclipse.cdt.launch;bundle-version="9.2.0",
+ org.eclipse.cdt.debug.core,
+ com.espressif.idf.core
 Bundle-Activator: com.espressif.idf.launch.serial.ui.internal.Activator
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: org.eclipse.cdt.launch.serial.ui
