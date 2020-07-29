@@ -57,16 +57,21 @@
       <command
             defaultHandler="com.espressif.idf.ui.help.LaunchEspIdfDocHandler"
             id="com.espressif.idf.ui.command.idfversiondoc"
-            name="ESP-IDF Programming Guide">
+            name="%command.name.1">
+      </command>
+      <command
+            id="com.espressif.idf.ui.commands.installespidf"
+            name="%command.name.2">
       </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
             allPopups="false"
-            locationURI="menu:help?after=org.eclipse.epp.mpc.ui.command.showMarketplaceWizard">
+            locationURI="menu:help?after=installespidf">
          <menu
                icon="icons/espressif.png"
+               id="espidftoolsInstall"
                label="%menu.label">
             <command
                   commandId="com.espressif.idf.ui.command.install"
@@ -86,7 +91,22 @@
          <command
                commandId="com.espressif.idf.ui.command.idfversiondoc"
                icon="icons/espressif.png"
+               id="idfversiondoc"
                label="%command.label"
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu?after=additions">
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:help?after=idfversiondoc">
+         <command
+               commandId="com.espressif.idf.ui.commands.installespidf"
+               icon="icons/espressif.png"
+               id="installespidf"
+               label="%command.label.0"
                style="push">
          </command>
       </menuContribution>
@@ -132,7 +152,7 @@
          <command
                commandId="com.espressif.idf.ui.memoryanalysis"
                icon="icons/espressif.png"
-               label="ESP-IDF: Application Size Analysis"
+               label="%command.label.1"
                style="push">
             <visibleWhen
                   checkEnabled="false">
@@ -152,7 +172,7 @@
       <command
             defaultHandler="com.espressif.idf.ui.size.IDFSizeMemoryHandler"
             id="com.espressif.idf.ui.memoryanalysis"
-            name="ESP-IDF: Application Size Analysis">
+            name="%command.name.3">
       </command>
    </extension>
    <extension
@@ -162,7 +182,7 @@
             default="false"
             icon="icons/espressif.png"
             id="com.espressif.idf.ui.editor.idfsize"
-            name="ESP-IDF Size Analysis">
+            name="%editor.name">
       </editor>
    </extension>
    <extension
@@ -171,5 +191,12 @@
             nature="com.espressif.idf.core.idfNature"
             tabClass="com.espressif.idf.ui.dialogs.CMakeBuildTab2">
       </provider>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="com.espressif.idf.ui.install.IDFDownloadHandler"
+            commandId="com.espressif.idf.ui.commands.installespidf">
+      </handler>
    </extension>
 </plugin>
