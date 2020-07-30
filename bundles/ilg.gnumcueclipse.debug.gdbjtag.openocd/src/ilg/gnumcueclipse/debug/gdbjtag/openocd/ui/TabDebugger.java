@@ -55,6 +55,9 @@ import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
+import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.StringUtil;
+
 import ilg.gnumcueclipse.core.EclipseUtils;
 import ilg.gnumcueclipse.debug.gdbjtag.openocd.Activator;
 import ilg.gnumcueclipse.debug.gdbjtag.openocd.Configuration;
@@ -98,7 +101,6 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 	private Text fGdbClientExecutable;
 	private Button fGdbClientBrowseButton;
 	private Button fGdbClientVariablesButton;
-	private Text fGdbClientPathLabel;
 	private Text fGdbClientOtherOptions;
 	private Text fGdbClientOtherCommands;
 
@@ -529,19 +531,6 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 
 		{
 			Label label = new Label(comp, SWT.NONE);
-			label.setText(Messages.getString("DebuggerTab.gdbCommandActualPath_Label"));
-
-			fGdbClientPathLabel = new Text(comp, SWT.SINGLE | SWT.BORDER);
-			GridData gd = new GridData(SWT.FILL, 0, true, false);
-			gd.horizontalSpan = 4;
-			fGdbClientPathLabel.setLayoutData(gd);
-
-			fGdbClientPathLabel.setEnabled(true);
-			fGdbClientPathLabel.setEditable(false);
-		}
-
-		{
-			Label label = new Label(comp, SWT.NONE);
 			label.setText(Messages.getString("DebuggerTab.gdbOtherOptions_Label"));
 			label.setToolTipText(Messages.getString("DebuggerTab.gdbOtherOptions_ToolTipText"));
 			GridData gd = new GridData();
@@ -699,7 +688,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 		if (Activator.getInstance().isDebugging()) {
 			System.out.println("openocd.TabDebugger.updateGdbClientActualPath() \"" + fullCommand + "\"");
 		}
-		fGdbClientPathLabel.setText(fullCommand);
+		//fGdbClientPathLabel.setText(fullCommand);
 	}
 
 	private void doStartGdbServerChanged() {
@@ -897,10 +886,13 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 		{
 			fDoStartGdbClient.setSelection(DefaultPreferences.DO_START_GDB_CLIENT_DEFAULT);
 
-			// Executable
-			stringDefault = fDefaultPreferences.getGdbClientExecutable();
-			fGdbClientExecutable.setText(stringDefault);
-
+			//Set Xtensa toolchain path
+			String clientExecutablePath = getGdbClientExecutable();
+			if (clientExecutablePath != null)
+			{
+				fGdbClientExecutable.setText(clientExecutablePath);
+			}
+			
 			// Other options
 			fGdbClientOtherOptions.setText(DefaultPreferences.GDB_CLIENT_OTHER_OPTIONS_DEFAULT);
 
@@ -1204,7 +1196,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 
 		// GDB client setup
 		{
-			defaultString = fPersistentPreferences.getGdbClientExecutable();
+			defaultString = getGdbClientExecutable();
 			configuration.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, defaultString);
 
 			configuration.setAttribute(IGDBJtagConstants.ATTR_USE_REMOTE_TARGET,
@@ -1220,6 +1212,19 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 		// Force thread update
 		configuration.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUGGER_UPDATE_THREADLIST_ON_SUSPEND,
 				DefaultPreferences.UPDATE_THREAD_LIST_DEFAULT);
+	}
+	
+	//Get Xtensa toolchain path based on the target configured for the project
+	private String getGdbClientExecutable()
+	{
+		// Find the project and current launch target configured
+		IProject project = null;
+		if (fConfiguration != null)
+		{
+			project = EclipseUtils.getProjectByLaunchConfiguration(fConfiguration);
+		}
+		String exePath = IDFUtil.getXtensaToolchainExecutablePath(project);
+		return StringUtil.isEmpty(exePath) ? StringUtil.EMPTY : exePath;
 	}
 
 	// ------------------------------------------------------------------------
