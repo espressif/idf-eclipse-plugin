@@ -5,10 +5,15 @@
 package com.espressif.idf.core.util;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
+import java.util.regex.Matcher;
 
+import org.eclipse.cdt.build.gcc.core.GCCToolChain.GCCInfo;
+import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -18,7 +23,9 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import com.espressif.idf.core.ExecutableFinder;
 import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.build.ESPToolChainProvider;
 import com.espressif.idf.core.logging.Logger;
 
 /**
@@ -231,6 +238,71 @@ public class IDFUtil
 		}
 
 		return StringUtil.EMPTY;
+	}
+	
+	/**
+	 * Get Xtensa toolchain path based on the target configured for the project
+	 * @return
+	 */
+	public static String getXtensaToolchainExecutablePath(IProject project)
+	{
+		String projectEspTarget = null;
+		if (project != null)
+		{
+			projectEspTarget = new SDKConfigJsonReader(project).getValue("IDF_TARGET"); //$NON-NLS-1$
+		}
+
+		// Process PATH to find the Xtensa toolchain path
+		IEnvironmentVariable cdtPath = new IDFEnvironmentVariables().getEnv("PATH"); //$NON-NLS-1$
+		if (cdtPath != null)
+		{
+			for (String dirStr : cdtPath.getValue().split(File.pathSeparator))
+			{
+				File dir = new File(dirStr);
+				if (dir.isDirectory())
+				{
+					for (File file : dir.listFiles())
+					{
+						if (file.isDirectory())
+						{
+							continue;
+						}
+						Matcher matcher = ESPToolChainProvider.GCC_PATTERN.matcher(file.getName());
+						if (matcher.matches())
+						{
+							try
+							{
+								GCCInfo info = new GCCInfo(file.toString());
+								if (info.target != null && info.version != null)
+								{
+									String[] tuple = info.target.split("-"); //$NON-NLS-1$
+									if (tuple.length > 2)
+									{
+										String path = file.toPath().toString();
+										if (projectEspTarget == null) //If no IDF_TARGET
+										{
+											Logger.log("Toolchain for project::" + path); //$NON-NLS-1$
+											return path.toString();
+										}
+										else if (tuple[1].equals(projectEspTarget))
+										{
+											Logger.log("Matched target toolchain for project::" + path); //$NON-NLS-1$
+											return path.toString();
+										}
+									}
+								}
+							}
+							catch (IOException e)
+							{
+								Logger.log(IDFCorePlugin.getPlugin(), e);
+							}
+
+						}
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 }
