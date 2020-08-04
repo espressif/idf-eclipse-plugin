@@ -48,5 +48,10 @@
 			<repository location="https://download.eclipse.org/tools/cdt/releases/9.11/"/>
 			<unit id="org.eclipse.cdt.debug.gdbjtag.feature.group" version=""/>
 		</location>
+		
+		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
+			<repository location="https://download.eclipse.org/embed-cdt/releases/5.1.1/p2"/>
+			<unit id="ilg.gnumcueclipse.debug.gdbjtag.openocd.feature.feature.group" version=""/>
+		</location>
 	</locations>
 </target>
