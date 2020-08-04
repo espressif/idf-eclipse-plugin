@@ -26,17 +26,7 @@
 		<module>com.espressif.idf.terminal.connector</module>
 		<module>com.espressif.idf.terminal.connector.serial</module>
 		<module>com.espressif.idf.branding</module>
-		<module>ilg.gnumcueclipse.core</module>
-		<module>ilg.gnumcueclipse.debug.core</module>
-		<module>ilg.gnumcueclipse.debug.gdbjtag</module>
-		<module>ilg.gnumcueclipse.debug.gdbjtag.openocd</module>
-		<module>ilg.gnumcueclipse.debug.gdbjtag.restart</module>
-		<module>ilg.gnumcueclipse.debug.packs</module>
-		<module>ilg.gnumcueclipse.managedbuild.cross</module>
-		<module>ilg.gnumcueclipse.managedbuild.packs</module>
-		<module>ilg.gnumcueclipse.packs.core</module>
-		<module>ilg.gnumcueclipse.packs.data</module>
-
+		<module>com.espressif.idf.debug.gdbjtag.openocd</module>
 	</modules>
 	
 	<build>

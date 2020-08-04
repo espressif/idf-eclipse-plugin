@@ -13,6 +13,5 @@
 
     <modules>
         <module>com.espressif.idf.feature</module>
-        <module>ilg.gnumcueclipse.debug.gdbjtag.openocd.feature</module>
     </modules>
 </project>
