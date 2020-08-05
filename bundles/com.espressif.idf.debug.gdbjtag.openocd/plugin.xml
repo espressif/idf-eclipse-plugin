@@ -17,7 +17,7 @@
 
 	<extension point="org.eclipse.debug.core.launchConfigurationTypes">
 		<launchConfigurationType
-			id="ilg.gnumcueclipse.debug.gdbjtag.openocd.launchConfigurationType"
+			id="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationType"
 			modes="debug,run"
 			name="%launchConfig.name"
 			public="true" />
@@ -32,14 +32,14 @@
 			name="%launchDelegate.jtagDsf.name"
 			sourceLocatorId="org.eclipse.cdt.debug.core.sourceLocator"
 			sourcePathComputerId="org.eclipse.cdt.debug.core.sourcePathComputer"
-			type="ilg.gnumcueclipse.debug.gdbjtag.openocd.launchConfigurationType">
+			type="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationType">
 		</launchDelegate>
 	</extension>
 
 	<extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
 		<launchConfigurationTypeImage
-			configTypeID="ilg.gnumcueclipse.debug.gdbjtag.openocd.launchConfigurationType"
-			icon="icons/obj16/c_app.gif"
+			configTypeID="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationType"
+			icon="icons/obj16/espressif16x16.png"
 			id="ilg.gnumcueclipse.debug.gdbjtag.openocd.launchConfigurationTypeImage" />
 	</extension>
 
@@ -47,7 +47,7 @@
 		<launchConfigurationTabGroup
 			class="com.espressif.idf.debug.gdbjtag.openocd.ui.TabGroupLaunchConfiguration"
 			id="ilg.gnumcueclipse.debug.gdbjtag.openocd.launchConfigurationTabGroup"
-			type="ilg.gnumcueclipse.debug.gdbjtag.openocd.launchConfigurationType" />
+			type="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationType" />
 	</extension>
 
 	<extension point="org.eclipse.cdt.debug.gdbjtag.core.JTagDevice">
@@ -68,36 +68,33 @@
 
 	<extension point="org.eclipse.ui.preferencePages">
 		<page
-			category="ilg.gnumcueclipse.core.ui.preferences.mcu"
+			category="com.espressif.idf.ui.preferences.mainpage"
 			class="com.espressif.idf.debug.gdbjtag.openocd.ui.preferences.WorkspaceMcuPage"
-			id="ilg.gnumcueclipse.debug.gdbjtag.openocd.workspacePreferencePage"
+			id="com.espressif.idf.debug.gdbjtag.openocd.workspacePreferencePage"
 			name="%preferences.workspaceMcu">
 		</page>
 		<page
-			category="ilg.gnumcueclipse.core.ui.preferences.mcu"
+			category="com.espressif.idf.ui.preferences.mainpage"
 			class="com.espressif.idf.debug.gdbjtag.openocd.ui.preferences.GlobalMcuPage"
-			id="ilg.gnumcueclipse.debug.gdbjtag.openocd.globalPreferencePage"
+			id="com.espressif.idf.debug.gdbjtag.openocd.globalPreferencePage"
 			name="%preferences.globalMcu">
 		</page>
 	</extension>
 	<extension point="org.eclipse.ui.propertyPages">
 		<page
-			category="ilg.gnumcueclipse.core.ui.properties.mcu"
-			class="com.espressif.idf.debug.gdbjtag.openocd.ui.properties.ProjectMcuPage"
-			id="ilg.gnumcueclipse.debug.gdbjtag.openocd.projectPropertiesPage"
-			name="%properties.mcu">
+        class="com.espressif.idf.debug.gdbjtag.openocd.ui.properties.ProjectMcuPage"
+        id="com.espressif.idf.debug.gdbjtag.openocd.projectPropertiesPage"
+        name="%properties.mcu"
+        nameFilter="*">
 			<filter
 				name="projectNature"
-				value="org.eclipse.cdt.core.cnature">
+				value="com.espressif.idf.core.IDFProjectNature">
 			</filter>
-			<enabledWhen>
-				<and>
-					<instanceof value="org.eclipse.core.resources.IProject">
-					</instanceof>
-					<test forcePluginActivation="true" property="ilg.gnumcueclipse.managedbuild.cross.isGnuMcu">
-					</test>
-				</and>
-			</enabledWhen>
+   <enabledWhen>
+      <instanceof
+            value="org.eclipse.core.resources.IProject">
+      </instanceof>
+   </enabledWhen>
 		</page>
 	</extension>
 	
