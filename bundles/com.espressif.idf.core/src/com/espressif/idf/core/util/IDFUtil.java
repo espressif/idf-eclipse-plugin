@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.cdt.build.gcc.core.GCCToolChain.GCCInfo;
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
@@ -246,13 +247,14 @@ public class IDFUtil
 	 */
 	public static String getXtensaToolchainExecutablePath(IProject project)
 	{
+		Pattern GDB_PATTERN = Pattern.compile("xtensa-esp(.*)-elf-gdb(\\.exe)?"); //$NON-NLS-1$
 		String projectEspTarget = null;
 		if (project != null)
 		{
 			projectEspTarget = new SDKConfigJsonReader(project).getValue("IDF_TARGET"); //$NON-NLS-1$
 		}
 
-		// Process PATH to find the Xtensa toolchain path
+		// Process PATH to find the toolchain path
 		IEnvironmentVariable cdtPath = new IDFEnvironmentVariables().getEnv("PATH"); //$NON-NLS-1$
 		if (cdtPath != null)
 		{
@@ -267,34 +269,19 @@ public class IDFUtil
 						{
 							continue;
 						}
-						Matcher matcher = ESPToolChainProvider.GCC_PATTERN.matcher(file.getName());
+						Matcher matcher = GDB_PATTERN.matcher(file.getName());
 						if (matcher.matches())
 						{
-							try
+							String path = file.getAbsolutePath();
+							Logger.log("GDB executable:"+ path);
+							String[] tuples = file.getName().split("-");
+							if (projectEspTarget == null) //If no IDF_TARGET
 							{
-								GCCInfo info = new GCCInfo(file.toString());
-								if (info.target != null && info.version != null)
-								{
-									String[] tuple = info.target.split("-"); //$NON-NLS-1$
-									if (tuple.length > 2)
-									{
-										String path = file.toPath().toString();
-										if (projectEspTarget == null) //If no IDF_TARGET
-										{
-											Logger.log("Toolchain for project::" + path); //$NON-NLS-1$
-											return path.toString();
-										}
-										else if (tuple[1].equals(projectEspTarget))
-										{
-											Logger.log("Matched target toolchain for project::" + path); //$NON-NLS-1$
-											return path.toString();
-										}
-									}
-								}
+								return path;
 							}
-							catch (IOException e)
+							else if (tuples[1].equals(projectEspTarget))
 							{
-								Logger.log(IDFCorePlugin.getPlugin(), e);
+								return path;
 							}
 
 						}
