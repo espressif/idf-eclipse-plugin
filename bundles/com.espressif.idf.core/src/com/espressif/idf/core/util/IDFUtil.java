@@ -8,7 +8,11 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -216,5 +220,71 @@ public class IDFUtil
 
 		return StringUtil.EMPTY;
 	}
+	
+	/**
+	 * OpenOCD Installation folder
+	 * 
+	 * @return
+	 */
+	public static String getOpenOCDLocation()
+	{
+		String openOCDScriptPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS);
+		if (!StringUtil.isEmpty(openOCDScriptPath))
+		{
+			return openOCDScriptPath.replace(File.separator + "share" + File.separator + "openocd" + File.separator + "scripts", "") + File.separator + "bin"; //$NON-NLS-1$ //$NON-NLS-2$
+		}
 
+		return StringUtil.EMPTY;
+	}
+	
+	/**
+	 * Get Xtensa toolchain path based on the target configured for the project
+	 * @return
+	 */
+	public static String getXtensaToolchainExecutablePath(IProject project)
+	{
+		Pattern GDB_PATTERN = Pattern.compile("xtensa-esp(.*)-elf-gdb(\\.exe)?"); //$NON-NLS-1$
+		String projectEspTarget = null;
+		if (project != null)
+		{
+			projectEspTarget = new SDKConfigJsonReader(project).getValue("IDF_TARGET"); //$NON-NLS-1$
+		}
+
+		// Process PATH to find the toolchain path
+		IEnvironmentVariable cdtPath = new IDFEnvironmentVariables().getEnv("PATH"); //$NON-NLS-1$
+		if (cdtPath != null)
+		{
+			for (String dirStr : cdtPath.getValue().split(File.pathSeparator))
+			{
+				File dir = new File(dirStr);
+				if (dir.isDirectory())
+				{
+					for (File file : dir.listFiles())
+					{
+						if (file.isDirectory())
+						{
+							continue;
+						}
+						Matcher matcher = GDB_PATTERN.matcher(file.getName());
+						if (matcher.matches())
+						{
+							String path = file.getAbsolutePath();
+							Logger.log("GDB executable:"+ path);
+							String[] tuples = file.getName().split("-");
+							if (projectEspTarget == null) //If no IDF_TARGET
+							{
+								return path;
+							}
+							else if (tuples[1].equals(projectEspTarget))
+							{
+								return path;
+							}
+
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
 }

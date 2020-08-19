@@ -9,5 +9,8 @@
    <feature id="org.eclipse.swtchart.feature">
       <category name="com.espressif.idf"/>
    </feature>
+   <feature id="ilg.gnumcueclipse.debug.gdbjtag.openocd.feature">
+      <category name="com.espressif.idf"/>
+   </feature>
    <category-def name="com.espressif.idf" label="Espressif IDF"/>
 </site>

@@ -26,6 +26,7 @@
 		<module>com.espressif.idf.terminal.connector</module>
 		<module>com.espressif.idf.terminal.connector.serial</module>
 		<module>com.espressif.idf.branding</module>
+		<module>com.espressif.idf.debug.gdbjtag.openocd</module>
 	</modules>
 	
 	<build>
