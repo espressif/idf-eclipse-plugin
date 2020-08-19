@@ -172,11 +172,12 @@ CMake editor preferences can be controlled using `Eclipse > Preferences > CMakeE
 
 <a name="debugging"></a>
 # Debugging the Project
-Please refer to <a href ="https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/jtag-debugging/index.html" > JTAG Debugging guide</a>
+## GDB Hardware Debugging
+Please refer to <a href ="https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/jtag-debugging/index.html" > GDB Hardware Debugging guide</a>
 
-Predefined debug launch configuration files can be found  <a href ="https://github.com/espressif/idf-eclipse-plugin/tree/master/resources/Debugging%20Launch%20Configurations" > here</a>. These can be used for reference.
+## GDB OpenOCD Debugging
+Please refer to this <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs/OpenOCD%20Debugging.md">GDB OpenOCD Debugging</a>
 
-Please refer to [Importing Debug Launch Configuration](#customizeLaunchConfig) section for importing the existing configuration files into Eclipse. Make sure to modify the debug launch configuraton project specific settings after importing.
 
 <a name="sizeanalysiseditor"></a>
 # ESP-IDF Application Size Analysis
