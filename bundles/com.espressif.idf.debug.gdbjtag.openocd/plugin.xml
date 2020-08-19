@@ -27,7 +27,7 @@
 		<launchDelegate
 			delegate="com.espressif.idf.debug.gdbjtag.openocd.dsf.LaunchConfigurationDelegate"
 			delegateDescription="%launchDelegate.jtagDsf.description"
-			id="ilg.gnumcueclipse.debug.gdbjtag.openocd.core.dsfLaunchDelegate"
+			id="com.espressif.idf.debug.gdbjtag.openocd.core.dsfLaunchDelegate"
 			modes="debug,run"
 			name="%launchDelegate.jtagDsf.name"
 			sourceLocatorId="org.eclipse.cdt.debug.core.sourceLocator"
@@ -40,13 +40,13 @@
 		<launchConfigurationTypeImage
 			configTypeID="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationType"
 			icon="icons/obj16/espressif16x16.png"
-			id="ilg.gnumcueclipse.debug.gdbjtag.openocd.launchConfigurationTypeImage" />
+			id="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationTypeImage" />
 	</extension>
 
 	<extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
 		<launchConfigurationTabGroup
 			class="com.espressif.idf.debug.gdbjtag.openocd.ui.TabGroupLaunchConfiguration"
-			id="ilg.gnumcueclipse.debug.gdbjtag.openocd.launchConfigurationTabGroup"
+			id="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationTabGroup"
 			type="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationType" />
 	</extension>
 
