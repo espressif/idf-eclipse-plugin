@@ -199,4 +199,11 @@
             commandId="com.espressif.idf.ui.commands.installespidf">
       </handler>
    </extension>
+   	<extension point="org.eclipse.ui.preferencePages">
+  	<page
+        class="com.espressif.idf.ui.preferences.EspresssifPreferencesPage"
+        id="com.espressif.idf.ui.preferences.mainpage"
+        name="Espressif">
+  </page>
+	</extension>
 </plugin>
