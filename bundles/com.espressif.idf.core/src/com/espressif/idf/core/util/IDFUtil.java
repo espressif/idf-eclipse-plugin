@@ -5,14 +5,12 @@
 package com.espressif.idf.core.util;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.cdt.build.gcc.core.GCCToolChain.GCCInfo;
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
@@ -24,9 +22,7 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import com.espressif.idf.core.ExecutableFinder;
 import com.espressif.idf.core.IDFConstants;
-import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
-import com.espressif.idf.core.build.ESPToolChainProvider;
 import com.espressif.idf.core.logging.Logger;
 
 /**
@@ -235,7 +231,7 @@ public class IDFUtil
 		String openOCDScriptPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS);
 		if (!StringUtil.isEmpty(openOCDScriptPath))
 		{
-			return openOCDScriptPath.replace("/share/openocd/scripts", "") + "/bin"; //$NON-NLS-1$ //$NON-NLS-2$
+			return openOCDScriptPath.replace(File.separator + "share" + File.separator + "openocd" + File.separator + "scripts", "") + File.separator + "bin"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		return StringUtil.EMPTY;
@@ -291,27 +287,4 @@ public class IDFUtil
 		}
 		return null;
 	}
-	
-	public static IPath getMapFilePath(IProject project)
-	{
-		IPath mapPath = project.getLocation().append("build").append(project.getName() + ".map"); //$NON-NLS-1$ //$NON-NLS-2$
-		if (!mapPath.toFile().exists())
-		{
-			File buildDir = project.getLocation().append("build").toFile(); //$NON-NLS-1$
-			if (buildDir.exists())
-			{
-				// search for .map file
-				File[] fileList = buildDir.listFiles();
-				for (File file : fileList)
-				{
-					if (file.getName().endsWith(".map")) // $NON-NLS-1$
-					{
-						return new Path(file.getAbsolutePath());
-					}
-				}
-			}
-		}
-		return null;
-	}
-
 }

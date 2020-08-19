@@ -146,7 +146,8 @@ public class TabMain extends CMainTab2
 			if (StringUtil.isEmpty(programName))
 			{
 				// project description file
-				GenericJsonReader jsonReader = new GenericJsonReader(project, "/build/project_description.json"); //$NON-NLS-1$
+				GenericJsonReader jsonReader = new GenericJsonReader(project,
+						File.separator + "build" + File.separator + "project_description.json");
 				String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
 				if (!StringUtil.isEmpty(value))
 				{
