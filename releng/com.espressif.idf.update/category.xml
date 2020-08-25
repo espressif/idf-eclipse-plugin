@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/com.espressif.idf.feature_1.2.0.qualifier.jar" id="com.espressif.idf.feature" version="1.2.0.qualifier">
+   <feature id="com.espressif.idf.feature">
       <category name="com.espressif.idf"/>
    </feature>
-   <feature url="features/com.cthing.cmakeed.feature_1.14.0.jar" id="com.cthing.cmakeed.feature" version="1.14.0">
+   <feature id="com.cthing.cmakeed.feature">
       <category name="com.espressif.idf"/>
    </feature>
    <feature id="org.eclipse.swtchart.feature">
@@ -12,5 +12,23 @@
    <feature id="ilg.gnumcueclipse.debug.gdbjtag.openocd.feature">
       <category name="com.espressif.idf"/>
    </feature>
+   <bundle id="ilg.gnumcueclipse.debug.gdbjtag">
+      <category name="com.espressif.idf"/>
+   </bundle>
+   <bundle id="ilg.gnumcueclipse.core">
+      <category name="com.espressif.idf"/>
+   </bundle>
+   <bundle id="ilg.gnumcueclipse.debug.core">
+      <category name="com.espressif.idf"/>
+   </bundle>
+   <bundle id="ilg.gnumcueclipse.managedbuild.cross">
+      <category name="com.espressif.idf"/>
+   </bundle>
+   <bundle id="ilg.gnumcueclipse.packs.core">
+      <category name="com.espressif.idf"/>
+   </bundle>
+   <bundle id="ilg.gnumcueclipse.packs.data">
+      <category name="com.espressif.idf"/>
+   </bundle>
    <category-def name="com.espressif.idf" label="Espressif IDF"/>
 </site>
