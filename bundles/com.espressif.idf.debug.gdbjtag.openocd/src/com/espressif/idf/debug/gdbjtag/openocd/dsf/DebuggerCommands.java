@@ -31,6 +31,7 @@ import org.osgi.framework.BundleContext;
 
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.ConfigurationAttributes;
+import com.espressif.idf.debug.gdbjtag.openocd.IIDFGDBJtagConstants;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 
 public class DebuggerCommands extends GnuMcuDebuggerCommandsService {
@@ -79,7 +80,7 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService {
 		}
 
 		if (CDebugUtils.getAttribute(fAttributes, IGDBJtagConstants.ATTR_LOAD_IMAGE,
-				IGDBJtagConstants.DEFAULT_LOAD_IMAGE)
+				IIDFGDBJtagConstants.DEFAULT_LOAD_IMAGE)
 				&& !CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.DO_DEBUG_IN_RAM,
 						DefaultPreferences.DO_DEBUG_IN_RAM_DEFAULT)) {
 
@@ -161,7 +162,7 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService {
 		}
 
 		if (CDebugUtils.getAttribute(fAttributes, IGDBJtagConstants.ATTR_LOAD_IMAGE,
-				IGDBJtagConstants.DEFAULT_LOAD_IMAGE)
+				IIDFGDBJtagConstants.DEFAULT_LOAD_IMAGE)
 				&& CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.DO_DEBUG_IN_RAM,
 						DefaultPreferences.DO_DEBUG_IN_RAM_DEFAULT)) {
 

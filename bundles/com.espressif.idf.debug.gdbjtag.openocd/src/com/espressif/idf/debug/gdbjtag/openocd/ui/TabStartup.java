@@ -59,6 +59,7 @@ import org.eclipse.ui.views.navigator.ResourceComparator;
 
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.ConfigurationAttributes;
+import com.espressif.idf.debug.gdbjtag.openocd.IIDFGDBJtagConstants;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.PersistentPreferences;
 
@@ -183,6 +184,7 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 				scheduleUpdateJob();
 			}
 		});
+		
 	}
 
 	private void browseButtonSelected(String title, Text text) {
@@ -544,6 +546,7 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 				scheduleUpdateJob();
 			}
 		});
+		
 	}
 
 	private void updateUseFileEnablement() {
@@ -592,6 +595,9 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 				scheduleUpdateJob();
 			}
 		});
+		
+		fLoadExecutable.setSelection(false);
+		loadExecutableChanged();
 	}
 
 	private void doSecondResetChanged() {
@@ -912,7 +918,7 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 						IGDBJtagConstants.DEFAULT_SYMBOLS_OFFSET));
 
 				fLoadExecutable.setSelection(configuration.getAttribute(IGDBJtagConstants.ATTR_LOAD_IMAGE,
-						IGDBJtagConstants.DEFAULT_LOAD_IMAGE));
+						IIDFGDBJtagConstants.DEFAULT_LOAD_IMAGE));
 				fUseProjectBinaryForImage
 						.setSelection(configuration.getAttribute(IGDBJtagConstants.ATTR_USE_PROJ_BINARY_FOR_IMAGE,
 								IGDBJtagConstants.DEFAULT_USE_PROJ_BINARY_FOR_IMAGE));
@@ -1027,7 +1033,7 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 			fSymbolsFileName.setText(IGDBJtagConstants.DEFAULT_SYMBOLS_FILE_NAME);
 			fSymbolsOffset.setText(IGDBJtagConstants.DEFAULT_SYMBOLS_OFFSET);
 
-			fLoadExecutable.setSelection(IGDBJtagConstants.DEFAULT_LOAD_IMAGE);
+			fLoadExecutable.setSelection(IIDFGDBJtagConstants.DEFAULT_LOAD_IMAGE);
 			fUseProjectBinaryForImage.setSelection(IGDBJtagConstants.DEFAULT_USE_PROJ_BINARY_FOR_IMAGE);
 			fUseFileForImage.setSelection(IGDBJtagConstants.DEFAULT_USE_FILE_FOR_IMAGE);
 			fImageFileName.setText(IGDBJtagConstants.DEFAULT_IMAGE_FILE_NAME);
@@ -1203,7 +1209,7 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 		configuration.setAttribute(ConfigurationAttributes.OTHER_INIT_COMMANDS, defaultString);
 
 		// Load Image...
-		configuration.setAttribute(IGDBJtagConstants.ATTR_LOAD_IMAGE, IGDBJtagConstants.DEFAULT_LOAD_IMAGE);
+		configuration.setAttribute(IGDBJtagConstants.ATTR_LOAD_IMAGE, IIDFGDBJtagConstants.DEFAULT_LOAD_IMAGE);
 		configuration.setAttribute(IGDBJtagConstants.ATTR_USE_PROJ_BINARY_FOR_IMAGE,
 				IGDBJtagConstants.DEFAULT_USE_PROJ_BINARY_FOR_IMAGE);
 		configuration.setAttribute(IGDBJtagConstants.ATTR_USE_FILE_FOR_IMAGE,
