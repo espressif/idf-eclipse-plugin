@@ -52,16 +52,16 @@
 
 	<extension point="org.eclipse.cdt.debug.gdbjtag.core.JTagDevice">
 		<device
-			class="ilg.gnumcueclipse.debug.gdbjtag.openocd.JTagDevice"
-			id="ilg.gnumcueclipse.debug.gdbjtag.openocd.core.jtagdevice"
+			class="com.espressif.idf.debug.gdbjtag.openocd.JTagDevice"
+			id="com.espressif.idf.debug.gdbjtag.openocd.core.jtagdevice"
 			name="%JTagDevice.generic.name">
 		</device>
 	</extension>
 
 	<extension point="org.eclipse.cdt.debug.gdbjtag.core.JTagDevice">
 		<device
-			class="ilg.gnumcueclipse.debug.gdbjtag.openocd.JTagDevice"
-			id="ilg.gnumcueclipse.debug.gdbjtag.openocd.core.jtagdevice"
+			class="com.espressif.idf.debug.gdbjtag.openocd.JTagDevice"
+			id="com.espressif.idf.debug.gdbjtag.openocd.core.jtagdevice"
 			name="%JTagDevice.deprecated.name">
 		</device>
 	</extension>
