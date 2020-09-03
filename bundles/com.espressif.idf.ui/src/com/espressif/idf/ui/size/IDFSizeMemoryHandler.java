@@ -26,6 +26,8 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.GenericJsonReader;
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 
 /**
@@ -52,10 +54,10 @@ public class IDFSizeMemoryHandler extends AbstractHandler
 
 		IPath mapFilePath = getMapFilePath((IProject) project);
 		Logger.log("Mapping file path " + mapFilePath); //$NON-NLS-1$
-		if (mapFilePath == null)
+		if (mapFilePath == null || !mapFilePath.toFile().exists())
 		{
 			MessageDialog.openError(Display.getDefault().getActiveShell(), "Error", //$NON-NLS-1$
-					"Project mapping file doesn't exist"); //$NON-NLS-1$
+					"Could not find .map file for project"); //$NON-NLS-1$
 			return null;
 
 		}
@@ -90,22 +92,12 @@ public class IDFSizeMemoryHandler extends AbstractHandler
 
 	protected IPath getMapFilePath(IProject project)
 	{
-		IPath mapPath = project.getLocation().append("build").append(project.getName() + ".map"); //$NON-NLS-1$ //$NON-NLS-2$
-		if (!mapPath.toFile().exists())
+		GenericJsonReader jsonReader = new GenericJsonReader(project, "build" + File.separator + "project_description.json"); //$NON-NLS-1$
+		String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
+		if (!StringUtil.isEmpty(value))
 		{
-			File buildDir = project.getLocation().append("build").toFile(); //$NON-NLS-1$
-			if (buildDir.exists())
-			{
-				// search for .map file
-				File[] fileList = buildDir.listFiles();
-				for (File file : fileList)
-				{
-					if (file.getName().endsWith(".map")) // $NON-NLS-1$
-					{
-						return new Path(file.getAbsolutePath());
-					}
-				}
-			}
+			value = value.replace(".elf", ".map"); //Assuming .elf and .map files have the same file name
+			return project.getFile(new Path("build").append(value)).getLocation();
 		}
 		return null;
 	}
