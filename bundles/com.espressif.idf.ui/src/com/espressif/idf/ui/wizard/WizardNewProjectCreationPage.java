@@ -267,6 +267,10 @@ public class WizardNewProjectCreationPage extends WizardPage {
 		IWorkspace workspace = IDEWorkbenchPlugin.getPluginWorkspace();
 		
 		String worspaceLocation = workspace.getRoot().getLocation().toOSString();
+		if (!useDefaults()) {
+			worspaceLocation = locationArea.getProjectLocation();
+		}
+		
 		if (worspaceLocation.contains(" ")) { //$NON-NLS-1$
 			setErrorMessage(Messages.WizardNewProjectCreationPage_WorkspaceLocCantIncludeSpaceErr);
 			return false;
