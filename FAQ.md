@@ -1,10 +1,10 @@
 # FAQ
 
 ## Which version of Java should I use? 
-Java 8 Update 212 and above. We suggest to use the latest LTS version. Check the plugin [Prerequisites](https://github.com/espressif/idf-eclipse-plugin#Prerequisites). 
+Java 11 and above. We suggest to use the latest LTS version. Check the plugin [Prerequisites](https://github.com/espressif/idf-eclipse-plugin#Prerequisites). 
 Also check [why we recommend Java 11](https://gitlab.espressif.cn:6688/idf/idf-eclipse-plugin/-/blob/master/FAQ.md#why-java-11-recommended-for-idf-eclipse-plugin) while using the IDF Eclipse plugin 
 ## Which version of Eclipse should I use?
-Eclipse 2018-12 CDT and above (Eclipse IDE for C/C++ Developers). Check the plugin [Prerequisites](https://github.com/espressif/idf-eclipse-plugin#Prerequisites)
+Eclipse 2020-06 CDT and above (Eclipse IDE for C/C++ Developers). Check the plugin [Prerequisites](https://github.com/espressif/idf-eclipse-plugin#Prerequisites)
 ## How do I know the installed version of Java in my system?
 You can check using `java -version` command from the terminal
 ##  How to check the Java version used by Eclipse?
@@ -75,7 +75,7 @@ $ jstack 32308 > /tmp/jstack.txt
 </code></pre>
 Here 32308 and 8824 are PIDs of Java processes. 8824 is jps itself and is of no interest for us. 32308 is and Eclipse process judging from presence of org.eclipse.equinox.launcher in its command line. Jstack command saves stack trace of Eclipse process in a file /tmp/jstack.txt, attach the file to bug report.
 ## `sun.security.validator.ValidatorException: PKIX path building failed:` error while installing the plugins through update site
-This would have caused by the Java version or Java certificates. Please make sure you've installed `Java 8 Update 212 and later` to fix this error. 
+This would have caused by the Java version or Java certificates. Please make sure you've installed `Java 11 and later` to fix this error. 
 Check below links:
 - https://esp32.com/viewtopic.php?f=13&t=12327&start=10#p50137 
 - https://stackoverflow.com/questions/6908948/java-sun-security-provider-certpath-suncertpathbuilderexception-unable-to-find
