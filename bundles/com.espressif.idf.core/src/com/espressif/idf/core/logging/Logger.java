@@ -30,6 +30,14 @@ public class Logger
 	{
 		log(IDFCorePlugin.getPlugin(), e);
 	}
+	
+	public static void log(Exception e, boolean onlyDebugMode)
+	{
+		if (onlyDebugMode && Platform.inDebugMode())
+		{
+			log(IDFCorePlugin.getPlugin(), e);
+		}
+	}
 
 	public static void logError(String message)
 	{
