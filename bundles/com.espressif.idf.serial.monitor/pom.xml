@@ -1,0 +1,36 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.espressif.idf.serial.monitor</groupId>
+	<artifactId>com.espressif.idf.serial.monitor</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<release>11</release>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.jetbrains.pty4j</groupId>
+			<artifactId>pty4j</artifactId>
+			<version>0.8.6</version>
+		</dependency>
+	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>bintray-jetbrains-pty4j</id>
+			<name>bintray</name>
+			<url>https://jetbrains.bintray.com/pty4j</url>
+		</repository>
+	</repositories>
+</project>
