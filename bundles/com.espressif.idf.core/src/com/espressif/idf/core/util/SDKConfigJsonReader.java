@@ -5,6 +5,7 @@
 package com.espressif.idf.core.util;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -33,19 +34,18 @@ public class SDKConfigJsonReader
 	 * Load build/config/sdkconfig.json file and look for a specified key
 	 * 
 	 * @param key
-	 * @return value for a specified key. Null if key is found or file not found
+	 * @return value for a specified key. Null if key is not found or file not found
 	 */
 	public String getValue(String key)
 	{
 		try
 		{
 			JSONObject jsonObj = read();
-			return (String) jsonObj.get(key);
-
+			return String.valueOf(jsonObj.get(key));
 		}
 		catch (Exception e)
 		{
-			Logger.log(e);
+			Logger.log(e, true);
 		}
 		return null;
 	}
@@ -55,7 +55,8 @@ public class SDKConfigJsonReader
 		String sdkconfigJsonPath = new SDKConfigUtil().getSDKConfigJsonFilePath(project);
 		if (!new File(sdkconfigJsonPath).exists())
 		{
-			throw new Exception(MessageFormat.format("sdkconfig.json file couldn't find {0}", sdkconfigJsonPath));
+			String formatText = MessageFormat.format("{0} not found", sdkconfigJsonPath);
+			throw new FileNotFoundException(formatText);
 		}
 
 		JSONParser parser = new JSONParser();
