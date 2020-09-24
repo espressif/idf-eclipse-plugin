@@ -22,6 +22,10 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: mvn clean verify -Djarsigner.skip=true
+    - uses: actions/checkout@v2  
+    - name: print the artifacts
+    - run: cd /home/runner/work/idf-eclipse-plugin/idf-eclipse-plugin/releng/com.espressif.idf.update/target/
+    - run: ls  
       # To avoid double zip issues with the upload-artifact@v2 we will unzip
     - name: UnZip File
       if: ${{ !cancelled() }}
