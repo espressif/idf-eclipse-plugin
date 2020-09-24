@@ -22,9 +22,15 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: mvn clean verify -Djarsigner.skip=true
+      # To avoid double zip issues with the upload-artifact@v2 we will unzip
+    - name: UnZip File
+      if: ${{ !cancelled() }}
+      uses: montudor/action-zip@v0.1.0
+      with:
+        args: unzip -qq /home/runner/work/idf-eclipse-plugin/idf-eclipse-plugin/releng/com.espressif.idf.update/target/com.espressif.idf.update-1.2.2-SNAPSHOT.zip -d artifacts
     - name: Upload a Build Artifact
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v2
       with:
         name: artifacts
-        path: /home/runner/work/idf-eclipse-plugin/idf-eclipse-plugin/releng/com.espressif.idf.update/target/com.espressif.idf.update-1.2.2-SNAPSHOT.zip
+        path: /home/runner/work/idf-eclipse-plugin/idf-eclipse-plugin/releng/com.espressif.idf.update/target/artifacts
