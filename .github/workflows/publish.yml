@@ -1,0 +1,52 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: IDF Eclipse Plugin Build and Publish
+
+# For tags - build and publish
+on:
+  pull_request:
+    branches: [ master ] # test purpose only
+  push:
+    tags: 
+      - '*'
+    
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+   
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+    
+    - name: "Create keystore"
+      env: 
+        JARSIGNER_DEV_KEYSTORE_B64: ${{ secrets.JARSIGNER_DEV_KEYSTORE_B64 }}
+      run: |
+        echo "$JARSIGNER_DEV_KEYSTORE_B64" || base64 -d --ignore-garbage >  ${HOME}/key.json
+
+    - name: Build with Maven
+      run: |
+        export JARSIGNER_KEYSTORE_B64=${{secrets.JARSIGNER_DEV_KEYSTORE_B64}}
+        export JARSIGNER_STOREPASS=${{secrets.JARSIGNER_DEV_STOREPASS}}
+        export JARSIGNER_ALIAS=${{secrets.JARSIGNER_DEV_ALIAS}}
+        export KEYSTORE_FILE=${{secrets.JARSIGNER_KEYSTORE}}
+        echo "%s" "${JARSIGNER_KEYSTORE_B64}" || base64 -d --ignore-garbage > ${HOME}/${KEYSTORE_FILE}
+        mvn clean verify -Djarsigner.keystore=${HOME}/key.json -Djarsigner.alias="${JARSIGNER_ALIAS}" -Djarsigner.storepass="${JARSIGNER_STOREPASS}"
+ 
+    - name: Upload build artifacts
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: artifacts
+        path: releng/com.espressif.idf.update/target/repository
+        
+    - name: Publish artifacts
+      run: |
+        echo "publish Artifacts"
+        
