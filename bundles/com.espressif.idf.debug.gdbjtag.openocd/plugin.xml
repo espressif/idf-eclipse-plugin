@@ -53,18 +53,11 @@
 	<extension point="org.eclipse.cdt.debug.gdbjtag.core.JTagDevice">
 		<device
 			class="com.espressif.idf.debug.gdbjtag.openocd.JTagDevice"
-			id="com.espressif.idf.debug.gdbjtag.openocd.core.jtagdevice"
-			name="%JTagDevice.generic.name">
+			id="ESP-IDF GDB OpenOCD"
+			name="ESP-IDF GDB OpenOCD">
 		</device>
 	</extension>
 
-	<extension point="org.eclipse.cdt.debug.gdbjtag.core.JTagDevice">
-		<device
-			class="com.espressif.idf.debug.gdbjtag.openocd.JTagDevice"
-			id="com.espressif.idf.debug.gdbjtag.openocd.core.jtagdevice"
-			name="%JTagDevice.deprecated.name">
-		</device>
-	</extension>
 
 	<extension point="org.eclipse.ui.preferencePages">
 		<page

@@ -25,7 +25,7 @@ public interface ConfigurationAttributes {
 	// TabDebugger
 
 	// Must be in sync with plugin.xml definition
-	public static final String JTAG_DEVICE = "GNU MCU OpenOCD";
+	public static final String JTAG_DEVICE = "ESP-IDF GDB OpenOCD";
 
 	public static final String DO_START_GDB_SERVER = PREFIX + ".doStartGdbServer"; //$NON-NLS-1$
 
