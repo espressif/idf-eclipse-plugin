@@ -24,11 +24,11 @@ jobs:
       with:
         java-version: 1.8
     
-    - name: "Create keystore"
+    - name: "Create Keystore"
       env: 
         JARSIGNER_DEV_KEYSTORE_B64: ${{ secrets.JARSIGNER_DEV_KEYSTORE_B64 }}
       run: |
-        echo "$JARSIGNER_DEV_KEYSTORE_B64" || base64 -d --ignore-garbage >  ${HOME}/key.json
+        echo $JARSIGNER_DEV_KEYSTORE_B64 || base64 -d --ignore-garbage >  ${HOME}/idf-plugin-key.json
 
     - name: Build with Maven
       run: |
@@ -36,8 +36,7 @@ jobs:
         export JARSIGNER_STOREPASS=${{secrets.JARSIGNER_DEV_STOREPASS}}
         export JARSIGNER_ALIAS=${{secrets.JARSIGNER_DEV_ALIAS}}
         export KEYSTORE_FILE=${{secrets.JARSIGNER_KEYSTORE}}
-        echo "%s" "${JARSIGNER_KEYSTORE_B64}" || base64 -d --ignore-garbage > ${HOME}/${KEYSTORE_FILE}
-        mvn clean verify -Djarsigner.keystore=${HOME}/key.json -Djarsigner.alias="${JARSIGNER_ALIAS}" -Djarsigner.storepass="${JARSIGNER_STOREPASS}"
+        mvn clean verify -Djarsigner.keystore=${HOME}/idf-plugin-key.json -Djarsigner.alias="${JARSIGNER_ALIAS}" -Djarsigner.storepass="${JARSIGNER_STOREPASS}"
  
     - name: Upload build artifacts
       if: ${{ !cancelled() }}
