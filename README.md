@@ -33,7 +33,7 @@ The plug-in runs on `Windows`, `macOS` and `GNU/Linux`.
 * [ Importing an existing Debug launch configuration ](#importDebugLaunchConfig)<br>
 * [ Troubleshooting Guide](#troubleshooting)<br>
 * [ How to raise bugs ](#howToRaiseBugs)<br>
-* [ FAQ ](#faq)<br>
+* <a href ="https://github.com/espressif/idf-eclipse-plugin/blob/master/FAQ.md#FAQ">FAQ</a>
 
 
 <a name="Prerequisites"></a>
@@ -397,8 +397,3 @@ To import an existing launch configuration into Eclipse:
 <a name="howToRaiseBugs"></a>
 # How to raise bugs
 Please raise the issues here https://github.com/espressif/idf-eclipse-plugin/issues with the complete environment details and log.
-
-<a name="faq"></a>
-# FAQ
-
-Please refer to https://github.com/espressif/idf-eclipse-plugin/blob/master/FAQ.md#FAQ
