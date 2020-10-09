@@ -6,7 +6,7 @@ It provides better tooling capabilities, which simplifies and enhances standard 
 
 The plug-in runs on `Windows`, `macOS` and `GNU/Linux`.
 
-> **Note:** It supports ESP-IDF CMake based projects (4.x and above)
+> **Note:** It supports ESP-IDF CMake based projects (4.x and above) with `esp32` and `esp32s2` chips
 
 # Table Of Contents
 * [ Installing Prerequisites ](#Prerequisites) <br>
