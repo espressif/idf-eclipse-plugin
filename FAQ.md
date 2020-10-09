@@ -59,6 +59,8 @@ You see this error when you're trying a compile a project without selecting an `
 - Restart Eclipse
 ## Where can I find Compiler_commands.json file for the project?
 `/projectName/build/compile_commands.json`
+
+compile_commands.json containing the exact compiler calls for all translation units of the project in machine-readable form which is used by the Eclipse CDT indexing for parsing and resovling headers
 ## How do I access CDT Parser error log?
 Please follow this menu. `Project > C/C++ Index >  Create Parser Log`
 ##  How do I access the error log?
