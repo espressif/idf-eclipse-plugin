@@ -33,7 +33,6 @@ The plug-in runs on `Windows`, `macOS` and `GNU/Linux`.
 * [ Importing an existing Debug launch configuration ](#importDebugLaunchConfig)<br>
 * [ Troubleshooting Guide](#troubleshooting)<br>
 * [ How to raise bugs ](#howToRaiseBugs)<br>
-* [ FAQ ](#https://github.com/espressif/idf-eclipse-plugin/blob/master/FAQ.md#FAQ)<br>
 * <a href ="https://github.com/espressif/idf-eclipse-plugin/blob/master/FAQ.md#FAQ">FAQ</a>
 
 
