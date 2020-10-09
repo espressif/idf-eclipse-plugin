@@ -1024,7 +1024,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 		{
 			// legacy definition; although the jtag device class is not used,
 			// it must be there, to avoid NPEs
-			configuration.setAttribute(IGDBJtagConstants.ATTR_JTAG_DEVICE, ConfigurationAttributes.JTAG_DEVICE);
+			configuration.setAttribute(IGDBJtagConstants.ATTR_JTAG_DEVICE_ID, ConfigurationAttributes.JTAG_DEVICE);
 		}
 
 		boolean booleanValue;
@@ -1151,7 +1151,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 			System.out.println("openocd.TabDebugger.setDefaults() " + configuration.getName());
 		}
 
-		configuration.setAttribute(IGDBJtagConstants.ATTR_JTAG_DEVICE, ConfigurationAttributes.JTAG_DEVICE);
+		configuration.setAttribute(IGDBJtagConstants.ATTR_JTAG_DEVICE_ID, ConfigurationAttributes.JTAG_DEVICE);
 
 		String defaultString;
 		boolean defaultBoolean;

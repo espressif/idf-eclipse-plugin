@@ -16,9 +16,9 @@ package com.espressif.idf.debug.gdbjtag.openocd;
 
 import java.util.Collection;
 
-import org.eclipse.cdt.debug.gdbjtag.core.jtagdevice.DefaultGDBJtagDeviceImpl;
+import org.eclipse.cdt.debug.gdbjtag.core.jtagdevice.DefaultGDBJtagConnectionImpl;
 
-public class JTagDevice extends DefaultGDBJtagDeviceImpl {
+public class JTagDevice extends DefaultGDBJtagConnectionImpl {
 
 	@Override
 	public void doDelay(int delay, Collection<String> commands) {
