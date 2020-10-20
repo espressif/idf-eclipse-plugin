@@ -9,6 +9,10 @@ import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.espressif.idf.core.logging.Logger;
 
+/**
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ *
+ */
 public class TerminalWatcher implements Runnable
 {
 	private InputStream outFromChannel;

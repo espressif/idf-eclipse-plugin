@@ -10,6 +10,10 @@ import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.pty4j.PtyProcess;
 
+/**
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ *
+ */
 public class LocalTerminal
 {
 	private Thread thread;

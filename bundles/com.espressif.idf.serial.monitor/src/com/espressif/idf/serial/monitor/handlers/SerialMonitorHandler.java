@@ -18,6 +18,10 @@ import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.serial.monitor.core.IDFMonitor;
 import com.espressif.idf.ui.EclipseUtil;
 
+/**
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ *
+ */
 public class SerialMonitorHandler extends AbstractHandler
 {
 

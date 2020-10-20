@@ -3,6 +3,10 @@ package com.espressif.idf.serial.monitor;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
+/**
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ *
+ */
 public class SerialMonitorBundle implements BundleActivator
 {
 
