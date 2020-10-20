@@ -46,9 +46,6 @@ public class LocalTerminal
 		// OutputStream os = pty.getOutputStream();
 		InputStream is = pty.getInputStream();
 
-		// PrintStream printStream = new PrintStream(os, true);
-		// printStream.print(b);
-
 		Runnable run = new TerminalWatcher(is, stream);
 		thread = new Thread(run);
 		thread.start();
