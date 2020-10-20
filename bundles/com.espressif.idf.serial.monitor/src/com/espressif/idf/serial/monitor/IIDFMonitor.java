@@ -1,5 +1,9 @@
 package com.espressif.idf.serial.monitor;
 
+/**
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ *
+ */
 public interface IIDFMonitor
 {
 	public static int WS_PORT = 1123;
