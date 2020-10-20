@@ -5,7 +5,7 @@
          point="org.eclipse.ui.commands">
       <command
             id="com.espressif.idf.serial.monitor.commands.serialmonitorCommand"
-            name="IDF Serial Monitor">
+            name="ESP-IDF Serial Monitor">
       </command>
    </extension>
    <extension
