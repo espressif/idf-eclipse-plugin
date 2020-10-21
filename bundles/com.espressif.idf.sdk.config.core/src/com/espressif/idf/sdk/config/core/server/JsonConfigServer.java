@@ -14,8 +14,6 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.ui.console.MessageConsoleStream;
 import org.json.simple.parser.ParseException;
 
@@ -127,11 +125,6 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 		runnable = new JsonConfigServerRunnable(process, this);
 		Thread t = new Thread(runnable);
 		t.start();
-	}
-
-	protected ILaunchManager getLaunchManager()
-	{
-		return DebugPlugin.getDefault().getLaunchManager();
 	}
 
 	public IJsonConfigOutput getOutput(String response, boolean isUpdate)
