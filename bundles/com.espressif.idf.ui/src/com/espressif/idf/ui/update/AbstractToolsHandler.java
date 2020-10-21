@@ -15,8 +15,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
@@ -210,14 +208,6 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 		arguments.forEach(entry -> builder.append(entry + " ")); //$NON-NLS-1$
 
 		return builder.toString().trim();
-	}
-
-	/**
-	 * @return
-	 */
-	protected ILaunchManager getLaunchManager()
-	{
-		return DebugPlugin.getDefault().getLaunchManager();
 	}
 
 	/**
