@@ -13,7 +13,9 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: com.espressif.idf.serial.monitor
 Bundle-ActivationPolicy: lazy
-Export-Package: com.espressif.idf.serial.monitor
+Export-Package: com.espressif.idf.serial.monitor,
+ com.espressif.idf.serial.monitor.core,
+ com.espressif.idf.serial.monitor.handlers
 Bundle-ClassPath: lib/javax.websocket-client-api-1.1.jar,
  lib/tyrus-standalone-client-1.9.jar,
  lib/msgpack-core-0.8.20.jar,
