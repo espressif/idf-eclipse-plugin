@@ -32,10 +32,6 @@ public class Messages extends NLS {
 
 	// **** Declare externalized string id's down here *****
 
-	public static String SerialTerminalSettingsPage_BaudRate;
-	public static String SerialTerminalSettingsPage_DataSize;
-	public static String SerialTerminalSettingsPage_Parity;
 	public static String SerialTerminalSettingsPage_SerialPort;
-	public static String SerialTerminalSettingsPage_StopBits;
 
 }

@@ -18,17 +18,14 @@ import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.cdt.serial.SerialPort;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
 import org.eclipse.tm.internal.terminal.provisional.api.ITerminalControl;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
 import org.eclipse.tm.internal.terminal.provisional.api.provider.TerminalConnectorImpl;
-import org.osgi.service.prefs.Preferences;
 
-import com.espressif.idf.core.util.SDKConfigJsonReader;
 import com.espressif.idf.serial.monitor.handlers.SerialMonitorHandler;
 import com.espressif.idf.terminal.connector.serial.activator.Activator;
 import com.espressif.idf.ui.EclipseUtil;
@@ -36,7 +33,6 @@ import com.espressif.idf.ui.EclipseUtil;
 public class SerialConnector extends TerminalConnectorImpl {
 
 	private SerialSettings settings = new SerialSettings();
-	SerialPort serialPort;
 	private Process process;
 	private Thread thread;
 
@@ -48,15 +44,11 @@ public class SerialConnector extends TerminalConnectorImpl {
 
 	@Override
 	public OutputStream getTerminalToRemoteStream() {
-		return serialPort.getOutputStream();
+		return process.getOutputStream();
 	}
 
 	public SerialSettings getSettings() {
 		return settings;
-	}
-
-	public SerialPort getSerialPort() {
-		return serialPort;
 	}
 
 	@Override
@@ -77,15 +69,23 @@ public class SerialConnector extends TerminalConnectorImpl {
 	@Override
 	public void connect(ITerminalControl control) {
 		super.connect(control);
+
+		//Get selected project - which is required for IDF Monitor
+		IProject project = EclipseUtil.getSelectedProjectInExplorer();
+		if (project == null) {
+			String message = "project can't be null. Make sure you select a project before launch a serial monitor"; //$NON-NLS-1$
+			Activator.log(new Status(IStatus.ERROR, "", //$NON-NLS-1$
+					message, null));
+			return;
+		}
+
+		//set state
 		control.setState(TerminalState.CONNECTING);
 
-		//Hook IDF Monitor with the Eclipse serial monitor
-		IProject project = EclipseUtil.getSelectedProjectInExplorer();
+		String portName = settings.getPortName();
 
-		// Get serial port
-		String serialPort = getLastUsedSerialPort();
-
-		SerialMonitorHandler serialMonitorHandler = new SerialMonitorHandler(project, serialPort);
+		//Hook IDF Monitor with the CDT serial monitor
+		SerialMonitorHandler serialMonitorHandler = new SerialMonitorHandler(project, portName);
 		process = serialMonitorHandler.invokeIDFMonitor();
 
 		thread = new Thread() {
@@ -122,20 +122,6 @@ public class SerialConnector extends TerminalConnectorImpl {
 		if (thread != null) {
 			thread.interrupt();
 		}
-	}
-
-	protected String getsdkconfigBaudRate() {
-		IResource resource = EclipseUtil.getSelectionResource();
-		if (resource != null) {
-			IProject project = resource.getProject();
-			return new SDKConfigJsonReader(project).getValue("ESPTOOLPY_MONITOR_BAUD"); //$NON-NLS-1$
-		}
-		return null;
-	}
-
-	protected String getLastUsedSerialPort() {
-		Preferences preferences = InstanceScope.INSTANCE.getNode("com.espressif.idf.launch.serial.ui"); //$NON-NLS-1$
-		return preferences.get("com.espressif.idf.launch.serial.core.serialPort", ""); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 }

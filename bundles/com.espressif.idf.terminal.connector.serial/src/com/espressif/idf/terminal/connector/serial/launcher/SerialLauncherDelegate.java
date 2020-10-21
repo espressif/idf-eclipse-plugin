@@ -14,10 +14,6 @@ package com.espressif.idf.terminal.connector.serial.launcher;
 
 import java.util.Map;
 
-import org.eclipse.cdt.serial.BaudRate;
-import org.eclipse.cdt.serial.ByteSize;
-import org.eclipse.cdt.serial.Parity;
-import org.eclipse.cdt.serial.StopBits;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
 import org.eclipse.tm.internal.terminal.provisional.api.ITerminalConnector;
@@ -59,10 +55,6 @@ public class SerialLauncherDelegate extends AbstractLauncherDelegate {
 		// Extract the properties
 		SerialSettings settings = new SerialSettings();
 		settings.setPortName((String) properties.get(SerialSettings.PORT_NAME_ATTR));
-		settings.setBaudRate((BaudRate) properties.get(SerialSettings.BAUD_RATE_ATTR));
-		settings.setByteSize((ByteSize) properties.get(SerialSettings.BYTE_SIZE_ATTR));
-		settings.setParity((Parity) properties.get(SerialSettings.PARITY_ATTR));
-		settings.setStopBits((StopBits) properties.get(SerialSettings.STOP_BITS_ATTR));
 
 		// Construct the terminal settings store
 		ISettingsStore store = new SettingsStore();
