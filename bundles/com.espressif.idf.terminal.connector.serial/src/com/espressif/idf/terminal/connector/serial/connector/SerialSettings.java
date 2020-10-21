@@ -9,6 +9,7 @@
  *
  * Contributors:
  *     QNX Software Systems - Initial API and implementation
+ *     Espressif systems - IDF Monitor integration
  *******************************************************************************/
 package com.espressif.idf.terminal.connector.serial.connector;
 
@@ -17,15 +18,17 @@ import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
 public class SerialSettings {
 
 	public static final String PORT_NAME_ATTR = "cdtserial.portName"; //$NON-NLS-1$
+	public static final String MONITOR_FILTER = "idf.monitor.filter"; //$NON-NLS-1$
 
 	private String portName;
+	private String filterText;
 
 	/**
 	 * Load information into the RemoteSettings object.
 	 */
 	public void load(ISettingsStore store) {
 		portName = store.get(PORT_NAME_ATTR, ""); //$NON-NLS-1$
-
+		filterText = store.get(MONITOR_FILTER, ""); //$NON-NLS-1$
 	}
 
 	/**
@@ -33,14 +36,23 @@ public class SerialSettings {
 	 */
 	public void save(ISettingsStore store) {
 		store.put(PORT_NAME_ATTR, portName);
+		store.put(MONITOR_FILTER, filterText);
 	}
 
 	public String getPortName() {
 		return portName;
 	}
 
+	public String getFilterText() {
+		return filterText;
+	}
+
 	public void setPortName(String portName) {
 		this.portName = portName;
+	}
+
+	public void setFilterText(String filterText) {
+		this.filterText = filterText;
 	}
 
 	public String getSummary() {
