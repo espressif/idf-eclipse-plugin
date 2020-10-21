@@ -55,6 +55,7 @@ public class SerialLauncherDelegate extends AbstractLauncherDelegate {
 		// Extract the properties
 		SerialSettings settings = new SerialSettings();
 		settings.setPortName((String) properties.get(SerialSettings.PORT_NAME_ATTR));
+		settings.setFilterText((String) properties.get(SerialSettings.MONITOR_FILTER));
 
 		// Construct the terminal settings store
 		ISettingsStore store = new SettingsStore();

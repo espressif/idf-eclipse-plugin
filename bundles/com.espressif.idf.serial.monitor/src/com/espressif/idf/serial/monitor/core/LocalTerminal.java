@@ -30,7 +30,6 @@ public class LocalTerminal
 		String[] args = arguments.toArray(new String[arguments.size()]);
 
 		pty = PtyProcess.exec(args, environment, workingDir.getAbsolutePath());
-
 		return pty;
 	}
 

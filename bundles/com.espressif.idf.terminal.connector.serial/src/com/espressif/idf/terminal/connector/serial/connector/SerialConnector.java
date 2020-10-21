@@ -26,6 +26,7 @@ import org.eclipse.tm.internal.terminal.provisional.api.ITerminalControl;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
 import org.eclipse.tm.internal.terminal.provisional.api.provider.TerminalConnectorImpl;
 
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.serial.monitor.handlers.SerialMonitorHandler;
 import com.espressif.idf.terminal.connector.serial.activator.Activator;
 import com.espressif.idf.ui.EclipseUtil;
@@ -83,9 +84,11 @@ public class SerialConnector extends TerminalConnectorImpl {
 		control.setState(TerminalState.CONNECTING);
 
 		String portName = settings.getPortName();
+		String filterOptions = settings.getFilterText();
+		filterOptions = StringUtil.isEmpty(filterOptions) ? StringUtil.EMPTY : filterOptions;
 
 		//Hook IDF Monitor with the CDT serial monitor
-		SerialMonitorHandler serialMonitorHandler = new SerialMonitorHandler(project, portName);
+		SerialMonitorHandler serialMonitorHandler = new SerialMonitorHandler(project, portName, filterOptions);
 		process = serialMonitorHandler.invokeIDFMonitor();
 
 		thread = new Thread() {

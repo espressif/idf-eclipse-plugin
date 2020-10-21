@@ -26,11 +26,13 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.tm.internal.terminal.provisional.api.AbstractSettingsPage;
 import org.eclipse.tm.terminal.view.ui.interfaces.IConfigurationPanel;
 import org.eclipse.tm.terminal.view.ui.interfaces.IConfigurationPanelContainer;
 import org.osgi.service.prefs.Preferences;
 
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.terminal.connector.serial.activator.Activator;
 import com.espressif.idf.terminal.connector.serial.connector.SerialConnector;
 import com.espressif.idf.terminal.connector.serial.connector.SerialSettings;
@@ -46,6 +48,8 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 
 	private String portName;
 	private String lastUsedSerialPort;
+	private Text filterText;
+	private String filterConfig;
 
 	public SerialSettingsPage(SerialSettings settings, IConfigurationPanel panel) {
 		this.settings = settings;
@@ -55,6 +59,7 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 		dialogSettings = DialogSettings.getOrCreateSection(Activator.getDefault().getDialogSettings(),
 				this.getClass().getSimpleName());
 		portName = dialogSettings.get(SerialSettings.PORT_NAME_ATTR);
+		filterConfig = dialogSettings.get(SerialSettings.MONITOR_FILTER);
 
 		lastUsedSerialPort = getLastUsedSerialPort();
 
@@ -97,6 +102,12 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 			}
 		});
 
+		Label configOptions = new Label(comp, SWT.NONE);
+		configOptions.setText("Filter Options:"); //$NON-NLS-1$
+
+		filterText = new Text(comp, SWT.SINGLE | SWT.BORDER);
+		filterText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
 		loadSettings();
 	}
 
@@ -124,13 +135,20 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 			portCombo.select(0);
 		}
 
+		//IDF monitor filter
+		if (!StringUtil.isEmpty(filterConfig)) {
+			this.filterText.setText(filterConfig);
+		}
 	}
 
 	@Override
 	public void saveSettings() {
 		settings.setPortName(portCombo.getText());
+		settings.setFilterText(filterText.getText().trim());
 
 		dialogSettings.put(SerialSettings.PORT_NAME_ATTR, portCombo.getText());
+		dialogSettings.put(SerialSettings.MONITOR_FILTER, filterText.getText().trim());
+
 	}
 
 	@Override

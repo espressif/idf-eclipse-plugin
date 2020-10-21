@@ -23,13 +23,15 @@ public class IDFMonitor
 	private String pythonBinPath;
 	private String idfMonitorToolPath;
 	private IProject project;
+	private String filterOptions;
 
-	public IDFMonitor(IProject project, String port, String pythonBinPath, String idfMonitorToolPath)
+	public IDFMonitor(IProject project, String port, String filterOptions, String pythonBinPath, String idfMonitorToolPath)
 	{
 		this.project = project;
 		this.port = port;
 		this.pythonBinPath = pythonBinPath;
 		this.idfMonitorToolPath = idfMonitorToolPath;
+		this.filterOptions = filterOptions;
 	}
 
 	public List<String> commandArgs()
@@ -40,6 +42,7 @@ public class IDFMonitor
 		args.add("monitor");
 		args.add("-p");
 		args.add(port);
+		args.add("--print-filter=" + filterOptions);
 
 		return args;
 	}
