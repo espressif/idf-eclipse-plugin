@@ -8,12 +8,10 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.StringUtil;
-import com.espressif.idf.ui.IDFConsole;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -22,16 +20,14 @@ import com.espressif.idf.ui.IDFConsole;
 public class IDFMonitor
 {
 	private String port;
-	private String baudRate;
 	private String pythonBinPath;
 	private String idfMonitorToolPath;
 	private IProject project;
 
-	public IDFMonitor(IProject project, String port, String baudRate, String pythonBinPath, String idfMonitorToolPath)
+	public IDFMonitor(IProject project, String port, String pythonBinPath, String idfMonitorToolPath)
 	{
 		this.project = project;
 		this.port = port;
-		this.baudRate = baudRate;
 		this.pythonBinPath = pythonBinPath;
 		this.idfMonitorToolPath = idfMonitorToolPath;
 	}
@@ -48,12 +44,8 @@ public class IDFMonitor
 		return args;
 	}
 
-	public void start() throws IOException
+	public Process start() throws IOException
 	{
-		// Create console
-		IDFConsole console = new IDFConsole();
-		MessageConsoleStream stream = console.getConsoleStream("ESP-IDF Monitor"); //$NON-NLS-1$
-
 		// command to execute
 		List<String> arguments = commandArgs();
 		Logger.log(arguments.toString());
@@ -89,8 +81,8 @@ public class IDFMonitor
 		// working dir
 		IPath workingDir = project.getLocation();
 
-		LocalTerminal localTerminal = new LocalTerminal(arguments, workingDir.toFile(), environment, stream);
-		localTerminal.connect();
+		LocalTerminal localTerminal = new LocalTerminal(arguments, workingDir.toFile(), environment);
+		return localTerminal.connect();
 	}
 
 }
