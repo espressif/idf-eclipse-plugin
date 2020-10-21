@@ -19,17 +19,26 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.cdt.serial.SerialPort;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
 import org.eclipse.tm.internal.terminal.provisional.api.ITerminalControl;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
 import org.eclipse.tm.internal.terminal.provisional.api.provider.TerminalConnectorImpl;
+import org.osgi.service.prefs.Preferences;
 
+import com.espressif.idf.core.util.SDKConfigJsonReader;
+import com.espressif.idf.serial.monitor.handlers.SerialMonitorHandler;
 import com.espressif.idf.terminal.connector.serial.activator.Activator;
+import com.espressif.idf.ui.EclipseUtil;
 
 public class SerialConnector extends TerminalConnectorImpl {
 
 	private SerialSettings settings = new SerialSettings();
 	SerialPort serialPort;
+	private Process process;
+	private Thread thread;
 
 	private static Set<String> openPorts = new HashSet<>();
 
@@ -70,25 +79,19 @@ public class SerialConnector extends TerminalConnectorImpl {
 		super.connect(control);
 		control.setState(TerminalState.CONNECTING);
 
-		serialPort = new SerialPort(settings.getPortName());
-		try {
-			serialPort.setBaudRate(settings.getBaudRate());
-			serialPort.setByteSize(settings.getByteSize());
-			serialPort.setParity(settings.getParity());
-			serialPort.setStopBits(settings.getStopBits());
-			serialPort.open();
-		} catch (IOException e) {
-			Activator.log(e);
-			control.setState(TerminalState.CLOSED);
-			return;
-		}
+		//Hook IDF Monitor with the Eclipse serial monitor
+		IProject project = EclipseUtil.getSelectedProjectInExplorer();
 
-		openPorts.add(serialPort.getPortName());
+		// Get serial port
+		String serialPort = getLastUsedSerialPort();
 
-		new Thread() {
+		SerialMonitorHandler serialMonitorHandler = new SerialMonitorHandler(project, serialPort);
+		process = serialMonitorHandler.invokeIDFMonitor();
+
+		thread = new Thread() {
 			@Override
 			public void run() {
-				InputStream targetIn = serialPort.getInputStream();
+				InputStream targetIn = process.getInputStream();
 				byte[] buff = new byte[256];
 				int n;
 				try {
@@ -102,21 +105,37 @@ public class SerialConnector extends TerminalConnectorImpl {
 					Activator.log(e);
 				}
 			}
-		}.start();
+		};
+
+		thread.start();
+
 		control.setState(TerminalState.CONNECTED);
 	}
 
 	@Override
 	protected void doDisconnect() {
-		if (serialPort != null && serialPort.isOpen()) {
-			openPorts.remove(serialPort.getPortName());
-			try {
-				serialPort.close();
-			} catch (IOException e) {
-				Activator.log(e);
-			}
+
+		//Disconnect ptyprocess and that will free the port
+		if (process != null) {
+			process.destroy();
 		}
-		serialPort = null;
+		if (thread != null) {
+			thread.interrupt();
+		}
+	}
+
+	protected String getsdkconfigBaudRate() {
+		IResource resource = EclipseUtil.getSelectionResource();
+		if (resource != null) {
+			IProject project = resource.getProject();
+			return new SDKConfigJsonReader(project).getValue("ESPTOOLPY_MONITOR_BAUD"); //$NON-NLS-1$
+		}
+		return null;
+	}
+
+	protected String getLastUsedSerialPort() {
+		Preferences preferences = InstanceScope.INSTANCE.getNode("com.espressif.idf.launch.serial.ui"); //$NON-NLS-1$
+		return preferences.get("com.espressif.idf.launch.serial.core.serialPort", ""); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 }
