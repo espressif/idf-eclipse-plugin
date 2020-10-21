@@ -14,10 +14,6 @@ package com.espressif.idf.terminal.connector.serial.controls;
 
 import java.util.Map;
 
-import org.eclipse.cdt.serial.BaudRate;
-import org.eclipse.cdt.serial.ByteSize;
-import org.eclipse.cdt.serial.Parity;
-import org.eclipse.cdt.serial.StopBits;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -63,10 +59,6 @@ public class SerialConfigPanel extends AbstractExtendedConfigurationPanel {
 
 		page.saveSettings();
 		data.put(SerialSettings.PORT_NAME_ATTR, settings.getPortName());
-		data.put(SerialSettings.BAUD_RATE_ATTR, settings.getBaudRate());
-		data.put(SerialSettings.BYTE_SIZE_ATTR, settings.getByteSize());
-		data.put(SerialSettings.PARITY_ATTR, settings.getParity());
-		data.put(SerialSettings.STOP_BITS_ATTR, settings.getStopBits());
 
 		if (getEncoding() != null) {
 			data.put(ITerminalsConnectorConstants.PROP_ENCODING, getEncoding());
@@ -80,10 +72,6 @@ public class SerialConfigPanel extends AbstractExtendedConfigurationPanel {
 		}
 
 		settings.setPortName((String) data.get(SerialSettings.PORT_NAME_ATTR));
-		settings.setBaudRate((BaudRate) data.get(SerialSettings.BAUD_RATE_ATTR));
-		settings.setByteSize((ByteSize) data.get(SerialSettings.BYTE_SIZE_ATTR));
-		settings.setParity((Parity) data.get(SerialSettings.PARITY_ATTR));
-		settings.setStopBits((StopBits) data.get(SerialSettings.STOP_BITS_ATTR));
 
 		String encoding = (String) data.get(ITerminalsConnectorConstants.PROP_ENCODING);
 		if (encoding != null) {

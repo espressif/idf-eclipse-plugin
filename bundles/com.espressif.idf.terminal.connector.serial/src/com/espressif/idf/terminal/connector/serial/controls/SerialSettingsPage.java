@@ -14,13 +14,7 @@ package com.espressif.idf.terminal.connector.serial.controls;
 
 import java.io.IOException;
 
-import org.eclipse.cdt.serial.BaudRate;
-import org.eclipse.cdt.serial.ByteSize;
-import org.eclipse.cdt.serial.Parity;
 import org.eclipse.cdt.serial.SerialPort;
-import org.eclipse.cdt.serial.StopBits;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.dialogs.DialogSettings;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -37,13 +31,10 @@ import org.eclipse.tm.terminal.view.ui.interfaces.IConfigurationPanel;
 import org.eclipse.tm.terminal.view.ui.interfaces.IConfigurationPanelContainer;
 import org.osgi.service.prefs.Preferences;
 
-import com.espressif.idf.core.util.SDKConfigJsonReader;
-import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.terminal.connector.serial.activator.Activator;
 import com.espressif.idf.terminal.connector.serial.connector.SerialConnector;
 import com.espressif.idf.terminal.connector.serial.connector.SerialSettings;
 import com.espressif.idf.terminal.connector.serial.nls.Messages;
-import com.espressif.idf.ui.EclipseUtil;
 
 public class SerialSettingsPage extends AbstractSettingsPage {
 
@@ -52,16 +43,8 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 	private final IDialogSettings dialogSettings;
 
 	private Combo portCombo;
-	private Combo baudRateCombo;
-	private Combo byteSizeCombo;
-	private Combo parityCombo;
-	private Combo stopBitsCombo;
 
 	private String portName;
-	private BaudRate baudRate;
-	private ByteSize byteSize;
-	private Parity parity;
-	private StopBits stopBits;
 	private String lastUsedSerialPort;
 
 	public SerialSettingsPage(SerialSettings settings, IConfigurationPanel panel) {
@@ -75,77 +58,6 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 
 		lastUsedSerialPort = getLastUsedSerialPort();
 
-		String sdkconfigBaudRate = getsdkconfigBaudRate();
-		if (!StringUtil.isEmpty(sdkconfigBaudRate)) {
-			baudRate = getBaudRate(sdkconfigBaudRate);
-		}
-
-		if (baudRate == null) {
-			String baudRateStr = dialogSettings.get(SerialSettings.BAUD_RATE_ATTR);
-			if (baudRateStr == null || baudRateStr.isEmpty()) {
-				baudRate = BaudRate.getDefault();
-			} else {
-				baudRate = getBaudRate(baudRateStr);
-			}
-		}
-
-		String byteSizeStr = dialogSettings.get(SerialSettings.BYTE_SIZE_ATTR);
-		if (byteSizeStr == null || byteSizeStr.isEmpty()) {
-			byteSize = ByteSize.getDefault();
-		} else {
-			String[] sizes = ByteSize.getStrings();
-			for (int i = 0; i < sizes.length; ++i) {
-				if (byteSizeStr.equals(sizes[i])) {
-					byteSize = ByteSize.fromStringIndex(i);
-					break;
-				}
-			}
-		}
-
-		String parityStr = dialogSettings.get(SerialSettings.PARITY_ATTR);
-		if (parityStr == null || parityStr.isEmpty()) {
-			parity = Parity.getDefault();
-		} else {
-			String[] parities = Parity.getStrings();
-			for (int i = 0; i < parities.length; ++i) {
-				if (parityStr.equals(parities[i])) {
-					parity = Parity.fromStringIndex(i);
-					break;
-				}
-			}
-		}
-
-		String stopBitsStr = dialogSettings.get(SerialSettings.STOP_BITS_ATTR);
-		if (stopBitsStr == null || stopBitsStr.isEmpty()) {
-			stopBits = StopBits.getDefault();
-		} else {
-			String[] bits = StopBits.getStrings();
-			for (int i = 0; i < bits.length; ++i) {
-				if (stopBitsStr.equals(bits[i])) {
-					stopBits = StopBits.fromStringIndex(i);
-					break;
-				}
-			}
-		}
-	}
-
-	protected String getsdkconfigBaudRate() {
-		IResource resource = EclipseUtil.getSelectionResource();
-		if (resource != null) {
-			IProject project = resource.getProject();
-			return new SDKConfigJsonReader(project).getValue("ESPTOOLPY_MONITOR_BAUD"); //$NON-NLS-1$
-		}
-		return null;
-	}
-
-	protected BaudRate getBaudRate(String baudRateStr) {
-		String[] rates = BaudRate.getStrings();
-		for (int i = 0; i < rates.length; ++i) {
-			if (baudRateStr.equals(rates[i])) {
-				return BaudRate.fromStringIndex(i);
-			}
-		}
-		return baudRate;
 	}
 
 	protected String getLastUsedSerialPort() {
@@ -185,42 +97,6 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 			}
 		});
 
-		Label baudRateLabel = new Label(comp, SWT.NONE);
-		baudRateLabel.setText(Messages.SerialTerminalSettingsPage_BaudRate);
-
-		baudRateCombo = new Combo(comp, SWT.READ_ONLY);
-		baudRateCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		for (String baudRateStr : BaudRate.getStrings()) {
-			baudRateCombo.add(baudRateStr);
-		}
-
-		Label byteSizeLabel = new Label(comp, SWT.NONE);
-		byteSizeLabel.setText(Messages.SerialTerminalSettingsPage_DataSize);
-
-		byteSizeCombo = new Combo(comp, SWT.READ_ONLY);
-		byteSizeCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		for (String byteSizeStr : ByteSize.getStrings()) {
-			byteSizeCombo.add(byteSizeStr);
-		}
-
-		Label parityLabel = new Label(comp, SWT.NONE);
-		parityLabel.setText(Messages.SerialTerminalSettingsPage_Parity);
-
-		parityCombo = new Combo(comp, SWT.READ_ONLY);
-		parityCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		for (String parityStr : Parity.getStrings()) {
-			parityCombo.add(parityStr);
-		}
-
-		Label stopBitsLabel = new Label(comp, SWT.NONE);
-		stopBitsLabel.setText(Messages.SerialTerminalSettingsPage_StopBits);
-
-		stopBitsCombo = new Combo(comp, SWT.READ_ONLY);
-		stopBitsCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		for (String stopBitsStr : StopBits.getStrings()) {
-			stopBitsCombo.add(stopBitsStr);
-		}
-
 		loadSettings();
 	}
 
@@ -248,44 +124,13 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 			portCombo.select(0);
 		}
 
-		BaudRate baudRate = settings.getBaudRate();
-		if (baudRate == null) {
-			baudRate = this.baudRate;
-		}
-		baudRateCombo.select(BaudRate.getStringIndex(baudRate));
-
-		ByteSize byteSize = settings.getByteSize();
-		if (byteSize == null) {
-			byteSize = this.byteSize;
-		}
-		byteSizeCombo.select(ByteSize.getStringIndex(byteSize));
-
-		Parity parity = settings.getParity();
-		if (parity == null) {
-			parity = this.parity;
-		}
-		parityCombo.select(Parity.getStringIndex(parity));
-
-		StopBits stopBits = settings.getStopBits();
-		if (stopBits == null) {
-			stopBits = this.stopBits;
-		}
-		stopBitsCombo.select(StopBits.getStringIndex(stopBits));
 	}
 
 	@Override
 	public void saveSettings() {
 		settings.setPortName(portCombo.getText());
-		settings.setBaudRate(BaudRate.fromStringIndex(baudRateCombo.getSelectionIndex()));
-		settings.setByteSize(ByteSize.fromStringIndex(byteSizeCombo.getSelectionIndex()));
-		settings.setParity(Parity.fromStringIndex(parityCombo.getSelectionIndex()));
-		settings.setStopBits(StopBits.fromStringIndex(stopBitsCombo.getSelectionIndex()));
 
 		dialogSettings.put(SerialSettings.PORT_NAME_ATTR, portCombo.getText());
-		dialogSettings.put(SerialSettings.BAUD_RATE_ATTR, BaudRate.getStrings()[baudRateCombo.getSelectionIndex()]);
-		dialogSettings.put(SerialSettings.BYTE_SIZE_ATTR, ByteSize.getStrings()[byteSizeCombo.getSelectionIndex()]);
-		dialogSettings.put(SerialSettings.PARITY_ATTR, Parity.getStrings()[parityCombo.getSelectionIndex()]);
-		dialogSettings.put(SerialSettings.STOP_BITS_ATTR, StopBits.getStrings()[stopBitsCombo.getSelectionIndex()]);
 	}
 
 	@Override
