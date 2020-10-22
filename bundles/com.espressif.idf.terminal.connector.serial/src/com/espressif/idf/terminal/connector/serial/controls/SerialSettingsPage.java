@@ -9,6 +9,7 @@
  *
  * Contributors:
  *     QNX Software Systems - Initial API and implementation
+ *     Espressif systems - IDF Monitor integration
  *******************************************************************************/
 package com.espressif.idf.terminal.connector.serial.controls;
 
@@ -103,7 +104,7 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 		});
 
 		Label configOptions = new Label(comp, SWT.NONE);
-		configOptions.setText("Filter Options:"); //$NON-NLS-1$
+		configOptions.setText(Messages.SerialSettingsPage_FilterOptions);
 
 		filterText = new Text(comp, SWT.SINGLE | SWT.BORDER);
 		filterText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));

@@ -9,6 +9,7 @@
  *
  * Contributors:
  *     QNX Software Systems - Initial API and implementation
+ *     Espressif Systems - ESP-IDF Monitor Integration
  *******************************************************************************/
 package com.espressif.idf.terminal.connector.serial.connector;
 
