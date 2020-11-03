@@ -69,6 +69,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.debug.core.ILaunchMode;
+import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.osgi.service.environment.Constants;
 
@@ -156,11 +158,19 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 
 		try
 		{
-			if (launchtarget == null || !launchtarget.getTypeId().equals("com.espressif.idf.launch.serial.core.serialFlashTarget")) //$NON-NLS-1$
+			//Get launch target
+			ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
+			launchtarget = launchBarManager.getActiveLaunchTarget();
+			ILaunchMode activeLaunchMode = launchBarManager.getActiveLaunchMode();
+
+			//Allow build only through esp launch target in run mode
+			if (launchtarget != null && !launchtarget.getTypeId().equals("com.espressif.idf.launch.serial.core.serialFlashTarget")  //$NON-NLS-1$
+					&& activeLaunchMode != null && activeLaunchMode.getIdentifier().equals("run")) //$NON-NLS-1$
 			{
 				console.getErrorStream().write("No esp launch target found. Please create/select the correct 'Launch Target'"); //$NON-NLS-1$
 				return null;
 			}
+			
 			
 			//Check for spaces in the project path
 			if (project.getLocation().toOSString().contains(" ")) //$NON-NLS-1$
