@@ -130,7 +130,7 @@ public class TabMain extends CMainTab2
 
 	protected void updateProgramFromConfig(ILaunchConfiguration config)
 	{
-		if (fProgText != null)
+		if (fProgText != null && getCProject() != null)
 		{
 			IProject project = getCProject().getProject();
 			String programName = EMPTY_STRING;
