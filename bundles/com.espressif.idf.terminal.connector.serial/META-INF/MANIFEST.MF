@@ -17,7 +17,7 @@ Require-Bundle: org.eclipse.core.expressions;bundle-version="3.4.400",
  com.espressif.idf.launch.serial.ui,
  com.espressif.idf.core,
  com.espressif.idf.ui
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Export-Package: com.espressif.idf.terminal.connector.serial.activator;x-internal:=true,

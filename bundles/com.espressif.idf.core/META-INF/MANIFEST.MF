@@ -17,8 +17,10 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.launchbar.core,
  com.ibm.icu,
  org.eclipse.jgit,
- org.eclipse.debug.core;visibility:=reexport
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+ org.eclipse.debug.core;visibility:=reexport,
+ org.eclipse.jgit,
+ org.eclipse.cdt.cmake.is.core
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: com.espressif.idf.core
 Bundle-ActivationPolicy: lazy
 Export-Package: com.espressif.idf.core,
