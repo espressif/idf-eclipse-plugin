@@ -29,9 +29,10 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.launchbar.ui,
  org.eclipse.ui.console,
  org.eclipse.jgit,
- org.eclipse.swtchart
+ org.eclipse.swtchart,
+ org.eclipse.cdt.cmake.is.core.ui
 Automatic-Module-Name: com.espressif.idf.ui
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: com.espressif.idf.ui,
  com.espressif.idf.ui.dialogs

@@ -5,3 +5,4 @@ Bundle-SymbolicName: com.espressif.idf.branding;singleton:=true
 Bundle-Version: 1.2.3.qualifier
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
+Bundle-RequiredExecutionEnvironment: JavaSE-11

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: ESP-IDF Launch Serial UI
 Bundle-SymbolicName: com.espressif.idf.launch.serial.ui;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.13.0",
  org.eclipse.ui;bundle-version="3.109.0",
  org.eclipse.debug.ui;bundle-version="3.12.50",
