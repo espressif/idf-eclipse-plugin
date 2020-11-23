@@ -59,7 +59,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
@@ -626,5 +625,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				haveUpdates = false;
 			}
 		}
+	}
+
+	public void setLaunchTarget(ILaunchTarget target)
+	{
+		this.launchtarget = target;
 	}
 }
