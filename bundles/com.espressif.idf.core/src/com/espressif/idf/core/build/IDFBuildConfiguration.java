@@ -36,6 +36,7 @@ import org.eclipse.cdt.cmake.core.internal.CMakeUtils;
 import org.eclipse.cdt.cmake.is.core.CompileCommandsJsonParser;
 import org.eclipse.cdt.cmake.is.core.IIndexerInfoConsumer;
 import org.eclipse.cdt.cmake.is.core.ParseRequest;
+import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.CommandLauncherManager;
 import org.eclipse.cdt.core.ConsoleOutputStream;
 import org.eclipse.cdt.core.ErrorParserManager;
@@ -44,9 +45,12 @@ import org.eclipse.cdt.core.build.CBuildConfiguration;
 import org.eclipse.cdt.core.build.IToolChain;
 import org.eclipse.cdt.core.envvar.EnvironmentVariable;
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
+import org.eclipse.cdt.core.index.IIndexManager;
 import org.eclipse.cdt.core.model.ElementChangedEvent;
+import org.eclipse.cdt.core.model.ICElement;
 import org.eclipse.cdt.core.model.ICElementDelta;
 import org.eclipse.cdt.core.model.ICModelMarker;
+import org.eclipse.cdt.core.model.ICProject;
 import org.eclipse.cdt.core.parser.ExtendedScannerInfo;
 import org.eclipse.cdt.core.parser.IScannerInfo;
 import org.eclipse.cdt.core.resources.IConsole;
@@ -215,16 +219,13 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				case "Ninja": //$NON-NLS-1$
 					runCMake = !Files.exists(buildDir.resolve("build.ninja")); //$NON-NLS-1$
 					break;
-				case "Unix Makefiles": //$NON-NLS-1$
-					runCMake = !Files.exists(buildDir.resolve("Makefile")); //$NON-NLS-1$
-					break;
 				default:
 					runCMake = !Files.exists(buildDir.resolve("CMakeFiles")); //$NON-NLS-1$
 				}
 			}
 
 			if (runCMake) {
-				IDFBuildConfiguration.deleteCMakeErrorMarkers(project);
+				deleteCMakeErrorMarkers(project);
 
 				infoStream.write(String.format(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_Configuring, buildDir));
 				// clean output to make sure there is no content
@@ -241,15 +242,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 					command.add("-DCMAKE_TOOLCHAIN_FILE=" + toolChainFile.getPath().toString()); //$NON-NLS-1$
 				}
 
-				switch (getLaunchMode()) {
-				// TODO what to do with other modes
-				case "debug": //$NON-NLS-1$
-					command.add("-DCMAKE_BUILD_TYPE=Debug"); //$NON-NLS-1$
-					break;
-				case "run": //$NON-NLS-1$
-					command.add("-DCMAKE_BUILD_TYPE=Release"); //$NON-NLS-1$
-					break;
-				}
 				command.add("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"); //$NON-NLS-1$
 
 				if (launchtarget != null)
@@ -351,13 +343,38 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 			// This is specifically added to trigger the indexing sine in Windows OS it doesn't seem to happen!
 			//setActive();
+			update(project);
 			return new IProject[] { project };
 		} catch (IOException e) {
 			throw new CoreException(Activator
 					.errorStatus(String.format(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_Building, project.getName()), e));
 		}
 	}
+	
+	public void update(IProject project)
+	{
+		ICProject cproject = CCorePlugin.getDefault().getCoreModel().create(project);
+		if (cproject != null) 
+		{
+			ArrayList<ICElement> tuSelection = new ArrayList<>();
+			tuSelection.add(cproject);
+			
+			ICElement[] cProjectElements = tuSelection.toArray(new ICElement[tuSelection.size()]);
+			try
+			{
+				CCorePlugin.getIndexManager().update(cProjectElements, getUpdateOptions());
+			}
+			catch (CoreException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
 
+	protected int getUpdateOptions() {
+		return IIndexManager.UPDATE_ALL | IIndexManager.UPDATE_EXTERNAL_FILES_FOR_PROJECT;
+	}
+	
 	@Override
 	public void clean(IConsole console, IProgressMonitor monitor) throws CoreException {
 		IProject project = getProject();
