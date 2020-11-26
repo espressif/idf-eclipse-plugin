@@ -91,7 +91,7 @@
 		 <separator
                name="com.espressif.idf.espressif.seperator"
                visible="true">
-         </separator>
+		 </separator>
          <command
                commandId="com.espressif.idf.ui.command.idfversiondoc"
                icon="icons/espressif.png"
