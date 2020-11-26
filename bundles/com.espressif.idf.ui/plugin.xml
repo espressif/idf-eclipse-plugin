@@ -88,7 +88,7 @@
       <menuContribution
             allPopups="false"
             locationURI="menu:help?after=org.eclipse.epp.mpc.ui.command.showMarketplaceWizard">
-		<separator
+		 <separator
                name="com.espressif.idf.espressif.seperator"
                visible="true">
          </separator>
