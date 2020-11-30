@@ -11,6 +11,7 @@
 package com.espressif.idf.core.build;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -35,6 +36,7 @@ import org.eclipse.cdt.cmake.core.internal.Activator;
 import org.eclipse.cdt.cmake.core.internal.CMakeUtils;
 import org.eclipse.cdt.cmake.is.core.CompileCommandsJsonParser;
 import org.eclipse.cdt.cmake.is.core.IIndexerInfoConsumer;
+import org.eclipse.cdt.cmake.is.core.Messages;
 import org.eclipse.cdt.cmake.is.core.ParseRequest;
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.CommandLauncherManager;
@@ -52,6 +54,7 @@ import org.eclipse.cdt.core.model.ICElementDelta;
 import org.eclipse.cdt.core.model.ICModelMarker;
 import org.eclipse.cdt.core.model.ICProject;
 import org.eclipse.cdt.core.parser.ExtendedScannerInfo;
+import org.eclipse.cdt.core.parser.IExtendedScannerInfo;
 import org.eclipse.cdt.core.parser.IScannerInfo;
 import org.eclipse.cdt.core.resources.IConsole;
 import org.eclipse.core.resources.IBuildConfiguration;
@@ -66,6 +69,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunchMode;
 import org.eclipse.launchbar.core.ILaunchBarManager;
@@ -74,6 +78,7 @@ import org.eclipse.launchbar.core.target.ILaunchTarget;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.internal.CMakeConsoleWrapper;
 import com.espressif.idf.core.internal.CMakeErrorParser;
+import com.google.gson.Gson;
 
 public class IDFBuildConfiguration extends CBuildConfiguration {
 
@@ -84,7 +89,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	public static final String CLEAN_COMMAND = "cmake.command.clean"; //$NON-NLS-1$
 
 	private ILaunchTarget launchtarget;
-	private Map<IResource, IScannerInfo> infoPerResource;
+	private Map<IResource, IScannerInfo> infoPerResource =  new HashMap<>();
 	/** whether one of the CMakeLists.txt files in the project has been
 	 * modified and saved by the user since the last build.<br>
 	 * Cmake-generated build scripts re-run cmake if one of the CMakeLists.txt files was modified,
@@ -95,12 +100,14 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	 */
 	private boolean cmakeListsModified;
 	private ICMakeToolChainFile toolChainFile;
+	private String name;
 
 	public IDFBuildConfiguration(IBuildConfiguration config, String name) throws CoreException {
 		super(config, name);
 
 		ICMakeToolChainManager manager = Activator.getService(ICMakeToolChainManager.class);
-		toolChainFile = manager.getToolChainFileFor(getToolChain());
+		this.toolChainFile = manager.getToolChainFileFor(getToolChain());
+		this.name= name;
 	}
 
 	public IDFBuildConfiguration(IBuildConfiguration config, String name, IToolChain toolChain) {
@@ -188,7 +195,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			}
 
 			project.deleteMarkers(ICModelMarker.C_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
-			infoPerResource = new HashMap<>();
 
 			ConsoleOutputStream infoStream = console.getInfoStream();
 
@@ -430,17 +436,18 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	}
 
 	/**
-	 * @param console the console to print the compiler output during built-ins
-	 *                detection to or <code>null</code> if no separate console is to
-	 *                be allocated. Ignored if workspace preferences indicate that
-	 *                no console output is wanted.
+	 * @param console the console to print the compiler output during built-ins detection to or <code>null</code> if no
+	 *                separate console is to be allocated. Ignored if workspace preferences indicate that no console
+	 *                output is wanted.
 	 * @param monitor the job's progress monitor
 	 */
-	private void processCompileCommandsFile(IConsole console, IProgressMonitor monitor) throws CoreException {
+	private void processCompileCommandsFile(IConsole console, IProgressMonitor monitor) throws CoreException
+	{
 		CompileCommandsJsonParser parser = new CompileCommandsJsonParser(
 				new ParseRequest(this, new CMakeIndexerInfoConsumer(this::setScannerInformation),
 						CommandLauncherManager.getInstance().getCommandLauncher(this), console));
 		parser.parse(monitor);
+
 	}
 
 	/**
@@ -481,7 +488,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	// interface IScannerInfoProvider
 	@Override
 	public IScannerInfo getScannerInformation(IResource resource) {
-		if (infoPerResource == null) {
+		
+		if (infoPerResource == null || infoPerResource.isEmpty()) {
 			// no build was run yet, nothing detected
 			infoPerResource = new HashMap<>();
 			try {
@@ -648,4 +656,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	{
 		this.launchtarget = target;
 	}
+	
+	
 }
