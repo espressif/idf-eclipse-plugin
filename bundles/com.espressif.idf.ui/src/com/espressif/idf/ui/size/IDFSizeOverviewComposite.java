@@ -61,17 +61,13 @@ public class IDFSizeOverviewComposite
 		long flash_rodata = (long) overviewJson.get(IDFSizeConstants.FLASH_RODATA);
 		long total_size = (long) overviewJson.get(IDFSizeConstants.TOTAL_SIZE);
 
-		Label projectNameLbl = toolkit.createLabel(overviewComp, "Project Name:");
-		Label projectNameVal = toolkit.createLabel(overviewComp, file.getProject().getName());
-		
-		FontDescriptor boldDescriptor = FontDescriptor.createFrom(projectNameLbl.getFont()).setStyle(SWT.BOLD);
-		boldFont = boldDescriptor.createFont(projectNameLbl.getDisplay());
-		projectNameVal.setFont(boldFont);
-		
 		Label sizeLbl = toolkit.createLabel(overviewComp, "Total Size:"); //$NON-NLS-1$
 		Label sizeVal = toolkit.createLabel(overviewComp, convertToKB(total_size));
+
+		FontDescriptor boldDescriptor = FontDescriptor.createFrom(sizeLbl.getFont()).setStyle(SWT.BOLD);
+		boldFont = boldDescriptor.createFont(sizeLbl.getDisplay());
 		sizeVal.setFont(boldFont);
-		
+
 		toolkit.createLabel(overviewComp, "DRAM .data Size:"); //$NON-NLS-1$
 		Label b1Val = toolkit.createLabel(overviewComp, convertToKB(dram_data));
 		b1Val.setFont(boldFont);

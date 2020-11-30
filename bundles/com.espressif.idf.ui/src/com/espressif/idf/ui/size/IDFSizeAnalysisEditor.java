@@ -37,7 +37,8 @@ public class IDFSizeAnalysisEditor extends MultiPageEditorPart
 		String osString = file.getLocation().toOSString();
 		project = file.getProject();
 		Logger.log("Editor input:" + osString); //$NON-NLS-1$
-
+		
+		setEditorTabTitle(project.getName());
 		createOverviewPage(file);
 		createDetailsPage(file);
 	}
@@ -122,4 +123,7 @@ public class IDFSizeAnalysisEditor extends MultiPageEditorPart
 		return new SDKConfigJsonReader(project).getValue("IDF_TARGET");
 	}
 
+	private void setEditorTabTitle(String title) {
+		this.setPartName(title);
+	}
 }
