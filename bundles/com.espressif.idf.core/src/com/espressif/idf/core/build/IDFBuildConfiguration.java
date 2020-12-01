@@ -89,7 +89,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	public static final String CLEAN_COMMAND = "cmake.command.clean"; //$NON-NLS-1$
 
 	private ILaunchTarget launchtarget;
-	private Map<IResource, IScannerInfo> infoPerResource =  new HashMap<>();
+	private Map<IResource, IScannerInfo> infoPerResource;
 	/** whether one of the CMakeLists.txt files in the project has been
 	 * modified and saved by the user since the last build.<br>
 	 * Cmake-generated build scripts re-run cmake if one of the CMakeLists.txt files was modified,
@@ -489,16 +489,15 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	@Override
 	public IScannerInfo getScannerInformation(IResource resource) {
 		
-		if (infoPerResource == null || infoPerResource.isEmpty()) {
+		if (infoPerResource == null) {
 			// no build was run yet, nothing detected
-			infoPerResource = new HashMap<>();
 			try {
 				processCompileCommandsFile(null, new NullProgressMonitor());
 			} catch (CoreException e) {
 				Activator.log(e);
 			}
 		}
-		return infoPerResource.get(resource);
+		return infoPerResource == null ? null : infoPerResource.get(resource);
 	}
 
 	private void setScannerInformation(Map<IResource, IScannerInfo> infoPerResource) {
