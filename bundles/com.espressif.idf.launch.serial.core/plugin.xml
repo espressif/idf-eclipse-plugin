@@ -7,7 +7,8 @@
             delegate="com.espressif.idf.launch.serial.internal.SerialFlashLaunchConfigDelegate"
             id="com.espressif.idf.launch.serial.launchConfigurationType"
             modes="run"
-            name="ESP Application">
+            name="ESP-IDF Application"
+            public="true">
       </launchConfigurationType>
    </extension>
    <extension
@@ -23,8 +24,6 @@
             class="com.espressif.idf.launch.serial.internal.SerialFlashLaunchConfigProvider"
             descriptorType="org.eclipse.cdt.debug.core.coreBuildDescriptorType"
             priority="10">
-            <enablement>
-            </enablement>
       </configProvider>
    </extension>
 
