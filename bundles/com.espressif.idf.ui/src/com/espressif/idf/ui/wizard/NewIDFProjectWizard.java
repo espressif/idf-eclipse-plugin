@@ -12,6 +12,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.tools.templates.core.IGenerator;
 import org.eclipse.tools.templates.ui.TemplateWizard;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
+import org.eclipse.ui.internal.ide.dialogs.ProjectContentsLocationArea;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.ui.templates.IDFProjectGenerator;
@@ -81,10 +82,11 @@ public class NewIDFProjectWizard extends TemplateWizard
 		if (!hasTemplates)
 		{
 			this.addPage(templatesPage);
+			templatesPage.setMainPage(mainPage);
+			mainPage.setTemplatePage(templatesPage);
 		}
-
 	}
-
+	
 	@Override
 	protected IGenerator getGenerator()
 	{

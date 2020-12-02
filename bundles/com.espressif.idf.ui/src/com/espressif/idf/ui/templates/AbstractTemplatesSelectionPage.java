@@ -180,15 +180,22 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 		final ITemplateNode finalSelection = currentWizardSelection;
 
 		String description = StringUtil.EMPTY;
+		String projectName = StringUtil.EMPTY;
 		try
 		{
 			description = new TemplatesManager().getDescription(finalSelection);
+			projectName = new TemplatesManager().getProjectName(finalSelection);
 		} catch (IOException e)
 		{
 			e.printStackTrace();//TODO log the exception
 		}
+		setProjectName(projectName);
 		setDescriptionText(description);
 		getContainer().updateButtons();
+	}
+	
+	public void setProjectName(String projectName) 
+	{
 	}
 
 	public IWizardPage getNextPage(boolean shouldCreate)

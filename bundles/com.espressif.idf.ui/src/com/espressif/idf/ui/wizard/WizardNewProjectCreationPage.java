@@ -20,6 +20,7 @@ package com.espressif.idf.ui.wizard;
 
 import java.net.URI;
 
+import org.eclipse.cdt.internal.core.language.settings.providers.LanguageSettingsExtensionManager;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
@@ -44,6 +45,8 @@ import org.eclipse.ui.internal.ide.IIDEHelpContextIds;
 import org.eclipse.ui.internal.ide.dialogs.ProjectContentsLocationArea;
 import org.eclipse.ui.internal.ide.dialogs.ProjectContentsLocationArea.IErrorMessageReporter;
 
+import com.espressif.idf.ui.templates.TemplateListSelectionPage;
+
 /**
  * Standard main page for a wizard that is creates a project resource.
  */
@@ -53,14 +56,17 @@ public class WizardNewProjectCreationPage extends WizardPage {
 	// initial value stores
 	private String initialProjectFieldValue;
 
+	private TemplateListSelectionPage templatesPage;
 	// widgets
 	Text projectNameField;
 
 	private Listener nameModifyListener = e -> {
+		if (templatesPage.isCreated()) {
+			templatesPage.setProjectName(projectNameField.getText());
+		}
 		setLocationForSelection();
 		boolean valid = validatePage();
 		setPageComplete(valid);
-
 	};
 
 	private ProjectContentsLocationArea locationArea;
@@ -333,5 +339,14 @@ public class WizardNewProjectCreationPage extends WizardPage {
 	public boolean useDefaults() {
 		return locationArea.isDefault();
 	}
-
+	
+	public void changeProjectNameFromTemplatePage(String projectName) 
+	{
+		projectNameField.setText(projectName);
+	}
+	
+	public void setTemplatePage(TemplateListSelectionPage templatesPage)
+	{
+		this.templatesPage = templatesPage;
+	}
 }
