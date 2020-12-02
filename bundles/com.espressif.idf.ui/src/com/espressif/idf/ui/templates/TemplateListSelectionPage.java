@@ -57,17 +57,40 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 	@Override
 	public void createAbove(Composite container, int span)
 	{
-		Composite group = new Composite(container, SWT.NONE);
+		createProjectNameGroup(container);
+		
+		fUseTemplate = new Button(container, SWT.CHECK);
+		fUseTemplate.setText(Messages.TemplateListSelectionPage_SelectTemplate_Desc);
+		GridData gd = new GridData();
+		gd.horizontalSpan = span;
+		fUseTemplate.setLayoutData(gd);
+		fUseTemplate.addSelectionListener(widgetSelectedAdapter(e -> {
+			templateViewer.getControl().setEnabled(fUseTemplate.getSelection());
+			if (!fUseTemplate.getSelection())
+				setDescription(""); //$NON-NLS-1$
+			else
+				setDescription(Messages.TemplateListSelectionPage_Template_Wizard_Desc);
+
+			setDescriptionEnabled(fUseTemplate.getSelection());
+			getContainer().updateButtons();
+		}));
+		fUseTemplate.setSelection(false);
+		isPageCreated = true;
+	}
+
+	@SuppressWarnings("restriction")
+	private void createProjectNameGroup(Composite container) 
+	{	
+		Composite projectNameGroup = new Composite(container, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
-		group.setLayout(layout);
-		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		Label projectNameLabel = new Label(group, SWT.NONE);
+		projectNameGroup.setLayout(layout);
+		projectNameGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		Label projectNameLabel = new Label(projectNameGroup, SWT.NONE);
 		projectNameLabel.setText(IDEWorkbenchMessages.WizardNewProjectCreationPage_nameLabel);
 		
-		projectNameField = new Text(group, SWT.BORDER);
+		projectNameField = new Text(projectNameGroup, SWT.BORDER);
 		projectNameField.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		//group.setVisible(false);
 		projectNameField.addModifyListener(new ModifyListener()
 		{
 			@Override
@@ -84,25 +107,6 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 				}
 			}
 		});
-		
-		fUseTemplate = new Button(container, SWT.CHECK);
-		fUseTemplate.setText(Messages.TemplateListSelectionPage_SelectTemplate_Desc);
-		GridData gd = new GridData();
-		gd.horizontalSpan = span;
-		fUseTemplate.setLayoutData(gd);
-		fUseTemplate.addSelectionListener(widgetSelectedAdapter(e -> {
-			//group.setVisible(true);
-			templateViewer.getControl().setEnabled(fUseTemplate.getSelection());
-			if (!fUseTemplate.getSelection())
-				setDescription(""); //$NON-NLS-1$
-			else
-				setDescription(Messages.TemplateListSelectionPage_Template_Wizard_Desc);
-
-			setDescriptionEnabled(fUseTemplate.getSelection());
-			getContainer().updateButtons();
-		}));
-		fUseTemplate.setSelection(false);
-		isPageCreated = true;
 	}
 
 	@Override
