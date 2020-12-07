@@ -8,9 +8,7 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.io.IOException;
 
-import org.eclipse.core.internal.resources.LocalMetaArea;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jface.util.BidiUtils;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -19,16 +17,13 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.internal.ide.IDEWorkbenchMessages;
 
 import com.espressif.idf.ui.wizard.WizardNewProjectCreationPage;
-
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -38,9 +33,9 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 {
 	private Text projectNameField;
 	private Button fUseTemplate;
+	private WizardNewProjectCreationPage prevPage;
 	private ITemplateNode fInitialTemplateId;
-	private WizardNewProjectCreationPage mainPage;
-	private boolean isPageCreated = false; 
+
 	/**
 	 * Constructor
 	 * 
@@ -57,8 +52,9 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 	@Override
 	public void createAbove(Composite container, int span)
 	{
+		prevPage = (WizardNewProjectCreationPage) getPreviousPage();
 		createProjectNameGroup(container);
-		
+
 		fUseTemplate = new Button(container, SWT.CHECK);
 		fUseTemplate.setText(Messages.TemplateListSelectionPage_SelectTemplate_Desc);
 		GridData gd = new GridData();
@@ -75,12 +71,11 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 			getContainer().updateButtons();
 		}));
 		fUseTemplate.setSelection(false);
-		isPageCreated = true;
 	}
 
 	@SuppressWarnings("restriction")
-	private void createProjectNameGroup(Composite container) 
-	{	
+	private void createProjectNameGroup(Composite container)
+	{
 		Composite projectNameGroup = new Composite(container, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
@@ -88,7 +83,7 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 		projectNameGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		Label projectNameLabel = new Label(projectNameGroup, SWT.NONE);
 		projectNameLabel.setText(IDEWorkbenchMessages.WizardNewProjectCreationPage_nameLabel);
-		
+
 		projectNameField = new Text(projectNameGroup, SWT.BORDER);
 		projectNameField.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		projectNameField.addModifyListener(new ModifyListener()
@@ -96,13 +91,15 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 			@Override
 			public void modifyText(ModifyEvent e)
 			{
-				mainPage.changeProjectNameFromTemplatePage(projectNameField.getText());
-				setErrorMessage(mainPage.getErrorMessage());
-				setMessage(mainPage.getMessage());
-				if(getErrorMessage() == null || getErrorMessage().isEmpty()) {
+				prevPage.setProjectNameFieldValue(projectNameField.getText());
+				setErrorMessage(prevPage.getErrorMessage());
+				setMessage(prevPage.getMessage());
+				if (getErrorMessage() == null || getErrorMessage().isEmpty())
+				{
 					setPageComplete(true);
-					mainPage.setPageComplete(true);
-				} else {
+				}
+				else
+				{
 					setPageComplete(false);
 				}
 			}
@@ -116,9 +113,10 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 			try
 			{
 				selectInitialTemplate();
-			} catch (IOException e)
+			}
+			catch (IOException e)
 			{
-				e.printStackTrace(); //TODO log the exception
+				e.printStackTrace(); // TODO log the exception
 			}
 	}
 
@@ -135,26 +133,23 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 		setDescriptionText(description);
 	}
 
-	public boolean isCreated() 
-	{
-		return isPageCreated;
-	}
-
 	@Override
-	public void selectionChanged(SelectionChangedEvent event) 
+	public void setProjectName(String projectName)
 	{
-		super.selectionChanged(event);
-	}
-	
-	@Override
-	public void setProjectName(String projectName) 
-	{
-		if (!projectName.equals(this.projectNameField.getText())) 
+		if (!projectName.equals(this.projectNameField.getText()))
 		{
 			this.projectNameField.setText(projectName);
 		}
 	}
-	
+
+	@Override
+	public void selectionChanged(SelectionChangedEvent event)
+	{
+		super.selectionChanged(event);
+		String projectName = new TemplatesManager().getProjectName(getSelection());
+		projectNameField.setText(projectName);
+	}
+
 	@Override
 	public boolean canFlipToNextPage()
 	{
@@ -198,6 +193,8 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 	@Override
 	public void setVisible(boolean visible)
 	{
+
+		projectNameField.setText(prevPage.getProjectName());
 		if (visible)
 		{
 			if (fUseTemplate.getSelection() == false)
@@ -207,9 +204,5 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 		}
 		super.setVisible(visible);
 	}
-	
-	public void setMainPage(WizardNewProjectCreationPage mainPage) 
-	{
-		this.mainPage = mainPage;
-	}
+
 }
