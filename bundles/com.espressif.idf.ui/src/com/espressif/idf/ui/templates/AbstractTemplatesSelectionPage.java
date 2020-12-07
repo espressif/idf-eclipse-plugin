@@ -39,7 +39,6 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 {
 	protected TreeViewer templateViewer;
 	protected ITemplateNode templateElements;
-	protected ITemplateNode currentWizardSelection;
 	private WizardSelectedAction doubleClickAction = new WizardSelectedAction();
 
 	private class WizardSelectedAction extends Action
@@ -168,7 +167,7 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 	{
 		setErrorMessage(null);
 		IStructuredSelection selection = event.getStructuredSelection();
-		currentWizardSelection = null;
+		ITemplateNode currentWizardSelection = null;
 		Iterator<?> iter = selection.iterator();
 		if (iter.hasNext())
 			currentWizardSelection = (ITemplateNode) iter.next();
@@ -184,6 +183,7 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 		try
 		{
 			description = new TemplatesManager().getDescription(finalSelection);
+
 		}
 		catch (IOException e)
 		{
