@@ -193,8 +193,6 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 		getContainer().updateButtons();
 	}
 
-	public abstract void setProjectName(String projectName);
-
 	public IWizardPage getNextPage(boolean shouldCreate)
 	{
 		if (!shouldCreate)

@@ -134,15 +134,6 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 	}
 
 	@Override
-	public void setProjectName(String projectName)
-	{
-		if (!projectName.equals(this.projectNameField.getText()))
-		{
-			this.projectNameField.setText(projectName);
-		}
-	}
-
-	@Override
 	public void selectionChanged(SelectionChangedEvent event)
 	{
 		super.selectionChanged(event);
