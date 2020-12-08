@@ -26,6 +26,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.dialogs.FilteredTree;
+import org.eclipse.ui.dialogs.PatternFilter;
 
 import com.espressif.idf.core.util.StringUtil;
 
@@ -120,8 +122,10 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 	 */
 	private TreeViewer createTreeViewer(Composite templatesGroup)
 	{
+		PatternFilter filter = new PatternFilter();
 		int style = SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER;
-		final TreeViewer treeViewer = new TreeViewer(templatesGroup, style);
+		FilteredTree filteredTree = new FilteredTree(templatesGroup, style, filter, true, true);
+		final TreeViewer treeViewer = filteredTree.getViewer();
 		treeViewer.setContentProvider(new TemplatesContentProvider());
 		TemplatesLabelProvider labelProvider = new TemplatesLabelProvider();
 		treeViewer.setLabelProvider(labelProvider);
