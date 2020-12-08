@@ -29,6 +29,7 @@ import com.espressif.idf.ui.wizard.WizardNewProjectCreationPage;
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
+@SuppressWarnings("restriction")
 public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 {
 	private Text projectNameField;
