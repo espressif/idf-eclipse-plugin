@@ -74,7 +74,6 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 		fUseTemplate.setSelection(false);
 	}
 
-	@SuppressWarnings("restriction")
 	private void createProjectNameGroup(Composite container)
 	{
 		Composite projectNameGroup = new Composite(container, SWT.NONE);
