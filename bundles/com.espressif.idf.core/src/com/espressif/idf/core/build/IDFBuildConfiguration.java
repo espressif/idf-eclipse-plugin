@@ -15,6 +15,9 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -155,7 +158,9 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 	{
 		IProject project = getProject();
 		ICMakeToolChainFile toolChainFile = getToolChainFile();
-
+		
+		Instant start = Instant.now();
+		
 		try
 		{
 			//Get launch target
@@ -326,7 +331,7 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 				}
 
 				watchProcess(p, new IConsoleParser[] { epm });
-
+				
 				project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 
 				// Load compile_commands.json file
@@ -334,6 +339,12 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 
 				outStream.write(String.format(Messages.CMakeBuildConfiguration_BuildingComplete, epm.getErrorCount(),
 						epm.getWarningCount(), buildDir.toString()));
+				
+				Instant finish = Instant.now();
+				long timeElapsed = Duration.between(start, finish).toMillis();
+				
+				outStream.write(MessageFormat.format("Total time taken to build the project: {0} ms", timeElapsed)); //$NON-NLS-1$
+				
 			}
 
 			//This is specifically added to trigger the indexing sine in Windows OS it doesn't seem to happen!
