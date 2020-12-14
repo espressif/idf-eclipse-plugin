@@ -6,11 +6,17 @@ package com.espressif.idf.ui.wizard;
 
 import java.io.File;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.tools.templates.core.IGenerator;
 import org.eclipse.tools.templates.ui.TemplateWizard;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
 import com.espressif.idf.core.IDFConstants;
@@ -86,6 +92,24 @@ public class NewIDFProjectWizard extends TemplateWizard
 	}
 
 	@Override
+	public void dispose()
+	{
+		super.dispose();
+		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		IViewPart viewPart = page.findView("org.eclipse.ui.navigator.ProjectExplorer");
+		ISelectionProvider selProvider = viewPart.getSite().getSelectionProvider();
+		String projectName = mainPage.getProjectName();
+		selProvider.setSelection(
+				new StructuredSelection(ResourcesPlugin.getWorkspace().getRoot().getProject(projectName)));
+	}
+
+	@Override
+	protected void postProcess(IGenerator generator)
+	{
+		super.postProcess(generator);
+	}
+
+	@Override
 	protected IGenerator getGenerator()
 	{
 
@@ -96,13 +120,11 @@ public class NewIDFProjectWizard extends TemplateWizard
 			selectedTemplate = templatesPage.getSelection().getFilePath();
 			manifest = null;
 		}
-
 		IDFProjectGenerator generator = new IDFProjectGenerator(manifest, selectedTemplate, true);
 		generator.setProjectName(mainPage.getProjectName());
 		if (!mainPage.useDefaults())
 		{
 			generator.setLocationURI(mainPage.getLocationURI());
-
 		}
 		return generator;
 	}
