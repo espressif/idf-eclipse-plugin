@@ -104,12 +104,6 @@ public class NewIDFProjectWizard extends TemplateWizard
 	}
 
 	@Override
-	protected void postProcess(IGenerator generator)
-	{
-		super.postProcess(generator);
-	}
-
-	@Override
 	protected IGenerator getGenerator()
 	{
 
@@ -120,6 +114,7 @@ public class NewIDFProjectWizard extends TemplateWizard
 			selectedTemplate = templatesPage.getSelection().getFilePath();
 			manifest = null;
 		}
+
 		IDFProjectGenerator generator = new IDFProjectGenerator(manifest, selectedTemplate, true);
 		generator.setProjectName(mainPage.getProjectName());
 		if (!mainPage.useDefaults())
