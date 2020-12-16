@@ -125,25 +125,29 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		arguments.add(IDFConstants.TOOLS_EXPORT_CMD);
 		arguments.add(IDFConstants.TOOLS_EXPORT_CMD_FORMAT_VAL);
 
-		console.println(Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments)); //$NON-NLS-1$
+		String cmd = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments);
+		console.println(cmd);
+		Logger.log(cmd);
 
 		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
-		IStatus status = null;
 		try
 		{
-			status = processRunner.runInBackground(arguments, Path.ROOT, System.getenv());
+			IStatus status = processRunner.runInBackground(arguments, Path.ROOT, System.getenv());
+			if (status == null)
+			{
+				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
+				return;
+			}
+
+			// process export command output
+			String exportCmdOp = status.getMessage();
+			Logger.log(exportCmdOp);
+			console.println(exportCmdOp);
+			processExportCmdOutput(exportCmdOp);
 		}
 		catch (Exception e1)
 		{
 			Logger.log(IDFCorePlugin.getPlugin(), e1);
-		}
-
-		Logger.log(IDFCorePlugin.getPlugin(), status);
-		if (status != null)
-		{
-			String exportCmdOp = status.getMessage();
-			console.println(exportCmdOp);
-			processExportCmdOutput(exportCmdOp);
 		}
 
 	}
