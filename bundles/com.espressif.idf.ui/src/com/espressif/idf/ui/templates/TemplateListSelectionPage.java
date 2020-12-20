@@ -137,8 +137,12 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 	public void selectionChanged(SelectionChangedEvent event)
 	{
 		super.selectionChanged(event);
-		String projectName = new TemplatesManager().getProjectName(getSelection());
-		projectNameField.setText(projectName);
+		ITemplateNode selectedElement = getSelection();
+		if (selectedElement != null)
+		{
+			String projectName = new TemplatesManager().getProjectName(getSelection());
+			projectNameField.setText(projectName);
+		}
 	}
 
 	@Override
