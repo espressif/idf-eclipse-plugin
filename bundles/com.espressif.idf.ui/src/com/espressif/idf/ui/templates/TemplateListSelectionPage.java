@@ -48,6 +48,7 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 		fUseTemplate.setLayoutData(gd);
 		fUseTemplate.addSelectionListener(widgetSelectedAdapter(e -> {
 			templateViewer.getControl().setEnabled(fUseTemplate.getSelection());
+			filteredTree.setEnabled(fUseTemplate.getSelection());
 			if (!fUseTemplate.getSelection())
 				setDescription(""); //$NON-NLS-1$
 			else

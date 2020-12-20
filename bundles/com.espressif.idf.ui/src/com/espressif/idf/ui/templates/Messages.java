@@ -18,6 +18,7 @@ public class Messages extends NLS
 	public static String TemplateListSelectionPage_Template_Wizard_Desc;
 	public static String TemplateListSelectionPage_Templates;
 	public static String TemplateListSelectionPage_Templates_Desc;
+	public static String TemplateSelectionToolTip;
 	static
 	{
 		// initialize resource bundle

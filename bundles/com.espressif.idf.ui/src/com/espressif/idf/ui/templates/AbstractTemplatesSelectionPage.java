@@ -41,6 +41,7 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 {
 	protected TreeViewer templateViewer;
 	protected ITemplateNode templateElements;
+	protected FilteredTree filteredTree;
 	private WizardSelectedAction doubleClickAction = new WizardSelectedAction();
 
 	private class WizardSelectedAction extends Action
@@ -124,7 +125,9 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 	{
 		PatternFilter filter = new PatternFilter();
 		int style = SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER;
-		FilteredTree filteredTree = new FilteredTree(templatesGroup, style, filter, true, true);
+		filteredTree = new FilteredTree(templatesGroup, style, filter, true, true);
+		filteredTree.setEnabled(false);
+		filteredTree.getParent().setToolTipText(Messages.TemplateSelectionToolTip);
 		final TreeViewer treeViewer = filteredTree.getViewer();
 		treeViewer.setContentProvider(new TemplatesContentProvider());
 		TemplatesLabelProvider labelProvider = new TemplatesLabelProvider();
