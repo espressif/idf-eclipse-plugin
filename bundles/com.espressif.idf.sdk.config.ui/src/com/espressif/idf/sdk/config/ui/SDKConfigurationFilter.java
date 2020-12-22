@@ -23,12 +23,14 @@ public class SDKConfigurationFilter extends PatternFilter
 
 	private boolean recursiveMatch(KConfigMenuItem parent)
 	{
-		if (parent.getChildren().size() == 0)
+		if (parent.getChildren().isEmpty())
+		{
 			return wordMatches(parent.getName());
+		}
 
 		for (KConfigMenuItem child : parent.getChildren())
 		{
-			if (wordMatches(parent.getName()) || recursiveMatch(child))
+			if (wordMatches(child.getName()) || recursiveMatch(child))
 			{
 				return true;
 			}
