@@ -107,6 +107,12 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 	}
 
 	@Override
+	public boolean isPageComplete()
+	{
+		return true; // will always to finish the page without template selection also
+	}
+
+	@Override
 	protected void initializeViewer()
 	{
 		if (getInitialTemplateId() != null)
