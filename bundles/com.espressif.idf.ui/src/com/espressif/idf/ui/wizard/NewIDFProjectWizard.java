@@ -16,10 +16,10 @@ import org.eclipse.tools.templates.core.IGenerator;
 import org.eclipse.tools.templates.ui.TemplateWizard;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
 import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.templates.IDFProjectGenerator;
 import com.espressif.idf.ui.templates.ITemplateNode;
 import com.espressif.idf.ui.templates.TemplateListSelectionPage;
@@ -92,15 +92,22 @@ public class NewIDFProjectWizard extends TemplateWizard
 	}
 
 	@Override
-	public void dispose()
+	public boolean performFinish()
 	{
-		super.dispose();
-		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-		IViewPart viewPart = page.findView("org.eclipse.ui.navigator.ProjectExplorer");
-		ISelectionProvider selProvider = viewPart.getSite().getSelectionProvider();
-		String projectName = mainPage.getProjectName();
-		selProvider.setSelection(
-				new StructuredSelection(ResourcesPlugin.getWorkspace().getRoot().getProject(projectName)));
+		boolean performFinish = super.performFinish();
+		if (performFinish)
+		{
+			IWorkbenchPage page = EclipseHandler.getActiveWorkbenchWindow().getActivePage();
+			IViewPart viewPart = page.findView("org.eclipse.ui.navigator.ProjectExplorer");
+			if (viewPart != null)
+			{
+				ISelectionProvider selProvider = viewPart.getSite().getSelectionProvider();
+				String projectName = mainPage.getProjectName();
+				selProvider.setSelection(
+						new StructuredSelection(ResourcesPlugin.getWorkspace().getRoot().getProject(projectName)));
+			}
+		}
+		return performFinish;
 	}
 
 	@Override
