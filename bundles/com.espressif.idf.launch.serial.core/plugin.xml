@@ -6,7 +6,7 @@
       <launchConfigurationType
             delegate="com.espressif.idf.launch.serial.internal.SerialFlashLaunchConfigDelegate"
             id="com.espressif.idf.launch.serial.launchConfigurationType"
-            modes="run"
+            modes="run,debug"
             name="ESP-IDF Application"
             public="true">
       </launchConfigurationType>
