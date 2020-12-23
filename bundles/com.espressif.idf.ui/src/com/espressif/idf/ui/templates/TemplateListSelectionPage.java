@@ -10,19 +10,31 @@ import java.io.IOException;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.internal.ide.IDEWorkbenchMessages;
+
+import com.espressif.idf.ui.wizard.WizardNewProjectCreationPage;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
+@SuppressWarnings("restriction")
 public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 {
+	private Text projectNameField;
 	private Button fUseTemplate;
+	private WizardNewProjectCreationPage prevPage;
 	private ITemplateNode fInitialTemplateId;
 
 	/**
@@ -41,6 +53,9 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 	@Override
 	public void createAbove(Composite container, int span)
 	{
+		prevPage = (WizardNewProjectCreationPage) getPreviousPage();
+		createProjectNameGroup(container);
+
 		fUseTemplate = new Button(container, SWT.CHECK);
 		fUseTemplate.setText(Messages.TemplateListSelectionPage_SelectTemplate_Desc);
 		GridData gd = new GridData();
@@ -52,10 +67,49 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 				setDescription(""); //$NON-NLS-1$
 			else
 				setDescription(Messages.TemplateListSelectionPage_Template_Wizard_Desc);
+
 			setDescriptionEnabled(fUseTemplate.getSelection());
 			getContainer().updateButtons();
 		}));
 		fUseTemplate.setSelection(false);
+	}
+
+	private void createProjectNameGroup(Composite container)
+	{
+		Composite projectNameGroup = new Composite(container, SWT.NONE);
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 2;
+		projectNameGroup.setLayout(layout);
+		projectNameGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		Label projectNameLabel = new Label(projectNameGroup, SWT.NONE);
+		projectNameLabel.setText(IDEWorkbenchMessages.WizardNewProjectCreationPage_nameLabel);
+
+		projectNameField = new Text(projectNameGroup, SWT.BORDER);
+		projectNameField.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		projectNameField.addModifyListener(new ModifyListener()
+		{
+			@Override
+			public void modifyText(ModifyEvent e)
+			{
+				prevPage.setProjectNameFieldValue(projectNameField.getText());
+				setErrorMessage(prevPage.getErrorMessage());
+				setMessage(prevPage.getMessage());
+				if (getErrorMessage() == null || getErrorMessage().isEmpty())
+				{
+					setPageComplete(true);
+				}
+				else
+				{
+					setPageComplete(false);
+				}
+			}
+		});
+	}
+
+	@Override
+	public boolean isPageComplete()
+	{
+		return true; // will always to finish the page without template selection also
 	}
 
 	@Override
@@ -65,9 +119,10 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 			try
 			{
 				selectInitialTemplate();
-			} catch (IOException e)
+			}
+			catch (IOException e)
 			{
-				e.printStackTrace(); //TODO log the exception
+				e.printStackTrace(); // TODO log the exception
 			}
 	}
 
@@ -80,15 +135,20 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 	{
 		templateViewer.reveal(getInitialTemplateId());
 		templateViewer.setSelection(new StructuredSelection(getInitialTemplateId()), true);
-
 		String description = new TemplatesManager().getDescription(getInitialTemplateId());
 		setDescriptionText(description);
 	}
 
 	@Override
-	public boolean isPageComplete()
+	public void selectionChanged(SelectionChangedEvent event)
 	{
-		return true; // will always to finish the page without template selection also
+		super.selectionChanged(event);
+		ITemplateNode selectedElement = getSelection();
+		if (selectedElement != null)
+		{
+			String projectName = new TemplatesManager().getProjectName(getSelection());
+			projectNameField.setText(projectName);
+		}
 	}
 
 	@Override
@@ -134,6 +194,8 @@ public class TemplateListSelectionPage extends AbstractTemplatesSelectionPage
 	@Override
 	public void setVisible(boolean visible)
 	{
+
+		projectNameField.setText(prevPage.getProjectName());
 		if (visible)
 		{
 			if (fUseTemplate.getSelection() == false)
