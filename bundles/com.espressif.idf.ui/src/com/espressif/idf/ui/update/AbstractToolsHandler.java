@@ -161,7 +161,9 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 			arguments.add(0, pythonExecutablenPath);
 			arguments.add(1, IDFUtil.getIDFToolsScriptFile().getAbsolutePath());
 
-			console.println(Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments));
+			String cmdMsg = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments);
+			console.println(cmdMsg);
+			Logger.log(cmdMsg);
 
 			Map<String, String> environment = new HashMap<>(System.getenv());
 			Logger.log(environment.toString());
@@ -171,6 +173,11 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 				addGitToEnvironment(environment, gitExecutablePath);
 			}
 			IStatus status = processRunner.runInBackground(arguments, Path.ROOT, environment);
+			if (status == null)
+			{
+				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
+				return;
+			}
 
 			console.println(status.getMessage());
 			console.println();
