@@ -18,7 +18,6 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
-import org.eclipse.ui.part.MultiPageSelectionProvider;
 
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.SDKConfigJsonReader;
@@ -43,13 +42,13 @@ public class IDFSizeAnalysisEditor extends MultiPageEditorPart
 		project = file.getProject();
 		setPartName(project.getName());
 	}
-	
+
 	@Override
 	protected void createPages()
 	{
 		String osString = file.getLocation().toOSString();
 		Logger.log("Editor input:" + osString); //$NON-NLS-1$
-		
+
 		createOverviewPage();
 		createDetailsPage();
 	}
@@ -124,7 +123,7 @@ public class IDFSizeAnalysisEditor extends MultiPageEditorPart
 		int index = addPage(parent);
 		setPageText(index, "Overview"); //$NON-NLS-1$
 	}
-	
+
 	private String getTarget()
 	{
 		return new SDKConfigJsonReader(project).getValue("IDF_TARGET");

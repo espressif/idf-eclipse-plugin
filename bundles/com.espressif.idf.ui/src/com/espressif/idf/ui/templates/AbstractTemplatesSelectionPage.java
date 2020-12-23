@@ -183,9 +183,11 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 		try
 		{
 			description = new TemplatesManager().getDescription(finalSelection);
-		} catch (IOException e)
+
+		}
+		catch (IOException e)
 		{
-			e.printStackTrace();//TODO log the exception
+			e.printStackTrace();// TODO log the exception
 		}
 		setDescriptionText(description);
 		getContainer().updateButtons();

@@ -35,6 +35,11 @@ public class TemplatesManager implements ITemplateManager
 	{
 		return templateReader.getTemplates();
 	}
+	
+	public String getProjectName(ITemplateNode template)
+	{
+		return template.getName();
+	}
 
 	@Override
 	public String getDescription(ITemplateNode template) throws IOException

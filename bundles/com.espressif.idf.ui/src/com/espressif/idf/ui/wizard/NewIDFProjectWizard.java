@@ -88,9 +88,8 @@ public class NewIDFProjectWizard extends TemplateWizard
 		{
 			this.addPage(templatesPage);
 		}
-
 	}
-
+	
 	@Override
 	public boolean performFinish()
 	{
