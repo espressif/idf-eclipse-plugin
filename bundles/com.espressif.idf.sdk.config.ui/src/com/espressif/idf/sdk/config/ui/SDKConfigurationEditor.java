@@ -544,8 +544,9 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	@SuppressWarnings("deprecation")
 	private FilteredTree createFilteredTree(Group group)
 	{
+		PatternFilter patternFilter = new SDKConfigurationFilter();
 		int style = SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER;
-		FilteredTree transfersTree = new FilteredTree(group, style, new PatternFilter(), true)
+		FilteredTree transfersTree = new FilteredTree(group, style, patternFilter, true)
 		{
 			@Override
 			protected TreeViewer doCreateTreeViewer(Composite parent, int style)
