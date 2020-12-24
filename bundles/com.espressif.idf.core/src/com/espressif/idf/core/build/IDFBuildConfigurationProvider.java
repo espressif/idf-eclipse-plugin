@@ -11,7 +11,6 @@ import java.util.Map;
 
 import org.eclipse.cdt.cmake.core.ICMakeToolChainFile;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
-import org.eclipse.cdt.cmake.core.internal.CMakeBuildConfiguration;
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.build.CBuildConfiguration;
 import org.eclipse.cdt.core.build.ICBuildConfiguration;
@@ -45,7 +44,6 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 		return ID;
 	}
 
-	@SuppressWarnings("restriction")
 	@Override
 	public synchronized ICBuildConfiguration getCBuildConfiguration(IBuildConfiguration config, String name)
 			throws CoreException
@@ -88,15 +86,18 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 		IDFBuildConfiguration cmakeConfig = new IDFBuildConfiguration(config, name);
 		ICMakeToolChainFile tcFile = cmakeConfig.getToolChainFile();
 		IToolChain toolChain = cmakeConfig.getToolChain();
-		if (toolChain == null) {
+		if (toolChain == null)
+		{
 			// config not complete
 			return null;
 		}
-		if (tcFile != null && !toolChain.equals(tcFile.getToolChain())) {
+		if (tcFile != null && !toolChain.equals(tcFile.getToolChain()))
+		{
 			// toolchain changed
-			return new IDFBuildConfiguration(config, name, tcFile.getToolChain(), tcFile,
-					cmakeConfig.getLaunchMode());
-		} else {
+			return new IDFBuildConfiguration(config, name, tcFile.getToolChain(), tcFile, cmakeConfig.getLaunchMode());
+		}
+		else
+		{
 			return cmakeConfig;
 		}
 	}
