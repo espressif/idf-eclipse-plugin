@@ -11,7 +11,7 @@ The plug-in runs on `Windows`, `macOS` and `GNU/Linux`.
 To get a quick understanding about ESP-IDF and Eclipse plugin features check our session which was presented in EclipseCon 2020.
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=CbPX3q7LeBc
 " target="_blank"><img src="http://img.youtube.com/vi/CbPX3q7LeBc/0.jpg" 
-alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>
+alt="Developing and Debugging ESP32 IoT Applications using Espressif Eclipse Plugin" width="240" height="180" border="10" /></a>
 
 # Table Of Contents
 * [ Installing Prerequisites ](#Prerequisites) <br>
