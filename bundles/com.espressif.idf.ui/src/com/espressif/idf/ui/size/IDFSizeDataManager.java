@@ -141,6 +141,7 @@ public class IDFSizeDataManager
 	{
 		try
 		{
+			Logger.log(arguments.toString());
 			IStatus status = runProcess(mapFile, arguments);
 			String message = status.getMessage();
 			Logger.log(message);
@@ -203,8 +204,12 @@ public class IDFSizeDataManager
 		arguments.add(IDFUtil.getIDFSizeScriptFile().getAbsolutePath());
 		arguments.add(file.getLocation().toOSString());
 		arguments.add("--json"); //$NON-NLS-1$
-		arguments.add("--target"); //$NON-NLS-1$
-		arguments.add(targetName);
+		
+		if (!StringUtil.isEmpty(targetName))
+		{
+			arguments.add("--target"); //$NON-NLS-1$
+			arguments.add(targetName);
+		}
 
 		return arguments;
 	}

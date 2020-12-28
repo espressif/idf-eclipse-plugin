@@ -24,8 +24,13 @@ public class IDFConsole
 {
 	public MessageConsoleStream getConsoleStream()
 	{
+		return getConsoleStream("ESP-IDF Console"); //$NON-NLS-1$
+	}
+	
+	public MessageConsoleStream getConsoleStream(String consoleName)
+	{
 		// Create Tools console
-		MessageConsole msgConsole = findConsole("ESP-IDF Console"); //$NON-NLS-1$
+		MessageConsole msgConsole = findConsole(consoleName);
 		msgConsole.clearConsole();
 		MessageConsoleStream console = msgConsole.newMessageStream();
 		msgConsole.activate();
