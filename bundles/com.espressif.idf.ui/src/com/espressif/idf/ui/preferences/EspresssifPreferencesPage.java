@@ -15,7 +15,7 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 
 	public EspresssifPreferencesPage() {
 		super();
-		setDescription("ESP-IDF Specific Preferences.");
+		setDescription(Messages.EspresssifPreferencesPage_IDFSpecificPrefs);
 	}
 
 	@Override

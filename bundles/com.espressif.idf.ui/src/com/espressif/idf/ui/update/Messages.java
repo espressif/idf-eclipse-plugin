@@ -11,11 +11,15 @@ public class Messages extends NLS
 	private static final String BUNDLE_NAME = "com.espressif.idf.ui.update.messages"; //$NON-NLS-1$
 	public static String AbstractToolsHandler_ExecutingMsg;
 	public static String DirectorySelectionDialog_Browse;
+	public static String DirectorySelectionDialog_CantbeEmpty;
+	public static String DirectorySelectionDialog_CheckTools;
 	public static String DirectorySelectionDialog_ChoosePyVersion;
 	public static String DirectorySelectionDialog_GitExecutableLocation;
 	public static String DirectorySelectionDialog_GitExeLocation;
 	public static String DirectorySelectionDialog_IDFDirLabel;
+	public static String DirectorySelectionDialog_IDFToolsInstallationDialog;
 	public static String DirectorySelectionDialog_InstallTools;
+	public static String DirectorySelectionDialog_ProvideIDFDirectory;
 	public static String DirectorySelectionDialog_PyExecutableLocation;
 	public static String DirectorySelectionDialog_PyExeLocation;
 	public static String DirectorySelectionDialog_SelectIDFDirMessage;

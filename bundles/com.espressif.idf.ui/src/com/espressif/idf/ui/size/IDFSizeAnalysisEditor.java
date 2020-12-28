@@ -126,6 +126,6 @@ public class IDFSizeAnalysisEditor extends MultiPageEditorPart
 
 	private String getTarget()
 	{
-		return new SDKConfigJsonReader(project).getValue("IDF_TARGET");
+		return new SDKConfigJsonReader(project).getValue("IDF_TARGET"); //$NON-NLS-1$
 	}
 }
