@@ -54,18 +54,18 @@ public class CMakeBuildTab2 extends CommonBuildTab {
 		tcControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
 		Group cmakeGroup = new Group(comp, SWT.NONE);
-		cmakeGroup.setText("CMake Settings");
+		cmakeGroup.setText(Messages.CMakeBuildTab2_CMakeSettings);
 		cmakeGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		cmakeGroup.setLayout(new GridLayout());
 
 		Label label = new Label(cmakeGroup, SWT.NONE);
-		label.setText("Generator");
+		label.setText(Messages.CMakeBuildTab2_Generator);
 
 		Composite genComp = new Composite(cmakeGroup, SWT.BORDER);
 		genComp.setLayout(new GridLayout(2, true));
 
 		unixGenButton = new Button(genComp, SWT.RADIO);
-		unixGenButton.setText("Unix Makefiles");
+		unixGenButton.setText(Messages.CMakeBuildTab2_UnixMakeFiles);
 		unixGenButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -74,7 +74,7 @@ public class CMakeBuildTab2 extends CommonBuildTab {
 		});
 
 		ninjaGenButton = new Button(genComp, SWT.RADIO);
-		ninjaGenButton.setText("Ninja");
+		ninjaGenButton.setText(Messages.CMakeBuildTab2_Ninja);
 		ninjaGenButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -83,21 +83,21 @@ public class CMakeBuildTab2 extends CommonBuildTab {
 		});
 
 		label = new Label(cmakeGroup, SWT.NONE);
-		label.setText("Additional CMake arguments:");
+		label.setText(Messages.CMakeBuildTab2_AdditionalCMakeArgs);
 
 		cmakeArgsText = new Text(cmakeGroup, SWT.BORDER);
 		cmakeArgsText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		cmakeArgsText.addModifyListener(e -> updateLaunchConfigurationDialog());
 
 		label = new Label(cmakeGroup, SWT.NONE);
-		label.setText("Build command");
+		label.setText(Messages.CMakeBuildTab2_BuildCmd);
 
 		buildCommandText = new Text(cmakeGroup, SWT.BORDER);
 		buildCommandText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		buildCommandText.addModifyListener(e -> updateLaunchConfigurationDialog());
 
 		label = new Label(cmakeGroup, SWT.NONE);
-		label.setText("Clean command");
+		label.setText(Messages.CMakeBuildTab2_CleanCmd);
 
 		cleanCommandText = new Text(cmakeGroup, SWT.BORDER);
 		cleanCommandText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -232,7 +232,7 @@ public class CMakeBuildTab2 extends CommonBuildTab {
 
 	@Override
 	public String getName() {
-		return "CMake";
+		return "CMake"; //$NON-NLS-1$
 	}
 
 }

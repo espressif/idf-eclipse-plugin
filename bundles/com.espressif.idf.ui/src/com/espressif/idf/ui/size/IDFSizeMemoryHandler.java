@@ -92,12 +92,12 @@ public class IDFSizeMemoryHandler extends AbstractHandler
 
 	protected IPath getMapFilePath(IProject project)
 	{
-		GenericJsonReader jsonReader = new GenericJsonReader(project, "build" + File.separator + "project_description.json"); //$NON-NLS-1$
+		GenericJsonReader jsonReader = new GenericJsonReader(project, "build" + File.separator + "project_description.json"); //$NON-NLS-1$ //$NON-NLS-2$
 		String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
 		if (!StringUtil.isEmpty(value))
 		{
-			value = value.replace(".elf", ".map"); //Assuming .elf and .map files have the same file name
-			return project.getFile(new Path("build").append(value)).getLocation();
+			value = value.replace(".elf", ".map"); //Assuming .elf and .map files have the same file name //$NON-NLS-1$ //$NON-NLS-2$
+			return project.getFile(new Path("build").append(value)).getLocation(); //$NON-NLS-1$
 		}
 		return null;
 	}

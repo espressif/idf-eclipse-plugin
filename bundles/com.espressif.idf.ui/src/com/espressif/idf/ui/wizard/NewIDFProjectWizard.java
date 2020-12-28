@@ -97,7 +97,7 @@ public class NewIDFProjectWizard extends TemplateWizard
 		if (performFinish)
 		{
 			IWorkbenchPage page = EclipseHandler.getActiveWorkbenchWindow().getActivePage();
-			IViewPart viewPart = page.findView("org.eclipse.ui.navigator.ProjectExplorer");
+			IViewPart viewPart = page.findView("org.eclipse.ui.navigator.ProjectExplorer"); //$NON-NLS-1$
 			if (viewPart != null)
 			{
 				ISelectionProvider selProvider = viewPart.getSite().getSelectionProvider();

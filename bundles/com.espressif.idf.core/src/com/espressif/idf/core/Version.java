@@ -13,9 +13,9 @@ public class Version implements Comparable<Version>
 	public Version(String version)
 	{
 		if (version == null)
-			throw new IllegalArgumentException("Version can not be null");
-		if (!version.matches("[0-9]+(\\.[0-9]+)*"))
-			throw new IllegalArgumentException("Invalid version format");
+			throw new IllegalArgumentException(Messages.Version_VersionNotNull);
+		if (!version.matches("[0-9]+(\\.[0-9]+)*")) //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.Version_InvalidVersion);
 		this.version = version;
 	}
 
@@ -24,8 +24,8 @@ public class Version implements Comparable<Version>
 	{
 		if (that == null)
 			return 1;
-		String[] thisParts = this.get().split("\\.");
-		String[] thatParts = that.get().split("\\.");
+		String[] thisParts = this.get().split("\\."); //$NON-NLS-1$
+		String[] thatParts = that.get().split("\\."); //$NON-NLS-1$
 		int length = Math.max(thisParts.length, thatParts.length);
 		for (int i = 0; i < length; i++)
 		{

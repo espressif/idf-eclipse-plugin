@@ -159,7 +159,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 			arguments.add(0, pythonExecutablenPath);
 			arguments.add(1, IDFUtil.getIDFToolsScriptFile().getAbsolutePath());
 
-			String cmdMsg = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments);
+			String cmdMsg = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments); //$NON-NLS-1$
 			console.println(cmdMsg);
 			Logger.log(cmdMsg);
 
@@ -198,7 +198,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 			String path2 = environment.get("Path"); //$NON-NLS-1$
 			if (!StringUtil.isEmpty(path1) && !path1.contains(gitDir)) // Git not found on the PATH environment
 			{
-				path1 = gitDir.concat(";").concat(path1);
+				path1 = gitDir.concat(";").concat(path1); //$NON-NLS-1$
 				environment.put("PATH", path1); //$NON-NLS-1$
 			}
 			else if (!StringUtil.isEmpty(path2) && !path2.contains(gitDir)) // Git not found on the Path environment

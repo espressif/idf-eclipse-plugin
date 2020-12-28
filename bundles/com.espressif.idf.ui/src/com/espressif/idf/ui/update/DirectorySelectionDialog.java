@@ -65,9 +65,9 @@ public class DirectorySelectionDialog extends TitleAreaDialog
 	protected Control createDialogArea(Composite parent)
 	{
 		getShell().setText(Messages.DirectorySelectionDialog_InstallTools);
-		setTitle("ESP-IDF Tools installation dialog");
+		setTitle(Messages.DirectorySelectionDialog_IDFToolsInstallationDialog);
 		setTitleImage(UIPlugin.getImage("icons/espressif_logo.png")); //$NON-NLS-1$
-		setMessage("Provide ESP-IDF directory, git and python executable paths to install the tools");
+		setMessage(Messages.DirectorySelectionDialog_ProvideIDFDirectory);
 
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridData gd = new GridData(GridData.FILL_BOTH);
@@ -219,7 +219,7 @@ public class DirectorySelectionDialog extends TitleAreaDialog
 
 		if (StringUtil.isEmpty(pythonExecutablePath) || StringUtil.isEmpty(gitPath) || StringUtil.isEmpty(idfDirPath))
 		{
-			setErrorMessage("Fields can't be empty!");
+			setErrorMessage(Messages.DirectorySelectionDialog_CantbeEmpty);
 			getButton(IDialogConstants.OK_ID).setEnabled(false);
 		}
 		else
@@ -273,7 +273,7 @@ public class DirectorySelectionDialog extends TitleAreaDialog
 		}
 		else
 		{
-			getButton(IDialogConstants.OK_ID).setText("Check Tools");
+			getButton(IDialogConstants.OK_ID).setText(Messages.DirectorySelectionDialog_CheckTools);
 		}
 	}
 

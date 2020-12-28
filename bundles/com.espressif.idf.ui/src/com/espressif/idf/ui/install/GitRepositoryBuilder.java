@@ -65,7 +65,7 @@ public class GitRepositoryBuilder
 				  .call();
 		
 		// @formatter:on
-		Logger.log(String.format("git clone result: %s", git.toString()));
+		Logger.log(String.format(Messages.GitRepositoryBuilder_gitClone, git.toString()));
 
 		// To release the lock on the file system resource
 		git.getRepository().close();

@@ -58,7 +58,7 @@ public class SDKConfigJsonReader
 		String sdkconfigJsonPath = new SDKConfigUtil().getSDKConfigJsonFilePath(project);
 		if (!new File(sdkconfigJsonPath).exists())
 		{
-			Logger.log(MessageFormat.format("sdkconfig.json file couldn't find {0}", sdkconfigJsonPath));
+			Logger.log(MessageFormat.format("sdkconfig.json file couldn't find {0}", sdkconfigJsonPath)); //$NON-NLS-1$
 			return null;
 		}
 

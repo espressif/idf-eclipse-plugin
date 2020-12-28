@@ -279,37 +279,37 @@ public class IDFDownloadPage extends WizardPage
 			
 			if (!new File(idfPath).exists())
 			{
-				setErrorMessage("Directory doesn''t exist: "+ idfPath);
+				setErrorMessage(Messages.IDFDownloadPage_DirDoesnotExist+ idfPath);
 				setPageComplete(false);
 				return;
 			}
 			
-			if (idfPath.contains(" "))
+			if (idfPath.contains(" ")) //$NON-NLS-1$
 			{
-				setErrorMessage("ESP-IDF build system does not support spaces in paths. Please choose a different directory.");
+				setErrorMessage(Messages.IDFDownloadPage_IDFBuildNotSupported);
 				setPageComplete(false);
 				return;
 			}
 			
-			String idfPyPath = idfPath + File.separator + "tools" + File.separator + "idf.py";
+			String idfPyPath = idfPath + File.separator + "tools" + File.separator + "idf.py"; //$NON-NLS-1$ //$NON-NLS-2$
 			if (!new File (idfPyPath).exists())
 			{
-				setErrorMessage(MessageFormat.format("Can not find idf.py in {0} tools", idfPath));
+				setErrorMessage(MessageFormat.format(Messages.IDFDownloadPage_CantfindIDFpy, idfPath));
 				setPageComplete(false);
 				return;
 			}
 			
-			String requirementsPath = idfPath + File.separator + "requirements.txt";
+			String requirementsPath = idfPath + File.separator + "requirements.txt"; //$NON-NLS-1$
 			if (!new File (requirementsPath).exists())
 			{
-				setErrorMessage(MessageFormat.format("Can not find requirements.txt in {0}", idfPath));
+				setErrorMessage(MessageFormat.format(Messages.IDFDownloadPage_CantFindRequirementsFile, idfPath));
 				setPageComplete(false);
 				return;
 			}
 			
 			setPageComplete(true);
 			setErrorMessage(null);
-			setMessage("Click on `Finish` to configure IDF_PATH with "+ idfPath);
+			setMessage(Messages.IDFDownloadPage_ClickOnFinish+ idfPath);
 		}
 		else
 		{
@@ -321,7 +321,7 @@ public class IDFDownloadPage extends WizardPage
 			
 			setPageComplete(true);
 			setErrorMessage(null);
-			setMessage("Click on `Finish` to download");
+			setMessage(Messages.IDFDownloadPage_ClickFinishToDownload);
 		}
 		
 	}

@@ -27,8 +27,8 @@ import org.eclipse.ui.dialogs.PatternFilter;
 public class IDFSizeDetailsComposite
 {
 	private TreeViewer treeViewer;
-	private String columnProperties[] = new String[] { "File Name", "DRAM .data", "DRAM .bss", "DIRAM", "IRAM",
-			"Flash Code", "Flash rodata", "Other", "Total" };
+	private String columnProperties[] = new String[] { "File Name", "DRAM .data", "DRAM .bss", "DIRAM", "IRAM", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			"Flash Code", "Flash rodata", "Other", "Total" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
 	public void createPartControl(Composite parent, IFile iFile)
 	{
