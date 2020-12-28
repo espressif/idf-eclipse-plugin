@@ -39,10 +39,10 @@ public class IDFMonitor
 		List<String> args = new ArrayList<>();
 		args.add(pythonBinPath);
 		args.add(idfMonitorToolPath);
-		args.add("monitor");
-		args.add("-p");
+		args.add("monitor"); //$NON-NLS-1$
+		args.add("-p"); //$NON-NLS-1$
 		args.add(port);
-		args.add("--print-filter=" + filterOptions);
+		args.add("--print-filter=" + filterOptions); //$NON-NLS-1$
 
 		return args;
 	}
@@ -76,8 +76,8 @@ public class IDFMonitor
 		}
 
 		// Add ptyprocess terminal argument
-		environment.remove("TERM_PROGRAM"); // for OS X
-		environment.put("TERM", "vt102");
+		environment.remove("TERM_PROGRAM"); // for OS X //$NON-NLS-1$
+		environment.put("TERM", "vt102"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		Logger.log(environment.toString());
 
