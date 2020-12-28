@@ -84,12 +84,12 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 		Map<String, String> idfEnvMap = new IDFEnvironmentVariables().getEnvMap();
 
 		// Disable buffering of output
-		idfEnvMap.put("PYTHONUNBUFFERED", "1");
+		idfEnvMap.put("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		File idfPythonScriptFile = IDFUtil.getIDFPythonScriptFile();
 		if (!idfPythonScriptFile.exists())
 		{
-			throw new FileNotFoundException("File Not found:" + idfPythonScriptFile);
+			throw new FileNotFoundException("File Not found:" + idfPythonScriptFile); //$NON-NLS-1$
 		}
 		
 		String pythonPath = IDFUtil.getIDFPythonEnvPath();

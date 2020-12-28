@@ -115,8 +115,8 @@ public class IDFSizeOverviewComposite
 		double used_diram_ratio = (double) overviewJson.get(IDFSizeConstants.USED_DIRAM_RATIO);
 
 		toolkit.createLabel(overviewComp, "Used DIRAM:"); //$NON-NLS-1$
-		String chartText = convertToKB(used_diram) + " (" + convertToKB(available_diram) + " available, "
-				+ Math.round(used_diram_ratio * 100) + "% used)";
+		String chartText = convertToKB(used_diram) + Messages.IDFSizeOverviewComposite_0 + convertToKB(available_diram) + " available, " //$NON-NLS-2$
+				+ Math.round(used_diram_ratio * 100) + "% used)"; //$NON-NLS-1$
 		Label dramUsedVal = toolkit.createLabel(overviewComp, chartText); // $NON-NLS-1$
 		dramUsedVal.setFont(boldFont);
 
@@ -136,15 +136,15 @@ public class IDFSizeOverviewComposite
 
 		// Used static DRAM
 		toolkit.createLabel(overviewComp, "Used static DRAM:"); //$NON-NLS-1$
-		String dramText = convertToKB(used_dram) + " (" + convertToKB(available_dram) + " available, "
-				+ Math.round(used_dram_ratio * 100) + "% used)";
+		String dramText = convertToKB(used_dram) + " (" + convertToKB(available_dram) + " available, " //$NON-NLS-1$ //$NON-NLS-2$
+				+ Math.round(used_dram_ratio * 100) + "% used)"; //$NON-NLS-1$
 		Label dramUsedVal = toolkit.createLabel(overviewComp, dramText); // $NON-NLS-1$
 		dramUsedVal.setFont(boldFont);
 
 		// Used static IRAM
 		toolkit.createLabel(overviewComp, "Used static IRAM:"); //$NON-NLS-1$
-		String iramText = convertToKB(used_iram) + " (" + convertToKB(available_iram) + " available, "
-				+ Math.round(used_iram_ratio * 100) + "% used)";
+		String iramText = convertToKB(used_iram) + " (" + convertToKB(available_iram) + " available, " //$NON-NLS-1$ //$NON-NLS-2$
+				+ Math.round(used_iram_ratio * 100) + "% used)"; //$NON-NLS-1$
 		Label iramUsedVal = toolkit.createLabel(overviewComp, iramText); // $NON-NLS-1$
 		iramUsedVal.setFont(boldFont);
 

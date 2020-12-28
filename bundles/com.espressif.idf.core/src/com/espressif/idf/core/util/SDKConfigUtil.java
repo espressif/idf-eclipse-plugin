@@ -27,7 +27,7 @@ public class SDKConfigUtil
 		IFolder buildFolder = project.getFolder(IDFConstants.BUILD_FOLDER);
 		if (!buildFolder.exists())
 		{
-			throw new Exception("Build directory not found");
+			throw new Exception("Build directory not found"); //$NON-NLS-1$
 		}
 		return buildFolder.getLocation().toFile().getAbsolutePath() + IPath.SEPARATOR + IDFConstants.CONFIG_FOLDER
 				+ IPath.SEPARATOR + IDFConstants.KCONFIG_MENUS_JSON;
@@ -43,7 +43,7 @@ public class SDKConfigUtil
 		IFolder buildFolder = project.getFolder(IDFConstants.BUILD_FOLDER);
 		if (!buildFolder.exists())
 		{
-			throw new Exception("Build directory not found");
+			throw new Exception("Build directory not found"); //$NON-NLS-1$
 		}
 		return buildFolder.getLocation().toFile().getAbsolutePath() + IPath.SEPARATOR + IDFConstants.CONFIG_FOLDER
 				+ IPath.SEPARATOR + IDFConstants.SDKCONFIG_JSON_FILE_NAME;

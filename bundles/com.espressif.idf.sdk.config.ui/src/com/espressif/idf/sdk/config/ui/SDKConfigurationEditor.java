@@ -781,16 +781,16 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				//frame message
 				StringBuilder message = new StringBuilder();
 				message.append(title);
-				message.append("\n\n");
+				message.append("\n\n"); //$NON-NLS-1$
 				message.append(help);
 				
 				//get range info
 				Object range = rangesJsonMap.get(configKey);
 				if (range != null)
 				{
-					message.append("\n\n");
-					message.append("Range Information:");
-					message.append("\n");
+					message.append("\n\n"); //$NON-NLS-1$
+					message.append("Range Information:"); //$NON-NLS-1$
+					message.append("\n"); //$NON-NLS-1$
 					message.append(range.toString());
 				}
 				

@@ -125,7 +125,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		arguments.add(IDFConstants.TOOLS_EXPORT_CMD);
 		arguments.add(IDFConstants.TOOLS_EXPORT_CMD_FORMAT_VAL);
 
-		String cmd = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments);
+		String cmd = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments); //$NON-NLS-1$
 		console.println(cmd);
 		Logger.log(cmd);
 

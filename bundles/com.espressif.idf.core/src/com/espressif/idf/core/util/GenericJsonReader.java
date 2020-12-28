@@ -51,7 +51,7 @@ public class GenericJsonReader
 		IFile filePath = project.getFile(new Path(relativeFilePath));
 		if (!filePath.exists())
 		{
-			Logger.log(MessageFormat.format("{0} couldn't find", filePath.toString()));
+			Logger.log(MessageFormat.format("{0} couldn't find", filePath.toString())); //$NON-NLS-1$
 			return null;
 		}
 
