@@ -242,7 +242,7 @@ public class IDFUtil
 		String openOCDScriptPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS);
 		if (!StringUtil.isEmpty(openOCDScriptPath))
 		{
-			return openOCDScriptPath.replace(File.separator + "share" + File.separator + "openocd" + File.separator + "scripts", "") + File.separator + "bin"; //$NON-NLS-1$ //$NON-NLS-2$
+			return openOCDScriptPath.replace(File.separator + "share" + File.separator + "openocd" + File.separator + "scripts", "") + File.separator + "bin"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		}
 
 		return StringUtil.EMPTY;
@@ -280,8 +280,8 @@ public class IDFUtil
 						if (matcher.matches())
 						{
 							String path = file.getAbsolutePath();
-							Logger.log("GDB executable:"+ path);
-							String[] tuples = file.getName().split("-");
+							Logger.log("GDB executable:"+ path); //$NON-NLS-1$
+							String[] tuples = file.getName().split("-"); //$NON-NLS-1$
 							if (projectEspTarget == null) //If no IDF_TARGET
 							{
 								return path;
