@@ -26,6 +26,7 @@ import org.eclipse.launchbar.core.target.TargetStatus;
  */
 public class SerialFlashLaunchTargetProvider implements ILaunchTargetProvider {
 
+	//Launch Target type id
 	public static final String TYPE_ID = "com.espressif.idf.launch.serial.core.serialFlashTarget"; //$NON-NLS-1$
 
 	public static final String ATTR_SERIAL_PORT = "com.espressif.idf.launch.serial.core.serialPort"; //$NON-NLS-1$

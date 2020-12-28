@@ -44,7 +44,6 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 		return ID;
 	}
 
-	@SuppressWarnings("restriction")
 	@Override
 	public synchronized ICBuildConfiguration getCBuildConfiguration(IBuildConfiguration config, String name)
 			throws CoreException
@@ -84,9 +83,9 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 				return null;
 			}
 		}
-		IDFBuildConfiguration buildConfig = new IDFBuildConfiguration(config, name);
-		ICMakeToolChainFile tcFile = buildConfig.getToolChainFile();
-		IToolChain toolChain = buildConfig.getToolChain();
+		IDFBuildConfiguration cmakeConfig = new IDFBuildConfiguration(config, name);
+		ICMakeToolChainFile tcFile = cmakeConfig.getToolChainFile();
+		IToolChain toolChain = cmakeConfig.getToolChain();
 		if (toolChain == null)
 		{
 			// config not complete
@@ -95,11 +94,11 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 		if (tcFile != null && !toolChain.equals(tcFile.getToolChain()))
 		{
 			// toolchain changed
-			return new IDFBuildConfiguration(config, name, tcFile.getToolChain(), tcFile, buildConfig.getLaunchMode());
+			return new IDFBuildConfiguration(config, name, tcFile.getToolChain(), tcFile, cmakeConfig.getLaunchMode());
 		}
 		else
 		{
-			return buildConfig;
+			return cmakeConfig;
 		}
 	}
 

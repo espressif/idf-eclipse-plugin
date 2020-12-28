@@ -41,7 +41,10 @@ public class SDKConfigJsonReader
 		try
 		{
 			JSONObject jsonObj = read();
-			return String.valueOf(jsonObj.get(key));
+			if (jsonObj != null)
+			{
+				return String.valueOf(jsonObj.get(key));
+			}
 		}
 		catch (Exception e)
 		{
@@ -55,8 +58,8 @@ public class SDKConfigJsonReader
 		String sdkconfigJsonPath = new SDKConfigUtil().getSDKConfigJsonFilePath(project);
 		if (!new File(sdkconfigJsonPath).exists())
 		{
-			String formatText = MessageFormat.format("{0} not found", sdkconfigJsonPath);
-			throw new FileNotFoundException(formatText);
+			Logger.log(MessageFormat.format("sdkconfig.json file couldn't find {0}", sdkconfigJsonPath));
+			return null;
 		}
 
 		JSONParser parser = new JSONParser();

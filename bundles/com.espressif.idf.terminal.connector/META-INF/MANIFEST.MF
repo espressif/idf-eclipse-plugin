@@ -19,7 +19,7 @@ Require-Bundle: org.eclipse.cdt.core;resolution:=optional,
  org.eclipse.tm.terminal.view.ui,
  org.eclipse.tm.terminal.view.core,
  com.espressif.idf.ui
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Export-Package: com.espressif.idf.terminal.connector.activator;x-internal:=true,

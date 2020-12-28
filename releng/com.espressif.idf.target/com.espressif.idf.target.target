@@ -8,14 +8,14 @@
 			<unit id="org.eclipse.rcp.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.test.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.equinox.executable.feature.group" version="0.0.0"/>
-			<repository location="https://download.eclipse.org/eclipse/updates/4.16/"/>
+			<repository location="https://download.eclipse.org/eclipse/updates/4.17/"/>
 		</location>
 		
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
 			<unit id="org.eclipse.cdt.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.cdt.sdk.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.cdt.cmake.feature.group" version="0.0.0"/>
-			<repository location="http://download.eclipse.org/tools/cdt/releases/9.11"/>
+			<repository location="https://download.eclipse.org/tools/cdt/releases/10.0/"/>
 		</location>	
 		
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
@@ -27,7 +27,7 @@
 		
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
 			<unit id="javax.xml.bind" version="0.0.0"/>
-			<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20200529191137/repository"/>
+			<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20200831200620/repository"/>
 		</location>
 		
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
@@ -45,7 +45,7 @@
 			<repository location="https://download.eclipse.org/swtchart/releases/0.12.0/repository"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
-			<repository location="https://download.eclipse.org/tools/cdt/releases/9.11/"/>
+			<repository location="https://download.eclipse.org/tools/cdt/releases/10.0/"/>
 			<unit id="org.eclipse.cdt.debug.gdbjtag.feature.group" version=""/>
 		</location>
 		
