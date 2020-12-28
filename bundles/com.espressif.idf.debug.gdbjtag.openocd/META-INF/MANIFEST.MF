@@ -26,7 +26,7 @@ Require-Bundle: ilg.gnumcueclipse.core,
  org.eclipse.core.resources,
  com.espressif.idf.core,
  org.eclipse.cdt.build.gcc.core
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: %bundle.vendor
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin

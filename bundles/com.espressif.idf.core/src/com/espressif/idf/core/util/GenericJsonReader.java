@@ -33,7 +33,10 @@ public class GenericJsonReader
 		try
 		{
 			JSONObject jsonObj = read();
-			return (String) jsonObj.get(key);
+			if (jsonObj != null)
+			{
+				return (String) jsonObj.get(key);
+			}
 
 		}
 		catch (Exception e)
@@ -48,7 +51,8 @@ public class GenericJsonReader
 		IFile filePath = project.getFile(new Path(relativeFilePath));
 		if (!filePath.exists())
 		{
-			throw new Exception(MessageFormat.format("{0} couldn't find", filePath.toString()));
+			Logger.log(MessageFormat.format("{0} couldn't find", filePath.toString()));
+			return null;
 		}
 
 		JSONParser parser = new JSONParser();

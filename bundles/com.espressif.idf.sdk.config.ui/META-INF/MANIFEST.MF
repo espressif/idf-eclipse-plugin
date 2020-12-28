@@ -12,6 +12,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.text,
  com.espressif.idf.sdk.config.core,
  org.eclipse.ui.console
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: com.espressif.idf.sdkconfig.ui
 Bundle-ActivationPolicy: lazy
