@@ -9,6 +9,7 @@
  *
  * Contributors:
  *     QNX Software Systems - Initial API and implementation
+ *     Espressif Systems - ESP-IDF Monitor Integration
  *******************************************************************************/
 package com.espressif.idf.terminal.connector.serial.connector;
 
@@ -18,18 +19,24 @@ import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.cdt.serial.SerialPort;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
 import org.eclipse.tm.internal.terminal.provisional.api.ITerminalControl;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
 import org.eclipse.tm.internal.terminal.provisional.api.provider.TerminalConnectorImpl;
 
+import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.serial.monitor.handlers.SerialMonitorHandler;
 import com.espressif.idf.terminal.connector.serial.activator.Activator;
+import com.espressif.idf.ui.EclipseUtil;
 
 public class SerialConnector extends TerminalConnectorImpl {
 
 	private SerialSettings settings = new SerialSettings();
-	SerialPort serialPort;
+	private Process process;
+	private Thread thread;
 
 	private static Set<String> openPorts = new HashSet<>();
 
@@ -39,15 +46,11 @@ public class SerialConnector extends TerminalConnectorImpl {
 
 	@Override
 	public OutputStream getTerminalToRemoteStream() {
-		return serialPort.getOutputStream();
+		return process.getOutputStream();
 	}
 
 	public SerialSettings getSettings() {
 		return settings;
-	}
-
-	public SerialPort getSerialPort() {
-		return serialPort;
 	}
 
 	@Override
@@ -68,27 +71,31 @@ public class SerialConnector extends TerminalConnectorImpl {
 	@Override
 	public void connect(ITerminalControl control) {
 		super.connect(control);
-		control.setState(TerminalState.CONNECTING);
 
-		serialPort = new SerialPort(settings.getPortName());
-		try {
-			serialPort.setBaudRate(settings.getBaudRate());
-			serialPort.setByteSize(settings.getByteSize());
-			serialPort.setParity(settings.getParity());
-			serialPort.setStopBits(settings.getStopBits());
-			serialPort.open();
-		} catch (IOException e) {
-			Activator.log(e);
-			control.setState(TerminalState.CLOSED);
+		//Get selected project - which is required for IDF Monitor
+		IProject project = EclipseUtil.getSelectedProjectInExplorer();
+		if (project == null) {
+			String message = "project can't be null. Make sure you select a project before launch a serial monitor"; //$NON-NLS-1$
+			Activator.log(new Status(IStatus.ERROR, "", //$NON-NLS-1$
+					message, null));
 			return;
 		}
 
-		openPorts.add(serialPort.getPortName());
+		//set state
+		control.setState(TerminalState.CONNECTING);
 
-		new Thread() {
+		String portName = settings.getPortName();
+		String filterOptions = settings.getFilterText();
+		filterOptions = StringUtil.isEmpty(filterOptions) ? StringUtil.EMPTY : filterOptions;
+
+		//Hook IDF Monitor with the CDT serial monitor
+		SerialMonitorHandler serialMonitorHandler = new SerialMonitorHandler(project, portName, filterOptions);
+		process = serialMonitorHandler.invokeIDFMonitor();
+
+		thread = new Thread() {
 			@Override
 			public void run() {
-				InputStream targetIn = serialPort.getInputStream();
+				InputStream targetIn = process.getInputStream();
 				byte[] buff = new byte[256];
 				int n;
 				try {
@@ -102,21 +109,23 @@ public class SerialConnector extends TerminalConnectorImpl {
 					Activator.log(e);
 				}
 			}
-		}.start();
+		};
+
+		thread.start();
+
 		control.setState(TerminalState.CONNECTED);
 	}
 
 	@Override
 	protected void doDisconnect() {
-		if (serialPort != null && serialPort.isOpen()) {
-			openPorts.remove(serialPort.getPortName());
-			try {
-				serialPort.close();
-			} catch (IOException e) {
-				Activator.log(e);
-			}
+
+		//Disconnect ptyprocess and that will free the port
+		if (process != null) {
+			process.destroy();
 		}
-		serialPort = null;
+		if (thread != null) {
+			thread.interrupt();
+		}
 	}
 
 }

@@ -16,7 +16,8 @@ Require-Bundle: org.eclipse.core.expressions;bundle-version="3.4.400",
  org.eclipse.debug.core,
  com.espressif.idf.launch.serial.ui,
  com.espressif.idf.core,
- com.espressif.idf.ui
+ com.espressif.idf.ui,
+ com.espressif.idf.serial.monitor;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin

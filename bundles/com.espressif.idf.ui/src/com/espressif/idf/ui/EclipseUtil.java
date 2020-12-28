@@ -4,11 +4,13 @@
  *******************************************************************************/
 package com.espressif.idf.ui;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.PlatformUI;
 
@@ -39,6 +41,38 @@ public class EclipseUtil
 			if (element instanceof IAdaptable)
 			{
 				return ((IAdaptable) element).getAdapter(IResource.class);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Selected project from the Project explorer view
+	 * @return
+	 */
+	public static IProject getSelectedProjectInExplorer()
+	{
+		return getSelectedProject(IPageLayout.ID_PROJECT_EXPLORER);
+	}
+
+	/**
+	 * @param viewID
+	 * @return
+	 */
+	private static IProject getSelectedProject(String viewID)
+	{
+		ISelectionService service = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
+		IStructuredSelection structured = (IStructuredSelection) service.getSelection(viewID);
+		if (structured instanceof IStructuredSelection)
+		{
+			Object selectedObject = ((IStructuredSelection) structured).getFirstElement();
+			if (selectedObject instanceof IAdaptable)
+			{
+				IResource resource = (IResource) ((IAdaptable) selectedObject).getAdapter(IResource.class);
+				if (resource != null)
+				{
+					return resource.getProject();
+				}
 			}
 		}
 		return null;
