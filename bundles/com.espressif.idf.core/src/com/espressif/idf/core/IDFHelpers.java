@@ -51,8 +51,8 @@ public final class IDFHelpers
 			 * IDF build configuration is not in the list. This means the project is not create correctly. So throw
 			 * exception.
 			 */
-			throw new CoreException(IDFCorePlugin.errorStatus("Project was not created correctly.",
-					new RuntimeException("No IDF build configuration in project.")));
+			throw new CoreException(IDFCorePlugin.errorStatus(Messages.IDFHelpers_ProjectNotCreatedCorrectly,
+					new RuntimeException(Messages.IDFHelpers_NoIDFBuildConfig)));
 		}
 
 		public static IDFBuildConfiguration getIDFBuildConfiguration(IProject project) throws CoreException
@@ -64,8 +64,8 @@ public final class IDFHelpers
 				return (IDFBuildConfiguration) appBuildCfg;
 			}
 
-			throw new CoreException(IDFCorePlugin.errorStatus("Project was not created correctly.",
-					new RuntimeException("No IDF build configuration in project.")));
+			throw new CoreException(IDFCorePlugin.errorStatus(Messages.IDFHelpers_ProjectNotCreatedCorrectly,
+					new RuntimeException(Messages.IDFHelpers_NoIDFBuildConfig)));
 		}
 
 	}

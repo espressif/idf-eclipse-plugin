@@ -73,14 +73,14 @@ public class IDFVersionsReader
 			}
 			else if (version.startsWith("v")) //$NON-NLS-1$
 			{
-				if (new Version(MIN_VERSION_SUPPORT).compareTo(new Version(version.replace("v", ""))) <= 0)
+				if (new Version(MIN_VERSION_SUPPORT).compareTo(new Version(version.replace("v", ""))) <= 0) //$NON-NLS-1$ //$NON-NLS-2$
 				{
 					filterList.add(version);
 				}
 			}
 			else if (version.startsWith("release/")) //$NON-NLS-1$
 			{
-				if (new Version(MIN_VERSION_SUPPORT).compareTo(new Version(version.replace("release/v", ""))) <= 0)
+				if (new Version(MIN_VERSION_SUPPORT).compareTo(new Version(version.replace("release/v", ""))) <= 0) //$NON-NLS-1$ //$NON-NLS-2$
 				{
 					filterList.add(version);
 				}
@@ -97,7 +97,7 @@ public class IDFVersionsReader
 		List<String> versions = applyPluginFilter(getVersions());
 		for (String version : versions)
 		{
-			Logger.log("Version: " + version);
+			Logger.log("Version: " + version); //$NON-NLS-1$
 			if (version.startsWith("master")) //$NON-NLS-1$
 			{
 				String gitHubVersionUrl = MASTER_URL;

@@ -329,7 +329,7 @@ public class CMakeErrorParser extends ConsoleOutputStream {
 						// for now, just add the markers to the source dir and lets users file issues:-)
 						marker = srcPath.createMarker(CMAKE_PROBLEM_MARKER_ID);
 						Activator.getPlugin().getLog().log(new Status(IStatus.INFO, Activator.getId(),
-								String.format("=Could not map %s to a workspace resource. Did the build run in a container?", fileName)));
+								String.format("=Could not map %s to a workspace resource. Did the build run in a container?", fileName))); //$NON-NLS-1$
 						// Extra case: IDE runs on Linux, build runs on Windows, or vice versa...
 					}
 				}
