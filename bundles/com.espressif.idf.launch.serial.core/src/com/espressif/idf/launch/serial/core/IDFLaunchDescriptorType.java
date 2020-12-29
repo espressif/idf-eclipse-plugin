@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2020 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.launch.serial.core;
 
 import java.util.ArrayList;
@@ -13,6 +17,10 @@ import org.eclipse.swt.widgets.Display;
 import com.espressif.idf.core.IDFProjectNature;
 import com.espressif.idf.ui.EclipseUtil;
 
+/**
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ *
+ */
 public class IDFLaunchDescriptorType implements ILaunchDescriptorType {
 
 	@Override

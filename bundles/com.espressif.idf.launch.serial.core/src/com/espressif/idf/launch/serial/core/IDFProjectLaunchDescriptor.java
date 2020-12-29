@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2020 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.launch.serial.core;
 
 import org.eclipse.core.resources.IProject;
@@ -6,6 +10,10 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.launchbar.core.ILaunchDescriptor;
 import org.eclipse.launchbar.core.ILaunchDescriptorType;
 
+/**
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ *
+ */
 public class IDFProjectLaunchDescriptor extends PlatformObject implements ILaunchDescriptor {
 
 	private final ILaunchDescriptorType type;
@@ -45,35 +53,35 @@ public class IDFProjectLaunchDescriptor extends PlatformObject implements ILaunc
 		return getName(); // for debugging purposes
 	}
 
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((project == null) ? 0 : project.hashCode());
-			result = prime * result + ((type == null) ? 0 : type.hashCode());
-			return result;
-		}
-	
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			IDFProjectLaunchDescriptor other = (IDFProjectLaunchDescriptor) obj;
-			if (project == null) {
-				if (other.project != null)
-					return false;
-			} else if (!project.equals(other.project))
-				return false;
-			if (type == null) {
-				if (other.type != null)
-					return false;
-			} else if (!type.equals(other.type))
-				return false;
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((project == null) ? 0 : project.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
 			return true;
-		}
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		IDFProjectLaunchDescriptor other = (IDFProjectLaunchDescriptor) obj;
+		if (project == null) {
+			if (other.project != null)
+				return false;
+		} else if (!project.equals(other.project))
+			return false;
+		if (type == null) {
+			if (other.type != null)
+				return false;
+		} else if (!type.equals(other.type))
+			return false;
+		return true;
+	}
 
 }
