@@ -33,22 +33,27 @@ public class IDFLaunchDescriptorType implements ILaunchDescriptorType {
 			}
 		} else if (launchObject instanceof ILaunchConfiguration) {
 			//get project
-			List<IProject> projectList = new ArrayList<>(1);
-			Display.getDefault().syncExec(new Runnable() {
-
-				@Override
-				public void run() {
-					IProject project = EclipseUtil.getSelectedProjectInExplorer();
-					projectList.add(project);
-				}
-			});
-			IProject project = projectList.get(0);
+			IProject project = getProject();
 			if (project != null && IDFProjectNature.hasNature(project)
 					&& launchObject instanceof ILaunchConfiguration) {
 				return new IDFProjectLaunchDescriptor(this, project, (ILaunchConfiguration) launchObject);
 			}
 		}
 		return null;
+	}
+
+	private IProject getProject() {
+		List<IProject> projectList = new ArrayList<>(1);
+		Display.getDefault().syncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				IProject project = EclipseUtil.getSelectedProjectInExplorer();
+				projectList.add(project);
+			}
+		});
+		IProject project = projectList.get(0);
+		return project;
 	}
 
 }
