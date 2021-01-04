@@ -28,7 +28,6 @@ import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
 import org.eclipse.cdt.cmake.core.internal.Activator;
 import org.eclipse.cdt.cmake.core.internal.CMakeBuildConfiguration;
 import org.eclipse.cdt.cmake.core.internal.CMakeUtils;
-import org.eclipse.cdt.cmake.core.internal.Messages;
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.ConsoleOutputStream;
 import org.eclipse.cdt.core.ErrorParserManager;
@@ -196,7 +195,7 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 				if (toolChainFile == null)
 				{
 					// error
-					console.getErrorStream().write(Messages.CMakeBuildConfiguration_NoToolchainFile);
+					console.getErrorStream().write(Messages.IDFBuildConfiguration_CMakeBuildConfiguration_NoToolchainFile);
 					return null;
 				}
 			}
@@ -230,7 +229,7 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 				if (launchtarget != null)
 				{
 					String idfTargetName = launchtarget.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
-							"");
+							""); //$NON-NLS-1$
 					if (!idfTargetName.isEmpty())
 					{
 						command.add("-DIDF_TARGET=" + idfTargetName); //$NON-NLS-1$
@@ -291,7 +290,7 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 					command.add("cmake"); //$NON-NLS-1$
 					command.add("--build"); //$NON-NLS-1$
 					command.add("."); //$NON-NLS-1$
-					if ("Ninja".equals(generator))
+					if ("Ninja".equals(generator)) //$NON-NLS-1$
 					{
 						command.add("--"); //$NON-NLS-1$
 						command.add("-v"); //$NON-NLS-1$
@@ -453,7 +452,7 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 				}
 			}
 
-			if (Platform.getOS().equals("win32") && !arg.endsWith(".exe")) { //$NON-NLS-1$
+			if (Platform.getOS().equals("win32") && !arg.endsWith(".exe")) { //$NON-NLS-1$ //$NON-NLS-2$
 				// Try with exe
 				arg = arg + ".exe"; //$NON-NLS-1$
 				for (String cc : compileCommands) {
@@ -505,7 +504,7 @@ public class IDFBuildConfiguration extends CMakeBuildConfiguration
 						if (commandPath != null) {
 							command.set(0, commandPath.toString());
 							Job job = new ScannerInfoJob(
-									String.format("Calculating scanner info for %s", resource),
+									String.format("Calculating scanner info for %s", resource), //$NON-NLS-1$
 									getToolChain(), command, resource, getBuildDirectoryURI(), commandStrings);
 							job.schedule();
 							jobsArray.add(job);
