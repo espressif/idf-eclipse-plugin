@@ -10,6 +10,19 @@ public class Messages extends NLS
 {
 	private static final String BUNDLE_NAME = "com.espressif.idf.core.build.messages"; //$NON-NLS-1$
 	public static String ESP32CMakeToolChainProvider_PathDoesnNotExist;
+	public static String CMakeBuildConfiguration_Building;
+	public static String CMakeBuildConfiguration_BuildingIn;
+	public static String CMakeBuildConfiguration_BuildingComplete;
+
+	public static String CMakeBuildConfiguration_BuildComplete;
+	public static String CMakeBuildConfiguration_Configuring;
+	public static String CMakeBuildConfiguration_Cleaning;
+	public static String CMakeBuildConfiguration_NotFound;
+	public static String CMakeBuildConfiguration_ProcCompCmds;
+	public static String CMakeBuildConfiguration_ProcCompJson;
+	public static String CMakeBuildConfiguration_Failure;
+	public static String CMakeErrorParser_NotAWorkspaceResource;
+	public static String IDFBuildConfiguration_CMakeBuildConfiguration_NoToolchainFile;
 	static
 	{
 		// initialize resource bundle
