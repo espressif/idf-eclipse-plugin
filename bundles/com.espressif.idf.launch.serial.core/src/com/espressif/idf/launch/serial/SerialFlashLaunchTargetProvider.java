@@ -18,7 +18,12 @@ package com.espressif.idf.launch.serial;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.launchbar.core.target.ILaunchTargetProvider;
+import org.eclipse.launchbar.core.target.ILaunchTargetWorkingCopy;
 import org.eclipse.launchbar.core.target.TargetStatus;
+
+import com.espressif.idf.core.build.ESP32S2ToolChain;
+import com.espressif.idf.core.build.ESPToolChain;
+import com.espressif.idf.core.build.IDFLaunchConstants;
 
 /**
  * Launch Target used to flash images to a device over a serial port, usually
@@ -26,16 +31,35 @@ import org.eclipse.launchbar.core.target.TargetStatus;
  */
 public class SerialFlashLaunchTargetProvider implements ILaunchTargetProvider {
 
-	//Launch Target type id
-	public static final String TYPE_ID = "com.espressif.idf.launch.serial.core.serialFlashTarget"; //$NON-NLS-1$
-
 	public static final String ATTR_SERIAL_PORT = "com.espressif.idf.launch.serial.core.serialPort"; //$NON-NLS-1$
 
 	public static final String ATTR_IDF_TARGET = "com.espressif.idf.launch.serial.core.idfTarget"; //$NON-NLS-1$
 
 	@Override
 	public void init(ILaunchTargetManager targetManager) {
-		// Nothing to do at init time
+
+		//Create default esp32 target if that doesn't exist
+		if (targetManager.getLaunchTarget(IDFLaunchConstants.LAUNCH_TARGET_TYPE_ID, ESPToolChain.OS) == null) {
+			ILaunchTarget target = targetManager.addLaunchTarget(IDFLaunchConstants.LAUNCH_TARGET_TYPE_ID,
+					ESPToolChain.OS);
+			ILaunchTargetWorkingCopy wc = target.getWorkingCopy();
+			wc.setAttribute(ILaunchTarget.ATTR_OS, ESPToolChain.OS);
+			wc.setAttribute(ILaunchTarget.ATTR_ARCH, ESPToolChain.ARCH);
+			wc.setAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, ESPToolChain.OS);
+			wc.save();
+		}
+
+		//Create default esp32s2 target if that doesn't exist
+		if (targetManager.getLaunchTarget(IDFLaunchConstants.LAUNCH_TARGET_TYPE_ID, ESP32S2ToolChain.OS) == null) {
+			ILaunchTarget target = targetManager.addLaunchTarget(IDFLaunchConstants.LAUNCH_TARGET_TYPE_ID,
+					ESP32S2ToolChain.OS);
+			ILaunchTargetWorkingCopy wc = target.getWorkingCopy();
+			wc.setAttribute(ILaunchTarget.ATTR_OS, ESP32S2ToolChain.OS);
+			wc.setAttribute(ILaunchTarget.ATTR_ARCH, ESP32S2ToolChain.ARCH);
+			wc.setAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, ESP32S2ToolChain.OS);
+			wc.save();
+		}
+
 	}
 
 	@Override

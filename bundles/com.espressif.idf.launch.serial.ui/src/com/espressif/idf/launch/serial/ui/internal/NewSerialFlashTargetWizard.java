@@ -39,6 +39,7 @@ import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.SDKConfigJsonReader;
 import com.espressif.idf.core.util.StringUtil;
@@ -63,7 +64,7 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard {
 	@Override
 	public boolean performFinish() {
 		ILaunchTargetManager manager = Activator.getService(ILaunchTargetManager.class);
-		String typeId = SerialFlashLaunchTargetProvider.TYPE_ID;
+		String typeId = IDFLaunchConstants.LAUNCH_TARGET_TYPE_ID;
 		String id = page.getTargetName();
 
 		ILaunchTarget target = getLaunchTarget();

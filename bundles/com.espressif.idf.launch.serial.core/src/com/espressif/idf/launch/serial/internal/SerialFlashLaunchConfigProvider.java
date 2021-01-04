@@ -22,13 +22,13 @@ import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.launchbar.core.ILaunchDescriptor;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 
-import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
+import com.espressif.idf.core.build.IDFLaunchConstants;
 
 public class SerialFlashLaunchConfigProvider extends CoreBuildGenericLaunchConfigProvider {
 
 	@Override
 	public boolean supports(ILaunchDescriptor descriptor, ILaunchTarget target) throws CoreException {
-		return target.getTypeId().equals(SerialFlashLaunchTargetProvider.TYPE_ID);
+		return target.getTypeId().equals(IDFLaunchConstants.LAUNCH_TARGET_TYPE_ID);
 	}
 
 	@Override
