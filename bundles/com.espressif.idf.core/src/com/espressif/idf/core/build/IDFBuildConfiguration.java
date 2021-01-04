@@ -211,7 +211,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 				if (toolChainFile == null) {
 					// error
-					console.getErrorStream().write(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_NoToolchainFile);
+					console.getErrorStream().write(Messages.IDFBuildConfiguration_CMakeBuildConfiguration_NoToolchainFile);
 					return null;
 				}
 			}
@@ -250,7 +250,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				if (launchtarget != null)
 				{
 					String idfTargetName = launchtarget.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
-							"");
+							""); //$NON-NLS-1$
 					if (!idfTargetName.isEmpty())
 					{
 						command.add("-DIDF_TARGET=" + idfTargetName); //$NON-NLS-1$
@@ -306,7 +306,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 					command.add("cmake"); //$NON-NLS-1$
 					command.add("--build"); //$NON-NLS-1$
 					command.add("."); //$NON-NLS-1$
-					if ("Ninja".equals(generator)) { //$NON-NLS-1$
+					if ("Ninja".equals(generator)) //$NON-NLS-1$
+					{
 						command.add("--"); //$NON-NLS-1$
 						command.add("-v"); //$NON-NLS-1$
 					}
@@ -433,18 +434,17 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	}
 
 	/**
-	 * @param console the console to print the compiler output during built-ins detection to or <code>null</code> if no
-	 *                separate console is to be allocated. Ignored if workspace preferences indicate that no console
-	 *                output is wanted.
+	 * @param console the console to print the compiler output during built-ins detection to or
+	 *                <code>null</code> if no separate console is to be allocated. Ignored if
+	 *                workspace preferences indicate that no console output is wanted.
 	 * @param monitor the job's progress monitor
 	 */
-	private void processCompileCommandsFile(IConsole console, IProgressMonitor monitor) throws CoreException
-	{
+	private void processCompileCommandsFile(IConsole console, IProgressMonitor monitor) throws CoreException {
+		IFile file = getBuildContainer().getFile(new org.eclipse.core.runtime.Path("compile_commands.json")); //$NON-NLS-1$
 		CompileCommandsJsonParser parser = new CompileCommandsJsonParser(
-				new ParseRequest(this, new CMakeIndexerInfoConsumer(this::setScannerInformation),
+				new ParseRequest(file, new CMakeIndexerInfoConsumer(this::setScannerInformation),
 						CommandLauncherManager.getInstance().getCommandLauncher(this), console));
 		parser.parse(monitor);
-
 	}
 
 	/**
