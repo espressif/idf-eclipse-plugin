@@ -2,7 +2,7 @@
 <feature
       id="com.espressif.idf.feature"
       label="Espressif IDF Plugins for Eclipse"
-      version="1.2.4.qualifier"
+      version="2.0.0.qualifier"
       provider-name="ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD"
       plugin="com.espressif.idf.branding">
 
