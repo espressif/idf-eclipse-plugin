@@ -7,6 +7,7 @@ package com.espressif.idf.ui.update;
 import java.util.Map;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
@@ -26,6 +27,8 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.osgi.service.prefs.BackingStoreException;
+import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
@@ -47,17 +50,20 @@ public class DirectorySelectionDialog extends TitleAreaDialog
 	private Text gitLocationtext;
 	private Text pythonLocationtext;
 	private String commandId;
-
+	private static final String executablePreferencesNode = "com.espressif.idf.ui.preference";
+	private static final String pythonPathNodeKey = "PYTHON_EXECUTABLE";
+	private static final String gitPathNodeKey = "GIT_EXECUTABLE";
+	
 	protected DirectorySelectionDialog(Shell parentShell, String commandId, String pythonExecutablePath,
 			Map<String, String> pythonVersions, String idfPath, String gitExecutablePath)
 	{
 		super(parentShell);
 		setShellStyle(getShellStyle() | SWT.RESIZE);
 		this.shell = parentShell;
-		this.pythonExecutablePath = pythonExecutablePath;
+		this.pythonExecutablePath = getPythonPreferenceOrDefault(pythonExecutablePath);
 		this.pythonVersions = pythonVersions;
 		this.idfDirPath = idfPath;
-		this.gitPath = gitExecutablePath;
+		this.gitPath = getGitPreferenceOrDefault(gitExecutablePath);
 		this.commandId = commandId;
 	}
 
@@ -229,6 +235,35 @@ public class DirectorySelectionDialog extends TitleAreaDialog
 		}
 	}
 
+	private void saveExecutablePreferences()
+	{
+		Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(executablePreferencesNode);
+		scopedPreferenceStore.put(pythonPathNodeKey, pythonExecutablePath);
+		scopedPreferenceStore.put(gitPathNodeKey, gitPath);
+		try
+		{
+			scopedPreferenceStore.flush();
+		}
+		catch (BackingStoreException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	private String getPythonPreferenceOrDefault(String pythonExecutablePath)
+	{
+		Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(executablePreferencesNode);
+		return scopedPreferenceStore.get(pythonPathNodeKey, pythonExecutablePath);
+		
+	}
+	
+	private String getGitPreferenceOrDefault(String gitExecutablePath) 
+	{
+		Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(executablePreferencesNode);
+		return scopedPreferenceStore.get(gitPathNodeKey, gitExecutablePath);
+		
+	}
+	
 	public String getIDFDirectory()
 	{
 		return idfDirPath;
@@ -260,6 +295,7 @@ public class DirectorySelectionDialog extends TitleAreaDialog
 		gitPath = gitLocationtext.getText();
 
 		super.okPressed();
+		saveExecutablePreferences();
 	}
 
 	@Override
