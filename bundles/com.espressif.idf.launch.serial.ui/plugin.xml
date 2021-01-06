@@ -26,7 +26,7 @@
          point="org.eclipse.launchbar.ui.launchBarUIContributions">
       <buildTabGroup
             launchConfigType="com.espressif.idf.launch.serial.launchConfigurationType"
-            launchDescriptorType="org.eclipse.cdt.debug.core.coreBuildDescriptorType"
+            launchDescriptorType="com.espressif.idf.launch.serial.core.idf.descriptorType"
             tabGroup="org.eclipse.cdt.launch.internal.corebuild.CoreBuildTabGroup">
       </buildTabGroup>
    </extension>
