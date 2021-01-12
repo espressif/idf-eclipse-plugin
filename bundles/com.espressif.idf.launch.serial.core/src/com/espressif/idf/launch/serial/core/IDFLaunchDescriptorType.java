@@ -5,16 +5,21 @@
 package com.espressif.idf.launch.serial.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationType;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.launchbar.core.ILaunchDescriptor;
 import org.eclipse.launchbar.core.ILaunchDescriptorType;
 import org.eclipse.swt.widgets.Display;
 
 import com.espressif.idf.core.IDFProjectNature;
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.ui.EclipseUtil;
 
 /**
@@ -22,6 +27,8 @@ import com.espressif.idf.ui.EclipseUtil;
  *
  */
 public class IDFLaunchDescriptorType implements ILaunchDescriptorType {
+
+	private Map<ILaunchConfiguration, IDFProjectLaunchDescriptor> descriptors = new HashMap<>();
 
 	@Override
 	public ILaunchDescriptor getDescriptor(Object launchObject) throws CoreException {
@@ -32,11 +39,19 @@ public class IDFLaunchDescriptorType implements ILaunchDescriptorType {
 				return new IDFProjectLaunchDescriptor(this, project, null);
 			}
 		} else if (launchObject instanceof ILaunchConfiguration) {
-			//get project
+			ILaunchConfiguration config = (ILaunchConfiguration) launchObject;
 			IProject project = getProject();
-			if (project != null && IDFProjectNature.hasNature(project)
-					&& launchObject instanceof ILaunchConfiguration) {
-				return new IDFProjectLaunchDescriptor(this, project, (ILaunchConfiguration) launchObject);
+			try {
+				if (isPublic(config) && IDFProjectNature.hasNature(project)) {
+					IDFProjectLaunchDescriptor descriptor = descriptors.get(config);
+					if (descriptor == null) {
+						descriptor = new IDFProjectLaunchDescriptor(this, project, (ILaunchConfiguration) launchObject);
+						descriptors.put(config, descriptor);
+					}
+					return descriptor;
+				}
+			} catch (CoreException ce) {
+				Logger.log(ce);
 			}
 		}
 		return null;
@@ -56,4 +71,22 @@ public class IDFLaunchDescriptorType implements ILaunchDescriptorType {
 		return project;
 	}
 
+	/**
+	 * Used to filter out private and external tools builders
+	 *
+	 * @param config
+	 * @return
+	 * @throws CoreException
+	 */
+	public static boolean isPublic(ILaunchConfiguration config) throws CoreException {
+		ILaunchConfigurationType type = config.getType();
+		if (type == null) {
+			return false;
+		}
+
+		String category = type.getCategory();
+
+		return type.isPublic() && !(config.getAttribute(ILaunchManager.ATTR_PRIVATE, false))
+				&& !("org.eclipse.ui.externaltools.builder".equals(category)); //$NON-NLS-1$
+	}
 }
