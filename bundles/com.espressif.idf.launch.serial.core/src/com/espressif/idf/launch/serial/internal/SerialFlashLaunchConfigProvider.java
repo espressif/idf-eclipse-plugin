@@ -15,16 +15,16 @@
  *******************************************************************************/
 package com.espressif.idf.launch.serial.internal;
 
-import org.eclipse.cdt.debug.core.launch.CoreBuildGenericLaunchConfigProvider;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.launchbar.core.ILaunchDescriptor;
+import org.eclipse.launchbar.core.ProjectLaunchConfigProvider;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 
 import com.espressif.idf.core.build.IDFLaunchConstants;
 
-public class SerialFlashLaunchConfigProvider extends CoreBuildGenericLaunchConfigProvider {
+public class SerialFlashLaunchConfigProvider extends ProjectLaunchConfigProvider {
 
 	@Override
 	public boolean supports(ILaunchDescriptor descriptor, ILaunchTarget target) throws CoreException {

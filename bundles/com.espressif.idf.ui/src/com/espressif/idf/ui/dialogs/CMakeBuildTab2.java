@@ -134,7 +134,7 @@ public class CMakeBuildTab2 extends CommonBuildTab {
 
 		String cleanCommand = buildConfig.getProperty(CMakeBuildConfiguration.CLEAN_COMMAND);
 		if (cleanCommand != null) {
-			cleanCommandText.setText(buildCommand);
+			cleanCommandText.setText(buildCommand != null ? buildCommand : "");  //$NON-NLS-1$
 		} else {
 			cleanCommandText.setText(""); //$NON-NLS-1$
 		}
