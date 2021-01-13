@@ -40,6 +40,11 @@ public class IDFLaunchDescriptorType implements ILaunchDescriptorType {
 			}
 		} else if (launchObject instanceof ILaunchConfiguration) {
 			ILaunchConfiguration config = (ILaunchConfiguration) launchObject;
+			String identifier = config.getType().getIdentifier();
+			if (identifier.equals("com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationType")) //$NON-NLS-1$
+			{
+				return null;
+			}
 			IProject project = getProject();
 			try {
 				if (isPublic(config) && IDFProjectNature.hasNature(project)) {
