@@ -32,6 +32,8 @@ public class Messages extends NLS
 	public static String InstallToolsHandler_InstallingToolsMsg;
 	public static String InstallToolsHandler_ItWilltakeTimeMsg;
 	public static String InstallToolsHandler_ToolsCompleted;
+	public static String ListInstalledTools_MessageTitle;
+	public static String ListInstalledTools_MissingIdfPathMsg;
 	static
 	{
 		// initialize resource bundle

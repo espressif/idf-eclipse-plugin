@@ -9,6 +9,8 @@ import java.util.List;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.logging.Logger;
@@ -35,12 +37,39 @@ public class ListInstalledToolsHandler extends AbstractToolsHandler
 		Logger.log("Python Path :" + pythonExecutablenPath); //$NON-NLS-1$
 		if (StringUtil.isEmpty(pythonExecutablenPath) || StringUtil.isEmpty(idfPath))
 		{
+			showMessage(Messages.ListInstalledTools_MissingIdfPathMsg);
 			throw new ExecutionException("Paths can't be empty. Please check IDF_PATH and Python"); //$NON-NLS-1$
 		}
 		activateIDFConsoleView();
 		execute();
 		
 		return null;
+	}
+
+	private void showMessage(final String message)
+	{
+		Display.getDefault().asyncExec(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				boolean isYes = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
+						Messages.ListInstalledTools_MessageTitle, message);
+				if (isYes)
+				{
+					InstallToolsHandler installToolsHandler = new InstallToolsHandler();
+					try
+					{
+						installToolsHandler.setCommandId("com.espressif.idf.ui.command.install"); //$NON-NLS-1$
+						installToolsHandler.execute(null);
+					}
+					catch (ExecutionException e)
+					{
+						Logger.log(e);
+					}
+				}
+			}
+		});
 	}
 
 	@Override
