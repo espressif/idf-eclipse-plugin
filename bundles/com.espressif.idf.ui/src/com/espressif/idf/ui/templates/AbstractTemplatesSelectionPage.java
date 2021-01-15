@@ -97,7 +97,7 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 		// it can be made bigger by the wizard
 		// See bug #83356
 		gd.widthHint = 400;
-		gd.heightHint = 500;
+		gd.heightHint = 350;
 		sashForm.setLayoutData(gd);
 
 		templateViewer = createTreeViewer(sashForm);
