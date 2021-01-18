@@ -169,7 +169,7 @@ public class IDFSizeDataManager
 		catch (Exception e1)
 		{
 			Logger.log(IDFCorePlugin.getPlugin(), e1);
-			return new Status(Status.ERROR, UIPlugin.PLUGIN_ID, e1.getMessage());
+			return new Status(IStatus.ERROR, UIPlugin.PLUGIN_ID, e1.getMessage());
 		}
 	}
 
