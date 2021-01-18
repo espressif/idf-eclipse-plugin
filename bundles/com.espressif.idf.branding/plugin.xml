@@ -6,10 +6,10 @@
          point="org.eclipse.core.runtime.products">
       <product
             application="org.eclipse.ui.ide.workbench"
-            name="ESP-IDF Eclipse IDE">
+            name="Eclipse IDE for ESP-IDF Developers">
          <property
                name="appName"
-               value="ESP-IDF Eclipse IDE">
+               value="Eclipse IDE for ESP-IDF Developers">
          </property>
       </product>
    </extension>
