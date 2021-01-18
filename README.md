@@ -11,7 +11,7 @@ The plug-in runs on `Windows`, `macOS` and `GNU/Linux`.
 # Table Of Contents
 * [ Installing Prerequisites ](#Prerequisites) <br>
 * [ Installing IDF Eclipse Plugin ](#GettingStarted) <br>
-* [ Installing ESP-IDF Tools ](#InstallTools) <br>
+* [ Installing ESP-IDF & Tools ](#InstallTools) <br>
 * [ Creating a new Project ](#NewProjectUsingDefault)<br>
 * [ Configuring Launch Target ](#ConfigureLaunchTarget)<br>
 * [ Compiling the Project ](#BuildApplication)<br>
@@ -63,6 +63,23 @@ You can install the IDF Eclipse plugin into an existing Eclipse CDT installation
 ![](docs/images/idf_update_site_install.png)
 
 <a name="InstallTools"></a>
+# Installing ESP-IDF
+To install ESP-IDF directly from the Eclipse
+
+* Go to `Help` > `Download and Configure ESP-IDF`
+* From the download ESP-IDF section, choose ESP-IDF version and directory to download
+* Click on `Finish`
+
+To configure an existing ESP-IDF
+* Go to `Help` > `Download and Configure ESP-IDF`
+* Check `Use an existing ESP-IDF directory from the file system`
+* Choose an existing ESP-IDF directory from the file system
+* Click on `Finish`
+
+This will download a specified esp-idf version and configures IDF_PATH in the Eclipse CDT build environment variables.
+
+![](docs/images/espidf_download.png)
+
 # Installing ESP-IDF Tools
 ESP-IDF requires some prerequisite tools to be installed so you can build firmware for the ESP32. The prerequisite tools include Python, Git, cross-compilers, menuconfig tool, CMake and Ninja build tools.
 
