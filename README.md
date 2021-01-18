@@ -11,7 +11,7 @@ The plug-in runs on `Windows`, `macOS` and `GNU/Linux`.
 # Table Of Contents
 * [ Installing Prerequisites ](#Prerequisites) <br>
 * [ Installing IDF Eclipse Plugin ](#GettingStarted) <br>
-* [ Installing ESP-IDF & Tools ](#InstallTools) <br>
+* [ Installing ESP-IDF and Tools ](#InstallTools) <br>
 * [ Creating a new Project ](#NewProjectUsingDefault)<br>
 * [ Configuring Launch Target ](#ConfigureLaunchTarget)<br>
 * [ Compiling the Project ](#BuildApplication)<br>
@@ -153,11 +153,12 @@ To provide the customized flash arguments, please follow [this](#customizeLaunch
 
 <a name="ConfigureLaunchTerminal"></a>
 # Viewing Serial Output
-To see the serial output in Eclipse, we need to configure the `ESP-IDF Serial Monitor` to connect to the serial port.
+To see the serial output in Eclipse, we need to configure the `ESP-IDF Serial Monitor` to connect to the serial port. This is integrated with the `IDF Monitor`. Please check more details <a href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/tools/idf-monitor.html#idf-monitor">here</a>. 
 
 * Click on the `Open a Terminal` icon from the toolbar
 * Choose `ESP-IDF Serial Monitor` from the terminal drop-down
-* Select `Serial Port` for your board if it's not detected. Baud Rate and Serial Port settings are auto-configured by default. 
+* Select `Serial Port` for your board if it's not detected
+* Configure serial monitor filter options for output filtering
 * Click on `OK` to launch the terminal, which will listen to the USB port
 
 ![](docs/images/10_serial_terminal.png)
