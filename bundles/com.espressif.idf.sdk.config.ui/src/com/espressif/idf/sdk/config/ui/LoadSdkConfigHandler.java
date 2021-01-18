@@ -70,7 +70,7 @@ public class LoadSdkConfigHandler extends AbstractHandler
 			}
 			catch (IOException e)
 			{
-				throw new ExecutionException("Error while starting the json configuration server", e);
+				throw new ExecutionException(Messages.LoadSdkConfigHandler_ErrorLoadingJsonConfigServer, e);
 			}
 
 		}

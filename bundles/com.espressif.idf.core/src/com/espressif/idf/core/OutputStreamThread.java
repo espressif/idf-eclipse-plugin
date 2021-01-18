@@ -24,6 +24,7 @@ public class OutputStreamThread extends Thread
 		this.charsetName = charsetName;
 	}
 
+	@Override
 	public void run()
 	{
 		OutputStreamWriter osr = null;

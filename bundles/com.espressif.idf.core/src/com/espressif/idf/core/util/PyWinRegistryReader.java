@@ -47,7 +47,7 @@ public class PyWinRegistryReader
 		for (int i = 0; (version = registry.getCurrentUserKeyName(PY_REG_PATH, i)) != null; i++)
 		{
 			py_version_list.add(version);
-			String compKey = PY_REG_PATH + '\\' + version + '\\' + PY_INSTALL_PATH; // $NON-NLS-1$ //$NON-NLS-2$
+			String compKey = PY_REG_PATH + '\\' + version + '\\' + PY_INSTALL_PATH; // $NON-NLS-1$ 
 			Logger.log(compKey);
 
 			String installLocation = registry.getCurrentUserValue(compKey, PY_EXE_PATH);
@@ -62,7 +62,7 @@ public class PyWinRegistryReader
 		for (int i = 0; (version = registry.getLocalMachineKeyName(PY_REG_PATH, i)) != null; i++)
 		{
 			py_version_list.add(version);
-			String compKey = PY_REG_PATH + '\\' + version + '\\' + PY_INSTALL_PATH; // $NON-NLS-1$ //$NON-NLS-2$
+			String compKey = PY_REG_PATH + '\\' + version + '\\' + PY_INSTALL_PATH; // $NON-NLS-1$ 
 			Logger.log(compKey);
 
 			String installLocation = registry.getLocalMachineValue(compKey, PY_EXE_PATH);

@@ -207,7 +207,7 @@
   	<page
         class="com.espressif.idf.ui.preferences.EspresssifPreferencesPage"
         id="com.espressif.idf.ui.preferences.mainpage"
-        name="Espressif">
+        name="%page.name">
   </page>
 	</extension>
 </plugin>

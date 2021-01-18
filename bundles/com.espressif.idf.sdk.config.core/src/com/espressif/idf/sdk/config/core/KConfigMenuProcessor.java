@@ -78,7 +78,7 @@ public class KConfigMenuProcessor
 
 			KConfigMenuItem childMenu = new KConfigMenuItem(menuItem);
 
-			JSONObject jsonObject = (JSONObject) iterator.next();
+			JSONObject jsonObject = iterator.next();
 
 			childMenu.setName((String) jsonObject.get("name")); //$NON-NLS-1$
 			childMenu.setId((String) jsonObject.get("id")); //$NON-NLS-1$
