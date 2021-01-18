@@ -13,6 +13,7 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS
 {
 	private static final String BUNDLE_NAME = "com.espressif.idf.sdk.config.ui.messages"; //$NON-NLS-1$
+	public static String LoadSdkConfigHandler_ErrorLoadingJsonConfigServer;
 	public static String SDKConfigurationEditor_ChangesWontbeSaved;
 	public static String SDKConfigurationEditor_Design;
 	public static String SDKConfigurationEditor_Error;

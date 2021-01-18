@@ -24,7 +24,7 @@
          <command
                commandId="com.espressif.idf.sdk.config.ui.command.setdefault"
                icon="icons/espressif.png"
-               label="ESP-IDF: Load sdkconfig"
+               label="%command.label"
                style="push">
             <visibleWhen
                   checkEnabled="false">
@@ -40,7 +40,7 @@
       <command
             defaultHandler="com.espressif.idf.sdk.config.ui.LoadSdkConfigHandler"
             id="com.espressif.idf.sdk.config.ui.command.setdefault"
-            name="ESP-IDF: Load sdkconfig">
+            name="%command.name">
       </command>
    </extension>
    <extension

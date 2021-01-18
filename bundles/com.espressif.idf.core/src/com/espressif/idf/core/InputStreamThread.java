@@ -34,6 +34,7 @@ public class InputStreamThread extends Thread
 		return result.toString();
 	}
 
+	@Override
 	public void run()
 	{
 		InputStreamReader streamReader = null;
