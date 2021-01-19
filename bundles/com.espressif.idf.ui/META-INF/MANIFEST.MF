@@ -34,14 +34,6 @@ Automatic-Module-Name: com.espressif.idf.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: com.espressif.idf.ui,
- com.espressif.idf.ui.dialogs,
- com.espressif.idf.ui.handlers,
- com.espressif.idf.ui.help,
- com.espressif.idf.ui.install,
- com.espressif.idf.ui.preferences,
- com.espressif.idf.ui.size,
- com.espressif.idf.ui.templates,
- com.espressif.idf.ui.update,
- com.espressif.idf.ui.wizard
+ com.espressif.idf.ui.dialogs
 Bundle-ClassPath: .,
  lib/commonmark-0.16.1.jar

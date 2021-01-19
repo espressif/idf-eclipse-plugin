@@ -26,6 +26,7 @@ import org.eclipse.ui.forms.widgets.FormText;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.logging.Logger;
 
 public class FormBrowser {
 	FormToolkit toolkit;
@@ -54,17 +55,16 @@ public class FormBrowser {
 			public void changing(LocationEvent event)
 			{
 				try
-					{
-						PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser()
-								.openURL(new URL(event.location));
-						event.doit = false;
-					}
-					catch (
-							PartInitException
-							| MalformedURLException e)
-					{
-						e.printStackTrace();
-					}
+				{
+					PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(event.location));
+					event.doit = false;
+				}
+				catch (
+						PartInitException
+						| MalformedURLException e)
+				{
+					Logger.log(e);
+				}
 				formText.setText(text);
 			}
 
@@ -103,10 +103,10 @@ public class FormBrowser {
 
 	public void setText(String text)
 	{
-		this.text = convertMarkdownToHtml(text);
 		if (formText != null)
 			try
 			{
+				this.text = convertMarkdownToHtml(text);
 				formText.setText(this.text);
 			}
 			catch (Exception e)
@@ -118,9 +118,18 @@ public class FormBrowser {
 
 	private String convertMarkdownToHtml(String markdownText)
 	{
-		Parser parser = Parser.builder().build();
-		Node document = parser.parse(markdownText);
-		HtmlRenderer renderer = HtmlRenderer.builder().build();
-		return renderer.render(document);
+		try
+		{
+			Parser parser = Parser.builder().build();
+			Node document = parser.parse(markdownText);
+			HtmlRenderer renderer = HtmlRenderer.builder().build();
+			return renderer.render(document);
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+			return markdownText;
+		}
+
 	}
 }
