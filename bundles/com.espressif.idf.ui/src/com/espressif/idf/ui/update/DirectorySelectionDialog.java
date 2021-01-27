@@ -50,9 +50,8 @@ public class DirectorySelectionDialog extends TitleAreaDialog
 	private Text gitLocationtext;
 	private Text pythonLocationtext;
 	private String commandId;
-	private static final String executablePreferencesNode = "com.espressif.idf.ui.preference";
-	private static final String pythonPathNodeKey = "PYTHON_EXECUTABLE";
-	private static final String gitPathNodeKey = "GIT_EXECUTABLE";
+	private static final String pythonPathNodeKey = "PYTHON_EXECUTABLE"; //$NON-NLS-1$
+	private static final String gitPathNodeKey = "GIT_EXECUTABLE"; //$NON-NLS-1$
 	
 	protected DirectorySelectionDialog(Shell parentShell, String commandId, String pythonExecutablePath,
 			Map<String, String> pythonVersions, String idfPath, String gitExecutablePath)
@@ -237,7 +236,7 @@ public class DirectorySelectionDialog extends TitleAreaDialog
 
 	private void saveExecutablePreferences()
 	{
-		Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(executablePreferencesNode);
+		Preferences scopedPreferenceStore = getPreferences();
 		scopedPreferenceStore.put(pythonPathNodeKey, pythonExecutablePath);
 		scopedPreferenceStore.put(gitPathNodeKey, gitPath);
 		try
@@ -252,16 +251,12 @@ public class DirectorySelectionDialog extends TitleAreaDialog
 
 	private String getPythonPreferenceOrDefault(String pythonExecutablePath)
 	{
-		Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(executablePreferencesNode);
-		return scopedPreferenceStore.get(pythonPathNodeKey, pythonExecutablePath);
-		
+		return getPreferences().get(pythonPathNodeKey, pythonExecutablePath);
 	}
 	
 	private String getGitPreferenceOrDefault(String gitExecutablePath) 
 	{
-		Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(executablePreferencesNode);
-		return scopedPreferenceStore.get(gitPathNodeKey, gitExecutablePath);
-		
+		return getPreferences().get(gitPathNodeKey, gitExecutablePath);
 	}
 	
 	public String getIDFDirectory()
@@ -313,4 +308,8 @@ public class DirectorySelectionDialog extends TitleAreaDialog
 		}
 	}
 
+	private Preferences getPreferences()
+	{
+		return InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID).node("preference"); //$NON-NLS-1$
+	}
 }
