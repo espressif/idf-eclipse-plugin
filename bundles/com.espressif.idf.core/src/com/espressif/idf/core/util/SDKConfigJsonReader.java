@@ -62,16 +62,20 @@ public class SDKConfigJsonReader
 		}
 
 		JSONParser parser = new JSONParser();
+		FileReader reader = new FileReader(sdkconfigJsonPath);
 		try
 		{
-			return (JSONObject) parser.parse(new FileReader(sdkconfigJsonPath));
-
+			return (JSONObject) parser.parse(reader);
 		}
 		catch (
 				IOException
 				| ParseException e)
 		{
 			throw new Exception(e);
+		}
+		finally 
+		{
+			reader.close();
 		}
 	}
 

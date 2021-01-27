@@ -163,7 +163,7 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard {
 				deleteDirectory(file);
 			}
 		}
-		return directoryToBeDeleted.delete();
+		return directoryToBeDeleted.getName().equals("build") ? true : directoryToBeDeleted.delete();
 	}
 
 	private void cleanSdkConfig(IResource project) {
