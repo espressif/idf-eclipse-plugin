@@ -29,7 +29,7 @@ public class IDFProjectLaunchDescriptor extends PlatformObject implements ILaunc
 
 	@Override
 	public <T> T getAdapter(Class<T> adapter) {
-		if (configuration != null && ILaunchConfiguration.class.equals(adapter)) {
+		if (ILaunchConfiguration.class.equals(adapter)) {
 			return adapter.cast(configuration);
 		} else if (IProject.class.equals(adapter)) {
 			return adapter.cast(project);
@@ -48,6 +48,14 @@ public class IDFProjectLaunchDescriptor extends PlatformObject implements ILaunc
 	@Override
 	public ILaunchDescriptorType getType() {
 		return type;
+	}
+
+	public ILaunchConfiguration getConfiguration() {
+		return configuration;
+	}
+
+	public IProject getProject() {
+		return project;
 	}
 
 	@Override

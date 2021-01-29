@@ -18,6 +18,7 @@ import org.eclipse.launchbar.core.ILaunchDescriptorType;
 import org.eclipse.swt.widgets.Display;
 
 import com.espressif.idf.core.IDFProjectNature;
+import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.launch.serial.core.IDFProjectLaunchDescriptor;
 import com.espressif.idf.ui.EclipseUtil;
@@ -37,7 +38,7 @@ public class IDFDebugLaunchDescriptorType implements ILaunchDescriptorType
 		{
 			ILaunchConfigurationType type = config.getType();
 			String identifier = type.getIdentifier();
-			if (identifier.equals("com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationType")) //$NON-NLS-1$
+			if (identifier.equals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
 			{
 				IProject project = getProject();
 				if (IDFProjectNature.hasNature(project))

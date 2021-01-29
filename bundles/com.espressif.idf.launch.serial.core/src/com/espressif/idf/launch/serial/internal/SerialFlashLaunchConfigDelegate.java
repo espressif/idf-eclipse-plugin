@@ -57,7 +57,6 @@ import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfigDelegate {
 
 	private static final String SYSTEM_PATH_PYTHON = "${system_path:python}"; //$NON-NLS-1$
-	public static final String TYPE_ID = "com.espressif.idf.launch.serial.launchConfigurationType"; //$NON-NLS-1$
 
 	@Override
 	public ITargetedLaunch getLaunch(ILaunchConfiguration configuration, String mode, ILaunchTarget target)
