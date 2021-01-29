@@ -29,7 +29,9 @@ public class IDFProjectLaunchDescriptor extends PlatformObject implements ILaunc
 
 	@Override
 	public <T> T getAdapter(Class<T> adapter) {
-		if (IProject.class.equals(adapter)) {
+		if (ILaunchConfiguration.class.equals(adapter)) {
+			return adapter.cast(configuration);
+		} else if (IProject.class.equals(adapter)) {
 			return adapter.cast(project);
 		}
 		return super.getAdapter(adapter);
@@ -48,6 +50,14 @@ public class IDFProjectLaunchDescriptor extends PlatformObject implements ILaunc
 		return type;
 	}
 
+	public ILaunchConfiguration getConfiguration() {
+		return configuration;
+	}
+
+	public IProject getProject() {
+		return project;
+	}
+
 	@Override
 	public String toString() {
 		return getName(); // for debugging purposes
@@ -59,6 +69,7 @@ public class IDFProjectLaunchDescriptor extends PlatformObject implements ILaunc
 		int result = 1;
 		result = prime * result + ((project == null) ? 0 : project.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + ((configuration == null) ? 0 : configuration.hashCode());
 		return result;
 	}
 
@@ -71,11 +82,18 @@ public class IDFProjectLaunchDescriptor extends PlatformObject implements ILaunc
 		if (getClass() != obj.getClass())
 			return false;
 		IDFProjectLaunchDescriptor other = (IDFProjectLaunchDescriptor) obj;
+		if (configuration == null) {
+			if (other.configuration != null)
+				return false;
+		} else if (!configuration.equals(other.configuration))
+			return false;
+
 		if (project == null) {
 			if (other.project != null)
 				return false;
 		} else if (!project.equals(other.project))
 			return false;
+
 		if (type == null) {
 			if (other.type != null)
 				return false;

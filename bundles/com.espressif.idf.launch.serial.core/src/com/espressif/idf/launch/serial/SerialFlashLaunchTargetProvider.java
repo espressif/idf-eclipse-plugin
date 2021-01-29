@@ -39,8 +39,8 @@ public class SerialFlashLaunchTargetProvider implements ILaunchTargetProvider {
 	public void init(ILaunchTargetManager targetManager) {
 
 		//Create default esp32 target if that doesn't exist
-		if (targetManager.getLaunchTarget(IDFLaunchConstants.LAUNCH_TARGET_TYPE_ID, ESPToolChain.OS) == null) {
-			ILaunchTarget target = targetManager.addLaunchTarget(IDFLaunchConstants.LAUNCH_TARGET_TYPE_ID,
+		if (targetManager.getLaunchTarget(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE, ESPToolChain.OS) == null) {
+			ILaunchTarget target = targetManager.addLaunchTarget(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE,
 					ESPToolChain.OS);
 			ILaunchTargetWorkingCopy wc = target.getWorkingCopy();
 			wc.setAttribute(ILaunchTarget.ATTR_OS, ESPToolChain.OS);
@@ -50,8 +50,8 @@ public class SerialFlashLaunchTargetProvider implements ILaunchTargetProvider {
 		}
 
 		//Create default esp32s2 target if that doesn't exist
-		if (targetManager.getLaunchTarget(IDFLaunchConstants.LAUNCH_TARGET_TYPE_ID, ESP32S2ToolChain.OS) == null) {
-			ILaunchTarget target = targetManager.addLaunchTarget(IDFLaunchConstants.LAUNCH_TARGET_TYPE_ID,
+		if (targetManager.getLaunchTarget(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE, ESP32S2ToolChain.OS) == null) {
+			ILaunchTarget target = targetManager.addLaunchTarget(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE,
 					ESP32S2ToolChain.OS);
 			ILaunchTargetWorkingCopy wc = target.getWorkingCopy();
 			wc.setAttribute(ILaunchTarget.ATTR_OS, ESP32S2ToolChain.OS);

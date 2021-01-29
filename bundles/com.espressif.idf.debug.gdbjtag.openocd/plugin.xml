@@ -96,5 +96,17 @@
 			class="com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferenceInitializer">
 		</initializer>
 	</extension>
-
+ <extension
+       point="org.eclipse.launchbar.core.launchBarContributions">
+    <descriptorType
+          class="com.espressif.idf.debug.gdbjtag.openocd.IDFDebugLaunchDescriptorType"
+          id="com.espressif.idf.debug.gdbjtag.openocd.descriptorType"
+          priority="29">
+    </descriptorType>
+    <configProvider
+          class="com.espressif.idf.debug.gdbjtag.openocd.OpenOCDLaunchConfigProvider"
+          descriptorType="com.espressif.idf.debug.gdbjtag.openocd.descriptorType"
+          priority="29">
+    </configProvider>
+ </extension>
 </plugin>
