@@ -37,12 +37,12 @@ public class SerialFlashLaunch extends TargetedLaunch {
 	public SerialFlashLaunch(ILaunchConfiguration launchConfiguration, String mode, ISourceLocator locator,
 			ILaunchTarget target) {
 		super(launchConfiguration, mode, target, locator);
-		String serialPortName = target.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
-		if (!serialPortName.isEmpty()) {
-			serialPort = SerialPort.get(serialPortName);
+		if (target != null) {
+			String serialPortName = target.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
+			serialPort = !serialPortName.isEmpty() ? SerialPort.get(serialPortName) : null;
 		}
-
 		DebugPlugin.getDefault().addDebugEventListener(this);
+
 	}
 
 	public void start() {

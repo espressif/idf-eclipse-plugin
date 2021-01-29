@@ -29,6 +29,10 @@
             launchDescriptorType="com.espressif.idf.launch.serial.core.idf.descriptorType"
             tabGroup="org.eclipse.cdt.launch.internal.corebuild.CoreBuildTabGroup">
       </buildTabGroup>
+      <descriptorUI
+            descriptorTypeId="com.espressif.idf.launch.serial.core.idf.descriptorType"
+            labelProvider="com.espressif.idf.launch.serial.ui.IDFLaunchDescriptorLabelProvider">
+      </descriptorUI>
    </extension>
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTypeImages">

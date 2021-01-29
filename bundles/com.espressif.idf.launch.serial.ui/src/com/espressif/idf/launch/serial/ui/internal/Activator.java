@@ -16,7 +16,7 @@
 package com.espressif.idf.launch.serial.ui.internal;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -25,12 +25,11 @@ import org.osgi.framework.ServiceReference;
 public class Activator extends AbstractUIPlugin {
 
 	private static final String ESP_TARGET_PNG = "esp_target.png"; //$NON-NLS-1$
+	private static final String LAUNCH_APP_IMG = "c_app.gif"; //$NON-NLS-1$
 
 	public static final String PLUGIN_ID = "com.espressif.idf.launch.serial.ui"; //$NON-NLS-1$
 
-	public static final String IMG_ESPRESSIF_LOGO = PLUGIN_ID + "." + ESP_TARGET_PNG; //$NON-NLS-1$
-
-	private static AbstractUIPlugin plugin;
+	private static Activator plugin;
 
 	@Override
 	public void start(BundleContext context) throws Exception {
@@ -38,15 +37,39 @@ public class Activator extends AbstractUIPlugin {
 		plugin = this;
 	}
 
-	@Override
-	protected void initializeImageRegistry(ImageRegistry reg) {
-		super.initializeImageRegistry(reg);
-
-		reg.put(IMG_ESPRESSIF_LOGO, imageDescriptorFromPlugin(PLUGIN_ID, "icons/" + ESP_TARGET_PNG)); //$NON-NLS-1$
+	/**
+	 * Returns the shared instance
+	 *
+	 * @return the shared instance
+	 */
+	public static Activator getDefault() {
+		return plugin;
 	}
 
-	public static Image getImage(String key) {
-		return plugin.getImageRegistry().get(key);
+	/**
+	 * @param path
+	 * @return
+	 */
+	public static ImageDescriptor getImageDescriptor(String path) {
+		ImageDescriptor imageDescriptor = getDefault().getImageRegistry().getDescriptor(path);
+		if (imageDescriptor == null) {
+			imageDescriptor = imageDescriptorFromPlugin(PLUGIN_ID, path);
+			if (imageDescriptor != null) {
+				getDefault().getImageRegistry().put(path, imageDescriptor);
+			}
+		}
+		return imageDescriptor;
+	}
+
+	/**
+	 * @param string
+	 * @return
+	 */
+	public static Image getImage(String string) {
+		if (getImageDescriptor(string) != null) {
+			return getDefault().getImageRegistry().get(string);
+		}
+		return null;
 	}
 
 	public static void log(IStatus status) {

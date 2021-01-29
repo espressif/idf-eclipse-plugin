@@ -64,7 +64,7 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard {
 	@Override
 	public boolean performFinish() {
 		ILaunchTargetManager manager = Activator.getService(ILaunchTargetManager.class);
-		String typeId = IDFLaunchConstants.LAUNCH_TARGET_TYPE_ID;
+		String typeId = IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE;
 		String id = page.getTargetName();
 
 		ILaunchTarget target = getLaunchTarget();

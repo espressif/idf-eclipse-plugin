@@ -170,7 +170,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 			// Allow build only through esp launch target in run mode
 			if (launchtarget != null
-					&& !launchtarget.getTypeId().equals("com.espressif.idf.launch.serial.core.serialFlashTarget") //$NON-NLS-1$
+					&& !launchtarget.getTypeId().equals(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE)
 					&& activeLaunchMode != null && activeLaunchMode.getIdentifier().equals("run")) //$NON-NLS-1$
 			{
 				console.getErrorStream()

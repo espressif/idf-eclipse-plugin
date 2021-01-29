@@ -15,7 +15,6 @@
  *******************************************************************************/
 package com.espressif.idf.launch.serial.internal;
 
-import org.eclipse.cdt.debug.core.launch.CoreBuildGenericLaunchConfigProvider;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfigurationType;
@@ -23,19 +22,20 @@ import org.eclipse.launchbar.core.ILaunchDescriptor;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 
 import com.espressif.idf.core.build.IDFLaunchConstants;
+import com.espressif.idf.launch.serial.core.IDFCoreLaunchConfigProvider;
 
-public class SerialFlashLaunchConfigProvider extends CoreBuildGenericLaunchConfigProvider {
+public class SerialFlashLaunchConfigProvider extends IDFCoreLaunchConfigProvider {
 
 	@Override
 	public boolean supports(ILaunchDescriptor descriptor, ILaunchTarget target) throws CoreException {
-		return target.getTypeId().equals(IDFLaunchConstants.LAUNCH_TARGET_TYPE_ID);
+		return target.getTypeId().equals(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE);
 	}
 
 	@Override
 	public ILaunchConfigurationType getLaunchConfigurationType(ILaunchDescriptor descriptor, ILaunchTarget target)
 			throws CoreException {
 		return DebugPlugin.getDefault().getLaunchManager()
-				.getLaunchConfigurationType(SerialFlashLaunchConfigDelegate.TYPE_ID);
+				.getLaunchConfigurationType(IDFLaunchConstants.RUN_LAUNCH_CONFIG_TYPE);
 	}
 
 }

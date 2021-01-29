@@ -32,7 +32,7 @@ public class SerialFlashLaunchTargetLabelProvider extends LabelProvider {
 	@Override
 	public Image getImage(Object element) {
 		if (element instanceof ILaunchTarget) {
-			Image image = Activator.getImage(Activator.IMG_ESPRESSIF_LOGO);
+			Image image = Activator.getImage("icons/esp_target.png"); //$NON-NLS-1$
 			if (image != null) {
 				return image;
 			}

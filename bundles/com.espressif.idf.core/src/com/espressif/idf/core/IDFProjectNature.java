@@ -43,6 +43,10 @@ public class IDFProjectNature implements IProjectNature
 
 	public static boolean hasNature(IProject project) throws CoreException
 	{
+		if (project == null)
+		{
+			return false;
+		}
 		IProjectDescription projDesc = project.getDescription();
 		for (String id : projDesc.getNatureIds())
 		{
