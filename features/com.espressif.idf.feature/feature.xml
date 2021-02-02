@@ -105,7 +105,6 @@ You may add additional accurate notices of copyright ownership.
       <import feature="org.eclipse.cdt" version="10.1.0.202012020953" match="greaterOrEqual"/>
       <import feature="org.eclipse.cdt.cmake" version="10.1.0.202012011910" match="greaterOrEqual"/>
       <import feature="org.eclipse.cdt.platform" version="10.1.0.202012020953" match="greaterOrEqual"/>
-      <import feature="org.eclipse.cdt.launch.serial.feature" version="10.1.0.202010062020" match="greaterOrEqual"/>
       <import feature="org.eclipse.cdt.build.crossgcc" version="10.1.0.202011181638" match="greaterOrEqual"/>
       <import feature="org.eclipse.cdt.debug.dap" version="10.1.0.202010062020" match="greaterOrEqual"/>
       <import feature="org.eclipse.cdt.debug.dap.gdbjtag" version="10.1.0.202010062020" match="greaterOrEqual"/>
