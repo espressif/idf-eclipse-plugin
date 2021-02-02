@@ -96,6 +96,20 @@ public_http:
     SRV_LATEST_NAME: latest
     SRV_HTTP_URL: ${DL_SERVER_HTTP}/${DL_SERVER_CD_DIR}
 
+public_http_beta:
+  <<: *upload_template
+  stage: public_deploy
+  only:
+    - /^v[0-9].*$/
+  variables:
+    GIT_STRATEGY: none
+    SRV_KEY: ${DL_KEY}
+    SRV_DIR: ${DL_SERVER_CD_DIR}
+    SRV_SERVER_SSH: ${DL_SERVER_SSH}
+    SRV_UPLOAD_PATH: ${DL_SERVER_SSH}:${DL_SERVER_CD_DIR}
+    SRV_LATEST_NAME: beta
+    SRV_HTTP_URL: ${DL_SERVER_HTTP}/${DL_SERVER_CD_DIR}
+
 .git_sync_template: &git_sync_template
   stage: public_deploy
   when: manual
