@@ -101,6 +101,15 @@ You may add additional accurate notices of copyright ownership.
       <update label="Espressif IDF Plugins Update Site" url="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/"/>
    </url>
 
+   <includes
+         id="org.eclipse.cdt.cmake"
+         version="10.1.0.202012011910"/>
+
+   <requires>
+      <import feature="org.eclipse.cdt.cmake" version="10.1.0.202012011910" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.cdt.cmake.is.core"/>
+   </requires>
+
    <plugin
          id="com.espressif.idf.ui"
          download-size="0"
