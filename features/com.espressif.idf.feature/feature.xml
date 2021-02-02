@@ -101,23 +101,12 @@ You may add additional accurate notices of copyright ownership.
       <update label="Espressif IDF Plugins Update Site" url="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/"/>
    </url>
 
+   <includes
+         id="org.eclipse.cdt.cmake"
+         version="10.1.0.202012011910"/>
+
    <requires>
-      <import feature="org.eclipse.cdt" version="10.1.0.202012020953" match="greaterOrEqual"/>
       <import feature="org.eclipse.cdt.cmake" version="10.1.0.202012011910" match="greaterOrEqual"/>
-      <import feature="org.eclipse.cdt.platform" version="10.1.0.202012020953" match="greaterOrEqual"/>
-      <import feature="org.eclipse.cdt.build.crossgcc" version="10.1.0.202011181638" match="greaterOrEqual"/>
-      <import feature="org.eclipse.cdt.debug.dap" version="10.1.0.202010062020" match="greaterOrEqual"/>
-      <import feature="org.eclipse.cdt.debug.dap.gdbjtag" version="10.1.0.202010062020" match="greaterOrEqual"/>
-      <import feature="org.eclipse.cdt.debug.gdbjtag" version="10.1.0.202011291939" match="greaterOrEqual"/>
-      <import feature="org.eclipse.cdt.debug.ui.memory" version="10.1.0.202012012315" match="greaterOrEqual"/>
-      <import feature="org.eclipse.cdt.docker.launcher" version="10.1.0.202011201553" match="greaterOrEqual"/>
-      <import feature="org.eclipse.cdt.gdb" version="10.1.0.202010062020" match="greaterOrEqual"/>
-      <import feature="org.eclipse.cdt.gnu.build" version="10.1.0.202010062020" match="greaterOrEqual"/>
-      <import feature="org.eclipse.cdt.gnu.debug" version="10.1.0.202010181249" match="greaterOrEqual"/>
-      <import feature="org.eclipse.cdt.gnu.dsf" version="10.1.0.202011291941" match="greaterOrEqual"/>
-      <import feature="org.eclipse.cdt.launch.remote" version="10.1.0.202010062020" match="greaterOrEqual"/>
-      <import feature="org.eclipse.cdt.native" version="10.1.0.202011181638" match="greaterOrEqual"/>
-      <import feature="org.eclipse.cdt.sdk" version="10.1.0.202012020953" match="greaterOrEqual"/>
       <import plugin="org.eclipse.cdt.cmake.is.core"/>
    </requires>
 
