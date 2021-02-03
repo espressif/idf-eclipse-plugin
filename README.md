@@ -8,6 +8,8 @@ The plug-in runs on `Windows`, `macOS` and `GNU/Linux`.
 
 > **Note:** It supports ESP-IDF CMake based projects (4.x and above) with `esp32` and `esp32s2` chips
 
+To get a quick understanding about ESP-IDF and Eclipse plugin features check our session which was presented in <a href= "https://youtu.be/CbPX3q7LeBc">EclipseCon 2020</a>
+
 # Table Of Contents
 * [ Installing Prerequisites ](#Prerequisites) <br>
 * [ Installing IDF Eclipse Plugin ](#GettingStarted) <br>
