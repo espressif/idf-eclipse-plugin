@@ -55,7 +55,7 @@ The minimum requirements for running the IDF Eclipse plug-ins are:
 You can install the IDF Eclipse plugin into an existing Eclipse CDT installation using the update site URL. You first need to add the release repository URL as follows:
 * Go to `Help` -> `Install New Software`
 * Click `Add…`
-* Enter `Location` of the repository https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/
+* Enter `Location` of the repository https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/ for stable releases,  https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/ for beta versions.
 * Enter `Name` as `Espressif IDF Plugin for Eclipse`
 * Click `Ok`
 * Select `Espressif IDF` from the list and proceed with the installation 
