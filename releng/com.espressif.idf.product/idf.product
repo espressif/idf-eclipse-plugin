@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Eclipse IDE for ESP-IDF Developers" uid="com.espressif.idf.product" id="com.espressif.idf.branding.idf" application="org.eclipse.ui.ide.workbench" version="2.0.0" useFeatures="true" includeLaunchers="true">
+<product name="Eclipse IDE for ESP-IDF Developers" uid="com.espressif.idf.product" id="org.eclipse.platform.ide" application="org.eclipse.ui.ide.workbench" version="2.0.0" useFeatures="true" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>
@@ -10,6 +10,7 @@
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>
    </launcherArgs>
+
 
    <launcher>
       <win useIco="false">
@@ -25,50 +26,7 @@
 
    <features>
       <feature id="com.espressif.idf.feature" installMode="root"/>
-      <feature id="com.cthing.cmakeed.feature" installMode="root"/>
-      <feature id="ilg.gnumcueclipse.debug.gdbjtag.openocd.feature" installMode="root"/>
-      <feature id="org.eclipse.cdt" installMode="root"/>
-      <feature id="org.eclipse.cdt.cmake" installMode="root"/>
-      <feature id="org.eclipse.cdt.debug.gdbjtag" installMode="root"/>
-      <feature id="org.eclipse.cdt.gdb" installMode="root"/>
-      <feature id="org.eclipse.cdt.launch.remote" installMode="root"/>
-      <feature id="org.eclipse.cdt.gnu.dsf" installMode="root"/>
-      <feature id="org.eclipse.cdt.gnu.build" installMode="root"/>
-      <feature id="org.eclipse.cdt.platform" installMode="root"/>
-      <feature id="org.eclipse.remote" installMode="root"/>
-      <feature id="org.eclipse.cdt.native" installMode="root"/>
-      <feature id="org.eclipse.cdt.gnu.debug" installMode="root"/>
-      <feature id="org.eclipse.tm.terminal.feature" installMode="root"/>
-      <feature id="org.eclipse.tm.terminal.view.feature" installMode="root"/>
-      <feature id="org.eclipse.tm.terminal.connector.ssh.feature" installMode="root"/>
-      <feature id="org.eclipse.tm.terminal.connector.local.feature" installMode="root"/>
-      <feature id="org.eclipse.tm.terminal.connector.telnet.feature" installMode="root"/>
-      <feature id="org.eclipse.tm.terminal.control.feature" installMode="root"/>
-      <feature id="org.eclipse.swtchart.feature" installMode="root"/>
-      <feature id="org.eclipse.platform" installMode="root"/>
-      <feature id="org.eclipse.help" installMode="root"/>
-      <feature id="org.eclipse.emf.common" installMode="root"/>
-      <feature id="org.eclipse.equinox.p2.core.feature" installMode="root"/>
-      <feature id="org.eclipse.ecf.core.ssl.feature" installMode="root"/>
-      <feature id="org.eclipse.ecf.filetransfer.ssl.feature" installMode="root"/>
-      <feature id="org.eclipse.emf.ecore" installMode="root"/>
-      <feature id="org.eclipse.equinox.p2.user.ui" installMode="root"/>
-      <feature id="org.eclipse.equinox.p2.extras.feature" installMode="root"/>
-      <feature id="org.eclipse.rcp" installMode="root"/>
-      <feature id="org.eclipse.ecf.core.feature" installMode="root"/>
-      <feature id="org.eclipse.ecf.filetransfer.httpclient45.feature" installMode="root"/>
-      <feature id="org.eclipse.equinox.p2.rcp.feature" installMode="root"/>
-      <feature id="org.eclipse.ecf.filetransfer.feature" installMode="root"/>
-      <feature id="org.eclipse.e4.rcp" installMode="root"/>
-      <feature id="org.eclipse.jgit" installMode="root"/>
-      <feature id="org.eclipse.launchbar" installMode="root"/>
-      <feature id="org.eclipse.launchbar.remote" installMode="root"/>
-      <feature id="org.eclipse.egit" installMode="root"/>
-      <feature id="org.eclipse.jgit.http.apache" installMode="root"/>
-      <feature id="ilg.gnumcueclipse.packs.feature" installMode="root"/>
-      <feature id="org.eclipse.jgit.ssh.jsch" installMode="root"/>
-      <feature id="org.eclipse.jgit.ssh.apache" installMode="root"/>
-      <feature id="org.eclipse.jgit.gpg.bc" installMode="root"/>
+      <feature id="org.eclipse.cdt.cmake"/>
    </features>
 
 
