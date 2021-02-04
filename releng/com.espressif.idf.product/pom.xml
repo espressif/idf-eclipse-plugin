@@ -34,9 +34,6 @@
 					<products>
 						<product>
 							<id>com.espressif.idf.product</id>
-							<rootFolders>
-								<macosx>esp-idf.app</macosx>
-							</rootFolders>
 						</product>
 					</products>
 				</configuration>

@@ -7,10 +7,27 @@
    </configIni>
 
    <launcherArgs>
-      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      <programArgs>--launcher.defaultAction
+openFile
+--launcher.appendVmargs
+      </programArgs>
+      <vmArgs>-Dosgi.requiredJavaVersion=11
+-Xms256m
+-Xmx1024m
+--add-modules=ALL-SYSTEM
+-Declipse.p2.unsignedPolicy=allow
+-Declipse.log.size.max=10000
+-Declipse.log.backup.max=5
+-Dfile.encoding=UTF-8
+      </vmArgs>
+      <vmArgsLin>-Djava.awt.headless=true
+      </vmArgsLin>
+      <vmArgsMac>-XstartOnFirstThread
+-Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>
+      <vmArgsWin>-Djava.awt.headless=true
+      </vmArgsWin>
    </launcherArgs>
-
 
    <launcher>
       <win useIco="false">
@@ -26,8 +43,14 @@
 
    <features>
       <feature id="com.espressif.idf.feature" installMode="root"/>
-      <feature id="org.eclipse.cdt.cmake"/>
    </features>
 
-
+   <configurations>
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+      <property name="org.eclipse.update.reconcile" value="false" />
+   </configurations>
 </product>
