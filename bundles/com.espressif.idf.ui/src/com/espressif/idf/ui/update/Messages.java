@@ -35,7 +35,7 @@ public class Messages extends NLS
 	public static String ListInstalledTools_MessageTitle;
 	public static String ListInstalledTools_MissingIdfPathMsg;
 	public static String JavaRuntimeVersionMsg;
-	public static String OperationSystemMsg;
+	public static String OperatingSystemMsg;
 	public static String EclipseCDTMsg;
 	public static String EclipseMsg;
 	public static String PythonIdfEnvMsg;

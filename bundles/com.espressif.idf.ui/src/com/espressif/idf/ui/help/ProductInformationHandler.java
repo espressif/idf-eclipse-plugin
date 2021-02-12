@@ -1,7 +1,10 @@
+/*******************************************************************************
+ * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
+
 package com.espressif.idf.ui.help;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,8 +14,6 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.ini4j.InvalidFileFormatException;
-import org.ini4j.Wini;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
@@ -29,13 +30,21 @@ public class ProductInformationHandler extends ListInstalledToolsHandler
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
 		super.execute(event);
-		console.println(Messages.JavaRuntimeVersionMsg + System.getProperty("java.runtime.version"));
-		console.println(Messages.OperationSystemMsg + System.getProperty("os.name").toLowerCase());
-		console.println(Messages.EclipseCDTMsg + Platform.getBundle("org.eclipse.cdt").getVersion().toString());
-		console.println(Messages.PythonIdfEnvMsg + getPythonExeVersion(IDFUtil.getIDFPythonEnvPath()));
-		console.println(Messages.PythonPathMsg + getPythonExeVersion("python"));
-		showEclipseVersion();
+		console.println(IDFEnvironmentVariables.IDF_PATH + ": "
+				+ new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PATH)); // $NON-NLS-1$
+		console.println(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH + ": "
+				+ new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH)); // $NON-NLS-1$
+		console.println(IDFEnvironmentVariables.PATH + ": "
+				+ new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.PATH)); // $NON-NLS-1$
+		console.println();
+		console.println(Messages.OperatingSystemMsg + System.getProperty("os.name").toLowerCase()); //$NON-NLS-1$
+		console.println(Messages.JavaRuntimeVersionMsg + System.getProperty("java.runtime.version")); //$NON-NLS-1$
+		console.println(Messages.EclipseMsg + Platform.getBundle("org.eclipse.platform").getVersion().toString()); //$NON-NLS-1$
+		console.println(Messages.EclipseCDTMsg + Platform.getBundle("org.eclipse.cdt").getVersion().toString()); //$NON-NLS-1$
 		showEspIdfVersion();
+		console.println(Messages.PythonIdfEnvMsg + getPythonExeVersion(IDFUtil.getIDFPythonEnvPath()));
+		console.println(Messages.PythonPathMsg + getPythonExeVersion("python")); //$NON-NLS-1$
+
 		return null;
 	}
 
@@ -79,24 +88,6 @@ public class ProductInformationHandler extends ListInstalledToolsHandler
 			Logger.log(IDFCorePlugin.getPlugin(), e1);
 		}
 		return exportCmdOp;
-	}
-
-	private void showEclipseVersion()
-	{
-		Wini ini;
-		try
-		{
-			ini = new Wini(new File(Platform.getInstallLocation().getURL().getPath() + "configuration/config.ini"));
-			console.println(Messages.EclipseMsg + ini.get("?", "eclipse.buildId"));
-		}
-		catch (InvalidFileFormatException e)
-		{
-			Logger.log(e);
-		}
-		catch (IOException e)
-		{
-			Logger.log(e);
-		}
 	}
 
 }
