@@ -5,6 +5,7 @@
 package com.espressif.idf.ui.update;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +20,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
@@ -28,24 +30,34 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 
+/**
+ * @author Kondal Kolipaka
+ * 
+ *         Run /tools/idf_tools.py export command
+ *
+ */
 public class ExportIDFTools
 {
-
-	public void runToolsExport(String pythonExecutablePath, String gitExecutablePath)
+	/**
+	 * @param pythonExePath python executable full path
+	 * @param gitExePath    git executable full path
+	 * @param console       Console stream to write messages
+	 */
+	public void runToolsExport(final String pythonExePath, final String gitExePath, final MessageConsoleStream console)
 	{
-		List<String> arguments = new ArrayList<String>();
-		arguments.add(pythonExecutablePath);
+		final List<String> arguments = new ArrayList<>();
+		arguments.add(pythonExePath);
 		arguments.add(IDFUtil.getIDFToolsScriptFile().getAbsolutePath());
 		arguments.add(IDFConstants.TOOLS_EXPORT_CMD);
 		arguments.add(IDFConstants.TOOLS_EXPORT_CMD_FORMAT_VAL);
 
-		String cmd = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments); //$NON-NLS-1$
-		Logger.log(cmd);
+		final String cmd = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments); //$NON-NLS-1$
+		log(cmd, console);
 
-		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
+		final ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 		try
 		{
-			IStatus status = processRunner.runInBackground(arguments, Path.ROOT, System.getenv());
+			final IStatus status = processRunner.runInBackground(arguments, Path.ROOT, System.getenv());
 			if (status == null)
 			{
 				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
@@ -53,39 +65,48 @@ public class ExportIDFTools
 			}
 
 			// process export command output
-			String exportCmdOp = status.getMessage();
-			Logger.log(exportCmdOp);
-			processExportCmdOutput(exportCmdOp, gitExecutablePath);
+			final String exportCmdOp = status.getMessage();
+			log(exportCmdOp, console);
+			processExportCmdOutput(exportCmdOp, gitExePath);
 		}
-		catch (Exception e1)
+		catch (IOException e1)
 		{
 			Logger.log(IDFCorePlugin.getPlugin(), e1);
 		}
 
 	}
 
-	protected String getCommandString(List<String> arguments)
+	private void log(final String cmd, final MessageConsoleStream console)
 	{
-		StringBuilder builder = new StringBuilder();
+		Logger.log(cmd);
+		if (console != null)
+		{
+			console.println(cmd);
+		}
+	}
+
+	private String getCommandString(final List<String> arguments)
+	{
+		final StringBuilder builder = new StringBuilder();
 		arguments.forEach(entry -> builder.append(entry + " ")); //$NON-NLS-1$
 
 		return builder.toString().trim();
 	}
 
-	protected void processExportCmdOutput(String exportCmdOp, String gitExecutablePath)
+	private void processExportCmdOutput(final String exportCmdOp, final String gitExecutablePath)
 	{
 		// process export command output
-		String[] exportEntries = exportCmdOp.split("\n"); //$NON-NLS-1$
+		final String[] exportEntries = exportCmdOp.split("\n"); //$NON-NLS-1$
 		for (String entry : exportEntries)
 		{
 			entry = entry.replaceAll("\\r", ""); //$NON-NLS-1$ //$NON-NLS-2$
 			String[] keyValue = entry.split("="); //$NON-NLS-1$
 			if (keyValue.length == 2) // 0 - key, 1 - value
 			{
-				String msg = MessageFormat.format("Key: {0} Value: {1}", keyValue[0], keyValue[1]); //$NON-NLS-1$
+				final String msg = MessageFormat.format("Key: {0} Value: {1}", keyValue[0], keyValue[1]); //$NON-NLS-1$
 				Logger.log(msg);
 
-				IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
+				final IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
 				String key = keyValue[0];
 				String value = keyValue[1];
 				if (key.equals(IDFEnvironmentVariables.PATH))
@@ -94,7 +115,7 @@ public class ExportIDFTools
 					value = appendGitToPath(value, gitExecutablePath);
 				}
 
-				IEnvironmentVariable env = idfEnvMgr.getEnv(key);
+				final IEnvironmentVariable env = idfEnvMgr.getEnv(key);
 
 				// Environment variable not found
 				if (env == null)
@@ -175,7 +196,7 @@ public class ExportIDFTools
 	 * @param gitExecutablePath
 	 * @return PATH value with git appended
 	 */
-	public String appendGitToPath(String path, String gitExecutablePath)
+	private String appendGitToPath(String path, String gitExecutablePath)
 	{
 		IPath gitPath = new Path(gitExecutablePath);
 		if (!gitPath.toFile().exists())

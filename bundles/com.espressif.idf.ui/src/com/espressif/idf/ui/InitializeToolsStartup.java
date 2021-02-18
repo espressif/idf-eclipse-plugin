@@ -24,6 +24,7 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.ESPToolChainManager;
 import com.espressif.idf.core.build.ESPToolChainProvider;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.update.ExportIDFTools;
 
 public class InitializeToolsStartup implements IStartup
@@ -47,13 +48,14 @@ public class InitializeToolsStartup implements IStartup
 		// Get the location of the eclipse root directory
 		Location installLocation = Platform.getInstallLocation();
 		URL url = installLocation.getURL();
-		Logger.log("Install location::" + url);
+		Logger.log("Eclipse Install location::" + url);
 
 		// Check the esp-idf.json
 		File idf_json_file = new File(url.getPath() + File.separator + ESP_IDF_JSON_FILE);
 		if (!idf_json_file.exists())
 		{
 			Logger.log(MessageFormat.format("esp-idf.json file doesn't exist at this location: {0}", url.getPath()));
+			return;
 		}
 
 		// read esp-idf.json file
@@ -74,11 +76,15 @@ public class InitializeToolsStartup implements IStartup
 				// Add IDF_PATH to the eclipse CDT build environment variables
 				IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
 				idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, idfPath);
-
-				ExportIDFTools exportIDFTools = new ExportIDFTools();
-				exportIDFTools.runToolsExport(pythonExecutablePath, gitExecutablePath);
-
-				configureToolChain();
+				
+				if (!StringUtil.isEmpty(pythonExecutablePath) && !StringUtil.isEmpty(gitExecutablePath))
+				{
+					ExportIDFTools exportIDFTools = new ExportIDFTools();
+					exportIDFTools.runToolsExport(pythonExecutablePath, gitExecutablePath, null);
+					
+					//Configure toolchains
+					configureToolChain();
+				}
 			}
 
 		}
