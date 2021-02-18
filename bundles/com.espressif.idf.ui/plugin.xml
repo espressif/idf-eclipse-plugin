@@ -63,6 +63,11 @@
             id="com.espressif.idf.ui.commands.installespidf"
             name="%command.name.2">
       </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.help.ProductInformationHandler"
+            id="com.espressif.idf.ui.command.productInfo"
+            name="%command.name.4 ">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -111,6 +116,16 @@
                icon="icons/espressif.png"
                id="installespidf"
                label="%command.label.0"
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:help?after=idfversiondoc">
+         <command
+               commandId="com.espressif.idf.ui.command.productInfo"
+               icon="icons/espressif.png"
+               label="%command.label.4 "
                style="push">
          </command>
       </menuContribution>
