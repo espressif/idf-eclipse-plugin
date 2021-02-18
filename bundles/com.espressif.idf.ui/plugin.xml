@@ -225,4 +225,10 @@
         name="%page.name">
   </page>
 	</extension>
+    <extension
+          point="org.eclipse.ui.startup">
+       <startup
+             class="com.espressif.idf.ui.InitilizeToolsStartup">
+       </startup>
+    </extension>
 </plugin>
