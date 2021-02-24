@@ -122,6 +122,13 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 
 	protected String getPythonExecutablePath()
 	{
+		//find python from IDF_PYTHON_ENV_PATH env path
+		pythonExecutablenPath = IDFUtil.getIDFPythonEnvPath();
+		if (!StringUtil.isEmpty(pythonExecutablenPath))
+		{
+			return pythonExecutablenPath;
+		}
+		
 		// Get Python
 		if (Platform.OS_WIN32.equals(Platform.getOS()))
 		{
