@@ -13,6 +13,8 @@ import java.text.MessageFormat;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.build.IToolChainManager;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.ui.IStartup;
@@ -24,6 +26,7 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.ESPToolChainManager;
 import com.espressif.idf.core.build.ESPToolChainProvider;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.resources.ResourceChangeListener;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.update.ExportIDFTools;
 
@@ -49,7 +52,7 @@ public class InitializeToolsStartup implements IStartup
 		Location installLocation = Platform.getInstallLocation();
 		URL url = installLocation.getURL();
 		Logger.log("Eclipse Install location::" + url);
-
+		ResourcesPlugin.getWorkspace().addResourceChangeListener(new ResourceChangeListener(), IResourceChangeEvent.PRE_BUILD);
 		// Check the esp-idf.json
 		File idf_json_file = new File(url.getPath() + File.separator + ESP_IDF_JSON_FILE);
 		if (!idf_json_file.exists())
@@ -86,6 +89,7 @@ public class InitializeToolsStartup implements IStartup
 					configureToolChain();
 				}
 			}
+
 
 		}
 		catch (
