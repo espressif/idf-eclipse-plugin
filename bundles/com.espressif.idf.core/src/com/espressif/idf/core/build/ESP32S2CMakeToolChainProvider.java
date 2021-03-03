@@ -43,7 +43,7 @@ public class ESP32S2CMakeToolChainProvider implements ICMakeToolChainProvider, I
 			try
 			{
 				// This will load up the toolchain
-				IToolChain toolChain = tcManager.getToolChain(ESPToolChainProvider.ID, ESP32S2ToolChain.ID);
+				IToolChain toolChain = tcManager.getToolChain(ESPToolChainProvider.ID, ESP32S3ToolChain.ID);
 				assert toolChain != null;
 			}
 			catch (CoreException e)
