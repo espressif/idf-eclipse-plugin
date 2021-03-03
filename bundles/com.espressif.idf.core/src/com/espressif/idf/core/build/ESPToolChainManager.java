@@ -110,13 +110,20 @@ public class ESPToolChainManager
 									if (tuple.length > 2)
 									{
 										GCCToolChain gcc = null;
-										if (tuple[1].equals(ESPToolChain.OS))
+										switch (tuple[1])
 										{
-											gcc = new ESPToolChain(toolchainProvider, file.toPath());
-										}
-										else
-										{
+										case ESP32ToolChain.OS:
+											gcc = new ESP32ToolChain(toolchainProvider, file.toPath());
+											break;
+										case ESP32S2ToolChain.OS:
 											gcc = new ESP32S2ToolChain(toolchainProvider, file.toPath());
+											break;
+										case ESP32S3ToolChain.OS:
+											gcc = new ESP32S3ToolChain(toolchainProvider, file.toPath());
+											break;
+										default:
+											gcc = new ESP32ToolChain(toolchainProvider, file.toPath());
+											break;
 										}
 										try
 										{
@@ -178,7 +185,7 @@ public class ESPToolChainManager
 			Logger.log("idf_tools.py path doesn't exist"); //$NON-NLS-1$
 			return null;
 		}
-		
+
 		String idfPythonEnvPath = IDFUtil.getIDFPythonEnvPath();
 
 		try
@@ -191,7 +198,7 @@ public class ESPToolChainManager
 			commands.add(tools_path);
 			commands.add(IDFConstants.TOOLS_EXPORT_CMD);
 			commands.add(IDFConstants.TOOLS_EXPORT_CMD_FORMAT_VAL);
-			
+
 			Logger.log(commands.toString());
 
 			IStatus idf_tools_export_status = new ProcessBuilderFactory().runInBackground(commands,
@@ -231,7 +238,7 @@ public class ESPToolChainManager
 			return;
 		}
 		Map<String, String> toolchainMap = new HashMap<String, String>();
-		toolchainMap.put(ESPToolChain.OS, ESPCMakeToolChainProvider.TOOLCHAIN_ESP32_CMAKE);
+		toolchainMap.put(ESP32ToolChain.OS, ESPC32CMakeToolChainProvider.TOOLCHAIN_ESP32_CMAKE);
 		toolchainMap.put(ESP32S2ToolChain.OS, ESP32S2CMakeToolChainProvider.TOOLCHAIN_ESP32_CMAKE);
 
 		Set<String> keySet = toolchainMap.keySet();
@@ -239,7 +246,7 @@ public class ESPToolChainManager
 		{
 			Map<String, String> properties = new HashMap<>();
 			properties.put(IToolChain.ATTR_OS, model);
-			properties.put(IToolChain.ATTR_ARCH, ESPToolChain.ARCH);
+			properties.put(IToolChain.ATTR_ARCH, ESP32ToolChain.ARCH);
 
 			try
 			{
@@ -265,7 +272,7 @@ public class ESPToolChainManager
 					{
 						ICMakeToolChainFile file = manager.newToolChainFile(toolChainFile);
 						file.setProperty(IToolChain.ATTR_OS, model);
-						file.setProperty(IToolChain.ATTR_ARCH, ESPToolChain.ARCH);
+						file.setProperty(IToolChain.ATTR_ARCH, ESP32ToolChain.ARCH);
 
 						file.setProperty(ICBuildConfiguration.TOOLCHAIN_TYPE, tc.getTypeId());
 						file.setProperty(ICBuildConfiguration.TOOLCHAIN_ID, tc.getId());
