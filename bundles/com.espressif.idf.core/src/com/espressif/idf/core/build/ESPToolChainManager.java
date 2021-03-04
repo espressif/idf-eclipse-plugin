@@ -239,7 +239,8 @@ public class ESPToolChainManager
 		}
 		Map<String, String> toolchainMap = new HashMap<String, String>();
 		toolchainMap.put(ESP32ToolChain.OS, ESPC32CMakeToolChainProvider.TOOLCHAIN_ESP32_CMAKE);
-		toolchainMap.put(ESP32S2ToolChain.OS, ESP32S2CMakeToolChainProvider.TOOLCHAIN_ESP32_CMAKE);
+		toolchainMap.put(ESP32S2ToolChain.OS, ESP32S2CMakeToolChainProvider.TOOLCHAIN_ESP32S2_CMAKE);
+		toolchainMap.put(ESP32S3ToolChain.OS, ESP32S3CMakeToolChainProvider.TOOLCHAIN_ESP3233_CMAKE);
 
 		Set<String> keySet = toolchainMap.keySet();
 		for (String model : keySet)

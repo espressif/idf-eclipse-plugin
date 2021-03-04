@@ -22,7 +22,7 @@ import org.eclipse.launchbar.core.target.ILaunchTargetWorkingCopy;
 import org.eclipse.launchbar.core.target.TargetStatus;
 
 import com.espressif.idf.core.build.ESP32S2ToolChain;
-import com.espressif.idf.core.build.ESPToolChain;
+import com.espressif.idf.core.build.ESP32ToolChain;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 
 /**
@@ -39,13 +39,13 @@ public class SerialFlashLaunchTargetProvider implements ILaunchTargetProvider {
 	public void init(ILaunchTargetManager targetManager) {
 
 		//Create default esp32 target if that doesn't exist
-		if (targetManager.getLaunchTarget(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE, ESPToolChain.OS) == null) {
+		if (targetManager.getLaunchTarget(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE, ESP32ToolChain.OS) == null) {
 			ILaunchTarget target = targetManager.addLaunchTarget(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE,
-					ESPToolChain.OS);
+					ESP32ToolChain.OS);
 			ILaunchTargetWorkingCopy wc = target.getWorkingCopy();
-			wc.setAttribute(ILaunchTarget.ATTR_OS, ESPToolChain.OS);
-			wc.setAttribute(ILaunchTarget.ATTR_ARCH, ESPToolChain.ARCH);
-			wc.setAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, ESPToolChain.OS);
+			wc.setAttribute(ILaunchTarget.ATTR_OS, ESP32ToolChain.OS);
+			wc.setAttribute(ILaunchTarget.ATTR_ARCH, ESP32ToolChain.ARCH);
+			wc.setAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, ESP32ToolChain.OS);
 			wc.save();
 		}
 
