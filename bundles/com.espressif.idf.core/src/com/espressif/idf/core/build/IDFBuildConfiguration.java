@@ -246,6 +246,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				}
 
 				command.add("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"); //$NON-NLS-1$
+				command.add("-DCCACHE_ENABLE=1"); //$NON-NLS-1$
 
 				if (launchtarget != null)
 				{
