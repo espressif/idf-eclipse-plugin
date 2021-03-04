@@ -41,6 +41,7 @@ public class Messages extends NLS
 	public static String PythonIdfEnvMsg;
 	public static String PythonPathMsg;
 	public static String MissingIdfPathMsg;
+	public static String NotFoundMsg;
 	
 	static
 	{

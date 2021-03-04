@@ -40,23 +40,35 @@ public class ProductInformationHandler extends ListInstalledToolsHandler
 		{
 			activateIDFConsoleView();
 		}
-		console.println(IDFEnvironmentVariables.IDF_PATH + ": " + new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PATH)); // $NON-NLS-1$
-		console.println(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH + ": "
-				+ new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH)); // $NON-NLS-1$
-		console.println(IDFEnvironmentVariables.PATH + ": "
-				+ new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.PATH)); // $NON-NLS-1$
+		String[] IDFEnvVarsToShow = { IDFEnvironmentVariables.IDF_PATH, IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH,
+				IDFEnvironmentVariables.PATH };
+		showIDFEnvVars(IDFEnvVarsToShow);
 		console.println();
 		console.println(Messages.OperatingSystemMsg + System.getProperty("os.name").toLowerCase()); //$NON-NLS-1$
-		console.println(Messages.JavaRuntimeVersionMsg + System.getProperty("java.runtime.version")); //$NON-NLS-1$
+		console.println(Messages.JavaRuntimeVersionMsg
+				+ (Optional.ofNullable(System.getProperty("java.runtime.version")).orElse(Messages.NotFoundMsg))); //$NON-NLS-1$
 		console.println(Messages.EclipseMsg + (Optional.ofNullable(Platform.getBundle("org.eclipse.platform"))
-				.map(o -> o.getVersion().toString()).orElse(null))); // $NON-NLS-1$
+				.map(o -> o.getVersion().toString()).orElse(Messages.NotFoundMsg))); // $NON-NLS-1$
 		console.println(Messages.EclipseMsg + (Optional.ofNullable(Platform.getBundle("org.eclipse.cdt"))
-				.map(o -> o.getVersion().toString()).orElse(null))); // $NON-NLS-1$
+				.map(o -> o.getVersion().toString()).orElse(Messages.NotFoundMsg))); // $NON-NLS-1$
 		showEspIdfVersion();
-		console.println(Messages.PythonIdfEnvMsg + getPythonExeVersion(IDFUtil.getIDFPythonEnvPath()));
-		console.println(Messages.PythonPathMsg + getPythonExeVersion("python")); //$NON-NLS-1$
+		console.println(Messages.PythonIdfEnvMsg
+				+ (Optional.ofNullable(getPythonExeVersion(IDFUtil.getIDFPythonEnvPath()))
+						.orElse(Messages.NotFoundMsg)));
+		console.println(Messages.PythonPathMsg
+				+ (Optional.ofNullable(getPythonExeVersion("python")).orElse(Messages.NotFoundMsg))); //$NON-NLS-1$
 
 		return null;
+	}
+
+	private void showIDFEnvVars(String[] IDFEnvVarsToShow)
+	{
+		for (String IDFEnvVar : IDFEnvVarsToShow)
+		{
+			String IDFEnvVarValue = new IDFEnvironmentVariables().getEnvValue(IDFEnvVar);
+			IDFEnvVarValue = IDFEnvVarValue.isEmpty() ? Messages.NotFoundMsg : IDFEnvVarValue;
+			console.println(IDFEnvVar + ": " + IDFEnvVarValue); // $NON-NLS-1$
+		}
 	}
 
 	private void showEspIdfVersion()
