@@ -22,7 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.build.ICBuildConfiguration;
+import org.eclipse.cdt.core.build.ICBuildConfigurationManager;
+import org.eclipse.cdt.core.build.ICBuildConfigurationManager2;
 import org.eclipse.cdt.debug.core.CDebugCorePlugin;
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.debug.core.launch.CoreBuildGenericLaunchConfigDelegate;
@@ -170,6 +173,9 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 			IProjectDescription desc = project.getDescription();
 			desc.setActiveBuildConfig(buildConfig.getBuildConfiguration().getName());
 			project.setDescription(desc, monitor);
+			ICBuildConfigurationManager mgr = CCorePlugin.getService(ICBuildConfigurationManager.class);
+			ICBuildConfigurationManager2 manager = (ICBuildConfigurationManager2) mgr;
+			manager.recheckConfigs();
 
 			((IDFBuildConfiguration) buildConfig).setLaunchTarget(target);
 
