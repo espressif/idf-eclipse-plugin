@@ -1,5 +1,6 @@
 package com.espressif.idf.core.resources;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.Optional;
 
@@ -37,18 +38,27 @@ public class ResourceChangeListener implements IResourceChangeListener
 		{
 			event.getDelta().accept(new IResourceDeltaVisitor() {
 				@Override
-				public boolean visit(IResourceDelta delta) throws CoreException
+				public boolean visit(final IResourceDelta delta) throws CoreException
 				{
-					boolean isProjectRenamed = delta.getResource().getType() == IResource.PROJECT
+					IResource resource = delta.getResource();
+					boolean isProjectAdded = (((resource.getType() & IResource.PROJECT) != 0)
+							&& resource.getProject().isOpen() && delta.getKind() == IResourceDelta.ADDED);
+
+					if (isProjectAdded)
+					{
+						cleanupBuildFolder(resource);
+					}
+
+					boolean isProjectRenamed = resource.getType() == IResource.PROJECT
 							&& delta.getKind() == IResourceDelta.ADDED
 							&& ((delta.getFlags() & IResourceDelta.MOVED_FROM) != 0);
 
-					boolean isProjectOpenedOrCopied = delta.getResource().getType() == IResource.PROJECT
-							&& delta.getFlags() == IResourceDelta.OPEN;
+					boolean isProjectOpenedOrCopied = resource.getType() == IResource.PROJECT
+							&& ((delta.getFlags() & IResourceDelta.OPEN) != 0);
 
 					if (isProjectOpenedOrCopied || isProjectRenamed)
 					{
-						IProject project = (IProject) delta.getResource();
+						IProject project = (IProject) resource;
 						if (project.isOpen()) 
 						{
 							Preferences settings = InstanceScope.INSTANCE.getNode(CCorePlugin.PLUGIN_ID).node("config")
@@ -74,6 +84,27 @@ public class ResourceChangeListener implements IResourceChangeListener
 		
 	}
 	
+	private void cleanupBuildFolder(IResource resource)
+	{
+
+		IProject project = (IProject) resource;
+		File buildLocation = new File(project.getLocation() + "/build"); //$NON-NLS-1$
+		deleteDirectory(buildLocation);
+	}
+	
+	private boolean deleteDirectory(File directoryToBeDeleted)
+	{
+		File[] allContents = directoryToBeDeleted.listFiles();
+		if (allContents != null)
+		{
+			for (File file : allContents)
+			{
+				deleteDirectory(file);
+			}
+		}
+		return directoryToBeDeleted.delete();
+	}
+
 	private void recheckConfigs()
 	{
 		ICBuildConfigurationManager mgr = CCorePlugin.getService(ICBuildConfigurationManager.class);
