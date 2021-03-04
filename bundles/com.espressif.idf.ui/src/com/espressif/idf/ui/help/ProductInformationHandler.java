@@ -49,7 +49,7 @@ public class ProductInformationHandler extends ListInstalledToolsHandler
 				+ (Optional.ofNullable(System.getProperty("java.runtime.version")).orElse(Messages.NotFoundMsg))); //$NON-NLS-1$
 		console.println(Messages.EclipseMsg + (Optional.ofNullable(Platform.getBundle("org.eclipse.platform"))
 				.map(o -> o.getVersion().toString()).orElse(Messages.NotFoundMsg))); // $NON-NLS-1$
-		console.println(Messages.EclipseMsg + (Optional.ofNullable(Platform.getBundle("org.eclipse.cdt"))
+		console.println(Messages.EclipseCDTMsg + (Optional.ofNullable(Platform.getBundle("org.eclipse.cdt"))
 				.map(o -> o.getVersion().toString()).orElse(Messages.NotFoundMsg))); // $NON-NLS-1$
 		showEspIdfVersion();
 		console.println(Messages.PythonIdfEnvMsg
