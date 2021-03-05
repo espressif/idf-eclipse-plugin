@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.build.ESP32S2ToolChain;
-import com.espressif.idf.core.build.ESPToolChain;
+import com.espressif.idf.core.build.ESP32ToolChain;
 import com.espressif.idf.core.logging.Logger;
 
 public class ResourceChangeListener implements IResourceChangeListener 
@@ -119,7 +119,7 @@ public class ResourceChangeListener implements IResourceChangeListener
 		while (iter.hasNext())
 		{
 			toolChain = iter.next();
-			if (toolChain instanceof ESPToolChain ||  toolChain instanceof ESP32S2ToolChain) 
+			if (toolChain instanceof ESP32ToolChain ||  toolChain instanceof ESP32S2ToolChain) //TODO: remove specific conditions
 			{
 				return toolChain;
 			}

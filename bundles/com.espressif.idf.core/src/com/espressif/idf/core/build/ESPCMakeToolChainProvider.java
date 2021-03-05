@@ -19,11 +19,10 @@ import com.espressif.idf.core.IDFCorePlugin;
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
-public class ESPCMakeToolChainProvider implements ICMakeToolChainProvider, ICMakeToolChainListener
+public abstract class ESPCMakeToolChainProvider implements ICMakeToolChainProvider, ICMakeToolChainListener
 {
 
-	public static final String TOOLCHAIN_ESP32_CMAKE = "toolchain-esp32.cmake"; //$NON-NLS-1$
-	private IToolChainManager tcManager = CCorePlugin.getService(IToolChainManager.class);
+	protected IToolChainManager tcManager = CCorePlugin.getService(IToolChainManager.class);
 
 	@Override
 	public void init(ICMakeToolChainManager manager)
@@ -43,7 +42,7 @@ public class ESPCMakeToolChainProvider implements ICMakeToolChainProvider, ICMak
 			try
 			{
 				// This will load up the toolchain
-				IToolChain toolChain = tcManager.getToolChain(ESPToolChainProvider.ID, ESPToolChain.ID);
+				IToolChain toolChain = getToolchain();
 				assert toolChain != null;
 			}
 			catch (CoreException e)
@@ -53,5 +52,7 @@ public class ESPCMakeToolChainProvider implements ICMakeToolChainProvider, ICMak
 			break;
 		}
 	}
+
+	protected abstract IToolChain getToolchain() throws CoreException;
 
 }

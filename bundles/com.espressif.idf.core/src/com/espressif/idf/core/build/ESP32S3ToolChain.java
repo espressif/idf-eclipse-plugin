@@ -12,16 +12,17 @@ import org.eclipse.cdt.core.build.IToolChainProvider;
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
-public class ESP32S2ToolChain extends AbstractESPToolchain
+public class ESP32S3ToolChain extends AbstractESPToolchain
 {
-
-	public static final String ID = "xtensa-esp32s2-elf"; //$NON-NLS-1$
-	public static final String OS = "esp32s2"; //$NON-NLS-1$
+	//TODO: register these toolchains through extension point
+	public static final String ID = "xtensa-esp32s3-elf"; //$NON-NLS-1$
+	public static final String OS = "esp32s3"; //$NON-NLS-1$
 	public static final String ARCH = "xtensa"; //$NON-NLS-1$
 
-	public ESP32S2ToolChain(IToolChainProvider provider, Path pathToToolChain)
+	public ESP32S3ToolChain(IToolChainProvider provider, Path pathToToolChain)
 	{
 		super(provider, pathToToolChain, OS, ARCH);
 	}
+
 
 }
