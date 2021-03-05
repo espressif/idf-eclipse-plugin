@@ -22,7 +22,7 @@ import com.espressif.idf.core.IDFCorePlugin;
 public class ESP32S2CMakeToolChainProvider implements ICMakeToolChainProvider, ICMakeToolChainListener
 {
 
-	public static final String TOOLCHAIN_ESP32_CMAKE = "toolchain-esp32s2.cmake"; //$NON-NLS-1$
+	public static final String TOOLCHAIN_ESP32S2_CMAKE = "toolchain-esp32s2.cmake"; //$NON-NLS-1$
 	private IToolChainManager tcManager = CCorePlugin.getService(IToolChainManager.class);
 
 	@Override
@@ -43,7 +43,7 @@ public class ESP32S2CMakeToolChainProvider implements ICMakeToolChainProvider, I
 			try
 			{
 				// This will load up the toolchain
-				IToolChain toolChain = tcManager.getToolChain(ESPToolChainProvider.ID, ESP32S2ToolChain.ID);
+				IToolChain toolChain = tcManager.getToolChain(ESPToolChainProvider.ID, ESP32S3ToolChain.ID);
 				assert toolChain != null;
 			}
 			catch (CoreException e)

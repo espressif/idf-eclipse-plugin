@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2018-2019 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Copyright 2020 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
 package com.espressif.idf.core.build;
@@ -10,18 +10,15 @@ import org.eclipse.cdt.build.gcc.core.GCCToolChain;
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.build.IToolChainProvider;
 
+
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
-public class ESPToolChain extends GCCToolChain
+public abstract class AbstractESPToolchain extends GCCToolChain
 {
 
-	public static final String ID = "xtensa-esp32-elf"; //$NON-NLS-1$
-	public static final String OS = "esp32"; //$NON-NLS-1$
-	public static final String ARCH = "xtensa"; //$NON-NLS-1$
-
-	public ESPToolChain(IToolChainProvider provider, Path pathToToolChain)
+	public AbstractESPToolchain(IToolChainProvider provider, Path pathToToolChain, String OS, String ARCH)
 	{
 		super(provider, pathToToolChain, ARCH, null);
 		setProperty(ATTR_OS, OS);
@@ -33,5 +30,4 @@ public class ESPToolChain extends GCCToolChain
 	{
 		return CCorePlugin.PLUGIN_ID + ".ELF"; //$NON-NLS-1$
 	}
-
 }
