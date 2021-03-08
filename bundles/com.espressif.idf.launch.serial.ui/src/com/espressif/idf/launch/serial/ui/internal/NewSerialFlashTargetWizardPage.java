@@ -160,6 +160,8 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 		List<String> targetList = new ArrayList<>();
 		targetList.add("esp32"); //$NON-NLS-1$
 		targetList.add("esp32s2"); //$NON-NLS-1$
+		targetList.add("esp32s3"); //$NON-NLS-1$
+		targetList.add("esp32c3"); //$NON-NLS-1$
 
 		return targetList;
 
