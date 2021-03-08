@@ -17,8 +17,11 @@ package com.espressif.idf.launch.serial.ui.internal;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
+import org.eclipse.cdt.core.build.IToolChain;
 import org.eclipse.cdt.serial.SerialPort;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -32,6 +35,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import com.espressif.idf.core.build.ESPToolChainManager;
 import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 
 public class NewSerialFlashTargetWizardPage extends WizardPage {
@@ -144,6 +148,12 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 	}
 
 	public String getArch() {
+		Collection<Map<String, String>> toolchains = getToolchains();
+		for (Map<String, String> map : toolchains) {
+			if (map.get(IToolChain.ATTR_OS).equals(getIDFTarget())) {
+				return map.get(IToolChain.ATTR_ARCH);
+			}
+		}
 		return ARCH;
 	}
 
@@ -155,15 +165,20 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 		return serialPortCombo.getText();
 	}
 
-	//TODO: Going forward we can read targets from the tools.json schema
 	private List<String> getIDFTargetList() {
 		List<String> targetList = new ArrayList<>();
-		targetList.add("esp32"); //$NON-NLS-1$
-		targetList.add("esp32s2"); //$NON-NLS-1$
-		targetList.add("esp32s3"); //$NON-NLS-1$
-		targetList.add("esp32c3"); //$NON-NLS-1$
+
+		Collection<Map<String, String>> toolchains = getToolchains();
+		for (Map<String, String> toolchain : toolchains) {
+			targetList.add(toolchain.get(IToolChain.ATTR_OS));
+		}
 
 		return targetList;
 
+	}
+
+	private Collection<Map<String, String>> getToolchains() {
+		Collection<Map<String, String>> toolchains = new ESPToolChainManager().getToolchainProperties();
+		return toolchains;
 	}
 }

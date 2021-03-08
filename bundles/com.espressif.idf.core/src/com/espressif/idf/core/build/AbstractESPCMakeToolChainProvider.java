@@ -19,7 +19,7 @@ import com.espressif.idf.core.IDFCorePlugin;
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
-public abstract class ESPCMakeToolChainProvider implements ICMakeToolChainProvider, ICMakeToolChainListener
+public abstract class AbstractESPCMakeToolChainProvider implements ICMakeToolChainProvider, ICMakeToolChainListener
 {
 
 	protected IToolChainManager tcManager = CCorePlugin.getService(IToolChainManager.class);

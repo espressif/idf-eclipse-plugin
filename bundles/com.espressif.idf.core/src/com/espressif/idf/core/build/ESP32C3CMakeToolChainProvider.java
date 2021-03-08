@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2018-2019 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
 package com.espressif.idf.core.build;
@@ -11,15 +11,15 @@ import org.eclipse.core.runtime.CoreException;
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
-public class ESPC32CMakeToolChainProvider extends ESPCMakeToolChainProvider
+public class ESP32C3CMakeToolChainProvider extends AbstractESPCMakeToolChainProvider
 {
 
-	public static final String TOOLCHAIN_ESP32_CMAKE = "toolchain-esp32.cmake"; //$NON-NLS-1$
+	public static final String TOOLCHAIN_NAME = "toolchain-esp32c3.cmake"; //$NON-NLS-1$
 
-	@Override
 	protected IToolChain getToolchain() throws CoreException
 	{
-		return tcManager.getToolChain(ESPToolChainProvider.ID, ESP32ToolChain.ID);
+		IToolChain toolChain = tcManager.getToolChain(ESPToolChainProvider.ID, ESP32C3ToolChain.ID);
+		return toolChain;
 	}
 
 }
