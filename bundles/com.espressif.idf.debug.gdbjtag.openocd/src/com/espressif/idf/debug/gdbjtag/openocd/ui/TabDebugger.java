@@ -25,6 +25,7 @@
 package com.espressif.idf.debug.gdbjtag.openocd.ui;
 
 import java.io.File;
+import java.util.HashMap;
 
 import org.eclipse.cdt.debug.gdbjtag.core.IGDBJtagConstants;
 import org.eclipse.cdt.debug.gdbjtag.ui.GDBJtagImages;
@@ -47,6 +48,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
@@ -54,6 +56,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PreferencesUtil;
+import org.json.simple.JSONArray;
 
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
@@ -65,6 +68,7 @@ import com.espressif.idf.debug.gdbjtag.openocd.preferences.PersistentPreferences
 import com.espressif.idf.debug.gdbjtag.openocd.ui.preferences.GlobalMcuPage;
 import com.espressif.idf.debug.gdbjtag.openocd.ui.preferences.WorkspaceMcuPage;
 import com.espressif.idf.debug.gdbjtag.openocd.ui.properties.ProjectMcuPage;
+import com.espressif.idf.debug.gdbjtag.openocd.utils.EspConfigParser;
 
 import ilg.gnumcueclipse.core.EclipseUtils;
 
@@ -77,7 +81,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 
 	private static final String TAB_NAME = "Debugger";
 	private static final String TAB_ID = Activator.PLUGIN_ID + ".ui.debuggertab";
-
+	private static final String EMPTY_CONFIG_OPTIONS = "-s ${openocd_path}/share/openocd/scripts";
 	// ------------------------------------------------------------------------
 
 	private ILaunchConfiguration fConfiguration;
@@ -96,6 +100,10 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 
 	private Button fDoGdbServerAllocateConsole;
 	private Button fDoGdbServerAllocateTelnetConsole;
+
+	private Combo fTarget;
+	private Combo fTargetName;
+	private HashMap<String, JSONArray> boardConfigsMap;
 
 	private Button fDoStartGdbClient;
 	private Text fGdbClientExecutable;
@@ -146,13 +154,12 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 		setControl(comp);
 		GridLayout layout = new GridLayout();
 		comp.setLayout(layout);
-
+		
 		createGdbServerGroup(comp);
 
 		createGdbClientControls(comp);
 
 		createRemoteControl(comp);
-
 		fUpdateThreadlistOnSuspend = new Button(comp, SWT.CHECK);
 		fUpdateThreadlistOnSuspend.setText(Messages.getString("DebuggerTab.update_thread_list_on_suspend_Text"));
 		fUpdateThreadlistOnSuspend
@@ -324,7 +331,57 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 			gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
 			fGdbServerTclPort.setLayoutData(gd);
 		}
+		{
+			Label label = new Label(comp, SWT.NONE);
+			label.setText(Messages.getString("DebuggerTab.configTargetLabel"));
+			EspConfigParser parser = new EspConfigParser();
+			GridData gd = new GridData();
+			gd.widthHint = 60;
+			gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
+			fTarget = new Combo(comp, SWT.SINGLE | SWT.BORDER);
+			fTarget.setItems(parser.getTargets().toArray(new String[0]));
+			fTarget.addSelectionListener(new SelectionAdapter()
+			{
+				@Override
+				public void widgetSelected(SelectionEvent e)
+				{
+					String selectedItem = fTarget.getItem(fTarget.getSelectionIndex());
+					if (!selectedItem.isBlank())
+					{
+						fTargetName.setEnabled(true);
+						boardConfigsMap = parser.getBoardsConfigs(selectedItem);
+						fTargetName.setItems(parser.getBoardsConfigs(selectedItem).keySet().toArray(new String[0]));
+					}
+				}
+			});
+			fTarget.setLayoutData(gd);
+		}
+		{
+			Label label = new Label(comp, SWT.NONE);
+			label.setText(Messages.getString("DebuggerTab.configBoardLabel"));
 
+			GridData gd = new GridData();
+			gd.widthHint = 130;
+			gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
+			fTargetName = new Combo(comp, SWT.SINGLE | SWT.BORDER);
+			fTargetName.setEnabled(false);
+			fTargetName.addSelectionListener(new SelectionAdapter()
+			{
+				@SuppressWarnings("unchecked")
+				@Override
+				public void widgetSelected(SelectionEvent e)
+				{
+					String selectedItem = fTargetName.getItem(fTargetName.getSelectionIndex());
+					String configOptiopns = EMPTY_CONFIG_OPTIONS;
+					for (String config : (String[]) boardConfigsMap.get(selectedItem).toArray(new String[0]))
+					{
+						configOptiopns = configOptiopns + " -f " + config; //$NON-NLS-1$
+					}
+					fGdbServerOtherOptions.setText(configOptiopns);
+				}
+			});
+			fTargetName.setLayoutData(gd);
+		}
 		{
 			Label label = new Label(comp, SWT.NONE);
 			label.setText(Messages.getString("DebuggerTab.gdbServerOther_Label")); //$NON-NLS-1$
@@ -746,6 +803,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 			// OpenOCD GDB server
 			{
 				// Start server locally
+
 				booleanDefault = fPersistentPreferences.getGdbServerDoStart();
 				fDoStartGdbServer.setSelection(
 						configuration.getAttribute(ConfigurationAttributes.DO_START_GDB_SERVER, booleanDefault));
