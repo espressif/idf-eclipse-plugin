@@ -11,12 +11,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.cdt.build.gcc.core.GCCToolChain;
 import org.eclipse.cdt.build.gcc.core.GCCToolChain.GCCInfo;
@@ -30,7 +31,6 @@ import org.eclipse.cdt.core.build.IToolChainProvider;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
@@ -46,6 +46,11 @@ import com.espressif.idf.core.util.StringUtil;
  */
 public class ESPToolChainManager
 {
+	/**
+	 * Toolchain target property id.
+	 */
+	private static final String TOOLCHAIN_ATTR_ID = "ATTR_ID"; //$NON-NLS-1$
+
 	/**
 	 * @param manager
 	 * @param toolchainId
@@ -98,59 +103,69 @@ public class ESPToolChainManager
 						{
 							continue;
 						}
-						Matcher matcher = ESPToolChainProvider.GCC_PATTERN.matcher(file.getName());
-						if (matcher.matches())
+
+						Collection<Pattern> toolchainPatterns = ESPToolChainProvider.getToolchainPatterns();
+						for (Pattern pattern : toolchainPatterns)
 						{
-							try
+							Matcher matcher = pattern.matcher(file.getName());
+							if (matcher.matches())
 							{
-								GCCInfo info = new GCCInfo(file.toString());
-								if (info.target != null && info.version != null)
-								{
-									String[] tuple = info.target.split("-"); //$NON-NLS-1$
-									if (tuple.length > 2)
-									{
-										GCCToolChain gcc = null;
-										switch (tuple[1])
-										{
-										case ESP32ToolChain.OS:
-											gcc = new ESP32ToolChain(toolchainProvider, file.toPath());
-											break;
-										case ESP32S2ToolChain.OS:
-											gcc = new ESP32S2ToolChain(toolchainProvider, file.toPath());
-											break;
-										case ESP32S3ToolChain.OS:
-											gcc = new ESP32S3ToolChain(toolchainProvider, file.toPath());
-											break;
-										default:
-											gcc = new ESP32ToolChain(toolchainProvider, file.toPath());
-											break;
-										}
-										try
-										{
-											if (manager.getToolChain(gcc.getTypeId(), gcc.getId()) == null)
-											{
-												// Only add if another provider hasn't already added it
-												if (matcher.matches())
-												{
-													manager.addToolChain(gcc);
-												}
-											}
-										}
-										catch (CoreException e)
-										{
-											CCorePlugin.log(e.getStatus());
-										}
-									}
-								}
-							}
-							catch (IOException e)
-							{
-								Logger.log(IDFCorePlugin.getPlugin(), e);
+								addToolChain(manager, toolchainProvider, file, matcher);
 							}
 						}
 					}
 				}
 			}
+		}
+	}
+
+	private void addToolChain(IToolChainManager manager, IToolChainProvider toolchainProvider, File file,
+			Matcher matcher)
+	{
+		try
+		{
+			GCCInfo info = new GCCInfo(file.toString());
+			if (info.target != null && info.version != null)
+			{
+				GCCToolChain gcc = null;
+				switch (info.target)
+				{
+				case ESP32ToolChain.ID:
+					gcc = new ESP32ToolChain(toolchainProvider, file.toPath());
+					break;
+				case ESP32S2ToolChain.ID:
+					gcc = new ESP32S2ToolChain(toolchainProvider, file.toPath());
+					break;
+				case ESP32S3ToolChain.ID:
+					gcc = new ESP32S3ToolChain(toolchainProvider, file.toPath());
+					break;
+				case ESP32C3ToolChain.ID:
+					gcc = new ESP32C3ToolChain(toolchainProvider, file.toPath());
+					break;
+				default:
+					gcc = new ESP32ToolChain(toolchainProvider, file.toPath());
+					break;
+				}
+				try
+				{
+					if (manager.getToolChain(gcc.getTypeId(), gcc.getId()) == null)
+					{
+						// Only add if another provider hasn't already added it
+						if (matcher.matches())
+						{
+							manager.addToolChain(gcc);
+						}
+					}
+				}
+				catch (CoreException e)
+				{
+					CCorePlugin.log(e.getStatus());
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			Logger.log(IDFCorePlugin.getPlugin(), e);
 		}
 	}
 
@@ -233,61 +248,88 @@ public class ESPToolChainManager
 	public void initCMakeToolChain(IToolChainManager tcManager, ICMakeToolChainManager manager)
 	{
 		String idfPath = IDFUtil.getIDFPath();
-		if (StringUtil.isEmpty(idfPath)) // not yet configured
+		if (StringUtil.isEmpty(idfPath))
 		{
+			Logger.log("IDF_PATH is not found to auto-configure the toolchains.");
 			return;
 		}
-		Map<String, String> toolchainMap = new HashMap<String, String>();
-		toolchainMap.put(ESP32ToolChain.OS, ESPC32CMakeToolChainProvider.TOOLCHAIN_ESP32_CMAKE);
-		toolchainMap.put(ESP32S2ToolChain.OS, ESP32S2CMakeToolChainProvider.TOOLCHAIN_ESP32S2_CMAKE);
-		toolchainMap.put(ESP32S3ToolChain.OS, ESP32S3CMakeToolChainProvider.TOOLCHAIN_ESP3233_CMAKE);
 
-		Set<String> keySet = toolchainMap.keySet();
-		for (String model : keySet)
+		if (!new File(idfPath).exists())
 		{
-			Map<String, String> properties = new HashMap<>();
-			properties.put(IToolChain.ATTR_OS, model);
-			properties.put(IToolChain.ATTR_ARCH, ESP32ToolChain.ARCH);
+			String msg = MessageFormat.format(Messages.ESP32CMakeToolChainProvider_PathDoesnNotExist, idfPath);
+			Logger.log(msg);
+			return;
+		}
 
+		// add the newly found IDF_PATH to the eclipse environment variables if it's not there
+		IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
+		if (!new File(idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).exists())
+		{
+			idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, idfPath);
+		}
+
+		Collection<Map<String, String>> toolchains = getToolchainProperties();
+		for (Map<String, String> properties : toolchains)
+		{
 			try
 			{
 				for (IToolChain tc : tcManager.getToolChainsMatching(properties))
 				{
 
-					if (!new File(idfPath).exists())
-					{
-						String errorMsg = MessageFormat.format(Messages.ESP32CMakeToolChainProvider_PathDoesnNotExist,
-								idfPath);
-						throw new CoreException(new Status(IStatus.ERROR, IDFCorePlugin.PLUGIN_ID, errorMsg));
-					}
-
-					// add the newly found IDF_PATH to the eclipse environment variables if it's not there
-					IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
-					if (!new File(idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).exists())
-					{
-						idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, idfPath);
-					}
-
-					Path toolChainFile = Paths.get(getIdfCMakePath(idfPath)).resolve(toolchainMap.get(model));
+					Path toolChainFile = Paths.get(getIdfCMakePath(idfPath)).resolve(properties.get(TOOLCHAIN_ATTR_ID));
 					if (Files.exists(toolChainFile))
 					{
-						ICMakeToolChainFile file = manager.newToolChainFile(toolChainFile);
-						file.setProperty(IToolChain.ATTR_OS, model);
-						file.setProperty(IToolChain.ATTR_ARCH, ESP32ToolChain.ARCH);
+						ICMakeToolChainFile toolchainFile = manager.newToolChainFile(toolChainFile);
+						toolchainFile.setProperty(IToolChain.ATTR_OS, properties.get(IToolChain.ATTR_OS));
+						toolchainFile.setProperty(IToolChain.ATTR_ARCH, properties.get(IToolChain.ATTR_ARCH));
 
-						file.setProperty(ICBuildConfiguration.TOOLCHAIN_TYPE, tc.getTypeId());
-						file.setProperty(ICBuildConfiguration.TOOLCHAIN_ID, tc.getId());
+						toolchainFile.setProperty(ICBuildConfiguration.TOOLCHAIN_TYPE, tc.getTypeId());
+						toolchainFile.setProperty(ICBuildConfiguration.TOOLCHAIN_ID, tc.getId());
 
-						manager.addToolChainFile(file);
+						manager.addToolChainFile(toolchainFile);
 					}
 				}
 			}
 			catch (CoreException e)
 			{
-				IDFCorePlugin.getPlugin().getLog().log(e.getStatus());
+				Logger.log(e);
 			}
 		}
+	}
 
+	public Collection<Map<String, String>> getToolchainProperties()
+	{
+		Collection<Map<String, String>> propertiesList = new ArrayList<>();
+
+		// esp32
+		Map<String, String> esp32 = new HashMap<>();
+		esp32.put(IToolChain.ATTR_OS, ESP32ToolChain.OS);
+		esp32.put(IToolChain.ATTR_ARCH, ESP32ToolChain.ARCH);
+		esp32.put(TOOLCHAIN_ATTR_ID, ESP32CMakeToolChainProvider.TOOLCHAIN_NAME);
+		propertiesList.add(esp32);
+
+		// esp32s2
+		Map<String, String> esp32s2 = new HashMap<>();
+		esp32s2.put(IToolChain.ATTR_OS, ESP32S2ToolChain.OS);
+		esp32s2.put(IToolChain.ATTR_ARCH, ESP32S2ToolChain.ARCH);
+		esp32s2.put(TOOLCHAIN_ATTR_ID, ESP32S2CMakeToolChainProvider.TOOLCHAIN_NAME);
+		propertiesList.add(esp32s2);
+
+		// esp32s3
+		Map<String, String> esp32s3 = new HashMap<>();
+		esp32s3.put(IToolChain.ATTR_OS, ESP32S3ToolChain.OS);
+		esp32s3.put(IToolChain.ATTR_ARCH, ESP32S3ToolChain.ARCH);
+		esp32s3.put(TOOLCHAIN_ATTR_ID, ESP32S3CMakeToolChainProvider.TOOLCHAIN_NAME);
+		propertiesList.add(esp32s3);
+
+		// esp32c3
+		Map<String, String> esp32c3 = new HashMap<>();
+		esp32c3.put(IToolChain.ATTR_OS, ESP32C3ToolChain.OS);
+		esp32c3.put(IToolChain.ATTR_ARCH, ESP32C3ToolChain.ARCH);
+		esp32c3.put(TOOLCHAIN_ATTR_ID, ESP32C3CMakeToolChainProvider.TOOLCHAIN_NAME);
+		propertiesList.add(esp32c3);
+
+		return propertiesList;
 	}
 
 	protected String getIdfCMakePath(String idfPath)

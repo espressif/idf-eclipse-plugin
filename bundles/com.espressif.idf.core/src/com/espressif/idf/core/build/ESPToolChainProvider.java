@@ -5,6 +5,9 @@
 
 package com.espressif.idf.core.build;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.eclipse.cdt.core.build.IToolChainManager;
@@ -18,8 +21,16 @@ import org.eclipse.core.runtime.CoreException;
 public class ESPToolChainProvider implements IToolChainProvider
 {
 
+	/*
+	 * ESP Toolchain provider registered in the extension point
+	 */
 	public static final String ID = "com.espressif.idf.core.esp.toolchainprovider"; //$NON-NLS-1$
+
+	// esp32, esp32s2, esp32s3
 	public static final Pattern GCC_PATTERN = Pattern.compile("xtensa-esp32(.*)-elf-gcc(\\.exe)?"); //$NON-NLS-1$ xtensa-esp32s2-elf-readelf
+
+	// esp32c3
+	public static final Pattern GCC_PATTERN_ESP32C3 = Pattern.compile("riscv32-esp-elf-gcc(\\.exe)?"); //$NON-NLS-1$ //riscv32-esp-elf-gcc
 
 	@Override
 	public String getId()
@@ -33,6 +44,15 @@ public class ESPToolChainProvider implements IToolChainProvider
 		ESPToolChainManager espToolChainManager = new ESPToolChainManager();
 		espToolChainManager.initToolChain(manager, this);
 
+	}
+
+	public static Collection<Pattern> getToolchainPatterns()
+	{
+		List<Pattern> list = new ArrayList<>();
+		list.add(GCC_PATTERN);
+		list.add(GCC_PATTERN_ESP32C3);
+
+		return list;
 	}
 
 }
