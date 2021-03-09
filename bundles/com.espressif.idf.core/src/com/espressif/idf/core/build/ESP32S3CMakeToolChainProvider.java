@@ -11,10 +11,10 @@ import org.eclipse.core.runtime.CoreException;
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
-public class ESP32S3CMakeToolChainProvider extends ESPCMakeToolChainProvider
+public class ESP32S3CMakeToolChainProvider extends AbstractESPCMakeToolChainProvider
 {
 
-	public static final String TOOLCHAIN_ESP3233_CMAKE = "toolchain-esp32s3.cmake"; //$NON-NLS-1$
+	public static final String TOOLCHAIN_NAME = "toolchain-esp32s3.cmake"; //$NON-NLS-1$
 
 	protected IToolChain getToolchain() throws CoreException
 	{
