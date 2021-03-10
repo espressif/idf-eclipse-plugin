@@ -76,8 +76,7 @@ public class SerialConnector extends TerminalConnectorImpl {
 		IProject project = EclipseUtil.getSelectedProjectInExplorer();
 		if (project == null) {
 			String message = "project can't be null. Make sure you select a project before launch a serial monitor"; //$NON-NLS-1$
-			Activator.log(new Status(IStatus.ERROR, "", //$NON-NLS-1$
-					message, null));
+			Activator.log(new Status(IStatus.ERROR, Activator.getUniqueIdentifier(), message, null));
 			return;
 		}
 
