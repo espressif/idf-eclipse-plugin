@@ -25,7 +25,7 @@
 package com.espressif.idf.debug.gdbjtag.openocd.ui;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.cdt.debug.gdbjtag.core.IGDBJtagConstants;
 import org.eclipse.cdt.debug.gdbjtag.ui.GDBJtagImages;
@@ -37,6 +37,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.jface.window.Window;
+import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -58,6 +59,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.json.simple.JSONArray;
 
+import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
@@ -101,9 +104,10 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 	private Button fDoGdbServerAllocateConsole;
 	private Button fDoGdbServerAllocateTelnetConsole;
 
+	private Combo fFlashVoltage;
 	private Combo fTarget;
 	private Combo fTargetName;
-	private HashMap<String, JSONArray> boardConfigsMap;
+	private Map<String, JSONArray> boardConfigsMap;
 
 	private Button fDoStartGdbClient;
 	private Text fGdbClientExecutable;
@@ -331,57 +335,98 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 			gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
 			fGdbServerTclPort.setLayoutData(gd);
 		}
+
+		String selectedTarget = getLaunchTarget();
+		String openOCDPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS);
+		if (!openOCDPath.isEmpty() && new File(openOCDPath + "/tcl_esp-config.json").exists()) //$NON-NLS-1$
 		{
-			Label label = new Label(comp, SWT.NONE);
-			label.setText(Messages.getString("DebuggerTab.configTargetLabel"));
-			EspConfigParser parser = new EspConfigParser();
-			GridData gd = new GridData();
-			gd.widthHint = 60;
-			gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
-			fTarget = new Combo(comp, SWT.SINGLE | SWT.BORDER);
-			fTarget.setItems(parser.getTargets().toArray(new String[0]));
-			fTarget.addSelectionListener(new SelectionAdapter()
 			{
-				@Override
-				public void widgetSelected(SelectionEvent e)
+				Label label = new Label(comp, SWT.NONE);
+				label.setText(Messages.getString("DebuggerTab.flashVoltageLabel"));
+				label.setToolTipText(Messages.getString("DebuggerTab.flashVoltageToolTip"));
+				EspConfigParser parser = new EspConfigParser();
+				GridData gd = new GridData();
+				gd.widthHint = 60;
+				gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
+				fFlashVoltage = new Combo(comp, SWT.SINGLE | SWT.BORDER);
+				fFlashVoltage.setItems(parser.getEspFlashVoltages().toArray(new String[0]));
+				fFlashVoltage.setText("default"); // $NON-NLS-1$
+
+				fFlashVoltage.addSelectionListener(new SelectionAdapter()
 				{
-					String selectedItem = fTarget.getItem(fTarget.getSelectionIndex());
-					if (!selectedItem.isBlank())
+					@Override
+					public void widgetSelected(SelectionEvent e)
 					{
-						fTargetName.setEnabled(true);
+						fTargetName.notifyListeners(SWT.Selection, null);
+					}
+				});
+				fFlashVoltage.setLayoutData(gd);
+			}
+			{
+				Label label = new Label(comp, SWT.NONE);
+				label.setText(Messages.getString("DebuggerTab.configTargetLabel"));
+				label.setToolTipText(Messages.getString("DebuggerTab.configTargetToolTip"));
+				EspConfigParser parser = new EspConfigParser();
+				GridData gd = new GridData();
+				gd.widthHint = 60;
+				gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
+				fTarget = new Combo(comp, SWT.SINGLE | SWT.BORDER);
+				fTarget.setItems(parser.getTargets().toArray(new String[0]));
+				fTarget.setText(selectedTarget);
+				fTarget.addSelectionListener(new SelectionAdapter()
+				{
+					@Override
+					public void widgetSelected(SelectionEvent e)
+					{
+						String selectedItem = fTarget.getItem(fTarget.getSelectionIndex());
 						boardConfigsMap = parser.getBoardsConfigs(selectedItem);
 						fTargetName.setItems(parser.getBoardsConfigs(selectedItem).keySet().toArray(new String[0]));
 					}
-				}
-			});
-			fTarget.setLayoutData(gd);
-		}
-		{
-			Label label = new Label(comp, SWT.NONE);
-			label.setText(Messages.getString("DebuggerTab.configBoardLabel"));
-
-			GridData gd = new GridData();
-			gd.widthHint = 130;
-			gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
-			fTargetName = new Combo(comp, SWT.SINGLE | SWT.BORDER);
-			fTargetName.setEnabled(false);
-			fTargetName.addSelectionListener(new SelectionAdapter()
+				});
+				fTarget.setLayoutData(gd);
+			}
 			{
-				@SuppressWarnings("unchecked")
-				@Override
-				public void widgetSelected(SelectionEvent e)
+				Label label = new Label(comp, SWT.NONE);
+				label.setText(Messages.getString("DebuggerTab.configBoardLabel"));
+				label.setToolTipText(Messages.getString("DebuggerTab.configBoardTooTip"));
+				EspConfigParser parser = new EspConfigParser();
+
+				GridData gd = new GridData();
+				gd.widthHint = 130;
+				gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
+				fTargetName = new Combo(comp, SWT.SINGLE | SWT.BORDER);
+				fTargetName.setItems(parser.getBoardsConfigs(selectedTarget).keySet().toArray(new String[0]));
+				boardConfigsMap = parser.getBoardsConfigs(selectedTarget);
+				
+				fTargetName.addSelectionListener(new SelectionAdapter()
 				{
-					String selectedItem = fTargetName.getItem(fTargetName.getSelectionIndex());
-					String configOptiopns = EMPTY_CONFIG_OPTIONS;
-					for (String config : (String[]) boardConfigsMap.get(selectedItem).toArray(new String[0]))
+					@SuppressWarnings("unchecked")
+					@Override
+					public void widgetSelected(SelectionEvent e)
 					{
-						configOptiopns = configOptiopns + " -f " + config; //$NON-NLS-1$
+						String selectedVoltage = fFlashVoltage.getText();
+						String selectedItem = fTargetName.getText();
+						String configOptiopns = EMPTY_CONFIG_OPTIONS;
+						if (!selectedVoltage.equals("default")) // $NON-NLS-1$
+						{
+							configOptiopns = configOptiopns + " -c 'set ESP32_FLASH_VOLTAGE " + selectedVoltage + "'"; //$NON-NLS-1$
+						}
+						if (!selectedItem.isEmpty())
+						{
+							for (String config : (String[]) boardConfigsMap.get(selectedItem).toArray(new String[0]))
+							{
+								configOptiopns = configOptiopns + " -f " + config; //$NON-NLS-1$
+							}
+							fGdbServerOtherOptions.setText(configOptiopns);
+						}
+
 					}
-					fGdbServerOtherOptions.setText(configOptiopns);
-				}
-			});
-			fTargetName.setLayoutData(gd);
+				});
+				fTargetName.setLayoutData(gd);
+			}
+
 		}
+
 		{
 			Label label = new Label(comp, SWT.NONE);
 			label.setText(Messages.getString("DebuggerTab.gdbServerOther_Label")); //$NON-NLS-1$
@@ -527,6 +572,21 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 
 		fDoGdbServerAllocateConsole.addSelectionListener(scheduleUpdateJobSelectionAdapter);
 		fDoGdbServerAllocateTelnetConsole.addSelectionListener(scheduleUpdateJobSelectionAdapter);
+	}
+
+	private String getLaunchTarget()
+	{
+		ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
+		String selectedTarget = ""; //$NON-NLS-1$
+		try
+		{
+			selectedTarget = launchBarManager.getActiveLaunchTarget().getId();
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+		return selectedTarget;
 	}
 
 	private void createGdbClientControls(Composite parent) {

@@ -15,6 +15,7 @@
 package com.espressif.idf.debug.gdbjtag.openocd;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.PersistentPreferences;
@@ -56,10 +57,12 @@ public class Activator extends AbstractUIActivator {
 
 	// ------------------------------------------------------------------------
 
+	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 	}
 
+	@Override
 	public void stop(BundleContext context) throws Exception {
 		super.stop(context);
 	}
@@ -78,6 +81,13 @@ public class Activator extends AbstractUIActivator {
 			fPersistentPreferences = new PersistentPreferences(PLUGIN_ID);
 		}
 		return fPersistentPreferences;
+	}
+
+	public static <T> T getService(Class<T> service)
+	{
+		BundleContext context = fgInstance.getBundle().getBundleContext();
+		ServiceReference<T> ref = context.getServiceReference(service);
+		return ref != null ? context.getService(ref) : null;
 	}
 
 	// ------------------------------------------------------------------------
