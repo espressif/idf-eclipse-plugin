@@ -130,7 +130,7 @@ public class EspConfigParser
 		return boardsConfigs;
 	}
 
-	public boolean hasJsonConfigJson()
+	public boolean hasBoardConfigJson()
 	{
 		return new File(espConfigPath).exists();
 	}

@@ -337,14 +337,14 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 		}
 
 		String selectedTarget = getLaunchTarget();
+		EspConfigParser parser = new EspConfigParser();
 		String openOCDPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS);
-		if (!openOCDPath.isEmpty() && new File(openOCDPath + "/tcl_esp-config.json").exists()) //$NON-NLS-1$
+		if (!openOCDPath.isEmpty() && parser.hasBoardConfigJson()) // $NON-NLS-1$
 		{
 			{
 				Label label = new Label(comp, SWT.NONE);
 				label.setText(Messages.getString("DebuggerTab.flashVoltageLabel"));
 				label.setToolTipText(Messages.getString("DebuggerTab.flashVoltageToolTip"));
-				EspConfigParser parser = new EspConfigParser();
 				GridData gd = new GridData();
 				gd.widthHint = 60;
 				gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
@@ -366,7 +366,6 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 				Label label = new Label(comp, SWT.NONE);
 				label.setText(Messages.getString("DebuggerTab.configTargetLabel"));
 				label.setToolTipText(Messages.getString("DebuggerTab.configTargetToolTip"));
-				EspConfigParser parser = new EspConfigParser();
 				GridData gd = new GridData();
 				gd.widthHint = 60;
 				gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
@@ -389,7 +388,6 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 				Label label = new Label(comp, SWT.NONE);
 				label.setText(Messages.getString("DebuggerTab.configBoardLabel"));
 				label.setToolTipText(Messages.getString("DebuggerTab.configBoardTooTip"));
-				EspConfigParser parser = new EspConfigParser();
 
 				GridData gd = new GridData();
 				gd.widthHint = 130;
