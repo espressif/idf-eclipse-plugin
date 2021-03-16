@@ -95,7 +95,7 @@ Check this - https://wiki.eclipse.org/CDT/User/NewIn100
 
 Starting with CDT 10.0 Java 11 or later is required to run CDT. This aligns with requirements of Eclipse IDE which also requires Java 11 to run starting in 2020-09.
 
-### How to delete Launch Targets from the Eclipse
+## How to delete Launch Targets from the Eclipse
 There is no UI option to delete launch targets directly from the eclipse, however this can be achieved by following the below instructions.
 - Go to the Eclipse workspace directory. For example: In my case /Users/myName/myTesteclipseWorkspace
 - Navigate to `.metadata/.plugins/org.eclipse.core.runtime/.settings` folder in the workspace directory
