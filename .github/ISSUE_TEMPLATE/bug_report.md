@@ -33,3 +33,8 @@ Help > Espressif Tools Manager > List Installed Tools
 Eclipse > About Eclipse > Installation Details > Installed Software > Search for "espressif"
 
 For v1.1.0 and above: Eclipse > About Eclipse > Click on "espresif" icon
+
+**Eclipse Error log:** 
+Window > Show View > Error Log
+
+Please attach the error log as described here https://github.com/espressif/idf-eclipse-plugin#error-log 
