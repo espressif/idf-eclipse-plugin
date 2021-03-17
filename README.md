@@ -40,7 +40,7 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 
 <a name="Prerequisites"></a>
 # Installing Prerequisites
-The minimum requirements for running the IDF Eclipse plug-ins are:
+The minimum requirements for running the IDF Eclipse plug-ins are below. However, If you are looking for all-in-one installer to manage all these please check our <a href="https://github.com/espressif/idf-installer#esp-idf-tools-installer-for-windows"> ESP-IDF Tools Installer</a> page.
 * **Java 11 and above** : Download and install Java SE from <a href= "https://www.oracle.com/technetwork/java/javase/downloads/index.html">here</a>
 * **Python 3.5 and above** : Download and install Python from <a href="https://www.python.org/downloads/">here</a>
 * **Eclipse 2020-06 CDT and above** : Download and install Eclipse CDT package from <a href= "https://www.eclipse.org/downloads/packages/release/2020-06/r/eclipse-ide-cc-developers">here </a>
