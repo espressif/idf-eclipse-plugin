@@ -611,6 +611,12 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		public void acceptSourceFileInfo(String sourceFileName, List<String> systemIncludePaths,
 				Map<String, String> definedSymbols, List<String> includePaths, List<String> macroFiles,
 				List<String> includeFiles) {
+			
+			//To fix an issue with the local include paths are not getting considered 
+			//by indexer while resolving the headers
+			systemIncludePaths.addAll(includePaths);
+			includePaths.clear();
+			
 			IFile file = getFileForCMakePath(sourceFileName);
 			if (file != null) {
 				ExtendedScannerInfo info = new ExtendedScannerInfo(definedSymbols,
