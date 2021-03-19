@@ -18,6 +18,17 @@
             %wizard.description
          </description>
       </wizard>
+      <wizard
+            category="com.espressif.idf.ui.new.wizard.category"
+            class="com.espressif.idf.ui.wizard.NewComponentWizard"
+            icon="icons/espressif_idf_project.png"
+            id="com.espressif.idf.ui.component.wizard"
+            name="%wizard.name.1"
+            project="true">
+         <description>
+            %wizard.description.0
+         </description>
+      </wizard>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">

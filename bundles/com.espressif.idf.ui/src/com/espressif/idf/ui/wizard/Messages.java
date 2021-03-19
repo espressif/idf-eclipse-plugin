@@ -30,6 +30,14 @@ public class Messages extends NLS {
 	public static String NewIDFProjectWizard_TemplatesHeader;
 	public static String WizardNewProjectCreationPage_NameCantIncludeSpaceErr;
 	public static String WizardNewProjectCreationPage_WorkspaceLocCantIncludeSpaceErr;
+	public static String NewIdfComponentWizard_NewIdfComponent;
+	public static String NewIdfComponentWizard_Component_Title;
+	public static String NewIdfComponentWizard_Component_name;
+	public static String NewIdfComponentWizard_CompDesc;
+	public static String NewIdfComponentWizard_Page;
+	public static String NewIdfComponentWizard_NameCantIncludeSpaceErr;
+	public static String NewIdfComponentWizard_NameCantBeEmptyErr;
+	public static String NewIdfComponentWizard_NameAlreadyExistsErr;
 	
 	static {
 		// initialize resource bundle
