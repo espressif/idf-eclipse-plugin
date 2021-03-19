@@ -103,7 +103,7 @@ You may add additional accurate notices of copyright ownership.
 
    <includes
          id="org.eclipse.cdt.cmake"
-         version="10.1.0.202012011910"/>
+         version="0.0.0"/>
 
    <includes
          id="org.eclipse.platform"
