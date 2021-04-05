@@ -21,14 +21,14 @@
 				<version>${tycho-version}</version>
 				<extensions>true</extensions>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
-				
-					<!-- Target definition-->
+
+					<!-- Target definition -->
 					<target>
 						<artifact>
 							<groupId>com.espressif.idf</groupId>
@@ -80,7 +80,7 @@
 			</plugin>
 
 			<!-- Sign the JARs -->
-<!-- 			<plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jarsigner-plugin</artifactId>
 				<version>3.0.0</version>
@@ -100,7 +100,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin> -->
+			</plugin>
 		</plugins>
 	</build>
 </project>
