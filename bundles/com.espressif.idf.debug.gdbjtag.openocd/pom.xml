@@ -20,7 +20,7 @@
 
 	<groupId>ilg.gnumcueclipse</groupId>
 	<artifactId>com.espressif.idf.debug.gdbjtag.openocd</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<packaging>eclipse-plugin</packaging>
 
 	<parent>
