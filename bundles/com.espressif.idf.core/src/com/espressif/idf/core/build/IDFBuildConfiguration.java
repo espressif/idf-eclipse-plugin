@@ -272,7 +272,11 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 						getBuildDirectory().toString());
 				// hook in cmake error parsing
 				IConsole errConsole = new CMakeConsoleWrapper(srcFolder, console);
-				Process p = startBuildProcess(command, new IEnvironmentVariable[0], workingDir, errConsole, monitor);
+				
+				// Set PYTHONUNBUFFERED to 1/TRUE to dump the messages back immediately without buffering
+				IEnvironmentVariable bufferEnvVar = new EnvironmentVariable("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
+
+				Process p = startBuildProcess(command, new IEnvironmentVariable[] { bufferEnvVar }, workingDir, errConsole, monitor);
 				if (p == null) {
 					console.getErrorStream().write(String.format(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_Failure, "")); //$NON-NLS-1$
 					return null;
