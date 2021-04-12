@@ -27,6 +27,7 @@ public class Messages extends NLS {
 	public static String NewSerialFlashTargetWizardPage_Name;
 	public static String NewSerialFlashTargetWizardPage_SerialPort;
 	public static String NewSerialFlashTargetWizardPage_Title;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

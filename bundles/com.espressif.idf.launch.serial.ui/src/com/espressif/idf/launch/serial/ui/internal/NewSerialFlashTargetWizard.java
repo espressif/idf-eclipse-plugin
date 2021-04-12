@@ -56,7 +56,6 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard {
 	@Override
 	public void addPages() {
 		super.addPages();
-
 		page = new NewSerialFlashTargetWizardPage(getLaunchTarget());
 		addPage(page);
 	}
@@ -66,12 +65,10 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard {
 		ILaunchTargetManager manager = Activator.getService(ILaunchTargetManager.class);
 		String typeId = IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE;
 		String id = page.getTargetName();
-
 		ILaunchTarget target = getLaunchTarget();
 		if (target == null) {
 			target = manager.addLaunchTarget(typeId, id);
 		}
-
 		ILaunchTargetWorkingCopy wc = target.getWorkingCopy();
 		wc.setId(id);
 		wc.setAttribute(ILaunchTarget.ATTR_OS, page.getOS());
@@ -94,7 +91,6 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard {
 				try {
 					ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
 					ILaunchDescriptor activeLaunchDescriptor = launchBarManager.getActiveLaunchDescriptor();
-
 					String projectName = activeLaunchDescriptor.getName();
 					if (!StringUtil.isEmpty(projectName)) {
 
@@ -163,7 +159,7 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard {
 				deleteDirectory(file);
 			}
 		}
-		return directoryToBeDeleted.getName().equals("build") ? true : directoryToBeDeleted.delete();
+		return directoryToBeDeleted.getName().equals("build") ? true : directoryToBeDeleted.delete(); //$NON-NLS-1$
 	}
 
 	private void cleanSdkConfig(IResource project) {
@@ -194,6 +190,20 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard {
 			preferences.flush();
 		} catch (BackingStoreException e) {
 			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public boolean canDelete() {
+		return true;
+	}
+
+	@Override
+	public void performDelete() {
+		ILaunchTargetManager targetMgr = Activator.getService(ILaunchTargetManager.class);
+		ILaunchTarget target = getLaunchTarget();
+		if (target != null) {
+			targetMgr.removeLaunchTarget(target);
 		}
 	}
 
