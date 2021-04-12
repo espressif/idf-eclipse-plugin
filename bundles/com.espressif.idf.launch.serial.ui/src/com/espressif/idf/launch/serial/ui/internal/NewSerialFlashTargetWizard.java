@@ -200,16 +200,10 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard {
 
 	@Override
 	public void performDelete() {
-
-		Preferences preferences = InstanceScope.INSTANCE.getNode("org.eclipse.launchbar.core"); //$NON-NLS-1$
-		try {
-			preferences.node("LaunchTargetManager") //$NON-NLS-1$
-					.node("com.espressif.idf.launch.serial.core.serialFlashTarget," + page.getTargetName()) //$NON-NLS-1$
-					.removeNode();
-			preferences.flush();
-			MessageDialog.openInformation(null, Messages.LaunchTargetDeleteTitle, Messages.LaunchTargetDeleteMessage);
-		} catch (BackingStoreException e) {
-			Logger.log(e);
+		ILaunchTargetManager targetMgr = Activator.getService(ILaunchTargetManager.class);
+		ILaunchTarget target = getLaunchTarget();
+		if (target != null) {
+			targetMgr.removeLaunchTarget(target);
 		}
 	}
 
