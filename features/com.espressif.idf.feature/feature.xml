@@ -101,22 +101,6 @@ You may add additional accurate notices of copyright ownership.
       <update label="Espressif IDF Plugins Update Site" url="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/"/>
    </url>
 
-   <includes
-         id="org.eclipse.cdt.cmake"
-         version="0.0.0"/>
-
-   <includes
-         id="org.eclipse.platform"
-         version="0.0.0"/>
-
-   <includes
-         id="org.eclipse.help"
-         version="0.0.0"/>
-
-   <includes
-         id="org.eclipse.equinox.p2.user.ui"
-         version="0.0.0"/>
-
    <requires>
       <import plugin="com.google.gson"/>
       <import plugin="org.eclipse.core.runtime"/>
