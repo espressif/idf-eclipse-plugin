@@ -51,6 +51,8 @@ public class ProductInformationHandler extends ListInstalledToolsHandler
 				.map(o -> o.getVersion().toString()).orElse(Messages.NotFoundMsg))); // $NON-NLS-1$
 		console.println(Messages.EclipseCDTMsg + (Optional.ofNullable(Platform.getBundle("org.eclipse.cdt"))
 				.map(o -> o.getVersion().toString()).orElse(Messages.NotFoundMsg))); // $NON-NLS-1$
+		console.println(Messages.IdfEclipseMsg + (Optional.ofNullable(Platform.getBundle("com.espressif.idf.branding"))
+				.map(o -> o.getVersion().toString()).orElse(Messages.NotFoundMsg))); // $NON-NLS-1$
 		showEspIdfVersion();
 		console.println(Messages.PythonIdfEnvMsg
 				+ (Optional.ofNullable(getPythonExeVersion(IDFUtil.getIDFPythonEnvPath()))
