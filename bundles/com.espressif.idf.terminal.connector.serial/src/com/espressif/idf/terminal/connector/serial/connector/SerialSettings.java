@@ -53,6 +53,10 @@ public class SerialSettings {
 		return filterText;
 	}
 
+	public String getProjectName() {
+		return selectedProject;
+	}
+
 	public IProject getProject() {
 		return ResourcesPlugin.getWorkspace().getRoot().getProject(selectedProject);
 	}

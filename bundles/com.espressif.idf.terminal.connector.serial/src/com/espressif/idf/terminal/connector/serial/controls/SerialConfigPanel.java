@@ -61,7 +61,7 @@ public class SerialConfigPanel extends AbstractExtendedConfigurationPanel {
 		page.saveSettings();
 		data.put(SerialSettings.PORT_NAME_ATTR, settings.getPortName());
 		data.put(SerialSettings.MONITOR_FILTER, settings.getFilterText());
-		data.put(SerialSettings.SELECTED_PROJECT_ATTR, settings.getProject().getName());
+		data.put(SerialSettings.SELECTED_PROJECT_ATTR, settings.getProjectName());
 
 		if (getEncoding() != null) {
 			data.put(ITerminalsConnectorConstants.PROP_ENCODING, getEncoding());
