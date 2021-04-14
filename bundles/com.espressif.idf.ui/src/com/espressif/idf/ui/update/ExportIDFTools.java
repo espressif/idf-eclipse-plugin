@@ -122,9 +122,7 @@ public class ExportIDFTools
 				{
 					idfEnvMgr.addEnvVariable(key, value);
 				}
-
-				// Special processing in case of PATH
-				if (env != null && key.equals(IDFEnvironmentVariables.PATH))
+				else if (key.equals(IDFEnvironmentVariables.PATH)) // Special processing in case of PATH
 				{
 					// PATH is already defined in the environment variables - so let's identify and append the missing
 					// paths
@@ -162,6 +160,12 @@ public class ExportIDFTools
 					Logger.log(pathBuilder.toString());
 					idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.PATH, pathBuilder.toString());
 				}
+				else
+				{
+					//Other build variables - let's replace with new values
+					idfEnvMgr.addEnvVariable(key, value);
+				}
+				
 			}
 
 		}
