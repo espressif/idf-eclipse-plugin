@@ -30,7 +30,6 @@ import org.eclipse.tm.internal.terminal.provisional.api.provider.TerminalConnect
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.serial.monitor.handlers.SerialMonitorHandler;
 import com.espressif.idf.terminal.connector.serial.activator.Activator;
-import com.espressif.idf.ui.EclipseUtil;
 
 public class SerialConnector extends TerminalConnectorImpl {
 
@@ -73,13 +72,13 @@ public class SerialConnector extends TerminalConnectorImpl {
 		super.connect(control);
 
 		//Get selected project - which is required for IDF Monitor
-		IProject project = EclipseUtil.getSelectedProjectInExplorer();
+		IProject project = settings.getProject();
+
 		if (project == null) {
 			String message = "project can't be null. Make sure you select a project before launch a serial monitor"; //$NON-NLS-1$
 			Activator.log(new Status(IStatus.ERROR, Activator.getUniqueIdentifier(), message, null));
 			return;
 		}
-
 		//set state
 		control.setState(TerminalState.CONNECTING);
 
