@@ -14,8 +14,11 @@
 package com.espressif.idf.terminal.connector.serial.controls;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import org.eclipse.cdt.serial.SerialPort;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.dialogs.DialogSettings;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -38,6 +41,7 @@ import com.espressif.idf.terminal.connector.serial.activator.Activator;
 import com.espressif.idf.terminal.connector.serial.connector.SerialConnector;
 import com.espressif.idf.terminal.connector.serial.connector.SerialSettings;
 import com.espressif.idf.terminal.connector.serial.nls.Messages;
+import com.espressif.idf.ui.EclipseUtil;
 
 public class SerialSettingsPage extends AbstractSettingsPage {
 
@@ -46,6 +50,7 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 	private final IDialogSettings dialogSettings;
 
 	private Combo portCombo;
+	private Combo projectCombo;
 
 	private String portName;
 	private String lastUsedSerialPort;
@@ -79,6 +84,18 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 		GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
 		comp.setLayout(gridLayout);
 		comp.setLayoutData(gridData);
+
+		Label projectLabel = new Label(comp, SWT.NONE);
+		projectLabel.setText(Messages.SerialSettingsPage_ProjectName);
+
+		projectCombo = new Combo(comp, SWT.NONE);
+		projectCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		Optional<IProject> optProject = Optional.ofNullable(EclipseUtil.getSelectedProjectInExplorer());
+		optProject.ifPresent(project -> projectCombo.setText(project.getName()));
+		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		for (IProject project : projects) {
+			projectCombo.add(project.getName());
+		}
 
 		Label portLabel = new Label(comp, SWT.NONE);
 		portLabel.setText(Messages.SerialTerminalSettingsPage_SerialPort);
@@ -146,10 +163,11 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 	public void saveSettings() {
 		settings.setPortName(portCombo.getText());
 		settings.setFilterText(filterText.getText().trim());
+		settings.setProject(projectCombo.getText());
 
+		dialogSettings.put(SerialSettings.SELECTED_PROJECT_ATTR, projectCombo.getText());
 		dialogSettings.put(SerialSettings.PORT_NAME_ATTR, portCombo.getText());
 		dialogSettings.put(SerialSettings.MONITOR_FILTER, filterText.getText().trim());
-
 	}
 
 	@Override
