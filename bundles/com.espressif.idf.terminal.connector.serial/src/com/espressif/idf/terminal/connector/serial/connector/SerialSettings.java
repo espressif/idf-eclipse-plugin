@@ -17,6 +17,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
 
+import com.espressif.idf.core.util.StringUtil;
+
 public class SerialSettings {
 
 	public static final String PORT_NAME_ATTR = "cdtserial.portName"; //$NON-NLS-1$
@@ -58,7 +60,10 @@ public class SerialSettings {
 	}
 
 	public IProject getProject() {
-		return ResourcesPlugin.getWorkspace().getRoot().getProject(selectedProject);
+
+		return !StringUtil.isEmpty(selectedProject)
+				? ResourcesPlugin.getWorkspace().getRoot().getProject(selectedProject)
+				: null;
 	}
 
 	public void setPortName(String portName) {
