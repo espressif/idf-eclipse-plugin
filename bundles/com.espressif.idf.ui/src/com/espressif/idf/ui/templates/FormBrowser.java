@@ -28,18 +28,21 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.logging.Logger;
 
-public class FormBrowser {
+public class FormBrowser
+{
 	FormToolkit toolkit;
 	Composite container;
 	Browser formText;
 	String text;
 	int style;
 
-	public FormBrowser(int style) {
+	public FormBrowser(int style)
+	{
 		this.style = style;
 	}
 
-	public void createControl(Composite parent) {
+	public void createControl(Composite parent)
+	{
 		toolkit = new FormToolkit(parent.getDisplay());
 		int borderStyle = toolkit.getBorderStyle() == SWT.BORDER ? SWT.NULL : SWT.BORDER;
 		container = new Composite(parent, borderStyle);
@@ -63,7 +66,7 @@ public class FormBrowser {
 						PartInitException
 						| MalformedURLException e)
 				{
-					Logger.log(e);
+					// no need to report
 				}
 				formText.setText(text);
 			}
@@ -77,7 +80,8 @@ public class FormBrowser {
 		};
 		formText.addLocationListener(locationListener);
 
-		if (borderStyle == SWT.NULL) {
+		if (borderStyle == SWT.NULL)
+		{
 			formText.setData(FormToolkit.KEY_DRAW_BORDER, FormToolkit.TREE_BORDER);
 			toolkit.paintBordersFor(container);
 		}
@@ -88,7 +92,8 @@ public class FormBrowser {
 		ftext.marginHeight = 2;
 		ftext.setHyperlinkSettings(toolkit.getHyperlinkGroup());
 		formText.addDisposeListener(e -> {
-			if (toolkit != null) {
+			if (toolkit != null)
+			{
 				toolkit.dispose();
 				toolkit = null;
 			}
@@ -97,7 +102,8 @@ public class FormBrowser {
 			formText.setText(text);
 	}
 
-	public Control getControl() {
+	public Control getControl()
+	{
 		return container;
 	}
 
@@ -111,7 +117,8 @@ public class FormBrowser {
 			}
 			catch (Exception e)
 			{
-				Status status = new Status(IStatus.ERROR, IDFCorePlugin.PLUGIN_ID, "Error parsing the template description", e); //$NON-NLS-1$
+				Status status = new Status(IStatus.ERROR, IDFCorePlugin.PLUGIN_ID,
+						"Error parsing the template description", e); //$NON-NLS-1$
 				IDFCorePlugin.getPlugin().getLog().log(status);
 			}
 	}
