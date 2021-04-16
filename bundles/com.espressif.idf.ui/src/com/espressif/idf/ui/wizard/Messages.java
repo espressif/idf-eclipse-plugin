@@ -24,6 +24,7 @@ public class Messages extends NLS {
 	public static String ImportIDFProjectWizardPage_8;
 	public static String ImportIDFProjectWizardPage_9;
 	public static String ImportIDFProjectWizardPage_CopyIntoWorkspace;
+	public static String NewComponentWizardPage_CantCreateCompErr;
 	public static String NewIDFProjectWizard_NewIDFProject;
 	public static String NewIDFProjectWizard_Project_Title;
 	public static String NewIDFProjectWizard_ProjectDesc;

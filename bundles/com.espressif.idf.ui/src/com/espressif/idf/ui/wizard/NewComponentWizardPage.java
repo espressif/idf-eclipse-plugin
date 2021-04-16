@@ -91,7 +91,7 @@ public class NewComponentWizardPage extends WizardPage
 		Label label = new Label(container, SWT.NONE);
 		label.setText(Messages.NewIdfComponentWizard_Component_name);
 		componentName = new Text(container, SWT.BORDER);
-		componentName.setText(""); //
+		componentName.setText(""); // //$NON-NLS-1$
 		componentName.addModifyListener(new ModifyListener()
 		{
 			@Override
@@ -109,6 +109,13 @@ public class NewComponentWizardPage extends WizardPage
 	protected boolean validatePage()
 	{
 
+		IProject selectedProject = EclipseUtil.getSelectedProjectInExplorer();
+		if (selectedProject == null)
+		{
+			setErrorMessage(Messages.NewComponentWizardPage_CantCreateCompErr);
+			return false;
+		}
+		
 		if (componentName.getText().isEmpty()) // $NON-NLS-1$
 		{
 			setErrorMessage(Messages.NewIdfComponentWizard_NameCantBeEmptyErr);
