@@ -96,7 +96,7 @@ public class NewComponentWizardPage extends WizardPage
 		Label label = new Label(container, SWT.NONE);
 		label.setText(Messages.NewIdfComponentWizard_Component_name);
 		componentName = new Text(container, SWT.BORDER);
-		componentName.setText(""); ////$NON-NLS-1$
+		componentName.setText(""); //$NON-NLS-1$
 		componentName.addModifyListener(new ModifyListener()
 		{
 			@Override
@@ -110,7 +110,7 @@ public class NewComponentWizardPage extends WizardPage
 
 		Label projectNameLbl = new Label(container, SWT.NONE);
 		projectNameLbl.setText(Messages.NewComponentWizardPage_ProjectNameLbl);
-		projectCombo = new Combo(container, SWT.BORDER);
+		projectCombo = new Combo(container, SWT.BORDER | SWT.READ_ONLY);
 		Optional<IProject> optProject = Optional.ofNullable(EclipseUtil.getSelectedProjectInExplorer());
 		optProject.ifPresent(project -> projectCombo.setText(project.getName()));
 		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
