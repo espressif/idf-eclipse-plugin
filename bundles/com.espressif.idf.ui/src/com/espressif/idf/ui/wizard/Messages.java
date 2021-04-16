@@ -38,6 +38,9 @@ public class Messages extends NLS {
 	public static String NewIdfComponentWizard_NameCantIncludeSpaceErr;
 	public static String NewIdfComponentWizard_NameCantBeEmptyErr;
 	public static String NewIdfComponentWizard_NameAlreadyExistsErr;
+	public static String NewComponentWizardPage_CantCreateCompErr;
+	public static String NewComponentWizardPage_ProjectDoesntExistErr;
+	public static String NewComponentWizardPage_ProjectNameLbl;
 	
 	static {
 		// initialize resource bundle

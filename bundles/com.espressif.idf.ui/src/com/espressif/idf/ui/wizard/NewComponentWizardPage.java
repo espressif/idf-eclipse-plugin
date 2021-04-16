@@ -6,8 +6,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -17,6 +19,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -26,6 +29,7 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.EclipseUtil;
 
 public class NewComponentWizardPage extends WizardPage
@@ -33,6 +37,7 @@ public class NewComponentWizardPage extends WizardPage
 
 	private Text componentName;
 	private Composite container;
+	private Combo projectCombo;
 
 	protected NewComponentWizardPage(IStructuredSelection selection)
 	{
@@ -61,7 +66,7 @@ public class NewComponentWizardPage extends WizardPage
 		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 		try
 		{
-			IProject selectedProject = EclipseUtil.getSelectedProjectInExplorer(); 
+			IProject selectedProject = ResourcesPlugin.getWorkspace().getRoot().getProject(projectCombo.getText());
 			IPath newPath = selectedProject.getLocation();
 			IStatus status = processRunner.runInBackground(arguments, newPath, env);
 			if (status == null)
@@ -91,7 +96,7 @@ public class NewComponentWizardPage extends WizardPage
 		Label label = new Label(container, SWT.NONE);
 		label.setText(Messages.NewIdfComponentWizard_Component_name);
 		componentName = new Text(container, SWT.BORDER);
-		componentName.setText(""); //
+		componentName.setText(""); //$NON-NLS-1$
 		componentName.addModifyListener(new ModifyListener()
 		{
 			@Override
@@ -102,12 +107,44 @@ public class NewComponentWizardPage extends WizardPage
 		});
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		componentName.setLayoutData(gd);
+
+		Label projectNameLbl = new Label(container, SWT.NONE);
+		projectNameLbl.setText(Messages.NewComponentWizardPage_ProjectNameLbl);
+		projectCombo = new Combo(container, SWT.BORDER | SWT.READ_ONLY);
+		Optional<IProject> optProject = Optional.ofNullable(EclipseUtil.getSelectedProjectInExplorer());
+		optProject.ifPresent(project -> projectCombo.setText(project.getName()));
+		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		for (IProject project : projects)
+		{
+			projectCombo.add(project.getName());
+		}
+		projectCombo.addModifyListener(new ModifyListener()
+		{
+			@Override
+			public void modifyText(ModifyEvent e)
+			{
+				setPageComplete(validatePage());
+			}
+		});
+		projectCombo.setLayoutData(gd);
 		setControl(container);
 		setPageComplete(false);
 	}
 
 	protected boolean validatePage()
 	{
+
+		if (StringUtil.isEmpty(projectCombo.getText()))
+		{
+			setErrorMessage(Messages.NewComponentWizardPage_CantCreateCompErr);
+			return false;
+		}
+
+		if (!ResourcesPlugin.getWorkspace().getRoot().getProject(projectCombo.getText()).exists())
+		{
+			setErrorMessage(Messages.NewComponentWizardPage_ProjectDoesntExistErr);
+			return false;
+		}
 
 		if (componentName.getText().isEmpty()) // $NON-NLS-1$
 		{
@@ -131,7 +168,7 @@ public class NewComponentWizardPage extends WizardPage
 
 	private boolean checkIfComponentExists()
 	{
-		IProject selectedProject = EclipseUtil.getSelectedProjectInExplorer();
+		IProject selectedProject = ResourcesPlugin.getWorkspace().getRoot().getProject(projectCombo.getText());
 		IPath newPath = selectedProject.getLocation().append("/components"); //$NON-NLS-1$
 		Path absPath = Paths.get(newPath.toString() + "\\" + componentName.getText()); //$NON-NLS-1$
 		if (Files.exists(absPath))
