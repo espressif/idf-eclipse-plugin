@@ -66,7 +66,7 @@ public class NewComponentWizardPage extends WizardPage
 		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 		try
 		{
-			IProject selectedProject = EclipseUtil.getSelectedProjectInExplorer(); 
+			IProject selectedProject = ResourcesPlugin.getWorkspace().getRoot().getProject(projectCombo.getText());
 			IPath newPath = selectedProject.getLocation();
 			IStatus status = processRunner.runInBackground(arguments, newPath, env);
 			if (status == null)
