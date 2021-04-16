@@ -37,6 +37,9 @@
          <newWizardShortcut
                id="com.espressif.idf.ui.new.project.wizard">
          </newWizardShortcut>
+         <newWizardShortcut
+               id="com.espressif.idf.ui.component.wizard">
+         </newWizardShortcut>
       </perspectiveExtension>
    </extension>
    <extension
