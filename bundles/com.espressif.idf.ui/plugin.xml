@@ -37,6 +37,9 @@
          <newWizardShortcut
                id="com.espressif.idf.ui.new.project.wizard">
          </newWizardShortcut>
+         <newWizardShortcut
+               id="com.espressif.idf.ui.component.wizard">
+         </newWizardShortcut>
       </perspectiveExtension>
    </extension>
    <extension
@@ -148,6 +151,11 @@
             id="com.espressif.idf.ui.command.new"
             name="%wizard.name">
       </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.handlers.NewComponentHandler"
+            id="com.espressif.idf.ui.command.component"
+            name="%wizard.name.1">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -167,6 +175,12 @@
                   </equals>
                </with>
             </visibleWhen>
+         </command>
+         <command
+               commandId="com.espressif.idf.ui.command.component"
+               icon="icons/espressif_idf_project.png"
+               label="%wizard.name.1"
+               style="push">
          </command>
       </menuContribution>
    </extension>
