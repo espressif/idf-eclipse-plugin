@@ -4,9 +4,9 @@
 ESP-IDF Eclipse Plugin brings developers an easy-to-use Eclipse-based development environment for developing ESP32 based IoT applications.
 It provides better tooling capabilities, which simplifies and enhances standard Eclipse CDT for developing and debugging ESP32 IoT applications. It offers advanced editing, compiling, flashing and debugging features with the addition of Installing the tools, SDK configuration and CMake editors. 
 
-The plug-in runs on `Windows`, `macOS` and `GNU/Linux`.
+The plug-in runs on `Windows`, `macOS` and `Linux` platforms.
 
-> **Note:** It supports ESP-IDF CMake based projects (4.x and above) with `esp32` and `esp32s2` chips. To work with esp32s3 and esp32c3 boards, you need to manually configure the toolchain in the Eclipse CDT Preferences as mentioned [here](#ConfigureToolchains)
+> **Note:** It supports ESP-IDF CMake based projects (4.x and above) with `esp32`,`esp32s2`, `esp32s3` and `esp32c3` boards.
 
 To get a quick understanding about ESP-IDF and Eclipse plugin features check our session which was presented in <a href= "https://youtu.be/CbPX3q7LeBc">EclipseCon 2020</a>
 
