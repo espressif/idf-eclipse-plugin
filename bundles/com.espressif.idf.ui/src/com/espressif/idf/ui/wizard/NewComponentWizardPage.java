@@ -113,20 +113,12 @@ public class NewComponentWizardPage extends WizardPage
 		projectCombo = new Combo(container, SWT.BORDER | SWT.READ_ONLY);
 		Optional<IProject> optProject = Optional.ofNullable(EclipseUtil.getSelectedProjectInExplorer());
 		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-		int index = 0;
 		for (IProject project : projects)
 		{
 			projectCombo.add(project.getName());
-			if (optProject.isPresent() && optProject.get().equals(project))
-			{
-				projectCombo.select(index);
-			}
-			else
-			{
-				index += 1;
-			}
 
 		}
+		optProject.ifPresent(project -> projectCombo.setText(project.getName()));
 		projectCombo.addModifyListener(new ModifyListener()
 		{
 			@Override
