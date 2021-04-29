@@ -149,11 +149,18 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			try
 			{
 				// 1. Getting kconfig_menus.json
-				String configMenuJsonPath = new SDKConfigUtil().getConfigMenuFilePath(project);
+				final String configMenuJsonPath = new SDKConfigUtil().getConfigMenuFilePath(project);
 				if (configMenuJsonPath == null || !new File(configMenuJsonPath).exists())
 				{
-					String errorMsg = Messages.SDKConfigurationEditor_UnableFindKConfigFile + configMenuJsonPath;
-					createErrorPage(errorMsg);
+					Display.getDefault().asyncExec(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							String errorMsg = Messages.SDKConfigurationEditor_UnableFindKConfigFile + configMenuJsonPath;
+							createErrorPage(errorMsg);
+						}
+					});
 					return;
 				}
 				monitor.worked(1);
