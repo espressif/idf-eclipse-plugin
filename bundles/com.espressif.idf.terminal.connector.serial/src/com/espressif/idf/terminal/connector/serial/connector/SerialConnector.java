@@ -14,7 +14,6 @@
 package com.espressif.idf.terminal.connector.serial.connector;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
@@ -24,18 +23,20 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
 import org.eclipse.tm.internal.terminal.provisional.api.ITerminalControl;
-import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
 import org.eclipse.tm.internal.terminal.provisional.api.provider.TerminalConnectorImpl;
 
 import com.espressif.idf.core.util.StringUtil;
-import com.espressif.idf.serial.monitor.handlers.SerialMonitorHandler;
 import com.espressif.idf.terminal.connector.serial.activator.Activator;
 
 public class SerialConnector extends TerminalConnectorImpl {
 
 	private SerialSettings settings = new SerialSettings();
-	private Process process;
-	private Thread thread;
+	protected Process process;
+	protected Thread thread;
+	protected IProject project;
+	protected String filterOptions;
+	protected ITerminalControl control;
+	private SerialPortHandler serialPort;
 
 	private static Set<String> openPorts = new HashSet<>();
 
@@ -70,59 +71,38 @@ public class SerialConnector extends TerminalConnectorImpl {
 	@Override
 	public void connect(ITerminalControl control) {
 		super.connect(control);
+		this.control = control;
 
 		//Get selected project - which is required for IDF Monitor
-		IProject project = settings.getProject();
+		project = settings.getProject();
 
 		if (project == null) {
 			String message = "project can't be null. Make sure you select a project before launch a serial monitor"; //$NON-NLS-1$
 			Activator.log(new Status(IStatus.ERROR, Activator.getUniqueIdentifier(), message, null));
 			return;
 		}
-		//set state
-		control.setState(TerminalState.CONNECTING);
 
 		String portName = settings.getPortName();
-		String filterOptions = settings.getFilterText();
+		filterOptions = settings.getFilterText();
 		filterOptions = StringUtil.isEmpty(filterOptions) ? StringUtil.EMPTY : filterOptions;
 
-		//Hook IDF Monitor with the CDT serial monitor
-		SerialMonitorHandler serialMonitorHandler = new SerialMonitorHandler(project, portName, filterOptions);
-		process = serialMonitorHandler.invokeIDFMonitor();
+		serialPort = new SerialPortHandler(portName, this);
+		serialPort.open();
 
-		thread = new Thread() {
-			@Override
-			public void run() {
-				InputStream targetIn = process.getInputStream();
-				byte[] buff = new byte[256];
-				int n;
-				try {
-					while ((n = targetIn.read(buff, 0, buff.length)) >= 0) {
-						if (n != 0) {
-							control.getRemoteToTerminalOutputStream().write(buff, 0, n);
-						}
-					}
-					disconnect();
-				} catch (IOException e) {
-					Activator.log(e);
-				}
-			}
-		};
+		openPorts.add(serialPort.getPortName());
 
-		thread.start();
-
-		control.setState(TerminalState.CONNECTED);
 	}
 
 	@Override
 	protected void doDisconnect() {
 
-		//Disconnect ptyprocess and that will free the port
-		if (process != null) {
-			process.destroy();
-		}
-		if (thread != null) {
-			thread.interrupt();
+		if (serialPort != null && serialPort.isOpen()) {
+			openPorts.remove(serialPort.getPortName());
+			try {
+				serialPort.close();
+			} catch (IOException e) {
+				Activator.log(e);
+			}
 		}
 	}
 

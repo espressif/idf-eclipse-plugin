@@ -17,7 +17,6 @@ package com.espressif.idf.launch.serial.internal;
 
 import java.io.IOException;
 
-import org.eclipse.cdt.serial.SerialPort;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugEvent;
@@ -28,10 +27,11 @@ import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.launch.TargetedLaunch;
 
 import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
+import com.espressif.idf.terminal.connector.serial.connector.SerialPortHandler;
 
 public class SerialFlashLaunch extends TargetedLaunch {
 
-	private SerialPort serialPort;
+	private SerialPortHandler serialPort;
 	private boolean wasOpen;
 
 	public SerialFlashLaunch(ILaunchConfiguration launchConfiguration, String mode, ISourceLocator locator,
@@ -39,7 +39,7 @@ public class SerialFlashLaunch extends TargetedLaunch {
 		super(launchConfiguration, mode, target, locator);
 		if (target != null) {
 			String serialPortName = target.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
-			serialPort = !serialPortName.isEmpty() ? SerialPort.get(serialPortName) : null;
+			serialPort = !serialPortName.isEmpty() ? SerialPortHandler.get(serialPortName) : null;
 		}
 		DebugPlugin.getDefault().addDebugEventListener(this);
 
