@@ -45,7 +45,8 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 
 <a name="Prerequisites"></a>
 # Installing Prerequisites
-The minimum requirements for running the IDF Eclipse plug-ins are below. However, If you are looking for all-in-one installer to manage all these please check our <a href="https://github.com/espressif/idf-installer#esp-idf-tools-installer-for-windows"> ESP-IDF Tools Installer</a> page.
+The minimum requirements for running the IDF Eclipse plug-ins are below. 
+
 * **Java 11 and above** : Download and install Java SE from <a href= "https://www.oracle.com/technetwork/java/javase/downloads/index.html">here</a>
 * **Python 3.5 and above** : Download and install Python from <a href="https://www.python.org/downloads/">here</a>
 * **Eclipse 2020-12 CDT and above** : Download and install Eclipse CDT package from <a href= "https://www.eclipse.org/downloads/packages/release/2020-12/r/eclipse-ide-cc-developers">here </a>
@@ -54,16 +55,21 @@ The minimum requirements for running the IDF Eclipse plug-ins are below. However
 
 > **Note:** Make sure Java, Python and Git are available on the system environment PATH.
 
+However, If you are looking for all-in-one installer to manage all these please check our <a href="https://github.com/espressif/idf-installer#esp-idf-tools-installer-for-windows"> ESP-IDF Tools Installer</a> page.
+
 <a name="GettingStarted"></a>
 
 # Installing IDF Plugin using update site URL
 You can install the IDF Eclipse plugin into an existing Eclipse CDT installation using the update site URL. You first need to add the release repository URL as follows:
-* Go to `Help` -> `Install New Software`
-* Click `Add…`
-* Enter `Location` of the repository https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/ for stable releases,  https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/ for beta versions.
-* Enter `Name` as `Espressif IDF Plugin for Eclipse`
-* Click `Ok`
-* Select `Espressif IDF` from the list and proceed with the installation 
+
+1. Go to `Help` > `Install New Software`
+1. Click `Add…`, and in the pop-up window:
+	* Enter `Name` as `Espressif IDF Plugin for Eclipse`
+	* Enter `Location` of the repository:
+		* Stable releases: https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/
+		* Beta versions: https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/
+	* Click `Add`
+1. Select `Espressif IDF` from the list and proceed with the installation 
 
 > **Note:** Though screenshots are captured from `macOS`, installation instructions are applicable for `Windows`, `Linux` and `macOS`.
 
@@ -73,17 +79,18 @@ You can install the IDF Eclipse plugin into an existing Eclipse CDT installation
 # Installing ESP-IDF
 To install ESP-IDF directly from the Eclipse
 
-* Go to `Help` > `Download and Configure ESP-IDF`
-* From the download ESP-IDF section, choose ESP-IDF version and directory to download
-* Click on `Finish`
+1. Go to `Help` > `Download and Configure ESP-IDF`
+1. From the `Download ESP-IDF` section, choose ESP-IDF version and directory to download
+1. Click on `Finish`
 
 To configure an existing ESP-IDF
-* Go to `Help` > `Download and Configure ESP-IDF`
-* Check `Use an existing ESP-IDF directory from the file system`
-* Choose an existing ESP-IDF directory from the file system
-* Click on `Finish`
 
-This will download a specified esp-idf version and configures IDF_PATH in the Eclipse CDT build environment variables.
+1. Go to `Help` > `Download and Configure ESP-IDF`
+1. Check `Use an existing ESP-IDF directory from the file system`
+1. Choose an existing ESP-IDF directory from the file system
+1. Click on `Finish`
+
+This will download a specified esp-idf version and configures `IDF_PATH` in the Eclipse CDT build environment variables.
 
 ![](docs/images/espidf_download.png)
 
@@ -92,13 +99,13 @@ ESP-IDF requires some prerequisite tools to be installed so you can build firmwa
 
 For this getting started guide, follow the instructions below.
 
-* Navigate to `Help` > `ESP-IDF Tools Manager` > `Install Tools`
-* Provide the `ESP-IDF Directory` path
-* Provide `Git` and `Python` executable locations if they are not auto-detected.
-* Click on `Install Tools` to proceed with the installation process. Check the Console for the installation details.
-* Installation might take a while if you're doing it for the first time since it has to download and install xtensa-esp32-elf, esp32ulp-elf, cmake, openocd-esp32 and ninja tools.
+1. Navigate to `Help` > `ESP-IDF Tools Manager` > `Install Tools`
+1. Provide the `ESP-IDF Directory` path
+1. Provide `Git` and `Python` executable locations if they are not auto-detected.
+1. Click on `Install Tools` to proceed with the installation process. Check the Console for the installation details.
+1. Installation might take a while if you're doing it for the first time since it has to download and install xtensa-esp32-elf, esp32ulp-elf, cmake, openocd-esp32 and ninja tools.
 
-> **Note:** Make sure you run this step even if you've already installed the required tools, since it sets the IDF_PATH, PATH, OPENOCD_SCRIPTS and IDF_PYTHON_ENV_PATH to the Eclipse CDT build environment based on the idf_tools.py export command.
+> **Note:** Make sure you run this step even if you've already installed the required tools, since it sets the `IDF_PATH`, `PATH`, `OPENOCD_SCRIPTS` and `IDF_PYTHON_ENV_PATH` to the Eclipse CDT build environment based on the idf_tools.py export command.
 
 ![](docs/images/install_tools.png)
 
@@ -108,10 +115,10 @@ ESP-IDF Directory selection dialog:
 
 <a name="NewProjectUsingDefault"></a>
 # Create a new Project
-* Make sure you are in `C/C++ Perspective`
-* Go to `File` > `New` > `Espressif IDF Project` (If you don't see this, please reset the perspective from `Window` > `Perspective` > `Reset Perspective..`)
-* Provide the `Project name`
-* Click `Finish`
+1. Make sure you are in `C/C++ Perspective`
+1. Go to `File` > `New` > `Espressif IDF Project` (If you don't see this, please reset the perspective from `Window` > `Perspective` > `Reset Perspective...`)
+1. Provide the `Project name`
+1. Click `Finish`
 
 > **Note:** You will see a lot of unresolved inclusion errors in the editor and those will be resolved only after the build.
 
@@ -119,13 +126,13 @@ ESP-IDF Directory selection dialog:
 
 <a name="NewProjectUsingTemplates"></a>
 ## Create a new project using ESP-IDF Templates
-* Make sure you're in `C/C++ Perspective`
-* Go to `File` > `New` > `Espressif IDF Project` (If you don't see this, please reset the perspective from `Window` > `Perspective` > `Reset Perspective..`)
-* Provide the `Project name`
-* Click `Next`
-* Check `Create a project using one of the templates`
-* Select the required template from the tree
-* Click `Finish`
+1. Make sure you're in `C/C++ Perspective`
+1. Go to `File` > `New` > `Espressif IDF Project` (If you don't see this, please reset the perspective from `Window` > `Perspective` > `Reset Perspective..`)
+1. Provide the `Project name`
+1. Click `Next`
+1. Check `Create a project using one of the templates`
+1. Select the required template from the tree
+1. Click `Finish`
 
 > **Note:** You will see a lot of unresolved inclusion errors in the editor and those will be resolved only after the build.
 
@@ -135,26 +142,26 @@ ESP-IDF Directory selection dialog:
 # Configuring Launch target
 Next, we need to tell CDT to use the toolchain for our project so that all the headers will be indexed and resolved. This is accomplished through the Launch Bar, the new widget set you see on the far left of the toolbar. This will be shown only when you have a project in the project explorer.
 
-* Click on the third dropdown 
-* Select `New Launch Target`
-* Select `ESP Target`
-* Provide properties for the target where you would like to launch the application. Enter a `Name` for the target and select the `Serial Port` your ESP device is connected to on your machine.
+1. Click on the third dropdown window from the top bar
+1. Select `New Launch Target`
+1. Select `ESP Target`
+1. Provide properties for the target where you would like to launch the application. Enter a `Name` for the target and select the `Serial Port` your ESP device is connected to on your machine.
 
 ![](docs/images/8_launch_target.png)
 
 <a name="BuildApplication"></a>
 # Compiling the Project
-* Select a project from the Project Explorer
-* Select `Run` from the first drop-down, which is called `Launch Mode`
-* Select your application from the second drop-down, which is called `Launch Configuration`(Auto-detected)
-* Select target from the third drop-down, which is called `Launch Target`
-* Now click on the `Build` button widget which you see on the far left of the toolbar
+1. Select a project from the `Project Explorer`
+1. Select `Run` from the first drop-down, which is called `Launch Mode`
+1. Select your application from the second drop-down, which is called `Launch Configuration`(Auto-detected)
+1. Select target from the third drop-down, which is called `Launch Target`
+1. Now click on the `Build` button widget which you see on the far left of the toolbar
 
 ![](docs/images/9_cmake_build.png)
 
 <a name="FlashApplication"></a>
 # Flashing the Project
-ESP-IDF has a tool called `idf.py` which is a wrapper around make flash command with some handy operations. Flash operation can be initiated with just a click of a launch button(second button from the left) and it's auto-configured to flash the application with the default flash command i.e, `idf.py -p PORT flash`.
+ESP-IDF has a tool called `idf.py` which is a wrapper around `make flash` command with some handy operations. Flash operation can be initiated with just a click of a launch button (second button from the left on the top bar) and it's auto-configured to flash the application with the default flash command i.e, `idf.py -p PORT flash`.
 
 To provide the customized flash arguments, please follow [this](#customizeLaunchConfig) link for further instructions.
 
@@ -162,11 +169,11 @@ To provide the customized flash arguments, please follow [this](#customizeLaunch
 # Viewing Serial Output
 To see the serial output in Eclipse, we need to configure the `ESP-IDF Serial Monitor` to connect to the serial port. This is integrated with the `IDF Monitor`. Please check more details <a href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/tools/idf-monitor.html#idf-monitor">here</a>. 
 
-* Click on the `Open a Terminal` icon from the toolbar
-* Choose `ESP-IDF Serial Monitor` from the terminal drop-down
-* Select `Serial Port` for your board if it's not detected
-* Configure serial monitor filter options for output filtering
-* Click on `OK` to launch the terminal, which will listen to the USB port
+1. Click on the `Open a Terminal` icon from the toolbar
+1. Choose `ESP-IDF Serial Monitor` from the terminal drop-down
+1. Select `Serial Port` for your board if it's not detected
+1. Configure serial monitor filter options for output filtering
+1. Click on `OK` to launch the terminal, which will listen to the USB port
 
 ![](docs/images/10_serial_terminal.png)
 
@@ -178,10 +185,11 @@ IDF plugin will allow you to configure `sdkconfig` without leaving the Eclipse e
 Project configuration is held in a single file called `sdkconfig` in the root directory of the project. This configuration file can be modified using `SDK Configuration Editor`
 
 To launch the SDK Configuration editor:
-* Navigate to `sdkconfig` file
-* Double click on the file to launch the SDK configuration editor
-* Use `Ctrl+S` or  `Command+S` based on the OS environment to save the changes. You can also use Eclipse `Save` button from the toolbar
-* To revert the sdkconfig editor changes, you can either close the editor without saving them or you can right click on the `sdkconfig` file and select `Load sdkconfig` menu option to revert the changes from the editor.
+
+1. Navigate to `sdkconfig` file
+1. Double click on the file to launch the SDK configuration editor
+1. Use `Ctrl+S` or  `Command+S` based on the OS environment to save the changes. You can also use Eclipse `Save` button from the toolbar
+1. To revert the sdkconfig editor changes, you can either close the editor without saving them or you can right click on the `sdkconfig` file and select `Load sdkconfig` menu option to revert the changes from the editor.
 
 ![](docs/images/13_sdkconfig_editor.png)
 
@@ -191,7 +199,7 @@ CMake Editor Plug-in is integrated with IDF Plugin for editing CMake files such 
 
 ![](docs/images/cmake_editor_ca.png)
 
-CMake editor preferences can be controlled using `Eclipse > Preferences > CMakeEd`
+CMake editor preferences can be controlled using `Eclipse` > `Preferences` > `CMakeEd`
 
 ![](docs/images/cmake_editor_preferences.png)
 
@@ -211,8 +219,8 @@ Application Size Analysis editor provides a way to analyze the static memory foo
 Details table viewer also provides you with searching and sorting capabilities on various columns.
 
 To launch the Application Size Analysis editor:
-* Right-click on the project
-* Select `ESP-IDF: Application Size Analysis` menu option to launch the editor
+1. Right-click on the project
+1. Select `ESP-IDF: Application Size Analysis` menu option to launch the editor
 
 **Application Size Analysis - Overview**
 
@@ -236,18 +244,18 @@ To launch the ESP-IDF Terminal:
 
 <a name="configureEnvironmentVariables"></a>
 # Configuring Environment Variables
-Eclipse auto configures the required environment variables in the `Preferences > C/C++ Build > Environment` section if IDF Tools are installed using `Help` > `ESP-IDF Tools Manager` > `Install Tools` menu option.
+Eclipse auto configures the required environment variables in the `Preferences` > `C/C++ Build` > `Environment` section if IDF Tools are installed using `Help` > `ESP-IDF Tools Manager` > `Install Tools` menu option.
 
 Required environment variables:
-* IDF_PATH
-* PATH
-* OPENOCD_SCRIPTS
-* IDF_PYTHON_ENV_PATH
+* `IDF_PATH`
+* `PATH`
+* `OPENOCD_SCRIPTS`
+* `IDF_PYTHON_ENV_PATH`
 
 If the required environment variables are not configured for any reason, please follow the step by step instructions below.
 * Click on the `Environment` preference page under `C/C++ Build`. 
-* Click “Add…” again, and enter name `IDF_PATH`. The value should be the full path where ESP-IDF is installed.
-* Similarly we shoud configure OPENOCD_SCRIPTS, IDF_PYTHON_ENV_PATH and PATH environment variables
+* Click `Add…` again, and enter name `IDF_PATH`. The value should be the full path where ESP-IDF is installed.
+* Similarly we should configure `OPENOCD_SCRIPTS`, `IDF_PYTHON_ENV_PATH` and `PATH` environment variables
 
 This is how they should look:
 
@@ -265,25 +273,25 @@ This is how they should look:
 
 In the above path, the last segment `$PATH` needs to be replaced with the system environment PATH based on the operating system.
 For example, to get the system environment PATH.
-- In macOS,  `$echo $PATH ` 
+- In macOS, `$echo $PATH ` 
 - In Windows, `$echo %PATH%`
 
 ![](docs/images/2_environment_pref.png)
 
 # Configuring Toolchains
-We need to tell Eclipse CDT what core build toolchain and CMake toolchain need to be used to build the project. However, this will be auto-detected if you've installed the tools using the `Help > ESP-IDF Tools Manager > Install Tools` option from the Eclipse.
+We need to tell Eclipse CDT what core build toolchain and CMake toolchain need to be used to build the project. However, this will be auto-detected if you've installed the tools using the `Help` > `ESP-IDF Tools Manager` > `Install Tools` option from the Eclipse.
 
 If these toolchains are not detected for any reason, please follow the step by step instructions below to add a new toolchain.
 
 <a name="ConfigureToolchains"></a>
 # Configuring Core Build Toolchains
 
-* Open Eclipse Preferences
-* Navigate to `C/C++  -> “Core Build Toolchains` preference page
-* Click on `Add..` from the User defined Toolchians tables
-* Select `GCC` as a toolchain type
-* Click on `Next>`
-* Provide the GCC Toolchain Settings:
+1. Open Eclipse Preferences
+1. Navigate to `C/C++` > `Core Build Toolchains` preference page
+1. Click on `Add..` from the User defined Toolchains tables
+1. Select `GCC` as a toolchain type
+1. Click on `Next`
+1. Provide the GCC Toolchain Settings:
 
 **Compiler:** /Users/user-name/esp/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc,
 **Operating System:** esp32,
@@ -295,10 +303,10 @@ If these toolchains are not detected for any reason, please follow the step by s
 # Configuring CMake Toolchain
 We now need to tell CDT which toolchain to use when building the project. This will pass the required arguments to CMake when generating the Ninja files.
 
-* Navigate to “C/C++  -> “CMake” preference page
-* Click `Add..` and this will launch the New CMake Toolchain configuration dialog
-* Browse CMake toolchain `Path`. Example: `/Users/user-name/esp/esp-idf/tools/cmake/toolchain-esp32.cmake`
-* Select GCC Xtensa Toolchain compiler from the drop-down list. Example: `esp32 xtensa /Users/user-name/esp/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc`
+1. Navigate to `C/C++` > `CMake` preference page
+1. Click `Add...` and this will launch the New CMake Toolchain configuration dialog
+1. Browse CMake toolchain `Path`. Example: `/Users/user-name/esp/esp-idf/tools/cmake/toolchain-esp32.cmake`
+1. Select GCC Xtensa Toolchain compiler from the drop-down list. Example: `esp32 xtensa /Users/user-name/esp/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc`
 
 > **NOTE:**  Eclipse CDT has a bug in saving the toolchain preferences, hence it's recommended to restart Eclipse before we move further configuring the launch target.
 
@@ -308,14 +316,14 @@ We now need to tell CDT which toolchain to use when building the project. This w
 # Launch Configuration
 To provide the customized launch configuration and flash arguments, please follow the step by step instructions below.
 
-* Click on the `Launch Configuration` edit button
-* Switch to the `Main` tab
-* Specify the `Location` where this application has to run. Since `idf.py` is a python file, will configure the python system path. Example:`${system_path:python}`
-* Specify `Working directory` of the application. Example: `${workspace_loc:/hello_world}`
-* In additional arguments, provide a flashing command which will run in the specified working directory
-* Flash command looks like this: `/Users/user-name/esp/esp-idf/tools/idf.py -p /dev/cu.SLAB_USBtoUART flash`
-* Click OK to save the settings
-* Click on the `Launch` icon to flash the application to the selected board 
+1. Click on the `Launch Configuration` edit button
+1. Switch to the `Main` tab
+1. Specify the `Location` where this application has to run. Since `idf.py` is a python file, will configure the python system path. Example:`${system_path:python}`
+1. Specify `Working directory` of the application. Example: `${workspace_loc:/hello_world}`
+1. In additional arguments, provide a flashing command which will run in the specified working directory
+1. Flash command looks like this: `/Users/user-name/esp/esp-idf/tools/idf.py -p /dev/cu.SLAB_USBtoUART flash`
+1. Click OK to save the settings
+1. Click on the `Launch` icon to flash the application to the selected board 
 
 ![](docs/images/11_launch_configuration.png)
 
@@ -327,7 +335,7 @@ To provide the customized launch configuration and flash arguments, please follo
 ## Error Log
 The Error Log view captures all the warnings and errors logged by plug-ins. The underlying log file is a .log file stored in the .metadata subdirectory of the workspace. 
 
-The Error Log view is available in `Window > Show View > Error Log` .
+The Error Log view is available in `Window` > `Show View` > `Error Log`.
 
 To export the current log view content into a file, press the Export Log toolbar button or select `Export Log...` from the context menu. Then, enter a file name.
 
@@ -338,7 +346,7 @@ Always provide an error log when reporting an issue.
 ## Console View Log
 The Console View provides all the warnings and errors related to the current running process or build. To access the console view.
 
-From the menu bar, `Window > Show View > Console`. 
+From the menu bar, `Window` > `Show View` > `Console`. 
 
 ![](docs/images/CDT_Build_Console.png)
 
@@ -348,7 +356,7 @@ Go to `Preferences > C/C++ > Build > Logging`
 ## Espressif IDF Tools Console
 The Espressif IDF Tools Console is part of Console view, this will be opened only during the installation of IDF tools from the Eclipse. 
 
-If you encounter any issue while installing the IDF tools using `Help > ESP-IDF Tools Manager > Install tools`, please check the Espressif IDF Tools Console to see the errors reported.
+If you encounter any issue while installing the IDF tools using `Help` > `ESP-IDF Tools Manager` > `Install tools`, please check the Espressif IDF Tools Console to see the errors reported.
 
 If this is not active, it can be switched by clicking on the `Display Selected Console` icon from the console view.
 
@@ -358,22 +366,22 @@ If this is not active, it can be switched by clicking on the `Display Selected C
 # Installing IDF Eclipse Plugin from Eclipse Market Place
 
 Please follow the steps below to install IDF Eclipse Plugin from the Eclipse Market Place.
-* In Eclipse, choose `Help` -> `Eclipse Market Place...`
-* Enter `ESP-IDF Eclipse Plugin` in the search box to find the plugin
-* Click on `Install` to follow the installation instructions.
-* Restart the Eclipse
+1. In Eclipse, choose `Help` > `Eclipse Market Place...`
+1. Enter `ESP-IDF Eclipse Plugin` in the search box to find the plugin
+1. Click on `Install` to follow the installation instructions.
+1. Restart the Eclipse
 
 ![](docs/images/market_place.png)
 
 <a name="installPluginsUsingLocalFile"></a>
 # Installing IDF Eclipse Plugin from Local Archive
-* Download the latest update site archive for IDF Eclipse Plugin here - https://github.com/espressif/idf-eclipse-plugin/releases
-* In Eclipse, choose `Help` -> `Install New Software`
-* Click `Add…` button
-* Select `Archive` from Add repository dialog and select the file `com.espressif.idf.update-vxxxxxxx.zip`
-* Click `Add`
-* Select `Espressif IDF` from the list and proceed with the installation 
-* Restart the Eclipse
+1. Download the latest update site archive for IDF Eclipse Plugin here - https://github.com/espressif/idf-eclipse-plugin/releases
+1. In Eclipse, choose `Help` > `Install New Software`
+1. Click `Add…` button
+1. Select `Archive` from Add repository dialog and select the file `com.espressif.idf.update-vxxxxxxx.zip`
+1. Click `Add`
+1. Select `Espressif IDF` from the list and proceed with the installation 
+1. Restart the Eclipse
 
 ![](docs/images/1_idffeature_install.png)
 
@@ -381,42 +389,44 @@ Please follow the steps below to install IDF Eclipse Plugin from the Eclipse Mar
 # How do I upgrade my existing IDF Eclipse Plugin?
 
 If you are installing IDF Eclipse Plugin into your Eclipse for the first time, you first need to add the new release's repository as follows:
-* Window > Preferences > Install/Update > Available Software Sites
-* Click `Add`
-* Enter the URL of the new repository https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/
-* Click `Ok`
+1. `Window` > `Preferences` > `Install/Update` > `Available Software Sites`
+1. Click `Add`
+1. Enter the URL of the new repository https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/
+1. Click `Ok`
 
 If you've already installed IDF Eclipse Plugin using update site URL, you can get the latest changes using below
-* Help > Check for Updates
-* If updates are found, select `Espressif IDF Plugins for Eclipse` and deselect all other items
-* Click `Next` to proceed with the installation
+1. `Help` > `Check for Updates`
+1. If updates are found, select `Espressif IDF Plugins for Eclipse` and deselect all other items
+1. Click `Next` to proceed with the installation
 
 ![](docs/images/Update_plugins.png)
 
 <a name="ImportProject"></a>
 # Importing an existing IDF Project
-* Make sure you're in `C/C++ Perspective`.
-* Right click in the Project Explorer
-* Select `Import..` Menu
-* Select `Existing IDF Project` from `Espressif` import wizard menu list
-* Click `Next`
-* Click on `Browse...` to choose an existing project location directory
-* Provide `Project name` if you wish you have a different name
-* Click `Finish` to import the selected project into eclipse workspace as a CMake project
+
+1. Make sure you're in `C/C++ Perspective`.
+1. Right click in the Project Explorer
+1. Select `Import..` Menu
+1. Select `Existing IDF Project` from `Espressif` import wizard menu list
+1. Click `Next`
+1. Click on `Browse...` to choose an existing project location directory
+1. Provide `Project name` if you wish you have a different name
+1. Click `Finish` to import the selected project into eclipse workspace as a CMake project
 
 ![](docs/images/5_import_project.png)
 
 <a name="importDebugLaunchConfig"></a>
 # Importing an existing Debug launch configuration
+
 To import an existing launch configuration into Eclipse:
-* Select `Import...` from the `File` menu
-* In the Import dialog box, expand the `Run/Debug` group and select `Launch Configurations`
-* Click on `Next`
-* Click on `Browse...` to select the required location in the local file system
-* Select the folder containing the launch files and then click OK
-* Select the checkboxes for the required folder and launch file
-* If you are replacing an existing configuration with the same name then select `Overwrite existing launch configurations without warning`
-* Click on `Finish`
+1. Select `Import...` from the `File` menu
+1. In the Import dialog box, expand the `Run/Debug` group and select `Launch Configurations`
+1. Click on `Next`
+1. Click on `Browse...` to select the required location in the local file system
+1. Select the folder containing the launch files and then click `OK`
+1. Select the checkboxes for the required folder and launch file
+1. If you are replacing an existing configuration with the same name then select `Overwrite existing launch configurations without warning`
+1. Click on `Finish`
 
 
 <a name="howToRaiseBugs"></a>
