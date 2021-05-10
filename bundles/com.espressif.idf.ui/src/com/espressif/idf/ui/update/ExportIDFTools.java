@@ -54,10 +54,15 @@ public class ExportIDFTools
 		final String cmd = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments); //$NON-NLS-1$
 		log(cmd, console);
 
+		final Map<String, String> environment = new HashMap<>(System.getenv());
+		if (gitExePath != null)
+		{
+			addGitToEnvironment(environment, gitExePath);
+		}
 		final ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 		try
 		{
-			final IStatus status = processRunner.runInBackground(arguments, Path.ROOT, System.getenv());
+			final IStatus status = processRunner.runInBackground(arguments, Path.ROOT, environment);
 			if (status == null)
 			{
 				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
@@ -162,10 +167,10 @@ public class ExportIDFTools
 				}
 				else
 				{
-					//Other build variables - let's replace with new values
+					// Other build variables - let's replace with new values
 					idfEnvMgr.addEnvVariable(key, value);
 				}
-				
+
 			}
 
 		}
@@ -191,6 +196,27 @@ public class ExportIDFTools
 			value = value.replace("%PATH%", pathEntry); // Windows //$NON-NLS-1$
 		}
 		return value;
+	}
+
+	protected void addGitToEnvironment(Map<String, String> envMap, String executablePath)
+	{
+		IPath gitPath = new Path(executablePath);
+		if (gitPath.toFile().exists())
+		{
+			String gitDir = gitPath.removeLastSegments(1).toOSString();
+			String path1 = envMap.get("PATH"); //$NON-NLS-1$
+			String path2 = envMap.get("Path"); //$NON-NLS-1$
+			if (!StringUtil.isEmpty(path1) && !path1.contains(gitDir)) // Git not found on the PATH environment
+			{
+				path1 = gitDir.concat(";").concat(path1); //$NON-NLS-1$
+				envMap.put("PATH", path1); //$NON-NLS-1$
+			}
+			else if (!StringUtil.isEmpty(path2) && !path2.contains(gitDir)) // Git not found on the Path environment
+			{
+				path2 = gitDir.concat(";").concat(path2); //$NON-NLS-1$
+				envMap.put("Path", path2); //$NON-NLS-1$
+			}
+		}
 	}
 
 	/**
