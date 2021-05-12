@@ -6,7 +6,7 @@
          point="org.eclipse.core.runtime.products">
       <product
             application="org.eclipse.ui.ide.workbench"
-            name="Eclipse IDE for ESP-IDF Developers">
+            name="%product.name">
          <property
                name="appName"
                value="Eclipse IDE for ESP-IDF Developers">
