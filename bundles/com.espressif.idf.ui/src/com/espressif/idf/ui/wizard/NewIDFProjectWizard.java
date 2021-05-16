@@ -20,6 +20,7 @@ import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.ui.handlers.EclipseHandler;
+import com.espressif.idf.ui.handlers.NewProjectHandlerUtil;
 import com.espressif.idf.ui.templates.IDFProjectGenerator;
 import com.espressif.idf.ui.templates.ITemplateNode;
 import com.espressif.idf.ui.templates.TemplateListSelectionPage;
@@ -51,6 +52,10 @@ public class NewIDFProjectWizard extends TemplateWizard
 	@Override
 	public void addPages()
 	{
+		if (!NewProjectHandlerUtil.installToolsCheck())
+		{
+			return;
+		}
 		super.addPages();
 
 		mainPage = new WizardNewProjectCreationPage("basicNewProjectPage") //$NON-NLS-1$
@@ -65,15 +70,14 @@ public class NewIDFProjectWizard extends TemplateWizard
 		mainPage.setTitle(Messages.NewIDFProjectWizard_Project_Title);
 		mainPage.setDescription(Messages.NewIDFProjectWizard_ProjectDesc);
 		this.setWindowTitle(Messages.NewIDFProjectWizard_NewIDFProject);
-		
+
 		TemplatesManager templatesManager = new TemplatesManager();
 		ITemplateNode templateRoot = templatesManager.getTemplates();
 
 		boolean hasTemplates = templateRoot.getChildren().isEmpty();
 		if (!hasTemplates)
 		{
-			templatesPage = new TemplateListSelectionPage(templateRoot,
-					Messages.NewIDFProjectWizard_TemplatesHeader);
+			templatesPage = new TemplateListSelectionPage(templateRoot, Messages.NewIDFProjectWizard_TemplatesHeader);
 			ITemplateNode templateNode = templatesManager.getTemplateNode(IDFConstants.DEFAULT_TEMPLATE_ID);
 			if (templateNode != null)
 			{
@@ -88,8 +92,9 @@ public class NewIDFProjectWizard extends TemplateWizard
 		{
 			this.addPage(templatesPage);
 		}
+
 	}
-	
+
 	@Override
 	public boolean performFinish()
 	{
@@ -129,7 +134,5 @@ public class NewIDFProjectWizard extends TemplateWizard
 		}
 		return generator;
 	}
-	
-	
 
 }

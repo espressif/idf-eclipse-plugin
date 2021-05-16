@@ -4,37 +4,25 @@
  *******************************************************************************/
 package com.espressif.idf.ui.update;
 
-import java.io.File;
-import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.build.IToolChainManager;
-import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.osgi.util.NLS;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.osgi.service.prefs.BackingStoreException;
+import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFConstants;
-import com.espressif.idf.core.IDFCorePlugin;
-import com.espressif.idf.core.IDFEnvironmentVariables;
-import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.build.ESPToolChainManager;
 import com.espressif.idf.core.build.ESPToolChainProvider;
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.ui.UIPlugin;
 
 /**
  * IDF Tools install command handler
@@ -47,6 +35,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 
 	private IToolChainManager tcManager = CCorePlugin.getService(IToolChainManager.class);
 	private ICMakeToolChainManager cmakeTcManager = CCorePlugin.getService(ICMakeToolChainManager.class);
+	private static final String INSTALL_TOOLS_FLAG = "INSTALL_TOOLS_FLAG"; //$NON-NLS-1$
 
 	@Override
 	protected void execute()
@@ -81,6 +70,16 @@ public class InstallToolsHandler extends AbstractToolsHandler
 			}
 
 		};
+		Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
+		scopedPreferenceStore.putBoolean(INSTALL_TOOLS_FLAG, true);
+		try
+		{
+			scopedPreferenceStore.flush();
+		}
+		catch (BackingStoreException e)
+		{
+			Logger.log(e);
+		}
 		installToolsJob.schedule();
 
 	}

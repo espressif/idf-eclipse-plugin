@@ -8,8 +8,10 @@
             name="%category.name">
       </category>
       <wizard
+            canFinishEarly="true"
             category="com.espressif.idf.ui.new.wizard.category"
-            class="com.espressif.idf.ui.wizard.NewIDFProjectWizard"
+            class="com.espressif.idf.ui.wizard.NewIdfProjectMainWizard"
+            hasPages="false"
             icon="icons/espressif_idf_project.png"
             id="com.espressif.idf.ui.new.project.wizard"
             name="%wizard.name"
