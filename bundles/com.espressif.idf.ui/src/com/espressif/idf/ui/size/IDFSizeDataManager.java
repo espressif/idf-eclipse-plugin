@@ -85,16 +85,7 @@ public class IDFSizeDataManager
 		for (String key : keySet)
 		{
 			JSONObject object = (JSONObject) archivesJsonObj.get(key);
-
-			IDFSizeData record = new IDFSizeData(key, 
-					(long) object.get(IDFSizeConstants.DATA),
-					(long) object.get(IDFSizeConstants.BSS), 
-					(long) object.get(IDFSizeConstants.DIRAM),
-					(long) object.get(IDFSizeConstants.IRAM), 
-					(long) object.get(IDFSizeConstants.FLASH_TEXT),
-					(long) object.get(IDFSizeConstants.FLASH_RODATA), 
-					(long) object.get(IDFSizeConstants.OTHER),
-					(long) object.get(IDFSizeConstants.TOTAL));
+			IDFSizeData record = getSizeRecord(key, object);
 			arrayList.add(record);
 
 			// update children
@@ -106,17 +97,9 @@ public class IDFSizeDataManager
 					if (symbolsKey.startsWith(key))
 					{
 						String symbolName = symbolsKey.substring(key.length() + 1); // libnet80211.a:ieee80211_output.o
+						
 						JSONObject symbolObj = (JSONObject) symbolJsonObj.get(symbolsKey);
-						IDFSizeData symbolRecord = new IDFSizeData(symbolName,
-								(long) symbolObj.get(IDFSizeConstants.DATA), 
-								(long) symbolObj.get(IDFSizeConstants.BSS),
-								(long) symbolObj.get(IDFSizeConstants.DIRAM),
-								(long) symbolObj.get(IDFSizeConstants.IRAM),
-								(long) symbolObj.get(IDFSizeConstants.FLASH_TEXT),
-								(long) symbolObj.get(IDFSizeConstants.FLASH_RODATA),
-								(long) symbolObj.get(IDFSizeConstants.OTHER),
-								(long) symbolObj.get(IDFSizeConstants.TOTAL));
-						record.getChildren().add(symbolRecord);
+						record.getChildren().add(getSizeRecord(symbolName, symbolObj));
 					}
 
 				}
@@ -124,6 +107,26 @@ public class IDFSizeDataManager
 		}
 
 		return arrayList;
+	}
+
+	protected IDFSizeData getSizeRecord(String key, JSONObject object)
+	{
+		IDFSizeData record = new IDFSizeData(key,
+				getValue(object.get(IDFSizeConstants.DATA)),
+				getValue(object.get(IDFSizeConstants.BSS)),
+				getValue(object.get(IDFSizeConstants.DIRAM)),
+				getValue(object.get(IDFSizeConstants.IRAM)),
+				getValue(object.get(IDFSizeConstants.FLASH_TEXT)),
+				getValue(object.get(IDFSizeConstants.FLASH_RODATA)),
+				getValue(object.get(IDFSizeConstants.OTHER)),
+				getValue(object.get(IDFSizeConstants.TOTAL)));
+		
+		return record;
+	}
+
+	protected long getValue(Object object)
+	{
+		return object != null ? (long) object : 0;
 	}
 
 	private JSONObject getSymbolDetails(String pythonExecutablePath, IFile mapFile)
@@ -204,12 +207,6 @@ public class IDFSizeDataManager
 		arguments.add(IDFUtil.getIDFSizeScriptFile().getAbsolutePath());
 		arguments.add(file.getLocation().toOSString());
 		arguments.add("--json"); //$NON-NLS-1$
-		
-		if (!StringUtil.isEmpty(targetName))
-		{
-			arguments.add("--target"); //$NON-NLS-1$
-			arguments.add(targetName);
-		}
 
 		return arguments;
 	}
