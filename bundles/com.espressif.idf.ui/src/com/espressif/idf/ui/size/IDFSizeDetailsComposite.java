@@ -20,6 +20,8 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 
+import com.espressif.idf.core.logging.Logger;
+
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
@@ -77,7 +79,7 @@ public class IDFSizeDetailsComposite
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			Logger.log(e);
 		}
 
 		treeViewer.setContentProvider(new IDFSizeDataContentProvider());
@@ -121,7 +123,6 @@ public class IDFSizeDetailsComposite
 			}
 			try
 			{
-				viewer.getTree().setRedraw(false);
 				viewer.refresh();
 			} finally
 			{
