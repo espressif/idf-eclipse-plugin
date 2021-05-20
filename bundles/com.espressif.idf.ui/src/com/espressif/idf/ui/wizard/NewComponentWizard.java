@@ -1,5 +1,8 @@
 package com.espressif.idf.ui.wizard;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -42,6 +45,8 @@ public class NewComponentWizard extends Wizard implements INewWizard
 		{
 			IDEWorkbenchPlugin.getPluginWorkspace().getRoot().refreshLocal(IResource.DEPTH_INFINITE, null);
 			MessageDialog.openInformation(null, Messages.NewIdfComponentWizard_Component_Title, message);
+			triggerResourceChanges();
+			IDEWorkbenchPlugin.getPluginWorkspace().getRoot().refreshLocal(IResource.DEPTH_INFINITE, null);
 		}
 		catch (CoreException e)
 		{
@@ -50,6 +55,21 @@ public class NewComponentWizard extends Wizard implements INewWizard
 		return true;
 	}
 
+	private void triggerResourceChanges() 
+	{
+		try
+		{
+			FileWriter fr = new FileWriter(mainPage.getCreatedComponentPath() + "/CMakeLists.txt", true); //$NON-NLS-1$
+			fr.write("\n");
+			fr.flush();
+			fr.close();
+		}
+		catch (IOException e)
+		{
+			Logger.log(e);
+		}
+	}
+	
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection)
 	{
