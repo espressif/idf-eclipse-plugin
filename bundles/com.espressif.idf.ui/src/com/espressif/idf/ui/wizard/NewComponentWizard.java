@@ -60,7 +60,7 @@ public class NewComponentWizard extends Wizard implements INewWizard
 		try
 		{
 			FileWriter fr = new FileWriter(mainPage.getCreatedComponentPath() + "/CMakeLists.txt", true); //$NON-NLS-1$
-			fr.write("\n");
+			fr.write("\n"); //$NON-NLS-1$
 			fr.flush();
 			fr.close();
 		}
