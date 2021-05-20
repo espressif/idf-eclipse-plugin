@@ -95,7 +95,7 @@ public class IDFSizeOverviewComposite
 		ec.setClient(chartComp);
 
 		//available_diram is non-zero for esp32
-		long available_diram = (long) overviewJson.get(IDFSizeConstants.AVAILABLE_DIRAM);
+		long available_diram = overviewJson.get(IDFSizeConstants.AVAILABLE_DIRAM) != null ? (long) overviewJson.get(IDFSizeConstants.AVAILABLE_DIRAM) : 0;
 		if (available_diram == 0)
 		{
 			plotDoubleBar();
@@ -137,14 +137,14 @@ public class IDFSizeOverviewComposite
 		// Used static DRAM
 		toolkit.createLabel(overviewComp, "Used static DRAM:"); //$NON-NLS-1$
 		String dramText = convertToKB(used_dram) + " (" + convertToKB(available_dram) + " available, "  //$NON-NLS-1$ //$NON-NLS-2$
-				+ Math.round(used_dram_ratio * 100) + "%"+ "used"+")";  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				+ Math.round(used_dram_ratio * 100) + "%"+ " used"+")";  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		Label dramUsedVal = toolkit.createLabel(overviewComp, dramText); // $NON-NLS-1$
 		dramUsedVal.setFont(boldFont);
 
 		// Used static IRAM
 		toolkit.createLabel(overviewComp, "Used static IRAM:");  //$NON-NLS-1$
 		String iramText = convertToKB(used_iram) + " (" + convertToKB(available_iram) + " available, " //$NON-NLS-1$ //$NON-NLS-2$ 
-				+ Math.round(used_iram_ratio * 100) + "%" + "used"+ ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				+ Math.round(used_iram_ratio * 100) + "%" + " used"+ ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		Label iramUsedVal = toolkit.createLabel(overviewComp, iramText); // $NON-NLS-1$
 		iramUsedVal.setFont(boldFont);
 
