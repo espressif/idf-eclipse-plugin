@@ -3,6 +3,7 @@
  * Use is subject to license terms.
  *******************************************************************************/
 
+
 package com.espressif.idf.ui.wizard;
 
 import org.eclipse.core.commands.ExecutionException;
@@ -13,13 +14,13 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.ui.handlers.NewProjectHandler;
+import com.espressif.idf.ui.handlers.NewComponentHandler;
 import com.espressif.idf.ui.handlers.NewProjectHandlerUtil;
 
-public class NewIdfProjectMainWizard extends Wizard implements INewWizard
+public class NewComponentMainWizard extends Wizard implements INewWizard
 {
 
-	public NewIdfProjectMainWizard()
+	public NewComponentMainWizard()
 	{
 		if (NewProjectHandlerUtil.installToolsCheck())
 		{
@@ -28,7 +29,7 @@ public class NewIdfProjectMainWizard extends Wizard implements INewWizard
 				@Override
 				public void run()
 				{
-					NewProjectHandler handler = new NewProjectHandler();
+					NewComponentHandler handler = new NewComponentHandler();
 					try
 					{
 						handler.execute(null);
@@ -43,14 +44,14 @@ public class NewIdfProjectMainWizard extends Wizard implements INewWizard
 	}
 
 	@Override
-	public boolean performFinish()
+	public void init(IWorkbench workbench, IStructuredSelection selection)
 	{
-		return true;
 	}
 
 	@Override
-	public void init(IWorkbench workbench, IStructuredSelection selection)
+	public boolean performFinish()
 	{
+		return true;
 	}
 
 }

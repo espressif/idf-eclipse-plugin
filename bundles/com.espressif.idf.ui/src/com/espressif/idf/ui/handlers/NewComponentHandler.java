@@ -15,6 +15,10 @@ public class NewComponentHandler extends AbstractHandler
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
+		if (!NewProjectHandlerUtil.installToolsCheck())
+		{
+			return null;
+		}
 		NewComponentWizard newComponentWizard = new NewComponentWizard();
 		newComponentWizard.init(PlatformUI.getWorkbench(), null);
 
