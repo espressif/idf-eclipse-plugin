@@ -169,13 +169,17 @@ public class NewComponentWizardPage extends WizardPage
 
 	private boolean checkIfComponentExists()
 	{
-		IProject selectedProject = ResourcesPlugin.getWorkspace().getRoot().getProject(projectCombo.getText());
-		IPath newPath = selectedProject.getLocation().append("/components"); //$NON-NLS-1$
-		Path absPath = Paths.get(newPath.toString() + "\\" + componentName.getText()); //$NON-NLS-1$
-		if (Files.exists(absPath))
+		if (Files.exists(getCreatedComponentPath()))
 		{
 			return true;
 		}
 		return false;
+	}
+
+	public Path getCreatedComponentPath()
+	{
+		IProject selectedProject = ResourcesPlugin.getWorkspace().getRoot().getProject(projectCombo.getText());
+		IPath newPath = selectedProject.getLocation().append("components").append(componentName.getText()); //$NON-NLS-1$
+		return Paths.get(newPath.toString());
 	}
 }
