@@ -15,11 +15,14 @@ import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.build.IToolChainManager;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.ui.IStartup;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.osgi.service.prefs.BackingStoreException;
+import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.ESPToolChainManager;
@@ -43,15 +46,24 @@ public class InitializeToolsStartup implements IStartup
 	private static final String IDF_INSTALLED_LIST_KEY = "idfInstalled"; //$NON-NLS-1$
 	private static final String PYTHON_PATH = "python"; //$NON-NLS-1$
 	private static final String IDF_PATH = "path"; //$NON-NLS-1$
+	private static final String IS_INSTALLER_CONFIG_SET = "isInstallerConfigSet" ; //$NON-NLS-1$
 
 	@Override
 	public void earlyStartup()
 	{
+		ResourcesPlugin.getWorkspace().addResourceChangeListener(new ResourceChangeListener());
+		
+		if (isInstallerConfigSet())
+		{
+			Logger.log("Ignoring esp_idf.json settings as it was configured earilier.");
+			return;
+		}
+
 		// Get the location of the eclipse root directory
 		Location installLocation = Platform.getInstallLocation();
 		URL url = installLocation.getURL();
 		Logger.log("Eclipse Install location::" + url);
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(new ResourceChangeListener());
+		
 		// Check the esp-idf.json
 		File idf_json_file = new File(url.getPath() + File.separator + ESP_IDF_JSON_FILE);
 		if (!idf_json_file.exists())
@@ -89,6 +101,17 @@ public class InitializeToolsStartup implements IStartup
 				}
 			}
 
+			//save state
+			Preferences prefs = getPreferences();
+			prefs.putBoolean(IS_INSTALLER_CONFIG_SET, true);
+			try
+			{
+				prefs.flush();
+			}
+			catch (BackingStoreException e)
+			{
+				Logger.log(e);
+			}
 
 		}
 		catch (
@@ -97,6 +120,15 @@ public class InitializeToolsStartup implements IStartup
 		{
 			Logger.log(e);
 		}
+	}
+	
+	private Preferences getPreferences() {
+		return InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
+	}
+	
+	private boolean isInstallerConfigSet()
+	{
+		return getPreferences().getBoolean(IS_INSTALLER_CONFIG_SET, false);
 	}
 
 	/**
