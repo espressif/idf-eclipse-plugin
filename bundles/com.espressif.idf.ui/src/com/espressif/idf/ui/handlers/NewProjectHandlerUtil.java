@@ -23,7 +23,6 @@ import com.espressif.idf.ui.update.InstallToolsHandler;
 
 public class NewProjectHandlerUtil
 {
-	private static final String INSTALL_TOOLS_FLAG = "INSTALL_TOOLS_FLAG"; //$NON-NLS-1$
 
 	public static boolean installToolsCheck()
 	{
@@ -35,7 +34,7 @@ public class NewProjectHandlerUtil
 		String path = Optional.ofNullable(pathEnv).map(o -> o.getValue()).orElse(null);
 
 		Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
-		boolean isToolsInstalled = scopedPreferenceStore.getBoolean(INSTALL_TOOLS_FLAG, false);
+		boolean isToolsInstalled = scopedPreferenceStore.getBoolean(InstallToolsHandler.INSTALL_TOOLS_FLAG, false);
 
 		if (StringUtil.isEmpty(idfPath) || StringUtil.isEmpty(path) || !isToolsInstalled)
 		{

@@ -33,9 +33,9 @@ import com.espressif.idf.ui.UIPlugin;
 public class InstallToolsHandler extends AbstractToolsHandler
 {
 
+	public static final String INSTALL_TOOLS_FLAG = "INSTALL_TOOLS_FLAG"; //$NON-NLS-1$
 	private IToolChainManager tcManager = CCorePlugin.getService(IToolChainManager.class);
 	private ICMakeToolChainManager cmakeTcManager = CCorePlugin.getService(ICMakeToolChainManager.class);
-	private static final String INSTALL_TOOLS_FLAG = "INSTALL_TOOLS_FLAG"; //$NON-NLS-1$
 
 	@Override
 	protected void execute()
