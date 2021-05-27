@@ -118,10 +118,6 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 						}
 					}
 				}
-
-				if (serialPortCombo.getSelectionIndex() < 0) {
-					serialPortCombo.select(0);
-				}
 			}
 		} catch (IOException e) {
 			Activator.log(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
