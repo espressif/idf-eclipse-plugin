@@ -32,7 +32,7 @@
 		
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
 			<unit id="com.cthing.cmakeed.feature.feature.group" version="1.16.0"/>
-			<repository location="jar:https://fifteenknots.jfrog.io/artifactory/p2-zip/CMakeEd-1.16.0.zip!/"/>
+			<repository location="jar:https://dl.cloudsmith.io/public/15knots/p2-zip/raw/files/CMakeEd-1.17.0.zip!/"/>
 		</location>
 		
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
