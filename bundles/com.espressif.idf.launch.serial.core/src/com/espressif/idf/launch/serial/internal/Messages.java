@@ -21,6 +21,8 @@ public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "com.espressif.idf.launch.serial.internal.messages"; //$NON-NLS-1$
 	public static String SerialFlashLaunch_Pause;
 	public static String SerialFlashLaunch_Resume;
+	public static String SerialPortNotFoundTitle;
+	public static String SerialPortNotFoundMsg;
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
