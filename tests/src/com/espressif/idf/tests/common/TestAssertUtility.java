@@ -6,7 +6,14 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 
 public class TestAssertUtility
 {
-	public static boolean treeContainsItem(String nameOfItemToCheck, String subTreeName, SWTBotTree treeToCheckIn) throws Exception 
+	/**
+	 * Checks if the provided SWTBotTree contains the item with provided name
+	 * @param nameOfItemToCheck name of the item to check in tree
+	 * @param subTreeName sub tree name if any else with use the treeToCheckIn
+	 * @param treeToCheckIn main tree object to lookup the item
+	 * @return true if found false if not
+	 */
+	public static boolean treeContainsItem(String nameOfItemToCheck, String subTreeName, SWTBotTree treeToCheckIn)
 	{
 		SWTBotTreeItem[] treeItems = null;
 		if (StringUtils.isNotEmpty(subTreeName))

@@ -4,14 +4,13 @@ import static org.junit.Assert.assertTrue;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.espressif.idf.tests.common.TestAssertUtility;
-import com.espressif.idf.tests.common.TestEnvCleanUtility;
+import com.espressif.idf.tests.common.TestSetupUtility;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class NewEspressifIDFProjectTest
@@ -65,14 +64,7 @@ public class NewEspressifIDFProjectTest
 		
 		private void whenNewProjectIsSelected() throws Exception
 		{
-			bot.shell().activate().bot().menu("File").menu("New").menu("Project...").click();
-			SWTBotShell shell = bot.shell("New Project");
-			shell.activate();
-			
-			bot.tree().expandNode(category).select(subCategory);
-			bot.button("Finish").click();
-			bot.textWithLabel("Project name:").setText(projectName);
-			bot.button("Finish").click();
+			TestSetupUtility.setupProject(projectName, category, subCategory, bot);
 		}
 		
 		private void thenProjectIsAddedToProjectExplorer()
@@ -81,7 +73,7 @@ public class NewEspressifIDFProjectTest
 			bot.tree().expandNode(projectName).select();
 		}
 		
-		private void thenProjectHasTheFile(String fileName) throws Exception
+		private void thenProjectHasTheFile(String fileName)
 		{
 			bot.viewByTitle("Project Explorer");
 			assertTrue(TestAssertUtility.treeContainsItem(fileName, projectName, bot.tree()));
@@ -89,7 +81,8 @@ public class NewEspressifIDFProjectTest
 		
 		private void cleanTestEnv()
 		{
-			TestEnvCleanUtility.closeAndDeleteAllProjectsInEnv(bot);
+			TestSetupUtility.closeProject(projectName, bot);
+			TestSetupUtility.deleteProject(projectName, bot);
 		}
 	}
 }
