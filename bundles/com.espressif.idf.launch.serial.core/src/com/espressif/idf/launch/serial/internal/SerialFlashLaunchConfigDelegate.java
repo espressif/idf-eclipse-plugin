@@ -16,6 +16,7 @@
 package com.espressif.idf.launch.serial.internal;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,6 +32,7 @@ import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.debug.core.launch.CoreBuildGenericLaunchConfigDelegate;
 import org.eclipse.cdt.debug.core.launch.NullProcess;
 import org.eclipse.cdt.debug.internal.core.Messages;
+import org.eclipse.cdt.serial.SerialPort;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
@@ -42,8 +44,10 @@ import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.launch.ITargetedLaunch;
+import org.eclipse.swt.widgets.Display;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFEnvironmentVariables;
@@ -60,6 +64,7 @@ import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfigDelegate {
 
 	private static final String SYSTEM_PATH_PYTHON = "${system_path:python}"; //$NON-NLS-1$
+	private String serialPort;
 
 	@Override
 	public ITargetedLaunch getLaunch(ILaunchConfiguration configuration, String mode, ILaunchTarget target)
@@ -107,7 +112,9 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		//build the flash command
 		String espFlashCommand = getEspFlashCommand(launch);
 		Logger.log(espFlashCommand);
-
+		if (checkIfPortIsEmpty()) {
+			return;
+		}
 		String arguments = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS,
 				espFlashCommand);
 		if (!arguments.isEmpty()) {
@@ -139,9 +146,39 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		}
 
 		String[] envArray = strings.toArray(new String[strings.size()]);
-
 		Process p = DebugPlugin.exec(commands.toArray(new String[0]), workingDir, envArray);
 		DebugPlugin.newProcess(launch, p, String.join(" ", commands)); //$NON-NLS-1$
+	}
+
+	private boolean checkIfPortIsEmpty() {
+		boolean isMatch = false;
+		try {
+			String[] ports = SerialPort.list();
+			for (String port : ports) {
+				if (port.equals(serialPort)) {
+					isMatch = true;
+					break;
+				}
+			}
+		} catch (IOException e) {
+			Logger.log(e);
+		}
+		if (!isMatch) {
+			showMessage();
+			return true;
+		}
+		return false;
+	}
+
+	private static void showMessage() {
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				MessageDialog.openError(Display.getDefault().getActiveShell(),
+						com.espressif.idf.launch.serial.internal.Messages.SerialPortNotFoundTitle,
+						com.espressif.idf.launch.serial.internal.Messages.SerialPortNotFoundMsg);
+			}
+		});
 	}
 
 	/**
@@ -154,8 +191,9 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
 		commands.add("-p"); //$NON-NLS-1$
 
-		String serialPort = ((SerialFlashLaunch) launch).getLaunchTarget()
+		serialPort = ((SerialFlashLaunch) launch).getLaunchTarget()
 				.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
+
 		commands.add(serialPort);
 
 		commands.add(IDFConstants.FLASH_CMD);
