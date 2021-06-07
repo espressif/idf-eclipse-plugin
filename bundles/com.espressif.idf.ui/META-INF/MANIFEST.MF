@@ -33,8 +33,23 @@ Require-Bundle: org.eclipse.core.runtime,
 Automatic-Module-Name: com.espressif.idf.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Export-Package: com.espressif.idf.ui,
- com.espressif.idf.ui.dialogs
+Export-Package: com.espressif.idf.ui;
+  uses:="org.osgi.framework,
+   org.eclipse.ui,
+   org.eclipse.ui.console,
+   org.eclipse.swt.graphics,
+   org.eclipse.jface.resource,
+   org.eclipse.core.resources,
+   org.eclipse.debug.ui,
+   org.eclipse.ui.plugin",
+ com.espressif.idf.ui.dialogs;
+  uses:="org.eclipse.osgi.util,
+   org.eclipse.swt.graphics,
+   org.eclipse.swt.widgets,
+   org.eclipse.jface.dialogs,
+   org.eclipse.cdt.launch.ui.corebuild,
+   org.eclipse.debug.core"
 Bundle-ClassPath: .,
  lib/commonmark-0.16.1.jar,
  lib/ini4j-0.5.4.jar
+

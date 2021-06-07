@@ -27,6 +27,7 @@ public class Messages extends NLS {
 	public static String NewSerialFlashTargetWizardPage_Name;
 	public static String NewSerialFlashTargetWizardPage_SerialPort;
 	public static String NewSerialFlashTargetWizardPage_Title;
+	public static String CMakeMainTab2_JtagComboLbl;
 
 	static {
 		// initialize resource bundle

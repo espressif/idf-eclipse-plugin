@@ -56,6 +56,7 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
+import com.espressif.idf.launch.serial.util.EspFlashCommandGenerator;
 
 /**
  * Flashing into esp32 board
@@ -110,7 +111,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		commands.add(location);
 
 		//build the flash command
-		String espFlashCommand = getEspFlashCommand(launch);
+		String espFlashCommand = EspFlashCommandGenerator.getEspFlashCommand(launch);
 		Logger.log(espFlashCommand);
 		if (checkIfPortIsEmpty()) {
 			return;
