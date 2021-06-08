@@ -115,15 +115,11 @@ public class NewEspressifIDFProjectTest
 			SWTBotTreeItem[] items = SWTBotTreeOperationsUtility.getTreeItems(bot.tree(), pathToPass);
 			Optional<SWTBotTreeItem> file = Arrays.asList(items).stream().filter(i -> i.getText().equals(fileName))
 					.findFirst();
-			String defaultFileContents = DefaultFileContentsReader.getFileContents(fileName);
+			String defaultFileContents = DefaultFileContentsReader.getFileContents(pathToPass + "/" + fileName);
 			if (file.isPresent())
 			{
 				file.get().doubleClick();
 				bot.editorByTitle(fileName).show();
-//				String textString = bot.styledText().getText();
-//				FileWriter fileWriter = new FileWriter("temp.txt");
-//				fileWriter.write(textString);
-//				fileWriter.close();
 				assertTrue(bot.styledText().getText().equals(defaultFileContents));
 			}
 			else
