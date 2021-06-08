@@ -1,4 +1,4 @@
-package com.espressif.idf.tests.project;
+package com.espressif.idf.tests.executable.cases.project;
 
 import static org.junit.Assert.assertTrue;
 
