@@ -28,7 +28,7 @@ public class EspConfigParser
 	public EspConfigParser()
 	{
 		espConfigPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS)
-				+ "/tcl_esp-config.json";
+				+ "/esp-config.json"; // $NON-NLS-1$
 	}
 
 	@SuppressWarnings("unchecked")
