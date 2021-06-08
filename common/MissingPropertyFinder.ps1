@@ -18,7 +18,7 @@ function Format-Hashtable {
 
 
 
-$path = ".\"
+$path = "..\"
 $filterRegex = "*.properties"
 $excluded = @("*_*.properties" , "build*.properties", "target")
 $outputPath = ".\MissingProperties\$localeToCompare\"
