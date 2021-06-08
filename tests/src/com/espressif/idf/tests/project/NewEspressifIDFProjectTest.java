@@ -2,15 +2,15 @@ package com.espressif.idf.tests.project;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
+import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.junit.After;
@@ -49,6 +49,8 @@ public class NewEspressifIDFProjectTest
 		fixture.thenProjectIsAddedToProjectExplorer();
 		fixture.thenProjectHasTheFile("CMakeLists.txt", "/main");
 		fixture.thenFileContentsMatchDefaultFile("/main", "CMakeLists.txt");
+		fixture.thenProjectHasTheFile(".project", null);
+		fixture.thenFileContentsMatchDefaultFile(null, ".project");
 	}
 
 	@Test
@@ -119,8 +121,11 @@ public class NewEspressifIDFProjectTest
 			if (file.isPresent())
 			{
 				file.get().doubleClick();
-				bot.editorByTitle(fileName).show();
-				assertTrue(bot.styledText().getText().equals(defaultFileContents));
+				SWTBotEditor editor = bot.editorByTitle(fileName);
+				editor.show();
+				bot.sleep(1000);
+				switchEditorToSourceIfPresent(editor);
+				assertTrue(editor.toTextEditor().getText().equals(defaultFileContents));
 			}
 			else
 			{
@@ -128,7 +133,7 @@ public class NewEspressifIDFProjectTest
 			}
 		}
 
-		public void thenConsoleShowsBuildSuccessful()
+		private void thenConsoleShowsBuildSuccessful()
 		{
 			SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
 			consoleView.show();
@@ -141,6 +146,19 @@ public class NewEspressifIDFProjectTest
 		{
 			ProjectTestOperationUtility.closeProject(projectName, bot);
 			ProjectTestOperationUtility.deleteProject(projectName, bot);
+		}
+		
+		private void switchEditorToSourceIfPresent(SWTBotEditor editor)
+		{
+			try
+			{
+				editor.toTextEditor().bot().cTabItem("Source").activate();
+			}
+			catch (WidgetNotFoundException e)
+			{
+				// do nothing 
+			}
+			
 		}
 	}
 }
