@@ -1,12 +1,32 @@
 package com.espressif.idf.tests.common;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 
 public class TestWidgetWaitUtility
 {
+	public static void waitUntilViewContains(SWTWorkbenchBot bot, String text, SWTBotView view, long timeOut)
+	{
+		view.bot().waitUntil(new DefaultCondition()
+		{
+			@Override
+			public boolean test() throws Exception
+			{
+				String textString = view.bot().styledText().getText();
+				return textString.contains(text);
+			}
+
+			@Override
+			public String getFailureMessage()
+			{
+				return "Text not found!";
+			}
+		}, timeOut);
+	}
+	
 	public static void waitForConnection(final String name, final SWTBotTree currentTree, SWTWorkbenchBot bot) throws Exception 
 	{
 		bot.waitUntil(new DefaultCondition()
