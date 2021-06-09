@@ -13,7 +13,7 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import com.espressif.idf.tests.common.configs.DefaultPropertyFetcher;
 import com.espressif.idf.tests.common.utility.TestWidgetWaitUtility;
 
-public class ProjectTestOperationUtility
+public class ProjectTestOperations
 {
 	private static final String DEFAULT_PROJECT_BUILD_WAIT_PROPERTY = "default.project.build.wait";
 
@@ -108,7 +108,7 @@ public class ProjectTestOperationUtility
 
 	public static void deleteProject(String projectName, SWTWorkbenchBot bot)
 	{
-		ProjectTestOperationUtility.deleteProject(projectName, bot, true);
+		ProjectTestOperations.deleteProject(projectName, bot, true);
 	}
 	
 	private static SWTBotTreeItem fetchProjectFromProjectExplorer(String projectName, SWTWorkbenchBot bot)

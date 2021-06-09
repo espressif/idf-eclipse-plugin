@@ -20,8 +20,8 @@ import org.junit.runner.RunWith;
 
 import com.espressif.idf.tests.common.resources.DefaultFileContentsReader;
 import com.espressif.idf.tests.common.utility.TestAssertUtility;
-import com.espressif.idf.tests.operations.ProjectTestOperationUtility;
-import com.espressif.idf.tests.operations.SWTBotTreeOperationsUtility;
+import com.espressif.idf.tests.operations.ProjectTestOperations;
+import com.espressif.idf.tests.operations.SWTBotTreeOperations;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class NewEspressifIDFProjectTest
@@ -96,13 +96,13 @@ public class NewEspressifIDFProjectTest
 
 		private void whenNewProjectIsSelected() throws Exception
 		{
-			ProjectTestOperationUtility.setupProject(projectName, category, subCategory, bot);
+			ProjectTestOperations.setupProject(projectName, category, subCategory, bot);
 		}
 
 		public void whenProjectIsBuilt() throws IOException
 		{
-			ProjectTestOperationUtility.buildProject(projectName, bot);
-			ProjectTestOperationUtility.waitForProjectBuild(projectName, bot);
+			ProjectTestOperations.buildProject(projectName, bot);
+			ProjectTestOperations.waitForProjectBuild(projectName, bot);
 		}
 
 		private void thenProjectIsAddedToProjectExplorer()
@@ -122,7 +122,7 @@ public class NewEspressifIDFProjectTest
 		{
 			bot.viewByTitle("Project Explorer").show();
 			String pathToPass = StringUtils.isNotEmpty(path) ? projectName.concat(path) : projectName;
-			SWTBotTreeItem[] items = SWTBotTreeOperationsUtility.getTreeItems(bot.tree(), pathToPass);
+			SWTBotTreeItem[] items = SWTBotTreeOperations.getTreeItems(bot.tree(), pathToPass);
 			Optional<SWTBotTreeItem> file = Arrays.asList(items).stream().filter(i -> i.getText().equals(fileName))
 					.findFirst();
 			String defaultFileContents = DefaultFileContentsReader.getFileContents(pathToPass + "/" + fileName);
@@ -152,8 +152,8 @@ public class NewEspressifIDFProjectTest
 
 		private void cleanTestEnv()
 		{
-			ProjectTestOperationUtility.closeProject(projectName, bot);
-			ProjectTestOperationUtility.deleteProject(projectName, bot);
+			ProjectTestOperations.closeProject(projectName, bot);
+			ProjectTestOperations.deleteProject(projectName, bot);
 		}
 		
 		private void switchEditorToSourceIfPresent(SWTBotEditor editor)

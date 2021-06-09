@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 
-public class SWTBotTreeOperationsUtility
+public class SWTBotTreeOperations
 {
 	public static SWTBotTreeItem[] getTreeItems(SWTBotTree tree, String subTreePath)
 	{

@@ -1,13 +1,10 @@
 package com.espressif.idf.tests.common.utility;
 
-import java.util.Arrays;
-import java.util.Optional;
-
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 
-import com.espressif.idf.tests.operations.SWTBotTreeOperationsUtility;
+import com.espressif.idf.tests.operations.SWTBotTreeOperations;
 
 public class TestAssertUtility
 {
@@ -26,7 +23,7 @@ public class TestAssertUtility
 
 		if (StringUtils.isNotEmpty(subTreeName))
 		{
-			treeItems = SWTBotTreeOperationsUtility.getTreeItems(treeToCheckIn, subTreeName);
+			treeItems = SWTBotTreeOperations.getTreeItems(treeToCheckIn, subTreeName);
 		}
 		else
 		{
