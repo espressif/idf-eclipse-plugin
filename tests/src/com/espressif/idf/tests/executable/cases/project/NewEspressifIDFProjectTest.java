@@ -18,8 +18,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.espressif.idf.tests.common.TestAssertUtility;
 import com.espressif.idf.tests.common.resources.DefaultFileContentsReader;
+import com.espressif.idf.tests.common.utility.TestAssertUtility;
 import com.espressif.idf.tests.operations.ProjectTestOperationUtility;
 import com.espressif.idf.tests.operations.SWTBotTreeOperationsUtility;
 
@@ -47,6 +47,14 @@ public class NewEspressifIDFProjectTest
 		fixture.givenProjectNameIs("NewProjectTest");
 		fixture.whenNewProjectIsSelected();
 		fixture.thenProjectIsAddedToProjectExplorer();
+	}
+	
+	@Test
+	public void givenNewProjectIsSelectedTheProjectHasTheRequiredFiles() throws Exception
+	{
+		fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		fixture.givenProjectNameIs("NewProjectTest");
+		fixture.whenNewProjectIsSelected();
 		fixture.thenProjectHasTheFile("CMakeLists.txt", "/main");
 		fixture.thenFileContentsMatchDefaultFile("/main", "CMakeLists.txt");
 		fixture.thenProjectHasTheFile(".project", null);

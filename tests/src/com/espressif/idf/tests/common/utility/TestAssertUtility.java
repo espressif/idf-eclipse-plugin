@@ -1,4 +1,4 @@
-package com.espressif.idf.tests.common;
+package com.espressif.idf.tests.common.utility;
 
 import java.util.Arrays;
 import java.util.Optional;

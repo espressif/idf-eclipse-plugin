@@ -1,4 +1,4 @@
-package com.espressif.idf.tests.common;
+package com.espressif.idf.tests.common.utility;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;

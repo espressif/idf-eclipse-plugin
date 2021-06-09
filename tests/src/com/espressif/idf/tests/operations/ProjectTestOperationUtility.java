@@ -10,8 +10,8 @@ import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 
-import com.espressif.idf.tests.common.TestWidgetWaitUtility;
 import com.espressif.idf.tests.common.configs.DefaultPropertyFetcher;
+import com.espressif.idf.tests.common.utility.TestWidgetWaitUtility;
 
 public class ProjectTestOperationUtility
 {
