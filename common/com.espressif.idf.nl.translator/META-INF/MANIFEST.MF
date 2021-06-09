@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Translator
-Bundle-SymbolicName: com.espressif.idf.nl.translator;singleton:=true
+Bundle-SymbolicName: com.espressif.idf.util;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: ESPRESSIF
-Automatic-Module-Name: com.espressif.idf.translator
+Automatic-Module-Name: com.espressif.idf.util.nls
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: com.espressif.idf.core;bundle-version="1.0.1"

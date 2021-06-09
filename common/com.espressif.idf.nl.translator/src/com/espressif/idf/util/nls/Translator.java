@@ -1,4 +1,4 @@
-package com.espressif.idf.translator;
+package com.espressif.idf.util.nls;
 
 import java.io.File;
 

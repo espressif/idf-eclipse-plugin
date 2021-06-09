@@ -346,7 +346,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 				label.setText(Messages.getString("DebuggerTab.flashVoltageLabel"));
 				label.setToolTipText(Messages.getString("DebuggerTab.flashVoltageToolTip"));
 				GridData gd = new GridData();
-				gd.widthHint = 60;
+				gd.widthHint = 80;
 				gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
 				fFlashVoltage = new Combo(comp, SWT.SINGLE | SWT.BORDER);
 				fFlashVoltage.setItems(parser.getEspFlashVoltages().toArray(new String[0]));
@@ -367,7 +367,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 				label.setText(Messages.getString("DebuggerTab.configTargetLabel"));
 				label.setToolTipText(Messages.getString("DebuggerTab.configTargetToolTip"));
 				GridData gd = new GridData();
-				gd.widthHint = 60;
+				gd.widthHint = 80;
 				gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
 				fTarget = new Combo(comp, SWT.SINGLE | SWT.BORDER);
 				fTarget.setItems(parser.getTargets().toArray(new String[0]));
@@ -390,7 +390,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 				label.setToolTipText(Messages.getString("DebuggerTab.configBoardTooTip"));
 
 				GridData gd = new GridData();
-				gd.widthHint = 130;
+				gd.widthHint = 250;
 				gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
 				fTargetName = new Combo(comp, SWT.SINGLE | SWT.BORDER);
 				fTargetName.setItems(parser.getBoardsConfigs(selectedTarget).keySet().toArray(new String[0]));
