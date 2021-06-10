@@ -103,10 +103,29 @@ public class NewEspressifIDFProjectTest
 		fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 		fixture.givenProjectNameIs("NewProjectTest");
 		fixture.whenNewProjectIsSelected();
-		fixture.whenProjectIsBuiltUsingToolbarButton();
+		fixture.whenProjectIsBuiltUsingToolbarButton("NewProjectTest");
 		fixture.thenConsoleShowsBuildSuccessful();
 	}
 
+	@Test
+	public void givenNewIDFProjectIsCreatedBuilAndCopiedAndOldProjectIsDeletedTheCopiedProjectIsBuiltSuccessfully() throws Exception
+	{
+		fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		fixture.givenProjectNameIs("NewProjectTest");
+		fixture.whenNewProjectIsSelected();
+		fixture.whenProjectIsBuiltUsingContextMenu();
+		fixture.thenConsoleShowsBuildSuccessful();
+		
+		fixture.whenProjectIsCopied("NewProjectTest", "NewProjectTest2");
+		fixture.closeProject("NewProjectTest");
+		fixture.deleteProject("NewProjectTest");
+		
+		fixture.whenProjectIsBuiltUsingToolbarButton("NewProjectTest2");
+		fixture.thenConsoleShowsBuildSuccessful();
+		fixture.closeProject("NewProjectTest2");
+		fixture.deleteProject("NewProjectTest2");
+	}
+	
 	@Test
 	public void givenNewIDFProjectIsCreatedAndCopiedTheCopiedProjectIsBuiltSuccessfully() throws Exception
 	{
@@ -114,10 +133,33 @@ public class NewEspressifIDFProjectTest
 		fixture.givenProjectNameIs("NewProjectTest");
 		fixture.whenNewProjectIsSelected();
 		fixture.whenProjectIsCopied("NewProjectTest", "NewProjectTest2");
-		fixture.whenProjectIsBuiltUsingToolbarButton();
+		fixture.whenProjectIsBuiltUsingToolbarButton("NewProjectTest2");
 		fixture.thenConsoleShowsBuildSuccessful();
 		fixture.closeProject("NewProjectTest2");
 		fixture.deleteProject("NewProjectTest2");
+	}
+	
+	@Test
+	public void givenNewProjectCreatedAndRenamedAfterThenProjectIsBuildSuccessfully() throws Exception
+	{
+		fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		fixture.givenProjectNameIs("NewProjectTest");
+		fixture.whenNewProjectIsSelected();
+		fixture.whenProjectIsRenamed("NewProjectTest2");
+		fixture.whenProjectIsBuiltUsingContextMenu();
+		fixture.thenConsoleShowsBuildSuccessful();
+	}
+	
+	@Test
+	public void givenNewProjectCreatedBuiltAndThenRenamedThenProjectIsBuildSuccessfully() throws Exception
+	{
+		fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		fixture.givenProjectNameIs("NewProjectTest");
+		fixture.whenNewProjectIsSelected();
+		fixture.whenProjectIsBuiltUsingContextMenu();
+		fixture.whenProjectIsRenamed("NewProjectTest2");
+		fixture.whenProjectIsBuiltUsingContextMenu();
+		fixture.thenConsoleShowsBuildSuccessful();
 	}
 
 	private class Fixture
@@ -148,6 +190,12 @@ public class NewEspressifIDFProjectTest
 		{
 			this.projectTemplate = projectTemplate;
 		}
+		
+		public void whenProjectIsRenamed(String newProjectName)
+		{
+			ProjectTestOperations.renameProject(projectName, newProjectName, bot);
+			this.projectName = newProjectName;
+		}
 
 		private void whenProjectIsCreatedFromTemplate()
 		{
@@ -162,7 +210,7 @@ public class NewEspressifIDFProjectTest
 		public void whenProjectIsCopied(String projectName, String projectCopyName) throws IOException
 		{
 			ProjectTestOperations.copyProjectToExistingWorkspace(projectName, projectCopyName, bot,
-					DefaultPropertyFetcher.getLongPropertyValue("default.project.copy.wait", 6000));
+					DefaultPropertyFetcher.getLongPropertyValue("default.project.copy.wait", 60000));
 		}
 
 		public void whenProjectIsBuiltUsingContextMenu() throws IOException
@@ -171,8 +219,11 @@ public class NewEspressifIDFProjectTest
 			ProjectTestOperations.waitForProjectBuild(bot);
 		}
 
-		public void whenProjectIsBuiltUsingToolbarButton() throws IOException
+		public void whenProjectIsBuiltUsingToolbarButton(String projectName) throws IOException
 		{
+			SWTBotView projectExplorView = bot.viewByTitle("Project Explorer");
+			projectExplorView.show();
+			projectExplorView.bot().tree().getTreeItem(projectName).select();
 			bot.toolbarButtonWithTooltip("Build").click();
 			ProjectTestOperations.waitForProjectBuild(bot);
 		}
@@ -235,8 +286,8 @@ public class NewEspressifIDFProjectTest
 
 		private void cleanTestEnv()
 		{
-			ProjectTestOperations.closeProject(projectName, bot);
-			ProjectTestOperations.deleteProject(projectName, bot);
+			ProjectTestOperations.closeAllProjects(bot);
+			ProjectTestOperations.deleteAllProjects(bot);
 		}
 
 		private void switchEditorToSourceIfPresent(SWTBotEditor editor)

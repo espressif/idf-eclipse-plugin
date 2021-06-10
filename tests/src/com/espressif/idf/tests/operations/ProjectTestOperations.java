@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
+import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
@@ -39,6 +40,7 @@ public class ProjectTestOperations
 		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
 		if (projectItem != null)
 		{
+			projectItem.select();
 			projectItem.contextMenu("Build Project").click();
 		}
 	}
@@ -161,7 +163,7 @@ public class ProjectTestOperations
 				{
 					return "Project Explorer contains the project: " + projectName;
 				}
-			});
+			}, 60000);
 		}
 	}
 
@@ -178,12 +180,15 @@ public class ProjectTestOperations
 
 	private static SWTBotTreeItem fetchProjectFromProjectExplorer(String projectName, SWTWorkbenchBot bot)
 	{
-		bot.viewByTitle("Project Explorer").show();
-		Optional<SWTBotTreeItem> projectItem = Arrays.asList(bot.tree().getAllItems()).stream()
-				.filter(project -> project.getText().equals(projectName)).findFirst();
-		if (projectItem.isPresent())
+		SWTBotView projectExplorView = bot.viewByTitle("Project Explorer");
+		projectExplorView.show();
+		projectExplorView.setFocus();
+		SWTBotTreeItem[] items = projectExplorView.bot().tree().getAllItems();
+		Optional<SWTBotTreeItem> project = Arrays.asList(items).stream().filter(i -> i.getText().equals(projectName))
+				.findFirst();
+		if (project.isPresent())
 		{
-			return projectItem.get();
+			return project.get();
 		}
 
 		return null;
@@ -212,6 +217,79 @@ public class ProjectTestOperations
 			bot.button("Copy").click();
 			TestWidgetWaitUtility.waitUntilViewContainsTheTreeItemWithName(projectCopyName, projectExplorerBotView,
 					timeout);
+			bot.sleep(3000);
+		}
+	}
+
+	public static void renameProject(String projectName, String newProjectName, SWTWorkbenchBot bot)
+	{
+		SWTBotView projectExplorerBotView = bot.viewByTitle("Project Explorer");
+		projectExplorerBotView.show();
+		projectExplorerBotView.setFocus();
+		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
+		if (projectItem != null)
+		{
+			projectItem.contextMenu("Rename...").click();
+			bot.textWithLabel("New na&me:").setText(newProjectName);
+			bot.button("OK").click();
+			TestWidgetWaitUtility.waitUntilViewContainsTheTreeItemWithName(newProjectName, projectExplorerBotView,
+					6000);
+		}
+	}
+
+	public static void closeAllProjects(SWTWorkbenchBot bot)
+	{
+		SWTBotView projectExplorerBotView = bot.viewByTitle("Project Explorer");
+		projectExplorerBotView.show();
+		projectExplorerBotView.setFocus();
+		try
+		{
+			for (SWTBotTreeItem project : projectExplorerBotView.bot().tree().getAllItems())
+			{
+				project.contextMenu("Close Project").click();
+			}
+		}
+		catch (WidgetNotFoundException widgetNotFoundException)
+		{
+			// logging will be added to show no projects were found
+		}
+	}
+
+	public static void deleteAllProjects(SWTWorkbenchBot bot)
+	{
+		SWTBotView projectExplorerBotView = bot.viewByTitle("Project Explorer");
+		projectExplorerBotView.show();
+		projectExplorerBotView.setFocus();
+		try
+		{
+			for (SWTBotTreeItem project : projectExplorerBotView.bot().tree().getAllItems())
+			{
+				String projectName = project.getText();
+				project.contextMenu("Delete").click();
+				bot.checkBox("Delete project contents on disk (cannot be undone)").click();
+				bot.button("OK").click();
+				projectExplorerBotView.show();
+				SWTBotTreeItem[] projects = projectExplorerBotView.bot().tree().getAllItems();
+				projectExplorerBotView.bot().waitUntil(new DefaultCondition()
+				{
+					@Override
+					public boolean test() throws Exception
+					{
+						return Arrays.asList(projects).stream().filter(project -> project.getText().equals(projectName))
+								.count() == 0;
+					}
+
+					@Override
+					public String getFailureMessage()
+					{
+						return "Project Explorer contains the project: " + projectName;
+					}
+				});
+			}
+		}
+		catch (WidgetNotFoundException widgetNotFoundException)
+		{
+			// logging will be added to show no projects were found
 		}
 	}
 }

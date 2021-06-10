@@ -43,4 +43,32 @@ public class DefaultPropertyFetcher
 
 		return defaultValue;
 	}
+	
+	/**
+	 * Gets the String property value from the default config file
+	 * ({@link IDefaultConfigConstants#DEFAULT_CONFIG_PROPERTY_FILE}) and if not found returns the default value
+	 * 
+	 * @param propertyName property name to look for
+	 * @param defaultValue the default value to return if property not present in file
+	 * @return the long value of the property
+	 * @throws IOException if the property file is not found
+	 */
+	public static String getStringPropertyValue(String propertyName, String defaultValue) throws IOException
+	{
+		Properties properties = new Properties();
+		InputStream inputStream = DefaultPropertyFetcher.class.getClassLoader()
+				.getResourceAsStream(IDefaultConfigConstants.DEFAULT_CONFIG_PROPERTY_FILE);
+
+		if (inputStream != null)
+		{
+			properties.load(inputStream);
+		}
+
+		if (properties.containsKey(propertyName))
+		{
+			return properties.get(propertyName).toString();
+		}
+
+		return defaultValue;
+	}
 }
