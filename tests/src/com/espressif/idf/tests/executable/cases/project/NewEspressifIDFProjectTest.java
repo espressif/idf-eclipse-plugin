@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.tests.executable.cases.project;
 
 import static org.junit.Assert.assertTrue;
@@ -18,11 +22,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.espressif.idf.tests.common.configs.DefaultPropertyFetcher;
 import com.espressif.idf.tests.common.resources.DefaultFileContentsReader;
 import com.espressif.idf.tests.common.utility.TestAssertUtility;
 import com.espressif.idf.tests.operations.ProjectTestOperations;
 import com.espressif.idf.tests.operations.SWTBotTreeOperations;
 
+/**
+ * Test class to test the project creation, build and basic operations
+ * 
+ * @author Ali Azam Rana
+ *
+ */
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class NewEspressifIDFProjectTest
 {
@@ -48,7 +59,21 @@ public class NewEspressifIDFProjectTest
 		fixture.whenNewProjectIsSelected();
 		fixture.thenProjectIsAddedToProjectExplorer();
 	}
-	
+
+	@Test
+	public void givenNewIDFProjectIsSelectedFromTemplateThenProjectIsCreatedAndAddedToProjectExplorerWithRequiredFiles()
+			throws Exception
+	{
+		fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		fixture.givenProjectNameIs("NewProjectTestTemplate");
+		fixture.givenProjectTemplateIs("bluetooth/esp_hid_device");
+		fixture.whenProjectIsCreatedFromTemplate();
+		fixture.thenProjectIsAddedToProjectExplorer();
+		fixture.thenProjectHasTheFile("esp_hid_device_main.c", "/main");
+		fixture.thenProjectHasTheFile("esp_hid_gap.c", "/main");
+		fixture.thenProjectHasTheFile("esp_hid_gap.h", "/main");
+	}
+
 	@Test
 	public void givenNewProjectIsSelectedTheProjectHasTheRequiredFiles() throws Exception
 	{
@@ -62,13 +87,37 @@ public class NewEspressifIDFProjectTest
 	}
 
 	@Test
-	public void givenNewIDFProjectIsCreatedAndBuiltThenProjectIsCreatedAndBuilt() throws Exception
+	public void givenNewIDFProjectIsCreatedAndBuiltUsingContextMenuOnProjectThenProjectIsCreatedAndBuilt()
+			throws Exception
 	{
 		fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 		fixture.givenProjectNameIs("NewProjectTest");
 		fixture.whenNewProjectIsSelected();
-		fixture.whenProjectIsBuilt();
+		fixture.whenProjectIsBuiltUsingContextMenu();
 		fixture.thenConsoleShowsBuildSuccessful();
+	}
+
+	@Test
+	public void givenNewIDFProjectIsCreatedAndBuiltUsingToolbarButtonThenProjectIsBuilt() throws Exception
+	{
+		fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		fixture.givenProjectNameIs("NewProjectTest");
+		fixture.whenNewProjectIsSelected();
+		fixture.whenProjectIsBuiltUsingToolbarButton();
+		fixture.thenConsoleShowsBuildSuccessful();
+	}
+
+	@Test
+	public void givenNewIDFProjectIsCreatedAndCopiedTheCopiedProjectIsBuiltSuccessfully() throws Exception
+	{
+		fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		fixture.givenProjectNameIs("NewProjectTest");
+		fixture.whenNewProjectIsSelected();
+		fixture.whenProjectIsCopied("NewProjectTest", "NewProjectTest2");
+		fixture.whenProjectIsBuiltUsingToolbarButton();
+		fixture.thenConsoleShowsBuildSuccessful();
+		fixture.closeProject("NewProjectTest2");
+		fixture.deleteProject("NewProjectTest2");
 	}
 
 	private class Fixture
@@ -77,6 +126,7 @@ public class NewEspressifIDFProjectTest
 		private String category;
 		private String subCategory;
 		private String projectName;
+		private String projectTemplate;
 
 		private Fixture()
 		{
@@ -94,21 +144,44 @@ public class NewEspressifIDFProjectTest
 			this.projectName = projectName;
 		}
 
+		private void givenProjectTemplateIs(String projectTemplate)
+		{
+			this.projectTemplate = projectTemplate;
+		}
+
+		private void whenProjectIsCreatedFromTemplate()
+		{
+			ProjectTestOperations.setupProjectFromTemplate(projectName, category, subCategory, projectTemplate, bot);
+		}
+
 		private void whenNewProjectIsSelected() throws Exception
 		{
 			ProjectTestOperations.setupProject(projectName, category, subCategory, bot);
 		}
 
-		public void whenProjectIsBuilt() throws IOException
+		public void whenProjectIsCopied(String projectName, String projectCopyName) throws IOException
 		{
-			ProjectTestOperations.buildProject(projectName, bot);
-			ProjectTestOperations.waitForProjectBuild(projectName, bot);
+			ProjectTestOperations.copyProjectToExistingWorkspace(projectName, projectCopyName, bot,
+					DefaultPropertyFetcher.getLongPropertyValue("default.project.copy.wait", 6000));
+		}
+
+		public void whenProjectIsBuiltUsingContextMenu() throws IOException
+		{
+			ProjectTestOperations.buildProjectUsingContextMenu(projectName, bot);
+			ProjectTestOperations.waitForProjectBuild(bot);
+		}
+
+		public void whenProjectIsBuiltUsingToolbarButton() throws IOException
+		{
+			bot.toolbarButtonWithTooltip("Build").click();
+			ProjectTestOperations.waitForProjectBuild(bot);
 		}
 
 		private void thenProjectIsAddedToProjectExplorer()
 		{
-			bot.viewByTitle("Project Explorer");
-			bot.tree().expandNode(projectName).select();
+			bot.viewByTitle("Project Explorer").show();
+			bot.viewByTitle("Project Explorer").setFocus();
+			bot.viewByTitle("Project Explorer").bot().tree().expandNode(projectName).select();
 		}
 
 		private void thenProjectHasTheFile(String fileName, String path)
@@ -150,12 +223,22 @@ public class NewEspressifIDFProjectTest
 			assertTrue(consoleTextString.contains("Build complete (0 errors"));
 		}
 
+		private void closeProject(String projectName)
+		{
+			ProjectTestOperations.closeProject(projectName, bot);
+		}
+
+		private void deleteProject(String projectName)
+		{
+			ProjectTestOperations.deleteProject(projectName, bot);
+		}
+
 		private void cleanTestEnv()
 		{
 			ProjectTestOperations.closeProject(projectName, bot);
 			ProjectTestOperations.deleteProject(projectName, bot);
 		}
-		
+
 		private void switchEditorToSourceIfPresent(SWTBotEditor editor)
 		{
 			try
@@ -164,9 +247,9 @@ public class NewEspressifIDFProjectTest
 			}
 			catch (WidgetNotFoundException e)
 			{
-				// do nothing 
+				// do nothing
 			}
-			
+
 		}
 	}
 }

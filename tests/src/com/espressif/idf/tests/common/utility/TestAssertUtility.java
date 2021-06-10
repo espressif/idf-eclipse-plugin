@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.tests.common.utility;
 
 import org.apache.commons.lang3.StringUtils;
@@ -6,6 +10,12 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 
 import com.espressif.idf.tests.operations.SWTBotTreeOperations;
 
+/**
+ * Utility class for tests to perform assertions on different objects of SWTBot
+ * 
+ * @author Ali Azam Rana
+ *
+ */
 public class TestAssertUtility
 {
 	/**
