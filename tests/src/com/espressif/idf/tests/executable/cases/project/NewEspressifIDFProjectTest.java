@@ -25,6 +25,7 @@ import org.junit.runner.RunWith;
 import com.espressif.idf.tests.common.configs.DefaultPropertyFetcher;
 import com.espressif.idf.tests.common.resources.DefaultFileContentsReader;
 import com.espressif.idf.tests.common.utility.TestAssertUtility;
+import com.espressif.idf.tests.operations.EnvSetupOperations;
 import com.espressif.idf.tests.operations.ProjectTestOperations;
 import com.espressif.idf.tests.operations.SWTBotTreeOperations;
 
@@ -170,9 +171,11 @@ public class NewEspressifIDFProjectTest
 		private String projectName;
 		private String projectTemplate;
 
-		private Fixture()
+		private Fixture() throws Exception
 		{
 			bot = new SWTWorkbenchBot();
+			EnvSetupOperations.setupEspressifEnv(bot);
+			bot.sleep(1000);
 		}
 
 		private void givenNewEspressifIDFProjectIsSelected(String category, String subCategory)
