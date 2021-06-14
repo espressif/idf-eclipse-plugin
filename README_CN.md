@@ -74,7 +74,7 @@ IDF Eclipse 插件的运行环境要求如下。
 
 > **Note:** 本文档中的所有截图均来自 `macOS` 操作系统，但安装步骤同时适用于 `Windows`、`Linux` 和 `macOS` 操作系统。
 
-![](docs/images/idf_update_site_install.png)
+![](docs/images/zh/idf_update_site_install.png)
 
 <a name="InstallTools"></a>
 # 安装 ESP-IDF
@@ -113,7 +113,7 @@ ESP-IDF 在构建固件时需要一些工具，包括 Python、Git、交叉编�
 
 ESP-IDF 目录选择对话框：
 
-![](docs/images/esp_idf_dir.png)
+![](docs/images/zh/esp_idf_dir.png)
 
 <a name="NewProjectUsingDefault"></a>
 # 创建一个新项目
@@ -124,7 +124,7 @@ ESP-IDF 目录选择对话框：
 
 > **Note:** 完成以上操作后，您将在编辑器中看到许多未解决的 include 错误。这些错误仅在构建后才能解决。
 
-![](docs/images/3_new_project_default.png)
+![](docs/images/zh/3_new_project_default.png)
 
 <a name="NewProjectUsingTemplates"></a>
 ## 使用 ESP-IDF 模板创建一个新项目
@@ -138,7 +138,7 @@ ESP-IDF 目录选择对话框：
 
 > **Note:** 完成以上操作后，您将在编辑器中看到许多未解决的 include 错误。这些错误仅在构建完成后才能解决。
 
-![](docs/images/4_new_project_templates.png)
+![](docs/images/zh/4_new_project_templates.png)
 
 <a name="ConfigureLaunchTarget"></a>
 # 配置启动目标
@@ -149,7 +149,7 @@ ESP-IDF 目录选择对话框：
 1. 选择`ESP 目标`。
 1. 提供目标属性，即您希望启动应用程序的位置。输入目标`名称`，并选择您连接 ESP 设备的`串口`。
 
-![](docs/images/8_launch_target.png)
+![](docs/images/zh/8_launch_target.png)
 
 <a name="BuildApplication"></a>
 # 编译项目
@@ -177,7 +177,7 @@ ESP-IDF 的 `idf.py` 工具可以打包 `make flash` 命令和常用指令。用
 1. 配置`串口监视器`过滤器，对串口输出进行过滤。
 1. 点击 `OK` 启动终端，开始监听 USB 端口。
 
-![](docs/images/10_serial_terminal.png)
+![](docs/images/zh/10_serial_terminal.png)
 
 <a name="projectconfigure"></a>
 # 编译项目
@@ -227,7 +227,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 
 **应用程序内存分析 - 概述**
 
-![](docs/images/sizeanalysis_overview.png)
+![](docs/images/zh/sizeanalysis_overview.png)
 
 **应用程序内存分析 - 详情**
 
@@ -422,7 +422,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 1. 更改 `项目名称`（否则将使用默认名称）。
 1. 点击`完成`，将选定项目作为一个 CMake 项目导入 Eclipse 工作空间。
 
-![](docs/images/5_import_project.png)
+![](docs/images/zh/5_import_project.png)
 
 <a name="importDebugLaunchConfig"></a>
 #  导入一个现有的 Debug 启动配置
