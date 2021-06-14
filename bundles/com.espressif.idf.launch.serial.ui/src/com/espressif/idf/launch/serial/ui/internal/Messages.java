@@ -28,6 +28,13 @@ public class Messages extends NLS {
 	public static String NewSerialFlashTargetWizardPage_SerialPort;
 	public static String NewSerialFlashTargetWizardPage_Title;
 	public static String CMakeMainTab2_JtagComboLbl;
+	public static String flashVoltageLabel;
+	public static String flashVoltageToolTip;
+	public static String configTargetLabel;
+	public static String configTargetToolTip;
+	public static String configBoardLabel;
+	public static String configBoardTooTip;
+	public static String CMakeMainTab2_OpeonOcdSetupGroupTitle;
 
 	static {
 		// initialize resource bundle
