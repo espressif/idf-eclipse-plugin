@@ -74,7 +74,7 @@ IDF Eclipse 插件的运行环境要求如下。
 
 > **Note:** 本文档中的所有截图均来自 `macOS` 操作系统，但安装步骤同时适用于 `Windows`、`Linux` 和 `macOS` 操作系统。
 
-![](docs/images/zh/idf_update_site_install.png)
+![](docs/images/idf_update_site_install.png)
 
 <a name="InstallTools"></a>
 # 安装 ESP-IDF
@@ -94,7 +94,7 @@ IDF Eclipse 插件的运行环境要求如下。
 
 本操作将下载指定的 ESP-IDF 版本，并配置 Eclipse CDT 构建环境变量中的 `IDF_PATH`。
 
-![](docs/images/espidf_download.png)
+![](docs/images/zh/espidf_download.png)
 
 # 安装 ESP-IDF 工具集
 ESP-IDF 在构建固件时需要一些工具，包括 Python、Git、交叉编译器、menuconfig 工具、CMake 和 Ninja 构建工具等。
