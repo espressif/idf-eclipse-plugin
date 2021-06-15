@@ -2,6 +2,7 @@
  * Copyright 2020 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
+
 package com.espressif.idf.launch.serial.ui.internal;
 
 import java.io.File;
@@ -11,12 +12,9 @@ import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.launch.ui.corebuild.GenericMainTab;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.launchbar.core.ILaunchBarManager;
-import org.eclipse.launchbar.core.target.ILaunchTarget;
-import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -28,15 +26,14 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.json.simple.JSONArray;
-import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.EspConfigParser;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
-import com.espressif.idf.launch.serial.internal.SerialFlashLaunch;
 import com.espressif.idf.launch.serial.internal.SerialFlashLaunchConfigDelegate;
 import com.espressif.idf.launch.serial.util.EspFlashCommandGenerator;
 
@@ -68,7 +65,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 		flashOverJtagButton.setText(Messages.CMakeMainTab2_JtagComboLbl);
 		Preferences scopedPreferenceStore = InstanceScope.INSTANCE
 				.getNode(com.espressif.idf.launch.serial.internal.Activator.PLUGIN_ID);
-		isFlashOverJtag = scopedPreferenceStore.getBoolean(SerialFlashLaunchConfigDelegate.getFlashOverJtag(), false);
 
 		flashOverJtagButton.addSelectionListener(new SelectionListener() {
 
@@ -87,7 +83,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
-		flashOverJtagButton.setSelection(isFlashOverJtag);
 	}
 
 	private void switchUI() {
@@ -114,29 +109,34 @@ public class CMakeMainTab2 extends GenericMainTab {
 		if (!isJtagFlashAvailable) {
 			return;
 		}
-		Preferences scopedPreferenceStore = InstanceScope.INSTANCE
-				.getNode(com.espressif.idf.launch.serial.internal.Activator.PLUGIN_ID);
-		scopedPreferenceStore.putBoolean(SerialFlashLaunchConfigDelegate.getFlashOverJtag(),
-				flashOverJtagButton.getSelection());
 		try {
-			scopedPreferenceStore.flush();
-		} catch (BackingStoreException e1) {
-			Logger.log(e1);
+			ILaunchConfigurationWorkingCopy wc = configuration.getWorkingCopy();
+			wc.setAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, flashOverJtagButton.getSelection());
+			wc.doSave();
+		} catch (CoreException e) {
+			Logger.log(e);
 		}
 	}
 
 	@Override
 	public void initializeFrom(ILaunchConfiguration configuration) {
 		super.initializeFrom(configuration);
+		updateFlashOverJtagStatus(configuration);
 		updateArgumentsWithDefaultFlashCommand(configuration);
 		switchUI();
 	}
 
+	private void updateFlashOverJtagStatus(ILaunchConfiguration configuration) {
+		try {
+			isFlashOverJtag = configuration.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, isFlashOverJtag);
+		} catch (CoreException e) {
+			Logger.log(e);
+		}
+		flashOverJtagButton.setSelection(isFlashOverJtag);
+	}
+
 	private void updateArgumentsWithDefaultFlashCommand(ILaunchConfiguration configuration) {
-		ILaunchTargetManager manager = Activator.getService(ILaunchTargetManager.class);
-		ILaunchTarget target = manager.getDefaultLaunchTarget(configuration);
-		ILaunch launch = new SerialFlashLaunch(configuration, "run", null, target); //$NON-NLS-1$
-		String espFlashCommand = EspFlashCommandGenerator.getEspFlashCommand(launch);
+		String espFlashCommand = EspFlashCommandGenerator.getEspFlashCommand();
 		try {
 			String undefinedArguments = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS,
 					espFlashCommand);

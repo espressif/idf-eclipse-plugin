@@ -39,7 +39,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
@@ -49,10 +48,10 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.launch.ITargetedLaunch;
 import org.eclipse.swt.widgets.Display;
-import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.IDFBuildConfiguration;
+import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
@@ -67,15 +66,12 @@ import ilg.gnumcueclipse.core.StringUtils;
  *
  */
 public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfigDelegate {
-
-	private static final String LAUNCH_UI_NODE = "com.espressif.idf.launch.serial.ui"; //$NON-NLS-1$
 	private static final String SYSTEM_PATH_PYTHON = "${system_path:python}"; //$NON-NLS-1$
-	private static final String FLASH_OVER_JTAG = "FLASH_OVER_JTAG"; //$NON-NLS-1$
 	private static final String OPENOCD_PREFIX = "com.espressif.idf.debug.gdbjtag.openocd"; //$NON-NLS-1$
 	private static final String INSTALL_FOLDER = "install.folder"; //$NON-NLS-1$
 	private static final String SERVER_EXECUTABLE = OPENOCD_PREFIX + ".openocd.gdbServerExecutable"; //$NON-NLS-1$
-	private static final String DEFAULT_PATH = "${openocd_path}"; //$NON-NLS-1$
-	private static final String DEFAULT_EXECUTABLE = "/bin/openocd"; //$NON-NLS-1$
+	private static final String DEFAULT_PATH = "${openocd_path}/"; //$NON-NLS-1$
+	private static final String DEFAULT_EXECUTABLE = "bin/openocd"; //$NON-NLS-1$
 	private String serialPort;
 
 	@Override
@@ -89,8 +85,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 			throws CoreException {
 		// Start the launch (pause the serial port)
 		((SerialFlashLaunch) launch).start();
-		Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(LAUNCH_UI_NODE);
-		boolean isFlashOverJtag = scopedPreferenceStore.getBoolean(FLASH_OVER_JTAG, false);
+		boolean isFlashOverJtag = configuration.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, false);
 		if (isFlashOverJtag) {
 			flashOverJtag(configuration, launch);
 			return;
@@ -129,7 +124,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		//build the flash command
 		serialPort = ((SerialFlashLaunch) launch).getLaunchTarget()
 				.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
-		String espFlashCommand = EspFlashCommandGenerator.getEspFlashCommand(launch);
+		String espFlashCommand = EspFlashCommandGenerator.getEspFlashCommand();
 		Logger.log(espFlashCommand);
 		if (checkIfPortIsEmpty()) {
 			return;
@@ -174,15 +169,19 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		String openocdExe = configuration.getAttribute(SERVER_EXECUTABLE, DEFAULT_PATH + DEFAULT_EXECUTABLE);
 		String tmp = EclipseUtils.getPreferenceValueForId(OPENOCD_PREFIX, INSTALL_FOLDER, "", //$NON-NLS-1$
 				getProject(configuration));
-		tmp = tmp.replace("/bin", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		tmp = tmp.replace("bin", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		openocdExe = openocdExe.replace(DEFAULT_PATH, tmp);
 		commands.add(openocdExe);
 		String arguments = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS, ""); //$NON-NLS-1$
 		arguments = arguments.replace(DEFAULT_PATH, tmp).trim();
 		commands.addAll(StringUtils.splitCommandLineOptions(arguments));
+		String buildPath = getProject(configuration).getFolder("build").getLocationURI().getPath(); //$NON-NLS-1$
+		char a = buildPath.charAt(2);
+		if (a == ':') {
+			buildPath = buildPath.substring(1);
+		}
 		String flashCommand = "-c program_esp_bins " //$NON-NLS-1$
-				+ getProject(configuration).getFolder("build").getLocationURI().getPath() //$NON-NLS-1$
-				+ " flasher_args.json verify reset exit"; //$NON-NLS-1$
+				+ buildPath + " flasher_args.json verify reset exit"; //$NON-NLS-1$
 		commands.add(flashCommand);
 
 		try {
@@ -243,10 +242,6 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 
 		// proceed with the build
 		return superBuildForLaunch(configuration, mode, monitor);
-	}
-
-	public static String getFlashOverJtag() {
-		return FLASH_OVER_JTAG;
 	}
 
 	public static String getSystemPythonPath() {

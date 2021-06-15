@@ -26,7 +26,7 @@ Require-Bundle: ilg.gnumcueclipse.debug.gdbjtag,
  org.eclipse.cdt.build.gcc.core,
  com.espressif.idf.launch.serial.core;bundle-version="1.0.0",
  com.espressif.idf.ui;bundle-version="1.0.0",
- ilg.gnumcueclipse.core;bundle-version="5.2.1"
+ ilg.gnumcueclipse.core
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: %bundle.vendor
 Bundle-ActivationPolicy: lazy
