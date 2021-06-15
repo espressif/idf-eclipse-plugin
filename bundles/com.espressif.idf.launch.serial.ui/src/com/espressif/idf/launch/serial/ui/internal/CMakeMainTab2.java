@@ -11,7 +11,6 @@ import java.util.Map;
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.launch.ui.corebuild.GenericMainTab;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.launchbar.core.ILaunchBarManager;
@@ -26,7 +25,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.json.simple.JSONArray;
-import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.IDFLaunchConstants;
@@ -37,7 +35,6 @@ import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.launch.serial.internal.SerialFlashLaunchConfigDelegate;
 import com.espressif.idf.launch.serial.util.EspFlashCommandGenerator;
 
-@SuppressWarnings("restriction")
 public class CMakeMainTab2 extends GenericMainTab {
 	private static final String EMPTY_CONFIG_OPTIONS = "-s ${openocd_path}/share/openocd/scripts"; //$NON-NLS-1$
 	private Button flashOverJtagButton;
@@ -63,9 +60,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 		}
 		flashOverJtagButton = new Button(parent, SWT.CHECK);
 		flashOverJtagButton.setText(Messages.CMakeMainTab2_JtagComboLbl);
-		Preferences scopedPreferenceStore = InstanceScope.INSTANCE
-				.getNode(com.espressif.idf.launch.serial.internal.Activator.PLUGIN_ID);
-
 		flashOverJtagButton.addSelectionListener(new SelectionListener() {
 
 			@Override
