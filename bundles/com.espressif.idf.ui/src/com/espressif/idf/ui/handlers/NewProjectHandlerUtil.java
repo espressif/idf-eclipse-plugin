@@ -36,15 +36,25 @@ public class NewProjectHandlerUtil
 		Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 		boolean isToolsInstalled = scopedPreferenceStore.getBoolean(InstallToolsHandler.INSTALL_TOOLS_FLAG, false);
 
-		if (StringUtil.isEmpty(idfPath) || StringUtil.isEmpty(path) || !isToolsInstalled)
+		if (StringUtil.isEmpty(idfPath))
 		{
-			showMessage();
+			showMessage(Messages.NewProjectHandler_CouldntFindIdfPath);
+			return false;
+		}
+		if (StringUtil.isEmpty(path))
+		{
+			showMessage(Messages.NewProjectHandler_CouldntFindPath);
+			return false;
+		}
+		if (!isToolsInstalled)
+		{
+			showMessage(Messages.NewProjectHandler_CouldntFindTools);
 			return false;
 		}
 		return true;
 	}
 
-	private static void showMessage()
+	private static void showMessage(String missingMsg)
 	{
 		Display.getDefault().asyncExec(new Runnable()
 		{
@@ -53,7 +63,7 @@ public class NewProjectHandlerUtil
 			{
 				boolean isYes = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
 						Messages.NewProjectHandler_PathErrorTitle,
-						Messages.NewProjectHandler_CouldntFindPaths + Messages.NewProjectHandler_NavigateToHelpMenu
+						missingMsg + Messages.NewProjectHandler_NavigateToHelpMenu
 								+ Messages.NewProjectHandler_MandatoryMsg);
 				if (isYes)
 				{
