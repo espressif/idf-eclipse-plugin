@@ -35,7 +35,7 @@ public class LanguageItemSelectionListener extends SelectionAdapter
 	public void widgetSelected(SelectionEvent selectionEvent)
 	{
 		MenuItem currentItem = ((MenuItem) selectionEvent.widget);
-		String code = currentItem.getText().split("-")[1].strip();
+		String code = currentItem.getText().split("-")[1].replaceAll("^[ \t]+|[ \t]+$", "");
 		if (eclipseIniUtil != null)
 		{
 			try
