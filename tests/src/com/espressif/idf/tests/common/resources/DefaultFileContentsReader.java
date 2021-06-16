@@ -29,7 +29,7 @@ public class DefaultFileContentsReader
 	{
 		String filePath = IDefaultConfigConstants.DEFAULT_FILE_DIRECTORY + "/" + fileName;
 		InputStream fileStream = DefaultFileContentsReader.class.getClassLoader().getResourceAsStream(filePath);
-		String fileContents = IOUtils.toString(fileStream.readAllBytes(), null);
+		String fileContents = IOUtils.toString(IOUtils.toByteArray(fileStream), null);
 		fileStream.close();
 		return fileContents; 
 	}
