@@ -31,19 +31,20 @@ public class DefaultPropertyFetcher
 		InputStream inputStream = DefaultPropertyFetcher.class.getClassLoader()
 				.getResourceAsStream(IDefaultConfigConstants.DEFAULT_CONFIG_PROPERTY_FILE);
 
-		if (inputStream != null)
+		if (inputStream == null)
 		{
-			properties.load(inputStream);
+			return defaultValue;
 		}
 
+		properties.load(inputStream);
 		if (properties.containsKey(propertyName))
 		{
-			return Long.valueOf(properties.get(propertyName).toString());
+			return Long.valueOf(properties.getProperty(propertyName));
 		}
 
 		return defaultValue;
 	}
-	
+
 	/**
 	 * Gets the String property value from the default config file
 	 * ({@link IDefaultConfigConstants#DEFAULT_CONFIG_PROPERTY_FILE}) and if not found returns the default value
@@ -59,14 +60,15 @@ public class DefaultPropertyFetcher
 		InputStream inputStream = DefaultPropertyFetcher.class.getClassLoader()
 				.getResourceAsStream(IDefaultConfigConstants.DEFAULT_CONFIG_PROPERTY_FILE);
 
-		if (inputStream != null)
+		if (inputStream == null)
 		{
-			properties.load(inputStream);
+			return defaultValue;
 		}
 
+		properties.load(inputStream);
 		if (properties.containsKey(propertyName))
 		{
-			return properties.get(propertyName).toString();
+			return properties.getProperty(propertyName);
 		}
 
 		return defaultValue;

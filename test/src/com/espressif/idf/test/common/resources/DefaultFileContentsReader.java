@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.espressif.idf.test.common.configs.IDefaultConfigConstants;
 
@@ -25,13 +26,21 @@ public class DefaultFileContentsReader
 	 * @return string containing the full file contents
 	 * @throws IOException
 	 */
-	public static String getFileContents(String fileName) throws IOException
+	public static String getFileContents(String fileName)
 	{
-		String filePath = IDefaultConfigConstants.DEFAULT_FILE_DIRECTORY + "/" + fileName;
-		InputStream fileStream = DefaultFileContentsReader.class.getClassLoader().getResourceAsStream(filePath);
-		String fileContents = IOUtils.toString(IOUtils.toByteArray(fileStream), null);
-		fileStream.close();
-		return fileContents; 
+		InputStream fileStream = null;
+		try
+		{
+			String filePath = IDefaultConfigConstants.DEFAULT_FILE_DIRECTORY + "/" + fileName;
+			fileStream = DefaultFileContentsReader.class.getClassLoader().getResourceAsStream(filePath);
+			String fileContents = IOUtils.toString(IOUtils.toByteArray(fileStream), null);
+			fileStream.close();
+			return fileContents;
+		}
+		catch (IOException e)
+		{
+			return StringUtils.EMPTY;
+		}
 	}
 	
 }

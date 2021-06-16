@@ -245,7 +245,7 @@ public class NewEspressifIDFProjectTest
 			assertTrue(TestAssertUtility.treeContainsItem(fileName, pathToPass, bot.tree()));
 		}
 
-		private void thenFileContentsMatchDefaultFile(String path, String fileName) throws IOException
+		private void thenFileContentsMatchDefaultFile(String path, String fileName)
 		{
 			bot.viewByTitle("Project Explorer").show();
 			String pathToPass = StringUtils.isNotEmpty(path) ? projectName.concat(path) : projectName;
