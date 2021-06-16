@@ -11,6 +11,7 @@ import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 
@@ -88,9 +89,10 @@ public class TestWidgetWaitUtility
 
 	/**
 	 * Waits until the provided view has the tree with an item name given
-	 * @param name name of the {@link SWTBotTreeItem} to look for
+	 * 
+	 * @param name       name of the {@link SWTBotTreeItem} to look for
 	 * @param swtBotView SWT view to look in
-	 * @param timeout time to wait in ms before the {@link WidgetNotFoundException} is thrown
+	 * @param timeout    time to wait in ms before the {@link WidgetNotFoundException} is thrown
 	 */
 	public static void waitUntilViewContainsTheTreeItemWithName(String name, SWTBotView swtBotView, long timeout)
 	{
@@ -110,6 +112,33 @@ public class TestWidgetWaitUtility
 			public String getFailureMessage()
 			{
 				return swtBotView.getTitle() + " does not contain the : " + name;
+			}
+		}, timeout);
+	}
+
+	/**
+	 * Waits until the provided bot has a dialog with the title visible
+	 * 
+	 * @param workbenchBot workbench bot
+	 * @param dialogTitle  The title of the dialog to look for
+	 * @param timeout      Time to wait in ms before throwing {@link WidgetNotFoundException}
+	 */
+	public static void waitUntilDialogIsNotVisible(SWTWorkbenchBot workbenchBot, String dialogTitle, long timeout)
+	{
+		workbenchBot.waitUntil(new DefaultCondition()
+		{
+
+			@Override
+			public boolean test() throws Exception
+			{
+				SWTBotShell swtBotShell = workbenchBot.activeShell();
+				return swtBotShell.getText().contains(dialogTitle);
+			}
+
+			@Override
+			public String getFailureMessage()
+			{
+				return "View with title: " + dialogTitle + " not found";
 			}
 		}, timeout);
 	}

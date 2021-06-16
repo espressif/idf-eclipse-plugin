@@ -44,20 +44,41 @@ public class SettingEspressifEnvTest
 		fixture.thenIdfPathIsFound();
 	}
 
+	@Test
+	public void givenEspIdfIsDownloadedAndConfiguredThroughTheDownloadAndConfigureOptionThenEspEnvIsConfigured()
+			throws Exception
+	{
+		fixture.givenEspIdfPathsAreLoadedFromConfigs();
+		fixture.whenDownloadAndConfigureEspIdfIsSelected();
+		fixture.whenDownloadPathIsGivenAndFinishIsPressed();
+		fixture.thenIdfPathIsFound();
+	}
+	
+	@Test
+	public void givenEspIdfIsConfiguredThroughAlreadyDownloadedToolsThenEnvIsConfigured() throws Exception
+	{
+		fixture.givenEspIdfPathsAreLoadedFromConfigs();
+		fixture.whenDownloadAndConfigureEspIdfIsSelected();
+		fixture.whenLocalPathIsGivenAndFinishIsPressed();
+		fixture.thenIdfPathIsFound();
+	}
+
 	private class Fixture
 	{
 		private static final String ESP_IDF_PATH_PROPERTY = "default.env.esp.idf.path";
 		private static final String GIT_PATH_PROPERTY = "default.env.esp.git.path";
 		private static final String PYTHON_VERSION_PROPERTY = "default.env.esp.python.version";
-
+		private static final String ESP_IDF_DOWNLOAD_PATH_PROPERTY = "default.env.esp.idf.download.path";
 		private SWTWorkbenchBot bot;
 		private String espIdfPath;
 		private String gitPath;
 		private String pythonVersion;
+		private String espIdfDownloadPath;
 
 		private Fixture()
 		{
 			bot = new SWTWorkbenchBot();
+			bot.viewByTitle("Welcome").close();
 		}
 
 		private void cleanTestEnv()
@@ -71,15 +92,22 @@ public class SettingEspressifEnvTest
 			espIdfPath = DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, "");
 			gitPath = DefaultPropertyFetcher.getStringPropertyValue(GIT_PATH_PROPERTY, "");
 			pythonVersion = DefaultPropertyFetcher.getStringPropertyValue(PYTHON_VERSION_PROPERTY, "");
-			if (StringUtils.isEmpty(espIdfPath) || StringUtils.isEmpty(gitPath) || StringUtils.isEmpty(pythonVersion))
+			espIdfDownloadPath = DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_DOWNLOAD_PATH_PROPERTY, "");
+			if (StringUtils.isEmpty(espIdfPath) || StringUtils.isEmpty(gitPath) || StringUtils.isEmpty(pythonVersion)
+					|| StringUtils.isEmpty(espIdfDownloadPath))
 			{
-				throw new Exception("Missing Properties Found");
+				throw new Exception("Missing Required Properties");
 			}
 		}
 
 		private void whenInstallToolsIsSelected()
 		{
 			bot.menu("Help").menu("ESP-IDF Tools Manager").menu("Install Tools").click();
+		}
+
+		private void whenDownloadAndConfigureEspIdfIsSelected()
+		{
+			bot.menu("Help").menu("Download and Configure ESP-IDF").click();
 		}
 
 		private void whenSettingsAreConfiguredAndOkIsPressed()
@@ -93,7 +121,37 @@ public class SettingEspressifEnvTest
 			consoleView.setFocus();
 			TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 60000);
 		}
+
+		private void whenDownloadPathIsGivenAndFinishIsPressed()
+		{
+			bot.textWithLabel("Choose a directory to download ESP-IDF to:").setText(espIdfDownloadPath);
+			bot.comboBox().setSelection("master");
+			bot.button("Finish").click();
+			// need to wait here more as this is being downloaded
+			TestWidgetWaitUtility.waitUntilDialogIsNotVisible(bot, "Message", 9000000);
+			bot.button("Yes").click();
+			bot.textWithLabel("Git Executable Location:").setText(gitPath);
+			bot.button("Install Tools").click();
+			SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
+			consoleView.show();
+			consoleView.setFocus();
+			TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 60000);
+		}
 		
+		private void whenLocalPathIsGivenAndFinishIsPressed()
+		{
+			bot.checkBox("Use an existing ESP-IDF directory from file system").click();
+			bot.textWithLabel("Choose existing ESP-IDF directory:").setText(espIdfPath);
+			bot.button("Finish").click();
+			bot.button("Yes").click();
+			bot.textWithLabel("Git Executable Location:").setText(gitPath);
+			bot.button("Install Tools").click();
+			SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
+			consoleView.show();
+			consoleView.setFocus();
+			TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 60000);
+		}
+
 		private void thenConsoleShowsToolsAreInstalled()
 		{
 			SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
@@ -101,7 +159,7 @@ public class SettingEspressifEnvTest
 			consoleView.setFocus();
 			assertTrue(consoleView.bot().styledText().getText().contains("Install tools completed"));
 		}
-		
+
 		private void thenConsoleHasNoErrorsAndFailures()
 		{
 			SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
@@ -110,7 +168,7 @@ public class SettingEspressifEnvTest
 			assertFalse(consoleView.bot().styledText().getText().toLowerCase().contains("error"));
 			assertFalse(consoleView.bot().styledText().getText().toLowerCase().contains("fail"));
 		}
-		
+
 		private void thenIdfPathIsFound()
 		{
 			bot.menu("Help").menu("Product Information").click();
