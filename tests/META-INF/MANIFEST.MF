@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tests
-Bundle-SymbolicName: com.espressif.idf.tests
+Bundle-SymbolicName: com.espressif.idf.test
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-15
 Automatic-Module-Name: com.espressif.idf.tests

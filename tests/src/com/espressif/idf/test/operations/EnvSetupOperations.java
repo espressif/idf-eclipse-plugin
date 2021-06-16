@@ -1,10 +1,10 @@
-package com.espressif.idf.tests.operations;
+package com.espressif.idf.test.operations;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 
-import com.espressif.idf.tests.common.configs.DefaultPropertyFetcher;
-import com.espressif.idf.tests.common.utility.TestWidgetWaitUtility;
+import com.espressif.idf.test.common.configs.DefaultPropertyFetcher;
+import com.espressif.idf.test.common.utility.TestWidgetWaitUtility;
 
 public class EnvSetupOperations
 {

@@ -2,14 +2,14 @@
  * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.tests.common.resources;
+package com.espressif.idf.test.common.resources;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
 
-import com.espressif.idf.tests.common.configs.IDefaultConfigConstants;
+import com.espressif.idf.test.common.configs.IDefaultConfigConstants;
 
 /**
  * Default file contents reader reads the files stored in the resources/default-files

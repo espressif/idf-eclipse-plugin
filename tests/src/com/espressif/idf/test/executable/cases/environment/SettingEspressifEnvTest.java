@@ -1,4 +1,4 @@
-package com.espressif.idf.tests.executable.cases.environment;
+package com.espressif.idf.test.executable.cases.environment;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -12,9 +12,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.espressif.idf.tests.common.configs.DefaultPropertyFetcher;
-import com.espressif.idf.tests.common.utility.TestWidgetWaitUtility;
-import com.espressif.idf.tests.operations.ProjectTestOperations;
+import com.espressif.idf.test.common.configs.DefaultPropertyFetcher;
+import com.espressif.idf.test.common.utility.TestWidgetWaitUtility;
+import com.espressif.idf.test.operations.ProjectTestOperations;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class SettingEspressifEnvTest

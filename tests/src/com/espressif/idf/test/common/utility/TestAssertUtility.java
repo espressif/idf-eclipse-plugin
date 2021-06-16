@@ -2,13 +2,13 @@
  * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.tests.common.utility;
+package com.espressif.idf.test.common.utility;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 
-import com.espressif.idf.tests.operations.SWTBotTreeOperations;
+import com.espressif.idf.test.operations.SWTBotTreeOperations;
 
 /**
  * Utility class for tests to perform assertions on different objects of SWTBot

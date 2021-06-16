@@ -2,7 +2,7 @@
  * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.tests.operations;
+package com.espressif.idf.test.operations;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -15,8 +15,8 @@ import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 
-import com.espressif.idf.tests.common.configs.DefaultPropertyFetcher;
-import com.espressif.idf.tests.common.utility.TestWidgetWaitUtility;
+import com.espressif.idf.test.common.configs.DefaultPropertyFetcher;
+import com.espressif.idf.test.common.utility.TestWidgetWaitUtility;
 
 /**
  * Class to contain the common operations related to project setup. The class can be used in different test classes to
