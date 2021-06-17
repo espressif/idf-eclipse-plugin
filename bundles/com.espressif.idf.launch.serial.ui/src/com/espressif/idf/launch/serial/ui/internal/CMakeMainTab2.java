@@ -130,6 +130,9 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	private void updateFlashOverJtagStatus(ILaunchConfiguration configuration) {
+		if (!isJtagFlashAvailable) {
+			return;
+		}
 		try {
 			isFlashOverJtag = configuration.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, isFlashOverJtag);
 		} catch (CoreException e) {
