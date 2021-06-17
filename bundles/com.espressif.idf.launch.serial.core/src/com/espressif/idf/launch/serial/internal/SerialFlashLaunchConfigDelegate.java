@@ -164,7 +164,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		DebugPlugin.newProcess(launch, p, String.join(" ", commands)); //$NON-NLS-1$
 	}
 
-	private void flashOverJtag(ILaunchConfiguration configuration, ILaunch launch) throws CoreException {
+	protected void flashOverJtag(ILaunchConfiguration configuration, ILaunch launch) throws CoreException {
 		List<String> commands = new ArrayList<>();
 		String openocdExe = configuration.getAttribute(SERVER_EXECUTABLE, DEFAULT_PATH + DEFAULT_EXECUTABLE);
 		String tmp = EclipseUtils.getPreferenceValueForId(OPENOCD_PREFIX, INSTALL_FOLDER, "", //$NON-NLS-1$

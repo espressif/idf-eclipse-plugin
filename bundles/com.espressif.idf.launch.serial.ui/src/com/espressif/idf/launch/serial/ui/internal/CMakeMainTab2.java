@@ -1,6 +1,15 @@
 /*******************************************************************************
- * Copyright 2020 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
- * Use is subject to license terms.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * copied from:
+ * org.eclipse.ui.externaltools.internal.launchConfigurations.GenericMainTab
  *******************************************************************************/
 
 package com.espressif.idf.launch.serial.ui.internal;
@@ -18,6 +27,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
@@ -46,12 +56,17 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private String defaultArguments;
 	private String argumentsForJtagFlash;
 	private boolean isJtagFlashAvailable;
+	private GridData openOcdGroupData;
+	private GridData locationAndWorkDirGroupData;
 
 	@Override
 	public void createControl(Composite parent) {
 		isJtagFlashAvailable = checkIfJtagIsAvailable();
-		super.createControl(parent);
 		createJtagFlashButton(parent);
+		super.createControl(parent);
+		locationAndWorkDirGroupData = new GridData(SWT.FILL, SWT.NONE, true, false);
+		locationField.getParent().setLayoutData(locationAndWorkDirGroupData);
+		workDirectoryField.getParent().setLayoutData(locationAndWorkDirGroupData);
 	}
 
 	private void createJtagFlashButton(Composite parent) {
@@ -83,18 +98,12 @@ public class CMakeMainTab2 extends GenericMainTab {
 		if (!isJtagFlashAvailable) {
 			return;
 		}
-		locationField.setEnabled(!isFlashOverJtag);
-		workDirectoryField.setEnabled(!isFlashOverJtag);
-		fileLocationButton.setEnabled(!isFlashOverJtag);
-		workspaceLocationButton.setEnabled(!isFlashOverJtag);
-		variablesLocationButton.setEnabled(!isFlashOverJtag);
-		fileWorkingDirectoryButton.setEnabled(!isFlashOverJtag);
-		workspaceWorkingDirectoryButton.setEnabled(!isFlashOverJtag);
-		variablesWorkingDirectoryButton.setEnabled(!isFlashOverJtag);
-
-		fFlashVoltage.setEnabled(isFlashOverJtag);
-		fTargetName.setEnabled(isFlashOverJtag);
-		fTarget.setEnabled(isFlashOverJtag);
+		locationField.getParent().setVisible(!isFlashOverJtag);
+		workDirectoryField.getParent().setVisible(!isFlashOverJtag);
+		fFlashVoltage.getParent().setVisible(isFlashOverJtag);
+		openOcdGroupData.exclude = !isFlashOverJtag;
+		locationAndWorkDirGroupData.exclude = isFlashOverJtag;
+		this.getShell().layout(true, true);
 	}
 
 	@Override
@@ -159,7 +168,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 	@Override
 	protected void createArgumentComponent(Composite parent) {
-
 		if (isJtagFlashAvailable) {
 			String selectedTarget = getLaunchTarget();
 			EspConfigParser parser = new EspConfigParser();
@@ -219,6 +227,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 				}
 			});
 		}
+		openOcdGroupData = new GridData(SWT.FILL, SWT.NONE, true, true);
+		group.setLayoutData(openOcdGroupData);
 	}
 
 	@SuppressWarnings("unchecked")
