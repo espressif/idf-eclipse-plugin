@@ -96,44 +96,6 @@ public class EclipseIniUtil
 		return eclipseIniSwitchMap.containsKey(eclipseSwitch);
 	}
 
-	/**
-	 * Sets the vmargs switch in eclipse.ini, Changes wont take effect until restart
-	 * 
-	 * @param vmSwtich The switch to set with the respective hyphen e.g: -Dosgi.requiredJavaVersion or
-	 *                 --add-modules=ALL-SYSTEM
-	 * @param value
-	 * @throws IOException
-	 */
-	public void setVmArgInEclipseIni(String vmSwtich, String value) throws IOException
-	{
-		eclipseVmArgMap.put(vmSwtich, value);
-		updateEclipseIniFile();
-	}
-
-	/**
-	 * Gets the current value for a switch
-	 * 
-	 * @param vmSwtich The switch to set with the respective hyphen e.g: -Dosgi.requiredJavaVersion or
-	 *                 --add-modules=ALL-SYSTEM
-	 * @return
-	 */
-	public String getVmSwitchValue(String vmSwitch)
-	{
-		return eclipseVmArgMap.get(vmSwitch);
-	}
-
-	/**
-	 * Checks if the eclipse.ini contains the vmarg switch
-	 * 
-	 * @param vmSwtich The switch to set with the respective hyphen e.g: -Dosgi.requiredJavaVersion or
-	 *                 --add-modules=ALL-SYSTEM
-	 * @return True if present false if not
-	 */
-	public boolean containsVmArgsSwitchInEclipseIni(String vmSwtich)
-	{
-		return eclipseVmArgMap.containsKey(vmSwtich);
-	}
-
 	private void loadEclipseIniFileContents() throws Exception
 	{
 		File file = new File(eclipseIniUri);
