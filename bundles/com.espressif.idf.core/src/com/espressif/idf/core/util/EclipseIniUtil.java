@@ -16,6 +16,7 @@ import java.util.Map;
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.URIUtil;
 
 /**
@@ -27,8 +28,8 @@ import org.eclipse.core.runtime.URIUtil;
 public class EclipseIniUtil
 {
 	private final String ECLIPSE_HOME_LOCATION;
-	private final String ECLIPSE_INI_FILE = "eclipse.ini";
-	public static final String ECLIPSE_INI_VMARGS = "-vmargs";
+	private final String ECLIPSE_INI_FILE = "eclipse.ini"; //$NON-NLS-1$
+	private static final String ECLIPSE_INI_VMARGS = "-vmargs"; //$NON-NLS-1$
 
 	private List<String> eclipseIniFileContents;
 	private List<String> eclipseIniArgs;
@@ -38,7 +39,7 @@ public class EclipseIniUtil
 
 	public EclipseIniUtil() throws Exception
 	{
-		ECLIPSE_HOME_LOCATION = System.getProperty("eclipse.home.location");
+		ECLIPSE_HOME_LOCATION = Platform.getInstallLocation().getURL().toString();
 		eclipseIniUri = URIUtil.fromString(ECLIPSE_HOME_LOCATION.concat(ECLIPSE_INI_FILE));
 		loadEclipseIniFileContents();
 		loadEclipseIniSwitchMap();

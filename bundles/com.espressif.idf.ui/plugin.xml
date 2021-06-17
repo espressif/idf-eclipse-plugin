@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension-point id="com.espressif.idf.ui.extensionspoint.languagepoint" name="Languages" schema="schema/com.espressif.ifg/com.espressif.idf.ui.extensionspoint.exsd"/>
+   <extension-point id="com.espressif.idf.ui.locale.support" name="Languages" schema="schema/com.espressif.ifg/com.espressif.idf.ui.extensionspoint.exsd"/>
    <extension
          point="org.eclipse.ui.newWizards">
       <category
@@ -281,16 +281,16 @@
        </startup>
     </extension>
     <extension
-          id="languagesExtension"
-          name="Languages Extension"
-          point="com.espressif.idf.ui.extensionspoint.languagepoint">
+          id="com.espressif.idf.ui.extension.locale.support"
+          name="LocaleSupport"
+          point="com.espressif.idf.ui.locale.support">
        <Language
              id="zh"
              name="Chinese">
        </Language>
        <Language
              id="en"
-             name="Default">
+             name="English">
        </Language>
     </extension>
 </plugin>

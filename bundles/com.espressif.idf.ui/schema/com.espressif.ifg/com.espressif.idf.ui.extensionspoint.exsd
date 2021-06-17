@@ -3,7 +3,7 @@
 <schema targetNamespace="com.espressif.idf.ui" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="com.espressif.idf.ui" id="com.espressif.idf.ui.extensionspoint.languagepoint" name="Languages"/>
+         <meta.schema plugin="com.espressif.idf.ui" id="com.espressif.idf.ui.locale.support" name="Languages"/>
       </appinfo>
       <documentation>
          [Extension point to contain the available languages.]
@@ -62,42 +62,5 @@
          </attribute>
       </complexType>
    </element>
-
-   <annotation>
-      <appinfo>
-         <meta.section type="since"/>
-      </appinfo>
-      <documentation>
-         [Enter the first release in which this extension point appears.]
-      </documentation>
-   </annotation>
-
-   <annotation>
-      <appinfo>
-         <meta.section type="examples"/>
-      </appinfo>
-      <documentation>
-         [Enter extension point usage example here.]
-      </documentation>
-   </annotation>
-
-   <annotation>
-      <appinfo>
-         <meta.section type="apiinfo"/>
-      </appinfo>
-      <documentation>
-         [Enter API information here.]
-      </documentation>
-   </annotation>
-
-   <annotation>
-      <appinfo>
-         <meta.section type="implementation"/>
-      </appinfo>
-      <documentation>
-         [Enter information about supplied implementation of this extension point.]
-      </documentation>
-   </annotation>
-
 
 </schema>
