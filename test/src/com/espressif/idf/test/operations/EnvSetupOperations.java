@@ -1,5 +1,7 @@
 package com.espressif.idf.test.operations;
 
+import static org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory.withPartName;
+
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 
@@ -14,7 +16,12 @@ public class EnvSetupOperations
 
 	public static void setupEspressifEnv(SWTWorkbenchBot bot) throws Exception
 	{
-		bot.viewByTitle("Welcome").close();
+		bot.resetWorkbench();
+
+		for (SWTBotView view : bot.views(withPartName("Welcome")))
+		{
+			view.close();
+		}
 		bot.menu("Help").menu("ESP-IDF Tools Manager").menu("Install Tools").click();
 		bot.textWithLabel("ESP-IDF Directory:")
 				.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));

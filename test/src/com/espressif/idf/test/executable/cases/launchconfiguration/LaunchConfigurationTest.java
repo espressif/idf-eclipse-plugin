@@ -1,7 +1,18 @@
+/*******************************************************************************
+ * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
+
 package com.espressif.idf.test.executable.cases.launchconfiguration;
 
-import java.io.IOException;
+import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
+import java.util.Arrays;
+
+import org.eclipse.launchbar.core.ILaunchBarManager;
+import org.eclipse.launchbar.core.ILaunchDescriptor;
+import org.eclipse.launchbar.core.internal.Activator;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.junit.After;
@@ -11,8 +22,14 @@ import org.junit.runner.RunWith;
 
 import com.espressif.idf.test.operations.EnvSetupOperations;
 import com.espressif.idf.test.operations.ProjectTestOperations;
-import com.espressif.idf.test.operations.selectors.LaunchBarConfigSelector;
 
+/**
+ * Test class to verify launch configurations and descriptors via cdt launchbar
+ * 
+ * @author Ali Azam Rana
+ *
+ */
+@SuppressWarnings("restriction")
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class LaunchConfigurationTest
 {
@@ -31,12 +48,12 @@ public class LaunchConfigurationTest
 	}
 
 	@Test
-	public void givenNewProjectFromTemplateIsCreatedThenTheLaunchConfigurationIsAddedWithProjectName() throws Exception
+	public void givenNewProjectFromTemplateIsCreatedThenTheLaunchBarHasLaunchDescriptorAddedWithProjectName()
+			throws Exception
 	{
 		fixture.givenProjectNameIs("TestProject");
 		fixture.whenProjectIsCreatedFromTemplate();
-		fixture.whenProjectIsBuiltUsingContextMenu();
-		fixture.thenLaunchConfigurationContainsConfig("TestProject");
+		fixture.thenLaunchDescriptorContainsConfig("TestProject");
 	}
 
 	private class Fixture
@@ -46,8 +63,7 @@ public class LaunchConfigurationTest
 		private String subCategory = "Espressif IDF Project";
 		private String projectTemplate = "blink";
 		private String projectName;
-		
-		
+
 		private Fixture() throws Exception
 		{
 			bot = new SWTWorkbenchBot();
@@ -55,21 +71,19 @@ public class LaunchConfigurationTest
 			bot.sleep(1000);
 		}
 
-		public void thenLaunchConfigurationContainsConfig(String configName) throws Exception
+		public void thenLaunchDescriptorContainsConfig(String configName) throws Exception
 		{
-//			ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-//			ILaunchConfiguration[] configs = launchManager.getLaunchConfigurations();
-//			assertEquals(1, Arrays.asList(launchManager.getLaunchConfigurations()).stream()
-//					.filter(config -> config.getName().equals(configName)).count());
-			LaunchBarConfigSelector launchBarConfigSelector = new LaunchBarConfigSelector(bot);
-			launchBarConfigSelector.click();
+			ILaunchBarManager manager = Activator.getService(ILaunchBarManager.class);
+			ILaunchDescriptor[] launchDescriptors = manager.getLaunchDescriptors();
+			assertEquals(1, Arrays.asList(launchDescriptors).stream()
+					.filter(descriptor -> descriptor.getName().contains(configName)).count());
 		}
 
 		private void whenProjectIsCreatedFromTemplate()
 		{
 			ProjectTestOperations.setupProjectFromTemplate(projectName, category, subCategory, projectTemplate, bot);
 		}
-		
+
 		public void whenProjectIsBuiltUsingContextMenu() throws IOException
 		{
 			ProjectTestOperations.buildProjectUsingContextMenu(projectName, bot);

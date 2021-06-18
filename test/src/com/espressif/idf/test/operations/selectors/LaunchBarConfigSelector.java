@@ -1,6 +1,12 @@
+/*******************************************************************************
+ * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
+
 package com.espressif.idf.test.operations.selectors;
 
 import org.eclipse.launchbar.ui.controls.internal.CSelector;
+import org.eclipse.launchbar.ui.controls.internal.ConfigSelector;
 import org.eclipse.launchbar.ui.controls.internal.LaunchBarWidgetIds;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
@@ -14,15 +20,21 @@ import org.eclipse.swtbot.swt.finder.results.Result;
 import org.eclipse.swtbot.swt.finder.widgets.AbstractSWTBotControl;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 
+/**
+ * Class to interact with CDT LaunchBar to select configs
+ * 
+ * @author Ali Azam Rana
+ *
+ */
 @SuppressWarnings("restriction")
 @SWTBotWidget(clasz = CSelector.class, preferredName = "cselector")
 public class LaunchBarConfigSelector extends AbstractSWTBotControl<CSelector>
 {
-	public LaunchBarConfigSelector(CSelector w) throws WidgetNotFoundException
+	public LaunchBarConfigSelector(ConfigSelector w) throws WidgetNotFoundException
 	{
 		super(w);
 	}
-	
+
 	public LaunchBarConfigSelector(SWTBot bot)
 	{
 		this(bot.widget(WidgetMatcherFactory.withId(LaunchBarWidgetIds.CONFIG_SELECTOR)));
@@ -60,7 +72,7 @@ public class LaunchBarConfigSelector extends AbstractSWTBotControl<CSelector>
 	{
 		click();
 	}
-	
+
 	public NewConfigDialog newConfigDialog()
 	{
 		click();
