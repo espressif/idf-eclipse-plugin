@@ -5,6 +5,9 @@
 
 package com.espressif.idf.test.operations.selectors;
 
+import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.withLabel;
+import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.withText;
+
 import org.eclipse.launchbar.ui.controls.internal.CSelector;
 import org.eclipse.launchbar.ui.controls.internal.ConfigSelector;
 import org.eclipse.launchbar.ui.controls.internal.LaunchBarWidgetIds;
@@ -70,6 +73,7 @@ public class LaunchBarConfigSelector extends AbstractSWTBotControl<CSelector>
 
 	public void select(String text)
 	{
+		bot().shellWithId(LaunchBarWidgetIds.POPUP).bot().widget(withText(text)).notifyListeners(SWT.MouseDown, null);
 		click();
 	}
 
