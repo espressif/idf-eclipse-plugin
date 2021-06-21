@@ -42,6 +42,7 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.EspConfigParser;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 import com.espressif.idf.launch.serial.internal.SerialFlashLaunchConfigDelegate;
 import com.espressif.idf.launch.serial.util.EspFlashCommandGenerator;
 
@@ -142,7 +143,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	private void updateArgumentsWithDefaultFlashCommand(ILaunchConfiguration configuration) {
-		String espFlashCommand = EspFlashCommandGenerator.getEspFlashCommand();
+		String espFlashCommand = EspFlashCommandGenerator.getEspFlashCommand(getSerialPort());
 		try {
 			String undefinedArguments = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS,
 					espFlashCommand);
@@ -257,10 +258,24 @@ public class CMakeMainTab2 extends GenericMainTab {
 		String selectedTarget = ""; //$NON-NLS-1$
 		try {
 			selectedTarget = launchBarManager.getActiveLaunchTarget().getId();
+
 		} catch (CoreException e) {
 			Logger.log(e);
 		}
 		return selectedTarget;
+	}
+
+	private String getSerialPort() {
+		ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
+		String serialPort = ""; //$NON-NLS-1$
+		try {
+			serialPort = launchBarManager.getActiveLaunchTarget()
+					.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
+
+		} catch (CoreException e) {
+			Logger.log(e);
+		}
+		return serialPort;
 	}
 
 	@Override

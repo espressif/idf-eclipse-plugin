@@ -124,7 +124,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		//build the flash command
 		serialPort = ((SerialFlashLaunch) launch).getLaunchTarget()
 				.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
-		String espFlashCommand = EspFlashCommandGenerator.getEspFlashCommand();
+		String espFlashCommand = EspFlashCommandGenerator.getEspFlashCommand(serialPort);
 		Logger.log(espFlashCommand);
 		if (checkIfPortIsEmpty()) {
 			return;
