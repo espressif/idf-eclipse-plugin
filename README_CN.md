@@ -74,7 +74,7 @@ IDF Eclipse 插件的运行环境要求如下。
 
 > **Note:** 本文档中的所有截图均来自 `macOS` 操作系统，但安装步骤同时适用于 `Windows`、`Linux` 和 `macOS` 操作系统。
 
-![](docs/images/idf_update_site_install.png)
+![](docs/images/zh/idf_update_site_install.png)
 
 <a name="InstallTools"></a>
 # 安装 ESP-IDF
@@ -203,7 +203,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 
 如需配置 CMake 编辑器，请前往 Eclipse 的`偏好设置` > `CMakeEd`。
 
-![](docs/images/cmake_editor_preferences.png)
+![](docs/images/zh/cmake_editor_preferences.png)
 
 <a name="debugging"></a>
 # 调试项目
@@ -231,7 +231,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 
 **应用程序内存分析 - 详情**
 
-![](docs/images/sizeanalysis_details.png)
+![](docs/images/zh/sizeanalysis_details.png)
 
 <a name="idfterminal"></a>
 # ESP-IDF 终端
@@ -244,7 +244,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 1. 点击工具栏中的`打开终端`图标。
 1. 从终端下拉菜单中选择`ESP-IDF 终端`，并点击`OK`启动终端。
 
-![](docs/images/idf_terminal.png)
+![](docs/images/zh/idf_terminal.png)
 
 <a name="configureEnvironmentVariables"></a>
 # 配置环境变量
@@ -282,7 +282,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 - macOS：`$echo $PATH ` 
 - Windows：`$echo %PATH%`
 
-![](docs/images/2_environment_pref.png)
+![](docs/images/zh/2_environment_pref.png)
 
 # 配置工具链
 我们需要告诉 Eclipse CDT 在构建项目时需要使用什么核心构建工具链和 CMake 工具链。如您的 IDF 工具是通过`帮助`>`ESP-IDF 工具管理器`>`安装工具`菜单选项安装的，则 Eclipse 可自动检测到需要使用的工具链。
@@ -330,7 +330,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 1. 点击 `OK`，保存设置。
 1. 点击`启动`图标，将应用程序烧录到选定的开发板中。
 
-![](docs/images/11_launch_configuration.png)
+![](docs/images/zh/11_launch_configuration.png)
 
 ![](docs/images/12_flashing.png)
 
@@ -346,7 +346,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 
 注意，在提交问题时一定要提供错误日志。
 
-![](docs/images/export_log.png)
+![](docs/images/zh/export_log.png)
 
 ## 控制台视图日志
 `控制台`视图可显示与当前运行或构建有关的所有警告和错误。
@@ -365,7 +365,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 
 如本控制台未自动启动，请前往`中控台`视图，点击`显示选中的中控台`按钮。
 
-![](docs/images/IDF_tools_console.png)
+![](docs/images/zh/IDF_tools_console.png)
 
 <a name="installPluginsFromMarketPlace"></a>
 # 从 Eclipse 市场安装 IDF Eclipse 插件
@@ -390,7 +390,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 1. 从列表中选择`Espressif IDF`，并按照提示完成所有安装步骤。 
 1. 重启 Eclipse。
 
-![](docs/images/1_idffeature_install.png)
+![](docs/images/zh/1_idffeature_install.png)
 
 <a name="upgradePlugins"></a>
 #  如何升级我的 IDF Eclipse 插件？
