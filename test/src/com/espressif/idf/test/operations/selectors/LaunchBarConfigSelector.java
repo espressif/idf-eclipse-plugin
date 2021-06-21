@@ -5,7 +5,6 @@
 
 package com.espressif.idf.test.operations.selectors;
 
-import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.withLabel;
 import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.withText;
 
 import org.eclipse.launchbar.ui.controls.internal.CSelector;
@@ -14,7 +13,9 @@ import org.eclipse.launchbar.ui.controls.internal.LaunchBarWidgetIds;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Widget;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.SWTBotWidget;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
@@ -71,10 +72,19 @@ public class LaunchBarConfigSelector extends AbstractSWTBotControl<CSelector>
 		bot().buttonWithId(LaunchBarWidgetIds.EDIT).click(); // $NON-NLS-1$
 	}
 
-	public void select(String text)
+	private void clickOnInternalWidget(int x, int y, Widget internalWidget)
 	{
-		bot().shellWithId(LaunchBarWidgetIds.POPUP).bot().widget(withText(text)).notifyListeners(SWT.MouseDown, null);
+		notify(SWT.MouseDown, createMouseEvent(x, y, 1, SWT.NONE, 1), internalWidget);
+		notify(SWT.MouseUp, createMouseEvent(x, y, 1, SWT.BUTTON1, 1), internalWidget);
+	}
+
+	public LaunchBarConfigSelector select(String text)
+	{
 		click();
+		Label itemToSelect = bot().shellWithId(LaunchBarWidgetIds.POPUP).bot().widget(withText(text));
+		Point itemToSelectLocation = syncExec((Result<Point>) () -> itemToSelect.getLocation());
+		clickOnInternalWidget(itemToSelectLocation.x, itemToSelectLocation.y, itemToSelect);
+		return this;
 	}
 
 	public NewConfigDialog newConfigDialog()

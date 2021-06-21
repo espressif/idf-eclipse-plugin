@@ -210,19 +210,19 @@ public class NewEspressifIDFProjectTest
 			ProjectTestOperations.setupProject(projectName, category, subCategory, bot);
 		}
 
-		public void whenProjectIsCopied(String projectName, String projectCopyName) throws IOException
+		private void whenProjectIsCopied(String projectName, String projectCopyName) throws IOException
 		{
 			ProjectTestOperations.copyProjectToExistingWorkspace(projectName, projectCopyName, bot,
 					DefaultPropertyFetcher.getLongPropertyValue("default.project.copy.wait", 60000));
 		}
 
-		public void whenProjectIsBuiltUsingContextMenu() throws IOException
+		private void whenProjectIsBuiltUsingContextMenu() throws IOException
 		{
 			ProjectTestOperations.buildProjectUsingContextMenu(projectName, bot);
 			ProjectTestOperations.waitForProjectBuild(bot);
 		}
 
-		public void whenProjectIsBuiltUsingToolbarButton(String projectName) throws IOException
+		private void whenProjectIsBuiltUsingToolbarButton(String projectName) throws IOException
 		{
 			SWTBotView projectExplorView = bot.viewByTitle("Project Explorer");
 			projectExplorView.show();
