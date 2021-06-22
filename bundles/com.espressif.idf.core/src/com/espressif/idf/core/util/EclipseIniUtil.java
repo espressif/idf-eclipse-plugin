@@ -10,12 +10,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.URIUtil;
 
@@ -62,19 +61,6 @@ public class EclipseIniUtil
 	}
 
 	/**
-	 * Removes the eclipse switch from eclipse.ini
-	 * 
-	 * @param eclipseSwitch The switch to remove with the respective hyphen e.g: -nl or --launcher.defaultAction
-	 * @throws IOException
-	 */
-	public void removeEclipseSwitch(String eclipseSwitch) throws IOException
-	{
-		eclipseIniSwitchMap.remove(eclipseSwitch);
-
-		updateEclipseIniFile();
-	}
-
-	/**
 	 * Gets the current value for a switch
 	 * 
 	 * @param eclipseSwitch The switch to get with the respective hyphen e.g: -nl or --launcher.defaultAction
@@ -115,7 +101,7 @@ public class EclipseIniUtil
 		for (String key : eclipseIniSwitchMap.keySet())
 		{
 			contentsToWrite.add(key);
-			if (StringUtils.isNotEmpty(eclipseIniSwitchMap.get(key)))
+			if (!StringUtil.isEmpty(eclipseIniSwitchMap.get(key)))
 			{
 				contentsToWrite.add(eclipseIniSwitchMap.get(key));
 			}
@@ -125,9 +111,9 @@ public class EclipseIniUtil
 
 		for (String key : eclipseVmArgMap.keySet())
 		{
-			if (StringUtils.isNotEmpty(eclipseVmArgMap.get(key)))
+			if (!StringUtil.isEmpty(eclipseVmArgMap.get(key)))
 			{
-				String contentToWrite = key + "=" + eclipseVmArgMap.get(key);
+				String contentToWrite = key + "=" + eclipseVmArgMap.get(key); //$NON-NLS-1$
 				contentsToWrite.add(contentToWrite);
 			}
 			else
@@ -141,7 +127,7 @@ public class EclipseIniUtil
 
 	private void loadEclipseIniSwitchMap()
 	{
-		eclipseIniSwitchMap = new HashedMap<>();
+		eclipseIniSwitchMap = new HashMap<>();
 		int indexOfVmArgs = eclipseIniFileContents.indexOf(ECLIPSE_INI_VMARGS);
 		for (int i = 0; i < indexOfVmArgs; i++)
 		{
@@ -161,7 +147,7 @@ public class EclipseIniUtil
 
 	private void loadEclipseVmArgMap()
 	{
-		eclipseVmArgMap = new HashedMap<>();
+		eclipseVmArgMap = new HashMap<>();
 		int indexOfVmArgs = eclipseIniFileContents.indexOf(ECLIPSE_INI_VMARGS);
 		for (int i = indexOfVmArgs + 1; i < eclipseIniFileContents.size(); i++)
 		{
