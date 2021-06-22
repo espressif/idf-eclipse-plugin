@@ -2,7 +2,7 @@
  * Copyright 2018-2019 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.debug.gdbjtag.openocd.utils;
+package com.espressif.idf.core.util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
