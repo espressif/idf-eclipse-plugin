@@ -56,7 +56,7 @@ public class PythonCleanCommandHandler extends AbstractToolsHandler
 			if (status == null)
 			{
 				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
-
+				return IDFCorePlugin.errorStatus("Status can't be null", null).toString();
 			}
 
 			// process export command output
