@@ -4,25 +4,21 @@
 	<locations>
 		
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
-			<unit id="org.eclipse.platform.ide" version="0.0.0"/>
+			<unit id="org.eclipse.equinox.sdk.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.rcp.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.rcp.source.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.test.feature.group" version="0.0.0"/>
-			<unit id="org.eclipse.equinox.executable.feature.group" version="0.0.0"/>
-			<repository location="https://download.eclipse.org/eclipse/updates/4.17/"/>
+			<repository location="http://download.eclipse.org/eclipse/updates/latest"/>
 		</location>
 		
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
 			<unit id="org.eclipse.cdt.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.cdt.sdk.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.cdt.cmake.feature.group" version="0.0.0"/>
-			<repository location="https://download.eclipse.org/tools/cdt/releases/10.1/"/>
-		</location>	
-		
-		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
-			<repository location="https://download.eclipse.org/tm/updates/4.5.0/repository/"/>
 			<unit id="org.eclipse.tm.terminal.control.feature.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.tm.terminal.feature.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.tm.terminal.view.feature.feature.group" version="0.0.0"/>
+			<repository location="http://download.eclipse.org/releases/latest"/>
 		</location>	
 		
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
@@ -37,7 +33,7 @@
 		
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
 			<unit id="org.eclipse.jgit.feature.group" version="0.0.0"/>
-			<repository location="http://download.eclipse.org/releases/2020-09"/>
+			<repository location="https://download.eclipse.org/egit/updates"/>
 		</location>
 		
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
@@ -45,7 +41,7 @@
 			<repository location="https://download.eclipse.org/swtchart/releases/0.12.0/repository"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
-			<repository location="https://download.eclipse.org/tools/cdt/releases/10.1/"/>
+			<repository location="https://download.eclipse.org/tools/cdt/releases/10.3/"/>
 			<unit id="org.eclipse.cdt.debug.gdbjtag.feature.group" version=""/>
 		</location>
 		
