@@ -14,10 +14,6 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd;
 
-import ilg.gnumcueclipse.core.EclipseUtils;
-import ilg.gnumcueclipse.core.StringUtils;
-import ilg.gnumcueclipse.debug.gdbjtag.DebugUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +26,12 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
+
+import ilg.gnumcueclipse.core.EclipseUtils;
+import ilg.gnumcueclipse.core.StringUtils;
+import ilg.gnumcueclipse.debug.gdbjtag.DebugUtils;
 
 @SuppressWarnings("restriction")
 public class Configuration {
@@ -99,12 +100,13 @@ public class Configuration {
 			String other = configuration
 					.getAttribute(ConfigurationAttributes.GDB_SERVER_OTHER, DefaultPreferences.GDB_SERVER_OTHER_DEFAULT)
 					.trim();
-
 			other = resolveAll(other, configuration);
 
 			if (other != null && !other.isEmpty()) {
 				lst.addAll(StringUtils.splitCommandLineOptions(other));
 			}
+			lst.add("-c");
+			lst.add(getEspFlashCommand(configuration));
 
 		} catch (CoreException e) {
 			Activator.log(e);
@@ -117,6 +119,27 @@ public class Configuration {
 		lst.add("echo \"Started by GNU MCU Eclipse\"");
 
 		return lst.toArray(new String[0]);
+	}
+
+	private static String getEspFlashCommand(ILaunchConfiguration configuration)
+	{
+		String espFlashCommand = "program_esp_bins <path-to-build-dir> flasher_args.json verify reset"; //$NON-NLS-1$
+		try
+		{
+			String buildPath = configuration.getMappedResources()[0].getProject().getFolder("build").getLocationURI() // $NON-NLS-1$
+					.getPath();
+			char a = buildPath.charAt(2);
+			if (a == ':')
+			{
+				buildPath = buildPath.substring(1);
+			}
+			espFlashCommand = espFlashCommand.replace("<path-to-build-dir>", buildPath); //$NON-NLS-1$
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+		return espFlashCommand;
 	}
 
 	public static String getGdbServerCommandName(ILaunchConfiguration config) {
