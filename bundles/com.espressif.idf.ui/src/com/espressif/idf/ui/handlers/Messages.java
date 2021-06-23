@@ -11,6 +11,8 @@ public class Messages extends NLS
 	public static String NewProjectHandler_MandatoryMsg;
 	public static String NewProjectHandler_NavigateToHelpMenu;
 	public static String NewProjectHandler_PathErrorTitle;
+	public static String LanguageChange_ErrorTitle;
+	public static String LanguageChange_ErrorMessage; 
 
 	static
 	{
