@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="com.espressif.idf.ui.locale.support" name="Languages" schema="schema/com.espressif.ifg/com.espressif.idf.ui.extensionspoint.exsd"/>
    <extension
          point="org.eclipse.ui.newWizards">
       <category
@@ -86,6 +87,12 @@
             id="com.espressif.idf.ui.command.productInfo"
             name="%command.name.4 ">
       </command>
+      <command
+            defaultHandler="ChangeLanguageHandler"
+            description="Changes the language based on label"
+            id="com.espressif.idf.ui.changeLanguage"
+            name="Change Language">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -106,6 +113,19 @@
                   icon="icons/espressif.png"
                   style="push">
             </command>
+         </menu>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:help">
+         <menu
+               icon="icons/espressif.png"
+               id="changeLanguage"
+               label="Change Language">
+            <dynamic
+                  class="com.espressif.idf.ui.menuitem.LanguageDynamicMenuItem"
+                  id="com.espressif.idf.ui.LanguageDynamicMenu">
+            </dynamic>
          </menu>
       </menuContribution>
       <menuContribution
@@ -259,5 +279,18 @@
        <startup
              class="com.espressif.idf.ui.InitializeToolsStartup">
        </startup>
+    </extension>
+    <extension
+          id="com.espressif.idf.ui.extension.locale.support"
+          name="LocaleSupport"
+          point="com.espressif.idf.ui.locale.support">
+       <Language
+             id="zh"
+             name="Chinese">
+       </Language>
+       <Language
+             id="en"
+             name="English">
+       </Language>
     </extension>
 </plugin>

@@ -61,6 +61,7 @@ import org.json.simple.JSONArray;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.EspConfigParser;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
@@ -71,7 +72,6 @@ import com.espressif.idf.debug.gdbjtag.openocd.preferences.PersistentPreferences
 import com.espressif.idf.debug.gdbjtag.openocd.ui.preferences.GlobalMcuPage;
 import com.espressif.idf.debug.gdbjtag.openocd.ui.preferences.WorkspaceMcuPage;
 import com.espressif.idf.debug.gdbjtag.openocd.ui.properties.ProjectMcuPage;
-import com.espressif.idf.debug.gdbjtag.openocd.utils.EspConfigParser;
 
 import ilg.gnumcueclipse.core.EclipseUtils;
 
