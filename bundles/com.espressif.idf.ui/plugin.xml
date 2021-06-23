@@ -296,6 +296,7 @@
              class="com.espressif.idf.ui.InitializeToolsStartup">
        </startup>
     </extension>
+
     <extension
           id="com.espressif.idf.ui.extension.locale.support"
           name="LocaleSupport"
@@ -323,5 +324,40 @@
             class="com.espressif.idf.ui.handlers.PythonCleanCommandHandler"
             commandId="com.espressif.commands.cleanCommand">
       </handler>
+    </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            id="org.plugin.espressif.commands.category"
+            name="Espressif">
+      </category>
+      <command
+            categoryId="org.plugin.espressif.commands.category"
+            id="org.plugin.espressif.commands.eraseFlash"
+            name="Erase Flash">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="com.espressif.idf.ui.handlers.EraseFlashCommandHandler"
+            commandId="org.plugin.espressif.commands.eraseFlash">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu?after=additions">
+         <menu
+               id="org.plugin.espressif.menus.espressifMenu"
+               label="Espressif"
+               mnemonic="E">
+            <command
+                  commandId="org.plugin.espressif.commands.eraseFlash"
+                  icon="icons/espressif.png"
+                  id="org.plugin.espressif.menus.eraseFlashCommand">
+            </command>
+         </menu>
+      </menuContribution>
    </extension>
 </plugin>
