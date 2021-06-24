@@ -78,4 +78,4 @@ Now from launch configurations in the Eclipse CDT Launchbar click on edit button
 ![](doc/images/launch_config_edit_junit.png)
 
 From the opened screen you can see some settings. First thing to make sure is that you use **JUnit4** from the `Test runner:` drop down. Alos make sure that `Run in UI thread` is unchecked.
-Now headover to the `Plug-ins` tab and follow the same configuration steps as you did for SWTBot Launc Config
+Now headover to the `Plug-ins` tab and follow the same configuration steps as you did for SWTBot Launch Config
