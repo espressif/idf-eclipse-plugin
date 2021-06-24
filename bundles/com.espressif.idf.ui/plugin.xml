@@ -233,6 +233,22 @@
                </iterate>
             </visibleWhen>
          </command>
+         <command
+               commandId="com.espressif.commands.cleanCommand"
+               icon="icons/espressif.png"
+               label="%command.label.2"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <iterate
+                     ifEmpty="false"
+                     operator="or">
+                  <instanceof
+                        value="org.eclipse.core.resources.IResource">
+                  </instanceof>
+               </iterate>
+            </visibleWhen>
+         </command>
       </menuContribution>
    </extension>
    <extension
@@ -293,4 +309,19 @@
              name="English">
        </Language>
     </extension>
+    <extension
+         point="org.eclipse.ui.commands">
+      <command
+            categoryId="com.espressif.commands.category"
+            id="com.espressif.commands.cleanCommand"
+            name="%command.name.5">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="com.espressif.idf.ui.handlers.PythonCleanCommandHandler"
+            commandId="com.espressif.commands.cleanCommand">
+      </handler>
+   </extension>
 </plugin>
