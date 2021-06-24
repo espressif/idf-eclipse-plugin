@@ -14,4 +14,5 @@ Require-Bundle: org.eclipse.ui,
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.launchbar.ui,
  org.eclipse.launchbar.ui.controls.internal,
- org.eclipse.launchbar.ui.internal
+ org.eclipse.launchbar.ui.internal,
+ org.eclipse.sphinx.platform

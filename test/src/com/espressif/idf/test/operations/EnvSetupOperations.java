@@ -22,6 +22,10 @@ public class EnvSetupOperations
 		{
 			view.close();
 		}
+		bot.menu("Window").menu("Perspective").menu("Open Perspective").menu("Other...").click();
+		bot.table().select("C/C++");
+		bot.button("Open").click();
+		
 		bot.menu("Help").menu("ESP-IDF Tools Manager").menu("Install Tools").click();
 		bot.textWithLabel("ESP-IDF Directory:")
 				.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
