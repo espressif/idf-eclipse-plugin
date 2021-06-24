@@ -19,12 +19,14 @@ public class SerialPortHandler {
 	private boolean isOpen;
 	private boolean isPaused;
 	private Object pauseMutex = new Object();
+	private String numberOfCols;
 
 	private static final Map<String, LinkedList<WeakReference<SerialPortHandler>>> openPorts = new HashMap<>();
 
 	private Process process;
 	private Thread thread;
 	private SerialConnector serialConnector;
+	private String numberOfRows;
 
 	private static String adjustPortName(String portName) {
 		if (System.getProperty("os.name").startsWith("Windows") && !portName.startsWith("\\\\.\\")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -64,9 +66,12 @@ public class SerialPortHandler {
 		}
 	}
 
-	public SerialPortHandler(String portName, SerialConnector serialConnector) {
+	public SerialPortHandler(String portName, SerialConnector serialConnector, String numberOfCols,
+			String numberOfRows) {
 		this.portName = adjustPortName(portName);
 		this.serialConnector = serialConnector;
+		this.numberOfCols = numberOfCols;
+		this.numberOfRows = numberOfRows;
 	}
 
 	public String getPortName() {
@@ -80,7 +85,7 @@ public class SerialPortHandler {
 
 		//Hook IDF Monitor with the CDT serial monitor
 		SerialMonitorHandler serialMonitorHandler = new SerialMonitorHandler(serialConnector.project, portName,
-				serialConnector.filterOptions);
+				serialConnector.filterOptions, numberOfCols, numberOfRows);
 		process = serialMonitorHandler.invokeIDFMonitor();
 
 		thread = new Thread() {

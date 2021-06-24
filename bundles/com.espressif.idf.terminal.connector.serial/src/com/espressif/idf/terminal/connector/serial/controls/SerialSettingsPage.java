@@ -45,6 +45,9 @@ import com.espressif.idf.ui.EclipseUtil;
 
 public class SerialSettingsPage extends AbstractSettingsPage {
 
+	private static final String DEFAULT_NUMBER_OF_COLS = "80"; //$NON-NLS-1$
+	private static final String DEFAULT_NUMBER_OF_ROWS = "1000"; //$NON-NLS-1$
+
 	private final SerialSettings settings;
 	private final IConfigurationPanel panel;
 	private final IDialogSettings dialogSettings;
@@ -55,7 +58,11 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 	private String portName;
 	private String lastUsedSerialPort;
 	private Text filterText;
+	private Text numberOfColsText;
+	private Text numberOfRowsText;
 	private String filterConfig;
+	private String numberOfCols;
+	private String numberOfRows;
 
 	public SerialSettingsPage(SerialSettings settings, IConfigurationPanel panel) {
 		this.settings = settings;
@@ -66,6 +73,8 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 				this.getClass().getSimpleName());
 		portName = dialogSettings.get(SerialSettings.PORT_NAME_ATTR);
 		filterConfig = dialogSettings.get(SerialSettings.MONITOR_FILTER);
+		numberOfCols = dialogSettings.get(SerialSettings.NUMBER_OF_COLS);
+		numberOfRows = dialogSettings.get(SerialSettings.NUMBER_OF_ROWS);
 
 		lastUsedSerialPort = getLastUsedSerialPort();
 
@@ -126,6 +135,18 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 		filterText = new Text(comp, SWT.SINGLE | SWT.BORDER);
 		filterText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
+		Label terminalCols = new Label(comp, SWT.NONE);
+		terminalCols.setText(Messages.SerialTerminalSettingsPage_NumberOfCols);
+		terminalCols.setToolTipText(Messages.SerialTerminalSettingsPage_NumberOfColsToolTip);
+		numberOfColsText = new Text(comp, SWT.SINGLE | SWT.BORDER);
+		numberOfColsText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Label terminalRows = new Label(comp, SWT.NONE);
+		terminalRows.setText(Messages.SerialTerminalSettingsPage_NumberOfRows);
+		terminalRows.setToolTipText(Messages.SerialTerminalSettingsPage_NumberOfRowsToolTip);
+		numberOfRowsText = new Text(comp, SWT.SINGLE | SWT.BORDER);
+		numberOfRowsText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
 		loadSettings();
 	}
 
@@ -157,6 +178,18 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 		if (!StringUtil.isEmpty(filterConfig)) {
 			this.filterText.setText(filterConfig);
 		}
+
+		if (!StringUtil.isEmpty(numberOfCols)) {
+			this.numberOfColsText.setText(numberOfCols);
+		} else {
+			this.numberOfColsText.setText(DEFAULT_NUMBER_OF_COLS);
+		}
+
+		if (!StringUtil.isEmpty(numberOfRows)) {
+			this.numberOfRowsText.setText(numberOfRows);
+		} else {
+			this.numberOfRowsText.setText(DEFAULT_NUMBER_OF_ROWS);
+		}
 	}
 
 	@Override
@@ -164,15 +197,20 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 		settings.setPortName(portCombo.getText());
 		settings.setFilterText(filterText.getText().trim());
 		settings.setProject(projectCombo.getText());
+		settings.setNumberOfCols(numberOfColsText.getText());
+		settings.setNumberOfRows(numberOfRowsText.getText());
 
 		dialogSettings.put(SerialSettings.SELECTED_PROJECT_ATTR, projectCombo.getText());
 		dialogSettings.put(SerialSettings.PORT_NAME_ATTR, portCombo.getText());
 		dialogSettings.put(SerialSettings.MONITOR_FILTER, filterText.getText().trim());
+		dialogSettings.put(SerialSettings.NUMBER_OF_COLS, numberOfColsText.getText().trim());
+		dialogSettings.put(SerialSettings.NUMBER_OF_ROWS, numberOfRowsText.getText().trim());
 	}
 
 	@Override
 	public boolean validateSettings() {
-		if (portCombo.getSelectionIndex() < 0 && portCombo.getText().isEmpty()) {
+		if (portCombo.getSelectionIndex() < 0 && portCombo.getText().isEmpty() && numberOfColsText.getText().isEmpty()
+				&& numberOfRowsText.getText().isEmpty()) {
 			return false;
 		}
 		return true;

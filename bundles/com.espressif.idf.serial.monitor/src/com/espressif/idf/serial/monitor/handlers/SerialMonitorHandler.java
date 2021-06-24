@@ -19,12 +19,16 @@ public class SerialMonitorHandler
 	private IProject project;
 	private String serialPort;
 	private String filterOptions;
-
-	public SerialMonitorHandler(IProject project, String serialPort, String filterOptions)
+	private String numberOfCols;
+	private String numberOfRows;
+	
+	public SerialMonitorHandler(IProject project, String serialPort, String filterOptions, String numberOfCols, String numberOfRows)
 	{
 		this.project = project;
 		this.serialPort = serialPort;
 		this.filterOptions = filterOptions;
+		this.numberOfCols = numberOfCols;
+		this.numberOfRows = numberOfRows;
 	}
 
 	public Process invokeIDFMonitor()
@@ -34,7 +38,8 @@ public class SerialMonitorHandler
 
 		File idfMonitorScriptFile = IDFUtil.getIDFPythonScriptFile();
 
-		IDFMonitor monitor = new IDFMonitor(project, serialPort, filterOptions, pythonPath, idfMonitorScriptFile.getAbsolutePath());
+		IDFMonitor monitor = new IDFMonitor(project, serialPort, filterOptions, pythonPath,
+				idfMonitorScriptFile.getAbsolutePath(), numberOfCols, numberOfRows);
 		try
 		{
 			return monitor.start();

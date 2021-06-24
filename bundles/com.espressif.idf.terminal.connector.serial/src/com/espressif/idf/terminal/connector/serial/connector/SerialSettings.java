@@ -24,10 +24,14 @@ public class SerialSettings {
 	public static final String PORT_NAME_ATTR = "cdtserial.portName"; //$NON-NLS-1$
 	public static final String MONITOR_FILTER = "idf.monitor.filter"; //$NON-NLS-1$
 	public static final String SELECTED_PROJECT_ATTR = "idf.monitor.project"; //$NON-NLS-1$
+	public static final String NUMBER_OF_COLS = "idf.monitor.cols"; //$NON-NLS-1$
+	public static final String NUMBER_OF_ROWS = "idf.monitor.rows"; //$NON-NLS-1$
 
 	private String portName;
 	private String filterText;
 	private String selectedProject;
+	private String numberOfCols;
+	private String numberOfRows;
 
 	/**
 	 * Load information into the RemoteSettings object.
@@ -36,6 +40,8 @@ public class SerialSettings {
 		portName = store.get(PORT_NAME_ATTR, ""); //$NON-NLS-1$
 		filterText = store.get(MONITOR_FILTER, ""); //$NON-NLS-1$
 		selectedProject = store.get(SELECTED_PROJECT_ATTR, ""); //$NON-NLS-1$
+		numberOfCols = store.get(NUMBER_OF_COLS, ""); //$NON-NLS-1$
+		numberOfRows = store.get(NUMBER_OF_ROWS, ""); //$NON-NLS-1$
 	}
 
 	/**
@@ -45,6 +51,8 @@ public class SerialSettings {
 		store.put(PORT_NAME_ATTR, portName);
 		store.put(MONITOR_FILTER, filterText);
 		store.put(SELECTED_PROJECT_ATTR, selectedProject);
+		store.put(NUMBER_OF_COLS, numberOfCols);
+		store.put(NUMBER_OF_ROWS, numberOfRows);
 	}
 
 	public String getPortName() {
@@ -80,6 +88,22 @@ public class SerialSettings {
 
 	public void setProject(String projectName) {
 		this.selectedProject = projectName;
+	}
+
+	public String getNumberOfCols() {
+		return numberOfCols;
+	}
+
+	public void setNumberOfCols(String numberOfCols) {
+		this.numberOfCols = numberOfCols;
+	}
+
+	public String getNumberOfRows() {
+		return numberOfRows;
+	}
+
+	public void setNumberOfRows(String numberOfRows) {
+		this.numberOfRows = numberOfRows;
 	}
 
 }
