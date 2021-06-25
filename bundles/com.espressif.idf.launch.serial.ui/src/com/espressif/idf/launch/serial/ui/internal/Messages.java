@@ -35,6 +35,7 @@ public class Messages extends NLS {
 	public static String configBoardLabel;
 	public static String configBoardTooTip;
 	public static String CMakeMainTab2_OpeonOcdSetupGroupTitle;
+	public static String CMakeMainTab2_JtagFlashingNotSupportedMsg;
 
 	static {
 		// initialize resource bundle
