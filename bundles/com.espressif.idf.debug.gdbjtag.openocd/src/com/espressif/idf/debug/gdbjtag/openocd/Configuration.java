@@ -26,7 +26,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.EspConfigParser;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 
 import ilg.gnumcueclipse.core.EclipseUtils;
@@ -105,8 +107,12 @@ public class Configuration {
 			if (other != null && !other.isEmpty()) {
 				lst.addAll(StringUtils.splitCommandLineOptions(other));
 			}
-			lst.add("-c");
-			lst.add(getEspFlashCommand(configuration));
+
+			if (checkIfJtagIsAvailable())
+			{
+				lst.add("-c");
+				lst.add(getEspFlashCommand(configuration));
+			}
 
 		} catch (CoreException e) {
 			Activator.log(e);
@@ -119,6 +125,17 @@ public class Configuration {
 		lst.add("echo \"Started by GNU MCU Eclipse\"");
 
 		return lst.toArray(new String[0]);
+	}
+
+	private static boolean checkIfJtagIsAvailable()
+	{
+		EspConfigParser parser = new EspConfigParser();
+		String openOCDPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS);
+		if (!openOCDPath.isEmpty() && parser.hasBoardConfigJson())
+		{
+			return true;
+		}
+		return false;
 	}
 
 	private static String getEspFlashCommand(ILaunchConfiguration configuration)
