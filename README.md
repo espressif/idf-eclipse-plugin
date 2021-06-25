@@ -33,6 +33,7 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 * [ Configuring Core Build Toolchain ](#ConfigureToolchains)<br>
 * [ Configuring CMake Toolchain ](#ConfigureCMakeToolchain)<br>
 * [ Configuring the flash arguments ](#customizeLaunchConfig)<br>
+* [ Changing Language ](#changeLanguage)<br>
 * [ Installing IDF Eclipse Plugin from Eclipse Market Place](#installPluginsFromMarketPlace) <br>
 * [ Installing IDF Eclipse Plugin using local archive ](#installPluginsUsingLocalFile) <br>
 * [ Upgrading IDF Eclipse Plugin ](#upgradePlugins)<br>
@@ -328,6 +329,17 @@ To provide the customized launch configuration and flash arguments, please follo
 ![](docs/images/11_launch_configuration.png)
 
 ![](docs/images/12_flashing.png)
+
+<a name="changeLanguage"></a>
+# Changing Language
+To change the plugin language a menu is provided to show the list of available languages for the plugin. Remember this will only change the language of the eclipse if the required language bundles for the selected language are installed or else only the plugin interfaces will be changed.
+
+1. Click on the `Help` menu from menu bar
+1. Select the `Change Language` from the menu drop down
+1. From the sub menu select the language you want
+1. Eclipse will restart with selected language
+
+![](docs/images/change_language.png)
 
 <a name="troubleshooting"></a>
 # Troubleshooting 

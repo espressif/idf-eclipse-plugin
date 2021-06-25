@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="com.espressif.idf.ui.locale.support" name="Languages" schema="schema/com.espressif.ifg/com.espressif.idf.ui.extensionspoint.exsd"/>
    <extension
          point="org.eclipse.ui.newWizards">
       <category
@@ -86,6 +87,12 @@
             id="com.espressif.idf.ui.command.productInfo"
             name="%command.name.4 ">
       </command>
+      <command
+            defaultHandler="ChangeLanguageHandler"
+            description="Changes the language based on label"
+            id="com.espressif.idf.ui.changeLanguage"
+            name="Change Language">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -106,6 +113,19 @@
                   icon="icons/espressif.png"
                   style="push">
             </command>
+         </menu>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:help">
+         <menu
+               icon="icons/espressif.png"
+               id="changeLanguage"
+               label="Change Language">
+            <dynamic
+                  class="com.espressif.idf.ui.menuitem.LanguageDynamicMenuItem"
+                  id="com.espressif.idf.ui.LanguageDynamicMenu">
+            </dynamic>
          </menu>
       </menuContribution>
       <menuContribution
@@ -213,6 +233,22 @@
                </iterate>
             </visibleWhen>
          </command>
+         <command
+               commandId="com.espressif.commands.cleanCommand"
+               icon="icons/espressif.png"
+               label="%command.label.2"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <iterate
+                     ifEmpty="false"
+                     operator="or">
+                  <instanceof
+                        value="org.eclipse.core.resources.IResource">
+                  </instanceof>
+               </iterate>
+            </visibleWhen>
+         </command>
       </menuContribution>
    </extension>
    <extension
@@ -260,4 +296,32 @@
              class="com.espressif.idf.ui.InitializeToolsStartup">
        </startup>
     </extension>
+    <extension
+          id="com.espressif.idf.ui.extension.locale.support"
+          name="LocaleSupport"
+          point="com.espressif.idf.ui.locale.support">
+       <Language
+             id="zh"
+             name="Chinese">
+       </Language>
+       <Language
+             id="en"
+             name="English">
+       </Language>
+    </extension>
+    <extension
+         point="org.eclipse.ui.commands">
+      <command
+            categoryId="com.espressif.commands.category"
+            id="com.espressif.commands.cleanCommand"
+            name="%command.name.5">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="com.espressif.idf.ui.handlers.PythonCleanCommandHandler"
+            commandId="com.espressif.commands.cleanCommand">
+      </handler>
+   </extension>
 </plugin>

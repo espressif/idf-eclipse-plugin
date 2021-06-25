@@ -2,7 +2,7 @@
 <feature
       id="com.espressif.idf.feature"
       label="Espressif IDF Plugins for Eclipse"
-      version="2.1.1.qualifier"
+      version="2.1.2.qualifier"
       provider-name="ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD"
       plugin="com.espressif.idf.branding">
 
@@ -260,13 +260,6 @@ You may add additional accurate notices of copyright ownership.
 
    <plugin
          id="ilg.gnumcueclipse.managedbuild.cross"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.equinox.simpleconfigurator"
          download-size="0"
          install-size="0"
          version="0.0.0"

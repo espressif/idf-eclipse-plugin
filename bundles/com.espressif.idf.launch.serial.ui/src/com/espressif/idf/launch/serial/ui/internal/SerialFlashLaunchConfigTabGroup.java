@@ -15,7 +15,6 @@
  *******************************************************************************/
 package com.espressif.idf.launch.serial.ui.internal;
 
-import org.eclipse.cdt.launch.ui.corebuild.GenericMainTab;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
 import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.EnvironmentTab;
@@ -26,7 +25,7 @@ public class SerialFlashLaunchConfigTabGroup extends AbstractLaunchConfiguration
 
 	@Override
 	public void createTabs(ILaunchConfigurationDialog dialog, String mode) {
-		setTabs(new ILaunchConfigurationTab[] { new GenericMainTab(), new EnvironmentTab(), new CommonTab() });
+		setTabs(new ILaunchConfigurationTab[] { new CMakeMainTab2(), new EnvironmentTab(), new CommonTab() });
 	}
 
 }
