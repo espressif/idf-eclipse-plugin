@@ -1,5 +1,6 @@
 [![GitHub 发布](https://img.shields.io/github/release/espressif/idf-eclipse-plugin.svg)](https://github.com/espressif/idf-eclipse-plugin/releases/latest) 
 
+[English](./readme.md) 
 # ESP-IDF Eclipse 插件
 ESP-IDF Eclipse 插件可便利开发人员在 Eclipse 开发环境中开发基于 ESP32 的 IoT 应用程序。本插件集成了编辑、编译、烧录和调试等基础功能，还有安装工具、SDK 配置和 CMake 编辑器等附加功能，可简化并增强开发人员在使用标准 Eclipse CDT 开发和调试 ESP32 IoT 应用程序时的开发体验。
 
@@ -37,6 +38,7 @@ ESP-IDF Eclipse 插件支持 `macOS`、`Window` 和 `Linux` 操作系统。
 * [升级 IDF Eclipse 插件](#upgradePlugins)<br>
 * [导入一个现有的 IDF 项目](#ImportProject)<br>
 * [导入一个现有的 Debug 启动配置](#importDebugLaunchConfig)<br>
+* [更改语言](#changeLanguage)<br>
 * [故障排除指南](#troubleshooting)<br>
 * [如何提交 bug](#howToRaiseBugs)<br>
 * <a href ="https://github.com/espressif/idf-eclipse-plugin/blob/master/FAQ.md#FAQ">常见问题</a>
@@ -333,6 +335,18 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 ![](docs/images/11_launch_configuration.png)
 
 ![](docs/images/12_flashing.png)
+
+# 更改语言
+IDF Eclipse 插件可支持不同语言。如需更改，请按照以下步骤操作。
+
+1. 前往菜单栏，点击`帮助`。
+1. 在下拉菜单中选择`更改语言`。
+1. 在子下拉菜单中选择所需的语言。
+1. 此后，Eclipse 重启后将切换至所选择的语言。
+
+![](docs/images/change_language.png)
+
+注意，上述操作仅提供针对插件界面的汉化。如需全部汉化，则请另外安装 Eclipse 汉化包。
 
 <a name="troubleshooting"></a>
 # 故障排除 
