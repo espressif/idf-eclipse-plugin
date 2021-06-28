@@ -68,20 +68,20 @@ public class IDFSizeOverviewComposite
 		boldFont = boldDescriptor.createFont(sizeLbl.getDisplay());
 		sizeVal.setFont(boldFont);
 
-		toolkit.createLabel(overviewComp, "DRAM .data Size:"); //$NON-NLS-1$
+		toolkit.createLabel(overviewComp, Messages.IDFSizeOverviewComposite_DramDataSize);
 		Label b1Val = toolkit.createLabel(overviewComp, convertToKB(dram_data));
 		b1Val.setFont(boldFont);
 
-		toolkit.createLabel(overviewComp, "DRAM .bss Size:");  //$NON-NLS-1$
+		toolkit.createLabel(overviewComp, Messages.IDFSizeOverviewComposite_DramBssSize);
 		Label b2Val = toolkit.createLabel(overviewComp, convertToKB(dram_bss));
 		b2Val.setFont(boldFont);
 
-		toolkit.createLabel(overviewComp, "FLASH Code Size:");  //$NON-NLS-1$
-		Label b3Val = toolkit.createLabel(overviewComp, convertToKB(flash_code)); 
+		toolkit.createLabel(overviewComp, Messages.IDFSizeOverviewComposite_FlashCodeSize);
+		Label b3Val = toolkit.createLabel(overviewComp, convertToKB(flash_code));
 		b3Val.setFont(boldFont);
 
-		toolkit.createLabel(overviewComp, "FLASH rodata Size:");  //$NON-NLS-1$
-		Label b4Val = toolkit.createLabel(overviewComp, convertToKB(flash_rodata)); 
+		toolkit.createLabel(overviewComp, Messages.IDFSizeOverviewComposite_FlashRoDataSize);
+		Label b4Val = toolkit.createLabel(overviewComp, convertToKB(flash_rodata));
 		b4Val.setFont(boldFont);
 
 		Section ec = toolkit.createSection(form.getBody(), Section.TITLE_BAR);
@@ -94,8 +94,10 @@ public class IDFSizeOverviewComposite
 		chartComp.setForeground(form.getBody().getForeground());
 		ec.setClient(chartComp);
 
-		//available_diram is non-zero for esp32
-		long available_diram = overviewJson.get(IDFSizeConstants.AVAILABLE_DIRAM) != null ? (long) overviewJson.get(IDFSizeConstants.AVAILABLE_DIRAM) : 0;
+		// available_diram is non-zero for esp32
+		long available_diram = overviewJson.get(IDFSizeConstants.AVAILABLE_DIRAM) != null
+				? (long) overviewJson.get(IDFSizeConstants.AVAILABLE_DIRAM)
+				: 0;
 		if (available_diram == 0)
 		{
 			plotDoubleBar();
@@ -114,9 +116,12 @@ public class IDFSizeOverviewComposite
 		long available_diram = (long) overviewJson.get(IDFSizeConstants.AVAILABLE_DIRAM);
 		double used_diram_ratio = (double) overviewJson.get(IDFSizeConstants.USED_DIRAM_RATIO);
 
-		toolkit.createLabel(overviewComp, "Used DIRAM:"); //$NON-NLS-1$
-		String chartText = convertToKB(used_diram) + Messages.IDFSizeOverviewComposite_0 + convertToKB(available_diram) + " available, "  //$NON-NLS-1$
-				+ Math.round(used_diram_ratio * 100) + "%"+ "used"+")";  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		toolkit.createLabel(overviewComp, Messages.IDFSizeOverviewComposite_SinglePlot_UsedDiram);
+//		String chartText = convertToKB(used_diram) + Messages.IDFSizeOverviewComposite_0 + convertToKB(available_diram)
+//				+ " available, " //$NON-NLS-1$
+//				+ Math.round(used_diram_ratio * 100) + "%" + "used" + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		String chartText = String.format(Messages.IDFSizeOverviewComposite_UsedSizeText, convertToKB(used_diram),
+				convertToKB(available_diram), Math.round(used_diram_ratio * 100));
 		Label dramUsedVal = toolkit.createLabel(overviewComp, chartText); // $NON-NLS-1$
 		dramUsedVal.setFont(boldFont);
 
@@ -135,16 +140,22 @@ public class IDFSizeOverviewComposite
 		double used_dram_ratio = (double) overviewJson.get(IDFSizeConstants.USED_DRAM_RATIO);
 
 		// Used static DRAM
-		toolkit.createLabel(overviewComp, "Used static DRAM:"); //$NON-NLS-1$
-		String dramText = convertToKB(used_dram) + " (" + convertToKB(available_dram) + " available, "  //$NON-NLS-1$ //$NON-NLS-2$
-				+ Math.round(used_dram_ratio * 100) + "%"+ " used"+")";  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		toolkit.createLabel(overviewComp, Messages.IDFSizeOverviewComposite_UsedStaticDram);
+//		String dramText = convertToKB(used_dram) + " (" + convertToKB(available_dram) + " available, "  //$NON-NLS-1$ //$NON-NLS-2$
+//				+ Math.round(used_dram_ratio * 100) + "%"+ " used"+")";  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+		String dramText = String.format(Messages.IDFSizeOverviewComposite_UsedSizeText, convertToKB(used_dram),
+				convertToKB(available_dram), Math.round(used_dram_ratio * 100));
+
 		Label dramUsedVal = toolkit.createLabel(overviewComp, dramText); // $NON-NLS-1$
 		dramUsedVal.setFont(boldFont);
 
 		// Used static IRAM
-		toolkit.createLabel(overviewComp, "Used static IRAM:");  //$NON-NLS-1$
-		String iramText = convertToKB(used_iram) + " (" + convertToKB(available_iram) + " available, " //$NON-NLS-1$ //$NON-NLS-2$ 
-				+ Math.round(used_iram_ratio * 100) + "%" + " used"+ ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		toolkit.createLabel(overviewComp, Messages.IDFSizeOverviewComposite_UsedStaticIram);
+//		String iramText = convertToKB(used_iram) + " (" + convertToKB(available_iram) + " available, " //$NON-NLS-1$ //$NON-NLS-2$ 
+//				+ Math.round(used_iram_ratio * 100) + "%" + " used"+ ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		String iramText = String.format(Messages.IDFSizeOverviewComposite_UsedSizeText, convertToKB(used_iram),
+				convertToKB(available_iram), Math.round(used_iram_ratio * 100));
 		Label iramUsedVal = toolkit.createLabel(overviewComp, iramText); // $NON-NLS-1$
 		iramUsedVal.setFont(boldFont);
 
@@ -190,7 +201,7 @@ public class IDFSizeOverviewComposite
 		chart.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		// set titles
-		chart.getTitle().setText("Used " + chartText);  //$NON-NLS-1$
+		chart.getTitle().setText("Used " + chartText); //$NON-NLS-1$
 
 		chart.getAxisSet().getXAxis(0).getTitle().setText(""); //$NON-NLS-1$
 		chart.getAxisSet().getYAxis(0).getTitle().setText(""); //$NON-NLS-1$ S
@@ -200,11 +211,13 @@ public class IDFSizeOverviewComposite
 		chart.getAxisSet().getXAxis(0).setCategorySeries(new String[] { chartName });
 
 		// create bar series
-		IBarSeries<?> barSeries1 = (IBarSeries<?>) chart.getSeriesSet().createSeries(SeriesType.BAR, "Used");  //$NON-NLS-1$
+		IBarSeries<?> barSeries1 = (IBarSeries<?>) chart.getSeriesSet().createSeries(SeriesType.BAR,
+				Messages.IDFSizeOverviewComposite_ChartUsedText);
 		barSeries1.setYSeries(used);
 		barSeries1.setBarColor(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 
-		IBarSeries<?> barSeries2 = (IBarSeries<?>) chart.getSeriesSet().createSeries(SeriesType.BAR, "Available");  //$NON-NLS-1$
+		IBarSeries<?> barSeries2 = (IBarSeries<?>) chart.getSeriesSet().createSeries(SeriesType.BAR,
+				Messages.IDFSizeOverviewComposite_ChartAvailableText);
 		barSeries2.setYSeries(available);
 		barSeries2.setBarColor(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GREEN));
 
