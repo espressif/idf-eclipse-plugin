@@ -36,7 +36,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.json.simple.JSONArray;
 
-import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.EspConfigParser;
@@ -44,7 +43,7 @@ import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 import com.espressif.idf.launch.serial.internal.SerialFlashLaunchConfigDelegate;
-import com.espressif.idf.launch.serial.util.EspFlashCommandGenerator;
+import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 
 public class CMakeMainTab2 extends GenericMainTab {
 	private static final String EMPTY_CONFIG_OPTIONS = "-s ${openocd_path}/share/openocd/scripts"; //$NON-NLS-1$
@@ -62,7 +61,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 	@Override
 	public void createControl(Composite parent) {
-		isJtagFlashAvailable = checkIfJtagIsAvailable();
+		isJtagFlashAvailable = ESPFlashUtil.checkIfJtagIsAvailable();
 		createJtagFlashButton(parent);
 		super.createControl(parent);
 		locationAndWorkDirGroupData = new GridData(SWT.FILL, SWT.NONE, true, false);
@@ -143,7 +142,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	private void updateArgumentsWithDefaultFlashCommand(ILaunchConfiguration configuration) {
-		String espFlashCommand = EspFlashCommandGenerator.getEspFlashCommand(getSerialPort());
+		String espFlashCommand = ESPFlashUtil.getEspFlashCommand(getSerialPort());
 		try {
 			String undefinedArguments = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS,
 					espFlashCommand);
@@ -159,15 +158,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 			Logger.log(e);
 		}
 
-	}
-
-	private boolean checkIfJtagIsAvailable() {
-		EspConfigParser parser = new EspConfigParser();
-		String openOCDPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS);
-		if (!openOCDPath.isEmpty() && parser.hasBoardConfigJson()) {
-			return true;
-		}
-		return false;
 	}
 
 	@Override

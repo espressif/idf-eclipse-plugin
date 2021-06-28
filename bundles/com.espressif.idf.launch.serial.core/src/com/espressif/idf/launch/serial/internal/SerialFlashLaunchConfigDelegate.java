@@ -56,7 +56,7 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
-import com.espressif.idf.launch.serial.util.EspFlashCommandGenerator;
+import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 
 import ilg.gnumcueclipse.core.EclipseUtils;
 import ilg.gnumcueclipse.core.StringUtils;
@@ -124,7 +124,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		//build the flash command
 		serialPort = ((SerialFlashLaunch) launch).getLaunchTarget()
 				.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
-		String espFlashCommand = EspFlashCommandGenerator.getEspFlashCommand(serialPort);
+		String espFlashCommand = ESPFlashUtil.getEspFlashCommand(serialPort);
 		Logger.log(espFlashCommand);
 		if (checkIfPortIsEmpty()) {
 			return;
@@ -166,22 +166,19 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 
 	protected void flashOverJtag(ILaunchConfiguration configuration, ILaunch launch) throws CoreException {
 		List<String> commands = new ArrayList<>();
+
 		String openocdExe = configuration.getAttribute(SERVER_EXECUTABLE, DEFAULT_PATH + DEFAULT_EXECUTABLE);
 		String tmp = EclipseUtils.getPreferenceValueForId(OPENOCD_PREFIX, INSTALL_FOLDER, "", //$NON-NLS-1$
 				getProject(configuration));
 		tmp = tmp.replace("bin", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		openocdExe = openocdExe.replace(DEFAULT_PATH, tmp);
 		commands.add(openocdExe);
+
 		String arguments = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS, ""); //$NON-NLS-1$
 		arguments = arguments.replace(DEFAULT_PATH, tmp).trim();
 		commands.addAll(StringUtils.splitCommandLineOptions(arguments));
-		String buildPath = getProject(configuration).getFolder("build").getLocationURI().getPath(); //$NON-NLS-1$
-		char a = buildPath.charAt(2);
-		if (a == ':') {
-			buildPath = buildPath.substring(1);
-		}
-		String flashCommand = "-c program_esp_bins " //$NON-NLS-1$
-				+ buildPath + " flasher_args.json verify reset exit"; //$NON-NLS-1$
+
+		String flashCommand = ESPFlashUtil.getEspJtagFlashCommand(configuration) + " exit"; //$NON-NLS-1$
 		commands.add(flashCommand);
 
 		try {
