@@ -35,9 +35,5 @@ public class Messages extends NLS {
 	public static String SerialSettingsPage_FilterOptions;
 	public static String SerialSettingsPage_ProjectName;
 	public static String SerialTerminalSettingsPage_SerialPort;
-	public static String SerialTerminalSettingsPage_NumberOfCols;
-	public static String SerialTerminalSettingsPage_NumberOfColsToolTip;
-	public static String SerialTerminalSettingsPage_NumberOfRows;
-	public static String SerialTerminalSettingsPage_NumberOfRowsToolTip;
 
 }

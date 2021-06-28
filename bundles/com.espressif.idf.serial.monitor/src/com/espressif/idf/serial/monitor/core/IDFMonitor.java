@@ -24,19 +24,14 @@ public class IDFMonitor
 	private String idfMonitorToolPath;
 	private IProject project;
 	private String filterOptions;
-	private String numberOfCols;
-	private String numberOfRows;
 
-	public IDFMonitor(IProject project, String port, String filterOptions, String pythonBinPath,
-			String idfMonitorToolPath, String numberOfCols, String numberOfRows)
+	public IDFMonitor(IProject project, String port, String filterOptions, String pythonBinPath, String idfMonitorToolPath)
 	{
 		this.project = project;
 		this.port = port;
 		this.pythonBinPath = pythonBinPath;
 		this.idfMonitorToolPath = idfMonitorToolPath;
 		this.filterOptions = filterOptions;
-		this.numberOfCols = numberOfCols;
-		this.numberOfRows = numberOfRows;
 	}
 
 	public List<String> commandArgs()
@@ -89,7 +84,7 @@ public class IDFMonitor
 		// working dir
 		IPath workingDir = project.getLocation();
 
-		LocalTerminal localTerminal = new LocalTerminal(arguments, workingDir.toFile(), environment, numberOfCols, numberOfRows);
+		LocalTerminal localTerminal = new LocalTerminal(arguments, workingDir.toFile(), environment);
 		return localTerminal.connect();
 	}
 
