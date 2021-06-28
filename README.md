@@ -1,5 +1,6 @@
 [![GitHub release](https://img.shields.io/github/release/espressif/idf-eclipse-plugin.svg)](https://github.com/espressif/idf-eclipse-plugin/releases/latest) 
 
+[中文](./readme_CN.md) 
 # ESP-IDF Eclipse Plugin
 ESP-IDF Eclipse Plugin brings developers an easy-to-use Eclipse-based development environment for developing ESP32 based IoT applications.
 It provides better tooling capabilities, which simplifies and enhances standard Eclipse CDT for developing and debugging ESP32 IoT applications. It offers advanced editing, compiling, flashing and debugging features with the addition of Installing the tools, SDK configuration and CMake editors. 
@@ -33,12 +34,12 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 * [ Configuring Core Build Toolchain ](#ConfigureToolchains)<br>
 * [ Configuring CMake Toolchain ](#ConfigureCMakeToolchain)<br>
 * [ Configuring the flash arguments ](#customizeLaunchConfig)<br>
-* [ Changing Language ](#changeLanguage)<br>
 * [ Installing IDF Eclipse Plugin from Eclipse Market Place](#installPluginsFromMarketPlace) <br>
 * [ Installing IDF Eclipse Plugin using local archive ](#installPluginsUsingLocalFile) <br>
 * [ Upgrading IDF Eclipse Plugin ](#upgradePlugins)<br>
 * [ Importing an existing IDF Project ](#ImportProject)<br>
 * [ Importing an existing Debug launch configuration ](#importDebugLaunchConfig)<br>
+* [ Changing Language ](#changeLanguage)<br>
 * [ Troubleshooting Guide](#troubleshooting)<br>
 * [ How to raise bugs ](#howToRaiseBugs)<br>
 * <a href ="https://github.com/espressif/idf-eclipse-plugin/blob/master/FAQ.md#FAQ">FAQ</a>
