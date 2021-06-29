@@ -10,6 +10,16 @@ public class Messages extends NLS
 	public static String IDFSizeOverviewComposite_MemoryAllocation;
 	public static String IDFSizeOverviewComposite_Overview;
 	public static String IDFSizeOverviewComposite_TotalSize;
+	public static String IDFSizeOverviewComposite_DramDataSize;
+	public static String IDFSizeOverviewComposite_DramBssSize;
+	public static String IDFSizeOverviewComposite_FlashCodeSize;
+	public static String IDFSizeOverviewComposite_FlashRoDataSize;
+	public static String IDFSizeOverviewComposite_UsedStaticDram;
+	public static String IDFSizeOverviewComposite_UsedStaticIram;
+	public static String IDFSizeOverviewComposite_UsedSizeText;
+	public static String IDFSizeOverviewComposite_ChartUsedText;
+	public static String IDFSizeOverviewComposite_ChartAvailableText;
+	public static String IDFSizeOverviewComposite_SinglePlot_UsedDiram;
 	static
 	{
 		// initialize resource bundle
