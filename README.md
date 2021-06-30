@@ -166,7 +166,8 @@ Next, we need to tell CDT to use the toolchain for our project so that all the h
 ESP-IDF has a tool called `idf.py` which is a wrapper around `make flash` command with some handy operations. Flash operation can be initiated with just a click of a launch button (second button from the left on the top bar) and it's auto-configured to flash the application with the default flash command i.e, `idf.py -p PORT flash`.
 
 To provide the customized flash arguments, please follow [this](#customizeLaunchConfig) link for further instructions.
-To configure flashing via JTAG, please refer to this <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs/JTAG%20Flashing.md">
+
+To configure flashing via JTAG, please refer to this <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs/JTAG%20Flashing.md"> JTAG Flashing guide</a>
 
 <a name="ConfigureLaunchTerminal"></a>
 # Viewing Serial Output
