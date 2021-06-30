@@ -7,15 +7,29 @@ package com.espressif.idf.ui.handlers;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
+import com.espressif.idf.ui.dialogs.EraseFlashDialog;
+
+/**
+ * Erase flash command handler
+ * 
+ * @author Ali Azam Rana
+ *
+ */
 public class EraseFlashCommandHandler extends AbstractHandler
 {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Shell activeShell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		EraseFlashDialog eraseFlashDialog = new EraseFlashDialog(activeShell);
+		eraseFlashDialog.create();
+		eraseFlashDialog.open();
+
+		return eraseFlashDialog;
 	}
 
 }

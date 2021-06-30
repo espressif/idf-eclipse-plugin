@@ -29,7 +29,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.launchbar.ui,
  org.eclipse.ui.console,
  org.eclipse.jgit,
- org.eclipse.swtchart
+ org.eclipse.swtchart,
+ org.eclipse.cdt.native.serial,
+ org.eclipse.swtbot.swt.finder
 Automatic-Module-Name: com.espressif.idf.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11
@@ -38,4 +40,3 @@ Export-Package: com.espressif.idf.ui,
 Bundle-ClassPath: .,
  lib/commonmark-0.16.1.jar,
  lib/ini4j-0.5.4.jar
-

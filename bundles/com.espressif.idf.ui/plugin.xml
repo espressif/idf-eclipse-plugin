@@ -334,7 +334,7 @@
       <command
             categoryId="org.plugin.espressif.commands.category"
             id="org.plugin.espressif.commands.eraseFlash"
-            name="Erase Flash">
+            name="%command.name.6">
       </command>
    </extension>
    <extension
@@ -350,7 +350,7 @@
             locationURI="menu:org.eclipse.ui.main.menu?after=additions">
          <menu
                id="org.plugin.espressif.menus.espressifMenu"
-               label="Espressif"
+               label="%menu.label.0"
                mnemonic="E">
             <command
                   commandId="org.plugin.espressif.commands.eraseFlash"
