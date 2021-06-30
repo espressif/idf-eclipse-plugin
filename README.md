@@ -179,6 +179,12 @@ To see the serial output in Eclipse, we need to configure the `ESP-IDF Serial Mo
 
 ![](docs/images/10_serial_terminal.png)
 
+### ESP-IDF Serial Monitor Settings
+ESP-IDF Serial Monitor will allow you to configure the default settings of the serial monitor character limit and number of lines. 
+1. Navigate to `Espressif` from the Eclipse Preferences
+1. Click on `ESP-IDF Serial Monitor Settings`
+1. Provide `Console Line Width` and `Limit Console Output`
+
 <a name="projectconfigure"></a>
 # Configuring the Project
 IDF plugin will allow you to configure `sdkconfig` without leaving the Eclipse environment.
