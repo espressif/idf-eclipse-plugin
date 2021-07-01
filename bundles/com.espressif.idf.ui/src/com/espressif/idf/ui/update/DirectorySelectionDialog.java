@@ -7,7 +7,7 @@ package com.espressif.idf.ui.update;
 import java.util.Map;
 
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
@@ -310,6 +310,6 @@ public class DirectorySelectionDialog extends TitleAreaDialog
 
 	private Preferences getPreferences()
 	{
-		return InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID).node("preference"); //$NON-NLS-1$
+		return ConfigurationScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID).node("preference"); //$NON-NLS-1$
 	}
 }
