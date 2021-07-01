@@ -19,7 +19,6 @@
 
    <windowImages/>
 
-
    <launcher>
       <win useIco="false">
          <bmp/>
@@ -55,9 +54,6 @@
       <feature id="org.eclipse.jgit"/>
       <feature id="org.eclipse.platform"/>
       <feature id="org.eclipse.rcp"/>
-      <feature id="org.eclipse.rse"/>
-      <feature id="org.eclipse.cdt.testsrunner.feature"/>
-      <feature id="org.eclipse.equinox.core.sdk"/>
       <feature id="org.eclipse.cdt.native"/>
       <feature id="ilg.gnumcueclipse.debug.gdbjtag.openocd.feature"/>
       <feature id="org.eclipse.pde"/>
@@ -73,6 +69,12 @@
    </configurations>
 
    <repositories>
+      <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/" enabled="true" />
+      <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/" enabled="false" />
+      <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/" enabled="true" />
+      <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/" enabled="false" />
+      <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/" enabled="true" />
+      <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/" enabled="false" />
       <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/" enabled="true" />
       <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/" enabled="false" />
       <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/" enabled="true" />
