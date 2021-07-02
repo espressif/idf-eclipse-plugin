@@ -1,5 +1,6 @@
 [![GitHub 发布](https://img.shields.io/github/release/espressif/idf-eclipse-plugin.svg)](https://github.com/espressif/idf-eclipse-plugin/releases/latest) 
 
+[English](./readme.md) 
 # ESP-IDF Eclipse 插件
 ESP-IDF Eclipse 插件可便利开发人员在 Eclipse 开发环境中开发基于 ESP32 的 IoT 应用程序。本插件集成了编辑、编译、烧录和调试等基础功能，还有安装工具、SDK 配置和 CMake 编辑器等附加功能，可简化并增强开发人员在使用标准 Eclipse CDT 开发和调试 ESP32 IoT 应用程序时的开发体验。
 
@@ -37,6 +38,7 @@ ESP-IDF Eclipse 插件支持 `macOS`、`Window` 和 `Linux` 操作系统。
 * [升级 IDF Eclipse 插件](#upgradePlugins)<br>
 * [导入一个现有的 IDF 项目](#ImportProject)<br>
 * [导入一个现有的 Debug 启动配置](#importDebugLaunchConfig)<br>
+* [更改语言](#changeLanguage)<br>
 * [故障排除指南](#troubleshooting)<br>
 * [如何提交 bug](#howToRaiseBugs)<br>
 * <a href ="https://github.com/espressif/idf-eclipse-plugin/blob/master/FAQ.md#FAQ">常见问题</a>
@@ -74,7 +76,7 @@ IDF Eclipse 插件的运行环境要求如下。
 
 > **Note:** 本文档中的所有截图均来自 `macOS` 操作系统，但安装步骤同时适用于 `Windows`、`Linux` 和 `macOS` 操作系统。
 
-![](docs/images/idf_update_site_install.png)
+![](docs/images/zh/idf_update_site_install.png)
 
 <a name="InstallTools"></a>
 # 安装 ESP-IDF
@@ -94,7 +96,7 @@ IDF Eclipse 插件的运行环境要求如下。
 
 本操作将下载指定的 ESP-IDF 版本，并配置 Eclipse CDT 构建环境变量中的 `IDF_PATH`。
 
-![](docs/images/espidf_download.png)
+![](docs/images/zh/espidf_download.png)
 
 # 安装 ESP-IDF 工具集
 ESP-IDF 在构建固件时需要一些工具，包括 Python、Git、交叉编译器、menuconfig 工具、CMake 和 Ninja 构建工具等。
@@ -113,7 +115,7 @@ ESP-IDF 在构建固件时需要一些工具，包括 Python、Git、交叉编�
 
 ESP-IDF 目录选择对话框：
 
-![](docs/images/esp_idf_dir.png)
+![](docs/images/zh/esp_idf_dir.png)
 
 <a name="NewProjectUsingDefault"></a>
 # 创建一个新项目
@@ -124,7 +126,7 @@ ESP-IDF 目录选择对话框：
 
 > **Note:** 完成以上操作后，您将在编辑器中看到许多未解决的 include 错误。这些错误仅在构建后才能解决。
 
-![](docs/images/3_new_project_default.png)
+![](docs/images/zh/3_new_project_default.png)
 
 <a name="NewProjectUsingTemplates"></a>
 ## 使用 ESP-IDF 模板创建一个新项目
@@ -138,7 +140,7 @@ ESP-IDF 目录选择对话框：
 
 > **Note:** 完成以上操作后，您将在编辑器中看到许多未解决的 include 错误。这些错误仅在构建完成后才能解决。
 
-![](docs/images/4_new_project_templates.png)
+![](docs/images/zh/4_new_project_templates.png)
 
 <a name="ConfigureLaunchTarget"></a>
 # 配置启动目标
@@ -149,7 +151,7 @@ ESP-IDF 目录选择对话框：
 1. 选择`ESP 目标`。
 1. 提供目标属性，即您希望启动应用程序的位置。输入目标`名称`，并选择您连接 ESP 设备的`串口`。
 
-![](docs/images/8_launch_target.png)
+![](docs/images/zh/8_launch_target.png)
 
 <a name="BuildApplication"></a>
 # 编译项目
@@ -177,7 +179,7 @@ ESP-IDF 的 `idf.py` 工具可以打包 `make flash` 命令和常用指令。用
 1. 配置`串口监视器`过滤器，对串口输出进行过滤。
 1. 点击 `OK` 启动终端，开始监听 USB 端口。
 
-![](docs/images/10_serial_terminal.png)
+![](docs/images/zh/10_serial_terminal.png)
 
 <a name="projectconfigure"></a>
 # 编译项目
@@ -203,7 +205,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 
 如需配置 CMake 编辑器，请前往 Eclipse 的`偏好设置` > `CMakeEd`。
 
-![](docs/images/cmake_editor_preferences.png)
+![](docs/images/zh/cmake_editor_preferences.png)
 
 <a name="debugging"></a>
 # 调试项目
@@ -227,11 +229,11 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 
 **应用程序内存分析 - 概述**
 
-![](docs/images/sizeanalysis_overview.png)
+![](docs/images/zh/sizeanalysis_overview.png)
 
 **应用程序内存分析 - 详情**
 
-![](docs/images/sizeanalysis_details.png)
+![](docs/images/zh/sizeanalysis_details.png)
 
 <a name="idfterminal"></a>
 # ESP-IDF 终端
@@ -244,7 +246,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 1. 点击工具栏中的`打开终端`图标。
 1. 从终端下拉菜单中选择`ESP-IDF 终端`，并点击`OK`启动终端。
 
-![](docs/images/idf_terminal.png)
+![](docs/images/zh/idf_terminal.png)
 
 <a name="configureEnvironmentVariables"></a>
 # 配置环境变量
@@ -282,7 +284,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 - macOS：`$echo $PATH ` 
 - Windows：`$echo %PATH%`
 
-![](docs/images/2_environment_pref.png)
+![](docs/images/zh/2_environment_pref.png)
 
 # 配置工具链
 我们需要告诉 Eclipse CDT 在构建项目时需要使用什么核心构建工具链和 CMake 工具链。如您的 IDF 工具是通过`帮助`>`ESP-IDF 工具管理器`>`安装工具`菜单选项安装的，则 Eclipse 可自动检测到需要使用的工具链。
@@ -330,9 +332,21 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 1. 点击 `OK`，保存设置。
 1. 点击`启动`图标，将应用程序烧录到选定的开发板中。
 
-![](docs/images/11_launch_configuration.png)
+![](docs/images/zh/11_launch_configuration.png)
 
 ![](docs/images/12_flashing.png)
+
+# 更改语言
+IDF Eclipse 插件可支持不同语言。如需更改，请按照以下步骤操作。
+
+1. 前往菜单栏，点击`帮助`。
+1. 在下拉菜单中选择`更改语言`。
+1. 在子下拉菜单中选择所需的语言。
+1. 此后，Eclipse 重启后将切换至所选择的语言。
+
+![](docs/images/change_language.png)
+
+注意，上述操作仅提供针对插件界面的汉化。如需全部汉化，则请另外安装 Eclipse 汉化包。
 
 <a name="troubleshooting"></a>
 # 故障排除 
@@ -346,7 +360,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 
 注意，在提交问题时一定要提供错误日志。
 
-![](docs/images/export_log.png)
+![](docs/images/zh/export_log.png)
 
 ## 控制台视图日志
 `控制台`视图可显示与当前运行或构建有关的所有警告和错误。
@@ -365,7 +379,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 
 如本控制台未自动启动，请前往`中控台`视图，点击`显示选中的中控台`按钮。
 
-![](docs/images/IDF_tools_console.png)
+![](docs/images/zh/IDF_tools_console.png)
 
 <a name="installPluginsFromMarketPlace"></a>
 # 从 Eclipse 市场安装 IDF Eclipse 插件
@@ -390,7 +404,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 1. 从列表中选择`Espressif IDF`，并按照提示完成所有安装步骤。 
 1. 重启 Eclipse。
 
-![](docs/images/1_idffeature_install.png)
+![](docs/images/zh/1_idffeature_install.png)
 
 <a name="upgradePlugins"></a>
 #  如何升级我的 IDF Eclipse 插件？
@@ -422,7 +436,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 1. 更改 `项目名称`（否则将使用默认名称）。
 1. 点击`完成`，将选定项目作为一个 CMake 项目导入 Eclipse 工作空间。
 
-![](docs/images/5_import_project.png)
+![](docs/images/zh/5_import_project.png)
 
 <a name="importDebugLaunchConfig"></a>
 #  导入一个现有的 Debug 启动配置

@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="com.espressif.idf.ui.preferences.mainpage"
+            class="com.espressif.idf.serial.monitor.preferences.SerialMonitorPage"
+            id="com.espressif.idf.serial.monitor.monitorPreferencesPage"
+            name="%page.name">
+      </page>
+   </extension>
 
 </plugin>

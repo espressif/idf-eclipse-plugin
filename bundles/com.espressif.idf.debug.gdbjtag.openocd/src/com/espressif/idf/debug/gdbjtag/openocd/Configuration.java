@@ -14,10 +14,6 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd;
 
-import ilg.gnumcueclipse.core.EclipseUtils;
-import ilg.gnumcueclipse.core.StringUtils;
-import ilg.gnumcueclipse.debug.gdbjtag.DebugUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +27,11 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
+import com.espressif.idf.launch.serial.util.ESPFlashUtil;
+
+import ilg.gnumcueclipse.core.EclipseUtils;
+import ilg.gnumcueclipse.core.StringUtils;
+import ilg.gnumcueclipse.debug.gdbjtag.DebugUtils;
 
 @SuppressWarnings("restriction")
 public class Configuration {
@@ -99,11 +100,15 @@ public class Configuration {
 			String other = configuration
 					.getAttribute(ConfigurationAttributes.GDB_SERVER_OTHER, DefaultPreferences.GDB_SERVER_OTHER_DEFAULT)
 					.trim();
-
 			other = resolveAll(other, configuration);
 
 			if (other != null && !other.isEmpty()) {
 				lst.addAll(StringUtils.splitCommandLineOptions(other));
+			}
+
+			if (ESPFlashUtil.checkIfJtagIsAvailable())
+			{
+				lst.add(ESPFlashUtil.getEspJtagFlashCommand(configuration));
 			}
 
 		} catch (CoreException e) {

@@ -15,10 +15,12 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd.dsf;
 
+import java.io.File;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
+import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.dsf.concurrent.DataRequestMonitor;
 import org.eclipse.cdt.dsf.concurrent.ImmediateExecutor;
 import org.eclipse.cdt.dsf.concurrent.Query;
@@ -34,6 +36,7 @@ import org.eclipse.cdt.dsf.gdb.service.SessionType;
 import org.eclipse.cdt.dsf.gdb.service.command.IGDBControl;
 import org.eclipse.cdt.dsf.service.DsfServicesTracker;
 import org.eclipse.cdt.dsf.service.DsfSession;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -44,9 +47,12 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.ISourceLocator;
 
+import com.espressif.idf.core.util.GenericJsonReader;
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
 
@@ -105,6 +111,7 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 	/**
 	 * This method is called first when starting a debug session.
 	 */
+	@Override
 	protected GdbLaunch createGdbLaunch(ILaunchConfiguration configuration, String mode, ISourceLocator locator)
 			throws CoreException {
 
@@ -122,6 +129,7 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		return new Launch(configuration, mode, locator);
 	}
 
+	@Override
 	protected String getGDBVersion(ILaunchConfiguration config) throws CoreException {
 
 		String gdbClientCommand = Configuration.getGdbClientCommand(config, null);
@@ -150,9 +158,29 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
 		}
+		if (config.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, "").isEmpty()) //$NON-NLS-1$
+		{
+			setProgramNameAtr(config);
+		}
 		if (mode.equals(ILaunchManager.DEBUG_MODE) || mode.equals(ILaunchManager.RUN_MODE)) {
 			launchDebugger(config, launch, monitor);
 		}
+	}
+
+	private void setProgramNameAtr(ILaunchConfiguration config) throws CoreException
+	{
+		ILaunchConfigurationWorkingCopy wc = config.getWorkingCopy();
+		IProject project = config.getMappedResources()[0].getProject();
+		String programName = ""; //$NON-NLS-1$
+		GenericJsonReader jsonReader = new GenericJsonReader(project,
+				File.separator + "build" + File.separator + "project_description.json"); //$NON-NLS-1$
+		String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
+		if (!StringUtil.isEmpty(value))
+		{
+			programName = "build" + File.separator + value; //$NON-NLS-1$
+		}
+		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, programName);
+		wc.doSave();
 	}
 
 	private void launchDebugger(ILaunchConfiguration config, ILaunch launch, IProgressMonitor monitor)
@@ -182,6 +210,7 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 	}
 
 	/** @since 4.1 */
+	@Override
 	protected void launchDebugSession(final ILaunchConfiguration config, ILaunch l, IProgressMonitor monitor)
 			throws CoreException {
 
@@ -308,7 +337,7 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 					public IStatus call() throws CoreException {
 						DsfServicesTracker tracker = new DsfServicesTracker(GdbPlugin.getBundleContext(),
 								launch.getSession().getId());
-						GdbServerBackend backend = (GdbServerBackend) tracker.getService(GdbServerBackend.class);
+						GdbServerBackend backend = tracker.getService(GdbServerBackend.class);
 						if (backend != null) {
 							return backend.getServerExitStatus();
 						} else {
@@ -508,6 +537,7 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 	/**
 	 * Get a custom launch sequence, that inserts a GDB server starter.
 	 */
+	@Override
 	protected Sequence getServicesSequence(DsfSession session, ILaunch launch, IProgressMonitor progressMonitor) {
 
 		if (Activator.getInstance().isDebugging()) {
