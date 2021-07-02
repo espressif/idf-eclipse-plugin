@@ -85,33 +85,6 @@ public class LaunchBarCDTConfigurationsTest
 	}
 
 	@Test
-	public void creatingNewGenericLaunchTarget()
-	{
-		fixture.givenNewLaunchTargetIsSelected();
-		fixture.givenTargetTypeSelectedIs("Generic Target");
-		fixture.givenNewLaunchTargetName("TestGenericTarget");
-		fixture.givenNewLauncTargetOperatingSystem("LINUX");
-		fixture.givenNewLaunchTargetCPUArchitecture("x86");
-		fixture.whenFinishIsClicked();
-		fixture.thenLaunchTargetContains("TestGenericTarget");
-		fixture.thenLaunchTargetIsSelectedFromLaunchTargets("TestGenericTarget");
-	}
-
-	@Test
-	public void creatingNewSerialFlashLaunchTarget()
-	{
-		fixture.givenNewLaunchTargetIsSelected();
-		fixture.givenTargetTypeSelectedIs("Serial Flash Target");
-		fixture.givenNewLaunchTargetName("TestSerialFlash");
-		fixture.givenNewLauncTargetOperatingSystem("LINUX");
-		fixture.givenNewLaunchTargetCPUArchitecture("x86");
-		fixture.givenNewLaunchTargetComPortIsSetTo("COMTEST");
-		fixture.whenFinishIsClicked();
-		fixture.thenLaunchTargetContains("TestSerialFlash");
-		fixture.thenLaunchTargetIsSelectedFromLaunchTargets("TestSerialFlash");
-	}
-
-	@Test
 	public void creatingNewEspLaunchTarget()
 	{
 		fixture.givenNewLaunchTargetIsSelected();
@@ -122,30 +95,6 @@ public class LaunchBarCDTConfigurationsTest
 		fixture.whenFinishIsClicked();
 		fixture.thenLaunchTargetContains("TestESP");
 		fixture.thenLaunchTargetIsSelectedFromLaunchTargets("TestESP");
-	}
-
-	@Test
-	public void creatingNewGDBLaunchTargetOverSerial()
-	{
-		fixture.givenNewLaunchTargetIsSelected();
-		fixture.givenTargetTypeSelectedIs("GDB Remote Serial");
-		fixture.givenNewLaunchTargeGDBName("TestGDBSerial");
-		fixture.whenFinishIsClicked();
-		fixture.thenLaunchTargetContains("TestGDBSerial");
-		fixture.thenLaunchTargetIsSelectedFromLaunchTargets("TestGDBSerial");
-	}
-
-	@Test
-	public void creatingNewGDBLaunchTargetTCP()
-	{
-		fixture.givenNewLaunchTargetIsSelected();
-		fixture.givenTargetTypeSelectedIs("GDB Remote TCP");
-		fixture.givenNewLaunchTargeGDBTcpName("TestGdbTcp");
-		fixture.givenHostNameOrIpIs("127.0.0.1");
-		fixture.givenPortNumberIs(8087);
-		fixture.whenFinishIsClicked();
-		fixture.thenLaunchTargetContains("TestGdbTcp");
-		fixture.thenLaunchTargetIsSelectedFromLaunchTargets("TestGdbTcp");
 	}
 
 	private class Fixture
@@ -167,28 +116,6 @@ public class LaunchBarCDTConfigurationsTest
 			bot.sleep(1000);
 			launchBarConfigSelector = new LaunchBarConfigSelector(bot);
 			launchBarTargetSelector = new LaunchBarTargetSelector(bot);
-		}
-
-		private void givenNewLaunchTargeGDBTcpName(String name)
-		{
-			bot.checkBox("Same as hostname").click();
-			bot.textWithLabel("Target Name:").setText(name);
-		}
-
-		private void givenPortNumberIs(Integer portNumber)
-		{
-			bot.textWithLabel("Port:").setText(portNumber.toString());
-		}
-
-		private void givenHostNameOrIpIs(String hostNameOrIp)
-		{
-			bot.textWithLabel("Hostname or IP:").setText(hostNameOrIp);
-		}
-
-		private void givenNewLaunchTargeGDBName(String name)
-		{
-			bot.checkBox("Same as serial port").click();
-			bot.textWithLabel("Target name:").setText(name);
 		}
 
 		private void givenNewLaunchTargetIdfTargetSetTo(String espIdfTarget)
@@ -216,17 +143,6 @@ public class LaunchBarCDTConfigurationsTest
 		public void whenFinishIsClicked()
 		{
 			bot.button("Finish").click();
-		}
-
-		public void givenNewLaunchTargetCPUArchitecture(String cpuArch)
-		{
-			bot.textWithLabel("CPU Architecture:").setText(cpuArch);
-		}
-
-		public void givenNewLauncTargetOperatingSystem(String operatingSystem)
-		{
-			bot.textWithLabel("Operating System:").setText(operatingSystem);
-
 		}
 
 		public void givenNewLaunchTargetName(String launchTargetName)
