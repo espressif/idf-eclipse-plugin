@@ -167,6 +167,8 @@ ESP-IDF has a tool called `idf.py` which is a wrapper around `make flash` comman
 
 To provide the customized flash arguments, please follow [this](#customizeLaunchConfig) link for further instructions.
 
+To configure flashing via JTAG, please refer to this <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs/JTAG%20Flashing.md"> JTAG Flashing guide</a>
+
 <a name="ConfigureLaunchTerminal"></a>
 # Viewing Serial Output
 To see the serial output in Eclipse, we need to configure the `ESP-IDF Serial Monitor` to connect to the serial port. This is integrated with the `IDF Monitor`. Please check more details <a href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/tools/idf-monitor.html#idf-monitor">here</a>. 
