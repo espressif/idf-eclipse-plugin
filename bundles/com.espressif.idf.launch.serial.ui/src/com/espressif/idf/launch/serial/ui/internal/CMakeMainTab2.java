@@ -70,10 +70,12 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	private void createJtagFlashButton(Composite parent) {
-		if (!isJtagFlashAvailable) {
-			return;
-		}
-		flashOverJtagButton = new Button(parent, SWT.CHECK);
+		Composite c = new Composite(parent, SWT.NONE);
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 2;
+		c.setLayout(layout);
+
+		flashOverJtagButton = new Button(c, SWT.CHECK);
 		flashOverJtagButton.setText(Messages.CMakeMainTab2_JtagComboLbl);
 		flashOverJtagButton.addSelectionListener(new SelectionListener() {
 
@@ -92,6 +94,13 @@ public class CMakeMainTab2 extends GenericMainTab {
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
+
+		if (!isJtagFlashAvailable) {
+			Label lbl = new Label(c, SWT.NONE);
+			lbl.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_DARK_YELLOW));
+			lbl.setText(Messages.CMakeMainTab2_JtagFlashingNotSupportedMsg);
+			flashOverJtagButton.setEnabled(false);
+		}
 	}
 
 	private void switchUI() {
