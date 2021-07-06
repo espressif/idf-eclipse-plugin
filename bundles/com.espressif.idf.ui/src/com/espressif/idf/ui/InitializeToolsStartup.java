@@ -31,6 +31,7 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.resources.ResourceChangeListener;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.update.ExportIDFTools;
+import com.espressif.idf.ui.update.InstallToolsHandler;
 
 public class InitializeToolsStartup implements IStartup
 {
@@ -98,6 +99,17 @@ public class InitializeToolsStartup implements IStartup
 					
 					//Configure toolchains
 					configureToolChain();
+
+					Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
+					scopedPreferenceStore.putBoolean(InstallToolsHandler.INSTALL_TOOLS_FLAG, true);
+					try
+					{
+						scopedPreferenceStore.flush();
+					}
+					catch (BackingStoreException e)
+					{
+						Logger.log(e);
+					}
 				}
 			}
 
