@@ -1,5 +1,6 @@
 package com.espressif.idf.test.executable.cases.environment;
 
+import static org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory.withPartName;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -78,7 +79,13 @@ public class SettingEspressifEnvTest
 		private Fixture()
 		{
 			bot = new SWTWorkbenchBot();
-			bot.viewByTitle("Welcome").close();
+			for (SWTBotView view : bot.views(withPartName("Welcome")))
+			{
+				view.close();
+			}
+			bot.menu("Window").menu("Perspective").menu("Open Perspective").menu("Other...").click();
+			bot.table().select("C/C++");
+			bot.button("Open").click();
 		}
 
 		private void cleanTestEnv()
