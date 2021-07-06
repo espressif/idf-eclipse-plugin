@@ -54,9 +54,12 @@
       <feature id="org.eclipse.jgit"/>
       <feature id="org.eclipse.platform"/>
       <feature id="org.eclipse.rcp"/>
+      <feature id="org.eclipse.launchbar" installMode="root"/>
       <feature id="org.eclipse.cdt.native"/>
       <feature id="ilg.gnumcueclipse.debug.gdbjtag.openocd.feature"/>
-      <feature id="org.eclipse.pde"/>
+      <feature id="org.eclipse.cdt.cmake" installMode="root"/>
+      <feature id="org.eclipse.tm.terminal.view.feature" installMode="root"/>
+      <feature id="org.eclipse.tm.terminal.feature" installMode="root"/>
    </features>
 
    <configurations>

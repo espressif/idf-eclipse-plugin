@@ -8,14 +8,14 @@
 			<unit id="org.eclipse.rcp.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.rcp.source.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.test.feature.group" version="0.0.0"/>
-			<unit id="org.eclipse.equinox.p2.core.feature.feature.group" version=""/>
-			<unit id="org.eclipse.equinox.p2.discovery.feature.feature.group" version=""/>
-			<unit id="org.eclipse.equinox.p2.extras.feature.feature.group" version=""/>
-			<unit id="org.eclipse.equinox.p2.rcp.feature.feature.group" version=""/>
-			<unit id="org.eclipse.equinox.p2.user.ui.feature.group" version=""/>
-			<unit id="org.eclipse.help.feature.group" version=""/>
-			<unit id="org.eclipse.platform.feature.group" version=""/>
-			<unit id="org.eclipse.pde.feature.group" version=""/>
+			<unit id="org.eclipse.equinox.p2.core.feature.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.equinox.p2.discovery.feature.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.equinox.p2.extras.feature.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.equinox.p2.rcp.feature.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.equinox.p2.user.ui.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.help.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.platform.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.pde.feature.group" version="0.0.0"/>
 			
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
@@ -27,6 +27,7 @@
 -			<unit id="org.eclipse.tm.terminal.control.feature.feature.group" version="0.0.0"/>
 -			<unit id="org.eclipse.tm.terminal.feature.feature.group" version="0.0.0"/>
 -			<unit id="org.eclipse.tm.terminal.view.feature.feature.group" version="0.0.0"/>
+-			<unit id="org.eclipse.launchbar.feature.group" version="0.0.0"/>
 		</location>
       <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
          <unit id="com.google.gson" version="0.0.0"/>
@@ -71,14 +72,14 @@
       </location>
       <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
          <repository location="https://download.eclipse.org/embed-cdt/releases/5.1.1/p2" />
-         <unit id="ilg.gnumcueclipse.debug.gdbjtag.openocd.feature.feature.group" version="" />
-         <unit id="ilg.gnumcueclipse.packs.feature.feature.group" version="" />
+         <unit id="ilg.gnumcueclipse.debug.gdbjtag.openocd.feature.feature.group" version="0.0.0" />
+         <unit id="ilg.gnumcueclipse.packs.feature.feature.group" version="0.0.0" />
       </location>
       <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-         <unit id="org.eclipse.remote.console.feature.group" version="0.0.0" />
-         <unit id="org.eclipse.remote.feature.group" version="0.0.0" />
-         <unit id="org.eclipse.remote.serial.feature.group" version="0.0.0" />
-         <repository location="https://download.eclipse.org/tools/ptp/remote/releases/3.0/remote-3.0.1/" />
+         <unit id="org.eclipse.remote.console.feature.group" version="0.0.0"/>
+         <unit id="org.eclipse.remote.feature.group" version="0.0.0"/>
+         <unit id="org.eclipse.remote.serial.feature.group" version="0.0.0"/>
+         <repository location="https://download.eclipse.org/tools/ptp/remote/releases/3.0/remote-3.0.1/"/>
       </location>
       <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
          <unit id="org.eclipse.remote.console.feature.group" version="0.0.0"/>
