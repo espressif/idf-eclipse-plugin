@@ -32,8 +32,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.ui.UIPlugin;
 
 /**
  * Erase Flash Dialog class to erase flash on selected com port device
@@ -58,7 +58,7 @@ public class EraseFlashDialog extends TitleAreaDialog
 		}
 		catch (IOException e)
 		{
-			UIPlugin.getDefault().getLog().error("Exception while getting Ports", e);
+			Logger.log(e);
 		}
 	}
 
@@ -152,7 +152,7 @@ public class EraseFlashDialog extends TitleAreaDialog
 	{
 		setReturnCode(OK);
 		getButton(IDialogConstants.OK_ID).setEnabled(false);
-		deviceInformationText.setText("Erasing Flash....");
+		deviceInformationText.setText("Erasing Flash...."); // $NON-NLS
 		String selectedPort = comPortsCombo.getText();
 		Thread eraseFlashThread = new Thread(new Runnable()
 		{
@@ -162,20 +162,20 @@ public class EraseFlashDialog extends TitleAreaDialog
 				try
 				{
 					Display.getDefault().syncExec(() -> comPortsCombo.setEnabled(false));
-					Display.getDefault().syncExec(() -> deviceInformationText.setText(""));
+					Display.getDefault().syncExec(() -> deviceInformationText.setText("")); // $NON-NLS
 					Process eraseFlashProcess = espToolCommands.eraseFlash(selectedPort);
 					InputStream targetIn = eraseFlashProcess.getInputStream();
 					BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(targetIn));
-					String line = "";
+					String line = ""; // $NON-NLS
 					while ((line = bufferedReader.readLine()) != null)
 					{
 						final String toWrite = line;
-						Display.getDefault().asyncExec(() -> deviceInformationText.append(toWrite + "\n"));
+						Display.getDefault().asyncExec(() -> deviceInformationText.append(toWrite + "\n")); // $NON-NLS
 					}
 				}
 				catch (Exception e)
 				{
-					UIPlugin.getDefault().getLog().error("Exception while getting erasing flash", e);
+					Logger.log(e);
 				}
 
 				Display.getDefault().syncExec(() -> comPortsCombo.setEnabled(true));
@@ -218,7 +218,7 @@ public class EraseFlashDialog extends TitleAreaDialog
 			}
 			catch (Exception exception)
 			{
-				UIPlugin.getDefault().getLog().error("Exception while getting chip information", exception);
+				Logger.log(exception);
 			}
 		}
 
@@ -239,7 +239,7 @@ public class EraseFlashDialog extends TitleAreaDialog
 			}
 			catch (Exception e)
 			{
-				UIPlugin.getDefault().getLog().error("Exception while getting chip information", e);
+				Logger.log(e);
 			}
 		}
 	}
