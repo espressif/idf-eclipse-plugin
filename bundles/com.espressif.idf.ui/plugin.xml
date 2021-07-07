@@ -117,7 +117,7 @@
       </menuContribution>
       <menuContribution
             allPopups="false"
-            locationURI="menu:help">
+            locationURI="menu:help?after=idfversiondoc">
          <menu
                icon="icons/espressif.png"
                id="changeLanguage"
