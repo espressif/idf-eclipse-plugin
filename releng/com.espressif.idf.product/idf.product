@@ -3,6 +3,7 @@
 
 <product name="Eclipse IDE for ESP-IDF Developers" uid="com.espressif.idf.product" id="org.eclipse.platform.ide" application="org.eclipse.ui.ide.workbench" version="2.2.0" useFeatures="true" includeLaunchers="true">
 
+
    <configIni use="default">
    </configIni>
 
@@ -27,6 +28,7 @@
       </win>
    </launcher>
 
+
    <vm>
       <linux include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11</linux>
       <macos include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11</macos>
@@ -34,13 +36,13 @@
       <windows include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11</windows>
    </vm>
 
+
    <plugins>
    </plugins>
 
    <features>
       <feature id="com.espressif.idf.feature" installMode="root"/>
       <feature id="org.eclipse.cdt" installMode="root"/>
-      <feature id="org.eclipse.cdt.autotools"/>
       <feature id="org.eclipse.cdt.gdb"/>
       <feature id="org.eclipse.cdt.gnu.build"/>
       <feature id="org.eclipse.cdt.gnu.debug"/>
@@ -58,7 +60,6 @@
       <feature id="org.eclipse.rcp"/>
       <feature id="org.eclipse.launchbar" installMode="root"/>
       <feature id="org.eclipse.cdt.native"/>
-      <feature id="ilg.gnumcueclipse.debug.gdbjtag.openocd.feature"/>
       <feature id="org.eclipse.cdt.cmake" installMode="root"/>
       <feature id="com.cthing.cmakeed.feature" installMode="root"/>
       <feature id="org.eclipse.swtchart.feature" installMode="root"/>
