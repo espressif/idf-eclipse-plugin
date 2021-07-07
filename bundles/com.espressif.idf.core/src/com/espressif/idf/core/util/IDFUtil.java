@@ -53,7 +53,7 @@ public class IDFUtil
 				+ IDFConstants.IDF_TOOLS_SCRIPT;
 		return new File(idf_py_script);
 	}
-	
+
 	/**
 	 * @return idf_monitor.py file path based on the configured IDF_PATH in the CDT build environment variables
 	 */
@@ -63,6 +63,18 @@ public class IDFUtil
 		String idf_py_monitor_script = idf_path + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
 				+ IDFConstants.IDF_MONITOR_SCRIPT;
 		return new File(idf_py_monitor_script);
+	}
+
+	/**
+	 * @return esptool.py file path based on configured IDF_PATH in the CDT build environment variables
+	 */
+	public static File getEspToolScriptFile()
+	{
+		String idf_path = getIDFPath();
+		String esp_tool_script = idf_path + IPath.SEPARATOR + IDFConstants.COMPONENTS_FOLDER + IPath.SEPARATOR
+				+ IDFConstants.ESP_TOOL_FOLDER_PY + IPath.SEPARATOR + IDFConstants.ESP_TOOL_FOLDER + IPath.SEPARATOR
+				+ IDFConstants.ESP_TOOL_SCRIPT;
+		return new File(esp_tool_script);
 	}
 
 	/**
@@ -231,7 +243,7 @@ public class IDFUtil
 
 		return StringUtil.EMPTY;
 	}
-	
+
 	/**
 	 * OpenOCD Installation folder
 	 * 
@@ -242,14 +254,17 @@ public class IDFUtil
 		String openOCDScriptPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS);
 		if (!StringUtil.isEmpty(openOCDScriptPath))
 		{
-			return openOCDScriptPath.replace(File.separator + "share" + File.separator + "openocd" + File.separator + "scripts", "") + File.separator + "bin"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			return openOCDScriptPath
+					.replace(File.separator + "share" + File.separator + "openocd" + File.separator + "scripts", "") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					+ File.separator + "bin"; //$NON-NLS-1$
 		}
 
 		return StringUtil.EMPTY;
 	}
-	
+
 	/**
 	 * Get Xtensa toolchain path based on the target configured for the project
+	 * 
 	 * @return
 	 */
 	public static String getXtensaToolchainExecutablePath(IProject project)
@@ -280,9 +295,9 @@ public class IDFUtil
 						if (matcher.matches())
 						{
 							String path = file.getAbsolutePath();
-							Logger.log("GDB executable:"+ path); //$NON-NLS-1$
+							Logger.log("GDB executable:" + path); //$NON-NLS-1$
 							String[] tuples = file.getName().split("-"); //$NON-NLS-1$
-							if (projectEspTarget == null) //If no IDF_TARGET
+							if (projectEspTarget == null) // If no IDF_TARGET
 							{
 								return path;
 							}
