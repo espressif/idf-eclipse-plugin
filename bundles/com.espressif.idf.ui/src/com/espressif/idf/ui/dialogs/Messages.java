@@ -12,6 +12,16 @@ public class Messages extends NLS
 	public static String CMakeBuildTab2_Generator;
 	public static String CMakeBuildTab2_Ninja;
 	public static String CMakeBuildTab2_UnixMakeFiles;
+	public static String EraseFlashDialog_Title;
+	public static String EraseFlashDialog_OkButton;
+	public static String EraseFlashDialog_InformationMessage;
+	public static String EraseFlashDialog_ComPortLabel;
+	public static String EraseFlashDialog_DeviceInformationAreaInitialText;
+	public static String EraseFlashDialog_LoadingMessage;
+	public static String EraseFlashDialog_EraseFlashInProcessMessage;
+	public static String EraseFlashDialog_EraseFlashInProcessMessageTitle;
+	public static String EraseFlashDialog_EraseFlashInProcessMessageQuestion;
+	public static String EraseFlashDialog_ErasingMessage;
 	static
 	{
 		// initialize resource bundle
