@@ -15,6 +15,7 @@ import java.util.List;
 import org.eclipse.cdt.serial.SerialPort;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IMessageProvider;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -27,7 +28,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -87,15 +87,8 @@ public class EraseFlashDialog extends TitleAreaDialog
 
 		comPortsCombo.setLayoutData(comboLayoutData);
 		deviceInformationText = new Text(container, SWT.READ_ONLY | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		GridData deviceInformationTextLayout = new GridData();
-		deviceInformationTextLayout.grabExcessHorizontalSpace = true;
-		deviceInformationTextLayout.grabExcessVerticalSpace = true;
-		deviceInformationTextLayout.horizontalAlignment = GridData.FILL;
-		deviceInformationTextLayout.verticalAlignment = GridData.FILL;
-		deviceInformationTextLayout.horizontalSpan = 3;
-
 		deviceInformationText.setText(Messages.EraseFlashDialog_DeviceInformationAreaInitialText);
-		deviceInformationText.setLayoutData(deviceInformationTextLayout);
+		deviceInformationText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
 
 		comPortsCombo.addSelectionListener(new ComPortSelectionListener());
 
@@ -130,20 +123,16 @@ public class EraseFlashDialog extends TitleAreaDialog
 	{
 		if (espToolCommands.checkActiveFlashEraseProcess())
 		{
-			MessageBox messageBox = new MessageBox(getParentShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
-			messageBox.setMessage(Messages.EraseFlashDialog_EraseFlashInProcessMessageQuestion);
-			messageBox.setText(Messages.EraseFlashDialog_EraseFlashInProcessMessageTitle);
-			switch (messageBox.open())
+			boolean canClose = MessageDialog.openQuestion(getParentShell(),
+					Messages.EraseFlashDialog_EraseFlashInProcessMessageTitle,
+					Messages.EraseFlashDialog_EraseFlashInProcessMessageQuestion);
+			if (!canClose)
 			{
-			case SWT.YES:
-				espToolCommands.killEraseFlashProcess();
-				break;
-			case SWT.CANCEL:
 				return false;
-			default:
-				break;
 			}
+			espToolCommands.killEraseFlashProcess();
 		}
+
 		return super.close();
 	}
 
@@ -152,8 +141,11 @@ public class EraseFlashDialog extends TitleAreaDialog
 	{
 		setReturnCode(OK);
 		getButton(IDialogConstants.OK_ID).setEnabled(false);
-		deviceInformationText.setText("Erasing Flash...."); // $NON-NLS
+		deviceInformationText.setText("Erasing Flash...."); //$NON-NLS-1$
 		String selectedPort = comPortsCombo.getText();
+		comPortsCombo.setEnabled(false);
+		deviceInformationText.setText(""); //$NON-NLS-1$
+
 		Thread eraseFlashThread = new Thread(new Runnable()
 		{
 			@Override
@@ -161,16 +153,19 @@ public class EraseFlashDialog extends TitleAreaDialog
 			{
 				try
 				{
-					Display.getDefault().syncExec(() -> comPortsCombo.setEnabled(false));
-					Display.getDefault().syncExec(() -> deviceInformationText.setText("")); // $NON-NLS
 					Process eraseFlashProcess = espToolCommands.eraseFlash(selectedPort);
 					InputStream targetIn = eraseFlashProcess.getInputStream();
 					BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(targetIn));
-					String line = ""; // $NON-NLS
+					String line = ""; //$NON-NLS-1$
 					while ((line = bufferedReader.readLine()) != null)
 					{
 						final String toWrite = line;
-						Display.getDefault().asyncExec(() -> deviceInformationText.append(toWrite + "\n")); // $NON-NLS
+						Display.getDefault().asyncExec(() -> {
+							if (!deviceInformationText.isDisposed())
+							{
+								deviceInformationText.append(toWrite + "\n"); //$NON-NLS-1$
+							}
+						});
 					}
 				}
 				catch (Exception e)
@@ -178,20 +173,16 @@ public class EraseFlashDialog extends TitleAreaDialog
 					Logger.log(e);
 				}
 
-				Display.getDefault().syncExec(() -> comPortsCombo.setEnabled(true));
+				Display.getDefault().syncExec(() -> {
+					if (!comPortsCombo.isDisposed())
+					{
+						comPortsCombo.setEnabled(true);
+					}
+				});
 			}
 		});
-		if (espToolCommands.checkActiveFlashEraseProcess())
-		{
-			MessageBox messageBox = new MessageBox(getParentShell(), SWT.ICON_INFORMATION);
-			messageBox.setMessage(Messages.EraseFlashDialog_EraseFlashInProcessMessage);
-			messageBox.setText(Messages.EraseFlashDialog_EraseFlashInProcessMessageTitle);
-			messageBox.open();
-		}
-		else
-		{
-			eraseFlashThread.start();
-		}
+		eraseFlashThread.start();
+
 	}
 
 	@Override
@@ -234,7 +225,12 @@ public class EraseFlashDialog extends TitleAreaDialog
 				while ((readCharInt = bufferedReader.read()) != -1)
 				{
 					final char charToWrite = (char) readCharInt;
-					Display.getDefault().syncExec(() -> deviceInformationText.append(Character.toString(charToWrite)));
+					Display.getDefault().asyncExec(() -> {
+						if (!deviceInformationText.isDisposed())
+						{
+							deviceInformationText.append(Character.toString(charToWrite));
+						}
+					});
 				}
 			}
 			catch (Exception e)
@@ -268,7 +264,7 @@ public class EraseFlashDialog extends TitleAreaDialog
 			List<String> command = new ArrayList<String>();
 			command.add(IDFUtil.getIDFPythonEnvPath());
 			command.add(IDFUtil.getEspToolScriptFile().getAbsolutePath());
-			command.add("-p");
+			command.add("-p"); //$NON-NLS-1$
 			command.add(port);
 			command.add(IDFConstants.ESP_TOOL_CHIP_ID_CMD);
 			return command;
@@ -279,7 +275,7 @@ public class EraseFlashDialog extends TitleAreaDialog
 			List<String> command = new ArrayList<String>();
 			command.add(IDFUtil.getIDFPythonEnvPath());
 			command.add(IDFUtil.getEspToolScriptFile().getAbsolutePath());
-			command.add("-p");
+			command.add("-p"); //$NON-NLS-1$
 			command.add(port);
 			command.add(IDFConstants.ESP_TOOL_ERASE_FLASH_CMD);
 			return command;

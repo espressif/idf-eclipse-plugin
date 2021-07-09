@@ -21,7 +21,6 @@ public class Messages extends NLS
 	public static String EraseFlashDialog_EraseFlashInProcessMessage;
 	public static String EraseFlashDialog_EraseFlashInProcessMessageTitle;
 	public static String EraseFlashDialog_EraseFlashInProcessMessageQuestion;
-	public static String EraseFlashDialog_ErasingMessage;
 	static
 	{
 		// initialize resource bundle
