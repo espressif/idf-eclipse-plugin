@@ -18,14 +18,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
+import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
 import org.eclipse.cdt.dsf.gdb.IGdbDebugPreferenceConstants;
 import org.eclipse.cdt.dsf.gdb.internal.GdbPlugin;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 
@@ -179,6 +184,20 @@ public class Configuration {
 		// Don't read the gdbinit file here. It is read explicitly in
 		// the LaunchSequence to make it easier to customise.
 		lst.add("--nx");
+		
+//		try
+//		{
+//			if (configuration.getAttribute(ConfigurationAttributes.HEAP_TRACING_ENABLED, false))
+//			{
+//				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, (String)null));
+//				IFile filePath = project.getFile(new Path("build/gdbinit"));
+//				lst.add(filePath.getLocation().toString());
+//			}
+//		}
+//		catch (CoreException e1)
+//		{
+//			Logger.log(e1);
+//		}
 
 		String other;
 		try {

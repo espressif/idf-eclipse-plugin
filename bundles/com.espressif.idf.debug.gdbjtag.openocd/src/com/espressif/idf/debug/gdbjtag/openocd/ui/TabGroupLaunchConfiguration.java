@@ -40,7 +40,7 @@ public class TabGroupLaunchConfiguration extends AbstractLaunchConfigurationTabG
 		TabStartup tabStartup = new TabStartup();
 
 		ILaunchConfigurationTab tabs[] = new ILaunchConfigurationTab[] { new TabMain(), new TabDebugger(tabStartup),
-				tabStartup, new SourceLookupTab(), new CommonTab(), new TabSvd() };
+				new TabHeapTracing(),tabStartup, new SourceLookupTab(), new CommonTab(), new TabSvd() };
 
 		setTabs(tabs);
 
