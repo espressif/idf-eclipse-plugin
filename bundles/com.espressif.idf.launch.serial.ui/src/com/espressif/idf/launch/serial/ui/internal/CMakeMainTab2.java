@@ -58,15 +58,60 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private boolean isJtagFlashAvailable;
 	private GridData openOcdGroupData;
 	private GridData locationAndWorkDirGroupData;
+	private Composite defaultComposite;
+	private Composite jtagComposite;
+	private Composite parent;
+	private ILaunchConfigurationWorkingCopy configWorkingCopy;
 
 	@Override
 	public void createControl(Composite parent) {
+		this.parent = parent;
 		isJtagFlashAvailable = ESPFlashUtil.checkIfJtagIsAvailable();
 		createJtagFlashButton(parent);
-		super.createControl(parent);
+
+		switchUI();
+
+	}
+
+	protected void defaultMainComposite(Composite parent) {
+
+		defaultComposite = new Composite(parent, SWT.NONE);
+		setControl(defaultComposite);
+		defaultComposite.setFont(parent.getFont());
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 1;
+		GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
+		defaultComposite.setLayout(layout);
+		defaultComposite.setLayoutData(gridData);
+
+		createLocationComponent(defaultComposite);
+		createWorkDirectoryComponent(defaultComposite);
+		createArgumentComponent(defaultComposite);
+		createVerticalSpacer(defaultComposite, 1);
+
 		locationAndWorkDirGroupData = new GridData(SWT.FILL, SWT.NONE, true, false);
 		locationField.getParent().setLayoutData(locationAndWorkDirGroupData);
 		workDirectoryField.getParent().setLayoutData(locationAndWorkDirGroupData);
+	}
+
+	protected void jtagflashComposite(Composite parent) {
+
+		jtagComposite = new Composite(parent, SWT.NONE);
+		setControl(jtagComposite);
+		jtagComposite.setFont(parent.getFont());
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 1;
+		GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
+		jtagComposite.setLayout(layout);
+		jtagComposite.setLayoutData(gridData);
+
+		String selectedTarget = getLaunchTarget();
+		EspConfigParser parser = new EspConfigParser();
+		createOpenOcdSetupComponent(jtagComposite, selectedTarget, parser);
+
+		createArgumentComponent(jtagComposite);
+		createVerticalSpacer(jtagComposite, 1);
+
 	}
 
 	private void createJtagFlashButton(Composite parent) {
@@ -104,30 +149,52 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	private void switchUI() {
-		if (!isJtagFlashAvailable) {
-			return;
+
+		if (isJtagFlashAvailable && isFlashOverJtag) {
+			if (defaultComposite != null && !defaultComposite.isDisposed()) {
+				defaultComposite.dispose();
+			}
+			jtagflashComposite(parent);
+		} else {
+			if (jtagComposite != null && !jtagComposite.isDisposed()) {
+				jtagComposite.dispose();
+			}
+			defaultMainComposite(parent);
 		}
-		locationField.getParent().setVisible(!isFlashOverJtag);
-		workDirectoryField.getParent().setVisible(!isFlashOverJtag);
-		fFlashVoltage.getParent().setVisible(isFlashOverJtag);
-		openOcdGroupData.exclude = !isFlashOverJtag;
-		locationAndWorkDirGroupData.exclude = isFlashOverJtag;
-		this.getShell().layout(true, true);
+		parent.layout();
 	}
 
 	@Override
-	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-		super.performApply(configuration);
-		if (!isJtagFlashAvailable) {
+	public void performApply(ILaunchConfigurationWorkingCopy configWorkingCopy) {
+		configWorkingCopy.setAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, flashOverJtagButton.getSelection());
+
+		if (!isFlashOverJtag) {
+			super.performApply(configWorkingCopy);
 			return;
 		}
 		try {
-			ILaunchConfigurationWorkingCopy wc = configuration.getWorkingCopy();
-			wc.setAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, flashOverJtagButton.getSelection());
-			wc.doSave();
+
+			String arguments = argumentField.getText().trim();
+			if (arguments.length() == 0) {
+				configWorkingCopy.setAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS, (String) null);
+			} else {
+				configWorkingCopy.setAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS, arguments);
+			}
+
+			configWorkingCopy.doSave();
 		} catch (CoreException e) {
 			Logger.log(e);
 		}
+	}
+
+	@Override
+	public boolean isValid(ILaunchConfiguration launchConfig) {
+		if (!isFlashOverJtag) {
+			return super.isValid(launchConfig);
+		}
+		setErrorMessage(null);
+		setMessage(null);
+		return true;
 	}
 
 	@Override
@@ -135,7 +202,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 		super.initializeFrom(configuration);
 		updateFlashOverJtagStatus(configuration);
 		updateArgumentsWithDefaultFlashCommand(configuration);
-		switchUI();
 	}
 
 	private void updateFlashOverJtagStatus(ILaunchConfiguration configuration) {
@@ -167,16 +233,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 			Logger.log(e);
 		}
 
-	}
-
-	@Override
-	protected void createArgumentComponent(Composite parent) {
-		if (isJtagFlashAvailable) {
-			String selectedTarget = getLaunchTarget();
-			EspConfigParser parser = new EspConfigParser();
-			createOpenOcdSetupComponent(parent, selectedTarget, parser);
-		}
-		super.createArgumentComponent(parent);
 	}
 
 	private void createOpenOcdSetupComponent(Composite parent, String selectedTarget, EspConfigParser parser) {
