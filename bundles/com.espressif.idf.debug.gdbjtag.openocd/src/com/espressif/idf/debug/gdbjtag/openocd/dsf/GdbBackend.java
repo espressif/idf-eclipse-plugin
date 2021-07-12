@@ -89,7 +89,7 @@ public class GdbBackend extends GnuMcuGdbBackend {
 	 */
 	protected String[] getGDBCommandLineArray() {
 		String[] commandLineArray = Configuration.getGdbClientCommandLineArray(fLaunchConfiguration);
-
+		
 		return commandLineArray;
 	}
 
