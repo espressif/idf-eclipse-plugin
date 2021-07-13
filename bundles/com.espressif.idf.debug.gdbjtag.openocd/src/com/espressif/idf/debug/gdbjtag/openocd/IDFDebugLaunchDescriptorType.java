@@ -41,6 +41,7 @@ public class IDFDebugLaunchDescriptorType implements ILaunchDescriptorType
 			if (identifier.equals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
 			{
 				IProject project = getProject();
+				project = project != null ? project : config.getMappedResources()[0].getProject();
 				if (IDFProjectNature.hasNature(project))
 				{
 					IDFProjectLaunchDescriptor descriptor = descriptors.get(config);
