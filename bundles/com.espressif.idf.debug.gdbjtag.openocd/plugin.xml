@@ -114,7 +114,7 @@
     <actionType
           class="com.espressif.idf.debug.gdbjtag.openocd.heaptracing.HeapTracingAction"
           id="com.espressif.idf.debug.gdbjtag.openocd.heaptracing.HeapTracingAction"
-          name="Heap Tracing">
+          name="%actionType.name">
     </actionType>
  </extension>
  <extension

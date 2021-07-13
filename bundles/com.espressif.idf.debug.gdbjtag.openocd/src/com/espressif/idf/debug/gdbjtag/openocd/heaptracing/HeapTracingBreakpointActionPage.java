@@ -1,3 +1,8 @@
+/*******************************************************************************
+ * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
+
 package com.espressif.idf.debug.gdbjtag.openocd.heaptracing;
 
 import org.eclipse.cdt.debug.core.breakpointactions.IBreakpointAction;
@@ -5,6 +10,12 @@ import org.eclipse.cdt.debug.ui.breakpointactions.IBreakpointActionPage;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.swt.widgets.Composite;
 
+/**
+ * Break point action page class for heap tracing
+ * 
+ * @author Ali Azam Rana
+ *
+ */
 public class HeapTracingBreakpointActionPage extends PlatformObject implements IBreakpointActionPage
 {
 	private HeapTracingAction heapTraceAction;
@@ -21,7 +32,7 @@ public class HeapTracingBreakpointActionPage extends PlatformObject implements I
 		heapTraceAction.setFileName(heapTraceComposite.getHeapTraceFile());
 		heapTraceAction.setStartHeapTracing(heapTraceComposite.isStartHeapTracing());
 	}
-	
+
 	public HeapTracingAction getAction()
 	{
 		return heapTraceAction;

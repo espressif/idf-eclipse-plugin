@@ -72,14 +72,4 @@ public interface ConfigurationAttributes {
 	public static final String DO_CONTINUE = PREFIX + ".doContinue"; //$NON-NLS-1$
 
 	// ------------------------------------------------------------------------
-	
-	// Heap Tracing
-	
-	public static final String HEAP_TRACING_ENABLED = PREFIX + ".enableHeapTracing"; //$NON-NLS-1$
-	
-	public static final String GDBINIT_CONTENTS = PREFIX + ".gdbinitContents"; //$NON-NLS-1$
-	
-	public static final String GDBINIT_FILE_PATH = PREFIX + ".gdbInitFilePath"; //$NON-NLS-1$
-	
-	// ------------------------------------------------------------------------
 }
