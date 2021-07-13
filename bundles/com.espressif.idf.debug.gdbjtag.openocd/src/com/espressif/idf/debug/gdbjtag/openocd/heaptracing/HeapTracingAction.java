@@ -1,3 +1,9 @@
+/*******************************************************************************
+ * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+
+ * Use is subject to license terms.
+ *******************************************************************************/
+
 package com.espressif.idf.debug.gdbjtag.openocd.heaptracing;
 
 import java.text.MessageFormat;
@@ -18,6 +24,12 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+/**
+ * Break point action class for heap tracing
+ * 
+ * @author Ali Azam Rana
+ *
+ */
 @SuppressWarnings("restriction")
 public class HeapTracingAction extends AbstractBreakpointAction
 {
@@ -27,34 +39,37 @@ public class HeapTracingAction extends AbstractBreakpointAction
 	private static final String COMMAND_ATT = "command"; //$NON-NLS-1$
 	private static final String FILENAME_ATT = "fileName"; //$NON-NLS-1$
 	private static final String START_ATT = "start"; //$NON-NLS-1$
+	private static final String START_COMMAND = "mon esp sysview_mcore start file://"; //$NON-NLS-1$
+	private static final String STOP_COMMAND = "mon esp sysview stop"; //$NON-NLS-1$
+	private static final String DEFAULT_NAME = "Heap Tracing Action"; //$NON-NLS-1$
 	private boolean startHeapTracing;
 
 	public void setCommand(String command)
 	{
 		this.command = command;
 	}
-	
+
 	public void setFileName(String fileName)
 	{
 		this.fileName = fileName;
 	}
-	
+
 	public String getFileName()
 	{
-		return fileName.replace('\\', '/');
+		return fileName.replace('\\', '/'); // $NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public String getCommand()
 	{
 		if (startHeapTracing)
 		{
-			command = "mon esp sysview_mcore start file://".concat(getFileName());
+			command = START_COMMAND.concat(getFileName());
 		}
 		else
 		{
-			command = "mon esp sysview stop";
+			command = STOP_COMMAND;
 		}
-		
+
 		return command;
 	}
 
@@ -80,7 +95,7 @@ public class HeapTracingAction extends AbstractBreakpointAction
 		}
 		return ""; //$NON-NLS-1$
 	}
-	
+
 	@Override
 	public void initializeFromMemento(String data)
 	{
@@ -114,7 +129,7 @@ public class HeapTracingAction extends AbstractBreakpointAction
 	@Override
 	public String getDefaultName()
 	{
-		return "Start Heap Tracing Action"; //$NON-NLS-1$
+		return DEFAULT_NAME;
 	}
 
 	@Override
@@ -129,13 +144,13 @@ public class HeapTracingAction extends AbstractBreakpointAction
 	@Override
 	public String getTypeName()
 	{
-		return "Heap Tracing Start Action"; //$NON-NLS-1$
+		return DEFAULT_NAME;
 	}
 
 	@Override
 	public String getIdentifier()
 	{
-		return ID; //$NON-NLS-1$
+		return ID;
 	}
 
 	@Override

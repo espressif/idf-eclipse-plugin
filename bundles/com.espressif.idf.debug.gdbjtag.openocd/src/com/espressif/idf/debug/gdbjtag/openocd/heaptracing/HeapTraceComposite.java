@@ -1,3 +1,8 @@
+/*******************************************************************************
+ * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
+
 package com.espressif.idf.debug.gdbjtag.openocd.heaptracing;
 
 import org.eclipse.swt.SWT;
@@ -13,6 +18,14 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import com.espressif.idf.debug.gdbjtag.openocd.ui.Messages;
+
+/**
+ * Heap tracing break point composite to draw controls
+ * 
+ * @author Ali Azam Rana
+ *
+ */
 public class HeapTraceComposite extends Composite
 {
 	public static final String COMPOSITE_NAME = "start_heap_trace_composite";
@@ -34,7 +47,7 @@ public class HeapTraceComposite extends Composite
 
 		Group radioBtnGroup = new Group(this, SWT.NONE);
 		radioBtnGroup.setLayout(new RowLayout(SWT.HORIZONTAL));
-		radioBtnGroup.setText("Action");
+		radioBtnGroup.setText(Messages.BreakPointPage_RadioGroupTitle);
 		GridData groupGridData = new GridData();
 		groupGridData.horizontalSpan = 3;
 		groupGridData.horizontalAlignment = SWT.FILL;
@@ -42,21 +55,21 @@ public class HeapTraceComposite extends Composite
 		radioBtnGroup.setLayoutData(groupGridData);
 
 		btnStartHeapTraceRadio = new Button(radioBtnGroup, SWT.RADIO);
-		btnStartHeapTraceRadio.setText("Start Heap Trace");
+		btnStartHeapTraceRadio.setText(Messages.BreakPointPage_BtnStartHeapTrace);
 		btnStartHeapTraceRadio.addSelectionListener(new BtnRadioSelectionListener(true));
 
 		btnStopHeapTraceRadio = new Button(radioBtnGroup, SWT.RADIO);
-		btnStopHeapTraceRadio.setText("Stop Heap Trace");
+		btnStopHeapTraceRadio.setText(Messages.BreakPointPage_BtnStopHeapTrace);
 		btnStopHeapTraceRadio.addSelectionListener(new BtnRadioSelectionListener(false));
 
 		Label messageToLogLabel = new Label(this, SWT.NONE);
 		messageToLogLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
-		messageToLogLabel.setText("Heap Dump File Name: "); //$NON-NLS-1$
+		messageToLogLabel.setText(Messages.BreakPointPage_TextHeapDumpFileName);
 
 		textHeapTraceFile = new Text(this, SWT.BORDER);
 		textHeapTraceFile.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		btnBrowse = new Button(this, SWT.PUSH);
-		btnBrowse.setText("Browse");
+		btnBrowse.setText(Messages.BreakPointPage_BtnBrowse);
 		btnBrowse.addSelectionListener(new SelectionAdapter()
 		{
 			@Override
@@ -67,7 +80,7 @@ public class HeapTraceComposite extends Composite
 				dialog.setFilterExtensions(new String[] { "*.svdat" });
 				dialog.setFilterPath(System.getProperty("user.dir"));
 				String fName = dialog.open();
-				textHeapTraceFile.setText(fName);
+				textHeapTraceFile.setText(fName.replace('\\', '/'));
 			}
 		});
 

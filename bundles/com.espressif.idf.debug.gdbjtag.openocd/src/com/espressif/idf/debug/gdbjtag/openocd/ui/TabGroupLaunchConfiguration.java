@@ -22,10 +22,12 @@ import org.eclipse.debug.ui.sourcelookup.SourceLookupTab;
 
 import ilg.gnumcueclipse.debug.gdbjtag.ui.TabSvd;
 
-public class TabGroupLaunchConfiguration extends AbstractLaunchConfigurationTabGroup {
+public class TabGroupLaunchConfiguration extends AbstractLaunchConfigurationTabGroup
+{
 
 	@Override
-	public void createTabs(ILaunchConfigurationDialog dialog, String mode) {
+	public void createTabs(ILaunchConfigurationDialog dialog, String mode)
+	{
 
 		// Normally the tabs should be defined in the plugin.xml, and
 		// here just return an empty array:
@@ -40,7 +42,7 @@ public class TabGroupLaunchConfiguration extends AbstractLaunchConfigurationTabG
 		TabStartup tabStartup = new TabStartup();
 
 		ILaunchConfigurationTab tabs[] = new ILaunchConfigurationTab[] { new TabMain(), new TabDebugger(tabStartup),
-				new TabHeapTracing(),tabStartup, new SourceLookupTab(), new CommonTab(), new TabSvd() };
+				tabStartup, new SourceLookupTab(), new CommonTab(), new TabSvd() };
 
 		setTabs(tabs);
 

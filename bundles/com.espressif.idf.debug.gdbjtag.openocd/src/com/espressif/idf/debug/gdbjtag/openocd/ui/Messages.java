@@ -34,6 +34,12 @@ public class Messages {
 
 	public static String McuPage_executable_label;
 	public static String McuPage_executable_folder;
+	
+	public static String BreakPointPage_RadioGroupTitle;
+	public static String BreakPointPage_BtnStartHeapTrace;
+	public static String BreakPointPage_BtnStopHeapTrace;
+	public static String BreakPointPage_TextHeapDumpFileName;
+	public static String BreakPointPage_BtnBrowse;
 
 	// ------------------------------------------------------------------------
 
