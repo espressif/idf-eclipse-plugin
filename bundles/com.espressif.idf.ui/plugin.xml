@@ -296,7 +296,6 @@
              class="com.espressif.idf.ui.InitializeToolsStartup">
        </startup>
     </extension>
-
     <extension
           id="com.espressif.idf.ui.extension.locale.support"
           name="LocaleSupport"

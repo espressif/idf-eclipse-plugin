@@ -44,12 +44,12 @@ public interface IDFConstants
 	 * idf tools file
 	 */
 	String IDF_TOOLS_SCRIPT = "idf_tools.py"; //$NON-NLS-1$
-
+	
 	/**
 	 * idf_monitor.py
 	 */
 	String IDF_MONITOR_SCRIPT = "idf_monitor.py"; //$NON-NLS-1$
-
+	
 	/**
 	 * idf size file
 	 */
@@ -59,31 +59,7 @@ public interface IDFConstants
 	 * <IDF_PATH>/tools
 	 */
 	String TOOLS_FOLDER = "tools"; //$NON-NLS-1$
-
-	/**
-	 * <IDF_PATH>/components
-	 */
-	String COMPONENTS_FOLDER = "components"; //$NON-NLS-1$
-
-	/**
-	 * COMPONENT_FOLDER/esptool_py
-	 */
-	String ESP_TOOL_FOLDER_PY = "esptool_py"; //$NON-NLS-1$
-
-	/**
-	 * ESP_TOOL_FOLDER_PY/esptool
-	 */
-	String ESP_TOOL_FOLDER = "esptool"; //$NON-NLS-1$
-
-	/**
-	 * <IDF_PATH>/components/esptool_py/esptool/esptool.py
-	 */
-	String ESP_TOOL_SCRIPT = "esptool.py"; //$NON-NLS-1$
-
-	String ESP_TOOL_CHIP_ID_CMD = "chip_id"; //$NON-NLS-1$
-
-	String ESP_TOOL_ERASE_FLASH_CMD = "erase_flash"; //$NON-NLS-1$
-
+	
 	String FLASH_CMD = "flash"; //$NON-NLS-1$
 
 	/**
@@ -105,7 +81,7 @@ public interface IDFConstants
 	 * Json config menu file name
 	 */
 	String KCONFIG_MENUS_JSON = "kconfig_menus.json"; //$NON-NLS-1$
-
+	
 	/**
 	 * sdk config json file
 	 */
@@ -129,9 +105,9 @@ public interface IDFConstants
 	String TOOLS_INSTALL_CMD = "install"; //$NON-NLS-1$
 
 	String TOOLS_INSTALL_ALL_CMD = "all"; //$NON-NLS-1$
-
+	
 	String TOOLS_INSTALL_PYTHON_CMD = "install-python-env"; //$NON-NLS-1$
-
+	
 	String TOOLS_LIST_CMD = "list"; //$NON-NLS-1$
 
 	String TOOLS_EXPORT_FORMAT_KEYVALUE = "key-value"; //$NON-NLS-1$
@@ -139,7 +115,7 @@ public interface IDFConstants
 	String TOOLS_EXPORT_CMD_FORMAT = "--format"; //$NON-NLS-1$
 
 	String TOOLS_EXPORT_CMD_FORMAT_VAL = TOOLS_EXPORT_CMD_FORMAT + "=" + TOOLS_EXPORT_FORMAT_KEYVALUE; //$NON-NLS-1$
-
+	
 	String PYTHON_CMD = "python"; //$NON-NLS-1$
 
 }
