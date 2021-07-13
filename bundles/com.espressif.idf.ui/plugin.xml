@@ -26,7 +26,7 @@
             category="com.espressif.idf.ui.new.wizard.category"
             class="com.espressif.idf.ui.wizard.NewComponentMainWizard"
             hasPages="false"
-            icon="icons/espressif_idf_project.png"
+            icon="icons/Espressif IDF Component.png"
             id="com.espressif.idf.ui.component.wizard"
             name="%wizard.name.1"
             project="true">
@@ -119,7 +119,7 @@
             allPopups="false"
             locationURI="menu:help?after=idfversiondoc">
          <menu
-               icon="icons/espressif.png"
+               icon="icons/Change Language.png"
                id="changeLanguage"
                label="Change Language">
             <dynamic
@@ -137,7 +137,7 @@
          </separator>
          <command
                commandId="com.espressif.idf.ui.command.idfversiondoc"
-               icon="icons/espressif.png"
+               icon="icons/ESP-IDF Programming Guide.png"
                id="idfversiondoc"
                label="%command.label"
                style="push">
@@ -151,7 +151,7 @@
             locationURI="menu:help?after=idfversiondoc">
          <command
                commandId="com.espressif.idf.ui.commands.installespidf"
-               icon="icons/espressif.png"
+               icon="icons/Download and configure ESP-IDF.png"
                id="installespidf"
                label="%command.label.0"
                style="push">
@@ -162,7 +162,7 @@
             locationURI="menu:help?after=idfversiondoc">
          <command
                commandId="com.espressif.idf.ui.command.productInfo"
-               icon="icons/espressif.png"
+               icon="icons/Product Information.png"
                label="%command.label.4 "
                style="push">
          </command>
@@ -202,7 +202,7 @@
          </command>
          <command
                commandId="com.espressif.idf.ui.command.component"
-               icon="icons/espressif_idf_project.png"
+               icon="icons/Espressif IDF Component.png"
                label="%wizard.name.1"
                style="push">
          </command>
@@ -219,7 +219,7 @@
          </separator>
          <command
                commandId="com.espressif.idf.ui.memoryanalysis"
-               icon="icons/espressif.png"
+               icon="icons/ESP-IDF Application Size Analysis.png"
                label="%command.label.1"
                style="push">
             <visibleWhen
@@ -235,7 +235,7 @@
          </command>
          <command
                commandId="com.espressif.commands.cleanCommand"
-               icon="icons/espressif.png"
+               icon="icons/Python Clean.png"
                label="%command.label.2"
                style="push">
             <visibleWhen
@@ -354,7 +354,7 @@
                mnemonic="E">
             <command
                   commandId="org.plugin.espressif.commands.eraseFlash"
-                  icon="icons/espressif.png"
+                  icon="icons/Erase Flash.png"
                   id="org.plugin.espressif.menus.eraseFlashCommand">
             </command>
          </menu>
