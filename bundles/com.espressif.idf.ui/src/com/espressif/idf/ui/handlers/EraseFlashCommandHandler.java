@@ -29,7 +29,7 @@ public class EraseFlashCommandHandler extends AbstractHandler
 		eraseFlashDialog.create();
 		eraseFlashDialog.open();
 
-		return eraseFlashDialog;
+		return null;
 	}
 
 }
