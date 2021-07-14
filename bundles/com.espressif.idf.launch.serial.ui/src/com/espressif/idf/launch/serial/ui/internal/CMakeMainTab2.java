@@ -299,6 +299,9 @@ public class CMakeMainTab2 extends GenericMainTab {
 		File workingDir;
 		if (workDirectoryField.getText().isEmpty()) {
 			try {
+				if (configuration.getMappedResources() == null) {
+					return;
+				}
 				workingDir = new File(configuration.getMappedResources()[0].getProject().getLocationURI());
 				workDirectoryField.setText(newVariableExpression("workspace_loc", workingDir.getName())); //$NON-NLS-1$
 			} catch (CoreException e) {
