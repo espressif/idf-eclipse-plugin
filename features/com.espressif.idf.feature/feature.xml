@@ -102,48 +102,7 @@ You may add additional accurate notices of copyright ownership.
    </url>
 
    <requires>
-      <import plugin="com.google.gson"/>
-      <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.ui.ide"/>
-      <import plugin="org.eclipse.core.resources"/>
-      <import plugin="org.eclipse.cdt.cmake.core"/>
-      <import plugin="org.eclipse.cdt.cmake.ui"/>
-      <import plugin="org.eclipse.tools.templates.ui"/>
-      <import plugin="org.eclipse.swt"/>
-      <import plugin="org.eclipse.ui"/>
-      <import plugin="org.eclipse.jface"/>
-      <import plugin="org.eclipse.cdt.core.native"/>
-      <import plugin="org.eclipse.cdt.core"/>
-      <import plugin="org.eclipse.ui.forms"/>
-      <import plugin="org.eclipse.cdt.ui"/>
-      <import plugin="org.eclipse.cdt.launch"/>
-      <import plugin="org.eclipse.cdt.make.ui"/>
-      <import plugin="org.eclipse.debug.ui"/>
-      <import plugin="org.eclipse.cdt.build.gcc.core"/>
-      <import plugin="org.eclipse.cdt.debug.core"/>
-      <import plugin="org.eclipse.launchbar.ui"/>
-      <import plugin="org.eclipse.ui.console"/>
-      <import plugin="org.eclipse.jgit"/>
-      <import plugin="org.eclipse.core.filesystem"/>
-      <import plugin="org.eclipse.core.expressions"/>
-      <import plugin="com.ibm.icu"/>
-      <import plugin="org.eclipse.cdt.cmake.is.core"/>
-      <import plugin="org.eclipse.debug.core"/>
-      <import plugin="org.eclipse.launchbar.core"/>
-      <import plugin="org.eclipse.cdt.native.serial"/>
-      <import plugin="org.eclipse.equinox.preferences"/>
-      <import plugin="org.eclipse.ui.editors"/>
-      <import plugin="org.eclipse.text"/>
-      <import plugin="org.eclipse.ui.intro"/>
-      <import plugin="org.eclipse.ui.intro.universal"/>
-      <import plugin="org.eclipse.help"/>
-      <import plugin="org.eclipse.tm.terminal.connector.process"/>
-      <import plugin="org.eclipse.tm.terminal.control"/>
-      <import plugin="org.eclipse.tm.terminal.view.ui"/>
-      <import plugin="org.eclipse.tm.terminal.view.core"/>
-      <import plugin="javax.annotation"/>
-      <import plugin="org.eclipse.cdt.dsf.gdb"/>
-      <import plugin="org.eclipse.ui.workbench"/>
+      <import plugin="org.eclipse.cdt"/>
    </requires>
 
    <plugin
