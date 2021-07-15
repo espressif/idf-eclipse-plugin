@@ -23,6 +23,8 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import com.espressif.idf.core.ExecutableFinder;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.build.ESP32C3ToolChain;
+import com.espressif.idf.core.build.ESPToolChainProvider;
 import com.espressif.idf.core.logging.Logger;
 
 /**
@@ -269,11 +271,16 @@ public class IDFUtil
 	 */
 	public static String getXtensaToolchainExecutablePath(IProject project)
 	{
-		Pattern GDB_PATTERN = Pattern.compile("xtensa-esp(.*)-elf-gdb(\\.exe)?"); //$NON-NLS-1$
+		Pattern gcc_pattern = ESPToolChainProvider.GCC_PATTERN; // default
 		String projectEspTarget = null;
 		if (project != null)
 		{
 			projectEspTarget = new SDKConfigJsonReader(project).getValue("IDF_TARGET"); //$NON-NLS-1$
+			if (!StringUtil.isEmpty(projectEspTarget) && projectEspTarget.equals(ESP32C3ToolChain.OS))
+			{
+				gcc_pattern = ESPToolChainProvider.GCC_PATTERN_ESP32C3;
+				projectEspTarget = ESP32C3ToolChain.ARCH;
+			}
 		}
 
 		// Process PATH to find the toolchain path
@@ -291,22 +298,23 @@ public class IDFUtil
 						{
 							continue;
 						}
-						Matcher matcher = GDB_PATTERN.matcher(file.getName());
+
+						Matcher matcher = gcc_pattern.matcher(file.getName());
 						if (matcher.matches())
 						{
 							String path = file.getAbsolutePath();
 							Logger.log("GDB executable:" + path); //$NON-NLS-1$
-							String[] tuples = file.getName().split("-"); //$NON-NLS-1$
 							if (projectEspTarget == null) // If no IDF_TARGET
 							{
 								return path;
 							}
-							else if (tuples[1].equals(projectEspTarget))
+							else if (file.getName().contains(projectEspTarget))
 							{
 								return path;
 							}
 
 						}
+
 					}
 				}
 			}
