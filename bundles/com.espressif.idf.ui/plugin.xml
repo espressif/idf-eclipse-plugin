@@ -100,17 +100,17 @@
             allPopups="false"
             locationURI="menu:help?after=installespidf">
          <menu
-               icon="icons/espressif.png"
+               icon="icons/ESP-IDF Tools Manager.png"
                id="espidftoolsInstall"
                label="%menu.label">
             <command
                   commandId="com.espressif.idf.ui.command.install"
-                  icon="icons/espressif.png"
+                  icon="icons/ESP-IDF Install Tools.png"
                   style="push">
             </command>
             <command
                   commandId="com.espressif.idf.ui.command.list"
-                  icon="icons/espressif.png"
+                  icon="icons/ESP-IDF List Tools.png"
                   style="push">
             </command>
          </menu>
