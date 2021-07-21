@@ -12,6 +12,10 @@
                name="appName"
                value="Espressif IDE">
          </property>
+         <property
+               name="windowImages"
+               value="icons/16x16.png,icons/32x32.png,icons/48x48.png,icons/64x64.png,icons/256x256.png">
+         </property>
       </product>
    </extension>
 
