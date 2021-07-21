@@ -26,7 +26,7 @@
             category="com.espressif.idf.ui.new.wizard.category"
             class="com.espressif.idf.ui.wizard.NewComponentMainWizard"
             hasPages="false"
-            icon="icons/Espressif IDF Component.png"
+            icon="icons/Espressif_IDF_Component.png"
             id="com.espressif.idf.ui.component.wizard"
             name="%wizard.name.1"
             project="true">
@@ -202,7 +202,7 @@
          </command>
          <command
                commandId="com.espressif.idf.ui.command.component"
-               icon="icons/Espressif IDF Component.png"
+               icon="icons/Espressif_IDF_Component.png"
                label="%wizard.name.1"
                style="push">
          </command>
@@ -264,7 +264,7 @@
       <editor
             class="com.espressif.idf.ui.size.IDFSizeAnalysisEditor"
             default="false"
-            icon="icons/espressif.png"
+            icon="icons/ESP-IDF Application Size Analysis.png"
             id="com.espressif.idf.ui.editor.idfsize"
             name="%editor.name">
       </editor>
