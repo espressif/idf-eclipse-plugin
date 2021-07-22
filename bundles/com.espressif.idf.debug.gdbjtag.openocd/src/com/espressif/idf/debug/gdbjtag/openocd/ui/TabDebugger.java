@@ -1003,7 +1003,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 			fDoStartGdbClient.setSelection(DefaultPreferences.DO_START_GDB_CLIENT_DEFAULT);
 
 			//Set Xtensa toolchain path
-			String clientExecutablePath = getGdbClientExecutable();
+			String clientExecutablePath = getGdbClientExecutable(fConfiguration);
 			if (clientExecutablePath != null)
 			{
 				fGdbClientExecutable.setText(clientExecutablePath);
@@ -1312,7 +1312,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 
 		// GDB client setup
 		{
-			defaultString = getGdbClientExecutable();
+			defaultString = getGdbClientExecutable(configuration);
 			configuration.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, defaultString);
 
 			configuration.setAttribute(IGDBJtagConstants.ATTR_USE_REMOTE_TARGET,
@@ -1331,13 +1331,13 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 	}
 	
 	//Get Xtensa toolchain path based on the target configured for the project
-	private String getGdbClientExecutable()
+	private String getGdbClientExecutable(ILaunchConfiguration configuration)
 	{
 		// Find the project and current launch target configured
 		IProject project = null;
-		if (fConfiguration != null)
+		if (configuration != null)
 		{
-			project = EclipseUtils.getProjectByLaunchConfiguration(fConfiguration);
+			project = EclipseUtils.getProjectByLaunchConfiguration(configuration);
 		}
 		String exePath = IDFUtil.getXtensaToolchainExecutablePath(project);
 		return StringUtil.isEmpty(exePath) ? StringUtil.EMPTY : exePath;
