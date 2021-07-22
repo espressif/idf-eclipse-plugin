@@ -271,14 +271,14 @@ public class IDFUtil
 	 */
 	public static String getXtensaToolchainExecutablePath(IProject project)
 	{
-		Pattern gcc_pattern = ESPToolChainProvider.GCC_PATTERN; // default
+		Pattern gdb_pattern = ESPToolChainProvider.GDB_PATTERN; // default
 		String projectEspTarget = null;
 		if (project != null)
 		{
 			projectEspTarget = new SDKConfigJsonReader(project).getValue("IDF_TARGET"); //$NON-NLS-1$
 			if (!StringUtil.isEmpty(projectEspTarget) && projectEspTarget.equals(ESP32C3ToolChain.OS))
 			{
-				gcc_pattern = ESPToolChainProvider.GCC_PATTERN_ESP32C3;
+				gdb_pattern = ESPToolChainProvider.GDB_PATTERN_ESP32C3;
 				projectEspTarget = ESP32C3ToolChain.ARCH;
 			}
 		}
@@ -299,7 +299,7 @@ public class IDFUtil
 							continue;
 						}
 
-						Matcher matcher = gcc_pattern.matcher(file.getName());
+						Matcher matcher = gdb_pattern.matcher(file.getName());
 						if (matcher.matches())
 						{
 							String path = file.getAbsolutePath();
