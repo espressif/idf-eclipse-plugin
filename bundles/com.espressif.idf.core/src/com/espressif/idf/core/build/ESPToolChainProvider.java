@@ -28,9 +28,11 @@ public class ESPToolChainProvider implements IToolChainProvider
 
 	// esp32, esp32s2, esp32s3
 	public static final Pattern GCC_PATTERN = Pattern.compile("xtensa-esp32(.*)-elf-gcc(\\.exe)?"); //$NON-NLS-1$ xtensa-esp32s2-elf-readelf
+	public static final Pattern GDB_PATTERN = Pattern.compile("xtensa-esp32(.*)-elf-gdb(\\.exe)?"); //$NON-NLS-1$
 
 	// esp32c3
 	public static final Pattern GCC_PATTERN_ESP32C3 = Pattern.compile("riscv32-esp-elf-gcc(\\.exe)?"); //$NON-NLS-1$ //riscv32-esp-elf-gcc
+	public static final Pattern GDB_PATTERN_ESP32C3 = Pattern.compile("riscv32-esp-elf-gdb(\\.exe)?"); //$NON-NLS-1$
 
 	@Override
 	public String getId()
