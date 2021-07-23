@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Java CI with Maven
+name: Java CI with Maven 
 
 on:
   push:
@@ -37,19 +37,19 @@ jobs:
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v2
       with:
-        name: "ESP-IDF Eclipse IDE for Windows"
+        name: "Espressif IDE for Windows"
         path: releng/com.espressif.idf.product/target/products/com.espressif.idf.product/win32/win32/x86_64
         
     - name: Upload macOS rcp
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v2
       with:
-        name: "ESP-IDF Eclipse IDE for macOS"
+        name: "Espressif IDE for macOS"
         path: releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64
 
     - name: Upload linux rcp
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v2
       with:
-        name: "ESP-IDF Eclipse IDE for Linux"
+        name: "Espressif IDE for Linux"
         path: releng/com.espressif.idf.product/target/products/com.espressif.idf.product/linux/gtk/x86_64

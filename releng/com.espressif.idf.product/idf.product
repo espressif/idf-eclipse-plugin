@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Eclipse IDE for ESP-IDF Developers" uid="com.espressif.idf.product" id="org.eclipse.platform.ide" application="org.eclipse.ui.ide.workbench" version="2.2.0" useFeatures="true" includeLaunchers="true">
+<product name="Espressif IDE" uid="com.espressif.idf.product" id="org.eclipse.platform.ide" application="org.eclipse.ui.ide.workbench" version="2.2.0" useFeatures="true" includeLaunchers="true">
 
+   <aboutInfo>
+      <image path="/com.espressif.idf.branding/icons/Product About Dialog.png"/>
+   </aboutInfo>
 
    <configIni use="default">
    </configIni>
@@ -18,13 +21,22 @@
       </vmArgsWin>
    </launcherArgs>
 
-   <windowImages/>
+   <windowImages i16="/com.espressif.idf.branding/icons/16x16.png" i32="/com.espressif.idf.branding/icons/32x32.png" i48="/com.espressif.idf.branding/icons/48x48.png" i64="/com.espressif.idf.branding/icons/64x64.png" i128="/com.espressif.idf.branding/icons/128x128.png" i256="/com.espressif.idf.branding/icons/256x256.png"/>
 
    <splash
-      handlerType="extensible" />
+      location="com.espressif.idf.branding"
+      startupProgressRect="5,275,445,15" />
    <launcher>
+      <macosx icon="/com.espressif.idf.branding/icons/eclipse.icns"/>
       <win useIco="false">
-         <bmp/>
+         <bmp
+            winSmallHigh="/com.espressif.idf.branding/icons/16x16.bmp"
+            winSmallLow="/com.espressif.idf.branding/icons/16x16.bmp"
+            winMediumHigh="/com.espressif.idf.branding/icons/32x32.bmp"
+            winMediumLow="/com.espressif.idf.branding/icons/32x32.bmp"
+            winLargeHigh="/com.espressif.idf.branding/icons/48x48.bmp"
+            winLargeLow="/com.espressif.idf.branding/icons/48x48.bmp"
+            winExtraLargeHigh="/com.espressif.idf.branding/icons/256x256.bmp"/>
       </win>
    </launcher>
 
@@ -35,7 +47,6 @@
       <solaris include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11</solaris>
       <windows include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11</windows>
    </vm>
-
 
    <plugins>
    </plugins>
@@ -77,7 +88,7 @@
    <repositories>
       <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/" enabled="true" />
       <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/" enabled="false" />
-      <repository location="http://download.eclipse.org/releases/latest/" enabled="true" />
+      <repository location="http://download.eclipse.org/releases/latest/" enabled="false" />
    </repositories>
 
    <preferencesInfo>

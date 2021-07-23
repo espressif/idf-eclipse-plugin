@@ -6,10 +6,15 @@
          point="org.eclipse.core.runtime.products">
       <product
             application="org.eclipse.ui.ide.workbench"
+            description="Espressif IDE brings developers an easy-to-use Eclipse-based development environment for developing ESP32 based IoT applications"
             name="%product.name">
          <property
                name="appName"
-               value="Eclipse IDE for ESP-IDF Developers">
+               value="Espressif IDE">
+         </property>
+         <property
+               name="windowImages"
+               value="icons/16x16.png,icons/32x32.png,icons/48x48.png,icons/64x64.png,icons/256x256.png">
          </property>
       </product>
    </extension>
