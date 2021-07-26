@@ -4,7 +4,7 @@
 <product name="Espressif IDE" uid="com.espressif.idf.product" id="org.eclipse.platform.ide" application="org.eclipse.ui.ide.workbench" version="2.2.0" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
-      <image path="/com.espressif.idf.branding/icons/Product About Dialog.png"/>
+      <image path="/com.espressif.idf.branding/icons/alt_about.png"/>
    </aboutInfo>
 
    <configIni use="default">
@@ -27,8 +27,10 @@
       location="com.espressif.idf.branding"
       startupProgressRect="5,275,445,15" />
    <launcher>
-      <macosx icon="/com.espressif.idf.branding/icons/eclipse.icns"/>
-      <win useIco="false">
+      <linux icon="/com.espressif.idf.branding/icons/Eclipse.xpm"/>
+      <macosx icon="/com.espressif.idf.branding/icons/Eclipse.icns"/>
+      <win useIco="true">
+         <ico path="/com.espressif.idf.branding/icons/Eclipse.ico"/>
          <bmp
             winSmallHigh="/com.espressif.idf.branding/icons/16x16.bmp"
             winSmallLow="/com.espressif.idf.branding/icons/16x16.bmp"
