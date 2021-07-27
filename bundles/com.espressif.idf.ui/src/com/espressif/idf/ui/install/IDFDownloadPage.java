@@ -309,7 +309,7 @@ public class IDFDownloadPage extends WizardPage
 			
 			setPageComplete(true);
 			setErrorMessage(null);
-			setMessage(Messages.IDFDownloadPage_ClickOnFinish+ idfPath);
+			setMessage(Messages.IDFDownloadPage_ClickOnFinish + idfPath);
 		}
 		else
 		{
@@ -319,6 +319,13 @@ public class IDFDownloadPage extends WizardPage
 				return;
 			}
 			
+			if (directoryTxt.getText().contains(" ")) //$NON-NLS-1$
+			{
+				setErrorMessage(Messages.IDFDownloadPage_IDFBuildNotSupported);
+				setPageComplete(false);
+				return;
+			}
+
 			setPageComplete(true);
 			setErrorMessage(null);
 			setMessage(Messages.IDFDownloadPage_ClickFinishToDownload);
