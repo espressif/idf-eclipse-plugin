@@ -31,6 +31,16 @@ import com.espressif.idf.core.logging.Logger;
  */
 public class IDFUtil
 {
+	/**
+	 * @return sysviewtrace_proc.py file path based on the IDF_PATH defined in the environment variables
+	 */
+	public static File getIDFSysviewTraceScriptFile()
+	{
+		String idf_path = getIDFPath();
+		String idf_sysview_trace_script = idf_path + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
+				+ IDFConstants.IDF_APP_TRACE_FOLDER + IPath.SEPARATOR + IDFConstants.IDF_SYSVIEW_TRACE_SCRIPT;
+		return new File(idf_sysview_trace_script);
+	}
 
 	/**
 	 * @return idf.py file path based on the IDF_PATH defined in the environment variables
