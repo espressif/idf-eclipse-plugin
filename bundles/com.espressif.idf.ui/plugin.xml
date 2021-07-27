@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension-point id="com.espressif.idf.ui.locale.support" name="Languages" schema="schema/com.espressif.ifg/com.espressif.idf.ui.extensionspoint.exsd"/>
+   <extension-point id="com.espressif.idf.ui.locale.support" name="%extension-point.name" schema="schema/com.espressif.ifg/com.espressif.idf.ui.extensionspoint.exsd"/>
    <extension
          point="org.eclipse.ui.newWizards">
       <category
@@ -89,9 +89,9 @@
       </command>
       <command
             defaultHandler="ChangeLanguageHandler"
-            description="Changes the language based on label"
+            description="%command.description"
             id="com.espressif.idf.ui.changeLanguage"
-            name="Change Language">
+            name="%command.name.6">
       </command>
    </extension>
    <extension
@@ -121,7 +121,7 @@
          <menu
                icon="icons/Change Language.png"
                id="changeLanguage"
-               label="Change Language">
+               label="%menu.label.0">
             <dynamic
                   class="com.espressif.idf.ui.menuitem.LanguageDynamicMenuItem"
                   id="com.espressif.idf.ui.LanguageDynamicMenu">
@@ -249,6 +249,22 @@
                </iterate>
             </visibleWhen>
          </command>
+         <command
+               commandId="com.espressif.idf.ui.heapDumpAnalysis"
+               icon="icons/espressif.png"
+               label="%command.label.3"
+               style="push">
+			<visibleWhen>
+				<with variable="activeMenuSelection">
+					<iterate
+				    	ifEmpty="false">
+				        	<adapt type="org.eclipse.core.resources.IResource">
+				            	<test property="org.eclipse.core.resources.name" value="*.svdat" />
+				             </adapt>
+				    </iterate>
+				</with>
+         	</visibleWhen>
+         </command>
       </menuContribution>
    </extension>
    <extension
@@ -257,6 +273,11 @@
             defaultHandler="com.espressif.idf.ui.size.IDFSizeMemoryHandler"
             id="com.espressif.idf.ui.memoryanalysis"
             name="%command.name.3">
+      </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.handlers.HeapDumpAnalysisHandler"
+            id="com.espressif.idf.ui.heapDumpAnalysis"
+            name="%command.name.7">
       </command>
    </extension>
    <extension
@@ -358,5 +379,15 @@
             </command>
          </menu>
       </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="com.espressif.idf.ui.tracing.TracingAnalysisEditor"
+            default="false"
+            icon="icons/espressif.png"
+            id="com.espressif.idf.ui.editor.traceAnalysis"
+            name="%editor.name.0">
+      </editor>
    </extension>
 </plugin>
