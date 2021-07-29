@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Product
+Bundle-SymbolicName: com.espressif.idf.product
+Bundle-Version: 1.0.0.qualifier
