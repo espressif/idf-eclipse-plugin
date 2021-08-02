@@ -28,11 +28,12 @@ import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.FileUtil;
 import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.ui.tracing.TracingAnalysisEditor;
+import com.espressif.idf.ui.tracing.HeapTracingAnalysisEditor;
 import com.espressif.idf.ui.update.AbstractToolsHandler;
 
 /**
  * Handler class for handling the context menu action
+ * 
  * @author Ali Azam Rana
  *
  */
@@ -46,8 +47,7 @@ public class HeapDumpAnalysisHandler extends AbstractToolsHandler
 		IResource dumpFile = EclipseHandler.getSelectedResource((IEvaluationContext) event.getApplicationContext());
 		IProject selectedProject = dumpFile.getProject();
 		IFile elfSymbolsFile = selectedProject.getFolder("build").getFile(selectedProject.getName().concat(".elf"));
-		
-		
+
 		activateIDFConsoleView();
 		List<String> commands = new ArrayList<String>();
 		commands.add(IDFUtil.getIDFPythonEnvPath());
@@ -57,7 +57,7 @@ public class HeapDumpAnalysisHandler extends AbstractToolsHandler
 		commands.add(elfSymbolsFile.getRawLocation().toOSString());
 		commands.add("file://".concat(dumpFile.getRawLocation().toString()));
 		console.println("Commands Prepared");
-		for(String command : commands)
+		for (String command : commands)
 		{
 			console.println(command);
 		}
@@ -66,11 +66,11 @@ public class HeapDumpAnalysisHandler extends AbstractToolsHandler
 		String jsonOutput = runCommand(commands, pathToProject, envMap);
 		FileUtil.writeFile(selectedProject, "build/dump.json", jsonOutput, false);
 		console.print(jsonOutput);
-		
+
 		launchEditor(selectedProject.getFile("build/dump.json"));
 		return null;
 	}
-	
+
 	private void launchEditor(IFile jsonDumpFile)
 	{
 		FileEditorInput editorInput = new FileEditorInput(jsonDumpFile);
@@ -82,7 +82,7 @@ public class HeapDumpAnalysisHandler extends AbstractToolsHandler
 				IWorkbenchWindow activeww = EclipseHandler.getActiveWorkbenchWindow();
 				try
 				{
-					IDE.openEditor(activeww.getActivePage(), editorInput, TracingAnalysisEditor.EDITOR_ID);
+					IDE.openEditor(activeww.getActivePage(), editorInput, HeapTracingAnalysisEditor.EDITOR_ID);
 				}
 				catch (PartInitException e)
 				{
@@ -98,8 +98,7 @@ public class HeapDumpAnalysisHandler extends AbstractToolsHandler
 		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 		try
 		{
-			IStatus status = processRunner.runInBackground(arguments,
-					workDir, env);
+			IStatus status = processRunner.runInBackground(arguments, workDir, env);
 			if (status == null)
 			{
 				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
