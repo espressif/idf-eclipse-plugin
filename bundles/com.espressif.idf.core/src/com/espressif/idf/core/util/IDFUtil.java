@@ -317,4 +317,55 @@ public class IDFUtil
 		}
 		return null;
 	}
+	
+	/**
+	 * Get Addr2Line path based on the target configured for the project with toolchain
+	 * @return
+	 */
+	public static String getXtensaToolchainExecutableAddr2LinePath(IProject project)
+	{
+		Pattern GDB_PATTERN = Pattern.compile("xtensa-esp(.*)-elf-addr2line(\\.exe)?"); //$NON-NLS-1$
+		String projectEspTarget = null;
+		if (project != null)
+		{
+			projectEspTarget = new SDKConfigJsonReader(project).getValue("IDF_TARGET"); //$NON-NLS-1$
+		}
+
+		// Process PATH to find the toolchain path
+		IEnvironmentVariable cdtPath = new IDFEnvironmentVariables().getEnv("PATH"); //$NON-NLS-1$
+		if (cdtPath != null)
+		{
+			for (String dirStr : cdtPath.getValue().split(File.pathSeparator))
+			{
+				File dir = new File(dirStr);
+				if (dir.isDirectory())
+				{
+					for (File file : dir.listFiles())
+					{
+						if (file.isDirectory())
+						{
+							continue;
+						}
+						Matcher matcher = GDB_PATTERN.matcher(file.getName());
+						if (matcher.matches())
+						{
+							String path = file.getAbsolutePath();
+							Logger.log("addr2line executable:"+ path); //$NON-NLS-1$
+							String[] tuples = file.getName().split("-"); //$NON-NLS-1$
+							if (projectEspTarget == null) //If no IDF_TARGET
+							{
+								return path;
+							}
+							else if (tuples[1].equals(projectEspTarget))
+							{
+								return path;
+							}
+
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
 }

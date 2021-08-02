@@ -383,11 +383,21 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="com.espressif.idf.ui.tracing.TracingAnalysisEditor"
+            class="com.espressif.idf.ui.tracing.HeapTracingAnalysisEditor"
             default="false"
             icon="icons/espressif.png"
-            id="com.espressif.idf.ui.editor.traceAnalysis"
+            id="com.espressif.idf.ui.editor.heapTraceAnalysis"
             name="%editor.name.0">
       </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="com.espressif.idf.ui.tracing.TracingCallersView"
+            icon="icons/espressif.png"
+            id="com.espressif.idf.ui.views.tracingcallersview"
+            name="Callers View"
+            restorable="true">
+      </view>
    </extension>
 </plugin>
