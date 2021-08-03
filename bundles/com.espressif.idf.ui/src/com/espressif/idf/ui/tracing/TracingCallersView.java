@@ -11,19 +11,15 @@ import java.util.List;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -44,7 +40,7 @@ public class TracingCallersView extends ViewPart
 {
 	public static final String ID = "com.espressif.idf.ui.views.tracingcallersview";
 	private List<AddressInfoVO> addressInfoVOs;
-	private TableViewer viewer;
+	private Tree tree;
 
 	public TracingCallersView()
 	{
@@ -54,25 +50,60 @@ public class TracingCallersView extends ViewPart
 	public void createPartControl(Composite parent)
 	{
 		parent.setLayout(new FillLayout());
-		viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
-		createColumns(parent, viewer);
-		final Table table = viewer.getTable();
-		table.setHeaderVisible(true);
-		table.setLinesVisible(true);
-		viewer.setContentProvider(new ArrayContentProvider());
-		viewer.setInput(getAddressInfoVOs());
-		table.addSelectionListener(new SelectionAdapter()
+		tree = new Tree(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
+		tree.setHeaderVisible(true);
+		tree.addSelectionListener(new ItemSelectionListener());
+		tree.setLinesVisible(true);
+		
+		createTreeColumns();
+
+		refreshTable();
+	}
+
+	private void createTreeColumns()
+	{
+		TreeColumn colFileName = new TreeColumn(tree, SWT.LEFT);
+		colFileName.setWidth(200);
+		colFileName.setText(Messages.TracingCallerView_ColFileName);
+		TreeColumn colFunctionName = new TreeColumn(tree, SWT.LEFT);
+		colFunctionName.setWidth(200);
+		colFunctionName.setText(Messages.TracingCallerView_ColFunctionName);
+		TreeColumn colLineNumber = new TreeColumn(tree, SWT.LEFT);
+		colLineNumber.setWidth(100);
+		colLineNumber.setText(Messages.TracingCallerView_ColLineNumber);
+		TreeColumn colAddress = new TreeColumn(tree, SWT.LEFT);
+		colAddress.setText(Messages.TracingCallerView_ColAddress);
+		colAddress.setWidth(100);
+	}
+
+	public void refreshTable()
+	{
+		if (addressInfoVOs == null || addressInfoVOs.isEmpty())
 		{
-			@Override
-			public void widgetSelected(SelectionEvent e)
-			{
-				TableItem[] items = table.getSelection();
-				AddressInfoVO addressInfoVO = (AddressInfoVO) items[0].getData();
-				launchEditor(addressInfoVO.getFullFilePath());
-				goToLineNumber(addressInfoVO.getLineNumber());
-			}
-		});
-		getSite().setSelectionProvider(viewer);
+			return;
+		}
+
+		tree.removeAll();
+		TreeItem mainTreeItem = new TreeItem(tree, SWT.NONE);
+
+		AddressInfoVO mainAddressItem = addressInfoVOs.get(0);
+		mainTreeItem.setData(mainAddressItem);
+		mainTreeItem.setText(0, mainAddressItem.getFile().getName());
+		mainTreeItem.setText(1, mainAddressItem.getFunctionName());
+		mainTreeItem.setText(2, String.valueOf(mainAddressItem.getLineNumber()));
+		mainTreeItem.setText(3, mainAddressItem.getAddress());
+
+		for (int i = 1; i < addressInfoVOs.size(); i++)
+		{
+			TreeItem subTreeItem = new TreeItem(mainTreeItem, SWT.NONE);
+			AddressInfoVO subAddressItem = addressInfoVOs.get(i);
+			subTreeItem.setData(subAddressItem);
+			subTreeItem.setText(0, subAddressItem.getFile().getName());
+			subTreeItem.setText(1, subAddressItem.getFunctionName());
+			subTreeItem.setText(2, String.valueOf(subAddressItem.getLineNumber()));
+			subTreeItem.setText(3, subAddressItem.getAddress());
+			mainTreeItem = subTreeItem;
+		}
 	}
 
 	private void launchEditor(String fullFilePath)
@@ -124,67 +155,13 @@ public class TracingCallersView extends ViewPart
 		}
 	}
 
-	public TableViewer getViewer()
-	{
-		return viewer;
-	}
-
-	private void createColumns(Composite parent, TableViewer viewer2)
-	{
-		String[] titles = { Messages.TracingCallerView_ColFileName, Messages.TracingCallerView_ColFunctionName,
-				Messages.TracingCallerView_ColLineNumber };
-		int[] bounds = { 200, 200, 100 };
-
-		TableViewerColumn col = createTableViewerColumn(titles[0], bounds[0], 0);
-		col.setLabelProvider(new ColumnLabelProvider()
-		{
-			@Override
-			public String getText(Object element)
-			{
-				AddressInfoVO addressInfoVO = (AddressInfoVO) element;
-				return addressInfoVO.getFile().getName();
-			}
-		});
-
-		col = createTableViewerColumn(titles[1], bounds[1], 1);
-		col.setLabelProvider(new ColumnLabelProvider()
-		{
-			@Override
-			public String getText(Object element)
-			{
-				AddressInfoVO addressInfoVO = (AddressInfoVO) element;
-				return addressInfoVO.getFunctionName();
-			}
-		});
-
-		col = createTableViewerColumn(titles[2], bounds[2], 2);
-		col.setLabelProvider(new ColumnLabelProvider()
-		{
-			@Override
-			public String getText(Object element)
-			{
-				AddressInfoVO addressInfoVO = (AddressInfoVO) element;
-				return String.valueOf(addressInfoVO.getLineNumber());
-			}
-		});
-	}
-
-	private TableViewerColumn createTableViewerColumn(String title, int bound, final int colNumber)
-	{
-		final TableViewerColumn viewerColumn = new TableViewerColumn(viewer, SWT.NONE);
-		final TableColumn column = viewerColumn.getColumn();
-		column.setText(title);
-		column.setWidth(bound);
-		column.setResizable(true);
-		column.setMoveable(true);
-		return viewerColumn;
-
-	}
-
 	@Override
 	public void setFocus()
 	{
-		viewer.getControl().setFocus();
+		if (tree != null)
+		{
+			tree.setFocus();
+		}
 	}
 
 	public List<AddressInfoVO> getAddressInfoVOs()
@@ -195,7 +172,18 @@ public class TracingCallersView extends ViewPart
 	public void setAddressInfoVOs(List<AddressInfoVO> addressInfoVOs)
 	{
 		this.addressInfoVOs = addressInfoVOs;
-		viewer.setInput(this.addressInfoVOs);
 	}
 
+	private class ItemSelectionListener extends SelectionAdapter
+	{
+		@Override
+		public void widgetSelected(SelectionEvent e)
+		{
+			TreeItem[] selection = tree.getSelection();
+			AddressInfoVO addressInfoVO = (AddressInfoVO) selection[0].getData();
+			launchEditor(addressInfoVO.getFullFilePath());
+			goToLineNumber(addressInfoVO.getLineNumber());
+		}
+
+	}
 }
