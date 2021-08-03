@@ -47,8 +47,7 @@ public class TracingDataStyledLabelProvider extends XViewerStyledTextLabelProvid
 		case 0:
 			DecimalFormat decimalFormat = new DecimalFormat("#.################"); //$NON-NLS-1$
 			decimalFormat.setMaximumFractionDigits(30);
-			return new StyledString(String.valueOf(decimalFormat.format(data.getEventsVO().getTimestampOfEvent())),
-					StyledString.QUALIFIER_STYLER);
+			return new StyledString(String.valueOf(decimalFormat.format(data.getEventsVO().getTimestampOfEvent())));
 		case 1:
 			return new StyledString(String.valueOf(data.getEventsVO().getEventId()));
 		case 2:
@@ -73,7 +72,7 @@ public class TracingDataStyledLabelProvider extends XViewerStyledTextLabelProvid
 		DetailsVO data = (DetailsVO) element;
 		if (data.isMemoryLeak())
 		{
-			return new Color(245, 102, 102);
+			return new Color(255, 204, 153);
 		}
 
 		return null;
@@ -82,6 +81,13 @@ public class TracingDataStyledLabelProvider extends XViewerStyledTextLabelProvid
 	@Override
 	public Color getForeground(Object element, XViewerColumn viewerColumn, int columnIndex) throws Exception
 	{
+		switch (columnIndex)
+		{
+		case 0:
+			return new Color(51, 102, 204);
+		default:
+			break;
+		}
 		return null;
 	}
 

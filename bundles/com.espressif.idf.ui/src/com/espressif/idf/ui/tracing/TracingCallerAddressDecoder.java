@@ -15,14 +15,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.core.internal.resources.Workspace;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.ui.PlatformUI;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
@@ -71,7 +68,7 @@ public class TracingCallerAddressDecoder
 			int index = addresses[i + 1].indexOf(":", 2);
 			String fullFilePath = addresses[i + 1].substring(0, index);
 			IPath path = new Path(fullFilePath);
-			IFile file = (IFile) ((Workspace) project.getWorkspace()).newResource(path, IResource.FILE);
+			IFile file = project.getFile(path);
 			Matcher lineNumberMatcher = removeAfterSpacePattern
 					.matcher(addresses[i + 1].substring(index + 1, addresses[i + 1].length()));
 			int lineNumber = 1;
