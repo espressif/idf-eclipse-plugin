@@ -11,11 +11,13 @@ import java.net.URL;
 import java.text.MessageFormat;
 
 import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
+import org.eclipse.cdt.cmake.core.internal.Activator;
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.build.IToolChainManager;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.ui.IStartup;
 import org.json.simple.JSONObject;
@@ -49,11 +51,13 @@ public class InitializeToolsStartup implements IStartup
 	private static final String IDF_PATH = "path"; //$NON-NLS-1$
 	private static final String IS_INSTALLER_CONFIG_SET = "isInstallerConfigSet" ; //$NON-NLS-1$
 
+	@SuppressWarnings("restriction")
 	@Override
 	public void earlyStartup()
 	{
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(new ResourceChangeListener());
-		
+		ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
+		launchBarManager.addListener(new LaunchBarListener());
 		if (isInstallerConfigSet())
 		{
 			Logger.log("Ignoring esp_idf.json settings as it was configured earilier.");
