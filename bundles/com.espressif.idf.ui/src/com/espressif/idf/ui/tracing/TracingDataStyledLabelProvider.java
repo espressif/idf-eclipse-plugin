@@ -14,6 +14,8 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 
+import com.espressif.idf.ui.tracing.images.TracingImagesCache;
+
 /**
  * Styled label provider for tracing data details table
  * 
@@ -35,6 +37,22 @@ public class TracingDataStyledLabelProvider extends XViewerStyledTextLabelProvid
 	@Override
 	public Image getColumnImage(Object element, XViewerColumn xCol, int column) throws Exception
 	{
+		DetailsVO data = (DetailsVO) element;
+		switch (column)
+		{
+		case 5:
+			if (data.getEventName().equals(ITracingConstants.HEAP_ALLOC_EVENT_KEY))
+			{
+				return TracingImagesCache.getImage(ITracingConstants.HEAP_ALLOC_EVENT_KEY.concat(".png"));
+			}
+			else if (data.getEventName().equals(ITracingConstants.HEAP_FREE_EVENT_KEY))
+			{
+				return TracingImagesCache.getImage(ITracingConstants.HEAP_FREE_EVENT_KEY.concat(".png"));
+			}
+
+		default:
+			break;
+		}
 		return null;
 	}
 
@@ -55,7 +73,7 @@ public class TracingDataStyledLabelProvider extends XViewerStyledTextLabelProvid
 		case 3:
 			return new StyledString(String.valueOf(data.getEventsVO().isIRQ()));
 		case 4:
-			return new StyledString(String.valueOf(data.getEventsVO().getContextName()), StyledString.COUNTER_STYLER);
+			return new StyledString(String.valueOf(data.getEventsVO().getContextName()));
 		case 5:
 			return new StyledString(String.valueOf(data.getEventName()));
 		case 6:
@@ -72,7 +90,11 @@ public class TracingDataStyledLabelProvider extends XViewerStyledTextLabelProvid
 		DetailsVO data = (DetailsVO) element;
 		if (data.isMemoryLeak())
 		{
-			return new Color(255, 204, 153);
+			return new Color(255, 235, 230);
+		}
+		else if (data.getEventName().equals(ITracingConstants.HEAP_FREE_EVENT_KEY))
+		{
+			return new Color(153, 255, 153);
 		}
 
 		return null;
@@ -85,6 +107,8 @@ public class TracingDataStyledLabelProvider extends XViewerStyledTextLabelProvid
 		{
 		case 0:
 			return new Color(51, 102, 204);
+		case 4:
+			return new Color(102, 102, 255);
 		default:
 			break;
 		}
