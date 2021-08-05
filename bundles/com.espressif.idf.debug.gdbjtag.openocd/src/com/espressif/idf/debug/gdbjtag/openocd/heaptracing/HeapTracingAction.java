@@ -40,7 +40,7 @@ public class HeapTracingAction extends AbstractBreakpointAction
 	private static final String FILENAME_ATT = "fileName"; //$NON-NLS-1$
 	private static final String START_ATT = "start"; //$NON-NLS-1$
 	private static final String START_COMMAND = "mon esp sysview_mcore start file://"; //$NON-NLS-1$
-	private static final String STOP_COMMAND = "mon esp sysview stop"; //$NON-NLS-1$
+	private static final String STOP_COMMAND = "mon esp sysview_mcore stop"; //$NON-NLS-1$
 	private static final String DEFAULT_NAME = "Heap Tracing Action"; //$NON-NLS-1$
 	private boolean startHeapTracing;
 

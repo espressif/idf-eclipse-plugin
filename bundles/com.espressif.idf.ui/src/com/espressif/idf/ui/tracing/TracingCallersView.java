@@ -54,7 +54,7 @@ public class TracingCallersView extends ViewPart
 		tree.setHeaderVisible(true);
 		tree.addSelectionListener(new ItemSelectionListener());
 		tree.setLinesVisible(true);
-		
+
 		createTreeColumns();
 
 		refreshTable();
@@ -84,6 +84,7 @@ public class TracingCallersView extends ViewPart
 		}
 
 		tree.removeAll();
+		tree.setRedraw(false);
 		TreeItem mainTreeItem = new TreeItem(tree, SWT.NONE);
 
 		AddressInfoVO mainAddressItem = addressInfoVOs.get(0);
@@ -92,6 +93,7 @@ public class TracingCallersView extends ViewPart
 		mainTreeItem.setText(1, mainAddressItem.getFunctionName());
 		mainTreeItem.setText(2, String.valueOf(mainAddressItem.getLineNumber()));
 		mainTreeItem.setText(3, mainAddressItem.getAddress());
+		mainTreeItem.setExpanded(true);
 
 		for (int i = 1; i < addressInfoVOs.size(); i++)
 		{
@@ -102,7 +104,37 @@ public class TracingCallersView extends ViewPart
 			subTreeItem.setText(1, subAddressItem.getFunctionName());
 			subTreeItem.setText(2, String.valueOf(subAddressItem.getLineNumber()));
 			subTreeItem.setText(3, subAddressItem.getAddress());
+			subTreeItem.setExpanded(true);
 			mainTreeItem = subTreeItem;
+		}
+
+		tree.setRedraw(true);
+	}
+
+	public void expandAll()
+	{
+		tree.setRedraw(false);
+		for (TreeItem item : tree.getItems())
+		{
+			item.setExpanded(true);
+			expandAllTreeItems(item);
+		}
+		tree.setRedraw(true);
+	}
+	
+	private void expandAllTreeItems(TreeItem item)
+	{
+		if (item.getItems() == null)
+		{
+			item.setExpanded(true);
+		}
+		else
+		{
+			for (TreeItem subItem : item.getItems())
+			{
+				expandAllTreeItems(subItem);
+				subItem.setExpanded(true);
+			}
 		}
 	}
 
@@ -141,8 +173,7 @@ public class TracingCallersView extends ViewPart
 		IDocument document = provider.getDocument(editor.getEditorInput());
 		try
 		{
-
-			int start = document.getLineOffset(lineNumber);
+			int start = document.getLineOffset(--lineNumber);
 			editor.selectAndReveal(start, 0);
 
 			IWorkbenchPage page = editor.getSite().getPage();

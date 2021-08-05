@@ -28,7 +28,7 @@ import com.espressif.idf.debug.gdbjtag.openocd.ui.Messages;
  */
 public class HeapTraceComposite extends Composite
 {
-	public static final String COMPOSITE_NAME = "start_heap_trace_composite";
+	public static final String COMPOSITE_NAME = "start_heap_trace_composite"; //$NON-NLS-1$
 
 	private Text textHeapTraceFile;
 	private Button btnStartHeapTraceRadio;

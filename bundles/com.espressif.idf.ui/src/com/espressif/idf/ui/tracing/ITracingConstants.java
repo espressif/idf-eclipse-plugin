@@ -12,13 +12,13 @@ package com.espressif.idf.ui.tracing;
  */
 public interface ITracingConstants
 {
-	String EVENTS_KEY = "events";
+	String EVENTS_KEY = "events"; //$NON-NLS-1$
 
-	String HEAP_KEY = "heap";
+	String HEAP_KEY = "heap"; //$NON-NLS-1$
 
-	String HEAP_ALLOC_EVENT_KEY = "alloc";
+	String HEAP_ALLOC_EVENT_KEY = "alloc"; //$NON-NLS-1$
 
-	String HEAP_FREE_EVENT_KEY = "free";
+	String HEAP_FREE_EVENT_KEY = "free"; //$NON-NLS-1$
 
-	String STREAMS_KEY = "streams";
+	String STREAMS_KEY = "streams"; //$NON-NLS-1$
 }
