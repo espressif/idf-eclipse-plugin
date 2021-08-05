@@ -321,7 +321,6 @@ public class FileUtil
 	 */
 	public static String readFile(IProject project, String relativeFilePath)
 	{
-		StringBuilder fileContents = new StringBuilder();
 		IFile filePath = project.getFile(new Path(relativeFilePath));
 		if (!filePath.exists())
 		{
@@ -329,25 +328,7 @@ public class FileUtil
 			return null;
 		}
 		
-		try
-		{
-			InputStream inputStream = filePath.getContents(true);
-			Scanner scanner = new Scanner(inputStream);
-			while (scanner.hasNext())
-			{
-				fileContents.append(scanner.nextLine());
-				fileContents.append(System.getProperty("line.separator"));
-			}
-			inputStream.close();
-			scanner.close();
-		}
-		catch (Exception e)
-		{
-			Logger.log(e);
-			return null;
-		}
-
-		return fileContents.toString();
+		return readFile(filePath.getRawLocation().toOSString());
 	}
 	
 	/**

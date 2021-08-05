@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.expressions.IEvaluationContext;
@@ -19,6 +20,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 
@@ -28,8 +30,8 @@ import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.FileUtil;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.tracing.HeapTracingAnalysisEditor;
-import com.espressif.idf.ui.update.AbstractToolsHandler;
 
 /**
  * Handler class for handling the context menu action
@@ -37,37 +39,47 @@ import com.espressif.idf.ui.update.AbstractToolsHandler;
  * @author Ali Azam Rana
  *
  */
-public class HeapDumpAnalysisHandler extends AbstractToolsHandler
+public class HeapDumpAnalysisHandler extends AbstractHandler
 {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
+		MessageConsoleStream messageConsoleStream = new IDFConsole().getConsoleStream();
+		if (event.getApplicationContext() == null)
+		{
+			Logger.log("App Context Null"); //$NON-NLS-1$
+			messageConsoleStream.println("App Context Null"); //$NON-NLS-1$
+			return null;
+		}
+		
 		// get the selected dumpFile
 		IResource dumpFile = EclipseHandler.getSelectedResource((IEvaluationContext) event.getApplicationContext());
 		IProject selectedProject = dumpFile.getProject();
-		IFile elfSymbolsFile = selectedProject.getFolder("build").getFile(selectedProject.getName().concat(".elf"));
+		IFile elfSymbolsFile = selectedProject.getFolder("build").getFile(selectedProject.getName().concat(".elf")); //$NON-NLS-1$ //$NON-NLS-2$
 
-		activateIDFConsoleView();
 		List<String> commands = new ArrayList<String>();
 		commands.add(IDFUtil.getIDFPythonEnvPath());
 		commands.add(IDFUtil.getIDFSysviewTraceScriptFile().getAbsolutePath());
-		commands.add("-j");
-		commands.add("-b");
+		commands.add("-j"); //$NON-NLS-1$
+		commands.add("-b"); //$NON-NLS-1$
 		commands.add(elfSymbolsFile.getRawLocation().toOSString());
-		commands.add("file://".concat(dumpFile.getRawLocation().toString()));
-		console.println("Commands Prepared");
+		commands.add("file://".concat(dumpFile.getRawLocation().toString())); //$NON-NLS-1$
+		messageConsoleStream.println("Commands Prepared"); //$NON-NLS-1$
 		for (String command : commands)
 		{
-			console.println(command);
+			messageConsoleStream.print(command);
+			messageConsoleStream.print(" "); //$NON-NLS-1$
 		}
+		
 		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
 		Path pathToProject = new Path(selectedProject.getLocation().toString());
 		String jsonOutput = runCommand(commands, pathToProject, envMap);
-		FileUtil.writeFile(selectedProject, "build/dump.json", jsonOutput, false);
-		console.print(jsonOutput);
+		FileUtil.writeFile(selectedProject, "build/dump.json", jsonOutput, false); //$NON-NLS-1$
+		messageConsoleStream.println();
+		messageConsoleStream.println(jsonOutput);
 
-		launchEditor(selectedProject.getFile("build/dump.json"));
+		launchEditor(selectedProject.getFile("build/dump.json")); //$NON-NLS-1$
 		return null;
 	}
 
@@ -102,7 +114,7 @@ public class HeapDumpAnalysisHandler extends AbstractToolsHandler
 			if (status == null)
 			{
 				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
-				return IDFCorePlugin.errorStatus("Status can't be null", null).toString();
+				return IDFCorePlugin.errorStatus("Status can't be null", null).toString(); //$NON-NLS-1$
 			}
 
 			// process export command output
@@ -114,10 +126,5 @@ public class HeapDumpAnalysisHandler extends AbstractToolsHandler
 			Logger.log(IDFCorePlugin.getPlugin(), e1);
 		}
 		return exportCmdOp;
-	}
-
-	@Override
-	protected void execute()
-	{
 	}
 }

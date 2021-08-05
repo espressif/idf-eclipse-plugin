@@ -179,20 +179,6 @@ public class Configuration {
 		// Don't read the gdbinit file here. It is read explicitly in
 		// the LaunchSequence to make it easier to customise.
 		lst.add("--nx");
-		
-//		try
-//		{
-//			if (configuration.getAttribute(ConfigurationAttributes.HEAP_TRACING_ENABLED, false))
-//			{
-//				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, (String)null));
-//				IFile filePath = project.getFile(new Path("build/gdbinit"));
-//				lst.add(filePath.getLocation().toString());
-//			}
-//		}
-//		catch (CoreException e1)
-//		{
-//			Logger.log(e1);
-//		}
 
 		String other;
 		try {

@@ -78,6 +78,7 @@ public class TracingViewerCustomMenu extends XViewerCustomMenu
 						.getActiveWorkbenchWindow().getActivePage().findView(TracingCallersView.ID);
 				tracingCallersView.setAddressInfoVOs(addressInfoVOs);
 				tracingCallersView.refreshTable();
+				tracingCallersView.expandAll();
 				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(TracingCallersView.ID);
 			}
 			catch (Exception e)
