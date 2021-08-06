@@ -128,4 +128,27 @@ public interface IDFConstants
 	
 	String PYTHON_CMD = "python"; //$NON-NLS-1$
 
+	/**
+	 * <IDF_PATH>/components
+	 */
+	String COMPONENTS_FOLDER = "components"; //$NON-NLS-1$
+
+	/**
+	 * COMPONENT_FOLDER/esptool_py
+	 */
+	String ESP_TOOL_FOLDER_PY = "esptool_py"; //$NON-NLS-1$
+
+	/**
+	 * ESP_TOOL_FOLDER_PY/esptool
+	 */
+	String ESP_TOOL_FOLDER = "esptool"; //$NON-NLS-1$
+
+	/**
+	 * <IDF_PATH>/components/esptool_py/esptool/esptool.py
+	 */
+	String ESP_TOOL_SCRIPT = "esptool.py"; //$NON-NLS-1$
+
+	String ESP_TOOL_CHIP_ID_CMD = "chip_id"; //$NON-NLS-1$
+
+	String ESP_TOOL_ERASE_FLASH_CMD = "erase_flash"; //$NON-NLS-1$
 }

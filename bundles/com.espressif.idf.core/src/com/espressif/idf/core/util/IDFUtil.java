@@ -368,4 +368,16 @@ public class IDFUtil
 		}
 		return null;
 	}
+	
+	/**
+	 * @return esptool.py file path based on configured IDF_PATH in the CDT build environment variables
+	 */
+	public static File getEspToolScriptFile()
+	{
+		String idf_path = getIDFPath();
+		String esp_tool_script = idf_path + IPath.SEPARATOR + IDFConstants.COMPONENTS_FOLDER + IPath.SEPARATOR
+				+ IDFConstants.ESP_TOOL_FOLDER_PY + IPath.SEPARATOR + IDFConstants.ESP_TOOL_FOLDER + IPath.SEPARATOR
+				+ IDFConstants.ESP_TOOL_SCRIPT;
+		return new File(esp_tool_script);
+	}
 }
