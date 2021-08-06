@@ -20,7 +20,7 @@
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="http://download.eclipse.org/releases/latest"/>
-			<unit id="org.eclipse.cdt.autotools.feature.group" version="0.0.0" />
+			<unit id="org.eclipse.cdt.autotools.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.cdt.feature.group" version="0.0.0"/>
 -			<unit id="org.eclipse.cdt.sdk.feature.group" version="0.0.0"/>
 -			<unit id="org.eclipse.cdt.cmake.feature.group" version="0.0.0"/>
@@ -71,9 +71,9 @@
          <repository location="https://download.eclipse.org/swtchart/releases/0.12.0/repository"/>
       </location>
       <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
-         <repository location="https://download.eclipse.org/embed-cdt/releases/5.1.1/p2" />
-         <unit id="ilg.gnumcueclipse.debug.gdbjtag.openocd.feature.feature.group" version="0.0.0" />
-         <unit id="ilg.gnumcueclipse.packs.feature.feature.group" version="0.0.0" />
+         <repository location="https://download.eclipse.org/embed-cdt/releases/5.1.1/p2"/>
+         <unit id="ilg.gnumcueclipse.debug.gdbjtag.openocd.feature.feature.group" version="0.0.0"/>
+         <unit id="ilg.gnumcueclipse.packs.feature.feature.group" version="0.0.0"/>
       </location>
       <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
          <unit id="org.eclipse.remote.console.feature.group" version="0.0.0"/>
@@ -110,5 +110,56 @@
          <unit id="org.eclipse.tm4e.feature.feature.group" version="0.0.0"/>
          <repository location="https://download.eclipse.org/tm4e/releases/0.4.1/"/>
       </location>
+	   <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+		   <repository location="http://download.eclipse.org/nebula/releases/2.2.0"/>
+		   <unit id="org.eclipse.nebula.cwt.feature.feature.group" version="1.1.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.effects.stw.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.examples.release.feature.feature.group" version="1.1.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.feature.feature.group" version="2.1.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.visualization.feature.feature.group" version="2.1.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.cdatetime.feature.feature.group" version="1.4.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.compositetable.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.floatingtext.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.gallery.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.ganttchart.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.geomap.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.grid.feature.feature.group" version="1.1.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.nebulaslider.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.breadcrumb.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.calculator.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.checkboxgroup.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.columnbrowser.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.commons.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.dialog.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.duallist.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.header.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.heapmanager.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.horizontalspinner.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.launcher.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.logindialog.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.multichoice.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.notifier.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.panels.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.preferencewindow.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.promptsupport.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.propertytable.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.rangeslider.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.roundedtoolbar.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.starrating.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.switchbutton.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.textassist.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.tipoftheday.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.titledseparator.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.oscilloscope.feature.feature.group" version="1.4.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.paperclips.feature.feature.group" version="2.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.pgroup.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.progresscircle.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.pshelf.css.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.pshelf.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.richtext.feature.feature.group" version="1.3.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.splitbutton.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.tablecombo" version="1.2.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.xviewer.feature.feature.group" version="1.1.0.201907151344"/>
+	   </location>
    </locations>
 </target>
