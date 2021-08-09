@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.ui;
 
 import java.io.File;
@@ -16,7 +20,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.launchbar.core.ILaunchBarListener;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.ILaunchDescriptor;
-import org.eclipse.launchbar.core.internal.Activator;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
@@ -26,7 +29,6 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.SDKConfigJsonReader;
 import com.espressif.idf.core.util.StringUtil;
 
-@SuppressWarnings("restriction")
 public class LaunchBarListener implements ILaunchBarListener
 {
 	@Override
@@ -38,7 +40,7 @@ public class LaunchBarListener implements ILaunchBarListener
 			@Override
 			public void run()
 			{
-				String targetName = target.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", null);
+				String targetName = target.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", null); //$NON-NLS-1$
 				update(targetName);
 			}
 		});
@@ -50,9 +52,9 @@ public class LaunchBarListener implements ILaunchBarListener
 		// Get old IDF target for the project
 		try
 		{
-			ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
+			ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
 			ILaunchConfiguration activeConfig = launchBarManager.getActiveLaunchConfiguration();
-			String projectName = activeConfig.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, "");
+			String projectName = activeConfig.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
 			if (projectName.isEmpty())
 			{
 				ILaunchDescriptor activeLaunchDescriptor = launchBarManager.getActiveLaunchDescriptor();
@@ -82,8 +84,8 @@ public class LaunchBarListener implements ILaunchBarListener
 						{
 
 							boolean isDelete = MessageDialog.openQuestion(EclipseUtil.getShell(),
-									"IDF TARGET Changed", //$NON-NLS-1$
-									"IDF_TARGET has changed for the project. Do you want to delete the `build` folder for the project?"); //$NON-NLS-1$
+									Messages.LaunchBarListener_TargetChanged_Title,
+									Messages.LaunchBarListener_TargetChanged_Msg);
 							if (isDelete)
 							{
 								IWorkspaceRunnable runnable = new IWorkspaceRunnable()
