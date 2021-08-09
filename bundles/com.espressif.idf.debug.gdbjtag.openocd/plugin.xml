@@ -109,4 +109,20 @@
           priority="29">
     </configProvider>
  </extension>
+ <extension
+       point="org.eclipse.cdt.debug.core.BreakpointActionType">
+    <actionType
+          class="com.espressif.idf.debug.gdbjtag.openocd.heaptracing.HeapTracingAction"
+          id="com.espressif.idf.debug.gdbjtag.openocd.heaptracing.HeapTracingAction"
+          name="%actionType.name">
+    </actionType>
+ </extension>
+ <extension
+       point="org.eclipse.cdt.debug.ui.BreakpointActionPage">
+    <actionPage
+          actionType="com.espressif.idf.debug.gdbjtag.openocd.heaptracing.HeapTracingAction"
+          class="com.espressif.idf.debug.gdbjtag.openocd.heaptracing.HeapTracingBreakpointActionPage"
+          id="com.espressif.idf.debug.gdbjtag.openocd.heaptracing.HeapTracingBreakpointActionPage">
+    </actionPage>
+ </extension>
 </plugin>
