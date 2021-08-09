@@ -10,8 +10,10 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.ISelectionService;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 /**
@@ -48,6 +50,7 @@ public class EclipseUtil
 
 	/**
 	 * Selected project from the Project explorer view
+	 * 
 	 * @return
 	 */
 	public static IProject getSelectedProjectInExplorer()
@@ -74,6 +77,24 @@ public class EclipseUtil
 					return resource.getProject();
 				}
 			}
+		}
+		return null;
+	}
+
+	public static Shell getShell()
+	{
+		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		if (window == null)
+		{
+			IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
+			if (windows.length > 0)
+			{
+				return windows[0].getShell();
+			}
+		}
+		else
+		{
+			return window.getShell();
 		}
 		return null;
 	}

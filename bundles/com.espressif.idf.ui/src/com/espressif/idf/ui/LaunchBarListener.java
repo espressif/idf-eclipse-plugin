@@ -19,10 +19,7 @@ import org.eclipse.launchbar.core.ILaunchDescriptor;
 import org.eclipse.launchbar.core.internal.Activator;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Monitor;
-import org.eclipse.swt.widgets.Shell;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.logging.Logger;
@@ -83,16 +80,8 @@ public class LaunchBarListener implements ILaunchBarListener
 						// If both are not same
 						if (currentTarget != null && !newTarget.equals(currentTarget))
 						{
-							Display display = Display.getDefault();
-							Shell shell = new Shell(display);
-							Monitor primary = display.getPrimaryMonitor();
-							Rectangle bounds = primary.getBounds();
-							Rectangle rect = shell.getBounds();
-							int x = bounds.x + (bounds.width - rect.width) / 2;
-							int y = bounds.y + (bounds.height - rect.height) / 2;
-							shell.setLocation(x, y);
 
-							boolean isDelete = MessageDialog.openQuestion(shell,
+							boolean isDelete = MessageDialog.openQuestion(EclipseUtil.getShell(),
 									"IDF TARGET Changed", //$NON-NLS-1$
 									"IDF_TARGET has changed for the project. Do you want to delete the `build` folder for the project?"); //$NON-NLS-1$
 							if (isDelete)
