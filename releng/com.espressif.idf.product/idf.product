@@ -5,6 +5,9 @@
 
    <aboutInfo>
       <image path="/com.espressif.idf.branding/icons/alt_about.png"/>
+      <text>
+         Specified in the plugin.xml of the branding plugin.
+      </text>
    </aboutInfo>
 
    <configIni use="default">
@@ -24,7 +27,10 @@
    <windowImages i16="/com.espressif.idf.branding/icons/16x16.png" i32="/com.espressif.idf.branding/icons/32x32.png" i48="/com.espressif.idf.branding/icons/48x48.png" i64="/com.espressif.idf.branding/icons/64x64.png" i128="/com.espressif.idf.branding/icons/128x128.png" i256="/com.espressif.idf.branding/icons/256x256.png"/>
 
    <splash
-      location="com.espressif.idf.branding" />
+      location="com.espressif.idf.branding"
+      startupProgressRect="50,100,300,15"
+      startupMessageRect="100,100,300,18"
+      startupForegroundColor="FF2F92" />
    <launcher name="Espressif IDE">
       <linux icon="laucher/espressif.xpm"/>
       <macosx icon="laucher/espressif.icns"/>
@@ -49,23 +55,23 @@
    <features>
       <feature id="com.espressif.idf.feature" installMode="root"/>
       <feature id="org.eclipse.cdt" installMode="root"/>
-      <feature id="org.eclipse.cdt.gdb"/>
-      <feature id="org.eclipse.cdt.gnu.build"/>
-      <feature id="org.eclipse.cdt.gnu.debug"/>
-      <feature id="org.eclipse.cdt.gnu.dsf"/>
-      <feature id="org.eclipse.cdt.platform"/>
-      <feature id="org.eclipse.egit"/>
-      <feature id="org.eclipse.equinox.p2.core.feature"/>
-      <feature id="org.eclipse.equinox.p2.discovery.feature"/>
-      <feature id="org.eclipse.equinox.p2.extras.feature"/>
-      <feature id="org.eclipse.equinox.p2.rcp.feature"/>
-      <feature id="org.eclipse.equinox.p2.user.ui"/>
-      <feature id="org.eclipse.help"/>
-      <feature id="org.eclipse.jgit"/>
-      <feature id="org.eclipse.platform"/>
-      <feature id="org.eclipse.rcp"/>
+      <feature id="org.eclipse.cdt.gdb" installMode="root"/>
+      <feature id="org.eclipse.cdt.gnu.build" installMode="root"/>
+      <feature id="org.eclipse.cdt.gnu.debug" installMode="root"/>
+      <feature id="org.eclipse.cdt.gnu.dsf" installMode="root"/>
+      <feature id="org.eclipse.cdt.platform" installMode="root"/>
+      <feature id="org.eclipse.egit" installMode="root"/>
+      <feature id="org.eclipse.equinox.p2.core.feature" installMode="root"/>
+      <feature id="org.eclipse.equinox.p2.discovery.feature" installMode="root"/>
+      <feature id="org.eclipse.equinox.p2.extras.feature" installMode="root"/>
+      <feature id="org.eclipse.equinox.p2.rcp.feature" installMode="root"/>
+      <feature id="org.eclipse.equinox.p2.user.ui" installMode="root"/>
+      <feature id="org.eclipse.help" installMode="root"/>
+      <feature id="org.eclipse.jgit" installMode="root"/>
+      <feature id="org.eclipse.platform" installMode="root"/>
+      <feature id="org.eclipse.rcp" installMode="root"/>
       <feature id="org.eclipse.launchbar" installMode="root"/>
-      <feature id="org.eclipse.cdt.native"/>
+      <feature id="org.eclipse.cdt.native" installMode="root"/>
       <feature id="org.eclipse.cdt.cmake" installMode="root"/>
       <feature id="com.cthing.cmakeed.feature" installMode="root"/>
       <feature id="org.eclipse.swtchart.feature" installMode="root"/>

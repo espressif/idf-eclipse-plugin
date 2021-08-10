@@ -16,6 +16,22 @@
                name="windowImages"
                value="icons/16x16.png,icons/32x32.png,icons/48x48.png,icons/64x64.png,icons/256x256.png">
          </property>
+         <property name="aboutImage" value="icons/espressif90x.png"/>
+         <property
+               name="introTitle"
+               value="Welcome to Espressif IDE">
+         </property>
+         <property
+               name="introBrandingImageText"
+               value="Espressif IDE">
+         </property>
+         <property
+               name="aboutText"
+               value="%productBlurb"></property>
+    	<property
+               name="preferenceCustomization"
+               value="plugin_customization.ini">
+         </property>
       </product>
    </extension>
 
