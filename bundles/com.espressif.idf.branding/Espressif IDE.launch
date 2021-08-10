@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.pde.ui.RuntimeWorkbench">
+    <setAttribute key="additional_plugins"/>
+    <booleanAttribute key="append.args" value="true"/>
+    <booleanAttribute key="askclear" value="true"/>
+    <booleanAttribute key="automaticAdd" value="true"/>
+    <booleanAttribute key="automaticValidate" value="true"/>
+    <stringAttribute key="bootstrap" value=""/>
+    <stringAttribute key="checked" value="[NONE]"/>
+    <booleanAttribute key="clearConfig" value="true"/>
+    <booleanAttribute key="clearws" value="false"/>
+    <booleanAttribute key="clearwslog" value="false"/>
+    <stringAttribute key="configLocation" value="${workspace_loc}/.metadata/.plugins/org.eclipse.pde.core/Espressif IDE"/>
+    <booleanAttribute key="default" value="false"/>
+    <setAttribute key="deselected_workspace_bundles">
+        <setEntry value="com.espressif.idf.branding"/>
+        <setEntry value="com.espressif.idf.core"/>
+        <setEntry value="com.espressif.idf.debug.gdbjtag.openocd"/>
+        <setEntry value="com.espressif.idf.help"/>
+        <setEntry value="com.espressif.idf.launch.serial.core"/>
+        <setEntry value="com.espressif.idf.launch.serial.ui"/>
+        <setEntry value="com.espressif.idf.sdk.config.core"/>
+        <setEntry value="com.espressif.idf.sdk.config.ui"/>
+        <setEntry value="com.espressif.idf.serial.monitor"/>
+        <setEntry value="com.espressif.idf.terminal.connector"/>
+        <setEntry value="com.espressif.idf.terminal.connector.serial"/>
+        <setEntry value="com.espressif.idf.test"/>
+        <setEntry value="com.espressif.idf.ui"/>
+        <setEntry value="com.espressif.idf.util"/>
+    </setAttribute>
+    <stringAttribute key="featureDefaultLocation" value="workspace"/>
+    <stringAttribute key="featurePluginResolution" value="workspace"/>
+    <booleanAttribute key="includeOptional" value="true"/>
+    <stringAttribute key="location" value="${workspace_loc}/../runtime-EspressifIDE"/>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_SHOW_CODEDETAILS_IN_EXCEPTION_MESSAGES" value="true"/>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_START_ON_FIRST_THREAD" value="true"/>
+    <stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-os ${target.os} -ws ${target.ws} -arch ${target.arch} -nl ${target.nl} -consoleLog"/>
+    <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dosgi.requiredJavaVersion=11 -Dosgi.instance.area.default=@user.home/eclipse-workspace -XX:+UseG1GC -XX:+UseStringDeduplication --add-modules=ALL-SYSTEM -XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts -Dosgi.requiredJavaVersion=11 -Dosgi.dataAreaRequiresExplicitInit=true -Xms256m -Xmx2048m --add-modules=ALL-SYSTEM -Xdock:icon=../Resources/Eclipse.icns -XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts"/>
+    <stringAttribute key="pde.version" value="3.3"/>
+    <stringAttribute key="product" value="com.espressif.idf.branding.idf"/>
+    <setAttribute key="selected_features">
+        <setEntry value="com.cthing.cmakeed.feature:default"/>
+        <setEntry value="com.espressif.idf.feature:default"/>
+        <setEntry value="org.eclipse.cdt.autotools:default"/>
+        <setEntry value="org.eclipse.cdt.build.crossgcc:default"/>
+        <setEntry value="org.eclipse.cdt.cmake:default"/>
+        <setEntry value="org.eclipse.cdt.core.autotools:default"/>
+        <setEntry value="org.eclipse.cdt.debug.dap.gdbjtag.source:default"/>
+        <setEntry value="org.eclipse.cdt.debug.dap.gdbjtag:default"/>
+        <setEntry value="org.eclipse.cdt.debug.dap.source:default"/>
+        <setEntry value="org.eclipse.cdt.debug.gdbjtag:default"/>
+        <setEntry value="org.eclipse.cdt.debug.ui.memory:default"/>
+        <setEntry value="org.eclipse.cdt.docker.launcher:default"/>
+        <setEntry value="org.eclipse.cdt.gdb:default"/>
+        <setEntry value="org.eclipse.cdt.visualizer:default"/>
+        <setEntry value="org.eclipse.cdt:default"/>
+        <setEntry value="org.eclipse.egit:default"/>
+        <setEntry value="org.eclipse.equinox.p2.core.feature:default"/>
+        <setEntry value="org.eclipse.equinox.p2.discovery.feature:default"/>
+        <setEntry value="org.eclipse.equinox.p2.extras.feature:default"/>
+        <setEntry value="org.eclipse.equinox.p2.rcp.feature:default"/>
+        <setEntry value="org.eclipse.equinox.p2.user.ui:default"/>
+        <setEntry value="org.eclipse.help:default"/>
+        <setEntry value="org.eclipse.jgit:default"/>
+        <setEntry value="org.eclipse.launchbar:default"/>
+        <setEntry value="org.eclipse.platform:default"/>
+        <setEntry value="org.eclipse.userstorage:default"/>
+    </setAttribute>
+    <setAttribute key="selected_target_bundles"/>
+    <setAttribute key="selected_workspace_bundles"/>
+    <booleanAttribute key="show_selected_only" value="false"/>
+    <stringAttribute key="templateConfig" value="${target_home}/configuration/config.ini"/>
+    <booleanAttribute key="tracing" value="false"/>
+    <booleanAttribute key="useCustomFeatures" value="true"/>
+    <booleanAttribute key="useDefaultConfig" value="true"/>
+    <booleanAttribute key="useDefaultConfigArea" value="true"/>
+    <booleanAttribute key="useProduct" value="true"/>
+</launchConfiguration>
