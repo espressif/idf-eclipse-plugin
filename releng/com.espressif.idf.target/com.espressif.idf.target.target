@@ -114,17 +114,19 @@
 		   <repository location="http://download.eclipse.org/nebula/releases/2.2.0"/>
 		   <unit id="org.eclipse.nebula.cwt.feature.feature.group" version="1.1.0.201907151344"/>
 		   <unit id="org.eclipse.nebula.effects.stw.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.examples.release.feature.feature.group" version="1.1.0.201907151344"/>
 		   <unit id="org.eclipse.nebula.feature.feature.group" version="2.1.0.201907151344"/>
 		   <unit id="org.eclipse.nebula.visualization.feature.feature.group" version="2.1.0.201907151344"/>
 		   <unit id="org.eclipse.nebula.widgets.cdatetime.feature.feature.group" version="1.4.0.201907151344"/>
 		   <unit id="org.eclipse.nebula.widgets.compositetable.feature.feature.group" version="1.0.0.201907151344"/>
-		   <unit id="org.eclipse.nebula.widgets.grid.feature.feature.group" version="1.1.0.201907151344"/>
 		   <unit id="org.eclipse.nebula.widgets.opal.commons.feature.feature.group" version="1.0.0.201907151344"/>
 		   <unit id="org.eclipse.nebula.widgets.opal.dialog.feature.feature.group" version="1.0.0.201907151344"/>
-		   <unit id="org.eclipse.nebula.widgets.opal.header.feature.feature.group" version="1.0.0.201907151344"/>
-		   <unit id="org.eclipse.nebula.widgets.opal.heapmanager.feature.feature.group" version="1.0.0.201907151344"/>
-		   <unit id="org.eclipse.nebula.widgets.opal.horizontalspinner.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.launcher.feature.feature.group" version="1.0.0.201907151344"/>
 		   <unit id="org.eclipse.nebula.widgets.opal.logindialog.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.switchbutton.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.textassist.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.tipoftheday.feature.feature.group" version="1.0.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.opal.titledseparator.feature.feature.group" version="1.0.0.201907151344"/>
 		   <unit id="org.eclipse.nebula.widgets.xviewer.feature.feature.group" version="1.1.0.201907151344"/>
 	   </location>
    </locations>
