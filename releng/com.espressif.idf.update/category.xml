@@ -12,6 +12,9 @@
    <feature id="ilg.gnumcueclipse.debug.gdbjtag.openocd.feature">
       <category name="com.espressif.idf"/>
    </feature>
+   <feature id="org.eclipse.nebula.widgets.xviewer.feature">
+      <category name="com.espressif.idf"/>
+   </feature>
    <bundle id="ilg.gnumcueclipse.debug.gdbjtag">
       <category name="com.espressif.idf"/>
    </bundle>
