@@ -401,4 +401,31 @@
             restorable="true">
       </view>
    </extension>
+   <extension
+         point="org.eclipse.ui.intro">
+      <intro
+            class="org.eclipse.ui.intro.config.CustomizableIntroPart"
+            id="com.espressif.idf.ui.intro">
+      </intro>
+      <introProductBinding
+            introId="com.espressif.idf.ui.intro"
+            productId="com.espressif.idf.branding.idf">
+      </introProductBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.intro.config">
+      <config
+            content="introcontent.xml"
+            id="com.espressif.idf.ui.introConfigId"
+            introId="com.espressif.idf.ui.intro">
+         <presentation
+               home-page-id="root">
+            <implementation
+                  kind="html"
+                  os="win32,linux,macosx"
+                  style="content/shared.css">
+            </implementation>
+         </presentation>
+      </config>
+   </extension>
 </plugin>
