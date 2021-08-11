@@ -21,7 +21,7 @@ before_script:
 
 build:
   stage: build
-  image: jimador/docker-jdk-8-maven-node
+  image: adoptopenjdk/maven-openjdk11
   tags:
     - build_maven
   artifacts:
