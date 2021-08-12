@@ -47,6 +47,11 @@ public class Messages extends NLS
 	public static String TracingCallerView_ColFunctionName;
 	public static String TracingCallerView_ColLineNumber;
 	public static String TracingCallerView_ColAddress;
+	
+	public static String TracingCallersConsolodiatedView_Tab;
+	public static String TracingCallersConsolodiatedView_HitsCount;
+	public static String TracingCallersConsolodiatedView_BytesUsed;
+	
 	static
 	{
 		// initialize resource bundle
