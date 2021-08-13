@@ -384,7 +384,7 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="com.espressif.idf.ui.tracing.HeapTracingAnalysisEditor"
+            class="com.espressif.idf.ui.tracing.heaptracing.HeapTracingAnalysisEditor"
             default="false"
             icon="icons/espressif.png"
             id="com.espressif.idf.ui.editor.heapTraceAnalysis"

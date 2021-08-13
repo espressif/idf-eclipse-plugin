@@ -3,7 +3,7 @@
  * Use is subject to license terms.
  *******************************************************************************/
 
-package com.espressif.idf.ui.tracing;
+package com.espressif.idf.ui.tracing.heaptracing;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +27,8 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
 
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.ui.tracing.Messages;
+import com.espressif.idf.ui.tracing.TracingJsonParser;
 
 /**
  * Tracing

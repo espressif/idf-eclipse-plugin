@@ -3,7 +3,7 @@
  * Use is subject to license terms.
  *******************************************************************************/
 
-package com.espressif.idf.ui.tracing;
+package com.espressif.idf.ui.tracing.heaptracing;
 
 import java.text.DecimalFormat;
 
@@ -14,6 +14,9 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 
+import com.espressif.idf.ui.tracing.DetailsVO;
+import com.espressif.idf.ui.tracing.ITracingConstants;
+import com.espressif.idf.ui.tracing.TracingJsonParser;
 import com.espressif.idf.ui.tracing.images.TracingImagesCache;
 
 /**
@@ -22,12 +25,12 @@ import com.espressif.idf.ui.tracing.images.TracingImagesCache;
  * @author Ali Azam Rana
  *
  */
-public class TracingDataStyledLabelProvider extends XViewerStyledTextLabelProvider
+public class HeapTracingDataStyledLabelProvider extends XViewerStyledTextLabelProvider
 {
-	private TracingTreeViewer tracingTreeViewer;
+	private HeapTracingTreeViewer tracingTreeViewer;
 	private TracingJsonParser tracingJsonParser;
 
-	public TracingDataStyledLabelProvider(TracingTreeViewer viewer, TracingJsonParser tracingJsonParser)
+	public HeapTracingDataStyledLabelProvider(HeapTracingTreeViewer viewer, TracingJsonParser tracingJsonParser)
 	{
 		super(viewer);
 		this.tracingTreeViewer = tracingTreeViewer;

@@ -3,7 +3,7 @@
  * Use is subject to license terms.
  *******************************************************************************/
 
-package com.espressif.idf.ui.tracing;
+package com.espressif.idf.ui.tracing.heaptracing;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,9 +14,19 @@ import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+
+import com.espressif.idf.ui.tracing.AddressInfoVO;
+import com.espressif.idf.ui.tracing.ConsolidatedCallersVO;
+import com.espressif.idf.ui.tracing.ConsolidatedCallersViewContentProvider;
+import com.espressif.idf.ui.tracing.DetailsVO;
+import com.espressif.idf.ui.tracing.Messages;
+import com.espressif.idf.ui.tracing.TracingJsonParser;
+import com.espressif.idf.ui.tracing.TracingUtil;
 
 /**
  * Callers consolidated view composite
@@ -42,6 +52,7 @@ public class HeapTracingCallersViewComposite
 		viewer.getTree().setLinesVisible(true);
 
 		tree = viewer.getTree();
+		tree.addSelectionListener(new ItemSelectionListener());
 
 		createViewerColumns();
 
@@ -253,5 +264,18 @@ public class HeapTracingCallersViewComposite
 		}
 
 		return null;
+	}
+	
+	private class ItemSelectionListener extends SelectionAdapter
+	{
+		@Override
+		public void widgetSelected(SelectionEvent e)
+		{
+			TreeItem[] selection = tree.getSelection();
+			AddressInfoVO addressInfoVO = (AddressInfoVO) selection[0].getData();
+			TracingUtil.launchEditor(addressInfoVO.getFullFilePath());
+			TracingUtil.goToLineNumber(addressInfoVO.getLineNumber());
+		}
+
 	}
 }
