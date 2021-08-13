@@ -16,25 +16,23 @@ For the purpose of this document, it is assumed that you know how to create the 
 
 1. Now open the sysview\_heap\_log.c file from the project explorer
 
-
-![1](docs\images\HeapTracing\sysview_heap_log_file.PNG)
-
+![1](docs/images/HeapTracing/sysview_heap_log_file.PNG)
 
 2. Add a breakpoint at a line and right click on the breakpoint icon on the left side of the editor and select Breakpoint Properties… from the context menu.
 
-![](docs\images\HeapTracing\breakpoint_properties_popup.png)
+![](docs/images/HeapTracing/breakpoint_properties_popup.png)
 
 3. The properties window will popup select Actions from the left pane and click on new.
 
-![](docs\images\HeapTracing\breakpoint_properties_actions.png)
+![](docs/images/HeapTracing/breakpoint_properties_actions.png)
 
 4. You need to select the Action Type from the Action Type drop down as Heap Tracing. For the initial breakpoint we need to make sure that we select the Start Heap Trace Action. Also specify the location for the file to be saved here, it is recommended that you select a folder inside the project directory and save the file there. It is also important that you name your action to something meaningful so that you can differentiate it later from other actions. Click OK after it is done.
 
-![](docs\images\HeapTracing\heap_tracing_action.png)
+![](docs/images/HeapTracing/heap_tracing_action.png)
 
 5. Now we have created an action that can be run when the breakpoint is hit but it still needs to be attached to the breakpoint so we can simply click on Attach button and it will be attached to the breakpoint and will be shown in the Actions for this breakpoint section.
 
-![](docs\images\HeapTracing\breakpoint_properties_actions_start_attached.png)
+![](docs/images/HeapTracing/breakpoint_properties_actions_start_attached.png)
 
 6. Click Apply and Close.
 
@@ -43,7 +41,7 @@ Now we have created a breakpoint that has an action attached to it that will sta
 <br/><br/>
 Follow all the steps from 1 to 4 with one difference that you need to select the Stop Heap Trace checkbox from the action. Also attach the new created action if all steps are followed properly you will see the given action as shown below attached to the breakpoint.
 
-![](docs\images\HeapTracing\breakpoint_properties_actions_stop_attached.png)
+![](docs/images/HeapTracing/breakpoint_properties_actions_stop_attached.png)
 
 Click apply and close.
 
@@ -59,7 +57,7 @@ In Espressif IDE you can analyze the dump files generated for a project. To anal
 
 **Note: It is important to know that for analysis to be run properly the project should have been built and contain the appropriate symbols file**
 
-![](docs\images\HeapTracing\analysis_context_menu.png)
+![](docs/images/HeapTracing/analysis_context_menu.png)
 
 After clicking on that be patient it can take a few seconds to a couple of minutes depending upon the dump file and how big is that.
 
@@ -67,17 +65,17 @@ After clicking on that be patient it can take a few seconds to a couple of minut
 
 Once the dump file is parsed you will see something like this your graph can be different based on your own dump file.
 
-![](docs\images\HeapTracing\overview_tab_tracing.png)
+![](docs/images/HeapTracing/overview_tab_tracing.png)
 
 The graph simply lets you know about the memory consumption over time. Initially all the contexts are collectively shown we can select any context we want form the list of available contexts that corresponds to the contexts that were found in the dump file against the heap events. For example, the below image shows two contexts selected for the graph.
 
-![](docs\images\HeapTracing\overview_tab_tracing_contexts.png)
+![](docs/images/HeapTracing/overview_tab_tracing_contexts.png)
 
 ### Details Tab
 
 Further information regarding the details of the tracing can be found in the details tab. If you click on the details tab you will have something like this the data can vary depending on your dump file.
 
-![](docs\images\HeapTracing\details_tab_tracing.png)
+![](docs/images/HeapTracing/details_tab_tracing.png)
 
 The highlighted light orange rows are the ones that can **possibly** be memory leaks. The keyword to know here is possibly because the trace could have been stopped before the free event was found.
 
@@ -85,10 +83,10 @@ The green highlights show the free heap events. You can also use the check box b
 
 Each entry here corresponds to an event in heap we can also view the callers for them you can simply right click on any record from the table and select the option Show Callers.
 
-![](docs\images\HeapTracing\show_callers_context_menu.png)
+![](docs/images/HeapTracing/show_callers_context_menu.png)
 
 Once you click on this you a Callers View will popup that will show the call stack for that event in the heap.
 
-![](docs\images\HeapTracing\callers_view.png)
+![](docs/images/HeapTracing/callers_view.png)
 
 You can navigate to the exact line in the code by simply clicking on an entry and it will take you to the location of the caller in the c file.
