@@ -7,7 +7,6 @@ package com.espressif.idf.ui.tracing;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,8 +19,8 @@ import org.eclipse.core.resources.IFile;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.stream.JsonReader;
 import com.google.gson.JsonObject;
+import com.google.gson.stream.JsonReader;
 
 /**
  * Tracing JSON Parser
@@ -147,7 +146,7 @@ public class TracingJsonParser
 			Optional<StreamEventsVO> optionalStream = streamEvents.stream()
 					.filter(streamEvent -> streamEvent.getStreamEventIdMap().containsValue(eventVo.getEventId()))
 					.findAny();
-			if (optionalStream.isEmpty())
+			if (optionalStream.get() == null)
 			{
 				continue;
 			}
