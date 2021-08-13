@@ -383,6 +383,9 @@ If this is not active, it can be switched by clicking on the `Display Selected C
 
 ![](docs/images/IDF_tools_console.png)
 
+## Heap Tracing
+Please refer to <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs/HeapTracing.md">this</a> doc.
+
 <a name="installPluginsFromMarketPlace"></a>
 # Installing IDF Eclipse Plugin from Eclipse Market Place
 
