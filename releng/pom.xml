@@ -18,6 +18,6 @@
 	<modules>
 		<module>com.espressif.idf.update</module>
 		<module>com.espressif.idf.target</module>
-		<module>com.espressif.idf.product</module>
+		<!-- <module>com.espressif.idf.product</module> -->
 	</modules>
 </project>
