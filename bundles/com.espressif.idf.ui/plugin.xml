@@ -349,7 +349,7 @@
          point="org.eclipse.ui.commands">
       <category
             id="org.plugin.espressif.commands.category"
-            name="Espressif">
+            name="%category.name.1">
       </category>
       <command
             categoryId="org.plugin.espressif.commands.category"
@@ -370,12 +370,13 @@
             locationURI="menu:org.eclipse.ui.main.menu?after=additions">
          <menu
                id="org.plugin.espressif.menus.espressifMenu"
-               label="%menu.label.0"
-               mnemonic="E">
+               label="%menu.label.1"
+               mnemonic="%menu.mnemonic">
             <command
                   commandId="org.plugin.espressif.commands.eraseFlash"
                   icon="icons/Erase Flash.png"
-                  id="org.plugin.espressif.menus.eraseFlashCommand">
+                  id="org.plugin.espressif.menus.eraseFlashCommand"
+                  label="%command.label.5">
             </command>
          </menu>
       </menuContribution>
@@ -396,7 +397,7 @@
             class="com.espressif.idf.ui.tracing.TracingCallersView"
             icon="icons/espressif.png"
             id="com.espressif.idf.ui.views.tracingcallersview"
-            name="Callers View"
+            name="%view.name"
             restorable="true">
       </view>
    </extension>
