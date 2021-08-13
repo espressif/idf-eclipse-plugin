@@ -16,7 +16,9 @@ For the purpose of this document, it is assumed that you know how to create the 
 
 1. Now open the sysview\_heap\_log.c file from the project explorer
 
-![](docs\images\HeapTracing\sysview_heap_log_file.PNG)<br>
+
+![](docs\images\HeapTracing\sysview_heap_log_file.PNG)
+
 
 2. Add a breakpoint at a line and right click on the breakpoint icon on the left side of the editor and select Breakpoint Properties… from the context menu.
 
