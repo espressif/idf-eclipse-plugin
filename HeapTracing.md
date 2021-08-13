@@ -6,9 +6,7 @@
     - [Overview Tab](#overview-tab)
     - [Details Tab](#details-tab)
 
-The heap tracing feature is still under development so please report any found issues on the [github](https://github.com/espressif/idf-eclipse-plugin/issues).
-
-To perform heap tracing, we need to generate a svdat dump file via debugging. The Espressif IDE supports this by adding special breakpoints. To learn more about the configuration at the sdk level and different tracing features please use the following [link](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/system/heap_debug.html).
+To perform heap tracing, we need to generate a svdat dump file via debugging. The IDF Eclipse Plugin supports this by adding special breakpoints. To learn more about the configuration at the sdk level and different tracing features please use the following [link](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/system/heap_debug.html).
 
 ## Generating Dump File
 
@@ -53,7 +51,7 @@ Up to this point we have successfully generated a dump file but that dump file i
 
 ## Analyzing the Dump File
 
-In Espressif IDE you can analyze the dump files generated for a project. To analyze svdat dump file simply right click on it and from the context menu select Heap Dump Analysis.
+With IDF Eclipse Plugin you can analyze the dump files generated for a project. To analyze svdat dump file simply right click on it and from the context menu select Heap Dump Analysis.
 
 **Note: It is important to know that for analysis to be run properly the project should have been built and contain the appropriate symbols file**
 
@@ -85,7 +83,7 @@ Each entry here corresponds to an event in heap we can also view the callers for
 
 ![](docs/images/HeapTracing/show_callers_context_menu.png)
 
-Once you click on this you a Callers View will popup that will show the call stack for that event in the heap.
+Once you click on this you a `Callers View` will popup that will show the call stack for that event in the heap.
 
 ![](docs/images/HeapTracing/callers_view.png)
 
