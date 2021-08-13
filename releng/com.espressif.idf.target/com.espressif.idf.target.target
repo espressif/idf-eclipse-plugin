@@ -112,7 +112,7 @@
       </location>
 	   <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 		   <repository location="http://download.eclipse.org/nebula/releases/2.2.0"/>
-		   <unit id="org.eclipse.nebula.widgets.xviewer.feature.feature.group" version="1.1.0.201907151344"/>
+		   <unit id="org.eclipse.nebula.widgets.xviewer.feature.feature.group" version="0.0.0"/>
 	   </location>
    </locations>
 </target>
