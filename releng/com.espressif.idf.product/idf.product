@@ -34,9 +34,13 @@
    <launcher name="Espressif IDE">
       <linux icon="laucher/espressif.xpm"/>
       <macosx icon="laucher/espressif.icns"/>
-      <win useIco="true">
+      <win useIco="false">
          <ico path="laucher/espressif.ico"/>
-         <bmp/>
+         <bmp
+            winSmallHigh="/com.espressif.idf.branding/icons/16x16.bmp"
+            winMediumHigh="/com.espressif.idf.branding/icons/32x32.bmp"
+            winLargeHigh="/com.espressif.idf.branding/icons/48x48.bmp"
+            winExtraLargeHigh="/com.espressif.idf.branding/icons/256x256.bmp"/>
       </win>
    </launcher>
 
