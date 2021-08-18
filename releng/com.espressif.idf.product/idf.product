@@ -81,6 +81,7 @@
       <feature id="com.cthing.cmakeed.feature" installMode="root"/>
       <feature id="org.eclipse.swtchart.feature" installMode="root"/>
       <feature id="org.eclipse.nebula.widgets.xviewer.feature" installMode="root"/>
+      <feature id="org.eclipse.justj.openjdk.hotspot.jre.full" installMode="root"/>
    </features>
 
    <configurations>
