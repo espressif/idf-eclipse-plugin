@@ -35,7 +35,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.nebula.widgets.xviewer.core;bundle-version="1.0.0",
  org.eclipse.text,
  org.eclipse.cdt.native.serial,
- org.eclipse.ui.workbench.texteditor
+ org.eclipse.ui.workbench.texteditor,
+ org.eclipse.ui.intro
 Automatic-Module-Name: com.espressif.idf.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11

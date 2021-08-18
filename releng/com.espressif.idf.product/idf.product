@@ -16,11 +16,11 @@
    <launcherArgs>
       <programArgs>-data @noDefault
       </programArgs>
-      <vmArgsLin>-Xms100m -Xmx512m  -Dosgi.requiredJavaVersion=11
+      <vmArgsLin>-Xms256m -Xmx2048m  -Dosgi.requiredJavaVersion=11 -Dosgi.instance.area.default=@user.home/espressif-workspace
       </vmArgsLin>
-      <vmArgsMac>-Xms100m -Xmx512m  -Xdock:icon=../com.espressif.idf.product/laucher/espressif.icns -XstartOnFirstThread -Dosgi.requiredJavaVersion=11 -Dorg.eclipse.swt.internal.carbon.smallFonts
+      <vmArgsMac>-Xms256m -Xmx2048m  -Xdock:icon=../com.espressif.idf.product/laucher/espressif.icns -XstartOnFirstThread -Dosgi.requiredJavaVersion=11 -Dorg.eclipse.swt.internal.carbon.smallFonts -Dosgi.instance.area.default=@user.home/espressif-workspace
       </vmArgsMac>
-      <vmArgsWin>-Xms100m -Xmx512m   -Dosgi.requiredJavaVersion=11
+      <vmArgsWin>-Xms256m -Xmx2048m   -Dosgi.requiredJavaVersion=11 -Dosgi.instance.area.default=@user.home/espressif-workspace
       </vmArgsWin>
    </launcherArgs>
 
@@ -52,6 +52,7 @@
       <solaris include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11</solaris>
       <windows include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11</windows>
    </vm>
+
 
    <plugins>
    </plugins>
@@ -92,9 +93,9 @@
    </configurations>
 
    <repositories>
+      <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/" enabled="false" />
       <repository location="http://download.eclipse.org/releases/latest/" enabled="false" />
       <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/" enabled="true" />
-      <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/" enabled="false" />
    </repositories>
 
    <preferencesInfo>
