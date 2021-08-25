@@ -82,6 +82,7 @@ public class SerialPortHandler {
 		SerialMonitorHandler serialMonitorHandler = new SerialMonitorHandler(serialConnector.project, portName,
 				serialConnector.filterOptions);
 		process = serialMonitorHandler.invokeIDFMonitor();
+		serialConnector.process = process;
 
 		thread = new Thread() {
 			@Override
