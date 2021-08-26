@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Espressif IDE" uid="com.espressif.idf.product" id="org.eclipse.platform.ide" application="org.eclipse.ui.ide.workbench" version="2.3.0" useFeatures="true" includeLaunchers="true">
+<product name="Espressif IDE" uid="com.espressif.idf.product" id="com.espressif.idf.branding.idf" application="org.eclipse.ui.ide.workbench" version="2.3.0" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/com.espressif.idf.branding/icons/alt_about.png"/>
@@ -16,11 +16,11 @@
    <launcherArgs>
       <programArgs>-data @noDefault
       </programArgs>
-      <vmArgsLin>-Xms100m -Xmx512m  -Dosgi.requiredJavaVersion=11
+      <vmArgsLin>-Xms256m -Xmx2048m  -Dosgi.requiredJavaVersion=11 -Dosgi.instance.area.default=@user.home/espressif-workspace
       </vmArgsLin>
-      <vmArgsMac>-Xms100m -Xmx512m  -Xdock:icon=../com.espressif.idf.product/laucher/espressif.icns -XstartOnFirstThread -Dosgi.requiredJavaVersion=11 -Dorg.eclipse.swt.internal.carbon.smallFonts
+      <vmArgsMac>-Xms256m -Xmx2048m  -Xdock:icon=../com.espressif.idf.product/laucher/espressif.icns -XstartOnFirstThread -Dosgi.requiredJavaVersion=11 -Dorg.eclipse.swt.internal.carbon.smallFonts -Dosgi.instance.area.default=@user.home/espressif-workspace
       </vmArgsMac>
-      <vmArgsWin>-Xms100m -Xmx512m   -Dosgi.requiredJavaVersion=11
+      <vmArgsWin>-Xms256m -Xmx2048m   -Dosgi.requiredJavaVersion=11 -Dosgi.instance.area.default=@user.home/espressif-workspace
       </vmArgsWin>
    </launcherArgs>
 
@@ -34,9 +34,13 @@
    <launcher name="Espressif IDE">
       <linux icon="laucher/espressif.xpm"/>
       <macosx icon="laucher/espressif.icns"/>
-      <win useIco="true">
+      <win useIco="false">
          <ico path="laucher/espressif.ico"/>
-         <bmp/>
+         <bmp
+            winSmallHigh="/com.espressif.idf.branding/icons/16x16.bmp"
+            winMediumHigh="/com.espressif.idf.branding/icons/32x32.bmp"
+            winLargeHigh="/com.espressif.idf.branding/icons/48x48.bmp"
+            winExtraLargeHigh="/com.espressif.idf.branding/icons/256x256.bmp"/>
       </win>
    </launcher>
 
@@ -48,6 +52,7 @@
       <solaris include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11</solaris>
       <windows include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11</windows>
    </vm>
+
 
    <plugins>
    </plugins>
@@ -88,9 +93,9 @@
    </configurations>
 
    <repositories>
+      <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/" enabled="false" />
       <repository location="http://download.eclipse.org/releases/latest/" enabled="false" />
       <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/" enabled="true" />
-      <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/" enabled="false" />
    </repositories>
 
    <preferencesInfo>
