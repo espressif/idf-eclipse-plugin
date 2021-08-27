@@ -57,6 +57,11 @@ public class HeapTracingCallersViewComposite
 		createViewerColumns();
 
 		viewer.setContentProvider(new ConsolidatedCallersViewContentProvider());
+		if (tracingJsonParser.getCallersAddressMap() == null
+				|| tracingJsonParser.getCallersAddressMap().keySet().size() == 0)
+		{
+			return;
+		}
 		createTree();
 		viewer.getTree().redraw();
 		viewer.expandAll();
@@ -265,7 +270,7 @@ public class HeapTracingCallersViewComposite
 
 		return null;
 	}
-	
+
 	private class ItemSelectionListener extends SelectionAdapter
 	{
 		@Override
