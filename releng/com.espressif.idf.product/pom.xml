@@ -34,7 +34,7 @@
 					<products>
 						<product>
 							<id>com.espressif.idf.product</id>
-							<rootFolder>Espressif IDE</rootFolder>
+							<rootFolder>Espressif-IDE</rootFolder>
 						</product>
 					</products>
 				</configuration>
