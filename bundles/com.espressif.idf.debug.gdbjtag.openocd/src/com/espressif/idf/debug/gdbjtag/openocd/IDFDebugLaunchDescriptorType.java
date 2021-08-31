@@ -33,6 +33,10 @@ public class IDFDebugLaunchDescriptorType implements ILaunchDescriptorType
 	@Override
 	public ILaunchDescriptor getDescriptor(Object launchObject)
 	{
+		if (!(launchObject instanceof ILaunchConfiguration))
+		{
+			return null;
+		}
 		ILaunchConfiguration config = (ILaunchConfiguration) launchObject;
 		try
 		{
