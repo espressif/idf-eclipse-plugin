@@ -18,8 +18,13 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.osgi.service.prefs.Preferences;
 
+import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.build.ESP32S2ToolChain;
 import com.espressif.idf.core.build.ESP32ToolChain;
 import com.espressif.idf.core.logging.Logger;
@@ -41,20 +46,21 @@ public class ResourceChangeListener implements IResourceChangeListener
 				public boolean visit(final IResourceDelta delta) throws CoreException
 				{
 					IResource resource = delta.getResource();
+					int kind = delta.getKind();
+					int flags = delta.getFlags();
+					updateLaunchBar(resource, kind, flags);
 					boolean isProjectAdded = (((resource.getType() & IResource.PROJECT) != 0)
-							&& resource.getProject().isOpen() && delta.getKind() == IResourceDelta.ADDED);
+							&& resource.getProject().isOpen() && kind == IResourceDelta.ADDED);
 
 					if (isProjectAdded)
 					{
 						cleanupBuildFolder(resource);
 					}
-
 					boolean isProjectRenamed = resource.getType() == IResource.PROJECT
-							&& delta.getKind() == IResourceDelta.ADDED
-							&& ((delta.getFlags() & IResourceDelta.MOVED_FROM) != 0);
+							&& kind == IResourceDelta.ADDED && ((flags & IResourceDelta.MOVED_FROM) != 0);
 
 					boolean isProjectOpenedOrCopied = resource.getType() == IResource.PROJECT
-							&& ((delta.getFlags() & IResourceDelta.OPEN) != 0);
+							&& ((flags & IResourceDelta.OPEN) != 0);
 
 					if (isProjectOpenedOrCopied || isProjectRenamed)
 					{
@@ -84,6 +90,44 @@ public class ResourceChangeListener implements IResourceChangeListener
 		
 	}
 	
+	private void updateLaunchBar(IResource resource, int kind, int flags) throws CoreException
+	{
+		if (resource instanceof IProject)
+		{
+			ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
+			IProject project = (IProject) resource;
+
+			if ((kind & IResourceDelta.CHANGED) != 0)
+			{
+				ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+				ILaunchConfiguration[] configs = launchManager.getLaunchConfigurations();
+				for (ILaunchConfiguration config : configs)
+				{
+					IResource[] mappedResource = config.getMappedResources();
+					if (mappedResource != null && mappedResource[0].getProject() == project)
+					{
+						if (project.isOpen())
+						{
+							launchBarManager.launchConfigurationAdded(config);
+						}
+						else
+						{
+							launchBarManager.launchObjectRemoved(config);
+						}
+					}
+				}
+				if (project.isOpen())
+				{
+					launchBarManager.launchObjectAdded(project);
+				}
+				else
+				{
+					launchBarManager.launchObjectRemoved(project);
+				}
+			}
+		}
+	}
+
 	private void cleanupBuildFolder(IResource resource)
 	{
 

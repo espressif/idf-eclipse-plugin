@@ -43,6 +43,7 @@ public class IDFLaunchDescriptorType implements ILaunchDescriptorType {
 				return null;
 			}
 			IProject project = getProject();
+			project = project != null ? project : config.getMappedResources()[0].getProject();
 			try {
 				if (IDFProjectNature.hasNature(project)) {
 					ILaunchDescriptor descriptor = descriptors.get(config);

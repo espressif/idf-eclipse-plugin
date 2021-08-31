@@ -10,8 +10,11 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.ILaunchDescriptor;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
+
+import com.espressif.idf.core.IDFCorePlugin;
 
 public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigProvider {
 
@@ -57,8 +60,12 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 
 	@Override
 	public boolean launchConfigurationAdded(ILaunchConfiguration configuration) throws CoreException {
+		IProject project = configuration.getMappedResources()[0].getProject();
+		if (project != null && !project.isOpen()) {
+			return true;
+		}
 		if (ownsLaunchConfiguration(configuration)) {
-			IProject project = configuration.getMappedResources()[0].getProject();
+
 			Map<String, ILaunchConfiguration> projectConfigs = configs.get(project);
 			if (projectConfigs == null) {
 				projectConfigs = new HashMap<>();
@@ -73,6 +80,7 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 
 	@Override
 	public boolean launchConfigurationRemoved(ILaunchConfiguration configuration) throws CoreException {
+		ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
 		for (Entry<IProject, Map<String, ILaunchConfiguration>> projectEntry : configs.entrySet()) {
 			Map<String, ILaunchConfiguration> projectConfigs = projectEntry.getValue();
 			for (Entry<String, ILaunchConfiguration> entry : projectConfigs.entrySet()) {
@@ -80,6 +88,7 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 					projectConfigs.remove(entry.getKey());
 					if (projectConfigs.isEmpty()) {
 						configs.remove(projectEntry.getKey());
+						launchBarManager.launchObjectRemoved(projectEntry.getKey());
 					}
 					return true;
 				}
