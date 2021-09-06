@@ -16,11 +16,11 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -614,14 +614,15 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			
 			//To fix an issue with the local include paths are not getting considered 
 			//by indexer while resolving the headers
-			systemIncludePaths.addAll(includePaths);
-			includePaths.clear();
+			includePaths.addAll(systemIncludePaths);
+			systemIncludePaths.clear();
 			
 			IFile file = getFileForCMakePath(sourceFileName);
 			if (file != null) {
 				ExtendedScannerInfo info = new ExtendedScannerInfo(definedSymbols,
-						systemIncludePaths.stream().toArray(String[]::new), macroFiles.stream().toArray(String[]::new),
-						includeFiles.stream().toArray(String[]::new), includePaths.stream().toArray(String[]::new));
+						includePaths.stream().toArray(String[]::new), macroFiles.stream().toArray(String[]::new),
+						includeFiles.stream().toArray(String[]::new),
+						systemIncludePaths.stream().toArray(String[]::new));
 				infoPerResource.put(file, info);
 				haveUpdates = true;
 			}
