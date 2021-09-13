@@ -256,8 +256,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 		ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
 		String selectedTarget = ""; //$NON-NLS-1$
 		try {
-			selectedTarget = launchBarManager.getActiveLaunchTarget().getId();
-
+			selectedTarget = launchBarManager.getActiveLaunchTarget().getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET,
+					""); //$NON-NLS-1$
 		} catch (CoreException e) {
 			Logger.log(e);
 		}

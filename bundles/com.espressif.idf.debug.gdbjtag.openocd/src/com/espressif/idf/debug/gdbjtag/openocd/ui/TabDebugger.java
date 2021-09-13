@@ -60,6 +60,7 @@ import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.json.simple.JSONArray;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.EspConfigParser;
 import com.espressif.idf.core.util.IDFUtil;
@@ -578,7 +579,8 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 		String selectedTarget = ""; //$NON-NLS-1$
 		try
 		{
-			selectedTarget = launchBarManager.getActiveLaunchTarget().getId();
+			selectedTarget = launchBarManager.getActiveLaunchTarget().getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET,
+					""); //$NON-NLS-1$
 		}
 		catch (CoreException e)
 		{
