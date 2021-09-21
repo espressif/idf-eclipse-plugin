@@ -11,6 +11,7 @@
 * Import the plugins, features, and test plugins into your workspace. `File > Import > Maven > Existing Maven Projects`. Select the directory this repo was cloned into.
 * Eclipse might prompt a wizard to install `Maven Plugin Connectors` to resolve the idf-eclipse-plugins maven errors, make sure you install all of them.
 * Install `SWTBot` using the update site https://download.eclipse.org/technology/swtbot/releases/latest/
+* Install latest `nebula` plugins using the update site http://download.eclipse.org/nebula/releases/latest
 
 ## How to contribute
 * Clone this repo https://github.com/espressif/idf-eclipse-plugin.git
