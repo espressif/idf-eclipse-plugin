@@ -455,36 +455,11 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		{
 			idfToolsPathCommon = idfToolsPathCommon.replace("\\", "/"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-//		idfToolsPathCommon = idfToolsPathCommon.concat("/components"); //$NON-NLS-1$
 		StringBuilder patternString = new StringBuilder();
 		patternString.append(idfToolsPathCommon);
 		patternString.append("/"); //$NON-NLS-1$
 		patternString.append("([^\\s]+)"); //$NON-NLS-1$
-//		GenericJsonReader jsonReaderProjectDesc = new GenericJsonReader(project, getProjectDescRelativePath());
-//		JSONObject jsonObjProjDesc = jsonReaderProjectDesc.read();
-//		if (jsonObjProjDesc != null)
-//		{
-//			JSONArray componentsArray = (JSONArray) jsonObjProjDesc.get("build_components"); //$NON-NLS-1$
-//
-//			@SuppressWarnings("unchecked")
-//			Iterator<String> iterator = componentsArray.iterator();
-//			if (iterator.hasNext())
-//			{
-//				patternString.append(idfToolsPathCommon);
-//				patternString.append("/"); //$NON-NLS-1$
-//				patternString.append(iterator.next());
-//				patternString.append("([^\\s]+)"); //$NON-NLS-1$
-//			}
-//
-//			while (iterator.hasNext())
-//			{
-//				patternString.append("|"); //$NON-NLS-1$
-//				patternString.append(idfToolsPathCommon);
-//				patternString.append("/"); //$NON-NLS-1$
-//				patternString.append(iterator.next());
-//				patternString.append("([^\\s]+)"); //$NON-NLS-1$
-//			}
-//		}
+
 		Pattern pattern = null;
 		if (Platform.getOS().equals(Platform.OS_WIN32))
 		{
@@ -501,7 +476,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		Set<String> includeDirs = new HashSet<String>();
 		Set<String> sourceFiles = new HashSet<String>();
 		CommandEntry[] sourceFileInfos = null;
-
+		Map<String, String> projectRelativeIncludeMap = new HashMap<String, String>();
+		Map<String, String> projectRelativeSourceMap = new HashMap<String, String>();
 		try (Reader in = new FileReader(jsonDiskFile.toFile()))
 		{
 			Gson gson = new Gson();
@@ -516,33 +492,19 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 					String includeDir = matcher.group(0);
 					if (includeDirs.contains(includeDir))
 					{
+						String rCommand = sourceFileInfo.getCommand().replace(includeDir,
+								projectRelativeIncludeMap.get(includeDir));
+						sourceFileInfo.setCommand(rCommand);
 						continue;
 					}
+					
 					includeDirs.add(includeDir);
-					String projectRelativeInclude = generateLinksAndCreateFoldersRequired(includeDir,
+					SourceIncPair sourceIncPair = generateLinksAndCreateFoldersRequired(includeDir,
 							sourceFileInfo.getFile(), project, monitor);
-					String replacedCommand = sourceFileInfo.getCommand().replace(matcher.group(),
-							projectRelativeInclude);
-					sourceFileInfo.setCommand(replacedCommand);
+					projectRelativeIncludeMap.put(includeDir, sourceIncPair.includeDir);
+					projectRelativeSourceMap.put(sourceFileInfo.getFile(), sourceIncPair.sourceFile);
 				}
 			}
-
-			// Now Write the updated compile_commands.json custom file for parsing later.
-			Gson gsonPretty = new GsonBuilder().setPrettyPrinting().create();
-			IFile jsonCustomFile = getBuildContainer()
-					.getFile(new org.eclipse.core.runtime.Path("compile_commands_custom.json")); //$NON-NLS-1$
-			File jFile = new File(jsonCustomFile.getLocation().makeAbsolute().toString());
-			if (jFile.exists())
-			{
-				jFile.delete();
-				jFile.createNewFile();
-			}
-			else
-			{
-				jFile.createNewFile();
-			}
-
-			gsonPretty.toJson(sourceFileInfos, new FileWriter(jFile));
 		}
 		catch (Exception e)
 		{
@@ -580,7 +542,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		}
 	}
 
-	private String generateLinksAndCreateFoldersRequired(String includeDir, String sourceFile, IProject project,
+	private SourceIncPair generateLinksAndCreateFoldersRequired(String includeDir, String sourceFile, IProject project,
 			IProgressMonitor monitor) throws Exception
 	{
 		File includeDirFileObj = new File(includeDir);
@@ -634,7 +596,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		sourceFileLocalProjectMap.put(sourceFile, iFile);
 		folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 
-		return includePathProject;
+		SourceIncPair sourceIncPair = new SourceIncPair();
+		sourceIncPair.includeDir = includePathProject;
+		sourceIncPair.sourceFile = iFile.getLocation().makeAbsolute().toString();
+		return sourceIncPair;
 	}
 
 	protected int getUpdateOptions()
@@ -719,7 +684,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	 */
 	private void processCompileCommandsFile(IConsole console, IProgressMonitor monitor) throws CoreException
 	{
-		IFile file = getBuildContainer().getFile(new org.eclipse.core.runtime.Path("compile_commands_custom.json")); //$NON-NLS-1$
+		IFile file = getBuildContainer().getFile(new org.eclipse.core.runtime.Path("compile_commands.json")); //$NON-NLS-1$
 		CompileCommandsJsonParser parser = new CompileCommandsJsonParser(
 				new ParseRequest(file, new CMakeIndexerInfoConsumer(this::setScannerInformation),
 						CommandLauncherManager.getInstance().getCommandLauncher(this), console));
@@ -923,7 +888,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 			// To fix an issue with the local include paths are not getting considered
 			// by indexer while resolving the headers
 			includePaths.addAll(systemIncludePaths);
-//            systemIncludePaths.clear();
+            systemIncludePaths.clear();
 
 			IFile file = getFileForCMakePath(sourceFileName);
 			if (file != null)
@@ -972,6 +937,12 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 				haveUpdates = false;
 			}
 		}
+	}
+	
+	private class SourceIncPair
+	{
+		private String sourceFile;
+		private String includeDir;
 	}
 
 	public void setLaunchTarget(ILaunchTarget target)
