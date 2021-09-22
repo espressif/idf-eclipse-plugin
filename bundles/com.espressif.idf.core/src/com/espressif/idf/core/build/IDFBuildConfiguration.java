@@ -12,6 +12,7 @@ package com.espressif.idf.core.build;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.FileVisitResult;
@@ -36,7 +37,6 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.FileUtils;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainFile;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
 import org.eclipse.cdt.cmake.core.internal.CMakeUtils;
@@ -88,6 +88,7 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.GenericJsonReader;
 import com.espressif.idf.core.util.IDFUtil;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 @SuppressWarnings(value = { "restriction" })
 public class IDFBuildConfiguration extends CBuildConfiguration
@@ -101,6 +102,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 
 	private ILaunchTarget launchtarget;
 	private Map<IResource, IScannerInfo> infoPerResource;
+	private static Map<String, String> includePathRelativeMap = new HashMap<>();
+	private static Map<String, IFile> sourceFileLocalProjectMap = new HashMap<String, IFile>();
 	/**
 	 * whether one of the CMakeLists.txt files in the project has been modified and saved by the user since the last
 	 * build.<br>
@@ -424,7 +427,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 			try
 			{
 				CCorePlugin.getIndexManager().update(cProjectElements, getUpdateOptions());
-				CCorePlugin.getIndexManager().update(cProjectElements, IIndexManager.UPDATE_UNRESOLVED_INCLUDES);
 			}
 			catch (CoreException e)
 			{
@@ -441,9 +443,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	 */
 	protected void linkBuildComponents(IProject project, IProgressMonitor monitor) throws Exception
 	{
-		final String jobTitle = "Linking ESP-IDF build components..."; //$NON-NLS-1$
 		// Create ESP-IDF Components folder under the project
-		final IFolder componentsFolder = project.getFolder("ESP-IDF Components"); //$NON-NLS-1$
+		final IFolder componentsFolder = project.getFolder("ESP-IDF-Components"); //$NON-NLS-1$
 		if (!componentsFolder.exists())
 		{
 			componentsFolder.create(true, false, new NullProgressMonitor());
@@ -454,33 +455,36 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		{
 			idfToolsPathCommon = idfToolsPathCommon.replace("\\", "/"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		idfToolsPathCommon = idfToolsPathCommon.concat("/components"); //$NON-NLS-1$
+//		idfToolsPathCommon = idfToolsPathCommon.concat("/components"); //$NON-NLS-1$
 		StringBuilder patternString = new StringBuilder();
-		GenericJsonReader jsonReaderProjectDesc = new GenericJsonReader(project, getProjectDescRelativePath());
-		JSONObject jsonObjProjDesc = jsonReaderProjectDesc.read();
-		if (jsonObjProjDesc != null)
-		{
-			JSONArray componentsArray = (JSONArray) jsonObjProjDesc.get("build_components"); //$NON-NLS-1$
-
-			@SuppressWarnings("unchecked")
-			Iterator<String> iterator = componentsArray.iterator();
-			if (iterator.hasNext())
-			{
-				patternString.append(idfToolsPathCommon);
-				patternString.append("/"); //$NON-NLS-1$
-				patternString.append(iterator.next());
-				patternString.append("/include"); //$NON-NLS-1$
-			}
-			
-			while (iterator.hasNext())
-			{
-				patternString.append("|"); //$NON-NLS-1$
-				patternString.append(idfToolsPathCommon);
-				patternString.append("/"); //$NON-NLS-1$
-				patternString.append(iterator.next());
-				patternString.append("/include"); //$NON-NLS-1$
-			}
-		}
+		patternString.append(idfToolsPathCommon);
+		patternString.append("/"); //$NON-NLS-1$
+		patternString.append("([^\\s]+)"); //$NON-NLS-1$
+//		GenericJsonReader jsonReaderProjectDesc = new GenericJsonReader(project, getProjectDescRelativePath());
+//		JSONObject jsonObjProjDesc = jsonReaderProjectDesc.read();
+//		if (jsonObjProjDesc != null)
+//		{
+//			JSONArray componentsArray = (JSONArray) jsonObjProjDesc.get("build_components"); //$NON-NLS-1$
+//
+//			@SuppressWarnings("unchecked")
+//			Iterator<String> iterator = componentsArray.iterator();
+//			if (iterator.hasNext())
+//			{
+//				patternString.append(idfToolsPathCommon);
+//				patternString.append("/"); //$NON-NLS-1$
+//				patternString.append(iterator.next());
+//				patternString.append("([^\\s]+)"); //$NON-NLS-1$
+//			}
+//
+//			while (iterator.hasNext())
+//			{
+//				patternString.append("|"); //$NON-NLS-1$
+//				patternString.append(idfToolsPathCommon);
+//				patternString.append("/"); //$NON-NLS-1$
+//				patternString.append(iterator.next());
+//				patternString.append("([^\\s]+)"); //$NON-NLS-1$
+//			}
+//		}
 		Pattern pattern = null;
 		if (Platform.getOS().equals(Platform.OS_WIN32))
 		{
@@ -488,99 +492,154 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		}
 		else
 		{
-			pattern = Pattern.compile(patternString.toString());	
+			pattern = Pattern.compile(patternString.toString());
 		}
-		
+
 		final IFile jsonFile = getBuildContainer().getFile(new org.eclipse.core.runtime.Path("compile_commands.json")); //$NON-NLS-1$
 		final java.nio.file.Path jsonDiskFile = java.nio.file.Path.of(jsonFile.getLocationURI());
-		
+
 		Set<String> includeDirs = new HashSet<String>();
 		Set<String> sourceFiles = new HashSet<String>();
-		
+		CommandEntry[] sourceFileInfos = null;
+
 		try (Reader in = new FileReader(jsonDiskFile.toFile()))
 		{
 			Gson gson = new Gson();
-			CommandEntry[] sourceFileInfos = gson.fromJson(in, CommandEntry[].class);
+			sourceFileInfos = gson.fromJson(in, CommandEntry[].class);
 			for (CommandEntry sourceFileInfo : sourceFileInfos)
 			{
-				if (sourceFileInfo.getFile().contains("components")) //$NON-NLS-1$
-				{
-					sourceFiles.add(sourceFileInfo.getFile());	
-				}
-				
+				sourceFiles.add(sourceFileInfo.getFile());
+
 				Matcher matcher = pattern.matcher(sourceFileInfo.getCommand());
-				while(matcher.find())
+				while (matcher.find())
 				{
-					includeDirs.add(matcher.group());
+					String includeDir = matcher.group(0);
+					if (includeDirs.contains(includeDir))
+					{
+						continue;
+					}
+					includeDirs.add(includeDir);
+					String projectRelativeInclude = generateLinksAndCreateFoldersRequired(includeDir,
+							sourceFileInfo.getFile(), project, monitor);
+					String replacedCommand = sourceFileInfo.getCommand().replace(matcher.group(),
+							projectRelativeInclude);
+					sourceFileInfo.setCommand(replacedCommand);
 				}
 			}
+
+			// Now Write the updated compile_commands.json custom file for parsing later.
+			Gson gsonPretty = new GsonBuilder().setPrettyPrinting().create();
+			IFile jsonCustomFile = getBuildContainer()
+					.getFile(new org.eclipse.core.runtime.Path("compile_commands_custom.json")); //$NON-NLS-1$
+			File jFile = new File(jsonCustomFile.getLocation().makeAbsolute().toString());
+			if (jFile.exists())
+			{
+				jFile.delete();
+				jFile.createNewFile();
+			}
+			else
+			{
+				jFile.createNewFile();
+			}
+
+			gsonPretty.toJson(sourceFileInfos, new FileWriter(jFile));
 		}
 		catch (Exception e)
 		{
 			Logger.log(e);
 		}
-		
-		generateLinksAndCreateFoldersRequired(includeDirs, sourceFiles, project);
 	}
-	
-	private void generateLinksAndCreateFoldersRequired(Set<String> includeDirs, Set<String> sourceFiles,
-			IProject project) throws Exception
+
+	private void createFoldersAndLinkFiles(IFolder sourceFolder, File includeDirFileObj, Set<String> includeFilesList)
+			throws Exception
 	{
-		for(String includeDir : includeDirs)
+		for (File file : includeDirFileObj.listFiles())
 		{
-			File includeDirFileObj = new File(includeDir);
-			List<String> splitPath = Arrays.asList(includeDir.split("/")); //$NON-NLS-1$
-			int indexOfComponents = splitPath.indexOf("components"); //$NON-NLS-1$
-			IFolder folder = project.getFolder("ESP-IDF Components"); //$NON-NLS-1$
-			
-			for (int i = indexOfComponents + 1; i < splitPath.size() && indexOfComponents != -1; i++)
+			if (file.isDirectory())
 			{
-				IFolder prev = folder;
-				folder = folder.getFolder(splitPath.get(i));
-				if (!folder.exists())
+				IFolder newFolder = sourceFolder.getFolder(file.getName());
+				if (!newFolder.exists())
 				{
-					folder.create(false, true, new NullProgressMonitor());
-					prev.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+					newFolder.create(true, true, new NullProgressMonitor());
+					createFoldersAndLinkFiles(newFolder, file, includeFilesList);
 				}
 			}
+			else
+			{
+				IFile iFile = sourceFolder.getFile(file.getName());
+
+				if (!iFile.exists())
+				{
+					Files.createSymbolicLink(Paths.get(
+							sourceFolder.getLocation().makeAbsolute().toString().concat("/").concat(file.getName())),
+							Paths.get(file.getAbsolutePath()));
+				}
+
+				includeFilesList.add(iFile.getFullPath().toString());
+			}
+		}
+	}
+
+	private String generateLinksAndCreateFoldersRequired(String includeDir, String sourceFile, IProject project,
+			IProgressMonitor monitor) throws Exception
+	{
+		File includeDirFileObj = new File(includeDir);
+		List<String> splitPath = Arrays.asList(includeDir.split("/")); //$NON-NLS-1$
+		int indexOfComponents = splitPath.indexOf("components"); //$NON-NLS-1$
+		IFolder folder = project.getFolder("ESP-IDF-Components"); //$NON-NLS-1$
+
+		for (int i = indexOfComponents + 1; i < (splitPath.size()) && indexOfComponents != -1; i++)
+		{
+			IFolder prev = folder;
+			folder = folder.getFolder(splitPath.get(i));
 			if (!folder.exists())
 			{
-				folder.create(false, true, new NullProgressMonitor());
+				folder.create(true, true, new NullProgressMonitor());
+				prev.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 			}
-			FileUtils.copyDirectory(includeDirFileObj, new File(folder.getLocation().makeAbsolute().toString()));
-			folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 		}
-		
-		for (String sourceFile : sourceFiles)
+
+		includePathRelativeMap.put(includeDir, folder.getFullPath().toString());
+		String includePathProject = folder.getLocation().makeAbsolute().toString();
+		Set<String> includeFilesList = new HashSet<String>();
+		createFoldersAndLinkFiles(folder, includeDirFileObj, includeFilesList);
+		folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+
+		File sFile = new File(sourceFile);
+		if (Platform.getOS().equals(Platform.OS_WIN32))
 		{
-			File sFile = new File(sourceFile);
-			if (Platform.getOS().equals(Platform.OS_WIN32))
-			{
-				sourceFile = sourceFile.replace('\\', '/'); //$NON-NLS-1$
-			}
-			List<String> splitPath = Arrays.asList(sourceFile.split("/")); //$NON-NLS-1$
-			int indexOfComponents = splitPath.indexOf("components"); //$NON-NLS-1$
-			IFolder folder = project.getFolder("ESP-IDF Components"); //$NON-NLS-1$
-			for (int i = indexOfComponents + 1; i < (splitPath.size() - 1); i++)
-			{
-				folder = folder.getFolder(splitPath.get(i));
-				if (!folder.exists())
-				{
-					folder.create(true, true, new NullProgressMonitor());
-				}
-			}
+			sourceFile = sourceFile.replace('\\', '/'); // $NON-NLS-1$
+		}
+
+		splitPath = Arrays.asList(sourceFile.split("/")); //$NON-NLS-1$
+		indexOfComponents = splitPath.indexOf("components"); //$NON-NLS-1$
+		folder = project.getFolder("ESP-IDF-Components"); //$NON-NLS-1$
+		for (int i = indexOfComponents + 1; i < (splitPath.size() - 1); i++)
+		{
+			folder = folder.getFolder(splitPath.get(i));
 			if (!folder.exists())
 			{
 				folder.create(true, true, new NullProgressMonitor());
 			}
-			FileUtils.copyFileToDirectory(sFile, new File(folder.getLocation().makeAbsolute().toString()));
-			folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 		}
+
+		IFile iFile = folder.getFile(sFile.getName());
+		if (!iFile.exists())
+		{
+			Files.createSymbolicLink(
+					Paths.get(folder.getLocation().makeAbsolute().toString().concat("/").concat(sFile.getName())),
+					Paths.get(sourceFile));
+
+		}
+		sourceFileLocalProjectMap.put(sourceFile, iFile);
+		folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+
+		return includePathProject;
 	}
 
 	protected int getUpdateOptions()
 	{
-		return IIndexManager.UPDATE_EXTERNAL_FILES_FOR_PROJECT | IIndexManager.UPDATE_CHECK_TIMESTAMPS;
+		return IIndexManager.UPDATE_ALL | IIndexManager.UPDATE_CHECK_TIMESTAMPS;
 	}
 
 	@Override
@@ -660,7 +719,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	 */
 	private void processCompileCommandsFile(IConsole console, IProgressMonitor monitor) throws CoreException
 	{
-		IFile file = getBuildContainer().getFile(new org.eclipse.core.runtime.Path("compile_commands.json")); //$NON-NLS-1$
+		IFile file = getBuildContainer().getFile(new org.eclipse.core.runtime.Path("compile_commands_custom.json")); //$NON-NLS-1$
 		CompileCommandsJsonParser parser = new CompileCommandsJsonParser(
 				new ParseRequest(file, new CMakeIndexerInfoConsumer(this::setScannerInformation),
 						CommandLauncherManager.getInstance().getCommandLauncher(this), console));
@@ -863,15 +922,16 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		{
 			// To fix an issue with the local include paths are not getting considered
 			// by indexer while resolving the headers
-			systemIncludePaths.addAll(includePaths);
-			includePaths.clear();
+			includePaths.addAll(systemIncludePaths);
+//            systemIncludePaths.clear();
 
 			IFile file = getFileForCMakePath(sourceFileName);
 			if (file != null)
 			{
 				ExtendedScannerInfo info = new ExtendedScannerInfo(definedSymbols,
-						systemIncludePaths.stream().toArray(String[]::new), macroFiles.stream().toArray(String[]::new),
-						includeFiles.stream().toArray(String[]::new), includePaths.stream().toArray(String[]::new));
+						includePaths.stream().toArray(String[]::new), macroFiles.stream().toArray(String[]::new),
+						includeFiles.stream().toArray(String[]::new),
+						systemIncludePaths.stream().toArray(String[]::new));
 				infoPerResource.put(file, info);
 				haveUpdates = true;
 			}
@@ -888,6 +948,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		{
 			org.eclipse.core.runtime.Path path = new org.eclipse.core.runtime.Path(sourceFileName);
 			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(path);
+			if (file == null)
+			{
+				file = sourceFileLocalProjectMap.get(sourceFileName);
+			}
 			// TODO maybe we need to introduce a strategy here to get the workbench resource
 			// Possible build scenarios:
 			// 1) linux native: should be OK as is
@@ -918,41 +982,5 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	protected String getProjectDescRelativePath()
 	{
 		return File.separator + "build" + File.separator + "project_description.json"; //$NON-NLS-1$ //$NON-NLS-2$
-	}
-
-	/**
-	 * Represents a parsed command entry of a compile_commands.json file.
-	 * 
-	 * @author weber
-	 */
-	class CommandEntry
-	{
-		private String directory;
-		private String command;
-		private String file;
-
-		/**
-		 * Gets the build directory as a String.
-		 */
-		public String getDirectory()
-		{
-			return directory;
-		}
-
-		/**
-		 * Gets the command-line to compile the source file.
-		 */
-		public String getCommand()
-		{
-			return command;
-		}
-
-		/**
-		 * Gets the source file path as a String.
-		 */
-		public String getFile()
-		{
-			return file;
-		}
 	}
 }
