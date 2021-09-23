@@ -40,6 +40,10 @@ public class TracingCallerAddressDecoder
 
 	public Map<String, AddressInfoVO> decodeCallerAddresses(List<String> callerAddresses)
 	{
+		if (callerAddresses == null || callerAddresses.size() == 0)
+		{
+			return null;
+		}
 		List<String> commands = new ArrayList<>();
 		commands.add(IDFUtil.getXtensaToolchainExecutableAddr2LinePath(project));
 		commands.add("-e");
