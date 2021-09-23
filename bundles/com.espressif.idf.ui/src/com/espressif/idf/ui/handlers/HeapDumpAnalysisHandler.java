@@ -31,7 +31,7 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.FileUtil;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.IDFConsole;
-import com.espressif.idf.ui.tracing.HeapTracingAnalysisEditor;
+import com.espressif.idf.ui.tracing.heaptracing.HeapTracingAnalysisEditor;
 
 /**
  * Handler class for handling the context menu action

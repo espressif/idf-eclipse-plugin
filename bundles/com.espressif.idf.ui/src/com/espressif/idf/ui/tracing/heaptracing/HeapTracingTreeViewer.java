@@ -3,7 +3,7 @@
  * Use is subject to license terms.
  *******************************************************************************/
 
-package com.espressif.idf.ui.tracing;
+package com.espressif.idf.ui.tracing.heaptracing;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,13 +18,17 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
+import com.espressif.idf.ui.tracing.DetailsVO;
+import com.espressif.idf.ui.tracing.TracingJsonParser;
+import com.espressif.idf.ui.tracing.TracingViewerFactory;
+
 /**
  * Nebula XViewer extension to show the tree for details
  * 
  * @author Ali Azam Rana
  *
  */
-public class TracingTreeViewer extends XViewer
+public class HeapTracingTreeViewer extends XViewer
 {
 	private Button filterMemoryLeaksChkBtn;
 	private List<DetailsVO> detailsVOs;
@@ -32,7 +36,7 @@ public class TracingTreeViewer extends XViewer
 	private TracingJsonParser tracingJsonParser;
 	private Integer[] eventIdsDisplayed;
 
-	public TracingTreeViewer(Composite parent, int style, TracingJsonParser tracingJsonParser,
+	public HeapTracingTreeViewer(Composite parent, int style, TracingJsonParser tracingJsonParser,
 			Integer[] eventIdsDisplayed, TracingViewerFactory tracingViewerFactory)
 	{
 		super(parent, style, tracingViewerFactory, true, true);

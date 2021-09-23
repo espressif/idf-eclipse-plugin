@@ -3,7 +3,7 @@
  * Use is subject to license terms.
  *******************************************************************************/
 
-package com.espressif.idf.ui.tracing;
+package com.espressif.idf.ui.tracing.heaptracing;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +11,11 @@ import java.util.List;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+
+import com.espressif.idf.ui.tracing.Messages;
+import com.espressif.idf.ui.tracing.TracingJsonParser;
+import com.espressif.idf.ui.tracing.TracingSizeDataContentProvider;
+import com.espressif.idf.ui.tracing.TracingViewerFactory;
 
 /**
  * Heap tracing details tab view composite class
@@ -22,7 +27,7 @@ public class HeapTracingDetailsComposite
 {
 	private TracingJsonParser tracingJsonParser;
 	private List<String> columnNames;
-	private TracingTreeViewer tracingTreeViewer;
+	private HeapTracingTreeViewer tracingTreeViewer;
 
 	public HeapTracingDetailsComposite(TracingJsonParser tracingJsonParser)
 	{
@@ -49,11 +54,11 @@ public class HeapTracingDetailsComposite
 		Integer[] tracingEventIds = new Integer[] { tracingJsonParser.getAllocEventId(),
 				tracingJsonParser.getFreeEventId() };
 		TracingViewerFactory tracingViewerFactory = new TracingViewerFactory(tracingJsonParser);
-		tracingTreeViewer = new TracingTreeViewer(parent, SWT.SINGLE | SWT.FULL_SELECTION | SWT.BORDER,
+		tracingTreeViewer = new HeapTracingTreeViewer(parent, SWT.SINGLE | SWT.FULL_SELECTION | SWT.BORDER,
 				tracingJsonParser, tracingEventIds, tracingViewerFactory);
 		tracingTreeViewer.getTree().setLayoutData(new GridData(GridData.FILL_BOTH));
 		tracingTreeViewer.setContentProvider(new TracingSizeDataContentProvider());
-		tracingTreeViewer.setLabelProvider(new TracingDataStyledLabelProvider(tracingTreeViewer, tracingJsonParser));
+		tracingTreeViewer.setLabelProvider(new HeapTracingDataStyledLabelProvider(tracingTreeViewer, tracingJsonParser));
 		tracingTreeViewer.setUseHashlookup(true);
 		tracingTreeViewer.loadInputForXViewer();
 	}
