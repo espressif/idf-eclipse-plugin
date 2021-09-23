@@ -12,7 +12,6 @@ package com.espressif.idf.core.build;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.FileVisitResult;
@@ -28,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -77,18 +75,14 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunchMode;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.internal.CMakeConsoleWrapper;
 import com.espressif.idf.core.internal.CMakeErrorParser;
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.util.GenericJsonReader;
 import com.espressif.idf.core.util.IDFUtil;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 @SuppressWarnings(value = { "restriction" })
 public class IDFBuildConfiguration extends CBuildConfiguration
