@@ -2,7 +2,7 @@
  * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.ui.tracing;
+package com.espressif.idf.ui.tracing.heaptracing;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,6 +31,11 @@ import org.eclipse.swtchart.LineStyle;
 import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
+
+import com.espressif.idf.ui.tracing.EventsVO;
+import com.espressif.idf.ui.tracing.ITracingConstants;
+import com.espressif.idf.ui.tracing.Messages;
+import com.espressif.idf.ui.tracing.TracingJsonParser;
 
 /**
  * Tracing overview tab composite for tracing editor

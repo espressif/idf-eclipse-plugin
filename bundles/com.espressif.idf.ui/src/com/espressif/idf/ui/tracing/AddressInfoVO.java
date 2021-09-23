@@ -91,4 +91,27 @@ public class AddressInfoVO
 	{
 		this.fullFilePath = fullFilePath;
 	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (!(obj instanceof AddressInfoVO))
+		{
+			return false;
+		}
+
+		AddressInfoVO addressInfoVO = (AddressInfoVO) obj;
+		if (this.address.equals(addressInfoVO.address))
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return address.hashCode();
+	}
 }

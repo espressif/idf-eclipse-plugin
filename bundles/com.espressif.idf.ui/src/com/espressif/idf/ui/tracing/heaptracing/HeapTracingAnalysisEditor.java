@@ -3,7 +3,13 @@
  * Use is subject to license terms.
  *******************************************************************************/
 
-package com.espressif.idf.ui.tracing;
+package com.espressif.idf.ui.tracing.heaptracing;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -21,6 +27,8 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
 
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.ui.tracing.Messages;
+import com.espressif.idf.ui.tracing.TracingJsonParser;
 
 /**
  * Tracing
@@ -64,6 +72,17 @@ public class HeapTracingAnalysisEditor extends MultiPageEditorPart
 
 		createOverviewPage();
 		createDetailsPage();
+		createCallersConsolidatedPage();
+	}
+
+	private void createCallersConsolidatedPage()
+	{
+		Composite parent = new Composite(getContainer(), SWT.NONE);
+		parent.setLayout(new FillLayout());
+		HeapTracingCallersViewComposite tracingCallersViewComposite = new HeapTracingCallersViewComposite(tracingJsonParser);
+		tracingCallersViewComposite.createPartControl(parent);
+		int index = addPage(parent);
+		setPageText(index, Messages.TracingCallersConsolodiatedView_Tab);
 	}
 
 	private void createOverviewPage()
@@ -76,7 +95,7 @@ public class HeapTracingAnalysisEditor extends MultiPageEditorPart
 		heapTracingOverviewComposite.createPartControl(parent);
 
 		int index = addPage(parent);
-		setPageText(index, Messages.TracingAnalysisEditor_OverviewTab); // $NON-NLS-1$
+		setPageText(index, Messages.TracingAnalysisEditor_OverviewTab);
 	}
 
 	private void createDetailsPage()
