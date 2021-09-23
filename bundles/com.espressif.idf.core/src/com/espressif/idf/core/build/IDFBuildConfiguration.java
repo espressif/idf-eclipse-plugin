@@ -103,7 +103,9 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	private ILaunchTarget launchtarget;
 	private Map<IResource, IScannerInfo> infoPerResource;
 	private static Map<String, String> includePathRelativeMap = new HashMap<>();
+	private static Map<String, Set<String>> includeFilesMap = new HashMap<>();
 	private static Map<String, IFile> sourceFileLocalProjectMap = new HashMap<String, IFile>();
+	private static Map<String, Set<String>> sourceFileLocalIncludesMap = new HashMap<String, Set<String>>();
 	/**
 	 * whether one of the CMakeLists.txt files in the project has been modified and saved by the user since the last
 	 * build.<br>
@@ -495,6 +497,17 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 						String rCommand = sourceFileInfo.getCommand().replace(includeDir,
 								projectRelativeIncludeMap.get(includeDir));
 						sourceFileInfo.setCommand(rCommand);
+						if (sourceFileLocalIncludesMap.containsKey(sourceFileInfo.getFile()))
+						{
+							sourceFileLocalIncludesMap.get(sourceFileInfo.getFile()).add(projectRelativeIncludeMap.get(includeDir));
+						}
+						else
+						{
+							Set<String> incSet = new HashSet<>();
+							incSet.add(projectRelativeIncludeMap.get(includeDir));
+							sourceFileLocalIncludesMap.put(sourceFileInfo.getFile(), incSet);
+						}
+						
 						continue;
 					}
 					
@@ -503,6 +516,17 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 							sourceFileInfo.getFile(), project, monitor);
 					projectRelativeIncludeMap.put(includeDir, sourceIncPair.includeDir);
 					projectRelativeSourceMap.put(sourceFileInfo.getFile(), sourceIncPair.sourceFile);
+					
+					if (sourceFileLocalIncludesMap.containsKey(sourceFileInfo.getFile()))
+					{
+						sourceFileLocalIncludesMap.get(sourceFileInfo.getFile()).add(sourceIncPair.includeDir);
+					}
+					else
+					{
+						Set<String> incSet = new HashSet<>();
+						incSet.add(sourceIncPair.includeDir);
+						sourceFileLocalIncludesMap.put(sourceFileInfo.getFile(), incSet);
+					}
 				}
 			}
 		}
@@ -562,8 +586,9 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		}
 
 		includePathRelativeMap.put(includeDir, folder.getFullPath().toString());
-		String includePathProject = folder.getLocation().makeAbsolute().toString();
+		String includePathProject = folder.getFullPath().toString();
 		Set<String> includeFilesList = new HashSet<String>();
+		includeFilesMap.put(includeDir, includeFilesList);
 		createFoldersAndLinkFiles(folder, includeDirFileObj, includeFilesList);
 		folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 
@@ -887,16 +912,42 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		{
 			// To fix an issue with the local include paths are not getting considered
 			// by indexer while resolving the headers
+			
+			List<String> incPaths = new ArrayList<>();
+			List<String> macroFilesCustom = new ArrayList<>();
+			List<String> incFilesCustom = new ArrayList<String>();
+			for (String inc : includePaths)
+			{
+				if (includeFilesMap.get(inc) != null)
+				{
+					macroFilesCustom.addAll(includeFilesMap.get(inc));
+					incFilesCustom.addAll(includeFilesMap.get(inc));
+				}
+				
+				String relativeInc = includePathRelativeMap.get(inc);
+				if (relativeInc != null && !relativeInc.isBlank())
+				{
+					incPaths.add(relativeInc);
+				}
+				else
+				{
+					incPaths.add(inc);
+				}
+			}
+			
+			includePaths.clear();
 			includePaths.addAll(systemIncludePaths);
+			includePaths.addAll(incPaths);
             systemIncludePaths.clear();
+            
 
 			IFile file = getFileForCMakePath(sourceFileName);
 			if (file != null)
 			{
 				ExtendedScannerInfo info = new ExtendedScannerInfo(definedSymbols,
-						includePaths.stream().toArray(String[]::new), macroFiles.stream().toArray(String[]::new),
-						includeFiles.stream().toArray(String[]::new),
-						systemIncludePaths.stream().toArray(String[]::new));
+						systemIncludePaths.stream().toArray(String[]::new), macroFilesCustom.stream().toArray(String[]::new),
+						incFilesCustom.stream().toArray(String[]::new),
+						incPaths.stream().toArray(String[]::new));
 				infoPerResource.put(file, info);
 				haveUpdates = true;
 			}
