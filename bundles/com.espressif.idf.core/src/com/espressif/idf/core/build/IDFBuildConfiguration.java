@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.eclipse.cdt.cmake.core.ICMakeToolChainFile;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
@@ -87,6 +88,7 @@ import com.google.gson.Gson;
 @SuppressWarnings(value = { "restriction" })
 public class IDFBuildConfiguration extends CBuildConfiguration {
 
+	private static final String ESP_IDF_COMPONENTS = "ESP_IDF_Components";
 	public static final String CMAKE_GENERATOR = "cmake.generator"; //$NON-NLS-1$
 	public static final String CMAKE_ARGUMENTS = "cmake.arguments"; //$NON-NLS-1$
 	public static final String CMAKE_ENV = "cmake.environment"; //$NON-NLS-1$
@@ -389,6 +391,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			// doesn't seem to happen!
 			// setActive();
 			update(project);
+			reIndex(project);
+			project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 			return new IProject[] { project };
 		} catch (Exception e) {
 			throw new CoreException(IDFCorePlugin.errorStatus(
@@ -396,6 +400,12 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 							project.getName()),
 					e));
 		}
+	}
+	
+	private void reIndex(IProject project)
+	{
+		ICProject cproject = CCorePlugin.getDefault().getCoreModel().create(project);
+		CCorePlugin.getIndexManager().reindex(cproject);
 	}
 
 	public void update(IProject project) {
@@ -407,7 +417,11 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			ICElement[] cProjectElements = tuSelection.toArray(new ICElement[tuSelection.size()]);
 			try {
 				CCorePlugin.getIndexManager().update(cProjectElements, getUpdateOptions());
-			} catch (CoreException e) {
+				while(!CCorePlugin.getIndexManager().isIndexerIdle())
+				{
+					Thread.sleep(500);
+				}
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
@@ -422,7 +436,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	protected void linkBuildComponents(IProject project, IProgressMonitor monitor) throws Exception
 	{
 		// Create ESP-IDF Components folder under the project
-		final IFolder componentsFolder = project.getFolder("ESP-IDF-Components"); //$NON-NLS-1$
+		final IFolder componentsFolder = project.getFolder(ESP_IDF_COMPONENTS); //$NON-NLS-1$
 		if (!componentsFolder.exists())
 		{
 			componentsFolder.create(true, false, new NullProgressMonitor());
@@ -452,7 +466,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		final java.nio.file.Path jsonDiskFile = java.nio.file.Path.of(jsonFile.getLocationURI());
 
 		Set<String> includeDirs = new HashSet<String>();
-		Set<String> sourceFiles = new HashSet<String>();
 		CommandEntry[] sourceFileInfos = null;
 		Map<String, String> projectRelativeIncludeMap = new HashMap<String, String>();
 		Map<String, String> projectRelativeSourceMap = new HashMap<String, String>();
@@ -460,55 +473,88 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		{
 			Gson gson = new Gson();
 			sourceFileInfos = gson.fromJson(in, CommandEntry[].class);
+			List<String> sourceFiles = new ArrayList<String>();
 			for (CommandEntry sourceFileInfo : sourceFileInfos)
 			{
 				sourceFiles.add(sourceFileInfo.getFile());
-
+				String sourceFileProjectRelative = createLinkForSourceFileOnly(sourceFileInfo.getFile(), project, monitor);
+				projectRelativeSourceMap.put(sourceFileInfo.getFile(), sourceFileProjectRelative);
+				
 				Matcher matcher = pattern.matcher(sourceFileInfo.getCommand());
+				Set<String> relativeIncPaths = new HashSet<>();
 				while (matcher.find())
 				{
 					String includeDir = matcher.group(0);
 					if (includeDirs.contains(includeDir))
 					{
-						String rCommand = sourceFileInfo.getCommand().replace(includeDir,
-								projectRelativeIncludeMap.get(includeDir));
-						sourceFileInfo.setCommand(rCommand);
-						if (sourceFileLocalIncludesMap.containsKey(sourceFileInfo.getFile()))
-						{
-							sourceFileLocalIncludesMap.get(sourceFileInfo.getFile()).add(projectRelativeIncludeMap.get(includeDir));
-						}
-						else
-						{
-							Set<String> incSet = new HashSet<>();
-							incSet.add(projectRelativeIncludeMap.get(includeDir));
-							sourceFileLocalIncludesMap.put(sourceFileInfo.getFile(), incSet);
-						}
-						
+						relativeIncPaths.add(projectRelativeIncludeMap.get(includeDir));
 						continue;
 					}
 					
 					includeDirs.add(includeDir);
-					SourceIncPair sourceIncPair = generateLinksAndCreateFoldersRequired(includeDir,
+					String relativeInc = generateLinksAndCreateFoldersRequired(includeDir,
 							sourceFileInfo.getFile(), project, monitor);
-					projectRelativeIncludeMap.put(includeDir, sourceIncPair.includeDir);
-					projectRelativeSourceMap.put(sourceFileInfo.getFile(), sourceIncPair.sourceFile);
-					
-					if (sourceFileLocalIncludesMap.containsKey(sourceFileInfo.getFile()))
-					{
-						sourceFileLocalIncludesMap.get(sourceFileInfo.getFile()).add(sourceIncPair.includeDir);
-					}
-					else
-					{
-						Set<String> incSet = new HashSet<>();
-						incSet.add(sourceIncPair.includeDir);
-						sourceFileLocalIncludesMap.put(sourceFileInfo.getFile(), incSet);
-					}
+					projectRelativeIncludeMap.put(includeDir, relativeInc);
+					relativeIncPaths.add(relativeInc);
+				}
+				
+				sourceFileLocalIncludesMap.put(sourceFileInfo.getFile(), relativeIncPaths);
+			}
+			
+			for (String sourceFile : sourceFiles)
+			{
+				if (!sourceFileLocalIncludesMap.containsKey(sourceFile))
+				{
+					Logger.log(sourceFile);
 				}
 			}
+			
 		}
 		catch (Exception e)
 		{
 			Logger.log(e);
+		}
+	}
+
+	private String createLinkForSourceFileOnly(String sourceFile, IProject project, IProgressMonitor monitor) throws Exception
+	{
+		IFolder folder = project.getFolder(ESP_IDF_COMPONENTS); //$NON-NLS-1$
+		File sFile = new File(sourceFile);
+		String sourceFileToSplit = ""; // $NON-NLS-1$
+		if (Platform.getOS().equals(Platform.OS_WIN32))
+		{
+			sourceFileToSplit = sourceFile.replace('\\', '/'); // $NON-NLS-1$
+		}
+
+		List<String> splitPath = Arrays.asList(sourceFileToSplit.split("/")); //$NON-NLS-1$
+		int indexOfComponents = splitPath.indexOf("components"); //$NON-NLS-1$
+		folder = project.getFolder(ESP_IDF_COMPONENTS); //$NON-NLS-1$
+		for (int i = indexOfComponents + 1; i < (splitPath.size() - 1) && indexOfComponents != -1; i++)
+		{
+			folder = folder.getFolder(splitPath.get(i));
+			if (!folder.exists())
+			{
+				folder.create(true, true, new NullProgressMonitor());
+			}
+		}
+
+		if (indexOfComponents != -1)
+		{
+			IFile iFile = folder.getFile(sFile.getName());
+			if (!iFile.exists())
+			{
+				Files.createSymbolicLink(
+						Paths.get(folder.getLocation().makeAbsolute().toString().concat("/").concat(sFile.getName())),
+						Paths.get(sourceFile));
+
+			}
+			sourceFileLocalProjectMap.put(sourceFile, iFile);
+			folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+			return iFile.getLocation().makeAbsolute().toString();
+		}
+		else
+		{
+			return sFile.getAbsolutePath();
 		}
 	}
 
@@ -542,13 +588,13 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		}
 	}
 
-	private SourceIncPair generateLinksAndCreateFoldersRequired(String includeDir, String sourceFile, IProject project,
+	private String generateLinksAndCreateFoldersRequired(String includeDir, String sourceFile, IProject project,
 			IProgressMonitor monitor) throws Exception
 	{
 		File includeDirFileObj = new File(includeDir);
 		List<String> splitPath = Arrays.asList(includeDir.split("/")); //$NON-NLS-1$
 		int indexOfComponents = splitPath.indexOf("components"); //$NON-NLS-1$
-		IFolder folder = project.getFolder("ESP-IDF-Components"); //$NON-NLS-1$
+		IFolder folder = project.getFolder(ESP_IDF_COMPONENTS); //$NON-NLS-1$
 
 		for (int i = indexOfComponents + 1; i < (splitPath.size()) && indexOfComponents != -1; i++)
 		{
@@ -568,39 +614,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		createFoldersAndLinkFiles(folder, includeDirFileObj, includeFilesList);
 		folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 
-		File sFile = new File(sourceFile);
-		if (Platform.getOS().equals(Platform.OS_WIN32))
-		{
-			sourceFile = sourceFile.replace('\\', '/'); // $NON-NLS-1$
-		}
-
-		splitPath = Arrays.asList(sourceFile.split("/")); //$NON-NLS-1$
-		indexOfComponents = splitPath.indexOf("components"); //$NON-NLS-1$
-		folder = project.getFolder("ESP-IDF-Components"); //$NON-NLS-1$
-		for (int i = indexOfComponents + 1; i < (splitPath.size() - 1); i++)
-		{
-			folder = folder.getFolder(splitPath.get(i));
-			if (!folder.exists())
-			{
-				folder.create(true, true, new NullProgressMonitor());
-			}
-		}
-
-		IFile iFile = folder.getFile(sFile.getName());
-		if (!iFile.exists())
-		{
-			Files.createSymbolicLink(
-					Paths.get(folder.getLocation().makeAbsolute().toString().concat("/").concat(sFile.getName())),
-					Paths.get(sourceFile));
-
-		}
-		sourceFileLocalProjectMap.put(sourceFile, iFile);
-		folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-
-		SourceIncPair sourceIncPair = new SourceIncPair();
-		sourceIncPair.includeDir = includePathProject;
-		sourceIncPair.sourceFile = iFile.getLocation().makeAbsolute().toString();
-		return sourceIncPair;
+		return includePathProject;
 	}
 
 	protected int getUpdateOptions()
@@ -885,42 +899,30 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		{
 			// To fix an issue with the local include paths are not getting considered
 			// by indexer while resolving the headers
-			
-			List<String> incPaths = new ArrayList<>();
-			List<String> macroFilesCustom = new ArrayList<>();
-			List<String> incFilesCustom = new ArrayList<String>();
-			for (String inc : includePaths)
-			{
-				if (includeFilesMap.get(inc) != null)
-				{
-					macroFilesCustom.addAll(includeFilesMap.get(inc));
-					incFilesCustom.addAll(includeFilesMap.get(inc));
-				}
-				
-				String relativeInc = includePathRelativeMap.get(inc);
-				if (relativeInc != null && !relativeInc.isBlank())
-				{
-					incPaths.add(relativeInc);
-				}
-				else
-				{
-					incPaths.add(inc);
-				}
-			}
-			
-			includePaths.clear();
-			includePaths.addAll(systemIncludePaths);
-			includePaths.addAll(incPaths);
-            systemIncludePaths.clear();
-            
-
 			IFile file = getFileForCMakePath(sourceFileName);
 			if (file != null)
 			{
+				List<String> incPaths = new ArrayList<String>();
+				List<String> localPathsToRemove = new ArrayList<String>();
+				for (String includePath : includePaths)
+				{
+					String incPath = includePathRelativeMap.get(includePath);
+					if (incPath != null)
+					{
+						localPathsToRemove.add(includePath);
+						incPaths.add(incPath);
+					}
+				}
+				
+				includePaths = includePaths.stream().filter(s-> !localPathsToRemove.contains(s)).collect(Collectors.toList());
+				systemIncludePaths.addAll(incPaths);
+				includePaths.addAll(incPaths);
+				includePaths.addAll(0, systemIncludePaths);
+				
 				ExtendedScannerInfo info = new ExtendedScannerInfo(definedSymbols,
-						systemIncludePaths.stream().toArray(String[]::new), macroFilesCustom.stream().toArray(String[]::new),
-						incFilesCustom.stream().toArray(String[]::new),
-						incPaths.stream().toArray(String[]::new));
+						systemIncludePaths.stream().toArray(String[]::new), macroFiles.stream().toArray(String[]::new),
+						includeFiles.stream().toArray(String[]::new),
+						includePaths.stream().toArray(String[]::new));
 				infoPerResource.put(file, info);
 				haveUpdates = true;
 			}
@@ -937,17 +939,18 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		{
 			org.eclipse.core.runtime.Path path = new org.eclipse.core.runtime.Path(sourceFileName);
 			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(path);
-			if (file == null)
-			{
-				file = sourceFileLocalProjectMap.get(sourceFileName);
-			}
+			IFile fileFromMap = sourceFileLocalProjectMap.get(sourceFileName);
 			// TODO maybe we need to introduce a strategy here to get the workbench resource
 			// Possible build scenarios:
 			// 1) linux native: should be OK as is
 			// 2) linux host, building in container: should be OK as is
 			// 3) windows native: Path.fromOSString()?
 			// 4) windows host, building in linux container: ??? needs testing on windows
-			return file;
+			if (fileFromMap == null)
+			{
+				return file;
+			}
+			return fileFromMap;
 		}
 
 		@Override
@@ -961,12 +964,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				haveUpdates = false;
 			}
 		}
-	}
-	
-	private class SourceIncPair
-	{
-		private String sourceFile;
-		private String includeDir;
 	}
 
 	public void setLaunchTarget(ILaunchTarget target) {
