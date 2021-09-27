@@ -50,6 +50,13 @@
 						<goals>
 							<goal>archive-products</goal>
 						</goals>
+						<configuration>
+                        <formats>
+                            <linux>tar.gz</linux>
+                            <win32>zip</win32>
+                            <macosx>tar.gz</macosx>
+                        </formats>                          
+                    </configuration>
 					</execution>
 				</executions>
 			</plugin>
