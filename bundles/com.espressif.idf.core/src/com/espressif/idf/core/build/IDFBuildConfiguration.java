@@ -929,14 +929,13 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				}
 				
 				includePaths = includePaths.stream().filter(s-> !localPathsToRemove.contains(s)).collect(Collectors.toList());
-				systemIncludePaths.addAll(incPaths);
 				includePaths.addAll(incPaths);
 				includePaths.addAll(0, systemIncludePaths);
 				
 				ExtendedScannerInfo info = new ExtendedScannerInfo(definedSymbols,
-						systemIncludePaths.stream().toArray(String[]::new), macroFiles.stream().toArray(String[]::new),
+						includePaths.stream().toArray(String[]::new), macroFiles.stream().toArray(String[]::new),
 						includeFiles.stream().toArray(String[]::new),
-						includePaths.stream().toArray(String[]::new));
+						systemIncludePaths.stream().toArray(String[]::new));
 				infoPerResource.put(file, info);
 				haveUpdates = true;
 			}
