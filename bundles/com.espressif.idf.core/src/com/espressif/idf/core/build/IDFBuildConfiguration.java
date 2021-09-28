@@ -391,7 +391,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			// doesn't seem to happen!
 			// setActive();
 			update(project);
-			reIndex(project);
 			project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 			return new IProject[] { project };
 		} catch (Exception e) {
@@ -417,10 +416,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			ICElement[] cProjectElements = tuSelection.toArray(new ICElement[tuSelection.size()]);
 			try {
 				CCorePlugin.getIndexManager().update(cProjectElements, getUpdateOptions());
-				while(!CCorePlugin.getIndexManager().isIndexerIdle())
-				{
-					Thread.sleep(500);
-				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
