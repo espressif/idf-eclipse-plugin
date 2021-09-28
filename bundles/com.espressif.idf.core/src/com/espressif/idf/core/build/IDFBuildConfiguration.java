@@ -390,8 +390,13 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			// This is specifically added to trigger the indexing sine in Windows OS it
 			// doesn't seem to happen!
 			// setActive();
-			update(project);
 			project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+			update(project);
+			Thread.sleep(3000);
+			while(!CCorePlugin.getIndexManager().isIndexerIdle())
+			{
+				Thread.sleep(2500);
+			}
 			return new IProject[] { project };
 		} catch (Exception e) {
 			throw new CoreException(IDFCorePlugin.errorStatus(
@@ -421,6 +426,17 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			}
 		}
 	}
+	
+	private String getIdfToolsPath()
+	{
+		String idfToolsPathCommon = IDFUtil.getIDFPath();
+		if (Platform.getOS().equals(Platform.OS_WIN32))
+		{
+			idfToolsPathCommon = idfToolsPathCommon.replace("\\", "/"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		
+		return idfToolsPathCommon;
+	}
 
 	/**
 	 * Link build components(build_component_paths) from project_description.json to the project.
@@ -437,13 +453,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			componentsFolder.create(true, false, new NullProgressMonitor());
 		}
 
-		String idfToolsPathCommon = IDFUtil.getIDFPath();
-		if (Platform.getOS().equals(Platform.OS_WIN32))
-		{
-			idfToolsPathCommon = idfToolsPathCommon.replace("\\", "/"); //$NON-NLS-1$ //$NON-NLS-2$
-		}
 		StringBuilder patternString = new StringBuilder();
-		patternString.append(idfToolsPathCommon);
+		patternString.append(getIdfToolsPath());
 		patternString.append("/"); //$NON-NLS-1$
 		patternString.append("([^\\s]+)"); //$NON-NLS-1$
 
@@ -520,12 +531,22 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		{
 			sourceFileToSplit = sourceFile.replace('\\', '/'); // $NON-NLS-1$
 		}
-
-		List<String> splitPath = Arrays.asList(sourceFileToSplit.split("/")); //$NON-NLS-1$
-		int indexOfComponents = splitPath.indexOf("components"); //$NON-NLS-1$
-		folder = project.getFolder(ESP_IDF_COMPONENTS); //$NON-NLS-1$
-		for (int i = indexOfComponents + 1; i < (splitPath.size() - 1) && indexOfComponents != -1; i++)
+		
+		if (!sourceFileToSplit.contains(getIdfToolsPath().replace('\\', '/')))
 		{
+			return sFile.getAbsolutePath();
+		}
+		
+		sourceFileToSplit = sourceFileToSplit.substring(getIdfToolsPath().length(), sourceFileToSplit.length());
+		List<String> splitPath = Arrays.asList(sourceFileToSplit.split("/")); //$NON-NLS-1$
+		folder = project.getFolder(ESP_IDF_COMPONENTS); //$NON-NLS-1$
+		
+		for (int i = 0; i < (splitPath.size() - 1); i++)
+		{
+			if (splitPath.get(i).equals("components") || splitPath.get(i).isBlank())
+			{
+				continue;
+			}
 			folder = folder.getFolder(splitPath.get(i));
 			if (!folder.exists())
 			{
@@ -533,24 +554,17 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			}
 		}
 
-		if (indexOfComponents != -1)
+		IFile iFile = folder.getFile(sFile.getName());
+		if (!iFile.exists())
 		{
-			IFile iFile = folder.getFile(sFile.getName());
-			if (!iFile.exists())
-			{
-				Files.createSymbolicLink(
-						Paths.get(folder.getLocation().makeAbsolute().toString().concat("/").concat(sFile.getName())),
-						Paths.get(sourceFile));
+			Files.createSymbolicLink(
+					Paths.get(folder.getLocation().makeAbsolute().toString().concat("/").concat(sFile.getName())),
+					Paths.get(sourceFile));
 
-			}
-			sourceFileLocalProjectMap.put(sourceFile, iFile);
-			folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-			return iFile.getLocation().makeAbsolute().toString();
 		}
-		else
-		{
-			return sFile.getAbsolutePath();
-		}
+		sourceFileLocalProjectMap.put(sourceFile, iFile);
+		folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+		return iFile.getLocation().makeAbsolute().toString();
 	}
 
 	private void createFoldersAndLinkFiles(IFolder sourceFolder, File includeDirFileObj, Set<String> includeFilesList)
@@ -587,12 +601,16 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			IProgressMonitor monitor) throws Exception
 	{
 		File includeDirFileObj = new File(includeDir);
-		List<String> splitPath = Arrays.asList(includeDir.split("/")); //$NON-NLS-1$
-		int indexOfComponents = splitPath.indexOf("components"); //$NON-NLS-1$
+		String includeDirToSplit = includeDir.substring(getIdfToolsPath().length(), includeDir.length());
+		List<String> splitPath = Arrays.asList(includeDirToSplit.split("/")); //$NON-NLS-1$
 		IFolder folder = project.getFolder(ESP_IDF_COMPONENTS); //$NON-NLS-1$
 
-		for (int i = indexOfComponents + 1; i < (splitPath.size()) && indexOfComponents != -1; i++)
+		for (int i = 0; i < (splitPath.size()); i++)
 		{
+			if (splitPath.get(i).equals("components") || splitPath.get(i).isBlank())
+			{
+				continue;
+			}
 			IFolder prev = folder;
 			folder = folder.getFolder(splitPath.get(i));
 			if (!folder.exists())
@@ -614,7 +632,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 	protected int getUpdateOptions()
 	{
-		return IIndexManager.UPDATE_ALL | IIndexManager.UPDATE_CHECK_TIMESTAMPS;
+//		return IIndexManager.UPDATE_ALL | IIndexManager.UPDATE_CHECK_TIMESTAMPS;
+		return IIndexManager.UPDATE_CHECK_TIMESTAMPS | IIndexManager.UPDATE_EXTERNAL_FILES_FOR_PROJECT;
 	}
 
 	@Override
