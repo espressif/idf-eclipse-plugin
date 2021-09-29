@@ -17,12 +17,15 @@ Please navigate through each tab and configure project specific settings.
 
 ![](images/OpenOCDDebug_4.png)
 
+## Main Tab 
 ![](images/OpenOCDDebug_5.png)
 
+## Debugger Tab
 ![](images/OpenOCDDebug_6.png)
 
 > **NOTE:**  Update the OpenOCD Config options based on the esp board you've choosen. Please check this here https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/jtag-debugging/tips-and-quirks.html#id1
 
+## Startup Tab
 ![](images/OpenOCDDebug_7.png)
 
 
