@@ -356,6 +356,12 @@
             id="org.plugin.espressif.commands.eraseFlash"
             name="%command.name.6">
       </command>
+      <command
+            categoryId="org.plugin.espressif.commands.category"
+            defaultHandler="com.espressif.idf.ui.handlers.InstallIDFComponentsHandler"
+            id="com.espressif.idf.bundles.installIdfComponents"
+            name="%command.name.10">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -377,6 +383,15 @@
                   icon="icons/Erase Flash.png"
                   id="org.plugin.espressif.menus.eraseFlashCommand"
                   label="%command.label.5">
+            </command>
+            <separator
+                  name="com.espressif.idf.bundles.separator1"
+                  visible="true">
+            </separator>
+            <command
+                  commandId="com.espressif.idf.bundles.installIdfComponents"
+                  id="com.espressif.idf.bundles.installIdfComponentsCommand"
+                  label="%command.name.10">
             </command>
          </menu>
       </menuContribution>
