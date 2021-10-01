@@ -123,6 +123,9 @@ public class CMakeMainTab2 extends GenericMainTab {
 		}
 		try {
 			ILaunchConfigurationWorkingCopy wc = configuration.getWorkingCopy();
+			wc.setAttribute(IDFLaunchConstants.JTAG_FLASH_VOLTAGE, fFlashVoltage.getText());
+			wc.setAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, fTarget.getText());
+			wc.setAttribute(IDFLaunchConstants.JTAG_BOARD, fTargetName.getText());
 			wc.setAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, flashOverJtagButton.getSelection());
 			wc.doSave();
 		} catch (CoreException e) {
@@ -155,18 +158,34 @@ public class CMakeMainTab2 extends GenericMainTab {
 		try {
 			String undefinedArguments = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS,
 					espFlashCommand);
+			initializeJtagComboFields(configuration);
+			updateArgumentsField();
+
 			if (undefinedArguments.contains(EMPTY_CONFIG_OPTIONS)) {
 				defaultArguments = espFlashCommand;
+
+				if (undefinedArguments.contentEquals(EMPTY_CONFIG_OPTIONS)) {
+					undefinedArguments = argumentsForJtagFlash;
+				}
 				argumentsForJtagFlash = undefinedArguments;
+
 			} else {
 				defaultArguments = undefinedArguments;
-				argumentsForJtagFlash = EMPTY_CONFIG_OPTIONS;
 			}
+
 			argumentField.setText(undefinedArguments);
 		} catch (CoreException e) {
 			Logger.log(e);
 		}
 
+	}
+
+	private void initializeJtagComboFields(ILaunchConfiguration configuration) throws CoreException {
+		fFlashVoltage
+				.setText(configuration.getAttribute(IDFLaunchConstants.JTAG_FLASH_VOLTAGE, fFlashVoltage.getText()));
+		fTarget.setText(configuration.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, fTarget.getText()));
+		fTarget.notifyListeners(SWT.Selection, null);
+		fTargetName.setText(configuration.getAttribute(IDFLaunchConstants.JTAG_BOARD, fTargetName.getText()));
 	}
 
 	@Override
@@ -189,7 +208,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 			Label label = new Label(group, SWT.NONE);
 			label.setText(Messages.flashVoltageLabel);
 			label.setToolTipText(Messages.flashVoltageToolTip);
-			fFlashVoltage = new Combo(group, SWT.SINGLE | SWT.BORDER);
+			fFlashVoltage = new Combo(group, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
 			fFlashVoltage.setItems(parser.getEspFlashVoltages().toArray(new String[0]));
 			fFlashVoltage.setText("default"); //$NON-NLS-1$
 			fFlashVoltage.addSelectionListener(new SelectionAdapter() {
@@ -203,7 +222,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 			Label label = new Label(group, SWT.NONE);
 			label.setText(Messages.configTargetLabel);
 			label.setToolTipText(Messages.configTargetToolTip);
-			fTarget = new Combo(group, SWT.SINGLE | SWT.BORDER);
+			fTarget = new Combo(group, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
 			fTarget.setItems(parser.getTargets().toArray(new String[0]));
 			fTarget.setText(selectedTarget);
 			fTarget.addSelectionListener(new SelectionAdapter() {
@@ -212,6 +231,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 					String selectedItem = fTarget.getItem(fTarget.getSelectionIndex());
 					boardConfigsMap = parser.getBoardsConfigs(selectedItem);
 					fTargetName.setItems(parser.getBoardsConfigs(selectedItem).keySet().toArray(new String[0]));
+					fTargetName.select(0);
+					updateArgumentsField();
 				}
 			});
 		}
@@ -219,10 +240,10 @@ public class CMakeMainTab2 extends GenericMainTab {
 			Label label = new Label(group, SWT.NONE);
 			label.setText(Messages.configBoardLabel);
 			label.setToolTipText(Messages.configBoardTooTip);
-			fTargetName = new Combo(group, SWT.SINGLE | SWT.BORDER);
+			fTargetName = new Combo(group, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
 			fTargetName.setItems(parser.getBoardsConfigs(selectedTarget).keySet().toArray(new String[0]));
 			boardConfigsMap = parser.getBoardsConfigs(selectedTarget);
-
+			fTargetName.select(0);
 			fTargetName.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {

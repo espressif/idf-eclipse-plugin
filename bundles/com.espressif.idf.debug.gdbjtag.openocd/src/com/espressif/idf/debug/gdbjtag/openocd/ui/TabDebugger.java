@@ -381,6 +381,8 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 						String selectedItem = fTarget.getItem(fTarget.getSelectionIndex());
 						boardConfigsMap = parser.getBoardsConfigs(selectedItem);
 						fTargetName.setItems(parser.getBoardsConfigs(selectedItem).keySet().toArray(new String[0]));
+						fTargetName.select(0);
+						fTargetName.notifyListeners(SWT.Selection, null);
 					}
 				});
 				fTarget.setLayoutData(gd);
@@ -397,6 +399,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 				fTargetName.setItems(parser.getBoardsConfigs(selectedTarget).keySet().toArray(new String[0]));
 				boardConfigsMap = parser.getBoardsConfigs(selectedTarget);
 				
+				fTargetName.select(0);
 				fTargetName.addSelectionListener(new SelectionAdapter()
 				{
 					@SuppressWarnings("unchecked")
@@ -420,6 +423,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 						}
 
 					}
+
 				});
 				fTargetName.setLayoutData(gd);
 			}
