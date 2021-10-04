@@ -266,17 +266,23 @@ public class IDFUtil
 	 */
 	public static String getXtensaToolchainExecutablePath(IProject project)
 	{
-		Pattern gdb_pattern = ESPToolChainProvider.GDB_PATTERN; // default
 		String projectEspTarget = null;
 		if (project != null)
 		{
 			projectEspTarget = new SDKConfigJsonReader(project).getValue("IDF_TARGET"); //$NON-NLS-1$
-			if (!StringUtil.isEmpty(projectEspTarget) && projectEspTarget.equals(ESP32C3ToolChain.OS))
-			{
-				gdb_pattern = ESPToolChainProvider.GDB_PATTERN_ESP32C3;
-				projectEspTarget = ESP32C3ToolChain.ARCH;
-			}
 		}
+		return getXtensaToolchainExecutablePathByTarget(projectEspTarget);
+	}
+	
+	public static String getXtensaToolchainExecutablePathByTarget(String projectEspTarget) {
+
+		Pattern gdb_pattern = ESPToolChainProvider.GDB_PATTERN; // default
+		if (!StringUtil.isEmpty(projectEspTarget) && projectEspTarget.equals(ESP32C3ToolChain.OS))
+		{
+			gdb_pattern = ESPToolChainProvider.GDB_PATTERN_ESP32C3;
+			projectEspTarget = ESP32C3ToolChain.ARCH;
+		}
+		
 
 		// Process PATH to find the toolchain path
 		IEnvironmentVariable cdtPath = new IDFEnvironmentVariables().getEnv("PATH"); //$NON-NLS-1$
@@ -304,7 +310,7 @@ public class IDFUtil
 							{
 								return path;
 							}
-							else if (tuples[1].equals(projectEspTarget))
+							else if (tuples[1].equals(projectEspTarget) || tuples[0].equals(projectEspTarget))
 							{
 								return path;
 							}
@@ -317,7 +323,7 @@ public class IDFUtil
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Get Addr2Line path based on the target configured for the project with toolchain
 	 * @return
