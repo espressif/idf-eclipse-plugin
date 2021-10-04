@@ -272,7 +272,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 						if (target != null) {
 							launchBarManager.setActiveLaunchTarget(target);
 						} else {
-							showNoTargetMessage(selectedTarget);
+							showNoTargetMessage(selectedItem);
 						}
 
 					} catch (CoreException e1) {

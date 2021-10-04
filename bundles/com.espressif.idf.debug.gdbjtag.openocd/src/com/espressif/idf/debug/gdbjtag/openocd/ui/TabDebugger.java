@@ -435,7 +435,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 							}
 							else
 							{
-								showNoTargetMessage(selectedTarget);
+								showNoTargetMessage(selectedItem);
 							}
 							IDFUtil.getXtensaToolchainExecutablePathByTarget(selectedItem);
 
