@@ -117,3 +117,5 @@ There is no UI option to delete launch targets directly from the eclipse, howeve
   - Add `--debug-output` or other verbose arguments in the `Additional CMake arguments` text field
   - Click on Ok and compile the project to start in the debug output mode. Please refer to https://cmake.org/cmake/help/v3.5/manual/cmake.1.html 
   
+## How do I view Product Information?
+  - Navigate to `Help > Product Information`
