@@ -103,3 +103,17 @@ There is no UI option to delete launch targets directly from the eclipse, howeve
 - Search for the launch target name you want to delete and remove all those entries from the file
 - Save the file
 - Restart the eclipse
+
+## How do I access project build log?
+  - To enable logging navigate to `Preferences > Project > C/C++ > Build > Logging` 
+  - Check `Enable global build logging`
+  - Build the project
+  - Export `global-build.log`. This is the same build console log which appears in the CDT build console but the build console usually have limited buffer size hence it won't display everything.
+  
+ ## How do I enable verbose debug output to my project build?
+  IDF Eclipse plugin uses CMake commands to build the project so it's possible to pass cmake arguments from the build configuration wizard. To configure this. 
+  - Click on the editor configuration wizard
+  - Naviate to `Build Settings` tab
+  - Add `--debug-output` or other verbose arguments in the `Additional CMake arguments` text field
+  - Click on Ok and compile the project to start in the debug output mode. Please refer to https://cmake.org/cmake/help/v3.5/manual/cmake.1.html 
+  
