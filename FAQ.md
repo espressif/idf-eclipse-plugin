@@ -119,3 +119,6 @@ There is no UI option to delete launch targets directly from the eclipse, howeve
   
 ## How do I view Product Information?
   - Navigate to `Help > Product Information`
+
+## Eclipse launch fails with `Java was started but returned exit code=13` when directory path contains special characters
+Eclipse will fail to launch if installed in a directory whose path contains certain invalid characters, including :%#<>"!. The workaround is to install Eclipse in a directory whose path does not contain invalid characters.
