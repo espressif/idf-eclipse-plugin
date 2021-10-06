@@ -395,7 +395,7 @@
       </command>
       <command
             categoryId="org.plugin.espressif.commands.category"
-            defaultHandler="com.espressif.idf.ui.handlers.InstallIDFComponentsHandler"
+            defaultHandler="com.espressif.idf.ui.installcomponents.handler.InstallIDFComponentsHandler"
             id="com.espressif.idf.bundles.installIdfComponents"
             name="%command.name.10">
       </command>
