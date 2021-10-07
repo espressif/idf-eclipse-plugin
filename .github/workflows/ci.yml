@@ -45,7 +45,7 @@ jobs:
       with:
         path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-macosx.cocoa.x86_64.tar.gz
 
-     - name: Upload linux rcp
+    - name: Upload linux rcp
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v2
       with:
