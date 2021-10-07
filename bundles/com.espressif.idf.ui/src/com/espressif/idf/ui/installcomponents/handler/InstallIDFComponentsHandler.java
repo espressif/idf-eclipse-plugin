@@ -21,6 +21,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.ui.installcomponents.desrializer.ComponentsDesrializer;
+import com.espressif.idf.ui.installcomponents.dialog.InstallIDFComponentsDialog;
 import com.espressif.idf.ui.installcomponents.vo.ComponentVO;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -53,6 +54,9 @@ public class InstallIDFComponentsHandler extends AbstractHandler
 			Gson gson = new GsonBuilder().registerTypeAdapter(ArrayList.class, new ComponentsDesrializer()).create();
 			JsonArray jsonArray = gson.fromJson(jsonReader, JsonArray.class);
 			componentVOs = gson.fromJson(jsonArray.toString(), ArrayList.class);
+			InstallIDFComponentsDialog idfComponentsDialog = new InstallIDFComponentsDialog(activeShell, componentVOs);
+			idfComponentsDialog.create();
+			idfComponentsDialog.open();
 		}
 		catch (Exception e)
 		{
