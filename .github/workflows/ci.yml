@@ -25,8 +25,7 @@ jobs:
    
     - name: Build with Maven
       run: mvn clean verify -Djarsigner.skip=true
-      # To avoid double zip issues with the upload-artifact@v2 we will unzip
-
+  
     - name: Upload build artifacts
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v2
@@ -38,19 +37,20 @@ jobs:
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v2
       with:
-        name: "Espressif_IDE_Windows"
-        path: releng/com.espressif.idf.product/target/products/com.espressif.idf.product/win32/win32/x86_64
-        
+        name: espressif-ide-win32
+        path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-win32.win32.x86_64.zip
+
     - name: Upload macOS rcp
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v2
       with:
-        name: "Espressif_IDE_macOS"
-        path: releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64
+        name: espressif-ide-macosx
+        path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-macosx.cocoa.x86_64.tar.gz
 
     - name: Upload linux rcp
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v2
       with:
-        name: "Espressif_IDE_Linux"
-        path: releng/com.espressif.idf.product/target/products/com.espressif.idf.product/linux/gtk/x86_64
+        name: espressif-ide-linux
+        path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
+

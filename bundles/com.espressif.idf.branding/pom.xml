@@ -11,7 +11,7 @@
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<buildTimestamp>${maven.build.timestamp}</buildTimestamp>
 		<buildId>${buildTimestamp}</buildId>
-		<releaseName>2.2.0</releaseName>
+		<releaseName>2.3.0-beta</releaseName>
 	</properties>
 
 	<parent>
