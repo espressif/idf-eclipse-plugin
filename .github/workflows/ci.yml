@@ -26,6 +26,9 @@ jobs:
     - name: Build with Maven
       run: mvn clean verify -Djarsigner.skip=true
   
+    - name: Create macosx dmg
+      run: ./releng/ide-dmg-builder/ide-dmg-builder.sh
+
     - name: Upload build artifacts
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v2
@@ -53,4 +56,12 @@ jobs:
       with:
         name: espressif-ide-linux
         path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
+    
+    - name: Upload macosx dmg
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: espressif-ide-macosx-dmg
+        path: releng/com.espressif.idf.product/target/products/Espressif-IDE.dmg
+  
 
