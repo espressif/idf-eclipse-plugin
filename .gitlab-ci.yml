@@ -22,8 +22,7 @@ before_script:
 build:
   stage: build
   image: jimador/docker-jdk-8-maven-node
-  tags:
-    - ["build_maven", "build"]
+  tags: ["build_maven", "build"]
   artifacts:
     paths:
       - ${ARCHIVE_DIR}/
