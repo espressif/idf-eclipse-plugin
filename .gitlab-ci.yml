@@ -1,5 +1,6 @@
 stages:
   - build
+  - codesign
   - private_deploy
   - public_deploy
 
@@ -26,6 +27,9 @@ build:
   artifacts:
     paths:
       - ${ARCHIVE_DIR}/
+      - releng/com.espressif.idf.product/target/products/Espressif-IDE-*linux.gtk.x86_64.tar.gz
+      - releng/com.espressif.idf.product/target/products/Espressif-IDE-*-macosx.cocoa.x86_64.tar.gz
+      - releng/com.espressif.idf.product/target/products/Espressif-IDE-*-win32.win32.x86_64.zip
     expire_in: 2 weeks
   script:
     # Use an unique name for the archive
@@ -42,6 +46,21 @@ build:
     - rm -v "${KEYSTORE_FILE}"
     - mkdir -p ${ARCHIVE_DIR} && mv -v releng/com.espressif.idf.update/target/${ORIGIN_NAME} ${ARCHIVE_DIR}/${ARCHIVE_NAME}
     - ls -l ${ARCHIVE_DIR}
+    - echo "macosx product file"
+    - ls releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/
+
+osx_code_sign:
+  stage: codesign
+  when: on_success
+  tags:
+    - macos_shell
+  dependencies:
+   - build
+  script:
+    - echo "code signing .app"
+    - $PWD/tools/codesign.sh
+    - $PWD/tools/notarize.sh
+  
 
 .upload_template: &upload_template
   when: manual
