@@ -59,7 +59,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private Map<String, JSONArray> boardConfigsMap;
 	private Combo fTargetName;
 	private boolean isFlashOverJtag;
-	private String defaultArguments;
+	private String argumentsForSerialFlash;
 	private String argumentsForJtagFlash;
 	private boolean isJtagFlashAvailable;
 	private GridData openOcdGroupData;
@@ -91,7 +91,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 			public void widgetSelected(SelectionEvent e) {
 				isFlashOverJtag = !isFlashOverJtag;
 				if (!isFlashOverJtag) {
-					argumentField.setText(defaultArguments);
+					argumentField.setText(argumentsForSerialFlash);
 				} else {
 					argumentField.setText(argumentsForJtagFlash);
 				}
@@ -135,6 +135,14 @@ public class CMakeMainTab2 extends GenericMainTab {
 			wc.setAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, fTarget.getText());
 			wc.setAttribute(IDFLaunchConstants.JTAG_BOARD, fTargetName.getText());
 			wc.setAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, flashOverJtagButton.getSelection());
+			//For the case, when user wants to edit arguments line somehow and save changes
+			if (isFlashOverJtag) {
+				wc.setAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, argumentField.getText());
+				wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, argumentsForSerialFlash);
+			} else {
+				wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, argumentField.getText());
+				wc.setAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, argumentsForJtagFlash);
+			}
 			wc.doSave();
 		} catch (CoreException e) {
 			Logger.log(e);
@@ -164,21 +172,29 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private void updateArgumentsWithDefaultFlashCommand(ILaunchConfiguration configuration) {
 		String espFlashCommand = ESPFlashUtil.getEspFlashCommand(getSerialPort());
 		try {
-			String undefinedArguments = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS,
-					espFlashCommand);
-
-			if (isFlashOverJtag) {
-				defaultArguments = espFlashCommand;
-				initializeJtagComboFields(configuration);
-				updateArgumentsField();
-				if (undefinedArguments.contentEquals(EMPTY_CONFIG_OPTIONS)) {
-					argumentField.setText(argumentsForJtagFlash);
-					return;
-				}
+			if (!isJtagFlashAvailable) {
+				argumentsForSerialFlash = configuration
+						.getAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS, espFlashCommand);
+				argumentsForSerialFlash = argumentsForSerialFlash.isEmpty() ? espFlashCommand : argumentsForSerialFlash;
+				argumentsForSerialFlash = argumentsForSerialFlash.contains(EMPTY_CONFIG_OPTIONS) ? espFlashCommand
+						: argumentsForSerialFlash;
+				argumentField.setText(argumentsForSerialFlash);
+				return;
 			}
-			argumentsForJtagFlash = EMPTY_CONFIG_OPTIONS;
-			defaultArguments = undefinedArguments;
-			argumentField.setText(undefinedArguments);
+			String savedArgumentsForJtagFlash = configuration.getAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS,
+					EMPTY_CONFIG_OPTIONS);
+			argumentsForSerialFlash = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS,
+					espFlashCommand);
+			argumentsForSerialFlash = argumentsForSerialFlash.isEmpty() ? espFlashCommand : argumentsForSerialFlash;
+			initializeJtagComboFields(configuration);
+			argumentsForJtagFlash = savedArgumentsForJtagFlash.contentEquals(savedArgumentsForJtagFlash)
+					? argumentsForJtagFlash
+					: savedArgumentsForJtagFlash;
+			if (isFlashOverJtag) {
+				argumentField.setText(argumentsForJtagFlash);
+			} else {
+				argumentField.setText(argumentsForSerialFlash);
+			}
 
 		} catch (CoreException e) {
 			Logger.log(e);
@@ -187,14 +203,12 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	private void initializeJtagComboFields(ILaunchConfiguration configuration) throws CoreException {
-		if (!isFlashOverJtag) {
-			return;
-		}
 		fFlashVoltage
 				.setText(configuration.getAttribute(IDFLaunchConstants.JTAG_FLASH_VOLTAGE, fFlashVoltage.getText()));
 		fTarget.setText(configuration.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, fTarget.getText()));
 		fTarget.notifyListeners(SWT.Selection, null);
 		fTargetName.setText(configuration.getAttribute(IDFLaunchConstants.JTAG_BOARD, fTargetName.getText()));
+		fTargetName.notifyListeners(SWT.Selection, null);
 	}
 
 	private static void showNoTargetMessage(String selectedTarget) {

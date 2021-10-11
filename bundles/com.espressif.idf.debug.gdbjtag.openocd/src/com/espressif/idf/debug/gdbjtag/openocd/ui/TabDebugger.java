@@ -412,7 +412,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 					public void widgetSelected(SelectionEvent e)
 					{
 						String updatedSelectedTarget = getLaunchTarget();
-						String selectedItem = fTarget.getItem(fTarget.getSelectionIndex());
+						String selectedItem = fTarget.getText();
 						if (!selectedItem.contentEquals(updatedSelectedTarget))
 						{
 							updateLaunchBar(selectedItem);
