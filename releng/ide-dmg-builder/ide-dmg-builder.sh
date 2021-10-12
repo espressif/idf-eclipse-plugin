@@ -8,8 +8,8 @@ echo $parentdir
 
 $BUILDDIR/create-dmg/create-dmg \
   --volname "Espressif-IDE" \
-  --volicon "espressif.icns" \
-  --background "background.png" \
+  --volicon "$BUILDDIR/espressif.icns" \
+  --background "$BUILDDIR/background.png" \
   --window-pos 200 120 \
   --window-size 800 350 \
   --icon-size 100 \

@@ -62,5 +62,5 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: espressif-ide-macosx-dmg
-        path: releng/com.espressif.idf.product/target/products/Espressif-IDE.dmg
+        path: releng/ide-dmg-builder/Espressif-IDE.dmg
   
