@@ -6,7 +6,7 @@ parentdir="$(dirname "$BUILDDIR")"
 echo "Create DMG installer..."
 echo $parentdir
 
-./create-dmg/create-dmg \
+$BUILDDIR/create-dmg/create-dmg \
   --volname "Espressif-IDE" \
   --volicon "espressif.icns" \
   --background "background.png" \
