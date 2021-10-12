@@ -16,7 +16,7 @@ $BUILDDIR/create-dmg/create-dmg \
   --icon "Espressif-IDE.app" 140 155 \
   --hide-extension "Espressif-IDE.app" \
   --app-drop-link 625 155 \
-  "Espressif-IDE.dmg" \
+  "$BUILDDIR/Espressif-IDE.dmg" \
   "$parentdir/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app"
 
   
