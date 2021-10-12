@@ -1,6 +1,6 @@
 stages:
   - build
-  - codesign
+  # - codesign
   - private_deploy
   - public_deploy
 
@@ -27,9 +27,7 @@ build:
   artifacts:
     paths:
       - ${ARCHIVE_DIR}/
-      - releng/com.espressif.idf.product/target/products/Espressif-IDE-*linux.gtk.x86_64.tar.gz
-      - releng/com.espressif.idf.product/target/products/Espressif-IDE-*-macosx.cocoa.x86_64.tar.gz
-      - releng/com.espressif.idf.product/target/products/Espressif-IDE-*-win32.win32.x86_64.zip
+  
     expire_in: 2 weeks
   script:
     # Use an unique name for the archive
@@ -46,21 +44,20 @@ build:
     - rm -v "${KEYSTORE_FILE}"
     - mkdir -p ${ARCHIVE_DIR} && mv -v releng/com.espressif.idf.update/target/${ORIGIN_NAME} ${ARCHIVE_DIR}/${ARCHIVE_NAME}
     - ls -l ${ARCHIVE_DIR}
-    - echo "macosx product file"
-    - ls releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/
+    - export PRODUCTS_PATH=releng/com.espressif.idf.product/target/products/
+    - echo ${PRODUCTS_PATH}
 
-osx_code_sign:
-  stage: codesign
-  when: on_success
-  tags:
-    - macos_shell
-  dependencies:
-   - build
-  script:
-    - echo "code signing .app"
-    - $PWD/tools/codesign.sh
-    - $PWD/tools/notarize.sh
-  
+# osx_code_sign:
+#   stage: codesign
+#   when: on_success
+#   tags:
+#     - macos_shell
+#   dependencies:
+#    - build
+#   script:
+#     - echo "code signing .app"
+#     - $PWD/tools/codesign.sh
+#     - $PWD/tools/notarize.sh
 
 .upload_template: &upload_template
   when: manual
@@ -84,6 +81,28 @@ osx_code_sign:
     # Show info
     - echo -e "\nAn archives was published there:\n\n${SRV_HTTP_URL}/${ARCHIVE_NAME}"
     - echo -e "\n\n\nThe plugin was published there:\n\n${SRV_HTTP_URL}/${SRV_LATEST_NAME}"
+
+.upload_ide: &upload_ide
+  when: manual
+  tags:
+    - deploy
+  dependencies:
+    - build
+  script:
+    # getting the corresponding unique suffix
+    - UNIQ_SUFFIX=$(cat ${ARCHIVE_DIR}/uniq_suffix_value)
+    - WIN32_IDE_PATH= ${PRODUCTS_PATH}/Espressif-IDE-*-win32.win32.x86_64.zip
+    - MACOSX_IDE_PATH= ${PRODUCTS_PATH}/Espressif-IDE-*-macosx.cocoa.x86_64.tar.gz
+    - LINUX_IDE_PATH= ${PRODUCTS_PATH}/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
+    # upload archive
+    - cit_add_ssh_key "${SRV_KEY}"
+    - scp ${WIN32_IDE_PATH} ${SRV_UPLOAD_PATH}
+    - scp ${MACOSX_IDE_PATH} ${SRV_UPLOAD_PATH}
+    - scp ${LINUX_IDE_PATH} ${SRV_UPLOAD_PATH}
+    # Show info
+    - echo -e "\nAn win32 Espressif-IDE was published there:\n\n${SRV_HTTP_URL}/${WIN32_IDE_PATH}"
+    - echo -e "\nAn macosx Espressif-IDE was published there:\n\n${SRV_HTTP_URL}/${MACOSX_IDE_PATH}"
+    - echo -e "\nAn linux Espressif-IDE was published there:\n\n${SRV_HTTP_URL}/${LINUX_IDE_PATH}"
 
 internal_http:
   <<: *upload_template
@@ -127,6 +146,20 @@ public_http_beta:
     SRV_UPLOAD_PATH: ${DL_SERVER_SSH}:${DL_SERVER_CD_DIR}
     SRV_LATEST_NAME: beta
     SRV_HTTP_URL: ${DL_SERVER_HTTP}/${DL_SERVER_CD_DIR}
+
+publish_ide:
+  <<: *upload_ide
+  stage: public_deploy
+  only:
+    - /^v[0-9].*$/
+  variables:
+    GIT_STRATEGY: none
+    SRV_KEY: ${DL_KEY}
+    SRV_DIR: ${DL_SERVER_IDE_DIR}
+    SRV_SERVER_SSH: ${DL_SERVER_SSH}
+    SRV_UPLOAD_PATH: ${DL_SERVER_SSH}:${DL_SERVER_IDE_DIR}
+    SRV_LATEST_NAME: latest
+    SRV_HTTP_URL: ${DL_SERVER_HTTP}/${DL_SERVER_IDE_DIR}
 
 .git_sync_template: &git_sync_template
   stage: public_deploy
