@@ -27,7 +27,7 @@ jobs:
       run: mvn clean verify -Djarsigner.skip=true
   
     - name: Create macosx dmg
-      run: /releng/ide-dmg-builder/ide-dmg-builder.sh
+      run: $PWD/releng/ide-dmg-builder/ide-dmg-builder.sh
 
     - name: Upload build artifacts
       if: ${{ !cancelled() }}
