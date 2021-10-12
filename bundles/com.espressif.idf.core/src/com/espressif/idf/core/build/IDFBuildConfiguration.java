@@ -469,13 +469,13 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		}
 
 		final IFile jsonFile = getBuildContainer().getFile(new org.eclipse.core.runtime.Path("compile_commands.json")); //$NON-NLS-1$
-		final java.nio.file.Path jsonDiskFile = java.nio.file.Path.of(jsonFile.getLocationURI());
+		 File jsonDiskFile = new File(jsonFile.getLocationURI());
 
 		Set<String> includeDirs = new HashSet<String>();
 		CommandEntry[] sourceFileInfos = null;
 		Map<String, String> projectRelativeIncludeMap = new HashMap<String, String>();
 		Map<String, String> projectRelativeSourceMap = new HashMap<String, String>();
-		try (Reader in = new FileReader(jsonDiskFile.toFile()))
+		try (Reader in = new FileReader(jsonDiskFile))
 		{
 			Gson gson = new Gson();
 			sourceFileInfos = gson.fromJson(in, CommandEntry[].class);
@@ -543,7 +543,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		
 		for (int i = 0; i < (splitPath.size() - 1); i++)
 		{
-			if (splitPath.get(i).equals("components") || splitPath.get(i).isBlank())
+			if (splitPath.get(i).equals("components") || splitPath.get(i).trim().isEmpty())
 			{
 				continue;
 			}
@@ -607,7 +607,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 		for (int i = 0; i < (splitPath.size()); i++)
 		{
-			if (splitPath.get(i).equals("components") || splitPath.get(i).isBlank())
+			if (splitPath.get(i).equals("components") || splitPath.get(i).trim().isEmpty())
 			{
 				continue;
 			}
