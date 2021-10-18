@@ -79,10 +79,12 @@ import org.eclipse.launchbar.core.target.ILaunchTarget;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.internal.CMakeConsoleWrapper;
 import com.espressif.idf.core.internal.CMakeErrorParser;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.StringUtil;
 import com.google.gson.Gson;
 
 @SuppressWarnings(value = { "restriction" })
@@ -278,7 +280,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 					}
 				}
 
-				String userArgs = getProperty(CMAKE_ARGUMENTS);
+				String userArgs = getProperty(CMAKE_ARGUMENTS); //IDF_PYTHON_ENV_PATH
 				if (userArgs != null)
 				{
 					command.addAll(Arrays.asList(userArgs.trim().split("\\s+"))); //$NON-NLS-1$
@@ -297,8 +299,15 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				// Set PYTHONUNBUFFERED to 1/TRUE to dump the messages back immediately without
 				// buffering
 				IEnvironmentVariable bufferEnvVar = new EnvironmentVariable("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
+				
+				IEnvironmentVariable envVar = new EnvironmentVariable(IDFEnvironmentVariables.PATH, System.getenv(IDFEnvironmentVariables.PATH)); //$NON-NLS-1$
+				String buildEnvPATH = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.PATH);
+				if (!StringUtil.isEmpty(buildEnvPATH))
+				{
+					envVar = new EnvironmentVariable(IDFEnvironmentVariables.PATH, buildEnvPATH); //$NON-NLS-1$
+				}
 
-				Process p = startBuildProcess(command, new IEnvironmentVariable[] { bufferEnvVar }, workingDir,
+				Process p = startBuildProcess(command, new IEnvironmentVariable[] { bufferEnvVar, envVar }, workingDir,
 						errConsole, monitor);
 				if (p == null) {
 					console.getErrorStream().write(String
