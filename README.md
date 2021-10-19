@@ -81,13 +81,13 @@ You can install the IDF Eclipse plugin into an existing Eclipse CDT installation
 # Installing ESP-IDF
 To install ESP-IDF directly from the Eclipse
 
-1. Go to `Help` > `Download and Configure ESP-IDF`
+1. Go to `Espressif` > `Download and Configure ESP-IDF`
 1. From the `Download ESP-IDF` section, choose ESP-IDF version and directory to download
 1. Click on `Finish`
 
 To configure an existing ESP-IDF
 
-1. Go to `Help` > `Download and Configure ESP-IDF`
+1. Go to `Espressif` > `Download and Configure ESP-IDF`
 1. Check `Use an existing ESP-IDF directory from the file system`
 1. Choose an existing ESP-IDF directory from the file system
 1. Click on `Finish`
@@ -101,7 +101,7 @@ ESP-IDF requires some prerequisite tools to be installed so you can build firmwa
 
 For this getting started guide, follow the instructions below.
 
-1. Navigate to `Help` > `ESP-IDF Tools Manager` > `Install Tools`
+1. Navigate to `Espressif` > `ESP-IDF Tools Manager` > `Install Tools`
 1. Provide the `ESP-IDF Directory` path
 1. Provide `Git` and `Python` executable locations if they are not auto-detected.
 1. Click on `Install Tools` to proceed with the installation process. Check the Console for the installation details.
@@ -254,7 +254,7 @@ To launch the ESP-IDF Terminal:
 
 <a name="configureEnvironmentVariables"></a>
 # Configuring Environment Variables
-Eclipse auto configures the required environment variables in the `Preferences` > `C/C++ Build` > `Environment` section if IDF Tools are installed using `Help` > `ESP-IDF Tools Manager` > `Install Tools` menu option.
+Eclipse auto configures the required environment variables in the `Preferences` > `C/C++ Build` > `Environment` section if IDF Tools are installed using `Espressif` > `ESP-IDF Tools Manager` > `Install Tools` menu option.
 
 Required environment variables:
 * `IDF_PATH`
@@ -281,15 +281,10 @@ This is how they should look:
 ##### PATH #####
 `/Users/user-name/.espressif/tools/xtensa-esp32-elf/esp32-2019r1-8.2.0/xtensa-esp32-elf/bin:/Users/user-name/.espressif/tools/esp32ulp-elf/2.28.51.20170517/esp32ulp-elf-binutils/bin:/Users/user-name/.espressif/tools/cmake/3.13.4/CMake.app/Contents/bin:/Users/user-name/.espressif/tools/openocd-esp32/v0.10.0-esp32-20190313/openocd-esp32/bin:/Users/user-name/.espressif/tools/ninja/1.9.0/:/Users/user-name/.espressif/python_env/idf4.0_py3.7_env/bin:/Users/user-name/esp/esp-idf/tools:$PATH`
 
-In the above path, the last segment `$PATH` needs to be replaced with the system environment PATH based on the operating system.
-For example, to get the system environment PATH.
-- In macOS, `$echo $PATH ` 
-- In Windows, `$echo %PATH%`
-
 ![](docs/images/2_environment_pref.png)
 
 # Configuring Toolchains
-We need to tell Eclipse CDT what core build toolchain and CMake toolchain need to be used to build the project. However, this will be auto-detected if you've installed the tools using the `Help` > `ESP-IDF Tools Manager` > `Install Tools` option from the Eclipse.
+We need to tell Eclipse CDT what core build toolchain and CMake toolchain need to be used to build the project. However, this will be auto-detected if you've installed the tools using the `Espressif` > `ESP-IDF Tools Manager` > `Install Tools` option from the Eclipse.
 
 If these toolchains are not detected for any reason, please follow the step by step instructions below to add a new toolchain.
 
@@ -343,7 +338,7 @@ To provide the customized launch configuration and flash arguments, please follo
 # Changing Language
 To change the plugin language a menu is provided to show the list of available languages for the plugin. Remember this will only change the language of the eclipse if the required language bundles for the selected language are installed or else only the plugin interfaces will be changed.
 
-1. Click on the `Help` menu from menu bar
+1. Click on the `Espressif` menu from menu bar
 1. Select the `Change Language` from the menu drop down
 1. From the sub menu select the language you want
 1. Eclipse will restart with selected language
@@ -377,7 +372,7 @@ Go to `Preferences > C/C++ > Build > Logging`
 ## Espressif IDF Tools Console
 The Espressif IDF Tools Console is part of Console view, this will be opened only during the installation of IDF tools from the Eclipse. 
 
-If you encounter any issue while installing the IDF tools using `Help` > `ESP-IDF Tools Manager` > `Install tools`, please check the Espressif IDF Tools Console to see the errors reported.
+If you encounter any issue while installing the IDF tools using `Espressif` > `ESP-IDF Tools Manager` > `Install tools`, please check the Espressif IDF Tools Console to see the errors reported.
 
 If this is not active, it can be switched by clicking on the `Display Selected Console` icon from the console view.
 
