@@ -70,6 +70,7 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
@@ -80,6 +81,7 @@ import org.eclipse.launchbar.core.target.ILaunchTarget;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.internal.CMakeConsoleWrapper;
 import com.espressif.idf.core.internal.CMakeErrorParser;
 import com.espressif.idf.core.logging.Logger;
@@ -88,7 +90,8 @@ import com.espressif.idf.core.util.StringUtil;
 import com.google.gson.Gson;
 
 @SuppressWarnings(value = { "restriction" })
-public class IDFBuildConfiguration extends CBuildConfiguration {
+public class IDFBuildConfiguration extends CBuildConfiguration
+{
 
 	private static final String ESP_IDF_COMPONENTS = "ESP_IDF_Components";
 	public static final String CMAKE_GENERATOR = "cmake.generator"; //$NON-NLS-1$
@@ -135,7 +138,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	}
 
 	@Override
-	public Path getBuildDirectory() throws CoreException {
+	public Path getBuildDirectory() throws CoreException
+	{
 		IProject project = getProject();
 		String absolutePath = project.getLocation().toFile().getAbsolutePath();
 		return Paths.get(absolutePath, IDFConstants.BUILD_FOLDER);
@@ -143,12 +147,14 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	}
 
 	@Override
-	public IContainer getBuildContainer() throws CoreException {
+	public IContainer getBuildContainer() throws CoreException
+	{
 		IProject project = getProject();
 		IFolder buildRootFolder = project.getFolder(IDFConstants.BUILD_FOLDER);
 
 		IProgressMonitor monitor = new NullProgressMonitor();
-		if (!buildRootFolder.exists()) {
+		if (!buildRootFolder.exists())
+		{
 			buildRootFolder.create(IResource.FORCE | IResource.DERIVED, true, monitor);
 		}
 
@@ -177,7 +183,11 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 		Instant start = Instant.now();
 
-		try {
+		// Special handling for arm64
+		boolean arm64 = isArm64();
+
+		try
+		{
 			// Get launch target
 			ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
 			launchtarget = launchBarManager.getActiveLaunchTarget();
@@ -212,7 +222,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 			// create build directory
 			Path buildDir = getBuildDirectory();
-			if (!buildDir.toFile().exists()) {
+			if (!buildDir.toFile().exists())
+			{
 				buildDir.toFile().mkdir();
 			}
 
@@ -259,7 +270,11 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				cleanBuildDirectory(buildDir);
 
 				List<String> command = new ArrayList<>();
-
+				if (arm64)
+				{
+					command.add("arch"); //$NON-NLS-1$
+					command.add("-arm64"); //$NON-NLS-1$
+				}
 				command.add("cmake"); //$NON-NLS-1$
 				command.add("-G"); //$NON-NLS-1$
 				command.add(generator);
@@ -272,15 +287,17 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				command.add("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"); //$NON-NLS-1$
 				command.add("-DCCACHE_ENABLE=1"); //$NON-NLS-1$
 
-				if (launchtarget != null) {
+				if (launchtarget != null)
+				{
 					String idfTargetName = launchtarget.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
 							""); //$NON-NLS-1$
-					if (!idfTargetName.isEmpty()) {
+					if (!idfTargetName.isEmpty())
+					{
 						command.add("-DIDF_TARGET=" + idfTargetName); //$NON-NLS-1$
 					}
 				}
 
-				String userArgs = getProperty(CMAKE_ARGUMENTS); //IDF_PYTHON_ENV_PATH
+				String userArgs = getProperty(CMAKE_ARGUMENTS); // IDF_PYTHON_ENV_PATH
 				if (userArgs != null)
 				{
 					command.addAll(Arrays.asList(userArgs.trim().split("\\s+"))); //$NON-NLS-1$
@@ -299,17 +316,19 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				// Set PYTHONUNBUFFERED to 1/TRUE to dump the messages back immediately without
 				// buffering
 				IEnvironmentVariable bufferEnvVar = new EnvironmentVariable("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
-				
-				IEnvironmentVariable envVar = new EnvironmentVariable(IDFEnvironmentVariables.PATH, System.getenv(IDFEnvironmentVariables.PATH)); //$NON-NLS-1$
+
+				IEnvironmentVariable envVar = new EnvironmentVariable(IDFEnvironmentVariables.PATH,
+						System.getenv(IDFEnvironmentVariables.PATH)); // $NON-NLS-1$
 				String buildEnvPATH = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.PATH);
 				if (!StringUtil.isEmpty(buildEnvPATH))
 				{
-					envVar = new EnvironmentVariable(IDFEnvironmentVariables.PATH, buildEnvPATH); //$NON-NLS-1$
+					envVar = new EnvironmentVariable(IDFEnvironmentVariables.PATH, buildEnvPATH); // $NON-NLS-1$
 				}
 
 				Process p = startBuildProcess(command, new IEnvironmentVariable[] { bufferEnvVar, envVar }, workingDir,
 						errConsole, monitor);
-				if (p == null) {
+				if (p == null)
+				{
 					console.getErrorStream().write(String
 							.format(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_Failure, "")); //$NON-NLS-1$
 					return null;
@@ -348,6 +367,11 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				String buildCommand = getProperty(BUILD_COMMAND);
 				if (buildCommand == null)
 				{
+					if (arm64)
+					{
+						command.add("arch"); //$NON-NLS-1$
+						command.add("-arm64"); //$NON-NLS-1$
+					}
 					command.add("cmake"); //$NON-NLS-1$
 					command.add("--build"); //$NON-NLS-1$
 					command.add("."); //$NON-NLS-1$
@@ -368,7 +392,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 						getBuildDirectory().toString());
 				Process p = startBuildProcess(command, envVars.toArray(new IEnvironmentVariable[0]), workingDir,
 						console, monitor);
-				if (p == null) {
+				if (p == null)
+				{
 					console.getErrorStream().write(String
 							.format(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_Failure, "")); //$NON-NLS-1$
 					return null;
@@ -402,40 +427,87 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 			update(project);
 			Thread.sleep(3000);
-			while(!CCorePlugin.getIndexManager().isIndexerIdle())
+			while (!CCorePlugin.getIndexManager().isIndexerIdle())
 			{
 				Thread.sleep(2500);
 			}
 			return new IProject[] { project };
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			throw new CoreException(IDFCorePlugin.errorStatus(
 					String.format(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_Building,
 							project.getName()),
 					e));
 		}
 	}
-	
+
+	private boolean isArm64()
+	{
+		if (Platform.getOS().equals(Platform.OS_MACOSX))
+		{
+			try
+			{
+				Path unamePath = findCommand("uname"); //$NON-NLS-1$
+				String absolutePath = unamePath.toFile().getAbsolutePath();
+
+				List<String> commands = new ArrayList<String>();
+				commands.add(absolutePath);
+				commands.add("-m"); //$NON-NLS-1$
+
+				IStatus status = new ProcessBuilderFactory().runInBackground(commands,
+						org.eclipse.core.runtime.Path.ROOT, System.getenv());
+				if (status == null)
+				{
+					Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin
+							.errorStatus("status is null. Command executed is " + commands.toString(), null)); //$NON-NLS-1$
+					return false;
+				}
+
+				String cpuArch = status.getMessage();
+				Logger.log("Arch::" + cpuArch); //$NON-NLS-1$
+
+				if (!StringUtil.isEmpty(cpuArch) && cpuArch.equals("arm64")) //$NON-NLS-1$
+				{
+					return true;
+				}
+
+			}
+			catch (IOException e)
+			{
+				Logger.log(e);
+			}
+		}
+
+		return false;
+	}
+
 	private void reIndex(IProject project)
 	{
 		ICProject cproject = CCorePlugin.getDefault().getCoreModel().create(project);
 		CCorePlugin.getIndexManager().reindex(cproject);
 	}
 
-	public void update(IProject project) {
+	public void update(IProject project)
+	{
 		ICProject cproject = CCorePlugin.getDefault().getCoreModel().create(project);
-		if (cproject != null) {
+		if (cproject != null)
+		{
 			ArrayList<ICElement> tuSelection = new ArrayList<>();
 			tuSelection.add(cproject);
 
 			ICElement[] cProjectElements = tuSelection.toArray(new ICElement[tuSelection.size()]);
-			try {
+			try
+			{
 				CCorePlugin.getIndexManager().update(cProjectElements, getUpdateOptions());
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				e.printStackTrace();
 			}
 		}
 	}
-	
+
 	private String getIdfToolsPath()
 	{
 		String idfToolsPathCommon = IDFUtil.getIDFPath();
@@ -443,7 +515,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		{
 			idfToolsPathCommon = idfToolsPathCommon.replace("\\", "/"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		
+
 		return idfToolsPathCommon;
 	}
 
@@ -456,7 +528,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	protected void linkBuildComponents(IProject project, IProgressMonitor monitor) throws Exception
 	{
 		// Create ESP-IDF Components folder under the project
-		final IFolder componentsFolder = project.getFolder(ESP_IDF_COMPONENTS); //$NON-NLS-1$
+		final IFolder componentsFolder = project.getFolder(ESP_IDF_COMPONENTS); // $NON-NLS-1$
 		if (!componentsFolder.exists())
 		{
 			componentsFolder.create(true, false, new NullProgressMonitor());
@@ -478,7 +550,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		}
 
 		final IFile jsonFile = getBuildContainer().getFile(new org.eclipse.core.runtime.Path("compile_commands.json")); //$NON-NLS-1$
-		 File jsonDiskFile = new File(jsonFile.getLocationURI());
+		File jsonDiskFile = new File(jsonFile.getLocationURI());
 
 		Set<String> includeDirs = new HashSet<String>();
 		CommandEntry[] sourceFileInfos = null;
@@ -492,9 +564,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			for (CommandEntry sourceFileInfo : sourceFileInfos)
 			{
 				sourceFiles.add(sourceFileInfo.getFile());
-				String sourceFileProjectRelative = createLinkForSourceFileOnly(sourceFileInfo.getFile(), project, monitor);
+				String sourceFileProjectRelative = createLinkForSourceFileOnly(sourceFileInfo.getFile(), project,
+						monitor);
 				projectRelativeSourceMap.put(sourceFileInfo.getFile(), sourceFileProjectRelative);
-				
+
 				Matcher matcher = pattern.matcher(sourceFileInfo.getCommand());
 				Set<String> relativeIncPaths = new HashSet<>();
 				while (matcher.find())
@@ -505,17 +578,17 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 						relativeIncPaths.add(projectRelativeIncludeMap.get(includeDir));
 						continue;
 					}
-					
+
 					includeDirs.add(includeDir);
-					String relativeInc = generateLinksAndCreateFoldersRequired(includeDir,
-							sourceFileInfo.getFile(), project, monitor);
+					String relativeInc = generateLinksAndCreateFoldersRequired(includeDir, sourceFileInfo.getFile(),
+							project, monitor);
 					projectRelativeIncludeMap.put(includeDir, relativeInc);
 					relativeIncPaths.add(relativeInc);
 				}
-				
+
 				sourceFileLocalIncludesMap.put(sourceFileInfo.getFile(), relativeIncPaths);
 			}
-			
+
 			for (String sourceFile : sourceFiles)
 			{
 				if (!sourceFileLocalIncludesMap.containsKey(sourceFile))
@@ -523,7 +596,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 					Logger.log(sourceFile);
 				}
 			}
-			
+
 		}
 		catch (Exception e)
 		{
@@ -531,25 +604,26 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		}
 	}
 
-	private String createLinkForSourceFileOnly(String sourceFile, IProject project, IProgressMonitor monitor) throws Exception
+	private String createLinkForSourceFileOnly(String sourceFile, IProject project, IProgressMonitor monitor)
+			throws Exception
 	{
-		IFolder folder = project.getFolder(ESP_IDF_COMPONENTS); //$NON-NLS-1$
+		IFolder folder = project.getFolder(ESP_IDF_COMPONENTS); // $NON-NLS-1$
 		File sFile = new File(sourceFile);
 		String sourceFileToSplit = ""; // $NON-NLS-1$
 		if (Platform.getOS().equals(Platform.OS_WIN32))
 		{
 			sourceFileToSplit = sourceFile.replace('\\', '/'); // $NON-NLS-1$
 		}
-		
+
 		if (!sourceFileToSplit.contains(getIdfToolsPath().replace('\\', '/')))
 		{
 			return sFile.getAbsolutePath();
 		}
-		
+
 		sourceFileToSplit = sourceFileToSplit.substring(getIdfToolsPath().length(), sourceFileToSplit.length());
 		List<String> splitPath = Arrays.asList(sourceFileToSplit.split("/")); //$NON-NLS-1$
-		folder = project.getFolder(ESP_IDF_COMPONENTS); //$NON-NLS-1$
-		
+		folder = project.getFolder(ESP_IDF_COMPONENTS); // $NON-NLS-1$
+
 		for (int i = 0; i < (splitPath.size() - 1); i++)
 		{
 			if (splitPath.get(i).equals("components") || splitPath.get(i).trim().isEmpty())
@@ -612,7 +686,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		File includeDirFileObj = new File(includeDir);
 		String includeDirToSplit = includeDir.substring(getIdfToolsPath().length(), includeDir.length());
 		List<String> splitPath = Arrays.asList(includeDirToSplit.split("/")); //$NON-NLS-1$
-		IFolder folder = project.getFolder(ESP_IDF_COMPONENTS); //$NON-NLS-1$
+		IFolder folder = project.getFolder(ESP_IDF_COMPONENTS); // $NON-NLS-1$
 
 		for (int i = 0; i < (splitPath.size()); i++)
 		{
@@ -692,7 +766,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			org.eclipse.core.runtime.Path workingDir = new org.eclipse.core.runtime.Path(
 					getBuildDirectory().toString());
 			Process p = startBuildProcess(command, env, workingDir, console, monitor);
-			if (p == null) {
+			if (p == null)
+			{
 				console.getErrorStream().write(String
 						.format(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_Failure, "")); //$NON-NLS-1$
 				return;
@@ -703,7 +778,9 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			outStream.write(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_BuildComplete);
 
 			project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			throw new CoreException(IDFCorePlugin.errorStatus(
 					String.format(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_Cleaning,
 							project.getName()),
@@ -712,10 +789,9 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	}
 
 	/**
-	 * @param console the console to print the compiler output during built-ins
-	 *                detection to or <code>null</code> if no separate console is to
-	 *                be allocated. Ignored if workspace preferences indicate that
-	 *                no console output is wanted.
+	 * @param console the console to print the compiler output during built-ins detection to or <code>null</code> if no
+	 *                separate console is to be allocated. Ignored if workspace preferences indicate that no console
+	 *                output is wanted.
 	 * @param monitor the job's progress monitor
 	 */
 	private void processCompileCommandsFile(IConsole console, IProgressMonitor monitor) throws CoreException
@@ -770,9 +846,11 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	 */
 	// interface IScannerInfoProvider
 	@Override
-	public IScannerInfo getScannerInformation(IResource resource) {
+	public IScannerInfo getScannerInformation(IResource resource)
+	{
 
-		if (infoPerResource == null) {
+		if (infoPerResource == null)
+		{
 			// no build was run yet, nothing detected
 			try
 			{
@@ -792,8 +870,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	}
 
 	/**
-	 * Overwritten to detect whether one of the CMakeLists.txt files in the project
-	 * was modified since the last build.
+	 * Overwritten to detect whether one of the CMakeLists.txt files in the project was modified since the last build.
 	 */
 	@Override
 	public void elementChanged(ElementChangedEvent event)
@@ -809,12 +886,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	}
 
 	/**
-	 * Processes the delta in order to detect whether one of the CMakeLists.txt
-	 * files in the project has been modified and saved by the user since the last
-	 * build.
+	 * Processes the delta in order to detect whether one of the CMakeLists.txt files in the project has been modified
+	 * and saved by the user since the last build.
 	 * 
-	 * @return <code>true</code> to continue with delta processing, otherwise
-	 *         <code>false</code>
+	 * @return <code>true</code> to continue with delta processing, otherwise <code>false</code>
 	 */
 	private boolean processElementDelta(ICElementDelta delta)
 	{
@@ -835,7 +910,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 					{
 						IResource resource = resourceDelta.getResource();
 						if (resource.getType() == IResource.FILE
-								&& !resource.getFullPath().toOSString().contains("build")) {
+								&& !resource.getFullPath().toOSString().contains("build"))
+						{
 							String name = resource.getName();
 							if (name.equals("CMakeLists.txt") || name.endsWith(".cmake")) //$NON-NLS-1$ //$NON-NLS-2$
 							{
@@ -899,7 +975,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		project.deleteMarkers(CMakeErrorParser.CMAKE_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
 	}
 
-	private static class CMakeIndexerInfoConsumer implements ISourceFileInfoConsumer {
+	private static class CMakeIndexerInfoConsumer implements ISourceFileInfoConsumer
+	{
 		/**
 		 * gathered IScannerInfo objects or <code>null</code> if no new IScannerInfo was received
 		 */
@@ -936,11 +1013,12 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 						incPaths.add(incPath);
 					}
 				}
-				
-				includePaths = includePaths.stream().filter(s-> !localPathsToRemove.contains(s)).collect(Collectors.toList());
+
+				includePaths = includePaths.stream().filter(s -> !localPathsToRemove.contains(s))
+						.collect(Collectors.toList());
 				includePaths.addAll(incPaths);
 				includePaths.addAll(0, systemIncludePaths);
-				
+
 				ExtendedScannerInfo info = new ExtendedScannerInfo(definedSymbols,
 						includePaths.stream().toArray(String[]::new), macroFiles.stream().toArray(String[]::new),
 						includeFiles.stream().toArray(String[]::new),
@@ -988,7 +1066,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		}
 	}
 
-	public void setLaunchTarget(ILaunchTarget target) {
+	public void setLaunchTarget(ILaunchTarget target)
+	{
 		this.launchtarget = target;
 	}
 
