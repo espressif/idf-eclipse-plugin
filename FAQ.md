@@ -113,12 +113,12 @@ There is no UI option to delete launch targets directly from the eclipse, howeve
  ## How do I enable verbose debug output to my project build?
   IDF Eclipse plugin uses CMake commands to build the project so it's possible to pass cmake arguments from the build configuration wizard. To configure this. 
   - Click on the editor configuration wizard
-  - Naviate to `Build Settings` tab
+  - Navigate to `Build Settings` tab
   - Add `--debug-output` or other verbose arguments in the `Additional CMake arguments` text field
   - Click on Ok and compile the project to start in the debug output mode. Please refer to https://cmake.org/cmake/help/v3.5/manual/cmake.1.html 
   
 ## How do I view Product Information?
-  - Navigate to `Help > Product Information`
+  - Navigate to `Espressif > Product Information`
 
 ## Eclipse launch fails with `Java was started but returned exit code=13` when directory path contains special characters
 Eclipse will fail to launch if installed in a directory whose path contains certain invalid characters, including :%#<>"!. The workaround is to install Eclipse in a directory whose path does not contain invalid characters.
