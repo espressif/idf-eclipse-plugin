@@ -122,3 +122,9 @@ There is no UI option to delete launch targets directly from the eclipse, howeve
 
 ## Eclipse launch fails with `Java was started but returned exit code=13` when directory path contains special characters
 Eclipse will fail to launch if installed in a directory whose path contains certain invalid characters, including :%#<>"!. The workaround is to install Eclipse in a directory whose path does not contain invalid characters.
+
+## How do I generate OpenOCD log ?
+  - Open the project OpenOCD `Edit Configuration` dialog
+  - Navigate to the `Debugger` tab
+  - Add `-d3 -l oocd.log` in the `Config Options` section of the `Debugger` tab
+  - Click `Ok` and start the debugging process. This generates `oocd.log` file your project
