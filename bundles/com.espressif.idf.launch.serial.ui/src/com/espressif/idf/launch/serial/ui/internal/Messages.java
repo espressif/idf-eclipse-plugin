@@ -37,6 +37,11 @@ public class Messages extends NLS {
 	public static String CMakeMainTab2_OpeonOcdSetupGroupTitle;
 	public static String CMakeMainTab2_JtagFlashingNotSupportedMsg;
 
+	public static String IDFLaunchTargetNotFoundMsg1;
+	public static String IDFLaunchTargetNotFoundMsg2;
+	public static String IDFLaunchTargetNotFoundIDFLaunchTargetNotFoundTitle;
+	public static String IDFLaunchTargetNotFoundMsg3;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

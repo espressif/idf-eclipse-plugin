@@ -22,7 +22,11 @@ import org.eclipse.cdt.launch.ui.corebuild.GenericMainTab;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.launchbar.core.ILaunchBarManager;
+import org.eclipse.launchbar.core.target.ILaunchTarget;
+import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -32,8 +36,10 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.PlatformUI;
 import org.json.simple.JSONArray;
 
 import com.espressif.idf.core.build.IDFLaunchConstants;
@@ -53,14 +59,16 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private Map<String, JSONArray> boardConfigsMap;
 	private Combo fTargetName;
 	private boolean isFlashOverJtag;
-	private String defaultArguments;
+	private String argumentsForSerialFlash;
 	private String argumentsForJtagFlash;
 	private boolean isJtagFlashAvailable;
 	private GridData openOcdGroupData;
 	private GridData locationAndWorkDirGroupData;
+	private ILaunchBarManager launchBarManager;
 
 	@Override
 	public void createControl(Composite parent) {
+		launchBarManager = Activator.getService(ILaunchBarManager.class);
 		isJtagFlashAvailable = ESPFlashUtil.checkIfJtagIsAvailable();
 		createJtagFlashButton(parent);
 		super.createControl(parent);
@@ -83,7 +91,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 			public void widgetSelected(SelectionEvent e) {
 				isFlashOverJtag = !isFlashOverJtag;
 				if (!isFlashOverJtag) {
-					argumentField.setText(defaultArguments);
+					argumentField.setText(argumentsForSerialFlash);
 				} else {
 					argumentField.setText(argumentsForJtagFlash);
 				}
@@ -123,7 +131,18 @@ public class CMakeMainTab2 extends GenericMainTab {
 		}
 		try {
 			ILaunchConfigurationWorkingCopy wc = configuration.getWorkingCopy();
+			wc.setAttribute(IDFLaunchConstants.JTAG_FLASH_VOLTAGE, fFlashVoltage.getText());
+			wc.setAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, fTarget.getText());
+			wc.setAttribute(IDFLaunchConstants.JTAG_BOARD, fTargetName.getText());
 			wc.setAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, flashOverJtagButton.getSelection());
+			//For the case, when user wants to edit arguments line somehow and save changes
+			if (isFlashOverJtag) {
+				wc.setAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, argumentField.getText());
+				wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, argumentsForSerialFlash);
+			} else {
+				wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, argumentField.getText());
+				wc.setAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, argumentsForJtagFlash);
+			}
 			wc.doSave();
 		} catch (CoreException e) {
 			Logger.log(e);
@@ -153,20 +172,61 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private void updateArgumentsWithDefaultFlashCommand(ILaunchConfiguration configuration) {
 		String espFlashCommand = ESPFlashUtil.getEspFlashCommand(getSerialPort());
 		try {
-			String undefinedArguments = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS,
-					espFlashCommand);
-			if (undefinedArguments.contains(EMPTY_CONFIG_OPTIONS)) {
-				defaultArguments = espFlashCommand;
-				argumentsForJtagFlash = undefinedArguments;
-			} else {
-				defaultArguments = undefinedArguments;
-				argumentsForJtagFlash = EMPTY_CONFIG_OPTIONS;
+			if (!isJtagFlashAvailable) {
+				argumentsForSerialFlash = configuration
+						.getAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS, espFlashCommand);
+				argumentsForSerialFlash = argumentsForSerialFlash.isEmpty() ? espFlashCommand : argumentsForSerialFlash;
+				argumentsForSerialFlash = argumentsForSerialFlash.contains(EMPTY_CONFIG_OPTIONS) ? espFlashCommand
+						: argumentsForSerialFlash;
+				argumentField.setText(argumentsForSerialFlash);
+				return;
 			}
-			argumentField.setText(undefinedArguments);
+			String savedArgumentsForJtagFlash = configuration.getAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS,
+					EMPTY_CONFIG_OPTIONS);
+			argumentsForSerialFlash = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS,
+					espFlashCommand);
+			argumentsForSerialFlash = argumentsForSerialFlash.isEmpty() ? espFlashCommand : argumentsForSerialFlash;
+			initializeJtagComboFields(configuration);
+			argumentsForJtagFlash = savedArgumentsForJtagFlash.contentEquals(savedArgumentsForJtagFlash)
+					? argumentsForJtagFlash
+					: savedArgumentsForJtagFlash;
+			if (isFlashOverJtag) {
+				argumentField.setText(argumentsForJtagFlash);
+			} else {
+				argumentField.setText(argumentsForSerialFlash);
+			}
+
 		} catch (CoreException e) {
 			Logger.log(e);
 		}
 
+	}
+
+	private void initializeJtagComboFields(ILaunchConfiguration configuration) throws CoreException {
+		fFlashVoltage
+				.setText(configuration.getAttribute(IDFLaunchConstants.JTAG_FLASH_VOLTAGE, fFlashVoltage.getText()));
+		fTarget.setText(configuration.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, fTarget.getText()));
+		fTarget.notifyListeners(SWT.Selection, null);
+		fTargetName.setText(configuration.getAttribute(IDFLaunchConstants.JTAG_BOARD, fTargetName.getText()));
+		fTargetName.notifyListeners(SWT.Selection, null);
+	}
+
+	private static void showNoTargetMessage(String selectedTarget) {
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				boolean isYes = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
+						Messages.IDFLaunchTargetNotFoundIDFLaunchTargetNotFoundTitle,
+						Messages.IDFLaunchTargetNotFoundMsg1 + selectedTarget + Messages.IDFLaunchTargetNotFoundMsg2
+								+ Messages.IDFLaunchTargetNotFoundMsg3);
+				if (isYes) {
+					NewSerialFlashTargetWizard wizard = new NewSerialFlashTargetWizard();
+					WizardDialog dialog = new WizardDialog(
+							PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
+					dialog.open();
+				}
+			}
+		});
 	}
 
 	@Override
@@ -189,7 +249,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 			Label label = new Label(group, SWT.NONE);
 			label.setText(Messages.flashVoltageLabel);
 			label.setToolTipText(Messages.flashVoltageToolTip);
-			fFlashVoltage = new Combo(group, SWT.SINGLE | SWT.BORDER);
+			fFlashVoltage = new Combo(group, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
 			fFlashVoltage.setItems(parser.getEspFlashVoltages().toArray(new String[0]));
 			fFlashVoltage.setText("default"); //$NON-NLS-1$
 			fFlashVoltage.addSelectionListener(new SelectionAdapter() {
@@ -203,15 +263,55 @@ public class CMakeMainTab2 extends GenericMainTab {
 			Label label = new Label(group, SWT.NONE);
 			label.setText(Messages.configTargetLabel);
 			label.setToolTipText(Messages.configTargetToolTip);
-			fTarget = new Combo(group, SWT.SINGLE | SWT.BORDER);
+			fTarget = new Combo(group, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
 			fTarget.setItems(parser.getTargets().toArray(new String[0]));
 			fTarget.setText(selectedTarget);
 			fTarget.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
+					String updatedSelectedTarget = getLaunchTarget();
 					String selectedItem = fTarget.getItem(fTarget.getSelectionIndex());
+					if (!selectedItem.contentEquals(updatedSelectedTarget)) {
+						updateLaunchBar(selectedItem);
+					}
 					boardConfigsMap = parser.getBoardsConfigs(selectedItem);
 					fTargetName.setItems(parser.getBoardsConfigs(selectedItem).keySet().toArray(new String[0]));
+					fTargetName.select(0);
+					updateArgumentsField();
+				}
+
+				private void updateLaunchBar(String selectedItem) {
+					ILaunchTarget target = findSuitableTargetForSelectedItem(selectedItem);
+					try {
+						if (target != null) {
+							launchBarManager.setActiveLaunchTarget(target);
+						} else {
+							showNoTargetMessage(selectedItem);
+						}
+
+					} catch (CoreException e1) {
+						Logger.log(e1);
+					}
+				}
+
+				private ILaunchTarget findSuitableTargetForSelectedItem(String selectedItem) {
+					ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
+					ILaunchTarget[] targets = launchTargetManager
+							.getLaunchTargetsOfType("com.espressif.idf.launch.serial.core.serialFlashTarget"); //$NON-NLS-1$
+					ILaunchTarget suitableTarget = null;
+
+					for (ILaunchTarget target : targets) {
+						String idfTarget = target.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", null); //$NON-NLS-1$
+						String targetSerialPort = target.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT,
+								""); //$NON-NLS-1$
+						if (idfTarget.contentEquals(selectedItem)) {
+							if (targetSerialPort.contentEquals(getSerialPort())) {
+								return target;
+							}
+							suitableTarget = target;
+						}
+					}
+					return suitableTarget;
 				}
 			});
 		}
@@ -219,10 +319,10 @@ public class CMakeMainTab2 extends GenericMainTab {
 			Label label = new Label(group, SWT.NONE);
 			label.setText(Messages.configBoardLabel);
 			label.setToolTipText(Messages.configBoardTooTip);
-			fTargetName = new Combo(group, SWT.SINGLE | SWT.BORDER);
+			fTargetName = new Combo(group, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
 			fTargetName.setItems(parser.getBoardsConfigs(selectedTarget).keySet().toArray(new String[0]));
 			boardConfigsMap = parser.getBoardsConfigs(selectedTarget);
-
+			fTargetName.select(0);
 			fTargetName.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
@@ -253,7 +353,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	private String getLaunchTarget() {
-		ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
 		String selectedTarget = ""; //$NON-NLS-1$
 		try {
 			selectedTarget = launchBarManager.getActiveLaunchTarget().getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET,
@@ -265,7 +364,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	private String getSerialPort() {
-		ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
+
 		String serialPort = ""; //$NON-NLS-1$
 		try {
 			serialPort = launchBarManager.getActiveLaunchTarget()

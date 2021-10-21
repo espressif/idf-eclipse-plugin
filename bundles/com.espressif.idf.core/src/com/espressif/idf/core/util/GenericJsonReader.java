@@ -46,7 +46,7 @@ public class GenericJsonReader
 		return null;
 	}
 
-	protected JSONObject read() throws Exception
+	public JSONObject read() throws Exception
 	{
 		IFile filePath = project.getFile(new Path(relativeFilePath));
 		if (!filePath.exists())

@@ -21,3 +21,4 @@ Automatic-Module-Name: org.eclipse.cdt.launch.serial.ui
 Bundle-Vendor: %Bundle-Vendor
 Import-Package: com.espressif.idf.ui.dialogs,
  org.eclipse.cdt.dsf.gdb
+Export-Package: com.espressif.idf.launch.serial.ui.internal

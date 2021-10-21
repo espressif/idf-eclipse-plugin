@@ -41,6 +41,11 @@ public class Messages {
 	public static String BreakPointPage_TextHeapDumpFileName;
 	public static String BreakPointPage_BtnBrowse;
 
+	public static String IDFLaunchTargetNotFoundIDFLaunchTargetNotFoundTitle;
+	public static String IDFLaunchTargetNotFoundMsg1;
+	public static String IDFLaunchTargetNotFoundMsg2;
+	public static String IDFLaunchTargetNotFoundMsg3;
+
 	// ------------------------------------------------------------------------
 
 	static {
@@ -49,6 +54,8 @@ public class Messages {
 	}
 
 	private static ResourceBundle RESOURCE_BUNDLE;
+
+
 	static {
 		try {
 			RESOURCE_BUNDLE = ResourceBundle.getBundle(MESSAGES);
