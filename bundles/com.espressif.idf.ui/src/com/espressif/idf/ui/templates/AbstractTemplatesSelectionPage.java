@@ -123,7 +123,7 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 	 */
 	private TreeViewer createTreeViewer(Composite templatesGroup)
 	{
-		PatternFilter filter = new PatternFilter();
+		PatternFilter filter = new TemplateListPatternFilter();
 		int style = SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER;
 		filteredTree = new FilteredTree(templatesGroup, style, filter, true, true);
 		filteredTree.setEnabled(false);
