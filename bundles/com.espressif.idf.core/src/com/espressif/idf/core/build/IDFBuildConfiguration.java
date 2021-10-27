@@ -397,6 +397,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			{
 				Thread.sleep(2500);
 			}
+			reIndex(project);
 			return new IProject[] { project };
 		} catch (Exception e) {
 			throw new CoreException(IDFCorePlugin.errorStatus(
@@ -930,12 +931,12 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				
 				includePaths = includePaths.stream().filter(s-> !localPathsToRemove.contains(s)).collect(Collectors.toList());
 				includePaths.addAll(incPaths);
-				includePaths.addAll(0, systemIncludePaths);
+				includePaths.addAll(systemIncludePaths);
 				
 				ExtendedScannerInfo info = new ExtendedScannerInfo(definedSymbols,
-						includePaths.stream().toArray(String[]::new), macroFiles.stream().toArray(String[]::new),
+						systemIncludePaths.stream().toArray(String[]::new), macroFiles.stream().toArray(String[]::new),
 						includeFiles.stream().toArray(String[]::new),
-						systemIncludePaths.stream().toArray(String[]::new));
+						includePaths.stream().toArray(String[]::new));
 				infoPerResource.put(file, info);
 				haveUpdates = true;
 			}
