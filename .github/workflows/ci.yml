@@ -33,7 +33,7 @@ jobs:
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v2
       with:
-        name: artifacts
+        name: com.espressif.idf.update
         path: releng/com.espressif.idf.update/target/repository
         
     - name: Upload windows rcp
