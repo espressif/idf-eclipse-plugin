@@ -1,25 +1,33 @@
+/*******************************************************************************
+ * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.ui.installcomponents.vo;
 
 import java.util.List;
 
-import com.google.gson.annotations.SerializedName;
-
+/**
+ * Bean for component details in JSON
+ * 
+ * @author Ali Azam Rana
+ *
+ */
 public class ComponentDetailsVO
 {
 	private String componentHash;
-	
+
 	private String createdAt;
-	
+
 	private String description;
-	
+
 	private String url;
-	
+
 	private String version;
-	
+
 	private List<ComponentDetailsDependenciesVO> dependencies;
-	
+
 	private String readMe;
-	
+
 	private List<String> targets;
 
 	public String getComponentHash()

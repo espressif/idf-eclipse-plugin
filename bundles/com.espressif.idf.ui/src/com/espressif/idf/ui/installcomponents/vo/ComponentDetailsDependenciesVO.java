@@ -1,17 +1,25 @@
+/*******************************************************************************
+ * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.ui.installcomponents.vo;
 
-import com.google.gson.annotations.SerializedName;
-
+/**
+ * Bean for the component dependencies details in JSON
+ * 
+ * @author Ali Azam Rana
+ *
+ */
 public class ComponentDetailsDependenciesVO
 {
 	private boolean isPublic;
 
 	private String name;
-	
+
 	private String namespace;
-	
+
 	private String source;
-	
+
 	private String spec;
 
 	public boolean isPublic()
