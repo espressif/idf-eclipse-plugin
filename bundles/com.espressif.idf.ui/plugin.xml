@@ -265,6 +265,23 @@
 				</with>
          	</visibleWhen>
          </command>
+         <command
+               commandId="com.espressif.idf.ui.installidfcomponents"
+               icon="icons/ESP-IDF Install Tools.png"
+               label="%command.label.6"
+               style="push">
+            <visibleWhen>
+               <with
+                     variable="activeMenuSelection">
+                  <iterate
+                        ifEmpty="false">
+                     <adapt
+                           type="org.eclipse.core.resources.IResource">
+                     </adapt>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
       </menuContribution>
    </extension>
    <extension
@@ -278,6 +295,11 @@
             defaultHandler="com.espressif.idf.ui.handlers.HeapDumpAnalysisHandler"
             id="com.espressif.idf.ui.heapDumpAnalysis"
             name="%command.name.7">
+      </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.installcomponents.handler.InstallIDFComponentsHandler"
+            id="com.espressif.idf.ui.installidfcomponents"
+            name="%command.name.8">
       </command>
    </extension>
    <extension
@@ -404,6 +426,13 @@
             icon="icons/espressif.png"
             id="com.espressif.idf.ui.editor.heapTraceAnalysis"
             name="%editor.name.0">
+      </editor>
+      <editor
+            class="com.espressif.idf.ui.installcomponents.InstallComponentsEditor"
+            default="false"
+            icon="icons/ESP-IDF Install Tools.png"
+            id="com.espressif.idf.ui.installComponents"
+            name="%editor.name.1">
       </editor>
    </extension>
    <extension

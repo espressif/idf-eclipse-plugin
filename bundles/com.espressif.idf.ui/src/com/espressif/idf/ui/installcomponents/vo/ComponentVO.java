@@ -1,15 +1,25 @@
+/*******************************************************************************
+ * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.ui.installcomponents.vo;
 
+/**
+ * Bean for the API response JSON for components
+ * 
+ * @author Ali Azam Rana
+ *
+ */
 public class ComponentVO
 {
 	private String createdAt;
-	
+
 	private boolean featured;
-	
+
 	private String name;
-	
+
 	private String namespace;
-	
+
 	private ComponentDetailsVO componentDetails;
 
 	public String getCreatedAt()
