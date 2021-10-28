@@ -21,6 +21,8 @@ public class ComponentVO
 	private String namespace;
 
 	private ComponentDetailsVO componentDetails;
+	
+	private boolean isComponentAdded;
 
 	public String getCreatedAt()
 	{
@@ -70,5 +72,15 @@ public class ComponentVO
 	public void setComponentDetails(ComponentDetailsVO componentDetails)
 	{
 		this.componentDetails = componentDetails;
+	}
+
+	public boolean isComponentAdded()
+	{
+		return isComponentAdded;
+	}
+
+	public void setComponentAdded(boolean isComponentAdded)
+	{
+		this.isComponentAdded = isComponentAdded;
 	}
 }
