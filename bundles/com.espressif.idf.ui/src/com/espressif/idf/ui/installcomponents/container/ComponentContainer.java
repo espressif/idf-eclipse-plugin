@@ -121,6 +121,11 @@ public class ComponentContainer
 
 		installButton = new Button(btnComposite, SWT.PUSH);
 		installButton.setText(Messages.InstallComponents_InstallButton);
+		if (componentVO.isComponentAdded())
+		{
+			installButton.setText(Messages.InstallComponents_InstallButtonAlreadyAdded);	
+			installButton.setEnabled(false);
+		}
 		installButton.setBackground(whiteColor);
 		InstallCommandHandler installCommandHandler = new InstallCommandHandler(componentVO.getName(),
 				componentVO.getNamespace(),

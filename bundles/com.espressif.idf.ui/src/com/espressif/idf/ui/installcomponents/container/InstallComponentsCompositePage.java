@@ -37,11 +37,35 @@ public class InstallComponentsCompositePage
 	public void createControls(Composite parent) throws IOException
 	{
 		loadComponents();
-
+		
 		for (ComponentVO componentVO : componentVOs)
 		{
+			setComponentAdded(componentVO);
 			ComponentContainer componentContainer = new ComponentContainer(componentVO, parent);
 			componentContainer.createControl();
+		}
+	}
+
+	private void setComponentAdded(ComponentVO componentVO) throws IOException
+	{
+		String toMatch = componentVO.getNamespace().concat("/").concat(componentVO.getName()); //$NON-NLS-1$
+		IFile file = componentsJsonFile.getProject().getFolder("main").getFile("idf_component.yml"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (file.exists())
+		{
+			List<String> ymlEntries = Files.readAllLines(file.getLocation().toFile().toPath());
+			for (String ymlEntry : ymlEntries)
+			{
+				if (ymlEntry.charAt(0) == '#')
+				{
+					continue;
+				}
+				
+				if (ymlEntry.contains(toMatch))
+				{
+					componentVO.setComponentAdded(true);
+					return;
+				}
+			}
 		}
 	}
 
