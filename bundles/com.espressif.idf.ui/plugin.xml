@@ -96,7 +96,7 @@
       <command
             defaultHandler="com.espressif.idf.ui.help.EclipsePluginDocHandler"
             id="com.espressif.idf.ui.command.eclipeguide"
-            name="ESP-IDF Eclipse Plugin Guide">
+            name="%command.name.8">
       </command>
    </extension>
    <extension
@@ -180,7 +180,7 @@
                commandId="com.espressif.idf.ui.command.eclipeguide"
                icon="icons/ESP-IDF Programming Guide.png"
                id="eclipseguide"
-               label="ESP-IDF Eclipse Plugin Guide"
+               label="%command.label.6"
                style="push">
          </command>
       </menuContribution>
@@ -388,6 +388,11 @@
             id="org.plugin.espressif.commands.eraseFlash"
             name="%command.name.6">
       </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.handlers.HelpContribItemHandler"
+            id="com.espressif.idf.ui.contributions.help"
+            name="%command.name.9">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -443,5 +448,22 @@
             </implementation>
          </presentation>
       </config>
+   </extension>
+   <extension
+   		point="org.eclipse.ui.menus">
+   	<menuContribution
+            locationURI="toolbar:org.eclipse.ui.trim.status">
+         <toolbar
+               id="com.espressif.idf.ui.contributions.contributedTrim">
+            <command
+                  commandId="com.espressif.idf.ui.contributions.help"
+                  icon="icons/help-icon.png"
+                  id="contributions.trimItem"
+                  label="%command.label.7"
+                  tooltip="%command.tooltip">
+            </command>
+            
+         </toolbar>
+      </menuContribution>
    </extension>
 </plugin>
