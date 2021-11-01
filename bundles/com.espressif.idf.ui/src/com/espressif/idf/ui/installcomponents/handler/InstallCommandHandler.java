@@ -12,14 +12,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsole;
-import org.eclipse.ui.console.IConsoleConstants;
-import org.eclipse.ui.console.IConsoleManager;
-import org.eclipse.ui.console.MessageConsole;
-import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
@@ -27,8 +19,8 @@ import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.EclipseUtil;
+import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.handlers.NewProjectHandlerUtil;
-import com.espressif.idf.ui.update.Messages;
 
 /**
  * Install command for the components installation handler
@@ -38,7 +30,6 @@ import com.espressif.idf.ui.update.Messages;
  */
 public class InstallCommandHandler
 {
-	private MessageConsoleStream console;
 	private String name;
 	private String namespace;
 	private String version;
@@ -52,7 +43,6 @@ public class InstallCommandHandler
 
 	public void executeInstallCommand() throws Exception
 	{
-		activateIDFConsoleView();
 		if (!NewProjectHandlerUtil.installToolsCheck())
 		{
 			return;
@@ -67,7 +57,7 @@ public class InstallCommandHandler
 		commands.add("add-dependency"); //$NON-NLS-1$
 		commands.add(namespace.concat("/").concat(name.concat("==").concat(version))); //$NON-NLS-1$ //$NON-NLS-2$
 
-		console.print((runCommand(commands, pathToProject, envMap)));
+		new IDFConsole().getConsoleStream().print((runCommand(commands, pathToProject, envMap)));
 
 		selectedProject.refreshLocal(IResource.DEPTH_INFINITE, null);
 	}
@@ -95,51 +85,4 @@ public class InstallCommandHandler
 		}
 		return exportCmdOp;
 	}
-
-	private void activateIDFConsoleView()
-	{
-		// Create Tools console
-		MessageConsole msgConsole = findConsole(Messages.IDFToolsHandler_ToolsManagerConsole);
-		msgConsole.clearConsole();
-		console = msgConsole.newMessageStream();
-		msgConsole.activate();
-		// Open console view so that users can see the output
-		openConsoleView();
-	}
-
-	/**
-	 * Find a console for a given name. If not found, it will create a new one and return
-	 * 
-	 * @param name
-	 * @return
-	 */
-	private MessageConsole findConsole(String name)
-	{
-		ConsolePlugin plugin = ConsolePlugin.getDefault();
-		IConsoleManager conMan = plugin.getConsoleManager();
-		IConsole[] existing = conMan.getConsoles();
-		for (int i = 0; i < existing.length; i++)
-		{
-			if (name.equals(existing[i].getName()))
-				return (MessageConsole) existing[i];
-		}
-		// no console found, so create a new one
-		MessageConsole myConsole = new MessageConsole(name, null);
-		conMan.addConsoles(new IConsole[] { myConsole });
-		return myConsole;
-	}
-
-	private void openConsoleView()
-	{
-		try
-		{
-			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-					.showView(IConsoleConstants.ID_CONSOLE_VIEW);
-		}
-		catch (PartInitException e)
-		{
-			Logger.log(e);
-		}
-	}
-
 }

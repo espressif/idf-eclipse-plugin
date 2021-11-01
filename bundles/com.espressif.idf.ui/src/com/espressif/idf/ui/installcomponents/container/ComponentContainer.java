@@ -4,9 +4,6 @@
  *******************************************************************************/
 package com.espressif.idf.ui.installcomponents.container;
 
-import java.awt.Desktop;
-import java.net.URL;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -26,6 +23,7 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.installcomponents.Messages;
 import com.espressif.idf.ui.installcomponents.handler.InstallCommandHandler;
+import com.espressif.idf.ui.installcomponents.vo.ComponentDetailsVO;
 import com.espressif.idf.ui.installcomponents.vo.ComponentVO;
 
 /**
@@ -37,6 +35,7 @@ import com.espressif.idf.ui.installcomponents.vo.ComponentVO;
 public class ComponentContainer
 {
 	private ComponentVO componentVO;
+	private ComponentDetailsVO componentDetailsVO;
 	private Composite parent;
 	private Group controlGroup;
 	private Text detailsText;
@@ -49,6 +48,7 @@ public class ComponentContainer
 	{
 		this.componentVO = componentVO;
 		this.parent = parent;
+		this.componentDetailsVO = componentVO != null ? componentVO.getComponentDetails() : null;
 	}
 
 	public Point createControl()
@@ -63,7 +63,7 @@ public class ComponentContainer
 		Font boldFont = new Font(controlGroup.getDisplay(), new FontData("Arial", 8, SWT.BOLD)); //$NON-NLS-1$
 		controlGroup.setFont(boldFont);
 
-		if (componentVO.getComponentDetails() != null && componentVO.getComponentDetails().getDescription() != null)
+		if (componentDetailsVO != null && componentDetailsVO.getDescription() != null)
 		{
 			detailsText = new Text(controlGroup, SWT.MULTI | SWT.WRAP);
 			detailsText.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -71,7 +71,7 @@ public class ComponentContainer
 			detailsText.setText(componentVO.getComponentDetails().getDescription());
 		}
 
-		if (componentVO.getComponentDetails() != null && componentVO.getComponentDetails().getTargets() != null)
+		if (componentDetailsVO != null && componentDetailsVO.getTargets() != null)
 		{
 			targetsLabel = new Label(controlGroup, SWT.NONE);
 			StringBuilder sbTargets = new StringBuilder();
@@ -87,12 +87,12 @@ public class ComponentContainer
 			targetsLabel.setText(sbTargets.toString());
 		}
 
-		if (componentVO.getComponentDetails() != null
-				&& !StringUtil.isEmpty(componentVO.getComponentDetails().getVersion()))
+		if (componentDetailsVO != null
+				&& !StringUtil.isEmpty(componentDetailsVO.getVersion()))
 		{
 			versionLabel = new Label(controlGroup, SWT.NONE);
 			versionLabel.setBackground(new Color(240, 233, 233));
-			versionLabel.setText(componentVO.getComponentDetails().getVersion());
+			versionLabel.setText(componentDetailsVO.getVersion());
 		}
 
 		Composite btnComposite = new Composite(controlGroup, SWT.NONE);
@@ -107,10 +107,10 @@ public class ComponentContainer
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				String url = componentVO.getComponentDetails().getReadMe();
+				String url = componentDetailsVO.getReadMe();
 				try
 				{
-					Desktop.getDesktop().browse(new URL(url).toURI());
+					org.eclipse.swt.program.Program.launch(url);
 				}
 				catch (Exception e1)
 				{
@@ -129,8 +129,8 @@ public class ComponentContainer
 		installButton.setBackground(whiteColor);
 		InstallCommandHandler installCommandHandler = new InstallCommandHandler(componentVO.getName(),
 				componentVO.getNamespace(),
-				componentVO.getComponentDetails() != null && componentVO.getComponentDetails().getVersion() != null
-						? componentVO.getComponentDetails().getVersion()
+				componentDetailsVO != null && componentDetailsVO.getVersion() != null
+						? componentDetailsVO.getVersion()
 						: "");
 		installButton.addSelectionListener(new SelectionAdapter()
 		{
