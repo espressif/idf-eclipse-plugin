@@ -25,7 +25,7 @@ import org.eclipse.ui.ide.IDE;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.installcomponents.InstallComponentsEditor;
-import com.espressif.idf.ui.installcomponents.desrializer.ComponentsDesrializer;
+import com.espressif.idf.ui.installcomponents.deserializer.ComponentsDeserializer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -39,7 +39,7 @@ import com.google.gson.stream.JsonReader;
  */
 public class InstallIDFComponentsHandler extends AbstractHandler
 {
-	private static final String API_URL = "https://api.components.espressif.com/components";
+	private static final String API_URL = "https://api.components.espressif.com/components"; //$NON-NLS-1$
 	private static int TOTAL_RECORDS_TO_FETCH = 100;
 
 	@Override
@@ -52,7 +52,7 @@ public class InstallIDFComponentsHandler extends AbstractHandler
 			connection.setRequestProperty("accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
 			InputStream responseStream = connection.getInputStream();
 			JsonReader jsonReader = new JsonReader(new InputStreamReader(responseStream));
-			Gson gson = new GsonBuilder().registerTypeAdapter(ArrayList.class, new ComponentsDesrializer())
+			Gson gson = new GsonBuilder().registerTypeAdapter(ArrayList.class, new ComponentsDeserializer())
 					.setPrettyPrinting().disableHtmlEscaping().create();
 			JsonArray jsonArray = gson.fromJson(jsonReader, JsonArray.class);
 			IProject selectedProject = EclipseHandler
