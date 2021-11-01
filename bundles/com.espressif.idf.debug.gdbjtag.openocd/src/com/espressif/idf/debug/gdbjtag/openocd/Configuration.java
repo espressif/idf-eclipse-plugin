@@ -106,7 +106,7 @@ public class Configuration {
 				lst.addAll(StringUtils.splitCommandLineOptions(other));
 			}
 
-			if (ESPFlashUtil.checkIfJtagIsAvailable())
+			if (ESPFlashUtil.checkIfJtagIsAvailable() && getDoFlashBeforeStart(configuration))
 			{
 				lst.add(ESPFlashUtil.getEspJtagFlashCommand(configuration));
 			}
@@ -162,6 +162,10 @@ public class Configuration {
 		return executable;
 	}
 
+	public static Boolean getDoFlashBeforeStart(ILaunchConfiguration configuration) throws CoreException
+	{
+		return configuration.getAttribute(ConfigurationAttributes.DO_FLASH_BEFORE_START, false);
+	}
 	public static String[] getGdbClientCommandLineArray(ILaunchConfiguration configuration) {
 
 		List<String> lst = new ArrayList<String>();

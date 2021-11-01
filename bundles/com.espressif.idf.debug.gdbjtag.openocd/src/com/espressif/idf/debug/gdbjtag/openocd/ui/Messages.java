@@ -46,6 +46,9 @@ public class Messages {
 	public static String IDFLaunchTargetNotFoundMsg2;
 	public static String IDFLaunchTargetNotFoundMsg3;
 
+	public static String StartupTabOpenOcdGroup;
+	public static String StartupTabFlashBeforeStart;
+
 	// ------------------------------------------------------------------------
 
 	static {

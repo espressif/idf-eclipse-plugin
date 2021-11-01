@@ -51,6 +51,7 @@ public interface ConfigurationAttributes {
 
 	public static final String GDB_CLIENT_OTHER_COMMANDS = PREFIX + ".gdbClientOtherCommands"; //$NON-NLS-1$
 
+	public static final String DO_FLASH_BEFORE_START = PREFIX + ".doFlashBeforeStart"; //$NON-NLS-1$
 	// ------------------------------------------------------------------------
 
 	// TabStartup

@@ -17,8 +17,6 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd.ui;
 
-import ilg.gnumcueclipse.debug.gdbjtag.DebugUtils;
-
 import java.io.File;
 
 import org.eclipse.cdt.debug.core.CDebugUtils;
@@ -35,6 +33,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -47,6 +46,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -57,11 +57,15 @@ import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.views.navigator.ResourceComparator;
 
+import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.util.EspConfigParser;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.ConfigurationAttributes;
 import com.espressif.idf.debug.gdbjtag.openocd.IIDFGDBJtagConstants;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.PersistentPreferences;
+
+import ilg.gnumcueclipse.debug.gdbjtag.DebugUtils;
 
 public class TabStartup extends AbstractLaunchConfigurationTab {
 
@@ -122,6 +126,7 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 	private String fSavedProgName;
 
 	private PersistentPreferences fPersistentPreferences;
+	private Button fDoFlashBeforeStart;
 
 	// ------------------------------------------------------------------------
 
@@ -152,11 +157,35 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 			System.out.println("openocd.TabStartup.createControl() ");
 		}
 
+		if (!(parent instanceof ScrolledComposite))
+		{
+			ScrolledComposite sc = new ScrolledComposite(parent, SWT.V_SCROLL | SWT.H_SCROLL);
+			sc.setFont(parent.getFont());
+			sc.setExpandHorizontal(true);
+			sc.setExpandVertical(true);
+			sc.setShowFocusedControl(true);
+			this.createControl(sc);
+			Control control = this.getControl();
+			if (control != null)
+			{
+				sc.setContent(control);
+				sc.setMinSize(control.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+				this.setControl(control.getParent());
+			}
+			return;
+
+		}
+
 		Composite comp = new Composite(parent, SWT.NONE);
 		setControl(comp);
 		GridLayout layout = new GridLayout();
 		comp.setLayout(layout);
-
+		EspConfigParser parser = new EspConfigParser();
+		String openOCDPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS);
+		if (!openOCDPath.isEmpty() && parser.hasBoardConfigJson())
+		{
+			createOpenOcdGroup(comp);
+		}
 		createInitGroup(comp);
 		createLoadGroup(comp);
 		createRunOptionGroup(comp);
@@ -213,6 +242,41 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 					.generateVariableExpression("workspace_loc", arg); //$NON-NLS-1$
 			text.setText(fileLoc);
 		}
+	}
+
+	private void createOpenOcdGroup(Composite parent)
+	{
+		Group group = new Group(parent, SWT.NONE);
+		{
+			group.setText(Messages.StartupTabOpenOcdGroup);
+			GridLayout layout = new GridLayout();
+			group.setLayout(layout);
+			GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+			group.setLayoutData(gd);
+		}
+
+		Composite comp = new Composite(group, SWT.NONE);
+		{
+			GridLayout layout = new GridLayout();
+			layout.numColumns = 1;
+			layout.marginHeight = 0;
+			comp.setLayout(layout);
+			GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+			comp.setLayoutData(gd);
+		}
+
+		{
+			Composite local = new Composite(comp, SWT.NONE);
+			GridLayout layout = new GridLayout();
+			layout.numColumns = 1;
+			layout.marginHeight = 0;
+			layout.marginWidth = 0;
+			local.setLayout(layout);
+			fDoFlashBeforeStart = new Button(local, SWT.CHECK);
+			fDoFlashBeforeStart.setText(Messages.StartupTabFlashBeforeStart);
+
+		}
+
 	}
 
 	public void createInitGroup(Composite parent) {
@@ -880,6 +944,12 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 			String stringDefault;
 			boolean booleanDefault;
 
+			// OpenOCD Commands
+			{
+				fDoFlashBeforeStart
+						.setSelection(configuration.getAttribute(ConfigurationAttributes.DO_FLASH_BEFORE_START, true));
+			}
+
 			// Initialisation Commands
 			{
 				// Do initial reset
@@ -1106,6 +1176,13 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 
 		boolean booleanValue;
 		String stringValue;
+
+		// OpenOCD Commands
+		{
+			// Flash before start
+			booleanValue = fDoFlashBeforeStart.getSelection();
+			configuration.setAttribute(ConfigurationAttributes.DO_FLASH_BEFORE_START, booleanValue);
+		}
 
 		// Initialisation Commands
 		{
