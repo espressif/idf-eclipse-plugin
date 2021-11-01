@@ -84,7 +84,6 @@ public class InstallComponentsEditor extends MultiPageEditorPart
 		Composite subContainer = new Composite(scrolledComposite, SWT.NONE);
 		GridLayout gridLayout = new GridLayout(4, true);
 		subContainer.setLayout(gridLayout);
-		subContainer.setBackground(new Color(243, 250, 242));
 
 		InstallComponentsCompositePage installComponentsCompositePage = new InstallComponentsCompositePage(
 				componentsJsonFile);
@@ -93,7 +92,7 @@ public class InstallComponentsEditor extends MultiPageEditorPart
 		scrolledComposite.setContent(subContainer);
 
 		int index = addPage(parent);
-		setPageText(index, "Install Components");
+		setPageText(index, "Install Components"); //$NON-NLS-1$
 	}
 
 	@Override

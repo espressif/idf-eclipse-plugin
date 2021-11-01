@@ -12,7 +12,7 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.swt.widgets.Composite;
 
-import com.espressif.idf.ui.installcomponents.desrializer.ComponentsDesrializer;
+import com.espressif.idf.ui.installcomponents.deserializer.ComponentsDeserializer;
 import com.espressif.idf.ui.installcomponents.vo.ComponentVO;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -55,7 +55,7 @@ public class InstallComponentsCompositePage
 			List<String> ymlEntries = Files.readAllLines(file.getLocation().toFile().toPath());
 			for (String ymlEntry : ymlEntries)
 			{
-				if (ymlEntry.charAt(0) == '#')
+				if (ymlEntry.charAt(0) == '#') //$NON-NLS-1$
 				{
 					continue;
 				}
@@ -72,7 +72,7 @@ public class InstallComponentsCompositePage
 	private void loadComponents() throws IOException
 	{
 		String jsonString = Files.readString(componentsJsonFile.getLocation().toFile().toPath());
-		Gson gson = new GsonBuilder().registerTypeAdapter(ArrayList.class, new ComponentsDesrializer())
+		Gson gson = new GsonBuilder().registerTypeAdapter(ArrayList.class, new ComponentsDeserializer())
 				.setPrettyPrinting().disableHtmlEscaping().create();
 		JsonArray jsonArray = gson.fromJson(jsonString, JsonArray.class);
 		componentVOs = gson.fromJson(jsonArray.toString(), ArrayList.class);
