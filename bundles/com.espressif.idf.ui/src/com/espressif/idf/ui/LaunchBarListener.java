@@ -42,7 +42,7 @@ public class LaunchBarListener implements ILaunchBarListener
 			{
 				if (target != null)
 				{
-					String targetName = target.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", null); //$NON-NLS-1$
+					String targetName = target.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", ""); //$NON-NLS-1$
 					update(targetName);
 				}
 			}
@@ -57,6 +57,9 @@ public class LaunchBarListener implements ILaunchBarListener
 		{
 			ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
 			ILaunchConfiguration activeConfig = launchBarManager.getActiveLaunchConfiguration();
+			if (activeConfig == null) {
+				return;
+			}
 			String projectName = activeConfig.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
 			if (projectName.isEmpty())
 			{
