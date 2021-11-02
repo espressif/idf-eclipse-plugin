@@ -57,13 +57,12 @@ import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.views.navigator.ResourceComparator;
 
-import com.espressif.idf.core.IDFEnvironmentVariables;
-import com.espressif.idf.core.util.EspConfigParser;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.ConfigurationAttributes;
 import com.espressif.idf.debug.gdbjtag.openocd.IIDFGDBJtagConstants;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.PersistentPreferences;
+import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 
 import ilg.gnumcueclipse.debug.gdbjtag.DebugUtils;
 
@@ -180,9 +179,7 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 		setControl(comp);
 		GridLayout layout = new GridLayout();
 		comp.setLayout(layout);
-		EspConfigParser parser = new EspConfigParser();
-		String openOCDPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS);
-		if (!openOCDPath.isEmpty() && parser.hasBoardConfigJson())
+		if (ESPFlashUtil.checkIfJtagIsAvailable())
 		{
 			createOpenOcdGroup(comp);
 		}
@@ -263,19 +260,20 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 			comp.setLayout(layout);
 			GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 			comp.setLayoutData(gd);
-		}
-
-		{
-			Composite local = new Composite(comp, SWT.NONE);
-			GridLayout layout = new GridLayout();
-			layout.numColumns = 1;
-			layout.marginHeight = 0;
-			layout.marginWidth = 0;
-			local.setLayout(layout);
-			fDoFlashBeforeStart = new Button(local, SWT.CHECK);
+			fDoFlashBeforeStart = new Button(comp, SWT.CHECK);
 			fDoFlashBeforeStart.setText(Messages.StartupTabFlashBeforeStart);
-
 		}
+
+//		{
+//			Composite local = new Composite(comp, SWT.NONE);
+//			GridLayout layout = new GridLayout();
+//			layout.numColumns = 1;
+//			layout.marginHeight = 0;
+//			layout.marginWidth = 0;
+//			local.setLayout(layout);
+//
+//
+//		}
 
 	}
 

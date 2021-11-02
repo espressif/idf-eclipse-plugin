@@ -162,7 +162,7 @@ public class Configuration {
 		return executable;
 	}
 
-	public static Boolean getDoFlashBeforeStart(ILaunchConfiguration configuration) throws CoreException
+	public static boolean getDoFlashBeforeStart(ILaunchConfiguration configuration) throws CoreException
 	{
 		return configuration.getAttribute(ConfigurationAttributes.DO_FLASH_BEFORE_START, false);
 	}
