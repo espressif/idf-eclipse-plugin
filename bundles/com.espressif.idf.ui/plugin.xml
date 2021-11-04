@@ -309,6 +309,10 @@
                         ifEmpty="false">
                      <adapt
                            type="org.eclipse.core.resources.IResource">
+                        <test
+                           property="org.eclipse.core.resources.projectNature"
+                           value="com.espressif.idf.core.idfNature">
+                        </test>
                      </adapt>
                   </iterate>
                </with>
@@ -423,32 +427,6 @@
             class="com.espressif.idf.ui.handlers.EraseFlashCommandHandler"
             commandId="org.plugin.espressif.commands.eraseFlash">
       </handler>
-   </extension>
-   <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            locationURI="menu:org.eclipse.ui.main.menu?after=additions">
-         <menu
-               id="org.plugin.espressif.menus.espressifMenu"
-               label="%menu.label.1"
-               mnemonic="%menu.mnemonic">
-            <command
-                  commandId="org.plugin.espressif.commands.eraseFlash"
-                  icon="icons/Erase Flash.png"
-                  id="org.plugin.espressif.menus.eraseFlashCommand"
-                  label="%command.label.5">
-            </command>
-            <separator
-                  name="com.espressif.idf.bundles.separator1"
-                  visible="true">
-            </separator>
-            <command
-                  commandId="com.espressif.idf.bundles.installIdfComponents"
-                  id="com.espressif.idf.bundles.installIdfComponentsCommand"
-                  label="%command.name.10">
-            </command>
-         </menu>
-      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.editors">
