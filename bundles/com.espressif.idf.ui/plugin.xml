@@ -440,7 +440,7 @@
       <editor
             class="com.espressif.idf.ui.installcomponents.InstallComponentsEditor"
             default="false"
-            icon="icons/ESP-IDF Install Tools.png"
+            icon="icons/ESP-IDF_Install_Components.png"
             id="com.espressif.idf.ui.installComponents"
             name="%editor.name.1">
       </editor>
