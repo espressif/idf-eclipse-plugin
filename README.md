@@ -29,6 +29,7 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 * [ CMake Editor](#cmakeproject)<br>
 * [ Debugging the Project ](#debugging)<br>
 * [ ESP-IDF Application Size Analysis Editor](#sizeanalysiseditor)<br>
+* [ Installing ESP-IDF Components](#espidfcomponents)<br>
 * [ ESP-IDF Terminal](#idfterminal)<br>
 * [ Configuring Build Environment Variables ](#configureEnvironmentVariables)<br>
 * [ Configuring Core Build Toolchain ](#ConfigureToolchains)<br>
@@ -251,6 +252,20 @@ To launch the ESP-IDF Terminal:
 * Choose `ESP-IDF Terminal` from the terminal drop-down and click `OK` to launch a terminal
 
 ![](docs/images/idf_terminal.png)
+
+<a name="espidfcomponents"></a>
+# Installing ESP-IDF Components
+You can install the ESP-IDF Components directly into your project from the available components online. Follow the steps below.
+
+* Right click on the project from project explorer in which you want to add the component to and Select `Install ESP-IDF Components`
+  ![](docs/images/ESP-IDF_Components/install_components.png)
+
+  A new window will open up showing all the available component to be installed.
+
+* From the window you can click on `Install` button to add that component to the project. To get to the readme file for that component you can click on `More Info` which will open the browser link to the readme file of that component.
+  ![](docs/images/ESP-IDF_Components/components_window.png)
+
+Already added components are also shown but the `Install` button changes text to `Already Added` and is disabled.
 
 <a name="configureEnvironmentVariables"></a>
 # Configuring Environment Variables
