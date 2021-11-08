@@ -648,7 +648,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				textControl.addModifyListener(addModifyListener(configKey, textControl));
 				addTooltipImage(kConfigMenuItem);
 			}
-			else if (isVisible && type.equals(IJsonServerConfig.BOOL_TYPE))
+			else if (isVisible && (type.equals(IJsonServerConfig.BOOL_TYPE) || kConfigMenuItem.isMenuConfig()))
 			{
 				Button button = new Button(updateUIComposite, SWT.CHECK);
 				button.setText(kConfigMenuItem.getTitle());
@@ -666,10 +666,16 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 						JSONObject jsonObj = new JSONObject();
 						jsonObj.put(configKey, button.getSelection());
 						executeCommand(jsonObj);
+						if(kConfigMenuItem.isMenuConfig()) {
+							renderMenuItems(kConfigMenuItem);
+						}
 					}
 
 				});
 				addTooltipImage(kConfigMenuItem);
+				if (button.getSelection()) {
+					renderMenuItems(kConfigMenuItem);
+				}
 			}
 
 			else if (isVisible && type.equals(IJsonServerConfig.INT_TYPE))

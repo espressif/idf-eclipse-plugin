@@ -22,6 +22,7 @@ public class KConfigMenuItem
 	private String title;
 	private String type;
 	private String id;
+	private boolean isMenuConfig;
 
 	public KConfigMenuItem(KConfigMenuItem parent)
 	{
@@ -68,6 +69,11 @@ public class KConfigMenuItem
 	{
 		return type;
 	}
+	
+	public boolean isMenuConfig() 
+	{
+		return isMenuConfig;
+	}
 
 	public boolean hasChildren()
 	{
@@ -104,6 +110,10 @@ public class KConfigMenuItem
 		this.type = type;
 	}
 
+	public void setIsMenuConfig(boolean isMenuConfig) {
+		this.isMenuConfig = isMenuConfig;
+		
+	}
 	public boolean isVisible(JSONObject visibleJsonMap)
 	{
 		if (visibleJsonMap == null || visibleJsonMap.isEmpty())
@@ -160,4 +170,6 @@ public class KConfigMenuItem
 	{
 		return visibleJsonMap.get(configKey) != null ? (boolean) visibleJsonMap.get(configKey) : false;
 	}
+
+
 }
