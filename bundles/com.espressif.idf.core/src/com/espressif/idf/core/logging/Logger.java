@@ -38,14 +38,6 @@ public class Logger
 			log(IDFCorePlugin.getPlugin(), e);
 		}
 	}
-	
-	public static void log(String msg, boolean onlyDebugMode)
-	{
-		if (onlyDebugMode && Platform.inDebugMode())
-		{
-			log(IDFCorePlugin.getPlugin(), msg);
-		}
-	}
 
 	public static void logError(String message)
 	{
