@@ -97,7 +97,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 	private static final String ICONS_INFO_OBJ_GIF = "icons/help.gif"; //$NON-NLS-1$
 
-	private static final String ICONS_SDK_TOOL_CONFIG_PNG = "icons/sdk_tool_config.png";
+	private static final String ICONS_SDK_TOOL_CONFIG_PNG = "icons/sdk_tool_config.png"; //$NON-NLS-1$
 
 	private TreeViewer treeViewer;
 
