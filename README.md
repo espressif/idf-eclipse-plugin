@@ -451,3 +451,15 @@ To import an existing launch configuration into Eclipse:
 <a name="howToRaiseBugs"></a>
 # How to raise bugs
 Please raise the issues here https://github.com/espressif/idf-eclipse-plugin/issues with the complete environment details and log.
+
+# How to build locally
+1. Install prerequisites Java 11+ and Maven
+2. Run below commands to clone and build
+
+```
+git clone https://github.com/espressif/idf-eclipse-plugin.git
+cd idf-eclipse-plugin
+mvn clean verify -Djarsigner.skip=true
+```
+
+This will generate p2 update site artifact in the location `releng/com.espressif.idf.update/target` with name `com.espressif.idf.update-*` and this can be installed using using the mechanism mentioned <a href="https://github.com/espressif/idf-eclipse-plugin#installPluginsUsingLocalFile">here</a>
