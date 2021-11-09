@@ -111,7 +111,7 @@
          <repository location="https://download.eclipse.org/tm4e/releases/0.4.1/"/>
       </location>
 	   <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-		   <repository location="http://download.eclipse.org/nebula/releases/2.2.0"/>
+		   <repository location="http://download.eclipse.org/nebula/releases/latest"/>
 		   <unit id="org.eclipse.nebula.widgets.xviewer.feature.feature.group" version="0.0.0"/>
 	   </location>
    </locations>
