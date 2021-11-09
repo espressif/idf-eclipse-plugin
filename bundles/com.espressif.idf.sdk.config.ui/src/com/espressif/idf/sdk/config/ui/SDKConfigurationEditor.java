@@ -97,6 +97,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 	private static final String ICONS_INFO_OBJ_GIF = "icons/help.gif"; //$NON-NLS-1$
 
+	private static final String ICONS_SDK_TOOL_CONFIG_PNG = "icons/sdk_tool_config.png";
+
 	private TreeViewer treeViewer;
 
 	private Group updateUIComposite;
@@ -611,7 +613,10 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 					: false);
 			Object newConfigValue = modifiedJsonMap.get(configKey);
 			String helpInfo = kConfigMenuItem.getHelp();
-
+			if (type.equals(IJsonServerConfig.MENU_TYPE))
+			{
+				isVisible = true;
+			}
 			if (isVisible && type.equals(IJsonServerConfig.STRING_TYPE))
 			{
 				Label labelName = new Label(updateUIComposite, SWT.NONE);
@@ -648,7 +653,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				textControl.addModifyListener(addModifyListener(configKey, textControl));
 				addTooltipImage(kConfigMenuItem);
 			}
-			else if (isVisible && (type.equals(IJsonServerConfig.BOOL_TYPE) || kConfigMenuItem.isMenuConfig()))
+			else if (kConfigMenuItem.isMenuConfig())
 			{
 				Button button = new Button(updateUIComposite, SWT.CHECK);
 				button.setText(kConfigMenuItem.getTitle());
@@ -666,16 +671,45 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 						JSONObject jsonObj = new JSONObject();
 						jsonObj.put(configKey, button.getSelection());
 						executeCommand(jsonObj);
-						if(kConfigMenuItem.isMenuConfig()) {
-							renderMenuItems(kConfigMenuItem);
-						}
+						renderMenuItems(kConfigMenuItem);
 					}
 
 				});
 				addTooltipImage(kConfigMenuItem);
-				if (button.getSelection()) {
+
+				if (kConfigMenuItem.hasChildren())
+				{
+					button.setImage(SDKConfigUIPlugin.getImage(ICONS_SDK_TOOL_CONFIG_PNG));
+				}
+
+				if (button.getSelection())
+				{
 					renderMenuItems(kConfigMenuItem);
 				}
+			}
+			else if (isVisible && type.equals(IJsonServerConfig.BOOL_TYPE))
+			{
+				Button button = new Button(updateUIComposite, SWT.CHECK);
+				button.setText(kConfigMenuItem.getTitle());
+				button.setLayoutData(new GridData(SWT.NONE, SWT.NONE, false, false, 2, 1));
+				button.setToolTipText(helpInfo);
+				if (configValue != null)
+				{
+					button.setSelection((boolean) configValue);
+				}
+				button.addSelectionListener(new SelectionAdapter()
+				{
+					@Override
+					public void widgetSelected(SelectionEvent e)
+					{
+						JSONObject jsonObj = new JSONObject();
+						jsonObj.put(configKey, button.getSelection());
+						executeCommand(jsonObj);
+					}
+
+				});
+				addTooltipImage(kConfigMenuItem);
+
 			}
 
 			else if (isVisible && type.equals(IJsonServerConfig.INT_TYPE))
