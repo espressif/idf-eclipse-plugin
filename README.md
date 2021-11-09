@@ -463,3 +463,11 @@ mvn clean verify -Djarsigner.skip=true
 ```
 
 This will generate p2 update site artifact in the location `releng/com.espressif.idf.update/target` with name `com.espressif.idf.update-*` and this can be installed using using the mechanism mentioned <a href="https://github.com/espressif/idf-eclipse-plugin#installPluginsUsingLocalFile">here</a>
+
+# How do I get the latest development build 
+1. Go <a href="https://github.com/espressif/idf-eclipse-plugin/commits/master">here</a> 
+1. Click on a green tick mark
+1. Click on Details
+1. Click on the summary on the left
+1. Scroll down to see the artifacts
+1. Download `com.espressif.idf.update` p2 update site archive and install as per the instructions mentioned <a href="https://github.com/espressif/idf-eclipse-plugin#installPluginsUsingLocalFile">here</a>
