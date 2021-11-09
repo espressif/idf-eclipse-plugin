@@ -61,6 +61,9 @@ build:
 
 .upload_template: &upload_template
   when: manual
+  image:
+    name: rclone/rclone:1
+    entrypoint: [""]
   tags:
     - deploy
   dependencies:
@@ -72,11 +75,11 @@ build:
     # upload archive
     - cit_add_ssh_key "${SRV_KEY}"
     - cd ${ARCHIVE_DIR}
-    - scp ${ARCHIVE_NAME} ${SRV_UPLOAD_PATH}
+    - rclone --config=$RCLONE_CONFIG copy ${ARCHIVE_NAME} ${SRV_UPLOAD_PATH}
     # upload directory
     - UNIQ_DIR=${UNIQ_SUFFIX}
     - mkdir ${UNIQ_DIR} && cd ${UNIQ_DIR} && unzip -q ../${ARCHIVE_NAME} && cd ..
-    - scp -r ${UNIQ_DIR} ${SRV_UPLOAD_PATH}
+    - rclone --config=$RCLONE_CONFIG copy ${UNIQ_DIR} ${SRV_UPLOAD_PATH}
     - ssh ${SRV_SERVER_SSH} "cd ${SRV_DIR} && ln -srnf ${UNIQ_DIR} ${SRV_LATEST_NAME}"
     # Show info
     - echo -e "\nAn archives was published there:\n\n${SRV_HTTP_URL}/${ARCHIVE_NAME}"
@@ -84,6 +87,9 @@ build:
 
 .upload_ide: &upload_ide
   when: manual
+  image:
+    name: rclone/rclone:1
+    entrypoint: [""]
   tags:
     - deploy
   dependencies:
@@ -96,9 +102,9 @@ build:
     - LINUX_IDE_PATH= ${PRODUCTS_PATH}/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
     # upload archive
     - cit_add_ssh_key "${SRV_KEY}"
-    - scp ${WIN32_IDE_PATH} ${SRV_UPLOAD_PATH}
-    - scp ${MACOSX_IDE_PATH} ${SRV_UPLOAD_PATH}
-    - scp ${LINUX_IDE_PATH} ${SRV_UPLOAD_PATH}
+    - rclone --config=$RCLONE_CONFIG copy ${WIN32_IDE_PATH} ${SRV_UPLOAD_PATH}
+    - rclone --config=$RCLONE_CONFIG copy ${MACOSX_IDE_PATH} ${SRV_UPLOAD_PATH}
+    - rclone --config=$RCLONE_CONFIG copy ${LINUX_IDE_PATH} ${SRV_UPLOAD_PATH}
     # Show info
     - echo -e "\nAn win32 Espressif-IDE was published there:\n\n${SRV_HTTP_URL}/${WIN32_IDE_PATH}"
     - echo -e "\nAn macosx Espressif-IDE was published there:\n\n${SRV_HTTP_URL}/${MACOSX_IDE_PATH}"
