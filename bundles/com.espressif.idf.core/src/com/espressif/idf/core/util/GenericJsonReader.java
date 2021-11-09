@@ -1,5 +1,6 @@
 package com.espressif.idf.core.util;
 
+import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -56,9 +57,11 @@ public class GenericJsonReader
 		}
 
 		JSONParser parser = new JSONParser();
+		BufferedReader breader = null;
 		try
 		{
-			return (JSONObject) parser.parse(new FileReader(filePath.getLocation().toFile()));
+			breader = new BufferedReader(new FileReader(filePath.getLocation().toFile()));
+			return (JSONObject) parser.parse(breader);
 
 		}
 		catch (
@@ -66,6 +69,19 @@ public class GenericJsonReader
 				| ParseException e)
 		{
 			throw new Exception(e);
+		} finally
+		{
+			try
+			{
+				if (breader != null)
+				{
+					breader.close();
+				}
+			}
+			catch (IOException ex)
+			{
+				breader = null;
+			}
 		}
 	}
 
