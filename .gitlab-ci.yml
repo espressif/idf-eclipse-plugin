@@ -15,10 +15,10 @@ variables:
   git remote remove github || true
   git remote add github ${GH_PUSH_REPO}
 
-before_script:
-  # Use CI Tools
-  - curl -sSL ${CIT_LOADER_URL} | sh
-  - source citools/import_functions
+# before_script:
+#   # Use CI Tools
+#   - curl -sSL ${CIT_LOADER_URL} | sh
+#   - source citools/import_functions
 
 build:
   stage: build
@@ -114,7 +114,6 @@ internal_http:
   <<: *upload_template
   tags:
     - deploy
-    - shanghai
   stage: private_deploy
   variables:
     GIT_STRATEGY: none
