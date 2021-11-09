@@ -9,7 +9,6 @@ image: ${CI_DOCKER_REGISTRY}/esp32-ci-env
 variables:
   ARCHIVE_DIR: "dist"
   ORIGIN_NAME: "com.espressif.idf.update-2.3.0-SNAPSHOT.zip"
-  PRODUCTS_PATH: ""
 
 .add_gh_key_remote: &add_gh_key_remote |
   cit_add_ssh_key "${GH_PUSH_KEY}"
@@ -28,7 +27,6 @@ build:
   artifacts:
     paths:
       - ${ARCHIVE_DIR}/
-      - ${PRODUCTS_PATH}/
   
     expire_in: 2 weeks
   script:
@@ -46,7 +44,7 @@ build:
     - rm -v "${KEYSTORE_FILE}"
     - mkdir -p ${ARCHIVE_DIR} && mv -v releng/com.espressif.idf.update/target/${ORIGIN_NAME} ${ARCHIVE_DIR}/${ARCHIVE_NAME}
     - ls -l ${ARCHIVE_DIR}
-    - PRODUCTS_PATH=${PWD}/releng/com.espressif.idf.product/target/products/
+    - export PRODUCTS_PATH=releng/com.espressif.idf.product/target/products/
     - echo ${PRODUCTS_PATH}
 
 # osx_code_sign:
