@@ -468,6 +468,6 @@ This will generate p2 update site artifact in the location `releng/com.espressif
 1. Go <a href="https://github.com/espressif/idf-eclipse-plugin/commits/master">here</a> 
 1. Click on a green tick mark
 1. Click on Details
-1. Click on the summary on the left
-1. Scroll down to see the artifacts
+1. Click on Summary on the left
+1. Scroll down to see the artifacts section
 1. Download `com.espressif.idf.update` p2 update site archive and install as per the instructions mentioned <a href="https://github.com/espressif/idf-eclipse-plugin#installPluginsUsingLocalFile">here</a>
