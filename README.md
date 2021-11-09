@@ -466,7 +466,7 @@ This will generate p2 update site artifact in the location `releng/com.espressif
 
 # How do I get the latest development build 
 1. Go to master branch last commit <a href="https://github.com/espressif/idf-eclipse-plugin/commits/master">here</a> 
-1. Click on a green tick mark
+1. Click on a :white_check_mark: green tick mark
 1. Click on Details
 1. Click on Summary on the left
 1. Scroll down to see the artifacts section
