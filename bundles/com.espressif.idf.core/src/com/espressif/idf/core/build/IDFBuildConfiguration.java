@@ -468,9 +468,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		{
 			pattern = Pattern.compile(patternString.toString());
 		}
+		Logger.log("pattern::"+ patternString.toString(), true);
 
 		final IFile jsonFile = getBuildContainer().getFile(new org.eclipse.core.runtime.Path("compile_commands.json")); //$NON-NLS-1$
-		 File jsonDiskFile = new File(jsonFile.getLocationURI());
+		File jsonDiskFile = new File(jsonFile.getLocationURI());
 
 		Set<String> includeDirs = new HashSet<String>();
 		CommandEntry[] sourceFileInfos = null;
@@ -483,6 +484,9 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			List<String> sourceFiles = new ArrayList<String>();
 			for (CommandEntry sourceFileInfo : sourceFileInfos)
 			{
+				Logger.log("command::" + sourceFileInfo.getCommand(), true);
+				Logger.log("file::" + sourceFileInfo.getFile(), true);
+				
 				sourceFiles.add(sourceFileInfo.getFile());
 				String sourceFileProjectRelative = createLinkForSourceFileOnly(sourceFileInfo.getFile(), project, monitor);
 				projectRelativeSourceMap.put(sourceFileInfo.getFile(), sourceFileProjectRelative);
@@ -492,6 +496,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				while (matcher.find())
 				{
 					String includeDir = matcher.group(0);
+					if (!new File(includeDir).isDirectory())
+					{
+						continue;
+					}
 					if (includeDirs.contains(includeDir))
 					{
 						relativeIncPaths.add(projectRelativeIncludeMap.get(includeDir));
@@ -571,6 +579,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	private void createFoldersAndLinkFiles(IFolder sourceFolder, File includeDirFileObj, Set<String> includeFilesList)
 			throws Exception
 	{
+		Logger.log("include Dir::"+ includeDirFileObj.getAbsolutePath(), true);
 		for (File file : includeDirFileObj.listFiles())
 		{
 			if (file.isDirectory())
