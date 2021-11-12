@@ -43,6 +43,7 @@ import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -55,6 +56,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
@@ -166,6 +168,24 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 			System.out.println("openocd.TabDebugger.createControl() ");
 		}
 
+		if (!(parent instanceof ScrolledComposite))
+		{
+			ScrolledComposite sc = new ScrolledComposite(parent, SWT.V_SCROLL | SWT.H_SCROLL);
+			sc.setFont(parent.getFont());
+			sc.setExpandHorizontal(true);
+			sc.setExpandVertical(true);
+			sc.setShowFocusedControl(true);
+			this.createControl(sc);
+			Control control = this.getControl();
+			if (control != null)
+			{
+				sc.setContent(control);
+				sc.setMinSize(control.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+				this.setControl(control.getParent());
+			}
+			return;
+
+		}
 		Composite comp = new Composite(parent, SWT.NONE);
 		setControl(comp);
 		GridLayout layout = new GridLayout();
@@ -275,14 +295,23 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 		}
 
 		{
-			fDoStartGdbServer = new Button(comp, SWT.CHECK);
+			Composite local = new Composite(comp, SWT.NONE);
+			GridLayout layout = new GridLayout();
+			layout.numColumns = 1;
+			layout.marginHeight = 0;
+			layout.marginWidth = 0;
+			layout.makeColumnsEqualWidth = true;
+			local.setLayout(layout);
+			GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+			gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns;
+			local.setLayoutData(gd);
+
+			fDoStartGdbServer = new Button(local, SWT.CHECK);
 			fDoStartGdbServer.setText(Messages.getString("DebuggerTab.doStartGdbServer_Text"));
 			fDoStartGdbServer.setToolTipText(Messages.getString("DebuggerTab.doStartGdbServer_ToolTipText"));
-			GridData gd = new GridData();
-			gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns;
+			gd = new GridData(GridData.FILL_HORIZONTAL);
 			fDoStartGdbServer.setLayoutData(gd);
 		}
-
 		{
 			Label label = new Label(comp, SWT.NONE);
 			label.setText(Messages.getString("DebuggerTab.gdbServerExecutable_Label"));
@@ -513,7 +542,6 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 				});
 				fTargetName.setLayoutData(gd);
 			}
-
 		}
 
 		{
@@ -963,6 +991,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 
 			// OpenOCD GDB server
 			{
+
 				// Start server locally
 
 				booleanDefault = fPersistentPreferences.getGdbServerDoStart();
