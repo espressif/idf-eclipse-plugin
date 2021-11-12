@@ -33,3 +33,5 @@ Please navigate through each tab and configure project specific settings.
 OpenOCD path is auto-configured based on the `OPENOCD_SCRIPTS` path defined in the CDT Build environment variables.
 
 ![](images/OpenOCDDebug_2.png)
+
+Any issues on OpenOCD debugging please refer to https://github.com/espressif/openocd-esp32/wiki/Troubleshooting-FAQ 
