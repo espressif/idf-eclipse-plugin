@@ -471,3 +471,15 @@ This will generate p2 update site artifact in the location `releng/com.espressif
 1. Click on Summary on the left
 1. Scroll down to see the artifacts section
 1. Download `com.espressif.idf.update` p2 update site archive and install as per the instructions mentioned <a href="https://github.com/espressif/idf-eclipse-plugin#installPluginsUsingLocalFile">here</a>
+
+# ESP-IDF Eclipse Plugin Compatibility Matrix
+
+| IEP | Eclipse | Java | Tools Installer| Description |
+| ------ | ------ | ------ |------ | ------ |
+| IEP 2.3.0 | Eclipse 2021-09, 2021-06, 2021-03 |Java 11 and above | ESP-IDF Tools Windows Installer 2.11| ESP-IDF Tools Windows Installer 2.11 comes with IEP 2.2.0 and this need to be updated to 2.3.0|
+| IEP 2.2.0 | Eclipse 2021-06, 2021-03, 2020-12 |Java 11 and above | ESP-IDF Tools Windows Installer 2.10| |
+| IEP 2.1.2 | Eclipse 2021-06, 2021-03, 2020-12, 2020-09 |Java 11 and above | ESP-IDF Tools Windows Installer 2.9| IEP 2.1.2 added a support for Eclipse 2021-06 |
+| IEP 2.1.1 | Eclipse 2021-03, 2020-12, 2020-09 | Java 11 and above | ESP-IDF Tools Windows Installer 2.8 | ESP-IDF Tools Windows Installer 2.8 comes with IEP 2.1.0 and this need to be updated to 2.1.1
+| IEP 2.1.0 | Eclipse 2021-03, 2020-12, 2020-09 | Java 11 and above | ESP-IDF Tools Windows Installer 2.6 beta | IEP 2.1.0 added a support for Eclipse 2021-03
+| IEP 2.0.0 | Eclipse 2020-12, 2020-09, 2020-06 | Java 11 and above | ESP-IDF Tools Windows Installer 2.6 beta  | 
+| IEP 1.2.4 | Eclipse 2020-12, 2020-09, 2020-06, 2020-03 | Java 1.8 and above | Not supported | IEP 1.2.4 added a support for Eclipse 2020-12
