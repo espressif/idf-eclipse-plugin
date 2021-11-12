@@ -29,7 +29,7 @@ Require-Bundle: ilg.gnumcueclipse.debug.gdbjtag,
  ilg.gnumcueclipse.core,
  org.eclipse.cdt.debug.ui,
  com.espressif.idf.launch.serial.ui,
- org.eclipse.launchbar.ui;bundle-version="2.4.200"
+ org.eclipse.launchbar.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: %bundle.vendor
 Bundle-ActivationPolicy: lazy
