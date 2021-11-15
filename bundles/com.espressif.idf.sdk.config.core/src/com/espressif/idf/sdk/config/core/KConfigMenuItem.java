@@ -120,7 +120,7 @@ public class KConfigMenuItem
 		{
 			return false;
 		}
-
+		
 		if (getType() != null && getType().equals(IJsonServerConfig.MENU_TYPE))
 		{
 			return isVisible(children, visibleJsonMap);
@@ -156,6 +156,8 @@ public class KConfigMenuItem
 						return true;
 					}
 				}
+			} else if(kConfigMenuItem.isMenuConfig) {
+				return true;
 			}
 			else if (type.equals(IJsonServerConfig.MENU_TYPE))
 			{
