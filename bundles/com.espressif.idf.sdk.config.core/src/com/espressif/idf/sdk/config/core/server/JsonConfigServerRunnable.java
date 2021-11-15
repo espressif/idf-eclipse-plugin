@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.text.MessageFormat;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -45,8 +46,18 @@ public class JsonConfigServerRunnable implements Runnable
 	{
 		if (process != null)
 		{
-			process.destroy();
+			stopProcess(process);
 		}
+	}
+	
+	private void stopProcess(Process process) {
+	    process.descendants().forEach(new Consumer<ProcessHandle>() {
+	        @Override
+	        public void accept(ProcessHandle t) {
+	            t.destroy();
+	        }
+	    });
+	    process.destroy();
 	}
 
 	public void executeCommand(String command, CommandType type)
