@@ -100,6 +100,10 @@ public class ConfigContentProvider extends TreeNodeContentProvider
 				Logger.logTrace(SDKConfigUIPlugin.getDefault(), "item >" + kConfigMenuItem.getTitle() + " type >"+ kConfigMenuItem.getType()); //$NON-NLS-1$ //$NON-NLS-2$
 				
 				boolean visible = kConfigMenuItem.isVisible(visibleJsonMap);
+				if (!kConfigMenuItem.isMenuConfig())
+				{
+					visible = true;
+				}
 				Logger.logTrace(SDKConfigUIPlugin.getDefault(), "visibility >" + kConfigMenuItem.isVisible(visibleJsonMap)); //$NON-NLS-1$
 				if (visible)
 				{
