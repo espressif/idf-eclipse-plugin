@@ -535,7 +535,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	{
 		IFolder folder = project.getFolder(ESP_IDF_COMPONENTS); //$NON-NLS-1$
 		File sFile = new File(sourceFile);
-		String sourceFileToSplit = ""; // $NON-NLS-1$
+		String sourceFileToSplit = sourceFile;
 		if (Platform.getOS().equals(Platform.OS_WIN32))
 		{
 			sourceFileToSplit = sourceFile.replace('\\', '/'); // $NON-NLS-1$
