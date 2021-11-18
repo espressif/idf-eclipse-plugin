@@ -630,7 +630,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			}
 		}
 
-		includePathRelativeMap.put(includeDir, folder.getFullPath().toString());
+		includePathRelativeMap.put(includeDir, folder.getLocation().toFile().getAbsolutePath());
 		String includePathProject = folder.getFullPath().toString();
 		Set<String> includeFilesList = new HashSet<String>();
 		includeFilesMap.put(includeDir, includeFilesList);
