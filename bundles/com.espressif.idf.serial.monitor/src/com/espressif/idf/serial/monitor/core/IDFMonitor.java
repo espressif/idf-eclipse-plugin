@@ -1,5 +1,6 @@
 package com.espressif.idf.serial.monitor.core;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,10 +9,15 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.GenericJsonReader;
+import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.SDKConfigJsonReader;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.serial.monitor.server.SocketServerHandler;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -24,17 +30,19 @@ public class IDFMonitor
 	private String idfMonitorToolPath;
 	private IProject project;
 	private String filterOptions;
+	private boolean withSocketServer;
 
-	public IDFMonitor(IProject project, String port, String filterOptions, String pythonBinPath, String idfMonitorToolPath)
+	public IDFMonitor(IProject project, String port, String filterOptions, String pythonBinPath, String idfMonitorToolPath, boolean withSocketServer)
 	{
 		this.project = project;
 		this.port = port;
 		this.pythonBinPath = pythonBinPath;
 		this.idfMonitorToolPath = idfMonitorToolPath;
 		this.filterOptions = filterOptions;
+		this.withSocketServer = withSocketServer;
 	}
 
-	public List<String> commandArgs()
+	public List<String> commandArgsWithoutSocketServer()
 	{
 		List<String> args = new ArrayList<>();
 		args.add(pythonBinPath);
@@ -47,10 +55,50 @@ public class IDFMonitor
 		return args;
 	}
 
+	private List<String> commandArgsWithSocketServer()
+	{
+		List<String> args = new ArrayList<>();
+		args.add(pythonBinPath);
+		args.add(IDFUtil.getIDFMonitorPythonScriptFile().getAbsolutePath());
+		args.add("-p"); //$NON-NLS-1$
+		args.add(port);
+		args.add("-b"); //$NON-NLS-1$
+		args.add(getMonitorBaudRate());
+		args.add("--ws"); //$NON-NLS-1$
+		args.add("ws://localhost:".concat(String.valueOf(SocketServerHandler.getServerPort()))); //$NON-NLS-1$
+		args.add(getElfFilePath(project).toString());
+		return args;
+	}
+	
+	private IPath getElfFilePath(IProject project)
+	{
+		GenericJsonReader jsonReader = new GenericJsonReader(project, "build" + File.separator + "project_description.json"); //$NON-NLS-1$ //$NON-NLS-2$
+		String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
+		if (!StringUtil.isEmpty(value))
+		{
+			return project.getFile(new Path("build").append(value)).getLocation(); //$NON-NLS-1$
+		}
+		return null;
+	}
+	
+	private String getMonitorBaudRate()
+	{
+		return new SDKConfigJsonReader(project).getValue("ESPTOOLPY_MONITOR_BAUD"); //$NON-NLS-1$
+	}
+
 	public Process start() throws IOException
 	{
+		List<String> arguments = null;
+		if (!withSocketServer)
+		{
+			arguments = commandArgsWithoutSocketServer();	
+		}
+		else
+		{
+			arguments = commandArgsWithSocketServer();
+		}
+		
 		// command to execute
-		List<String> arguments = commandArgs();
 		Logger.log(arguments.toString());
 
 		// CDT Build environment variables
@@ -87,5 +135,4 @@ public class IDFMonitor
 		LocalTerminal localTerminal = new LocalTerminal(arguments, workingDir.toFile(), environment);
 		return localTerminal.connect();
 	}
-
 }
