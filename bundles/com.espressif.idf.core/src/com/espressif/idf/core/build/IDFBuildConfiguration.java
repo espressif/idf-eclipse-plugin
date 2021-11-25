@@ -26,15 +26,10 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.eclipse.cdt.cmake.core.ICMakeToolChainFile;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
@@ -69,6 +64,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
@@ -88,7 +84,7 @@ import com.google.gson.Gson;
 @SuppressWarnings(value = { "restriction" })
 public class IDFBuildConfiguration extends CBuildConfiguration {
 
-	private static final String ESP_IDF_COMPONENTS = "ESP_IDF_Components";
+	private static final String ESP_IDF_COMPONENTS = "esp_idf_components";
 	public static final String CMAKE_GENERATOR = "cmake.generator"; //$NON-NLS-1$
 	public static final String CMAKE_ARGUMENTS = "cmake.arguments"; //$NON-NLS-1$
 	public static final String CMAKE_ENV = "cmake.environment"; //$NON-NLS-1$
@@ -97,10 +93,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 	private ILaunchTarget launchtarget;
 	private Map<IResource, IScannerInfo> infoPerResource;
-	private static Map<String, String> includePathRelativeMap = new HashMap<>();
-	private static Map<String, Set<String>> includeFilesMap = new HashMap<>();
-	private static Map<String, IFile> sourceFileLocalProjectMap = new HashMap<String, IFile>();
-	private static Map<String, Set<String>> sourceFileLocalIncludesMap = new HashMap<String, Set<String>>();
 	/**
 	 * whether one of the CMakeLists.txt files in the project has been modified and saved by the user since the last
 	 * build.<br>
@@ -367,7 +359,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 				watchProcess(p, new IConsoleParser[] { epm });
 
-				project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 				linkBuildComponents(project, monitor);
 				project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 
@@ -428,7 +419,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		}
 	}
 	
-	private String getIdfToolsPath()
+	private static String getIdfToolsPath()
 	{
 		String idfToolsPathCommon = IDFUtil.getIDFPath();
 		if (Platform.getOS().equals(Platform.OS_WIN32))
@@ -454,195 +445,82 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			componentsFolder.create(true, false, new NullProgressMonitor());
 		}
 
-		StringBuilder patternString = new StringBuilder();
-		patternString.append(getIdfToolsPath());
-		patternString.append("/"); //$NON-NLS-1$
-		patternString.append("([^\\s]+)"); //$NON-NLS-1$
-
-		Pattern pattern = null;
-		if (Platform.getOS().equals(Platform.OS_WIN32))
-		{
-			pattern = Pattern.compile(patternString.toString(), Pattern.CASE_INSENSITIVE);
-		}
-		else
-		{
-			pattern = Pattern.compile(patternString.toString());
-		}
-		Logger.log("pattern::"+ patternString.toString(), true);
-
 		final IFile jsonFile = getBuildContainer().getFile(new org.eclipse.core.runtime.Path("compile_commands.json")); //$NON-NLS-1$
 		File jsonDiskFile = new File(jsonFile.getLocationURI());
 
-		Set<String> includeDirs = new HashSet<String>();
 		CommandEntry[] sourceFileInfos = null;
-		Map<String, String> projectRelativeIncludeMap = new HashMap<String, String>();
-		Map<String, String> projectRelativeSourceMap = new HashMap<String, String>();
 		try (Reader in = new FileReader(jsonDiskFile))
 		{
 			Gson gson = new Gson();
 			sourceFileInfos = gson.fromJson(in, CommandEntry[].class);
-			List<String> sourceFiles = new ArrayList<String>();
 			for (CommandEntry sourceFileInfo : sourceFileInfos)
 			{
+				String sourceFile = sourceFileInfo.getFile();
 				Logger.log("command::" + sourceFileInfo.getCommand(), true);
-				Logger.log("file::" + sourceFileInfo.getFile(), true);
+				Logger.log("file::" + sourceFile, true);
 				
-				sourceFiles.add(sourceFileInfo.getFile());
-				String sourceFileProjectRelative = createLinkForSourceFileOnly(sourceFileInfo.getFile(), project, monitor);
-				projectRelativeSourceMap.put(sourceFileInfo.getFile(), sourceFileProjectRelative);
-				
-				Matcher matcher = pattern.matcher(sourceFileInfo.getCommand());
-				Set<String> relativeIncPaths = new HashSet<>();
-				while (matcher.find())
+				org.eclipse.core.runtime.Path path = new org.eclipse.core.runtime.Path(sourceFile);
+				IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(path);
+				if (file == null)
 				{
-					String includeDir = matcher.group(0);
-					if (!new File(includeDir).isDirectory())
-					{
-						continue;
-					}
-					if (includeDirs.contains(includeDir))
-					{
-						relativeIncPaths.add(projectRelativeIncludeMap.get(includeDir));
-						continue;
-					}
-					
-					includeDirs.add(includeDir);
-					String relativeInc = generateLinksAndCreateFoldersRequired(includeDir,
-							sourceFileInfo.getFile(), project, monitor);
-					projectRelativeIncludeMap.put(includeDir, relativeInc);
-					relativeIncPaths.add(relativeInc);
-				}
-				
-				sourceFileLocalIncludesMap.put(sourceFileInfo.getFile(), relativeIncPaths);
-			}
-			
-			for (String sourceFile : sourceFiles)
-			{
-				if (!sourceFileLocalIncludesMap.containsKey(sourceFile))
-				{
-					Logger.log(sourceFile);
+					createLinkForSourceFileOnly(sourceFile, project, monitor);
 				}
 			}
-			
 		}
 		catch (Exception e)
 		{
 			Logger.log(e);
 		}
 	}
-
-	private String createLinkForSourceFileOnly(String sourceFile, IProject project, IProgressMonitor monitor) throws Exception
+	
+	private void setLinkLocation(IResource toLink, IPath rawLinkLocation) throws CoreException
 	{
-		IFolder folder = project.getFolder(ESP_IDF_COMPONENTS); //$NON-NLS-1$
-		File sFile = new File(sourceFile);
+		if (toLink.getType() == IResource.FILE)
+		{
+			((IFile) toLink).createLink(rawLinkLocation, IResource.REPLACE, new NullProgressMonitor());
+		}
+		if (toLink.getType() == IResource.FOLDER)
+		{
+			((IFolder) toLink).createLink(rawLinkLocation, IResource.REPLACE, new NullProgressMonitor());
+		}
+	}
+
+	private void createLinkForSourceFileOnly(String sourceFile, IProject project, IProgressMonitor monitor) throws Exception
+	{
+		IFolder folder = project.getFolder(ESP_IDF_COMPONENTS);
 		String sourceFileToSplit = sourceFile;
 		if (Platform.getOS().equals(Platform.OS_WIN32))
 		{
 			sourceFileToSplit = sourceFile.replace('\\', '/'); // $NON-NLS-1$
 		}
+		sourceFileToSplit = sourceFile.substring(getIdfToolsPath().length(), sourceFile.length());
+		String[] segments = new org.eclipse.core.runtime.Path(sourceFileToSplit).segments();
 		
-		if (!sourceFileToSplit.contains(getIdfToolsPath().replace('\\', '/')))
+		for (int i = 0; i < (segments.length - 1); i++)
 		{
-			return sFile.getAbsolutePath();
-		}
-		
-		sourceFileToSplit = sourceFileToSplit.substring(getIdfToolsPath().length(), sourceFileToSplit.length());
-		List<String> splitPath = Arrays.asList(sourceFileToSplit.split("/")); //$NON-NLS-1$
-		folder = project.getFolder(ESP_IDF_COMPONENTS); //$NON-NLS-1$
-		
-		for (int i = 0; i < (splitPath.size() - 1); i++)
-		{
-			if (splitPath.get(i).equals("components") || splitPath.get(i).trim().isEmpty())
+			if (segments[i].equals("components") || segments[i].trim().isEmpty())
 			{
 				continue;
 			}
-			folder = folder.getFolder(splitPath.get(i));
+			folder = folder.getFolder(segments[i]);
 			if (!folder.exists())
 			{
 				folder.create(true, true, new NullProgressMonitor());
 			}
 		}
 
-		IFile iFile = folder.getFile(sFile.getName());
+		String fileName = new File(sourceFile).getName();
+		IFile iFile = folder.getFile(fileName);
 		if (!iFile.exists())
 		{
-			Files.createSymbolicLink(
-					Paths.get(folder.getLocation().makeAbsolute().toString().concat("/").concat(sFile.getName())),
-					Paths.get(sourceFile));
+			IFile folderLink = folder.getFile(fileName);
+			setLinkLocation(folderLink, new org.eclipse.core.runtime.Path(sourceFile));
 
 		}
-		sourceFileLocalProjectMap.put(sourceFile, iFile);
-		folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-		return iFile.getLocation().makeAbsolute().toString();
-	}
-
-	private void createFoldersAndLinkFiles(IFolder sourceFolder, File includeDirFileObj, Set<String> includeFilesList)
-			throws Exception
-	{
-		Logger.log("include Dir::"+ includeDirFileObj.getAbsolutePath(), true);
-		for (File file : includeDirFileObj.listFiles())
-		{
-			if (file.isDirectory())
-			{
-				IFolder newFolder = sourceFolder.getFolder(file.getName());
-				if (!newFolder.exists())
-				{
-					newFolder.create(true, true, new NullProgressMonitor());
-					createFoldersAndLinkFiles(newFolder, file, includeFilesList);
-				}
-			}
-			else
-			{
-				IFile iFile = sourceFolder.getFile(file.getName());
-
-				if (!iFile.exists())
-				{
-					Files.createSymbolicLink(Paths.get(
-							sourceFolder.getLocation().makeAbsolute().toString().concat("/").concat(file.getName())),
-							Paths.get(file.getAbsolutePath()));
-				}
-
-				includeFilesList.add(iFile.getFullPath().toString());
-			}
-		}
-	}
-
-	private String generateLinksAndCreateFoldersRequired(String includeDir, String sourceFile, IProject project,
-			IProgressMonitor monitor) throws Exception
-	{
-		File includeDirFileObj = new File(includeDir);
-		String includeDirToSplit = includeDir.substring(getIdfToolsPath().length(), includeDir.length());
-		List<String> splitPath = Arrays.asList(includeDirToSplit.split("/")); //$NON-NLS-1$
-		IFolder folder = project.getFolder(ESP_IDF_COMPONENTS); //$NON-NLS-1$
-
-		for (int i = 0; i < (splitPath.size()); i++)
-		{
-			if (splitPath.get(i).equals("components") || splitPath.get(i).trim().isEmpty())
-			{
-				continue;
-			}
-			IFolder prev = folder;
-			folder = folder.getFolder(splitPath.get(i));
-			if (!folder.exists())
-			{
-				folder.create(true, true, new NullProgressMonitor());
-				prev.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-			}
-		}
-
-		includePathRelativeMap.put(includeDir, folder.getLocation().toFile().getAbsolutePath());
-		String includePathProject = folder.getFullPath().toString();
-		Set<String> includeFilesList = new HashSet<String>();
-		includeFilesMap.put(includeDir, includeFilesList);
-		createFoldersAndLinkFiles(folder, includeDirFileObj, includeFilesList);
-		folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-
-		return includePathProject;
 	}
 
 	protected int getUpdateOptions()
 	{
-//		return IIndexManager.UPDATE_ALL | IIndexManager.UPDATE_CHECK_TIMESTAMPS;
 		return IIndexManager.UPDATE_CHECK_TIMESTAMPS | IIndexManager.UPDATE_EXTERNAL_FILES_FOR_PROJECT;
 	}
 
@@ -723,7 +601,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	{
 		IFile file = getBuildContainer().getFile(new org.eclipse.core.runtime.Path("compile_commands.json")); //$NON-NLS-1$
 		CompileCommandsJsonParser parser = new CompileCommandsJsonParser(
-				new ParseRequest(file, new CMakeIndexerInfoConsumer(this::setScannerInformation),
+				new ParseRequest(file, new CMakeIndexerInfoConsumer(this::setScannerInformation,getProject()),
 						CommandLauncherManager.getInstance().getCommandLauncher(this), console));
 		parser.parse(monitor);
 	}
@@ -907,13 +785,16 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		private Map<IResource, IScannerInfo> infoPerResource = new HashMap<>();
 		private boolean haveUpdates;
 		private final Consumer<Map<IResource, IScannerInfo>> resultSetter;
+		private IProject project;
 
 		/**
 		 * @param resultSetter receives the all scanner information when processing is finished
+		 * @param iProject 
 		 */
-		public CMakeIndexerInfoConsumer(Consumer<Map<IResource, IScannerInfo>> resultSetter)
+		public CMakeIndexerInfoConsumer(Consumer<Map<IResource, IScannerInfo>> resultSetter, IProject project)
 		{
 			this.resultSetter = Objects.requireNonNull(resultSetter);
+			this.project = project;
 		}
 
 		@Override
@@ -921,25 +802,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				Map<String, String> definedSymbols, List<String> includePaths, List<String> macroFiles,
 				List<String> includeFiles)
 		{
-			// To fix an issue with the local include paths are not getting considered
-			// by indexer while resolving the headers
-			IFile file = getFileForCMakePath(sourceFileName);
+			IFile file = getFileForCMakePath(sourceFileName, project);
 			if (file != null)
 			{
-				List<String> incPaths = new ArrayList<String>();
-				List<String> localPathsToRemove = new ArrayList<String>();
-				for (String includePath : includePaths)
-				{
-					String incPath = includePathRelativeMap.get(includePath);
-					if (incPath != null)
-					{
-						localPathsToRemove.add(includePath);
-						incPaths.add(incPath);
-					}
-				}
-				
-				includePaths = includePaths.stream().filter(s-> !localPathsToRemove.contains(s)).collect(Collectors.toList());
-				includePaths.addAll(incPaths);
+				systemIncludePaths.addAll(includePaths);
 				
 				ExtendedScannerInfo info = new ExtendedScannerInfo(definedSymbols,
 						systemIncludePaths.stream().toArray(String[]::new), macroFiles.stream().toArray(String[]::new),
@@ -955,24 +821,34 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		 *
 		 * @param sourceFileName the name of the source file, in CMake notation. Note that on windows, CMake writes
 		 *                       filenames with forward slashes (/) such as {@code H://path//to//source.c}.
+		 * @param project2 
 		 * @return a IFile object or <code>null</code>
 		 */
-		private IFile getFileForCMakePath(String sourceFileName)
+		private IFile getFileForCMakePath(String sourceFileName, IProject project)
 		{
 			org.eclipse.core.runtime.Path path = new org.eclipse.core.runtime.Path(sourceFileName);
 			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(path);
-			IFile fileFromMap = sourceFileLocalProjectMap.get(sourceFileName);
-			// TODO maybe we need to introduce a strategy here to get the workbench resource
-			// Possible build scenarios:
-			// 1) linux native: should be OK as is
-			// 2) linux host, building in container: should be OK as is
-			// 3) windows native: Path.fromOSString()?
-			// 4) windows host, building in linux container: ??? needs testing on windows
-			if (fileFromMap == null)
+			if (file != null)
 			{
 				return file;
 			}
-			return fileFromMap;
+			
+			String sourceFile = sourceFileName;
+			if (Platform.getOS().equals(Platform.OS_WIN32))
+			{
+				sourceFile = sourceFileName.replace('\\', '/'); // $NON-NLS-1$
+			}
+			
+			String pathtolookfor = new org.eclipse.core.runtime.Path(getIdfToolsPath()).append("components").toOSString();
+			int startIndex = sourceFile.indexOf(pathtolookfor);
+			String relativePath = sourceFile.substring(startIndex + pathtolookfor.length() + 1);
+			IPath projectPath = new org.eclipse.core.runtime.Path(ESP_IDF_COMPONENTS).append(relativePath);
+			IResource resourcePath = project.findMember(projectPath);
+			if (resourcePath != null && resourcePath instanceof IFile)
+			{
+				return (IFile) resourcePath;
+			}
+			return null;
 		}
 
 		@Override
