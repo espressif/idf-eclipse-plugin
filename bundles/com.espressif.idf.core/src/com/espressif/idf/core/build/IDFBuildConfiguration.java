@@ -207,7 +207,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			}
 
 			infoStream.write(
-					String.format(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_BuildingIn,
+					String.format(Messages.CMakeBuildConfiguration_BuildingIn,
 							buildDir.toString()));
 
 			// Make sure we have a toolchain file if cross
@@ -242,8 +242,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			{
 				deleteCMakeErrorMarkers(project);
 
-				infoStream.write(String.format(
-						org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_Configuring, buildDir));
+				infoStream.write(String.format(Messages.CMakeBuildConfiguration_Configuring, buildDir));
 				// clean output to make sure there is no content
 				// incompatible with current settings (cmake config would fail)
 				cleanBuildDirectory(buildDir);
@@ -294,7 +293,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 						errConsole, monitor);
 				if (p == null) {
 					console.getErrorStream().write(String
-							.format(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_Failure, "")); //$NON-NLS-1$
+							.format(Messages.CMakeBuildConfiguration_Failure, "")); //$NON-NLS-1$
 					return null;
 				}
 
@@ -353,7 +352,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 						console, monitor);
 				if (p == null) {
 					console.getErrorStream().write(String
-							.format(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_Failure, "")); //$NON-NLS-1$
+							.format(Messages.CMakeBuildConfiguration_Failure, "")); //$NON-NLS-1$
 					return null;
 				}
 
@@ -368,7 +367,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				processCompileCommandsFile(console, monitor);
 
 				infoStream.write(String.format(
-						org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_BuildingComplete,
+						Messages.CMakeBuildConfiguration_BuildingComplete,
 						epm.getErrorCount(), epm.getWarningCount(), buildDir.toString()));
 
 				Instant finish = Instant.now();
@@ -378,7 +377,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 			}
 
-			// This is specifically added to trigger the indexing sine in Windows OS it
+			// This is specifically added to trigger the indexing since in Windows OS it
 			// doesn't seem to happen!
 			// setActive();
 			project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
@@ -392,7 +391,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			return new IProject[] { project };
 		} catch (Exception e) {
 			throw new CoreException(IDFCorePlugin.errorStatus(
-					String.format(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_Building,
+					String.format(Messages.CMakeBuildConfiguration_Building,
 							project.getName()),
 					e));
 		}
@@ -498,7 +497,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		
 		for (int i = 0; i < (segments.length - 1); i++)
 		{
-			if (segments[i].equals("components") || segments[i].trim().isEmpty())
+			if (segments[i].equals("components") || segments[i].trim().isEmpty()) // $NON-NLS-1$
 			{
 				continue;
 			}
@@ -540,7 +539,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 			if (!Files.exists(buildDir.resolve("CMakeFiles"))) //$NON-NLS-1$
 			{
-				outStream.write(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_NotFound);
+				outStream.write(Messages.CMakeBuildConfiguration_NotFound);
 				return;
 			}
 
@@ -573,18 +572,18 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			Process p = startBuildProcess(command, env, workingDir, console, monitor);
 			if (p == null) {
 				console.getErrorStream().write(String
-						.format(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_Failure, "")); //$NON-NLS-1$
+						.format(Messages.CMakeBuildConfiguration_Failure, "")); //$NON-NLS-1$
 				return;
 			}
 
 			watchProcess(p, console);
 
-			outStream.write(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_BuildComplete);
+			outStream.write(Messages.CMakeBuildConfiguration_BuildComplete);
 
 			project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 		} catch (IOException e) {
 			throw new CoreException(IDFCorePlugin.errorStatus(
-					String.format(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_Cleaning,
+					String.format(Messages.CMakeBuildConfiguration_Cleaning,
 							project.getName()),
 					e));
 		}
@@ -826,7 +825,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		 */
 		private IFile getFileForCMakePath(String sourceFileName, IProject project)
 		{
-			System.out.println("sourceFileName::"+ sourceFileName);
 			org.eclipse.core.runtime.Path path = new org.eclipse.core.runtime.Path(sourceFileName);
 			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(path);
 			if (file != null)
@@ -874,8 +872,4 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		this.launchtarget = target;
 	}
 
-	protected String getProjectDescRelativePath()
-	{
-		return File.separator + "build" + File.separator + "project_description.json"; //$NON-NLS-1$ //$NON-NLS-2$
-	}
 }
