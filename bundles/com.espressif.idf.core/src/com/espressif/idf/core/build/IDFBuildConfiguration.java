@@ -826,6 +826,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		 */
 		private IFile getFileForCMakePath(String sourceFileName, IProject project)
 		{
+			System.out.println("sourceFileName::"+ sourceFileName);
 			org.eclipse.core.runtime.Path path = new org.eclipse.core.runtime.Path(sourceFileName);
 			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(path);
 			if (file != null)
@@ -839,8 +840,13 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				sourceFile = sourceFileName.replace('\\', '/'); // $NON-NLS-1$
 			}
 			
-			String pathtolookfor = new org.eclipse.core.runtime.Path(getIdfToolsPath()).append("components").toOSString();
+			String pathtolookfor = new org.eclipse.core.runtime.Path(getIdfToolsPath()).append("components").toOSString(); // $NON-NLS-1$
 			int startIndex = sourceFile.indexOf(pathtolookfor);
+			if (startIndex == -1) //esp-idf/examples/
+			{
+				pathtolookfor = getIdfToolsPath();
+				startIndex = sourceFile.indexOf(pathtolookfor);
+			}
 			String relativePath = sourceFile.substring(startIndex + pathtolookfor.length() + 1);
 			IPath projectPath = new org.eclipse.core.runtime.Path(ESP_IDF_COMPONENTS).append(relativePath);
 			IResource resourcePath = project.findMember(projectPath);
