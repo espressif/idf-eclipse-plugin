@@ -34,7 +34,6 @@ import java.util.function.Consumer;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainFile;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
 import org.eclipse.cdt.cmake.core.internal.CMakeUtils;
-import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.CommandLauncherManager;
 import org.eclipse.cdt.core.ConsoleOutputStream;
 import org.eclipse.cdt.core.ErrorParserManager;
@@ -43,12 +42,9 @@ import org.eclipse.cdt.core.build.CBuildConfiguration;
 import org.eclipse.cdt.core.build.IToolChain;
 import org.eclipse.cdt.core.envvar.EnvironmentVariable;
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
-import org.eclipse.cdt.core.index.IIndexManager;
 import org.eclipse.cdt.core.model.ElementChangedEvent;
-import org.eclipse.cdt.core.model.ICElement;
 import org.eclipse.cdt.core.model.ICElementDelta;
 import org.eclipse.cdt.core.model.ICModelMarker;
-import org.eclipse.cdt.core.model.ICProject;
 import org.eclipse.cdt.core.parser.ExtendedScannerInfo;
 import org.eclipse.cdt.core.parser.IScannerInfo;
 import org.eclipse.cdt.core.resources.IConsole;
@@ -377,44 +373,13 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 			}
 
-			// This is specifically added to trigger the indexing since in Windows OS it
-			// doesn't seem to happen!
-			// setActive();
 			project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
-			update(project);
-			Thread.sleep(3000);
-			while(!CCorePlugin.getIndexManager().isIndexerIdle())
-			{
-				Thread.sleep(2500);
-			}
-			reIndex(project);
 			return new IProject[] { project };
 		} catch (Exception e) {
 			throw new CoreException(IDFCorePlugin.errorStatus(
 					String.format(Messages.CMakeBuildConfiguration_Building,
 							project.getName()),
 					e));
-		}
-	}
-	
-	private void reIndex(IProject project)
-	{
-		ICProject cproject = CCorePlugin.getDefault().getCoreModel().create(project);
-		CCorePlugin.getIndexManager().reindex(cproject);
-	}
-
-	public void update(IProject project) {
-		ICProject cproject = CCorePlugin.getDefault().getCoreModel().create(project);
-		if (cproject != null) {
-			ArrayList<ICElement> tuSelection = new ArrayList<>();
-			tuSelection.add(cproject);
-
-			ICElement[] cProjectElements = tuSelection.toArray(new ICElement[tuSelection.size()]);
-			try {
-				CCorePlugin.getIndexManager().update(cProjectElements, getUpdateOptions());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 		}
 	}
 	
@@ -460,7 +425,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				
 				org.eclipse.core.runtime.Path path = new org.eclipse.core.runtime.Path(sourceFile);
 				IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(path);
-				if (file == null)
+				if (file == null)  //link resources which does not exist in the project. For example, don't want to see project/main/src linked again
 				{
 					createLinkForSourceFileOnly(sourceFile, project, monitor);
 				}
@@ -516,11 +481,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			setLinkLocation(folderLink, new org.eclipse.core.runtime.Path(sourceFile));
 
 		}
-	}
-
-	protected int getUpdateOptions()
-	{
-		return IIndexManager.UPDATE_CHECK_TIMESTAMPS | IIndexManager.UPDATE_EXTERNAL_FILES_FOR_PROJECT;
 	}
 
 	@Override
