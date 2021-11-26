@@ -84,7 +84,9 @@ import com.google.gson.Gson;
 @SuppressWarnings(value = { "restriction" })
 public class IDFBuildConfiguration extends CBuildConfiguration {
 
-	private static final String ESP_IDF_COMPONENTS = "esp_idf_components";
+	protected static final String COMPILE_COMMANDS_JSON = "compile_commands.json"; //$NON-NLS-1$
+	protected static final String COMPONENTS = "components"; //$NON-NLS-N$
+	private static final String ESP_IDF_COMPONENTS = "esp_idf_components"; //$NON-NLS-1$
 	public static final String CMAKE_GENERATOR = "cmake.generator"; //$NON-NLS-1$
 	public static final String CMAKE_ARGUMENTS = "cmake.arguments"; //$NON-NLS-1$
 	public static final String CMAKE_ENV = "cmake.environment"; //$NON-NLS-1$
@@ -420,13 +422,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	
 	private static String getIdfToolsPath()
 	{
-		String idfToolsPathCommon = IDFUtil.getIDFPath();
-		if (Platform.getOS().equals(Platform.OS_WIN32))
-		{
-			idfToolsPathCommon = idfToolsPathCommon.replace("\\", "/"); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-		
-		return idfToolsPathCommon;
+		return new org.eclipse.core.runtime.Path(IDFUtil.getIDFPath()).toOSString();
 	}
 
 	/**
@@ -444,7 +440,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			componentsFolder.create(true, false, new NullProgressMonitor());
 		}
 
-		final IFile jsonFile = getBuildContainer().getFile(new org.eclipse.core.runtime.Path("compile_commands.json")); //$NON-NLS-1$
+		final IFile jsonFile = getBuildContainer().getFile(new org.eclipse.core.runtime.Path(COMPILE_COMMANDS_JSON));
 		File jsonDiskFile = new File(jsonFile.getLocationURI());
 
 		CommandEntry[] sourceFileInfos = null;
@@ -462,7 +458,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(path);
 				if (file == null)
 				{
-					createLinkForSourceFileOnly(sourceFile, project, monitor);
+					createLinkForSourceFileOnly(path.toOSString(), project, monitor);
 				}
 			}
 		}
@@ -487,17 +483,12 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	private void createLinkForSourceFileOnly(String sourceFile, IProject project, IProgressMonitor monitor) throws Exception
 	{
 		IFolder folder = project.getFolder(ESP_IDF_COMPONENTS);
-		String sourceFileToSplit = sourceFile;
-		if (Platform.getOS().equals(Platform.OS_WIN32))
-		{
-			sourceFileToSplit = sourceFile.replace('\\', '/'); // $NON-NLS-1$
-		}
-		sourceFileToSplit = sourceFile.substring(getIdfToolsPath().length(), sourceFile.length());
+		String sourceFileToSplit = sourceFile.substring(getIdfToolsPath().length(), sourceFile.length());
 		String[] segments = new org.eclipse.core.runtime.Path(sourceFileToSplit).segments();
 		
 		for (int i = 0; i < (segments.length - 1); i++)
 		{
-			if (segments[i].equals("components") || segments[i].trim().isEmpty()) // $NON-NLS-1$
+			if (segments[i].equals(COMPONENTS) || segments[i].trim().isEmpty())
 			{
 				continue;
 			}
@@ -598,7 +589,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	 */
 	private void processCompileCommandsFile(IConsole console, IProgressMonitor monitor) throws CoreException
 	{
-		IFile file = getBuildContainer().getFile(new org.eclipse.core.runtime.Path("compile_commands.json")); //$NON-NLS-1$
+		IFile file = getBuildContainer().getFile(new org.eclipse.core.runtime.Path(COMPILE_COMMANDS_JSON));
 		CompileCommandsJsonParser parser = new CompileCommandsJsonParser(
 				new ParseRequest(file, new CMakeIndexerInfoConsumer(this::setScannerInformation,getProject()),
 						CommandLauncherManager.getInstance().getCommandLauncher(this), console));
@@ -832,13 +823,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				return file;
 			}
 			
-			String sourceFile = sourceFileName;
-			if (Platform.getOS().equals(Platform.OS_WIN32))
-			{
-				sourceFile = sourceFileName.replace('\\', '/'); // $NON-NLS-1$
-			}
-			
-			String pathtolookfor = new org.eclipse.core.runtime.Path(getIdfToolsPath()).append("components").toOSString(); // $NON-NLS-1$
+			String sourceFile = path.toOSString();
+			String pathtolookfor = new org.eclipse.core.runtime.Path(getIdfToolsPath()).append(COMPONENTS).toOSString(); // $NON-NLS-1$
 			int startIndex = sourceFile.indexOf(pathtolookfor);
 			if (startIndex == -1) //esp-idf/examples/
 			{
