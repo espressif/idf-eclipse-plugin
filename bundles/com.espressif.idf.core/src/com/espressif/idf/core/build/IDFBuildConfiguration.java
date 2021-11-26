@@ -367,6 +367,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				// built-ins detection output goes to the build console, if the user requested
 				// output
 				processCompileCommandsFile(console, monitor);
+				project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 
 				infoStream.write(String.format(
 						Messages.CMakeBuildConfiguration_BuildingComplete,
@@ -381,14 +382,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 			// This is specifically added to trigger the indexing since in Windows OS it
 			// doesn't seem to happen!
-			// setActive();
-			project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
-			update(project);
-			Thread.sleep(3000);
-			while(!CCorePlugin.getIndexManager().isIndexerIdle())
-			{
-				Thread.sleep(2500);
-			}
 			reIndex(project);
 			return new IProject[] { project };
 		} catch (Exception e) {
