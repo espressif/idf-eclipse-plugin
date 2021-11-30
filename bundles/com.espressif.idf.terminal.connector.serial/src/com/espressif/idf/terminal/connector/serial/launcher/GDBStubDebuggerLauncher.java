@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.terminal.connector.serial.launcher;
 
 import java.io.File;
@@ -26,6 +30,13 @@ import org.w3c.dom.Element;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.SDKConfigJsonReader;
 
+/**
+ * GDB Stub debugger config file creator and launcher it simply creates an xml file for the config of gdb debugging in
+ * eclipse and launches that file
+ *
+ * @author Ali Azam Rana
+ *
+ */
 public class GDBStubDebuggerLauncher
 {
 
