@@ -29,13 +29,11 @@ import com.espressif.idf.core.util.SDKConfigJsonReader;
 public class GDBStubDebuggerLauncher
 {
 
-	private static final String GDBSTUB_DEBUG_LAUNCH_CONFIG_FILE = "gdbstub_debug_launch.launch";
+	private static final String GDBSTUB_DEBUG_LAUNCH_CONFIG_FILE = "gdbstub_debug_launch.launch"; //$NON-NLS-1$
 	private String messageReceived;
 	private IProject project;
 	private String port;
 	private String elfFile;
-
-	// {'event': 'gdb_stub', 'port': '\\\\.\\COM9', 'prog': '.\\build\\hello_world.elf'}
 
 	public GDBStubDebuggerLauncher(String messageReceived, IProject project)
 	{
@@ -59,8 +57,8 @@ public class GDBStubDebuggerLauncher
 		port = jsonObject.get("port").toString(); //$NON-NLS-1$
 		if (Platform.OS_WIN32.equals(Platform.getOS()))
 		{
-			port = port.replace("\\", "");
-			port = port.replace(".", "");
+			port = port.replace("\\", ""); //$NON-NLS-1$ //$NON-NLS-2$
+			port = port.replace(".", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		elfFile = jsonObject.get("prog").toString(); //$NON-NLS-1$
@@ -85,20 +83,15 @@ public class GDBStubDebuggerLauncher
 	{
 		StringBuilder commandBuilder = new StringBuilder();
 		commandBuilder.append(IDFUtil.getXtensaToolchainExecutablePath(project));
-		commandBuilder.append(" -ex ");
-		commandBuilder.append("\"set serial baud ");
-		commandBuilder.append(getMonitorBaudRate().concat("\""));
-		commandBuilder.append(" -ex ");
-		commandBuilder.append("\"target remote ");
-		commandBuilder.append(port.concat("\""));
-		commandBuilder.append(" -ex interrupt \"");
-		commandBuilder.append(elfFile.concat("\""));
+		commandBuilder.append(" -ex "); //$NON-NLS-1$
+		commandBuilder.append("\"set serial baud "); //$NON-NLS-1$
+		commandBuilder.append(getMonitorBaudRate().concat("\"")); //$NON-NLS-1$
+		commandBuilder.append(" -ex "); //$NON-NLS-1$
+		commandBuilder.append("\"target remote "); //$NON-NLS-1$
+		commandBuilder.append(port.concat("\"")); //$NON-NLS-1$
+		commandBuilder.append(" -ex interrupt \""); //$NON-NLS-1$
+		commandBuilder.append(elfFile.concat("\"")); //$NON-NLS-1$
 
-//		String command = "C:\\Users\\aliaz\\.espressif\\tools\\riscv32-esp-elf\\"
-//				+ "esp-2021r2-8.4.0\\riscv32-esp-elf\\bin\\riscv32-esp-elf-gdb.exe "
-//				+ "-ex \"set serial baud 115200\" -ex \"target remote COM9\" "
-//				+ "-ex interrupt \"C:\\Users\\aliaz\\runtime-PluginDevLaunch"
-//				+ "\\hello_world\\build\\hello_world.elf\"";
 		final String stringAttribute = "stringAttribute"; //$NON-NLS-1$
 		final String intAttribute = "intAttribute"; //$NON-NLS-1$
 		final String booleanAttribute = "booleanAttribute"; //$NON-NLS-1$
