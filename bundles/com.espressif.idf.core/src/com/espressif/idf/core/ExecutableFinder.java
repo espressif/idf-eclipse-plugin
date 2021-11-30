@@ -32,7 +32,11 @@ public class ExecutableFinder
 		for (String pathString : paths)
 		{
 			IPath path = Path.fromOSString(pathString).append(executableName);
-			return findExecutable(path, appendExtension);
+			IPath execPath = findExecutable(path, appendExtension);
+			if (execPath != null)
+			{
+				return execPath;
+			}
 		}
 		return null;
 	}
