@@ -60,15 +60,7 @@ public class SocketServerHandler
 
 	public static boolean needSocketServer(IProject project)
 	{
-		String gdbStubPanicInfo = getGdbPanicStubInfo(project);
-		if (gdbStubPanicInfo.equalsIgnoreCase("null") || gdbStubPanicInfo.equalsIgnoreCase("false")) //$NON-NLS-1$ $NON-NLS-2$
-		{
-			return false;
-		}
-		else
-		{
-			return true;
-		}
+		return Boolean.valueOf(getGdbPanicStubInfo(project)).booleanValue();
 	}
 
 	private static String getGdbPanicStubInfo(IProject project)

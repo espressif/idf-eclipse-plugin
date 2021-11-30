@@ -116,16 +116,6 @@ public class SerialPortHandler
 		{
 			Logger.log(e);
 		}
-		// GDBStubDebuggerLauncher launchConfiguration = new
-		// GDBStubDebuggerLauncher(project.getFile("hello_world_gdb_full_command.launch"));
-		// try {
-		// launchConfiguration.launch("debug", new NullProgressMonitor());
-		// } catch (CoreException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		// TO DO
-		// Switch to the socket server
 	}
 
 	private void startSocketServerThread()

@@ -354,7 +354,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			// This is specifically added to trigger the indexing sine in Windows OS it
 			// doesn't seem to happen!
 			// setActive();
-//			update(project);
+			update(project);
 			return new IProject[] { project };
 		} catch (IOException e) {
 			throw new CoreException(IDFCorePlugin.errorStatus(
