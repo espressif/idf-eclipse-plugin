@@ -22,6 +22,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
@@ -57,10 +58,10 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 	
 	private String pathToProject;
 	private Button browseParseScriptBtn;
-	private Text testMulti;
+	private Text openocdLog;
 	private Button startParseBtn;
 	private MessageConsoleStream console;
-	private Text test;
+	private Text parseScritPath;
 	private String elfFilePath;
 	/**
 	 * Create the dialog.
@@ -151,22 +152,33 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 
 		Label parseDumpFileLbl = new Label(container, SWT.NONE);
 		parseDumpFileLbl.setText(Messages.AppLvlTracing_TraceScript);
-		test = new Text(container, SWT.BORDER);
-		GridData gdTest = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
-		gdTest.widthHint = 500;
-		test.setLayoutData(gdTest);
-		test.setText(IDFUtil.getIDFPath() + File.separator + "tools" + File.separator + "esp_app_trace" + File.separator
+		parseScritPath = new Text(container, SWT.BORDER);
+		GridData gdParseScriptPath = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
+		gdParseScriptPath.widthHint = 500;
+		parseScritPath.setLayoutData(gdParseScriptPath);
+		parseScritPath.setText(
+				IDFUtil.getIDFPath() + File.separator + "tools" + File.separator + "esp_app_trace" + File.separator
 				+ "logtrace_proc.py"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		browseParseScriptBtn = new Button(container, SWT.NONE);
+		browseParseScriptBtn.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				FileDialog fd = new FileDialog(getParentShell(), SWT.OPEN);
+				fd.setText(Messages.AppLvlTracing_ScriptBrowseLbl); // $NON-NLS-1$
+				fd.setFilterExtensions(new String[] { ".py" }); //$NON-NLS-1$
+				parseScritPath.setText(fd.open());
+			}
+		});
 		browseParseScriptBtn.setText(Messages.AppLvlTracingDialog_Browse);
 
 		new Label(container, SWT.NONE);
-		testMulti = new Text(container, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY);
-		testMulti.setText("Output will appear here"); //$NON-NLS-1$
-		GridData gdParseOutput = new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1);
-		gdParseOutput.widthHint = 500;
-		gdParseOutput.heightHint = 306;
-		testMulti.setLayoutData(gdParseOutput);
+		openocdLog = new Text(container, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY);
+		openocdLog.setText("Output will appear here"); //$NON-NLS-1$
+		GridData gdOpenocdLog = new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1);
+		gdOpenocdLog.widthHint = 500;
+		gdOpenocdLog.heightHint = 306;
+		openocdLog.setLayoutData(gdOpenocdLog);
 		startParseBtn = new Button(container, SWT.NONE);
 		startParseBtn.addSelectionListener(new SelectionAdapter()
 		{
@@ -191,9 +203,8 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		{
 			List<String> arguments = new ArrayList<String>();
 			arguments.add(IDFUtil.getIDFPythonEnvPath());
-			arguments.add(test.getText());
-			arguments.add(outFilePath.getText().replace("file://", ""));
-			// arguments.add("/Users/denysalmazov/runtime-New_configuration409/hello_world/build/hello-world.elf");
+			arguments.add(parseScritPath.getText());
+			arguments.add(outFilePath.getText().replace("file://", "")); //$NON-NLS-1$ //$NON-NLS-2$
 			arguments.add(elfFilePath);
 
 			Map<String, String> environment = new HashMap<>(System.getenv());

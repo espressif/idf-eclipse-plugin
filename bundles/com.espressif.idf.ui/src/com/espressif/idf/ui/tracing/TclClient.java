@@ -29,7 +29,6 @@ public class TclClient {
     public void startTracing(String[] params) {
 		String startCommand = "esp apptrace start "; //$NON-NLS-1$
 		startCommand = startCommand + String.join(" ", params); //$NON-NLS-1$
-		startCommand = "esp apptrace start file:////Users//denysalmazov//runtime-New_configuration409//blink//trace.log 0 -1 -1 0 0";
     	if(clientSocket.isConnected()) {
     		try {
 				out.write(startCommand);
