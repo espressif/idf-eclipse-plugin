@@ -359,9 +359,12 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				}
 
 				watchProcess(p, new IConsoleParser[] { epm });
-
-				linkBuildComponents(project, monitor);
-				project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+				
+				final String isSkip = System.getProperty("skip.idf.components"); //$NON-NLS-1$
+				if(!Boolean.parseBoolean(isSkip)) { //no property defined
+					linkBuildComponents(project, monitor);
+					project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+				}
 
 				// parse compile_commands.json file
 				// built-ins detection output goes to the build console, if the user requested
