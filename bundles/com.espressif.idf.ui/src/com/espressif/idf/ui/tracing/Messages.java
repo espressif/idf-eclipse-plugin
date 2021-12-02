@@ -52,6 +52,20 @@ public class Messages extends NLS
 	public static String TracingCallersConsolodiatedView_HitsCount;
 	public static String TracingCallersConsolodiatedView_BytesUsed;
 	
+	public static String AppLvlTracingDialog_Title;
+	public static String AppLvlTracingDialog_Description;
+	public static String AppLvlTracingDialog_OutputFileDirLbl;
+	public static String AppLvlTracingDialog_Browse;
+	public static String AppLvlTracing_PollPeriod;
+	public static String AppLvlTracing_WaitForHalt;
+	public static String AppLvlTracing_MaxTraceSize;
+	public static String AppLvlTracing_StopTmo;
+	public static String AppLvlTracing_BytesToSKip;
+	public static String AppLvlTracing_OutFile;
+	public static String AppLvlTracing_TraceScript;
+	public static String AppLvlTracing_StartParse;
+	public static String AppLvlTracing_ConsoleName;
+
 	static
 	{
 		// initialize resource bundle
