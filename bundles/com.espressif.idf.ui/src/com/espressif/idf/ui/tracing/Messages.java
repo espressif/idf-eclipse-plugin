@@ -66,6 +66,7 @@ public class Messages extends NLS
 	public static String AppLvlTracing_StartParse;
 	public static String AppLvlTracing_ConsoleName;
 	public static String AppLvlTracing_ScriptBrowseLbl;
+	public static String AppLvlTracing_StartParsingCommandLbl;
 
 	static
 	{

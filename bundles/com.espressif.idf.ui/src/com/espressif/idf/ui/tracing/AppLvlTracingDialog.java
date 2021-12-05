@@ -2,6 +2,7 @@ package com.espressif.idf.ui.tracing;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +64,7 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 	private MessageConsoleStream console;
 	private Text parseScritPath;
 	private String elfFilePath;
+	private Text parseCommandTxt;
 	/**
 	 * Create the dialog.
 	 * @param parentShell
@@ -82,15 +84,8 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		setMessage(Messages.AppLvlTracingDialog_Description);
 		Composite area = (Composite) super.createDialogArea(parent);
 
-		new Label(area, SWT.NONE);
-		Composite composite = new Composite(area, SWT.NONE);
-		GridData gdComposite = new GridData(SWT.CENTER, SWT.FILL, false, false, 1, 1);
-		gdComposite.heightHint = 500;
-		composite.setLayoutData(gdComposite);
-		composite.setLayout(new GridLayout(1, false));
-		Composite container = new Composite(composite, SWT.NONE);
-		GridData gdContainer = new GridData(SWT.CENTER, SWT.FILL, false, false, 1, 1);
-		gdContainer.heightHint = 850;
+		Composite container = new Composite(area, SWT.NONE);
+		GridData gdContainer = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
 		container.setLayoutData(gdContainer);
 		container.setLayout(new GridLayout(4, false));
 		
@@ -137,8 +132,7 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		outFileLbl.setText(Messages.AppLvlTracing_OutFile);
 		outFilePath = new Text(container, SWT.BORDER);
 		outFilePath.setText(pathToProject);
-		GridData gdOutFile = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
-		gdOutFile.widthHint = 306;
+		GridData gdOutFile = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
 		outFilePath.setLayoutData(gdOutFile);
 		browseBtn = new Button(container, SWT.NONE);
 		browseBtn.setText(Messages.AppLvlTracingDialog_Browse);
@@ -153,8 +147,7 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		Label parseDumpFileLbl = new Label(container, SWT.NONE);
 		parseDumpFileLbl.setText(Messages.AppLvlTracing_TraceScript);
 		parseScritPath = new Text(container, SWT.BORDER);
-		GridData gdParseScriptPath = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
-		gdParseScriptPath.widthHint = 500;
+		GridData gdParseScriptPath = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
 		parseScritPath.setLayoutData(gdParseScriptPath);
 		parseScritPath.setText(
 				IDFUtil.getIDFPath() + File.separator + "tools" + File.separator + "esp_app_trace" + File.separator
@@ -172,13 +165,13 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		});
 		browseParseScriptBtn.setText(Messages.AppLvlTracingDialog_Browse);
 
-		new Label(container, SWT.NONE);
-		openocdLog = new Text(container, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY);
-		openocdLog.setText("Output will appear here"); //$NON-NLS-1$
-		GridData gdOpenocdLog = new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1);
-		gdOpenocdLog.widthHint = 500;
-		gdOpenocdLog.heightHint = 306;
-		openocdLog.setLayoutData(gdOpenocdLog);
+		Label startParseLbl = new Label(container, SWT.NONE);
+		startParseLbl.setText(Messages.AppLvlTracing_StartParsingCommandLbl);
+		parseCommandTxt = new Text(container, SWT.BORDER | SWT.H_SCROLL);
+		GridData gdParseCommandTxt = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
+		gdParseCommandTxt.widthHint = 500;
+		parseCommandTxt.setLayoutData(gdParseCommandTxt);
+		parseCommandTxt.setText(getDefaultParseCommand());
 		startParseBtn = new Button(container, SWT.NONE);
 		startParseBtn.addSelectionListener(new SelectionAdapter()
 		{
@@ -192,6 +185,14 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		});
 		startParseBtn.setText(Messages.AppLvlTracing_StartParse);
 
+		new Label(container, SWT.NONE);
+		openocdLog = new Text(container, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY);
+		openocdLog.setText("Output will appear here"); //$NON-NLS-1$
+		GridData gdOpenocdLog = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
+		gdOpenocdLog.widthHint = 500;
+		gdOpenocdLog.heightHint = 306;
+		openocdLog.setLayoutData(gdOpenocdLog);
+
 		return area;
 
 	}
@@ -201,12 +202,7 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 		try
 		{
-			List<String> arguments = new ArrayList<String>();
-			arguments.add(IDFUtil.getIDFPythonEnvPath());
-			arguments.add(parseScritPath.getText());
-			arguments.add(outFilePath.getText().replace("file://", "")); //$NON-NLS-1$ //$NON-NLS-2$
-			arguments.add(elfFilePath);
-
+			List<String> arguments = new ArrayList<String>(Arrays.asList(parseCommandTxt.getText().split(" "))); //$NON-NLS-1$
 			Map<String, String> environment = new HashMap<>(System.getenv());
 			IStatus status = processRunner.runInBackground(arguments, Path.ROOT, environment);
 			if (status == null)
@@ -224,6 +220,20 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 			Logger.log(IDFCorePlugin.getPlugin(), e1);
 
 		}
+	}
+
+	private String getDefaultParseCommand()
+	{
+		if (parseScritPath == null || outFilePath == null || elfFilePath == null)
+		{
+			return ""; //$NON-NLS-1$
+		}
+		List<String> arguments = new ArrayList<String>();
+		arguments.add(IDFUtil.getIDFPythonEnvPath());
+		arguments.add(parseScritPath.getText());
+		arguments.add(outFilePath.getText().replace("file://", "")); //$NON-NLS-1$ //$NON-NLS-2$
+		arguments.add(elfFilePath);
+		return String.join(" ", arguments); //$NON-NLS-1$
 	}
 
 	private void activateTracingConsoleView()
@@ -334,5 +344,11 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 	@Override
 	protected Point getInitialSize() {
 		return new Point(800, 700);
+	}
+
+	@Override
+	protected boolean isResizable()
+	{
+		return true;
 	}
 }
