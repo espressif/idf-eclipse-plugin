@@ -385,7 +385,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 			// This is specifically added to trigger the indexing since in Windows OS it
 			// doesn't seem to happen!
-			reIndex(project);
+			update(project);
 			return new IProject[] { project };
 		} catch (Exception e) {
 			throw new CoreException(IDFCorePlugin.errorStatus(
@@ -395,12 +395,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		}
 	}
 	
-	private void reIndex(IProject project)
-	{
-		ICProject cproject = CCorePlugin.getDefault().getCoreModel().create(project);
-		CCorePlugin.getIndexManager().reindex(cproject);
-	}
-
 	public void update(IProject project) {
 		ICProject cproject = CCorePlugin.getDefault().getCoreModel().create(project);
 		if (cproject != null) {
@@ -507,7 +501,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 	protected int getUpdateOptions()
 	{
-		return IIndexManager.UPDATE_CHECK_TIMESTAMPS | IIndexManager.UPDATE_EXTERNAL_FILES_FOR_PROJECT;
+		return IIndexManager.UPDATE_CHECK_TIMESTAMPS | IIndexManager.UPDATE_UNRESOLVED_INCLUDES | IIndexManager.UPDATE_EXTERNAL_FILES_FOR_PROJECT;
 	}
 
 	@Override
