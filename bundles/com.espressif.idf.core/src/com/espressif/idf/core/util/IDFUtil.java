@@ -108,6 +108,17 @@ public class IDFUtil
 				+ IDFConstants.IDF_SIZE_SCRIPT;
 		return new File(idf_py_script);
 	}
+	
+	/**
+	 * @return tools.json file for tools to install
+	 */
+	public static File getIDFToolsJsonFileForInstallation()
+	{
+		String idf_path = getIDFPath();
+		String idf_tools_json_file = idf_path + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
+				+ IDFConstants.IDF_TOOLS_JSON;
+		return new File(idf_tools_json_file);
+	}
 
 	/**
 	 * @return file path for IDF_PATH
