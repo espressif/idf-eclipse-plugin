@@ -92,6 +92,8 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		Label pollTimerLbl = new Label(container, SWT.NONE);
 		pollTimerLbl.setText(Messages.AppLvlTracing_PollPeriod);
 		pollTimer = new Spinner(container, SWT.BORDER);
+		pollTimer.setMinimum(0);
+		pollTimer.setMaximum(Integer.MAX_VALUE);
 		Composite unitsOneLblComp = new Composite(container, SWT.NONE);
 		GridLayout layout = new GridLayout(2, false);
 		layout.marginWidth = 0;
@@ -107,6 +109,7 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		traceSizeLbl.setText(Messages.AppLvlTracing_MaxTraceSize);
 		traceSize = new Spinner(container, SWT.BORDER);
 		traceSize.setMinimum(-1);
+		traceSize.setMaximum(Integer.MAX_VALUE);
 		traceSize.setSelection(-1);
 		Label traceSizeUnitsLbl = new Label(container, SWT.NONE);
 		traceSizeUnitsLbl.setText(ITracingConstants.UNIT_BYTES);
@@ -116,6 +119,7 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		timeoutLbl.setText(Messages.AppLvlTracing_StopTmo);
 		stopTmo = new Spinner(container, SWT.BORDER);
 		stopTmo.setMinimum(-1);
+		stopTmo.setMaximum(Integer.MAX_VALUE);
 		stopTmo.setSelection(-1);
 		Label timeoutUnitsLbl = new Label(container, SWT.NONE);
 		timeoutUnitsLbl.setText(ITracingConstants.UNIT_SECONDS);
@@ -124,6 +128,8 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		Label bytesToSkipLbl = new Label(container, SWT.NONE);
 		bytesToSkipLbl.setText(Messages.AppLvlTracing_BytesToSKip);
 		skipSize = new Spinner(container, SWT.BORDER);
+		skipSize.setMinimum(0);
+		skipSize.setMaximum(Integer.MAX_VALUE);
 		Label bytesUnitsLbl = new Label(container, SWT.NONE);
 		bytesUnitsLbl.setText(ITracingConstants.UNIT_BYTES);
 		
@@ -317,9 +323,12 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 	protected void createButtonsForButtonBar(Composite parent) {
 		Button button = createButton(parent, IDialogConstants.OK_ID, ITracingConstants.START_LABEL, true);
 		button.addListener(SWT.Selection, new Listener() {
-			
+
+			private ClientWorker clientWorker;
+
 			@Override
-			public void handleEvent(Event event) {
+			public void handleEvent(Event event)
+			{
 
 				if (button.getText().contentEquals(ITracingConstants.START_LABEL)) {
 					String waitForHaltStringValue = waitForHalt.getSelection() ? "1" : "0"; //$NON-NLS-1$ //$NON-NLS-2$
@@ -327,9 +336,15 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 					tclClient.startTracing(new String[] { outFilePath.getText(), pollTimer.getText(),
 							traceSize.getText(), stopTmo.getText(), waitForHaltStringValue,
 							skipSize.getText() });
+					openocdLog.setText(""); //$NON-NLS-1$
+					clientWorker = new ClientWorker(tclClient, openocdLog);
+					Thread thread = new Thread(clientWorker);
+					thread.start();
 					button.setText(ITracingConstants.STOP_LABEL);
 				} else {
 					tclClient.stopTracing();
+					Thread thread = new Thread(clientWorker);
+					thread.start();
 					button.setText(ITracingConstants.START_LABEL);
 				}
 				

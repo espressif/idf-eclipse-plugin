@@ -12,26 +12,26 @@ import com.espressif.idf.core.logging.Logger;
 public class TclClient {
 	
     private Socket clientSocket;
-    private BufferedReader reader; 
-    private BufferedReader in;
+	private BufferedReader in;
     private BufferedWriter out;
     
     public TclClient() {
     	try {
 			clientSocket = new Socket("localhost", 6666); //$NON-NLS-1$
-    		reader = new BufferedReader(new InputStreamReader(System.in));
-    		in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+			in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
     		out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));   
         } catch (IOException e) {
             Logger.log(e);
         }
     }
-    public void startTracing(String[] params) {
+
+	public void startTracing(String[] params)
+	{
 		String startCommand = "esp apptrace start "; //$NON-NLS-1$
 		startCommand = startCommand + String.join(" ", params); //$NON-NLS-1$
     	if(clientSocket.isConnected()) {
     		try {
-				out.write(startCommand);
+				out.write("capture \"" + startCommand + "\""); //$NON-NLS-1$ //$NON-NLS-2$
 				out.write(0x1a);
 				out.flush();
 			} catch (IOException e) {
@@ -40,10 +40,12 @@ public class TclClient {
     	}
     }
     
-    public void stopTracing() {
-		String stopCommand = "esp apptrace stop"; //$NON-NLS-1$
+	public void stopTracing()
+	{
+		String stopCommand = "capture \"esp apptrace stop \""; //$NON-NLS-1$
     	if(clientSocket.isConnected()) {
     		try {
+
 				out.write(stopCommand);
 				out.write(0x1a);
 				out.flush();
@@ -52,6 +54,11 @@ public class TclClient {
 			}
     	}
     }
+
+	public BufferedReader getInBuffer()
+	{
+		return in;
+	}
 
 }
 
