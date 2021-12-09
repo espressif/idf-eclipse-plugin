@@ -32,10 +32,6 @@ public class IDFSizeDetailsComposite
 	private String columnProperties[] = new String[] { "File Name", "DRAM .data", "DRAM .bss", "DIRAM", "IRAM", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			"Flash Code", "Flash rodata", "Other", "Total" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 	
-	//For ESP-IDF 4.4 and higher
-	private String columnPropertiesV2[] = new String[] { "File Name", "DRAM .data", "DRAM .bss", "DIRAM", "IRAM", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-			"Flash Code", "Flash rodata", "Ram Total", "Flash Total" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-
 	public void createPartControl(Composite parent, IFile iFile)
 	{
 		PatternFilter patternFilter = new IDFSizePatternFilter();

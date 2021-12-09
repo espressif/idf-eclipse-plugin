@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2020 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.ui.size;
 
 import java.util.ArrayList;
@@ -14,8 +18,11 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.ui.update.Messages;
 
+/**
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ *
+ */
 public class IDFSizeConstants {
 
 	public static String DATA = "data"; // DRAM .data //$NON-NLS-1$
