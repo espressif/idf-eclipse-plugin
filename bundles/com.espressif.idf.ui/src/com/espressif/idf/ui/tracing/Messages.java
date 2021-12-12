@@ -68,6 +68,10 @@ public class Messages extends NLS
 	public static String AppLvlTracing_ScriptBrowseLbl;
 	public static String AppLvlTracing_StartParsingCommandLbl;
 
+	public static String AppLvlTracing_DumpFileNotExistsInfo;
+	public static String AppLvlTracing_NotValidDirectoryPath;
+	public static String AppLvlTracing_NotValidScriptFilePath;
+
 	static
 	{
 		// initialize resource bundle

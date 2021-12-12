@@ -11,8 +11,11 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
@@ -65,6 +68,10 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 	private Text parseScritPath;
 	private String elfFilePath;
 	private Text parseCommandTxt;
+	private Button startButton;
+
+	private boolean isOutputDirectoryValid;
+	private boolean isDumpFileExists;
 	/**
 	 * Create the dialog.
 	 * @param parentShell
@@ -138,6 +145,31 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		outFileLbl.setText(Messages.AppLvlTracing_OutFile);
 		outFilePath = new Text(container, SWT.BORDER);
 		outFilePath.setText(pathToProject);
+		outFilePath.addModifyListener(new ModifyListener()
+		{
+			
+			@Override
+			public void modifyText(ModifyEvent e)
+			{
+				File dumpFile = new File(outFilePath.getText().replace("file://", "")); //$NON-NLS-1$ //$NON-NLS-2$
+				checkIfDirectoryIsValid(dumpFile);
+				checkIfDumpFileExists(dumpFile);
+
+				if (isDumpFileExists && isOutputDirectoryValid)
+				{
+					startButton.setEnabled(true);
+					startParseBtn.setEnabled(true);
+					setErrorMessage(null);
+					setMessage(Messages.AppLvlTracingDialog_Description);
+					parseCommandTxt.setText(getDefaultParseCommand());
+				}
+				else if (isOutputDirectoryValid)
+				{
+					startButton.setEnabled(true);
+					setErrorMessage(null);
+				}
+			}
+		});
 		GridData gdOutFile = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
 		outFilePath.setLayoutData(gdOutFile);
 		browseBtn = new Button(container, SWT.NONE);
@@ -158,6 +190,29 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		parseScritPath.setText(
 				IDFUtil.getIDFPath() + File.separator + "tools" + File.separator + "esp_app_trace" + File.separator
 				+ "logtrace_proc.py"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		parseScritPath.addModifyListener(new ModifyListener()
+		{
+			
+			@Override
+			public void modifyText(ModifyEvent e)
+			{
+				if (!new File(parseScritPath.getText()).exists())
+				{
+					startParseBtn.setEnabled(false);
+					setErrorMessage(parseScritPath.getText() + Messages.AppLvlTracing_NotValidScriptFilePath);
+				} else if(isDumpFileExists){
+					startParseBtn.setEnabled(true);
+					parseCommandTxt.setText(getDefaultParseCommand());
+					setErrorMessage(null);
+				}
+				else
+				{
+					setErrorMessage(null);
+				}
+				
+
+			}
+		});
 		browseParseScriptBtn = new Button(container, SWT.NONE);
 		browseParseScriptBtn.addSelectionListener(new SelectionAdapter()
 		{
@@ -201,6 +256,37 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 
 		return area;
 
+	}
+
+	private void checkIfDumpFileExists(File dumpFile)
+	{
+		if (dumpFile.exists())
+		{
+			isDumpFileExists = true;
+		}
+		else
+		{
+			startParseBtn.setEnabled(false);
+			setMessage(Messages.AppLvlTracing_DumpFileNotExistsInfo, IMessageProvider.INFORMATION);
+			isDumpFileExists = false;
+		}
+	}
+
+	private void checkIfDirectoryIsValid(File dumpFile)
+	{
+
+		File dir = new File(dumpFile.getParent());
+		if (dir.isDirectory())
+		{
+			isOutputDirectoryValid = true;
+		}
+		else
+		{
+			startParseBtn.setEnabled(false);
+			startButton.setEnabled(false);
+			setErrorMessage(dumpFile.getParent() + Messages.AppLvlTracing_NotValidDirectoryPath);
+			isOutputDirectoryValid = false;
+		}
 	}
 
 	private void runTraceCommand()
@@ -321,8 +407,9 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 	 */
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
-		Button button = createButton(parent, IDialogConstants.OK_ID, ITracingConstants.START_LABEL, true);
-		button.addListener(SWT.Selection, new Listener() {
+		startButton = createButton(parent, IDialogConstants.OK_ID, ITracingConstants.START_LABEL, true);
+		startButton.addListener(SWT.Selection, new Listener()
+		{
 
 			private ClientWorker clientWorker;
 
@@ -330,7 +417,8 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 			public void handleEvent(Event event)
 			{
 
-				if (button.getText().contentEquals(ITracingConstants.START_LABEL)) {
+				if (startButton.getText().contentEquals(ITracingConstants.START_LABEL))
+				{
 					String waitForHaltStringValue = waitForHalt.getSelection() ? "1" : "0"; //$NON-NLS-1$ //$NON-NLS-2$
 					tclClient = new TclClient();
 					tclClient.startTracing(new String[] { outFilePath.getText(), pollTimer.getText(),
@@ -340,17 +428,20 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 					clientWorker = new ClientWorker(tclClient, openocdLog);
 					Thread thread = new Thread(clientWorker);
 					thread.start();
-					button.setText(ITracingConstants.STOP_LABEL);
+					startButton.setText(ITracingConstants.STOP_LABEL);
 				} else {
 					tclClient.stopTracing();
 					Thread thread = new Thread(clientWorker);
 					thread.start();
-					button.setText(ITracingConstants.START_LABEL);
+					startButton.setText(ITracingConstants.START_LABEL);
+					outFilePath.notifyListeners(SWT.Modify, null);
+					parseScritPath.notifyListeners(SWT.Modify, null);
 				}
 				
 			}
 		});
 		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
+		outFilePath.notifyListeners(SWT.Modify, null);
 	}
 
 	/**

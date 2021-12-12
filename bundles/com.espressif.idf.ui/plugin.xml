@@ -283,8 +283,8 @@
          </command>
                   <command
                commandId="com.espressif.idf.ui.appLvlTracing"
-               icon="icons/espressif.png"
-               label="Application Level Tracing"
+               icon="icons/ESP-IDF Application Level Tracing.png"
+               label="ESP-IDF: Application Level Tracing"
                style="push">
             <visibleWhen
                   checkEnabled="false">
@@ -326,11 +326,6 @@
             defaultHandler="com.espressif.idf.ui.handlers.HeapDumpAnalysisHandler"
             id="com.espressif.idf.ui.heapDumpAnalysis"
             name="%command.name.7">
-      </command>
-      <command
-            defaultHandler="com.espressif.idf.ui.tracing.AppLvlTracingHandler"
-            id="com.espressif.idf.ui.appLvlTracing"
-            name="Application Level Tracing">
       </command>
    </extension>
    <extension
