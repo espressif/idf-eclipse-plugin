@@ -213,4 +213,23 @@ public class ToolsVO
 	{
 		this.installed = installed;
 	}
+
+	public double getSize()
+	{
+		double totalSize = 0;
+		for (String key : versionVO.getVersionOsMap().keySet())
+		{
+			totalSize += versionVO.getVersionOsMap().get(key).getSize();
+		}
+		return totalSize;
+	}
+	
+	public String getReadableSize()
+	{
+		double totalSize = getSize();
+		totalSize /= 1024; // KB
+		totalSize /= 1024; // MB
+		DecimalFormat df = new DecimalFormat("0.00");
+		return String.valueOf(df.format(totalSize)).concat(" MB");
+	}
 }

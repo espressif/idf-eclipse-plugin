@@ -97,6 +97,9 @@ public class Messages extends NLS
 	public static String ForceDownload_ToolTip;
 	public static String ForceDownload;
 	public static String CancelMsg;
+	public static String InstallToolsProgressShell_lblNewLabel_text;
+	public static String InstallToolsProgressShell_text_text;
+	public static String InstallToolsProgressShell_txtTxtinstalledtool_text;
 
 	static
 	{
