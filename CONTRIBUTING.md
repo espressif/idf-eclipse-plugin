@@ -2,8 +2,8 @@
 
 ## Setting up an Eclipse Development Environment
 * Install `Java SE`(Java 11 and above). Here is the download link https://www.oracle.com/technetwork/java/javase/downloads/index.html
-* Install `Eclipse for RCP and RAP Developers` package (Eclipse 2020-06 and above) which you can find here https://www.eclipse.org/downloads/packages/
-* Install `Eclipse CDT` plugins in the eclipse http://download.eclipse.org/tools/cdt/releases/9.6. (Choose compatible CDT version based on the Eclipse Release)
+* Install `Eclipse for RCP and RAP Developers` package (Eclipse 2020-09 and above) which you can find here https://www.eclipse.org/downloads/packages/
+* Install `Eclipse CDT` plugins in the eclipse https://download.eclipse.org/tools/cdt/releases/latest/ (Choose compatible CDT version based on the Eclipse Release)
 * Install `Eclipse Embedded CDT` package for OpenOCD https://projects.eclipse.org/projects/iot.embed-cdt/downloads
 * Install `m2eclipse` plugins in the eclipse using update site https://download.eclipse.org/technology/m2e/releases/latest/
 * Install `cmakeed` plugins in the eclipse https://raw.githubusercontent.com/15knots/cmakeed/master/cmakeed-update/ to get the CMake editor features
