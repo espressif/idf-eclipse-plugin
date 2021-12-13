@@ -39,6 +39,7 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 * [ Upgrading IDF Eclipse Plugin ](#upgradePlugins)<br>
 * [ Importing an existing IDF Project ](#ImportProject)<br>
 * [ Importing an existing Debug launch configuration ](#importDebugLaunchConfig)<br>
+* [ GDBStub Debugging ](#gdbStubDebugging)<br>
 * [ Changing Language ](#changeLanguage)<br>
 * [ Troubleshooting Guide](#troubleshooting)<br>
 * [ How to raise bugs ](#howToRaiseBugs)<br>
@@ -447,6 +448,31 @@ To import an existing launch configuration into Eclipse:
 1. If you are replacing an existing configuration with the same name then select `Overwrite existing launch configurations without warning`
 1. Click on `Finish`
 
+<a name="gdbStubDebugging"></a>
+# GDBStub Debugging
+You can now use the gdb stub debugging inside our eclipse plugin to help you diagnose and debug issues on chip via eclipse when it is in panic mode.
+
+To enable gdb stub debugging for a project you need to enable it first in the sdkconfig. Launch the sdkconfig in project root by double clicking on it which will open the configuration editor.
+![](docs/images/GDBStubDebugging/sdkconfig_editor.png)
+
+Expand the `Component Config` section and select `ESP System Settings`. From the settings on the right for `Panic Handler behaviour` select the `GDBStub on Panic option` from the list
+![](docs/images/GDBStubDebugging/sdkconfig_editor_panic_behavior.png)
+
+Now you will be taken to the gdbstub debugger automatically when you connect the serial monitor and there is a panic for this example create a template `hello_world` project and add the following lines in the main c file.
+
+This is a global variable<br/>
+`COREDUMP_DRAM_ATTR uint8_t global_var;`
+
+Now add these two lines just above `esp_restart()` function<br/>
+`global_var = 25;`<br/>
+`assert(0);`<br/>
+The final file should be something like this
+![](docs/images/GDBStubDebugging/code_example.png)
+
+Build and flash the project and launch the serial monitor. On the line number 45 we are signaling for a failing assert which will put the chip in panic mode and when that line reaches you will be prompted to switch the perspective to debug mode and the chip will be halted, remember that this is a panic mode and you cannot continue the execution from here you will have to stop and restart the chip through idf commands or simply restart the serial monitor.
+![](docs/images/GDBStubDebugging/debug_panic_mode.png)
+
+You can view the registers stack trace and even view the value of variables in stack frame. To exit the debug session simply press stop button.
 
 <a name="howToRaiseBugs"></a>
 # How to raise bugs

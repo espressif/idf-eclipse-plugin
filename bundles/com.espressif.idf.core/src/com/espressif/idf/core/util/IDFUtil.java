@@ -54,6 +54,17 @@ public class IDFUtil
 				+ IDFConstants.IDF_PYTHON_SCRIPT;
 		return new File(idf_py_script);
 	}
+	
+	/**
+	 * @return idf_monitor.py file path based on the IDF_PATH defined in the environment variables
+	 */
+	public static File getIDFMonitorPythonScriptFile()
+	{
+		String idf_path = getIDFPath();
+		String idf_py_script = idf_path + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
+				+ IDFConstants.IDF_MONITOR_PYTHON_SCRIPT;
+		return new File(idf_py_script);
+	}
 
 	/**
 	 * @return idf_tools.py file path based on the IDF_PATH defined in the environment variables
