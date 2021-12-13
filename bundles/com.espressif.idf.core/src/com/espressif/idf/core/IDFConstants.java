@@ -41,6 +41,11 @@ public interface IDFConstants
 	String IDF_PYTHON_SCRIPT = "idf.py"; //$NON-NLS-1$
 	
 	/**
+	 * idf_monitor python file
+	 */
+	String IDF_MONITOR_PYTHON_SCRIPT = "idf_monitor.py"; //$NON-NLS-1$
+	
+	/**
 	 * idf sysviewtrace_proc script file
 	 */
 	String IDF_SYSVIEW_TRACE_SCRIPT = "sysviewtrace_proc.py"; //$NON-NLS-1$

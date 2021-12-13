@@ -27,14 +27,15 @@ public class SerialMonitorHandler
 		this.filterOptions = filterOptions;
 	}
 
-	public Process invokeIDFMonitor()
+	public Process invokeIDFMonitor(boolean withSocketServer)
 	{
 		// python path
 		String pythonPath = IDFUtil.getIDFPythonEnvPath();
 
 		File idfMonitorScriptFile = IDFUtil.getIDFPythonScriptFile();
 
-		IDFMonitor monitor = new IDFMonitor(project, serialPort, filterOptions, pythonPath, idfMonitorScriptFile.getAbsolutePath());
+		IDFMonitor monitor = new IDFMonitor(project, serialPort, filterOptions, pythonPath,
+				idfMonitorScriptFile.getAbsolutePath(), withSocketServer);
 		try
 		{
 			return monitor.start();
