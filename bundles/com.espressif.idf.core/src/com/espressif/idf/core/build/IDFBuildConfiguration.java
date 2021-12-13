@@ -11,7 +11,9 @@
 package com.espressif.idf.core.build;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -62,6 +64,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
@@ -75,10 +78,15 @@ import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.internal.CMakeConsoleWrapper;
 import com.espressif.idf.core.internal.CMakeErrorParser;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.IDFUtil;
+import com.google.gson.Gson;
 
 @SuppressWarnings(value = { "restriction" })
 public class IDFBuildConfiguration extends CBuildConfiguration {
 
+	protected static final String COMPILE_COMMANDS_JSON = "compile_commands.json"; //$NON-NLS-1$
+	protected static final String COMPONENTS = "components"; //$NON-NLS-N$
+	private static final String ESP_IDF_COMPONENTS = "esp_idf_components"; //$NON-NLS-1$
 	public static final String CMAKE_GENERATOR = "cmake.generator"; //$NON-NLS-1$
 	public static final String CMAKE_ARGUMENTS = "cmake.arguments"; //$NON-NLS-1$
 	public static final String CMAKE_ENV = "cmake.environment"; //$NON-NLS-1$
@@ -88,32 +96,32 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	private ILaunchTarget launchtarget;
 	private Map<IResource, IScannerInfo> infoPerResource;
 	/**
-	 * whether one of the CMakeLists.txt files in the project has been modified and
-	 * saved by the user since the last build.<br>
-	 * Cmake-generated build scripts re-run cmake if one of the CMakeLists.txt files
-	 * was modified, but that output goes through ErrorParserManager and is
-	 * impossible to parse because cmake outputs to both stderr and stdout and
-	 * ErrorParserManager intermixes these streams making it impossible to parse for
-	 * errors.<br>
-	 * To work around that, we run cmake in advance with its dedicated working error
-	 * parser.
+	 * whether one of the CMakeLists.txt files in the project has been modified and saved by the user since the last
+	 * build.<br>
+	 * Cmake-generated build scripts re-run cmake if one of the CMakeLists.txt files was modified, but that output goes
+	 * through ErrorParserManager and is impossible to parse because cmake outputs to both stderr and stdout and
+	 * ErrorParserManager intermixes these streams making it impossible to parse for errors.<br>
+	 * To work around that, we run cmake in advance with its dedicated working error parser.
 	 */
 	private boolean cmakeListsModified;
 	private ICMakeToolChainFile toolChainFile;
 
-	public IDFBuildConfiguration(IBuildConfiguration config, String name) throws CoreException {
+	public IDFBuildConfiguration(IBuildConfiguration config, String name) throws CoreException
+	{
 		super(config, name);
 
 		ICMakeToolChainManager manager = IDFCorePlugin.getService(ICMakeToolChainManager.class);
 		this.toolChainFile = manager.getToolChainFileFor(getToolChain());
 	}
 
-	public IDFBuildConfiguration(IBuildConfiguration config, String name, IToolChain toolChain) {
+	public IDFBuildConfiguration(IBuildConfiguration config, String name, IToolChain toolChain)
+	{
 		this(config, name, toolChain, null, "run"); //$NON-NLS-1$
 	}
 
 	public IDFBuildConfiguration(IBuildConfiguration config, String name, IToolChain toolChain,
-			ICMakeToolChainFile toolChainFile, String launchMode) {
+			ICMakeToolChainFile toolChainFile, String launchMode)
+	{
 		super(config, name, toolChain, launchMode);
 		this.toolChainFile = toolChainFile;
 	}
@@ -139,11 +147,13 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		return buildRootFolder;
 	}
 
-	public ICMakeToolChainFile getToolChainFile() {
+	public ICMakeToolChainFile getToolChainFile()
+	{
 		return toolChainFile;
 	}
 
-	private boolean isLocal() throws CoreException {
+	private boolean isLocal() throws CoreException
+	{
 		IToolChain toolchain = getToolChain();
 		return (Platform.getOS().equals(toolchain.getProperty(IToolChain.ATTR_OS))
 				|| "linux-container".equals(toolchain.getProperty(IToolChain.ATTR_OS))) //$NON-NLS-1$
@@ -152,7 +162,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 	@Override
 	public IProject[] build(int kind, Map<String, String> args, IConsole console, IProgressMonitor monitor)
-			throws CoreException {
+			throws CoreException
+	{
 		IProject project = getProject();
 		ICMakeToolChainFile toolChainFile = getToolChainFile();
 
@@ -182,7 +193,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			}
 
 			String generator = getProperty(CMAKE_GENERATOR);
-			if (generator == null) {
+			if (generator == null)
+			{
 				generator = "Ninja"; //$NON-NLS-1$
 			}
 
@@ -197,15 +209,17 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			}
 
 			infoStream.write(
-					String.format(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_BuildingIn,
+					String.format(Messages.CMakeBuildConfiguration_BuildingIn,
 							buildDir.toString()));
 
 			// Make sure we have a toolchain file if cross
-			if (toolChainFile == null && !isLocal()) {
+			if (toolChainFile == null && !isLocal())
+			{
 				ICMakeToolChainManager manager = IDFCorePlugin.getService(ICMakeToolChainManager.class);
 				toolChainFile = manager.getToolChainFileFor(getToolChain());
 
-				if (toolChainFile == null) {
+				if (toolChainFile == null)
+				{
 					// error
 					console.getErrorStream()
 							.write(Messages.IDFBuildConfiguration_CMakeBuildConfiguration_NoToolchainFile);
@@ -214,8 +228,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			}
 
 			boolean runCMake = cmakeListsModified;
-			if (!runCMake) {
-				switch (generator) {
+			if (!runCMake)
+			{
+				switch (generator)
+				{
 				case "Ninja": //$NON-NLS-1$
 					runCMake = !Files.exists(buildDir.resolve("build.ninja")); //$NON-NLS-1$
 					break;
@@ -224,11 +240,11 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				}
 			}
 
-			if (runCMake) {
+			if (runCMake)
+			{
 				deleteCMakeErrorMarkers(project);
 
-				infoStream.write(String.format(
-						org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_Configuring, buildDir));
+				infoStream.write(String.format(Messages.CMakeBuildConfiguration_Configuring, buildDir));
 				// clean output to make sure there is no content
 				// incompatible with current settings (cmake config would fail)
 				cleanBuildDirectory(buildDir);
@@ -239,7 +255,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				command.add("-G"); //$NON-NLS-1$
 				command.add(generator);
 
-				if (toolChainFile != null) {
+				if (toolChainFile != null)
+				{
 					command.add("-DCMAKE_TOOLCHAIN_FILE=" + toolChainFile.getPath().toString()); //$NON-NLS-1$
 				}
 
@@ -255,7 +272,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				}
 
 				String userArgs = getProperty(CMAKE_ARGUMENTS);
-				if (userArgs != null) {
+				if (userArgs != null)
+				{
 					command.addAll(Arrays.asList(userArgs.trim().split("\\s+"))); //$NON-NLS-1$
 				}
 
@@ -277,7 +295,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 						errConsole, monitor);
 				if (p == null) {
 					console.getErrorStream().write(String
-							.format(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_Failure, "")); //$NON-NLS-1$
+							.format(Messages.CMakeBuildConfiguration_Failure, "")); //$NON-NLS-1$
 					return null;
 				}
 
@@ -286,27 +304,34 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			}
 
 			try (ErrorParserManager epm = new ErrorParserManager(project, getBuildDirectoryURI(), this,
-					getToolChain().getErrorParserIds())) {
+					getToolChain().getErrorParserIds()))
+			{
 				epm.setOutputStream(console.getOutputStream());
 
 				List<String> command = new ArrayList<>();
 
 				String envStr = getProperty(CMAKE_ENV);
 				List<IEnvironmentVariable> envVars = new ArrayList<>();
-				if (envStr != null) {
+				if (envStr != null)
+				{
 					List<String> envList = CMakeUtils.stripEnvVars(envStr);
-					for (String s : envList) {
+					for (String s : envList)
+					{
 						int index = s.indexOf("="); //$NON-NLS-1$
-						if (index == -1) {
+						if (index == -1)
+						{
 							envVars.add(new EnvironmentVariable(s));
-						} else {
+						}
+						else
+						{
 							envVars.add(new EnvironmentVariable(s.substring(0, index), s.substring(index + 1)));
 						}
 					}
 				}
 
 				String buildCommand = getProperty(BUILD_COMMAND);
-				if (buildCommand == null) {
+				if (buildCommand == null)
+				{
 					command.add("cmake"); //$NON-NLS-1$
 					command.add("--build"); //$NON-NLS-1$
 					command.add("."); //$NON-NLS-1$
@@ -315,7 +340,9 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 						command.add("--"); //$NON-NLS-1$
 						command.add("-v"); //$NON-NLS-1$
 					}
-				} else {
+				}
+				else
+				{
 					command.addAll(Arrays.asList(buildCommand.split(" "))); //$NON-NLS-1$
 				}
 
@@ -327,21 +354,26 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 						console, monitor);
 				if (p == null) {
 					console.getErrorStream().write(String
-							.format(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_Failure, "")); //$NON-NLS-1$
+							.format(Messages.CMakeBuildConfiguration_Failure, "")); //$NON-NLS-1$
 					return null;
 				}
 
 				watchProcess(p, new IConsoleParser[] { epm });
-
-				project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+				
+				final String isSkip = System.getProperty("skip.idf.components"); //$NON-NLS-1$
+				if(!Boolean.parseBoolean(isSkip)) { //no property defined
+					linkBuildComponents(project, monitor);
+					project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+				}
 
 				// parse compile_commands.json file
 				// built-ins detection output goes to the build console, if the user requested
 				// output
 				processCompileCommandsFile(console, monitor);
+				project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 
 				infoStream.write(String.format(
-						org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_BuildingComplete,
+						Messages.CMakeBuildConfiguration_BuildingComplete,
 						epm.getErrorCount(), epm.getWarningCount(), buildDir.toString()));
 
 				Instant finish = Instant.now();
@@ -351,19 +383,18 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 			}
 
-			// This is specifically added to trigger the indexing sine in Windows OS it
+			// This is specifically added to trigger the indexing since in Windows OS it
 			// doesn't seem to happen!
-			// setActive();
 			update(project);
 			return new IProject[] { project };
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new CoreException(IDFCorePlugin.errorStatus(
-					String.format(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_Building,
+					String.format(Messages.CMakeBuildConfiguration_Building,
 							project.getName()),
 					e));
 		}
 	}
-
+	
 	public void update(IProject project) {
 		ICProject cproject = CCorePlugin.getDefault().getCoreModel().create(project);
 		if (cproject != null) {
@@ -373,20 +404,112 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			ICElement[] cProjectElements = tuSelection.toArray(new ICElement[tuSelection.size()]);
 			try {
 				CCorePlugin.getIndexManager().update(cProjectElements, getUpdateOptions());
-			} catch (CoreException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
+	
+	private static String getIdfToolsPath()
+	{
+		return new org.eclipse.core.runtime.Path(IDFUtil.getIDFPath()).toOSString();
+	}
 
-	protected int getUpdateOptions() {
-		return IIndexManager.UPDATE_ALL | IIndexManager.UPDATE_EXTERNAL_FILES_FOR_PROJECT;
+	/**
+	 * Link build components(build_component_paths) from project_description.json to the project.
+	 * 
+	 * @param project
+	 * @throws Exception
+	 */
+	protected void linkBuildComponents(IProject project, IProgressMonitor monitor) throws Exception
+	{
+		// Create ESP-IDF Components folder under the project
+		final IFolder componentsFolder = project.getFolder(ESP_IDF_COMPONENTS); //$NON-NLS-1$
+		if (!componentsFolder.exists())
+		{
+			componentsFolder.create(true, false, new NullProgressMonitor());
+		}
+
+		final IFile jsonFile = getBuildContainer().getFile(new org.eclipse.core.runtime.Path(COMPILE_COMMANDS_JSON));
+		File jsonDiskFile = new File(jsonFile.getLocationURI());
+
+		CommandEntry[] sourceFileInfos = null;
+		try (Reader in = new FileReader(jsonDiskFile))
+		{
+			Gson gson = new Gson();
+			sourceFileInfos = gson.fromJson(in, CommandEntry[].class);
+			for (CommandEntry sourceFileInfo : sourceFileInfos)
+			{
+				String sourceFile = sourceFileInfo.getFile();
+				Logger.log("command::" + sourceFileInfo.getCommand(), true);
+				Logger.log("file::" + sourceFile, true);
+				
+				org.eclipse.core.runtime.Path path = new org.eclipse.core.runtime.Path(sourceFile);
+				IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(path);
+				if (file == null)
+				{
+					createLinkForSourceFileOnly(path.toOSString(), project, monitor);
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+		}
+	}
+	
+	private void setLinkLocation(IResource toLink, IPath rawLinkLocation) throws CoreException
+	{
+		if (toLink.getType() == IResource.FILE)
+		{
+			((IFile) toLink).createLink(rawLinkLocation, IResource.REPLACE, new NullProgressMonitor());
+		}
+		if (toLink.getType() == IResource.FOLDER)
+		{
+			((IFolder) toLink).createLink(rawLinkLocation, IResource.REPLACE, new NullProgressMonitor());
+		}
+	}
+
+	private void createLinkForSourceFileOnly(String sourceFile, IProject project, IProgressMonitor monitor) throws Exception
+	{
+		IFolder folder = project.getFolder(ESP_IDF_COMPONENTS);
+		String sourceFileToSplit = sourceFile.substring(getIdfToolsPath().length(), sourceFile.length());
+		String[] segments = new org.eclipse.core.runtime.Path(sourceFileToSplit).segments();
+		
+		for (int i = 0; i < (segments.length - 1); i++)
+		{
+			if (segments[i].equals(COMPONENTS) || segments[i].trim().isEmpty())
+			{
+				continue;
+			}
+			folder = folder.getFolder(segments[i]);
+			if (!folder.exists())
+			{
+				folder.create(true, true, new NullProgressMonitor());
+			}
+		}
+
+		String fileName = new File(sourceFile).getName();
+		IFile iFile = folder.getFile(fileName);
+		if (!iFile.exists())
+		{
+			IFile folderLink = folder.getFile(fileName);
+			setLinkLocation(folderLink, new org.eclipse.core.runtime.Path(sourceFile));
+
+		}
+	}
+
+	protected int getUpdateOptions()
+	{
+		return IIndexManager.UPDATE_CHECK_TIMESTAMPS | IIndexManager.UPDATE_UNRESOLVED_INCLUDES | IIndexManager.UPDATE_EXTERNAL_FILES_FOR_PROJECT;
 	}
 
 	@Override
-	public void clean(IConsole console, IProgressMonitor monitor) throws CoreException {
+	public void clean(IConsole console, IProgressMonitor monitor) throws CoreException
+	{
 		IProject project = getProject();
-		try {
+		try
+		{
 			String generator = getProperty(CMAKE_GENERATOR);
 
 			project.deleteMarkers(ICModelMarker.C_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
@@ -395,22 +518,29 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 			Path buildDir = getBuildDirectory();
 
-			if (!Files.exists(buildDir.resolve("CMakeFiles"))) { //$NON-NLS-1$
-				outStream.write(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_NotFound);
+			if (!Files.exists(buildDir.resolve("CMakeFiles"))) //$NON-NLS-1$
+			{
+				outStream.write(Messages.CMakeBuildConfiguration_NotFound);
 				return;
 			}
 
 			List<String> command = new ArrayList<>();
 			String cleanCommand = getProperty(CLEAN_COMMAND);
-			if (cleanCommand == null) {
-				if (generator == null || generator.equals("Ninja")) { //$NON-NLS-1$
+			if (cleanCommand == null)
+			{
+				if (generator == null || generator.equals("Ninja")) //$NON-NLS-1$
+				{
 					command.add("ninja"); //$NON-NLS-1$
 					command.add("clean"); //$NON-NLS-1$
-				} else {
+				}
+				else
+				{
 					command.add("make"); //$NON-NLS-1$
 					command.add("clean"); //$NON-NLS-1$
 				}
-			} else {
+			}
+			else
+			{
 				command.addAll(Arrays.asList(cleanCommand.split(" "))); //$NON-NLS-1$
 			}
 
@@ -423,18 +553,18 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			Process p = startBuildProcess(command, env, workingDir, console, monitor);
 			if (p == null) {
 				console.getErrorStream().write(String
-						.format(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_Failure, "")); //$NON-NLS-1$
+						.format(Messages.CMakeBuildConfiguration_Failure, "")); //$NON-NLS-1$
 				return;
 			}
 
 			watchProcess(p, console);
 
-			outStream.write(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_BuildComplete);
+			outStream.write(Messages.CMakeBuildConfiguration_BuildComplete);
 
 			project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 		} catch (IOException e) {
 			throw new CoreException(IDFCorePlugin.errorStatus(
-					String.format(org.eclipse.cdt.cmake.core.internal.Messages.CMakeBuildConfiguration_Cleaning,
+					String.format(Messages.CMakeBuildConfiguration_Cleaning,
 							project.getName()),
 					e));
 		}
@@ -447,10 +577,11 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	 *                no console output is wanted.
 	 * @param monitor the job's progress monitor
 	 */
-	private void processCompileCommandsFile(IConsole console, IProgressMonitor monitor) throws CoreException {
-		IFile file = getBuildContainer().getFile(new org.eclipse.core.runtime.Path("compile_commands.json")); //$NON-NLS-1$
+	private void processCompileCommandsFile(IConsole console, IProgressMonitor monitor) throws CoreException
+	{
+		IFile file = getBuildContainer().getFile(new org.eclipse.core.runtime.Path(COMPILE_COMMANDS_JSON));
 		CompileCommandsJsonParser parser = new CompileCommandsJsonParser(
-				new ParseRequest(file, new CMakeIndexerInfoConsumer(this::setScannerInformation),
+				new ParseRequest(file, new CMakeIndexerInfoConsumer(this::setScannerInformation,getProject()),
 						CommandLauncherManager.getInstance().getCommandLauncher(this), console));
 		parser.parse(monitor);
 	}
@@ -458,28 +589,34 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	/**
 	 * Recursively removes any files and directories found below the specified Path.
 	 */
-	private static void cleanDirectory(Path dir) throws IOException {
-		SimpleFileVisitor<Path> deltor = new SimpleFileVisitor<>() {
+	private static void cleanDirectory(Path dir) throws IOException
+	{
+		SimpleFileVisitor<Path> deltor = new SimpleFileVisitor<>()
+		{
 			@Override
-			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
+			{
 				Files.delete(file);
 				return FileVisitResult.CONTINUE;
 			}
 
 			@Override
-			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException
+			{
 				super.postVisitDirectory(dir, exc);
 				Files.delete(dir);
 				return FileVisitResult.CONTINUE;
 			}
 		};
 		Path[] files = Files.list(dir).toArray(Path[]::new);
-		for (Path file : files) {
+		for (Path file : files)
+		{
 			Files.walkFileTree(file, deltor);
 		}
 	}
 
-	private void cleanBuildDirectory(Path buildDir) throws IOException {
+	private void cleanBuildDirectory(Path buildDir) throws IOException
+	{
 		if (!Files.exists(buildDir))
 			return;
 		if (Files.isDirectory(buildDir))
@@ -496,16 +633,20 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 		if (infoPerResource == null) {
 			// no build was run yet, nothing detected
-			try {
+			try
+			{
 				processCompileCommandsFile(null, new NullProgressMonitor());
-			} catch (CoreException e) {
+			}
+			catch (CoreException e)
+			{
 				Logger.log(e);
 			}
 		}
 		return infoPerResource == null ? null : infoPerResource.get(resource);
 	}
 
-	private void setScannerInformation(Map<IResource, IScannerInfo> infoPerResource) {
+	private void setScannerInformation(Map<IResource, IScannerInfo> infoPerResource)
+	{
 		this.infoPerResource = infoPerResource;
 	}
 
@@ -514,12 +655,14 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	 * was modified since the last build.
 	 */
 	@Override
-	public void elementChanged(ElementChangedEvent event) {
+	public void elementChanged(ElementChangedEvent event)
+	{
 		super.elementChanged(event);
 		// Only respond to post change events
 		if (event.getType() != ElementChangedEvent.POST_CHANGE)
 			return;
-		if (!cmakeListsModified) {
+		if (!cmakeListsModified)
+		{
 			processElementDelta(event.getDelta());
 		}
 	}
@@ -532,22 +675,29 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	 * @return <code>true</code> to continue with delta processing, otherwise
 	 *         <code>false</code>
 	 */
-	private boolean processElementDelta(ICElementDelta delta) {
-		if (delta == null) {
+	private boolean processElementDelta(ICElementDelta delta)
+	{
+		if (delta == null)
+		{
 			return true;
 		}
 
-		if (delta.getKind() == ICElementDelta.CHANGED) {
+		if (delta.getKind() == ICElementDelta.CHANGED)
+		{
 			// check for modified CMakeLists.txt file
-			if (0 != (delta.getFlags() & ICElementDelta.F_CONTENT)) {
+			if (0 != (delta.getFlags() & ICElementDelta.F_CONTENT))
+			{
 				IResourceDelta[] resourceDeltas = delta.getResourceDeltas();
-				if (resourceDeltas != null) {
-					for (IResourceDelta resourceDelta : resourceDeltas) {
+				if (resourceDeltas != null)
+				{
+					for (IResourceDelta resourceDelta : resourceDeltas)
+					{
 						IResource resource = resourceDelta.getResource();
 						if (resource.getType() == IResource.FILE
 								&& !resource.getFullPath().toOSString().contains("build")) {
 							String name = resource.getName();
-							if (name.equals("CMakeLists.txt") || name.endsWith(".cmake")) { //$NON-NLS-1$ //$NON-NLS-2$
+							if (name.equals("CMakeLists.txt") || name.endsWith(".cmake")) //$NON-NLS-1$ //$NON-NLS-2$
+							{
 								cmakeListsModified = true;
 								return false; // stop processing
 							}
@@ -558,8 +708,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		}
 
 		// recurse...
-		for (ICElementDelta child : delta.getAffectedChildren()) {
-			if (!processElementDelta(child)) {
+		for (ICElementDelta child : delta.getAffectedChildren())
+		{
+			if (!processElementDelta(child))
+			{
 				return false; // stop processing
 			}
 		}
@@ -571,7 +723,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	 */
 	// interface IConsoleParser2
 	@Override
-	public boolean processLine(String line) {
+	public boolean processLine(String line)
+	{
 		return true;
 	}
 
@@ -580,7 +733,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	 */
 	// interface IConsoleParser2
 	@Override
-	public boolean processLine(String line, List<Job> jobsArray) {
+	public boolean processLine(String line, List<Job> jobsArray)
+	{
 		return true;
 	}
 
@@ -589,7 +743,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	 */
 	// interface IConsoleParser2
 	@Override
-	public void shutdown() {
+	public void shutdown()
+	{
 	}
 
 	/**
@@ -598,74 +753,99 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	 * @param project the project where to remove the error markers.
 	 * @throws CoreException
 	 */
-	private static void deleteCMakeErrorMarkers(IProject project) throws CoreException {
+	private static void deleteCMakeErrorMarkers(IProject project) throws CoreException
+	{
 		project.deleteMarkers(CMakeErrorParser.CMAKE_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
 	}
 
 	private static class CMakeIndexerInfoConsumer implements ISourceFileInfoConsumer {
 		/**
-		 * gathered IScannerInfo objects or <code>null</code> if no new IScannerInfo was
-		 * received
+		 * gathered IScannerInfo objects or <code>null</code> if no new IScannerInfo was received
 		 */
 		private Map<IResource, IScannerInfo> infoPerResource = new HashMap<>();
 		private boolean haveUpdates;
 		private final Consumer<Map<IResource, IScannerInfo>> resultSetter;
+		private IProject project;
 
 		/**
-		 * @param resultSetter receives the all scanner information when processing is
-		 *                     finished
+		 * @param resultSetter receives the all scanner information when processing is finished
+		 * @param iProject 
 		 */
-		public CMakeIndexerInfoConsumer(Consumer<Map<IResource, IScannerInfo>> resultSetter) {
+		public CMakeIndexerInfoConsumer(Consumer<Map<IResource, IScannerInfo>> resultSetter, IProject project)
+		{
 			this.resultSetter = Objects.requireNonNull(resultSetter);
+			this.project = project;
 		}
 
 		@Override
 		public void acceptSourceFileInfo(String sourceFileName, List<String> systemIncludePaths,
 				Map<String, String> definedSymbols, List<String> includePaths, List<String> macroFiles,
-				List<String> includeFiles) {
-			IFile file = getFileForCMakePath(sourceFileName);
-			if (file != null) {
+				List<String> includeFiles)
+		{
+			IFile file = getFileForCMakePath(sourceFileName, project);
+			if (file != null)
+			{
+				systemIncludePaths.addAll(includePaths);
+				
 				ExtendedScannerInfo info = new ExtendedScannerInfo(definedSymbols,
 						systemIncludePaths.stream().toArray(String[]::new), macroFiles.stream().toArray(String[]::new),
-						includeFiles.stream().toArray(String[]::new), includePaths.stream().toArray(String[]::new));
+						includeFiles.stream().toArray(String[]::new),
+						includePaths.stream().toArray(String[]::new));
 				infoPerResource.put(file, info);
 				haveUpdates = true;
 			}
 		}
 
 		/**
-		 * Gets an IFile object that corresponds to the source file name given in CMake
-		 * notation.
+		 * Gets an IFile object that corresponds to the source file name given in CMake notation.
 		 *
-		 * @param sourceFileName the name of the source file, in CMake notation. Note
-		 *                       that on windows, CMake writes filenames with forward
-		 *                       slashes (/) such as {@code H://path//to//source.c}.
+		 * @param sourceFileName the name of the source file, in CMake notation. Note that on windows, CMake writes
+		 *                       filenames with forward slashes (/) such as {@code H://path//to//source.c}.
+		 * @param project2 
 		 * @return a IFile object or <code>null</code>
 		 */
-		private IFile getFileForCMakePath(String sourceFileName) {
+		private IFile getFileForCMakePath(String sourceFileName, IProject project)
+		{
 			org.eclipse.core.runtime.Path path = new org.eclipse.core.runtime.Path(sourceFileName);
 			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(path);
-			// TODO maybe we need to introduce a strategy here to get the workbench resource
-			// Possible build scenarios:
-			// 1) linux native: should be OK as is
-			// 2) linux host, building in container: should be OK as is
-			// 3) windows native: Path.fromOSString()?
-			// 4) windows host, building in linux container: ??? needs testing on windows
-			return file;
+			if (file != null)
+			{
+				return file;
+			}
+			
+			String sourceFile = path.toOSString();
+			String pathtolookfor = new org.eclipse.core.runtime.Path(getIdfToolsPath()).append(COMPONENTS).toOSString(); // $NON-NLS-1$
+			int startIndex = sourceFile.indexOf(pathtolookfor);
+			if (startIndex == -1) //esp-idf/examples/
+			{
+				pathtolookfor = getIdfToolsPath();
+				startIndex = sourceFile.indexOf(pathtolookfor);
+			}
+			String relativePath = sourceFile.substring(startIndex + pathtolookfor.length() + 1);
+			IPath projectPath = new org.eclipse.core.runtime.Path(ESP_IDF_COMPONENTS).append(relativePath);
+			IResource resourcePath = project.findMember(projectPath);
+			if (resourcePath != null && resourcePath instanceof IFile)
+			{
+				return (IFile) resourcePath;
+			}
+			return null;
 		}
 
 		@Override
-		public void shutdown() {
-			if (haveUpdates) {
+		public void shutdown()
+		{
+			if (haveUpdates)
+			{
 				// we received updates
 				resultSetter.accept(infoPerResource);
 				infoPerResource = null;
 				haveUpdates = false;
 			}
 		}
-	} // CMakeIndexerInfoConsumer
+	}
 
 	public void setLaunchTarget(ILaunchTarget target) {
 		this.launchtarget = target;
 	}
+
 }
