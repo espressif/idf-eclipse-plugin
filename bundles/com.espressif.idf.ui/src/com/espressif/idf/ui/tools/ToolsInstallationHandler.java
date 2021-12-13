@@ -66,6 +66,7 @@ public class ToolsInstallationHandler
 					String nameOfDownloadedFile = downloadTool(key, versionsVO);
 					String extractionDir = extractDownloadedFile(nameOfDownloadedFile,
 							versionsVO.getVersionOsMap().get(key).getParentName(), versionsVO.getName());
+					// TO DO calling updatePaths
 
 				}
 				catch (Exception e)
