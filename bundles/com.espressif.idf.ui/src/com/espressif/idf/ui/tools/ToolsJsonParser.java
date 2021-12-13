@@ -75,13 +75,14 @@ public class ToolsJsonParser
 			toolsVO.setSupportedTargets(
 					getStringsListFromJsonArray(toolsJsonObject.get(SUPPORTED_TARGETS_KEY).getAsJsonArray()));
 			toolsVO.setVersionCmd(getStringsListFromJsonArray(toolsJsonObject.get(VERSION_CMD_KEY).getAsJsonArray()));
-			toolsVO.setVersionVO(getVersions(toolsJsonObject.get(VERSIONS_VO_KEY).getAsJsonArray()));
+			toolsVO.setVersionVO(getVersions(toolsJsonObject.get(VERSIONS_VO_KEY).getAsJsonArray(), toolsVO.getName(),
+					toolsVO.getExportPaths()));
 			toolsVO.setVersion(jsonObject.get(VERSION_KEY).getAsString());
 			toolsList.add(toolsVO);
 		}
 	}
 
-	private VersionsVO getVersions(JsonArray jsonArray)
+	private VersionsVO getVersions(JsonArray jsonArray, String parentName, List<String> exportPaths)
 	{
 		JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
 		VersionsVO versionsVO = new VersionsVO();
@@ -98,6 +99,8 @@ public class ToolsJsonParser
 			versionDetailsVO.setSha256(osVersionDetailsObject.get(SHA256_KEY).getAsString());
 			versionDetailsVO.setSize(osVersionDetailsObject.get(SIZE_KEY).getAsDouble());
 			versionDetailsVO.setUrl(osVersionDetailsObject.get(URL_KEY).getAsString());
+			versionDetailsVO.setParentName(parentName);
+			versionDetailsVO.setExportPaths(exportPaths);
 			versionDetailMap.put(key, versionDetailsVO);
 		}
 

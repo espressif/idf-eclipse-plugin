@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.ui.tools.vo;
 
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -145,5 +146,24 @@ public class ToolsVO
 	public void setVersionVO(VersionsVO versionVO)
 	{
 		this.versionVO = versionVO;
+	}
+
+	public double getSize()
+	{
+		double totalSize = 0;
+		for (String key : versionVO.getVersionOsMap().keySet())
+		{
+			totalSize += versionVO.getVersionOsMap().get(key).getSize();
+		}
+		return totalSize;
+	}
+	
+	public String getReadableSize()
+	{
+		double totalSize = getSize();
+		totalSize /= 1024; // KB
+		totalSize /= 1024; // MB
+		DecimalFormat df = new DecimalFormat("0.00");
+		return String.valueOf(df.format(totalSize)).concat(" MB");
 	}
 }

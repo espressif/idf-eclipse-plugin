@@ -25,6 +25,8 @@ import com.espressif.idf.core.logging.Logger;
  */
 public class IDFConsole
 {
+	private MessageConsole messageConsole;
+	
 	public MessageConsoleStream getConsoleStream()
 	{
 		return getConsoleStream("ESP-IDF Console", null); //$NON-NLS-1$

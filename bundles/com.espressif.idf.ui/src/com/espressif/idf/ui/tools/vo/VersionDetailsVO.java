@@ -4,6 +4,9 @@
  *******************************************************************************/
 package com.espressif.idf.ui.tools.vo;
 
+import java.text.DecimalFormat;
+import java.util.List;
+
 /**
  * Version details vo for the versions class
  * 
@@ -17,6 +20,12 @@ public class VersionDetailsVO
 	private double size;
 
 	private String url;
+	
+	private boolean selected;
+	
+	private String parentName;
+	
+	private List<String> exportPaths;
 
 	public String getSha256()
 	{
@@ -46,5 +55,44 @@ public class VersionDetailsVO
 	public void setUrl(String url)
 	{
 		this.url = url;
+	}
+
+	public String getReadableSize()
+	{
+		double totalSize = getSize();
+		totalSize /= 1024; // KB
+		totalSize /= 1024; // MB
+		DecimalFormat df = new DecimalFormat("0.00");
+		return String.valueOf(df.format(totalSize)).concat(" MB");
+	}
+
+	public boolean isSelected()
+	{
+		return selected;
+	}
+
+	public void setSelected(boolean selected)
+	{
+		this.selected = selected;
+	}
+
+	public String getParentName()
+	{
+		return parentName;
+	}
+
+	public void setParentName(String parentName)
+	{
+		this.parentName = parentName;
+	}
+
+	public List<String> getExportPaths()
+	{
+		return exportPaths;
+	}
+
+	public void setExportPaths(List<String> exportPaths)
+	{
+		this.exportPaths = exportPaths;
 	}
 }

@@ -103,6 +103,11 @@
             id="com.espressif.idf.ui.command.update"
             name="%command.name.updateEspIdfMaster">
       </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.tools.ManageToolsInstallationHandler"
+            id="com.espressif.idf.ui.command.managetoolsinstallation"
+            name="Manage Tools Installation">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -152,6 +157,11 @@
                         property="com.espressif.idf.ui.propertyTester.testProperty">
                   </test>
                </visibleWhen>
+            </command>
+            <command
+                  commandId="com.espressif.idf.ui.command.managetoolsinstallation"
+                  icon="icons/ESP-IDF Manage Tools Installtion.png"
+                  style="push">
             </command>
          </menu>
       </menuContribution>
