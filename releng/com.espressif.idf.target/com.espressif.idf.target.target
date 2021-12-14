@@ -57,20 +57,20 @@
          <unit id="org.eclipse.lsp4e.debug" version="0.0.0"/>
          <repository location="https://download.eclipse.org/lsp4e/releases/0.18.0/"/>
       </location>
-      <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
+      <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
          <unit id="com.cthing.cmakeed.feature.feature.group" version="1.17.0"/>
          <repository location="jar:https://dl.espressif.com/dl/cmakeed/updates/CMakeEd-1.17.0.zip!/"/>
       </location>
-      <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
+      <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
          <unit id="org.eclipse.jgit.feature.group" version="0.0.0"/>
          <unit id="org.eclipse.egit.feature.group" version="0.0.0"/>
          <repository location="https://download.eclipse.org/egit/updates"/>
       </location>
-      <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
+      <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
          <unit id="org.eclipse.swtchart.feature.feature.group" version="0.0.0"/>
          <repository location="https://download.eclipse.org/swtchart/releases/0.12.0/repository"/>
       </location>
-      <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
+      <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
          <repository location="https://download.eclipse.org/embed-cdt/releases/5.1.1/p2"/>
          <unit id="ilg.gnumcueclipse.debug.gdbjtag.openocd.feature.feature.group" version="0.0.0"/>
          <unit id="ilg.gnumcueclipse.packs.feature.feature.group" version="0.0.0"/>
