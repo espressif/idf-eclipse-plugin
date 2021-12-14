@@ -53,9 +53,9 @@ public class IDFSizeConstants {
 	public static String USED_DIRAM_RATIO = "used_diram_ratio"; //$NON-NLS-1$
 	
 	static {
-		String versing = getEspIdfVersion();
+		String version = IDFUtil.getEspIdfVersion();
 		Pattern p = Pattern.compile("([0-9][.][0-9])"); //$NON-NLS-1$
-		Matcher m = p.matcher(versing);
+		Matcher m = p.matcher(version);
 		if (m.find() && Double.parseDouble(m.group(0)) > 4.3) {
 			FLASH_RODATA_OVERVIEW = "flash_rodata"; //$NON-NLS-1$
 			DATA = ".dram0.data"; // DRAM .data //$NON-NLS-1$
@@ -85,44 +85,4 @@ public class IDFSizeConstants {
 			USED_DIRAM_RATIO = "used_diram_ratio"; //$NON-NLS-1$
 		}
 	}
-	
-	private static String getEspIdfVersion()
-	{
-		if (IDFUtil.getIDFPath() != null && IDFUtil.getIDFPythonEnvPath() != null)
-		{
-			List<String> commands = new ArrayList<>();
-			commands.add(IDFUtil.getIDFPythonEnvPath());
-			commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
-			commands.add("--version"); //$NON-NLS-1$
-			Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
-			return runCommand(commands, envMap);
-		}
-		
-		return ""; //$NON-NLS-1$
-	}
-	
-	private static String runCommand(List<String> arguments, Map<String, String> env)
-	{
-		String exportCmdOp = ""; //$NON-NLS-1$
-		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
-		try
-		{
-			IStatus status = processRunner.runInBackground(arguments, Path.ROOT, env);
-			if (status == null)
-			{
-				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
-
-			}
-
-			// process export command output
-			exportCmdOp = status.getMessage();
-			Logger.log(exportCmdOp);
-		}
-		catch (Exception e1)
-		{
-			Logger.log(IDFCorePlugin.getPlugin(), e1);
-		}
-		return exportCmdOp;
-	}
-
 }
