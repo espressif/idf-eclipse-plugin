@@ -8,12 +8,16 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -22,7 +26,9 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import com.espressif.idf.core.ExecutableFinder;
 import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.build.ESP32C3ToolChain;
 import com.espressif.idf.core.build.ESPToolChainProvider;
 import com.espressif.idf.core.logging.Logger;
@@ -396,5 +402,44 @@ public class IDFUtil
 				+ IDFConstants.ESP_TOOL_FOLDER_PY + IPath.SEPARATOR + IDFConstants.ESP_TOOL_FOLDER + IPath.SEPARATOR
 				+ IDFConstants.ESP_TOOL_SCRIPT;
 		return new File(esp_tool_script);
+	}
+	
+	public static String getEspIdfVersion()
+	{
+		if (IDFUtil.getIDFPath() != null && IDFUtil.getIDFPythonEnvPath() != null)
+		{
+			List<String> commands = new ArrayList<>();
+			commands.add(IDFUtil.getIDFPythonEnvPath());
+			commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
+			commands.add("--version"); //$NON-NLS-1$
+			Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
+			return runCommand(commands, envMap);
+		}
+		
+		return ""; //$NON-NLS-1$
+	}
+	
+	private static String runCommand(List<String> arguments, Map<String, String> env)
+	{
+		String exportCmdOp = ""; //$NON-NLS-1$
+		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
+		try
+		{
+			IStatus status = processRunner.runInBackground(arguments, Path.ROOT, env);
+			if (status == null)
+			{
+				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
+				return exportCmdOp;
+			}
+
+			// process export command output
+			exportCmdOp = status.getMessage();
+			Logger.log(exportCmdOp);
+		}
+		catch (Exception e1)
+		{
+			Logger.log(IDFCorePlugin.getPlugin(), e1);
+		}
+		return exportCmdOp;
 	}
 }

@@ -55,12 +55,11 @@ public class IDFSizeOverviewComposite
 		ec2.setClient(overviewComp);
 
 		overviewJson = getIDFSizeOverviewData(file, targetName);
-		long dram_data = (long) overviewJson.get(IDFSizeConstants.DRAM_DATA);
+		long dram_data = (long) overviewJson.get(IDFSizeConstants.AVAILABLE_DIRAM);
 		long dram_bss = (long) overviewJson.get(IDFSizeConstants.DRAM_BSS);
 		long flash_code = (long) overviewJson.get(IDFSizeConstants.FLASH_CODE);
-		long flash_rodata = (long) overviewJson.get(IDFSizeConstants.FLASH_RODATA);
+		long flash_rodata = (long) overviewJson.get(IDFSizeConstants.FLASH_RODATA_OVERVIEW);
 		long total_size = (long) overviewJson.get(IDFSizeConstants.TOTAL_SIZE);
-
 		Label sizeLbl = toolkit.createLabel(overviewComp, Messages.IDFSizeOverviewComposite_TotalSize);
 		Label sizeVal = toolkit.createLabel(overviewComp, convertToKB(total_size));
 
@@ -108,7 +107,7 @@ public class IDFSizeOverviewComposite
 		}
 
 	}
-
+	
 	private void plotSingleBar()
 	{
 		// esps2-s2 specific
