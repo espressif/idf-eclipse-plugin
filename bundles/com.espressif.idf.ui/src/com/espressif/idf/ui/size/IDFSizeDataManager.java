@@ -58,6 +58,7 @@ public class IDFSizeDataManager
 		String pythonExecutablePath = preconditionsCheck();
 		List<String> commandArgs = getCommandArgs(pythonExecutablePath, mapFile, targetName);
 		String detailsJsonOp = getOutput(mapFile, commandArgs);
+		detailsJsonOp = detailsJsonOp.replace("NaN", "0"); //$NON-NLS-1$ //$NON-NLS-2$ 
 		if (!StringUtil.isEmpty(detailsJsonOp))
 		{
 			return getJSON(detailsJsonOp);

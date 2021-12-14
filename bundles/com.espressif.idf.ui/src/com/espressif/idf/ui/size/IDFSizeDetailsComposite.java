@@ -31,7 +31,7 @@ public class IDFSizeDetailsComposite
 	private TreeViewer treeViewer;
 	private String columnProperties[] = new String[] { "File Name", "DRAM .data", "DRAM .bss", "DIRAM", "IRAM", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			"Flash Code", "Flash rodata", "Other", "Total" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-
+	
 	public void createPartControl(Composite parent, IFile iFile)
 	{
 		PatternFilter patternFilter = new IDFSizePatternFilter();
@@ -58,7 +58,10 @@ public class IDFSizeDetailsComposite
 		treeViewer.getTree().setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		IDFSizeComparator comparator = new IDFSizeComparator();
-
+		if (IDFSizeConstants.OTHER != "other") { //$NON-NLS-1$ 
+			columnProperties[7] = "Ram Total"; //$NON-NLS-1$ 
+			columnProperties[8] = "Flash Total"; //$NON-NLS-1$ 
+		}
 		for (int i = 0; i < columnProperties.length; i++)
 		{
 			TreeColumn tc = new TreeColumn(tree, SWT.NONE, i);
