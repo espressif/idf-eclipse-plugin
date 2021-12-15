@@ -53,6 +53,7 @@ public class Messages {
 
 	public static String MissingDebugConfigurationTitle;
 	public static String DebugConfigurationNotFoundMsg;
+	public static String AppLvlTracingJob;
 	// ------------------------------------------------------------------------
 
 	static {

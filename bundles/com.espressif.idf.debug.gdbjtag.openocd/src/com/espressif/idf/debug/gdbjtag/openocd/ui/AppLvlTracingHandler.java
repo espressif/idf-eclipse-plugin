@@ -29,31 +29,32 @@ import com.espressif.idf.debug.gdbjtag.openocd.dsf.LaunchConfigurationDelegate;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.tracing.AppLvlTracingDialog;
 
+import ilg.gnumcueclipse.debug.gdbjtag.DebugUtils;
+
 @SuppressWarnings("restriction")
 public class AppLvlTracingHandler extends AbstractHandler
 {
+
+	private IResource project;
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
 		Shell activeShell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		IResource projectOut = EclipseHandler.getSelectedProject(IPageLayout.ID_PROJECT_EXPLORER);
-
-		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-		Job job = new Job("AppLvlTracing")
+		project = projectOut;
+		if (projectOut == null)
 		{
-
+			project = EclipseHandler.getSelectedResource((IEvaluationContext) event.getApplicationContext());
+		}
+		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+		Job job = new Job(Messages.AppLvlTracingJob)
+		{
 			@Override
 			protected IStatus run(IProgressMonitor monitor)
 			{
-				IResource project = projectOut;
-				if (projectOut == null)
-				{
-					project = EclipseHandler.getSelectedResource((IEvaluationContext) event.getApplicationContext());
-				}
-
 				try
-				{
+				{		
 					for (ILaunchConfiguration config : launchManager.getLaunchConfigurations())
 					{
 						IResource[] mappedResource = config.getMappedResources();
@@ -63,26 +64,8 @@ public class AppLvlTracingHandler extends AbstractHandler
 							if (cg.getPreferredLaunchDelegate(
 									ICDTLaunchConfigurationConstants.DEBUGGER_MODE_RUN) instanceof LaunchConfigurationDelegate)
 							{
-								LaunchConfigurationDelegate debugDelegate = (LaunchConfigurationDelegate) cg
-										.getPreferredLaunchDelegate(ICDTLaunchConfigurationConstants.DEBUGGER_MODE_RUN);
-								debugDelegate.ignoreGdbClient();
-								cg.launch(ICDTLaunchConfigurationConstants.DEBUGGER_MODE_RUN, null, false);
-								debugDelegate.doNotIngoreGdbClient();
-								Display.getDefault().asyncExec(new Runnable()
-								{
-									public void run()
-									{
-										IResource project = projectOut;
-										if (projectOut == null)
-										{
-											project = EclipseHandler.getSelectedResource((IEvaluationContext) event.getApplicationContext());
-										}
-										AppLvlTracingDialog dialog = new AppLvlTracingDialog(activeShell);
-										dialog.setProjectPath(project);
-										dialog.open();
-									}
-								});
-
+								launchOpenocdFromLaunchConfiguration(cg);
+								openAppLvlTracingDialog(activeShell);
 								return Status.OK_STATUS;
 							}
 
@@ -100,12 +83,33 @@ public class AppLvlTracingHandler extends AbstractHandler
 						public void run()
 						{
 							MessageDialog.openError(activeShell, Messages.OpenOcdFailedMsg, e.getMessage());
-
 						}
 					});
 					Logger.log(e);
 				}
 				return Status.OK_STATUS;
+			}
+
+			private void openAppLvlTracingDialog(Shell activeShell) {
+				Display.getDefault().asyncExec(new Runnable()
+				{
+					public void run()
+					{
+						AppLvlTracingDialog dialog = new AppLvlTracingDialog(activeShell);
+						dialog.setProjectPath(project);
+						dialog.open();
+					}
+				});
+			}
+
+			private void launchOpenocdFromLaunchConfiguration(LaunchConfiguration config) throws CoreException {
+				if (!DebugUtils.isLaunchConfigurationStarted(config)) {
+					LaunchConfigurationDelegate debugDelegate = (LaunchConfigurationDelegate) config
+							.getPreferredLaunchDelegate(ICDTLaunchConfigurationConstants.DEBUGGER_MODE_RUN);
+					debugDelegate.ignoreGdbClient();
+					config.launch(ICDTLaunchConfigurationConstants.DEBUGGER_MODE_RUN, null, false);
+					debugDelegate.doNotIngoreGdbClient();
+				}
 			}
 		};
 
@@ -136,8 +140,7 @@ public class AppLvlTracingHandler extends AbstractHandler
 					}
 					catch (CoreException e)
 					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						Logger.log(e);
 					}
 				}
 			}
