@@ -66,6 +66,7 @@ import com.espressif.idf.ui.tools.wizard.pages.ManageToolsInstallationWizardPage
 @SuppressWarnings("restriction")
 public class ToolsInstallationHandler extends Thread
 {
+	private static final String TOOL_INSTALLATION_JOB = "ToolInstallationJobFor"; //$NON-NLS-1$
 	private static final String PATH_SPLITOR = "/"; //$NON-NLS-1$
 	private static final String GZ_EXT = "gz"; //$NON-NLS-1$
 	private static final String ZIP_EXT = "zip"; //$NON-NLS-1$
