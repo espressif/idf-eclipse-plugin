@@ -18,6 +18,7 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.EclipseUtil;
 import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.handlers.NewProjectHandlerUtil;
@@ -30,6 +31,11 @@ import com.espressif.idf.ui.handlers.NewProjectHandlerUtil;
  */
 public class InstallCommandHandler
 {
+	private static final String DOUBLE_QUOTES = "\""; //$NON-NLS-1$
+	private static final String ADD_DEPENDENCY_COMMAND = "add-dependency"; //$NON-NLS-1$
+	private static final String EQUALITY = "=="; //$NON-NLS-1$
+	private static final String ASTERIK = "*"; //$NON-NLS-1$
+	private static final String FORWARD_SLASH = "/"; //$NON-NLS-1$
 	private String name;
 	private String namespace;
 	private String version;
@@ -54,8 +60,18 @@ public class InstallCommandHandler
 		List<String> commands = new ArrayList<>();
 		commands.add(IDFUtil.getIDFPythonEnvPath());
 		commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
-		commands.add("add-dependency"); //$NON-NLS-1$
-		commands.add(namespace.concat("/").concat(name.concat("==").concat(version))); //$NON-NLS-1$ //$NON-NLS-2$
+		commands.add(ADD_DEPENDENCY_COMMAND);
+		if (StringUtil.isEmpty(version))
+		{
+			commands.add(DOUBLE_QUOTES.concat(namespace.concat(FORWARD_SLASH).concat(name.concat(ASTERIK)))
+					.concat(DOUBLE_QUOTES));
+		}
+		else
+		{
+			commands.add(
+					DOUBLE_QUOTES.concat(namespace.concat(FORWARD_SLASH).concat(name.concat(EQUALITY).concat(version)))
+							.concat(DOUBLE_QUOTES));
+		}
 
 		new IDFConsole().getConsoleStream().print((runCommand(commands, pathToProject, envMap)));
 
