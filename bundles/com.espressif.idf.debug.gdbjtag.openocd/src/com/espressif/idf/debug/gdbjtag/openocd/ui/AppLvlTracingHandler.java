@@ -7,6 +7,10 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.expressions.IEvaluationContext;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
@@ -26,61 +30,87 @@ import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.tracing.AppLvlTracingDialog;
 
 @SuppressWarnings("restriction")
-public class AppLvlTracingHandler extends AbstractHandler {
+public class AppLvlTracingHandler extends AbstractHandler
+{
 
 	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
-
+	public Object execute(ExecutionEvent event) throws ExecutionException
+	{
 		Shell activeShell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-		IResource project = EclipseHandler.getSelectedProject(IPageLayout.ID_PROJECT_EXPLORER);
-		if (project == null)
-		{
-			project = EclipseHandler.getSelectedResource((IEvaluationContext) event.getApplicationContext());
-		}
+		IResource projectOut = EclipseHandler.getSelectedProject(IPageLayout.ID_PROJECT_EXPLORER);
+
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-		ILaunchConfiguration[] configs;
-		try
+		Job job = new Job("AppLvlTracing")
 		{
-			configs = launchManager.getLaunchConfigurations();
-			for (ILaunchConfiguration config : configs)
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor)
 			{
-				IResource[] mappedResource = config.getMappedResources();
-				if (mappedResource != null && mappedResource[0].getProject() == project)
+				IResource project = projectOut;
+				if (projectOut == null)
 				{
-					LaunchConfiguration cg = (LaunchConfiguration) config;
-					if (cg.getPreferredLaunchDelegate(
-							ICDTLaunchConfigurationConstants.DEBUGGER_MODE_RUN) instanceof LaunchConfigurationDelegate)
+					project = EclipseHandler.getSelectedResource((IEvaluationContext) event.getApplicationContext());
+				}
+
+				try
+				{
+					for (ILaunchConfiguration config : launchManager.getLaunchConfigurations())
 					{
-						LaunchConfigurationDelegate debugDelegate = (LaunchConfigurationDelegate) cg
-								.getPreferredLaunchDelegate(ICDTLaunchConfigurationConstants.DEBUGGER_MODE_RUN);
-						debugDelegate.ignoreGdbClient();
-						cg.launch(ICDTLaunchConfigurationConstants.DEBUGGER_MODE_RUN, null, false);
-						debugDelegate.doNotIngoreGdbClient();
-						AppLvlTracingDialog dialog = new AppLvlTracingDialog(activeShell);
-						dialog.setProjectPath(project);
-						dialog.open();
-						return null;
+						IResource[] mappedResource = config.getMappedResources();
+						if (mappedResource != null && mappedResource[0].getProject() == project)
+						{
+							LaunchConfiguration cg = (LaunchConfiguration) config;
+							if (cg.getPreferredLaunchDelegate(
+									ICDTLaunchConfigurationConstants.DEBUGGER_MODE_RUN) instanceof LaunchConfigurationDelegate)
+							{
+								LaunchConfigurationDelegate debugDelegate = (LaunchConfigurationDelegate) cg
+										.getPreferredLaunchDelegate(ICDTLaunchConfigurationConstants.DEBUGGER_MODE_RUN);
+								debugDelegate.ignoreGdbClient();
+								cg.launch(ICDTLaunchConfigurationConstants.DEBUGGER_MODE_RUN, null, false);
+								debugDelegate.doNotIngoreGdbClient();
+								Display.getDefault().asyncExec(new Runnable()
+								{
+									public void run()
+									{
+										IResource project = projectOut;
+										if (projectOut == null)
+										{
+											project = EclipseHandler.getSelectedResource((IEvaluationContext) event.getApplicationContext());
+										}
+										AppLvlTracingDialog dialog = new AppLvlTracingDialog(activeShell);
+										dialog.setProjectPath(project);
+										dialog.open();
+									}
+								});
+
+								return Status.OK_STATUS;
+							}
+
+						}
 					}
-
+					showMessage(Messages.DebugConfigurationNotFoundMsg);
 				}
-			}
-			showMessage(Messages.DebugConfigurationNotFoundMsg);
-		}
 
-		catch (CoreException e)
-		{
-			Display.getDefault().asyncExec(new Runnable()
-			{
-
-				@Override
-				public void run()
+				catch (CoreException e)
 				{
-					MessageDialog.openError(activeShell, Messages.OpenOcdFailedMsg, e.getMessage());
+					Display.getDefault().asyncExec(new Runnable()
+					{
 
+						@Override
+						public void run()
+						{
+							MessageDialog.openError(activeShell, Messages.OpenOcdFailedMsg, e.getMessage());
+
+						}
+					});
+					Logger.log(e);
 				}
-			});
-			Logger.log(e);
-		}
+				return Status.OK_STATUS;
+			}
+		};
+
+		job.schedule();
+
 		return null;
 	}
 
