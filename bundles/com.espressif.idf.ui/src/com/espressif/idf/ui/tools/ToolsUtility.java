@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.util.Optional;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
@@ -128,6 +129,14 @@ public class ToolsUtility
 		{
 			Logger.log(e);
 		}
+	}
+	
+	public static String getReadableSizeMB(double size)
+	{
+		size /= 1024; // KB
+		size /= 1024; // MB
+		DecimalFormat df = new DecimalFormat("0.00");
+		return String.valueOf(df.format(size)).concat(" MB");
 	}
 
 }

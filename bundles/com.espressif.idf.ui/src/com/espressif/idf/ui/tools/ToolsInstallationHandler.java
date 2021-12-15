@@ -10,10 +10,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.console.MessageConsoleStream;
 
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.tools.vo.VersionsVO;
@@ -26,6 +33,7 @@ import com.espressif.idf.ui.tools.vo.VersionsVO;
  */
 public class ToolsInstallationHandler
 {
+	private static final String TOOL_INSTALLATION_JOB = "ToolInstallationJobFor"; //$NON-NLS-1$
 	private static final String PATH_SPLITOR = "/"; //$NON-NLS-1$
 	private static final String GZ_EXT = "gz"; //$NON-NLS-1$
 	private static final String ZIP_EXT = "zip"; //$NON-NLS-1$
@@ -59,27 +67,77 @@ public class ToolsInstallationHandler
 
 			boolean download = !ToolsUtility.isToolInstalled(versionsVO.getVersionOsMap().get(key).getParentName(),
 					versionsVO.getName());
+			download = true;
+			console.println(
+					Messages.InstallingToolMessage.concat(versionsVO.getVersionOsMap().get(key).getParentName()));
 			if (download)
 			{
-				try
+				Job job = new Job(TOOL_INSTALLATION_JOB.concat(versionsVO.getVersionOsMap().get(key).getParentName()))
 				{
-					String nameOfDownloadedFile = downloadTool(key, versionsVO);
-					String extractionDir = extractDownloadedFile(nameOfDownloadedFile,
-							versionsVO.getVersionOsMap().get(key).getParentName(), versionsVO.getName());
-					// TO DO calling updatePaths
-
-				}
-				catch (Exception e)
-				{
-					Logger.log(e);
-				}
+					@Override
+					protected IStatus run(IProgressMonitor monitor)
+					{
+						try
+						{
+							String nameOfDownloadedFile = downloadTool(key, versionsVO);
+							String extractionDir = extractDownloadedFile(nameOfDownloadedFile,
+									versionsVO.getVersionOsMap().get(key).getParentName(), versionsVO.getName());
+							updatePaths(extractionDir, versionsVO.getVersionOsMap().get(key).getParentName(),
+									versionsVO.getVersionOsMap().get(key).getExportPaths());
+						}
+						catch (Exception e)
+						{
+							Logger.log(e);
+							return Status.error(e.getMessage());
+						}
+						return Status.OK_STATUS;
+					}
+				};
+				job.schedule();
 			}
 		}
 	}
 
 	private void updatePaths(String toolPath, String toolName, List<String> exportPaths)
 	{
-		// TO DO
+		console.println(Messages.UpdatingPathMessage);
+		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+		String pathValue = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH);
+		StringBuilder updatedPath = new StringBuilder();
+		String[] splittedPaths = pathValue.split(File.pathSeparator);
+		int i = 0;
+		StringBuilder exportPathBuilder = new StringBuilder();
+		exportPathBuilder.append(toolPath);
+		for (String path : splittedPaths)
+		{
+			i++;
+			if (path.contains(toolName))
+			{
+				console.println(Messages.PreviousToolMessage.concat(path));
+			}
+			else
+			{
+				updatedPath.append(path);
+				if (i < splittedPaths.length)
+				{
+					updatedPath.append(File.pathSeparator);
+				}
+			}
+		}
+
+		for (String exportPath : exportPaths)
+		{
+			exportPathBuilder.append(exportPath);
+			exportPathBuilder.append(PATH_SPLITOR);
+		}
+
+		Path pathToExport = Paths.get(exportPathBuilder.toString()); // for correcting the path error in windows
+
+		console.println(Messages.UpdateToolPathMessage.concat(pathToExport.toAbsolutePath().toString()));
+		updatedPath.append(pathToExport.toAbsolutePath().toString());
+
+		console.println(Messages.SystemPathMessage.concat(updatedPath.toString()));
+		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, updatedPath.toString());
 	}
 
 	private String extractDownloadedFile(String downloadedName, String toolFolderName, String extractionName)
@@ -90,6 +148,8 @@ public class ToolsInstallationHandler
 		{
 			toolsFolder.mkdir();
 		}
+
+		console.println(Messages.ExtractionTextMessage.concat(downloadedName));
 
 		extractionName = ToolsUtility.ESPRESSIF_HOME_TOOLS_DIR.concat(PATH_SPLITOR).concat(toolFolderName)
 				.concat(PATH_SPLITOR).concat(extractionName).concat(PATH_SPLITOR);
@@ -105,36 +165,53 @@ public class ToolsInstallationHandler
 					extractionName);
 		}
 
+		console.println(Messages.ExtractionCompletedMessage);
 		return extractionName;
 	}
 
 	private String downloadTool(String key, VersionsVO versionsVO) throws Exception
 	{
-		FileDownloader fileDownloader = new FileDownloader();
-		String url = versionsVO.getVersionOsMap().get(key).getUrl();
-		fileDownloader.url = new URL(url);
-		String[] split = fileDownloader.url.getPath().split(PATH_SPLITOR);
-		fileDownloader.dirToDownloadTo = ToolsUtility.ESPRESSIF_HOME_DIR;
-		fileDownloader.name = split[split.length - 1];
-		fileDownloader.totalSize = versionsVO.getVersionOsMap().get(key).getSize();
-
-		Thread downloadingThread = new Thread(fileDownloader);
-		downloadingThread.start();
-
-		while (fileDownloader.downloading)
+		String[] split = versionsVO.getVersionOsMap().get(key).getUrl().split(PATH_SPLITOR);
+		URL url = new URL(versionsVO.getVersionOsMap().get(key).getUrl());
+		String dirToDownloadTo = ToolsUtility.ESPRESSIF_HOME_DIR;
+		String name = split[split.length - 1];
+		double totalSize = versionsVO.getVersionOsMap().get(key).getSize();
+		double completedSize = 0;
+		try
 		{
-			console.println(Messages.DownloadFileText.concat(url));
-			console.println(Messages.DownloadProgressText + fileDownloader.completedSize + PATH_SPLITOR
-					+ fileDownloader.totalSize);
-			Thread.sleep(500);
-			idfConsole.clearConsole();
+			HttpURLConnection httpConnection = (HttpURLConnection) (url.openConnection());
+			BufferedInputStream in = new BufferedInputStream(httpConnection.getInputStream());
+			FileOutputStream fos = new FileOutputStream(dirToDownloadTo.concat(PATH_SPLITOR).concat(name));
+			BufferedOutputStream bout = new BufferedOutputStream(fos, 1024);
+			byte[] data = new byte[4096];
+			int x = 0;
+			console.println(Messages.DownloadFileText.concat(versionsVO.getVersionOsMap().get(key).getUrl()));
+			while ((x = in.read(data, 0, 4096)) >= 0)
+			{
+				completedSize += x;
+				bout.write(data, 0, x);
+				console.println(Messages.DownloadProgressText + ToolsUtility.getReadableSizeMB(completedSize)
+						+ PATH_SPLITOR + ToolsUtility.getReadableSizeMB(totalSize));
+			}
+
+			bout.close();
+			in.close();
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
 		}
 
-		return fileDownloader.name;
+		return name;
 	}
 
-	private class FileDownloader implements Runnable
+	private class FileDownloader extends Job
 	{
+		public FileDownloader(String name)
+		{
+			super(name);
+		}
+
 		private URL url;
 		private String dirToDownloadTo;
 		private String name;
@@ -143,10 +220,11 @@ public class ToolsInstallationHandler
 		private double completedSize;
 
 		@Override
-		public void run()
+		protected IStatus run(IProgressMonitor monitor)
 		{
 			try
 			{
+				console.println(Messages.DownloadFileText.concat(url.toString()));
 				downloading = true;
 				HttpURLConnection httpConnection = (HttpURLConnection) (url.openConnection());
 				BufferedInputStream in = new BufferedInputStream(httpConnection.getInputStream());
@@ -157,6 +235,7 @@ public class ToolsInstallationHandler
 				while ((x = in.read(data, 0, 1024)) >= 0)
 				{
 					completedSize += x;
+					console.println(Messages.DownloadProgressText + completedSize + PATH_SPLITOR + totalSize);
 					bout.write(data, 0, x);
 				}
 
@@ -170,6 +249,7 @@ public class ToolsInstallationHandler
 			}
 
 			downloading = false;
+			return null;
 		}
 
 	}

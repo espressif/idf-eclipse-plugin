@@ -20,6 +20,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.espressif.idf.ui.tools.Messages;
+import com.espressif.idf.ui.tools.ToolsInstallationHandler;
 import com.espressif.idf.ui.tools.ToolsUtility;
 import com.espressif.idf.ui.tools.images.ToolsImagesCache;
 import com.espressif.idf.ui.tools.vo.ToolsVO;
@@ -36,7 +37,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.wb.swt.ResourceManager;
 
 /**
  * Shell for displaying tools information on UI
@@ -46,6 +46,7 @@ import org.eclipse.wb.swt.ResourceManager;
  */
 public class ManageToolsInstallationShell
 {
+	private static final String ESP_IDF_TOOLS_MANAGER = "ESP-IDF Tools Manager";
 	private static final String WHITE = "white"; //$NON-NLS-1$
 	private static final String MAC_OS = "mac"; //$NON-NLS-1$
 	private static final String LINUX_OS = "linux"; //$NON-NLS-1$
@@ -64,7 +65,7 @@ public class ManageToolsInstallationShell
 		this.toolsVOs = toolsVOs;
 		this.display = PlatformUI.getWorkbench().getDisplay();
 		this.shell = new Shell(display, SWT.TITLE | SWT.CLOSE);
-		shell.setImage(ResourceManager.getPluginImage("com.espressif.idf.ui", "icons/ESP-IDF Tools Manager.png")); //$NON-NLS-1$ //$NON-NLS-2$
+		shell.setImage(ToolsImagesCache.getImage(ESP_IDF_TOOLS_MANAGER.concat(PNG_EXTENSION)));
 		shell.setText(Messages.ToolsManagerShellHeading);
 		shell.setLayout(new FillLayout(SWT.VERTICAL));
 
@@ -316,7 +317,9 @@ public class ManageToolsInstallationShell
 		public void widgetSelected(SelectionEvent e)
 		{
 			List<VersionsVO> versionsVOs = getSelectedTools();
-
+			ToolsInstallationHandler toolsInstallationHandler = new ToolsInstallationHandler(versionsVOs);
+			shell.close();
+			toolsInstallationHandler.installTools();
 		}
 
 		private List<VersionsVO> getSelectedTools()

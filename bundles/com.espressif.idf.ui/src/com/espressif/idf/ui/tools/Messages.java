@@ -33,6 +33,14 @@ public class Messages extends NLS
 	public static String Installed;
 	public static String DownloadFileText;
 	public static String DownloadProgressText;
+	public static String ExtractionTextMessage;
+	public static String InstallingToolMessage;
+	public static String UpdatingPathMessage;
+	public static String PreviousToolMessage;
+	public static String UpdateToolPathMessage;
+	public static String SystemPathMessage;
+	public static String ExtractionCompletedMessage;
+
 	static
 	{
 		// initialize resource bundle
