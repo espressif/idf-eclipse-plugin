@@ -8,6 +8,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Path;
@@ -46,6 +47,71 @@ public class ToolsInstallationHandler
 		this.versionsVOs = versionsVOs;
 		this.idfConsole = new IDFConsole();
 		this.console = idfConsole.getConsoleStream();
+	}
+
+	public void deleteTools()
+	{
+		for (VersionsVO versionsVO : versionsVOs)
+		{
+			deleteTool(versionsVO);
+		}
+	}
+
+	private void deleteTool(VersionsVO versionsVO)
+	{
+		for (String key : versionsVO.getVersionOsMap().keySet())
+		{
+			if (!versionsVO.getVersionOsMap().get(key).isSelected())
+			{
+				continue;
+			}
+
+			removeToolFromPath(versionsVO.getVersionOsMap().get(key).getParentName());
+			removeToolDirectory(versionsVO.getVersionOsMap().get(key).getParentName());
+		}
+	}
+
+	private void removeToolDirectory(String toolName)
+	{
+		try
+		{
+			console.println("Removing Directory for Tool: ".concat(toolName));
+			ToolsUtility.removeToolDirectory(toolName);
+		}
+		catch (IOException e)
+		{
+			Logger.log(e);
+		}
+	}
+
+	private void removeToolFromPath(String toolName)
+	{
+		console.println(Messages.UpdatingPathMessage);
+		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+		String pathValue = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH);
+		StringBuilder updatedPath = new StringBuilder();
+		String[] splittedPaths = pathValue.split(File.pathSeparator);
+		int i = splittedPaths.length;
+		for (String path : splittedPaths)
+		{
+			i++;
+			if (path.contains(toolName))
+			{
+				console.println(Messages.RemovedPathMessage.concat(path));
+				continue;
+			}
+			else
+			{
+				updatedPath.append(path);
+				if (i < splittedPaths.length)
+				{
+					updatedPath.append(File.pathSeparator);
+				}
+			}
+		}
+
+		console.println(Messages.SystemPathMessage.concat(updatedPath.toString()));
+		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, updatedPath.toString());
 	}
 
 	public void installTools()
@@ -203,54 +269,5 @@ public class ToolsInstallationHandler
 		}
 
 		return name;
-	}
-
-	private class FileDownloader extends Job
-	{
-		public FileDownloader(String name)
-		{
-			super(name);
-		}
-
-		private URL url;
-		private String dirToDownloadTo;
-		private String name;
-		private boolean downloading;
-		private double totalSize;
-		private double completedSize;
-
-		@Override
-		protected IStatus run(IProgressMonitor monitor)
-		{
-			try
-			{
-				console.println(Messages.DownloadFileText.concat(url.toString()));
-				downloading = true;
-				HttpURLConnection httpConnection = (HttpURLConnection) (url.openConnection());
-				BufferedInputStream in = new BufferedInputStream(httpConnection.getInputStream());
-				FileOutputStream fos = new FileOutputStream(dirToDownloadTo.concat(PATH_SPLITOR).concat(name));
-				BufferedOutputStream bout = new BufferedOutputStream(fos, 1024);
-				byte[] data = new byte[1024];
-				int x = 0;
-				while ((x = in.read(data, 0, 1024)) >= 0)
-				{
-					completedSize += x;
-					console.println(Messages.DownloadProgressText + completedSize + PATH_SPLITOR + totalSize);
-					bout.write(data, 0, x);
-				}
-
-				bout.close();
-				in.close();
-			}
-			catch (Exception e)
-			{
-				Logger.log(e);
-				downloading = false;
-			}
-
-			downloading = false;
-			return null;
-		}
-
 	}
 }

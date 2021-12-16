@@ -40,6 +40,8 @@ public class Messages extends NLS
 	public static String UpdateToolPathMessage;
 	public static String SystemPathMessage;
 	public static String ExtractionCompletedMessage;
+	public static String RemovedPathMessage;
+	public static String RemovingDirectoryMessage;
 
 	static
 	{

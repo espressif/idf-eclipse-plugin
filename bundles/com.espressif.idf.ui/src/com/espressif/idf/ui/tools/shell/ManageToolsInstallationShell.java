@@ -128,6 +128,7 @@ public class ManageToolsInstallationShell
 		Button btnDeleteTools = new Button(composite, SWT.NONE);
 		btnDeleteTools.setBounds(0, 0, 75, 25);
 		btnDeleteTools.setText(Messages.DeleteToolsText);
+		btnDeleteTools.addSelectionListener(new DeleteButtonSelectionAdapter());
 	}
 
 	private void addItemsToTree(Tree toolsTree)
@@ -224,6 +225,23 @@ public class ManageToolsInstallationShell
 		textArr[3] = toolsVO.getDescription();
 		return textArr;
 	}
+	
+	private List<VersionsVO> getSelectedTools()
+	{
+		List<VersionsVO> versionsVOs = new ArrayList<>();
+		for (TreeItem item : toolsTree.getItems())
+		{
+			for (TreeItem subItem : item.getItems())
+			{
+				if (subItem.getChecked())
+				{
+					versionsVOs.add((VersionsVO) subItem.getData());
+				}
+			}
+		}
+
+		return versionsVOs;
+	}
 
 	public void openShell()
 	{
@@ -310,6 +328,18 @@ public class ManageToolsInstallationShell
 			}
 		}
 	}
+	
+	private class DeleteButtonSelectionAdapter extends SelectionAdapter
+	{
+		@Override
+		public void widgetSelected(SelectionEvent e)
+		{
+			List<VersionsVO> versionsVOs = getSelectedTools();
+			ToolsInstallationHandler toolsInstallationHandler = new ToolsInstallationHandler(versionsVOs);
+			shell.close();
+			toolsInstallationHandler.deleteTools();
+		}		
+	}
 
 	private class InstallButtonSelectionAdapter extends SelectionAdapter
 	{
@@ -320,23 +350,6 @@ public class ManageToolsInstallationShell
 			ToolsInstallationHandler toolsInstallationHandler = new ToolsInstallationHandler(versionsVOs);
 			shell.close();
 			toolsInstallationHandler.installTools();
-		}
-
-		private List<VersionsVO> getSelectedTools()
-		{
-			List<VersionsVO> versionsVOs = new ArrayList<>();
-			for (TreeItem item : toolsTree.getItems())
-			{
-				for (TreeItem subItem : item.getItems())
-				{
-					if (subItem.getChecked())
-					{
-						versionsVOs.add((VersionsVO) subItem.getData());
-					}
-				}
-			}
-
-			return versionsVOs;
 		}
 	}
 }

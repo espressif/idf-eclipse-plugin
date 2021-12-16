@@ -6,6 +6,7 @@ package com.espressif.idf.ui.tools;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -22,6 +23,7 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.utils.IOUtils;
 
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.FileUtil;
 
 /**
  * Utility class for Tools Management operations
@@ -51,6 +53,17 @@ public class ToolsUtility
 		}
 
 		return false;
+	}
+
+	public static void removeToolDirectory(String toolName) throws IOException
+	{
+		File toolDirectory = new File(ESPRESSIF_HOME_TOOLS_DIR.concat("/").concat(toolName));
+		if (!toolDirectory.exists())
+		{
+			return;
+		}
+		
+		FileUtil.deleteDirectory(toolDirectory);
 	}
 
 	public static String getFileExtension(String filename)
@@ -130,7 +143,7 @@ public class ToolsUtility
 			Logger.log(e);
 		}
 	}
-	
+
 	public static String getReadableSizeMB(double size)
 	{
 		size /= 1024; // KB
