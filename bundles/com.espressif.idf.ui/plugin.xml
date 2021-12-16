@@ -281,6 +281,22 @@
                </iterate>
             </visibleWhen>
          </command>
+                  <command
+               commandId="com.espressif.idf.ui.appLvlTracing"
+               icon="icons/ESP-IDF Application Level Tracing.png"
+               label="ESP-IDF: Application Level Tracing"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <iterate
+                     ifEmpty="false"
+                     operator="or">
+                  <instanceof
+                        value="org.eclipse.core.resources.IResource">
+                  </instanceof>
+               </iterate>
+            </visibleWhen>
+         </command>
          <command
                commandId="com.espressif.idf.ui.heapDumpAnalysis"
                icon="icons/espressif.png"
@@ -360,6 +376,9 @@
       <handler
             class="com.espressif.idf.ui.install.IDFDownloadHandler"
             commandId="com.espressif.idf.ui.commands.installespidf">
+      </handler>
+      <handler
+            commandId="com.espressif.idf.ui.appLvlTracing">
       </handler>
    </extension>
    	<extension point="org.eclipse.ui.preferencePages">

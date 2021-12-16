@@ -80,6 +80,7 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 	private boolean fIsNonStopSession = false;
 	private boolean fDoStartGdbServer = false;
 	private boolean fDoStartGdbClient = true;
+	private boolean fIgnoreGdbClient = false;
 
 	// ------------------------------------------------------------------------
 
@@ -108,6 +109,15 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		// return new GdbJtagDebugServicesFactory(version);
 	}
 
+	public void ignoreGdbClient()
+	{
+		fIgnoreGdbClient = true;
+	}
+
+	public void doNotIngoreGdbClient()
+	{
+		fIgnoreGdbClient = false;
+	}
 	/**
 	 * This method is called first when starting a debug session.
 	 */
@@ -121,7 +131,10 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		}
 
 		fDoStartGdbServer = Configuration.getDoStartGdbServer(configuration);
-		fDoStartGdbClient = Configuration.getDoStartGdbClient(configuration);
+		if (!fIgnoreGdbClient)
+		{
+			fDoStartGdbClient = Configuration.getDoStartGdbClient(configuration);
+		}
 
 		DebugUtils.checkLaunchConfigurationStarted(configuration);
 
@@ -140,6 +153,12 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		return version;
 	}
 
+	public void launchWithoutGdbClient(ILaunchConfiguration config, String mode, ILaunch launch,
+			IProgressMonitor monitor) throws CoreException
+	{
+		fDoStartGdbClient = false;
+		launch(config, mode, launch, monitor);
+	}
 	/**
 	 * After Launch.initialise(), call here to effectively launch.
 	 *
