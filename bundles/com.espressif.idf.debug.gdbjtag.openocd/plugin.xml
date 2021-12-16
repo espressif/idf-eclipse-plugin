@@ -130,7 +130,7 @@
       <command
           defaultHandler="com.espressif.idf.debug.gdbjtag.openocd.ui.AppLvlTracingHandler"
           id="com.espressif.idf.ui.appLvlTracing"
-          name="Application Level Tracing">
+          name="%command.name">
       </command>
  </extension>
 

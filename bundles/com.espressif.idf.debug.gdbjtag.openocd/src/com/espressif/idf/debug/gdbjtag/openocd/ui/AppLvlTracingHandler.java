@@ -26,6 +26,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.debug.gdbjtag.openocd.dsf.LaunchConfigurationDelegate;
+import com.espressif.idf.ui.EclipseUtil;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.tracing.AppLvlTracingDialog;
 
@@ -40,10 +41,9 @@ public class AppLvlTracingHandler extends AbstractHandler
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
-		Shell activeShell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-		IResource projectOut = EclipseHandler.getSelectedProject(IPageLayout.ID_PROJECT_EXPLORER);
-		project = projectOut;
-		if (projectOut == null)
+		Shell activeShell = EclipseUtil.getShell();
+		project= EclipseHandler.getSelectedProject(IPageLayout.ID_PROJECT_EXPLORER);
+		if (project == null)
 		{
 			project = EclipseHandler.getSelectedResource((IEvaluationContext) event.getApplicationContext());
 		}

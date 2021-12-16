@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.ui.tracing;
 
 import java.io.BufferedReader;
@@ -8,13 +12,18 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 import com.espressif.idf.core.logging.Logger;
-
+/**
+ * Tcl client class for application level tracing
+ * 
+ * @author Denys Almazov
+ *
+ */
 public class TclClient {
 	
     private Socket clientSocket;
 	private BufferedReader in;
     private BufferedWriter out;
-    
+    private final static int openOcdEOL = 0x1a; //end-of-line character for the openocd server
     public TclClient() {
     	try {
 			clientSocket = new Socket("localhost", 6666); //$NON-NLS-1$
@@ -32,7 +41,7 @@ public class TclClient {
     	if(clientSocket.isConnected()) {
     		try {
 				out.write("capture \"" + startCommand + "\""); //$NON-NLS-1$ //$NON-NLS-2$
-				out.write(0x1a);
+				out.write(openOcdEOL);
 				out.flush();
 			} catch (IOException e) {
 				Logger.log(e);
@@ -47,7 +56,7 @@ public class TclClient {
     		try {
 
 				out.write(stopCommand);
-				out.write(0x1a);
+				out.write(openOcdEOL);
 				out.flush();
 				} catch (IOException e) {
 				Logger.log(e);
@@ -61,25 +70,3 @@ public class TclClient {
 	}
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
