@@ -100,6 +100,7 @@ public class Messages extends NLS
 	public static String InstallToolsProgressShell_lblNewLabel_text;
 	public static String InstallToolsProgressShell_text_text;
 	public static String InstallToolsProgressShell_txtTxtinstalledtool_text;
+	public static String RemovingDirectoryMessage;
 
 	static
 	{

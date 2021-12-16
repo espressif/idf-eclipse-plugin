@@ -89,7 +89,6 @@ public class ToolsUtility
 		{
 			return;
 		}
-
 		FileUtil.deleteDirectory(toolDirectory);
 	}
 
@@ -170,7 +169,7 @@ public class ToolsUtility
 			Logger.log(e);
 		}
 	}
-	
+
 	public static String getReadableSizeMB(double size)
 	{
 		size /= 1024; // KB
