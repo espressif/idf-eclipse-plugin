@@ -125,4 +125,13 @@
           id="com.espressif.idf.debug.gdbjtag.openocd.heaptracing.HeapTracingBreakpointActionPage">
     </actionPage>
  </extension>
+ <extension
+       point="org.eclipse.ui.commands">
+      <command
+          defaultHandler="com.espressif.idf.debug.gdbjtag.openocd.ui.AppLvlTracingHandler"
+          id="com.espressif.idf.ui.appLvlTracing"
+          name="%command.name">
+      </command>
+ </extension>
+
 </plugin>

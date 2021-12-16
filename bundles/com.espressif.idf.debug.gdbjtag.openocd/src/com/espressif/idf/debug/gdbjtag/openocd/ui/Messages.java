@@ -28,6 +28,8 @@ public class Messages {
 
 	private static final String MESSAGES = Activator.PLUGIN_ID + ".ui.messages"; //$NON-NLS-1$
 
+	public static String OpenOcdFailedMsg;
+
 	public static String ProjectMcuPagePropertyPage_description;
 	public static String WorkspaceMcuPagePropertyPage_description;
 	public static String GlobalMcuPagePropertyPage_description;
@@ -49,6 +51,9 @@ public class Messages {
 	public static String StartupTabOpenOcdGroup;
 	public static String StartupTabFlashBeforeStart;
 
+	public static String MissingDebugConfigurationTitle;
+	public static String DebugConfigurationNotFoundMsg;
+	public static String AppLvlTracingJob;
 	// ------------------------------------------------------------------------
 
 	static {
