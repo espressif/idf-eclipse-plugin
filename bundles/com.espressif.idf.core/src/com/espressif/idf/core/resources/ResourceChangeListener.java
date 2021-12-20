@@ -40,6 +40,8 @@ import com.espressif.idf.core.logging.Logger;
 public class ResourceChangeListener implements IResourceChangeListener 
 {
 	
+	private static final String cmakeProjectNamePattern = "(project[(].+[)])"; //$NON-NLS-1$
+
 	@Override
 	public void resourceChanged(IResourceChangeEvent event)
 	{
@@ -149,7 +151,7 @@ public class ResourceChangeListener implements IResourceChangeListener
 			for (int i = 0; i < fileContent.size(); i++)
 			{
 
-				Pattern p = Pattern.compile("(project[(].+[)])"); //$NON-NLS-1$
+				Pattern p = Pattern.compile(cmakeProjectNamePattern); 
 				Matcher m = p.matcher(fileContent.get(i));
 				if (m.find())
 				{
