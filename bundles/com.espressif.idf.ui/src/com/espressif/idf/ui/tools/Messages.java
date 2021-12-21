@@ -42,7 +42,9 @@ public class Messages extends NLS
 	public static String ExtractionCompletedMessage;
 	public static String RemovedPathMessage;
 	public static String RemovingDirectoryMessage;
-
+	public static String RemoveToolMessageBox;
+	public static String RemoveToolMessageBoxTitle;
+	
 	static
 	{
 		// initialize resource bundle

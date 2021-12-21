@@ -33,6 +33,8 @@ import com.espressif.idf.core.util.FileUtil;
  */
 public class ToolsUtility
 {
+	private static final String FORWARD_SLASH = "/"; //$NON-NLS-1$
+
 	public static final String ESPRESSIF_HOME_DIR = System.getProperty("user.home").concat("/.espressif"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	public static final String ESPRESSIF_HOME_TOOLS_DIR = ESPRESSIF_HOME_DIR.concat("/tools"); //$NON-NLS-1$
@@ -46,7 +48,7 @@ public class ToolsUtility
 		}
 
 		File toolDirectory = new File(
-				ESPRESSIF_HOME_TOOLS_DIR.concat("/").concat(name).concat("/").concat(versionName));
+				ESPRESSIF_HOME_TOOLS_DIR.concat(FORWARD_SLASH).concat(name).concat(FORWARD_SLASH).concat(versionName));
 		if (toolDirectory.exists())
 		{
 			return true;
@@ -57,7 +59,7 @@ public class ToolsUtility
 
 	public static void removeToolDirectory(String toolName) throws IOException
 	{
-		File toolDirectory = new File(ESPRESSIF_HOME_TOOLS_DIR.concat("/").concat(toolName));
+		File toolDirectory = new File(ESPRESSIF_HOME_TOOLS_DIR.concat(FORWARD_SLASH).concat(toolName)); 
 		if (!toolDirectory.exists())
 		{
 			return;
@@ -68,8 +70,8 @@ public class ToolsUtility
 
 	public static String getFileExtension(String filename)
 	{
-		return Optional.ofNullable(filename).filter(f -> f.contains("."))
-				.map(f -> f.substring(filename.lastIndexOf(".") + 1)).get();
+		return Optional.ofNullable(filename).filter(f -> f.contains(".")) //$NON-NLS-1$
+				.map(f -> f.substring(filename.lastIndexOf(".") + 1)).get(); //$NON-NLS-1$
 	}
 
 	public static void extractZip(String zipFilePath, String extractDirectory)
@@ -148,8 +150,8 @@ public class ToolsUtility
 	{
 		size /= 1024; // KB
 		size /= 1024; // MB
-		DecimalFormat df = new DecimalFormat("0.00");
-		return String.valueOf(df.format(size)).concat(" MB");
+		DecimalFormat df = new DecimalFormat("0.00"); //$NON-NLS-1$
+		return String.valueOf(df.format(size)).concat(" MB"); //$NON-NLS-1$
 	}
 
 }

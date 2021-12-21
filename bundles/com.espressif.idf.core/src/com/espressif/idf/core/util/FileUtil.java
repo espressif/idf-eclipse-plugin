@@ -402,7 +402,7 @@ public class FileUtil
 		}
 		if (!file.delete())
 		{
-			throw new IOException("Failed to delete " + file);
+			throw new IOException("Failed to delete " + file); //$NON-NLS-1$
 		}
 	}
 

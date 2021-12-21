@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Text;
@@ -335,9 +336,16 @@ public class ManageToolsInstallationShell
 		public void widgetSelected(SelectionEvent e)
 		{
 			List<VersionsVO> versionsVOs = getSelectedTools();
-			ToolsInstallationHandler toolsInstallationHandler = new ToolsInstallationHandler(versionsVOs);
-			shell.close();
-			toolsInstallationHandler.deleteTools();
+			MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO);
+			messageBox.setMessage(Messages.RemoveToolMessageBox);
+			messageBox.setText(Messages.RemoveToolMessageBoxTitle);
+			int result = messageBox.open();
+			if (result == SWT.YES)
+			{
+				ToolsInstallationHandler toolsInstallationHandler = new ToolsInstallationHandler(versionsVOs);
+				shell.close();
+				toolsInstallationHandler.deleteTools();				
+			}
 		}		
 	}
 
