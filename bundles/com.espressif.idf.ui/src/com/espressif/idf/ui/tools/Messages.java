@@ -101,7 +101,9 @@ public class Messages extends NLS
 	public static String InstallToolsProgressShell_text_text;
 	public static String InstallToolsProgressShell_txtTxtinstalledtool_text;
 	public static String RemovingDirectoryMessage;
-
+	public static String RemoveToolMessageBox;
+	public static String RemoveToolMessageBoxTitle;
+	
 	static
 	{
 		// initialize resource bundle

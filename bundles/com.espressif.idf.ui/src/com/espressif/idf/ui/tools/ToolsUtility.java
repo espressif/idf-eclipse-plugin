@@ -174,8 +174,8 @@ public class ToolsUtility
 	{
 		size /= 1024; // KB
 		size /= 1024; // MB
-		DecimalFormat df = new DecimalFormat("0.00");
-		return String.valueOf(df.format(size)).concat(" MB");
+		DecimalFormat df = new DecimalFormat("0.00"); //$NON-NLS-1$
+		return String.valueOf(df.format(size)).concat(" MB"); //$NON-NLS-1$
 	}
 
 	public static Map<String, String> getAvailableToolVersions(ToolsVO toolsVo)

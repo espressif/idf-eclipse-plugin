@@ -487,7 +487,7 @@
       </command>
       <command
             id="org.eclipse.ltk.ui.refactoring.commands.deleteResources"
-            name="%command.name.11">
+            name="%command.name.delete">
       </command>
    </extension>
    <extension
