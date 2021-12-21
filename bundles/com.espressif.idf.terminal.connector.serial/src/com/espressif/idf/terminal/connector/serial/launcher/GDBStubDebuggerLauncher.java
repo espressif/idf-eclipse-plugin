@@ -37,8 +37,7 @@ import com.espressif.idf.core.util.SDKConfigJsonReader;
  * @author Ali Azam Rana
  *
  */
-public class GDBStubDebuggerLauncher
-{
+public class GDBStubDebuggerLauncher {
 
 	private static final String GDBSTUB_DEBUG_LAUNCH_CONFIG_FILE = "gdbstub_debug_launch.launch"; //$NON-NLS-1$
 	private String messageReceived;
@@ -46,28 +45,24 @@ public class GDBStubDebuggerLauncher
 	private String port;
 	private String elfFile;
 
-	public GDBStubDebuggerLauncher(String messageReceived, IProject project)
-	{
+	public GDBStubDebuggerLauncher(String messageReceived, IProject project) {
 		this.messageReceived = messageReceived;
 		this.project = project;
 	}
 
-	public void launchDebugSession() throws Exception
-	{
+	public void launchDebugSession() throws Exception {
 		parseMessageReceived();
 		createXMLConfig();
 		GDBLaunchConfig gdbLaunchConfig = new GDBLaunchConfig(project.getFile(GDBSTUB_DEBUG_LAUNCH_CONFIG_FILE));
 		gdbLaunchConfig.launch("debug", new NullProgressMonitor()); //$NON-NLS-1$
 	}
 
-	private void parseMessageReceived() throws ParseException
-	{
+	private void parseMessageReceived() throws ParseException {
 		JSONParser parser = new JSONParser();
 		Object obj = parser.parse(messageReceived);
 		JSONObject jsonObject = (JSONObject) obj;
 		port = jsonObject.get("port").toString(); //$NON-NLS-1$
-		if (Platform.OS_WIN32.equals(Platform.getOS()))
-		{
+		if (Platform.OS_WIN32.equals(Platform.getOS())) {
 			port = port.replace("\\", ""); //$NON-NLS-1$ //$NON-NLS-2$
 			port = port.replace(".", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		}
@@ -75,8 +70,7 @@ public class GDBStubDebuggerLauncher
 		elfFile = jsonObject.get("prog").toString(); //$NON-NLS-1$
 	}
 
-	private Element createElement(Document dom, Element root, String attribName, String key, String value)
-	{
+	private Element createElement(Document dom, Element root, String attribName, String key, String value) {
 		Element element = dom.createElement(attribName);
 		element.setAttribute("key", key); //$NON-NLS-1$
 		element.setAttribute("value", value); //$NON-NLS-1$
@@ -85,13 +79,11 @@ public class GDBStubDebuggerLauncher
 		return element;
 	}
 
-	private String getMonitorBaudRate()
-	{
+	private String getMonitorBaudRate() {
 		return new SDKConfigJsonReader(project).getValue("ESPTOOLPY_MONITOR_BAUD"); //$NON-NLS-1$
 	}
 
-	private void createXMLConfig() throws Exception
-	{
+	private void createXMLConfig() throws Exception {
 		StringBuilder commandBuilder = new StringBuilder();
 		commandBuilder.append(IDFUtil.getXtensaToolchainExecutablePath(project));
 		commandBuilder.append(" -ex "); //$NON-NLS-1$
@@ -189,7 +181,7 @@ public class GDBStubDebuggerLauncher
 
 		createElement(dom, root, stringAttribute, "org.eclipse.cdt.launch.COREFILE_PATH", ""); //$NON-NLS-1$ //$NON-NLS-2$
 
-		createElement(dom, root, stringAttribute, "org.eclipse.cdt.launch.PROGRAM_NAME", elfFile.substring(2)); // "build/hello_world.elf" //$NON-NLS-1$
+		createElement(dom, root, stringAttribute, "org.eclipse.cdt.launch.PROGRAM_NAME", elfFile); // "build/hello_world.elf" //$NON-NLS-1$
 
 		createElement(dom, root, stringAttribute, "org.eclipse.cdt.launch.PROJECT_ATTR", project.getName()); //$NON-NLS-1$
 
@@ -245,10 +237,8 @@ public class GDBStubDebuggerLauncher
 	}
 
 	@SuppressWarnings("restriction")
-	private class GDBLaunchConfig extends LaunchConfiguration
-	{
-		protected GDBLaunchConfig(IFile file)
-		{
+	private class GDBLaunchConfig extends LaunchConfiguration {
+		protected GDBLaunchConfig(IFile file) {
 			super(file);
 		}
 	}
