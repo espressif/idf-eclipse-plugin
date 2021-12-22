@@ -97,31 +97,34 @@ public class ComponentContainer
 
 		btnComposite = new Composite(controlGroup, SWT.NONE);
 		btnComposite.setLayout(new GridLayout(2, true));
-
-		openReadMe = new Button(btnComposite, SWT.PUSH);
-		openReadMe.setText(Messages.InstallComponents_OpenReadmeButton);
-		openReadMe.addSelectionListener(new SelectionAdapter()
+		
+		if (componentDetailsVO != null && !StringUtil.isEmpty(componentDetailsVO.getReadMe()))
 		{
-			@Override
-			public void widgetSelected(SelectionEvent e)
+			openReadMe = new Button(btnComposite, SWT.PUSH);
+			openReadMe.setText(Messages.InstallComponents_OpenReadmeButton);
+			openReadMe.addSelectionListener(new SelectionAdapter()
 			{
-				String url = componentDetailsVO.getReadMe();
-				try
+				@Override
+				public void widgetSelected(SelectionEvent e)
 				{
-					if (StringUtil.isEmpty(url))
+					String url = componentDetailsVO.getReadMe();
+					try
 					{
-						return;
+						if (StringUtil.isEmpty(url))
+						{
+							return;
+						}
+						
+						org.eclipse.swt.program.Program.launch(url);
 					}
-					
-					org.eclipse.swt.program.Program.launch(url);
+					catch (Exception e1)
+					{
+						Logger.log(e1);
+					}
 				}
-				catch (Exception e1)
-				{
-					Logger.log(e1);
-				}
-			}
-		});
-
+			});
+		}
+		
 		installButton = new Button(btnComposite, SWT.PUSH);
 		installButton.setText(Messages.InstallComponents_InstallButton);
 		if (componentVO.isComponentAdded())
