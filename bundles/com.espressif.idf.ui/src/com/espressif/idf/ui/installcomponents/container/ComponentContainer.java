@@ -108,6 +108,11 @@ public class ComponentContainer
 				String url = componentDetailsVO.getReadMe();
 				try
 				{
+					if (StringUtil.isEmpty(url))
+					{
+						return;
+					}
+					
 					org.eclipse.swt.program.Program.launch(url);
 				}
 				catch (Exception e1)
