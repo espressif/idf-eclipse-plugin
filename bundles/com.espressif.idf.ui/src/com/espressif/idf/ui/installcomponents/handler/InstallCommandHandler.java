@@ -19,7 +19,6 @@ import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
-import com.espressif.idf.ui.EclipseUtil;
 import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.handlers.NewProjectHandlerUtil;
 
@@ -31,7 +30,6 @@ import com.espressif.idf.ui.handlers.NewProjectHandlerUtil;
  */
 public class InstallCommandHandler
 {
-	private static final String DOUBLE_QUOTES = "\""; //$NON-NLS-1$
 	private static final String ADD_DEPENDENCY_COMMAND = "add-dependency"; //$NON-NLS-1$
 	private static final String EQUALITY = "=="; //$NON-NLS-1$
 	private static final String ASTERIK = "*"; //$NON-NLS-1$
@@ -39,12 +37,14 @@ public class InstallCommandHandler
 	private String name;
 	private String namespace;
 	private String version;
+	private IProject project;
 
-	public InstallCommandHandler(String name, String namespace, String version)
+	public InstallCommandHandler(String name, String namespace, String version, IProject project)
 	{
 		this.name = name;
 		this.namespace = namespace;
 		this.version = version;
+		this.project = project;
 	}
 
 	public void executeInstallCommand() throws Exception
@@ -54,28 +54,25 @@ public class InstallCommandHandler
 			return;
 		}
 		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
-		IProject selectedProject = EclipseUtil.getSelectedProjectInExplorer();
 
-		Path pathToProject = new Path(selectedProject.getLocation().toString());
+		Path pathToProject = new Path(project.getLocation().toString());
 		List<String> commands = new ArrayList<>();
 		commands.add(IDFUtil.getIDFPythonEnvPath());
 		commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
 		commands.add(ADD_DEPENDENCY_COMMAND);
 		if (StringUtil.isEmpty(version))
 		{
-			commands.add(DOUBLE_QUOTES.concat(namespace.concat(FORWARD_SLASH).concat(name.concat(ASTERIK)))
-					.concat(DOUBLE_QUOTES));
+			commands.add(namespace.concat(FORWARD_SLASH).concat(name.concat(ASTERIK)));
 		}
 		else
 		{
 			commands.add(
-					DOUBLE_QUOTES.concat(namespace.concat(FORWARD_SLASH).concat(name.concat(EQUALITY).concat(version)))
-							.concat(DOUBLE_QUOTES));
+					namespace.concat(FORWARD_SLASH).concat(name.concat(EQUALITY).concat(version)));
 		}
 
 		new IDFConsole().getConsoleStream().print((runCommand(commands, pathToProject, envMap)));
 
-		selectedProject.refreshLocal(IResource.DEPTH_INFINITE, null);
+		project.refreshLocal(IResource.DEPTH_INFINITE, null);
 	}
 
 	private String runCommand(List<String> arguments, Path workDir, Map<String, String> env)
