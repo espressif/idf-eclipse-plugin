@@ -1,8 +1,16 @@
 package com.espressif.idf.core.resources;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.build.ICBuildConfiguration;
@@ -32,6 +40,8 @@ import com.espressif.idf.core.logging.Logger;
 public class ResourceChangeListener implements IResourceChangeListener 
 {
 	
+	private static final String cmakeProjectNamePattern = "(project[(].+[)])"; //$NON-NLS-1$
+
 	@Override
 	public void resourceChanged(IResourceChangeEvent event)
 	{
@@ -55,6 +65,8 @@ public class ResourceChangeListener implements IResourceChangeListener
 					if (isProjectAdded)
 					{
 						cleanupBuildFolder(resource);
+						renameProjectInCmakeList(resource);
+
 					}
 					boolean isProjectRenamed = resource.getType() == IResource.PROJECT
 							&& kind == IResourceDelta.ADDED && ((flags & IResourceDelta.MOVED_FROM) != 0);
@@ -128,6 +140,33 @@ public class ResourceChangeListener implements IResourceChangeListener
 		}
 	}
 
+	private void renameProjectInCmakeList(IResource resource)
+	{
+		IProject project = (IProject) resource;
+		Path cMakeListLocation = new File(project.getLocation() + "/CMakeLists.txt").toPath(); //$NON-NLS-1$
+		List<String> fileContent;
+		try
+		{
+			fileContent = new ArrayList<>(Files.readAllLines(cMakeListLocation));
+			for (int i = 0; i < fileContent.size(); i++)
+			{
+
+				Pattern p = Pattern.compile(cmakeProjectNamePattern); 
+				Matcher m = p.matcher(fileContent.get(i));
+				if (m.find())
+				{
+					fileContent.set(i, "project(" + project.getName() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+					break;
+				}
+			}
+
+			Files.write(cMakeListLocation, fileContent, StandardCharsets.UTF_8);
+		}
+		catch (IOException e)
+		{
+			Logger.log(e);
+		}
+	}
 	private void cleanupBuildFolder(IResource resource)
 	{
 
