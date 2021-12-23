@@ -505,7 +505,7 @@ After debug configuration is created, right click on the project in project expl
 
 ![](docs/images/AppLvlTracing_2.png)
 
-It can take a while to open the application level tracing dialog because the OpenOCD server starts first, so you don't need to start it externally. At the very top of the application-level trace dialog, there are auto-configuration fields that you can change for the trace start command.
+It can take a while to open the application level tracing dialog because the OpenOCD server starts first, so you don't need to start it externally. At the very top of the application-level trace dialog, there are auto-configured fields that you can change for the trace start command.
 
 Start command syntax:
   	``start <outfile> [poll_period [trace_size [stop_tmo [wait4halt [skip_size]]]]``
@@ -531,7 +531,7 @@ Start command syntax:
 Additional information can be found [here](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c3/api-guides/app_trace.html?).
 ![](docs/images/AppLvlTracing_4.png)
 
-The next two fields `Trace Processing Script` and `Start Parsing Command` are used to parse the output file.The first one is used to provide the path to the parsing script, by default it is logtrace_proc.py from esp-idf. In the second field, you can check the resulting parsing command and edit it if it's necessary. In the second field, you can check the resulting parsing command and edit it if necessary. By default, this field is automatically configured to match `$IDF_PATH/tools/esp_app_trace/logtrace_proc.py/path/to/trace/file/path/to/program/elf/file`.
+The next two fields `Trace Processing Script` and `Start Parsing Command` are used to parse the output file. The first one is used to provide the path to the parsing script, by default it is logtrace_proc.py from esp-idf. In the second field, you can check the resulting parsing command and edit it if it's necessary. By default, this field is automatically configured to match `$IDF_PATH/tools/esp_app_trace/logtrace_proc.py/path/to/trace/file/path/to/program/elf/file`.
 
 The `Start parse` button is disabled until a dump file is available. To generate it, click the Start button at the bottom of the dialog box. After you click, the button changes to Stop so that you can stop tracking.
 
