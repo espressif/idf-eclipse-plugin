@@ -350,7 +350,7 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 			if (name.equals(existing[i].getName()))
 				return (MessageConsole) existing[i];
 		}
-		URL imageUrl = FileLocator.find(UIPlugin.getDefault().getBundle(), new Path("icons/ESP-IDF Application Level Tracing.png")); //$NON-NLS-1$
+		URL imageUrl = FileLocator.find(UIPlugin.getDefault().getBundle(), new Path("icons/ESP-IDF_Application_Level_Tracing.png")); //$NON-NLS-1$
 		MessageConsole myConsole = new MessageConsole(name, ImageDescriptor.createFromURL(imageUrl));
 		conMan.addConsoles(new IConsole[] { myConsole });
 		return myConsole;
