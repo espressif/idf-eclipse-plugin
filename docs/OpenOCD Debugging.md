@@ -30,7 +30,7 @@ The other way to create a debug configuration is from the launch configuration b
 ![](images/OpenOCDDebug_5.png)
 
 ## Debugger Tab
-In the `Debugger` tab, all parameters are automatically configured to start debugging, you just need to check if the "Config options" line is appropriate for your board. It automatically adjusts based on `Flash voltage` and `Board` options. If you expand the list of boards, only those that match the selected `Target` will appear.. So, for example, if the selected target is esp32, you will not see `ESP32-S2-KALUGA-1` in the list, to see it there, you need to change the target to esp32s2 first. The second option on the debugger tab, which depends on the target, is the gdb executable, which is also automatically and dynamically configured based on the target you choose.
+In the `Debugger` tab, all parameters are automatically configured to start debugging, you just need to check if the `Config options` line is appropriate for your board. It automatically adjusts based on `Flash voltage` and `Board` options. If you expand the list of boards, only those that match the selected `Target` will appear. So, for example, if the selected target is `esp32`, you will not see `ESP32-S2-KALUGA-1` in the list, to see it there, you need to change the target to `esp32s2` first. The second option in the debugger tab, which depends on the target, is the `gdb executable`, which is also automatically and dynamically configured based on the target you choose.
 
 
 ![](images/OpenOCDDebug_6.png)
@@ -38,7 +38,7 @@ In the `Debugger` tab, all parameters are automatically configured to start debu
 > **NOTE:**  Update the OpenOCD Config options based on the esp board you've choosen. Please check this here https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/jtag-debugging/tips-and-quirks.html#id1
 
 ## Startup Tab
-By default, the binaries will be uploaded to your board before joining a debug session, so there is no need to flash them to the target separately.If for some reason you don't want to do that, you can uncheck the `Flash every time with application binaries` option.
+By default, the binaries will be uploaded to your board before joining a debug session, so there is no need to flash them to the target separately. If for some reason you don't want to do that, you can uncheck the `Flash every time with application binaries` option.
 
 ![](images/OpenOCDDebug_7.png)
 
