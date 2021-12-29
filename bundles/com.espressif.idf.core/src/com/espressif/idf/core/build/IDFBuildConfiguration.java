@@ -360,6 +360,29 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 				watchProcess(p, new IConsoleParser[] { epm });
 				
+				List<String> commands = new ArrayList<>();
+				commands.add(IDFUtil.getIDFPythonEnvPath());
+				commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
+				commands.add("size");
+
+				infoStream.write(String.join(" ", commands) + '\n'); //$NON-NLS-1$
+				workingDir = (org.eclipse.core.runtime.Path) project.getLocation();
+				ProcessBuilder processBuilder = new ProcessBuilder(commands).directory(workingDir.toFile());
+				// Override environment variables
+				Map<String, String> environment = processBuilder.environment();
+				for (IEnvironmentVariable envVar : envVars) {
+					environment.put(envVar.getName(), envVar.getValue());
+				}
+				setBuildEnvironment(environment);
+				Process process = processBuilder.start();
+				if (process == null) {
+					console.getErrorStream().write(String
+							.format(Messages.CMakeBuildConfiguration_Failure, "")); //$NON-NLS-1$
+					return null;
+				}
+				console.getOutputStream().write(process.getInputStream().readAllBytes());
+				//watchProcess(process, new IConsoleParser[] { epm });
+				
 				final String isSkip = System.getProperty("skip.idf.components"); //$NON-NLS-1$
 				if(!Boolean.parseBoolean(isSkip)) { //no property defined
 					linkBuildComponents(project, monitor);
@@ -378,9 +401,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 				Instant finish = Instant.now();
 				long timeElapsed = Duration.between(start, finish).toMillis();
-
 				infoStream.write(MessageFormat.format("Total time taken to build the project: {0} ms", timeElapsed)); //$NON-NLS-1$
-
 			}
 
 			// This is specifically added to trigger the indexing since in Windows OS it
