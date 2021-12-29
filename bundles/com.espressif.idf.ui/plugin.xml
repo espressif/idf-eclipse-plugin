@@ -283,7 +283,7 @@
          </command>
                   <command
                commandId="com.espressif.idf.ui.appLvlTracing"
-               icon="icons/ESP-IDF Application Level Tracing.png"
+               icon="icons/ESP-IDF_Application_Level_Tracing.png"
                label="ESP-IDF: Application Level Tracing"
                style="push">
             <visibleWhen

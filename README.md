@@ -41,6 +41,7 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 * [ Importing an existing IDF Project ](#ImportProject)<br>
 * [ Importing an existing Debug launch configuration ](#importDebugLaunchConfig)<br>
 * [ GDBStub Debugging ](#gdbStubDebugging)<br>
+* [ Application Level Tracing ](#appLvlTracing)<br>
 * [ Changing Language ](#changeLanguage)<br>
 * [ Troubleshooting Guide](#troubleshooting)<br>
 * [ How to raise bugs ](#howToRaiseBugs)<br>
@@ -489,6 +490,53 @@ Build and flash the project and launch the serial monitor. On the line number 45
 
 You can view the registers stack trace and even view the value of variables in stack frame. To exit the debug session simply press stop button.
 
+<a name="appLvlTracing"></a>
+
+# Application Level Tracing
+
+ESP-IDF provides a useful feature for program behavior analysis called [Application Level Tracing](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c3/api-guides/app_trace.html?). IDF-Eclipse plugin has UI, that allows using start, stop tracing commands and process received data. To familiarize yourself with this library, you can use the [app_trace_to_host](https://github.com/espressif/esp-idf/tree/master/examples/system/app_trace_to_host) project. This project can be created from the plugin itself:
+![](docs/images/AppLvlTracing_1.png)
+
+Before you start using application-level tracing, it is important to create a debug configuration for the project where you must select the board you are using in order to successfully start the OpenOCD server.
+
+![](docs/images/AppLvlTracing_3.png)
+
+After debug configuration is created, right click on the project in project explorer and click on `ESP-IDF:Application Level Tracing`:
+
+![](docs/images/AppLvlTracing_2.png)
+
+It can take a while to open the application level tracing dialog because the OpenOCD server starts first, so you don't need to start it externally. At the very top of the application-level trace dialog, there are auto-configured fields that you can change for the trace start command.
+
+Start command syntax:
+  	``start <outfile> [poll_period [trace_size [stop_tmo [wait4halt [skip_size]]]]``
+  
+``outfile``
+    Path to file to save data from both CPUs. This argument should have the following format: ``file://path/to/file``.
+
+``poll_period``
+    Data polling period (in ms) for available trace data. If greater than 0 then command runs in non-blocking mode. By default, 1 ms.
+
+``trace_size``
+    Maximum size of data to collect (in bytes). Tracing is stopped after specified amount of data is received. By default -1 (trace size stop trigger is disabled).
+
+``stop_tmo``
+    Idle timeout (in sec). Tracing is stopped if there is no data for a specified period of time. By default -1 (disable this stop trigger). Optionally set it to a value longer than the longest pause between tracing commands from the target.
+
+``wait4halt``
+    If 0 start tracing immediately, otherwise command waits for the target to be halted (after reset, by breakpoint etc.) and then automatically resumes it and starts tracing. By default, 0.
+
+``skip_size``
+    Number of bytes to skip at the start. By default, 0.
+
+Additional information can be found [here](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c3/api-guides/app_trace.html?).
+![](docs/images/AppLvlTracing_4.png)
+
+The next two fields `Trace Processing Script` and `Start Parsing Command` are used to parse the output file. The first one is used to provide the path to the parsing script, by default it is logtrace_proc.py from esp-idf. In the second field, you can check the resulting parsing command and edit it if it's necessary. By default, this field is automatically configured to match `$IDF_PATH/tools/esp_app_trace/logtrace_proc.py/path/to/trace/file/path/to/program/elf/file`.
+
+The `Start parse` button is disabled until a dump file is available. To generate it, click the Start button at the bottom of the dialog box. After you click, the button changes to Stop so that you can stop tracking.
+
+When output file is generated, you can click on `Start parse` button and you will see parse script output in the eclipse console:
+![](docs/images/AppLvlTracing_5.png)
 <a name="howToRaiseBugs"></a>
 # How to raise bugs
 Please raise the issues here https://github.com/espressif/idf-eclipse-plugin/issues with the complete environment details and log.
