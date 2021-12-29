@@ -1,6 +1,7 @@
 package com.espressif.idf.ui.tracing;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,11 +9,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -108,7 +111,7 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		Label pollTimerUnitsLbl = new Label(unitsOneLblComp, SWT.NONE);
 		waitForHalt = new Button(unitsOneLblComp, SWT.CHECK);
 		waitForHalt.setText(Messages.AppLvlTracing_WaitForHalt);
-		pollTimerUnitsLbl.setText(ITracingConstants.UNIT_SECONDS); 
+		pollTimerUnitsLbl.setText(ITracingConstants.UNIT_MILISECONDS); 
 		
 
 		new Label(container, SWT.NONE);
@@ -347,7 +350,8 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 			if (name.equals(existing[i].getName()))
 				return (MessageConsole) existing[i];
 		}
-		MessageConsole myConsole = new MessageConsole(name, null);
+		URL imageUrl = FileLocator.find(UIPlugin.getDefault().getBundle(), new Path("icons/ESP-IDF_Application_Level_Tracing.png")); //$NON-NLS-1$
+		MessageConsole myConsole = new MessageConsole(name, ImageDescriptor.createFromURL(imageUrl));
 		conMan.addConsoles(new IConsole[] { myConsole });
 		return myConsole;
 	}

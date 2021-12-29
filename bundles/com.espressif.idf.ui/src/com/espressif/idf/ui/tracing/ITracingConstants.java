@@ -12,6 +12,8 @@ package com.espressif.idf.ui.tracing;
  */
 public interface ITracingConstants
 {
+	String UNIT_MILISECONDS = "milliseconds"; //$NON-NLS-1$
+	
 	String UNIT_SECONDS = "seconds"; //$NON-NLS-1$
 	
 	String UNIT_BYTES = "bytes"; //$NON-NLS-1$
