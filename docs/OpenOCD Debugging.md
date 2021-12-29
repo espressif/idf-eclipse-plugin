@@ -48,4 +48,21 @@ OpenOCD path is auto-configured based on the `OPENOCD_SCRIPTS` path defined in t
 
 ![](images/OpenOCDDebug_2.png)
 
+## Start Debugging
+
+To start debugging, you need to select your debug configuration, change mode from `Run` to `Debug` and click on launch icon (bug icon).
+
+![](images/OpenOCDDebug_10.png)
+
+After stopping the target at the default breakpoint, you will be suggested to switch to the `Debug perspective`.
+
+![](images/OpenOCDDebug_11.png)
+
+You can customize the `Debug perspective` in your own way, for example, move some tabs, add additional views that you might find useful, or remove them. To add a view, follow these steps:
+* On the top panel of the Eclipse click on `Window`
+* `Short View`
+* Select the view you want to add
+
+![](images/OpenOCDDebug_12.png)
+
 Any issues on OpenOCD debugging please refer to https://github.com/espressif/openocd-esp32/wiki/Troubleshooting-FAQ 
