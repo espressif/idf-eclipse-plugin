@@ -48,7 +48,7 @@ OpenOCD path is auto-configured based on the `OPENOCD_SCRIPTS` path defined in t
 
 ![](images/OpenOCDDebug_2.png)
 
-## Start Debugging
+# Start Debugging
 
 To start debugging, you need to select your debug configuration, change mode from `Run` to `Debug` and click on launch icon (bug icon).
 
