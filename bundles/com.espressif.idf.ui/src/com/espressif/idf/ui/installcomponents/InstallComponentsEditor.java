@@ -11,7 +11,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -36,6 +35,7 @@ public class InstallComponentsEditor extends MultiPageEditorPart
 
 	private IFile componentsJsonFile;
 	private IProject project;
+	private InstallComponentsCompositePage installComponentsCompositePage;
 
 	public InstallComponentsEditor()
 	{
@@ -49,6 +49,8 @@ public class InstallComponentsEditor extends MultiPageEditorPart
 		componentsJsonFile = editorInput.getFile();
 		project = componentsJsonFile.getProject();
 		setPartName(project.getName());
+		installComponentsCompositePage = new InstallComponentsCompositePage(
+				componentsJsonFile, project);
 	}
 
 	@Override
@@ -85,8 +87,7 @@ public class InstallComponentsEditor extends MultiPageEditorPart
 		GridLayout gridLayout = new GridLayout(4, true);
 		subContainer.setLayout(gridLayout);
 
-		InstallComponentsCompositePage installComponentsCompositePage = new InstallComponentsCompositePage(
-				componentsJsonFile);
+		
 		installComponentsCompositePage.createControls(subContainer);
 
 		scrolledComposite.setContent(subContainer);
@@ -120,5 +121,12 @@ public class InstallComponentsEditor extends MultiPageEditorPart
 	@Override
 	public void setFocus()
 	{
+	}
+	
+	@Override
+	public void dispose()
+	{
+		super.dispose();
+		installComponentsCompositePage.dispose();
 	}
 }
