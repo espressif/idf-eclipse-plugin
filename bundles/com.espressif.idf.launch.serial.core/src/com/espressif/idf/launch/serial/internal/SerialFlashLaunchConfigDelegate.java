@@ -46,7 +46,10 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
+import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.launchbar.core.target.launch.ITargetedLaunch;
+import org.eclipse.launchbar.ui.internal.Activator;
+import org.eclipse.launchbar.ui.target.ILaunchTargetUIManager;
 import org.eclipse.swt.widgets.Display;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
@@ -126,7 +129,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 				.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
 		String espFlashCommand = ESPFlashUtil.getEspFlashCommand(serialPort);
 		Logger.log(espFlashCommand);
-		if (checkIfPortIsEmpty()) {
+		if (checkIfPortIsEmpty(configuration)) {
 			return;
 		}
 		String arguments = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS,
@@ -189,7 +192,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		}
 	}
 
-	private boolean checkIfPortIsEmpty() {
+	private boolean checkIfPortIsEmpty(ILaunchConfiguration configuration) {
 		boolean isMatch = false;
 		try {
 			String[] ports = SerialPort.list();
@@ -203,19 +206,24 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 			Logger.log(e);
 		}
 		if (!isMatch) {
-			showMessage();
+			showMessage(configuration);
 			return true;
 		}
 		return false;
 	}
 
-	private static void showMessage() {
+	private static void showMessage(ILaunchConfiguration configuration) {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				MessageDialog.openError(Display.getDefault().getActiveShell(),
+				boolean isYes = MessageDialog.openConfirm(Display.getDefault().getActiveShell(),
 						com.espressif.idf.launch.serial.internal.Messages.SerialPortNotFoundTitle,
 						com.espressif.idf.launch.serial.internal.Messages.SerialPortNotFoundMsg);
+				if (isYes) {
+					ILaunchTargetUIManager targetUIManager = Activator.getService(ILaunchTargetUIManager.class);
+					ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
+					targetUIManager.editLaunchTarget(launchTargetManager.getDefaultLaunchTarget(configuration));
+				}
 			}
 		});
 	}
