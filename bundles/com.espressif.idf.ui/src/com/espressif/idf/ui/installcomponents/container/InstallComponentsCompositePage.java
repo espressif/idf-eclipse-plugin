@@ -10,8 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.swt.widgets.Composite;
 
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.installcomponents.deserializer.ComponentsDeserializer;
 import com.espressif.idf.ui.installcomponents.vo.ComponentVO;
 import com.google.gson.Gson;
@@ -27,11 +29,15 @@ import com.google.gson.JsonArray;
 public class InstallComponentsCompositePage
 {
 	private IFile componentsJsonFile;
+	private IProject project;
 	private List<ComponentVO> componentVOs;
+	private List<ComponentContainer> componentContainers;
 
-	public InstallComponentsCompositePage(IFile componentsJsonFile)
+	public InstallComponentsCompositePage(IFile componentsJsonFile, IProject project)
 	{
 		this.componentsJsonFile = componentsJsonFile;
+		this.project = project;
+		componentContainers = new ArrayList<ComponentContainer>();
 	}
 
 	public void createControls(Composite parent) throws IOException
@@ -41,8 +47,9 @@ public class InstallComponentsCompositePage
 		for (ComponentVO componentVO : componentVOs)
 		{
 			setComponentAdded(componentVO);
-			ComponentContainer componentContainer = new ComponentContainer(componentVO, parent);
+			ComponentContainer componentContainer = new ComponentContainer(componentVO, parent, project);
 			componentContainer.createControl();
+			componentContainers.add(componentContainer);
 		}
 	}
 
@@ -55,7 +62,7 @@ public class InstallComponentsCompositePage
 			List<String> ymlEntries = Files.readAllLines(file.getLocation().toFile().toPath());
 			for (String ymlEntry : ymlEntries)
 			{
-				if (ymlEntry.charAt(0) == '#') //$NON-NLS-1$
+				if ((!StringUtil.isEmpty(ymlEntry)) && ymlEntry.charAt(0) == '#') //$NON-NLS-1$
 				{
 					continue;
 				}
@@ -76,5 +83,13 @@ public class InstallComponentsCompositePage
 				.setPrettyPrinting().disableHtmlEscaping().create();
 		JsonArray jsonArray = gson.fromJson(jsonString, JsonArray.class);
 		componentVOs = gson.fromJson(jsonArray.toString(), ArrayList.class);
+	}
+
+	public void dispose()
+	{
+		for (ComponentContainer componentContainer : componentContainers)
+		{
+			componentContainer.dispose();
+		}
 	}
 }

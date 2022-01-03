@@ -4,10 +4,10 @@
  *******************************************************************************/
 package com.espressif.idf.ui.installcomponents.container;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Point;
@@ -43,31 +43,33 @@ public class ComponentContainer
 	private Label versionLabel;
 	private Button installButton;
 	private Button openReadMe;
+	private IProject project;
+	private Composite btnComposite;
+	private Font boldFont;
+	private GridData layoutData;
 
-	public ComponentContainer(ComponentVO componentVO, Composite parent)
+	public ComponentContainer(ComponentVO componentVO, Composite parent, IProject project)
 	{
 		this.componentVO = componentVO;
 		this.parent = parent;
 		this.componentDetailsVO = componentVO != null ? componentVO.getComponentDetails() : null;
+		this.project = project;
 	}
 
 	public Point createControl()
 	{
-		Color whiteColor = new Color(255, 255, 255);
 		controlGroup = new Group(parent, SWT.SHADOW_ETCHED_IN);
 		controlGroup.setLayout(new GridLayout());
-		GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, false);
+		layoutData = new GridData(SWT.FILL, SWT.FILL, true, false);
 		controlGroup.setLayoutData(layoutData);
-		controlGroup.setBackground(new Color(240, 233, 233));
 		controlGroup.setText(componentVO.getName().toUpperCase());
-		Font boldFont = new Font(controlGroup.getDisplay(), new FontData("Arial", 8, SWT.BOLD)); //$NON-NLS-1$
+		boldFont = new Font(controlGroup.getDisplay(), new FontData("Arial", 8, SWT.BOLD)); //$NON-NLS-1$
 		controlGroup.setFont(boldFont);
 
 		if (componentDetailsVO != null && componentDetailsVO.getDescription() != null)
 		{
 			detailsText = new Text(controlGroup, SWT.MULTI | SWT.WRAP);
 			detailsText.setLayoutData(new GridData(GridData.FILL_BOTH));
-			detailsText.setBackground(new Color(240, 233, 233));
 			detailsText.setText(componentVO.getComponentDetails().getDescription());
 		}
 
@@ -75,7 +77,6 @@ public class ComponentContainer
 		{
 			targetsLabel = new Label(controlGroup, SWT.NONE);
 			StringBuilder sbTargets = new StringBuilder();
-			targetsLabel.setBackground(whiteColor);
 			sbTargets.append(componentVO.getComponentDetails().getTargets().get(0));
 
 			for (int i = 0; i < componentVO.getComponentDetails().getTargets().size(); i++)
@@ -91,34 +92,39 @@ public class ComponentContainer
 				&& !StringUtil.isEmpty(componentDetailsVO.getVersion()))
 		{
 			versionLabel = new Label(controlGroup, SWT.NONE);
-			versionLabel.setBackground(new Color(240, 233, 233));
 			versionLabel.setText(componentDetailsVO.getVersion());
 		}
 
-		Composite btnComposite = new Composite(controlGroup, SWT.NONE);
-		btnComposite.setBackground(new Color(240, 233, 233));
+		btnComposite = new Composite(controlGroup, SWT.NONE);
 		btnComposite.setLayout(new GridLayout(2, true));
-
-		openReadMe = new Button(btnComposite, SWT.PUSH);
-		openReadMe.setText(Messages.InstallComponents_OpenReadmeButton);
-		openReadMe.setBackground(whiteColor);
-		openReadMe.addSelectionListener(new SelectionAdapter()
+		
+		if (componentDetailsVO != null && !StringUtil.isEmpty(componentDetailsVO.getReadMe()))
 		{
-			@Override
-			public void widgetSelected(SelectionEvent e)
+			openReadMe = new Button(btnComposite, SWT.PUSH);
+			openReadMe.setText(Messages.InstallComponents_OpenReadmeButton);
+			openReadMe.addSelectionListener(new SelectionAdapter()
 			{
-				String url = componentDetailsVO.getReadMe();
-				try
+				@Override
+				public void widgetSelected(SelectionEvent e)
 				{
-					org.eclipse.swt.program.Program.launch(url);
+					String url = componentDetailsVO.getReadMe();
+					try
+					{
+						if (StringUtil.isEmpty(url))
+						{
+							return;
+						}
+						
+						org.eclipse.swt.program.Program.launch(url);
+					}
+					catch (Exception e1)
+					{
+						Logger.log(e1);
+					}
 				}
-				catch (Exception e1)
-				{
-					Logger.log(e1);
-				}
-			}
-		});
-
+			});
+		}
+		
 		installButton = new Button(btnComposite, SWT.PUSH);
 		installButton.setText(Messages.InstallComponents_InstallButton);
 		if (componentVO.isComponentAdded())
@@ -126,12 +132,11 @@ public class ComponentContainer
 			installButton.setText(Messages.InstallComponents_InstallButtonAlreadyAdded);	
 			installButton.setEnabled(false);
 		}
-		installButton.setBackground(whiteColor);
 		InstallCommandHandler installCommandHandler = new InstallCommandHandler(componentVO.getName(),
 				componentVO.getNamespace(),
 				componentDetailsVO != null && componentDetailsVO.getVersion() != null
 						? componentDetailsVO.getVersion()
-						: "");
+						: "", project);
 		installButton.addSelectionListener(new SelectionAdapter()
 		{
 			@Override
@@ -149,5 +154,62 @@ public class ComponentContainer
 		});
 
 		return controlGroup.getSize();
+	}
+
+	public void dispose()
+	{
+		if (openReadMe != null)
+		{
+			openReadMe.dispose();
+			openReadMe = null;
+		}
+		
+		if (boldFont != null)
+		{
+			boldFont.dispose();
+			boldFont = null;
+		}
+		
+		if (installButton != null)
+		{
+			installButton.dispose();
+			installButton = null;
+		}
+		
+		if (versionLabel != null)
+		{
+			versionLabel.dispose();
+			versionLabel = null;
+		}
+		
+		if (targetsLabel != null)
+		{
+			targetsLabel.dispose();
+			targetsLabel = null;
+		}
+		
+		if (detailsText != null)
+		{
+			detailsText.dispose();
+			detailsText = null;
+		}
+		
+		if (btnComposite != null)
+		{
+			btnComposite.dispose();
+			btnComposite = null;
+		}
+		
+		if (controlGroup != null)
+		{
+			controlGroup.dispose();
+			controlGroup = null;
+		}
+		
+		if (parent != null)
+		{
+			parent.dispose();
+			parent = null;
+		}
 	}
 }
