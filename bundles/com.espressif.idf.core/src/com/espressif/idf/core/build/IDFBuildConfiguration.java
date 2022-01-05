@@ -584,7 +584,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	private IPath getMapFilePath(IProject project)
 	{
 		GenericJsonReader jsonReader = new GenericJsonReader(project,
-				"build" + File.separator + "project_description.json"); //$NON-NLS-1$ //$NON-NLS-2$
+				IDFConstants.BUILD_FOLDER + File.separator + "project_description.json"); //$NON-NLS-1$
 		String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
 		if (!StringUtil.isEmpty(value))
 		{
