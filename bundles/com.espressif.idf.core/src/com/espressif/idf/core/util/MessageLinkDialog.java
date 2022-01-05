@@ -14,12 +14,17 @@
  *******************************************************************************/
 package com.espressif.idf.core.util;
 
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.program.Program;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
@@ -30,11 +35,14 @@ import org.eclipse.swt.widgets.Shell;
 
 public class MessageLinkDialog extends MessageDialog
 {
+	private static final String DO_NOT_SHOW_MSG = "DO_NOT_SHOW_MSG"; //$NON-NLS-1$
+	private static IEclipsePreferences preferences;
 
 	public MessageLinkDialog(Shell parentShell, String dialogTitle, Image dialogTitleImage, String dialogMessage,
 			int dialogImageType, int defaultIndex, String[] dialogButtonLabels)
 	{
-		super(parentShell, dialogTitle, dialogTitleImage, dialogMessage, dialogImageType, defaultIndex, dialogButtonLabels);
+		super(parentShell, dialogTitle, dialogTitleImage, dialogMessage, dialogImageType, defaultIndex,
+				dialogButtonLabels);
 	}
 	
 	@Override
@@ -68,9 +76,36 @@ public class MessageLinkDialog extends MessageDialog
 	    return composite;
 	}
 
+	@Override
+	protected Control createCustomArea(Composite parent)
+	{
+		Button checkBox = new Button(parent, SWT.CHECK);
+		checkBox.addSelectionListener(new SelectionListener()
+		{
+
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				preferences.putBoolean(DO_NOT_SHOW_MSG, checkBox.getSelection());
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e)
+			{
+			}
+
+		});
+		checkBox.setText(Messages.MsgLinkDialog_DoNotShowMsg);
+		return parent;
+	}
+
 	public static void openWarning(Shell parent, String title, String message)
 	{
-		open(WARNING, parent, title, message, SWT.NONE);
+		preferences = InstanceScope.INSTANCE.getNode("com.espressif.idf.launch.serial.ui"); //$NON-NLS-1$
+		if (!preferences.getBoolean(DO_NOT_SHOW_MSG, false))
+		{
+			open(WARNING, parent, title, message, SWT.NONE);
+		}
 	}
 
 	public static boolean open(int kind, Shell parent, String title, String message, int style)
@@ -81,5 +116,4 @@ public class MessageLinkDialog extends MessageDialog
 		dialog.setShellStyle(dialog.getShellStyle() | style);
 		return dialog.open() == 0;
 	}
-
 }
