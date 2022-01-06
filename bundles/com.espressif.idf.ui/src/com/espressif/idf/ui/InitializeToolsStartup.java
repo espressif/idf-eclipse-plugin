@@ -68,8 +68,6 @@ public class InitializeToolsStartup implements IStartup
 			@Override
 			public void propertyChange(PropertyChangeEvent evt)
 			{
-				evt.getNewValue();
-				System.out.println("test");
 				Display.getDefault().asyncExec(new Runnable()
 				{
 					@Override

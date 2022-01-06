@@ -103,7 +103,7 @@ public class MessageLinkDialog extends MessageDialog
 
 	public static void openWarning(Shell parent, String title, String message)
 	{
-		preferences = InstanceScope.INSTANCE.getNode(""); //$NON-NLS-1$
+		preferences = InstanceScope.INSTANCE.getNode("com.espressif.idf.core"); //$NON-NLS-1$
 		if (!preferences.getBoolean(DO_NOT_SHOW_MSG, false))
 		{
 			open(WARNING, parent, title, message, SWT.NONE);
