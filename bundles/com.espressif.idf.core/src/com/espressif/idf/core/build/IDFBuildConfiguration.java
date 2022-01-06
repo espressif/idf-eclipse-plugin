@@ -72,18 +72,14 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunchMode;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
-import org.eclipse.swt.widgets.Display;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.internal.CMakeConsoleWrapper;
 import com.espressif.idf.core.internal.CMakeErrorParser;
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.util.DataSizeUtil;
-import com.espressif.idf.core.util.GenericJsonReader;
 import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.core.util.MessageLinkDialog;
-import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.core.util.ParitionSizeHandler;
 import com.google.gson.Gson;
 
 @SuppressWarnings(value = { "restriction" })
@@ -383,8 +379,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 				Instant finish = Instant.now();
 				long timeElapsed = Duration.between(start, finish).toMillis();
-				startIdfSizeProcess(console, project, infoStream);
-				checkRemainingSize(console, project, infoStream);
+				ParitionSizeHandler paritionSizeHandler = new ParitionSizeHandler(project, infoStream, console);
+				paritionSizeHandler.startCheckingSize();
 				infoStream.write(MessageFormat.format("Total time taken to build the project: {0} ms", timeElapsed)); //$NON-NLS-1$
 			}
 
@@ -398,83 +394,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 							project.getName()),
 					e));
 		}
-	}
-
-	private void checkRemainingSize(IConsole console, IProject project, ConsoleOutputStream infoStream)
-			throws IOException, CoreException
-	{
-		String partitionTableContent = getPartitionTable(project, infoStream);
-		Path path = Paths.get(project.getLocation() + File.separator + IDFConstants.BUILD_FOLDER + File.separator
-				+ project.getName() + ".bin"); //$NON-NLS-1$
-		long imageSize = Files.size(path);
-
-		String[] lines = partitionTableContent.split("\n"); //$NON-NLS-1$
-		for (String line : lines)
-		{
-			if (!line.contains("app")) //$NON-NLS-1$
-			{
-				continue;
-			}
-			String[] columns = line.split(","); //$NON-NLS-1$
-			double maxSize = DataSizeUtil.parseSize(columns[4]);
-			double remainSize = 100 * (maxSize - imageSize) / (maxSize);
-			if (remainSize < 30)
-			{
-				showMessage();
-				break;
-			}
-		}
-	}
-
-	private String getPartitionTable(IProject project, ConsoleOutputStream infoStream) throws IOException
-	{
-		List<String> commands;
-		commands = new ArrayList<>();
-		commands.add(IDFUtil.getIDFPythonEnvPath());
-		commands.add(IDFUtil.getIDFPath() + "/components/partition_table/gen_esp32part.py"); //$NON-NLS-1$
-		commands.add(project.getLocation() + "/build/partition_table/partition-table.bin"); //$NON-NLS-1$
-
-		Process process = startProcess(project, infoStream, commands);
-		String partitionTableContent = new String(process.getInputStream().readAllBytes());
-		return partitionTableContent;
-	}
-
-	private Process startProcess(IProject project, ConsoleOutputStream infoStream, List<String> commands)
-			throws IOException
-	{
-		infoStream.write(String.join(" ", commands) + '\n'); //$NON-NLS-1$
-		org.eclipse.core.runtime.Path workingDir = (org.eclipse.core.runtime.Path) project.getLocation();
-		ProcessBuilder processBuilder = new ProcessBuilder(commands).directory(workingDir.toFile());
-		Process process = processBuilder.start();
-		return process;
-	}
-	
-	private static void showMessage() {
-
-		Display.getDefault().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				MessageLinkDialog.openWarning(Display.getDefault().getActiveShell(),
-						Messages.IncreasePartitionSizeTitle,
-						Messages.IncreasePartitionSizeMessage);
-			}
-		});
-	}
-
-	private void startIdfSizeProcess(IConsole console, IProject project, ConsoleOutputStream infoStream)
-			throws IOException, CoreException
-	{
-		List<String> commands = new ArrayList<>();
-		commands.add(IDFUtil.getIDFPythonEnvPath());
-		commands.add(IDFUtil.getIDFSizeScriptFile().getAbsolutePath());
-		commands.add(getMapFilePath(project).toString());
-
-		Process process = startProcess(project, infoStream, commands);
-		if (process != null)
-		{
-			console.getOutputStream().write(process.getInputStream().readAllBytes());
-		}
-
 	}
 	
 	public void update(IProject project) {
@@ -579,20 +498,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			setLinkLocation(folderLink, new org.eclipse.core.runtime.Path(sourceFile));
 
 		}
-	}
-
-	private IPath getMapFilePath(IProject project)
-	{
-		GenericJsonReader jsonReader = new GenericJsonReader(project,
-				IDFConstants.BUILD_FOLDER + File.separator + "project_description.json"); //$NON-NLS-1$
-		String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
-		if (!StringUtil.isEmpty(value))
-		{
-			value = value.replace(".elf", ".map"); // Assuming .elf and .map files have the //$NON-NLS-1$ //$NON-NLS-2$
-													// same file name
-			return project.getFile(new org.eclipse.core.runtime.Path("build").append(value)).getLocation(); //$NON-NLS-1$
-		}
-		return null;
 	}
 
 	protected int getUpdateOptions()

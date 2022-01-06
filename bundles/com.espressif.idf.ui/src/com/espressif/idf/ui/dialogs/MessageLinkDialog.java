@@ -12,7 +12,7 @@
  *     IBM Corporation - initial API and implementation
  * 	   Lars Vogel <Lars.Vogel@vogella.com> - Bug 472690
  *******************************************************************************/
-package com.espressif.idf.core.util;
+package com.espressif.idf.ui.dialogs;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -32,6 +32,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+
+import com.espressif.idf.core.util.Messages;
 
 public class MessageLinkDialog extends MessageDialog
 {
@@ -101,7 +103,7 @@ public class MessageLinkDialog extends MessageDialog
 
 	public static void openWarning(Shell parent, String title, String message)
 	{
-		preferences = InstanceScope.INSTANCE.getNode("com.espressif.idf.launch.serial.ui"); //$NON-NLS-1$
+		preferences = InstanceScope.INSTANCE.getNode(""); //$NON-NLS-1$
 		if (!preferences.getBoolean(DO_NOT_SHOW_MSG, false))
 		{
 			open(WARNING, parent, title, message, SWT.NONE);
