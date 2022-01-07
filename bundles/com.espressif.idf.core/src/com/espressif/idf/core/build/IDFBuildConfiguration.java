@@ -79,6 +79,7 @@ import com.espressif.idf.core.internal.CMakeConsoleWrapper;
 import com.espressif.idf.core.internal.CMakeErrorParser;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.ParitionSizeHandler;
 import com.google.gson.Gson;
 
 @SuppressWarnings(value = { "restriction" })
@@ -378,9 +379,9 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 				Instant finish = Instant.now();
 				long timeElapsed = Duration.between(start, finish).toMillis();
-
+				ParitionSizeHandler paritionSizeHandler = new ParitionSizeHandler(project, infoStream, console);
+				paritionSizeHandler.startCheckingSize();
 				infoStream.write(MessageFormat.format("Total time taken to build the project: {0} ms", timeElapsed)); //$NON-NLS-1$
-
 			}
 
 			// This is specifically added to trigger the indexing since in Windows OS it

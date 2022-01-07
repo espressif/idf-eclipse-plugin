@@ -4,6 +4,8 @@
  *******************************************************************************/
 package com.espressif.idf.ui;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -19,6 +21,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.osgi.service.datalocation.Location;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IStartup;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -29,9 +32,12 @@ import org.osgi.service.prefs.Preferences;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.ESPToolChainManager;
 import com.espressif.idf.core.build.ESPToolChainProvider;
+import com.espressif.idf.core.build.Messages;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.resources.OpenDialogListenerSupport;
 import com.espressif.idf.core.resources.ResourceChangeListener;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.ui.dialogs.MessageLinkDialog;
 import com.espressif.idf.ui.update.ExportIDFTools;
 import com.espressif.idf.ui.update.InstallToolsHandler;
 
@@ -50,11 +56,32 @@ public class InitializeToolsStartup implements IStartup
 	private static final String PYTHON_PATH = "python"; //$NON-NLS-1$
 	private static final String IDF_PATH = "path"; //$NON-NLS-1$
 	private static final String IS_INSTALLER_CONFIG_SET = "isInstallerConfigSet" ; //$NON-NLS-1$
+	private static final String DOC_URL = "\"https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/partition-tables.html?highlight=partitions%20csv#creating-custom-tables\""; //$NON-NLS-1$
 
 	@SuppressWarnings("restriction")
 	@Override
 	public void earlyStartup()
 	{
+		OpenDialogListenerSupport.getSupport().addPropertyChangeListener(new PropertyChangeListener()
+		{
+
+			@Override
+			public void propertyChange(PropertyChangeEvent evt)
+			{
+				Display.getDefault().asyncExec(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						MessageLinkDialog.openWarning(Display.getDefault().getActiveShell(),
+								Messages.IncreasePartitionSizeTitle,
+								MessageFormat.format(Messages.IncreasePartitionSizeMessage, evt.getNewValue(),
+										evt.getOldValue(), DOC_URL));
+					}
+				});
+
+			}
+		});
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(new ResourceChangeListener());
 		ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
 		launchBarManager.addListener(new LaunchBarListener());

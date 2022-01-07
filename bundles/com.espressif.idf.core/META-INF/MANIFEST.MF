@@ -20,8 +20,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.debug.core;visibility:=reexport,
  org.eclipse.jgit,
  org.eclipse.cdt.jsoncdb.core,
- org.eclipse.cdt.jsoncdb.core.ui,
- org.eclipse.cdt.cmake.ui
+ org.eclipse.cdt.jsoncdb.core.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: com.espressif.idf.core
 Bundle-ActivationPolicy: lazy
