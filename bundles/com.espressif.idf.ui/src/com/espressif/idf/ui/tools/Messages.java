@@ -28,8 +28,6 @@ public class Messages extends NLS
 	public static String InstallToolsText;
 	public static String DeleteToolsText;
 	public static String InstallToolsProgressShell_lblNewLabel_text;
-	public static String InstallToolsProgressShell_text_text;
-	public static String InstallToolsProgressShell_txtTxtinstalledtool_text;
 	public static String Installed;
 	public static String DownloadFileText;
 	public static String DownloadProgressText;
@@ -44,6 +42,9 @@ public class Messages extends NLS
 	public static String RemovingDirectoryMessage;
 	public static String RemoveToolMessageBox;
 	public static String RemoveToolMessageBoxTitle;
+	public static String SelectAllButton;
+	public static String DeselectAllButton;
+	public static String FilterTargets; 
 	
 	static
 	{
