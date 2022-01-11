@@ -5,18 +5,35 @@
 package com.espressif.idf.ui.tools.shell;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
 
 import com.espressif.idf.ui.tools.Messages;
@@ -27,18 +44,6 @@ import com.espressif.idf.ui.tools.vo.ToolsVO;
 import com.espressif.idf.ui.tools.vo.VersionDetailsVO;
 import com.espressif.idf.ui.tools.vo.VersionsVO;
 
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.TreeColumn;
-import org.eclipse.swt.widgets.TreeItem;
-
 /**
  * Shell for displaying tools information on UI
  * 
@@ -47,7 +52,10 @@ import org.eclipse.swt.widgets.TreeItem;
  */
 public class ManageToolsInstallationShell
 {
-	private static final String ESP_IDF_TOOLS_MANAGER = "ESP-IDF Tools Manager";
+	private static final String RECOMMENDED = "recommended"; //$NON-NLS-1$
+	private static final String ALWAYS2 = "always"; //$NON-NLS-1$
+	private static final String ALL = "all"; //$NON-NLS-1$
+	private static final String ESP_IDF_TOOLS_MANAGER = "ESP-IDF Tools Manager"; //$NON-NLS-1$
 	private static final String WHITE = "white"; //$NON-NLS-1$
 	private static final String MAC_OS = "mac"; //$NON-NLS-1$
 	private static final String LINUX_OS = "linux"; //$NON-NLS-1$
@@ -60,6 +68,12 @@ public class ManageToolsInstallationShell
 	private List<ToolsVO> toolsVOs;
 	private Text descriptionText;
 	private Tree toolsTree;
+	private Button btnInstallTools;
+	private Button btnDeleteTools;
+	private Button btnSelectAll;
+	private Button btnDeselectAll;
+	private Combo filterTargetBox;
+	private boolean itemChecked = false;
 
 	public ManageToolsInstallationShell(List<ToolsVO> toolsVOs)
 	{
@@ -73,17 +87,69 @@ public class ManageToolsInstallationShell
 		Composite treeControlsComposite = new Composite(shell, SWT.NONE);
 		treeControlsComposite.setLayout(new FillLayout(SWT.VERTICAL));
 
-		Composite labelComposite = new Composite(treeControlsComposite, SWT.NONE);
-		labelComposite.setLayout(new GridLayout(1, true));
+		Composite subControlComposite = new Composite(treeControlsComposite, SWT.NONE);
+		subControlComposite.setLayout(new GridLayout(2, false));
 
-		Label lblTreeTitle = new Label(labelComposite, SWT.NONE);
-		lblTreeTitle.setText(Messages.ToolsTreeHeading);
+		btnSelectAll = new Button(subControlComposite, SWT.PUSH);
+		btnSelectAll.setText(Messages.SelectAllButton);
+		btnSelectAll.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				selectAllItems(true);
+				setButtonsEnabled(true);
+			}
+		});
 
-		toolsTree = new Tree(labelComposite, SWT.BORDER | SWT.CHECK | SWT.FULL_SELECTION);
+		btnDeselectAll = new Button(subControlComposite, SWT.PUSH);
+		btnDeselectAll.setText(Messages.DeselectAllButton);
+		btnDeselectAll.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				selectAllItems(false);
+				setButtonsEnabled(false);
+			}
+		});
+
+		Label targetFilterLabel = new Label(subControlComposite, SWT.NONE);
+		targetFilterLabel.setText(Messages.FilterTargets);
+
+		filterTargetBox = new Combo(subControlComposite, SWT.READ_ONLY);
+		filterTargetBox.setItems(getTargetFilterItems());
+		filterTargetBox.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				String selectedTarget = filterTargetBox.getItem(filterTargetBox.getSelectionIndex());
+				toolsTree.removeAll();
+				addItemsToTree(toolsTree);
+				if (selectedTarget.equalsIgnoreCase(ALL))
+				{
+					return;
+				}
+				for (TreeItem item : toolsTree.getItems())
+				{
+					ToolsVO toolsVO = (ToolsVO) item.getData();
+					if (toolsVO.getSupportedTargets().contains(selectedTarget)
+							|| toolsVO.getSupportedTargets().contains(ALL))
+					{
+						continue;
+					}
+
+					item.dispose();
+				}
+			}
+		});
+
+		toolsTree = new Tree(subControlComposite, SWT.BORDER | SWT.CHECK | SWT.FULL_SELECTION);
 		toolsTree.setHeaderVisible(true);
 		toolsTree.setLinesVisible(true);
 		toolsTree.setSize(424, 100);
-		toolsTree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		toolsTree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 		toolsTree.addListener(SWT.Selection, new TreeSelectionListener());
 
 		TreeColumn trclmnName = new TreeColumn(toolsTree, SWT.NONE);
@@ -120,16 +186,30 @@ public class ManageToolsInstallationShell
 		composite.setLayout(new GridLayout(2, false));
 		composite.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, true, true, 1, 1));
 
-		Button btnInstallTools = new Button(composite, SWT.NONE);
+		btnInstallTools = new Button(composite, SWT.NONE);
 		btnInstallTools.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		btnInstallTools.setBounds(0, 0, 75, 25);
 		btnInstallTools.setText(Messages.InstallToolsText);
 		btnInstallTools.addSelectionListener(new InstallButtonSelectionAdapter());
+		btnInstallTools.setEnabled(false);
 
-		Button btnDeleteTools = new Button(composite, SWT.NONE);
+		btnDeleteTools = new Button(composite, SWT.NONE);
 		btnDeleteTools.setBounds(0, 0, 75, 25);
 		btnDeleteTools.setText(Messages.DeleteToolsText);
 		btnDeleteTools.addSelectionListener(new DeleteButtonSelectionAdapter());
+		btnDeleteTools.setEnabled(false);
+		
+		setButtonsEnabled(itemChecked);
+	}
+
+	private String[] getTargetFilterItems()
+	{
+		Set<String> targets = new HashSet<>();
+		for (ToolsVO toolsVO : toolsVOs)
+		{
+			targets.addAll(toolsVO.getSupportedTargets());
+		}
+		return targets.toArray(String[]::new);
 	}
 
 	private void addItemsToTree(Tree toolsTree)
@@ -140,6 +220,15 @@ public class ManageToolsInstallationShell
 			String[] itemText = getMainItemText(toolsVO);
 			mainItem.setText(itemText);
 			mainItem.setData(toolsVO);
+
+			boolean always = toolsVO.getVersionVO().getStatus().equalsIgnoreCase(ALWAYS2)
+					|| toolsVO.getVersionVO().getStatus().equalsIgnoreCase(RECOMMENDED);
+			if (always)
+			{
+				itemChecked = true;
+			}
+			
+			mainItem.setChecked(always);
 
 			for (String key : toolsVO.getVersionVO().getVersionOsMap().keySet())
 			{
@@ -174,6 +263,7 @@ public class ManageToolsInstallationShell
 				Image installedImage = getInstalledImage(toolsVO.getName(), toolsVO.getVersionVO().getName());
 				subItem.setImage(0, image);
 				subItem.setImage(2, installedImage);
+				subItem.setChecked(always);
 			}
 		}
 	}
@@ -226,7 +316,7 @@ public class ManageToolsInstallationShell
 		textArr[3] = toolsVO.getDescription();
 		return textArr;
 	}
-	
+
 	private List<VersionsVO> getSelectedTools()
 	{
 		List<VersionsVO> versionsVOs = new ArrayList<>();
@@ -246,7 +336,39 @@ public class ManageToolsInstallationShell
 
 	public void openShell()
 	{
+		centerScreen();
 		shell.open();
+	}
+
+	private void centerScreen()
+	{
+		Monitor primary = display.getPrimaryMonitor();
+		Rectangle bounds = primary.getBounds();
+		Rectangle rect = shell.getBounds();
+		/** calculate the centre */
+		int x = bounds.x + (bounds.width - rect.width) / 2;
+		int y = bounds.y + (bounds.height - rect.height) / 2;
+		shell.setLocation(x, y);
+	}
+
+	private void setButtonsEnabled(boolean enabled)
+	{
+		btnDeleteTools.setEnabled(enabled);
+		btnInstallTools.setEnabled(enabled);
+		btnDeleteTools.redraw();
+		btnInstallTools.redraw();
+	}
+
+	private void selectAllItems(boolean selectAll)
+	{
+		for (TreeItem item : toolsTree.getItems())
+		{
+			item.setChecked(selectAll);
+			for (TreeItem subItem : item.getItems())
+			{
+				subItem.setChecked(selectAll);
+			}
+		}
 	}
 
 	private class TreeSelectionListener implements Listener
@@ -265,6 +387,31 @@ public class ManageToolsInstallationShell
 			default:
 				break;
 			}
+
+			buttonEnableCheck();
+		}
+
+		private void buttonEnableCheck()
+		{
+			for (TreeItem item : toolsTree.getItems())
+			{
+				if (item.getChecked())
+				{
+					setButtonsEnabled(true);
+					return;
+				}
+
+				for (TreeItem subItem : item.getItems())
+				{
+					if (subItem.getChecked())
+					{
+						setButtonsEnabled(true);
+						return;
+					}
+				}
+			}
+
+			setButtonsEnabled(false);
 		}
 
 		private void swtSelectedEventHandle(Event event)
@@ -310,6 +457,10 @@ public class ManageToolsInstallationShell
 		{
 			TreeItem item = (TreeItem) event.item;
 			boolean checked = item.getChecked();
+			if (checked)
+			{
+				setButtonsEnabled(true);
+			}
 			checkItems(item, checked);
 		}
 
@@ -329,7 +480,7 @@ public class ManageToolsInstallationShell
 			}
 		}
 	}
-	
+
 	private class DeleteButtonSelectionAdapter extends SelectionAdapter
 	{
 		@Override
@@ -344,9 +495,9 @@ public class ManageToolsInstallationShell
 			{
 				ToolsInstallationHandler toolsInstallationHandler = new ToolsInstallationHandler(versionsVOs);
 				shell.close();
-				toolsInstallationHandler.deleteTools();				
+				toolsInstallationHandler.deleteTools();
 			}
-		}		
+		}
 	}
 
 	private class InstallButtonSelectionAdapter extends SelectionAdapter

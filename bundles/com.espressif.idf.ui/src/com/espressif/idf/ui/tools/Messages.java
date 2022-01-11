@@ -37,11 +37,6 @@ public class Messages extends NLS
 	public static String SystemPathMessage;
 	public static String ExtractionCompletedMessage;
 	public static String RemovedPathMessage;
-	public static String RemoveToolMessageBox;
-	public static String RemoveToolMessageBoxTitle;
-	public static String SelectAllButton;
-	public static String DeselectAllButton;
-	public static String FilterTargets;
 	public static String Warning;
 	public static String DirectorySelectionDialog_IDFDirLabel;
 	public static String DirectorySelectionDialog_SelectIDFDirMessage;
@@ -103,6 +98,9 @@ public class Messages extends NLS
 	public static String RemovingDirectoryMessage;
 	public static String RemoveToolMessageBox;
 	public static String RemoveToolMessageBoxTitle;
+	public static String SelectAllButton;
+	public static String DeselectAllButton;
+	public static String FilterTargets; 
 	
 	static
 	{
