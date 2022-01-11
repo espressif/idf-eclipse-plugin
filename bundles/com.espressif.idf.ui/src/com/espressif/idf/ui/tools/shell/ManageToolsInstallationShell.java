@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.SWT;
@@ -53,7 +52,7 @@ import com.espressif.idf.ui.tools.vo.VersionsVO;
 public class ManageToolsInstallationShell
 {
 	private static final String RECOMMENDED = "recommended"; //$NON-NLS-1$
-	private static final String ALWAYS2 = "always"; //$NON-NLS-1$
+	private static final String ALWAYS = "always"; //$NON-NLS-1$
 	private static final String ALL = "all"; //$NON-NLS-1$
 	private static final String ESP_IDF_TOOLS_MANAGER = "ESP-IDF Tools Manager"; //$NON-NLS-1$
 	private static final String WHITE = "white"; //$NON-NLS-1$
@@ -79,7 +78,7 @@ public class ManageToolsInstallationShell
 	{
 		this.toolsVOs = toolsVOs;
 		this.display = PlatformUI.getWorkbench().getDisplay();
-		this.shell = new Shell(display, SWT.TITLE | SWT.CLOSE);
+		this.shell = new Shell(display, SWT.CLOSE | SWT.MAX | SWT.TITLE);
 		shell.setImage(ToolsImagesCache.getImage(ESP_IDF_TOOLS_MANAGER.concat(PNG_EXTENSION)));
 		shell.setText(Messages.ToolsManagerShellHeading);
 		shell.setLayout(new FillLayout(SWT.VERTICAL));
@@ -217,19 +216,22 @@ public class ManageToolsInstallationShell
 		for (ToolsVO toolsVO : toolsVOs)
 		{
 			TreeItem mainItem = new TreeItem(toolsTree, SWT.NONE);
-			String[] itemText = getMainItemText(toolsVO);
+			boolean isInstalled = ToolsUtility.isToolInstalled(toolsVO.getName(), toolsVO.getVersionVO().getName());
+			String[] itemText = getMainItemText(toolsVO, isInstalled);
 			mainItem.setText(itemText);
 			mainItem.setData(toolsVO);
-
-			boolean always = toolsVO.getVersionVO().getStatus().equalsIgnoreCase(ALWAYS2)
-					|| toolsVO.getVersionVO().getStatus().equalsIgnoreCase(RECOMMENDED);
-			if (always)
+			Image installedImage = getInstalledImage(toolsVO.getName(), toolsVO.getVersionVO().getName());
+			mainItem.setImage(2, installedImage);
+			
+			boolean alwaysInstall = toolsVO.getInstallType().equalsIgnoreCase(ALWAYS)
+					|| toolsVO.getInstallType().equalsIgnoreCase(RECOMMENDED);
+			if (alwaysInstall)
 			{
 				itemChecked = true;
 			}
 			
-			mainItem.setChecked(always);
-
+			mainItem.setChecked(alwaysInstall);
+			boolean platformAvailable = false;
 			for (String key : toolsVO.getVersionVO().getVersionOsMap().keySet())
 			{
 				if (Platform.getOS().equals(Platform.OS_WIN32))
@@ -255,15 +257,19 @@ public class ManageToolsInstallationShell
 				}
 
 				TreeItem subItem = new TreeItem(mainItem, SWT.NONE);
-				String[] subItemText = getSubItemText(key, toolsVO.getVersionVO().getVersionOsMap(),
-						ToolsUtility.isToolInstalled(toolsVO.getName(), toolsVO.getVersionVO().getName()));
+				String[] subItemText = getSubItemText(key, toolsVO.getVersionVO().getVersionOsMap(), toolsVO.getVersionVO().getName(), isInstalled);
 				subItem.setText(subItemText);
 				subItem.setData(toolsVO.getVersionVO());
 				Image image = getOsImageForItem(subItem);
-				Image installedImage = getInstalledImage(toolsVO.getName(), toolsVO.getVersionVO().getName());
 				subItem.setImage(0, image);
 				subItem.setImage(2, installedImage);
-				subItem.setChecked(always);
+				subItem.setChecked(alwaysInstall);
+				platformAvailable = true;
+			}
+			
+			if (!platformAvailable)
+			{
+				mainItem.dispose();
 			}
 		}
 	}
@@ -297,22 +303,22 @@ public class ManageToolsInstallationShell
 		return null;
 	}
 
-	private String[] getSubItemText(String key, Map<String, VersionDetailsVO> versionOsMap, boolean isInstalled)
+	private String[] getSubItemText(String key, Map<String, VersionDetailsVO> versionOsMap, String name, boolean isInstalled)
 	{
 		String[] textArr = new String[4];
-		textArr[0] = key;
+		textArr[0] = key.concat(" ").concat(name);
 		textArr[1] = versionOsMap.get(key).getReadableSize();
 		textArr[2] = isInstalled ? Messages.Installed : ""; //$NON-NLS-1$
 		textArr[3] = ""; //$NON-NLS-1$
 		return textArr;
 	}
 
-	private String[] getMainItemText(ToolsVO toolsVO)
+	private String[] getMainItemText(ToolsVO toolsVO, boolean isInstalled)
 	{
 		String[] textArr = new String[4];
 		textArr[0] = toolsVO.getName();
 		textArr[1] = toolsVO.getReadableSize();
-		textArr[2] = ""; //$NON-NLS-1$
+		textArr[2] = isInstalled ? Messages.Installed : ""; //$NON-NLS-1$
 		textArr[3] = toolsVO.getDescription();
 		return textArr;
 	}

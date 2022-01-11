@@ -200,6 +200,7 @@ public class ToolsInstallationHandler
 		Path pathToExport = Paths.get(exportPathBuilder.toString()); // for correcting the path error in windows
 
 		console.println(Messages.UpdateToolPathMessage.concat(pathToExport.toAbsolutePath().toString()));
+		updatedPath.append(File.pathSeparator);
 		updatedPath.append(pathToExport.toAbsolutePath().toString());
 
 		console.println(Messages.SystemPathMessage.concat(updatedPath.toString()));

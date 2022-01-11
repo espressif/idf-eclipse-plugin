@@ -163,7 +163,7 @@ public class ToolsVO
 		double totalSize = getSize();
 		totalSize /= 1024; // KB
 		totalSize /= 1024; // MB
-		DecimalFormat df = new DecimalFormat("0.00"); //$NON-NLS-1$
+		DecimalFormat df = new DecimalFormat("0"); //$NON-NLS-1$
 		return String.valueOf(df.format(totalSize)).concat(" MB"); //$NON-NLS-1$
 	}
 }

@@ -45,6 +45,10 @@ public class Messages extends NLS
 	public static String SelectAllButton;
 	public static String DeselectAllButton;
 	public static String FilterTargets; 
+	public static String Warning;
+	public static String DirectorySelectionDialog_IDFDirLabel;
+	public static String DirectorySelectionDialog_SelectIDFDirMessage;
+	public static String WarningMessagebox;
 	
 	static
 	{
