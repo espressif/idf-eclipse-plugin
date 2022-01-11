@@ -53,7 +53,7 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 The minimum requirements for running the IDF Eclipse plug-ins are below. 
 
 * **Java 11 and above** : Download and install Java SE from <a href= "https://www.oracle.com/technetwork/java/javase/downloads/index.html">here</a>
-* **Python 3.5 and above** : Download and install Python from <a href="https://www.python.org/downloads/">here</a>
+* **Python 3.6 and above** : Download and install Python from <a href="https://www.python.org/downloads/">here</a>
 * **Eclipse IDE for C/C++ Developers 2021-09 (2021-06 is also supported)** : Download and install Eclipse CDT package from <a href= "https://www.eclipse.org/downloads/packages/release/2021-09/r/eclipse-ide-cc-developers">here </a>
 *  **Git** : Get the latest git from <a href ="https://git-scm.com/downloads">here</a>
 *  **ESP-IDF 4.0 and above** : Clone the ESP-IDF repo from <a href ="https://github.com/espressif/esp-idf/releases">here</a>
