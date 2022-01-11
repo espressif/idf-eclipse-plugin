@@ -28,6 +28,13 @@ jobs:
    
     - name: Build with Maven
       run: mvn clean verify -Djarsigner.skip=true
+      
+    - name: Upload build artifacts
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: artifacts
+        path: releng/com.espressif.idf.update/target/repository
   
     - name: Upload build assets to dl.espressif.com
       id: upload-release-asset-espressif
