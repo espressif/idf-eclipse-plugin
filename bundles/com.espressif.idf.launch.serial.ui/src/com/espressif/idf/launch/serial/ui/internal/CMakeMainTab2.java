@@ -22,6 +22,7 @@ import org.eclipse.cdt.launch.ui.corebuild.GenericMainTab;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.launchbar.core.ILaunchBarManager;
@@ -70,8 +71,23 @@ public class CMakeMainTab2 extends GenericMainTab {
 	public void createControl(Composite parent) {
 		launchBarManager = Activator.getService(ILaunchBarManager.class);
 		isJtagFlashAvailable = ESPFlashUtil.checkIfJtagIsAvailable();
-		createJtagFlashButton(parent);
-		super.createControl(parent);
+
+		Composite mainComposite = new Composite(parent, SWT.NONE);
+		setControl(mainComposite);
+		mainComposite.setFont(parent.getFont());
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 1;
+		GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
+		mainComposite.setLayout(layout);
+		mainComposite.setLayoutData(gridData);
+
+		createJtagFlashButton(mainComposite);
+		createLocationComponent(mainComposite);
+		createWorkDirectoryComponent(mainComposite);
+		createArgumentComponent(mainComposite);
+		createVerticalSpacer(mainComposite, 1);
+
+		Dialog.applyDialogFont(parent);
 		locationAndWorkDirGroupData = new GridData(SWT.FILL, SWT.NONE, true, false);
 		locationField.getParent().setLayoutData(locationAndWorkDirGroupData);
 		workDirectoryField.getParent().setLayoutData(locationAndWorkDirGroupData);
