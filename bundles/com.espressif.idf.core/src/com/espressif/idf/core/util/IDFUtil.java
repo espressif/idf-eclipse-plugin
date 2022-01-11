@@ -155,7 +155,11 @@ public class IDFUtil
 
 	public static String getPythonExecutable()
 	{
-		IPath pythonPath = ExecutableFinder.find(IDFConstants.PYTHON_CMD, true);
+		IPath pythonPath = ExecutableFinder.find(IDFConstants.PYTHON3_CMD, true); //look for python3
+		if (pythonPath == null)
+		{
+			pythonPath = ExecutableFinder.find(IDFConstants.PYTHON_CMD, true); //look for python
+		}
 		if (pythonPath != null)
 		{
 			return pythonPath.toOSString();
