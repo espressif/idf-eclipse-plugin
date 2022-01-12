@@ -34,17 +34,6 @@ jobs:
         mvn -e -X clean install -Djarsigner.keystore="${KEYSTORE_FILE}" -Djarsigner.alias="${JARSIGNER_ALIAS}" -Djarsigner.storepass="${JARSIGNER_STOREPASS}"
         rm -v "${KEYSTORE_FILE}"
     
-- name: Build with Maven
-      run: |
-        export JARSIGNER_KEYSTORE_B64=${{secrets.JARSIGNER_REL_KEYSTORE_B64}}
-        export JARSIGNER_STOREPASS=${{secrets.JARSIGNER_REL_STOREPASS}}
-        export JARSIGNER_ALIAS=${{secrets.JARSIGNER_REL_ALIAS}}
-        KEYSTORE_FILE="${PWD}/{{secrets.JARSIGNER_KEYSTORE}}"
-        echo "${KEYSTORE_FILE}"
-        printf "%s" "${JARSIGNER_KEYSTORE_B64}" | base64 -d - > "${KEYSTORE_FILE}"
-        mvn -e -X clean install -Djarsigner.keystore="${KEYSTORE_FILE}" -Djarsigner.alias="${JARSIGNER_ALIAS}" -Djarsigner.storepass="${JARSIGNER_STOREPASS}"
-        rm -v "${KEYSTORE_FILE}"
-    
     - name: Upload build artifacts
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v2
