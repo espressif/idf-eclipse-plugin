@@ -75,7 +75,7 @@ public class ToolsInstallationHandler
 	{
 		try
 		{
-			console.println("Removing Directory for Tool: ".concat(toolName));
+			console.println("Removing Directory for Tool: ".concat(toolName)); //$NON-NLS-1$
 			ToolsUtility.removeToolDirectory(toolName);
 		}
 		catch (IOException e)
