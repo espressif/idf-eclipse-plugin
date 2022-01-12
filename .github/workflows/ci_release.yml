@@ -83,13 +83,13 @@ jobs:
         FOLDER_NAME="v${ARCHIVE_VERSION}"
         mkdir "${FOLDER_NAME}" && cd "${FOLDER_NAME}" && unzip -q ${ARCHIVE_FILE_NAME} && cd ..
         echo ${PWD}
-        ARCHIVE_VERSION_NEW = "${ARCHIVE_PREFIX}${ARCHIVE_VERSION}.zip"
+        ARCHIVE_VERSION_NEW="${ARCHIVE_PREFIX}${ARCHIVE_VERSION}.zip"
         echo ${ARCHIVE_VERSION_NEW}
         mv ${ARCHIVE_FILE_NAME} ${ARCHIVE_VERSION_NEW}
         aws s3 cp --acl=public-read --recursive "./${FOLDER_NAME}/" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates2/latest
         aws s3 cp --acl=public-read "./releng/index.html" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates2/latest/
         aws s3 cp --acl=public-read --recursive "./${FOLDER_NAME}/" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates2/${FOLDER_NAME}
         aws s3 cp --acl=public-read --recursive --exclude "*" --include "Espressif-IDE-*" ./releng/com.espressif.idf.product/target/products/ s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
-        aws s3 cp --acl=public-read ${ARCHIVE_VERSION_NEW} s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates2/
+        aws s3 cp --acl=public-read "${ARCHIVE_VERSION_NEW}" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates2/
         
         
