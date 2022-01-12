@@ -80,8 +80,11 @@ jobs:
         tmp=${ARCHIVE_FILE_NAME#*${ARCHIVE_PREFIX}}   # remove prefix
         ARCHIVE_VERSION=${tmp%${ARCHIVE_SUFFIX}*}   # remove suffix
         echo "${ARCHIVE_VERSION}"
-        mkdir "v${ARCHIVE_VERSION}" && cd "v${ARCHIVE_VERSION}" && unzip -q ${ARCHIVE_FILE_NAME} && cd ..
-        # aws s3 cp --acl=public-read --no-progress --recursive --exclude "*" --include "Espressif-IDE-*" ./releng/com.espressif.idf.product/target/products/ s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
-        # aws s3 cp --acl=public-read --no-progress --recursive --exclude "*" --include "v${ARCHIVE_VERSION}" . s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/
-        aws s3 cp --acl=public-read --no-progress --recursive --exclude "*" --include "v${ARCHIVE_VERSION}" . s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/latest2
+        FOLDER_NAME="v${ARCHIVE_VERSION}"
+        mkdir "${FOLDER_NAME}" && cd "${FOLDER_NAME}" && unzip -q ${ARCHIVE_FILE_NAME} && cd ..
+        echo ${PWD}
+        aws s3 cp --acl=public-read --recursive "./${FOLDER_NAME}/"  s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates2/latest
+        aws s3 cp --acl=public-read --recursive --exclude "*" --include "${FOLDER_NAME}" . s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates2/
+        aws s3 cp --acl=public-read --recursive --exclude "*" --include "Espressif-IDE-*" ./releng/com.espressif.idf.product/target/products/ s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
+        
         
