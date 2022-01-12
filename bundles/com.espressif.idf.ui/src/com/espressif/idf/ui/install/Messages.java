@@ -37,6 +37,8 @@ public class Messages extends NLS
 	public static String IDFDownloadWizard_DownloadingMessage;
 	public static String IDFDownloadWizard_ErrorTitle;
 	public static String IDFDownloadWizard_MessageTitle;
+	public static String IDFDownloadWizard_AllowSpacesTitle;
+	public static String IDFDownloadWizard_AllowSpacesMsg;
 	static
 	{
 		// initialize resource bundle

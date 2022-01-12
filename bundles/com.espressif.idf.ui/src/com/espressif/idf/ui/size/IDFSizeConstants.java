@@ -4,19 +4,9 @@
  *******************************************************************************/
 package com.espressif.idf.ui.size;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
-
-import com.espressif.idf.core.IDFCorePlugin;
-import com.espressif.idf.core.IDFEnvironmentVariables;
-import com.espressif.idf.core.ProcessBuilderFactory;
-import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 
 /**
