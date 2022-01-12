@@ -67,7 +67,7 @@ public class ToolsInstallationHandler
 			}
 
 			removeToolFromPath(versionsVO.getVersionOsMap().get(key).getParentName());
-			removeToolDirectory(versionsVO.getVersionOsMap().get(key).getParentName());
+			removeToolDirectory(versionsVO.getVersionOsMap().get(key).getParentName().concat(PATH_SPLITOR).concat(versionsVO.getName()));
 		}
 	}
 

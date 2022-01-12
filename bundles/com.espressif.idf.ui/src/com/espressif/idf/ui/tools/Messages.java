@@ -19,7 +19,6 @@ public class Messages extends NLS
 	public static String UrlDescriptionText;
 	public static String SizeDescriptionText;
 	public static String SupportedTargetsDescriptionText;
-	public static String ToolsTreeHeading;
 	public static String ToolsManagerShellHeading;
 	public static String ToolsTreeNameCol;
 	public static String ToolsTreeSizeCol;
@@ -27,7 +26,6 @@ public class Messages extends NLS
 	public static String DescriptionText;
 	public static String InstallToolsText;
 	public static String DeleteToolsText;
-	public static String InstallToolsProgressShell_lblNewLabel_text;
 	public static String Installed;
 	public static String DownloadFileText;
 	public static String DownloadProgressText;
