@@ -34,6 +34,16 @@ jobs:
         mvn -e -X clean install -Djarsigner.keystore="${KEYSTORE_FILE}" -Djarsigner.alias="${JARSIGNER_ALIAS}" -Djarsigner.storepass="${JARSIGNER_STOREPASS}"
         rm -v "${KEYSTORE_FILE}"
     
+    - name: Create macosx dmg
+      run: $PWD/releng/ide-dmg-builder/ide-dmg-builder.sh
+    
+    - name: Upload macosx dmg
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: espressif-ide-macosx-dmg
+        path: releng/ide-dmg-builder/Espressif-IDE.dmg
+    
     - name: Upload build artifacts
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v2
@@ -86,10 +96,11 @@ jobs:
         ARCHIVE_VERSION_NEW="${ARCHIVE_PREFIX}${ARCHIVE_VERSION}.zip"
         echo ${ARCHIVE_VERSION_NEW}
         mv ${ARCHIVE_FILE_NAME} ${ARCHIVE_VERSION_NEW}
+        mv releng/ide-dmg-builder/Espressif-IDE.dmg "releng/ide-dmg-builder/Espressif-IDE-${FOLDER_NAME}.dmg"
         aws s3 cp --acl=public-read --recursive "./${FOLDER_NAME}/" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates2/latest
         aws s3 cp --acl=public-read "./releng/index.html" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates2/latest/
         aws s3 cp --acl=public-read --recursive "./${FOLDER_NAME}/" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates2/${FOLDER_NAME}
         aws s3 cp --acl=public-read --recursive --exclude "*" --include "Espressif-IDE-*" ./releng/com.espressif.idf.product/target/products/ s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
         aws s3 cp --acl=public-read "${ARCHIVE_VERSION_NEW}" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates2/
-        
+        aws s3 cp --acl=public-read "./releng/ide-dmg-builder/Espressif-IDE-${FOLDER_NAME}.dmg" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
         
