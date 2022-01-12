@@ -69,4 +69,19 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
       run: |
-        aws s3 cp --acl=public-read --no-progress --recursive --exclude "*" --include "Espressif-IDE-*" ./releng/com.espressif.idf.product/target/products/ s3://${{ secrets.DL_BUCKET }}/dl/ide/
+        ARCHIVE_DIR="/releng/com.espressif.idf.update/target/"
+        ARCHIVE_NAME="com.espressif.idf.update*.zip"
+        echo "${ARCHIVE_DIR}"
+        echo ${PWD}${ARCHIVE_DIR}
+        ARCHIVE_FILE_NAME="$(find ${PWD}${ARCHIVE_DIR}${ARCHIVE_NAME})"
+        echo "${ARCHIVE_FILE_NAME}"
+        ARCHIVE_PREFIX="com.espressif.idf.update-"
+        ARCHIVE_SUFFIX="-SNAPSHOT.zip";
+        tmp=${ARCHIVE_FILE_NAME#*${ARCHIVE_PREFIX}}   # remove prefix
+        ARCHIVE_VERSION=${tmp%${ARCHIVE_SUFFIX}*}   # remove suffix
+        echo "${ARCHIVE_VERSION}"
+        mkdir "v${ARCHIVE_VERSION}" && cd "v${ARCHIVE_VERSION}" && unzip -q ${ARCHIVE_FILE_NAME} && cd ..
+        aws s3 cp --acl=public-read --no-progress --recursive --exclude "*" --include "Espressif-IDE-*" ./releng/com.espressif.idf.product/target/products/ s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
+        aws s3 cp --acl=public-read --no-progress --recursive --exclude "*" --include "v${ARCHIVE_VERSION}" . s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/
+        aws s3 cp --acl=public-read --no-progress --recursive --exclude "*" --include "v${ARCHIVE_VERSION}" . s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/latest2
+        
