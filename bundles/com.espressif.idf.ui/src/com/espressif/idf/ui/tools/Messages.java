@@ -47,6 +47,7 @@ public class Messages extends NLS
 	public static String DirectorySelectionDialog_IDFDirLabel;
 	public static String DirectorySelectionDialog_SelectIDFDirMessage;
 	public static String WarningMessagebox;
+	public static String NotInstalled;
 	
 	static
 	{

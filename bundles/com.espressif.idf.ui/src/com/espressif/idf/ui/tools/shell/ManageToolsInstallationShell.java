@@ -78,7 +78,8 @@ public class ManageToolsInstallationShell
 	{
 		this.toolsVOs = toolsVOs;
 		this.display = PlatformUI.getWorkbench().getDisplay();
-		this.shell = new Shell(PlatformUI.getWorkbench().getDisplay().getActiveShell(), SWT.CLOSE | SWT.MAX | SWT.TITLE);
+		this.shell = new Shell(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
+				SWT.CLOSE | SWT.MAX | SWT.TITLE);
 		shell.setImage(ToolsImagesCache.getImage(ESP_IDF_TOOLS_MANAGER_ICON.concat(PNG_EXTENSION)));
 		shell.setText(Messages.ToolsManagerShellHeading);
 		shell.setLayout(new FillLayout(SWT.VERTICAL));
@@ -197,7 +198,7 @@ public class ManageToolsInstallationShell
 		btnDeleteTools.setText(Messages.DeleteToolsText);
 		btnDeleteTools.addSelectionListener(new DeleteButtonSelectionAdapter());
 		btnDeleteTools.setEnabled(false);
-		
+
 		setButtonsEnabled(itemChecked);
 	}
 
@@ -222,14 +223,14 @@ public class ManageToolsInstallationShell
 			mainItem.setData(toolsVO);
 			Image installedImage = getInstalledImage(toolsVO.getName(), toolsVO.getVersionVO().getName());
 			mainItem.setImage(2, installedImage);
-			
+
 			boolean alwaysInstall = toolsVO.getInstallType().equalsIgnoreCase(ALWAYS)
 					|| toolsVO.getInstallType().equalsIgnoreCase(RECOMMENDED);
 			if (alwaysInstall)
 			{
 				itemChecked = true;
 			}
-			
+
 			mainItem.setChecked(alwaysInstall);
 			boolean platformAvailable = false;
 			for (String key : toolsVO.getVersionVO().getVersionOsMap().keySet())
@@ -257,7 +258,8 @@ public class ManageToolsInstallationShell
 				}
 
 				TreeItem subItem = new TreeItem(mainItem, SWT.NONE);
-				String[] subItemText = getSubItemText(key, toolsVO.getVersionVO().getVersionOsMap(), toolsVO.getVersionVO().getName(), isInstalled);
+				String[] subItemText = getSubItemText(key, toolsVO.getVersionVO().getVersionOsMap(),
+						toolsVO.getVersionVO().getName(), isInstalled);
 				subItem.setText(subItemText);
 				subItem.setData(toolsVO.getVersionVO());
 				Image image = getOsImageForItem(subItem);
@@ -266,7 +268,7 @@ public class ManageToolsInstallationShell
 				subItem.setChecked(alwaysInstall);
 				platformAvailable = true;
 			}
-			
+
 			if (!platformAvailable)
 			{
 				mainItem.dispose();
@@ -303,13 +305,14 @@ public class ManageToolsInstallationShell
 		return null;
 	}
 
-	private String[] getSubItemText(String key, Map<String, VersionDetailsVO> versionOsMap, String name, boolean isInstalled)
+	private String[] getSubItemText(String key, Map<String, VersionDetailsVO> versionOsMap, String name,
+			boolean isInstalled)
 	{
 		String[] textArr = new String[4];
 		textArr[0] = key;
 		textArr[1] = versionOsMap.get(key).getReadableSize();
-		textArr[2] = isInstalled ? Messages.Installed : ""; //$NON-NLS-1$
-		textArr[3] = name; //$NON-NLS-1$
+		textArr[2] = isInstalled ? Messages.Installed : Messages.NotInstalled;
+		textArr[3] = name;
 		return textArr;
 	}
 
@@ -318,7 +321,7 @@ public class ManageToolsInstallationShell
 		String[] textArr = new String[4];
 		textArr[0] = toolsVO.getName();
 		textArr[1] = toolsVO.getReadableSize();
-		textArr[2] = isInstalled ? Messages.Installed : ""; //$NON-NLS-1$
+		textArr[2] = isInstalled ? Messages.Installed : Messages.NotInstalled;
 		textArr[3] = toolsVO.getDescription();
 		return textArr;
 	}
