@@ -54,7 +54,7 @@ public class ManageToolsInstallationShell
 	private static final String RECOMMENDED = "recommended"; //$NON-NLS-1$
 	private static final String ALWAYS = "always"; //$NON-NLS-1$
 	private static final String ALL = "all"; //$NON-NLS-1$
-	private static final String ESP_IDF_TOOLS_MANAGER = "ESP-IDF Tools Manager"; //$NON-NLS-1$
+	private static final String ESP_IDF_TOOLS_MANAGER_ICON = "ESP-IDFManageToolsInstalltion"; //$NON-NLS-1$
 	private static final String WHITE = "white"; //$NON-NLS-1$
 	private static final String MAC_OS = "mac"; //$NON-NLS-1$
 	private static final String LINUX_OS = "linux"; //$NON-NLS-1$
@@ -78,8 +78,8 @@ public class ManageToolsInstallationShell
 	{
 		this.toolsVOs = toolsVOs;
 		this.display = PlatformUI.getWorkbench().getDisplay();
-		this.shell = new Shell(display, SWT.CLOSE | SWT.MAX | SWT.TITLE);
-		shell.setImage(ToolsImagesCache.getImage(ESP_IDF_TOOLS_MANAGER.concat(PNG_EXTENSION)));
+		this.shell = new Shell(PlatformUI.getWorkbench().getDisplay().getActiveShell(), SWT.CLOSE | SWT.MAX | SWT.TITLE);
+		shell.setImage(ToolsImagesCache.getImage(ESP_IDF_TOOLS_MANAGER_ICON.concat(PNG_EXTENSION)));
 		shell.setText(Messages.ToolsManagerShellHeading);
 		shell.setLayout(new FillLayout(SWT.VERTICAL));
 
@@ -306,10 +306,10 @@ public class ManageToolsInstallationShell
 	private String[] getSubItemText(String key, Map<String, VersionDetailsVO> versionOsMap, String name, boolean isInstalled)
 	{
 		String[] textArr = new String[4];
-		textArr[0] = key.concat(" ").concat(name);
+		textArr[0] = key;
 		textArr[1] = versionOsMap.get(key).getReadableSize();
 		textArr[2] = isInstalled ? Messages.Installed : ""; //$NON-NLS-1$
-		textArr[3] = ""; //$NON-NLS-1$
+		textArr[3] = name; //$NON-NLS-1$
 		return textArr;
 	}
 
