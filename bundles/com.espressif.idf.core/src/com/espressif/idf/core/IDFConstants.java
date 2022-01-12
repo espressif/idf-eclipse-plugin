@@ -132,6 +132,8 @@ public interface IDFConstants
 	String TOOLS_EXPORT_CMD_FORMAT_VAL = TOOLS_EXPORT_CMD_FORMAT + "=" + TOOLS_EXPORT_FORMAT_KEYVALUE; //$NON-NLS-1$
 	
 	String PYTHON_CMD = "python"; //$NON-NLS-1$
+	
+	String PYTHON3_CMD = "python3"; //$NON-NLS-1$
 
 	/**
 	 * <IDF_PATH>/components
