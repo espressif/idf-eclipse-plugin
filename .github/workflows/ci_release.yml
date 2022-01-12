@@ -69,5 +69,5 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
       run: |
-        aws s3 cp --acl=public-read --no-progress --recursive --exclude "*" --include "releng/com.espressif.idf.product/target/products/Espressif-IDE-*-"  s3://${{ secrets.DL_BUCKET }}/dl/ide/
-        aws s3 cp --acl=public-read --no-progress "releng/com.espressif.idf.update/target/com.espressif.idf.update-*" s3://${{ secrets.DL_BUCKET }}/idf-eclipse-plugin/updates/test
+        aws s3 cp --acl=public-read --no-progress --recursive --exclude "*" --include "releng/com.espressif.idf.product/target/products/Espressif-IDE-*-" s3://${{ secrets.DL_BUCKET }}/dl/ide/
+        aws s3 cp --acl=public-read --no-progress --recursive --exclude "*" --include "releng/com.espressif.idf.update/target/com.espressif.idf.update-*" s3://${{ secrets.DL_BUCKET }}/idf-eclipse-plugin/updates/test
