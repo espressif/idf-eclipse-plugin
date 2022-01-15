@@ -110,6 +110,10 @@ public class Configuration {
 			{
 				lst.add(ESPFlashUtil.getEspJtagFlashCommand(configuration));
 			}
+			
+			if (doEnableVerboseOuput(configuration)) {
+				lst.add("-d3"); //$NON-NLS-1$
+			}
 
 		} catch (CoreException e) {
 			Activator.log(e);
@@ -122,6 +126,10 @@ public class Configuration {
 		lst.add("echo \"Started by GNU MCU Eclipse\"");
 
 		return lst.toArray(new String[0]);
+	}
+
+	private static boolean doEnableVerboseOuput(ILaunchConfiguration configuration) throws CoreException {
+		return configuration.getAttribute(ConfigurationAttributes.ENABLE_VERBOSE_OUTPUT, false);
 	}
 
 	public static String getGdbServerCommandName(ILaunchConfiguration config) {
