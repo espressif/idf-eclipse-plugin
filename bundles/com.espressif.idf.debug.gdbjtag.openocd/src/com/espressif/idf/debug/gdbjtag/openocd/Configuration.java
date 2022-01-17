@@ -111,7 +111,7 @@ public class Configuration {
 				lst.add(ESPFlashUtil.getEspJtagFlashCommand(configuration));
 			}
 			
-			if (doEnableVerboseOuput(configuration)) {
+			if (isVerboseOutputEnabled(configuration)) {
 				lst.add("-d3"); //$NON-NLS-1$
 			}
 
@@ -128,7 +128,7 @@ public class Configuration {
 		return lst.toArray(new String[0]);
 	}
 
-	private static boolean doEnableVerboseOuput(ILaunchConfiguration configuration) throws CoreException {
+	private static boolean isVerboseOutputEnabled(ILaunchConfiguration configuration) throws CoreException {
 		return configuration.getAttribute(ConfigurationAttributes.ENABLE_VERBOSE_OUTPUT, false);
 	}
 
