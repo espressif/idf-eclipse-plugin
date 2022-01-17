@@ -1,0 +1,105 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: Release builds 
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+   
+    - name: Set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+   
+    - name: Build with Maven
+      run: |
+        export JARSIGNER_KEYSTORE_B64=${{secrets.JARSIGNER_REL_KEYSTORE_B64}}
+        export JARSIGNER_STOREPASS=${{secrets.JARSIGNER_REL_STOREPASS}}
+        export JARSIGNER_ALIAS=${{secrets.JARSIGNER_REL_ALIAS}}
+        KEYSTORE_FILE="${PWD}/{{secrets.JARSIGNER_KEYSTORE}}"
+        echo "${KEYSTORE_FILE}"
+        printf "%s" "${JARSIGNER_KEYSTORE_B64}" | base64 -d - > "${KEYSTORE_FILE}"
+        mvn -e -X clean install -Djarsigner.keystore="${KEYSTORE_FILE}" -Djarsigner.alias="${JARSIGNER_ALIAS}" -Djarsigner.storepass="${JARSIGNER_STOREPASS}"
+        rm -v "${KEYSTORE_FILE}"
+    
+    - name: Create macosx dmg
+      run: $PWD/releng/ide-dmg-builder/ide-dmg-builder.sh
+    
+    - name: Upload macosx dmg
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: espressif-ide-macosx-dmg
+        path: releng/ide-dmg-builder/Espressif-IDE.dmg
+    
+    - name: Upload build artifacts
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: com.espressif.idf.update
+        path: releng/com.espressif.idf.update/target/repository
+        
+    - name: Upload windows rcp
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: espressif-ide-win32
+        path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-win32.win32.x86_64.zip
+
+    - name: Upload macOS rcp
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: espressif-ide-macosx
+        path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-macosx.cocoa.x86_64.tar.gz
+
+    - name: Upload linux rcp
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: espressif-ide-linux
+        path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
+
+    - name: Upload build assets to dl.espressif.com
+      id: upload-release-asset-espressif
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+      run: |
+        ARCHIVE_DIR="/releng/com.espressif.idf.update/target/"
+        ARCHIVE_NAME="com.espressif.idf.update*.zip"
+        echo "${ARCHIVE_DIR}"
+        echo ${PWD}${ARCHIVE_DIR}
+        ARCHIVE_FILE_NAME="$(find ${PWD}${ARCHIVE_DIR}${ARCHIVE_NAME})"
+        echo "${ARCHIVE_FILE_NAME}"
+        ARCHIVE_PREFIX="com.espressif.idf.update-"
+        ARCHIVE_SUFFIX="-SNAPSHOT.zip";
+        tmp=${ARCHIVE_FILE_NAME#*${ARCHIVE_PREFIX}}   # remove prefix
+        ARCHIVE_VERSION=${tmp%${ARCHIVE_SUFFIX}*}   # remove suffix
+        echo "${ARCHIVE_VERSION}"
+        FOLDER_NAME="v${ARCHIVE_VERSION}"
+        mkdir "${FOLDER_NAME}" && cd "${FOLDER_NAME}" && unzip -q ${ARCHIVE_FILE_NAME} && cd ..
+        echo ${PWD}
+        ARCHIVE_VERSION_NEW="${ARCHIVE_PREFIX}${ARCHIVE_VERSION}.zip"
+        echo ${ARCHIVE_VERSION_NEW}
+        mv ${ARCHIVE_FILE_NAME} ${ARCHIVE_VERSION_NEW}
+        mv releng/ide-dmg-builder/Espressif-IDE.dmg "releng/ide-dmg-builder/Espressif-IDE-${FOLDER_NAME}.dmg"
+        aws s3 cp --acl=public-read --recursive "./${FOLDER_NAME}/" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates2/latest
+        aws s3 cp --acl=public-read "./releng/index.html" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates2/latest/
+        aws s3 cp --acl=public-read --recursive "./${FOLDER_NAME}/" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates2/${FOLDER_NAME}
+        aws s3 cp --acl=public-read --recursive --exclude "*" --include "Espressif-IDE-*" ./releng/com.espressif.idf.product/target/products/ s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
+        aws s3 cp --acl=public-read "${ARCHIVE_VERSION_NEW}" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates2/
+        aws s3 cp --acl=public-read "./releng/ide-dmg-builder/Espressif-IDE-${FOLDER_NAME}.dmg" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
+        
