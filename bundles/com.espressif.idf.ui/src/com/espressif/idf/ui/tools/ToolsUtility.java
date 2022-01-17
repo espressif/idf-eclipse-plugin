@@ -13,6 +13,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
@@ -21,9 +23,12 @@ import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.utils.IOUtils;
+import org.eclipse.core.runtime.Platform;
 
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.FileUtil;
+import com.espressif.idf.ui.tools.vo.ToolsVO;
 
 /**
  * Utility class for Tools Management operations
@@ -33,6 +38,8 @@ import com.espressif.idf.core.util.FileUtil;
  */
 public class ToolsUtility
 {
+	private static final String SLASH = "\\"; //$NON-NLS-1$
+
 	private static final String FORWARD_SLASH = "/"; //$NON-NLS-1$
 
 	public static final String ESPRESSIF_HOME_DIR = System.getProperty("user.home").concat("/.espressif"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -51,7 +58,17 @@ public class ToolsUtility
 				ESPRESSIF_HOME_TOOLS_DIR.concat(FORWARD_SLASH).concat(name).concat(FORWARD_SLASH).concat(versionName));
 		if (toolDirectory.exists())
 		{
-			return true;
+			IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+			String pathValue = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH);
+			String[] splittedPaths = pathValue.split(File.pathSeparator);
+			String directorySplittor = Platform.getOS().equals(Platform.OS_WIN32) ? SLASH : FORWARD_SLASH;
+			for (String splittedPath : splittedPaths)
+			{
+				if (splittedPath.contains(name.concat(directorySplittor).concat(versionName)))
+				{
+					return true;
+				}
+			}
 		}
 
 		return false;
@@ -59,12 +76,12 @@ public class ToolsUtility
 
 	public static void removeToolDirectory(String toolName) throws IOException
 	{
-		File toolDirectory = new File(ESPRESSIF_HOME_TOOLS_DIR.concat(FORWARD_SLASH).concat(toolName)); 
+		File toolDirectory = new File(ESPRESSIF_HOME_TOOLS_DIR.concat(FORWARD_SLASH).concat(toolName));
 		if (!toolDirectory.exists())
 		{
 			return;
 		}
-		
+
 		FileUtil.deleteDirectory(toolDirectory);
 	}
 
@@ -152,6 +169,25 @@ public class ToolsUtility
 		size /= 1024; // MB
 		DecimalFormat df = new DecimalFormat("0.00"); //$NON-NLS-1$
 		return String.valueOf(df.format(size)).concat(" MB"); //$NON-NLS-1$
+	}
+
+	public static List<String> getAvailableToolVersions(ToolsVO toolsVo)
+	{
+		List<String> availableVersionNames = new ArrayList<>();
+		File toolDirectory = new File(
+				ESPRESSIF_HOME_TOOLS_DIR.concat(FORWARD_SLASH).concat(toolsVo.getName()).concat(FORWARD_SLASH));
+		if (toolDirectory.exists())
+		{
+			for (File file : toolDirectory.listFiles())
+			{
+				if (file.isDirectory())
+				{
+					availableVersionNames.add(file.getName());
+				}
+			}
+		}
+
+		return availableVersionNames;
 	}
 
 }

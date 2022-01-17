@@ -34,7 +34,7 @@ public class ToolsVO
 
 	private List<String> versionCmd;
 
-	private VersionsVO versionVO;
+	private List<VersionsVO> versionVOs;
 
 	private String version;
 
@@ -138,23 +138,27 @@ public class ToolsVO
 		this.version = version;
 	}
 
-	public VersionsVO getVersionVO()
+	public List<VersionsVO> getVersionVO()
 	{
-		return versionVO;
+		return versionVOs;
 	}
 
-	public void setVersionVO(VersionsVO versionVO)
+	public void setVersionVO(List<VersionsVO> versionVO)
 	{
-		this.versionVO = versionVO;
+		this.versionVOs = versionVO;
 	}
 
 	public double getSize()
 	{
 		double totalSize = 0;
-		for (String key : versionVO.getVersionOsMap().keySet())
+		for (VersionsVO versionVO : versionVOs)
 		{
-			totalSize += versionVO.getVersionOsMap().get(key).getSize();
+			for (String key : versionVO.getVersionOsMap().keySet())
+			{
+				totalSize += versionVO.getVersionOsMap().get(key).getSize();
+			}
 		}
+		
 		return totalSize;
 	}
 	

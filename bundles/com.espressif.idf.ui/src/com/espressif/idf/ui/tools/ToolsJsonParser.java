@@ -75,40 +75,43 @@ public class ToolsJsonParser
 			toolsVO.setSupportedTargets(
 					getStringsListFromJsonArray(toolsJsonObject.get(SUPPORTED_TARGETS_KEY).getAsJsonArray()));
 			toolsVO.setVersionCmd(getStringsListFromJsonArray(toolsJsonObject.get(VERSION_CMD_KEY).getAsJsonArray()));
-			toolsVO.setVersionVO(getVersions(toolsJsonObject.get(VERSIONS_VO_KEY).getAsJsonArray(), toolsVO.getName(),
-					toolsVO.getExportPaths()));
+			toolsVO.setVersionVO(getVersions(toolsJsonObject.get(VERSIONS_VO_KEY).getAsJsonArray()));
 			toolsVO.setVersion(jsonObject.get(VERSION_KEY).getAsString());
 			toolsList.add(toolsVO);
 		}
 	}
 
-	private VersionsVO getVersions(JsonArray jsonArray, String parentName, List<String> exportPaths)
+	private List<VersionsVO> getVersions(JsonArray jsonArray)
 	{
-		JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
-		VersionsVO versionsVO = new VersionsVO();
-		Map<String, VersionDetailsVO> versionDetailMap = new HashMap<>();
-		for (String key : jsonObject.keySet())
+		List<VersionsVO> versionsVOs = new ArrayList<VersionsVO>();
+		for (int i = 0; i < jsonArray.size(); i++)
 		{
-			if (key.equalsIgnoreCase(NAME_KEY) || key.equalsIgnoreCase(STATUS_KEY))
+			JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
+			VersionsVO versionsVO = new VersionsVO();
+			Map<String, VersionDetailsVO> versionDetailMap = new HashMap<>();
+			for (String key : jsonObject.keySet())
 			{
-				continue;
+				if (key.equalsIgnoreCase(NAME_KEY) || key.equalsIgnoreCase(STATUS_KEY))
+				{
+					continue;
+				}
+
+				VersionDetailsVO versionDetailsVO = new VersionDetailsVO();
+				JsonObject osVersionDetailsObject = jsonObject.get(key).getAsJsonObject();
+				versionDetailsVO.setSha256(osVersionDetailsObject.get(SHA256_KEY).getAsString());
+				versionDetailsVO.setSize(osVersionDetailsObject.get(SIZE_KEY).getAsDouble());
+				versionDetailsVO.setUrl(osVersionDetailsObject.get(URL_KEY).getAsString());
+				versionDetailMap.put(key, versionDetailsVO);
 			}
 
-			VersionDetailsVO versionDetailsVO = new VersionDetailsVO();
-			JsonObject osVersionDetailsObject = jsonObject.get(key).getAsJsonObject();
-			versionDetailsVO.setSha256(osVersionDetailsObject.get(SHA256_KEY).getAsString());
-			versionDetailsVO.setSize(osVersionDetailsObject.get(SIZE_KEY).getAsDouble());
-			versionDetailsVO.setUrl(osVersionDetailsObject.get(URL_KEY).getAsString());
-			versionDetailsVO.setParentName(parentName);
-			versionDetailsVO.setExportPaths(exportPaths);
-			versionDetailMap.put(key, versionDetailsVO);
+			versionsVO.setName(jsonObject.get(NAME_KEY).getAsString());
+			versionsVO.setStatus(jsonObject.get(STATUS_KEY).getAsString());
+			versionsVO.setVersionOsMap(versionDetailMap);
+			versionsVOs.add(versionsVO);
+
 		}
 
-		versionsVO.setName(jsonObject.get(NAME_KEY).getAsString());
-		versionsVO.setStatus(jsonObject.get(STATUS_KEY).getAsString());
-		versionsVO.setVersionOsMap(versionDetailMap);
-
-		return versionsVO;
+		return versionsVOs;
 	}
 
 	private List<String> getStringsListFromJsonArray(JsonArray jsonArray)

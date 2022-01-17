@@ -5,7 +5,6 @@
 package com.espressif.idf.ui.tools.vo;
 
 import java.text.DecimalFormat;
-import java.util.List;
 
 /**
  * Version details vo for the versions class
@@ -23,10 +22,6 @@ public class VersionDetailsVO
 	
 	private boolean selected;
 	
-	private String parentName;
-	
-	private List<String> exportPaths;
-
 	public String getSha256()
 	{
 		return sha256;
@@ -74,25 +69,5 @@ public class VersionDetailsVO
 	public void setSelected(boolean selected)
 	{
 		this.selected = selected;
-	}
-
-	public String getParentName()
-	{
-		return parentName;
-	}
-
-	public void setParentName(String parentName)
-	{
-		this.parentName = parentName;
-	}
-
-	public List<String> getExportPaths()
-	{
-		return exportPaths;
-	}
-
-	public void setExportPaths(List<String> exportPaths)
-	{
-		this.exportPaths = exportPaths;
 	}
 }

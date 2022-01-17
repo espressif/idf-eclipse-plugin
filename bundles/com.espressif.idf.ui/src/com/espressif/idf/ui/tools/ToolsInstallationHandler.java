@@ -24,6 +24,7 @@ import org.eclipse.ui.console.MessageConsoleStream;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.ui.IDFConsole;
+import com.espressif.idf.ui.tools.vo.ToolsVO;
 import com.espressif.idf.ui.tools.vo.VersionsVO;
 
 /**
@@ -38,26 +39,29 @@ public class ToolsInstallationHandler
 	private static final String PATH_SPLITOR = "/"; //$NON-NLS-1$
 	private static final String GZ_EXT = "gz"; //$NON-NLS-1$
 	private static final String ZIP_EXT = "zip"; //$NON-NLS-1$
-	private List<VersionsVO> versionsVOs;
+	private List<ToolsVO> toolsVOs;
 	private IDFConsole idfConsole;
 	private MessageConsoleStream console;
 
-	public ToolsInstallationHandler(List<VersionsVO> versionsVOs)
+	public ToolsInstallationHandler(List<ToolsVO> toolsVOs)
 	{
-		this.versionsVOs = versionsVOs;
+		this.toolsVOs = toolsVOs;
 		this.idfConsole = new IDFConsole();
 		this.console = idfConsole.getConsoleStream();
 	}
 
 	public void deleteTools()
 	{
-		for (VersionsVO versionsVO : versionsVOs)
+		for (ToolsVO toolsVO : toolsVOs)
 		{
-			deleteTool(versionsVO);
+			for (VersionsVO versionsVO : toolsVO.getVersionVO())
+			{
+				deleteTool(versionsVO, toolsVO.getName());
+			}
 		}
 	}
 
-	private void deleteTool(VersionsVO versionsVO)
+	private void deleteTool(VersionsVO versionsVO, String toolName)
 	{
 		for (String key : versionsVO.getVersionOsMap().keySet())
 		{
@@ -66,8 +70,9 @@ public class ToolsInstallationHandler
 				continue;
 			}
 
-			removeToolFromPath(versionsVO.getVersionOsMap().get(key).getParentName());
-			removeToolDirectory(versionsVO.getVersionOsMap().get(key).getParentName().concat(PATH_SPLITOR).concat(versionsVO.getName()));
+			removeToolFromPath(toolName);
+			removeToolDirectory(toolName.concat(PATH_SPLITOR)
+					.concat(versionsVO.getName()));
 		}
 	}
 
@@ -116,13 +121,27 @@ public class ToolsInstallationHandler
 
 	public void installTools()
 	{
-		for (VersionsVO versionsVO : versionsVOs)
+		for (ToolsVO toolsVo : toolsVOs)
 		{
-			installTool(versionsVO);
+			Job job = new Job(TOOL_INSTALLATION_JOB.concat(" ").concat(toolsVo.getName())) //$NON-NLS-1$
+			{
+				@Override
+				protected IStatus run(IProgressMonitor monitor)
+				{
+					for (VersionsVO versionsVO : toolsVo.getVersionVO())
+					{
+						installTool(versionsVO, toolsVo.getName(), toolsVo.getExportPaths());
+					}
+					return Status.OK_STATUS;
+				}
+			};
+
+			job.schedule();
 		}
+
 	}
 
-	private void installTool(VersionsVO versionsVO)
+	private void installTool(VersionsVO versionsVO, String toolName, List<String> exportPaths)
 	{
 		for (String key : versionsVO.getVersionOsMap().keySet())
 		{
@@ -131,35 +150,21 @@ public class ToolsInstallationHandler
 				continue;
 			}
 
-			boolean download = !ToolsUtility.isToolInstalled(versionsVO.getVersionOsMap().get(key).getParentName(),
-					versionsVO.getName());
+			boolean download = !ToolsUtility.isToolInstalled(toolName, versionsVO.getName());
 			download = true;
-			console.println(
-					Messages.InstallingToolMessage.concat(versionsVO.getVersionOsMap().get(key).getParentName()));
+			console.println(Messages.InstallingToolMessage.concat(toolName));
 			if (download)
 			{
-				Job job = new Job(TOOL_INSTALLATION_JOB.concat(versionsVO.getVersionOsMap().get(key).getParentName()))
+				try
 				{
-					@Override
-					protected IStatus run(IProgressMonitor monitor)
-					{
-						try
-						{
-							String nameOfDownloadedFile = downloadTool(key, versionsVO);
-							String extractionDir = extractDownloadedFile(nameOfDownloadedFile,
-									versionsVO.getVersionOsMap().get(key).getParentName(), versionsVO.getName());
-							updatePaths(extractionDir, versionsVO.getVersionOsMap().get(key).getParentName(),
-									versionsVO.getVersionOsMap().get(key).getExportPaths());
-						}
-						catch (Exception e)
-						{
-							Logger.log(e);
-							return Status.error(e.getMessage());
-						}
-						return Status.OK_STATUS;
-					}
-				};
-				job.schedule();
+					String nameOfDownloadedFile = downloadTool(key, versionsVO);
+					String extractionDir = extractDownloadedFile(nameOfDownloadedFile, toolName, versionsVO.getName());
+					updatePaths(extractionDir, toolName, exportPaths);
+				}
+				catch (Exception e)
+				{
+					Logger.log(e);
+				}
 			}
 		}
 	}
