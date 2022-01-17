@@ -5,10 +5,12 @@
 package com.espressif.idf.ui.tools.shell;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.SWT;
@@ -35,10 +37,11 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
 
+import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.tools.Messages;
 import com.espressif.idf.ui.tools.ToolsInstallationHandler;
 import com.espressif.idf.ui.tools.ToolsUtility;
-import com.espressif.idf.ui.tools.images.ToolsImagesCache;
 import com.espressif.idf.ui.tools.vo.ToolsVO;
 import com.espressif.idf.ui.tools.vo.VersionDetailsVO;
 import com.espressif.idf.ui.tools.vo.VersionsVO;
@@ -51,17 +54,22 @@ import com.espressif.idf.ui.tools.vo.VersionsVO;
  */
 public class ManageToolsInstallationShell
 {
+	private static final String PNG_EXTENSION = ".png"; //$NON-NLS-1$
+	private static final String YELLOW = "icons/tools/yellow.png"; //$NON-NLS-1$
+	private static final String AVAILABLE = "available"; //$NON-NLS-1$
 	private static final String RECOMMENDED = "recommended"; //$NON-NLS-1$
 	private static final String ALWAYS = "always"; //$NON-NLS-1$
 	private static final String ALL = "all"; //$NON-NLS-1$
-	private static final String ESP_IDF_TOOLS_MANAGER_ICON = "ESP-IDFManageToolsInstalltion"; //$NON-NLS-1$
-	private static final String WHITE = "white"; //$NON-NLS-1$
+	private static final String ESP_IDF_TOOLS_MANAGER_ICON = "icons/tools/ESP-IDFManageToolsInstalltion.png"; //$NON-NLS-1$
+	private static final String WHITE = "icons/tools/white.png"; //$NON-NLS-1$
 	private static final String MAC_OS = "mac"; //$NON-NLS-1$
+	private static final String IMG_MAC_OS = "icons/tools/".concat(MAC_OS).concat(PNG_EXTENSION); //$NON-NLS-1$
 	private static final String LINUX_OS = "linux"; //$NON-NLS-1$
+	private static final String IMG_LINUX_OS = "icons/tools/".concat(LINUX_OS).concat(PNG_EXTENSION); //$NON-NLS-1$
 	private static final String WIN_OS = "win"; //$NON-NLS-1$
-	private static final String GREEN = "green"; //$NON-NLS-1$
-	private static final String PNG_EXTENSION = ".png"; //$NON-NLS-1$
+	private static final String GREEN = "icons/tools/green.png"; //$NON-NLS-1$
 	private static final String WINDOWS = "windows"; //$NON-NLS-1$
+	private static final String IMG_WINDOWS_OS = "icons/tools/".concat(WINDOWS).concat(PNG_EXTENSION); //$NON-NLS-1$
 	private Display display;
 	private Shell shell;
 	private List<ToolsVO> toolsVOs;
@@ -73,6 +81,7 @@ public class ManageToolsInstallationShell
 	private Button btnDeselectAll;
 	private Combo filterTargetBox;
 	private boolean itemChecked = false;
+	private Button chkAvailableVersions;
 
 	public ManageToolsInstallationShell(List<ToolsVO> toolsVOs)
 	{
@@ -80,7 +89,7 @@ public class ManageToolsInstallationShell
 		this.display = PlatformUI.getWorkbench().getDisplay();
 		this.shell = new Shell(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
 				SWT.CLOSE | SWT.MAX | SWT.TITLE);
-		shell.setImage(ToolsImagesCache.getImage(ESP_IDF_TOOLS_MANAGER_ICON.concat(PNG_EXTENSION)));
+		shell.setImage(UIPlugin.getImage(ESP_IDF_TOOLS_MANAGER_ICON));
 		shell.setText(Messages.ToolsManagerShellHeading);
 		shell.setLayout(new FillLayout(SWT.VERTICAL));
 
@@ -113,6 +122,20 @@ public class ManageToolsInstallationShell
 				setButtonsEnabled(false);
 			}
 		});
+		
+		chkAvailableVersions = new Button(subControlComposite, SWT.CHECK);
+		chkAvailableVersions.setText("Show Available Versions Only");
+		chkAvailableVersions.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 4));
+		chkAvailableVersions.addSelectionListener(new SelectionAdapter()
+		{
+			
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				toolsTree.removeAll();
+				addItemsToTree(toolsTree, chkAvailableVersions.getSelection());
+			}
+		});
 
 		Label targetFilterLabel = new Label(subControlComposite, SWT.NONE);
 		targetFilterLabel.setText(Messages.FilterTargets);
@@ -126,7 +149,7 @@ public class ManageToolsInstallationShell
 			{
 				String selectedTarget = filterTargetBox.getItem(filterTargetBox.getSelectionIndex());
 				toolsTree.removeAll();
-				addItemsToTree(toolsTree);
+				addItemsToTree(toolsTree, chkAvailableVersions.getSelection());
 				if (selectedTarget.equalsIgnoreCase(ALL))
 				{
 					return;
@@ -144,7 +167,7 @@ public class ManageToolsInstallationShell
 				}
 			}
 		});
-
+		
 		toolsTree = new Tree(subControlComposite, SWT.BORDER | SWT.CHECK | SWT.FULL_SELECTION);
 		toolsTree.setHeaderVisible(true);
 		toolsTree.setLinesVisible(true);
@@ -168,7 +191,7 @@ public class ManageToolsInstallationShell
 		trclmnDescription.setWidth(500);
 		trclmnDescription.setText(Messages.DescriptionText);
 
-		addItemsToTree(toolsTree);
+		addItemsToTree(toolsTree, false);
 
 		Composite buttonsComposite = new Composite(shell, SWT.NONE);
 		buttonsComposite.setLayout(new GridLayout(1, false));
@@ -212,17 +235,12 @@ public class ManageToolsInstallationShell
 		return targets.toArray(String[]::new);
 	}
 
-	private void addItemsToTree(Tree toolsTree)
+	private void addItemsToTree(Tree toolsTree, boolean availableOnly)
 	{
 		for (ToolsVO toolsVO : toolsVOs)
 		{
 			TreeItem mainItem = new TreeItem(toolsTree, SWT.NONE);
-			boolean isInstalled = ToolsUtility.isToolInstalled(toolsVO.getName(), toolsVO.getVersionVO().getName());
-			String[] itemText = getMainItemText(toolsVO, isInstalled);
-			mainItem.setText(itemText);
-			mainItem.setData(toolsVO);
-			Image installedImage = getInstalledImage(toolsVO.getName(), toolsVO.getVersionVO().getName());
-			mainItem.setImage(2, installedImage);
+			boolean isInstalled = false;
 
 			boolean alwaysInstall = toolsVO.getInstallType().equalsIgnoreCase(ALWAYS)
 					|| toolsVO.getInstallType().equalsIgnoreCase(RECOMMENDED);
@@ -233,41 +251,65 @@ public class ManageToolsInstallationShell
 
 			mainItem.setChecked(alwaysInstall);
 			boolean platformAvailable = false;
-			for (String key : toolsVO.getVersionVO().getVersionOsMap().keySet())
+			boolean windowsx86_64 = false;
+			
+			if (availableOnly)
 			{
-				if (Platform.getOS().equals(Platform.OS_WIN32))
-				{
-					if (!key.toLowerCase().contains(WIN_OS))
-					{
-						continue;
-					}
-				}
-				else if (Platform.getOS().equals(Platform.OS_LINUX))
-				{
-					if (!key.toLowerCase().contains(LINUX_OS))
-					{
-						continue;
-					}
-				}
-				else if (Platform.getOS().equals(Platform.OS_MACOSX))
-				{
-					if (!key.toLowerCase().contains(MAC_OS))
-					{
-						continue;
-					}
-				}
-
-				TreeItem subItem = new TreeItem(mainItem, SWT.NONE);
-				String[] subItemText = getSubItemText(key, toolsVO.getVersionVO().getVersionOsMap(),
-						toolsVO.getVersionVO().getName(), isInstalled);
-				subItem.setText(subItemText);
-				subItem.setData(toolsVO.getVersionVO());
-				Image image = getOsImageForItem(subItem);
-				subItem.setImage(0, image);
-				subItem.setImage(2, installedImage);
-				subItem.setChecked(alwaysInstall);
+				addAvailableToolVersions(toolsVO, mainItem);
 				platformAvailable = true;
 			}
+			else
+			{
+				for (VersionsVO versionsVO : toolsVO.getVersionVO())
+				{
+					isInstalled = ToolsUtility.isToolInstalled(toolsVO.getName(), versionsVO.getName());
+					for (String key : versionsVO.getVersionOsMap().keySet())
+					{
+						if (Platform.getOS().equals(Platform.OS_WIN32))
+						{
+							if (!key.toLowerCase().contains(WIN_OS) || windowsx86_64)
+							{
+								continue;
+							}
+
+							windowsx86_64 = true;
+						}
+						else if (Platform.getOS().equals(Platform.OS_LINUX))
+						{
+							if (!key.toLowerCase().contains(LINUX_OS))
+							{
+								continue;
+							}
+						}
+						else if (Platform.getOS().equals(Platform.OS_MACOSX))
+						{
+							if (!key.toLowerCase().contains(MAC_OS))
+							{
+								continue;
+							}
+						}
+
+						TreeItem subItem = new TreeItem(mainItem, SWT.NONE);
+						String[] subItemText = getSubItemText(key, versionsVO.getVersionOsMap(), versionsVO.getName(),
+								versionsVO.getStatus(), isInstalled ? 1 : 2);
+						subItem.setText(subItemText);
+						subItem.setData(versionsVO);
+						Image image = getOsImageForItem(subItem);
+						subItem.setImage(0, image);
+						subItem.setImage(2, isInstalled ? UIPlugin.getImage(GREEN)
+								: UIPlugin.getImage(WHITE));
+						subItem.setChecked(alwaysInstall);
+						platformAvailable = true;
+					}
+				}
+			}
+
+			String[] itemText = getMainItemText(toolsVO, isInstalled);
+			mainItem.setText(itemText);
+			mainItem.setData(toolsVO);
+			Image installedImage = isInstalled ? UIPlugin.getImage(GREEN)
+					: UIPlugin.getImage(WHITE);
+			mainItem.setImage(2, installedImage);
 
 			if (!platformAvailable)
 			{
@@ -276,43 +318,80 @@ public class ManageToolsInstallationShell
 		}
 	}
 
-	private Image getInstalledImage(String name, String versionName)
+	private void addAvailableToolVersions(ToolsVO toolsVO, TreeItem mainItem)
 	{
-		boolean isItemInstalled = ToolsUtility.isToolInstalled(name, versionName);
-		if (isItemInstalled)
+		List<String> availableVersions = ToolsUtility.getAvailableToolVersions(toolsVO);
+		for (String availableVersion : availableVersions)
 		{
-			return ToolsImagesCache.getImage(GREEN.concat(PNG_EXTENSION));
+			List<TreeItem> subItems = Arrays.asList(mainItem.getItems());
+			subItems = subItems.stream().filter(sb -> ((VersionsVO) sb.getData()).getName().equals(availableVersion))
+					.collect(Collectors.toList());
+			if (subItems.size() > 0)
+			{
+				continue;
+			}
+			boolean isInstalled = ToolsUtility.isToolInstalled(toolsVO.getName(), availableVersion);
+			Image installedImage = isInstalled ? UIPlugin.getImage(GREEN)
+					: UIPlugin.getImage(YELLOW);
+			TreeItem subItem = new TreeItem(mainItem, SWT.NONE);
+			VersionsVO versionsVO = new VersionsVO();
+			versionsVO.setName(availableVersion);
+			versionsVO.setStatus(AVAILABLE);
+			String[] subItemText = getSubItemText(Platform.getOS(), null, availableVersion,
+					versionsVO.getStatus(), isInstalled ? 1 : 3);
+			subItem.setText(subItemText);
+			subItem.setData(versionsVO);
+			subItem.setImage(2, installedImage);
 		}
-
-		return ToolsImagesCache.getImage(WHITE.concat(PNG_EXTENSION));
 	}
 
 	private Image getOsImageForItem(TreeItem item)
 	{
 		if (item.getText(0).toLowerCase().contains(LINUX_OS))
 		{
-			return ToolsImagesCache.getImage(LINUX_OS.concat(PNG_EXTENSION));
+			return UIPlugin.getImage(IMG_LINUX_OS);
 		}
 		else if (item.getText(0).toLowerCase().contains(WIN_OS))
 		{
-			return ToolsImagesCache.getImage(WINDOWS.concat(PNG_EXTENSION));
+			return UIPlugin.getImage(IMG_WINDOWS_OS);
 		}
 		else if (item.getText(0).toLowerCase().contains(MAC_OS))
 		{
-			return ToolsImagesCache.getImage(MAC_OS.concat(PNG_EXTENSION));
+			return UIPlugin.getImage(IMG_MAC_OS);
 		}
 
 		return null;
 	}
 
-	private String[] getSubItemText(String key, Map<String, VersionDetailsVO> versionOsMap, String name,
-			boolean isInstalled)
+	private String[] getSubItemText(String key, Map<String, VersionDetailsVO> versionOsMap, String name, String status,
+			int isInstalled)
 	{
 		String[] textArr = new String[4];
 		textArr[0] = key;
-		textArr[1] = versionOsMap.get(key).getReadableSize();
-		textArr[2] = isInstalled ? Messages.Installed : Messages.NotInstalled;
-		textArr[3] = name;
+		if (versionOsMap != null)
+		{
+			textArr[1] = versionOsMap.get(key).getReadableSize();	
+		}
+		else
+		{
+			textArr[1] = StringUtil.EMPTY;
+		}
+		switch (isInstalled)
+		{
+		case 1:
+			textArr[2] = Messages.Installed;
+			break;
+		case 2:
+			textArr[2] = Messages.NotInstalled;
+			break;
+		case 3:
+			textArr[2] = Messages.Available;
+		default:
+			textArr[2] = StringUtil.EMPTY;
+			break;
+		}
+
+		textArr[3] = name.concat(" (").concat(status).concat(")"); //$NON-NLS-1$ //$NON-NLS-2$
 		return textArr;
 	}
 
@@ -326,21 +405,21 @@ public class ManageToolsInstallationShell
 		return textArr;
 	}
 
-	private List<VersionsVO> getSelectedTools()
+	private List<ToolsVO> getSelectedTools()
 	{
-		List<VersionsVO> versionsVOs = new ArrayList<>();
+		List<ToolsVO> toolsVOs = new ArrayList<ToolsVO>();
 		for (TreeItem item : toolsTree.getItems())
 		{
 			for (TreeItem subItem : item.getItems())
 			{
 				if (subItem.getChecked())
 				{
-					versionsVOs.add((VersionsVO) subItem.getData());
+					toolsVOs.add((ToolsVO) item.getData());
 				}
 			}
 		}
 
-		return versionsVOs;
+		return toolsVOs;
 	}
 
 	public void openShell()
@@ -495,14 +574,14 @@ public class ManageToolsInstallationShell
 		@Override
 		public void widgetSelected(SelectionEvent e)
 		{
-			List<VersionsVO> versionsVOs = getSelectedTools();
+			List<ToolsVO> toolsVOs = getSelectedTools();
 			MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO);
 			messageBox.setMessage(Messages.RemoveToolMessageBox);
 			messageBox.setText(Messages.RemoveToolMessageBoxTitle);
 			int result = messageBox.open();
 			if (result == SWT.YES)
 			{
-				ToolsInstallationHandler toolsInstallationHandler = new ToolsInstallationHandler(versionsVOs);
+				ToolsInstallationHandler toolsInstallationHandler = new ToolsInstallationHandler(toolsVOs);
 				shell.close();
 				toolsInstallationHandler.deleteTools();
 			}
@@ -514,8 +593,8 @@ public class ManageToolsInstallationShell
 		@Override
 		public void widgetSelected(SelectionEvent e)
 		{
-			List<VersionsVO> versionsVOs = getSelectedTools();
-			ToolsInstallationHandler toolsInstallationHandler = new ToolsInstallationHandler(versionsVOs);
+			List<ToolsVO> toolsVOs = getSelectedTools();
+			ToolsInstallationHandler toolsInstallationHandler = new ToolsInstallationHandler(toolsVOs);
 			shell.close();
 			toolsInstallationHandler.installTools();
 		}
