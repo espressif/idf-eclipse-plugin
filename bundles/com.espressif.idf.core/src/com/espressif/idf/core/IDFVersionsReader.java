@@ -73,7 +73,7 @@ public class IDFVersionsReader
 			}
 			else if (version.startsWith("v")) //$NON-NLS-1$
 			{
-				if (new Version(MIN_VERSION_SUPPORT).compareTo(new Version(version.replace("v", ""))) <= 0) //$NON-NLS-1$ //$NON-NLS-2$
+				if (new Version(MIN_VERSION_SUPPORT).compareTo(new Version(version.replace("v", "").replaceAll("-.*", ".0"))) <= 0) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 				{
 					filterList.add(version);
 				}
