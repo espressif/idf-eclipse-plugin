@@ -14,7 +14,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
@@ -171,9 +173,9 @@ public class ToolsUtility
 		return String.valueOf(df.format(size)).concat(" MB"); //$NON-NLS-1$
 	}
 
-	public static List<String> getAvailableToolVersions(ToolsVO toolsVo)
+	public static Map<String, String> getAvailableToolVersions(ToolsVO toolsVo)
 	{
-		List<String> availableVersionNames = new ArrayList<>();
+		Map<String, String> availableVersions = new HashMap<String, String>();
 		File toolDirectory = new File(
 				ESPRESSIF_HOME_TOOLS_DIR.concat(FORWARD_SLASH).concat(toolsVo.getName()).concat(FORWARD_SLASH));
 		if (toolDirectory.exists())
@@ -182,12 +184,12 @@ public class ToolsUtility
 			{
 				if (file.isDirectory())
 				{
-					availableVersionNames.add(file.getName());
+					availableVersions.put(file.getName(), file.getAbsolutePath());
 				}
 			}
 		}
 
-		return availableVersionNames;
+		return availableVersions;
 	}
 
 }

@@ -19,6 +19,10 @@ public class VersionsVO
 	private String status;
 
 	private Map<String, VersionDetailsVO> versionOsMap;
+	
+	private boolean isAvailable;
+	
+	private String availablePath;
 
 	public String getName()
 	{
@@ -48,5 +52,25 @@ public class VersionsVO
 	public void setVersionOsMap(Map<String, VersionDetailsVO> versionOsMap)
 	{
 		this.versionOsMap = versionOsMap;
+	}
+
+	public boolean isAvailable()
+	{
+		return isAvailable;
+	}
+
+	public void setAvailable(boolean isAvailable)
+	{
+		this.isAvailable = isAvailable;
+	}
+
+	public String getAvailablePath()
+	{
+		return availablePath;
+	}
+
+	public void setAvailablePath(String availablePath)
+	{
+		this.availablePath = availablePath;
 	}
 }

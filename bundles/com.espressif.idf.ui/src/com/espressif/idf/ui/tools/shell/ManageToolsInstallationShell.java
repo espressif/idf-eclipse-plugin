@@ -6,6 +6,7 @@ package com.espressif.idf.ui.tools.shell;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -122,13 +123,13 @@ public class ManageToolsInstallationShell
 				setButtonsEnabled(false);
 			}
 		});
-		
+
 		chkAvailableVersions = new Button(subControlComposite, SWT.CHECK);
 		chkAvailableVersions.setText("Show Available Versions Only");
 		chkAvailableVersions.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 4));
 		chkAvailableVersions.addSelectionListener(new SelectionAdapter()
 		{
-			
+
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
@@ -167,7 +168,7 @@ public class ManageToolsInstallationShell
 				}
 			}
 		});
-		
+
 		toolsTree = new Tree(subControlComposite, SWT.BORDER | SWT.CHECK | SWT.FULL_SELECTION);
 		toolsTree.setHeaderVisible(true);
 		toolsTree.setLinesVisible(true);
@@ -252,7 +253,7 @@ public class ManageToolsInstallationShell
 			mainItem.setChecked(alwaysInstall);
 			boolean platformAvailable = false;
 			boolean windowsx86_64 = false;
-			
+
 			if (availableOnly)
 			{
 				addAvailableToolVersions(toolsVO, mainItem);
@@ -296,8 +297,7 @@ public class ManageToolsInstallationShell
 						subItem.setData(versionsVO);
 						Image image = getOsImageForItem(subItem);
 						subItem.setImage(0, image);
-						subItem.setImage(2, isInstalled ? UIPlugin.getImage(GREEN)
-								: UIPlugin.getImage(WHITE));
+						subItem.setImage(2, isInstalled ? UIPlugin.getImage(GREEN) : UIPlugin.getImage(WHITE));
 						subItem.setChecked(alwaysInstall);
 						platformAvailable = true;
 					}
@@ -307,8 +307,7 @@ public class ManageToolsInstallationShell
 			String[] itemText = getMainItemText(toolsVO, isInstalled);
 			mainItem.setText(itemText);
 			mainItem.setData(toolsVO);
-			Image installedImage = isInstalled ? UIPlugin.getImage(GREEN)
-					: UIPlugin.getImage(WHITE);
+			Image installedImage = isInstalled ? UIPlugin.getImage(GREEN) : UIPlugin.getImage(WHITE);
 			mainItem.setImage(2, installedImage);
 
 			if (!platformAvailable)
@@ -320,8 +319,8 @@ public class ManageToolsInstallationShell
 
 	private void addAvailableToolVersions(ToolsVO toolsVO, TreeItem mainItem)
 	{
-		List<String> availableVersions = ToolsUtility.getAvailableToolVersions(toolsVO);
-		for (String availableVersion : availableVersions)
+		Map<String, String> availableVersions = ToolsUtility.getAvailableToolVersions(toolsVO);
+		for (String availableVersion : availableVersions.keySet())
 		{
 			List<TreeItem> subItems = Arrays.asList(mainItem.getItems());
 			subItems = subItems.stream().filter(sb -> ((VersionsVO) sb.getData()).getName().equals(availableVersion))
@@ -331,17 +330,23 @@ public class ManageToolsInstallationShell
 				continue;
 			}
 			boolean isInstalled = ToolsUtility.isToolInstalled(toolsVO.getName(), availableVersion);
-			Image installedImage = isInstalled ? UIPlugin.getImage(GREEN)
-					: UIPlugin.getImage(YELLOW);
+			Image installedImage = isInstalled ? UIPlugin.getImage(GREEN) : UIPlugin.getImage(YELLOW);
 			TreeItem subItem = new TreeItem(mainItem, SWT.NONE);
 			VersionsVO versionsVO = new VersionsVO();
 			versionsVO.setName(availableVersion);
 			versionsVO.setStatus(AVAILABLE);
-			String[] subItemText = getSubItemText(Platform.getOS(), null, availableVersion,
-					versionsVO.getStatus(), isInstalled ? 1 : 3);
+			String[] subItemText = getSubItemText(Platform.getOS(), null, availableVersion, versionsVO.getStatus(),
+					isInstalled ? 1 : 3);
+			VersionDetailsVO versionDetailsVO = new VersionDetailsVO();
+			Map<String, VersionDetailsVO> versionMap = new HashMap<>();
+			versionMap.put(Platform.getOS(), versionDetailsVO);
+			versionsVO.setVersionOsMap(versionMap);
+			versionsVO.setAvailable(true);
+			versionsVO.setAvailablePath(availableVersions.get(availableVersion));
 			subItem.setText(subItemText);
 			subItem.setData(versionsVO);
 			subItem.setImage(2, installedImage);
+
 		}
 	}
 
@@ -370,7 +375,7 @@ public class ManageToolsInstallationShell
 		textArr[0] = key;
 		if (versionOsMap != null)
 		{
-			textArr[1] = versionOsMap.get(key).getReadableSize();	
+			textArr[1] = versionOsMap.get(key).getReadableSize();
 		}
 		else
 		{
@@ -405,21 +410,29 @@ public class ManageToolsInstallationShell
 		return textArr;
 	}
 
-	private List<ToolsVO> getSelectedTools()
+	private Map<ToolsVO, List<VersionsVO>> getSelectedTools()
 	{
-		List<ToolsVO> toolsVOs = new ArrayList<ToolsVO>();
+		Map<ToolsVO, List<VersionsVO>> selectedItems = new HashMap<>();
 		for (TreeItem item : toolsTree.getItems())
 		{
 			for (TreeItem subItem : item.getItems())
 			{
 				if (subItem.getChecked())
 				{
-					toolsVOs.add((ToolsVO) item.getData());
+					if (selectedItems.get(item.getData()) != null && selectedItems.get(item.getData()).size() > 0)
+					{
+						selectedItems.get(item.getData()).add((VersionsVO) subItem.getData());
+					}
+					else
+					{
+						selectedItems.put((ToolsVO) item.getData(), new ArrayList<>());
+						selectedItems.get(item.getData()).add((VersionsVO) subItem.getData());
+					}
 				}
 			}
 		}
 
-		return toolsVOs;
+		return selectedItems;
 	}
 
 	public void openShell()
@@ -574,14 +587,14 @@ public class ManageToolsInstallationShell
 		@Override
 		public void widgetSelected(SelectionEvent e)
 		{
-			List<ToolsVO> toolsVOs = getSelectedTools();
+			Map<ToolsVO, List<VersionsVO>> selectedItems = getSelectedTools();
 			MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO);
 			messageBox.setMessage(Messages.RemoveToolMessageBox);
 			messageBox.setText(Messages.RemoveToolMessageBoxTitle);
 			int result = messageBox.open();
 			if (result == SWT.YES)
 			{
-				ToolsInstallationHandler toolsInstallationHandler = new ToolsInstallationHandler(toolsVOs);
+				ToolsInstallationHandler toolsInstallationHandler = new ToolsInstallationHandler(selectedItems);
 				shell.close();
 				toolsInstallationHandler.deleteTools();
 			}
@@ -593,8 +606,8 @@ public class ManageToolsInstallationShell
 		@Override
 		public void widgetSelected(SelectionEvent e)
 		{
-			List<ToolsVO> toolsVOs = getSelectedTools();
-			ToolsInstallationHandler toolsInstallationHandler = new ToolsInstallationHandler(toolsVOs);
+			Map<ToolsVO, List<VersionsVO>> selectedItems = getSelectedTools();
+			ToolsInstallationHandler toolsInstallationHandler = new ToolsInstallationHandler(selectedItems);
 			shell.close();
 			toolsInstallationHandler.installTools();
 		}

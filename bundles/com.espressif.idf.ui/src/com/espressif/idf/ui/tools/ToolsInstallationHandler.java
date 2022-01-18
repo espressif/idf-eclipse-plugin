@@ -14,6 +14,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -39,22 +40,22 @@ public class ToolsInstallationHandler
 	private static final String PATH_SPLITOR = "/"; //$NON-NLS-1$
 	private static final String GZ_EXT = "gz"; //$NON-NLS-1$
 	private static final String ZIP_EXT = "zip"; //$NON-NLS-1$
-	private List<ToolsVO> toolsVOs;
+	private Map<ToolsVO, List<VersionsVO>> selectedItems;
 	private IDFConsole idfConsole;
 	private MessageConsoleStream console;
 
-	public ToolsInstallationHandler(List<ToolsVO> toolsVOs)
+	public ToolsInstallationHandler(Map<ToolsVO, List<VersionsVO>> selectedItems)
 	{
-		this.toolsVOs = toolsVOs;
+		this.selectedItems = selectedItems;
 		this.idfConsole = new IDFConsole();
 		this.console = idfConsole.getConsoleStream();
 	}
 
 	public void deleteTools()
 	{
-		for (ToolsVO toolsVO : toolsVOs)
+		for (ToolsVO toolsVO : selectedItems.keySet())
 		{
-			for (VersionsVO versionsVO : toolsVO.getVersionVO())
+			for (VersionsVO versionsVO : selectedItems.get(toolsVO))
 			{
 				deleteTool(versionsVO, toolsVO.getName());
 			}
@@ -121,24 +122,23 @@ public class ToolsInstallationHandler
 
 	public void installTools()
 	{
-		for (ToolsVO toolsVo : toolsVOs)
+		for (ToolsVO toolsVo : selectedItems.keySet())
 		{
-			Job job = new Job(TOOL_INSTALLATION_JOB.concat(" ").concat(toolsVo.getName())) //$NON-NLS-1$
+			for (VersionsVO versionsVO : selectedItems.get(toolsVo))
 			{
-				@Override
-				protected IStatus run(IProgressMonitor monitor)
-				{
-					for (VersionsVO versionsVO : toolsVo.getVersionVO())
-					{
-						installTool(versionsVO, toolsVo.getName(), toolsVo.getExportPaths());
-					}
-					return Status.OK_STATUS;
-				}
-			};
+				Job job = new Job(TOOL_INSTALLATION_JOB.concat(" ").concat(toolsVo.getName())) //$NON-NLS-1$
+						{
+							@Override
+							protected IStatus run(IProgressMonitor monitor)
+							{
+								installTool(versionsVO, toolsVo.getName(), toolsVo.getExportPaths());
+								return Status.OK_STATUS;
+							}
+						};
 
-			job.schedule();
+						job.schedule();
+			}
 		}
-
 	}
 
 	private void installTool(VersionsVO versionsVO, String toolName, List<String> exportPaths)
@@ -153,7 +153,7 @@ public class ToolsInstallationHandler
 			boolean download = !ToolsUtility.isToolInstalled(toolName, versionsVO.getName());
 			download = true;
 			console.println(Messages.InstallingToolMessage.concat(toolName));
-			if (download)
+			if (!ToolsUtility.isToolInstalled(toolName, versionsVO.getName()) && !versionsVO.isAvailable())
 			{
 				try
 				{
@@ -165,6 +165,10 @@ public class ToolsInstallationHandler
 				{
 					Logger.log(e);
 				}
+			}
+			else
+			{
+				updatePaths(versionsVO.getAvailablePath(), toolName, exportPaths);	
 			}
 		}
 	}
