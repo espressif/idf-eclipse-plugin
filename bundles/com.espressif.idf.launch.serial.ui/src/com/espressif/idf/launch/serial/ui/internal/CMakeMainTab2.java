@@ -203,9 +203,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 					espFlashCommand);
 			argumentsForSerialFlash = argumentsForSerialFlash.isEmpty() ? espFlashCommand : argumentsForSerialFlash;
 			initializeJtagComboFields(configuration);
-			argumentsForJtagFlash = savedArgumentsForJtagFlash.contentEquals(savedArgumentsForJtagFlash)
-					? argumentsForJtagFlash
-					: savedArgumentsForJtagFlash;
+			argumentsForJtagFlash = savedArgumentsForJtagFlash;
 			if (isFlashOverJtag) {
 				argumentField.setText(argumentsForJtagFlash);
 			} else {
