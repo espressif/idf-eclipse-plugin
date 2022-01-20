@@ -1,0 +1,43 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: Jars sign
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+   
+    - name: Set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+        
+    - name: sign jars
+      run: |
+        export JARSIGNER_KEYSTORE_B64=${{secrets.JARSIGNER_REL_KEYSTORE_B64}}
+        export JARSIGNER_STOREPASS=${{secrets.JARSIGNER_REL_STOREPASS}}
+        export JARSIGNER_ALIAS=${{secrets.JARSIGNER_REL_ALIAS}}
+        KEYSTORE_FILE="${PWD}/{{secrets.JARSIGNER_KEYSTORE}}"
+        echo "${KEYSTORE_FILE}"
+        printf "%s" "${JARSIGNER_KEYSTORE_B64}" | base64 -d - > "${KEYSTORE_FILE}"
+        jarsigner -keystore "${KEYSTORE_FILE}" -storepass "${JARSIGNER_STOREPASS}" /bundles/com.espressif.idf.serial.monitor/lib/pty4j-0.8.6.jar "${JARSIGNER_ALIAS}"
+        rm -v "${KEYSTORE_FILE}"
+    
+    - name: Upload signed artifacts
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: signedjars
+        path: /bundles/com.espressif.idf.serial.monitor/lib/
+ 
