@@ -72,11 +72,10 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				monitor.setTaskName(Messages.InstallToolsHandler_AutoConfigureToolchain);
 				configureToolChain();
 				monitor.worked(1);
+				copyOpenOcdRules();
 				console.println(Messages.InstallToolsHandler_ConfiguredCMakeMsg);
 
 				console.println(Messages.InstallToolsHandler_ToolsCompleted);
-
-				copyOpenOcdRules();
 
 				return Status.OK_STATUS;
 			}
@@ -95,35 +94,34 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		installToolsJob.schedule();
 
 	}
-	
+
 	private void copyOpenOcdRules()
 	{
-		if (Platform.getOS().equals(Platform.OS_LINUX))
+		if (Platform.getOS().equals(Platform.OS_LINUX)
+				&& !IDFUtil.getOpenOCDLocation().equalsIgnoreCase(StringUtil.EMPTY))
 		{
-			if (!IDFUtil.getOpenOCDLocation().equalsIgnoreCase(StringUtil.EMPTY))
+			console.println(Messages.InstallToolsHandler_CopyingOpenOCDRules);
+			// Copy the rules to the idf
+			StringBuilder pathToRules = new StringBuilder();
+			pathToRules.append(IDFUtil.getOpenOCDLocation());
+			pathToRules.append("/../share/openocd/contrib/60-openocd.rules"); //$NON-NLS-1$
+			File rulesFile = new File(pathToRules.toString());
+			if (rulesFile.exists())
 			{
-				console.println(Messages.InstallToolsHandler_CopyingOpenOCDRules);
-				// Copy the rules to the idf
-				StringBuilder pathToRules = new StringBuilder();
-				pathToRules.append(IDFUtil.getOpenOCDLocation());
-				pathToRules.append("/../share/openocd/contrib/60-openocd.rules"); //$NON-NLS-1$
-				File rulesFile = new File(pathToRules.toString());
-				if (rulesFile.exists())
+				Path source = Paths.get(pathToRules.toString());
+				Path target = Paths.get("/etc/udev/rules.d/60-openocd.rules"); //$NON-NLS-1$
+				console.println(String.format(Messages.InstallToolsHandler_OpenOCDRulesCopyPaths, source.toString(),
+						target.toString()));
+				try
 				{
-					Path source = Paths.get(pathToRules.toString());
-					Path target = Paths.get("/etc/udev/rules.d/60-openocd.rules"); //$NON-NLS-1$
-					try
-					{
-						Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-						console.println(Messages.InstallToolsHandler_OpenOCDRulesCopied);
-					}
-					catch (IOException e)
-					{
-						Logger.log(e);
-						console.println(Messages.InstallToolsHandler_OpenOCDRulesCopyError);
-					}
+					Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+					console.println(Messages.InstallToolsHandler_OpenOCDRulesCopied);
 				}
-
+				catch (IOException e)
+				{
+					Logger.log(e);
+					console.println(Messages.InstallToolsHandler_OpenOCDRulesCopyError);
+				}
 			}
 		}
 	}
