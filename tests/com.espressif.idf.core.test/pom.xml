@@ -9,7 +9,7 @@
 
 	<parent>
 		<groupId>com.espressif.idf</groupId>
-		<artifactId>com.espressif.idf.ui.test</artifactId>
+		<artifactId>com.espressif.idf.tests</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
