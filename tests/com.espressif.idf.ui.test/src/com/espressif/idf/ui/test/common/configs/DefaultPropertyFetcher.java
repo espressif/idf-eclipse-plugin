@@ -2,7 +2,7 @@
  * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.test.common.configs;
+package com.espressif.idf.ui.test.common.configs;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -2,7 +2,7 @@
  * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.test.executable.cases.project;
+package com.espressif.idf.ui.test.executable.cases.project;
 
 import static org.junit.Assert.assertTrue;
 
@@ -22,12 +22,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.espressif.idf.test.common.configs.DefaultPropertyFetcher;
-import com.espressif.idf.test.common.resources.DefaultFileContentsReader;
-import com.espressif.idf.test.common.utility.TestAssertUtility;
-import com.espressif.idf.test.operations.EnvSetupOperations;
-import com.espressif.idf.test.operations.ProjectTestOperations;
-import com.espressif.idf.test.operations.SWTBotTreeOperations;
+import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
+import com.espressif.idf.ui.test.common.resources.DefaultFileContentsReader;
+import com.espressif.idf.ui.test.common.utility.TestAssertUtility;
+import com.espressif.idf.ui.test.operations.EnvSetupOperations;
+import com.espressif.idf.ui.test.operations.ProjectTestOperations;
+import com.espressif.idf.ui.test.operations.SWTBotTreeOperations;
 
 /**
  * Test class to test the project creation, build and basic operations

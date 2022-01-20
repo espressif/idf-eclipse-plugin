@@ -2,7 +2,7 @@
  * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.test.operations;
+package com.espressif.idf.ui.test.operations;
 
 import java.util.Arrays;
 import java.util.Optional;

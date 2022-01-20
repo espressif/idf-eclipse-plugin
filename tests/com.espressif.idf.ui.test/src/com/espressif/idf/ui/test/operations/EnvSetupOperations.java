@@ -1,4 +1,4 @@
-package com.espressif.idf.test.operations;
+package com.espressif.idf.ui.test.operations;
 
 import static org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory.withPartName;
 
@@ -6,8 +6,8 @@ import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 
-import com.espressif.idf.test.common.configs.DefaultPropertyFetcher;
-import com.espressif.idf.test.common.utility.TestWidgetWaitUtility;
+import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
+import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 
 public class EnvSetupOperations
 {
@@ -26,7 +26,7 @@ public class EnvSetupOperations
 		bot.table().select("C/C++");
 		bot.button("Open").click();
 		
-		bot.menu("Help").menu("ESP-IDF Tools Manager").menu("Install Tools").click();
+		bot.menu("Espressif").menu("ESP-IDF Tools Manager").menu("Install Tools").click();
 		bot.textWithLabel("ESP-IDF Directory:")
 				.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
 		bot.textWithLabel("Git Executable Location:")

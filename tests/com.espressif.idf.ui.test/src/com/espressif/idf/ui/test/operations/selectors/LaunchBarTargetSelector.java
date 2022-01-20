@@ -3,13 +3,13 @@
  * Use is subject to license terms.
  *******************************************************************************/
 
-package com.espressif.idf.test.operations.selectors;
+package com.espressif.idf.ui.test.operations.selectors;
 
 import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.withText;
 
 import org.eclipse.launchbar.ui.controls.internal.CSelector;
-import org.eclipse.launchbar.ui.controls.internal.ConfigSelector;
 import org.eclipse.launchbar.ui.controls.internal.LaunchBarWidgetIds;
+import org.eclipse.launchbar.ui.controls.internal.TargetSelector;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Label;
@@ -22,23 +22,24 @@ import org.eclipse.swtbot.swt.finder.results.Result;
 import org.eclipse.swtbot.swt.finder.widgets.AbstractSWTBotControl;
 
 /**
- * Class to interact with CDT LaunchBar to select configs
+ * Launchbar CDT helper class to select items from launch targets
  * 
  * @author Ali Azam Rana
  *
  */
 @SuppressWarnings("restriction")
 @SWTBotWidget(clasz = CSelector.class, preferredName = "cselector")
-public class LaunchBarConfigSelector extends AbstractSWTBotControl<CSelector>
+public class LaunchBarTargetSelector extends AbstractSWTBotControl<CSelector>
 {
-	public LaunchBarConfigSelector(ConfigSelector w) throws WidgetNotFoundException
+
+	public LaunchBarTargetSelector(TargetSelector targetSelector) throws WidgetNotFoundException
 	{
-		super(w);
+		super(targetSelector);
 	}
 
-	public LaunchBarConfigSelector(SWTBot bot)
+	public LaunchBarTargetSelector(SWTBot bot)
 	{
-		this(bot.widget(WidgetMatcherFactory.withId(LaunchBarWidgetIds.CONFIG_SELECTOR)));
+		this(bot.widget(WidgetMatcherFactory.withTooltip("Launch Target: OK")));
 	}
 
 	public SWTBot bot()
@@ -56,16 +57,9 @@ public class LaunchBarConfigSelector extends AbstractSWTBotControl<CSelector>
 		notify(SWT.MouseUp, createMouseEvent(x, y, 1, SWT.BUTTON1, 1));
 	}
 
-	@Override
-	public LaunchBarConfigSelector click()
-	{
-		Point size = syncExec((Result<Point>) () -> widget.getSize());
-		click(size.x / 2, size.y / 2);
-		return this;
-	}
-
 	public void clickEdit()
 	{
+		click();
 		bot().buttonWithId(LaunchBarWidgetIds.EDIT).click(); // $NON-NLS-1$
 	}
 
@@ -75,7 +69,15 @@ public class LaunchBarConfigSelector extends AbstractSWTBotControl<CSelector>
 		notify(SWT.MouseUp, createMouseEvent(x, y, 1, SWT.BUTTON1, 1), internalWidget);
 	}
 
-	public LaunchBarConfigSelector select(String text)
+	@Override
+	public LaunchBarTargetSelector click()
+	{
+		Point size = syncExec((Result<Point>) () -> widget.getSize());
+		click(size.x / 2, size.y / 2);
+		return this;
+	}
+
+	public LaunchBarTargetSelector select(String text)
 	{
 		click();
 		Label itemToSelect = bot().shellWithId(LaunchBarWidgetIds.POPUP).bot().widget(withText(text));

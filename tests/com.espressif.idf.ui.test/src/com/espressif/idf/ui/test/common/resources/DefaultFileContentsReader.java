@@ -2,7 +2,7 @@
  * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.test.common.resources;
+package com.espressif.idf.ui.test.common.resources;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,7 +10,7 @@ import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.espressif.idf.test.common.configs.IDefaultConfigConstants;
+import com.espressif.idf.ui.test.common.configs.IDefaultConfigConstants;
 
 /**
  * Default file contents reader reads the files stored in the resources/default-files

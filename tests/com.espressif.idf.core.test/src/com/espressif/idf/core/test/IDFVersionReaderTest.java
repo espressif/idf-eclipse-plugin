@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.espressif.idf.core.IDFVersion;
@@ -17,13 +19,20 @@ public class IDFVersionReaderTest
 
 	private IDFVersionsReader reader;
 
-	public IDFVersionReaderTest()
+	@Before
+	public void setup()
 	{
 		reader = new IDFVersionsReader();
 	}
 
+	@After
+	public void teardown()
+	{
+		reader = null;
+	}
+
 	@Test
-	public void canGetVersionsFromDLEspressif()
+	public void testCanGetVersionsFromDLEspressif()
 	{
 
 		List<String> versions = reader.getVersions();
@@ -31,7 +40,14 @@ public class IDFVersionReaderTest
 	}
 
 	@Test
-	public void canItFilterVersionsCorrectly()
+	public void testCanGetVersionsMap()
+	{
+		Map<String, IDFVersion> versionsMap = reader.getVersionsMap();
+		assertTrue(versionsMap.size() > 0);
+	}
+
+	@Test
+	public void testIsVersionsFilterWorkingCorrectly()
 	{
 		List<String> versions = getVersions();
 
@@ -41,7 +57,7 @@ public class IDFVersionReaderTest
 	}
 
 	@Test
-	public void canItDiscardversion335()
+	public void testCanItDiscardversion335()
 	{
 		List<String> versions = getVersions();
 
@@ -57,13 +73,6 @@ public class IDFVersionReaderTest
 		versions.add("v3.3.5");
 		versions.add("master");
 		return versions;
-	}
-
-	@Test
-	public void canGetVersionsMap()
-	{
-		Map<String, IDFVersion> versionsMap = reader.getVersionsMap();
-		assertTrue(versionsMap.size() > 0);
 	}
 
 }

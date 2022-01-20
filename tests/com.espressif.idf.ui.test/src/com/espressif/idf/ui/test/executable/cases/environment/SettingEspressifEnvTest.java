@@ -1,4 +1,4 @@
-package com.espressif.idf.test.executable.cases.environment;
+package com.espressif.idf.ui.test.executable.cases.environment;
 
 import static org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory.withPartName;
 import static org.junit.Assert.assertFalse;
@@ -13,9 +13,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.espressif.idf.test.common.configs.DefaultPropertyFetcher;
-import com.espressif.idf.test.common.utility.TestWidgetWaitUtility;
-import com.espressif.idf.test.operations.ProjectTestOperations;
+import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
+import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
+import com.espressif.idf.ui.test.operations.ProjectTestOperations;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class SettingEspressifEnvTest

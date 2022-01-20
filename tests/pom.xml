@@ -17,5 +17,6 @@
 
 	<modules>
 		<module>com.espressif.idf.core.test</module>
+		<module>com.espressif.idf.ui.test</module>
 	</modules>
 </project>

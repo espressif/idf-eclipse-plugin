@@ -3,7 +3,7 @@
  * Use is subject to license terms.
  *******************************************************************************/
 
-package com.espressif.idf.test.executable.cases.launchconfiguration;
+package com.espressif.idf.ui.test.executable.cases.launchconfiguration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -24,10 +24,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.espressif.idf.test.operations.EnvSetupOperations;
-import com.espressif.idf.test.operations.ProjectTestOperations;
-import com.espressif.idf.test.operations.selectors.LaunchBarConfigSelector;
-import com.espressif.idf.test.operations.selectors.LaunchBarTargetSelector;
+import com.espressif.idf.ui.test.operations.EnvSetupOperations;
+import com.espressif.idf.ui.test.operations.ProjectTestOperations;
+import com.espressif.idf.ui.test.operations.selectors.LaunchBarConfigSelector;
+import com.espressif.idf.ui.test.operations.selectors.LaunchBarTargetSelector;
 
 /**
  * Test class to verify launch configurations and descriptors via cdt launchbar

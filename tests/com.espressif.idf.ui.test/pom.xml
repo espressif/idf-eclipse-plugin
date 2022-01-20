@@ -9,7 +9,7 @@
 
 	<parent>
 		<groupId>com.espressif.idf</groupId>
-		<artifactId>com.espressif.idf.ui.test</artifactId>
+		<artifactId>com.espressif.idf.tests</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
@@ -19,6 +19,10 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-surefire-plugin</artifactId>
 				<version>${tycho-version}</version>
+				<configuration>
+					<useUIHarness>true</useUIHarness>
+					<argLine>${ui.test.args}</argLine>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
