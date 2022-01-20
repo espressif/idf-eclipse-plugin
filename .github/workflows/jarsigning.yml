@@ -31,6 +31,7 @@ jobs:
         KEYSTORE_FILE="${PWD}/{{secrets.JARSIGNER_KEYSTORE}}"
         echo "${KEYSTORE_FILE}"
         printf "%s" "${JARSIGNER_KEYSTORE_B64}" | base64 -d - > "${KEYSTORE_FILE}"
+        mvn -e -X clean install -Djarsigner.keystore="${KEYSTORE_FILE}" -Djarsigner.alias="${JARSIGNER_ALIAS}" -Djarsigner.storepass="${JARSIGNER_STOREPASS}"
         jarsigner -keystore "${KEYSTORE_FILE}" -storepass "${JARSIGNER_STOREPASS}" /bundles/com.espressif.idf.serial.monitor/lib/pty4j-0.8.6.jar "${JARSIGNER_ALIAS}"
         rm -v "${KEYSTORE_FILE}"
     
