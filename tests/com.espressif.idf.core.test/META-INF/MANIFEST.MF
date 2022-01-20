@@ -2,7 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Test
 Bundle-SymbolicName: com.espressif.idf.core.test
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 0.0.1.qualifier
 Bundle-Vendor: ESPRESSIF
 Automatic-Module-Name: com.espressif.idf.core.test
 Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.junit
