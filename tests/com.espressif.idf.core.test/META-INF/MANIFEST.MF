@@ -6,4 +6,5 @@ Bundle-Version: 0.0.1.qualifier
 Bundle-Vendor: ESPRESSIF
 Automatic-Module-Name: com.espressif.idf.core.test
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Require-Bundle: org.junit
+Require-Bundle: org.junit,
+ com.espressif.idf.core;bundle-version="1.0.1"
