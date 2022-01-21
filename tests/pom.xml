@@ -19,4 +19,21 @@
 		<module>com.espressif.idf.core.test</module>
 		<module>com.espressif.idf.ui.test</module>
 	</modules>
+	
+	<profiles>
+		<profile>
+			<id>macosx</id>
+			<activation>
+				<os>
+					<family>mac</family>
+					<name>mac os x</name>
+				</os>
+			</activation>
+			<properties>
+				<ui.test.args>-XstartOnFirstThread</ui.test.args>
+				<test.osx.skip>${test.skip}</test.osx.skip>
+			</properties>
+		</profile>
+		
+	</profiles>
 </project>
