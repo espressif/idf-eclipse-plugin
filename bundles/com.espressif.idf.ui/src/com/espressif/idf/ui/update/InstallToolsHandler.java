@@ -22,6 +22,9 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.ui.PlatformUI;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
@@ -114,7 +117,27 @@ public class InstallToolsHandler extends AbstractToolsHandler
 						target.toString()));
 				try
 				{
-					Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+					if (target.toFile().exists())
+					{
+						MessageBox messageBox = new MessageBox(PlatformUI.getWorkbench().getDisplay().getActiveShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
+						messageBox.setText(Messages.InstallToolsHandler_OpenOCDRulesCopyWarning);
+						messageBox.setMessage(Messages.InstallToolsHandler_OpenOCDRulesCopyWarningMessage);
+						int response = messageBox.open();
+						if (response == SWT.YES)
+						{
+							Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);		
+						}
+						else
+						{
+							console.println(Messages.InstallToolsHandler_OpenOCDRulesNotCopied);
+							return;
+						}
+					}
+					else
+					{
+						Files.copy(source, target);						
+					}
+					
 					console.println(Messages.InstallToolsHandler_OpenOCDRulesCopied);
 				}
 				catch (IOException e)
