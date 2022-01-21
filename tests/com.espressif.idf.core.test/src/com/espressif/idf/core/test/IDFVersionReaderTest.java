@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2022 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.core.test;
 
 import static org.junit.Assert.assertFalse;
@@ -14,6 +18,10 @@ import org.junit.Test;
 import com.espressif.idf.core.IDFVersion;
 import com.espressif.idf.core.IDFVersionsReader;
 
+/**
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ *
+ */
 public class IDFVersionReaderTest
 {
 
