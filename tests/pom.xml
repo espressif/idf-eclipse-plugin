@@ -31,7 +31,6 @@
 			</activation>
 			<properties>
 				<ui.test.args>-XstartOnFirstThread</ui.test.args>
-				<test.osx.skip>${test.skip}</test.osx.skip>
 			</properties>
 		</profile>
 		
