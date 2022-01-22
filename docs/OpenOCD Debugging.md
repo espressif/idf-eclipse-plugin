@@ -33,7 +33,7 @@ The other way to create a debug configuration is from the launch configuration b
 
 The last section on the "Main" tab is "Build (if required) before launching". If you don't want to build the project each time you are pressing the "Debug" button, click “Disable auto build”.
 
-Points 1 - 3 is shown below.
+Points 1 - 3 are shown below.
 ![](images/OpenOCDDebug_5.png)
 
 ## Debugger Tab
@@ -45,7 +45,7 @@ Let's take a look at some other options, that you need to check if they auto con
 5. In the next step, please make sure that the GDB port is 3333 if you want to use an internal gdb client and the Tcl port is 6666 if you want to use [Application Level Tracing](https://github.com/espressif/idf-eclipse-plugin#application-level-tracing). Also, check `Config options` as described above.
 6. In the `GDB Client Setup` section as described above, the gdb executable should be automatically and dynamically configured based on the target you choose. You can change it, by clicking "Browse" button and selecting the path to the gdb executable. By default, the "Commands" line should be `set mem inaccessible-by-default off`.
 
-Points 4 - 6 is shown below.
+Points 4 - 6 are shown below.
 ![](images/OpenOCDDebug_6.png)
 
 > **NOTE:**  Update the OpenOCD Config options based on the esp board you've choosen. Please check this here https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/jtag-debugging/tips-and-quirks.html#id1
@@ -58,14 +58,14 @@ Points 4 - 6 is shown below.
 		mon reset halt
 		flushregs
 		set remote hardware-watchpoint-limit 2
-Points 7 - 8 is shown below.
+Points 7 - 8 are shown below.
 ![](images/OpenOCDDebug_7.png)
 
 9. Options `Load Symbols` and `Use project binary` are selected.
 10. Further down on the same tab, establish an initial breakpoint to halt CPUs after they are reset by debugger. The plugin will set this breakpoint at the beginning of the function entered under “Set break point at:”. Checkout this option and enter the name of the main function e.g. app_main in provided field.
 11. Checkout “Continue” option. This will make the program to resume after `mon reset halt` is invoked per point 8. The program will then stop at breakpoint inserted at app_main.
 
-Points 9 - 11 is shown below.
+Points 9 - 11 are shown below.
 ![](images/OpenOCDDebug_8.png)
 
 ## Common Tab
