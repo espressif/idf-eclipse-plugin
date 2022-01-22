@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.osgi.framework.Version;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
@@ -54,9 +55,11 @@ public class IDFSizeConstants {
 	
 	static {
 		String version = IDFUtil.getEspIdfVersion();
-		Pattern p = Pattern.compile("([0-9][.][0-9])"); //$NON-NLS-1$
+		final String regexToFindVersion = "v([0-9][.0-9]+)"; //$NON-NLS-1$
+		final String oldIdfSizeConstantsVersion = "4.3.1"; //$NON-NLS-1$
+		Pattern p = Pattern.compile(regexToFindVersion); 
 		Matcher m = p.matcher(version);
-		if (m.find() && Double.parseDouble(m.group(0)) > 4.3) {
+		if (m.find() &&  new Version(oldIdfSizeConstantsVersion).compareTo(new Version(m.group(1).replaceAll("-.*", ".0"))) <= 0) { //$NON-NLS-1$ //$NON-NLS-2$
 			FLASH_RODATA_OVERVIEW = "flash_rodata"; //$NON-NLS-1$
 			DATA = ".dram0.data"; // DRAM .data //$NON-NLS-1$
 			BSS = ".dram0.bss"; // DRAM .bss //$NON-NLS-1$
