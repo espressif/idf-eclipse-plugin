@@ -59,7 +59,7 @@ public class IDFSizeConstants {
 		final String oldIdfSizeConstantsVersion = "4.3.1"; //$NON-NLS-1$
 		Pattern p = Pattern.compile(regexToFindVersion); 
 		Matcher m = p.matcher(version);
-		if (m.find() &&  new Version(oldIdfSizeConstantsVersion).compareTo(new Version(m.group(1).replaceAll("-.*", ".0"))) <= 0) { //$NON-NLS-1$ //$NON-NLS-2$
+		if (m.find() &&  new Version(oldIdfSizeConstantsVersion).compareTo(new Version(m.group(1).replaceAll("-.*", ".0"))) < 0) { //$NON-NLS-1$ //$NON-NLS-2$
 			FLASH_RODATA_OVERVIEW = "flash_rodata"; //$NON-NLS-1$
 			DATA = ".dram0.data"; // DRAM .data //$NON-NLS-1$
 			BSS = ".dram0.bss"; // DRAM .bss //$NON-NLS-1$
