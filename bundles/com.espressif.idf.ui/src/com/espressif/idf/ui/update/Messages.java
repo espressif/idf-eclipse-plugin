@@ -32,6 +32,13 @@ public class Messages extends NLS
 	public static String InstallToolsHandler_InstallingToolsMsg;
 	public static String InstallToolsHandler_ItWilltakeTimeMsg;
 	public static String InstallToolsHandler_ToolsCompleted;
+	public static String InstallToolsHandler_CopyingOpenOCDRules;
+	public static String InstallToolsHandler_OpenOCDRulesCopied;
+	public static String InstallToolsHandler_OpenOCDRulesCopyError;
+	public static String InstallToolsHandler_OpenOCDRulesCopyPaths;
+	public static String InstallToolsHandler_OpenOCDRulesCopyWarning;
+	public static String InstallToolsHandler_OpenOCDRulesCopyWarningMessage;
+	public static String InstallToolsHandler_OpenOCDRulesNotCopied;
 	public static String ListInstalledTools_MessageTitle;
 	public static String ListInstalledTools_MissingIdfPathMsg;
 	public static String JavaRuntimeVersionMsg;

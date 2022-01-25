@@ -4,6 +4,12 @@
  *******************************************************************************/
 package com.espressif.idf.ui.update;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,9 +18,13 @@ import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.build.IToolChainManager;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.ui.PlatformUI;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
@@ -22,6 +32,8 @@ import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.build.ESPToolChainManager;
 import com.espressif.idf.core.build.ESPToolChainProvider;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
 
 /**
@@ -59,13 +71,15 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				new ExportIDFTools().runToolsExport(pythonExecutablenPath, gitExecutablePath, console);
 				monitor.worked(1);
 				console.println(Messages.InstallToolsHandler_ConfiguredBuildEnvVarMsg);
-				
+
 				monitor.setTaskName(Messages.InstallToolsHandler_AutoConfigureToolchain);
 				configureToolChain();
 				monitor.worked(1);
+				copyOpenOcdRules();
 				console.println(Messages.InstallToolsHandler_ConfiguredCMakeMsg);
-				
+
 				console.println(Messages.InstallToolsHandler_ToolsCompleted);
+
 				return Status.OK_STATUS;
 			}
 
@@ -82,6 +96,57 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		}
 		installToolsJob.schedule();
 
+	}
+
+	private void copyOpenOcdRules()
+	{
+		if (Platform.getOS().equals(Platform.OS_LINUX)
+				&& !IDFUtil.getOpenOCDLocation().equalsIgnoreCase(StringUtil.EMPTY))
+		{
+			console.println(Messages.InstallToolsHandler_CopyingOpenOCDRules);
+			// Copy the rules to the idf
+			StringBuilder pathToRules = new StringBuilder();
+			pathToRules.append(IDFUtil.getOpenOCDLocation());
+			pathToRules.append("/../share/openocd/contrib/60-openocd.rules"); //$NON-NLS-1$
+			File rulesFile = new File(pathToRules.toString());
+			if (rulesFile.exists())
+			{
+				Path source = Paths.get(pathToRules.toString());
+				Path target = Paths.get("/etc/udev/rules.d/60-openocd.rules"); //$NON-NLS-1$
+				console.println(String.format(Messages.InstallToolsHandler_OpenOCDRulesCopyPaths, source.toString(),
+						target.toString()));
+				try
+				{
+					if (target.toFile().exists())
+					{
+						MessageBox messageBox = new MessageBox(PlatformUI.getWorkbench().getDisplay().getActiveShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
+						messageBox.setText(Messages.InstallToolsHandler_OpenOCDRulesCopyWarning);
+						messageBox.setMessage(Messages.InstallToolsHandler_OpenOCDRulesCopyWarningMessage);
+						int response = messageBox.open();
+						if (response == SWT.YES)
+						{
+							Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);		
+						}
+						else
+						{
+							console.println(Messages.InstallToolsHandler_OpenOCDRulesNotCopied);
+							return;
+						}
+					}
+					else
+					{
+						Files.copy(source, target);						
+					}
+					
+					console.println(Messages.InstallToolsHandler_OpenOCDRulesCopied);
+				}
+				catch (IOException e)
+				{
+					Logger.log(e);
+					console.println(Messages.InstallToolsHandler_OpenOCDRulesCopyError);
+				}
+			}
+		}
 	}
 
 	/**
