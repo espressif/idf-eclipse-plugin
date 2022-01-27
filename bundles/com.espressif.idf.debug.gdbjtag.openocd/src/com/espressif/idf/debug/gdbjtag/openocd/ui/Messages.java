@@ -50,6 +50,7 @@ public class Messages {
 
 	public static String StartupTabOpenOcdGroup;
 	public static String StartupTabFlashBeforeStart;
+	public static String StartupTabEnableVerboseOutput;
 
 	public static String MissingDebugConfigurationTitle;
 	public static String DebugConfigurationNotFoundMsg;
