@@ -126,6 +126,7 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 
 	private PersistentPreferences fPersistentPreferences;
 	private Button fDoFlashBeforeStart;
+	private Button fEnableVerboseOutput;
 
 	// ------------------------------------------------------------------------
 
@@ -262,18 +263,9 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 			comp.setLayoutData(gd);
 			fDoFlashBeforeStart = new Button(comp, SWT.CHECK);
 			fDoFlashBeforeStart.setText(Messages.StartupTabFlashBeforeStart);
+			fEnableVerboseOutput = new Button(comp, SWT.CHECK);
+			fEnableVerboseOutput.setText(Messages.StartupTabEnableVerboseOutput);
 		}
-
-//		{
-//			Composite local = new Composite(comp, SWT.NONE);
-//			GridLayout layout = new GridLayout();
-//			layout.numColumns = 1;
-//			layout.marginHeight = 0;
-//			layout.marginWidth = 0;
-//			local.setLayout(layout);
-//
-//
-//		}
 
 	}
 
@@ -946,6 +938,7 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 			{
 				fDoFlashBeforeStart
 						.setSelection(configuration.getAttribute(ConfigurationAttributes.DO_FLASH_BEFORE_START, true));
+				fEnableVerboseOutput.setSelection(configuration.getAttribute(ConfigurationAttributes.ENABLE_VERBOSE_OUTPUT, false));
 			}
 
 			// Initialisation Commands
@@ -1180,6 +1173,8 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 			// Flash before start
 			booleanValue = fDoFlashBeforeStart.getSelection();
 			configuration.setAttribute(ConfigurationAttributes.DO_FLASH_BEFORE_START, booleanValue);
+			booleanValue = fEnableVerboseOutput.getSelection();
+			configuration.setAttribute(ConfigurationAttributes.ENABLE_VERBOSE_OUTPUT, booleanValue);
 		}
 
 		// Initialisation Commands
