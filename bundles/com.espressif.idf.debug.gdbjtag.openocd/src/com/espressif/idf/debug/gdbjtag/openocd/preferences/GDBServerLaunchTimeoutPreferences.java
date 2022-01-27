@@ -36,6 +36,7 @@ public class GDBServerLaunchTimeoutPreferences extends FieldEditorPreferencePage
 	{
 		FieldEditor fGdbServerLaunchTimeout = new IntegerFieldEditor(Activator.GDB_SERVER_LAUNCH_TIMEOUT,
 				Messages.GDBServerTimeoutPage_TimeoutField, getFieldEditorParent());
+		getPreferenceStore().setDefault(Activator.GDB_SERVER_LAUNCH_TIMEOUT, 25);
 		fGdbServerLaunchTimeout.setPreferenceStore(getPreferenceStore());
 		fGdbServerLaunchTimeout.load();
 		addField(fGdbServerLaunchTimeout);
