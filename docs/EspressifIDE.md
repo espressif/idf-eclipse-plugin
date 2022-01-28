@@ -30,18 +30,18 @@ Espressif IDE is an Integrated Development Environment(IDE) based on Eclipse CDT
 - Host operating systems: Windows, macOS, and Linux 
 
 ## Downloads
-### Espressif-IDE v2.3.0-beta
+### Espressif-IDE v2.4.0
 
 | OS  | Download |
 | ------------- | ------------- |
-| Windows  | <a href ="https://dl.espressif.com/dl/espressif-ide//Espressif-IDE-2.3.0-beta-win32.win32.x86_64.zip">Espressif-IDE-2.3.0-beta-win32.win32.x86_64.zip</a>  |
-| macosx | <a href ="https://dl.espressif.com/dl/espressif-ide//Espressif-IDE-2.3.0-beta-macosx.cocoa.x86_64.tar.gz">Espressif-IDE-2.3.0-beta-macosx.cocoa.x86_64.tar.gz</a>  |
-| linux | <a href ="https://dl.espressif.com/dl/espressif-ide//Espressif-IDE-2.3.0-beta-linux.gtk.x86_64.tar.gz">Espressif-IDE-2.3.0-beta-linux.gtk.x86_64.tar.gz</a>  |
+| Windows  | <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-2.4.0-win32.win32.x86_64.zip">Espressif-IDE-2.4.0-win32.win32.x86_64.zip</a>  |
+| macosx | <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-2.4.0-macosx.cocoa.x86_64.tar.gz">Espressif-IDE-2.4.0-macosx.cocoa.x86_64.tar.gz</a>  |
+| linux | <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-2.4.0-linux.gtk.x86_64.tar.gz">Espressif-IDE-2.4.0-linux.gtk.x86_64.tar.gz</a>  |
 
 ### macOS security notice
 On macOS, if you download the archive with the browser, the strict security checks on recent macOS will prevent it to run, and complain that the program is damaged. That’s obviously not true, and the fix is simple, you need to remove the `com.apple.quarantine` extended attribute.
 ```
-$ xattr -d com.apple.quarantine ~/Downloads/Espressif-IDE-2.3.0-beta-macosx.cocoa.x86_64.tar.gz
+$ xattr -d com.apple.quarantine ~/Downloads/Espressif-IDE-2.4.0-macosx.cocoa.x86_64.tar.gz
 ```
 After un-archiving, if the application still complains, check/remove the attribute from the Espressif-IDE.app folder too:
 ```
