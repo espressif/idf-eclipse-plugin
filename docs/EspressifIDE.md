@@ -23,7 +23,8 @@ Espressif IDE is an Integrated Development Environment(IDE) based on Eclipse CDT
 - Integrated ESP-IDF serial monitor
 - ESP-IDF Terminal with the pre-configured ESP-IDF build environment
 - Application size analysis editor for analyzing static memory footprint of your application
-- Support Heap profiling for memory analysis and finding memory leaks
+- Supports Heap profiling for memory analysis and finding memory leaks
+- Supports GDB Stub debugging and Application level tracing
 - Supports esp32,esp32s2, esp32s3 and esp32c3 chips
 - English and Chinese language support for IDE
 - Extensible IDE for other third-party plugins from Eclipse eco-system
