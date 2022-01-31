@@ -94,7 +94,7 @@
             name="%command.name.6">
       </command>
       <command
-            defaultHandler="com.espressif.idf.ui.help.EclipsePluginDocHandler"
+            defaultHandler="com.espressif.idf.ui.installcomponents.handler.InstallIDFComponentsHandler"
             id="com.espressif.idf.ui.command.eclipeguide"
             name="%command.name.8">
       </command>
@@ -178,7 +178,7 @@
          </command>
          <command
                commandId="com.espressif.idf.ui.command.eclipeguide"
-               icon="icons/ESP-IDF Programming Guide.png"
+               icon="icons/Install ESP-IDF Components.png"
                id="eclipseguide"
                label="%command.label.6"
                style="push">
