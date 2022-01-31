@@ -60,6 +60,8 @@ public class EraseFlashDialog extends TitleAreaDialog
 		{
 			Logger.log(e);
 		}
+		
+		setShellStyle(getShellStyle() | SWT.RESIZE | SWT.MAX);
 	}
 
 	@Override
@@ -91,7 +93,7 @@ public class EraseFlashDialog extends TitleAreaDialog
 		deviceInformationText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
 
 		comPortsCombo.addSelectionListener(new ComPortSelectionListener());
-
+		
 		return container;
 	}
 
