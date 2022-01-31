@@ -6,6 +6,10 @@ public class Messages extends NLS
 {
 	private static final String BUNDLE_NAME = "com.espressif.idf.ui.preferences.messages"; //$NON-NLS-1$
 	public static String EspresssifPreferencesPage_IDFSpecificPrefs;
+	public static String GDBServerTimeoutPage_TimeoutField;
+	public static String SerialMonitorPage_Field_NumberOfLines;
+	public static String SerialMonitorPage_Field_NumberOfCharsInLine;
+	
 	static
 	{
 		// initialize resource bundle

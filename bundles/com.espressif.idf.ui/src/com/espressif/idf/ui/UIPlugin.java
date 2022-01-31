@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.ui;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -19,7 +20,7 @@ public class UIPlugin extends AbstractUIPlugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "com.espressif.idf.ui"; //$NON-NLS-1$
-
+	
 	// The shared instance
 	private static UIPlugin plugin;
 
@@ -80,5 +81,4 @@ public class UIPlugin extends AbstractUIPlugin {
 		}
 		return null;
 	}
-
 }

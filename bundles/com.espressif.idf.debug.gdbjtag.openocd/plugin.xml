@@ -72,12 +72,6 @@
 			id="com.espressif.idf.debug.gdbjtag.openocd.globalPreferencePage"
 			name="%preferences.globalMcu">
 		</page>
-  <page
-        category="com.espressif.idf.ui.preferences.mainpage"
-        class="com.espressif.idf.debug.gdbjtag.openocd.preferences.GDBServerLaunchTimeoutPreferences"
-        id="com.espressif.idf.debug.gdbjtag.openocd.timeoutconfiguration"
-        name="GDBServer Timeout">
-  </page>
 	</extension>
 	<extension point="org.eclipse.ui.propertyPages">
 		<page
