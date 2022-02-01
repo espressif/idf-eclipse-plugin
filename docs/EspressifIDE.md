@@ -48,3 +48,16 @@ After un-archiving, if the application still complains, check/remove the attribu
 ```
 $ xattr -dr com.apple.quarantine ~/Downloads/Espressif-IDE.app
 ```
+### Espressif-IDE v2.4.0 Installer for Windows
+Espressif-IDE Installer (All-in-one) is an offline installer and it comes with all the required dependencies to work with the ESP-IDF Application development.
+
+Installer includes:
+- Embedded Python
+- Cross-compilers
+- OpenOCD
+- CMake and Ninja build tools
+- ESP-IDF
+- Espressif-IDE (includes essential Eclipse CDT Packages, IDF Eclipse Plugins and other third-party plugins required)
+- Amazon Corretto OpenJDK
+
+Please check this out <a heref="https://github.com/espressif/idf-installer/releases">here</a>
