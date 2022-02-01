@@ -180,10 +180,7 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 		setControl(comp);
 		GridLayout layout = new GridLayout();
 		comp.setLayout(layout);
-		if (ESPFlashUtil.checkIfJtagIsAvailable())
-		{
-			createOpenOcdGroup(comp);
-		}
+		createOpenOcdGroup(comp);
 		createInitGroup(comp);
 		createLoadGroup(comp);
 		createRunOptionGroup(comp);
@@ -261,8 +258,11 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 			comp.setLayout(layout);
 			GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 			comp.setLayoutData(gd);
-			fDoFlashBeforeStart = new Button(comp, SWT.CHECK);
-			fDoFlashBeforeStart.setText(Messages.StartupTabFlashBeforeStart);
+			if (ESPFlashUtil.checkIfJtagIsAvailable())
+			{
+				fDoFlashBeforeStart = new Button(comp, SWT.CHECK);
+				fDoFlashBeforeStart.setText(Messages.StartupTabFlashBeforeStart);
+			}
 			fEnableVerboseOutput = new Button(comp, SWT.CHECK);
 			fEnableVerboseOutput.setText(Messages.StartupTabEnableVerboseOutput);
 		}
@@ -936,8 +936,10 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 
 			// OpenOCD Commands
 			{
-				fDoFlashBeforeStart
-						.setSelection(configuration.getAttribute(ConfigurationAttributes.DO_FLASH_BEFORE_START, true));
+				if (fDoFlashBeforeStart != null) {
+					fDoFlashBeforeStart
+					.setSelection(configuration.getAttribute(ConfigurationAttributes.DO_FLASH_BEFORE_START, true));
+				}
 				fEnableVerboseOutput.setSelection(configuration.getAttribute(ConfigurationAttributes.ENABLE_VERBOSE_OUTPUT, false));
 			}
 
@@ -1171,8 +1173,10 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 		// OpenOCD Commands
 		{
 			// Flash before start
-			booleanValue = fDoFlashBeforeStart.getSelection();
-			configuration.setAttribute(ConfigurationAttributes.DO_FLASH_BEFORE_START, booleanValue);
+			if (fDoFlashBeforeStart != null) {
+				booleanValue = fDoFlashBeforeStart.getSelection();
+				configuration.setAttribute(ConfigurationAttributes.DO_FLASH_BEFORE_START, booleanValue);
+			}
 			booleanValue = fEnableVerboseOutput.getSelection();
 			configuration.setAttribute(ConfigurationAttributes.ENABLE_VERBOSE_OUTPUT, booleanValue);
 		}
