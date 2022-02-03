@@ -25,6 +25,10 @@ jobs:
    
     - name: Build with Maven
       run: mvn clean verify -Djarsigner.skip=true
+      
+    - name: Publish Test Reports
+        if: ${{ always() }}
+        uses: scacap/action-surefire-report@v1
   
     - name: Create macosx dmg
       run: $PWD/releng/ide-dmg-builder/ide-dmg-builder.sh
