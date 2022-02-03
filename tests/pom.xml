@@ -5,21 +5,34 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.espressif.idf</groupId>
-	<artifactId>com.espressif.idf.root</artifactId>
+	<artifactId>com.espressif.idf.tests</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<parent>
 		<groupId>com.espressif.idf</groupId>
-		<artifactId>com.espressif.idf.configuration</artifactId>
+		<artifactId>com.espressif.idf.root</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
-		<relativePath>./releng/com.espressif.idf.configuration</relativePath>
 	</parent>
 
 	<modules>
-		<module>bundles</module>
-		<module>features</module>
-		<module>releng</module>
-		<module>tests</module>
+		<module>com.espressif.idf.core.test</module>
+		<!-- <module>com.espressif.idf.ui.test</module> -->
 	</modules>
+	
+	<profiles>
+		<profile>
+			<id>macosx</id>
+			<activation>
+				<os>
+					<family>mac</family>
+					<name>mac os x</name>
+				</os>
+			</activation>
+			<properties>
+				<ui.test.args>-XstartOnFirstThread</ui.test.args>
+			</properties>
+		</profile>
+		
+	</profiles>
 </project>
