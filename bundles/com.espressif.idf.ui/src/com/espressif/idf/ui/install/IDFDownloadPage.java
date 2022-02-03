@@ -299,14 +299,6 @@ public class IDFDownloadPage extends WizardPage
 				return;
 			}
 			
-			String requirementsPath = idfPath + File.separator + "requirements.txt"; //$NON-NLS-1$
-			if (!new File (requirementsPath).exists())
-			{
-				setErrorMessage(MessageFormat.format(Messages.IDFDownloadPage_CantFindRequirementsFile, idfPath));
-				setPageComplete(false);
-				return;
-			}
-			
 			setPageComplete(true);
 			setErrorMessage(null);
 			setMessage(Messages.IDFDownloadPage_ClickOnFinish + idfPath);
