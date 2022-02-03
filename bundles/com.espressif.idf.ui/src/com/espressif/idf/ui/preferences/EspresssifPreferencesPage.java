@@ -4,50 +4,142 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
+import org.eclipse.jface.preference.PreferencePage;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.ui.UIPlugin;
 
 import ilg.gnumcueclipse.core.preferences.ScopedPreferenceStoreWithoutDefaults;
 
-public class EspresssifPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
+public class EspresssifPreferencesPage extends PreferencePage implements IWorkbenchPreferencePage
+{
 
 	private static final String NUMBER_OF_LINES = "numberOfLines"; //$NON-NLS-1$
 	private static final String NUMBER_OF_CHARS_IN_A_LINE = "numberOfCharsInALine"; //$NON-NLS-1$
 	private static final String GDB_SERVER_LAUNCH_TIMEOUT = "fGdbServerLaunchTimeout"; //$NON-NLS-1$
 
-	public EspresssifPreferencesPage() {
+	private Text numberOfCharsInLineText;
+	private Text numberLineText;
+	private Text gdbSettingsText;
+
+	public EspresssifPreferencesPage()
+	{
 		super();
 		setPreferenceStore(new ScopedPreferenceStoreWithoutDefaults(InstanceScope.INSTANCE, UIPlugin.PLUGIN_ID));
 		setDescription(Messages.EspresssifPreferencesPage_IDFSpecificPrefs);
 	}
 
 	@Override
-	public void init(IWorkbench workbench) {
+	public void init(IWorkbench workbench)
+	{
 	}
 
 	@Override
-	protected void createFieldEditors()
+	protected Control createContents(Composite parent)
 	{
-		FieldEditor fGdbServerLaunchTimeout = new IntegerFieldEditor(GDB_SERVER_LAUNCH_TIMEOUT,
-				Messages.GDBServerTimeoutPage_TimeoutField, getFieldEditorParent());
+		initializeDefaults();
+
+		Composite mainComposite = new Composite(parent, SWT.NONE);
+		GridLayout gridLayout = new GridLayout();
+		gridLayout.numColumns = 1;
+		gridLayout.marginHeight = 0;
+		gridLayout.marginWidth = 0;
+		mainComposite.setLayout(gridLayout);
+		GridData data = new GridData();
+		data.verticalAlignment = GridData.FILL;
+		data.horizontalAlignment = GridData.FILL;
+		mainComposite.setLayoutData(data);
+
+		addGdbSettings(mainComposite);
+
+		addSerialSettings(mainComposite);
+
+		return mainComposite;
+	}
+
+	private void addSerialSettings(Composite parent)
+	{
+		Group serialGroup = new Group(parent, SWT.SHADOW_ETCHED_IN);
+		serialGroup.setText(Messages.SerialMonitorPage_GroupHeading);
+		serialGroup.setLayout(new GridLayout(2, false));
+
+		Label numberOfCharsInLineLabel = new Label(serialGroup, SWT.None);
+		numberOfCharsInLineLabel.setText(Messages.SerialMonitorPage_Field_NumberOfCharsInLine);
+		numberOfCharsInLineText = new Text(serialGroup, SWT.SINGLE | SWT.BORDER);
+		numberOfCharsInLineText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
+		numberOfCharsInLineText.setText(Integer.toString(getPreferenceStore().getInt(NUMBER_OF_CHARS_IN_A_LINE)));
+
+		Label numberLineLabel = new Label(serialGroup, SWT.None);
+		numberLineLabel.setText(Messages.SerialMonitorPage_Field_NumberOfLines);
+		numberLineText = new Text(serialGroup, SWT.SINGLE | SWT.BORDER);
+		numberLineText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
+		numberLineText.setText(Integer.toString(getPreferenceStore().getInt(NUMBER_OF_LINES)));
+	}
+
+	private void addGdbSettings(Composite parent)
+	{
+		GridData data = new GridData();
+		data.verticalAlignment = GridData.FILL;
+		data.horizontalAlignment = GridData.FILL;
+
+		Group gdbGroup = new Group(parent, SWT.SHADOW_ETCHED_IN);
+		gdbGroup.setText(Messages.GDBServerTimeoutGroup_Heading);
+		gdbGroup.setLayout(new GridLayout(2, false));
+		gdbGroup.setLayoutData(data);
+
+		Label gdbSettingLabel = new Label(gdbGroup, SWT.None);
+		gdbSettingLabel.setText(Messages.GDBServerTimeoutPage_TimeoutField);
+		gdbSettingsText = new Text(gdbGroup, SWT.SINGLE | SWT.BORDER);
+		gdbSettingsText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
+		gdbSettingsText.setText(Integer.toString(getPreferenceStore().getInt(GDB_SERVER_LAUNCH_TIMEOUT)));
+	}
+
+	@Override
+	public boolean performOk()
+	{
+		try
+		{
+			int gdbTimeout = Integer.parseInt(gdbSettingsText.getText());
+			getPreferenceStore().setValue(GDB_SERVER_LAUNCH_TIMEOUT, gdbTimeout);
+
+			int numberOfCharInLines = Integer.parseInt(numberOfCharsInLineText.getText());
+			getPreferenceStore().setValue(NUMBER_OF_CHARS_IN_A_LINE, numberOfCharInLines);
+
+			int numberOfLines = Integer.parseInt(numberLineText.getText());
+			getPreferenceStore().setValue(NUMBER_OF_LINES, numberOfLines);
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	protected void performDefaults()
+	{
+		gdbSettingsText.setText(Integer.toString(getPreferenceStore().getDefaultInt(GDB_SERVER_LAUNCH_TIMEOUT)));
+		numberLineText.setText(Integer.toString(getPreferenceStore().getDefaultInt(NUMBER_OF_LINES)));
+		numberOfCharsInLineText.setText(Integer.toString(getPreferenceStore().getDefaultInt(NUMBER_OF_CHARS_IN_A_LINE)));
+	}
+
+	private void initializeDefaults()
+	{
 		getPreferenceStore().setDefault(GDB_SERVER_LAUNCH_TIMEOUT, 25);
-		fGdbServerLaunchTimeout.setPreferenceStore(getPreferenceStore());
-		fGdbServerLaunchTimeout.load();
-		addField(fGdbServerLaunchTimeout);
-		
 		getPreferenceStore().setDefault(NUMBER_OF_CHARS_IN_A_LINE, 500);
 		getPreferenceStore().setDefault(NUMBER_OF_LINES, 1000);
-		
-		FieldEditor numberOfCharsInALine = new IntegerFieldEditor(NUMBER_OF_CHARS_IN_A_LINE,
-				Messages.SerialMonitorPage_Field_NumberOfCharsInLine, getFieldEditorParent());
-		numberOfCharsInALine.setPreferenceStore(getPreferenceStore());
-		numberOfCharsInALine.load();
-		addField(numberOfCharsInALine);
-		FieldEditor numberOfLines = new IntegerFieldEditor(NUMBER_OF_LINES,
-				Messages.SerialMonitorPage_Field_NumberOfLines, getFieldEditorParent());
-		addField(numberOfLines);
-		
 	}
 }

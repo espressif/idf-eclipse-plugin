@@ -9,6 +9,8 @@ public class Messages extends NLS
 	public static String GDBServerTimeoutPage_TimeoutField;
 	public static String SerialMonitorPage_Field_NumberOfLines;
 	public static String SerialMonitorPage_Field_NumberOfCharsInLine;
+	public static String GDBServerTimeoutGroup_Heading;
+	public static String SerialMonitorPage_GroupHeading;
 	
 	static
 	{
