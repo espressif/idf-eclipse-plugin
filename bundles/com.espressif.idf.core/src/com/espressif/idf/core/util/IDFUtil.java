@@ -423,6 +423,20 @@ public class IDFUtil
 		return ""; //$NON-NLS-1$
 	}
 	
+	public static String getOpenocdVersion() 
+	{
+		String openocdLocation = IDFUtil.getOpenOCDLocation();
+		if (openocdLocation != null && !openocdLocation.isBlank()) 
+		{
+			List<String> commands = new ArrayList<>();
+			commands.add(IDFUtil.getOpenOCDLocation() + File.separator + "openocd.exe"); //$NON-NLS-1$
+			commands.add("--version"); //$NON-NLS-1$
+			Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
+			return runCommand(commands, envMap);
+		}
+		return ""; //$NON-NLS-1$
+	}
+	
 	private static String runCommand(List<String> arguments, Map<String, String> env)
 	{
 		String exportCmdOp = ""; //$NON-NLS-1$

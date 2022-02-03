@@ -7,6 +7,8 @@ package com.espressif.idf.launch.serial.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -18,6 +20,10 @@ import com.espressif.idf.core.util.EspConfigParser;
 import com.espressif.idf.core.util.IDFUtil;
 
 public class ESPFlashUtil {
+
+	private static final int OPENOCD_JTAG_FLASH_SUPPORT_V = 20201125;
+	public static String VERSION_PATTERN = "(v.\\S+)"; //$NON-NLS-1$
+
 	/**
 	 * @param launch
 	 * @return command to flash the application
@@ -36,10 +42,18 @@ public class ESPFlashUtil {
 	public static boolean checkIfJtagIsAvailable() {
 		EspConfigParser parser = new EspConfigParser();
 		String openOCDPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS);
-		if (!openOCDPath.isEmpty() && parser.hasBoardConfigJson()) {
-			return true;
+		if (openOCDPath.isEmpty() && !parser.hasBoardConfigJson()) {
+			return false;
 		}
-		return false;
+
+		String openOcdVersionOutput = IDFUtil.getOpenocdVersion();
+		Pattern pattern = Pattern.compile(VERSION_PATTERN);
+		Matcher matcher = pattern.matcher(openOcdVersionOutput);
+		if (matcher.find() && Integer.parseInt(matcher.group(1).split("-")[2]) < OPENOCD_JTAG_FLASH_SUPPORT_V) { //$NON-NLS-1$
+			return false;
+		}
+
+		return true;
 	}
 
 	public static String getEspJtagFlashCommand(ILaunchConfiguration configuration) {
