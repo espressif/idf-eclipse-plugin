@@ -5,7 +5,10 @@
 package com.espressif.idf.ui.test;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.results.VoidResult;
+import org.eclipse.ui.PlatformUI;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +26,15 @@ public class EspressifMenuTest
 	@Before
 	public void beforeClass() throws Exception
 	{
+		UIThreadRunnable.syncExec(new VoidResult()
+		{
+			public void run()
+			{
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().forceActive();
+			}
+		});
 		bot = new SWTWorkbenchBot();
+
 	}
 
 	@Test
