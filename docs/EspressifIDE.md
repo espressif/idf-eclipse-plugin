@@ -60,4 +60,4 @@ Installer includes:
 - Espressif-IDE (includes essential Eclipse CDT Packages, IDF Eclipse Plugins and other third-party plugins required)
 - Amazon Corretto OpenJDK
 
-Please check this out <a heref="https://github.com/espressif/idf-installer/releases">here</a>
+Espressif-IDE Installer for Windows is available <a heref="https://dl.espressif.com/dl/esp-idf/">here</a>
