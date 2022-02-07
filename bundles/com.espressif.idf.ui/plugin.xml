@@ -94,9 +94,9 @@
             name="%command.name.6">
       </command>
       <command
-            defaultHandler="com.espressif.idf.ui.installcomponents.handler.InstallIDFComponentsHandler"
+            defaultHandler="com.espressif.idf.ui.help.EclipsePluginDocHandler"
             id="com.espressif.idf.ui.command.eclipeguide"
-            name="%command.name.8">
+            name="%command.name.9">
       </command>
    </extension>
    <extension
@@ -178,9 +178,9 @@
          </command>
          <command
                commandId="com.espressif.idf.ui.command.eclipeguide"
-               icon="icons/Install ESP-IDF Components.png"
+               icon="icons/ESP-IDF Programming Guide.png"
                id="eclipseguide"
-               label="%command.label.6"
+               label="%command.label.7"
                style="push">
          </command>
       </menuContribution>
@@ -284,7 +284,7 @@
                   <command
                commandId="com.espressif.idf.ui.appLvlTracing"
                icon="icons/ESP-IDF_Application_Level_Tracing.png"
-               label="ESP-IDF: Application Level Tracing"
+               label="%command.label.8"
                style="push">
             <visibleWhen
                   checkEnabled="false">
