@@ -75,7 +75,6 @@ public class ESPToolChainManager
 	 */
 	public void initToolChain(IToolChainManager manager, IToolChainProvider toolchainProvider)
 	{
-		removePrevInstalledToolchains(manager);
 		Logger.log("Initializing toolchain..."); //$NON-NLS-1$
 		List<String> paths = new ArrayList<String>();
 		String idfToolsExportPath = getIdfToolsExportPath();
@@ -121,7 +120,7 @@ public class ESPToolChainManager
 		}
 	}
 
-	private void removePrevInstalledToolchains(IToolChainManager manager) {
+	public void removePrevInstalledToolchains(IToolChainManager manager) {
 		try {
 			Collection<IToolChain> toolchains = manager.getAllToolChains();
 			ArrayList<IToolChain> tcList = new ArrayList<IToolChain>(toolchains);

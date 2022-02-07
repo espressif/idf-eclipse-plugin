@@ -155,6 +155,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 	protected void configureToolChain()
 	{
 		ESPToolChainManager toolchainManager = new ESPToolChainManager();
+		toolchainManager.removePrevInstalledToolchains(tcManager);
 		toolchainManager.initToolChain(tcManager, ESPToolChainProvider.ID);
 		toolchainManager.initCMakeToolChain(tcManager, cmakeTcManager);
 	}
