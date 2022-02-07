@@ -181,9 +181,7 @@ public class SerialPortHandler
 				serialConnector.filterOptions);
 
 		process = serialMonitorHandler.invokeIDFMonitor(withSocketServer);
-
 		serialConnector.process = process;
-
 		thread = new Thread()
 		{
 			@Override
