@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.CountDownLatch;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
@@ -121,6 +122,7 @@ public class SerialPortHandler
 	private void startSocketServerThread()
 	{
 		socketServerHandler = new SocketServerHandler();
+		CountDownLatch latch = new CountDownLatch(1);
 		socketServerThread = new Thread()
 		{
 			@Override
@@ -129,7 +131,7 @@ public class SerialPortHandler
 				try
 				{
 					socketServerHandler.startServer();
-
+					latch.countDown();
 					Queue<String> messagesQueue = socketServerHandler.getMessagesQueue();
 
 					while (messagesQueue.isEmpty())
@@ -153,6 +155,14 @@ public class SerialPortHandler
 		};
 
 		socketServerThread.start();
+		try
+		{
+			latch.await();
+		}
+		catch (InterruptedException e)
+		{
+			Logger.log(e);
+		}
 	}
 
 	public synchronized void open()
@@ -169,7 +179,9 @@ public class SerialPortHandler
 		// Hook IDF Monitor with the CDT serial monitor
 		SerialMonitorHandler serialMonitorHandler = new SerialMonitorHandler(serialConnector.project, portName,
 				serialConnector.filterOptions);
+
 		process = serialMonitorHandler.invokeIDFMonitor(withSocketServer);
+
 		serialConnector.process = process;
 
 		thread = new Thread()
