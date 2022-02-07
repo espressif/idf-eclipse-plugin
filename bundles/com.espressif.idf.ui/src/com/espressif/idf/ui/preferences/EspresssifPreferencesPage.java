@@ -94,8 +94,7 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		data.verticalAlignment = GridData.FILL;
 		data.horizontalAlignment = GridData.FILL;
 
-		Group gdbGroup = new Group(parent, SWT.SHADOW_ETCHED_IN);
-		gdbGroup.setText(Messages.GDBServerTimeoutGroup_Heading);
+		Composite gdbGroup = new Composite(parent, SWT.SHADOW_ETCHED_IN);
 		gdbGroup.setLayout(new GridLayout(2, false));
 		gdbGroup.setLayoutData(data);
 
