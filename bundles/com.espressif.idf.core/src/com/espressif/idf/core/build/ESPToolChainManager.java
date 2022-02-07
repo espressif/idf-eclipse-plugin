@@ -31,6 +31,7 @@ import org.eclipse.cdt.core.build.IToolChainProvider;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jgit.transport.TcpTransport;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
@@ -74,6 +75,14 @@ public class ESPToolChainManager
 	 */
 	public void initToolChain(IToolChainManager manager, IToolChainProvider toolchainProvider)
 	{
+		try {
+			Collection<IToolChain> toolchains = manager.getAllToolChains();
+			ArrayList<IToolChain> tcList = new ArrayList<IToolChain>(toolchains);
+			tcList.forEach(tc -> manager.removeToolChain(tc));
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		Logger.log("Initializing toolchain..."); //$NON-NLS-1$
 		List<String> paths = new ArrayList<String>();
 		String idfToolsExportPath = getIdfToolsExportPath();
