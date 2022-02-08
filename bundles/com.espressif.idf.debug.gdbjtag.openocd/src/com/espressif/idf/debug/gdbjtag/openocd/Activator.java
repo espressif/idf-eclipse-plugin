@@ -14,6 +14,7 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -31,7 +32,14 @@ public class Activator extends AbstractUIActivator {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "com.espressif.idf.debug.gdbjtag.openocd"; //$NON-NLS-1$
-
+	public static final String GDB_SERVER_LAUNCH_TIMEOUT = "fGdbServerLaunchTimeout"; //$NON-NLS-1$
+	
+	@Override
+	protected void initializeDefaultPreferences(IPreferenceStore preferenceStore)
+	{
+		preferenceStore.setDefault(GDB_SERVER_LAUNCH_TIMEOUT, 25);
+	}
+	
 	@Override
 	public String getBundleId() {
 		return PLUGIN_ID;

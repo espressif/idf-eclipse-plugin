@@ -32,7 +32,7 @@ public class GdbServerBackend extends GnuMcuGdbServerBackend {
 
 	// ------------------------------------------------------------------------
 
-	protected int fGdbServerLaunchTimeout = 15;
+//	protected int fGdbServerLaunchTimeout = 25;
 	protected boolean fDoStartGdbClient;
 
 	// ------------------------------------------------------------------------
@@ -139,7 +139,7 @@ public class GdbServerBackend extends GnuMcuGdbServerBackend {
 
 	@Override
 	public int getServerLaunchTimeoutSeconds() {
-		return fGdbServerLaunchTimeout;
+		return Activator.getInstance().getPreferenceStore().getInt(Activator.GDB_SERVER_LAUNCH_TIMEOUT);
 	}
 
 	public String getServerName() {
