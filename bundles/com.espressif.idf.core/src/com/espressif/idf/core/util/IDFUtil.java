@@ -426,10 +426,11 @@ public class IDFUtil
 	public static String getOpenocdVersion() 
 	{
 		String openocdLocation = IDFUtil.getOpenOCDLocation();
+		String openocdExecutable = Platform.getOS().equals(Platform.OS_WIN32) ? "openocd.exe" : "openocd"; //$NON-NLS-1$ //$NON-NLS-2$
 		if (openocdLocation != null && !openocdLocation.isBlank()) 
 		{
 			List<String> commands = new ArrayList<>();
-			commands.add(IDFUtil.getOpenOCDLocation() + File.separator + "openocd.exe"); //$NON-NLS-1$
+			commands.add(IDFUtil.getOpenOCDLocation() + File.separator + openocdExecutable); 
 			commands.add("--version"); //$NON-NLS-1$
 			Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
 			return runCommand(commands, envMap);
