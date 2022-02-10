@@ -186,7 +186,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			}
 
 			// Check for spaces in the project path
-			if (project.getLocation().toOSString().contains(" ")) //$NON-NLS-1$
+			if (!IDFUtil.checkIfIdfSupportsSpaces() && project.getLocation().toOSString().contains(" ")) //$NON-NLS-1$
 			{
 				console.getErrorStream()
 						.write("Project path can’t include space " + project.getLocation().toOSString()); //$NON-NLS-1$
@@ -395,6 +395,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 					e));
 		}
 	}
+
 	
 	public void update(IProject project) {
 		ICProject cproject = CCorePlugin.getDefault().getCoreModel().create(project);

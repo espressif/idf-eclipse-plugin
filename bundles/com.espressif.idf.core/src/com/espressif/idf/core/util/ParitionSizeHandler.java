@@ -102,7 +102,7 @@ public class ParitionSizeHandler
 	{
 		String partitionTableContent = getPartitionTable();
 		Path path = Paths.get(project.getLocation() + File.separator + IDFConstants.BUILD_FOLDER + File.separator
-				+ project.getName() + ".bin"); //$NON-NLS-1$
+				+ project.getName().replace(" ", "_") + ".bin"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		long imageSize = Files.size(path);
 
 		String[] lines = partitionTableContent.split("\n"); //$NON-NLS-1$

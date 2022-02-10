@@ -394,7 +394,7 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 	public void setProjectPath(IResource project) {
 		pathToProject = project.getLocation().toString();
 
-		elfFilePath = project.getProject().getFolder("build").getFile(project.getName().concat(".elf")).getLocation() //$NON-NLS-1$ //$NON-NLS-2$
+		elfFilePath = project.getProject().getFolder("build").getFile(project.getName().replace(" ", "_").concat(".elf")).getLocation() //$NON-NLS-1$ //$NON-NLS-2$
 				.toString();
 		pathToProject = wrapOutputFilePath(pathToProject);
 
