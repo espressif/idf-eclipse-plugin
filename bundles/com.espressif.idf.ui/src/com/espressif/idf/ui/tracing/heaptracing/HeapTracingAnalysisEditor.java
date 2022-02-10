@@ -5,12 +5,6 @@
 
 package com.espressif.idf.ui.tracing.heaptracing;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -52,7 +46,7 @@ public class HeapTracingAnalysisEditor extends MultiPageEditorPart
 		memoryDumpFile = editorInput.getFile();
 		project = memoryDumpFile.getProject();
 		setPartName(project.getName());
-		elfSymbolsFile = project.getFolder("build").getFile(project.getName().concat(".elf"));
+		elfSymbolsFile = project.getFolder("build").getFile(project.getName().replace(" ", "_").concat(".elf"));  //$NON-NLS-1$ //$NON-NLS-2$
 		try
 		{
 			tracingJsonParser = new TracingJsonParser(memoryDumpFile.getRawLocation().toOSString(),

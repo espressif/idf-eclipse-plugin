@@ -40,8 +40,6 @@ import com.espressif.idf.core.logging.Logger;
 public class ResourceChangeListener implements IResourceChangeListener 
 {
 	
-	private static final String cmakeProjectNamePattern = "(project[(].+[)])"; //$NON-NLS-1$
-
 	@Override
 	public void resourceChanged(IResourceChangeEvent event)
 	{
@@ -61,12 +59,9 @@ public class ResourceChangeListener implements IResourceChangeListener
 					updateLaunchBar(resource, kind, flags);
 					boolean isProjectAdded = (((resource.getType() & IResource.PROJECT) != 0)
 							&& resource.getProject().isOpen() && kind == IResourceDelta.ADDED);
-
 					if (isProjectAdded)
 					{
 						cleanupBuildFolder(resource);
-						renameProjectInCmakeList(resource);
-
 					}
 					boolean isProjectRenamed = resource.getType() == IResource.PROJECT
 							&& kind == IResourceDelta.ADDED && ((flags & IResourceDelta.MOVED_FROM) != 0);
@@ -140,33 +135,6 @@ public class ResourceChangeListener implements IResourceChangeListener
 		}
 	}
 
-	private void renameProjectInCmakeList(IResource resource)
-	{
-		IProject project = (IProject) resource;
-		Path cMakeListLocation = new File(project.getLocation() + "/CMakeLists.txt").toPath(); //$NON-NLS-1$
-		List<String> fileContent;
-		try
-		{
-			fileContent = new ArrayList<>(Files.readAllLines(cMakeListLocation));
-			for (int i = 0; i < fileContent.size(); i++)
-			{
-
-				Pattern p = Pattern.compile(cmakeProjectNamePattern); 
-				Matcher m = p.matcher(fileContent.get(i));
-				if (m.find())
-				{
-					fileContent.set(i, "project(" + project.getName() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
-					break;
-				}
-			}
-
-			Files.write(cMakeListLocation, fileContent, StandardCharsets.UTF_8);
-		}
-		catch (IOException e)
-		{
-			Logger.log(e);
-		}
-	}
 	private void cleanupBuildFolder(IResource resource)
 	{
 
