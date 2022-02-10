@@ -22,6 +22,7 @@ import org.eclipse.cdt.launch.ui.corebuild.GenericMainTab;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.launchbar.core.ILaunchBarManager;
@@ -70,8 +71,23 @@ public class CMakeMainTab2 extends GenericMainTab {
 	public void createControl(Composite parent) {
 		launchBarManager = Activator.getService(ILaunchBarManager.class);
 		isJtagFlashAvailable = ESPFlashUtil.checkIfJtagIsAvailable();
-		createJtagFlashButton(parent);
-		super.createControl(parent);
+
+		Composite mainComposite = new Composite(parent, SWT.NONE);
+		setControl(mainComposite);
+		mainComposite.setFont(parent.getFont());
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 1;
+		GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
+		mainComposite.setLayout(layout);
+		mainComposite.setLayoutData(gridData);
+
+		createJtagFlashButton(mainComposite);
+		createLocationComponent(mainComposite);
+		createWorkDirectoryComponent(mainComposite);
+		createArgumentComponent(mainComposite);
+		createVerticalSpacer(mainComposite, 1);
+
+		Dialog.applyDialogFont(parent);
 		locationAndWorkDirGroupData = new GridData(SWT.FILL, SWT.NONE, true, false);
 		locationField.getParent().setLayoutData(locationAndWorkDirGroupData);
 		workDirectoryField.getParent().setLayoutData(locationAndWorkDirGroupData);
@@ -137,7 +153,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 			wc.setAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, flashOverJtagButton.getSelection());
 			//For the case, when user wants to edit arguments line somehow and save changes
 			if (isFlashOverJtag) {
-				wc.setAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, argumentField.getText());
+				argumentsForJtagFlash = argumentField.getText();
+				wc.setAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, argumentsForJtagFlash);
 				wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, argumentsForSerialFlash);
 			} else {
 				wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, argumentField.getText());
@@ -163,6 +180,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 		}
 		try {
 			isFlashOverJtag = configuration.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, isFlashOverJtag);
+			initializeJtagComboFields(configuration);
 		} catch (CoreException e) {
 			Logger.log(e);
 		}
@@ -172,28 +190,20 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private void updateArgumentsWithDefaultFlashCommand(ILaunchConfiguration configuration) {
 		String espFlashCommand = ESPFlashUtil.getEspFlashCommand(getSerialPort());
 		try {
-			if (!isJtagFlashAvailable) {
-				argumentsForSerialFlash = configuration
-						.getAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS, espFlashCommand);
-				argumentsForSerialFlash = argumentsForSerialFlash.isEmpty() ? espFlashCommand : argumentsForSerialFlash;
-				argumentsForSerialFlash = argumentsForSerialFlash.contains(EMPTY_CONFIG_OPTIONS) ? espFlashCommand
-						: argumentsForSerialFlash;
-				argumentField.setText(argumentsForSerialFlash);
-				return;
-			}
-			String savedArgumentsForJtagFlash = configuration.getAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS,
-					EMPTY_CONFIG_OPTIONS);
 			argumentsForSerialFlash = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS,
 					espFlashCommand);
 			argumentsForSerialFlash = argumentsForSerialFlash.isEmpty() ? espFlashCommand : argumentsForSerialFlash;
-			initializeJtagComboFields(configuration);
-			argumentsForJtagFlash = savedArgumentsForJtagFlash.contentEquals(savedArgumentsForJtagFlash)
-					? argumentsForJtagFlash
-					: savedArgumentsForJtagFlash;
+			argumentsForSerialFlash = argumentsForSerialFlash.contains(EMPTY_CONFIG_OPTIONS) ? espFlashCommand
+					: argumentsForSerialFlash;
+			argumentField.setText(argumentsForSerialFlash);
+			if (!isJtagFlashAvailable) {
+				return;
+			}
+			String savedArgumentsForJtagFlash = configuration.getAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS,
+					argumentsForJtagFlash);
+			argumentsForJtagFlash = savedArgumentsForJtagFlash;
 			if (isFlashOverJtag) {
 				argumentField.setText(argumentsForJtagFlash);
-			} else {
-				argumentField.setText(argumentsForSerialFlash);
 			}
 
 		} catch (CoreException e) {

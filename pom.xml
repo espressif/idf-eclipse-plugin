@@ -20,6 +20,6 @@
 		<module>bundles</module>
 		<module>features</module>
 		<module>releng</module>
-		<module>test</module>
+		<module>tests</module>
 	</modules>
 </project>

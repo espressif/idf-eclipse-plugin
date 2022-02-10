@@ -37,7 +37,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.cdt.native.serial,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.intro,
- org.eclipse.tools.templates.freemarker
+ org.eclipse.tools.templates.freemarker,
+ ilg.gnumcueclipse.core
 Automatic-Module-Name: com.espressif.idf.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11

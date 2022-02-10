@@ -37,8 +37,11 @@ public class ParitionSizeHandler
 	// checking the size consists of the idf_size.py command and checking the remaining size from the partition table
 	public void startCheckingSize() throws IOException, CoreException
 	{
-		startIdfSizeProcess();
-		checkRemainingSize();
+		if (getMapFilePath(project) != null)
+		{
+			startIdfSizeProcess();
+			checkRemainingSize();			
+		}
 	}
 	
 	private String getPartitionTable() throws IOException
