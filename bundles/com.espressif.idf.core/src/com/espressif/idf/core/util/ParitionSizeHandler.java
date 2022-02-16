@@ -40,7 +40,10 @@ public class ParitionSizeHandler
 		if (getMapFilePath(project) != null)
 		{
 			startIdfSizeProcess();
-			checkRemainingSize();			
+		}
+		IPath binPath = getBinFilePath(project);
+		if (binPath != null) {
+			checkRemainingSize(binPath);
 		}
 	}
 	
@@ -97,14 +100,22 @@ public class ParitionSizeHandler
 		return null;
 	}
 	
-	private void checkRemainingSize()
+	private IPath getBinFilePath(IProject project) {
+		GenericJsonReader jsonReader = new GenericJsonReader(project,
+				IDFConstants.BUILD_FOLDER + File.separator + "project_description.json"); //$NON-NLS-1$
+		String value = jsonReader.getValue("app_bin"); //$NON-NLS-1$
+		if (!StringUtil.isEmpty(value))
+		{
+			return project.getFile(new org.eclipse.core.runtime.Path("build").append(value)).getLocation(); //$NON-NLS-1$
+		}
+		return null;
+	}
+	
+	private void checkRemainingSize(IPath path)
 			throws IOException, CoreException
 	{
 		String partitionTableContent = getPartitionTable();
-		Path path = Paths.get(project.getLocation() + File.separator + IDFConstants.BUILD_FOLDER + File.separator
-				+ project.getName().replace(" ", "_") + ".bin"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		long imageSize = Files.size(path);
-
+		long imageSize = path.toFile().length();
 		String[] lines = partitionTableContent.split("\n"); //$NON-NLS-1$
 		for (String line : lines)
 		{
