@@ -37,11 +37,13 @@ public class ParitionSizeHandler
 	// checking the size consists of the idf_size.py command and checking the remaining size from the partition table
 	public void startCheckingSize() throws IOException, CoreException
 	{
-		IPath mapFilePath = getMapFilePath(project);
-		if (mapFilePath != null)
+		if (getMapFilePath(project) != null)
 		{
 			startIdfSizeProcess();
-			checkRemainingSize(mapFilePath.removeFileExtension().addFileExtension("bin")); //$NON-NLS-1$	
+		}
+		IPath binPath = getBinFilePath(project);
+		if (binPath != null) {
+			checkRemainingSize(binPath);
 		}
 	}
 	
@@ -98,11 +100,21 @@ public class ParitionSizeHandler
 		return null;
 	}
 	
+	private IPath getBinFilePath(IProject project) {
+		GenericJsonReader jsonReader = new GenericJsonReader(project,
+				IDFConstants.BUILD_FOLDER + File.separator + "project_description.json"); //$NON-NLS-1$
+		String value = jsonReader.getValue("app_bin"); //$NON-NLS-1$
+		if (!StringUtil.isEmpty(value))
+		{
+			return project.getFile(new org.eclipse.core.runtime.Path("build").append(value)).getLocation(); //$NON-NLS-1$
+		}
+		return null;
+	}
+	
 	private void checkRemainingSize(IPath path)
 			throws IOException, CoreException
 	{
 		String partitionTableContent = getPartitionTable();
-		
 		long imageSize = path.toFile().length();
 		String[] lines = partitionTableContent.split("\n"); //$NON-NLS-1$
 		for (String line : lines)
