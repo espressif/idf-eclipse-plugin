@@ -128,3 +128,9 @@ Eclipse will fail to launch if installed in a directory whose path contains cert
   - Navigate to the `Debugger` tab
   - Add `-d3 -l oocd.log` in the `Config Options` section of the `Debugger` tab
   - Click `Ok` and start the debugging process. This generates `oocd.log` file your project
+  
+
+## Why esp_idf_components folder is created in the project?
+`esp_idf_components` folder is introduced with v2.4.0 release to achieve source code navigation for the function definitions((Press F3 or Ctrl+Click on the functional call) and to fix unresolved header problems with the indexer. It will be created immediately after the build based on the `build/compile_commands.json` file list. secondly, it also helps the users who want to check source of esp-idf components directly from the IDE. The files created under esp_idf_componenets are virtual folders for /esp-idf/components and these will be re-generated everytime after the build.
+ 
+ This could be disabled by adding the `-Dskip.idf.components=true` VM argument in the eclipse.ini(espressif-ide.ini) file but this might create inconsistency issues with the indexer where it's unable to resovle headers properly and you might not be able to navigate to the function definitions from the code editors.
