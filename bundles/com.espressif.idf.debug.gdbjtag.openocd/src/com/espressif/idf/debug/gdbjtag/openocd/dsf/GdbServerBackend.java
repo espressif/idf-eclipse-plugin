@@ -14,28 +14,26 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd.dsf;
 
-import ilg.gnumcueclipse.core.StringUtils;
-import ilg.gnumcueclipse.core.preferences.ScopedPreferenceStoreWithoutDefaults;
-import ilg.gnumcueclipse.debug.gdbjtag.dsf.GnuMcuGdbServerBackend;
-
 import org.eclipse.cdt.dsf.concurrent.RequestMonitor;
 import org.eclipse.cdt.dsf.service.DsfSession;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.osgi.framework.BundleContext;
 
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
 import com.espressif.idf.ui.UIPlugin;
 
+import ilg.gnumcueclipse.core.StringUtils;
+import ilg.gnumcueclipse.debug.gdbjtag.dsf.GnuMcuGdbServerBackend;
+
 public class GdbServerBackend extends GnuMcuGdbServerBackend {
 
 	// ------------------------------------------------------------------------
-
+	protected int fGdbServerLaunchDefaultTimeout = 25;
 	protected boolean fDoStartGdbClient;
 
 	// ------------------------------------------------------------------------
@@ -142,8 +140,7 @@ public class GdbServerBackend extends GnuMcuGdbServerBackend {
 
 	@Override
 	public int getServerLaunchTimeoutSeconds() {
-		IPreferenceStore preferenceStore = new ScopedPreferenceStoreWithoutDefaults(InstanceScope.INSTANCE, UIPlugin.PLUGIN_ID);
-		return preferenceStore.getInt(Activator.GDB_SERVER_LAUNCH_TIMEOUT);
+		return Platform.getPreferencesService().getInt(UIPlugin.PLUGIN_ID, Activator.GDB_SERVER_LAUNCH_TIMEOUT, fGdbServerLaunchDefaultTimeout, null);
 	}
 
 	public String getServerName() {
