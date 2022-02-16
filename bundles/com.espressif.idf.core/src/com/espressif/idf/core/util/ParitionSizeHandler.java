@@ -37,10 +37,11 @@ public class ParitionSizeHandler
 	// checking the size consists of the idf_size.py command and checking the remaining size from the partition table
 	public void startCheckingSize() throws IOException, CoreException
 	{
-		if (getMapFilePath(project) != null)
+		IPath mapFilePath = getMapFilePath(project);
+		if (mapFilePath != null)
 		{
 			startIdfSizeProcess();
-			checkRemainingSize();			
+			checkRemainingSize(mapFilePath.removeFileExtension().addFileExtension("bin")); //$NON-NLS-1$	
 		}
 	}
 	
@@ -97,14 +98,12 @@ public class ParitionSizeHandler
 		return null;
 	}
 	
-	private void checkRemainingSize()
+	private void checkRemainingSize(IPath path)
 			throws IOException, CoreException
 	{
 		String partitionTableContent = getPartitionTable();
-		Path path = Paths.get(project.getLocation() + File.separator + IDFConstants.BUILD_FOLDER + File.separator
-				+ project.getName().replace(" ", "_") + ".bin"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		long imageSize = Files.size(path);
-
+		
+		long imageSize = path.toFile().length();
 		String[] lines = partitionTableContent.split("\n"); //$NON-NLS-1$
 		for (String line : lines)
 		{
