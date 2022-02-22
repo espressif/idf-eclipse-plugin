@@ -28,7 +28,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: espressif/esp-idf
-        path: /dependencies/idf-tools
+        #path: /dependencies/idf-tools
         ref: v4.4
 
     - name: Set up Python
