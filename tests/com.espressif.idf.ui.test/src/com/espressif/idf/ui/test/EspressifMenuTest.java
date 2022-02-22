@@ -13,6 +13,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.espressif.idf.ui.test.operations.EnvSetupOperations;
+
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
@@ -38,8 +40,9 @@ public class EspressifMenuTest
 	}
 
 	@Test
-	public void testProductInformation()
+	public void testProductInformation() throws Exception
 	{
+		EnvSetupOperations.setupEspressifEnv(bot);
 		bot.viewByTitle("Project Explorer").show();
 		bot.menu("Espressif").menu("Product Information").click();
 
