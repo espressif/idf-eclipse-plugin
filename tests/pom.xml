@@ -19,6 +19,19 @@
 		<module>com.espressif.idf.core.test</module>
 		<module>com.espressif.idf.ui.test</module>
 	</modules>
+	<build>
+		<resources>
+			<resource>
+				<directory>resources</directory>
+			</resource>
+			<resource>
+				<directory>resources/default-files</directory>
+			</resource>
+			<resource>
+				<directory>configs</directory>
+			</resource>
+		</resources>
+	</build>
 	
 	<profiles>
 		<profile>
