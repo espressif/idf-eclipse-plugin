@@ -38,6 +38,15 @@ jobs:
       with:
           python-version: '3.9'
 
+    - name: Setup UI For the runner
+      run: |
+         sudo apt-get update
+         sudo apt install tasksel
+         sudo tasksel install ubuntu-desktop
+         sudo apt install ubuntu-desktop
+         sudo apt install lightdm
+         sudo service lightdm start
+
     - name: Build with Maven
       run: mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
 
