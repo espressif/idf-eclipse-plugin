@@ -24,7 +24,7 @@
 					<argLine>${ui.test.args}</argLine>
 				</configuration>
 			</plugin>
-			<!-- <plugin>
+			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<configuration>
@@ -38,7 +38,7 @@
 						</extraRequirements>
 					</dependency-resolution>
 				</configuration>
-			</plugin>  -->
+			</plugin>
 		</plugins>
 	</build>
 </project>
