@@ -4,6 +4,10 @@ import static org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory.wi
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
@@ -66,6 +70,7 @@ public class SettingEspressifEnvTest
 
 	private class Fixture
 	{
+		private static final String ESPRESSIF_MENU = "Espressif";
 		private static final String ESP_IDF_PATH_PROPERTY = "default.env.esp.idf.path";
 		private static final String GIT_PATH_PROPERTY = "default.env.esp.git.path";
 		private static final String PYTHON_VERSION_PROPERTY = "default.env.esp.python.version";
@@ -109,12 +114,12 @@ public class SettingEspressifEnvTest
 
 		private void whenInstallToolsIsSelected()
 		{
-			bot.menu("Help").menu("ESP-IDF Tools Manager").menu("Install Tools").click();
+			bot.menu(ESPRESSIF_MENU).menu("ESP-IDF Tools Manager").menu("Install Tools").click();
 		}
 
 		private void whenDownloadAndConfigureEspIdfIsSelected()
 		{
-			bot.menu("Help").menu("Download and Configure ESP-IDF").click();
+			bot.menu(ESPRESSIF_MENU).menu("Download and Configure ESP-IDF").click();
 		}
 
 		private void whenSettingsAreConfiguredAndOkIsPressed()
@@ -129,8 +134,9 @@ public class SettingEspressifEnvTest
 			TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 60000);
 		}
 
-		private void whenDownloadPathIsGivenAndFinishIsPressed()
+		private void whenDownloadPathIsGivenAndFinishIsPressed() throws IOException
 		{
+			FileUtils.deleteDirectory(new File(espIdfDownloadPath));
 			bot.textWithLabel("Choose a directory to download ESP-IDF to:").setText(espIdfDownloadPath);
 			bot.comboBox().setSelection("master");
 			bot.button("Finish").click();
@@ -178,7 +184,7 @@ public class SettingEspressifEnvTest
 
 		private void thenIdfPathIsFound()
 		{
-			bot.menu("Help").menu("Product Information").click();
+			bot.menu(ESPRESSIF_MENU).menu("Product Information").click();
 			SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
 			consoleView.show();
 			consoleView.setFocus();
