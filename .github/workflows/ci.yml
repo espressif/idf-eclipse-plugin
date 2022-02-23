@@ -30,6 +30,8 @@ jobs:
         repository: espressif/esp-idf
         path: dependencies/idf-tools
         ref: v4.4
+        fetch-depth: 0
+        submodules: true
 
     - name: Set up Python
       uses: actions/setup-python@v2
