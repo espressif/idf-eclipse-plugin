@@ -24,7 +24,7 @@
 					<argLine>${ui.test.args}</argLine>
 				</configuration>
 			</plugin>
-			<plugin>
+			<!-- <plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<configuration>
@@ -33,12 +33,12 @@
 							<requirement>
 								<type>eclipse-feature</type>
 								<id>com.espressif.idf.feature</id>
-								<versionRange>2.0.0</versionRange>
+								<versionRange>0.0.0</versionRange>
 							</requirement>
 						</extraRequirements>
 					</dependency-resolution>
 				</configuration>
-			</plugin>
+			</plugin>  -->
 		</plugins>
 	</build>
 </project>
