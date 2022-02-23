@@ -37,7 +37,7 @@ jobs:
           python-version: '3.9'
 
     - name: Build with Maven
-      run: mvn clean verify -Djarsigner.skip=true
+      run: mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
 
     - name: Publish Test Reports
       if: ${{ always() }}
