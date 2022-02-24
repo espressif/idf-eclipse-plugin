@@ -27,12 +27,12 @@ jobs:
         distribution: 'adopt'
 
 # Cloning required for the idf tools for tests
-    - name: Clone IDF Release From Github
-      uses: actions/checkout@v2
-      with:
-        repository: espressif/esp-idf
-        path: dependencies/idf-tools
-        ref: v4.4
+#    - name: Clone IDF Release From Github
+#      uses: actions/checkout@v2
+#      with:
+#        repository: espressif/esp-idf
+#        path: dependencies/idf-tools
+#        ref: v4.4
 
 #    - name: Set up Python
 #      uses: actions/setup-python@v2
