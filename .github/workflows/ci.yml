@@ -13,10 +13,10 @@ jobs:
   build:
 
 
-    runs-on:
-      - self-hosted
-      - eclipse
-      
+    runs-on: ubuntu-latest
+      #- self-hosted
+      #- eclipse
+
     steps:
     - uses: actions/checkout@v2
    
@@ -43,6 +43,9 @@ jobs:
       uses: stCarolas/setup-maven@v4.2
       with:
         maven-version: 3.8.4
+
+    - name: Setup Display
+      run: export DISPLAY=:0
 
     - name: Build with Maven
       run: mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
