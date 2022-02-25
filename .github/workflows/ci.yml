@@ -27,28 +27,34 @@ jobs:
         distribution: 'adopt'
 
 # Cloning required for the idf tools for tests
-#    - name: Clone IDF Release From Github
-#      uses: actions/checkout@v2
-#      with:
-#        repository: espressif/esp-idf
-#        path: dependencies/idf-tools
-#        ref: v4.4
+    - name: Clone IDF Release From Github
+      uses: actions/checkout@v2
+      with:
+        repository: espressif/esp-idf
+        path: dependencies/idf-tools
+        ref: v4.4
 
-#    - name: Set up Python
-#      uses: actions/setup-python@v2
-#      with:
-#          python-version: '3.9'
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+          python-version: '3.9'
 
     - name: Set up Maven
       uses: stCarolas/setup-maven@v4.2
       with:
         maven-version: 3.8.4
 
-    - name: Setup Display
-      run: export DISPLAY=:0
+    - name: Setup xvfb
+      run: sudo apt-get install xvfb
+
+    - name: Start virtual frame buffer
+      run: Xvfb :19 -screen 0 1024x768x16 &
+
+    - name: set display
+      run: export DISPLAY=:19
 
     - name: Build with Maven
-      run: mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
+      run: xvfb-run mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
 
     - name: Publish Test Reports
       if: ${{ always() }}
