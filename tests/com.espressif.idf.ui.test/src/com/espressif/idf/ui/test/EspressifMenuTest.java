@@ -45,6 +45,13 @@ public class EspressifMenuTest
 	@Test
 	public void testProductInformation() throws Exception
 	{
+		UIThreadRunnable.syncExec(new VoidResult()
+		{
+			public void run()
+			{
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().forceActive();
+			}
+		});
 		bot.shell().activate();
 		EnvSetupOperations.setupEspressifEnv(bot);
 		bot.viewByTitle("Project Explorer").show();
