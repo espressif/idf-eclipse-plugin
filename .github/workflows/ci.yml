@@ -45,13 +45,21 @@ jobs:
         maven-version: 3.8.4
 
     - name: Setup xvfb and fluxbox
-      run: sudo apt-get install xvfb #fluxbox libswt-gtk-4-jni #lubuntu-desktop
+      run: sudo apt-get install xvfb fluxbox #libswt-gtk-4-jni #lubuntu-desktop
 
-    - name: set display
-      run: export DISPLAY=:19
+    - name: set display & build
+      run: |
+           export DISPLAY=:19
+           Xvfb :19 -screen 0 1024x768x16 & 
+           sleep 10
+           xvfb-run fluxbox &
+           sleep 20
+           xvfb-run mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
+           
+           
 
-    - name: Start virtual frame buffer
-      run: Xvfb :19 -screen 0 1024x768x16 & sleep 15 #& fluxbox #& x11vnc -display :19 -bg -nopw -xkb #& mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
+#    - name: Start virtual frame buffer
+#      run: Xvfb :19 -screen 0 1024x768x16 & sleep 15 #& fluxbox #& x11vnc -display :19 -bg -nopw -xkb #& mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
 
 #    - name: Start lubuntu-desktop env
 #      run: xvfb-run exec startlxde
@@ -65,8 +73,8 @@ jobs:
 #        run: mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
 #        working-directory: ${{ env.workdir }}
 
-    - name: Build with Maven
-      run: xvfb-run mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
+#    - name: Build with Maven
+#      run: xvfb-run mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
 
     - name: Publish Test Reports
       if: ${{ always() }}
