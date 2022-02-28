@@ -48,10 +48,10 @@ jobs:
       run: sudo apt-get install x11vnc xvfb fluxbox
 
     - name: set display
-      run: export DISPLAY=:1
+      run: export DISPLAY=:19
 
     - name: Start virtual frame buffer & Build
-      run: Xvfb :1 -screen 0 1024x768x16 & sleep 2 & fluxbox & x11vnc -display :1 -bg -nopw -xkb #& mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
+      run: Xvfb :19 -screen 0 1024x768x16 & sleep 15 & fluxbox & x11vnc -display :19 -bg -nopw -xkb #& mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
 
 
 #    - name: Run headless test
