@@ -45,7 +45,7 @@ jobs:
         maven-version: 3.8.4
 
     - name: Setup xvfb and fluxbox
-      run: sudo apt-get install xvfb fluxbox
+      run: sudo apt-get install xvfb fluxbox libswt-gtk-4-jni
 
     - name: set display
       run: export DISPLAY=:19
