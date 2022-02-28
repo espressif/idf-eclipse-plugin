@@ -44,14 +44,14 @@ jobs:
       with:
         maven-version: 3.8.4
 
-    - name: Setup xvfb x11vnc and fluxbox
-      run: sudo apt-get install x11vnc xvfb fluxbox
+    - name: Setup xvfb and fluxbox
+      run: sudo apt-get install xvfb fluxbox
 
     - name: set display
       run: export DISPLAY=:19
 
     - name: Start virtual frame buffer & Build
-      run: Xvfb :19 -screen 0 1024x768x16 & sleep 15 & fluxbox & x11vnc -display :19 -bg -nopw -xkb #& mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
+      run: Xvfb :19 -screen 0 1024x768x16 & sleep 15 & fluxbox #& x11vnc -display :19 -bg -nopw -xkb #& mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
 
 
 #    - name: Run headless test
