@@ -45,7 +45,7 @@ jobs:
         maven-version: 3.8.4
 
     - name: Setup xvfb and fluxbox
-      run: sudo apt-get install xvfb fluxbox libswt-gtk-4-jni #lubuntu-desktop
+      run: sudo apt-get install xvfb #fluxbox libswt-gtk-4-jni #lubuntu-desktop
 
     - name: set display
       run: export DISPLAY=:19
@@ -56,8 +56,8 @@ jobs:
 #    - name: Start lubuntu-desktop env
 #      run: xvfb-run exec startlxde
 
-    - name: Start fluxbox and build
-      run: xvfb-run fluxbox & xvfb-run mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
+#    - name: Start fluxbox and build
+#      run: xvfb-run fluxbox & xvfb-run mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
 
 #    - name: Run headless test
 #      uses: GabrielBB/xvfb-action@v1
@@ -65,8 +65,8 @@ jobs:
 #        run: mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
 #        working-directory: ${{ env.workdir }}
 
-#    - name: Build with Maven
-#      run: xvfb-run mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
+    - name: Build with Maven
+      run: xvfb-run mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
 
     - name: Publish Test Reports
       if: ${{ always() }}
