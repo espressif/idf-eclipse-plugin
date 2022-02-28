@@ -44,15 +44,15 @@ jobs:
       with:
         maven-version: 3.8.4
 
-    - name: Setup xvfb and fluxbox
-      run: sudo apt-get install xvfb fluxbox #libswt-gtk-4-jni #lubuntu-desktop
+    - name: Setup xvfb and lubuntu-desktop
+      run: sudo apt-get install xvfb lubuntu-desktop #libswt-gtk-4-jni #lubuntu-desktop
 
     - name: set display & build
       run: |
            export DISPLAY=:19
            Xvfb :19 -screen 0 1024x768x16 & 
            sleep 10
-           fluxbox &
+           exec startlxde
            sleep 20
            mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
            
