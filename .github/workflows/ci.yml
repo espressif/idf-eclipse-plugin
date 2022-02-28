@@ -44,14 +44,15 @@ jobs:
       with:
         maven-version: 3.8.4
 
-    - name: Setup xvfb
-      run: sudo apt-get install xvfb
+    - name: Setup xvfb x11vnc and fluxbox
+      run: sudo apt-get install x11vnc xvfb fluxbox
+
+    - name: set display
+      run: export DISPLAY=:1
 
     - name: Start virtual frame buffer & Build
-      run: Xvfb :19 -screen 0 1024x768x16 & sleep 2 & mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
+      run: Xvfb :1 -screen 0 1024x768x16 & sleep 2 & fluxbox & x11vnc -display :1 -bg -nopw -xkb #& mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
 
-#    - name: set display
-#      run: export DISPLAY=:19
 
 #    - name: Run headless test
 #      uses: GabrielBB/xvfb-action@v1
@@ -59,8 +60,8 @@ jobs:
 #        run: mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
 #        working-directory: ${{ env.workdir }}
 
-#    - name: Build with Maven
-#      run: xvfb-run mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
+    - name: Build with Maven
+      run: xvfb-run mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
 
     - name: Publish Test Reports
       if: ${{ always() }}
