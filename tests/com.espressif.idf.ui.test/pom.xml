@@ -21,7 +21,7 @@
 					<useUIHarness>true</useUIHarness>
 					<useUIThread>false</useUIThread>
 					<application>org.eclipse.ui.ide.workbench</application>
-					<argLine>-XstartOnFirstThread</argLine>
+					<argLine>${ui.test.args}</argLine>
 				</configuration>
 			</plugin>
 			<plugin>
