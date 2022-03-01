@@ -26,8 +26,7 @@ public class EnvSetupOperations
 		bot.table().select("C/C++");
 		bot.button("Open").click();
 		bot.menu("Espressif").menu("ESP-IDF Tools Manager").click().menu("Install Tools").click();
-		bot.sleep(5500);
-		bot.textWithLabel("ESP-IDF Directory:", 1)
+		bot.textWithLabel("ESP-IDF Directory:")
 				.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
 		bot.textWithLabel("Git Executable Location:")
 				.setText(DefaultPropertyFetcher.getStringPropertyValue(GIT_PATH_PROPERTY, ""));
