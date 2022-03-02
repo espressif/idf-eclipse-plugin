@@ -34,7 +34,6 @@ import com.espressif.idf.ui.handlers.Messages;
 public class LanguageDynamicMenuItem extends ContributionItem
 {
 	private static final String LANGUAGE_SWITCH = "-nl"; //$NON-NLS-1$
-//	private static final String ECLIPSE_RCP_NAME = "espressif-ide"; //$NON-NLS-1$
 	private EclipseIniUtil eclipseIniUtil;
 
 	public LanguageDynamicMenuItem()

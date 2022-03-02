@@ -29,7 +29,7 @@ import com.espressif.idf.core.logging.Logger;
  */
 public class EclipseIniUtil
 {
-	private String ECLIPSE_INI_FILE = "espressif-ide.ini"; //$NON-NLS-1$
+	private String ECLIPSE_INI_FILE;
 	private static final String ECLIPSE_INI_VMARGS = "-vmargs"; //$NON-NLS-1$
 
 	private List<String> eclipseIniFileContents;
