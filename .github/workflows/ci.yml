@@ -13,9 +13,9 @@ jobs:
   build:
 
 
-    runs-on: #ubuntu-latest
-      - self-hosted
-      - eclipse
+    runs-on: ubuntu-latest
+      #- self-hosted
+      #- eclipse
 
     steps:
     - uses: actions/checkout@v2
@@ -44,17 +44,17 @@ jobs:
       with:
         maven-version: 3.8.4
 
-#    - name: Setup xvfb and lxde
-#      run: sudo apt-get install xvfb lxde #libswt-gtk-4-jni #lubuntu-desktop
+    - name: Setup xvfb and lxde
+      run: sudo apt-get install xvfb lxde #libswt-gtk-4-jni #lubuntu-desktop
 
-#    - name: set display & build
-#      run: |
-#           export DISPLAY=:19
-#           Xvfb :19 -screen 0 1024x768x16 & 
-#           sleep 10
-#           exec startlxde &
-#           sleep 30
-#           mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
+    - name: set display & build
+      run: |
+           export DISPLAY=:19
+           Xvfb :19 -screen 0 1024x768x16 & 
+           sleep 10
+           exec startlxde &
+           sleep 30
+           mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
            
            
 
@@ -73,8 +73,8 @@ jobs:
 #        run: mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
 #        working-directory: ${{ env.workdir }}
 
-    - name: Build with Maven
-      run: mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
+#    - name: Build with Maven
+#      run: mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
 
     - name: Publish Test Reports
       if: ${{ always() }}
