@@ -8,6 +8,7 @@ package com.espressif.idf.core.util;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +19,8 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.URIUtil;
 
+import com.espressif.idf.core.logging.Logger;
+
 /**
  * Utility class for managing and editing different parameter in eclipse.ini and config.ini file for eclipse
  * 
@@ -26,8 +29,7 @@ import org.eclipse.core.runtime.URIUtil;
  */
 public class EclipseIniUtil
 {
-	private final String ECLIPSE_HOME_LOCATION;
-	private final String ECLIPSE_INI_FILE = "eclipse.ini"; //$NON-NLS-1$
+	private String ECLIPSE_INI_FILE = "espressif-ide.ini"; //$NON-NLS-1$
 	private static final String ECLIPSE_INI_VMARGS = "-vmargs"; //$NON-NLS-1$
 
 	private List<String> eclipseIniFileContents;
@@ -38,11 +40,19 @@ public class EclipseIniUtil
 
 	public EclipseIniUtil() throws Exception
 	{
-		ECLIPSE_HOME_LOCATION = Platform.getInstallLocation().getURL().toString();
-		eclipseIniUri = URIUtil.fromString(ECLIPSE_HOME_LOCATION.concat(ECLIPSE_INI_FILE));
+		loadIniFilePath();
+		Logger.log(Platform.getLocation().toOSString());
+		eclipseIniUri = URIUtil.fromString(ECLIPSE_INI_FILE);
 		loadEclipseIniFileContents();
 		loadEclipseIniSwitchMap();
 		loadEclipseVmArgMap();
+	}
+	
+	private void loadIniFilePath() throws Exception
+	{
+		URL url = new URL(
+				Platform.getInstallLocation().getURL() + System.getProperty("eclipse.launcher.name") + ".ini"); //$NON-NLS-1$ //$NON-NLS-2$
+		ECLIPSE_INI_FILE = url.toString();
 	}
 
 	/**
