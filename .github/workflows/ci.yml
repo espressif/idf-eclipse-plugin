@@ -45,7 +45,9 @@ jobs:
         maven-version: 3.8.4
 
     - name: Setup xvfb and window manager
-      run: sudo apt-get install xvfb metacity #fluxbox #lxde #libswt-gtk-4-jni #lubuntu-desktop
+      run: |
+           sudo apt-get update --fix-missing
+           sudo apt-get install xvfb metacity #fluxbox #lxde #libswt-gtk-4-jni #lubuntu-desktop
 
     - name: set display & build
       run: |
@@ -54,7 +56,7 @@ jobs:
            sleep 10
            #exec startlxde &
            #fluxbox -display :17 -sync &
-           metacity -display=:17 &
+           metacity --display=:17 --sm-disable --replace &
            sleep 20
            mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
            
