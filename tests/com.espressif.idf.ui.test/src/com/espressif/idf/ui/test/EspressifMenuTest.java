@@ -45,25 +45,10 @@ public class EspressifMenuTest
 	@Test
 	public void testProductInformation() throws Exception
 	{
-		try
-		{
-			UIThreadRunnable.syncExec(new VoidResult()
-			{
-				public void run()
-				{
-					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().forceActive();
-				}
-			});
-			bot.shell().activate();
-			EnvSetupOperations.setupEspressifEnv(bot);
-			bot.viewByTitle("Project Explorer").show();
-			bot.menu("Espressif").menu("Product Information").click();			
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			bot.captureScreenshot("fail.jpg");
-		}
+		bot.shell().activate();
+		EnvSetupOperations.setupEspressifEnv(bot);
+		bot.viewByTitle("Project Explorer").show();
+		bot.menu("Espressif").menu("Product Information").click();	
 	}
 
 }
