@@ -44,15 +44,26 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
 
-    - name: Setup DISPLAY
+#    - name: Setup DISPLAY
+#      run: |
+#           Xephyr -screen 1024x768 :51 &
+#           export DISPLAY=:51
+#           metacity --sm-disable --replace &
+#           sleep 20
+
+    - name: set display & build
       run: |
-           Xephyr -screen 1024x768 :51 &
-           export DISPLAY=:51
-           metacity --sm-disable --replace &
-           sleep 20
+           export DISPLAY=:17
+           Xvfb :17 -screen 0 1024x768x16 & 
+           sleep 10
+           #exec startlxde &
+           #fluxbox -display :17 -sync &
+           metacity --display=:17 --sm-disable --replace &
+           sleep 5
+           mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
    
-    - name: Build with Maven
-      run: mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
+#    - name: Build with Maven
+#      run: mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
 
     - name: Publish Test Reports
       if: ${{ always() }}
