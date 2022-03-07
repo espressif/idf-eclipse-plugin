@@ -45,10 +45,17 @@ public class EspressifMenuTest
 	@Test
 	public void testProductInformation() throws Exception
 	{
-		bot.shell().activate();
-		EnvSetupOperations.setupEspressifEnv(bot);
-		bot.viewByTitle("Project Explorer").show();
-		bot.menu("Espressif").menu("Product Information").click();	
+		try
+		{
+			bot.shell().activate();
+			EnvSetupOperations.setupEspressifEnv(bot);
+			bot.viewByTitle("Project Explorer").show();
+			bot.menu("Espressif").menu("Product Information").click();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 }

@@ -25,7 +25,6 @@ public class EnvSetupOperations
 		bot.menu("Window").menu("Perspective").menu("Open Perspective").menu("Other...").click();
 		bot.table().select("C/C++");
 		bot.button("Open").click();
-		bot.wait(10000);
 		bot.menu("Espressif").menu("ESP-IDF Tools Manager").click().menu("Install Tools").click();
 		bot.textWithLabel("ESP-IDF Directory:")
 				.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
