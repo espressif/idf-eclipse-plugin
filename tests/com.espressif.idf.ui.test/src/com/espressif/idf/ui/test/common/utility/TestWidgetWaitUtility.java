@@ -48,7 +48,7 @@ public class TestWidgetWaitUtility
 			{
 				return "Text not found!";
 			}
-		}, timeOut);
+		}, timeOut, 3000);
 	}
 
 	/**

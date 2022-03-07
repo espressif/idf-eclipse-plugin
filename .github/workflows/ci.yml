@@ -43,6 +43,13 @@ jobs:
       with:
         java-version: '11'
         distribution: 'adopt'
+
+    - name: Setup DISPLAY
+      run: |
+           Xephyr -screen 1024x768 :51 &
+           export DISPLAY=:51
+           metacity --sm-disable --replace &
+           sleep 20
    
     - name: Build with Maven
       run: mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
