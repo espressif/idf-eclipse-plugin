@@ -13,9 +13,9 @@ jobs:
   build:
 
 
-    runs-on: ubuntu-latest
-      #- self-hosted
-      #- eclipse
+    runs-on: #ubuntu-latest
+      - self-hosted
+      - eclipse
 
     steps:
     - uses: actions/checkout@v2
@@ -44,21 +44,21 @@ jobs:
       with:
         maven-version: 3.8.4
 
-    - name: Setup xvfb and window manager
-      run: |
-           sudo apt-get update --fix-missing
-           sudo apt-get install xvfb metacity #fluxbox #lxde #libswt-gtk-4-jni #lubuntu-desktop
+#    - name: Setup xvfb and window manager
+#      run: |
+#           sudo apt-get update --fix-missing
+#           sudo apt-get install xvfb metacity #fluxbox #lxde #libswt-gtk-4-jni #lubuntu-desktop
 
-    - name: set display & build
-      run: |
-           export DISPLAY=:17
-           Xvfb :17 -screen 0 1024x768x16 & 
-           sleep 10
+#    - name: set display & build
+#      run: |
+#           export DISPLAY=:17
+#           Xvfb :17 -screen 0 1024x768x16 & 
+#           sleep 10
            #exec startlxde &
            #fluxbox -display :17 -sync &
-           metacity --display=:17 --sm-disable --replace &
-           sleep 20
-           mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
+#           metacity --display=:17 --sm-disable --replace &
+#           sleep 20
+#           mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
            
            
 
@@ -68,8 +68,8 @@ jobs:
 #    - name: Start lubuntu-desktop env
 #      run: xvfb-run exec startlxde
 
-#    - name: Start fluxbox and build
-#      run: xvfb-run fluxbox & xvfb-run mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
+    - name: Start and build
+      run: mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
 
 #    - name: Run headless test
 #      uses: GabrielBB/xvfb-action@v1
