@@ -45,6 +45,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: com.espressif.idf.ui,
  com.espressif.idf.ui.dialogs,
  com.espressif.idf.ui.handlers,
+ com.espressif.idf.ui.preferences,
  com.espressif.idf.ui.tracing
 Bundle-ClassPath: .,
  lib/commonmark-0.16.1.jar,

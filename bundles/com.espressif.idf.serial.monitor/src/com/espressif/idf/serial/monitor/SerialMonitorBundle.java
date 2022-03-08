@@ -1,6 +1,5 @@
 package com.espressif.idf.serial.monitor;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -13,19 +12,10 @@ import ilg.gnumcueclipse.core.AbstractUIActivator;
 public class SerialMonitorBundle extends AbstractUIActivator
 {
 	public static final String PLUGIN_ID = "com.espressif.idf.serial.monitor"; //$NON-NLS-1$
-	public static final String SERIAL_MONITOR_NUMBER_OF_CHARS_IN_LINE = "numberOfCharsInALine"; //$NON-NLS-1$
-	public static final String SERIAL_MONITOR_NUMBER_OF_LINES = "numberOfLines"; //$NON-NLS-1$
 
 	private static BundleContext context;
 
 	private static SerialMonitorBundle fgInstance;
-
-	@Override
-	protected void initializeDefaultPreferences(IPreferenceStore preferenceStore)
-	{
-		preferenceStore.setDefault(SERIAL_MONITOR_NUMBER_OF_CHARS_IN_LINE, 500);
-		preferenceStore.setDefault(SERIAL_MONITOR_NUMBER_OF_LINES, 1000);
-	}
 
 	public SerialMonitorBundle()
 	{
