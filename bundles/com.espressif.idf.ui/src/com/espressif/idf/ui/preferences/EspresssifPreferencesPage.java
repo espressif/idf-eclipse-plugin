@@ -1,15 +1,10 @@
 package com.espressif.idf.ui.preferences;
 
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jface.preference.FieldEditor;
-import org.eclipse.jface.preference.FieldEditorPreferencePage;
-import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
@@ -26,10 +21,12 @@ import ilg.gnumcueclipse.core.preferences.ScopedPreferenceStoreWithoutDefaults;
 public class EspresssifPreferencesPage extends PreferencePage implements IWorkbenchPreferencePage
 {
 
-	private static final String NUMBER_OF_LINES = "numberOfLines"; //$NON-NLS-1$
-	private static final String NUMBER_OF_CHARS_IN_A_LINE = "numberOfCharsInALine"; //$NON-NLS-1$
+	public static final String NUMBER_OF_LINES = "numberOfLines"; //$NON-NLS-1$
+	public static final String NUMBER_OF_CHARS_IN_A_LINE = "numberOfCharsInALine"; //$NON-NLS-1$
+	public static final int DEFAULT_SERIAL_MONITOR_NUBMER_OF_LINES = 1000;
+	public static final int DEFAULT_SERIAL_MONITOR_NUMBER_OF_CHARS_IN_LINE = 500;
+	
 	private static final String GDB_SERVER_LAUNCH_TIMEOUT = "fGdbServerLaunchTimeout"; //$NON-NLS-1$
-
 	private Text numberOfCharsInLineText;
 	private Text numberLineText;
 	private Text gdbSettingsText;
@@ -138,7 +135,7 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 	private void initializeDefaults()
 	{
 		getPreferenceStore().setDefault(GDB_SERVER_LAUNCH_TIMEOUT, 25);
-		getPreferenceStore().setDefault(NUMBER_OF_CHARS_IN_A_LINE, 500);
-		getPreferenceStore().setDefault(NUMBER_OF_LINES, 1000);
+		getPreferenceStore().setDefault(NUMBER_OF_CHARS_IN_A_LINE, DEFAULT_SERIAL_MONITOR_NUMBER_OF_CHARS_IN_LINE);
+		getPreferenceStore().setDefault(NUMBER_OF_LINES, DEFAULT_SERIAL_MONITOR_NUBMER_OF_LINES);
 	}
 }
