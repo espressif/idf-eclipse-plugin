@@ -233,7 +233,7 @@ public class ProjectTestOperations
 			bot.textWithLabel("New na&me:").setText(newProjectName);
 			bot.button("OK").click();
 			TestWidgetWaitUtility.waitUntilViewContainsTheTreeItemWithName(newProjectName, projectExplorerBotView,
-					6000);
+					600000);
 		}
 	}
 

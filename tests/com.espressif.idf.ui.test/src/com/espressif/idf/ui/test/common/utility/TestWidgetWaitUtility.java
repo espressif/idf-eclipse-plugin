@@ -40,7 +40,7 @@ public class TestWidgetWaitUtility
 			public boolean test() throws Exception
 			{
 				String textString = view.bot().styledText().getText();
-				return textString.contains(text);
+				return textString.toLowerCase().contains(text.toLowerCase());
 			}
 
 			@Override

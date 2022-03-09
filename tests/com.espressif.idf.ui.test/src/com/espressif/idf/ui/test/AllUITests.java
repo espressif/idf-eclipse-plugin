@@ -11,8 +11,8 @@ import org.junit.runners.Suite;
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ EspressifMenuTest.class })
+//@RunWith(Suite.class)
+//@Suite.SuiteClasses({ EspressifMenuTest.class })
 public class AllUITests
 {
 

@@ -2,6 +2,7 @@ package com.espressif.idf.ui.test.operations;
 
 import static org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory.withPartName;
 
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
@@ -25,6 +26,20 @@ public class EnvSetupOperations
 		bot.menu("Window").menu("Perspective").menu("Open Perspective").menu("Other...").click();
 		bot.table().select("C/C++");
 		bot.button("Open").click();
+		
+		bot.menu("Window").menu("Preferences").click();
+		bot.tree().getTreeItem("General").select();
+		bot.tree().getTreeItem("General").expand();
+		bot.tree().getTreeItem("General").getNode("Editors").select();
+		bot.tree().getTreeItem("General").getNode("Editors").expand();
+		bot.tree().getTreeItem("General").getNode("Editors").getNode("File Associations").select();
+		bot.comboBox().setSelection("Text Editor");
+		bot.button("Apply and Close").click();
+		
+		bot.toolbarButtonWithTooltip("Select and deselect filters to apply to the content in the tree").click();
+		bot.table().getTableItem(".* resources").uncheck();
+		bot.button("OK").click();
+		
 		bot.menu("Espressif").menu("ESP-IDF Tools Manager").click().menu("Install Tools").click();
 		bot.textWithLabel("ESP-IDF Directory:")
 				.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));

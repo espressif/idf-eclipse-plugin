@@ -35,7 +35,7 @@ public class DefaultFileContentsReader
 			fileStream = DefaultFileContentsReader.class.getClassLoader().getResourceAsStream(filePath);
 			String fileContents = IOUtils.toString(IOUtils.toByteArray(fileStream), null);
 			fileStream.close();
-			return fileContents;
+			return fileContents.replaceAll("\r\n", "\n");
 		}
 		catch (IOException e)
 		{

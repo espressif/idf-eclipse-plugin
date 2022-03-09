@@ -18,6 +18,7 @@ import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
+import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.junit.After;
 import org.junit.Before;
@@ -36,7 +37,7 @@ import com.espressif.idf.ui.test.operations.selectors.LaunchBarTargetSelector;
  * @author Ali Azam Rana
  *
  */
-@SuppressWarnings("restriction")
+//@SuppressWarnings("restriction")
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class LaunchBarCDTConfigurationsTest
 {
@@ -115,7 +116,15 @@ public class LaunchBarCDTConfigurationsTest
 			EnvSetupOperations.setupEspressifEnv(bot);
 			bot.sleep(1000);
 			launchBarConfigSelector = new LaunchBarConfigSelector(bot);
-			launchBarTargetSelector = new LaunchBarTargetSelector(bot);
+			try
+			{
+				launchBarTargetSelector = new LaunchBarTargetSelector(bot);	
+			}
+			catch(WidgetNotFoundException e)
+			{
+				launchBarTargetSelector = new LaunchBarTargetSelector(bot, false);	
+			}
+			
 		}
 
 		private void givenNewLaunchTargetIdfTargetSetTo(String espIdfTarget)
