@@ -157,7 +157,7 @@ public class SettingEspressifEnvTest
 			SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
 			consoleView.show();
 			consoleView.setFocus();
-			TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 600000);
+			TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 6000000);
 		}
 		
 		private void whenLocalPathIsGivenAndFinishIsPressed()
@@ -171,7 +171,7 @@ public class SettingEspressifEnvTest
 			SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
 			consoleView.show();
 			consoleView.setFocus();
-			TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 60000);
+			TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 600000);
 		}
 
 		private void thenConsoleShowsToolsAreInstalled()
