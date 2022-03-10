@@ -142,4 +142,32 @@ public class TestWidgetWaitUtility
 			}
 		}, timeout);
 	}
+	
+	
+	/**
+	 * Waits while the provided bot has a dialog with the title visible
+	 * 
+	 * @param workbenchBot workbench bot
+	 * @param dialogTitle  The title of the dialog to look for
+	 * @param timeout      Time to wait in ms before throwing {@link WidgetNotFoundException}
+	 */
+	public static void waitWhileDialogIsVisible(SWTWorkbenchBot workbenchBot, String dialogTitle, long timeout)
+	{
+		workbenchBot.waitWhile(new DefaultCondition()
+		{
+
+			@Override
+			public boolean test() throws Exception
+			{
+				SWTBotShell swtBotShell = workbenchBot.activeShell();
+				return swtBotShell.getText().contains(dialogTitle);
+			}
+
+			@Override
+			public String getFailureMessage()
+			{
+				return "View with title: " + dialogTitle + " not found";
+			}
+		}, timeout);
+	}
 }

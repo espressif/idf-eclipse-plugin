@@ -2,7 +2,6 @@ package com.espressif.idf.ui.test.operations;
 
 import static org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory.withPartName;
 
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
@@ -26,7 +25,7 @@ public class EnvSetupOperations
 		bot.menu("Window").menu("Perspective").menu("Open Perspective").menu("Other...").click();
 		bot.table().select("C/C++");
 		bot.button("Open").click();
-		
+
 		bot.menu("Window").menu("Preferences").click();
 		bot.tree().getTreeItem("General").select();
 		bot.tree().getTreeItem("General").expand();
@@ -35,11 +34,16 @@ public class EnvSetupOperations
 		bot.tree().getTreeItem("General").getNode("Editors").getNode("File Associations").select();
 		bot.comboBox().setSelection("Text Editor");
 		bot.button("Apply and Close").click();
-		
+
 		bot.toolbarButtonWithTooltip("Select and deselect filters to apply to the content in the tree").click();
 		bot.table().getTableItem(".* resources").uncheck();
 		bot.button("OK").click();
-		
+
+		bot.menu("Window").menu("Show View").menu("Other...").click();
+		bot.text().setText("progress");
+		bot.button("Open").click();
+		bot.viewByTitle("Progress").show();
+
 		bot.menu("Espressif").menu("ESP-IDF Tools Manager").click().menu("Install Tools").click();
 		bot.textWithLabel("ESP-IDF Directory:")
 				.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
@@ -52,7 +56,7 @@ public class EnvSetupOperations
 		catch (WidgetNotFoundException e)
 		{
 			bot.textWithLabel("Python Executable Location:")
-			.setText(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_PATH_PROPERTY, ""));
+					.setText(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_PATH_PROPERTY, ""));
 		}
 		bot.button("Install Tools").click();
 		SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");

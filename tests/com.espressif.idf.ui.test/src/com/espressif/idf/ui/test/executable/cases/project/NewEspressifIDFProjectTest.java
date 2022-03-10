@@ -11,12 +11,17 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+import org.eclipse.ui.IPageLayout;
+import org.eclipse.ui.internal.progress.ProgressInfoItem;
+import org.eclipse.ui.internal.progress.ProgressView;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +40,7 @@ import com.espressif.idf.ui.test.operations.SWTBotTreeOperations;
  * @author Ali Azam Rana
  *
  */
+@SuppressWarnings("restriction")
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class NewEspressifIDFProjectTest
 {
@@ -109,24 +115,27 @@ public class NewEspressifIDFProjectTest
 	}
 
 	@Test
-	public void givenNewIDFProjectIsCreatedBuilAndCopiedAndOldProjectIsDeletedTheCopiedProjectIsBuiltSuccessfully() throws Exception
+	public void givenNewIDFProjectIsCreatedBuilAndCopiedAndOldProjectIsDeletedTheCopiedProjectIsBuiltSuccessfully()
+			throws Exception
 	{
 		fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 		fixture.givenProjectNameIs("NewProjectTest");
 		fixture.whenNewProjectIsSelected();
 		fixture.whenProjectIsBuiltUsingContextMenu();
 		fixture.thenConsoleShowsBuildSuccessful();
-		
+
 		fixture.whenProjectIsCopied("NewProjectTest", "NewProjectTest2");
+		fixture.waitForOperationsInProgressToFinish();
 		fixture.closeProject("NewProjectTest");
 		fixture.deleteProject("NewProjectTest");
-		
+
 		fixture.whenProjectIsBuiltUsingToolbarButton("NewProjectTest2");
 		fixture.thenConsoleShowsBuildSuccessful();
+		fixture.waitForOperationsInProgressToFinish();
 		fixture.closeProject("NewProjectTest2");
 		fixture.deleteProject("NewProjectTest2");
 	}
-	
+
 	@Test
 	public void givenNewIDFProjectIsCreatedAndCopiedTheCopiedProjectIsBuiltSuccessfully() throws Exception
 	{
@@ -139,7 +148,7 @@ public class NewEspressifIDFProjectTest
 		fixture.closeProject("NewProjectTest2");
 		fixture.deleteProject("NewProjectTest2");
 	}
-	
+
 	@Test
 	public void givenNewProjectCreatedAndRenamedAfterThenProjectIsBuildSuccessfully() throws Exception
 	{
@@ -150,7 +159,7 @@ public class NewEspressifIDFProjectTest
 		fixture.whenProjectIsBuiltUsingContextMenu();
 		fixture.thenConsoleShowsBuildSuccessful();
 	}
-	
+
 	@Test
 	public void givenNewProjectCreatedBuiltAndThenRenamedThenProjectIsBuildSuccessfully() throws Exception
 	{
@@ -158,6 +167,7 @@ public class NewEspressifIDFProjectTest
 		fixture.givenProjectNameIs("NewProjectTest");
 		fixture.whenNewProjectIsSelected();
 		fixture.whenProjectIsBuiltUsingContextMenu();
+		fixture.waitForOperationsInProgressToFinish();
 		fixture.whenProjectIsRenamed("NewProjectTest2");
 		fixture.whenProjectIsBuiltUsingContextMenu();
 		fixture.thenConsoleShowsBuildSuccessful();
@@ -193,7 +203,7 @@ public class NewEspressifIDFProjectTest
 		{
 			this.projectTemplate = projectTemplate;
 		}
-		
+
 		public void whenProjectIsRenamed(String newProjectName)
 		{
 			ProjectTestOperations.renameProject(projectName, newProjectName, bot);
@@ -289,8 +299,43 @@ public class NewEspressifIDFProjectTest
 
 		private void cleanTestEnv()
 		{
+			waitForOperationsInProgressToFinish();
 			ProjectTestOperations.closeAllProjects(bot);
 			ProjectTestOperations.deleteAllProjects(bot);
+		}
+
+		private void waitForOperationsInProgressToFinish()
+		{
+			bot.viewById(IPageLayout.ID_PROGRESS_VIEW).show();
+			ProgressView progressView = (ProgressView) bot.viewById(IPageLayout.ID_PROGRESS_VIEW).getViewReference()
+					.getView(true);
+			final OperationResponse operationResponse = new OperationResponse();
+			bot.waitWhile(new DefaultCondition()
+			{
+				@Override
+				public boolean test() throws Exception
+				{
+					Display.getDefault().asyncExec(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							progressView.setFocus();
+							ProgressInfoItem[] progressInfoItems = progressView.getViewer().getProgressInfoItems();
+							operationResponse.itemStillPending = progressInfoItems.length > 0;
+						}
+					});
+
+					return operationResponse.itemStillPending;
+				}
+
+				@Override
+				public String getFailureMessage()
+				{
+
+					return "Indexer taking longer to finish";
+				}
+			}, 60000, 3000);
 		}
 
 		private void switchEditorToSourceIfPresent(SWTBotEditor editor)
@@ -304,6 +349,11 @@ public class NewEspressifIDFProjectTest
 				// do nothing
 			}
 
+		}
+
+		private class OperationResponse
+		{
+			private boolean itemStillPending = true;
 		}
 	}
 }
