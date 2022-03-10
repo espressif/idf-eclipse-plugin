@@ -11,8 +11,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
+import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
-import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,8 +30,6 @@ public class SettingEspressifEnvTest
 	@Before
 	public void beforeEachTest() throws Exception
 	{
-		SWTBotPreferences.KEYBOARD_LAYOUT = "EN_US";
-		SWTBotPreferences.SCREENSHOTS_DIR = "screenshots/SettingEspressifEnvTest/";
 		fixture = new Fixture();
 	}
 
@@ -129,7 +127,15 @@ public class SettingEspressifEnvTest
 		{
 			bot.textWithLabel("ESP-IDF Directory:").setText(espIdfPath);
 			bot.textWithLabel("Git Executable Location:").setText(gitPath);
-			bot.comboBox().setSelection(pythonVersion);
+			
+			try
+			{
+				bot.comboBox().setSelection(pythonVersion);
+			}
+			catch (WidgetNotFoundException e)
+			{
+				bot.textWithLabel("Python Executable Location:").setText(pythonVersion);
+			}
 			bot.button("Install Tools").click();
 			SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
 			consoleView.show();
@@ -141,7 +147,7 @@ public class SettingEspressifEnvTest
 		{
 			FileUtils.deleteDirectory(new File(espIdfDownloadPath));
 			bot.textWithLabel("Choose a directory to download ESP-IDF to:").setText(espIdfDownloadPath);
-			bot.comboBox().setSelection("master");
+			bot.comboBox().setSelection("v4.4");
 			bot.button("Finish").click();
 			// need to wait here more as this is being downloaded
 			TestWidgetWaitUtility.waitUntilDialogIsNotVisible(bot, "Message", 9000000);
