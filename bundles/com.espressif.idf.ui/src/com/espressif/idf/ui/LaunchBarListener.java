@@ -43,7 +43,10 @@ public class LaunchBarListener implements ILaunchBarListener
 				if (target != null)
 				{
 					String targetName = target.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", ""); //$NON-NLS-1$
-					update(targetName);
+					if (!StringUtil.isEmpty(targetName))
+					{
+						update(targetName);
+					}
 				}
 			}
 		});
