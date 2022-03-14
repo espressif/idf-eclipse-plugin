@@ -54,7 +54,7 @@ jobs:
 #           sleep 10
 
     - name: Build with Maven
-      run: mvn clean verify -Djarsigner.skip=true #-Dtycho.showEclipseLog=true
+      run: mvn clean verify -Djarsigner.skip=true -Dtycho.showEclipseLog=true
 
 #    - name: Close opened display
 #      run: kill $xpid
