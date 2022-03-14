@@ -335,7 +335,7 @@ public class NewEspressifIDFProjectTest
 
 					return "Indexer taking longer to finish";
 				}
-			}, 60000, 3000);
+			}, 900000, 3000);
 		}
 
 		private void switchEditorToSourceIfPresent(SWTBotEditor editor)
