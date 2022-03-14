@@ -12,7 +12,6 @@ on:
 jobs:
   build:
 
-
     runs-on: #ubuntu-latest
       - self-hosted
       - eclipse
@@ -45,8 +44,19 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
 
+    - name: Setup virtual display
+      run: |
+           Xephyr -screen 1920x1082 :51 &
+           xpid=$!
+           export DISPLAY=:51
+           exec startlxde &
+           sleep 10
+
     - name: Build with Maven
       run: mvn clean verify -Djarsigner.skip=true #-Dtycho.showEclipseLog=true
+
+    - name: Close opened display
+      run: kill $xpid
 
     - name: Publish Test Reports
       if: ${{ always() }}
