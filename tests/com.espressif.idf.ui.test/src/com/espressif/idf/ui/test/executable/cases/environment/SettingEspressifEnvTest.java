@@ -140,14 +140,14 @@ public class SettingEspressifEnvTest
 			SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
 			consoleView.show();
 			consoleView.setFocus();
-			TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 60000);
+			TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 900000);
 		}
 
 		private void whenDownloadPathIsGivenAndFinishIsPressed() throws IOException
 		{
 			FileUtils.deleteDirectory(new File(espIdfDownloadPath));
 			bot.textWithLabel("Choose a directory to download ESP-IDF to:").setText(espIdfDownloadPath);
-			bot.comboBox().setSelection("v4.4");
+			bot.comboBox().setSelection("release/v4.4");
 			bot.button("Finish").click();
 			// need to wait here more as this is being downloaded
 			TestWidgetWaitUtility.waitUntilDialogIsNotVisible(bot, "Message", 9000000);
@@ -157,7 +157,7 @@ public class SettingEspressifEnvTest
 			SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
 			consoleView.show();
 			consoleView.setFocus();
-			TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 6000000);
+			TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 9000000);
 		}
 		
 		private void whenLocalPathIsGivenAndFinishIsPressed()
@@ -171,7 +171,7 @@ public class SettingEspressifEnvTest
 			SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
 			consoleView.show();
 			consoleView.setFocus();
-			TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 600000);
+			TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 9000000);
 		}
 
 		private void thenConsoleShowsToolsAreInstalled()
