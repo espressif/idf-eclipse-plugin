@@ -7,6 +7,7 @@ package com.espressif.idf.ui.test.common.utility;
 import java.util.Arrays;
 import java.util.Optional;
 
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
@@ -14,6 +15,9 @@ import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+import org.eclipse.ui.IPageLayout;
+import org.eclipse.ui.internal.progress.ProgressInfoItem;
+import org.eclipse.ui.internal.progress.ProgressView;
 
 /**
  * Utility class to wait for UI operations that may take time longer than 5000ms (Default delay of SWTBot before
@@ -22,8 +26,43 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
  * @author Ali Azam Rana
  *
  */
+@SuppressWarnings("restriction")
 public class TestWidgetWaitUtility
 {
+	public static void waitForOperationsInProgressToFinish(SWTWorkbenchBot bot)
+	{
+		bot.viewById(IPageLayout.ID_PROGRESS_VIEW).show();
+		ProgressView progressView = (ProgressView) bot.viewById(IPageLayout.ID_PROGRESS_VIEW).getViewReference()
+				.getView(true);
+		final OperationResponse operationResponse = getOperationResponse();
+		bot.waitWhile(new DefaultCondition()
+		{
+			@Override
+			public boolean test() throws Exception
+			{
+				Display.getDefault().asyncExec(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						progressView.setFocus();
+						ProgressInfoItem[] progressInfoItems = progressView.getViewer().getProgressInfoItems();
+						operationResponse.itemStillPending = progressInfoItems.length > 0;
+					}
+				});
+
+				return operationResponse.itemStillPending;
+			}
+
+			@Override
+			public String getFailureMessage()
+			{
+
+				return "Indexer taking longer to finish";
+			}
+		}, 90000000, 3000);
+	}
+	
 	/**
 	 * Waits until the specified view contains the provided text, the view must contain a styled text
 	 * 
@@ -169,5 +208,21 @@ public class TestWidgetWaitUtility
 				return "View with title: " + dialogTitle + " not found";
 			}
 		}, timeout);
+	}
+	
+	private static OperationResponse getOperationResponse()
+	{
+		TestWidgetWaitUtility testWidgetWaitUtility = new TestWidgetWaitUtility();
+		return testWidgetWaitUtility.getOperationResponseObject();
+	}
+	
+	private OperationResponse getOperationResponseObject()
+	{
+		return new OperationResponse();
+	}
+	
+	private class OperationResponse
+	{
+		private boolean itemStillPending = true;
 	}
 }

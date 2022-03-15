@@ -16,20 +16,16 @@ import org.eclipse.launchbar.core.ILaunchDescriptor;
 import org.eclipse.launchbar.core.internal.Activator;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
-import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
-import org.eclipse.ui.IPageLayout;
-import org.eclipse.ui.internal.progress.ProgressInfoItem;
-import org.eclipse.ui.internal.progress.ProgressView;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 import com.espressif.idf.ui.test.operations.EnvSetupOperations;
 import com.espressif.idf.ui.test.operations.ProjectTestOperations;
 import com.espressif.idf.ui.test.operations.selectors.LaunchBarConfigSelector;
@@ -82,12 +78,12 @@ public class LaunchBarCDTConfigurationsTest
 		fixture.thenLaunchDescriptorContainsConfig("TestProject2");
 		fixture.selectProjectFromLaunchBar("TestProject");
 		fixture.whenProjectIsBuiltUsingToolbarButton();
-		fixture.waitForOperationsInProgressToFinish();
+		
 		fixture.thenConsoleShowsBuildSuccessful();
 		fixture.thenConsoleShowsProjectNameInConsole("TestProject");
 		fixture.selectProjectFromLaunchBar("TestProject2");
 		fixture.whenProjectIsBuiltUsingToolbarButton();
-		fixture.waitForOperationsInProgressToFinish();
+		
 		fixture.thenConsoleShowsBuildSuccessful();
 		fixture.thenConsoleShowsProjectNameInConsole("TestProject2");
 	}
@@ -120,6 +116,7 @@ public class LaunchBarCDTConfigurationsTest
 		private Fixture() throws Exception
 		{
 			bot = new SWTWorkbenchBot();
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 			EnvSetupOperations.setupEspressifEnv(bot);
 			bot.sleep(1000);
 			launchBarConfigSelector = new LaunchBarConfigSelector(bot);
@@ -198,6 +195,7 @@ public class LaunchBarCDTConfigurationsTest
 		{
 			bot.toolbarButtonWithTooltip("Build").click();
 			ProjectTestOperations.waitForProjectBuild(bot);
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 		}
 
 		public void givenProjectNameIs(String projectName)
@@ -226,48 +224,9 @@ public class LaunchBarCDTConfigurationsTest
 
 		private void cleanTestEnv()
 		{
-			waitForOperationsInProgressToFinish();
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 			ProjectTestOperations.closeAllProjects(bot);
 			ProjectTestOperations.deleteAllProjects(bot);
-		}
-		
-		private void waitForOperationsInProgressToFinish()
-		{
-			bot.viewById(IPageLayout.ID_PROGRESS_VIEW).show();
-			ProgressView progressView = (ProgressView) bot.viewById(IPageLayout.ID_PROGRESS_VIEW).getViewReference()
-					.getView(true);
-			final OperationResponse operationResponse = new OperationResponse();
-			bot.waitWhile(new DefaultCondition()
-			{
-				@Override
-				public boolean test() throws Exception
-				{
-					Display.getDefault().asyncExec(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							progressView.setFocus();
-							ProgressInfoItem[] progressInfoItems = progressView.getViewer().getProgressInfoItems();
-							operationResponse.itemStillPending = progressInfoItems.length > 0;
-						}
-					});
-
-					return operationResponse.itemStillPending;
-				}
-
-				@Override
-				public String getFailureMessage()
-				{
-
-					return "Indexer taking longer to finish";
-				}
-			}, 900000, 3000);
-		}
-	
-		private class OperationResponse
-		{
-			private boolean itemStillPending = true;
 		}
 	}
 }
