@@ -25,49 +25,49 @@ import com.espressif.idf.ui.test.operations.ProjectTestOperations;
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class SettingEspressifEnvTest
 {
-	private Fixture fixture;
-
-	@Before
-	public void beforeEachTest() throws Exception
-	{
-		fixture = new Fixture();
-	}
-
-	@After
-	public void afterEachTest()
-	{
-		fixture.cleanTestEnv();
-	}
-
-	@Test
-	public void givenEspIdfFromExistingDirecotryWhenEspIdfIsConfiguredThenEspEnvIsConfigured() throws Exception
-	{
-		fixture.givenEspIdfPathsAreLoadedFromConfigs();
-		fixture.whenInstallToolsIsSelected();
-		fixture.whenSettingsAreConfiguredAndOkIsPressed();
-		fixture.thenConsoleShowsToolsAreInstalled();
-		fixture.thenConsoleHasNoErrorsAndFailures();
-		fixture.thenIdfPathIsFound();
-	}
-
-	@Test
-	public void givenEspIdfIsDownloadedAndConfiguredThroughTheDownloadAndConfigureOptionThenEspEnvIsConfigured()
-			throws Exception
-	{
-		fixture.givenEspIdfPathsAreLoadedFromConfigs();
-		fixture.whenDownloadAndConfigureEspIdfIsSelected();
-		fixture.whenDownloadPathIsGivenAndFinishIsPressed();
-		fixture.thenIdfPathIsFound();
-	}
-	
-	@Test
-	public void givenEspIdfIsConfiguredThroughAlreadyDownloadedToolsThenEnvIsConfigured() throws Exception
-	{
-		fixture.givenEspIdfPathsAreLoadedFromConfigs();
-		fixture.whenDownloadAndConfigureEspIdfIsSelected();
-		fixture.whenLocalPathIsGivenAndFinishIsPressed();
-		fixture.thenIdfPathIsFound();
-	}
+//	private Fixture fixture;
+//
+//	@Before
+//	public void beforeEachTest() throws Exception
+//	{
+//		fixture = new Fixture();
+//	}
+//
+//	@After
+//	public void afterEachTest()
+//	{
+//		fixture.cleanTestEnv();
+//	}
+//
+//	@Test
+//	public void givenEspIdfFromExistingDirecotryWhenEspIdfIsConfiguredThenEspEnvIsConfigured() throws Exception
+//	{
+//		fixture.givenEspIdfPathsAreLoadedFromConfigs();
+//		fixture.whenInstallToolsIsSelected();
+//		fixture.whenSettingsAreConfiguredAndOkIsPressed();
+//		fixture.thenConsoleShowsToolsAreInstalled();
+//		fixture.thenConsoleHasNoErrorsAndFailures();
+//		fixture.thenIdfPathIsFound();
+//	}
+//
+//	@Test
+//	public void givenEspIdfIsDownloadedAndConfiguredThroughTheDownloadAndConfigureOptionThenEspEnvIsConfigured()
+//			throws Exception
+//	{
+//		fixture.givenEspIdfPathsAreLoadedFromConfigs();
+//		fixture.whenDownloadAndConfigureEspIdfIsSelected();
+//		fixture.whenDownloadPathIsGivenAndFinishIsPressed();
+//		fixture.thenIdfPathIsFound();
+//	}
+//	
+//	@Test
+//	public void givenEspIdfIsConfiguredThroughAlreadyDownloadedToolsThenEnvIsConfigured() throws Exception
+//	{
+//		fixture.givenEspIdfPathsAreLoadedFromConfigs();
+//		fixture.whenDownloadAndConfigureEspIdfIsSelected();
+//		fixture.whenLocalPathIsGivenAndFinishIsPressed();
+//		fixture.thenIdfPathIsFound();
+//	}
 
 	private class Fixture
 	{
