@@ -20,6 +20,7 @@ import org.junit.runner.RunWith;
 
 import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
+import com.espressif.idf.ui.test.operations.EnvSetupOperations;
 import com.espressif.idf.ui.test.operations.ProjectTestOperations;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
@@ -82,17 +83,11 @@ public class SettingEspressifEnvTest
 		private String pythonVersion;
 		private String espIdfDownloadPath;
 
-		private Fixture()
+		private Fixture() throws Exception
 		{
 			bot = new SWTWorkbenchBot();
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
-			for (SWTBotView view : bot.views(withPartName("Welcome")))
-			{
-				view.close();
-			}
-			bot.menu("Window").menu("Perspective").menu("Open Perspective").menu("Other...").click();
-			bot.table().select("C/C++");
-			bot.button("Open").click();
+			EnvSetupOperations.setupEspressifEnv(bot);
+			bot.sleep(1000);
 		}
 
 		private void cleanTestEnv()

@@ -179,7 +179,6 @@ public class NewEspressifIDFProjectTest
 		private Fixture() throws Exception
 		{
 			bot = new SWTWorkbenchBot();
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 			EnvSetupOperations.setupEspressifEnv(bot);
 			bot.sleep(1000);
 		}

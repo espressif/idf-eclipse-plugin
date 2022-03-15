@@ -116,7 +116,6 @@ public class LaunchBarCDTConfigurationsTest
 		private Fixture() throws Exception
 		{
 			bot = new SWTWorkbenchBot();
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 			EnvSetupOperations.setupEspressifEnv(bot);
 			bot.sleep(1000);
 			launchBarConfigSelector = new LaunchBarConfigSelector(bot);
