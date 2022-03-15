@@ -19,9 +19,13 @@
 				<version>${tycho-version}</version>
 				<configuration>
 					<useUIHarness>true</useUIHarness>
-					<useUIThread>true</useUIThread>
+					<useUIThread>false</useUIThread>
 					<application>org.eclipse.ui.ide.workbench</application>
-					<argLine>-Xms2048m -Xmx4096m</argLine>
+					<argLine>-Xms2048m -Xmx4096m -Dorg.eclipse.swtbot.search.timeout=9980000 -Dorg.eclipse.swtbot.playback.poll.delay=9900000 -Dorg.eclipse.swtbot.playback.delay=100</argLine>
+					<environmentVariables>
+						<SWT_GTK3>0</SWT_GTK3>
+						<LIBOVERLAY_SCROLLBAR>0</LIBOVERLAY_SCROLLBAR>
+					</environmentVariables>
 				</configuration>
 			</plugin>
 			<plugin>

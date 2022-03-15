@@ -11,8 +11,6 @@
 		<required-maven-version>3.6.3</required-maven-version>
 		<tycho-version>2.3.0</tycho-version>
 		<tycho-extras.version>${tycho-version}</tycho-extras.version>
-		<tycho-use-project-settings>true</tycho-use-project-settings>
-		<SWT_GTK3>0</SWT_GTK3>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
