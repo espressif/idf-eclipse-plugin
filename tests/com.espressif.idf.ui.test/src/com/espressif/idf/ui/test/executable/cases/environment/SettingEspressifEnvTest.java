@@ -9,10 +9,15 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
+import org.eclipse.ui.IPageLayout;
+import org.eclipse.ui.internal.progress.ProgressInfoItem;
+import org.eclipse.ui.internal.progress.ProgressView;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +27,7 @@ import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 import com.espressif.idf.ui.test.operations.ProjectTestOperations;
 
+@SuppressWarnings("restriction")
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class SettingEspressifEnvTest
 {
@@ -150,7 +156,7 @@ public class SettingEspressifEnvTest
 			bot.comboBox().setSelection("release/v4.4");
 			bot.button("Finish").click();
 			// need to wait here more as this is being downloaded
-			TestWidgetWaitUtility.waitUntilDialogIsNotVisible(bot, "Message", 9000000);
+			waitForOperationsInProgressToFinish();
 			bot.button("Yes").click();
 			bot.textWithLabel("Git Executable Location:").setText(gitPath);
 			bot.button("Install Tools").click();
@@ -158,6 +164,40 @@ public class SettingEspressifEnvTest
 			consoleView.show();
 			consoleView.setFocus();
 			TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 9000000);
+		}
+		
+		private void waitForOperationsInProgressToFinish()
+		{
+			bot.viewById(IPageLayout.ID_PROGRESS_VIEW).show();
+			ProgressView progressView = (ProgressView) bot.viewById(IPageLayout.ID_PROGRESS_VIEW).getViewReference()
+					.getView(true);
+			final OperationResponse operationResponse = new OperationResponse();
+			bot.waitWhile(new DefaultCondition()
+			{
+				@Override
+				public boolean test() throws Exception
+				{
+					Display.getDefault().asyncExec(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							progressView.setFocus();
+							ProgressInfoItem[] progressInfoItems = progressView.getViewer().getProgressInfoItems();
+							operationResponse.itemStillPending = progressInfoItems.length > 0;
+						}
+					});
+
+					return operationResponse.itemStillPending;
+				}
+
+				@Override
+				public String getFailureMessage()
+				{
+
+					return "Indexer taking longer to finish";
+				}
+			}, 900000, 3000);
 		}
 		
 		private void whenLocalPathIsGivenAndFinishIsPressed()
@@ -199,5 +239,10 @@ public class SettingEspressifEnvTest
 			consoleView.setFocus();
 			assertFalse(consoleView.bot().styledText().getText().contains("IDF_PATH: <NOT FOUND>"));
 		}
+	}
+	
+	private class OperationResponse
+	{
+		private boolean itemStillPending = true;
 	}
 }
