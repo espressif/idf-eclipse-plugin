@@ -19,7 +19,7 @@
 				<version>${tycho-version}</version>
 				<configuration>
 					<useUIHarness>true</useUIHarness>
-					<useUIThread>false</useUIThread>
+					<useUIThread>true</useUIThread>
 					<application>org.eclipse.ui.ide.workbench</application>
 					<argLine>-Xms2048m -Xmx4096m</argLine>
 				</configuration>
