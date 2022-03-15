@@ -22,7 +22,7 @@ import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 import com.espressif.idf.ui.test.operations.ProjectTestOperations;
 
-@RunWith(SWTBotJunit4ClassRunner.class)
+//@RunWith(SWTBotJunit4ClassRunner.class)
 public class SettingEspressifEnvTest
 {
 //	private Fixture fixture;
