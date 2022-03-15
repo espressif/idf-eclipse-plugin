@@ -56,15 +56,15 @@ public class SettingEspressifEnvTest
 		fixture.thenIdfPathIsFound();
 	}
 
-	@Test
-	public void givenEspIdfIsDownloadedAndConfiguredThroughTheDownloadAndConfigureOptionThenEspEnvIsConfigured()
-			throws Exception
-	{
-		fixture.givenEspIdfPathsAreLoadedFromConfigs();
-		fixture.whenDownloadAndConfigureEspIdfIsSelected();
-		fixture.whenDownloadPathIsGivenAndFinishIsPressed();
-		fixture.thenIdfPathIsFound();
-	}
+//	@Test
+//	public void givenEspIdfIsDownloadedAndConfiguredThroughTheDownloadAndConfigureOptionThenEspEnvIsConfigured()
+//			throws Exception
+//	{
+//		fixture.givenEspIdfPathsAreLoadedFromConfigs();
+//		fixture.whenDownloadAndConfigureEspIdfIsSelected();
+//		fixture.whenDownloadPathIsGivenAndFinishIsPressed();
+//		fixture.thenIdfPathIsFound();
+//	}
 	
 	@Test
 	public void givenEspIdfIsConfiguredThroughAlreadyDownloadedToolsThenEnvIsConfigured() throws Exception
@@ -197,7 +197,7 @@ public class SettingEspressifEnvTest
 
 					return "Indexer taking longer to finish";
 				}
-			}, 900000, 3000);
+			}, 90000000, 3000);
 		}
 		
 		private void whenLocalPathIsGivenAndFinishIsPressed()
