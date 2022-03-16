@@ -100,3 +100,7 @@ jobs:
       with:
         name: espressif-ide-macosx-dmg
         path: releng/ide-dmg-builder/Espressif-IDE.dmg
+
+    - name: Clean workspace
+    - uses: colpal/actions-clean@v1
+      if: ${{ always() }}
