@@ -1,6 +1,5 @@
 package com.espressif.idf.ui.test.executable.cases.environment;
 
-import static org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory.withPartName;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -147,7 +146,7 @@ public class SettingEspressifEnvTest
 			bot.comboBox().setSelection("release/v4.4");
 			bot.button("Finish").click();
 			// need to wait here more as this is being downloaded
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+			TestWidgetWaitUtility.waitUntilDialogIsNotVisible(bot, "Message", 999000000);
 			bot.button("Yes").click();
 			bot.textWithLabel("Git Executable Location:").setText(gitPath);
 			bot.button("Install Tools").click();
