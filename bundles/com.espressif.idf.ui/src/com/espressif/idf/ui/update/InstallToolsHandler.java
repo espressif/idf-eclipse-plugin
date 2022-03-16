@@ -23,8 +23,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.ui.PlatformUI;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
@@ -115,36 +115,44 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				Path target = Paths.get("/etc/udev/rules.d/60-openocd.rules"); //$NON-NLS-1$
 				console.println(String.format(Messages.InstallToolsHandler_OpenOCDRulesCopyPaths, source.toString(),
 						target.toString()));
-				try
+				
+				Display.getDefault().syncExec(new Runnable()
 				{
-					if (target.toFile().exists())
+					@Override
+					public void run()
 					{
-						MessageBox messageBox = new MessageBox(PlatformUI.getWorkbench().getDisplay().getActiveShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
-						messageBox.setText(Messages.InstallToolsHandler_OpenOCDRulesCopyWarning);
-						messageBox.setMessage(Messages.InstallToolsHandler_OpenOCDRulesCopyWarningMessage);
-						int response = messageBox.open();
-						if (response == SWT.YES)
+						try
 						{
-							Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);		
+							if (target.toFile().exists())
+							{
+								MessageBox messageBox = new MessageBox(Display.getDefault().getActiveShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
+								messageBox.setText(Messages.InstallToolsHandler_OpenOCDRulesCopyWarning);
+								messageBox.setMessage(Messages.InstallToolsHandler_OpenOCDRulesCopyWarningMessage);
+								int response = messageBox.open();
+								if (response == SWT.YES)
+								{
+									Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);		
+								}
+								else
+								{
+									console.println(Messages.InstallToolsHandler_OpenOCDRulesNotCopied);
+									return;
+								}
+							}
+							else
+							{
+								Files.copy(source, target);						
+							}
+							
+							console.println(Messages.InstallToolsHandler_OpenOCDRulesCopied);
 						}
-						else
+						catch (IOException e)
 						{
-							console.println(Messages.InstallToolsHandler_OpenOCDRulesNotCopied);
-							return;
+							Logger.log(e);
+							console.println(Messages.InstallToolsHandler_OpenOCDRulesCopyError);
 						}
 					}
-					else
-					{
-						Files.copy(source, target);						
-					}
-					
-					console.println(Messages.InstallToolsHandler_OpenOCDRulesCopied);
-				}
-				catch (IOException e)
-				{
-					Logger.log(e);
-					console.println(Messages.InstallToolsHandler_OpenOCDRulesCopyError);
-				}
+				});
 			}
 		}
 	}
