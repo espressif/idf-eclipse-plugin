@@ -51,6 +51,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.ISourceLocator;
 
+import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.util.GenericJsonReader;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
@@ -192,11 +193,11 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		IProject project = config.getMappedResources()[0].getProject();
 		String programName = ""; //$NON-NLS-1$
 		GenericJsonReader jsonReader = new GenericJsonReader(project,
-				File.separator + "build" + File.separator + "project_description.json"); //$NON-NLS-1$
+				File.separator + IDFConstants.BUILD_FOLDER + File.separator + "project_description.json"); //$NON-NLS-1$
 		String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
 		if (!StringUtil.isEmpty(value))
 		{
-			programName = "build" + File.separator + value; //$NON-NLS-1$
+			programName = IDFConstants.BUILD_FOLDER + File.separator + value;
 		}
 		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, programName);
 		wc.doSave();

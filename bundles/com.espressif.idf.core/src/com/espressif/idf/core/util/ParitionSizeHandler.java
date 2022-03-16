@@ -53,7 +53,7 @@ public class ParitionSizeHandler
 		commands = new ArrayList<>();
 		commands.add(IDFUtil.getIDFPythonEnvPath());
 		commands.add(IDFUtil.getIDFPath() + "/components/partition_table/gen_esp32part.py"); //$NON-NLS-1$
-		commands.add(project.getLocation() + "/build/partition_table/partition-table.bin"); //$NON-NLS-1$
+		commands.add(project.getLocation() + "/" + IDFConstants.BUILD_FOLDER + "/partition_table/partition-table.bin"); //$NON-NLS-1$
 
 		Process process = startProcess(commands);
 		String partitionTableContent = new String(process.getInputStream().readAllBytes());
@@ -95,7 +95,7 @@ public class ParitionSizeHandler
 		{
 			value = value.replace(".elf", ".map"); // Assuming .elf and .map files have the //$NON-NLS-1$ //$NON-NLS-2$
 													// same file name
-			return project.getFile(new org.eclipse.core.runtime.Path("build").append(value)).getLocation(); //$NON-NLS-1$
+			return project.getFile(new org.eclipse.core.runtime.Path(IDFConstants.BUILD_FOLDER).append(value)).getLocation();
 		}
 		return null;
 	}

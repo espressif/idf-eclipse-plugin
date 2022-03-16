@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
+import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.GenericJsonReader;
 import com.espressif.idf.core.util.StringUtil;
@@ -81,7 +82,7 @@ public class TabMain extends CMainTab2
 
 			// project description file
 			GenericJsonReader jsonReader = new GenericJsonReader(((ICProject) cElement).getProject(),
-					"/build/project_description.json"); //$NON-NLS-1$
+					"/" + IDFConstants.BUILD_FOLDER + "/project_description.json"); //$NON-NLS-1$
 			String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
 
 			IBinary[] bins = getBinaryFiles((ICProject) cElement);
@@ -147,11 +148,11 @@ public class TabMain extends CMainTab2
 			{
 				// project description file
 				GenericJsonReader jsonReader = new GenericJsonReader(project,
-						File.separator + "build" + File.separator + "project_description.json");
+						File.separator + IDFConstants.BUILD_FOLDER + File.separator + "project_description.json");
 				String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
 				if (!StringUtil.isEmpty(value))
 				{
-					programName = "build" + File.separator + value; //$NON-NLS-1$
+					programName = IDFConstants.BUILD_FOLDER + File.separator + value;
 				}
 
 			}

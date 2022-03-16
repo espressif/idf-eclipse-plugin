@@ -696,7 +696,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 					{
 						IResource resource = resourceDelta.getResource();
 						if (resource.getType() == IResource.FILE
-								&& !resource.getFullPath().toOSString().contains("build")) {
+								&& !resource.getFullPath().toOSString().contains(IDFConstants.BUILD_FOLDER)) {
 							String name = resource.getName();
 							if (name.equals("CMakeLists.txt") || name.endsWith(".cmake")) //$NON-NLS-1$ //$NON-NLS-2$
 							{
