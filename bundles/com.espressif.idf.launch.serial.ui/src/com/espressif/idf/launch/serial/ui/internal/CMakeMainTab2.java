@@ -188,7 +188,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	private void updateArgumentsWithDefaultFlashCommand(ILaunchConfiguration configuration) {
-		String espFlashCommand = ESPFlashUtil.getEspFlashCommand(getSerialPort());
+		String espFlashCommand = ESPFlashUtil.getEspFlashCommand(ESPFlashUtil.SERIAL_PORT);
 		try {
 			argumentsForSerialFlash = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS,
 					espFlashCommand);

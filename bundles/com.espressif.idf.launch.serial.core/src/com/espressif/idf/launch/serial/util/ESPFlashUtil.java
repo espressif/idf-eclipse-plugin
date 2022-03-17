@@ -23,6 +23,7 @@ public class ESPFlashUtil {
 
 	private static final int OPENOCD_JTAG_FLASH_SUPPORT_V = 20201125;
 	public static String VERSION_PATTERN = "(v.\\S+)"; //$NON-NLS-1$
+	public static String SERIAL_PORT = "${serial_port}"; //$NON-NLS-1$
 
 	/**
 	 * @param launch
