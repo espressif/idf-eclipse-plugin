@@ -53,7 +53,7 @@ jobs:
       uses: scacap/action-surefire-report@v1
   
     - name: Create macosx dmg
-      run: genisoimage -V espressif-ide -D -R -apple -no-pad -o /opt/actions-runner/_work/idf-eclipse-plugin/idf-eclipse-plugin/releng/ide-dmg-builder/Espressif-IDE.dmg /opt/actions-runner/_work/idf-eclipse-plugin/idf-eclipse-plugin/relang/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app
+      run: genisoimage -V espressif-ide -D -R -apple -no-pad -o /opt/actions-runner/_work/idf-eclipse-plugin/idf-eclipse-plugin/releng/ide-dmg-builder/Espressif-IDE.dmg /opt/actions-runner/_work/idf-eclipse-plugin/idf-eclipse-plugin/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app
            
     - name: Upload build artifacts
       if: ${{ !cancelled() }}
