@@ -11,11 +11,11 @@ import java.util.Map;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.launchbar.core.ILaunchBarManager;
-import org.eclipse.launchbar.core.target.ILaunchTarget;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
@@ -38,7 +38,6 @@ public class InstallCommandHandler
 	private static final String EQUALITY = "=="; //$NON-NLS-1$
 	private static final String ASTERIK = "*"; //$NON-NLS-1$
 	private static final String FORWARD_SLASH = "/"; //$NON-NLS-1$
-	private static final String RECONFIGURE_COMMAND = "reconfigure"; //$NON-NLS-1$
 	private String name;
 	private String namespace;
 	private String version;
@@ -58,41 +57,24 @@ public class InstallCommandHandler
 		{
 			return;
 		}
+		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+
+		// setting the env variable to let the cmake build know to fetch the components sources
+		idfEnvironmentVariables.addEnvVariable("IDF_COMPONENT_MANAGER", "1"); //$NON-NLS-1$ //$NON-NLS-2$
+
 		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
 
 		Path pathToProject = new Path(project.getLocation().toString());
 		List<String> commands = new ArrayList<>();
 		commands.add(IDFUtil.getIDFPythonEnvPath());
 		commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
-		
-		
-		Display.getDefault().asyncExec(new Runnable()
+
+		Job job = new Job("Install Components Job")
 		{
-			
+
 			@Override
-			public void run()
+			protected IStatus run(IProgressMonitor monitor)
 			{
-				IDFConsole idfConsole = new IDFConsole();
-				ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
-				ILaunchTarget launchtarget = null;
-				try
-				{
-					launchtarget = launchBarManager.getActiveLaunchTarget();
-				}
-				catch (CoreException e)
-				{
-					Logger.log(e);
-				}
-//				String idfTargetName = launchtarget.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
-//						""); //$NON-NLS-1$
-//				commands.add("set-target");
-//				commands.add(idfTargetName);
-//				idfConsole.getConsoleStream().print(runCommand(commands, pathToProject, envMap));
-				
-				commands.clear();
-				
-				commands.add(IDFUtil.getIDFPythonEnvPath());
-				commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
 				commands.add(ADD_DEPENDENCY_COMMAND);
 				if (StringUtil.isEmpty(version))
 				{
@@ -100,22 +82,24 @@ public class InstallCommandHandler
 				}
 				else
 				{
-					commands.add(
-							namespace.concat(FORWARD_SLASH).concat(name.concat(EQUALITY).concat(version)));
+					commands.add(namespace.concat(FORWARD_SLASH).concat(name.concat(EQUALITY).concat(version)));
 				}
-				
+
 				new IDFConsole().getConsoleStream().print(runCommand(commands, pathToProject, envMap));
-				
-				commands.clear();
-				
-				commands.add(IDFUtil.getIDFPythonEnvPath());
-				commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
-				commands.add(RECONFIGURE_COMMAND);
-				new IDFConsole().getConsoleStream().print(runCommand(commands, pathToProject, envMap));
+
+				try
+				{
+					project.refreshLocal(IResource.DEPTH_INFINITE, null);
+				}
+				catch (CoreException e)
+				{
+					Logger.log(e);
+				}
+				return Status.OK_STATUS;
 			}
-		});
-		
-		project.refreshLocal(IResource.DEPTH_INFINITE, null);
+		};
+
+		job.schedule();
 	}
 
 	private String runCommand(List<String> arguments, Path workDir, Map<String, String> env)
