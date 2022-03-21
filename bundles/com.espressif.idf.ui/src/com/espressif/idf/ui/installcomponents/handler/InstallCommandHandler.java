@@ -10,8 +10,12 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.launchbar.core.ILaunchBarManager;
+import org.eclipse.launchbar.core.target.ILaunchTarget;
+import org.eclipse.swt.widgets.Display;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
@@ -34,6 +38,7 @@ public class InstallCommandHandler
 	private static final String EQUALITY = "=="; //$NON-NLS-1$
 	private static final String ASTERIK = "*"; //$NON-NLS-1$
 	private static final String FORWARD_SLASH = "/"; //$NON-NLS-1$
+	private static final String RECONFIGURE_COMMAND = "reconfigure"; //$NON-NLS-1$
 	private String name;
 	private String namespace;
 	private String version;
@@ -59,19 +64,57 @@ public class InstallCommandHandler
 		List<String> commands = new ArrayList<>();
 		commands.add(IDFUtil.getIDFPythonEnvPath());
 		commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
-		commands.add(ADD_DEPENDENCY_COMMAND);
-		if (StringUtil.isEmpty(version))
+		
+		
+		Display.getDefault().asyncExec(new Runnable()
 		{
-			commands.add(namespace.concat(FORWARD_SLASH).concat(name.concat(ASTERIK)));
-		}
-		else
-		{
-			commands.add(
-					namespace.concat(FORWARD_SLASH).concat(name.concat(EQUALITY).concat(version)));
-		}
-
-		new IDFConsole().getConsoleStream().print((runCommand(commands, pathToProject, envMap)));
-
+			
+			@Override
+			public void run()
+			{
+				IDFConsole idfConsole = new IDFConsole();
+				ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
+				ILaunchTarget launchtarget = null;
+				try
+				{
+					launchtarget = launchBarManager.getActiveLaunchTarget();
+				}
+				catch (CoreException e)
+				{
+					Logger.log(e);
+				}
+//				String idfTargetName = launchtarget.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
+//						""); //$NON-NLS-1$
+//				commands.add("set-target");
+//				commands.add(idfTargetName);
+//				idfConsole.getConsoleStream().print(runCommand(commands, pathToProject, envMap));
+				
+				commands.clear();
+				
+				commands.add(IDFUtil.getIDFPythonEnvPath());
+				commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
+				commands.add(ADD_DEPENDENCY_COMMAND);
+				if (StringUtil.isEmpty(version))
+				{
+					commands.add(namespace.concat(FORWARD_SLASH).concat(name.concat(ASTERIK)));
+				}
+				else
+				{
+					commands.add(
+							namespace.concat(FORWARD_SLASH).concat(name.concat(EQUALITY).concat(version)));
+				}
+				
+				new IDFConsole().getConsoleStream().print(runCommand(commands, pathToProject, envMap));
+				
+				commands.clear();
+				
+				commands.add(IDFUtil.getIDFPythonEnvPath());
+				commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
+				commands.add(RECONFIGURE_COMMAND);
+				new IDFConsole().getConsoleStream().print(runCommand(commands, pathToProject, envMap));
+			}
+		});
+		
 		project.refreshLocal(IResource.DEPTH_INFINITE, null);
 	}
 
