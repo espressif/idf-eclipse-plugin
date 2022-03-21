@@ -69,7 +69,7 @@ public class InstallCommandHandler
 		commands.add(IDFUtil.getIDFPythonEnvPath());
 		commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
 
-		Job job = new Job("Install Components Job")
+		Job job = new Job("Install Components Job") //$NON-NLS-1$
 		{
 
 			@Override
