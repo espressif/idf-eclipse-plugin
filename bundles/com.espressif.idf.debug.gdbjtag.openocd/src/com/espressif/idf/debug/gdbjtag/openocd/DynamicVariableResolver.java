@@ -20,7 +20,7 @@ import org.eclipse.core.resources.IProject;
 
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.PersistentPreferences;
 
-import ilg.gnumcueclipse.core.EclipseUtils;
+import org.eclipse.embedcdt.core.EclipseUtils;
 
 // Resolves variables from persistent preferences.
 

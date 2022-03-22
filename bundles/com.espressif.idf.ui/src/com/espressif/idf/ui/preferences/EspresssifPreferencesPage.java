@@ -1,6 +1,7 @@
 package com.espressif.idf.ui.preferences;
 
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.embedcdt.ui.preferences.ScopedPreferenceStoreWithoutDefaults;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -15,8 +16,6 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.ui.UIPlugin;
-
-import ilg.gnumcueclipse.core.preferences.ScopedPreferenceStoreWithoutDefaults;
 
 public class EspresssifPreferencesPage extends PreferencePage implements IWorkbenchPreferencePage
 {

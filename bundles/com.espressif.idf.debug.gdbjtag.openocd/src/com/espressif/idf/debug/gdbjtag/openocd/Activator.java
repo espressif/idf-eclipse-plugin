@@ -21,7 +21,7 @@ import org.osgi.framework.ServiceReference;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.PersistentPreferences;
 
-import ilg.gnumcueclipse.core.AbstractUIActivator;
+import org.eclipse.embedcdt.internal.ui.AbstractUIActivator;
 
 /**
  * The activator class controls the plug-in life cycle
