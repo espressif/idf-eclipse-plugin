@@ -44,6 +44,8 @@ import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.embedcdt.core.EclipseUtils;
+import org.eclipse.embedcdt.core.StringUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
@@ -60,9 +62,6 @@ import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
-
-import ilg.gnumcueclipse.core.EclipseUtils;
-import ilg.gnumcueclipse.core.StringUtils;
 
 /**
  * Flashing into esp32 board
