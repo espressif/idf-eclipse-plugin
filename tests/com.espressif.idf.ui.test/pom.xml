@@ -21,7 +21,7 @@
 					<useUIHarness>true</useUIHarness>
 					<useUIThread>false</useUIThread>
 					<application>org.eclipse.ui.ide.workbench</application>
-					<argLine>-Xms2048m -Xmx4096m</argLine> <!-- -Dorg.eclipse.swtbot.playback.poll.delay=3000 -Dorg.eclipse.swtbot.search.timeout=90000 -Dorg.eclipse.swtbot.playback.delay=10 -->  
+					<argLine>-Xms2048m -Xmx4096m</argLine>  
 				</configuration>
 			</plugin>
 			<plugin>
