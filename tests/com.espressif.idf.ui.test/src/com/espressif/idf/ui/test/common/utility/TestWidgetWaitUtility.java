@@ -78,9 +78,6 @@ public class TestWidgetWaitUtility
 			@Override
 			public boolean test() throws Exception
 			{
-				((SWTWorkbenchBot) bot).viewById(IPageLayout.ID_PROGRESS_VIEW).show();
-				view.show();
-				view.setFocus();
 				String textString = view.bot().styledText().getText();
 				return textString.toLowerCase().contains(text.toLowerCase());
 			}

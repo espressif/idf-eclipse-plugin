@@ -60,9 +60,8 @@ public class ProjectTestOperations
 		SWTBotView consoleView = viewConsole("CDT Build Console", bot);
 		consoleView.show();
 		consoleView.setFocus();
-		TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
-//		TestWidgetWaitUtility.waitUntilViewContains(bot, "Build complete", consoleView,
-//				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_PROJECT_BUILD_WAIT_PROPERTY, 60000));
+		TestWidgetWaitUtility.waitUntilViewContains(bot, "Build complete", consoleView,
+				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_PROJECT_BUILD_WAIT_PROPERTY, 60000));
 	}
 
 	public static SWTBotView viewConsole(String consoleType, SWTWorkbenchBot bot)
