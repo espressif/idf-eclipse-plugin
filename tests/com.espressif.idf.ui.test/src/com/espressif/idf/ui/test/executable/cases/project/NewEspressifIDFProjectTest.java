@@ -236,6 +236,7 @@ public class NewEspressifIDFProjectTest
 			projectExplorView.bot().tree().getTreeItem(projectName).select();
 			bot.toolbarButtonWithTooltip("Build").click();
 			ProjectTestOperations.waitForProjectBuild(bot);
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 		}
 
 		private void thenProjectIsAddedToProjectExplorer()
@@ -277,6 +278,7 @@ public class NewEspressifIDFProjectTest
 
 		private void thenConsoleShowsBuildSuccessful()
 		{
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 			SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
 			consoleView.show();
 			consoleView.setFocus();

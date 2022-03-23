@@ -7,8 +7,7 @@ package com.espressif.idf.ui.test.operations;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
-import org.eclipse.jface.bindings.keys.KeyStroke;
-import org.eclipse.jface.bindings.keys.ParseException;
+
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
@@ -70,38 +69,9 @@ public class ProjectTestOperations
 		view.setFocus();
 		SWTBotToolbarDropDownButton b = view.toolbarDropDownButton("Display Selected Console");
 		org.hamcrest.Matcher<MenuItem> withRegex = WidgetMatcherFactory.withRegex(".*" + consoleType + ".*");
-//		focusMainShell(bot);
 		b.menuItem(withRegex).click();
-//		try
-//		{
-//			b.pressShortcut(KeyStroke.getInstance("ESC"));
-//		}
-//		catch (ParseException e)
-//		{
-//		}
 		view.setFocus();
 		return view;
-	}
-
-	/**
-	 * Focus on the main window
-	 */
-	public static void focusMainShell(SWTWorkbenchBot bot)
-	{
-		SWTBotShell shell = getMainShell(bot);
-		shell.activate();
-	}
-
-	private static SWTBotShell getMainShell(SWTWorkbenchBot bot)
-	{
-		for (SWTBotShell shellBot : bot.shells())
-		{
-			if (shellBot.getText().toLowerCase().contains("eclipse"))
-			{
-				return shellBot;
-			}
-		}
-		return null;
 	}
 
 	/**
