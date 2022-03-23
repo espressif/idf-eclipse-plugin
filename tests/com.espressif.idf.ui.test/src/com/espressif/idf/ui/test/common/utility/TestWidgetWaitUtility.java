@@ -78,6 +78,8 @@ public class TestWidgetWaitUtility
 			@Override
 			public boolean test() throws Exception
 			{
+				view.show();
+				view.setFocus();
 				String textString = view.bot().styledText().getText();
 				return textString.toLowerCase().contains(text.toLowerCase());
 			}
