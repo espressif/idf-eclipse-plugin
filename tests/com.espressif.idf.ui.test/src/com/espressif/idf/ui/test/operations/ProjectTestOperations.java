@@ -7,12 +7,16 @@ package com.espressif.idf.ui.test.operations;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
-
+import org.eclipse.jface.bindings.keys.KeyStroke;
+import org.eclipse.jface.bindings.keys.ParseException;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
+import org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory;
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarDropDownButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 
 import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
@@ -53,11 +57,51 @@ public class ProjectTestOperations
 	 */
 	public static void waitForProjectBuild(SWTWorkbenchBot bot) throws IOException
 	{
-		SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
+		SWTBotView consoleView = viewConsole("CDT Build Console", bot);
 		consoleView.show();
 		consoleView.setFocus();
 		TestWidgetWaitUtility.waitUntilViewContains(bot, "Build complete", consoleView,
 				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_PROJECT_BUILD_WAIT_PROPERTY, 60000));
+	}
+
+	public static SWTBotView viewConsole(String consoleType, SWTWorkbenchBot bot)
+	{
+		SWTBotView view = bot.viewByPartName("Console");
+		view.setFocus();
+		SWTBotToolbarDropDownButton b = view.toolbarDropDownButton("Display Selected Console");
+		org.hamcrest.Matcher<MenuItem> withRegex = WidgetMatcherFactory.withRegex(".*" + consoleType + ".*");
+		focusMainShell(bot);
+		b.menuItem(withRegex).click();
+		try
+		{
+			b.pressShortcut(KeyStroke.getInstance("ESC"));
+		}
+		catch (ParseException e)
+		{
+		}
+		view.setFocus();
+		return view;
+	}
+
+	/**
+	 * Focus on the main window
+	 */
+	public static void focusMainShell(SWTWorkbenchBot bot)
+	{
+		SWTBotShell shell = getMainShell(bot);
+		shell.activate();
+	}
+
+	private static SWTBotShell getMainShell(SWTWorkbenchBot bot)
+	{
+		for (SWTBotShell shellBot : bot.shells())
+		{
+			if (shellBot.getText().toLowerCase().contains("eclipse"))
+			{
+				return shellBot;
+			}
+		}
+		return null;
 	}
 
 	/**
