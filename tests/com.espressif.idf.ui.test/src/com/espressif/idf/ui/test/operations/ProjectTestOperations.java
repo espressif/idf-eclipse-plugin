@@ -57,7 +57,7 @@ public class ProjectTestOperations
 	 */
 	public static void waitForProjectBuild(SWTWorkbenchBot bot) throws IOException
 	{
-		SWTBotView consoleView = viewConsole("CDT Build Console", bot);
+		SWTBotView consoleView = viewConsole("CDT Build Console", bot); //bot.viewById("org.eclipse.ui.console.ConsoleView");
 		consoleView.show();
 		consoleView.setFocus();
 		TestWidgetWaitUtility.waitUntilViewContains(bot, "Build complete", consoleView,
@@ -70,15 +70,15 @@ public class ProjectTestOperations
 		view.setFocus();
 		SWTBotToolbarDropDownButton b = view.toolbarDropDownButton("Display Selected Console");
 		org.hamcrest.Matcher<MenuItem> withRegex = WidgetMatcherFactory.withRegex(".*" + consoleType + ".*");
-		focusMainShell(bot);
+//		focusMainShell(bot);
 		b.menuItem(withRegex).click();
-		try
-		{
-			b.pressShortcut(KeyStroke.getInstance("ESC"));
-		}
-		catch (ParseException e)
-		{
-		}
+//		try
+//		{
+//			b.pressShortcut(KeyStroke.getInstance("ESC"));
+//		}
+//		catch (ParseException e)
+//		{
+//		}
 		view.setFocus();
 		return view;
 	}
