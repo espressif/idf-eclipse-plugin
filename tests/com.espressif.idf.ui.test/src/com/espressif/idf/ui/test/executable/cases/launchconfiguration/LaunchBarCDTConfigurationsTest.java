@@ -22,8 +22,10 @@ import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 import com.espressif.idf.ui.test.operations.EnvSetupOperations;
@@ -40,6 +42,7 @@ import com.espressif.idf.ui.test.operations.selectors.LaunchBarTargetSelector;
  */
 @SuppressWarnings("restriction")
 @RunWith(SWTBotJunit4ClassRunner.class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class LaunchBarCDTConfigurationsTest
 {
 	private Fixture fixture;

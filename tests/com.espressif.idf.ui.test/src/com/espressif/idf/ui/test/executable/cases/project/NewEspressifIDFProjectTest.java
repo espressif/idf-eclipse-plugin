@@ -19,8 +19,10 @@ import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 
 import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
 import com.espressif.idf.ui.test.common.resources.DefaultFileContentsReader;
@@ -37,6 +39,7 @@ import com.espressif.idf.ui.test.operations.SWTBotTreeOperations;
  *
  */
 @RunWith(SWTBotJunit4ClassRunner.class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class NewEspressifIDFProjectTest
 {
 	private Fixture fixture;
