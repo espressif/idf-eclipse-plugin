@@ -12,5 +12,8 @@
    <feature id="org.eclipse.nebula.widgets.xviewer.feature">
       <category name="com.espressif.idf"/>
    </feature>
+   <bundle id="org.eclipse.embedcdt">
+      <category name="com.espressif.idf"/>
+   </bundle>
    <category-def name="com.espressif.idf" label="Espressif IDF"/>
 </site>
