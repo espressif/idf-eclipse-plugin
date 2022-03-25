@@ -47,7 +47,7 @@ import com.espressif.idf.ui.test.operations.selectors.LaunchBarTargetSelector;
 public class LaunchBarCDTConfigurationsTest
 {
 	@BeforeClass
-	public void beforeEachTest() throws Exception
+	public static void beforeEachTest() throws Exception
 	{
 		Fixture.loadEnv();
 	}
