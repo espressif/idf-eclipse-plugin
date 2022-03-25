@@ -282,7 +282,7 @@ public class NewEspressifIDFProjectTest
 		private void thenConsoleShowsBuildSuccessful()
 		{
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
-			SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
+			SWTBotView consoleView = ProjectTestOperations.viewConsole("CDT Build Console", bot);
 			consoleView.show();
 			consoleView.setFocus();
 			String consoleTextString = consoleView.bot().styledText().getText();
