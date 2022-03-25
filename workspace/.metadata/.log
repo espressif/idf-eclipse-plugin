@@ -1,0 +1,160 @@
+!SESSION 2022-03-25 09:36:21.472 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=16.0.1
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Framework arguments:  -eclipse.keyring C:\Users\aliaz\AppData\Local\Temp\tycho6602723196273982826secure_storage
+Command-line arguments:  -eclipse.keyring C:\Users\aliaz\AppData\Local\Temp\tycho6602723196273982826secure_storage
+
+!ENTRY org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Overall install request is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for Equinox p2, minimal support for RCP applications 1.4.1500.v20220223-1131 (org.eclipse.equinox.p2.rcp.feature.feature.group 1.4.1500.v20220223-1131) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for C/C++ GNU Toolchain Debug Support 10.6.0.202201122357 (org.eclipse.cdt.gnu.debug.feature.group 10.6.0.202201122357) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for Equinox p2, Provisioning for IDEs. 2.4.1500.v20220223-1131 (org.eclipse.equinox.p2.user.ui.feature.group 2.4.1500.v20220223-1131) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for Git integration for Eclipse 6.1.0.202203080745-r (org.eclipse.egit.feature.group 6.1.0.202203080745-r) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for C/C++ Development Platform 10.6.0.202203091838 (org.eclipse.cdt.platform.feature.group 10.6.0.202203091838) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for C/C++ Development Tooling Native Utilities 10.6.0.202203091838 (org.eclipse.cdt.native.feature.group 10.6.0.202203091838) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for Equinox p2, headless functionalities 1.6.1300.v20220223-1131 (org.eclipse.equinox.p2.core.feature.feature.group 1.6.1300.v20220223-1131) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for Nebula XViewer Widget 1.1.0.202011020719 (org.eclipse.nebula.widgets.xviewer.feature.feature.group 1.1.0.202011020719) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for C/C++ Common GDB Support 10.6.0.202201122357 (org.eclipse.cdt.gdb.feature.group 10.6.0.202201122357) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for C/C++ DSF GDB Debugger Integration 10.6.0.202201260824 (org.eclipse.cdt.gnu.dsf.feature.group 10.6.0.202201260824) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for Espressif IDE 2.4.0 (com.espressif.idf.product 2.4.0) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for LaunchBar 10.6.0.202201122357 (org.eclipse.launchbar.feature.group 10.6.0.202201122357) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for Eclipse Help System 2.3.900.v20220308-0310 (org.eclipse.help.feature.group 2.3.900.v20220308-0310) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for Equinox p2, Discovery UI support 1.2.1100.v20220210-1157 (org.eclipse.equinox.p2.discovery.feature.feature.group 1.2.1100.v20220210-1157) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for C/C++ Development Tools 10.6.0.202203091838 (org.eclipse.cdt.feature.group 10.6.0.202203091838) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for CMake Editor 1.17.0 (com.cthing.cmakeed.feature.feature.group 1.17.0) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for Equinox p2, backward compatibility support 1.4.1500.v20220223-1131 (org.eclipse.equinox.p2.extras.feature.feature.group 1.4.1500.v20220223-1131) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for C/C++ CMake Build Support - Preview 10.6.0.202202141807 (org.eclipse.cdt.cmake.feature.group 10.6.0.202202141807) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for Espressif IDF Plugins for Eclipse 2.4.2.202203171000 (com.espressif.idf.feature.feature.group 2.4.2.202203171000) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for Eclipse Platform 4.23.0.v20220308-0722 (org.eclipse.platform.feature.group 4.23.0.v20220308-0722) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for Java implementation of Git 6.1.0.202203080745-r (org.eclipse.jgit.feature.group 6.1.0.202203080745-r) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for Eclipse RCP 4.23.0.v20220308-0722 (org.eclipse.rcp.feature.group 4.23.0.v20220308-0722) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for Eclipse SWTChart 0.12.0.202003130409 (org.eclipse.swtchart.feature.feature.group 0.12.0.202003130409) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:21.472
+!MESSAGE Add request for C/C++ GNU Toolchain Build Support 10.6.0.202201122357 (org.eclipse.cdt.gnu.build.feature.group 10.6.0.202201122357) is satisfiable
+
+!ENTRY org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Overall install request is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for Equinox p2, minimal support for RCP applications 1.4.1500.v20220223-1131 (org.eclipse.equinox.p2.rcp.feature.feature.group 1.4.1500.v20220223-1131) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for C/C++ GNU Toolchain Debug Support 10.6.0.202201122357 (org.eclipse.cdt.gnu.debug.feature.group 10.6.0.202201122357) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for Equinox p2, Provisioning for IDEs. 2.4.1500.v20220223-1131 (org.eclipse.equinox.p2.user.ui.feature.group 2.4.1500.v20220223-1131) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for Git integration for Eclipse 6.1.0.202203080745-r (org.eclipse.egit.feature.group 6.1.0.202203080745-r) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for C/C++ Development Platform 10.6.0.202203091838 (org.eclipse.cdt.platform.feature.group 10.6.0.202203091838) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for C/C++ Development Tooling Native Utilities 10.6.0.202203091838 (org.eclipse.cdt.native.feature.group 10.6.0.202203091838) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for Equinox p2, headless functionalities 1.6.1300.v20220223-1131 (org.eclipse.equinox.p2.core.feature.feature.group 1.6.1300.v20220223-1131) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for Nebula XViewer Widget 1.1.0.202011020719 (org.eclipse.nebula.widgets.xviewer.feature.feature.group 1.1.0.202011020719) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for C/C++ Common GDB Support 10.6.0.202201122357 (org.eclipse.cdt.gdb.feature.group 10.6.0.202201122357) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for C/C++ DSF GDB Debugger Integration 10.6.0.202201260824 (org.eclipse.cdt.gnu.dsf.feature.group 10.6.0.202201260824) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for Espressif IDE 2.4.0 (com.espressif.idf.product 2.4.0) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for LaunchBar 10.6.0.202201122357 (org.eclipse.launchbar.feature.group 10.6.0.202201122357) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for Eclipse Help System 2.3.900.v20220308-0310 (org.eclipse.help.feature.group 2.3.900.v20220308-0310) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for Equinox p2, Discovery UI support 1.2.1100.v20220210-1157 (org.eclipse.equinox.p2.discovery.feature.feature.group 1.2.1100.v20220210-1157) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for C/C++ Development Tools 10.6.0.202203091838 (org.eclipse.cdt.feature.group 10.6.0.202203091838) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for CMake Editor 1.17.0 (com.cthing.cmakeed.feature.feature.group 1.17.0) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for Equinox p2, backward compatibility support 1.4.1500.v20220223-1131 (org.eclipse.equinox.p2.extras.feature.feature.group 1.4.1500.v20220223-1131) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for C/C++ CMake Build Support - Preview 10.6.0.202202141807 (org.eclipse.cdt.cmake.feature.group 10.6.0.202202141807) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for Espressif IDF Plugins for Eclipse 2.4.2.202203171000 (com.espressif.idf.feature.feature.group 2.4.2.202203171000) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for Eclipse Platform 4.23.0.v20220308-0722 (org.eclipse.platform.feature.group 4.23.0.v20220308-0722) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for Java implementation of Git 6.1.0.202203080745-r (org.eclipse.jgit.feature.group 6.1.0.202203080745-r) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for Eclipse RCP 4.23.0.v20220308-0722 (org.eclipse.rcp.feature.group 4.23.0.v20220308-0722) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for Eclipse SWTChart 0.12.0.202003130409 (org.eclipse.swtchart.feature.feature.group 0.12.0.202003130409) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:28.497
+!MESSAGE Add request for C/C++ GNU Toolchain Build Support 10.6.0.202201122357 (org.eclipse.cdt.gnu.build.feature.group 10.6.0.202201122357) is satisfiable
+
+!ENTRY org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.937
+!MESSAGE Overall install request is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.937
+!MESSAGE Add request for Equinox p2, minimal support for RCP applications 1.4.1500.v20220223-1131 (org.eclipse.equinox.p2.rcp.feature.feature.group 1.4.1500.v20220223-1131) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.937
+!MESSAGE Add request for C/C++ GNU Toolchain Debug Support 10.6.0.202201122357 (org.eclipse.cdt.gnu.debug.feature.group 10.6.0.202201122357) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.937
+!MESSAGE Add request for Equinox p2, Provisioning for IDEs. 2.4.1500.v20220223-1131 (org.eclipse.equinox.p2.user.ui.feature.group 2.4.1500.v20220223-1131) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.937
+!MESSAGE Add request for Git integration for Eclipse 6.1.0.202203080745-r (org.eclipse.egit.feature.group 6.1.0.202203080745-r) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.937
+!MESSAGE Add request for C/C++ Development Platform 10.6.0.202203091838 (org.eclipse.cdt.platform.feature.group 10.6.0.202203091838) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.937
+!MESSAGE Add request for C/C++ Development Tooling Native Utilities 10.6.0.202203091838 (org.eclipse.cdt.native.feature.group 10.6.0.202203091838) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.937
+!MESSAGE Add request for Equinox p2, headless functionalities 1.6.1300.v20220223-1131 (org.eclipse.equinox.p2.core.feature.feature.group 1.6.1300.v20220223-1131) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.938
+!MESSAGE Add request for Nebula XViewer Widget 1.1.0.202011020719 (org.eclipse.nebula.widgets.xviewer.feature.feature.group 1.1.0.202011020719) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.938
+!MESSAGE Add request for C/C++ Common GDB Support 10.6.0.202201122357 (org.eclipse.cdt.gdb.feature.group 10.6.0.202201122357) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.938
+!MESSAGE Add request for C/C++ DSF GDB Debugger Integration 10.6.0.202201260824 (org.eclipse.cdt.gnu.dsf.feature.group 10.6.0.202201260824) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.938
+!MESSAGE Add request for Espressif IDE 2.4.0 (com.espressif.idf.product 2.4.0) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.938
+!MESSAGE Add request for LaunchBar 10.6.0.202201122357 (org.eclipse.launchbar.feature.group 10.6.0.202201122357) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.938
+!MESSAGE Add request for Eclipse Help System 2.3.900.v20220308-0310 (org.eclipse.help.feature.group 2.3.900.v20220308-0310) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.938
+!MESSAGE Add request for Equinox p2, Discovery UI support 1.2.1100.v20220210-1157 (org.eclipse.equinox.p2.discovery.feature.feature.group 1.2.1100.v20220210-1157) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.938
+!MESSAGE Add request for C/C++ Development Tools 10.6.0.202203091838 (org.eclipse.cdt.feature.group 10.6.0.202203091838) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.938
+!MESSAGE Add request for CMake Editor 1.17.0 (com.cthing.cmakeed.feature.feature.group 1.17.0) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.938
+!MESSAGE Add request for Equinox p2, backward compatibility support 1.4.1500.v20220223-1131 (org.eclipse.equinox.p2.extras.feature.feature.group 1.4.1500.v20220223-1131) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.938
+!MESSAGE Add request for C/C++ CMake Build Support - Preview 10.6.0.202202141807 (org.eclipse.cdt.cmake.feature.group 10.6.0.202202141807) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.938
+!MESSAGE Add request for Espressif IDF Plugins for Eclipse 2.4.2.202203171000 (com.espressif.idf.feature.feature.group 2.4.2.202203171000) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.938
+!MESSAGE Add request for Eclipse Platform 4.23.0.v20220308-0722 (org.eclipse.platform.feature.group 4.23.0.v20220308-0722) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.938
+!MESSAGE Add request for Java implementation of Git 6.1.0.202203080745-r (org.eclipse.jgit.feature.group 6.1.0.202203080745-r) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.938
+!MESSAGE Add request for Eclipse RCP 4.23.0.v20220308-0722 (org.eclipse.rcp.feature.group 4.23.0.v20220308-0722) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.938
+!MESSAGE Add request for Eclipse SWTChart 0.12.0.202003130409 (org.eclipse.swtchart.feature.feature.group 0.12.0.202003130409) is satisfiable
+!SUBENTRY 1 org.eclipse.equinox.p2.director 0 0 2022-03-25 09:36:33.938
+!MESSAGE Add request for C/C++ GNU Toolchain Build Support 10.6.0.202201122357 (org.eclipse.cdt.gnu.build.feature.group 10.6.0.202201122357) is satisfiable

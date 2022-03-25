@@ -111,28 +111,28 @@ public class NewEspressifIDFProjectTest
 		fixture.whenProjectIsBuiltUsingToolbarButton("NewProjectTest");
 		fixture.thenConsoleShowsBuildSuccessful();
 	}
-//
-//	@Test
-//	public void givenNewIDFProjectIsCreatedBuilAndCopiedAndOldProjectIsDeletedTheCopiedProjectIsBuiltSuccessfully()
-//			throws Exception
-//	{
-//		fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-//		fixture.givenProjectNameIs("NewProjectTest");
-//		fixture.whenNewProjectIsSelected();
-//		fixture.whenProjectIsBuiltUsingContextMenu();
-//		fixture.thenConsoleShowsBuildSuccessful();
-//
-//		fixture.whenProjectIsCopied("NewProjectTest", "NewProjectTest2");
-//		
-//		fixture.closeProject("NewProjectTest");
-//		fixture.deleteProject("NewProjectTest");
-//
-//		fixture.whenProjectIsBuiltUsingToolbarButton("NewProjectTest2");
-//		fixture.thenConsoleShowsBuildSuccessful();
-//		
-//		fixture.closeProject("NewProjectTest2");
-//		fixture.deleteProject("NewProjectTest2");
-//	}
+
+	@Test
+	public void givenNewIDFProjectIsCreatedBuilAndCopiedAndOldProjectIsDeletedTheCopiedProjectIsBuiltSuccessfully()
+			throws Exception
+	{
+		fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		fixture.givenProjectNameIs("NewProjectTest");
+		fixture.whenNewProjectIsSelected();
+		fixture.whenProjectIsBuiltUsingContextMenu();
+		fixture.thenConsoleShowsBuildSuccessful();
+
+		fixture.whenProjectIsCopied("NewProjectTest", "NewProjectTest2");
+		
+		fixture.closeProject("NewProjectTest");
+		fixture.deleteProject("NewProjectTest");
+
+		fixture.whenProjectIsBuiltUsingToolbarButton("NewProjectTest2");
+		fixture.thenConsoleShowsBuildSuccessful();
+		
+		fixture.closeProject("NewProjectTest2");
+		fixture.deleteProject("NewProjectTest2");
+	}
 
 	@Test
 	public void givenNewIDFProjectIsCreatedAndCopiedTheCopiedProjectIsBuiltSuccessfully() throws Exception
