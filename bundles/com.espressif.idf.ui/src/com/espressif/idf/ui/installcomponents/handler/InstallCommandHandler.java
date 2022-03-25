@@ -10,8 +10,12 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
@@ -53,26 +57,49 @@ public class InstallCommandHandler
 		{
 			return;
 		}
+		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+
+		// setting the env variable to let the cmake build know to fetch the components sources
+		idfEnvironmentVariables.addEnvVariable("IDF_COMPONENT_MANAGER", "1"); //$NON-NLS-1$ //$NON-NLS-2$
+
 		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
 
 		Path pathToProject = new Path(project.getLocation().toString());
 		List<String> commands = new ArrayList<>();
 		commands.add(IDFUtil.getIDFPythonEnvPath());
 		commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
-		commands.add(ADD_DEPENDENCY_COMMAND);
-		if (StringUtil.isEmpty(version))
-		{
-			commands.add(namespace.concat(FORWARD_SLASH).concat(name.concat(ASTERIK)));
-		}
-		else
-		{
-			commands.add(
-					namespace.concat(FORWARD_SLASH).concat(name.concat(EQUALITY).concat(version)));
-		}
 
-		new IDFConsole().getConsoleStream().print((runCommand(commands, pathToProject, envMap)));
+		Job job = new Job("Install Components Job") //$NON-NLS-1$
+		{
 
-		project.refreshLocal(IResource.DEPTH_INFINITE, null);
+			@Override
+			protected IStatus run(IProgressMonitor monitor)
+			{
+				commands.add(ADD_DEPENDENCY_COMMAND);
+				if (StringUtil.isEmpty(version))
+				{
+					commands.add(namespace.concat(FORWARD_SLASH).concat(name.concat(ASTERIK)));
+				}
+				else
+				{
+					commands.add(namespace.concat(FORWARD_SLASH).concat(name.concat(EQUALITY).concat(version)));
+				}
+
+				new IDFConsole().getConsoleStream().print(runCommand(commands, pathToProject, envMap));
+
+				try
+				{
+					project.refreshLocal(IResource.DEPTH_INFINITE, null);
+				}
+				catch (CoreException e)
+				{
+					Logger.log(e);
+				}
+				return Status.OK_STATUS;
+			}
+		};
+
+		job.schedule();
 	}
 
 	private String runCommand(List<String> arguments, Path workDir, Map<String, String> env)
