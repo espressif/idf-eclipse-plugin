@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
 import com.espressif.idf.ui.test.operations.EnvSetupOperations;
 
 /**
@@ -38,7 +39,7 @@ public class EspressifMenuTest
 				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().forceActive();
 			}
 		});
-		bot = new SWTWorkbenchBot();
+		bot = WorkBenchSWTBot.getBot();
 		bot.shell().activate();
 	}
 
@@ -52,7 +53,7 @@ public class EspressifMenuTest
 			bot.viewByTitle("Project Explorer").show();
 			bot.menu("Espressif").menu("Product Information").click();
 		}
-		catch(Exception e)
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
