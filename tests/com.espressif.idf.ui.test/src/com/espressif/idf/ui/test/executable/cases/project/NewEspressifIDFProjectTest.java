@@ -112,28 +112,6 @@ public class NewEspressifIDFProjectTest
 	}
 
 	@Test
-	public void givenNewIDFProjectIsCreatedBuilAndCopiedAndOldProjectIsDeletedTheCopiedProjectIsBuiltSuccessfully()
-			throws Exception
-	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectTest");
-		Fixture.whenNewProjectIsSelected();
-		Fixture.whenProjectIsBuiltUsingContextMenu();
-		Fixture.thenConsoleShowsBuildSuccessful();
-
-		Fixture.whenProjectIsCopied("NewProjectTest", "NewProjectTest2");
-
-		Fixture.closeProject("NewProjectTest");
-		Fixture.deleteProject("NewProjectTest");
-
-		Fixture.whenProjectIsBuiltUsingToolbarButton("NewProjectTest2");
-		Fixture.thenConsoleShowsBuildSuccessful();
-
-		Fixture.closeProject("NewProjectTest2");
-		Fixture.deleteProject("NewProjectTest2");
-	}
-
-	@Test
 	public void givenNewIDFProjectIsCreatedAndCopiedTheCopiedProjectIsBuiltSuccessfully() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
