@@ -126,22 +126,6 @@
 		   <unit id="org.eclipse.embedcdt.doc.user.feature.group" version="6.1.2.202102181132"/>
 		   <unit id="org.eclipse.embedcdt.doc.user.source.feature.group" version="6.1.2.202102181132"/>
 		   <unit id="org.eclipse.embedcdt.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.managedbuild.cross.arm.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.managedbuild.cross.arm.source.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.managedbuild.cross.riscv.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.managedbuild.cross.riscv.source.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.packs.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.packs.source.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.templates.ad.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.templates.ad.source.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.templates.cortexm.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.templates.cortexm.source.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.templates.freescale.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.templates.freescale.source.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.templates.sifive.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.templates.sifive.source.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.templates.stm.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.templates.stm.source.feature.group" version="6.1.2.202102181132"/>
 	   </location>
    </locations>
 </target>
