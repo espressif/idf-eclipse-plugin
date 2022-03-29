@@ -31,7 +31,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
-import com.espressif.idf.core.ExecutableFinder;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.ProcessBuilderFactory;
