@@ -11,11 +11,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.build.IToolChainManager;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
@@ -28,7 +31,10 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
+import com.espressif.idf.core.ExecutableFinder;
 import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.build.ESPToolChainManager;
 import com.espressif.idf.core.build.ESPToolChainProvider;
 import com.espressif.idf.core.logging.Logger;
@@ -65,6 +71,11 @@ public class InstallToolsHandler extends AbstractToolsHandler
 
 				monitor.setTaskName(Messages.InstallToolsHandler_InstallingPythonMsg);
 				handleToolsInstallPython();
+				monitor.worked(1);
+				
+
+				monitor.setTaskName("Installing websocket_client");
+				handleWebSocketClientInstall();
 				monitor.worked(1);
 
 				monitor.setTaskName(Messages.InstallToolsHandler_ExportingPathsMsg);
@@ -188,6 +199,53 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		arguments = new ArrayList<String>();
 		arguments.add(IDFConstants.TOOLS_INSTALL_PYTHON_CMD);
 		runCommand(arguments);
+	}
+	
+	protected void handleWebSocketClientInstall()
+	{
+		
+		IPath pipPath = new org.eclipse.core.runtime.Path(pythonExecutablenPath.replace("python.exe", "pip3.exe")); //$NON-NLS-1$ //$NON-NLS-2$
+		if (!pipPath.toFile().exists()) 
+		{
+			console.println("pip executable not found. Unable to run `pip install websocket-client`");
+			return;
+		}
+
+		// pip install websocket-client
+		List<String> arguments = new ArrayList<String>();
+		arguments.add(pipPath.toOSString());
+		arguments.add("install"); //$NON-NLS-1$
+		arguments.add("websocket-client"); //$NON-NLS-1$
+		
+		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
+
+		try
+		{
+			String cmdMsg = "Executing " + getCommandString(arguments); //$NON-NLS-1$
+			console.println(cmdMsg);
+			Logger.log(cmdMsg);
+
+			Map<String, String> environment = new HashMap<>(System.getenv());
+			Logger.log(environment.toString());
+
+			IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT, environment);
+			if (status == null)
+			{
+				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Unable to get the process status.", null)); //$NON-NLS-1$
+				console.println("Unable to get the process status.");
+				return;
+			}
+
+			console.println(status.getMessage());
+
+		}
+		catch (Exception e1)
+		{
+			Logger.log(IDFCorePlugin.getPlugin(), e1);
+			console.println(e1.getLocalizedMessage());
+
+		}
+		console.println();
 	}
 
 }
