@@ -202,8 +202,9 @@ public class InstallToolsHandler extends AbstractToolsHandler
 	
 	protected void handleWebSocketClientInstall()
 	{
+		IPath pipPath = new org.eclipse.core.runtime.Path(pythonExecutablenPath); //$NON-NLS-1$
+		pipPath = pipPath.removeLastSegments(1).append("pip3.exe"); //$NON-NLS-1$
 		
-		IPath pipPath = new org.eclipse.core.runtime.Path(pythonExecutablenPath.replace("python.exe", "pip3.exe")); //$NON-NLS-1$ //$NON-NLS-2$
 		if (!pipPath.toFile().exists()) 
 		{
 			console.println("pip executable not found. Unable to run `pip install websocket-client`");
