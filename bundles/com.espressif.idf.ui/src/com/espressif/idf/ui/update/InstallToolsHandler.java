@@ -203,7 +203,8 @@ public class InstallToolsHandler extends AbstractToolsHandler
 	protected void handleWebSocketClientInstall()
 	{
 		IPath pipPath = new org.eclipse.core.runtime.Path(pythonExecutablenPath); //$NON-NLS-1$
-		pipPath = pipPath.removeLastSegments(1).append("pip3.exe"); //$NON-NLS-1$
+		String pipPathLastSegment = pipPath.lastSegment().replace("python", "pip"); //$NON-NLS-1$ //$NON-NLS-2$
+		pipPath = pipPath.removeLastSegments(1).append(pipPathLastSegment); 
 		
 		if (!pipPath.toFile().exists()) 
 		{
