@@ -16,8 +16,7 @@ Automatic-Module-Name: com.espressif.idf.serial.monitor
 Bundle-ActivationPolicy: lazy
 Export-Package: com.espressif.idf.serial.monitor,
  com.espressif.idf.serial.monitor.core,
- com.espressif.idf.serial.monitor.handlers,
- com.espressif.idf.serial.monitor.server
+ com.espressif.idf.serial.monitor.handlers
 Bundle-ClassPath: .,
  lib/animal-sniffer-annotations-1.14.jar,
  lib/annotations-16.0.2.jar,

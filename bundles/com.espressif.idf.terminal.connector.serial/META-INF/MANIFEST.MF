@@ -26,3 +26,8 @@ Export-Package: com.espressif.idf.terminal.connector.serial.activator;x-internal
  com.espressif.idf.terminal.connector.serial.controls,
  com.espressif.idf.terminal.connector.serial.launcher,
  com.espressif.idf.terminal.connector.serial.nls;x-internal:=true
+Bundle-ClassPath: lib/javax.websocket-client-api-1.1.jar,
+ .,
+ lib/Java-WebSocket-1.5.2.jar,
+ lib/slf4j.api-1.6.1.jar
+

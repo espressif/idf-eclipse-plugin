@@ -2,7 +2,7 @@
  * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.serial.monitor.server;
+package com.espressif.idf.terminal.connector.serial.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -11,6 +11,7 @@ import java.util.Queue;
 import org.eclipse.core.resources.IProject;
 
 import com.espressif.idf.core.util.SDKConfigJsonReader;
+import com.espressif.idf.terminal.connector.serial.connector.SerialConnector;
 
 /**
  * Socket server handler responsible for starting and handling the socket server
@@ -21,6 +22,7 @@ import com.espressif.idf.core.util.SDKConfigJsonReader;
 public class SocketServerHandler
 {
 	private static TerminalWebSocketServer terminalWebSocketServer;
+	private SerialConnector serialConnector;
 
 	public int startServer() throws Exception
 	{

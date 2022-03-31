@@ -2,7 +2,7 @@
  * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.serial.monitor.server;
+package com.espressif.idf.terminal.connector.serial.server;
 
 import java.net.InetSocketAddress;
 import java.util.Queue;
@@ -22,14 +22,12 @@ import com.espressif.idf.core.logging.Logger;
  */
 public class TerminalWebSocketServer extends WebSocketServer
 {
-	private int port;
 	private Queue<String> messagesReceivedQueue;
 
 	public TerminalWebSocketServer(int port)
 	{
 		super(new InetSocketAddress(port));
-		this.port = port;
-		messagesReceivedQueue = new ConcurrentLinkedQueue();
+		messagesReceivedQueue = new ConcurrentLinkedQueue<String>();
 	}
 
 	@Override

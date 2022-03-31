@@ -1,11 +1,14 @@
 package com.espressif.idf.terminal.connector.serial.connector;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
@@ -14,11 +17,12 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
 
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.SDKConfigJsonReader;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.serial.monitor.handlers.SerialMonitorHandler;
-import com.espressif.idf.serial.monitor.server.SocketServerHandler;
 import com.espressif.idf.terminal.connector.serial.activator.Activator;
 import com.espressif.idf.terminal.connector.serial.launcher.GDBStubDebuggerLauncher;
+import com.espressif.idf.terminal.connector.serial.server.SocketServerHandler;
 
 public class SerialPortHandler
 {
@@ -119,7 +123,7 @@ public class SerialPortHandler
 		}
 	}
 
-	private void startSocketServerThread()
+	private int startSocketServerThread()
 	{
 		socketServerHandler = new SocketServerHandler();
 		CountDownLatch latch = new CountDownLatch(1);
@@ -163,6 +167,8 @@ public class SerialPortHandler
 		{
 			Logger.log(e);
 		}
+
+		return SocketServerHandler.getServerPort();
 	}
 
 	public synchronized void open()
@@ -170,23 +176,21 @@ public class SerialPortHandler
 
 		// set state
 		serialConnector.control.setState(TerminalState.CONNECTING);
-		boolean withSocketServer = false;
-		if (SocketServerHandler.needSocketServer(project))
-		{
-			startSocketServerThread();
-			withSocketServer = true;
-		}
+		int serverPort = startSocketServerThread();
 		// Hook IDF Monitor with the CDT serial monitor
 		SerialMonitorHandler serialMonitorHandler = new SerialMonitorHandler(serialConnector.project, portName,
-				serialConnector.filterOptions);
-
-		process = serialMonitorHandler.invokeIDFMonitor(withSocketServer);
+				serialConnector.filterOptions, serverPort);
+		SDKConfigJsonReader sdkConfigJsonReader = new SDKConfigJsonReader(serialConnector.project);
+		process = serialMonitorHandler.invokeIDFMonitor();
 		serialConnector.process = process;
 		thread = new Thread()
 		{
 			@Override
 			public void run()
 			{
+				boolean coreDumpStartFound = false;
+				boolean coreDumpEndFound = false;
+				List<String> coreDumpLines = new ArrayList<>();
 				InputStream targetIn = process.getInputStream();
 				byte[] buff = new byte[256];
 				int n;
@@ -196,9 +200,40 @@ public class SerialPortHandler
 					{
 						if (n != 0)
 						{
+							ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+							byteArrayOutputStream.write(buff, 0, n);
+
+							// Implement logic for reading from terminal
+							if (!sdkConfigJsonReader.getValue("ESP_COREDUMP_ENABLE_TO_NONE").equalsIgnoreCase("true")
+									&& sdkConfigJsonReader.getValue("ESP_COREDUMP_ENABLE_TO_UART")
+											.equalsIgnoreCase("true"))
+							{
+								if (!coreDumpStartFound)
+								{
+									if (byteArrayOutputStream.toString()
+											.contains("================= CORE DUMP START ================="))
+									{
+										coreDumpStartFound = true;
+									}
+								}
+								else
+								{
+									if (byteArrayOutputStream.toString()
+											.contains("================= CORE DUMP END ================="))
+									{
+										coreDumpEndFound = true;
+									}
+									if (!coreDumpEndFound)
+									{
+										coreDumpLines.add(byteArrayOutputStream.toString());
+									}
+								}
+
+							}
 							serialConnector.control.getRemoteToTerminalOutputStream().write(buff, 0, n);
 						}
 					}
+
 					serialConnector.disconnect();
 				}
 				catch (IOException e)
