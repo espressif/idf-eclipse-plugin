@@ -440,7 +440,15 @@ public class IDFUtil
 				+ IDFConstants.ESP_TOOL_SCRIPT;
 		return new File(esp_tool_script);
 	}
-
+	
+	public static File getEspCoreDumpScriptFile()
+	{
+		String idf_path = getIDFPath();
+		String esp_tool_script = idf_path + IPath.SEPARATOR + IDFConstants.COMPONENTS_FOLDER + IPath.SEPARATOR
+				+ IDFConstants.ESP_CORE_DUMP_FOLDER + IPath.SEPARATOR + IDFConstants.ESP_CORE_DUMP_SCRIPT;
+		return new File(esp_tool_script);
+	}
+	
 	public static String getEspIdfVersion()
 	{
 		if (IDFUtil.getIDFPath() != null && IDFUtil.getIDFPythonEnvPath() != null)
