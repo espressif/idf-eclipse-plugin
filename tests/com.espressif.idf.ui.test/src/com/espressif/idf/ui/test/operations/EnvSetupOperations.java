@@ -25,8 +25,28 @@ public class EnvSetupOperations
 		bot.menu("Window").menu("Perspective").menu("Open Perspective").menu("Other...").click();
 		bot.table().select("C/C++");
 		bot.button("Open").click();
+
+		bot.menu("Window").menu("Preferences").click();
+		bot.tree().getTreeItem("General").select();
+		bot.tree().getTreeItem("General").expand();
+		bot.tree().getTreeItem("General").getNode("Editors").select();
+		bot.tree().getTreeItem("General").getNode("Editors").expand();
+		bot.tree().getTreeItem("General").getNode("Editors").getNode("File Associations").select();
+		bot.comboBox().setSelection("Text Editor");
+		bot.button("Apply and Close").click();
+
+		bot.toolbarButtonWithTooltip("Select and deselect filters to apply to the content in the tree").click();
+		bot.table().getTableItem(".* resources").uncheck();
+		bot.button("OK").click();
+
+		bot.menu("Window").menu("Show View").menu("Other...").click();
+		bot.text().setText("progress");
+		bot.button("Open").click();
+		bot.viewByTitle("Progress").show();
 		
-		bot.menu("Espressif").menu("ESP-IDF Tools Manager").menu("Install Tools").click();
+		TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+
+		bot.menu("Espressif").menu("ESP-IDF Tools Manager").click().menu("Install Tools").click();
 		bot.textWithLabel("ESP-IDF Directory:")
 				.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
 		bot.textWithLabel("Git Executable Location:")
@@ -38,13 +58,13 @@ public class EnvSetupOperations
 		catch (WidgetNotFoundException e)
 		{
 			bot.textWithLabel("Python Executable Location:")
-			.setText(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_PATH_PROPERTY, ""));
+					.setText(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_PATH_PROPERTY, ""));
 		}
 		bot.button("Install Tools").click();
 		SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
 		consoleView.show();
 		consoleView.setFocus();
-		TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 60000);
+		TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 6000000);
 	}
 
 }

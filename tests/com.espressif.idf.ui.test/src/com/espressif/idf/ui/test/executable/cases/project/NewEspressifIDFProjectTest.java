@@ -18,13 +18,17 @@ import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.junit.After;
-import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 
+import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
 import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
 import com.espressif.idf.ui.test.common.resources.DefaultFileContentsReader;
 import com.espressif.idf.ui.test.common.utility.TestAssertUtility;
+import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 import com.espressif.idf.ui.test.operations.EnvSetupOperations;
 import com.espressif.idf.ui.test.operations.ProjectTestOperations;
 import com.espressif.idf.ui.test.operations.SWTBotTreeOperations;
@@ -36,216 +40,200 @@ import com.espressif.idf.ui.test.operations.SWTBotTreeOperations;
  *
  */
 @RunWith(SWTBotJunit4ClassRunner.class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class NewEspressifIDFProjectTest
 {
-	private Fixture fixture;
-
-	@Before
-	public void beforeEachTest() throws Exception
+	@BeforeClass
+	public static void beforeEachTest() throws Exception
 	{
-		fixture = new Fixture();
+		Fixture.loadEnv();
 	}
 
 	@After
 	public void afterEachTest()
 	{
-		fixture.cleanTestEnv();
+		Fixture.cleanTestEnv();
 	}
 
 	@Test
 	public void givenNewIDFProjectIsSelectedThenProjectIsCreatedAndAddedToProjectExplorer() throws Exception
 	{
-		fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		fixture.givenProjectNameIs("NewProjectTest");
-		fixture.whenNewProjectIsSelected();
-		fixture.thenProjectIsAddedToProjectExplorer();
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.thenProjectIsAddedToProjectExplorer();
 	}
 
 	@Test
 	public void givenNewIDFProjectIsSelectedFromTemplateThenProjectIsCreatedAndAddedToProjectExplorerWithRequiredFiles()
 			throws Exception
 	{
-		fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		fixture.givenProjectNameIs("NewProjectTestTemplate");
-		fixture.givenProjectTemplateIs("bluetooth/esp_hid_device");
-		fixture.whenProjectIsCreatedFromTemplate();
-		fixture.thenProjectIsAddedToProjectExplorer();
-		fixture.thenProjectHasTheFile("esp_hid_device_main.c", "/main");
-		fixture.thenProjectHasTheFile("esp_hid_gap.c", "/main");
-		fixture.thenProjectHasTheFile("esp_hid_gap.h", "/main");
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectTestTemplate");
+		Fixture.givenProjectTemplateIs("bluetooth/esp_hid_device");
+		Fixture.whenProjectIsCreatedFromTemplate();
+		Fixture.thenProjectIsAddedToProjectExplorer();
+		Fixture.thenProjectHasTheFile("esp_hid_device_main.c", "/main");
+		Fixture.thenProjectHasTheFile("esp_hid_gap.c", "/main");
+		Fixture.thenProjectHasTheFile("esp_hid_gap.h", "/main");
 	}
 
 	@Test
 	public void givenNewProjectIsSelectedTheProjectHasTheRequiredFiles() throws Exception
 	{
-		fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		fixture.givenProjectNameIs("NewProjectTest");
-		fixture.whenNewProjectIsSelected();
-		fixture.thenProjectHasTheFile("CMakeLists.txt", "/main");
-		fixture.thenFileContentsMatchDefaultFile("/main", "CMakeLists.txt");
-		fixture.thenProjectHasTheFile(".project", null);
-		fixture.thenFileContentsMatchDefaultFile(null, ".project");
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.thenProjectHasTheFile("CMakeLists.txt", "/main");
+		Fixture.thenFileContentsMatchDefaultFile("/main", "CMakeLists.txt");
+		Fixture.thenProjectHasTheFile(".project", null);
+		Fixture.thenFileContentsMatchDefaultFile(null, ".project");
 	}
 
 	@Test
 	public void givenNewIDFProjectIsCreatedAndBuiltUsingContextMenuOnProjectThenProjectIsCreatedAndBuilt()
 			throws Exception
 	{
-		fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		fixture.givenProjectNameIs("NewProjectTest");
-		fixture.whenNewProjectIsSelected();
-		fixture.whenProjectIsBuiltUsingContextMenu();
-		fixture.thenConsoleShowsBuildSuccessful();
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.thenConsoleShowsBuildSuccessful();
 	}
 
 	@Test
 	public void givenNewIDFProjectIsCreatedAndBuiltUsingToolbarButtonThenProjectIsBuilt() throws Exception
 	{
-		fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		fixture.givenProjectNameIs("NewProjectTest");
-		fixture.whenNewProjectIsSelected();
-		fixture.whenProjectIsBuiltUsingToolbarButton("NewProjectTest");
-		fixture.thenConsoleShowsBuildSuccessful();
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingToolbarButton("NewProjectTest");
+		Fixture.thenConsoleShowsBuildSuccessful();
 	}
 
-	@Test
-	public void givenNewIDFProjectIsCreatedBuilAndCopiedAndOldProjectIsDeletedTheCopiedProjectIsBuiltSuccessfully() throws Exception
-	{
-		fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		fixture.givenProjectNameIs("NewProjectTest");
-		fixture.whenNewProjectIsSelected();
-		fixture.whenProjectIsBuiltUsingContextMenu();
-		fixture.thenConsoleShowsBuildSuccessful();
-		
-		fixture.whenProjectIsCopied("NewProjectTest", "NewProjectTest2");
-		fixture.closeProject("NewProjectTest");
-		fixture.deleteProject("NewProjectTest");
-		
-		fixture.whenProjectIsBuiltUsingToolbarButton("NewProjectTest2");
-		fixture.thenConsoleShowsBuildSuccessful();
-		fixture.closeProject("NewProjectTest2");
-		fixture.deleteProject("NewProjectTest2");
-	}
-	
 	@Test
 	public void givenNewIDFProjectIsCreatedAndCopiedTheCopiedProjectIsBuiltSuccessfully() throws Exception
 	{
-		fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		fixture.givenProjectNameIs("NewProjectTest");
-		fixture.whenNewProjectIsSelected();
-		fixture.whenProjectIsCopied("NewProjectTest", "NewProjectTest2");
-		fixture.whenProjectIsBuiltUsingToolbarButton("NewProjectTest2");
-		fixture.thenConsoleShowsBuildSuccessful();
-		fixture.closeProject("NewProjectTest2");
-		fixture.deleteProject("NewProjectTest2");
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsCopied("NewProjectTest", "NewProjectTest2");
+		Fixture.whenProjectIsBuiltUsingToolbarButton("NewProjectTest2");
+		Fixture.thenConsoleShowsBuildSuccessful();
+		Fixture.closeProject("NewProjectTest2");
+		Fixture.deleteProject("NewProjectTest2");
 	}
-	
+
 	@Test
 	public void givenNewProjectCreatedAndRenamedAfterThenProjectIsBuildSuccessfully() throws Exception
 	{
-		fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		fixture.givenProjectNameIs("NewProjectTest");
-		fixture.whenNewProjectIsSelected();
-		fixture.whenProjectIsRenamed("NewProjectTest2");
-		fixture.whenProjectIsBuiltUsingContextMenu();
-		fixture.thenConsoleShowsBuildSuccessful();
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsRenamed("NewProjectTest2");
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.thenConsoleShowsBuildSuccessful();
 	}
-	
+
 	@Test
 	public void givenNewProjectCreatedBuiltAndThenRenamedThenProjectIsBuildSuccessfully() throws Exception
 	{
-		fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		fixture.givenProjectNameIs("NewProjectTest");
-		fixture.whenNewProjectIsSelected();
-		fixture.whenProjectIsBuiltUsingContextMenu();
-		fixture.whenProjectIsRenamed("NewProjectTest2");
-		fixture.whenProjectIsBuiltUsingContextMenu();
-		fixture.thenConsoleShowsBuildSuccessful();
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+
+		Fixture.whenProjectIsRenamed("NewProjectTest2");
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.thenConsoleShowsBuildSuccessful();
 	}
 
-	private class Fixture
+	private static class Fixture
 	{
-		private SWTWorkbenchBot bot;
-		private String category;
-		private String subCategory;
-		private String projectName;
-		private String projectTemplate;
+		private static SWTWorkbenchBot bot;
+		private static String category;
+		private static String subCategory;
+		private static String projectName;
+		private static String projectTemplate;
 
-		private Fixture() throws Exception
+		private static void loadEnv() throws Exception
 		{
-			bot = new SWTWorkbenchBot();
+			bot = WorkBenchSWTBot.getBot();
 			EnvSetupOperations.setupEspressifEnv(bot);
 			bot.sleep(1000);
 		}
 
-		private void givenNewEspressifIDFProjectIsSelected(String category, String subCategory)
+		private static void givenNewEspressifIDFProjectIsSelected(String category, String subCategory)
 		{
-			this.category = category;
-			this.subCategory = subCategory;
+			Fixture.category = category;
+			Fixture.subCategory = subCategory;
 		}
 
-		private void givenProjectNameIs(String projectName)
+		private static void givenProjectNameIs(String projectName)
 		{
-			this.projectName = projectName;
+			Fixture.projectName = projectName;
 		}
 
-		private void givenProjectTemplateIs(String projectTemplate)
+		private static void givenProjectTemplateIs(String projectTemplate)
 		{
-			this.projectTemplate = projectTemplate;
+			Fixture.projectTemplate = projectTemplate;
 		}
-		
-		public void whenProjectIsRenamed(String newProjectName)
+
+		public static void whenProjectIsRenamed(String newProjectName)
 		{
 			ProjectTestOperations.renameProject(projectName, newProjectName, bot);
-			this.projectName = newProjectName;
+			projectName = newProjectName;
 		}
 
-		private void whenProjectIsCreatedFromTemplate()
+		private static void whenProjectIsCreatedFromTemplate()
 		{
 			ProjectTestOperations.setupProjectFromTemplate(projectName, category, subCategory, projectTemplate, bot);
 		}
 
-		private void whenNewProjectIsSelected() throws Exception
+		private static void whenNewProjectIsSelected() throws Exception
 		{
 			ProjectTestOperations.setupProject(projectName, category, subCategory, bot);
 		}
 
-		private void whenProjectIsCopied(String projectName, String projectCopyName) throws IOException
+		private static void whenProjectIsCopied(String projectName, String projectCopyName) throws IOException
 		{
 			ProjectTestOperations.copyProjectToExistingWorkspace(projectName, projectCopyName, bot,
 					DefaultPropertyFetcher.getLongPropertyValue("default.project.copy.wait", 60000));
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 		}
 
-		private void whenProjectIsBuiltUsingContextMenu() throws IOException
+		private static void whenProjectIsBuiltUsingContextMenu() throws IOException
 		{
 			ProjectTestOperations.buildProjectUsingContextMenu(projectName, bot);
 			ProjectTestOperations.waitForProjectBuild(bot);
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 		}
 
-		private void whenProjectIsBuiltUsingToolbarButton(String projectName) throws IOException
+		private static void whenProjectIsBuiltUsingToolbarButton(String projectName) throws IOException
 		{
 			SWTBotView projectExplorView = bot.viewByTitle("Project Explorer");
 			projectExplorView.show();
 			projectExplorView.bot().tree().getTreeItem(projectName).select();
 			bot.toolbarButtonWithTooltip("Build").click();
 			ProjectTestOperations.waitForProjectBuild(bot);
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 		}
 
-		private void thenProjectIsAddedToProjectExplorer()
+		private static void thenProjectIsAddedToProjectExplorer()
 		{
 			bot.viewByTitle("Project Explorer").show();
 			bot.viewByTitle("Project Explorer").setFocus();
 			bot.viewByTitle("Project Explorer").bot().tree().expandNode(projectName).select();
 		}
 
-		private void thenProjectHasTheFile(String fileName, String path)
+		private static void thenProjectHasTheFile(String fileName, String path)
 		{
 			bot.viewByTitle("Project Explorer");
 			String pathToPass = StringUtils.isNotEmpty(path) ? projectName.concat(path) : projectName;
 			assertTrue(TestAssertUtility.treeContainsItem(fileName, pathToPass, bot.tree()));
 		}
 
-		private void thenFileContentsMatchDefaultFile(String path, String fileName)
+		private static void thenFileContentsMatchDefaultFile(String path, String fileName)
 		{
 			bot.viewByTitle("Project Explorer").show();
 			String pathToPass = StringUtils.isNotEmpty(path) ? projectName.concat(path) : projectName;
@@ -268,32 +256,35 @@ public class NewEspressifIDFProjectTest
 			}
 		}
 
-		private void thenConsoleShowsBuildSuccessful()
+		private static void thenConsoleShowsBuildSuccessful()
 		{
-			SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
+			SWTBotView consoleView = ProjectTestOperations.viewConsole("CDT Build Console", bot);
 			consoleView.show();
 			consoleView.setFocus();
 			String consoleTextString = consoleView.bot().styledText().getText();
 			assertTrue(consoleTextString.contains("Build complete (0 errors"));
 		}
 
-		private void closeProject(String projectName)
+		private static void closeProject(String projectName)
 		{
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 			ProjectTestOperations.closeProject(projectName, bot);
 		}
 
-		private void deleteProject(String projectName)
+		private static void deleteProject(String projectName)
 		{
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 			ProjectTestOperations.deleteProject(projectName, bot);
 		}
 
-		private void cleanTestEnv()
+		private static void cleanTestEnv()
 		{
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 			ProjectTestOperations.closeAllProjects(bot);
 			ProjectTestOperations.deleteAllProjects(bot);
 		}
 
-		private void switchEditorToSourceIfPresent(SWTBotEditor editor)
+		private static void switchEditorToSourceIfPresent(SWTBotEditor editor)
 		{
 			try
 			{

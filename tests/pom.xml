@@ -17,8 +17,51 @@
 
 	<modules>
 		<module>com.espressif.idf.core.test</module>
-		<!-- <module>com.espressif.idf.ui.test</module> -->
+		<module>com.espressif.idf.ui.test</module>
 	</modules>
+	<build>
+	<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<useUIHarness>true</useUIHarness>
+					<useUIThread>false</useUIThread>
+					<application>org.eclipse.ui.ide.workbench</application>
+					<argLine>-Xms2048m -Xmx4096m</argLine>  
+					<skipTests>false</skipTests>
+					<showEclipseLog>true</showEclipseLog>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<configuration>
+					<dependency-resolution>
+						<extraRequirements>
+							<requirement>
+								<type>eclipse-feature</type>
+								<id>com.espressif.idf.feature</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+						</extraRequirements>
+					</dependency-resolution>
+				</configuration>
+			</plugin>
+		</plugins>
+		<resources>
+			<resource>
+				<directory>resources</directory>
+			</resource>
+			<resource>
+				<directory>resources/default-files</directory>
+			</resource>
+			<resource>
+				<directory>configs</directory>
+			</resource>
+		</resources>
+	</build>
 	
 	<profiles>
 		<profile>
@@ -35,4 +78,5 @@
 		</profile>
 		
 	</profiles>
+	
 </project>

@@ -41,6 +41,11 @@ public class LaunchBarTargetSelector extends AbstractSWTBotControl<CSelector>
 	{
 		this(bot.widget(WidgetMatcherFactory.withTooltip("Launch Target: OK")));
 	}
+	
+	public LaunchBarTargetSelector(SWTBot bot, boolean exec)
+	{
+		this(bot.widget(WidgetMatcherFactory.widgetOfType(TargetSelector.class)));	
+	}
 
 	public SWTBot bot()
 	{
