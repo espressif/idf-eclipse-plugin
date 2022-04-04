@@ -134,6 +134,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		}
 		String arguments = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS,
 				espFlashCommand);
+		arguments = arguments.replace(ESPFlashUtil.SERIAL_PORT, serialPort);
 		if (!arguments.isEmpty()) {
 			commands.addAll(Arrays.asList(varManager.performStringSubstitution(arguments).split(" "))); //$NON-NLS-1$
 		}
