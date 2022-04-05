@@ -72,8 +72,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				handleToolsInstallPython();
 				monitor.worked(1);
 				
-
-				monitor.setTaskName("Installing websocket_client");
+				monitor.setTaskName(Messages.InstallToolsHandler_InstallingWebscoketMsg);
 				handleWebSocketClientInstall();
 				monitor.worked(1);
 
@@ -92,7 +91,6 @@ public class InstallToolsHandler extends AbstractToolsHandler
 
 				return Status.OK_STATUS;
 			}
-
 		};
 		Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 		scopedPreferenceStore.putBoolean(INSTALL_TOOLS_FLAG, true);
@@ -105,7 +103,6 @@ public class InstallToolsHandler extends AbstractToolsHandler
 			Logger.log(e);
 		}
 		installToolsJob.schedule();
-
 	}
 
 	private void copyOpenOcdRules()
@@ -205,10 +202,9 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		IPath pipPath = new org.eclipse.core.runtime.Path(pythonExecutablenPath); //$NON-NLS-1$
 		String pipPathLastSegment = pipPath.lastSegment().replace("python", "pip"); //$NON-NLS-1$ //$NON-NLS-2$
 		pipPath = pipPath.removeLastSegments(1).append(pipPathLastSegment); 
-		
 		if (!pipPath.toFile().exists()) 
 		{
-			console.println("pip executable not found. Unable to run `pip install websocket-client`");
+			console.println(String.format("%s executable not found. Unable to run `%s install websocket-client`", pipPathLastSegment, pipPathLastSegment)); //$NON-NLS-1$
 			return;
 		}
 
