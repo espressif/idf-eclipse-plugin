@@ -5,6 +5,7 @@
 package com.espressif.idf.ui;
 
 import java.io.File;
+import java.util.Map;
 
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.core.resources.IProject;
@@ -16,15 +17,24 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.ui.ILaunchConfigurationTabGroup;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.launchbar.core.ILaunchBarListener;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.ILaunchDescriptor;
+import org.eclipse.launchbar.core.internal.Activator;
+import org.eclipse.launchbar.core.internal.ExecutableExtension;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
+import org.eclipse.launchbar.ui.ILaunchBarUIManager;
+import org.eclipse.launchbar.ui.internal.LaunchBarLaunchConfigDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 
+import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.SDKConfigJsonReader;
 import com.espressif.idf.core.util.StringUtil;
@@ -60,6 +70,7 @@ public class LaunchBarListener implements ILaunchBarListener
 			if (activeConfig == null) {
 				return;
 			}
+			
 			String projectName = activeConfig.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
 			if (projectName.isEmpty())
 			{
@@ -85,6 +96,19 @@ public class LaunchBarListener implements ILaunchBarListener
 						// get current target
 						String currentTarget = new SDKConfigJsonReader((IProject) project).getValue("IDF_TARGET"); //$NON-NLS-1$
 
+						if(activeConfig.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, false)) 
+						{
+							String targetForJtagFlash = activeConfig.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, ""); //$NON-NLS-1$
+							if (!newTarget.equals(targetForJtagFlash)) 
+							{
+								boolean isYes = MessageDialog.openQuestion(EclipseUtil.getShell(), "stest", "selected target don't match the target for jtag flash");
+								if (isYes) {
+									ILaunchBarUIManager uiManager = Activator.getService(ILaunchBarUIManager.class);
+									uiManager.openConfigurationEditor(launchBarManager.getActiveLaunchDescriptor());
+								}
+							}
+						}
+						
 						// If both are not same
 						if (currentTarget != null && !newTarget.equals(currentTarget))
 						{
