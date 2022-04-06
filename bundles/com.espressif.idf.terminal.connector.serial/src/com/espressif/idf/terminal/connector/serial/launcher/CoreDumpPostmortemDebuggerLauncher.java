@@ -102,12 +102,17 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 		commands.add(IDFUtil.getEspCoreDumpScriptFile().getAbsolutePath());
 		commands.add("dbg_corefile"); //$NON-NLS-1$
 		commands.add("-t"); //$NON-NLS-1$
-		commands.add(encoding);
+
+		// Currently since we are only able to cater the UART based coredump via the
+		// websocket event we are passing the encoding as b64 this will need to be
+		// changed when the coredump events for the flash based core dump are also given
+		commands.add("b64"); //$NON-NLS-1$
+
+		commands.add("-c"); //$NON-NLS-1$
+		commands.add(extractedFilePath);
 		commands.add("-s"); //$NON-NLS-1$
 		commands.add(project.getLocation().toOSString().concat(String.valueOf(IPath.SEPARATOR))
 				.concat(GENERATED_CORE_ELF_NAME));
-		commands.add("-c"); //$NON-NLS-1$
-		commands.add(extractedFilePath);
 		commands.add(elfFilePath);
 
 		executeCommands(commands);
@@ -118,7 +123,9 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 	{
 		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
 		Path pathToProject = new Path(project.getLocation().toString());
-		new IDFConsole().getConsoleStream().print((runCommand(commands, pathToProject, envMap)));
+		IDFConsole idfConsole = new IDFConsole();
+		idfConsole.getConsoleStream().print((runCommand(commands, pathToProject, envMap)));
+		idfConsole.getConsoleStream().println("Ignore the message for gdb errror"); //$NON-NLS-1$
 		project.refreshLocal(IResource.DEPTH_INFINITE, null);
 	}
 
