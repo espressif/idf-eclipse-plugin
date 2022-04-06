@@ -125,7 +125,6 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 		Path pathToProject = new Path(project.getLocation().toString());
 		IDFConsole idfConsole = new IDFConsole();
 		idfConsole.getConsoleStream().print((runCommand(commands, pathToProject, envMap)));
-		idfConsole.getConsoleStream().println("Ignore the message for gdb errror"); //$NON-NLS-1$
 		project.refreshLocal(IResource.DEPTH_INFINITE, null);
 	}
 
