@@ -288,8 +288,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 									.getWorkingCopy();
 							wc.setAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, selectedItem);
 							wc.doSave();
-							System.out.print(wc.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, ""));
-
 						} catch (CoreException e2) {
 							// TODO Auto-generated catch block
 							e2.printStackTrace();
