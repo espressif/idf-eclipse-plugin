@@ -9,6 +9,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -40,6 +41,12 @@ public class UIPlugin extends AbstractUIPlugin {
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);
+	}
+	
+	public static <T> T getService(Class<T> service) {
+		BundleContext context = plugin.getBundle().getBundleContext();
+		ServiceReference<T> ref = context.getServiceReference(service);
+		return ref != null ? context.getService(ref) : null;
 	}
 
 	/**
