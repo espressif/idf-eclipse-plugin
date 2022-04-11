@@ -10,6 +10,5 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="lib/Java-WebSocket-1.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/javax.websocket-client-api-1.1.jar"/>
-	<classpathentry kind="lib" path="lib/slf4j.api-1.6.1.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

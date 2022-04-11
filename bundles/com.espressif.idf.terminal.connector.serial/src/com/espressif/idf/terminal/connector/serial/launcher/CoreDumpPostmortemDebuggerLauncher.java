@@ -27,7 +27,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.internal.core.LaunchConfiguration;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -58,11 +57,13 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 	private String messageReceived;
 	private String elfFilePath;
 	private String extractedFilePath;
+	private IDFConsole idfConsole;
 
 	public CoreDumpPostmortemDebuggerLauncher(String messageReceived, IProject project)
 	{
 		this.messageReceived = messageReceived;
 		this.project = project;
+		idfConsole = new IDFConsole();
 	}
 
 	@Override
@@ -123,7 +124,6 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 	{
 		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
 		Path pathToProject = new Path(project.getLocation().toString());
-		IDFConsole idfConsole = new IDFConsole();
 		idfConsole.getConsoleStream().print((runCommand(commands, pathToProject, envMap)));
 		project.refreshLocal(IResource.DEPTH_INFINITE, null);
 	}
@@ -137,8 +137,9 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 			IStatus status = processRunner.runInBackground(arguments, workDir, env);
 			if (status == null)
 			{
-				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
-				return IDFCorePlugin.errorStatus("Status can't be null", null).toString(); //$NON-NLS-1$
+				IStatus errorStatus = IDFCorePlugin.errorStatus("Status can't be null", null); //$NON-NLS-1$
+				Logger.log(IDFCorePlugin.getPlugin(), errorStatus);
+				return errorStatus.toString();
 			}
 
 			// process export command output
@@ -152,13 +153,21 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 		return exportCmdOp;
 	}
 
-	private void parseMessageReceived() throws ParseException
+	private void parseMessageReceived() throws Exception
 	{
 		JSONParser parser = new JSONParser();
 		Object obj = parser.parse(messageReceived);
 		JSONObject jsonObject = (JSONObject) obj;
 
 		extractedFilePath = jsonObject.get("file").toString(); //$NON-NLS-1$
+		File file = new File(extractedFilePath);
+		if (!file.exists())
+		{
+			String errorMessage = "File not found: ".concat(extractedFilePath); //$NON-NLS-1$
+			Logger.logError(errorMessage);
+			idfConsole.getConsoleStream().print(errorMessage);
+			throw new Exception(errorMessage);
+		}
 		elfFilePath = jsonObject.get("prog").toString(); //$NON-NLS-1$
 	}
 
