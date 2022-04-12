@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?pde version="3.8"?>
-<target name="com.espressif.idf.target" sequenceNumber="25">
+<target includeMode="feature" name="com.espressif.idf.target" sequenceNumber="25">
    <locations>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="http://download.eclipse.org/eclipse/updates/latest"/>
@@ -111,21 +111,14 @@
 	   </location>
 	   <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 		   <repository location="https://download.eclipse.org/embed-cdt/releases/6.1.2/p2/"/>
-		   <unit id="org.eclipse.embedcdt.codered.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.codered.source.feature.group" version="6.1.2.202102181132"/>
 		   <unit id="org.eclipse.embedcdt.debug.gdbjtag.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.debug.gdbjtag.jlink.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.debug.gdbjtag.jlink.source.feature.group" version="6.1.2.202102181132"/>
 		   <unit id="org.eclipse.embedcdt.debug.gdbjtag.openocd.feature.group" version="6.1.2.202102181132"/>
 		   <unit id="org.eclipse.embedcdt.debug.gdbjtag.openocd.source.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.debug.gdbjtag.pyocd.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.debug.gdbjtag.pyocd.source.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.debug.gdbjtag.qemu.feature.group" version="6.1.2.202102181132"/>
-		   <unit id="org.eclipse.embedcdt.debug.gdbjtag.qemu.source.feature.group" version="6.1.2.202102181132"/>
 		   <unit id="org.eclipse.embedcdt.debug.gdbjtag.source.feature.group" version="6.1.2.202102181132"/>
 		   <unit id="org.eclipse.embedcdt.doc.user.feature.group" version="6.1.2.202102181132"/>
 		   <unit id="org.eclipse.embedcdt.doc.user.source.feature.group" version="6.1.2.202102181132"/>
 		   <unit id="org.eclipse.embedcdt.feature.group" version="6.1.2.202102181132"/>
+		   <unit id="org.eclipse.embedcdt.packs.source.feature.group" version="6.1.2.202102181132"/>
 	   </location>
    </locations>
 </target>
