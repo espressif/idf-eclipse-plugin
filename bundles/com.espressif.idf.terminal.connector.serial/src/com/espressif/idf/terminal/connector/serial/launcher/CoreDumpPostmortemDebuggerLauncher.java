@@ -5,6 +5,9 @@
 package com.espressif.idf.terminal.connector.serial.launcher;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +56,7 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 	private static final String GENERATED_CORE_ELF_NAME = "core.elf"; //$NON-NLS-1$
 	private static final String ESP_COREDUMP_DATA_FORMAT_BIN_CONFIG_KEY = "ESP_COREDUMP_DATA_FORMAT_BIN"; //$NON-NLS-1$
 	private static final String ESP_COREDUMP_DATA_FORMAT_ELF_CONFIG_KEY = "ESP_COREDUMP_DATA_FORMAT_ELF"; //$NON-NLS-1$
+	private static final String GENERATED_CORE_DUMP_NAME = "core.dump"; //$NON-NLS-1$
 	private IProject project;
 	private String messageReceived;
 	private String elfFilePath;
@@ -168,6 +172,13 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 			idfConsole.getConsoleStream().print(errorMessage);
 			throw new Exception(errorMessage);
 		}
+
+		java.nio.file.Path destinationPath = Paths.get(project.getLocation().toOSString()
+				.concat(String.valueOf(IPath.SEPARATOR)).concat(GENERATED_CORE_DUMP_NAME));
+
+		Files.copy(Paths.get(extractedFilePath), destinationPath, StandardCopyOption.REPLACE_EXISTING);
+
+		extractedFilePath = destinationPath.toString();
 		elfFilePath = jsonObject.get("prog").toString(); //$NON-NLS-1$
 	}
 

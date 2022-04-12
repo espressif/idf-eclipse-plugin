@@ -48,9 +48,9 @@ public class SocketServerMessageHandler
 
 		if (iSerialWebSocketEventLauncher != null)
 		{
+			iSerialWebSocketEventLauncher.launchDebugSession();
 			serialConnector.disconnect();
 			SocketServerHandler.getInstance().broadcastMessageToClients("{\"event\" : \"debug_finished\"}"); //$NON-NLS-1$
-			iSerialWebSocketEventLauncher.launchDebugSession();
 		}
 		else
 		{
