@@ -76,6 +76,7 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 		parseMessageReceived();
 		parseExtractedFileFromPythonScript();
 		createXMLConfig();
+		project.refreshLocal(IResource.DEPTH_INFINITE, null);
 		CoreDumpPostMortemLaunchConfig coreDumpPostMortemLaunchConfig = new CoreDumpPostMortemLaunchConfig(
 				project.getFile(CORE_DUMP_POSTMORTEM_LAUNCH_CONFIG));
 		coreDumpPostMortemLaunchConfig.launch("debug", new NullProgressMonitor()); //$NON-NLS-1$
