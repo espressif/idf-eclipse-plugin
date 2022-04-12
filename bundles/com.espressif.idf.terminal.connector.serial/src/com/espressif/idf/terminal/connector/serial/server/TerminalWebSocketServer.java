@@ -5,7 +5,6 @@
 package com.espressif.idf.terminal.connector.serial.server;
 
 import java.net.InetSocketAddress;
-import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.java_websocket.WebSocket;
@@ -16,18 +15,18 @@ import com.espressif.idf.core.logging.Logger;
 
 /**
  * Websocket server class to start the server on a specific port for reading the gdb events.
- * 
+ *
  * @author Ali Azam Rana
  *
  */
 public class TerminalWebSocketServer extends WebSocketServer
 {
-	private Queue<String> messagesReceivedQueue;
+	private ConcurrentLinkedQueue<String> messagesReceivedQueue;
 
 	public TerminalWebSocketServer(int port)
 	{
 		super(new InetSocketAddress(port));
-		messagesReceivedQueue = new ConcurrentLinkedQueue<String>();
+		messagesReceivedQueue = new ConcurrentLinkedQueue<>();
 	}
 
 	@Override
@@ -66,12 +65,12 @@ public class TerminalWebSocketServer extends WebSocketServer
 		setConnectionLostTimeout(100);
 	}
 
-	public Queue<String> getMessagesReceivedQueue()
+	public ConcurrentLinkedQueue<String> getMessagesReceivedQueue()
 	{
 		return messagesReceivedQueue;
 	}
 
-	public void setMessagesReceivedQueue(Queue<String> messagesReceivedQueue)
+	public void setMessagesReceivedQueue(ConcurrentLinkedQueue<String> messagesReceivedQueue)
 	{
 		this.messagesReceivedQueue = messagesReceivedQueue;
 	}
