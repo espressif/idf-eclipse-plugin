@@ -1,9 +1,8 @@
 package com.espressif.idf.serial.monitor;
 
+import org.eclipse.embedcdt.internal.ui.AbstractUIActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-
-import ilg.gnumcueclipse.core.AbstractUIActivator;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>

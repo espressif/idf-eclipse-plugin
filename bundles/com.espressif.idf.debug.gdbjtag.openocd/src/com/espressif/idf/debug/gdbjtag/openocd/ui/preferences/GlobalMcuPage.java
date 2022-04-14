@@ -15,6 +15,7 @@
 package com.espressif.idf.debug.gdbjtag.openocd.ui.preferences;
 
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
+import org.eclipse.embedcdt.ui.XpackDirectoryNotStrictFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.StringFieldEditor;
@@ -27,7 +28,6 @@ import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.PersistentPreferences;
 import com.espressif.idf.debug.gdbjtag.openocd.ui.Messages;
 
-import ilg.gnumcueclipse.core.ui.XpackDirectoryNotStrictFieldEditor;
 
 /**
  * This class represents a preference page that is contributed to the

@@ -19,8 +19,7 @@ import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.sourcelookup.SourceLookupTab;
-
-import ilg.gnumcueclipse.debug.gdbjtag.ui.TabSvd;
+import org.eclipse.embedcdt.debug.gdbjtag.ui.TabSvd;
 
 public class TabGroupLaunchConfiguration extends AbstractLaunchConfigurationTabGroup
 {

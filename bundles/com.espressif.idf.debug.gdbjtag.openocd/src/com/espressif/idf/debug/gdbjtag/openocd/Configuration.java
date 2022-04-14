@@ -29,9 +29,9 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 
-import ilg.gnumcueclipse.core.EclipseUtils;
-import ilg.gnumcueclipse.core.StringUtils;
-import ilg.gnumcueclipse.debug.gdbjtag.DebugUtils;
+import org.eclipse.embedcdt.core.EclipseUtils;
+import org.eclipse.embedcdt.core.StringUtils;
+import org.eclipse.embedcdt.debug.gdbjtag.core.DebugUtils;
 
 @SuppressWarnings("restriction")
 public class Configuration {

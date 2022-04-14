@@ -15,7 +15,8 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.13.0",
  com.espressif.idf.core,
  com.espressif.idf.ui,
  com.espressif.idf.terminal.connector.serial,
- org.eclipse.launchbar.ui
+ org.eclipse.launchbar.ui,
+ org.eclipse.embedcdt.core
 Export-Package: com.espressif.idf.launch.serial,
  com.espressif.idf.launch.serial.core,
  com.espressif.idf.launch.serial.internal,
@@ -23,5 +24,4 @@ Export-Package: com.espressif.idf.launch.serial,
 Bundle-Activator: com.espressif.idf.launch.serial.internal.Activator
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: org.eclipse.cdt.launch.serial.core
-Import-Package: ilg.gnumcueclipse.core,
- org.eclipse.cdt.dsf.gdb
+Import-Package: org.eclipse.cdt.dsf.gdb

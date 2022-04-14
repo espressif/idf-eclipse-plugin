@@ -37,13 +37,12 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.ISourceLocator;
+import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuLaunch;
 
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
 import com.espressif.idf.debug.gdbjtag.openocd.ConfigurationAttributes;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
-
-import ilg.gnumcueclipse.debug.gdbjtag.dsf.GnuMcuLaunch;
 
 @SuppressWarnings("restriction")
 public class Launch extends GnuMcuLaunch {
