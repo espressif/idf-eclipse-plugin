@@ -189,39 +189,4 @@ You may add additional accurate notices of copyright ownership.
          version="0.0.0"
          unpack="false"/>
 
-   <plugin
-         id="ilg.gnumcueclipse.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="ilg.gnumcueclipse.debug.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="ilg.gnumcueclipse.debug.gdbjtag"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="ilg.gnumcueclipse.debug.gdbjtag.openocd"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="ilg.gnumcueclipse.managedbuild.cross"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
 </feature>

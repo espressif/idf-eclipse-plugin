@@ -15,6 +15,7 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.internal.core.LaunchConfiguration;
+import org.eclipse.embedcdt.debug.gdbjtag.core.DebugUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.launchbar.ui.NewLaunchConfigWizard;
@@ -22,15 +23,12 @@ import org.eclipse.launchbar.ui.NewLaunchConfigWizardDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IPageLayout;
-import org.eclipse.ui.PlatformUI;
 
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.debug.gdbjtag.openocd.dsf.LaunchConfigurationDelegate;
 import com.espressif.idf.ui.EclipseUtil;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.tracing.AppLvlTracingDialog;
-
-import ilg.gnumcueclipse.debug.gdbjtag.DebugUtils;
 
 @SuppressWarnings("restriction")
 public class AppLvlTracingHandler extends AbstractHandler

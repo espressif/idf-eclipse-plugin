@@ -25,9 +25,9 @@ import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.PersistentPreferences;
 import com.espressif.idf.debug.gdbjtag.openocd.ui.Messages;
 
-import ilg.gnumcueclipse.core.preferences.ScopedPreferenceStoreWithoutDefaults;
-import ilg.gnumcueclipse.core.ui.FieldEditorPropertyPage;
-import ilg.gnumcueclipse.core.ui.XpackDirectoryNotStrictFieldEditor;
+import org.eclipse.embedcdt.ui.preferences.ScopedPreferenceStoreWithoutDefaults;
+import org.eclipse.embedcdt.ui.FieldEditorPropertyPage;
+import org.eclipse.embedcdt.ui.XpackDirectoryNotStrictFieldEditor;
 
 public class ProjectMcuPage extends FieldEditorPropertyPage {
 
