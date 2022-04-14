@@ -18,5 +18,8 @@
    <feature id="org.eclipse.embedcdt.debug.gdbjtag">
       <category name="com.espressif.idf"/>
    </feature>
+   <bundle id="org.eclipse.embedcdt.packs.core">
+      <category name="com.espressif.idf"/>
+   </bundle>
    <category-def name="com.espressif.idf" label="Espressif IDF"/>
 </site>
