@@ -31,24 +31,24 @@ Espressif IDE is an Integrated Development Environment(IDE) based on Eclipse CDT
 - Host operating systems supported: Windows, macOS, and Linux 
 
 ## Downloads
-### Espressif-IDE v2.4.0
+### Espressif-IDE v2.4.2
 
 | OS  | Download |
 | ------------- | ------------- |
-| Windows  | <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-2.4.0-win32.win32.x86_64.zip">Espressif-IDE-2.4.0-win32.win32.x86_64.zip</a>  |
-| macosx | <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-2.4.0-macosx.cocoa.x86_64.tar.gz">Espressif-IDE-2.4.0-macosx.cocoa.x86_64.tar.gz</a>  |
-| linux | <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-2.4.0-linux.gtk.x86_64.tar.gz">Espressif-IDE-2.4.0-linux.gtk.x86_64.tar.gz</a>  |
+| Windows  | <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-2.4.2-win32.win32.x86_64.zip">Espressif-IDE-2.4.2-win32.win32.x86_64.zip</a>  |
+| macosx | <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-2.4.2-macosx.cocoa.x86_64.tar.gz">Espressif-IDE-2.4.2-macosx.cocoa.x86_64.tar.gz</a>  |
+| linux | <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-2.4.2-linux.gtk.x86_64.tar.gz">Espressif-IDE-2.4.2-linux.gtk.x86_64.tar.gz</a>  |
 
 ### macOS security notice
 On macOS, if you download the archive with the browser, the strict security checks on recent macOS will prevent it to run, and complain that the program is damaged. That’s obviously not true, and the fix is simple, you need to remove the `com.apple.quarantine` extended attribute.
 ```
-$ xattr -d com.apple.quarantine ~/Downloads/Espressif-IDE-2.4.0-macosx.cocoa.x86_64.tar.gz
+$ xattr -d com.apple.quarantine ~/Downloads/Espressif-IDE-2.4.2-macosx.cocoa.x86_64.tar.gz
 ```
 After un-archiving, if the application still complains, check/remove the attribute from the Espressif-IDE.app folder too:
 ```
 $ xattr -dr com.apple.quarantine ~/Downloads/Espressif-IDE.app
 ```
-### Espressif-IDE v2.4.0 Installer for Windows
+### Espressif-IDE Installer for Windows
 Espressif-IDE Installer (All-in-one) is an offline installer and it comes with all the required components to work with the ESP-IDF Application development.
 
 The installer deploys the following components:
@@ -62,4 +62,6 @@ The installer deploys the following components:
 
 As Installer bundles, all the required components and tools including stable esp-idf so people behind corporate firewalls can use the whole solution out-of-box. This also configures all the required build environment variables and tool paths as you launch the IDE. All you could do is to get started with your project direclty without manually configuring anything. This will give you a big boost to your productivity!
 
-Espressif-IDE Installer for Windows is available <a href ="https://dl.espressif.com/dl/esp-idf/">here</a>
+Espressif-IDE Installer for Windows can be downloaded from <a href ="https://dl.espressif.com/dl/esp-idf/">here</a>
+
+> Note: Espressif-IDE Installer is available only for Windows.
