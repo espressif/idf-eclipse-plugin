@@ -110,6 +110,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 					argumentField.setText(argumentsForSerialFlash);
 				} else {
 					argumentField.setText(argumentsForJtagFlash);
+					fTarget.notifyListeners(SWT.Selection, null);
 				}
 				switchUI();
 			}
@@ -281,7 +282,15 @@ public class CMakeMainTab2 extends GenericMainTab {
 				public void widgetSelected(SelectionEvent e) {
 					String updatedSelectedTarget = getLaunchTarget();
 					String selectedItem = fTarget.getItem(fTarget.getSelectionIndex());
-					if (!selectedItem.contentEquals(updatedSelectedTarget)) {
+					if (!selectedItem.contentEquals(updatedSelectedTarget) && isFlashOverJtag) {
+						try {
+							ILaunchConfigurationWorkingCopy wc = launchBarManager.getActiveLaunchConfiguration()
+									.getWorkingCopy();
+							wc.setAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, selectedItem);
+							wc.doSave();
+						} catch (CoreException e2) {
+							Logger.log(e2);
+						}
 						updateLaunchBar(selectedItem);
 					}
 					boardConfigsMap = parser.getBoardsConfigs(selectedItem);

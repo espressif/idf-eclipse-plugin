@@ -21,10 +21,12 @@ import org.eclipse.launchbar.core.ILaunchBarListener;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.ILaunchDescriptor;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
+import org.eclipse.launchbar.ui.ILaunchBarUIManager;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
 
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.SDKConfigJsonReader;
 import com.espressif.idf.core.util.StringUtil;
@@ -63,6 +65,7 @@ public class LaunchBarListener implements ILaunchBarListener
 			if (activeConfig == null) {
 				return;
 			}
+			
 			String projectName = activeConfig.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
 			if (projectName.isEmpty())
 			{
@@ -87,7 +90,21 @@ public class LaunchBarListener implements ILaunchBarListener
 					{
 						// get current target
 						String currentTarget = new SDKConfigJsonReader((IProject) project).getValue("IDF_TARGET"); //$NON-NLS-1$
-
+						final String jtag_device_id = activeConfig.getAttribute("org.eclipse.cdt.debug.gdbjtag.core.jtagDeviceId", ""); //$NON-NLS-1$ //$NON-NLS-2$
+						if(activeConfig.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, false) || jtag_device_id.contentEquals("ESP-IDF GDB OpenOCD")) //$NON-NLS-1$
+						{
+							String targetForJtagFlash = activeConfig.getWorkingCopy().getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, ""); //$NON-NLS-1$
+							if (!newTarget.equals(targetForJtagFlash)) 
+							{
+								boolean isYes = MessageDialog.openQuestion(EclipseUtil.getShell(), Messages.LaunchBarListener_TargetChanged_Title, Messages.LaunchBarListener_TargetDontMatch_Msg);
+								if (isYes) {
+									ILaunchBarUIManager uiManager = UIPlugin.getService(ILaunchBarUIManager.class);
+									uiManager.openConfigurationEditor(launchBarManager.getActiveLaunchDescriptor());
+									return;
+								}
+							}
+						}
+						
 						// If both are not same
 						if (currentTarget != null && !newTarget.equals(currentTarget))
 						{
