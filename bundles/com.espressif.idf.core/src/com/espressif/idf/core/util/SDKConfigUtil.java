@@ -4,6 +4,8 @@
  *******************************************************************************/
 package com.espressif.idf.core.util;
 
+import java.io.File;
+
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
@@ -24,12 +26,12 @@ public class SDKConfigUtil
 	 */
 	public String getConfigMenuFilePath(IProject project) throws Exception
 	{
-		IFolder buildFolder = project.getFolder(IDFConstants.BUILD_FOLDER);
-		if (!buildFolder.exists())
+		String buildDir = IDFUtil.getBuildDir(project);
+		if (!new File(buildDir).exists())
 		{
-			throw new Exception("Build directory not found"); //$NON-NLS-1$
+			throw new Exception("Build directory is not found: "+ buildDir); //$NON-NLS-1$
 		}
-		return buildFolder.getLocation().toFile().getAbsolutePath() + IPath.SEPARATOR + IDFConstants.CONFIG_FOLDER
+		return new File(buildDir).getAbsolutePath() + IPath.SEPARATOR + IDFConstants.CONFIG_FOLDER
 				+ IPath.SEPARATOR + IDFConstants.KCONFIG_MENUS_JSON;
 	}
 

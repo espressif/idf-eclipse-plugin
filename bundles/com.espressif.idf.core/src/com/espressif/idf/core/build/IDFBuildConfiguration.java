@@ -74,6 +74,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunchMode;
 import org.eclipse.launchbar.core.ILaunchBarManager;
@@ -332,11 +333,13 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 					command.addAll(Arrays.asList(userArgs.trim().split("\\s+"))); //$NON-NLS-1$
 				}
 				
+				//Custom build directory
 				int buildDirIndex = command.indexOf("-B"); //$NON-NLS-1$
 				if (buildDirIndex != -1)
 				{
 					 this.customBuildDir = command.get(buildDirIndex+1);
 				}
+				getProject().setPersistentProperty(new QualifiedName(IDFCorePlugin.PLUGIN_ID, "idf.buildDirectory"), customBuildDir); //$NON-NLS-1$
 
 				IContainer srcFolder = project;
 				command.add(new File(srcFolder.getLocationURI()).getAbsolutePath());

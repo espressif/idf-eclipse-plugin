@@ -16,10 +16,12 @@ import java.util.regex.Pattern;
 
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -474,5 +476,16 @@ public class IDFUtil
 			Logger.log(IDFCorePlugin.getPlugin(), e1);
 		}
 		return exportCmdOp;
+	}
+	
+	public static String getBuildDir(IProject project) throws CoreException
+	{
+		String buildDirectory = project.getPersistentProperty(new QualifiedName(IDFCorePlugin.PLUGIN_ID, "idf.buildDirectory"));
+		if (StringUtil.isEmpty(buildDirectory))
+		{
+			buildDirectory = project.getFolder(IDFConstants.BUILD_FOLDER).getLocation().toOSString();
+		}
+		
+		return buildDirectory;
 	}
 }
