@@ -559,7 +559,18 @@ This will generate p2 update site artifact in the location `releng/com.espressif
 1. Click on Details
 1. Click on Summary on the left
 1. Scroll down to see the artifacts section
-1. Download `com.espressif.idf.update` p2 update site archive and install as per the instructions mentioned <a href="https://github.com/espressif/idf-eclipse-plugin#installPluginsUsingLocalFile">here</a>
+1. Download `com.espressif.idf.update` p2 update site archive and install as per the instructions mentioned <a 
+href="https://github.com/espressif/idf-eclipse-plugin#installPluginsUsingLocalFile">here</a>
+
+# Custom IDE Configuration
+## Custom build directory
+IDE allows configuring a custom build directory to the project using the launch configuration window with build arguments `-B <custom build path>` and this is where all the project build artifacts will be generated. Custom build directory path could be within the project or a path from the file system.
+1. Select a project and click on a launch configuration Edit button from the top toolbar and this will the launch Edit Configuration window
+2. Navigate to the `Build Settings` tab
+3. Provide a custom build directory with an absolute path in the `Additional CMake Arguments` section. For example: `-B /Users/myUser/esp/generated`
+4. Click on Ok and build the project
+
+![](docs/images/custombuilddir.png)
 
 # ESP-IDF Eclipse Plugin Compatibility Matrix
 
