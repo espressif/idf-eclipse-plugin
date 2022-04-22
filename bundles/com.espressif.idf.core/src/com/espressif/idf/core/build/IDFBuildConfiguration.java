@@ -339,7 +339,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				{
 					 this.customBuildDir = command.get(buildDirIndex+1);
 				}
-				getProject().setPersistentProperty(new QualifiedName(IDFCorePlugin.PLUGIN_ID, "idf.buildDirectory"), customBuildDir); //$NON-NLS-1$
+				getProject().setPersistentProperty(new QualifiedName(IDFCorePlugin.PLUGIN_ID, IDFConstants.BUILD_DIR_PROPERTY), customBuildDir);
 
 				IContainer srcFolder = project;
 				command.add(new File(srcFolder.getLocationURI()).getAbsolutePath());

@@ -158,4 +158,11 @@ public interface IDFConstants
 	String ESP_TOOL_CHIP_ID_CMD = "chip_id"; //$NON-NLS-1$
 
 	String ESP_TOOL_ERASE_FLASH_CMD = "erase_flash"; //$NON-NLS-1$
+	
+	/**
+	 * Property to store project custom build directory
+	 */
+	String BUILD_DIR_PROPERTY = "idf.buildDirectory.property"; //$NON-NLS-1$
+	
+	String PROECT_DESCRIPTION_JSON = "project_description.json"; //$NON-NLS-1$
 }

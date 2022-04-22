@@ -26,12 +26,14 @@ import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.launch.ui.CMainTab2;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.GenericJsonReader;
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 
@@ -55,7 +57,7 @@ public class TabMain extends CMainTab2
 	protected void initializeProgramName(ICElement cElement, ILaunchConfigurationWorkingCopy config)
 	{
 		boolean renamed = false;
-
+		IBinary binary = null;
 		if (!(cElement instanceof IBinary))
 		{
 			cElement = cElement.getCProject();
@@ -74,23 +76,15 @@ public class TabMain extends CMainTab2
 			name = getLaunchConfigurationDialog().generateName(name);
 			config.rename(name);
 			renamed = true;
-		}
 
-		IBinary binary = null;
-		if (cElement instanceof ICProject)
-		{
-
-			// project description file
-			GenericJsonReader jsonReader = new GenericJsonReader(((ICProject) cElement).getProject(),
-					"/" + IDFConstants.BUILD_FOLDER + "/project_description.json"); //$NON-NLS-1$
-			String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
-
+			
+			IPath elfFilePath = IDFUtil.getELFFilePath(project);
 			IBinary[] bins = getBinaryFiles((ICProject) cElement);
 			if (bins != null)
 			{
 				for (IBinary iBinary : bins)
 				{
-					if (iBinary.getResource().getName().equals(value))
+					if (iBinary.getResource().getName().equals(elfFilePath.toFile().getName()))
 					{
 						binary = iBinary;
 						break;
@@ -146,13 +140,19 @@ public class TabMain extends CMainTab2
 
 			if (StringUtil.isEmpty(programName))
 			{
-				// project description file
-				GenericJsonReader jsonReader = new GenericJsonReader(project,
-						File.separator + IDFConstants.BUILD_FOLDER + File.separator + "project_description.json");
-				String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
-				if (!StringUtil.isEmpty(value))
+				try
 				{
-					programName = IDFConstants.BUILD_FOLDER + File.separator + value;
+					// project description file
+					GenericJsonReader jsonReader = new GenericJsonReader(IDFUtil.getBuildDir(project) + File.separator + IDFConstants.PROECT_DESCRIPTION_JSON);
+					String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
+					if (!StringUtil.isEmpty(value))
+					{
+						programName = IDFConstants.BUILD_FOLDER + File.separator + value;
+					}
+				}
+				catch (CoreException e)
+				{
+					Logger.log(e);
 				}
 
 			}
