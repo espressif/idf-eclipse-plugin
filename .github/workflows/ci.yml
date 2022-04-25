@@ -46,6 +46,20 @@ jobs:
     - name: Build with Maven
       run: mvn clean verify -Djarsigner.skip=true
 
+    - name: Codesign executable
+        env: 
+          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+          MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+        run: |
+          echo $MACOS_CERTIFICATE | base64 —decode > certificate.p12
+          security create-keychain -p espressif build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p espressif build.keychain
+          security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k espressif build.keychain
+          /usr/bin/codesign --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" /opt/actions-runner/_work/idf-eclipse-plugin/idf-eclipse-plugin/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app -v
+          /usr/bin/codesign -v -vvv --deep /opt/actions-runner/_work/idf-eclipse-plugin/idf-eclipse-plugin/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app
+
     - name: Publish Test Reports
       if: ${{ always() }}
       uses: scacap/action-surefire-report@v1
