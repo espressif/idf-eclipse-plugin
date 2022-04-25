@@ -12,9 +12,9 @@ on:
 jobs:
   build:
 
-    runs-on: #ubuntu-latest
-      - self-hosted
-      - eclipse
+    runs-on: macos-latest
+      # - self-hosted
+      # - eclipse
     
     steps:
     - uses: actions/checkout@v2
@@ -44,7 +44,7 @@ jobs:
         distribution: 'adopt'
 
     - name: Build with Maven
-      run: mvn clean verify -Djarsigner.skip=true
+      run: mvn clean verify -Djarsigner.skip=true -Dmaven.test.skip=true
 
     - name: Codesign executable
       env: 
@@ -64,8 +64,8 @@ jobs:
       if: ${{ always() }}
       uses: scacap/action-surefire-report@v1
   
-    - name: Create macosx dmg
-      run: genisoimage -V espressif-ide -D -R -apple -no-pad -o /opt/actions-runner/_work/idf-eclipse-plugin/idf-eclipse-plugin/releng/ide-dmg-builder/Espressif-IDE.dmg /opt/actions-runner/_work/idf-eclipse-plugin/idf-eclipse-plugin/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app
+    # - name: Create macosx dmg
+    #   run: genisoimage -V espressif-ide -D -R -apple -no-pad -o /opt/actions-runner/_work/idf-eclipse-plugin/idf-eclipse-plugin/releng/ide-dmg-builder/Espressif-IDE.dmg /opt/actions-runner/_work/idf-eclipse-plugin/idf-eclipse-plugin/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app
            
     - name: Upload build artifacts
       if: ${{ !cancelled() }}
@@ -95,9 +95,9 @@ jobs:
         name: espressif-ide-linux
         path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
     
-    - name: Upload macosx dmg
-      if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v2
-      with:
-        name: espressif-ide-macosx-dmg
-        path: releng/ide-dmg-builder/Espressif-IDE.dmg
+    # - name: Upload macosx dmg
+    #   if: ${{ !cancelled() }}
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: espressif-ide-macosx-dmg
+    #     path: releng/ide-dmg-builder/Espressif-IDE.dmg
