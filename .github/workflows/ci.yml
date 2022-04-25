@@ -44,7 +44,10 @@ jobs:
         distribution: 'adopt'
 
     - name: Build with Maven
-      run: mvn clean verify -Djarsigner.skip=true
+      run: mvn clean verify -Djarsigner.skip=true spotbugs:spotbugs
+    - uses: jwgmeligmeyling/spotbugs-github-action@master
+      with:
+        path: '**/spotbugsXml.xml'
 
     - name: Publish Test Reports
       if: ${{ always() }}
