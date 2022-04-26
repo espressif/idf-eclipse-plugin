@@ -44,9 +44,9 @@ jobs:
         distribution: 'adopt'
 
     - name: Build with Maven
-      run: mvn clean verify -Djarsigner.skip=true -Dmaven.test.skip=true
+      run: mvn clean verify -Djarsigner.skip=true
 
-    - name: Codesign executable
+    - name: Codesign Espressif-IDE
       env: 
         MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
         MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
@@ -57,8 +57,8 @@ jobs:
         /usr/bin/security unlock-keychain -p espressif build.keychain
         /usr/bin/security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
         /usr/bin/security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k espressif build.keychain
-        /usr/bin/codesign --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" /opt/actions-runner/_work/idf-eclipse-plugin/idf-eclipse-plugin/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app -v
-        /usr/bin/codesign -v -vvv --deep /opt/actions-runner/_work/idf-eclipse-plugin/idf-eclipse-plugin/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app
+        /usr/bin/codesign --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" /Users/runner/work/idf-eclipse-plugin/idf-eclipse-plugin/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app -v
+        /usr/bin/codesign -v -vvv --deep /Users/runner/work/idf-eclipse-plugin/idf-eclipse-plugin/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app
 
     # - name: Publish Test Reports
     #   if: ${{ always() }}
