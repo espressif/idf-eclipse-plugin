@@ -38,7 +38,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.intro,
  org.eclipse.tools.templates.freemarker,
- org.eclipse.embedcdt.ui
+ org.eclipse.embedcdt.ui,
+ org.eclipse.ltk.ui.refactoring,
+ org.eclipse.ltk.core.refactoring
 Automatic-Module-Name: com.espressif.idf.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11
@@ -51,4 +53,6 @@ Bundle-ClassPath: .,
  lib/commonmark-0.16.1.jar,
  lib/ini4j-0.5.4.jar,
  lib/gson-2.8.7.jar
+Import-Package: org.eclipse.ltk.core.refactoring.resource,
+ org.eclipse.ltk.internal.ui.refactoring
 

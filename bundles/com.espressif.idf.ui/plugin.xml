@@ -414,6 +414,11 @@
             id="com.espressif.commands.cleanCommand"
             name="%command.name.5">
       </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.handlers.DeleteResourceHandler"
+            id="org.eclipse.ltk.ui.refactoring.commands.deleteResources"
+            name="test">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
