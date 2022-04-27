@@ -1,8 +1,10 @@
 ## ESP-IDF GDB OpenOCD Debugging
-In ESP-IDF GDB OpenOCD Debugging, both GDB server and GDB client both will be initiated by Eclipse, so no need to run anything from the command line.
+With ESP-IDF GDB OpenOCD Debugging, both GDB server and GDB client both will be initiated by Eclipse, so need not to initiate GDB server from the command line.
 
-Before you get started, please make sure you've already installed `Embedded C/C++ OpenOCD Debugging` plugin while updating the IDF Eclipse Plugin.
-Also make sure your [JTAG interface is configured and connected](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/jtag-debugging/index.html#configure-and-connect-jtag-interface).
+Before you get started with the GDB OpenOCD Debugging, please make sure you've already installed `Embedded C/C++ OpenOCD Debugging` plugin while updating the IDF Eclipse Plugin and your [JTAG interface is configured and connected](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/jtag-debugging/index.html#configure-and-connect-jtag-interface).
+
+To get the latest changes of the idf eclipse plugin, please check this [here](https://github.com/espressif/idf-eclipse-plugin#GettingStarted)
+
 ![](images/OpenOCDDebug_1.png)
 
 # Create a new debug configuration
