@@ -3,6 +3,20 @@
 BUILDDIR=$(cd $(dirname $0); pwd)
 parentdir="$(dirname "$BUILDDIR")"
 
-echo "Create DMG..."
+echo "Create DMG installer..."
+echo $parentdir
+
+$BUILDDIR/create-dmg/create-dmg \
+  --volname "Espressif-IDE" \
+  --volicon "$BUILDDIR/espressif.icns" \
+  --background "$BUILDDIR/background.png" \
+  --window-pos 200 120 \
+  --window-size 800 350 \
+  --icon-size 100 \
+  --icon "Espressif-IDE.app" 140 155 \
+  --hide-extension "Espressif-IDE.app" \
+  --app-drop-link 625 155 \
+  "$BUILDDIR/Espressif-IDE.dmg" \
+  "$parentdir/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app"
+
   
-genisoimage -V espressif-ide -D -R -apple -no-pad -o /opt/actions-runner/_work/idf-eclipse-plugin/idf-eclipse-plugin/releng/ide-dmg-builder/Espressif-IDE.dmg /opt/actions-runner/_work/idf-eclipse-plugin/idf-eclipse-plugin/relang/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app
