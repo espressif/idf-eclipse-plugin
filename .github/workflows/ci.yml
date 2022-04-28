@@ -12,9 +12,9 @@ on:
 jobs:
   build:
 
-    runs-on: macos-latest
-      # - self-hosted
-      # - eclipse
+    runs-on:
+      - self-hosted
+      - eclipse
     
     steps:
     - uses: actions/checkout@v2
@@ -46,35 +46,9 @@ jobs:
     - name: Build with Maven
       run: mvn clean verify -Djarsigner.skip=true
 
-    - name: Codesign Espressif-IDE
-      env: 
-        MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
-        MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
-      run: |
-        echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
-        /usr/bin/security create-keychain -p espressif build.keychain
-        /usr/bin/security default-keychain -s build.keychain
-        /usr/bin/security unlock-keychain -p espressif build.keychain
-        /usr/bin/security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
-        /usr/bin/security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k espressif build.keychain
-        echo "codesigning espressif-ide"
-        /usr/bin/codesign --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app -v
-        /usr/bin/codesign -v -vvv --deep $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app
-        echo "Creating dmg for Espressif-IDE.app"
-        $PWD/releng/ide-dmg-builder/ide-dmg-builder.sh
-        /usr/bin/codesign --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE.dmg -v
-        /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE.dmg
-    
-    - name: Notarize Espressif-IDE
-      uses: devbotsxyz/xcode-notarize@v1
-      with:
-        product-path: releng/ide-dmg-builder/Espressif-IDE.dmg
-        appstore-connect-username: ${{ secrets.NOTARIZATION_USERNAME }}
-        appstore-connect-password: ${{ secrets.NOTARIZATION_PASSWORD }}
-
-    # - name: Publish Test Reports
-    #   if: ${{ always() }}
-    #   uses: scacap/action-surefire-report@v1
+    - name: Publish Test Reports
+      if: ${{ always() }}
+      uses: scacap/action-surefire-report@v1
   
     - name: Upload build artifacts
       if: ${{ !cancelled() }}
@@ -90,20 +64,56 @@ jobs:
         name: espressif-ide-win32
         path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-win32.win32.x86_64.zip
 
-    # - name: Upload macOS rcp
-    #   if: ${{ !cancelled() }}
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: espressif-ide-macosx
-    #     path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-macosx.cocoa.x86_64.tar.gz
-
     - name: Upload linux rcp
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v2
       with:
         name: espressif-ide-linux
         path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
+  
+  build_macos:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+
+    - name: Build with Maven
+      run: mvn clean verify -Djarsigner.skip=true
+
+    - name: Codesign Espressif-IDE
+      env: 
+        MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+        MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+      run: |
+        echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
+        /usr/bin/security create-keychain -p espressif build.keychain
+        /usr/bin/security default-keychain -s build.keychain
+        /usr/bin/security unlock-keychain -p espressif build.keychain
+        /usr/bin/security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
+        /usr/bin/security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k espressif build.keychain
+        
+        echo "codesigning espressif-ide"
+        /usr/bin/codesign --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app -v
+        /usr/bin/codesign -v -vvv --deep $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app
+        
+        echo "Creating dmg for Espressif-IDE.app"
+        $PWD/releng/ide-dmg-builder/ide-dmg-builder.sh
+        /usr/bin/codesign --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE.dmg -v
+        /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE.dmg
     
+    - name: Notarize Espressif-IDE
+      uses: devbotsxyz/xcode-notarize@v1
+      with:
+        product-path: releng/ide-dmg-builder/Espressif-IDE.dmg
+        appstore-connect-username: ${{ secrets.NOTARIZATION_USERNAME }}
+        appstore-connect-password: ${{ secrets.NOTARIZATION_PASSWORD }}
+      
     - name: Upload macosx dmg
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v2
