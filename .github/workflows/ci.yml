@@ -64,7 +64,13 @@ jobs:
         $PWD/releng/ide-dmg-builder/ide-dmg-builder.sh
         /usr/bin/codesign --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE.dmg -v
         /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE.dmg
-        
+    
+    - name: Notarize Espressif-IDE
+      uses: devbotsxyz/xcode-notarize@v1
+      with:
+        product-path: releng/ide-dmg-builder/Espressif-IDE.dmg
+        appstore-connect-username: ${{ secrets.NOTARIZATION_USERNAME }}
+        appstore-connect-password: ${{ secrets.NOTARIZATION_PASSWORD }}
 
     # - name: Publish Test Reports
     #   if: ${{ always() }}
