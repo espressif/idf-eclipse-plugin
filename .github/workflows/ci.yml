@@ -108,12 +108,13 @@ jobs:
         /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE.dmg
     
     - name: Notarize Espressif-IDE
-      uses: devbotsxyz/xcode-notarize@v1
-      with:
-        product-path: releng/ide-dmg-builder/Espressif-IDE.dmg
-        appstore-connect-username: ${{ secrets.NOTARIZATION_USERNAME }}
-        appstore-connect-password: ${{ secrets.NOTARIZATION_PASSWORD }}
-      
+      env: 
+        NOTARIZATION_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
+        NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
+      run: |
+        echo "Notarization of Espressif-IDE.dmg"
+        xcrun altool --notarize-app -f $PWD/releng/ide-dmg-builder/Espressif-IDE.dmg -u $NOTARIZATION_USERNAME -p $NOTARIZATION_PASSWORD --primary-bundle-id Espressif-ide.app
+    
     - name: Upload macosx dmg
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v2
