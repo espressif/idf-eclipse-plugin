@@ -73,6 +73,20 @@ public class ProjectTestOperations
 		view.setFocus();
 		return view;
 	}
+	
+	public static void createDebugConfiguration(String projectName, SWTWorkbenchBot bot)
+	{
+		SWTBotView projectExplorerBotView = bot.viewByTitle("Project Explorer");
+		projectExplorerBotView.show();
+		projectExplorerBotView.setFocus();
+		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
+		if (projectItem != null)
+		{
+			projectItem.contextMenu("Debug As").click().contextMenu("Debug Configurations...").click();
+			bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").doubleClick();
+		}
+		
+	}
 
 	/**
 	 * Creates an espressif idf project from the template
@@ -148,7 +162,7 @@ public class ProjectTestOperations
 	 * @param bot            current SWT bot reference
 	 * @param deleteFromDisk delete from disk or only delete from workspace
 	 */
-	public static void deleteProject(String projectName, SWTWorkbenchBot bot, boolean deleteFromDisk)
+	public static void deleteProject(String projectName, SWTWorkbenchBot bot, boolean deleteFromDisk, boolean deleteRelatedConfigurations)
 	{
 		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
 		if (projectItem != null)
@@ -158,7 +172,11 @@ public class ProjectTestOperations
 			{
 				bot.checkBox("Delete project contents on disk (cannot be undone)").click();
 			}
-
+			
+			if (deleteRelatedConfigurations) 
+			{
+				bot.checkBox("Delete all related configurations").click();
+			}
 			bot.button("OK").click();
 			SWTBotView projectExplorView = bot.viewByTitle("Project Explorer");
 			projectExplorView.show();
@@ -189,7 +207,12 @@ public class ProjectTestOperations
 	 */
 	public static void deleteProject(String projectName, SWTWorkbenchBot bot)
 	{
-		ProjectTestOperations.deleteProject(projectName, bot, true);
+		ProjectTestOperations.deleteProject(projectName, bot, true, false);
+	}
+	
+	public static void deleteProjectAndAllRelatedConfigs(String projectName, SWTWorkbenchBot bot)
+	{
+		ProjectTestOperations.deleteProject(projectName, bot, true, true);
 	}
 
 	private static SWTBotTreeItem fetchProjectFromProjectExplorer(String projectName, SWTWorkbenchBot bot)
