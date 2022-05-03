@@ -82,7 +82,7 @@ public class ProjectTestOperations
 		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
 		if (projectItem != null)
 		{
-			projectItem.contextMenu("Debug As").menu("Debug Configurations...").click();
+			projectItem.select().contextMenu("Debug As").menu("Debug Configurations...").click();
 			bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").select();
 			bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").doubleClick();
 		}
