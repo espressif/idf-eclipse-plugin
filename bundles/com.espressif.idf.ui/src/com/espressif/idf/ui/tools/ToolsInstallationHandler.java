@@ -97,7 +97,7 @@ public class ToolsInstallationHandler
 		String pathValue = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH);
 		StringBuilder updatedPath = new StringBuilder();
 		String[] splittedPaths = pathValue.split(File.pathSeparator);
-		int i = splittedPaths.length;
+		int i = 0;
 		for (String path : splittedPaths)
 		{
 			i++;

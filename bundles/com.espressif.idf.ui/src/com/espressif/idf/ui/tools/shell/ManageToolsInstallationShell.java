@@ -465,10 +465,10 @@ public class ManageToolsInstallationShell
 		for (TreeItem item : toolsTree.getItems())
 		{
 			item.setChecked(selectAll);
-			for (TreeItem subItem : item.getItems())
-			{
-				subItem.setChecked(selectAll);
-			}
+			Event swtCheckedTreeEvent = new Event();
+			swtCheckedTreeEvent.detail = SWT.CHECK;
+			swtCheckedTreeEvent.item = item;
+			toolsTree.notifyListeners(SWT.Selection, swtCheckedTreeEvent);
 		}
 	}
 
