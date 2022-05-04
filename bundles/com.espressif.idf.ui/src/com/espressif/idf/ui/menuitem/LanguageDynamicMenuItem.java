@@ -5,9 +5,6 @@
 
 package com.espressif.idf.ui.menuitem;
 
-import java.io.File;
-import java.net.URL;
-
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.ContributionItem;
