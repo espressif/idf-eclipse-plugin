@@ -106,15 +106,7 @@ jobs:
         $PWD/releng/ide-dmg-builder/ide-dmg-builder.sh
         /usr/bin/codesign --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE.dmg -v
         /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE.dmg
-    
-    - name: Notarize Espressif-IDE
-      env: 
-        NOTARIZATION_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
-        NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
-      run: |
-        echo "Notarization of Espressif-IDE.dmg"
-        xcrun altool --notarize-app -f $PWD/releng/ide-dmg-builder/Espressif-IDE.dmg -u $NOTARIZATION_USERNAME -p $NOTARIZATION_PASSWORD --primary-bundle-id Espressif-ide.app
-    
+      
     - name: Upload macosx dmg
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v2
