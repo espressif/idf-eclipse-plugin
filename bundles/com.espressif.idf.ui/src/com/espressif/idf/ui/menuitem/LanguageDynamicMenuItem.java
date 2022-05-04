@@ -98,10 +98,7 @@ public class LanguageDynamicMenuItem extends ContributionItem
 
 	private void restartEclipse() throws Exception
 	{
-		URL eclipseInstallationUrl = new URL(
-				Platform.getInstallLocation().getURL() + System.getProperty("eclipse.launcher.name")); //$NON-NLS-1$
-		String pathToEclipse = new File(eclipseInstallationUrl.toURI()).toString();
-		ProcessBuilder processBuilder = new ProcessBuilder(pathToEclipse);
+		ProcessBuilder processBuilder = new ProcessBuilder(System.getProperty("eclipse.launcher")); //$NON-NLS-1$
 		processBuilder.start();
 		PlatformUI.getWorkbench().close();
 	}
