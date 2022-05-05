@@ -125,7 +125,7 @@ public class ManageToolsInstallationShell
 		});
 
 		chkAvailableVersions = new Button(subControlComposite, SWT.CHECK);
-		chkAvailableVersions.setText("Show Available Versions Only");
+		chkAvailableVersions.setText(Messages.ShowAvailableVersionsOnly);
 		chkAvailableVersions.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 4));
 		chkAvailableVersions.addSelectionListener(new SelectionAdapter()
 		{
@@ -181,11 +181,11 @@ public class ManageToolsInstallationShell
 		trclmnName.setText(Messages.ToolsTreeNameCol);
 
 		TreeColumn trclmnSize = new TreeColumn(toolsTree, SWT.NONE);
-		trclmnSize.setWidth(150);
+		trclmnSize.setWidth(70);
 		trclmnSize.setText(Messages.ToolsTreeSizeCol);
 
 		TreeColumn trclmnStatus = new TreeColumn(toolsTree, SWT.NONE);
-		trclmnStatus.setWidth(100);
+		trclmnStatus.setWidth(150);
 		trclmnStatus.setText(Messages.ToolsTreeStatusCol);
 
 		TreeColumn trclmnDescription = new TreeColumn(toolsTree, SWT.NONE);
@@ -272,7 +272,7 @@ public class ManageToolsInstallationShell
 							{
 								continue;
 							}
-
+							
 							windowsx86_64 = true;
 						}
 						else if (Platform.getOS().equals(Platform.OS_LINUX))
@@ -289,6 +289,8 @@ public class ManageToolsInstallationShell
 								continue;
 							}
 						}
+						
+						versionsVO.getVersionOsMap().get(key).setSelected(alwaysInstall);
 
 						TreeItem subItem = new TreeItem(mainItem, SWT.NONE);
 						String[] subItemText = getSubItemText(key, versionsVO.getVersionOsMap(), versionsVO.getName(),

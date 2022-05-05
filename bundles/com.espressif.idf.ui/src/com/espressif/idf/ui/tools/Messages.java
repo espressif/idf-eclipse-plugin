@@ -37,13 +37,6 @@ public class Messages extends NLS
 	public static String SystemPathMessage;
 	public static String ExtractionCompletedMessage;
 	public static String RemovedPathMessage;
-	public static String Warning;
-	public static String DirectorySelectionDialog_IDFDirLabel;
-	public static String DirectorySelectionDialog_SelectIDFDirMessage;
-	public static String WarningMessagebox;
-	public static String NotInstalled;
-	public static String Available;
-	public static String ShowAvailableVersionsOnly;
 	public static String ManageToolsInstallationShell_mntmNewItem_text;
 	public static String ManageToolsInstallationShell_tltmCheckItem_text;
 	public static String ManageToolsInstallationShell_label_text;
@@ -107,6 +100,7 @@ public class Messages extends NLS
 	public static String WarningMessagebox;
 	public static String NotInstalled;
 	public static String Available;
+	public static String ShowAvailableVersionsOnly;
 	
 	static
 	{

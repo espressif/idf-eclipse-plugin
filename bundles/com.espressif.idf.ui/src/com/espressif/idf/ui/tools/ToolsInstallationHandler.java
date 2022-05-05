@@ -368,7 +368,11 @@ public class ToolsInstallationHandler extends Thread
 				exportPathBuilder.append(PATH_SPLITOR);
 			}			
 		}
-
+		if (updatedPath.toString().split(File.pathSeparator).length > 1)
+		{
+			updatedPath.append(File.pathSeparator);
+		}
+		
 		Path pathToExport = Paths.get(exportPathBuilder.toString()); // for correcting the path error in windows
 		String currentPath = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH);
 		StringBuilder finalPathToExport = new StringBuilder(currentPath);
