@@ -39,7 +39,6 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.core.util.SDKConfigJsonReader;
 import com.espressif.idf.ui.IDFConsole;
 
 /**
@@ -52,10 +51,8 @@ import com.espressif.idf.ui.IDFConsole;
 @SuppressWarnings("restriction")
 public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEventLauncher
 {
-	private static final String CORE_DUMP_POSTMORTEM_LAUNCH_CONFIG = "core_dump_postmortem_debug.launch"; //$NON-NLS-1$
+	private static final String CORE_DUMP_POSTMORTEM_LAUNCH_CONFIG = "%s_core_dump_postmortem_debug.launch"; //$NON-NLS-1$
 	private static final String GENERATED_CORE_ELF_NAME = "core.elf"; //$NON-NLS-1$
-	private static final String ESP_COREDUMP_DATA_FORMAT_BIN_CONFIG_KEY = "ESP_COREDUMP_DATA_FORMAT_BIN"; //$NON-NLS-1$
-	private static final String ESP_COREDUMP_DATA_FORMAT_ELF_CONFIG_KEY = "ESP_COREDUMP_DATA_FORMAT_ELF"; //$NON-NLS-1$
 	private static final String GENERATED_CORE_DUMP_NAME = "core.dump"; //$NON-NLS-1$
 	private IProject project;
 	private String messageReceived;
@@ -78,30 +75,13 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 		createXMLConfig();
 		project.refreshLocal(IResource.DEPTH_INFINITE, null);
 		CoreDumpPostMortemLaunchConfig coreDumpPostMortemLaunchConfig = new CoreDumpPostMortemLaunchConfig(
-				project.getFile(CORE_DUMP_POSTMORTEM_LAUNCH_CONFIG));
+				project.getFile(String.format(CORE_DUMP_POSTMORTEM_LAUNCH_CONFIG, project.getName())));
 		coreDumpPostMortemLaunchConfig.launch("debug", new NullProgressMonitor()); //$NON-NLS-1$
 	}
 
 	private void parseExtractedFileFromPythonScript() throws Exception
 	{
 		// espcoredump.py
-		SDKConfigJsonReader sdkConfigJsonReader = new SDKConfigJsonReader(project);
-		String encoding = null;
-		if (sdkConfigJsonReader.getValue(ESP_COREDUMP_DATA_FORMAT_BIN_CONFIG_KEY) != null
-				&& sdkConfigJsonReader.getValue(ESP_COREDUMP_DATA_FORMAT_BIN_CONFIG_KEY).equals("true")) //$NON-NLS-1$
-		{
-			encoding = "b64"; //$NON-NLS-1$
-		}
-		else if (sdkConfigJsonReader.getValue(ESP_COREDUMP_DATA_FORMAT_ELF_CONFIG_KEY) != null
-				&& sdkConfigJsonReader.getValue(ESP_COREDUMP_DATA_FORMAT_ELF_CONFIG_KEY).equals("true")) //$NON-NLS-1$
-		{
-			encoding = "elf"; //$NON-NLS-1$
-		}
-
-		else
-		{
-			throw new Exception("Invalid SDKConfiguration and Mismatched Properties"); //$NON-NLS-1$
-		}
 
 		List<String> commands = new ArrayList<>();
 		commands.add(IDFUtil.getIDFPythonEnvPath());
@@ -243,7 +223,7 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 		Transformer tr = TransformerFactory.newInstance().newTransformer();
 		tr.setOutputProperty(OutputKeys.INDENT, "yes"); //$NON-NLS-1$
 		String launchFile = project.getLocation().makeAbsolute().toString().concat("/") //$NON-NLS-1$
-				.concat(CORE_DUMP_POSTMORTEM_LAUNCH_CONFIG);
+				.concat(String.format(CORE_DUMP_POSTMORTEM_LAUNCH_CONFIG, project.getName()));
 		tr.transform(new DOMSource(dom), new StreamResult(new File(launchFile)));
 		project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 

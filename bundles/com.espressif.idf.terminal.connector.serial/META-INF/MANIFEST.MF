@@ -19,7 +19,7 @@ Require-Bundle: org.eclipse.core.expressions;bundle-version="3.4.400",
  com.espressif.idf.serial.monitor,
  org.eclipse.cdt.core.native,
  org.eclipse.ui.console,
- org.slf4j.api;bundle-version="1.7.30"
+ org.slf4j.api
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin

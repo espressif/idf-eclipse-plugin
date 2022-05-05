@@ -1,6 +1,5 @@
 package com.espressif.idf.serial.monitor.handlers;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.core.resources.IProject;
@@ -34,10 +33,7 @@ public class SerialMonitorHandler
 		// python path
 		String pythonPath = IDFUtil.getIDFPythonEnvPath();
 
-		File idfMonitorScriptFile = IDFUtil.getIDFPythonScriptFile();
-
-		IDFMonitor monitor = new IDFMonitor(project, serialPort, filterOptions, pythonPath,
-				idfMonitorScriptFile.getAbsolutePath(), serverPort);
+		IDFMonitor monitor = new IDFMonitor(project, serialPort, filterOptions, pythonPath, serverPort);
 		try
 		{
 			return monitor.start();

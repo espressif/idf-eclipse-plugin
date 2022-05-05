@@ -5,6 +5,9 @@
 package com.espressif.idf.terminal.connector.serial.server;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MessageBox;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -13,6 +16,7 @@ import com.espressif.idf.terminal.connector.serial.connector.SerialConnector;
 import com.espressif.idf.terminal.connector.serial.launcher.CoreDumpPostmortemDebuggerLauncher;
 import com.espressif.idf.terminal.connector.serial.launcher.GDBStubDebuggerLauncher;
 import com.espressif.idf.terminal.connector.serial.launcher.ISerialWebSocketEventLauncher;
+import com.espressif.idf.terminal.connector.serial.nls.Messages;
 
 /**
  * Class to handle the socket server messages and create the required objects to process those messages
@@ -37,16 +41,24 @@ public class SocketServerMessageHandler
 		String event = messageJsonObject.get("event").toString(); //$NON-NLS-1$
 		ISerialWebSocketEventLauncher iSerialWebSocketEventLauncher = null;
 		Logger.log("Event Received on Socket Server: ".concat(event)); //$NON-NLS-1$
+		MessageBox messageBox = new MessageBox(Display.getDefault().getActiveShell(),
+				SWT.ICON_INFORMATION | SWT.YES | SWT.NO);
+		messageBox.setText(Messages.MessageBox_SocketServerEventTitle);
+		messageBox.setMessage(String.format(Messages.MessageBox_SocketServerEventMessage, event));
+		int messageBoxResponse = -1;
+
 		if (ITerminalSocketEvents.GDB_STUB.equals(event)) // $NON-NLS-1$
 		{
 			iSerialWebSocketEventLauncher = new GDBStubDebuggerLauncher(message, project);
+			messageBoxResponse = messageBox.open();
 		}
 		else if (ITerminalSocketEvents.CORE_DUMP.equals(event))
 		{
 			iSerialWebSocketEventLauncher = new CoreDumpPostmortemDebuggerLauncher(message, project);
+			messageBoxResponse = messageBox.open();
 		}
 
-		if (iSerialWebSocketEventLauncher != null)
+		if (iSerialWebSocketEventLauncher != null && messageBoxResponse == SWT.YES)
 		{
 			iSerialWebSocketEventLauncher.launchDebugSession();
 			serialConnector.disconnect();

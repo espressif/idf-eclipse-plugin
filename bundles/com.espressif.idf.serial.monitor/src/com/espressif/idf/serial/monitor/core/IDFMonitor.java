@@ -28,17 +28,15 @@ public class IDFMonitor
 {
 	private String port;
 	private String pythonBinPath;
-	private String idfMonitorToolPath;
 	private IProject project;
 	private String filterOptions;
 	private int serverPort;
 
-	public IDFMonitor(IProject project, String port, String filterOptions, String pythonBinPath, String idfMonitorToolPath, int serverPort)
+	public IDFMonitor(IProject project, String port, String filterOptions, String pythonBinPath, int serverPort)
 	{
 		this.project = project;
 		this.port = port;
 		this.pythonBinPath = pythonBinPath;
-		this.idfMonitorToolPath = idfMonitorToolPath;
 		this.filterOptions = filterOptions;
 		this.serverPort = serverPort;
 	}

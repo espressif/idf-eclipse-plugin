@@ -17,7 +17,8 @@ import org.eclipse.osgi.util.NLS;
 /**
  * Externalized strings management.
  */
-public class Messages extends NLS {
+public class Messages extends NLS
+{
 
 	// The plug-in resource bundle name
 	private static final String BUNDLE_NAME = "com.espressif.idf.terminal.connector.serial.nls.Messages"; //$NON-NLS-1$
@@ -25,7 +26,8 @@ public class Messages extends NLS {
 	/**
 	 * Static constructor.
 	 */
-	static {
+	static
+	{
 		// Load message values from bundle file
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
 	}
@@ -35,5 +37,7 @@ public class Messages extends NLS {
 	public static String SerialSettingsPage_FilterOptions;
 	public static String SerialSettingsPage_ProjectName;
 	public static String SerialTerminalSettingsPage_SerialPort;
+	public static String MessageBox_SocketServerEventTitle;
+	public static String MessageBox_SocketServerEventMessage;
 
 }
