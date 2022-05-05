@@ -24,6 +24,7 @@ import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.tools.vo.ToolsVO;
 import com.espressif.idf.ui.tools.vo.VersionsVO;
@@ -178,39 +179,48 @@ public class ToolsInstallationHandler
 		console.println(Messages.UpdatingPathMessage);
 		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
 		String pathValue = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH);
-		StringBuilder updatedPath = new StringBuilder();
-		String[] splittedPaths = pathValue.split(File.pathSeparator);
-		int i = 0;
 		StringBuilder exportPathBuilder = new StringBuilder();
 		exportPathBuilder.append(toolPath);
-		for (String path : splittedPaths)
+		StringBuilder updatedPath = new StringBuilder();
+		if (!StringUtil.isEmpty(pathValue))
 		{
-			i++;
-			if (path.contains(toolName))
+			String[] splittedPaths = pathValue.split(File.pathSeparator);
+			int i = 0;
+			
+			for (String path : splittedPaths)
 			{
-				console.println(Messages.PreviousToolMessage.concat(path));
-			}
-			else
-			{
-				updatedPath.append(path);
-				if (i < splittedPaths.length)
+				i++;
+				if (path.contains(toolName))
 				{
-					updatedPath.append(File.pathSeparator);
+					console.println(Messages.PreviousToolMessage.concat(path));
+				}
+				else
+				{
+					updatedPath.append(path);
+					if (i < splittedPaths.length || splittedPaths.length == 1)
+					{
+						updatedPath.append(File.pathSeparator);
+					}
 				}
 			}
 		}
+		
 
 		for (String exportPath : exportPaths)
 		{
 			exportPathBuilder.append(exportPath);
 			exportPathBuilder.append(PATH_SPLITOR);
 		}
-
+		if (updatedPath.toString().split(File.pathSeparator).length > 1)
+		{
+			updatedPath.append(File.pathSeparator);
+		}
+		
 		Path pathToExport = Paths.get(exportPathBuilder.toString()); // for correcting the path error in windows
 
 		console.println(Messages.UpdateToolPathMessage.concat(pathToExport.toAbsolutePath().toString()));
-		updatedPath.append(File.pathSeparator);
-		updatedPath.append(pathToExport.toAbsolutePath().toString());
+		
+		updatedPath.append(pathToExport.toAbsolutePath().toString());			
 
 		console.println(Messages.SystemPathMessage.concat(updatedPath.toString()));
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, updatedPath.toString());

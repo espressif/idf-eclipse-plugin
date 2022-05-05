@@ -37,7 +37,6 @@ public class Messages extends NLS
 	public static String SystemPathMessage;
 	public static String ExtractionCompletedMessage;
 	public static String RemovedPathMessage;
-	public static String RemovingDirectoryMessage;
 	public static String RemoveToolMessageBox;
 	public static String RemoveToolMessageBoxTitle;
 	public static String SelectAllButton;
@@ -49,6 +48,7 @@ public class Messages extends NLS
 	public static String WarningMessagebox;
 	public static String NotInstalled;
 	public static String Available;
+	public static String ShowAvailableVersionsOnly;
 	
 	static
 	{

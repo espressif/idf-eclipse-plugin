@@ -160,7 +160,7 @@
             </command>
             <command
                   commandId="com.espressif.idf.ui.command.managetoolsinstallation"
-                  icon="icons/ESP-IDFManageToolsInstalltion.png"
+                  icon="icons/ESP-IDFManageToolsInstallation.png"
                   style="push">
             </command>
          </menu>
