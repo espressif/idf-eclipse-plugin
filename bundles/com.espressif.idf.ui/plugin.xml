@@ -251,7 +251,7 @@
          </separator>
          <command
                commandId="com.espressif.idf.ui.memoryanalysis"
-               icon="icons/ESP-IDF Application Size Analysis.png"
+               icon="icons/ESP-IDF_ApplicationSizeAnalysis.png"
                label="%command.label.1"
                style="push">
             <visibleWhen
@@ -315,7 +315,7 @@
          </command>
          <command
                commandId="com.espressif.idf.ui.installidfcomponents"
-               icon="icons/ESP-IDF Install Tools.png"
+               icon="icons/ESP-IDF_InstallComponents.png"
                label="%command.label.6"
                style="push">
             <visibleWhen>
@@ -359,7 +359,7 @@
       <editor
             class="com.espressif.idf.ui.size.IDFSizeAnalysisEditor"
             default="false"
-            icon="icons/ESP-IDF Application Size Analysis.png"
+            icon="icons/ESP-IDF_ApplicationSizeAnalysis.png"
             id="com.espressif.idf.ui.editor.idfsize"
             name="%editor.name">
       </editor>
@@ -464,7 +464,7 @@
       <editor
             class="com.espressif.idf.ui.installcomponents.InstallComponentsEditor"
             default="false"
-            icon="icons/Install ESP-IDF Components.png"
+            icon="icons/ESP-IDF_InstallComponents.png"
             id="com.espressif.idf.ui.installComponents"
             name="%editor.name.1">
       </editor>
