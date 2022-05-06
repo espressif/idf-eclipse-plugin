@@ -4,8 +4,6 @@
  *******************************************************************************/
 package com.espressif.idf.ui.size;
 
-import java.io.File;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -16,7 +14,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IPageLayout;
@@ -26,8 +23,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.util.GenericJsonReader;
-import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 
 /**
@@ -49,10 +45,11 @@ public class IDFSizeMemoryHandler extends AbstractHandler
 
 		if (project == null)
 		{
+			Logger.log("There is no project selected in the Project Explorer");
 			return null;
 		}
 
-		IPath mapFilePath = getMapFilePath((IProject) project);
+		IPath mapFilePath = IDFUtil.getMapFilePath((IProject) project);
 		Logger.log("Mapping file path " + mapFilePath); //$NON-NLS-1$
 		if (mapFilePath == null || !mapFilePath.toFile().exists())
 		{
@@ -88,18 +85,6 @@ public class IDFSizeMemoryHandler extends AbstractHandler
 				}
 			}
 		});
-	}
-
-	protected IPath getMapFilePath(IProject project)
-	{
-		GenericJsonReader jsonReader = new GenericJsonReader(project, "build" + File.separator + "project_description.json"); //$NON-NLS-1$ //$NON-NLS-2$
-		String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
-		if (!StringUtil.isEmpty(value))
-		{
-			value = value.replace(".elf", ".map"); //Assuming .elf and .map files have the same file name //$NON-NLS-1$ //$NON-NLS-2$
-			return project.getFile(new Path("build").append(value)).getLocation(); //$NON-NLS-1$
-		}
-		return null;
 	}
 
 }
