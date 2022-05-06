@@ -306,7 +306,7 @@ public class ManageToolsInstallationShell
 				}
 			}
 
-			String[] itemText = getMainItemText(toolsVO, isInstalled);
+			String[] itemText = getMainItemText(toolsVO, isInstalled, mainItem.getItems());
 			mainItem.setText(itemText);
 			mainItem.setData(toolsVO);
 			Image installedImage = isInstalled ? UIPlugin.getImage(GREEN) : UIPlugin.getImage(WHITE);
@@ -402,11 +402,16 @@ public class ManageToolsInstallationShell
 		return textArr;
 	}
 
-	private String[] getMainItemText(ToolsVO toolsVO, boolean isInstalled)
+	private String[] getMainItemText(ToolsVO toolsVO, boolean isInstalled, TreeItem[] subItems)
 	{
 		String[] textArr = new String[4];
 		textArr[0] = toolsVO.getName();
-		textArr[1] = toolsVO.getReadableSize();
+		int total = 0;
+		for (TreeItem subItem : subItems)
+		{
+			total += Integer.parseInt(subItem.getText(1).split(" ")[0]); //$NON-NLS-1$
+		}
+		textArr[1] = String.valueOf(total).concat(" MB"); //$NON-NLS-1$
 		textArr[2] = isInstalled ? Messages.Installed : Messages.NotInstalled;
 		textArr[3] = toolsVO.getDescription();
 		return textArr;
