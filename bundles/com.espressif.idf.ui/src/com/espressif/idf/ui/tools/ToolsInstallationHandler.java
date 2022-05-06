@@ -37,7 +37,7 @@ import com.espressif.idf.ui.tools.vo.VersionsVO;
  */
 public class ToolsInstallationHandler
 {
-	private static final String TOOL_INSTALLATION_JOB = "ToolInstallationJobFor"; //$NON-NLS-1$
+	private static final String TOOL_INSTALLATION_JOB = "Tool installation job for "; //$NON-NLS-1$
 	private static final String PATH_SPLITOR = "/"; //$NON-NLS-1$
 	private static final String GZ_EXT = "gz"; //$NON-NLS-1$
 	private static final String ZIP_EXT = "zip"; //$NON-NLS-1$
@@ -127,7 +127,7 @@ public class ToolsInstallationHandler
 		{
 			for (VersionsVO versionsVO : selectedItems.get(toolsVo))
 			{
-				Job job = new Job(TOOL_INSTALLATION_JOB.concat(" ").concat(toolsVo.getName())) //$NON-NLS-1$
+				Job job = new Job(TOOL_INSTALLATION_JOB.concat(toolsVo.getName())) //$NON-NLS-1$
 						{
 							@Override
 							protected IStatus run(IProgressMonitor monitor)
