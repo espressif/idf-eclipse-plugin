@@ -32,6 +32,7 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.osgi.service.prefs.Preferences;
 
+import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.build.ESP32S2ToolChain;
 import com.espressif.idf.core.build.ESP32ToolChain;
@@ -139,7 +140,7 @@ public class ResourceChangeListener implements IResourceChangeListener
 	{
 
 		IProject project = (IProject) resource;
-		File buildLocation = new File(project.getLocation() + "/build"); //$NON-NLS-1$
+		File buildLocation = new File(project.getLocation() + "/"+ IDFConstants.BUILD_FOLDER); //$NON-NLS-1$
 		deleteDirectory(buildLocation);
 	}
 	

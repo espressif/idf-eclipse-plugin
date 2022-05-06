@@ -54,7 +54,9 @@ import org.eclipse.embedcdt.debug.gdbjtag.core.DebugUtils;
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.AbstractGnuMcuLaunchConfigurationDelegate;
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuServerServicesLaunchSequence;
 
+import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.util.GenericJsonReader;
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
@@ -190,12 +192,11 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		ILaunchConfigurationWorkingCopy wc = config.getWorkingCopy();
 		IProject project = config.getMappedResources()[0].getProject();
 		String programName = ""; //$NON-NLS-1$
-		GenericJsonReader jsonReader = new GenericJsonReader(project,
-				File.separator + "build" + File.separator + "project_description.json"); //$NON-NLS-1$
+		GenericJsonReader jsonReader = new GenericJsonReader(IDFUtil.getBuildDir(project) + File.separator + IDFConstants.PROECT_DESCRIPTION_JSON);
 		String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
 		if (!StringUtil.isEmpty(value))
 		{
-			programName = "build" + File.separator + value; //$NON-NLS-1$
+			programName = IDFConstants.BUILD_FOLDER + File.separator + value;
 		}
 		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, programName);
 		wc.doSave();

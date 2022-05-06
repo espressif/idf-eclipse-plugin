@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.net.URI;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,7 +45,10 @@ import org.eclipse.cdt.core.build.IToolChain;
 import org.eclipse.cdt.core.envvar.EnvironmentVariable;
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
 import org.eclipse.cdt.core.index.IIndexManager;
+import org.eclipse.cdt.core.model.CoreModel;
 import org.eclipse.cdt.core.model.ElementChangedEvent;
+import org.eclipse.cdt.core.model.IBinary;
+import org.eclipse.cdt.core.model.IBinaryContainer;
 import org.eclipse.cdt.core.model.ICElement;
 import org.eclipse.cdt.core.model.ICElementDelta;
 import org.eclipse.cdt.core.model.ICModelMarker;
@@ -52,6 +56,8 @@ import org.eclipse.cdt.core.model.ICProject;
 import org.eclipse.cdt.core.parser.ExtendedScannerInfo;
 import org.eclipse.cdt.core.parser.IScannerInfo;
 import org.eclipse.cdt.core.resources.IConsole;
+import org.eclipse.cdt.internal.core.model.BinaryRunner;
+import org.eclipse.cdt.internal.core.model.CModelManager;
 import org.eclipse.cdt.jsoncdb.core.CompileCommandsJsonParser;
 import org.eclipse.cdt.jsoncdb.core.ISourceFileInfoConsumer;
 import org.eclipse.cdt.jsoncdb.core.ParseRequest;
@@ -68,6 +74,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunchMode;
 import org.eclipse.launchbar.core.ILaunchBarManager;
@@ -106,6 +113,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	 */
 	private boolean cmakeListsModified;
 	private ICMakeToolChainFile toolChainFile;
+	private String customBuildDir;
 
 	public IDFBuildConfiguration(IBuildConfiguration config, String name) throws CoreException
 	{
@@ -129,9 +137,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 	@Override
 	public Path getBuildDirectory() throws CoreException {
-		IProject project = getProject();
-		String absolutePath = project.getLocation().toFile().getAbsolutePath();
-		return Paths.get(absolutePath, IDFConstants.BUILD_FOLDER);
+		return Paths.get(getBuildDirectoryURI());
 
 	}
 
@@ -147,6 +153,55 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 
 		return buildRootFolder;
 	}
+	
+	public IPath getBuildContainerPath() throws CoreException {
+		
+		if (hasCustomBuild())
+		{
+			org.eclipse.core.runtime.Path path = new org.eclipse.core.runtime.Path(customBuildDir);
+			if (!path.toFile().exists()) {
+				path.toFile().mkdirs();
+			}
+			return path;
+		}
+	
+		return getBuildContainer().getLocation();
+	}
+	
+	private boolean hasCustomBuild()
+	{
+		return this.customBuildDir != null;
+	}
+	
+	@Override
+	public URI getBuildDirectoryURI() throws CoreException
+	{
+		IPath buildContainerPath = getBuildContainerPath();
+		return buildContainerPath.toFile().toURI();
+	}
+	
+	@Override
+	public IBinary[] getBuildOutput() throws CoreException {
+		ICProject cproject = CoreModel.getDefault().create(getProject());
+		IBinaryContainer binaries = cproject.getBinaryContainer();
+		IPath outputPath = getBuildContainerPath();
+		final IBinary[] outputs = getBuildOutput(binaries, outputPath);
+		if (outputs.length > 0) {
+			return outputs;
+		}
+
+		// Give the binary runner a kick and try again.
+		BinaryRunner runner = CModelManager.getDefault().getBinaryRunner(cproject);
+		runner.start();
+		runner.waitIfRunning();
+		return getBuildOutput(binaries, outputPath);
+	}
+	
+	private IBinary[] getBuildOutput(final IBinaryContainer binaries, final IPath outputPath) throws CoreException {
+		return Arrays.stream(binaries.getBinaries()).filter(b -> b.isExecutable() && outputPath.isPrefixOf(b.getPath()))
+				.toArray(IBinary[]::new);
+	}
+	
 
 	public ICMakeToolChainFile getToolChainFile()
 	{
@@ -277,6 +332,14 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				{
 					command.addAll(Arrays.asList(userArgs.trim().split("\\s+"))); //$NON-NLS-1$
 				}
+				
+				//Custom build directory
+				int buildDirIndex = command.indexOf("-B"); //$NON-NLS-1$
+				if (buildDirIndex != -1)
+				{
+					 this.customBuildDir = command.get(buildDirIndex+1);
+				}
+				getProject().setPersistentProperty(new QualifiedName(IDFCorePlugin.PLUGIN_ID, IDFConstants.BUILD_DIR_PROPERTY), customBuildDir);
 
 				IContainer srcFolder = project;
 				command.add(new File(srcFolder.getLocationURI()).getAbsolutePath());
@@ -432,8 +495,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 			componentsFolder.create(true, false, new NullProgressMonitor());
 		}
 
-		final IFile jsonFile = getBuildContainer().getFile(new org.eclipse.core.runtime.Path(COMPILE_COMMANDS_JSON));
-		File jsonDiskFile = new File(jsonFile.getLocationURI());
+		final IPath jsonIPath = getBuildContainerPath().append(new org.eclipse.core.runtime.Path(COMPILE_COMMANDS_JSON));
+		File jsonDiskFile = jsonIPath.toFile();
 
 		CommandEntry[] sourceFileInfos = null;
 		try (Reader in = new FileReader(jsonDiskFile))
@@ -581,11 +644,34 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	 */
 	private void processCompileCommandsFile(IConsole console, IProgressMonitor monitor) throws CoreException
 	{
-		IFile file = getBuildContainer().getFile(new org.eclipse.core.runtime.Path(COMPILE_COMMANDS_JSON));
+		IFile file = getCompileCommandsJsonFile(monitor);
+
 		CompileCommandsJsonParser parser = new CompileCommandsJsonParser(
 				new ParseRequest(file, new CMakeIndexerInfoConsumer(this::setScannerInformation,getProject()),
 						CommandLauncherManager.getInstance().getCommandLauncher(this), console));
 		parser.parse(monitor);
+	}
+
+	private IFile getCompileCommandsJsonFile(IProgressMonitor monitor) throws CoreException
+	{
+		IFile file = getBuildContainer().getFile(new org.eclipse.core.runtime.Path(COMPILE_COMMANDS_JSON));
+		if (hasCustomBuild())
+		{
+			org.eclipse.core.runtime.Path compileCmdJsonFile = new org.eclipse.core.runtime.Path(COMPILE_COMMANDS_JSON);
+			final IPath jsonIPath = getBuildContainerPath().append(compileCmdJsonFile);
+
+			IFolder folder = getProject().getFolder(ESP_IDF_COMPONENTS);
+			String fileName = jsonIPath.toFile().getName();
+			file = folder.getFile(fileName);
+			if (!file.exists())
+			{
+				IFile folderLink = folder.getFile(fileName);
+				setLinkLocation(folderLink, jsonIPath);
+
+			}
+			getProject().refreshLocal(IResource.DEPTH_INFINITE, monitor);
+		}
+		return file;
 	}
 
 	/**
@@ -696,7 +782,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 					{
 						IResource resource = resourceDelta.getResource();
 						if (resource.getType() == IResource.FILE
-								&& !resource.getFullPath().toOSString().contains("build")) {
+								&& !resource.getFullPath().toOSString().contains(IDFConstants.BUILD_FOLDER)) {
 							String name = resource.getName();
 							if (name.equals("CMakeLists.txt") || name.endsWith(".cmake")) //$NON-NLS-1$ //$NON-NLS-2$
 							{

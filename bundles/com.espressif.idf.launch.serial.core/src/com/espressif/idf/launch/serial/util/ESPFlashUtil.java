@@ -60,8 +60,8 @@ public class ESPFlashUtil {
 	public static String getEspJtagFlashCommand(ILaunchConfiguration configuration) {
 		String espFlashCommand = "-c program_esp_bins <path-to-build-dir> flasher_args.json verify reset"; //$NON-NLS-1$
 		try {
-			String buildPath = configuration.getMappedResources()[0].getProject().getFolder("build").getLocationURI() //$NON-NLS-1$
-					.getPath();
+			String buildPath = configuration.getMappedResources()[0].getProject().getFolder(IDFConstants.BUILD_FOLDER)
+					.getLocationURI().getPath();
 			char a = buildPath.charAt(2);
 			if (a == ':') {
 				buildPath = buildPath.substring(1);

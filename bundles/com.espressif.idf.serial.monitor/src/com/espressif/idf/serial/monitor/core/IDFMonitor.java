@@ -8,9 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
+import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.GenericJsonReader;
@@ -32,7 +34,8 @@ public class IDFMonitor
 	private String filterOptions;
 	private boolean withSocketServer;
 
-	public IDFMonitor(IProject project, String port, String filterOptions, String pythonBinPath, String idfMonitorToolPath, boolean withSocketServer)
+	public IDFMonitor(IProject project, String port, String filterOptions, String pythonBinPath,
+			String idfMonitorToolPath, boolean withSocketServer)
 	{
 		this.project = project;
 		this.port = port;
@@ -69,18 +72,27 @@ public class IDFMonitor
 		args.add(getElfFilePath(project).toString());
 		return args;
 	}
-	
+
 	private IPath getElfFilePath(IProject project)
 	{
-		GenericJsonReader jsonReader = new GenericJsonReader(project, "build" + File.separator + "project_description.json"); //$NON-NLS-1$ //$NON-NLS-2$
-		String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
-		if (!StringUtil.isEmpty(value))
+		try
 		{
-			return project.getFile(new Path("build").append(value)).getLocation(); //$NON-NLS-1$
+			String buildDir = IDFUtil.getBuildDir(project);
+			GenericJsonReader jsonReader = new GenericJsonReader(
+					buildDir + File.separator + IDFConstants.PROECT_DESCRIPTION_JSON);
+			String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
+			if (!StringUtil.isEmpty(value))
+			{
+				return new Path(buildDir).append(value);
+			}
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
 		}
 		return null;
 	}
-	
+
 	private String getMonitorBaudRate()
 	{
 		return new SDKConfigJsonReader(project).getValue("ESPTOOLPY_MONITOR_BAUD"); //$NON-NLS-1$
@@ -91,13 +103,13 @@ public class IDFMonitor
 		List<String> arguments = null;
 		if (!withSocketServer)
 		{
-			arguments = commandArgsWithoutSocketServer();	
+			arguments = commandArgsWithoutSocketServer();
 		}
 		else
 		{
 			arguments = commandArgsWithSocketServer();
 		}
-		
+
 		// command to execute
 		Logger.log(arguments.toString());
 
