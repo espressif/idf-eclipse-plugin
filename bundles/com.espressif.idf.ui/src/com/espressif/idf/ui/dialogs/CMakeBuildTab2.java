@@ -14,7 +14,10 @@ import java.util.Map;
 
 import org.eclipse.cdt.cmake.core.internal.CMakeBuildConfiguration;
 import org.eclipse.cdt.core.build.ICBuildConfiguration;
+import org.eclipse.cdt.debug.core.launch.CoreBuildLaunchConfigDelegate;
 import org.eclipse.cdt.launch.ui.corebuild.CommonBuildTab;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.swt.SWT;
@@ -30,6 +33,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import com.espressif.idf.core.build.IDFBuildConfigurationProvider;
+import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.RecheckConfigsHelper;
 
 public class CMakeBuildTab2 extends CommonBuildTab {
 
@@ -111,10 +116,18 @@ public class CMakeBuildTab2 extends CommonBuildTab {
 
 	@Override
 	public void initializeFrom(ILaunchConfiguration configuration) {
+		try
+		{
+			IProject project = CoreBuildLaunchConfigDelegate.getProject(configuration);
+			RecheckConfigsHelper.revalidateToolchain(project);
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+
 		super.initializeFrom(configuration);
-
 		ICBuildConfiguration buildConfig = getBuildConfiguration();
-
 		String generator = buildConfig.getProperty(CMakeBuildConfiguration.CMAKE_GENERATOR);
 		updateGeneratorButtons(generator);
 
