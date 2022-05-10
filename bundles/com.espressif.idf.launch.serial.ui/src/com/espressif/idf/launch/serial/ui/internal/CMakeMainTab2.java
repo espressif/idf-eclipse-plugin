@@ -151,6 +151,11 @@ public class CMakeMainTab2 extends GenericMainTab {
 		} else {
 			configuration.setMappedResources(null);
 		}
+		try {
+			configuration.doSave();
+		} catch (CoreException e) {
+			Logger.log(e);
+		}
 	}
 
 	@SuppressWarnings("restriction")
