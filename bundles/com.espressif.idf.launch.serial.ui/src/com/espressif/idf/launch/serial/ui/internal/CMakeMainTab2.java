@@ -17,13 +17,24 @@ package com.espressif.idf.launch.serial.ui.internal;
 import java.io.File;
 import java.util.Map;
 
+import org.eclipse.cdt.core.CCorePlugin;
+import org.eclipse.cdt.core.model.CoreModel;
+import org.eclipse.cdt.core.model.ICElement;
+import org.eclipse.cdt.core.model.ICProject;
+import org.eclipse.cdt.core.settings.model.ICProjectDescription;
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
+import org.eclipse.cdt.launch.internal.ui.LaunchUIPlugin;
 import org.eclipse.cdt.launch.ui.corebuild.GenericMainTab;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
@@ -40,6 +51,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.json.simple.JSONArray;
 
@@ -125,6 +137,69 @@ public class CMakeMainTab2 extends GenericMainTab {
 			lbl.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_DARK_YELLOW));
 			lbl.setText(Messages.CMakeMainTab2_JtagFlashingNotSupportedMsg);
 			flashOverJtagButton.setEnabled(false);
+		}
+	}
+
+	@Override
+	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
+		super.setDefaults(configuration);
+
+		ICElement cElement = null;
+		cElement = getContext(configuration, getPlatform(configuration));
+		if (cElement != null) {
+			initializeCProject(cElement, configuration);
+		} else {
+			configuration.setMappedResources(null);
+		}
+	}
+
+	@SuppressWarnings("restriction")
+	private ICElement getContext(ILaunchConfigurationWorkingCopy configuration, String platform) {
+		IWorkbenchPage page = LaunchUIPlugin.getActivePage();
+		Object obj = null;
+		if (page != null) {
+			ISelection selection = page.getSelection();
+			if (selection instanceof IStructuredSelection) {
+				IStructuredSelection ss = (IStructuredSelection) selection;
+				if (!ss.isEmpty()) {
+					obj = ss.getFirstElement();
+				}
+			}
+			if (obj instanceof IResource) {
+				ICElement ce = CoreModel.getDefault().create((IResource) obj);
+				if (ce == null) {
+					IProject pro = ((IResource) obj).getProject();
+					ce = CoreModel.getDefault().create(pro);
+				}
+				obj = ce;
+			}
+		}
+		return (ICElement) obj;
+	}
+
+	protected void initializeCProject(ICElement cElement, ILaunchConfigurationWorkingCopy config) {
+		ICProject cProject = cElement.getCProject();
+		String name = null;
+		if (cProject != null && cProject.exists()) {
+			name = cProject.getElementName();
+			config.setMappedResources(new IResource[] { cProject.getProject() });
+
+			ICProjectDescription projDes = CCorePlugin.getDefault().getProjectDescription(cProject.getProject());
+			if (projDes != null) {
+				String buildConfigID = projDes.getActiveConfiguration().getId();
+				config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_BUILD_CONFIG_ID, buildConfigID);
+			}
+
+		}
+		config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, name);
+	}
+
+	protected String getPlatform(ILaunchConfiguration config) {
+		String platform = Platform.getOS();
+		try {
+			return config.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PLATFORM, platform);
+		} catch (CoreException e) {
+			return platform;
 		}
 	}
 
