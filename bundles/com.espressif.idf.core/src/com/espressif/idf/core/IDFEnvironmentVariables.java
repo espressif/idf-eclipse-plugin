@@ -29,13 +29,15 @@ public class IDFEnvironmentVariables
 	 * 
 	 */
 	public static String IDF_PATH = "IDF_PATH"; //$NON-NLS-1$
-	
+
 	public static String IDF_PYTHON_ENV_PATH = "IDF_PYTHON_ENV_PATH"; //$NON-NLS-1$
-	
+
 	public static String PATH = "PATH"; //$NON-NLS-1$
-	
+
 	public static String OPENOCD_SCRIPTS = "OPENOCD_SCRIPTS"; //$NON-NLS-1$
-	
+
+	public static String IDF_COMPONENT_MANAGER = "IDF_COMPONENT_MANAGER"; //$NON-NLS-1$
+
 	/**
 	 * @param variableName Environment variable Name
 	 * @return IEnvironmentVariable
@@ -69,18 +71,18 @@ public class IDFEnvironmentVariables
 
 		return envValue;
 	}
-	
+
 	@SuppressWarnings("restriction")
 	public void addEnvVariable(String name, String value)
 	{
 		Logger.log(MessageFormat.format("Updating environment variables with key:{0} value:{1}", name, value)); //$NON-NLS-1$
 		IContributedEnvironment contributedEnvironment = getEnvironment();
 		contributedEnvironment.addVariable(name, value, IEnvironmentVariable.ENVVAR_REPLACE, null, null);
-		
-		//Without this environment variables won't be persisted
+
+		// Without this environment variables won't be persisted
 		EnvironmentVariableManager.fUserSupplier.storeWorkspaceEnvironment(true);
 	}
-	
+
 	/**
 	 * @return CDT build environment variables map
 	 */
