@@ -5,9 +5,6 @@
 
 package com.espressif.idf.ui.menuitem;
 
-import java.io.File;
-import java.net.URL;
-
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.ContributionItem;
@@ -98,10 +95,7 @@ public class LanguageDynamicMenuItem extends ContributionItem
 
 	private void restartEclipse() throws Exception
 	{
-		URL eclipseInstallationUrl = new URL(
-				Platform.getInstallLocation().getURL() + System.getProperty("eclipse.launcher.name")); //$NON-NLS-1$
-		String pathToEclipse = new File(eclipseInstallationUrl.toURI()).toString();
-		ProcessBuilder processBuilder = new ProcessBuilder(pathToEclipse);
+		ProcessBuilder processBuilder = new ProcessBuilder(System.getProperty("eclipse.launcher")); //$NON-NLS-1$
 		processBuilder.start();
 		PlatformUI.getWorkbench().close();
 	}

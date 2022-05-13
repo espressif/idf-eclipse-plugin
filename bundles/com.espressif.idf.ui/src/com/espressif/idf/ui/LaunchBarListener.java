@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Display;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.SDKConfigJsonReader;
 import com.espressif.idf.core.util.StringUtil;
 
@@ -85,7 +86,7 @@ public class LaunchBarListener implements ILaunchBarListener
 				// build folder exist?
 				if (project != null)
 				{
-					File buildLocation = new File(project.getLocation() + "/build"); //$NON-NLS-1$
+					File buildLocation = new File(IDFUtil.getBuildDir((IProject) project)); //$NON-NLS-1$
 					if (buildLocation.exists())
 					{
 						// get current target
