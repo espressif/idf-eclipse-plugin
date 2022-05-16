@@ -214,7 +214,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
 		super.setDefaults(configuration);
 
-		selectedProject = getProject();
+		selectedProject = getSelectedProject();
 		if (selectedProject != null) {
 			initializeCProject(selectedProject, configuration);
 		}
@@ -225,7 +225,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 		}
 	}
 
-	protected IProject getProject() {
+	private IProject getSelectedProject() {
 		List<IProject> projectList = new ArrayList<>(1);
 		Display.getDefault().syncExec(new Runnable() {
 
