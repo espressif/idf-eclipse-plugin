@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -71,6 +73,11 @@ public class ManageToolsInstallationShell
 	private static final String GREEN = "icons/tools/green.png"; //$NON-NLS-1$
 	private static final String WINDOWS = "windows"; //$NON-NLS-1$
 	private static final String IMG_WINDOWS_OS = "icons/tools/".concat(WINDOWS).concat(PNG_EXTENSION); //$NON-NLS-1$
+	private static final String SELECT_ALL = "icons/tools/select-all".concat(PNG_EXTENSION); //$NON-NLS-1$
+	private static final String UNSELECT_ALL = "icons/tools/unselect-all".concat(PNG_EXTENSION); //$NON-NLS-1$
+	private static final String SHELL_ICON = "icons/ESP-IDFManageToolsInstallation".concat(PNG_EXTENSION); //$NON-NLS-1$
+	private static final String SELECT_RECOMMENDED = "icons/tools/select-recommended".concat(PNG_EXTENSION); //$NON-NLS-1$
+	
 	private Display display;
 	private Shell shell;
 	private List<ToolsVO> toolsVOs;
@@ -78,55 +85,59 @@ public class ManageToolsInstallationShell
 	private Tree toolsTree;
 	private Button btnInstallTools;
 	private Button btnDeleteTools;
-	private Button btnSelectAll;
-	private Button btnDeselectAll;
+	private Button btnSelectButton;
+	private boolean selectionFlag;
 	private Combo filterTargetBox;
 	private boolean itemChecked = false;
 	private Button chkAvailableVersions;
+	private Button selectRecommendedButton;
 
 	public ManageToolsInstallationShell(List<ToolsVO> toolsVOs)
 	{
 		this.toolsVOs = toolsVOs;
 		this.display = PlatformUI.getWorkbench().getDisplay();
 		this.shell = new Shell(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
-				SWT.CLOSE | SWT.MAX | SWT.TITLE);
+				SWT.CLOSE | SWT.MAX | SWT.RESIZE | SWT.TITLE);
 		shell.setImage(UIPlugin.getImage(ESP_IDF_TOOLS_MANAGER_ICON));
 		shell.setText(Messages.ToolsManagerShellHeading);
 		shell.setLayout(new FillLayout(SWT.VERTICAL));
+		shell.setImage(UIPlugin.getImage(SHELL_ICON));
 
 		Composite treeControlsComposite = new Composite(shell, SWT.NONE);
 		treeControlsComposite.setLayout(new FillLayout(SWT.VERTICAL));
 
 		Composite subControlComposite = new Composite(treeControlsComposite, SWT.NONE);
 		subControlComposite.setLayout(new GridLayout(2, false));
-
-		btnSelectAll = new Button(subControlComposite, SWT.PUSH);
-		btnSelectAll.setText(Messages.SelectAllButton);
-		btnSelectAll.addSelectionListener(new SelectionAdapter()
+		
+		Composite topBarComposite = new Composite(subControlComposite, SWT.BORDER);
+		topBarComposite.setLayout(new GridLayout(6, itemChecked));
+		topBarComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 11));
+		
+		btnSelectButton = new Button(topBarComposite, SWT.PUSH);
+		btnSelectButton.setImage(UIPlugin.getImage(SELECT_ALL));
+		btnSelectButton.redraw();
+		btnSelectButton.setToolTipText(Messages.SelectAllButton);
+		btnSelectButton.addSelectionListener(new SelectionAdapter()
 		{
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				selectAllItems(true);
-				setButtonsEnabled(true);
+				selectAllItems(!selectionFlag);
+				setButtonsEnabled(!selectionFlag);
+				btnSelectButton.setImage(selectionFlag ? UIPlugin.getImage(SELECT_ALL): UIPlugin.getImage(UNSELECT_ALL));
+				btnSelectButton.setToolTipText(selectionFlag ? Messages.SelectAllButton : Messages.DeselectAllButton);
+				btnSelectButton.redraw();
+				selectionFlag = !selectionFlag;
 			}
 		});
-
-		btnDeselectAll = new Button(subControlComposite, SWT.PUSH);
-		btnDeselectAll.setText(Messages.DeselectAllButton);
-		btnDeselectAll.addSelectionListener(new SelectionAdapter()
-		{
-			@Override
-			public void widgetSelected(SelectionEvent e)
-			{
-				selectAllItems(false);
-				setButtonsEnabled(false);
-			}
-		});
-
-		chkAvailableVersions = new Button(subControlComposite, SWT.CHECK);
+		
+		selectRecommendedButton = new Button(topBarComposite, SWT.PUSH);
+		selectRecommendedButton.setImage(UIPlugin.getImage(SELECT_RECOMMENDED));
+		selectRecommendedButton.setToolTipText(Messages.SelectRecommended);
+		selectRecommendedButton.addSelectionListener(new SelectRecommendedButtonSelectionAdapter());
+		
+		chkAvailableVersions = new Button(topBarComposite, SWT.TOGGLE);
 		chkAvailableVersions.setText(Messages.ShowAvailableVersionsOnly);
-		chkAvailableVersions.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 4));
 		chkAvailableVersions.addSelectionListener(new SelectionAdapter()
 		{
 
@@ -137,12 +148,13 @@ public class ManageToolsInstallationShell
 				addItemsToTree(toolsTree, chkAvailableVersions.getSelection());
 			}
 		});
-
-		Label targetFilterLabel = new Label(subControlComposite, SWT.NONE);
+		
+		Label targetFilterLabel = new Label(topBarComposite, SWT.NONE);
 		targetFilterLabel.setText(Messages.FilterTargets);
-
-		filterTargetBox = new Combo(subControlComposite, SWT.READ_ONLY);
+		
+		filterTargetBox = new Combo(topBarComposite, SWT.READ_ONLY);
 		filterTargetBox.setItems(getTargetFilterItems());
+		new Label(topBarComposite, SWT.NONE);
 		filterTargetBox.addSelectionListener(new SelectionAdapter()
 		{
 			@Override
@@ -168,7 +180,72 @@ public class ManageToolsInstallationShell
 				}
 			}
 		});
+		
+		Label filterTextLabel = new Label(subControlComposite, SWT.NONE);
+		filterTextLabel.setText("Type below to filter");
+		Text filterText = new Text(subControlComposite, SWT.SINGLE | SWT.BORDER);
+		filterText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 5));
+		filterText.addKeyListener(new KeyAdapter()
+		{
+			private int filterLength = 0;
+			@Override
+			public void keyReleased(KeyEvent e)
+			{
+				if (filterText.getText().length() > filterLength)
+				{
+					String filter = filterText.getText();
+					filterLength = filterText.getText().length();
+					filterItems(filter, toolsTree);	
+				}
+				else if (filterText.getText().length() < filterLength)
+				{
+					toolsTree.removeAll();
+					addItemsToTree(toolsTree, false);	
+					String filter = filterText.getText();
+					filterLength = filterText.getText().length();
+					filterItems(filter, toolsTree);
+				}
+				
+				if (StringUtil.isEmpty(filterText.getText()))
+				{
+					toolsTree.removeAll();
+					addItemsToTree(toolsTree, false);
+				}
+			}
 
+			private void filterItems(String filter, Tree toolsTree)
+			{
+				for (TreeItem mainItem : toolsTree.getItems())
+				{
+					if (!getText(mainItem).toLowerCase().contains(filter.toLowerCase()))
+					{
+						boolean foundInSubItem = false;
+						for (TreeItem subItem : mainItem.getItems())
+						{
+							if (!getText(subItem).toLowerCase().contains(filter.toLowerCase()))
+							{
+								subItem.dispose();
+							}
+							else 
+							{
+								foundInSubItem = true;
+							}
+						}	
+						
+						if (!foundInSubItem)
+						{
+							mainItem.dispose();
+						}
+					}
+				}
+			}
+			
+			private String getText(TreeItem treeItem)
+			{
+				return treeItem.getText(0).concat(treeItem.getText(1)).concat(treeItem.getText(2)).concat(treeItem.getText(3));
+			}
+		});
+		
 		toolsTree = new Tree(subControlComposite, SWT.BORDER | SWT.CHECK | SWT.FULL_SELECTION);
 		toolsTree.setHeaderVisible(true);
 		toolsTree.setLinesVisible(true);
@@ -193,7 +270,7 @@ public class ManageToolsInstallationShell
 		trclmnDescription.setText(Messages.DescriptionText);
 
 		addItemsToTree(toolsTree, false);
-
+		
 		Composite buttonsComposite = new Composite(shell, SWT.NONE);
 		buttonsComposite.setLayout(new GridLayout(1, false));
 
@@ -222,7 +299,7 @@ public class ManageToolsInstallationShell
 		btnDeleteTools.setText(Messages.DeleteToolsText);
 		btnDeleteTools.addSelectionListener(new DeleteButtonSelectionAdapter());
 		btnDeleteTools.setEnabled(false);
-
+		
 		setButtonsEnabled(itemChecked);
 	}
 
@@ -238,6 +315,7 @@ public class ManageToolsInstallationShell
 
 	private void addItemsToTree(Tree toolsTree, boolean availableOnly)
 	{
+		toolsTree.setRedraw(false);
 		for (ToolsVO toolsVO : toolsVOs)
 		{
 			TreeItem mainItem = new TreeItem(toolsTree, SWT.NONE);
@@ -311,12 +389,15 @@ public class ManageToolsInstallationShell
 			mainItem.setData(toolsVO);
 			Image installedImage = isInstalled ? UIPlugin.getImage(GREEN) : UIPlugin.getImage(WHITE);
 			mainItem.setImage(2, installedImage);
-
+			mainItem.setExpanded(alwaysInstall);
+			
 			if (!platformAvailable)
 			{
 				mainItem.dispose();
 			}
 		}
+		
+		toolsTree.setRedraw(true);
 	}
 
 	private void addAvailableToolVersions(ToolsVO toolsVO, TreeItem mainItem)
@@ -409,7 +490,10 @@ public class ManageToolsInstallationShell
 		int total = 0;
 		for (TreeItem subItem : subItems)
 		{
-			total += Integer.parseInt(subItem.getText(1).split(" ")[0]); //$NON-NLS-1$
+			if (!StringUtil.isEmpty(subItem.getText(1)))
+			{
+				total += Integer.parseInt(subItem.getText(1).split(" ")[0]); //$NON-NLS-1$				
+			}
 		}
 		textArr[1] = String.valueOf(total).concat(" MB"); //$NON-NLS-1$
 		textArr[2] = isInstalled ? Messages.Installed : Messages.NotInstalled;
@@ -617,6 +701,31 @@ public class ManageToolsInstallationShell
 			ToolsInstallationHandler toolsInstallationHandler = new ToolsInstallationHandler(selectedItems);
 			shell.close();
 			toolsInstallationHandler.installTools();
+		}
+	}
+	
+	private class SelectRecommendedButtonSelectionAdapter extends SelectionAdapter
+	{
+		@Override
+		public void widgetSelected(SelectionEvent e)
+		{
+			toolsTree.setRedraw(false);
+			for (TreeItem mainItem : toolsTree.getItems())
+			{
+				ToolsVO toolsVO = (ToolsVO) mainItem.getData();
+				boolean alwaysInstall = toolsVO.getInstallType().equalsIgnoreCase(ALWAYS)
+						|| toolsVO.getInstallType().equalsIgnoreCase(RECOMMENDED);
+				mainItem.setChecked(alwaysInstall);
+				
+				for (TreeItem subItem : mainItem.getItems())
+				{
+					subItem.setChecked(alwaysInstall);
+				}
+				
+				mainItem.setExpanded(alwaysInstall);
+			}
+			
+			toolsTree.setRedraw(true);
 		}
 	}
 }

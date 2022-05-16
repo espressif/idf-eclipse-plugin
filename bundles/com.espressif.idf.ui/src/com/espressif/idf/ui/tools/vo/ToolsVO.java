@@ -8,6 +8,8 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.Platform;
+
 /**
  * Bean class for tools information from json
  * 
@@ -37,6 +39,10 @@ public class ToolsVO
 	private List<VersionsVO> versionVOs;
 
 	private String version;
+	
+	private static final String MAC_OS = "mac"; //$NON-NLS-1$
+	private static final String LINUX_OS = "linux"; //$NON-NLS-1$
+	private static final String WIN_OS = "win"; //$NON-NLS-1$
 
 	public String getDescription()
 	{
@@ -151,12 +157,23 @@ public class ToolsVO
 	public double getSize()
 	{
 		double totalSize = 0;
+		String key = null;
+		if (Platform.getOS().equals(Platform.OS_WIN32))
+		{
+			key = WIN_OS;
+		}
+		else if (Platform.getOS().equals(Platform.OS_LINUX))
+		{
+			key = LINUX_OS;
+		}
+		else if (Platform.getOS().equals(Platform.OS_MACOSX)) 
+		{
+			key = MAC_OS;
+		}
+		
 		for (VersionsVO versionVO : versionVOs)
 		{
-			for (String key : versionVO.getVersionOsMap().keySet())
-			{
-				totalSize += versionVO.getVersionOsMap().get(key).getSize();
-			}
+			totalSize += versionVO.getVersionOsMap().get(key).getSize();
 		}
 		
 		return totalSize;

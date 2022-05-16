@@ -49,6 +49,10 @@ public class Messages extends NLS
 	public static String NotInstalled;
 	public static String Available;
 	public static String ShowAvailableVersionsOnly;
+	public static String ManageToolsInstallationShell_mntmNewItem_text;
+	public static String ManageToolsInstallationShell_tltmCheckItem_text;
+	public static String ManageToolsInstallationShell_label_text;
+	public static String SelectRecommended;
 	
 	static
 	{
