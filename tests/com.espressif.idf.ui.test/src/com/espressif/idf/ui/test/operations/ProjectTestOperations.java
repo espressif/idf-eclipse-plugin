@@ -85,6 +85,7 @@ public class ProjectTestOperations
 			projectItem.select().contextMenu("Debug As").menu("Debug Configurations...").click();
 			bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").select();
 			bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").doubleClick();
+			bot.button("Close").click();
 		}
 		
 	}
