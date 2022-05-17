@@ -136,6 +136,12 @@ public class NewEspressifIDFProjectTest
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 		Fixture.givenProjectNameIs("NewProjectTest");
 		Fixture.whenNewProjectIsSelected();
+
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectTest2");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.givenProjectNameIs("NewProjectTest");
+		
 		Fixture.whenProjectHasDebugConfigurations();
 		Fixture.deleteProjectAndConfigs("NewProjectTest");
 		Fixture.thenAllConfigurationsAreDeleted();
