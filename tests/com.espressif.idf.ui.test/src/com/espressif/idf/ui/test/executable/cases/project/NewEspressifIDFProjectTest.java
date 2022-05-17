@@ -13,10 +13,9 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.launchbar.core.ILaunchBarManager;
-import org.eclipse.launchbar.core.internal.Activator;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
@@ -145,6 +144,7 @@ public class NewEspressifIDFProjectTest
 		Fixture.whenProjectHasDebugConfigurations();
 		Fixture.deleteProjectAndConfigs("NewProjectTest");
 		Fixture.thenAllConfigurationsAreDeleted();
+		Fixture.deleteProject("NewProjectTest2");
 	}
 	
 	@Test
@@ -250,8 +250,7 @@ public class NewEspressifIDFProjectTest
 		
 		private static void thenAllConfigurationsAreDeleted() 
 		{
-			@SuppressWarnings("restriction")
-			ILaunchManager manager = Activator.getService(ILaunchManager.class);
+			ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
 			try {
 				ILaunchConfiguration[] configs = manager.getLaunchConfigurations();
 				for (ILaunchConfiguration config : configs)

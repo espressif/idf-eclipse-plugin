@@ -180,6 +180,9 @@ public class ProjectTestOperations
 				bot.checkBox("Delete all related configurations").click();
 			}
 			bot.button("OK").click();
+			if(bot.activeShell().getText().contentEquals("Delete Resources") && bot.button(1).getText().contentEquals("Con&tinue")) {
+				bot.button("Continue").click();
+			}
 			SWTBotView projectExplorView = bot.viewByTitle("Project Explorer");
 			projectExplorView.show();
 			SWTBotTreeItem[] projects = projectExplorView.bot().tree().getAllItems();
