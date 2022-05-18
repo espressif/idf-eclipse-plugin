@@ -115,7 +115,7 @@ jobs:
         /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
       
         echo "Creating dmg for espressif-ide-macosx.cocoa.aarch64"
-        $PWD/releng/ide-dmg-builder/ide-dmg-builder.sh
+        $PWD/releng/ide-dmg-builder/ide-dmg-builder-aarch64.sh
         /usr/bin/codesign --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg -v
         /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
       
