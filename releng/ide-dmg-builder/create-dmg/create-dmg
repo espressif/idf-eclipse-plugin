@@ -401,6 +401,10 @@ fi
 echo "Unmounting disk image..."
 hdiutil detach "${DEV_NAME}"
 
+# `hdiutil convert` cannot overwrite files, so remove items in the output
+# directory.
+rm -f "${DMG_TEMP_NAME}"
+
 # Compress image
 echo "Compressing disk image..."
 hdiutil convert ${HDIUTIL_VERBOSITY} "${DMG_TEMP_NAME}" -format ${FORMAT} ${IMAGEKEY} -o "${DMG_DIR}/${DMG_NAME}"
