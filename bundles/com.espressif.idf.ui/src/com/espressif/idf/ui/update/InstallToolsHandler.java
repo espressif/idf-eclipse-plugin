@@ -33,6 +33,7 @@ import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.build.ESPToolChainManager;
 import com.espressif.idf.core.build.ESPToolChainProvider;
@@ -84,6 +85,9 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				monitor.setTaskName(Messages.InstallToolsHandler_AutoConfigureToolchain);
 				configureToolChain();
 				monitor.worked(1);
+				
+				configEnv();
+				
 				copyOpenOcdRules();
 				console.println(Messages.InstallToolsHandler_ConfiguredCMakeMsg);
 
@@ -103,6 +107,18 @@ public class InstallToolsHandler extends AbstractToolsHandler
 			Logger.log(e);
 		}
 		installToolsJob.schedule();
+	}
+
+	/**
+	 * Configure all the required environment variables here
+	 */
+	protected void configEnv()
+	{
+		IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
+		
+		//Enable IDF_COMPONENT_MANAGER by default
+		idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER, "1");
+		
 	}
 
 	private void copyOpenOcdRules()
