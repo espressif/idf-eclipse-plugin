@@ -489,10 +489,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	protected void linkBuildComponents(IProject project, IProgressMonitor monitor) throws Exception
 	{
 		// Create ESP-IDF Components folder under the project
-		final IFolder componentsFolder = project.getFolder(ESP_IDF_COMPONENTS); //$NON-NLS-1$
+		final File componentsFolder = getIDFComponentsPath().toFile();
 		if (!componentsFolder.exists())
 		{
-			componentsFolder.create(true, false, new NullProgressMonitor());
+			componentsFolder.mkdirs();
 		}
 
 		final IPath jsonIPath = getBuildContainerPath().append(new org.eclipse.core.runtime.Path(COMPILE_COMMANDS_JSON));
@@ -521,6 +521,18 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 		{
 			Logger.log(e);
 		}
+	}
+	
+	/**
+	 * .../build/ide/esp_idf_components
+	 *
+	 * @return
+	 * @throws CoreException
+	 */
+	private IPath getIDFComponentsPath() throws CoreException
+	{
+		IPath buildContainerPath = getBuildContainer().getLocation();
+		return buildContainerPath.append("ide").append(ESP_IDF_COMPONENTS); //$NON-NLS-1$
 	}
 	
 	private void setLinkLocation(IResource toLink, IPath rawLinkLocation) throws CoreException
