@@ -403,7 +403,7 @@ hdiutil detach "${DEV_NAME}"
 
 # `hdiutil convert` cannot overwrite files, so remove items in the output
 # directory.
-rm -f "${DMG_TEMP_NAME}"
+# rm -f "${DMG_DIR}/${DMG_NAME}"
 
 # Compress image
 echo "Compressing disk image..."
