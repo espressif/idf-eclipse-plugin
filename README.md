@@ -62,7 +62,7 @@ The minimum requirements for running the IDF Eclipse plug-ins are below.
 
 We also offer `Espressif-IDE Offline Installer` for Windows which comes with OpenJDK, Python, CMake, Git, ESP-IDF, Eclipse IDE, IDF Eclipse plugins and required build tools. Please check our <a href="https://github.com/espressif/idf-installer#espressif-ide-offline-installer"> Espressif-IDE Offline Installer </a> page.
 
-More details on the Espressif-IDE can be found <a href="https://github.com/espressif/idf-eclipse-plugin/blob/master/docs/EspressifIDE.md"> here</a>.
+More details on the Espressif-IDE can be found <a href="https://github.com/espressif/idf-eclipse-plugin/blob/master/docs/Espressif-IDE.md"> here</a>.
 
 <a name="GettingStarted"></a>
 
