@@ -30,7 +30,7 @@
 					<useUIThread>false</useUIThread>
 					<application>org.eclipse.ui.ide.workbench</application>
 					<argLine>-Xms2048m -Xmx4096m</argLine>  
-					<skipTests>false</skipTests>
+					<skipTests>${skipTests}</skipTests>
 					<showEclipseLog>true</showEclipseLog>
 				</configuration>
 			</plugin>
