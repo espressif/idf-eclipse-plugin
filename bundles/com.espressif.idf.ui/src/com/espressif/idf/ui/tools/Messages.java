@@ -105,6 +105,37 @@ public class Messages extends NLS
 	public static String ManageToolsInstallationShell_tltmCheckItem_text;
 	public static String ManageToolsInstallationShell_label_text;
 	public static String SelectRecommended;
+	public static String FilterLabel;
+	public static String ManageToolsInstallation;
+	public static String ManageToolsInstallationDescription;
+	public static String ToolsManagerWizard;
+	public static String InstallPreRquisitePage;
+	public static String InstallPreRquisitePage_lblLog_text;
+	public static String InstallToolsPreReqPageDescription;
+	public static String FileSelectionDialogTitle;
+	public static String DirectorySelectionDialogMessage;
+	public static String GitLabel;
+	public static String PythonLabel;
+	public static String InstallButton;
+	public static String BrowseButton;
+	public static String InstallEspIdfPage;
+	public static String InstallEspIdfPageDescription;
+	public static String InstallEspIdfPage_Existing;
+	public static String InstallEspIdfPage_btnNew_text;
+	public static String InstallEspIdfPage_lblEspidfPath_text;
+	public static String InstallEspIdfPage_lblEspidfVersion_text;
+	public static String InstallEspIdfPage_btnDownload_text;
+	public static String SelectPythonVersion;
+	public static String InstallEspIdfPage_lblDownloadDirectory_text;
+	public static String SelectDownloadDir;
+	public static String GitCloningJobMsg;
+	public static String CloningCompletedMsg;
+	public static String IDFDownloadWizard_DownloadingMessage;
+	public static String IDFDownloadWizard_DownloadCompleteMsg;
+	public static String IDFDownloadWizard_DecompressingMsg;
+	
+	public static String IDFDownloadWizard_DecompressingCompleted;
+	public static String IDFDownloadWizard_UpdatingIDFPathMessage;
 	
 	static
 	{
