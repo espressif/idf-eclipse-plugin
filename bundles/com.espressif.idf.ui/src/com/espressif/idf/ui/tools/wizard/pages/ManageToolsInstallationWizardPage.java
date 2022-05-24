@@ -1,8 +1,8 @@
 /*******************************************************************************
- * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Copyright 2022 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.ui.tools.shell;
+package com.espressif.idf.ui.tools.wizard.pages;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,36 +14,35 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Monitor;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.ui.PlatformUI;
 
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.tools.Messages;
 import com.espressif.idf.ui.tools.ToolsInstallationHandler;
+import com.espressif.idf.ui.tools.ToolsJsonParser;
 import com.espressif.idf.ui.tools.ToolsUtility;
 import com.espressif.idf.ui.tools.vo.ToolsVO;
 import com.espressif.idf.ui.tools.vo.VersionDetailsVO;
@@ -55,7 +54,7 @@ import com.espressif.idf.ui.tools.vo.VersionsVO;
  * @author Ali Azam Rana
  *
  */
-public class ManageToolsInstallationShell
+public class ManageToolsInstallationWizardPage extends WizardPage
 {
 	private static final String PNG_EXTENSION = ".png"; //$NON-NLS-1$
 	private static final String YELLOW = "icons/tools/yellow.png"; //$NON-NLS-1$
@@ -63,7 +62,6 @@ public class ManageToolsInstallationShell
 	private static final String RECOMMENDED = "recommended"; //$NON-NLS-1$
 	private static final String ALWAYS = "always"; //$NON-NLS-1$
 	private static final String ALL = "all"; //$NON-NLS-1$
-	private static final String ESP_IDF_TOOLS_MANAGER_ICON = "icons/tools/ESP-IDFManageToolsInstalltion.png"; //$NON-NLS-1$
 	private static final String WHITE = "icons/tools/white.png"; //$NON-NLS-1$
 	private static final String MAC_OS = "mac"; //$NON-NLS-1$
 	private static final String IMG_MAC_OS = "icons/tools/".concat(MAC_OS).concat(PNG_EXTENSION); //$NON-NLS-1$
@@ -75,11 +73,8 @@ public class ManageToolsInstallationShell
 	private static final String IMG_WINDOWS_OS = "icons/tools/".concat(WINDOWS).concat(PNG_EXTENSION); //$NON-NLS-1$
 	private static final String SELECT_ALL = "icons/tools/select-all".concat(PNG_EXTENSION); //$NON-NLS-1$
 	private static final String UNSELECT_ALL = "icons/tools/unselect-all".concat(PNG_EXTENSION); //$NON-NLS-1$
-	private static final String SHELL_ICON = "icons/ESP-IDFManageToolsInstallation".concat(PNG_EXTENSION); //$NON-NLS-1$
 	private static final String SELECT_RECOMMENDED = "icons/tools/select-recommended".concat(PNG_EXTENSION); //$NON-NLS-1$
-	
-	private Display display;
-	private Shell shell;
+
 	private List<ToolsVO> toolsVOs;
 	private Text descriptionText;
 	private Tree toolsTree;
@@ -91,28 +86,36 @@ public class ManageToolsInstallationShell
 	private boolean itemChecked = false;
 	private Button chkAvailableVersions;
 	private Button selectRecommendedButton;
+	private Composite parentComposite;
+	private ToolsJsonParser toolsJsonParser;
+	private Composite pageComposite;
+	private WizardDialog parentWizardDialog;
 
-	public ManageToolsInstallationShell(List<ToolsVO> toolsVOs)
+	public ManageToolsInstallationWizardPage(WizardDialog parentWizardDialog)
 	{
-		this.toolsVOs = toolsVOs;
-		this.display = PlatformUI.getWorkbench().getDisplay();
-		this.shell = new Shell(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
-				SWT.CLOSE | SWT.MAX | SWT.RESIZE | SWT.TITLE);
-		shell.setImage(UIPlugin.getImage(ESP_IDF_TOOLS_MANAGER_ICON));
-		shell.setText(Messages.ToolsManagerShellHeading);
-		shell.setLayout(new FillLayout(SWT.VERTICAL));
-		shell.setImage(UIPlugin.getImage(SHELL_ICON));
+		super(Messages.ManageToolsInstallation);
+		setTitle(Messages.ManageToolsInstallation);
+		setDescription(Messages.ManageToolsInstallationDescription);
+		toolsJsonParser = new ToolsJsonParser();
+		this.parentWizardDialog = parentWizardDialog;
+	}
 
-		Composite treeControlsComposite = new Composite(shell, SWT.NONE);
+	@Override
+	public void createControl(Composite parent)
+	{
+		this.parentComposite = parent;
+		initializeJson();
+
+		Composite treeControlsComposite = new Composite(parent, SWT.NONE);
 		treeControlsComposite.setLayout(new FillLayout(SWT.VERTICAL));
 
 		Composite subControlComposite = new Composite(treeControlsComposite, SWT.NONE);
 		subControlComposite.setLayout(new GridLayout(2, false));
-		
+
 		Composite topBarComposite = new Composite(subControlComposite, SWT.BORDER);
 		topBarComposite.setLayout(new GridLayout(6, itemChecked));
 		topBarComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 11));
-		
+
 		btnSelectButton = new Button(topBarComposite, SWT.PUSH);
 		btnSelectButton.setImage(UIPlugin.getImage(SELECT_ALL));
 		btnSelectButton.redraw();
@@ -124,18 +127,19 @@ public class ManageToolsInstallationShell
 			{
 				selectAllItems(!selectionFlag);
 				setButtonsEnabled(!selectionFlag);
-				btnSelectButton.setImage(selectionFlag ? UIPlugin.getImage(SELECT_ALL): UIPlugin.getImage(UNSELECT_ALL));
+				btnSelectButton
+						.setImage(selectionFlag ? UIPlugin.getImage(SELECT_ALL) : UIPlugin.getImage(UNSELECT_ALL));
 				btnSelectButton.setToolTipText(selectionFlag ? Messages.SelectAllButton : Messages.DeselectAllButton);
 				btnSelectButton.redraw();
 				selectionFlag = !selectionFlag;
 			}
 		});
-		
+
 		selectRecommendedButton = new Button(topBarComposite, SWT.PUSH);
 		selectRecommendedButton.setImage(UIPlugin.getImage(SELECT_RECOMMENDED));
 		selectRecommendedButton.setToolTipText(Messages.SelectRecommended);
 		selectRecommendedButton.addSelectionListener(new SelectRecommendedButtonSelectionAdapter());
-		
+
 		chkAvailableVersions = new Button(topBarComposite, SWT.TOGGLE);
 		chkAvailableVersions.setText(Messages.ShowAvailableVersionsOnly);
 		chkAvailableVersions.addSelectionListener(new SelectionAdapter()
@@ -148,10 +152,10 @@ public class ManageToolsInstallationShell
 				addItemsToTree(toolsTree, chkAvailableVersions.getSelection());
 			}
 		});
-		
+
 		Label targetFilterLabel = new Label(topBarComposite, SWT.NONE);
 		targetFilterLabel.setText(Messages.FilterTargets);
-		
+
 		filterTargetBox = new Combo(topBarComposite, SWT.READ_ONLY);
 		filterTargetBox.setItems(getTargetFilterItems());
 		new Label(topBarComposite, SWT.NONE);
@@ -180,14 +184,15 @@ public class ManageToolsInstallationShell
 				}
 			}
 		});
-		
+
 		Label filterTextLabel = new Label(subControlComposite, SWT.NONE);
-		filterTextLabel.setText("Type below to filter");
+		filterTextLabel.setText(Messages.FilterLabel);
 		Text filterText = new Text(subControlComposite, SWT.SINGLE | SWT.BORDER);
 		filterText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 5));
 		filterText.addKeyListener(new KeyAdapter()
 		{
 			private int filterLength = 0;
+
 			@Override
 			public void keyReleased(KeyEvent e)
 			{
@@ -195,17 +200,17 @@ public class ManageToolsInstallationShell
 				{
 					String filter = filterText.getText();
 					filterLength = filterText.getText().length();
-					filterItems(filter, toolsTree);	
+					filterItems(filter, toolsTree);
 				}
 				else if (filterText.getText().length() < filterLength)
 				{
 					toolsTree.removeAll();
-					addItemsToTree(toolsTree, false);	
+					addItemsToTree(toolsTree, false);
 					String filter = filterText.getText();
 					filterLength = filterText.getText().length();
 					filterItems(filter, toolsTree);
 				}
-				
+
 				if (StringUtil.isEmpty(filterText.getText()))
 				{
 					toolsTree.removeAll();
@@ -226,12 +231,12 @@ public class ManageToolsInstallationShell
 							{
 								subItem.dispose();
 							}
-							else 
+							else
 							{
 								foundInSubItem = true;
 							}
-						}	
-						
+						}
+
 						if (!foundInSubItem)
 						{
 							mainItem.dispose();
@@ -239,13 +244,14 @@ public class ManageToolsInstallationShell
 					}
 				}
 			}
-			
+
 			private String getText(TreeItem treeItem)
 			{
-				return treeItem.getText(0).concat(treeItem.getText(1)).concat(treeItem.getText(2)).concat(treeItem.getText(3));
+				return treeItem.getText(0).concat(treeItem.getText(1)).concat(treeItem.getText(2))
+						.concat(treeItem.getText(3));
 			}
 		});
-		
+
 		toolsTree = new Tree(subControlComposite, SWT.BORDER | SWT.CHECK | SWT.FULL_SELECTION);
 		toolsTree.setHeaderVisible(true);
 		toolsTree.setLinesVisible(true);
@@ -270,8 +276,8 @@ public class ManageToolsInstallationShell
 		trclmnDescription.setText(Messages.DescriptionText);
 
 		addItemsToTree(toolsTree, false);
-		
-		Composite buttonsComposite = new Composite(shell, SWT.NONE);
+
+		Composite buttonsComposite = new Composite(treeControlsComposite, SWT.NONE);
 		buttonsComposite.setLayout(new GridLayout(1, false));
 
 		Label lblDescription = new Label(buttonsComposite, SWT.NONE);
@@ -299,8 +305,31 @@ public class ManageToolsInstallationShell
 		btnDeleteTools.setText(Messages.DeleteToolsText);
 		btnDeleteTools.addSelectionListener(new DeleteButtonSelectionAdapter());
 		btnDeleteTools.setEnabled(false);
-		
+
 		setButtonsEnabled(itemChecked);
+
+		parent.layout();
+		parent.computeSize(800, 600, true);
+		parent.getShell().layout(true);
+		parent.getShell().computeSize(800, 600, true);
+
+		parentWizardDialog.getShell().computeSize(800, 600, true);
+		setControl(treeControlsComposite);
+
+		setPageComplete(false);
+	}
+
+	private void initializeJson()
+	{
+		try
+		{
+			toolsJsonParser.loadJson();
+			this.toolsVOs = toolsJsonParser.getToolsList();
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+		}
 	}
 
 	private String[] getTargetFilterItems()
@@ -350,7 +379,7 @@ public class ManageToolsInstallationShell
 							{
 								continue;
 							}
-							
+
 							windowsx86_64 = true;
 						}
 						else if (Platform.getOS().equals(Platform.OS_LINUX))
@@ -367,7 +396,7 @@ public class ManageToolsInstallationShell
 								continue;
 							}
 						}
-						
+
 						versionsVO.getVersionOsMap().get(key).setSelected(alwaysInstall);
 
 						TreeItem subItem = new TreeItem(mainItem, SWT.NONE);
@@ -390,13 +419,13 @@ public class ManageToolsInstallationShell
 			Image installedImage = isInstalled ? UIPlugin.getImage(GREEN) : UIPlugin.getImage(WHITE);
 			mainItem.setImage(2, installedImage);
 			mainItem.setExpanded(alwaysInstall);
-			
+
 			if (!platformAvailable)
 			{
 				mainItem.dispose();
 			}
 		}
-		
+
 		toolsTree.setRedraw(true);
 	}
 
@@ -492,7 +521,7 @@ public class ManageToolsInstallationShell
 		{
 			if (!StringUtil.isEmpty(subItem.getText(1)))
 			{
-				total += Integer.parseInt(subItem.getText(1).split(" ")[0]); //$NON-NLS-1$				
+				total += Integer.parseInt(subItem.getText(1).split(" ")[0]); //$NON-NLS-1$
 			}
 		}
 		textArr[1] = String.valueOf(total).concat(" MB"); //$NON-NLS-1$
@@ -526,23 +555,6 @@ public class ManageToolsInstallationShell
 		return selectedItems;
 	}
 
-	public void openShell()
-	{
-		centerScreen();
-		shell.open();
-	}
-
-	private void centerScreen()
-	{
-		Monitor primary = display.getPrimaryMonitor();
-		Rectangle bounds = primary.getBounds();
-		Rectangle rect = shell.getBounds();
-		/** calculate the centre */
-		int x = bounds.x + (bounds.width - rect.width) / 2;
-		int y = bounds.y + (bounds.height - rect.height) / 2;
-		shell.setLocation(x, y);
-	}
-
 	private void setButtonsEnabled(boolean enabled)
 	{
 		btnDeleteTools.setEnabled(enabled);
@@ -561,6 +573,16 @@ public class ManageToolsInstallationShell
 			swtCheckedTreeEvent.item = item;
 			toolsTree.notifyListeners(SWT.Selection, swtCheckedTreeEvent);
 		}
+	}
+
+	public Composite getPageComposite()
+	{
+		return pageComposite;
+	}
+
+	public void setPageComposite(Composite pageComposite)
+	{
+		this.pageComposite = pageComposite;
 	}
 
 	private class TreeSelectionListener implements Listener
@@ -679,14 +701,13 @@ public class ManageToolsInstallationShell
 		public void widgetSelected(SelectionEvent e)
 		{
 			Map<ToolsVO, List<VersionsVO>> selectedItems = getSelectedTools();
-			MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO);
+			MessageBox messageBox = new MessageBox(parentComposite.getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
 			messageBox.setMessage(Messages.RemoveToolMessageBox);
 			messageBox.setText(Messages.RemoveToolMessageBoxTitle);
 			int result = messageBox.open();
 			if (result == SWT.YES)
 			{
 				ToolsInstallationHandler toolsInstallationHandler = new ToolsInstallationHandler(selectedItems);
-				shell.close();
 				toolsInstallationHandler.deleteTools();
 			}
 		}
@@ -699,11 +720,10 @@ public class ManageToolsInstallationShell
 		{
 			Map<ToolsVO, List<VersionsVO>> selectedItems = getSelectedTools();
 			ToolsInstallationHandler toolsInstallationHandler = new ToolsInstallationHandler(selectedItems);
-			shell.close();
 			toolsInstallationHandler.installTools();
 		}
 	}
-	
+
 	private class SelectRecommendedButtonSelectionAdapter extends SelectionAdapter
 	{
 		@Override
@@ -716,15 +736,15 @@ public class ManageToolsInstallationShell
 				boolean alwaysInstall = toolsVO.getInstallType().equalsIgnoreCase(ALWAYS)
 						|| toolsVO.getInstallType().equalsIgnoreCase(RECOMMENDED);
 				mainItem.setChecked(alwaysInstall);
-				
+
 				for (TreeItem subItem : mainItem.getItems())
 				{
 					subItem.setChecked(alwaysInstall);
 				}
-				
+
 				mainItem.setExpanded(alwaysInstall);
 			}
-			
+
 			toolsTree.setRedraw(true);
 		}
 	}

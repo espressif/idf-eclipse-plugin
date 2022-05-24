@@ -38,6 +38,8 @@ public class IDFEnvironmentVariables
 
 	public static String IDF_COMPONENT_MANAGER = "IDF_COMPONENT_MANAGER"; //$NON-NLS-1$
 
+	public static String GIT_PATH ="GIT_PATH"; //$NON-NLS-1$
+	
 	/**
 	 * @param variableName Environment variable Name
 	 * @return IEnvironmentVariable
@@ -82,7 +84,18 @@ public class IDFEnvironmentVariables
 		// Without this environment variables won't be persisted
 		EnvironmentVariableManager.fUserSupplier.storeWorkspaceEnvironment(true);
 	}
-
+	
+	@SuppressWarnings("restriction")
+	public void prependEnvVariableValue(String variableName, String value)
+	{
+		Logger.log(MessageFormat.format("Prepending environment variables with key:{0} to value:{1}", variableName, value)); //$NON-NLS-1$
+		IContributedEnvironment contributedEnvironment = getEnvironment();
+		contributedEnvironment.addVariable(variableName, value, IEnvironmentVariable.ENVVAR_PREPEND, null, null);
+		
+		//Without this environment variables won't be persisted
+		EnvironmentVariableManager.fUserSupplier.storeWorkspaceEnvironment(true);
+	}
+	
 	/**
 	 * @return CDT build environment variables map
 	 */
