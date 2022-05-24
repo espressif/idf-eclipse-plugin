@@ -130,5 +130,5 @@ jobs:
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v2
       with:
-        name: espressif-ide-espressif-ide-macosx.cocoa.aarch64
+        name: espressif-ide-macosx.cocoa.aarch64
         path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
