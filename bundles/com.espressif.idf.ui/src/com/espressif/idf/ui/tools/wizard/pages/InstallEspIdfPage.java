@@ -23,13 +23,16 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.IDFVersion;
 import com.espressif.idf.core.IDFVersionsReader;
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.tools.GitDownloadAndCloneThread;
@@ -65,6 +68,7 @@ public class InstallEspIdfPage extends WizardPage
 	private GitDownloadAndCloneThread gitDownloadAndCloneThread;
 	private Composite container;
 	private boolean cloningOrDownloading;
+	private ProgressBar progressBar;
 
 	public InstallEspIdfPage()
 	{
@@ -185,7 +189,9 @@ public class InstallEspIdfPage extends WizardPage
 		logGridData.heightHint = 200;
 		logGridData.widthHint = 500;
 		logAreaText.setLayoutData(logGridData);
-
+		progressBar = new ProgressBar(compositeLog, SWT.HORIZONTAL);
+		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
 		logMessagesThread = new LogMessagesThread(logMessages, logAreaText, container.getDisplay());
 		logMessagesThread.start();
 		setControl(getControlsContainer());
@@ -308,7 +314,7 @@ public class InstallEspIdfPage extends WizardPage
 	{
 		return btnNew;
 	}
-
+	
 	private class DownloadButtonSelectionAdapter extends SelectionAdapter
 	{
 		private InstallEspIdfPage installEspIdfPage;
@@ -330,7 +336,7 @@ public class InstallEspIdfPage extends WizardPage
 			new File(downloadLocation).mkdirs();
 			String url = version.getUrl();
 			GitDownloadAndCloneThread gitThread = new GitDownloadAndCloneThread(version, url, downloadLocation,
-					logMessages, installEspIdfPage);
+					logMessages, installEspIdfPage, progressBar);
 			gitDownloadAndCloneThread = gitThread;
 			gitThread.start();
 			enableAllControls(false, false, false);

@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.espressif.idf.ui.tools.wizard.ToolsManagerWizard;
+import com.espressif.idf.ui.tools.wizard.pages.ManageToolsInstallationWizardPage;
 
 /**
  * Tools Installation Handler for the menu command
@@ -47,6 +48,16 @@ public class ManageToolsInstallationHandler extends AbstractHandler
 		{
 			super.showPage(page);
 			updateSize();
+		}
+		
+		@Override
+		protected void cancelPressed()
+		{
+			if (getCurrentPage() instanceof ManageToolsInstallationWizardPage)
+			{
+				// Cancel all the jobs here and notify user that the tools installation jobs were cancelled
+			}
+			super.cancelPressed();
 		}
 	}
 

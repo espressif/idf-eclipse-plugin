@@ -15,4 +15,6 @@ public interface IToolsInstallationWizardConstants
 	String PYTHON_PATH_NODE_KEY = "PYTHON_EXECUTABLE"; //$NON-NLS-1$
 
 	String GIT_PATH_NODE_KEY = "GIT_EXECUTABLE"; //$NON-NLS-1$
+	
+	String ESPRESSIF_LOGO = "icons/tools/espressif-logo.png"; //$NON-NLS-1$ 
 }

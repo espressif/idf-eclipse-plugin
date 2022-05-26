@@ -13,6 +13,9 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.util.Queue;
 
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.ProgressBar;
+
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.IDFVersion;
 import com.espressif.idf.core.ZipUtility;
@@ -37,9 +40,14 @@ public class GitDownloadAndCloneThread extends Thread
 	private GitWizardRepProgressMonitor gitWizardRepProgressMonitor;
 	private boolean cancelled;
 	private InstallEspIdfPage installEspIdfPage;
+	private boolean cloning;
+	private int size;
+	private int completedSize;
+	private ProgressBar progressBar;
+	private Display display;
 
 	public GitDownloadAndCloneThread(IDFVersion version, String url, String downloadLocation, Queue<String> logMessages,
-			InstallEspIdfPage installEspIdfPage)
+			InstallEspIdfPage installEspIdfPage, ProgressBar progressBar)
 	{
 		super(MessageFormat.format(Messages.GitCloningJobMsg, version.getName()));
 		this.url = url;
@@ -47,6 +55,16 @@ public class GitDownloadAndCloneThread extends Thread
 		this.version = version;
 		this.logMessages = logMessages;
 		this.installEspIdfPage = installEspIdfPage;
+		this.progressBar = progressBar;
+		display = progressBar.getDisplay();
+		display.asyncExec(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				progressBar.setSelection(0);
+			}
+		});
 	}
 
 	@Override
@@ -55,6 +73,7 @@ public class GitDownloadAndCloneThread extends Thread
 		installEspIdfPage.setCloningOrDownloading(true);
 		if (version.getName().equals("master")) //$NON-NLS-1$
 		{
+			cloning = true;
 			repositoryClone(version.getName(), url, downloadLocation);
 		}
 		else
@@ -103,7 +122,44 @@ public class GitDownloadAndCloneThread extends Thread
 			logMessages.add(e.getLocalizedMessage());
 		}
 	}
+	
+	private void initializeMaxProgressbar(int max)
+	{
+		display.asyncExec(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				progressBar.setVisible(true);
+				progressBar.setMaximum(max);
+			}
+		});
+	}
 
+	private void updateProgressBar(int updateValue)
+	{
+		display.asyncExec(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				progressBar.setSelection(updateValue);
+			}
+		});
+	}
+	
+	private void setProgressBarVisibility(boolean visible)
+	{
+		display.asyncExec(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				progressBar.setVisible(visible);
+			}
+		});
+	}		
+	
 	private void configurePath(String destinationDir, String folderName)
 	{
 		String idf_path = new File(destinationDir, folderName).getAbsolutePath();
@@ -138,7 +194,9 @@ public class GitDownloadAndCloneThread extends Thread
 			String disposition = httpConn.getHeaderField("Content-Disposition"); //$NON-NLS-1$
 			String contentType = httpConn.getContentType();
 			int contentLength = httpConn.getContentLength();
-
+			setProgressBarVisibility(true);
+			initializeMaxProgressbar(contentLength);
+			size = contentLength;
 			if (disposition != null)
 			{
 				// extracts file name from header field
@@ -179,6 +237,7 @@ public class GitDownloadAndCloneThread extends Thread
 			{
 				outputStream.write(buffer, 0, bytesRead);
 				downloaded = downloaded + BUFFER_SIZE;
+				completedSize = (int) downloaded;
 				int unitsDownloadedSofar = (int) ((downloaded / contentLength) * 100);
 				if (unitsDownloadedSofar > noOfUnitedUpdated)
 				{
@@ -188,6 +247,7 @@ public class GitDownloadAndCloneThread extends Thread
 							convertToMB(contentLength));
 					logMessages.add(taskName);
 				}
+				updateProgressBar((int) downloaded);
 			}
 
 			if (cancelled)
@@ -195,6 +255,7 @@ public class GitDownloadAndCloneThread extends Thread
 				Logger.log("File download cancelled"); //$NON-NLS-1$
 				logMessages.add("File download cancelled"); //$NON-NLS-1$
 				saveFilePath = null;
+				setProgressBarVisibility(false);
 			}
 
 			outputStream.close();
@@ -217,7 +278,7 @@ public class GitDownloadAndCloneThread extends Thread
 
 	private void repositoryClone(String version, String url, String destinationLocation)
 	{
-		gitWizardRepProgressMonitor = new GitWizardRepProgressMonitor(logMessages);
+		gitWizardRepProgressMonitor = new GitWizardRepProgressMonitor(logMessages, progressBar);
 		GitRepositoryBuilder gitBuilder = new GitRepositoryBuilder(true, gitWizardRepProgressMonitor);
 		gitBuilder.repositoryURI(url);
 		gitBuilder.repositoryDirectory(new File(destinationLocation));
@@ -241,5 +302,20 @@ public class GitDownloadAndCloneThread extends Thread
 	{
 		this.cancelled = isCancelled;
 		gitWizardRepProgressMonitor.setJobCancelled(isCancelled);
+	}
+
+	public boolean isCloning()
+	{
+		return cloning;
+	}
+
+	public int totalSize()
+	{
+		return size;
+	}
+
+	public int getDownloadedSize()
+	{
+		return completedSize;
 	}
 }

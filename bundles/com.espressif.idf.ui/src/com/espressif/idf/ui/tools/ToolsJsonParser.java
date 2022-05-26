@@ -64,16 +64,22 @@ public class ToolsJsonParser
 			JsonObject toolsJsonObject = jsonArray.get(i).getAsJsonObject();
 			ToolsVO toolsVO = new ToolsVO();
 			toolsVO.setDescription(toolsJsonObject.get(DESCRIPTION_KEY).getAsString());
-			toolsVO.setExportPaths(getStringsListFromJsonArray(
-					toolsJsonObject.get(EXPORT_PATHS_KEY).getAsJsonArray().get(0).getAsJsonArray()));
+			if (toolsJsonObject.get(EXPORT_PATHS_KEY).getAsJsonArray().size() > 0)
+			{
+				toolsVO.setExportPaths(getStringsListFromJsonArray(
+						toolsJsonObject.get(EXPORT_PATHS_KEY).getAsJsonArray().get(0).getAsJsonArray()));	
+			}
 			toolsVO.setExportVars(
 					getExportVarsMapFromJsonObject(toolsJsonObject.get(EXPORT_VARS_KEY).getAsJsonObject()));
 			toolsVO.setInfoUrl(toolsJsonObject.get(INFO_URL_KEY).getAsString());
 			toolsVO.setInstallType(toolsJsonObject.get(INSTALL_KEY).getAsString());
 			toolsVO.setLicesnse(toolsJsonObject.get(LICENSE_KEY).getAsString());
 			toolsVO.setName(toolsJsonObject.get(NAME_KEY).getAsString());
-			toolsVO.setSupportedTargets(
-					getStringsListFromJsonArray(toolsJsonObject.get(SUPPORTED_TARGETS_KEY).getAsJsonArray()));
+			if (toolsJsonObject.get(SUPPORTED_TARGETS_KEY) != null)
+			{
+				toolsVO.setSupportedTargets(
+						getStringsListFromJsonArray(toolsJsonObject.get(SUPPORTED_TARGETS_KEY).getAsJsonArray()));	
+			}
 			toolsVO.setVersionCmd(getStringsListFromJsonArray(toolsJsonObject.get(VERSION_CMD_KEY).getAsJsonArray()));
 			toolsVO.setVersionVO(getVersions(toolsJsonObject.get(VERSIONS_VO_KEY).getAsJsonArray()));
 			toolsVO.setVersion(jsonObject.get(VERSION_KEY).getAsString());

@@ -10,6 +10,7 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Composite;
 
+import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.tools.Messages;
 import com.espressif.idf.ui.tools.wizard.pages.InstallEspIdfPage;
 import com.espressif.idf.ui.tools.wizard.pages.InstallPreRquisitePage;
@@ -31,6 +32,7 @@ public class ToolsManagerWizard extends Wizard
 	public ToolsManagerWizard()
 	{
 		super();
+		setDefaultPageImageDescriptor(UIPlugin.getImageDescriptor(IToolsInstallationWizardConstants.ESPRESSIF_LOGO));
 		setNeedsProgressMonitor(true);
 
 	}

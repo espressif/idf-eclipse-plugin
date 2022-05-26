@@ -13,8 +13,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -38,18 +42,25 @@ import com.espressif.idf.ui.tools.vo.VersionsVO;
 public class ToolsInstallationHandler
 {
 	private static final String TOOL_INSTALLATION_JOB = "Tool installation job for "; //$NON-NLS-1$
+	private static final String TOOL_DELETE_JOB = "Tool delete job for "; //$NON-NLS-1$
 	private static final String PATH_SPLITOR = "/"; //$NON-NLS-1$
 	private static final String GZ_EXT = "gz"; //$NON-NLS-1$
 	private static final String ZIP_EXT = "zip"; //$NON-NLS-1$
 	private Map<ToolsVO, List<VersionsVO>> selectedItems;
 	private IDFConsole idfConsole;
 	private MessageConsoleStream console;
+	private Queue<Job> installToolsJobs;
+	private Queue<Job> deleteToolsJobs;
+	private Queue<String> logQueue;
 
-	public ToolsInstallationHandler(Map<ToolsVO, List<VersionsVO>> selectedItems)
+	public ToolsInstallationHandler(Map<ToolsVO, List<VersionsVO>> selectedItems, Queue<String> logQueue)
 	{
 		this.selectedItems = selectedItems;
 		this.idfConsole = new IDFConsole();
 		this.console = idfConsole.getConsoleStream();
+		installToolsJobs = new ConcurrentLinkedQueue<Job>();
+		deleteToolsJobs = new ConcurrentLinkedQueue<Job>();
+		this.logQueue = logQueue;
 	}
 
 	public void deleteTools()
@@ -58,7 +69,18 @@ public class ToolsInstallationHandler
 		{
 			for (VersionsVO versionsVO : selectedItems.get(toolsVO))
 			{
-				deleteTool(versionsVO, toolsVO.getName());
+				Job job = new Job(TOOL_DELETE_JOB.concat(toolsVO.getName()))
+				{
+					@Override
+					protected IStatus run(IProgressMonitor monitor)
+					{
+						deleteTool(versionsVO, toolsVO.getName());
+						return Status.OK_STATUS;
+					}
+				};
+
+				job.schedule();
+				deleteToolsJobs.add(job);
 			}
 		}
 	}
@@ -73,8 +95,7 @@ public class ToolsInstallationHandler
 			}
 
 			removeToolFromPath(toolName);
-			removeToolDirectory(toolName.concat(PATH_SPLITOR)
-					.concat(versionsVO.getName()));
+			removeToolDirectory(toolName.concat(PATH_SPLITOR).concat(versionsVO.getName()));
 		}
 	}
 
@@ -82,7 +103,7 @@ public class ToolsInstallationHandler
 	{
 		try
 		{
-			console.println("Removing Directory for Tool: ".concat(toolName)); //$NON-NLS-1$
+			logQueue.add("Removing Directory for Tool: ".concat(toolName)); //$NON-NLS-1$
 			ToolsUtility.removeToolDirectory(toolName);
 		}
 		catch (IOException e)
@@ -93,7 +114,7 @@ public class ToolsInstallationHandler
 
 	private void removeToolFromPath(String toolName)
 	{
-		console.println(Messages.UpdatingPathMessage);
+		logQueue.add(Messages.UpdatingPathMessage);
 		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
 		String pathValue = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH);
 		StringBuilder updatedPath = new StringBuilder();
@@ -104,7 +125,7 @@ public class ToolsInstallationHandler
 			i++;
 			if (path.contains(toolName))
 			{
-				console.println(Messages.RemovedPathMessage.concat(path));
+				logQueue.add(Messages.RemovedPathMessage.concat(path));
 				continue;
 			}
 			else
@@ -117,7 +138,7 @@ public class ToolsInstallationHandler
 			}
 		}
 
-		console.println(Messages.SystemPathMessage.concat(updatedPath.toString()));
+		logQueue.add(Messages.SystemPathMessage.concat(updatedPath.toString()));
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, updatedPath.toString());
 	}
 
@@ -127,17 +148,18 @@ public class ToolsInstallationHandler
 		{
 			for (VersionsVO versionsVO : selectedItems.get(toolsVo))
 			{
-				Job job = new Job(TOOL_INSTALLATION_JOB.concat(toolsVo.getName())) //$NON-NLS-1$
-						{
-							@Override
-							protected IStatus run(IProgressMonitor monitor)
-							{
-								installTool(versionsVO, toolsVo.getName(), toolsVo.getExportPaths());
-								return Status.OK_STATUS;
-							}
-						};
+				Job job = new Job(TOOL_INSTALLATION_JOB.concat(toolsVo.getName()))
+				{
+					@Override
+					protected IStatus run(IProgressMonitor monitor)
+					{
+						installTool(versionsVO, toolsVo.getName(), toolsVo.getExportPaths());
+						return Status.OK_STATUS;
+					}
+				};
 
-						job.schedule();
+				job.schedule();
+				installToolsJobs.add(job);
 			}
 		}
 	}
@@ -153,7 +175,7 @@ public class ToolsInstallationHandler
 
 			boolean download = !ToolsUtility.isToolInstalled(toolName, versionsVO.getName());
 			download = true;
-			console.println(Messages.InstallingToolMessage.concat(toolName));
+			logQueue.add(Messages.InstallingToolMessage.concat(toolName));
 			if (!ToolsUtility.isToolInstalled(toolName, versionsVO.getName()) && !versionsVO.isAvailable())
 			{
 				try
@@ -169,14 +191,14 @@ public class ToolsInstallationHandler
 			}
 			else
 			{
-				updatePaths(versionsVO.getAvailablePath(), toolName, exportPaths);	
+				updatePaths(versionsVO.getAvailablePath(), toolName, exportPaths);
 			}
 		}
 	}
 
 	private void updatePaths(String toolPath, String toolName, List<String> exportPaths)
 	{
-		console.println(Messages.UpdatingPathMessage);
+		logQueue.add(Messages.UpdatingPathMessage);
 		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
 		String pathValue = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH);
 		StringBuilder exportPathBuilder = new StringBuilder();
@@ -186,13 +208,13 @@ public class ToolsInstallationHandler
 		{
 			String[] splittedPaths = pathValue.split(File.pathSeparator);
 			int i = 0;
-			
+
 			for (String path : splittedPaths)
 			{
 				i++;
 				if (path.contains(toolName))
 				{
-					console.println(Messages.PreviousToolMessage.concat(path));
+					logQueue.add(Messages.PreviousToolMessage.concat(path));
 				}
 				else
 				{
@@ -204,7 +226,6 @@ public class ToolsInstallationHandler
 				}
 			}
 		}
-		
 
 		for (String exportPath : exportPaths)
 		{
@@ -215,14 +236,14 @@ public class ToolsInstallationHandler
 		{
 			updatedPath.append(File.pathSeparator);
 		}
-		
+
 		Path pathToExport = Paths.get(exportPathBuilder.toString()); // for correcting the path error in windows
 
-		console.println(Messages.UpdateToolPathMessage.concat(pathToExport.toAbsolutePath().toString()));
-		
-		updatedPath.append(pathToExport.toAbsolutePath().toString());			
+		logQueue.add(Messages.UpdateToolPathMessage.concat(pathToExport.toAbsolutePath().toString()));
 
-		console.println(Messages.SystemPathMessage.concat(updatedPath.toString()));
+		updatedPath.append(pathToExport.toAbsolutePath().toString());
+
+		logQueue.add(Messages.SystemPathMessage.concat(updatedPath.toString()));
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, updatedPath.toString());
 	}
 
@@ -235,7 +256,7 @@ public class ToolsInstallationHandler
 			toolsFolder.mkdir();
 		}
 
-		console.println(Messages.ExtractionTextMessage.concat(downloadedName));
+		logQueue.add(Messages.ExtractionTextMessage.concat(downloadedName));
 
 		extractionName = ToolsUtility.ESPRESSIF_HOME_TOOLS_DIR.concat(PATH_SPLITOR).concat(toolFolderName)
 				.concat(PATH_SPLITOR).concat(extractionName).concat(PATH_SPLITOR);
@@ -251,7 +272,7 @@ public class ToolsInstallationHandler
 					extractionName);
 		}
 
-		console.println(Messages.ExtractionCompletedMessage);
+		logQueue.add(Messages.ExtractionCompletedMessage);
 		return extractionName;
 	}
 
@@ -271,12 +292,12 @@ public class ToolsInstallationHandler
 			BufferedOutputStream bout = new BufferedOutputStream(fos, 1024);
 			byte[] data = new byte[4096];
 			int x = 0;
-			console.println(Messages.DownloadFileText.concat(versionsVO.getVersionOsMap().get(key).getUrl()));
+			logQueue.add(Messages.DownloadFileText.concat(versionsVO.getVersionOsMap().get(key).getUrl()));
 			while ((x = in.read(data, 0, 4096)) >= 0)
 			{
 				completedSize += x;
 				bout.write(data, 0, x);
-				console.println(Messages.DownloadProgressText + ToolsUtility.getReadableSizeMB(completedSize)
+				logQueue.add(Messages.DownloadProgressText + ToolsUtility.getReadableSizeMB(completedSize)
 						+ PATH_SPLITOR + ToolsUtility.getReadableSizeMB(totalSize));
 			}
 
@@ -289,5 +310,15 @@ public class ToolsInstallationHandler
 		}
 
 		return name;
+	}
+
+	public Collection<Job> getRunningJobs()
+	{
+		return Collections.unmodifiableCollection(installToolsJobs);
+	}
+
+	public Collection<Job> getDeleteToolsJobs()
+	{
+		return Collections.unmodifiableCollection(deleteToolsJobs);
 	}
 }

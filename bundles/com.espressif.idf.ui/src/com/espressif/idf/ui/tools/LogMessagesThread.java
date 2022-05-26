@@ -22,7 +22,7 @@ public class LogMessagesThread extends Thread
 	private final Queue<String> logMessages;
 	private boolean stopLogging;
 	private final Text logAreaText;
-	private final Display display;
+	private Display display;
 
 	public LogMessagesThread(Queue<String> logMessages, Text logAreaText, Display display)
 	{
@@ -54,6 +54,10 @@ public class LogMessagesThread extends Thread
 
 	private void showMessage(final String message)
 	{
+		if (display == null)
+		{
+			display = logAreaText.getDisplay();
+		}
 		display.syncExec(new Runnable()
 		{
 			public void run()
