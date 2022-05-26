@@ -232,6 +232,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 		
 		Label filterTextLabel = new Label(subControlComposite, SWT.NONE);
 		filterTextLabel.setText(Messages.FilterLabel);
+		new Label(subControlComposite, SWT.NONE);
 		Text filterText = new Text(subControlComposite, SWT.SINGLE | SWT.BORDER);
 		filterText.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 		filterText.addKeyListener(new KeyAdapter()
