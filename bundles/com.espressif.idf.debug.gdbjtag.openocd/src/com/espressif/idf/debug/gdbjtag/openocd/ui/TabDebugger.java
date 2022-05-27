@@ -443,6 +443,17 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 						String selectedItem = fTarget.getText();
 						if (!selectedItem.contentEquals(updatedSelectedTarget))
 						{
+							try
+							{
+								ILaunchConfigurationWorkingCopy wc = launchBarManager.getActiveLaunchConfiguration()
+										.getWorkingCopy();
+								wc.setAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, selectedItem);
+								wc.doSave();
+							}
+							catch (CoreException e1)
+							{
+								Logger.log(e1);
+							}
 							updateLaunchBar(selectedItem);
 						}
 						fGdbClientExecutable.setText(IDFUtil.getXtensaToolchainExecutablePathByTarget(selectedItem));
