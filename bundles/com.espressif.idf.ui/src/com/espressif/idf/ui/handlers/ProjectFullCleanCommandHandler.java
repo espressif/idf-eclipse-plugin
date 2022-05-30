@@ -25,7 +25,7 @@ import com.espressif.idf.ui.update.AbstractToolsHandler;
  * @author Kondal Kolipaka
  *
  */
-public class PythonFullCleanCommandHandler extends AbstractToolsHandler
+public class ProjectFullCleanCommandHandler extends AbstractToolsHandler
 {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException

@@ -19,7 +19,7 @@ import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.EclipseUtil;
 import com.espressif.idf.ui.update.AbstractToolsHandler;
 
-public class PythonCleanCommandHandler extends AbstractToolsHandler
+public class ProjectCleanCommandHandler extends AbstractToolsHandler
 {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
@@ -35,7 +35,7 @@ public class PythonCleanCommandHandler extends AbstractToolsHandler
 		List<String> commands = new ArrayList<>();
 		commands.add(IDFUtil.getIDFPythonEnvPath());
 		commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
-		commands.add("python-clean"); //$NON-NLS-1$
+		commands.add("clean"); //$NON-NLS-1$
 		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
 		console.println(commands.toString());
 		console.print((runCommand(commands, pathToProject, envMap)));
