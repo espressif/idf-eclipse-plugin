@@ -281,6 +281,22 @@
                </iterate>
             </visibleWhen>
          </command>
+         <command
+               commandId="com.espressif.commands.fullcleanCommand"
+               icon="icons/Python Clean.png"
+               label="%command.label.9"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <iterate
+                     ifEmpty="false"
+                     operator="or">
+                  <instanceof
+                        value="org.eclipse.core.resources.IResource">
+                  </instanceof>
+               </iterate>
+            </visibleWhen>
+         </command>
                   <command
                commandId="com.espressif.idf.ui.appLvlTracing"
                icon="icons/ESP-IDF_Application_Level_Tracing.png"
@@ -414,12 +430,21 @@
             id="com.espressif.commands.cleanCommand"
             name="%command.name.5">
       </command>
+      <command
+            categoryId="com.espressif.commands.category"
+            id="com.espressif.commands.fullcleanCommand"
+            name="%command.name.11">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
       <handler
             class="com.espressif.idf.ui.handlers.PythonCleanCommandHandler"
             commandId="com.espressif.commands.cleanCommand">
+      </handler>
+      <handler
+            class="com.espressif.idf.ui.handlers.PythonFullCleanCommandHandler"
+            commandId="com.espressif.commands.fullcleanCommand">
       </handler>
     </extension>
    <extension
