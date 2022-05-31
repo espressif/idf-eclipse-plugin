@@ -79,12 +79,12 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunchMode;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
-
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.internal.CMakeConsoleWrapper;
 import com.espressif.idf.core.internal.CMakeErrorParser;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.DfuCommandsUtil;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.ParitionSizeHandler;
 import com.google.gson.Gson;
@@ -114,11 +114,12 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 	private boolean cmakeListsModified;
 	private ICMakeToolChainFile toolChainFile;
 	private String customBuildDir;
-
+	private IBuildConfiguration buildConfiguration;
+	
 	public IDFBuildConfiguration(IBuildConfiguration config, String name) throws CoreException
 	{
 		super(config, name);
-
+		buildConfiguration = config;
 		ICMakeToolChainManager manager = IDFCorePlugin.getService(ICMakeToolChainManager.class);
 		this.toolChainFile = manager.getToolChainFileFor(getToolChain());
 	}
@@ -429,11 +430,15 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 					linkBuildComponents(project, monitor);
 					project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 				}
-
+				
 				// parse compile_commands.json file
 				// built-ins detection output goes to the build console, if the user requested
 				// output
+
 				processCompileCommandsFile(console, monitor);
+				if (DfuCommandsUtil.isDfu() && DfuCommandsUtil.isDfuSupported(launchtarget)) {
+					watchProcess(DfuCommandsUtil.dfuBuild(project, infoStream, buildConfiguration, envVars), console);
+				}
 				project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 
 				infoStream.write(String.format(
