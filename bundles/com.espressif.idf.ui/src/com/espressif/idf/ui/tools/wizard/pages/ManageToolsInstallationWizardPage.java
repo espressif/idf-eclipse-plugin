@@ -224,6 +224,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 		btnDeleteTools.setText(Messages.DeleteToolsText);
 		btnDeleteTools.addSelectionListener(new DeleteButtonSelectionAdapter());
 		btnDeleteTools.setEnabled(false);
+		new Label(topBarComposite, SWT.NONE);
 		
 		forceDownloadBtn = new Button(topBarComposite, SWT.CHECK);
 		forceDownloadBtn.setText(Messages.ForceDownload);
@@ -232,7 +233,6 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 		
 		Label filterTextLabel = new Label(subControlComposite, SWT.NONE);
 		filterTextLabel.setText(Messages.FilterLabel);
-		new Label(subControlComposite, SWT.NONE);
 		Text filterText = new Text(subControlComposite, SWT.SINGLE | SWT.BORDER);
 		filterText.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 		filterText.addKeyListener(new KeyAdapter()
@@ -337,6 +337,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 		GridData gd_text = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
 		gd_text.widthHint = 150;
 		descriptionText.setLayoutData(gd_text);
+		new Label(treeContainingComposite, SWT.NONE);
 
 		Label logLabel = new Label(logAreaComposite, SWT.NONE);
 		logLabel.setText(Messages.InstallPreRquisitePage_lblLog_text);
@@ -400,6 +401,12 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 		
 		scopedPreferenceStore.putBoolean(IToolsInstallationWizardConstants.INSTALL_TOOLS_FLAG, pageCompletion);
 		setPageComplete(pageCompletion);
+	}
+	
+	public void refreshTree() throws Exception
+	{
+		toolsTree.removeAll();	
+		addItemsToTree(toolsTree, chkAvailableVersions.getSelection());
 	}
 
 	private void initializeJson()
