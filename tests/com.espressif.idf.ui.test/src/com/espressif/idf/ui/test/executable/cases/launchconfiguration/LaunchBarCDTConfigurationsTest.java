@@ -68,27 +68,27 @@ public class LaunchBarCDTConfigurationsTest
 		Fixture.selectProjectFromLaunchBar("TestProject");
 	}
 
-	@Test
-	public void givenTwoProjectsAreCreatedAndBuiltUsingToolbarButtonBySelectingOlderProjectFirstFromTheLaunchbarThenOlderProjectIsBuiltFirst()
-			throws Exception
-	{
-		Fixture.givenProjectNameIs("TestProject");
-		Fixture.whenProjectIsCreatedFromTemplate();
-		Fixture.givenProjectNameIs("TestProject2");
-		Fixture.whenProjectIsCreatedFromTemplate();
-		Fixture.thenLaunchDescriptorContainsConfig("TestProject");
-		Fixture.thenLaunchDescriptorContainsConfig("TestProject2");
-		Fixture.selectProjectFromLaunchBar("TestProject");
-		Fixture.whenProjectIsBuiltUsingToolbarButton();
-
-		Fixture.thenConsoleShowsBuildSuccessful();
-		Fixture.thenConsoleShowsProjectNameInConsole("TestProject");
-		Fixture.selectProjectFromLaunchBar("TestProject2");
-		Fixture.whenProjectIsBuiltUsingToolbarButton();
-
-		Fixture.thenConsoleShowsBuildSuccessful();
-		Fixture.thenConsoleShowsProjectNameInConsole("TestProject2");
-	}
+//	@Test
+//	public void givenTwoProjectsAreCreatedAndBuiltUsingToolbarButtonBySelectingOlderProjectFirstFromTheLaunchbarThenOlderProjectIsBuiltFirst()
+//			throws Exception
+//	{
+//		Fixture.givenProjectNameIs("TestProject");
+//		Fixture.whenProjectIsCreatedFromTemplate();
+//		Fixture.givenProjectNameIs("TestProject2");
+//		Fixture.whenProjectIsCreatedFromTemplate();
+//		Fixture.thenLaunchDescriptorContainsConfig("TestProject");
+//		Fixture.thenLaunchDescriptorContainsConfig("TestProject2");
+//		Fixture.selectProjectFromLaunchBar("TestProject");
+//		Fixture.whenProjectIsBuiltUsingToolbarButton();
+//
+//		Fixture.thenConsoleShowsBuildSuccessful();
+//		Fixture.thenConsoleShowsProjectNameInConsole("TestProject");
+//		Fixture.selectProjectFromLaunchBar("TestProject2");
+//		Fixture.whenProjectIsBuiltUsingToolbarButton();
+//
+//		Fixture.thenConsoleShowsBuildSuccessful();
+//		Fixture.thenConsoleShowsProjectNameInConsole("TestProject2");
+//	}
 
 	@Test
 	public void creatingNewEspLaunchTarget()
