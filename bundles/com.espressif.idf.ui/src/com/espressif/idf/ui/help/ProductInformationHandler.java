@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -25,7 +26,6 @@ import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.update.ListInstalledToolsHandler;
 import com.espressif.idf.ui.update.Messages;
 
-
 public class ProductInformationHandler extends ListInstalledToolsHandler
 {
 	@Override
@@ -40,9 +40,7 @@ public class ProductInformationHandler extends ListInstalledToolsHandler
 		{
 			activateIDFConsoleView();
 		}
-		String[] IDFEnvVarsToShow = { IDFEnvironmentVariables.IDF_PATH, IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH,
-				IDFEnvironmentVariables.PATH };
-		showIDFEnvVars(IDFEnvVarsToShow);
+		showIDFEnvVars();
 		console.println();
 		console.println(Messages.OperatingSystemMsg + System.getProperty("os.name").toLowerCase()); //$NON-NLS-1$
 		console.println(Messages.JavaRuntimeVersionMsg
@@ -54,20 +52,22 @@ public class ProductInformationHandler extends ListInstalledToolsHandler
 		console.println(Messages.IdfEclipseMsg + (Optional.ofNullable(Platform.getBundle("com.espressif.idf.branding"))
 				.map(o -> o.getVersion().toString()).orElse(Messages.NotFoundMsg))); // $NON-NLS-1$
 		showEspIdfVersion();
-		console.println(Messages.PythonIdfEnvMsg
-				+ (Optional.ofNullable(getPythonExeVersion(IDFUtil.getIDFPythonEnvPath()))
-						.orElse(Messages.NotFoundMsg)));
+		console.println(Messages.PythonIdfEnvMsg + (Optional
+				.ofNullable(getPythonExeVersion(IDFUtil.getIDFPythonEnvPath())).orElse(Messages.NotFoundMsg)));
 		console.println(Messages.PythonPathMsg
 				+ (Optional.ofNullable(getPythonExeVersion("python")).orElse(Messages.NotFoundMsg))); //$NON-NLS-1$
 
 		return null;
 	}
 
-	private void showIDFEnvVars(String[] IDFEnvVarsToShow)
+	private void showIDFEnvVars()
 	{
+		console.println("CDT Build environment variables");
+		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
+		Set<String> IDFEnvVarsToShow = envMap.keySet();
 		for (String IDFEnvVar : IDFEnvVarsToShow)
 		{
-			String IDFEnvVarValue = new IDFEnvironmentVariables().getEnvValue(IDFEnvVar);
+			String IDFEnvVarValue = envMap.get(IDFEnvVar);
 			IDFEnvVarValue = IDFEnvVarValue.isEmpty() ? Messages.NotFoundMsg : IDFEnvVarValue;
 			console.println(IDFEnvVar + ": " + IDFEnvVarValue); // $NON-NLS-1$
 		}
