@@ -24,7 +24,6 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -34,6 +33,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
@@ -94,10 +94,12 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 	private ToolsJsonParser toolsJsonParser;
 	private Composite pageComposite;
 	private WizardDialog parentWizardDialog;
-	private Label lblDescription;
 	private Text logText;
 	private Queue<String> logQueue;
 	private LogMessagesThread logMessagesThread;
+	private Button btnCancel;
+	private ProgressBar progressBar;
+	private ToolsInstallationHandler toolsInstallationHandler;
 
 	public ManageToolsInstallationWizardPage(WizardDialog parentWizardDialog)
 	{
@@ -107,7 +109,6 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 		toolsJsonParser = new ToolsJsonParser();
 		this.parentWizardDialog = parentWizardDialog;
 		this.logQueue = new ConcurrentLinkedQueue<String>();
-		logMessagesThread = new LogMessagesThread(logQueue, descriptionText, null);
 	}
 
 	@Override
@@ -117,14 +118,17 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 		initializeJson();
 
 		Composite treeControlsComposite = new Composite(parent, SWT.NONE);
-		treeControlsComposite.setLayout(new FillLayout(SWT.VERTICAL));
-
+		treeControlsComposite.setLayout(new GridLayout(1, false));
+		
 		Composite subControlComposite = new Composite(treeControlsComposite, SWT.NONE);
-		subControlComposite.setLayout(new GridLayout(2, false));
-
+		subControlComposite.setLayout(new GridLayout(1, false));
+		subControlComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		
 		Composite topBarComposite = new Composite(subControlComposite, SWT.BORDER);
-		topBarComposite.setLayout(new GridLayout(6, false));
-		topBarComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 11));
+		topBarComposite.setLayout(new GridLayout(8, false));
+		GridData topBarLayoutData = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
+		topBarLayoutData.heightHint = 40;
+		topBarComposite.setLayoutData(topBarLayoutData);
 
 		btnSelectButton = new Button(topBarComposite, SWT.PUSH);
 		btnSelectButton.setImage(UIPlugin.getImage(SELECT_ALL));
@@ -197,16 +201,6 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 			}
 		});
 		filterTargetBox.setVisible(filterVisibilityForTargets);
-		
-		if (filterVisibilityForTargets)
-		{
-			new Label(topBarComposite, SWT.NONE);
-		}
-		else 
-		{
-			new Label(topBarComposite, SWT.NONE);
-			new Label(topBarComposite, SWT.NONE);
-		}
 
 		btnInstallTools = new Button(topBarComposite, SWT.NONE);
 		btnInstallTools.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -218,12 +212,12 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 		btnDeleteTools.setText(Messages.DeleteToolsText);
 		btnDeleteTools.addSelectionListener(new DeleteButtonSelectionAdapter());
 		btnDeleteTools.setEnabled(false);
+		new Label(topBarComposite, SWT.NONE);
 		
 		Label filterTextLabel = new Label(subControlComposite, SWT.NONE);
 		filterTextLabel.setText(Messages.FilterLabel);
-		new Label(subControlComposite, SWT.NONE);
 		Text filterText = new Text(subControlComposite, SWT.SINGLE | SWT.BORDER);
-		filterText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 5));
+		filterText.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 		filterText.addKeyListener(new KeyAdapter()
 		{
 			private int filterLength = 0;
@@ -287,11 +281,16 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 			}
 		});
 
-		toolsTree = new Tree(subControlComposite, SWT.BORDER | SWT.CHECK | SWT.FULL_SELECTION);
+		Composite treeContainingComposite = new Composite(subControlComposite, SWT.NONE);
+		treeContainingComposite.setLayout(new GridLayout(2, false));
+		treeContainingComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		
+		toolsTree = new Tree(treeContainingComposite, SWT.BORDER | SWT.CHECK | SWT.FULL_SELECTION);
 		toolsTree.setHeaderVisible(true);
 		toolsTree.setLinesVisible(true);
-		toolsTree.setSize(424, 100);
-		toolsTree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+		GridData treeGridData = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+		treeGridData.heightHint = 150;
+		toolsTree.setLayoutData(treeGridData);
 		toolsTree.addListener(SWT.Selection, new TreeSelectionListener());
 
 		TreeColumn trclmnName = new TreeColumn(toolsTree, SWT.NONE);
@@ -312,26 +311,41 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 
 		addItemsToTree(toolsTree, false);
 
-		Composite buttonsComposite = new Composite(treeControlsComposite, SWT.NONE);
-		buttonsComposite.setLayout(new GridLayout(1, false));
+		Composite logAreaComposite = new Composite(treeControlsComposite, SWT.NONE);
+		logAreaComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
+		logAreaComposite.setLayout(new GridLayout(1, false));
 
-		lblDescription = new Label(buttonsComposite, SWT.NONE);
-		lblDescription.setText(Messages.DescriptionText);
-
-		descriptionText = new Text(buttonsComposite,
+		descriptionText = new Text(treeContainingComposite,
 				SWT.BORDER | SWT.READ_ONLY | SWT.WRAP | SWT.H_SCROLL | SWT.V_SCROLL | SWT.CANCEL | SWT.MULTI);
-		GridData gd_text = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 2);
-		gd_text.widthHint = 404;
+		GridData gd_text = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_text.widthHint = 150;
 		descriptionText.setLayoutData(gd_text);
+		new Label(treeContainingComposite, SWT.NONE);
 
-		Label logLabel = new Label(buttonsComposite, SWT.NONE);
-		logLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
+		Label logLabel = new Label(logAreaComposite, SWT.NONE);
 		logLabel.setText(Messages.InstallPreRquisitePage_lblLog_text);
-		logText = new Text(buttonsComposite,
+		btnCancel = new Button(logAreaComposite, SWT.PUSH);
+		btnCancel.setText(Messages.BtnCancel);
+		btnCancel.setVisible(false);
+		btnCancel.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				toolsInstallationHandler.setCancelled(true);
+				logQueue.clear();
+			}
+		});
+		
+		logText = new Text(logAreaComposite,
 				SWT.BORDER | SWT.READ_ONLY | SWT.WRAP | SWT.H_SCROLL | SWT.V_SCROLL | SWT.CANCEL | SWT.MULTI);
 		GridData gd_text_log = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 2);
-		gd_text_log.widthHint = 404;
+		gd_text_log.heightHint = 200;
 		logText.setLayoutData(gd_text_log);
+		
+		progressBar = new ProgressBar(logAreaComposite, SWT.HORIZONTAL);
+		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		progressBar.setVisible(false);
 		
 		setButtonsEnabled(itemChecked);
 
@@ -342,13 +356,19 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 
 		parentWizardDialog.getShell().computeSize(800, 600, true);
 		setControl(treeControlsComposite);
-		
+		logMessagesThread = new LogMessagesThread(logQueue, logText, getShell().getDisplay());
 		if (!logMessagesThread.isAlive())
 		{
 			logMessagesThread.start();
 		}
 		
 		setPageComplete(false);
+	}
+	
+	public void refreshTree() throws Exception
+	{
+		toolsTree.removeAll();	
+		addItemsToTree(toolsTree, chkAvailableVersions.getSelection());
 	}
 
 	private void initializeJson()
@@ -615,9 +635,30 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 		return pageComposite;
 	}
 
+	public void disableControls(boolean disable)
+	{
+		toolsTree.setEnabled(disable);
+		btnInstallTools.setEnabled(disable);
+		btnDeleteTools.setEnabled(disable);
+		btnSelectButton.setEnabled(disable);
+		filterTargetBox.setEnabled(disable);
+		chkAvailableVersions.setEnabled(disable);
+		selectRecommendedButton.setEnabled(disable);
+	}
+	
+	public void visibleCancelBtn(boolean visible)
+	{
+		this.btnCancel.setVisible(visible);
+	}
+	
 	public void setPageComposite(Composite pageComposite)
 	{
 		this.pageComposite = pageComposite;
+	}
+
+	public ProgressBar getProgressBar()
+	{
+		return progressBar;
 	}
 
 	private class TreeSelectionListener implements Listener
@@ -742,8 +783,9 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 			int result = messageBox.open();
 			if (result == SWT.YES)
 			{
-				ToolsInstallationHandler toolsInstallationHandler = new ToolsInstallationHandler(selectedItems, logQueue);
-				toolsInstallationHandler.deleteTools();
+				toolsInstallationHandler = new ToolsInstallationHandler(logQueue, ManageToolsInstallationWizardPage.this);
+				toolsInstallationHandler.deleteTools(selectedItems);
+				toolsInstallationHandler.start();
 			}
 		}
 	}
@@ -753,9 +795,10 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 		@Override
 		public void widgetSelected(SelectionEvent e)
 		{
+			toolsInstallationHandler = new ToolsInstallationHandler(logQueue, ManageToolsInstallationWizardPage.this);
 			Map<ToolsVO, List<VersionsVO>> selectedItems = getSelectedTools();
-			ToolsInstallationHandler toolsInstallationHandler = new ToolsInstallationHandler(selectedItems, logQueue);
-			toolsInstallationHandler.installTools();
+			toolsInstallationHandler.installTools(selectedItems);
+			toolsInstallationHandler.start();
 		}
 	}
 

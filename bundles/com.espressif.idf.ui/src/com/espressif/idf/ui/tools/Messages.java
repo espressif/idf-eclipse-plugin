@@ -81,9 +81,10 @@ public class Messages extends NLS
 	public static String IDFDownloadWizard_DownloadingMessage;
 	public static String IDFDownloadWizard_DownloadCompleteMsg;
 	public static String IDFDownloadWizard_DecompressingMsg;
-	
 	public static String IDFDownloadWizard_DecompressingCompleted;
 	public static String IDFDownloadWizard_UpdatingIDFPathMessage;
+	public static String BtnCancel;
+	public static String OperationCancelledByUser;
 	
 	static
 	{

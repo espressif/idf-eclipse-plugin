@@ -38,7 +38,7 @@ public class LogMessagesThread extends Thread
 		{
 			try
 			{
-				Thread.sleep(10);
+				Thread.sleep(50);
 			}
 			catch (InterruptedException e)
 			{
@@ -54,11 +54,11 @@ public class LogMessagesThread extends Thread
 
 	private void showMessage(final String message)
 	{
-		if (display == null)
+		if (display == null && logAreaText != null)
 		{
 			display = logAreaText.getDisplay();
 		}
-		display.syncExec(new Runnable()
+		display.asyncExec(new Runnable()
 		{
 			public void run()
 			{

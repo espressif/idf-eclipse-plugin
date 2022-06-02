@@ -14,6 +14,7 @@ import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
 import org.eclipse.cdt.core.envvar.IEnvironmentVariableManager;
 import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
 import org.eclipse.cdt.internal.core.envvar.EnvironmentVariableManager;
+import org.eclipse.cdt.managedbuilder.envvar.IBuildEnvironmentVariable;
 
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.StringUtil;
@@ -88,12 +89,11 @@ public class IDFEnvironmentVariables
 	@SuppressWarnings("restriction")
 	public void prependEnvVariableValue(String variableName, String value)
 	{
-		Logger.log(MessageFormat.format("Prepending environment variables with key:{0} to value:{1}", variableName, value)); //$NON-NLS-1$
-		IContributedEnvironment contributedEnvironment = getEnvironment();
-		contributedEnvironment.addVariable(variableName, value, IEnvironmentVariable.ENVVAR_PREPEND, null, null);
-		
-		//Without this environment variables won't be persisted
-		EnvironmentVariableManager.fUserSupplier.storeWorkspaceEnvironment(true);
+		Logger.log(MessageFormat.format("Prepending environment variables with key:{0} to value:{1}", variableName, //$NON-NLS-1$
+				value));
+		EnvironmentVariableManager.fUserSupplier.createOverrideVariable(variableName, value,
+				IBuildEnvironmentVariable.ENVVAR_PREPEND,
+				EnvironmentVariableManager.getDefault().getDefaultDelimiter());
 	}
 	
 	/**

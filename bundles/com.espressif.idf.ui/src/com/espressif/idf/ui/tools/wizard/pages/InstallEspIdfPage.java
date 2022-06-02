@@ -169,7 +169,7 @@ public class InstallEspIdfPage extends WizardPage
 		Label label = new Label(compositeLog, SWT.NONE);
 		label.setText(Messages.InstallPreRquisitePage_lblLog_text);
 		btnCancel = new Button(compositeLog, SWT.PUSH);
-		btnCancel.setText("Cancel");
+		btnCancel.setText(Messages.BtnCancel);
 		btnCancel.setVisible(false);
 		btnCancel.addSelectionListener(new SelectionAdapter()
 		{

@@ -13,25 +13,20 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.ui.console.MessageConsoleStream;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.StringUtil;
-import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.tools.vo.ToolsVO;
 import com.espressif.idf.ui.tools.vo.VersionsVO;
+import com.espressif.idf.ui.tools.wizard.pages.ManageToolsInstallationWizardPage;
 
 /**
  * Class to carry out download and install of tools
@@ -39,50 +34,92 @@ import com.espressif.idf.ui.tools.vo.VersionsVO;
  * @author Ali Azam Rana
  *
  */
-public class ToolsInstallationHandler
+public class ToolsInstallationHandler extends Thread
 {
-	private static final String TOOL_INSTALLATION_JOB = "Tool installation job for "; //$NON-NLS-1$
-	private static final String TOOL_DELETE_JOB = "Tool delete job for "; //$NON-NLS-1$
 	private static final String PATH_SPLITOR = "/"; //$NON-NLS-1$
 	private static final String GZ_EXT = "gz"; //$NON-NLS-1$
 	private static final String ZIP_EXT = "zip"; //$NON-NLS-1$
-	private Map<ToolsVO, List<VersionsVO>> selectedItems;
-	private IDFConsole idfConsole;
-	private MessageConsoleStream console;
-	private Queue<Job> installToolsJobs;
-	private Queue<Job> deleteToolsJobs;
 	private Queue<String> logQueue;
+	private ManageToolsInstallationWizardPage manageToolsInstallationWizardPage;
+	private ExecutorService executorService;
+	private boolean cancelled;
+	private Future<Boolean> threadResponse;
+	private boolean completed;
 
-	public ToolsInstallationHandler(Map<ToolsVO, List<VersionsVO>> selectedItems, Queue<String> logQueue)
+	public ToolsInstallationHandler(Queue<String> logQueue,
+			ManageToolsInstallationWizardPage manageToolsInstallationWizardPage)
 	{
-		this.selectedItems = selectedItems;
-		this.idfConsole = new IDFConsole();
-		this.console = idfConsole.getConsoleStream();
-		installToolsJobs = new ConcurrentLinkedQueue<Job>();
-		deleteToolsJobs = new ConcurrentLinkedQueue<Job>();
 		this.logQueue = logQueue;
+		this.manageToolsInstallationWizardPage = manageToolsInstallationWizardPage;
+		executorService = Executors.newSingleThreadExecutor();
 	}
 
-	public void deleteTools()
+	@Override
+	public void run()
 	{
-		for (ToolsVO toolsVO : selectedItems.keySet())
+		try
 		{
-			for (VersionsVO versionsVO : selectedItems.get(toolsVO))
+			Thread.sleep(100);
+			while (!cancelled && !completed)
 			{
-				Job job = new Job(TOOL_DELETE_JOB.concat(toolsVO.getName()))
-				{
-					@Override
-					protected IStatus run(IProgressMonitor monitor)
-					{
-						deleteTool(versionsVO, toolsVO.getName());
-						return Status.OK_STATUS;
-					}
-				};
-
-				job.schedule();
-				deleteToolsJobs.add(job);
+				Thread.sleep(200);
 			}
+
+			if (cancelled) // cancel initiated by user, we need to take care of the submitted threads
+			{
+				initiateCancellation();
+				logQueue.clear();
+				return;
+			}
+			
+			if (!threadResponse.get().booleanValue())
+			{
+				logQueue.add("Some errors have occurred in operation");
+			}
+			else 
+			{
+				logQueue.add("Operations completed!");	
+			}
+			
+			setControlsEnabled(true);
+			showProgressBarAndCancelBtn(false);
+			refreshTree();
 		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+		}
+	}
+
+	public void installTools(Map<ToolsVO, List<VersionsVO>> selectedItems)
+	{
+		cancelled = false;
+		completed = false;
+		setControlsEnabled(false);
+		showProgressBarAndCancelBtn(true);
+		executorService = Executors.newSingleThreadExecutor();
+		InstallToolsThread installToolsThread = new InstallToolsThread(selectedItems);
+		threadResponse = executorService.submit(installToolsThread);
+	}
+
+	public void deleteTools(Map<ToolsVO, List<VersionsVO>> selectedItems)
+	{
+		cancelled = false;
+		completed = false;
+		setControlsEnabled(false);
+		showProgressBarAndCancelBtn(true);
+		DeleteToolsThread deleteToolsThread = new DeleteToolsThread(selectedItems);
+		threadResponse = executorService.submit(deleteToolsThread);
+	}
+
+	public boolean isCancelled()
+	{
+		return cancelled;
+	}
+
+	public void setCancelled(boolean cancelled)
+	{
+		this.cancelled = cancelled;
 	}
 
 	private void deleteTool(VersionsVO versionsVO, String toolName)
@@ -95,6 +132,11 @@ public class ToolsInstallationHandler
 			}
 
 			removeToolFromPath(toolName);
+			if (cancelled)
+			{
+				logQueue.add(Messages.OperationCancelledByUser);
+				return;
+			}
 			removeToolDirectory(toolName.concat(PATH_SPLITOR).concat(versionsVO.getName()));
 		}
 	}
@@ -110,6 +152,74 @@ public class ToolsInstallationHandler
 		{
 			Logger.log(e);
 		}
+	}
+
+	private void setControlsEnabled(boolean enabled)
+	{
+		manageToolsInstallationWizardPage.getShell().getDisplay().asyncExec(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				manageToolsInstallationWizardPage.disableControls(enabled);
+			}
+		});
+	}
+
+	private void refreshTree()
+	{
+		manageToolsInstallationWizardPage.getShell().getDisplay().asyncExec(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				try
+				{
+					manageToolsInstallationWizardPage.refreshTree();
+				}
+				catch (Exception e)
+				{
+					Logger.log(e);
+				}
+			}
+		});
+	}
+	
+	private void showProgressBarAndCancelBtn(boolean show)
+	{
+		manageToolsInstallationWizardPage.getShell().getDisplay().asyncExec(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				manageToolsInstallationWizardPage.getProgressBar().setVisible(show);
+				manageToolsInstallationWizardPage.visibleCancelBtn(show);
+			}
+		});
+	}
+
+	private void setProgressBarMaximum(int max)
+	{
+		manageToolsInstallationWizardPage.getShell().getDisplay().asyncExec(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				manageToolsInstallationWizardPage.getProgressBar().setMaximum(max);
+			}
+		});
+	}
+
+	private void updateProgressBar(int selection)
+	{
+		manageToolsInstallationWizardPage.getShell().getDisplay().asyncExec(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				manageToolsInstallationWizardPage.getProgressBar().setSelection(selection);
+			}
+		});
 	}
 
 	private void removeToolFromPath(String toolName)
@@ -142,30 +252,14 @@ public class ToolsInstallationHandler
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, updatedPath.toString());
 	}
 
-	public void installTools()
-	{
-		for (ToolsVO toolsVo : selectedItems.keySet())
-		{
-			for (VersionsVO versionsVO : selectedItems.get(toolsVo))
-			{
-				Job job = new Job(TOOL_INSTALLATION_JOB.concat(toolsVo.getName()))
-				{
-					@Override
-					protected IStatus run(IProgressMonitor monitor)
-					{
-						installTool(versionsVO, toolsVo.getName(), toolsVo.getExportPaths());
-						return Status.OK_STATUS;
-					}
-				};
-
-				job.schedule();
-				installToolsJobs.add(job);
-			}
-		}
-	}
-
 	private void installTool(VersionsVO versionsVO, String toolName, List<String> exportPaths)
 	{
+		if (cancelled)
+		{
+			logQueue.add(Messages.OperationCancelledByUser);
+			return;	
+		}
+			
 		for (String key : versionsVO.getVersionOsMap().keySet())
 		{
 			if (!versionsVO.getVersionOsMap().get(key).isSelected())
@@ -181,6 +275,11 @@ public class ToolsInstallationHandler
 				try
 				{
 					String nameOfDownloadedFile = downloadTool(key, versionsVO);
+					if (cancelled)
+					{
+						logQueue.add(Messages.OperationCancelledByUser);
+						return;	
+					}
 					String extractionDir = extractDownloadedFile(nameOfDownloadedFile, toolName, versionsVO.getName());
 					updatePaths(extractionDir, toolName, exportPaths);
 				}
@@ -199,10 +298,35 @@ public class ToolsInstallationHandler
 	private void updatePaths(String toolPath, String toolName, List<String> exportPaths)
 	{
 		logQueue.add(Messages.UpdatingPathMessage);
-		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
-		String pathValue = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH);
 		StringBuilder exportPathBuilder = new StringBuilder();
 		exportPathBuilder.append(toolPath);
+		removeExistingToolPath(toolName);
+		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+		for (String exportPath : exportPaths)
+		{
+			exportPathBuilder.append(exportPath);
+			exportPathBuilder.append(PATH_SPLITOR);
+		}
+
+		Path pathToExport = Paths.get(exportPathBuilder.toString()); // for correcting the path error in windows
+
+		logQueue.add(Messages.UpdateToolPathMessage.concat(pathToExport.toAbsolutePath().toString()));
+		idfEnvironmentVariables.prependEnvVariableValue(IDFEnvironmentVariables.PATH, pathToExport.toString());
+		logQueue.add(Messages.SystemPathMessage.concat(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH)));
+		try
+		{
+			Thread.sleep(50); // wait for the variable to persist
+		}
+		catch (InterruptedException e)
+		{
+			Logger.log(e);
+		}
+	}
+	
+	private void removeExistingToolPath(String toolName)
+	{
+		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+		String pathValue = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH);
 		StringBuilder updatedPath = new StringBuilder();
 		if (!StringUtil.isEmpty(pathValue))
 		{
@@ -226,24 +350,7 @@ public class ToolsInstallationHandler
 				}
 			}
 		}
-
-		for (String exportPath : exportPaths)
-		{
-			exportPathBuilder.append(exportPath);
-			exportPathBuilder.append(PATH_SPLITOR);
-		}
-		if (updatedPath.toString().split(File.pathSeparator).length > 1)
-		{
-			updatedPath.append(File.pathSeparator);
-		}
-
-		Path pathToExport = Paths.get(exportPathBuilder.toString()); // for correcting the path error in windows
-
-		logQueue.add(Messages.UpdateToolPathMessage.concat(pathToExport.toAbsolutePath().toString()));
-
-		updatedPath.append(pathToExport.toAbsolutePath().toString());
-
-		logQueue.add(Messages.SystemPathMessage.concat(updatedPath.toString()));
+		
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, updatedPath.toString());
 	}
 
@@ -287,18 +394,18 @@ public class ToolsInstallationHandler
 		try
 		{
 			HttpURLConnection httpConnection = (HttpURLConnection) (url.openConnection());
+			setProgressBarMaximum(httpConnection.getContentLength());
 			BufferedInputStream in = new BufferedInputStream(httpConnection.getInputStream());
 			FileOutputStream fos = new FileOutputStream(dirToDownloadTo.concat(PATH_SPLITOR).concat(name));
 			BufferedOutputStream bout = new BufferedOutputStream(fos, 1024);
 			byte[] data = new byte[4096];
 			int x = 0;
 			logQueue.add(Messages.DownloadFileText.concat(versionsVO.getVersionOsMap().get(key).getUrl()));
-			while ((x = in.read(data, 0, 4096)) >= 0)
+			while ((x = in.read(data, 0, 4096)) >= 0 && !cancelled)
 			{
 				completedSize += x;
 				bout.write(data, 0, x);
-				logQueue.add(Messages.DownloadProgressText + ToolsUtility.getReadableSizeMB(completedSize)
-						+ PATH_SPLITOR + ToolsUtility.getReadableSizeMB(totalSize));
+				updateProgressBar((int) completedSize);
 			}
 
 			bout.close();
@@ -308,17 +415,74 @@ public class ToolsInstallationHandler
 		{
 			Logger.log(e);
 		}
-
 		return name;
 	}
 
-	public Collection<Job> getRunningJobs()
+	private void initiateCancellation()
 	{
-		return Collections.unmodifiableCollection(installToolsJobs);
+		setControlsEnabled(true);
+		showProgressBarAndCancelBtn(false);
 	}
 
-	public Collection<Job> getDeleteToolsJobs()
+	private class InstallToolsThread implements Callable<Boolean>
 	{
-		return Collections.unmodifiableCollection(deleteToolsJobs);
+		private Map<ToolsVO, List<VersionsVO>> selectedItems;
+
+		public InstallToolsThread(Map<ToolsVO, List<VersionsVO>> selectedItems)
+		{
+			this.selectedItems = selectedItems;
+		}
+
+		@Override
+		public Boolean call() throws Exception
+		{
+			for (ToolsVO toolsVo : selectedItems.keySet())
+			{
+				if (Thread.interrupted())
+					return Boolean.FALSE;
+				for (VersionsVO versionsVO : selectedItems.get(toolsVo))
+				{
+					installTool(versionsVO, toolsVo.getName(), toolsVo.getExportPaths());
+				}
+			}
+			
+			completed = true;
+			return Boolean.TRUE;
+		}
+	}
+
+	private class DeleteToolsThread implements Callable<Boolean>
+	{
+		private Map<ToolsVO, List<VersionsVO>> selectedItems;
+
+		private DeleteToolsThread(Map<ToolsVO, List<VersionsVO>> selectedItems)
+		{
+			this.selectedItems = selectedItems;
+		}
+
+		@Override
+		public Boolean call() throws Exception
+		{
+			setProgressBarMaximum(selectedItems.keySet().size());
+			int progress = 0;
+			
+			for (ToolsVO toolsVO : selectedItems.keySet())
+			{
+				if (Thread.interrupted())
+				{
+					logQueue.add(Messages.OperationCancelledByUser);
+					return Boolean.FALSE;
+				}
+				
+				for (VersionsVO versionsVO : selectedItems.get(toolsVO))
+				{
+					deleteTool(versionsVO, toolsVO.getName());
+				}
+				
+				updateProgressBar(++progress);
+			}
+			completed = true;
+			return Boolean.TRUE;
+		}
 	}
 }
