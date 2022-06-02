@@ -72,7 +72,6 @@ import com.espressif.idf.ui.EclipseUtil;
 @SuppressWarnings("restriction")
 public class CMakeMainTab2 extends GenericMainTab {
 	private static final String EMPTY_CONFIG_OPTIONS = "-s ${openocd_path}/share/openocd/scripts"; //$NON-NLS-1$
-	private static final String EMPTY = ""; //$NON-NLS-1$
 	private Button flashOverJtagButton;
 	private Combo fFlashVoltage;
 	private Combo fTarget;
@@ -158,7 +157,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 			dialog.setMessage(LaunchMessages.CMainTab_Choose_project_to_constrain_search_for_program);
 			dialog.setElements(projects);
 
-			String initialProjectName = fProjText != null ? fProjText.getText().trim() : EMPTY;
+			String initialProjectName = fProjText != null ? fProjText.getText().trim() : StringUtil.EMPTY;
 			ICProject cProject = initialProjectName.isEmpty() ? null
 					: CoreModel.getDefault().getCModel().getCProject(fProjText.getText());
 			if (cProject != null) {
@@ -340,9 +339,10 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	private void updateProjetFromConfig(ILaunchConfiguration configuration) {
-		String projectName = EMPTY;
+		String projectName = StringUtil.EMPTY;
 		try {
-			projectName = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, EMPTY);
+			projectName = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME,
+					StringUtil.EMPTY);
 		} catch (CoreException ce) {
 			Logger.log(ce);
 		}
@@ -457,7 +457,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 				public void widgetSelected(SelectionEvent e) {
 					String updatedSelectedTarget = getLaunchTarget();
 					int selectedIndex = fTarget.getSelectionIndex();
-					String selectedItem = EMPTY;
+					String selectedItem = StringUtil.EMPTY;
 					if (selectedIndex != -1) {
 						selectedItem = fTarget.getItem(fTarget.getSelectionIndex());
 					}
@@ -502,7 +502,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 					for (ILaunchTarget target : targets) {
 						String idfTarget = target.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", null); //$NON-NLS-1$
 						String targetSerialPort = target.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT,
-								EMPTY);
+								StringUtil.EMPTY);
 						if (idfTarget.contentEquals(selectedItem)) {
 							if (targetSerialPort.contentEquals(getSerialPort())) {
 								return target;
@@ -552,10 +552,10 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	private String getLaunchTarget() {
-		String selectedTarget = EMPTY;
+		String selectedTarget = StringUtil.EMPTY;
 		try {
 			selectedTarget = launchBarManager.getActiveLaunchTarget().getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET,
-					EMPTY);
+					StringUtil.EMPTY);
 		} catch (CoreException e) {
 			Logger.log(e);
 		}
@@ -564,10 +564,10 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 	private String getSerialPort() {
 
-		String serialPort = EMPTY;
+		String serialPort = StringUtil.EMPTY;
 		try {
 			serialPort = launchBarManager.getActiveLaunchTarget()
-					.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, EMPTY);
+					.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, StringUtil.EMPTY);
 
 		} catch (CoreException e) {
 			Logger.log(e);
