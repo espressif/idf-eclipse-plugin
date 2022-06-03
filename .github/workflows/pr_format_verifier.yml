@@ -1,5 +1,9 @@
 name: "PR Title Checker"
 on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
   pull_request_target:
     types:
       - opened
