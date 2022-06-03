@@ -15,8 +15,8 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           ticketLink: 'https://jira.espressif.com:8443/browse/IEP-%ticketNumber%'
-          ticketPrefix: 'PROJ-'
-          titleRegex: '^PROJ-(?<ticketNumber>\d+)'
-          branchRegex: '^PROJ-(?<ticketNumber>\d+)'
-          bodyRegex: 'PROJ-(?<ticketNumber>\d+)'
+          ticketPrefix: 'IEP-'
+          titleRegex: '^IEP-(?<ticketNumber>\d+)'
+          branchRegex: '^IEP-(?<ticketNumber>\d+)'
+          bodyRegex: 'IEP-(?<ticketNumber>\d+)'
           bodyURLRegex: 'http(s?):\/\/(jira.espressif.com:8443)(\/browse)\/(IEP\-)(?<ticketNumber>\d+)'
