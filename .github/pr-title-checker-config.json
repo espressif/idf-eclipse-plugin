@@ -9,7 +9,7 @@
   },
   "MESSAGES": {
     "success": "All OK",
-    "failure": "Failing CI test",
+    "failure": "Failing PR Title format",
     "notice": ""
   }
 }
