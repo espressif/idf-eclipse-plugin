@@ -8,6 +8,7 @@ package com.espressif.idf.ui.help;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
@@ -64,12 +65,11 @@ public class ProductInformationHandler extends ListInstalledToolsHandler
 	{
 		console.println("CDT Build environment variables");
 		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
-		Set<String> IDFEnvVarsToShow = envMap.keySet();
-		for (String IDFEnvVar : IDFEnvVarsToShow)
+		for(Entry<String, String> entry : envMap.entrySet())
 		{
-			String IDFEnvVarValue = envMap.get(IDFEnvVar);
+			String IDFEnvVarValue = entry.getValue();
 			IDFEnvVarValue = IDFEnvVarValue.isEmpty() ? Messages.NotFoundMsg : IDFEnvVarValue;
-			console.println(IDFEnvVar + ": " + IDFEnvVarValue); // $NON-NLS-1$
+			console.println(entry.getKey() + ": " + IDFEnvVarValue); // $NON-NLS-1$	
 		}
 	}
 
