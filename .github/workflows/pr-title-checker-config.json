@@ -1,0 +1,15 @@
+{
+  "LABEL": {
+    "name": "Title needs formatting",
+    "color": "EEEEEE"
+  },
+  "CHECKS": {
+    "prefixes": ["IEP-"],
+    "ignoreLabels" : ["dont-check-PRs-with-this-label", "meta"]
+  },
+  "MESSAGES": {
+    "success": "All OK",
+    "failure": "Failing CI test",
+    "notice": ""
+  }
+}
