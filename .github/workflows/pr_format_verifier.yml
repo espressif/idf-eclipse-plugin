@@ -1,23 +1,22 @@
-name: "PR Title Checker"
+name: Pull Request Lint
+
 on:
-  push:
-    branches: [ master ]
   pull_request:
-    branches: [ master ]
-  pull_request_target:
-    types:
-      - opened
-      - edited
-      - synchronize
-      - labeled
-      - unlabeled
+    types: ['opened', 'edited', 'reopened', 'synchronize']
 
 jobs:
-  check:
+  title:
+    name: ticket check
     runs-on: ubuntu-latest
+
     steps:
-      - uses: thehanimo/pr-title-checker@v1.3.4
+      - name: Check for ticket
+        uses: neofinancial/ticket-check-action@v1
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          pass_on_octokit_error: false
-          configuration_path: ".github/pr-title-checker-config.json"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ticketLink: 'https://jira.espressif.com:8443/browse/IEP-%ticketNumber%'
+          ticketPrefix: 'PROJ-'
+          titleRegex: '^PROJ-(?<ticketNumber>\d+)'
+          branchRegex: '^PROJ-(?<ticketNumber>\d+)'
+          bodyRegex: 'PROJ-(?<ticketNumber>\d+)'
+          bodyURLRegex: 'http(s?):\/\/(jira.espressif.com:8443)(\/browse)\/(IEP\-)(?<ticketNumber>\d+)'
