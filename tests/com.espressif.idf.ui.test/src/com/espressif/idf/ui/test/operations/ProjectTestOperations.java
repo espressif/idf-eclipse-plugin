@@ -180,11 +180,12 @@ public class ProjectTestOperations
 				bot.checkBox("Delete all related configurations").click();
 			}
 			bot.button("OK").click();
-			if (bot.activeShell().getText().contentEquals("Delete Resources")
-					&& (bot.button(1).getText().contentEquals("Con&tinue")
-							|| bot.button(2).getText().contentEquals("Con&tinue")))
-			{
-				bot.button("Continue").click();
+			try {
+				if (bot.activeShell().getText().contentEquals("Delete Resources") && bot.button("Continue").isEnabled()) {
+					bot.button("Continue").click();
+				}
+			} catch (Exception e) {
+				//do nothing as we throw an exception if the button is not found
 			}
 			SWTBotView projectExplorView = bot.viewByTitle("Project Explorer");
 			projectExplorView.show();
