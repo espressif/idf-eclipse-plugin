@@ -33,6 +33,10 @@ public class EnvSetupOperations
 		bot.tree().getTreeItem("General").getNode("Editors").expand();
 		bot.tree().getTreeItem("General").getNode("Editors").getNode("File Associations").select();
 		bot.comboBox().setSelection("Text Editor");
+		bot.tree().getTreeItem("General").getNode("Workspace").select();
+		if (!bot.checkBox("Refresh using native hooks or polling").isChecked()) {
+			bot.checkBox("Refresh using native hooks or polling").click();
+		}
 		bot.button("Apply and Close").click();
 
 		bot.toolbarButtonWithTooltip("Select and deselect filters to apply to the content in the tree").click();

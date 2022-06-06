@@ -10,7 +10,6 @@ import java.util.Optional;
 
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
-import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory;
@@ -181,16 +180,6 @@ public class ProjectTestOperations
 				bot.checkBox("Delete all related configurations").click();
 			}
 			bot.button("OK").click();
-			try {
-				SWTBotShell deleteResourcesShell = bot.activeShell();
-				deleteResourcesShell.setFocus();
-				if (bot.button("Continue").isEnabled()) {
-					bot.button("Continue").click();
-					bot.waitUntil(Conditions.shellCloses(deleteResourcesShell));
-				}
-			} catch (Exception e) {
-				//do nothing as we throw an exception if the button is not found
-			}
 			SWTBotView projectExplorView = bot.viewByTitle("Project Explorer");
 			projectExplorView.show();
 			SWTBotTreeItem[] projects = projectExplorView.bot().tree().getAllItems();

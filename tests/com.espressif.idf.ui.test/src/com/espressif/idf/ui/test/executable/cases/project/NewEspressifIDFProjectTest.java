@@ -144,7 +144,6 @@ public class NewEspressifIDFProjectTest
 		Fixture.whenProjectHasDebugConfigurations();
 		Fixture.deleteProjectAndConfigs("NewProjectTest");
 		Fixture.thenAllConfigurationsAreDeleted();
-		Fixture.deleteProject("NewProjectTest2");
 	}
 	
 	@Test
