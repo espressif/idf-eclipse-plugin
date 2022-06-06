@@ -4,25 +4,20 @@
  *******************************************************************************/
 package com.espressif.idf.ui.test.operations;
 
-import static org.eclipse.swtbot.swt.finder.waits.Conditions.shellCloses;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory;
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
-import org.eclipse.swtbot.swt.finder.waits.ICondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarDropDownButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
-import org.eclipse.ui.ActiveShellExpression;
 
 import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
@@ -187,10 +182,11 @@ public class ProjectTestOperations
 			}
 			bot.button("OK").click();
 			try {
-				if (bot.activeShell().getText().contentEquals("Delete Resources") && bot.button("Continue").isEnabled()) {
-					SWTBotShell deleteResourcesShell = bot.activeShell();
+				SWTBotShell deleteResourcesShell = bot.activeShell();
+				deleteResourcesShell.setFocus();
+				if (bot.button("Continue").isEnabled()) {
 					bot.button("Continue").click();
-					bot.waitUntilWidgetAppears(Conditions.shellCloses(deleteResourcesShell));
+					bot.waitUntil(Conditions.shellCloses(deleteResourcesShell));
 				}
 			} catch (Exception e) {
 				//do nothing as we throw an exception if the button is not found
