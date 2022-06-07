@@ -414,12 +414,34 @@
             id="com.espressif.commands.cleanCommand"
             name="%command.name.5">
       </command>
+      <command
+            id="org.eclipse.ltk.ui.refactoring.commands.deleteResources"
+            name="%command.name.11">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
       <handler
             class="com.espressif.idf.ui.handlers.PythonCleanCommandHandler"
             commandId="com.espressif.commands.cleanCommand">
+      </handler>
+      <handler
+            class="com.espressif.idf.ui.handlers.DeleteResourceHandler"
+            commandId="org.eclipse.ltk.ui.refactoring.commands.deleteResources">
+         	<activeWhen>
+			<with variable="selection">
+			  <iterate
+                  ifEmpty="false">
+               <instanceof
+                     value="org.eclipse.core.resources.IProject">
+               </instanceof>
+               <test
+                     property="org.eclipse.core.resources.projectNature"
+                     value="com.espressif.idf.core.idfNature">
+               </test>
+            </iterate>
+			</with>
+	</activeWhen>
       </handler>
     </extension>
    <extension

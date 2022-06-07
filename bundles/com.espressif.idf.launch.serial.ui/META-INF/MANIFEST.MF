@@ -19,6 +19,8 @@ Bundle-Activator: com.espressif.idf.launch.serial.ui.internal.Activator
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: org.eclipse.cdt.launch.serial.ui
 Bundle-Vendor: %Bundle-Vendor
-Import-Package: com.espressif.idf.ui.dialogs,
- org.eclipse.cdt.dsf.gdb
+Import-Package: com.espressif.idf.ui,
+ com.espressif.idf.ui.dialogs,
+ org.eclipse.cdt.dsf.gdb,
+ org.eclipse.cdt.ui
 Export-Package: com.espressif.idf.launch.serial.ui.internal
