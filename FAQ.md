@@ -142,3 +142,6 @@ Eclipse will fail to launch if installed in a directory whose path contains cert
   
   To installation of the USB drivers for Libusb and FTDI D2XX drivers for your devices, you could refer to this [tool](https://visualgdb.com/UsbDriverTool/)
   
+ ## Do you have the board with JTAG or without JTAG?
+  This [thread](https://github.com/espressif/idf-installer/issues/133#issuecomment-1136990432) and subsequent discussion could help you understand this.
+
