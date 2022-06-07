@@ -524,6 +524,8 @@ After meeting requirements you are free to build and flash via DFU. How to use D
 
 ![DFU actions](https://user-images.githubusercontent.com/24419842/172332034-5aa07849-619e-466e-b25d-11c3828b3f42.png)
 
+Additional information, including common errors and known issues, is mentioned in this [guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/dfu.html#usb-drivers-windows-only).
+
 <a name="appLvlTracing"></a>
 
 # Application Level Tracing
