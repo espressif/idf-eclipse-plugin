@@ -499,7 +499,7 @@ You can view the registers stack trace and even view the value of variables in s
 
 Device Firmware Upgrade (DFU) is a mechanism for upgrading the firmware of devices through Universal Serial Bus (USB). There are a few  requirements that need to be met:
 
-- DFU is supported by ESP32-S2 and  ESP320-S3 chips. 
+- DFU is supported by ESP32-S2 and  ESP32-S3 chips. 
 - You will need to do some electrical connection work (Here is a [guide](https://blog.espressif.com/dfu-using-the-native-usb-on-esp32-s2-for-flashing-the-firmware-b2c4af3335f1) for the ESP32-S2 board). The necessary connections for the USB peripheral are shown in the following table.
 
 | GPIO | USB         |
@@ -510,11 +510,10 @@ Device Firmware Upgrade (DFU) is a mechanism for upgrading the firmware of devic
 | +5V  |  +5V (red)  |
 
 - The chip needs to be in bootloader mode for the detection as a DFU device and flashing. This can beachieved by pulling GPIO0 down (e.g. pressing the BOOT button), pulsing RESET down for a moment and releasing GPIO0.
-- Install USB drivers (Windows only). The drivers can be installed by the [Zadig tool](https://zadig.akeo.ie/>). Please make sure that the device is in
+- Install USB drivers (Windows only). The drivers can be installed by the [Zadig tool](https://zadig.akeo.ie/>). The manual installation of the driver in Device Manager of Windows is not recommended because the flashing might not work properly. Please make sure that the device is in
 download mode before running the tool and that it detects the device before installing the drivers. The Zadig
 tool might detect several USB interfaces of the target. Please install the WinUSB driver for only that interface for
-which there is no driver installed (probably it is Interface 2) and don't re-install the driver for the other interface. The manual installation of the driver in Device Manager of Windows is not recommended because the flashing might not work properly.
-
+which there is no driver installed (probably it is Interface 2) and don't re-install the driver for the other interface. 
 
 After meeting requirements you are free to build and flash via DFU. How to use DFU:
 
