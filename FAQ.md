@@ -134,3 +134,14 @@ Eclipse will fail to launch if installed in a directory whose path contains cert
 `esp_idf_components` folder is introduced with v2.4.0 release to achieve source code navigation for the function definitions((Press F3 or Ctrl+Click on the functional call) and to fix unresolved header problems with the indexer. It will be created immediately after the build based on the `build/compile_commands.json` file list. secondly, it also helps the users who want to check source of esp-idf components directly from the IDE. The files created under esp_idf_componenets are virtual folders for /esp-idf/components and these will be re-generated everytime after the build.
  
  This could be disabled by adding the `-Dskip.idf.components=true` VM argument in the eclipse.ini(espressif-ide.ini) file but this might create inconsistency issues with the indexer where it's unable to resovle headers properly and you might not be able to navigate to the function definitions from the code editors.
+  
+## Installation of drivers
+  If you are a windows user, always prefer [ESP-IDF Windows Installer](https://dl.espressif.com/dl/esp-idf/) for installing pre-requisites and required drivers
+  
+  To install it manually refer to [this](https://github.com/espressif/idf-installer#manual-installation-of-drivers)
+  
+  To installation of the USB drivers for Libusb and FTDI D2XX drivers for your devices, you could refer to this [tool](https://visualgdb.com/UsbDriverTool/)
+  
+ ## Do you have the board with JTAG or without JTAG?
+  This [thread](https://github.com/espressif/idf-installer/issues/133#issuecomment-1136990432) and subsequent discussion could help you understand this.
+
