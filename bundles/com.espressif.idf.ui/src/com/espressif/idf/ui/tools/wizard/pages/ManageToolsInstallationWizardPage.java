@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -38,6 +39,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
+import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
@@ -51,6 +53,7 @@ import com.espressif.idf.ui.tools.ToolsUtility;
 import com.espressif.idf.ui.tools.vo.ToolsVO;
 import com.espressif.idf.ui.tools.vo.VersionDetailsVO;
 import com.espressif.idf.ui.tools.vo.VersionsVO;
+import com.espressif.idf.ui.tools.wizard.IToolsInstallationWizardConstants;
 
 /**
  * Shell for displaying tools information on UI
@@ -102,6 +105,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 	private ProgressBar progressBar;
 	private ToolsInstallationHandler toolsInstallationHandler;
 	private IDFEnvironmentVariables idfEnvironmentVariables;
+	private Preferences scopedPreferenceStore;
 
 	public ManageToolsInstallationWizardPage(WizardDialog parentWizardDialog)
 	{
@@ -112,6 +116,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 		this.parentWizardDialog = parentWizardDialog;
 		this.logQueue = new ConcurrentLinkedQueue<String>();
 		idfEnvironmentVariables = new IDFEnvironmentVariables();
+		scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 	}
 
 	@Override
@@ -386,6 +391,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 				pageCompletion &= toolsVO.isInstalled();
 		}
 		
+		scopedPreferenceStore.putBoolean(IToolsInstallationWizardConstants.INSTALL_TOOLS_FLAG, pageCompletion);
 		setPageComplete(pageCompletion);
 	}
 
