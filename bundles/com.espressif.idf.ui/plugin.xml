@@ -620,9 +620,11 @@
                id="com.espressif.idf.ui.toolbar">
             <command
                   commandId="com.espressif.idf.ui.command.dfu"
+                  helpContextId="%command.label.9"
                   icon="icons/espressif.png"
                   label="%command.label.9"
-                  style="toggle">
+                  style="toggle"
+                  tooltip="%command.label.9">
             </command>
          </toolbar>
       </menuContribution>
