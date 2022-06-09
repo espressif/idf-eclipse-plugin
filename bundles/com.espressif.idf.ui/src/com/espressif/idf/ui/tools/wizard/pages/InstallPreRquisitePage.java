@@ -162,14 +162,6 @@ public class InstallPreRquisitePage extends WizardPage
 
 	private String getPythonExecutablePath()
 	{
-		// find python from IDF_PYTHON_ENV_PATH env path
-		pythonExecutablePath = IDFUtil.getIDFPythonEnvPath();
-		if (!StringUtil.isEmpty(pythonExecutablePath))
-		{
-			return pythonExecutablePath;
-		}
-
-		// Get Python
 		if (Platform.OS_WIN32.equals(Platform.getOS()))
 		{
 			PyWinRegistryReader pyWinRegistryReader = new PyWinRegistryReader();
@@ -216,7 +208,7 @@ public class InstallPreRquisitePage extends WizardPage
 		Preferences scopedPreferenceStore = getPreferences();
 		scopedPreferenceStore.put(IToolsInstallationWizardConstants.PYTHON_PATH_NODE_KEY, pythonExecutablePath);
 		scopedPreferenceStore.put(IToolsInstallationWizardConstants.GIT_PATH_NODE_KEY, gitExecutablePath);
-
+		idfEnvironmentVariables.prependEnvVariableValue(IDFEnvironmentVariables.PYTHON_EXE_PATH, pythonExecutablePath);
 		addGitToEnvironment(gitExecutablePath);
 
 		try

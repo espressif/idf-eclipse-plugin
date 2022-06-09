@@ -10,6 +10,9 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.Platform;
 
+import com.espressif.idf.ui.tools.IToolsJsonKeys;
+import com.espressif.idf.ui.tools.JsonKey;
+
 /**
  * Bean class for tools information from json
  * 
@@ -18,27 +21,40 @@ import org.eclipse.core.runtime.Platform;
  */
 public class ToolsVO
 {
+	@JsonKey(key_name = IToolsJsonKeys.DESCRIPTION_KEY)
 	private String description;
 
+	@JsonKey(key_name = IToolsJsonKeys.EXPORT_PATHS_KEY)
 	private List<String> exportPaths;
-
+	
+	@JsonKey(key_name = IToolsJsonKeys.EXPORT_VARS_KEY)
 	private Map<String, String> exportVars;
 
+	@JsonKey(key_name = IToolsJsonKeys.INFO_URL_KEY)
 	private String infoUrl;
 
+	@JsonKey(key_name = IToolsJsonKeys.INSTALL_KEY)
 	private String installType;
 
+	@JsonKey(key_name = IToolsJsonKeys.LICENSE_KEY)
 	private String licesnse;
 
+	@JsonKey(key_name = IToolsJsonKeys.NAME_KEY)
 	private String name;
 
+	@JsonKey(key_name = IToolsJsonKeys.SUPPORTED_TARGETS_KEY)
 	private List<String> supportedTargets;
 
+	@JsonKey(key_name = IToolsJsonKeys.VERSION_CMD_KEY)
 	private List<String> versionCmd;
 
+	@JsonKey(key_name = IToolsJsonKeys.VERSIONS_VO_KEY)
 	private List<VersionsVO> versionVOs;
 
+	@JsonKey(key_name = IToolsJsonKeys.VERSION_KEY)
 	private String version;
+	
+	private boolean installed;
 	
 	private static final String MAC_OS = "mac"; //$NON-NLS-1$
 	private static final String LINUX_OS = "linux"; //$NON-NLS-1$
@@ -186,5 +202,15 @@ public class ToolsVO
 		totalSize /= 1024; // MB
 		DecimalFormat df = new DecimalFormat("0"); //$NON-NLS-1$
 		return String.valueOf(df.format(totalSize)).concat(" MB"); //$NON-NLS-1$
+	}
+
+	public boolean isInstalled()
+	{
+		return installed;
+	}
+
+	public void setInstalled(boolean installed)
+	{
+		this.installed = installed;
 	}
 }

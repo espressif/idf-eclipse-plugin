@@ -5,10 +5,14 @@
 package com.espressif.idf.ui.tools;
 
 import java.io.FileReader;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import org.eclipse.core.runtime.Platform;
 
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.tools.vo.ToolsVO;
@@ -17,6 +21,7 @@ import com.espressif.idf.ui.tools.vo.VersionsVO;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
 
@@ -28,22 +33,6 @@ import com.google.gson.stream.JsonReader;
  */
 public class ToolsJsonParser
 {
-	private static final String URL_KEY = "url"; //$NON-NLS-1$
-	private static final String SIZE_KEY = "size"; //$NON-NLS-1$
-	private static final String SHA256_KEY = "sha256"; //$NON-NLS-1$
-	private static final String STATUS_KEY = "status"; //$NON-NLS-1$
-	private static final String VERSION_KEY = "version"; //$NON-NLS-1$
-	private static final String VERSIONS_VO_KEY = "versions"; //$NON-NLS-1$
-	private static final String VERSION_CMD_KEY = "version_cmd"; //$NON-NLS-1$
-	private static final String SUPPORTED_TARGETS_KEY = "supported_targets"; //$NON-NLS-1$
-	private static final String NAME_KEY = "name"; //$NON-NLS-1$
-	private static final String LICENSE_KEY = "license"; //$NON-NLS-1$
-	private static final String INSTALL_KEY = "install"; //$NON-NLS-1$
-	private static final String INFO_URL_KEY = "info_url"; //$NON-NLS-1$
-	private static final String EXPORT_VARS_KEY = "export_vars"; //$NON-NLS-1$
-	private static final String EXPORT_PATHS_KEY = "export_paths"; //$NON-NLS-1$
-	private static final String DESCRIPTION_KEY = "description"; //$NON-NLS-1$
-	private static final String TOOLS_KEY = "tools"; //$NON-NLS-1$
 	private Gson gson;
 	private List<ToolsVO> toolsList;
 
@@ -58,32 +47,93 @@ public class ToolsJsonParser
 		toolsList.clear();
 		JsonReader jsonReader = new JsonReader(new FileReader(IDFUtil.getIDFToolsJsonFileForInstallation()));
 		JsonObject jsonObject = gson.fromJson(jsonReader, JsonObject.class);
-		JsonArray jsonArray = jsonObject.get(TOOLS_KEY).getAsJsonArray();
+		JsonArray jsonArray = jsonObject.get(IToolsJsonKeys.TOOLS_KEY).getAsJsonArray();
 		for (int i = 0; i < jsonArray.size(); i++)
 		{
 			JsonObject toolsJsonObject = jsonArray.get(i).getAsJsonObject();
 			ToolsVO toolsVO = new ToolsVO();
-			toolsVO.setDescription(toolsJsonObject.get(DESCRIPTION_KEY).getAsString());
-			if (toolsJsonObject.get(EXPORT_PATHS_KEY).getAsJsonArray().size() > 0)
+			toolsVO.setDescription(toolsJsonObject.get(IToolsJsonKeys.DESCRIPTION_KEY).getAsString());
+			if (toolsJsonObject.get(IToolsJsonKeys.EXPORT_PATHS_KEY).getAsJsonArray().size() > 0)
 			{
 				toolsVO.setExportPaths(getStringsListFromJsonArray(
-						toolsJsonObject.get(EXPORT_PATHS_KEY).getAsJsonArray().get(0).getAsJsonArray()));	
+						toolsJsonObject.get(IToolsJsonKeys.EXPORT_PATHS_KEY).getAsJsonArray().get(0).getAsJsonArray()));	
 			}
 			toolsVO.setExportVars(
-					getExportVarsMapFromJsonObject(toolsJsonObject.get(EXPORT_VARS_KEY).getAsJsonObject()));
-			toolsVO.setInfoUrl(toolsJsonObject.get(INFO_URL_KEY).getAsString());
-			toolsVO.setInstallType(toolsJsonObject.get(INSTALL_KEY).getAsString());
-			toolsVO.setLicesnse(toolsJsonObject.get(LICENSE_KEY).getAsString());
-			toolsVO.setName(toolsJsonObject.get(NAME_KEY).getAsString());
-			if (toolsJsonObject.get(SUPPORTED_TARGETS_KEY) != null)
+					getExportVarsMapFromJsonObject(toolsJsonObject.get(IToolsJsonKeys.EXPORT_VARS_KEY).getAsJsonObject()));
+			toolsVO.setInfoUrl(toolsJsonObject.get(IToolsJsonKeys.INFO_URL_KEY).getAsString());
+			toolsVO.setInstallType(toolsJsonObject.get(IToolsJsonKeys.INSTALL_KEY).getAsString());
+			toolsVO.setLicesnse(toolsJsonObject.get(IToolsJsonKeys.LICENSE_KEY).getAsString());
+			toolsVO.setName(toolsJsonObject.get(IToolsJsonKeys.NAME_KEY).getAsString());
+			if (toolsJsonObject.get(IToolsJsonKeys.SUPPORTED_TARGETS_KEY) != null)
 			{
 				toolsVO.setSupportedTargets(
-						getStringsListFromJsonArray(toolsJsonObject.get(SUPPORTED_TARGETS_KEY).getAsJsonArray()));	
+						getStringsListFromJsonArray(toolsJsonObject.get(IToolsJsonKeys.SUPPORTED_TARGETS_KEY).getAsJsonArray()));	
 			}
-			toolsVO.setVersionCmd(getStringsListFromJsonArray(toolsJsonObject.get(VERSION_CMD_KEY).getAsJsonArray()));
-			toolsVO.setVersionVO(getVersions(toolsJsonObject.get(VERSIONS_VO_KEY).getAsJsonArray()));
-			toolsVO.setVersion(jsonObject.get(VERSION_KEY).getAsString());
+			toolsVO.setVersionCmd(getStringsListFromJsonArray(toolsJsonObject.get(IToolsJsonKeys.VERSION_CMD_KEY).getAsJsonArray()));
+			toolsVO.setVersionVO(getVersions(toolsJsonObject.get(IToolsJsonKeys.VERSIONS_VO_KEY).getAsJsonArray()));
+			toolsVO.setVersion(jsonObject.get(IToolsJsonKeys.VERSION_KEY).getAsString());
+			JsonElement jsonElement = toolsJsonObject.get(IToolsJsonKeys.PLATFORM_OVERRIDES_KEY);
+			if (jsonElement != null)
+			{
+				adjustPlatformOverrides(jsonElement.getAsJsonArray(), toolsVO);	
+			}
+			
 			toolsList.add(toolsVO);
+		}
+	}
+	
+	private void adjustPlatformOverrides(JsonArray jsonArray, ToolsVO toolsVO) throws Exception
+	{
+		String currentOS = Platform.getOS();
+		if (currentOS.equals(Platform.OS_WIN32))
+		{
+			currentOS = "win"; //$NON-NLS-1$
+		}
+		
+		for (int i = 0; i < jsonArray.size(); i++)
+		{
+			JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
+			JsonArray platformArray = jsonObject.get(IToolsJsonKeys.PLATFORMS_KEY).getAsJsonArray();
+			for (int j = 0; j < platformArray.size(); j++)
+			{
+				String platform = platformArray.get(j).getAsString();
+				if (platform.contains(currentOS))
+				{
+					Set<String> keys = jsonObject.keySet();
+					keys.remove(IToolsJsonKeys.PLATFORMS_KEY);
+					for(String key : keys)
+					{
+						JsonElement element = jsonObject.get(key);
+						if (element.isJsonArray())
+						{
+							List<String> list = getStringsListFromJsonArray(element.getAsJsonArray());
+							injectOverride(toolsVO, key, list);
+						}
+						else
+						{
+							injectOverride(toolsVO, key, element.getAsString());
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	private void injectOverride(ToolsVO toolsVO, String key, Object val) throws Exception
+	{
+		Field[] allFields = ToolsVO.class.getDeclaredFields();
+		for (Field field : allFields)
+		{
+			if (field.isAnnotationPresent(JsonKey.class))
+			{
+				JsonKey ann = field.getAnnotation(JsonKey.class);
+				if (ann.key_name().equals(key))
+				{
+					field.trySetAccessible();
+					field.set(toolsVO, val);
+					return;
+				}
+			}
 		}
 	}
 
@@ -97,21 +147,21 @@ public class ToolsJsonParser
 			Map<String, VersionDetailsVO> versionDetailMap = new HashMap<>();
 			for (String key : jsonObject.keySet())
 			{
-				if (key.equalsIgnoreCase(NAME_KEY) || key.equalsIgnoreCase(STATUS_KEY))
+				if (key.equalsIgnoreCase(IToolsJsonKeys.NAME_KEY) || key.equalsIgnoreCase(IToolsJsonKeys.STATUS_KEY))
 				{
 					continue;
 				}
 
 				VersionDetailsVO versionDetailsVO = new VersionDetailsVO();
 				JsonObject osVersionDetailsObject = jsonObject.get(key).getAsJsonObject();
-				versionDetailsVO.setSha256(osVersionDetailsObject.get(SHA256_KEY).getAsString());
-				versionDetailsVO.setSize(osVersionDetailsObject.get(SIZE_KEY).getAsDouble());
-				versionDetailsVO.setUrl(osVersionDetailsObject.get(URL_KEY).getAsString());
+				versionDetailsVO.setSha256(osVersionDetailsObject.get(IToolsJsonKeys.SHA256_KEY).getAsString());
+				versionDetailsVO.setSize(osVersionDetailsObject.get(IToolsJsonKeys.SIZE_KEY).getAsDouble());
+				versionDetailsVO.setUrl(osVersionDetailsObject.get(IToolsJsonKeys.URL_KEY).getAsString());
 				versionDetailMap.put(key, versionDetailsVO);
 			}
 
-			versionsVO.setName(jsonObject.get(NAME_KEY).getAsString());
-			versionsVO.setStatus(jsonObject.get(STATUS_KEY).getAsString());
+			versionsVO.setName(jsonObject.get(IToolsJsonKeys.NAME_KEY).getAsString());
+			versionsVO.setStatus(jsonObject.get(IToolsJsonKeys.STATUS_KEY).getAsString());
 			versionsVO.setVersionOsMap(versionDetailMap);
 			versionsVOs.add(versionsVO);
 

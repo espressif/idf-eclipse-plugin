@@ -147,6 +147,7 @@ public class IDFUtil
 	public static String getIDFPythonEnvPath()
 	{
 		String idfPyEnvPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH);
+		idfPyEnvPath = idfPyEnvPath.strip();
 		if (!StringUtil.isEmpty(idfPyEnvPath))
 		{
 

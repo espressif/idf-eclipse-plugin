@@ -5,10 +5,12 @@
 package com.espressif.idf.ui.tools.wizard;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Composite;
+import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.tools.Messages;
@@ -28,13 +30,14 @@ public class ToolsManagerWizard extends Wizard
 	private InstallEspIdfPage installEspIdfPage;
 	private ManageToolsInstallationWizardPage manageToolsInstallationPage;
 	private WizardDialog parentWizardDialog;
+	private Preferences scopedPreferenceStore;
 
 	public ToolsManagerWizard()
 	{
 		super();
 		setDefaultPageImageDescriptor(UIPlugin.getImageDescriptor(IToolsInstallationWizardConstants.ESPRESSIF_LOGO));
 		setNeedsProgressMonitor(true);
-
+		scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 	}
 
 	@Override
@@ -75,10 +78,15 @@ public class ToolsManagerWizard extends Wizard
 	}
 
 	@Override
+	public boolean canFinish()
+	{
+		return super.canFinish() && scopedPreferenceStore.getBoolean(IToolsInstallationWizardConstants.INSTALL_TOOLS_FLAG, false); 
+	}
+	
+	@Override
 	public boolean performFinish()
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	public WizardDialog getParentWizardDialog()

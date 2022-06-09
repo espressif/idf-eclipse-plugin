@@ -17,4 +17,6 @@ public interface IToolsInstallationWizardConstants
 	String GIT_PATH_NODE_KEY = "GIT_EXECUTABLE"; //$NON-NLS-1$
 	
 	String ESPRESSIF_LOGO = "icons/tools/espressif-logo.png"; //$NON-NLS-1$ 
+	
+	String INSTALL_TOOLS_FLAG = "INSTALL_TOOLS_FLAG"; //$NON-NLS-1$
 }

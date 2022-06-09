@@ -29,6 +29,7 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.FileUtil;
 import com.espressif.idf.ui.tools.vo.ToolsVO;
+import com.espressif.idf.ui.tools.vo.VersionsVO;
 
 /**
  * Utility class for Tools Management operations
@@ -46,7 +47,7 @@ public class ToolsUtility
 
 	public static final String ESPRESSIF_HOME_TOOLS_DIR = ESPRESSIF_HOME_DIR.concat("/tools"); //$NON-NLS-1$
 
-	public static boolean isToolInstalled(String name, String versionName)
+	public static boolean isToolInstalled(String toolName, String versionsName)
 	{
 		File homeDir = new File(ESPRESSIF_HOME_DIR);
 		if (!homeDir.exists())
@@ -55,7 +56,7 @@ public class ToolsUtility
 		}
 
 		File toolDirectory = new File(
-				ESPRESSIF_HOME_TOOLS_DIR.concat(FORWARD_SLASH).concat(name).concat(FORWARD_SLASH).concat(versionName));
+				ESPRESSIF_HOME_TOOLS_DIR.concat(FORWARD_SLASH).concat(toolName).concat(FORWARD_SLASH).concat(versionsName));
 		if (toolDirectory.exists())
 		{
 			IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
@@ -64,7 +65,7 @@ public class ToolsUtility
 			String directorySplittor = Platform.getOS().equals(Platform.OS_WIN32) ? SLASH : FORWARD_SLASH;
 			for (String splittedPath : splittedPaths)
 			{
-				if (splittedPath.contains(name.concat(directorySplittor).concat(versionName)))
+				if (splittedPath.contains(toolName.concat(directorySplittor).concat(versionsName)))
 				{
 					return true;
 				}
@@ -72,6 +73,11 @@ public class ToolsUtility
 		}
 
 		return false;
+	}
+	
+	public static void checkToolVersion(ToolsVO toolsVO)
+	{
+		
 	}
 
 	public static void removeToolDirectory(String toolName) throws IOException

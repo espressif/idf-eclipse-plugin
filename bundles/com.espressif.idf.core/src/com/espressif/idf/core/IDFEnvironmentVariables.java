@@ -41,6 +41,8 @@ public class IDFEnvironmentVariables
 
 	public static String GIT_PATH ="GIT_PATH"; //$NON-NLS-1$
 	
+	public static String PYTHON_EXE_PATH ="PYTHON_EXE_PATH"; //$NON-NLS-1$
+	
 	/**
 	 * @param variableName Environment variable Name
 	 * @return IEnvironmentVariable

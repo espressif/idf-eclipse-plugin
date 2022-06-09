@@ -23,7 +23,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
@@ -32,7 +31,6 @@ import org.eclipse.swt.widgets.Text;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.IDFVersion;
 import com.espressif.idf.core.IDFVersionsReader;
-import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.tools.GitDownloadAndCloneThread;
@@ -111,7 +109,7 @@ public class InstallEspIdfPage extends WizardPage
 			@Override
 			public void modifyText(ModifyEvent e)
 			{
-				setPageComplete(false);
+				adjustPageCompletion(false, false);
 			}
 		});
 
@@ -205,13 +203,26 @@ public class InstallEspIdfPage extends WizardPage
 		page.setWizard(getWizard());
 		return page;
 	}
+	
+	public void adjustPageCompletion(boolean pageCompletion, boolean force)
+	{
+		if (force)
+		{
+			super.setPageComplete(pageCompletion);
+		}
+		else
+		{
+			setPageComplete(pageCompletion);
+		}
+	}
 
 	@Override
-	public boolean canFlipToNextPage()
+	public void setPageComplete(boolean isPageComplete)
 	{
 		if (gitDownloadAndCloneThread != null && cloningOrDownloading)
 		{
-			return false;
+			super.setPageComplete(false);
+			return;
 		}
 
 		if (btnExisting.getSelection() && !StringUtil.isEmpty(txtIdfpath.getText())
@@ -220,14 +231,22 @@ public class InstallEspIdfPage extends WizardPage
 			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, txtIdfpath.getText());
 			logMessages
 					.add(MessageFormat.format(Messages.IDFDownloadWizard_UpdatingIDFPathMessage, txtIdfpath.getText()));
-			return true;
+			super.setPageComplete(true);
+			return;
 		}
 		else if (btnNew.getSelection())
 		{
-			return false;
+			super.setPageComplete(false);
+			return;
 		}
 
-		return false;
+		super.setPageComplete(isPageComplete);
+	}
+	
+	@Override
+	public boolean canFlipToNextPage()
+	{
+		return isPageComplete();
 	}
 
 	private void loadDirectory(Text text)
@@ -340,7 +359,7 @@ public class InstallEspIdfPage extends WizardPage
 			gitDownloadAndCloneThread = gitThread;
 			gitThread.start();
 			enableAllControls(false, false, false);
-			setPageComplete(false);
+			adjustPageCompletion(false, true);
 		}
 	}
 
@@ -352,12 +371,12 @@ public class InstallEspIdfPage extends WizardPage
 			if (getBtnExisting().getSelection())
 			{
 				loadDirectory(getTxtIdfpath());
-				setPageComplete(false);
+				adjustPageCompletion(false, true);
 			}
 			else if (getBtnNew().getSelection())
 			{
 				loadDirectory(txtDownloadDirectory);
-				setPageComplete(false);
+				adjustPageCompletion(false, true);
 			}
 		}
 	}
@@ -368,7 +387,7 @@ public class InstallEspIdfPage extends WizardPage
 		public void widgetSelected(SelectionEvent e)
 		{
 			enableControls(getBtnNew().getSelection(), getBtnExisting().getSelection());
-			setPageComplete(false);
+			adjustPageCompletion(false, true);
 		}
 
 		private void enableControls(boolean newSection, boolean existingSection)

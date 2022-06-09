@@ -39,6 +39,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
@@ -100,6 +101,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 	private Button btnCancel;
 	private ProgressBar progressBar;
 	private ToolsInstallationHandler toolsInstallationHandler;
+	private IDFEnvironmentVariables idfEnvironmentVariables;
 
 	public ManageToolsInstallationWizardPage(WizardDialog parentWizardDialog)
 	{
@@ -109,6 +111,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 		toolsJsonParser = new ToolsJsonParser();
 		this.parentWizardDialog = parentWizardDialog;
 		this.logQueue = new ConcurrentLinkedQueue<String>();
+		idfEnvironmentVariables = new IDFEnvironmentVariables();
 	}
 
 	@Override
@@ -129,7 +132,8 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 		GridData topBarLayoutData = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
 		topBarLayoutData.heightHint = 40;
 		topBarComposite.setLayoutData(topBarLayoutData);
-
+		setPageComplete(false);
+		
 		btnSelectButton = new Button(topBarComposite, SWT.PUSH);
 		btnSelectButton.setImage(UIPlugin.getImage(SELECT_ALL));
 		btnSelectButton.redraw();
@@ -362,13 +366,27 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 			logMessagesThread.start();
 		}
 		
-		setPageComplete(false);
+		setPageStatus();
 	}
 	
 	public void refreshTree() throws Exception
 	{
 		toolsTree.removeAll();	
 		addItemsToTree(toolsTree, chkAvailableVersions.getSelection());
+	}
+	
+	public void setPageStatus()
+	{
+		boolean pageCompletion = true;
+		for(TreeItem mainItem : toolsTree.getItems())
+		{
+			ToolsVO toolsVO = (ToolsVO) mainItem.getData();
+			boolean alwaysInstall = toolsVO.getInstallType().equalsIgnoreCase(ALWAYS) || toolsVO.getInstallType().equalsIgnoreCase(RECOMMENDED);
+			if (alwaysInstall)
+				pageCompletion &= toolsVO.isInstalled();
+		}
+		
+		setPageComplete(pageCompletion);
 	}
 
 	private void initializeJson()
@@ -405,8 +423,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 			TreeItem mainItem = new TreeItem(toolsTree, SWT.NONE);
 			boolean isInstalled = false;
 
-			boolean alwaysInstall = toolsVO.getInstallType().equalsIgnoreCase(ALWAYS)
-					|| toolsVO.getInstallType().equalsIgnoreCase(RECOMMENDED);
+			boolean alwaysInstall = toolsVO.getInstallType().equalsIgnoreCase(ALWAYS) || toolsVO.getInstallType().equalsIgnoreCase(RECOMMENDED);
 			if (alwaysInstall)
 			{
 				itemChecked = true;
@@ -425,7 +442,6 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 			{
 				for (VersionsVO versionsVO : toolsVO.getVersionVO())
 				{
-					isInstalled = ToolsUtility.isToolInstalled(toolsVO.getName(), versionsVO.getName());
 					for (String key : versionsVO.getVersionOsMap().keySet())
 					{
 						if (Platform.getOS().equals(Platform.OS_WIN32))
@@ -451,7 +467,9 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 								continue;
 							}
 						}
-
+						
+						isInstalled = ToolsUtility.isToolInstalled(toolsVO.getName(), versionsVO.getName());
+						toolsVO.setInstalled(isInstalled);
 						versionsVO.getVersionOsMap().get(key).setSelected(alwaysInstall);
 
 						TreeItem subItem = new TreeItem(mainItem, SWT.NONE);
@@ -714,8 +732,11 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 				VersionsVO versionsVO = (VersionsVO) item.getData();
 				sb.append(toolsVO.getName());
 				sb.append(System.lineSeparator());
-				sb.append(Messages.SupportedTargetsDescriptionText);
-				sb.append(toolsVO.getSupportedTargets().toString());
+				if (toolsVO.getSupportedTargets() != null && toolsVO.getSupportedTargets().size() > 0)
+				{
+					sb.append(Messages.SupportedTargetsDescriptionText);
+					sb.append(toolsVO.getSupportedTargets().toString());					
+				}
 				sb.append(System.lineSeparator());
 				sb.append(versionsVO.getName());
 				sb.append(System.lineSeparator());
@@ -737,8 +758,11 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 				ToolsVO toolsVO = (ToolsVO) item.getData();
 				sb.append(toolsVO.getName());
 				sb.append(System.lineSeparator());
-				sb.append(Messages.SupportedTargetsDescriptionText);
-				sb.append(toolsVO.getSupportedTargets().toString());
+				if (toolsVO.getSupportedTargets() != null && toolsVO.getSupportedTargets().size() > 0)
+				{
+					sb.append(Messages.SupportedTargetsDescriptionText);
+					sb.append(toolsVO.getSupportedTargets().toString());					
+				}
 				descriptionText.setText(sb.toString());
 			}
 		}
@@ -783,7 +807,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 			int result = messageBox.open();
 			if (result == SWT.YES)
 			{
-				toolsInstallationHandler = new ToolsInstallationHandler(logQueue, ManageToolsInstallationWizardPage.this);
+				toolsInstallationHandler = new ToolsInstallationHandler(logQueue, ManageToolsInstallationWizardPage.this, idfEnvironmentVariables);
 				toolsInstallationHandler.deleteTools(selectedItems);
 				toolsInstallationHandler.start();
 			}
@@ -795,7 +819,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 		@Override
 		public void widgetSelected(SelectionEvent e)
 		{
-			toolsInstallationHandler = new ToolsInstallationHandler(logQueue, ManageToolsInstallationWizardPage.this);
+			toolsInstallationHandler = new ToolsInstallationHandler(logQueue, ManageToolsInstallationWizardPage.this, idfEnvironmentVariables);
 			Map<ToolsVO, List<VersionsVO>> selectedItems = getSelectedTools();
 			toolsInstallationHandler.installTools(selectedItems);
 			toolsInstallationHandler.start();
