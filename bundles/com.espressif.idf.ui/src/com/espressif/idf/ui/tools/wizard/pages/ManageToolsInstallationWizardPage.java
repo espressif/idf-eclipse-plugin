@@ -402,12 +402,6 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 		scopedPreferenceStore.putBoolean(IToolsInstallationWizardConstants.INSTALL_TOOLS_FLAG, pageCompletion);
 		setPageComplete(pageCompletion);
 	}
-	
-	public void refreshTree() throws Exception
-	{
-		toolsTree.removeAll();	
-		addItemsToTree(toolsTree, chkAvailableVersions.getSelection());
-	}
 
 	private void initializeJson()
 	{
