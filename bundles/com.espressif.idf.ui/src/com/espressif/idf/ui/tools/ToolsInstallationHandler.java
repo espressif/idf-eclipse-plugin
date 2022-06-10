@@ -584,8 +584,8 @@ public class ToolsInstallationHandler extends Thread
 					final IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
 					String key = keyValue[0];
 					String value = keyValue[1];
-					if (key.equals(IDFEnvironmentVariables.PATH)) // we already have the tools on the PATH no need to get the path from the Python script
-						continue;
+//					if (key.equals(IDFEnvironmentVariables.PATH)) // we already have the tools on the PATH no need to get the path from the Python script
+//						continue;
 
 					// add new or replace old entries
 					idfEnvMgr.addEnvVariable(key, value);
