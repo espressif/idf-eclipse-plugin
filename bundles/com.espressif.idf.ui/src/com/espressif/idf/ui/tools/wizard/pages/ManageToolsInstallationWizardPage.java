@@ -224,6 +224,10 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 		btnDeleteTools.setText(Messages.DeleteToolsText);
 		btnDeleteTools.addSelectionListener(new DeleteButtonSelectionAdapter());
 		btnDeleteTools.setEnabled(false);
+		
+		forceDownloadBtn = new Button(topBarComposite, SWT.CHECK);
+		forceDownloadBtn.setText(Messages.ForceDownload);
+		forceDownloadBtn.setToolTipText(Messages.ForceDownload_ToolTip);
 		new Label(topBarComposite, SWT.NONE);
 		
 		forceDownloadBtn = new Button(topBarComposite, SWT.CHECK);

@@ -145,7 +145,9 @@ public class Messages extends NLS
 	public static String InstallToolsHandler_OpenOCDRulesCopyWarningMessage;
 	public static String InstallToolsHandler_OpenOCDRulesNotCopied;
 	public static String AbstractToolsHandler_ExecutingMsg;
-	
+	public static String ToolAreadyPresent;
+	public static String ForceDownload_ToolTip;
+	public static String ForceDownload;
 	static
 	{
 		// initialize resource bundle
