@@ -106,6 +106,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 	private ToolsInstallationHandler toolsInstallationHandler;
 	private IDFEnvironmentVariables idfEnvironmentVariables;
 	private Preferences scopedPreferenceStore;
+	private Button forceDownloadBtn;
 
 	public ManageToolsInstallationWizardPage(WizardDialog parentWizardDialog)
 	{
@@ -221,6 +222,10 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 		btnDeleteTools.setText(Messages.DeleteToolsText);
 		btnDeleteTools.addSelectionListener(new DeleteButtonSelectionAdapter());
 		btnDeleteTools.setEnabled(false);
+		
+		forceDownloadBtn = new Button(topBarComposite, SWT.CHECK);
+		forceDownloadBtn.setText(Messages.ForceDownload);
+		forceDownloadBtn.setToolTipText(Messages.ForceDownload_ToolTip);
 		new Label(topBarComposite, SWT.NONE);
 		
 		Label filterTextLabel = new Label(subControlComposite, SWT.NONE);
@@ -827,7 +832,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 		{
 			toolsInstallationHandler = new ToolsInstallationHandler(logQueue, ManageToolsInstallationWizardPage.this, idfEnvironmentVariables);
 			Map<ToolsVO, List<VersionsVO>> selectedItems = getSelectedTools();
-			toolsInstallationHandler.installTools(selectedItems);
+			toolsInstallationHandler.installTools(selectedItems, forceDownloadBtn.getSelection());
 			toolsInstallationHandler.start();
 		}
 	}

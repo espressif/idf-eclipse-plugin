@@ -6,12 +6,14 @@ package com.espressif.idf.ui.tools;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,8 +57,8 @@ public class ToolsUtility
 			return false;
 		}
 
-		File toolDirectory = new File(
-				ESPRESSIF_HOME_TOOLS_DIR.concat(FORWARD_SLASH).concat(toolName).concat(FORWARD_SLASH).concat(versionsName));
+		File toolDirectory = new File(ESPRESSIF_HOME_TOOLS_DIR.concat(FORWARD_SLASH).concat(toolName)
+				.concat(FORWARD_SLASH).concat(versionsName));
 		if (toolDirectory.exists())
 		{
 			IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
@@ -74,10 +76,10 @@ public class ToolsUtility
 
 		return false;
 	}
-	
+
 	public static void checkToolVersion(ToolsVO toolsVO)
 	{
-		
+
 	}
 
 	public static void removeToolDirectory(String toolName) throws IOException
@@ -196,4 +198,31 @@ public class ToolsUtility
 		return availableVersions;
 	}
 
+	/**
+	 * Gets the file checksum based on the provided message digest
+	 * 
+	 * @param digest
+	 * @param file
+	 * @return
+	 * @throws IOException
+	 */
+	public static String getFileChecksum(MessageDigest digest, File file) throws IOException
+	{
+		FileInputStream fis = new FileInputStream(file);
+		byte[] byteArray = new byte[1024];
+		int bytesCount = 0;
+		while ((bytesCount = fis.read(byteArray)) != -1)
+		{
+			digest.update(byteArray, 0, bytesCount);
+		}
+		;
+		fis.close();
+		byte[] bytes = digest.digest();
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < bytes.length; i++)
+		{
+			sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+		}
+		return sb.toString();
+	}
 }

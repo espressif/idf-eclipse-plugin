@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,7 +35,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -68,6 +68,7 @@ public class ToolsInstallationHandler extends Thread
 	private static final String PATH_SPLITOR = "/"; //$NON-NLS-1$
 	private static final String GZ_EXT = "gz"; //$NON-NLS-1$
 	private static final String ZIP_EXT = "zip"; //$NON-NLS-1$
+	private static final String SHA256 = "SHA-256"; //$NON-NLS-1$
 	private Queue<String> logQueue;
 	private ManageToolsInstallationWizardPage manageToolsInstallationWizardPage;
 	private ExecutorService executorService;
@@ -147,13 +148,13 @@ public class ToolsInstallationHandler extends Thread
 		}
 	}
 
-	public void installTools(Map<ToolsVO, List<VersionsVO>> selectedItems)
+	public void installTools(Map<ToolsVO, List<VersionsVO>> selectedItems, boolean forceDownload)
 	{
 		cancelled = false;
 		setControlsEnabled(false);
 		showProgressBarAndCancelBtn(true);
 		executorService = Executors.newSingleThreadExecutor();
-		InstallToolsThread installToolsThread = new InstallToolsThread(selectedItems, idfEnvironmentVariables);
+		InstallToolsThread installToolsThread = new InstallToolsThread(selectedItems, idfEnvironmentVariables, forceDownload);
 		threadResponse = executorService.submit(installToolsThread);
 	}
 
@@ -306,7 +307,7 @@ public class ToolsInstallationHandler extends Thread
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, updatedPath.toString());
 	}
 
-	private void installTool(ToolsVO toolsVO, VersionsVO versionsVO)
+	private void installTool(ToolsVO toolsVO, VersionsVO versionsVO, boolean forceDownload)
 	{
 		if (cancelled)
 		{
@@ -326,7 +327,7 @@ public class ToolsInstallationHandler extends Thread
 			{
 				try
 				{
-					String nameOfDownloadedFile = downloadTool(key, versionsVO);
+					String nameOfDownloadedFile = downloadTool(key, versionsVO, forceDownload);
 					if (cancelled)
 					{
 						logQueue.add(Messages.OperationCancelledByUser);
@@ -445,12 +446,24 @@ public class ToolsInstallationHandler extends Thread
 		return extractionName;
 	}
 
-	private String downloadTool(String key, VersionsVO versionsVO) throws Exception
+	private String downloadTool(String key, VersionsVO versionsVO, boolean forceDownload) throws Exception
 	{
 		String[] split = versionsVO.getVersionOsMap().get(key).getUrl().split(PATH_SPLITOR);
+		String sha256 = versionsVO.getVersionOsMap().get(key).getSha256();
 		URL url = new URL(versionsVO.getVersionOsMap().get(key).getUrl());
 		String dirToDownloadTo = ToolsUtility.ESPRESSIF_HOME_DIR;
 		String name = split[split.length - 1];
+		File file = new File(dirToDownloadTo.concat(PATH_SPLITOR).concat(name));
+		if (file.exists() && !forceDownload)
+		{
+			MessageDigest shaDigest = MessageDigest.getInstance(SHA256);
+			if (sha256.equalsIgnoreCase(ToolsUtility.getFileChecksum(shaDigest, file)))
+			{
+				logQueue.add(Messages.ToolAreadyPresent);
+				return name;
+			}
+			
+		}
 		double completedSize = 0;
 		try
 		{
@@ -488,10 +501,12 @@ public class ToolsInstallationHandler extends Thread
 	private class InstallToolsThread implements Callable<Boolean>
 	{
 		private Map<ToolsVO, List<VersionsVO>> selectedItems;
-
-		public InstallToolsThread(Map<ToolsVO, List<VersionsVO>> selectedItems, IDFEnvironmentVariables idfEnvironmentVariables)
+		private boolean forceDownload;
+		
+		public InstallToolsThread(Map<ToolsVO, List<VersionsVO>> selectedItems, IDFEnvironmentVariables idfEnvironmentVariables, boolean forceDownload)
 		{
 			this.selectedItems = selectedItems;
+			this.forceDownload = forceDownload;
 		}
 
 		@Override
@@ -503,7 +518,7 @@ public class ToolsInstallationHandler extends Thread
 					return Boolean.FALSE;
 				for (VersionsVO versionsVO : selectedItems.get(toolsVo))
 				{
-					installTool(toolsVo, versionsVO);
+					installTool(toolsVo, versionsVO, forceDownload);
 				}
 			}
 			
@@ -579,46 +594,7 @@ public class ToolsInstallationHandler extends Thread
 			}
 		}
 		
-		private String appendGitToPath(String path, String gitExecutablePath)
-		{
-			IPath gitPath = new org.eclipse.core.runtime.Path(gitExecutablePath);
-			if (!gitPath.toFile().exists())
-			{
-				Logger.log(NLS.bind("{0} doesn't exist", gitExecutablePath)); //$NON-NLS-1$
-				return path;
-			}
-
-			String gitDir = gitPath.removeLastSegments(1).toOSString(); // ../bin/git
-			if (!StringUtil.isEmpty(path) && !path.contains(gitDir)) // Git not found on the CDT build PATH environment
-			{
-				return path.concat(";").concat(gitDir); // append git path //$NON-NLS-1$
-			}
-			return path;
-		}
-		
-		private String replacePathVariable(String value)
-		{
-			// Get system PATH
-			Map<String, String> systemEnv = new HashMap<>(System.getenv());
-			String pathEntry = systemEnv.get("PATH"); //$NON-NLS-1$
-			if (pathEntry == null)
-			{
-				pathEntry = systemEnv.get("Path"); // for Windows //$NON-NLS-1$
-				if (pathEntry == null) // no idea
-				{
-					Logger.log(new Exception("No PATH found in the system environment variables")); //$NON-NLS-1$
-				}
-			}
-
-			if (!StringUtil.isEmpty(pathEntry))
-			{
-				value = value.replace("$PATH", pathEntry); // macOS //$NON-NLS-1$
-				value = value.replace("%PATH%", pathEntry); // Windows //$NON-NLS-1$
-			}
-			return value;
-		}
-		
-		protected void addGitToEnvironment(Map<String, String> envMap, String executablePath)
+		private void addGitToEnvironment(Map<String, String> envMap, String executablePath)
 		{
 			IPath gitPath = new org.eclipse.core.runtime.Path(executablePath);
 			if (gitPath.toFile().exists())

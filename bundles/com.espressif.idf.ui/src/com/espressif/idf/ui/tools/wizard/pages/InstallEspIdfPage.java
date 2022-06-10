@@ -371,12 +371,12 @@ public class InstallEspIdfPage extends WizardPage
 			if (getBtnExisting().getSelection())
 			{
 				loadDirectory(getTxtIdfpath());
-				adjustPageCompletion(false, true);
+				adjustPageCompletion(false, false);
 			}
 			else if (getBtnNew().getSelection())
 			{
 				loadDirectory(txtDownloadDirectory);
-				adjustPageCompletion(false, true);
+				adjustPageCompletion(false, false);
 			}
 		}
 	}
