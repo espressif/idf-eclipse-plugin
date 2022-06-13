@@ -268,8 +268,7 @@ public class IDFUtil
 		String IDF_PATH = getIDFPath();
 		if (!StringUtil.isEmpty(IDF_PATH))
 		{
-			IPath IDF_ADD_PATHS_EXTRAS = new Path(StringUtil.EMPTY);
-			IDF_ADD_PATHS_EXTRAS = IDF_ADD_PATHS_EXTRAS.append(IDF_PATH).append("components/esptool_py/esptool"); //$NON-NLS-1$
+			IPath IDF_ADD_PATHS_EXTRAS = new Path(IDF_PATH).append("components/esptool_py/esptool"); //$NON-NLS-1$
 			IDF_ADD_PATHS_EXTRAS = IDF_ADD_PATHS_EXTRAS.append(":"); //$NON-NLS-1$
 			IDF_ADD_PATHS_EXTRAS = IDF_ADD_PATHS_EXTRAS.append(IDF_PATH).append("components/espcoredump"); //$NON-NLS-1$
 			IDF_ADD_PATHS_EXTRAS = IDF_ADD_PATHS_EXTRAS.append(":"); //$NON-NLS-1$
