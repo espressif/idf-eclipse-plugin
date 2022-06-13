@@ -18,7 +18,9 @@ import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -26,6 +28,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
 import org.eclipse.cdt.core.CCorePlugin;
@@ -584,14 +587,37 @@ public class ToolsInstallationHandler extends Thread
 					final IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
 					String key = keyValue[0];
 					String value = keyValue[1];
-//					if (key.equals(IDFEnvironmentVariables.PATH)) // we already have the tools on the PATH no need to get the path from the Python script
-//						continue;
+					if (key.equals(IDFEnvironmentVariables.PATH)) // we already have the tools on the PATH no need to get the path from the Python script
+						prioritizePythonExportPathOverOwnPath(value);
 
 					// add new or replace old entries
 					idfEnvMgr.addEnvVariable(key, value);
 				}
 
 			}
+		}
+		
+		private void prioritizePythonExportPathOverOwnPath(String pythonPath)
+		{
+			String[] ownPaths = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH).split(File.pathSeparator);
+			String []pythonPaths = pythonPath.split(File.pathSeparator);
+			
+			List<String> ownPathList = Arrays.asList(ownPaths);
+			List<String> pythonPathList = Arrays.asList(pythonPaths);
+			
+			
+			List<String> builtPath = new LinkedList<>();
+
+			builtPath.addAll(pythonPathList);
+			builtPath.addAll(ownPathList.stream().filter(s -> !builtPath.contains(s)).collect(Collectors.toList()));
+			StringBuilder stringBuilder = new StringBuilder();
+			builtPath.forEach(path -> 
+			{
+				stringBuilder.append(path);
+				stringBuilder.append(File.pathSeparator);
+			});
+			
+			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, stringBuilder.toString());
 		}
 		
 		private void addGitToEnvironment(Map<String, String> envMap, String executablePath)
