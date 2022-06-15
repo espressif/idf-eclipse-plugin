@@ -80,9 +80,10 @@ public class ToolsManagerWizard extends Wizard
 	@Override
 	public boolean canFinish()
 	{
-		return super.canFinish() && scopedPreferenceStore.getBoolean(IToolsInstallationWizardConstants.INSTALL_TOOLS_FLAG, false); 
+		return super.canFinish()
+				&& scopedPreferenceStore.getBoolean(IToolsInstallationWizardConstants.INSTALL_TOOLS_FLAG, false);
 	}
-	
+
 	@Override
 	public boolean performFinish()
 	{

@@ -71,7 +71,6 @@ public class InstallPreRquisitePage extends WizardPage
 		setDescription(Messages.InstallToolsPreReqPageDescription);
 		getPythonExecutablePath();
 		idfEnvironmentVariables = new IDFEnvironmentVariables();
-		loadGitExecutablePath();
 	}
 
 	@Override
@@ -92,6 +91,10 @@ public class InstallPreRquisitePage extends WizardPage
 		if (StringUtil.isEmpty(gitExecutablePath))
 		{
 			gitExecutablePath = getGitExecutablePath();
+			if (StringUtil.isEmpty(gitExecutablePath))
+			{
+				loadGitExecutablePath();
+			}
 		}
 
 		gitText.setText(gitExecutablePath);

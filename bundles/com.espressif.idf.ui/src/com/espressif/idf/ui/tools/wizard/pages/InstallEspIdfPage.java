@@ -121,6 +121,7 @@ public class InstallEspIdfPage extends WizardPage
 		btnNew = new Button(getControlsContainer(), SWT.RADIO);
 		btnNew.setText(Messages.InstallEspIdfPage_btnNew_text);
 		btnNew.addSelectionListener(new RadioSectionButtonSelectionAdapter());
+		btnNew.setSelection(enableNewSection);
 
 		Composite compositeNew = new Composite(getControlsContainer(), SWT.BORDER | SWT.EMBEDDED);
 		compositeNew.setLayout(new GridLayout(3, false));
