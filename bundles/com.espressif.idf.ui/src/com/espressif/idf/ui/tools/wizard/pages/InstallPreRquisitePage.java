@@ -5,9 +5,13 @@
 package com.espressif.idf.ui.tools.wizard.pages;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
@@ -30,8 +34,11 @@ import org.eclipse.ui.PlatformUI;
 import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.ExecutableFinder;
+import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.GitWinRegistryReader;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.PyWinRegistryReader;
 import com.espressif.idf.core.util.StringUtil;
@@ -65,12 +72,7 @@ public class InstallPreRquisitePage extends WizardPage
 		setDescription(Messages.InstallToolsPreReqPageDescription);
 		getPythonExecutablePath();
 		idfEnvironmentVariables = new IDFEnvironmentVariables();
-		IPath gitPath = ExecutableFinder.find("git", true); //$NON-NLS-1$
-		Logger.log("GIT path:" + gitPath); //$NON-NLS-1$
-		if (gitPath != null)
-		{
-			this.gitExecutablePath = gitPath.toOSString();
-		}
+		loadGitExecutablePath();
 	}
 
 	@Override
@@ -152,6 +154,55 @@ public class InstallPreRquisitePage extends WizardPage
 		logAreaText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
 		setControl(container);
+	}
+
+	private void loadGitExecutablePath()
+	{
+		IPath gitPath = ExecutableFinder.find("git", true); //$NON-NLS-1$
+		Logger.log("GIT path:" + gitPath); //$NON-NLS-1$
+		if (gitPath != null)
+		{
+			this.gitExecutablePath = gitPath.toOSString();
+		}
+		else
+		{
+			if (Platform.OS_WIN32.equals(Platform.getOS()))
+			{
+				GitWinRegistryReader gitWinRegistryReader = new GitWinRegistryReader();
+				String gitInstallPath = gitWinRegistryReader.getGitInstallPath();
+				if (!StringUtil.isEmpty(gitInstallPath))
+				{
+					this.gitExecutablePath = gitInstallPath.concat(String.valueOf(Path.SEPARATOR)).concat("bin").concat(String.valueOf(Path.SEPARATOR)).concat("git.exe"); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+			}
+			else 
+			{
+				// MAC & LINUX have whereis git to see where the command is located
+				List<String> arguments = new ArrayList<String>();
+				ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
+				try
+				{
+					arguments.add("whereis"); //$NON-NLS-1$
+					arguments.add("git"); //$NON-NLS-1$
+
+					Map<String, String> environment = new HashMap<>(System.getenv());
+
+					IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT, environment);
+					if (status == null)
+					{
+						Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
+						return;
+					}
+					String gitLocation = status.getMessage().split(" ").length > 1 ? status.getMessage().split(" ")[1] : ""; //$NON-NLS-1$ //$NON-NLS-2$
+					gitLocation = gitLocation.strip();
+					this.gitExecutablePath = gitLocation;
+				}
+				catch (Exception e1)
+				{
+					Logger.log(e1);
+				}
+			}
+		}
 	}
 
 	private String getGitExecutablePath()
