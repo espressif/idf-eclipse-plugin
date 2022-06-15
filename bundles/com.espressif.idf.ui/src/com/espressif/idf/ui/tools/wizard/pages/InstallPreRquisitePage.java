@@ -59,7 +59,6 @@ public class InstallPreRquisitePage extends WizardPage
 	private Text gitText;
 	private Text pythonText;
 	private Combo pythonVersionCombo;
-	private Text logAreaText;
 	private String pythonExecutablePath;
 	private Map<String, String> pythonVersions;
 	private String gitExecutablePath;
@@ -147,12 +146,6 @@ public class InstallPreRquisitePage extends WizardPage
 		composite.setLayout(new GridLayout(1, false));
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, numColumns, 2));
 
-		Label lblLog = new Label(composite, SWT.NONE);
-		lblLog.setText(Messages.InstallPreRquisitePage_lblLog_text);
-
-		logAreaText = new Text(composite, SWT.MULTI | SWT.BORDER | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL);
-		logAreaText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-
 		setControl(container);
 	}
 
@@ -220,8 +213,6 @@ public class InstallPreRquisitePage extends WizardPage
 			if (pythonVersions.isEmpty())
 			{
 				Logger.log("No Python installations found in the system."); //$NON-NLS-1$
-				logAreaText.append(System.getProperty("line.separator")); //$NON-NLS-1$
-				logAreaText.append("No Python installations found in the system."); //$NON-NLS-1$
 			}
 			if (pythonVersions.size() == 1)
 			{
