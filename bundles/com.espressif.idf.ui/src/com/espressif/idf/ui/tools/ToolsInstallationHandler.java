@@ -38,6 +38,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -526,11 +527,19 @@ public class ToolsInstallationHandler extends Thread
 			}
 			
 			runPythonEnvCommand();
-			handleWebSocketClientInstall();
 			runToolsExport(getPythonExecutablePath(), idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.GIT_PATH));
+			handleWebSocketClientInstall();
 			configureToolChain();
+			configEnv();
 			copyOpenOcdRules();
 			return Boolean.TRUE;
+		}
+		
+		private void configEnv()
+		{
+			//Enable IDF_COMPONENT_MANAGER by default
+			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER, "1");
+			
 		}
 		
 		private void runToolsExport(final String pythonExePath, final String gitExePath)
@@ -587,8 +596,11 @@ public class ToolsInstallationHandler extends Thread
 					final IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
 					String key = keyValue[0];
 					String value = keyValue[1];
-					if (key.equals(IDFEnvironmentVariables.PATH)) // we already have the tools on the PATH no need to get the path from the Python script
-						prioritizePythonExportPathOverOwnPath(value);
+					if (key.equals(IDFEnvironmentVariables.PATH))
+					{
+						value = replacePathVariable(value);
+						value = appendGitToPath(value, gitExecutablePath);
+					}
 
 					// add new or replace old entries
 					idfEnvMgr.addEnvVariable(key, value);
@@ -597,27 +609,43 @@ public class ToolsInstallationHandler extends Thread
 			}
 		}
 		
-		private void prioritizePythonExportPathOverOwnPath(String pythonPath)
+		private String replacePathVariable(String value)
 		{
-			String[] ownPaths = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH).split(File.pathSeparator);
-			String []pythonPaths = pythonPath.split(File.pathSeparator);
-			
-			List<String> ownPathList = Arrays.asList(ownPaths);
-			List<String> pythonPathList = Arrays.asList(pythonPaths);
-			
-			
-			List<String> builtPath = new LinkedList<>();
-
-			builtPath.addAll(pythonPathList);
-			builtPath.addAll(ownPathList.stream().filter(s -> !builtPath.contains(s)).collect(Collectors.toList()));
-			StringBuilder stringBuilder = new StringBuilder();
-			builtPath.forEach(path -> 
+			// Get system PATH
+			Map<String, String> systemEnv = new HashMap<>(System.getenv());
+			String pathEntry = systemEnv.get("PATH"); //$NON-NLS-1$
+			if (pathEntry == null)
 			{
-				stringBuilder.append(path);
-				stringBuilder.append(File.pathSeparator);
-			});
-			
-			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, stringBuilder.toString());
+				pathEntry = systemEnv.get("Path"); // for Windows //$NON-NLS-1$
+				if (pathEntry == null) // no idea
+				{
+					Logger.log(new Exception("No PATH found in the system environment variables")); //$NON-NLS-1$
+				}
+			}
+
+			if (!StringUtil.isEmpty(pathEntry))
+			{
+				value = value.replace("$PATH", pathEntry); // macOS //$NON-NLS-1$
+				value = value.replace("%PATH%", pathEntry); // Windows //$NON-NLS-1$
+			}
+			return value;
+		}
+		
+		private String appendGitToPath(String path, String gitExecutablePath)
+		{
+			IPath gitPath = new org.eclipse.core.runtime.Path(gitExecutablePath);
+			if (!gitPath.toFile().exists())
+			{
+				Logger.log(NLS.bind("{0} doesn't exist", gitExecutablePath)); //$NON-NLS-1$
+				return path;
+			}
+
+			String gitDir = gitPath.removeLastSegments(1).toOSString(); // ../bin/git
+			if (!StringUtil.isEmpty(path) && !path.contains(gitDir)) // Git not found on the CDT build PATH environment
+			{
+				return path.concat(";").concat(gitDir); // append git path //$NON-NLS-1$
+			}
+			return path;
 		}
 		
 		private void addGitToEnvironment(Map<String, String> envMap, String executablePath)
@@ -763,7 +791,7 @@ public class ToolsInstallationHandler extends Thread
 
 			try
 			{
-				arguments.add(getPythonExecutablePath());
+				arguments.add(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PYTHON_EXE_PATH));
 				arguments.add(IDFUtil.getIDFToolsScriptFile().getAbsolutePath());
 				arguments.add(IDFConstants.TOOLS_INSTALL_PYTHON_CMD);
 

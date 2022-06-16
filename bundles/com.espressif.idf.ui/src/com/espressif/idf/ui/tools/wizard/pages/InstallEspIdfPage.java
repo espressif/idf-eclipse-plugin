@@ -199,6 +199,9 @@ public class InstallEspIdfPage extends WizardPage
 	@Override
 	public IWizardPage getNextPage()
 	{
+		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, txtIdfpath.getText());
+		logMessages
+				.add(MessageFormat.format(Messages.IDFDownloadWizard_UpdatingIDFPathMessage, txtIdfpath.getText()));
 		IWizardPage page = super.getNextPage();
 		page.createControl(((ManageToolsInstallationWizardPage) page).getPageComposite());
 		page.setWizard(getWizard());
@@ -229,9 +232,9 @@ public class InstallEspIdfPage extends WizardPage
 		if (btnExisting.getSelection() && !StringUtil.isEmpty(txtIdfpath.getText())
 				&& new File(txtIdfpath.getText()).exists())
 		{
-			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, txtIdfpath.getText());
-			logMessages
-					.add(MessageFormat.format(Messages.IDFDownloadWizard_UpdatingIDFPathMessage, txtIdfpath.getText()));
+//			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, txtIdfpath.getText());
+//			logMessages
+//					.add(MessageFormat.format(Messages.IDFDownloadWizard_UpdatingIDFPathMessage, txtIdfpath.getText()));
 			super.setPageComplete(true);
 			return;
 		}
