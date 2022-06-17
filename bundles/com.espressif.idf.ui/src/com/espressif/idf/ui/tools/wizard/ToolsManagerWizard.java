@@ -8,7 +8,6 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Composite;
 import org.osgi.service.prefs.Preferences;
 
@@ -29,7 +28,7 @@ public class ToolsManagerWizard extends Wizard
 	private InstallPreRquisitePage installPreRquisitePage;
 	private InstallEspIdfPage installEspIdfPage;
 	private ManageToolsInstallationWizardPage manageToolsInstallationPage;
-	private WizardDialog parentWizardDialog;
+	private ToolsManagerWizardDialog parentWizardDialog;
 	private Preferences scopedPreferenceStore;
 
 	public ToolsManagerWizard()
@@ -89,13 +88,18 @@ public class ToolsManagerWizard extends Wizard
 	{
 		return true;
 	}
+	
+	public void open()
+	{
+		parentWizardDialog.open();
+	}
 
-	public WizardDialog getParentWizardDialog()
+	public ToolsManagerWizardDialog getParentWizardDialog()
 	{
 		return parentWizardDialog;
 	}
 
-	public void setParentWizardDialog(WizardDialog parentWizardDialog)
+	public void setParentWizardDialog(ToolsManagerWizardDialog parentWizardDialog)
 	{
 		this.parentWizardDialog = parentWizardDialog;
 	}

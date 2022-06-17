@@ -4,17 +4,17 @@
  *******************************************************************************/
 package com.espressif.idf.ui.tools;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.jface.wizard.IWizard;
-import org.eclipse.jface.wizard.IWizardPage;
-import org.eclipse.jface.wizard.WizardDialog;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.ui.tools.wizard.ToolsManagerWizard;
-import com.espressif.idf.ui.tools.wizard.pages.ManageToolsInstallationWizardPage;
+import com.espressif.idf.ui.tools.wizard.ToolsManagerWizardDialog;
 
 /**
  * Tools Installation Handler for the menu command
@@ -27,38 +27,28 @@ public class ManageToolsInstallationHandler extends AbstractHandler
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
+		Map<String, String> existingVarMap = loadExistingVars();	
 		ToolsManagerWizard toolsManagerWizard = new ToolsManagerWizard();
-		ToolsManagerWizardDialog wizardDialog = new ToolsManagerWizardDialog(
-				PlatformUI.getWorkbench().getDisplay().getActiveShell(), toolsManagerWizard);
-		toolsManagerWizard.setParentWizardDialog(wizardDialog);
-		wizardDialog.open();
+		ToolsManagerWizardDialog toolsManagerWizardDialog = new ToolsManagerWizardDialog(
+				PlatformUI.getWorkbench().getDisplay().getActiveShell(), toolsManagerWizard, existingVarMap);
+		toolsManagerWizard.setParentWizardDialog(toolsManagerWizardDialog);
+		toolsManagerWizard.open();
 		return null;
 	}
-
-	private class ToolsManagerWizardDialog extends WizardDialog
+	
+	private Map<String, String> loadExistingVars()
 	{
-
-		public ToolsManagerWizardDialog(Shell parentShell, IWizard newWizard)
-		{
-			super(parentShell, newWizard);
-		}
-
-		@Override
-		public void showPage(IWizardPage page)
-		{
-			super.showPage(page);
-			updateSize();
-		}
+		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+		Map<String, String> existingVarMap = new HashMap<>();
 		
-		@Override
-		protected void cancelPressed()
-		{
-			if (getCurrentPage() instanceof ManageToolsInstallationWizardPage)
-			{
-				// Cancel all the jobs here and notify user that the tools installation jobs were cancelled
-			}
-			super.cancelPressed();
-		}
+		existingVarMap.put(IDFEnvironmentVariables.GIT_PATH, idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.GIT_PATH));
+		existingVarMap.put(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER, idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER));
+		existingVarMap.put(IDFEnvironmentVariables.IDF_PATH, idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH));
+		existingVarMap.put(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH, idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH));
+		existingVarMap.put(IDFEnvironmentVariables.OPENOCD_SCRIPTS, idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS));
+		existingVarMap.put(IDFEnvironmentVariables.PATH, idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH));
+		existingVarMap.put(IDFEnvironmentVariables.PYTHON_EXE_PATH, idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PYTHON_EXE_PATH));
+		
+		return existingVarMap;
 	}
-
 }

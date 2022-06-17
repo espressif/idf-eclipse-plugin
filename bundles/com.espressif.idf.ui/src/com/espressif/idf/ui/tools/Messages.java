@@ -41,7 +41,7 @@ public class Messages extends NLS
 	public static String RemoveToolMessageBoxTitle;
 	public static String SelectAllButton;
 	public static String DeselectAllButton;
-	public static String FilterTargets; 
+	public static String FilterTargets;
 	public static String Warning;
 	public static String DirectorySelectionDialog_IDFDirLabel;
 	public static String DirectorySelectionDialog_SelectIDFDirMessage;
@@ -96,6 +96,8 @@ public class Messages extends NLS
 	public static String ToolAreadyPresent;
 	public static String ForceDownload_ToolTip;
 	public static String ForceDownload;
+	public static String CancelMsg;
+
 	static
 	{
 		// initialize resource bundle

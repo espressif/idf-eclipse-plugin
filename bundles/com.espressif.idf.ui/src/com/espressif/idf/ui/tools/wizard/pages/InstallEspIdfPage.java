@@ -44,7 +44,7 @@ import com.espressif.idf.ui.tools.wizard.ToolsManagerWizard;
  * @author Ali Azam Rana
  *
  */
-public class InstallEspIdfPage extends WizardPage
+public class InstallEspIdfPage extends WizardPage implements IToolsWizardPage
 {
 	private Text logAreaText;
 	private Text txtIdfpath;
@@ -336,6 +336,12 @@ public class InstallEspIdfPage extends WizardPage
 	public Button getBtnNew()
 	{
 		return btnNew;
+	}
+	
+	@Override
+	public void cancel()
+	{
+		gitDownloadAndCloneThread.setCancelled(true);
 	}
 	
 	private class DownloadButtonSelectionAdapter extends SelectionAdapter

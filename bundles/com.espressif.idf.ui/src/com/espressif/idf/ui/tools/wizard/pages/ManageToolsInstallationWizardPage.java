@@ -61,7 +61,7 @@ import com.espressif.idf.ui.tools.wizard.IToolsInstallationWizardConstants;
  * @author Ali Azam Rana
  *
  */
-public class ManageToolsInstallationWizardPage extends WizardPage
+public class ManageToolsInstallationWizardPage extends WizardPage implements IToolsWizardPage
 {
 	private static final String PNG_EXTENSION = ".png"; //$NON-NLS-1$
 	private static final String YELLOW = "icons/tools/yellow.png"; //$NON-NLS-1$
@@ -134,9 +134,9 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 		subControlComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		
 		Composite topBarComposite = new Composite(subControlComposite, SWT.BORDER);
-		topBarComposite.setLayout(new GridLayout(8, false));
+		topBarComposite.setLayout(new GridLayout(5, false));
 		GridData topBarLayoutData = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
-		topBarLayoutData.heightHint = 40;
+		topBarLayoutData.heightHint = 100;
 		topBarComposite.setLayoutData(topBarLayoutData);
 		setPageComplete(false);
 		
@@ -163,19 +163,6 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 		selectRecommendedButton.setImage(UIPlugin.getImage(SELECT_RECOMMENDED));
 		selectRecommendedButton.setToolTipText(Messages.SelectRecommended);
 		selectRecommendedButton.addSelectionListener(new SelectRecommendedButtonSelectionAdapter());
-
-		chkAvailableVersions = new Button(topBarComposite, SWT.TOGGLE);
-		chkAvailableVersions.setText(Messages.ShowAvailableVersionsOnly);
-		chkAvailableVersions.addSelectionListener(new SelectionAdapter()
-		{
-
-			@Override
-			public void widgetSelected(SelectionEvent e)
-			{
-				toolsTree.removeAll();
-				addItemsToTree(toolsTree, chkAvailableVersions.getSelection());
-			}
-		});
 
 		String[] filterItems = getTargetFilterItems();
 		boolean filterVisibilityForTargets = filterItems != null && filterItems.length != 0;
@@ -211,6 +198,21 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 			}
 		});
 		filterTargetBox.setVisible(filterVisibilityForTargets);
+		
+		chkAvailableVersions = new Button(topBarComposite, SWT.CHECK);
+		chkAvailableVersions.setText(Messages.ShowAvailableVersionsOnly);
+		chkAvailableVersions.addSelectionListener(new SelectionAdapter()
+		{
+
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				toolsTree.removeAll();
+				addItemsToTree(toolsTree, chkAvailableVersions.getSelection());
+			}
+		});
+
+		
 
 		btnInstallTools = new Button(topBarComposite, SWT.NONE);
 		btnInstallTools.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -334,7 +336,6 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 		GridData gd_text = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
 		gd_text.widthHint = 150;
 		descriptionText.setLayoutData(gd_text);
-		new Label(treeContainingComposite, SWT.NONE);
 
 		Label logLabel = new Label(logAreaComposite, SWT.NONE);
 		logLabel.setText(Messages.InstallPreRquisitePage_lblLog_text);
@@ -688,6 +689,13 @@ public class ManageToolsInstallationWizardPage extends WizardPage
 	public ProgressBar getProgressBar()
 	{
 		return progressBar;
+	}
+	
+	@Override
+	public void cancel()
+	{
+		toolsInstallationHandler.setCancelled(true);
+		logQueue.clear();
 	}
 
 	private class TreeSelectionListener implements Listener

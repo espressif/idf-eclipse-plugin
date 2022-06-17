@@ -52,7 +52,7 @@ import com.espressif.idf.ui.tools.wizard.IToolsInstallationWizardConstants;
  * @author Ali Azam Rana
  *
  */
-public class InstallPreRquisitePage extends WizardPage
+public class InstallPreRquisitePage extends WizardPage implements IToolsWizardPage
 {
 	private static final int GIT_TOOL = 0;
 	private static final int PYTHON_TOOL = 1;
@@ -377,5 +377,10 @@ public class InstallPreRquisitePage extends WizardPage
 
 			return dialog;
 		}
+	}
+
+	@Override
+	public void cancel()
+	{
 	}
 }
