@@ -341,7 +341,6 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 		GridData gd_text = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
 		gd_text.widthHint = 150;
 		descriptionText.setLayoutData(gd_text);
-		new Label(treeContainingComposite, SWT.NONE);
 
 		Label logLabel = new Label(logAreaComposite, SWT.NONE);
 		logLabel.setText(Messages.InstallPreRquisitePage_lblLog_text);
