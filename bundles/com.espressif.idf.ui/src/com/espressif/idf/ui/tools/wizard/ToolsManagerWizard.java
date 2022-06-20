@@ -66,7 +66,7 @@ public class ToolsManagerWizard extends Wizard
 			if (page instanceof ManageToolsInstallationWizardPage)
 			{
 				((ManageToolsInstallationWizardPage) page).setPageComposite(pageContainer);
-				parentWizardDialog.getButton(IDialogConstants.FINISH_ID);
+				
 				continue;
 			}
 			page.createControl(pageContainer);
