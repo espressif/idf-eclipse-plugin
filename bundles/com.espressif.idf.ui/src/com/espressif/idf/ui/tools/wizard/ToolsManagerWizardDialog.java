@@ -11,6 +11,7 @@ import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
@@ -55,6 +56,11 @@ public class ToolsManagerWizardDialog extends WizardDialog
 			restoreOldVars();
 			super.cancelPressed();
 		}
+	}
+	
+	public Button getButton(int id)
+	{
+		return super.getButton(id);
 	}
 	
 	private void restoreOldVars()

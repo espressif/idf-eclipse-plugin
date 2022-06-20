@@ -694,7 +694,11 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 	@Override
 	public void cancel()
 	{
-		toolsInstallationHandler.setCancelled(true);
+		if (toolsInstallationHandler != null)
+		{
+			toolsInstallationHandler.setCancelled(true);	
+		}
+		
 		logQueue.clear();
 	}
 

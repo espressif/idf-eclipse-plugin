@@ -6,6 +6,7 @@ package com.espressif.idf.ui.tools.wizard;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.widgets.Composite;
@@ -65,6 +66,7 @@ public class ToolsManagerWizard extends Wizard
 			if (page instanceof ManageToolsInstallationWizardPage)
 			{
 				((ManageToolsInstallationWizardPage) page).setPageComposite(pageContainer);
+				parentWizardDialog.getButton(IDialogConstants.FINISH_ID);
 				continue;
 			}
 			page.createControl(pageContainer);
