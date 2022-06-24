@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Copyright 2022 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
 
@@ -19,7 +19,13 @@ import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.EclipseUtil;
 import com.espressif.idf.ui.update.AbstractToolsHandler;
 
-public class PythonCleanCommandHandler extends AbstractToolsHandler
+/**
+ * idf.py fullclean
+ * 
+ * @author Kondal Kolipaka
+ *
+ */
+public class ProjectFullCleanCommandHandler extends AbstractToolsHandler
 {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
@@ -35,7 +41,7 @@ public class PythonCleanCommandHandler extends AbstractToolsHandler
 		List<String> commands = new ArrayList<>();
 		commands.add(IDFUtil.getIDFPythonEnvPath());
 		commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
-		commands.add("python-clean"); //$NON-NLS-1$
+		commands.add("fullclean"); //$NON-NLS-1$
 		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
 		console.println(commands.toString());
 		console.print((runCommand(commands, pathToProject, envMap)));

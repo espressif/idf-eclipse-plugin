@@ -187,6 +187,31 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 
 		}
 	}
+	
+	protected String runCommand(List<String> arguments, Path workDir, Map<String, String> env)
+	{
+		String exportCmdOp = ""; //$NON-NLS-1$
+		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
+		try
+		{
+			IStatus status = processRunner.runInBackground(arguments, workDir, env);
+			if (status == null)
+			{
+				IStatus errorStatus = IDFCorePlugin.errorStatus("Status can't be null", null); //$NON-NLS-1$
+				Logger.log(IDFCorePlugin.getPlugin(), errorStatus);
+				return errorStatus.getMessage();
+			}
+
+			// process export command output
+			exportCmdOp = status.getMessage();
+			Logger.log(exportCmdOp);
+		}
+		catch (Exception e1)
+		{
+			Logger.log(IDFCorePlugin.getPlugin(), e1);
+		}
+		return exportCmdOp;
+	}
 
 	protected void addGitToEnvironment(Map<String, String> environment, String gitExecutablePath)
 	{
