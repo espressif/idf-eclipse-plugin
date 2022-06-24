@@ -102,14 +102,23 @@ jobs:
         /usr/bin/security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k espressif build.keychain
         
         echo "codesigning espressif-ide"
-        /usr/bin/codesign --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app -v
+        /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app -v
         /usr/bin/codesign -v -vvv --deep $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app
         
         echo "Creating dmg for Espressif-IDE.app"
         $PWD/releng/ide-dmg-builder/ide-dmg-builder.sh
-        /usr/bin/codesign --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE.dmg -v
+        /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE.dmg -v
         /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE.dmg
       
+    #TODO: Enable Notarization only when it's needed on the PR builds. Apple won't recommend notorization on PR or dev builds as it's consumes apple server resources
+    # - name: Notarize Espressif-IDE
+    #   env: 
+    #     NOTARIZATION_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
+    #     NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
+    #   run: |
+    #     echo "Notarization of Espressif-IDE.dmg"
+    #     xcrun altool --notarize-app -f $PWD/releng/ide-dmg-builder/Espressif-IDE.dmg -u $NOTARIZATION_USERNAME -p $NOTARIZATION_PASSWORD --primary-bundle-id Espressif-ide.app
+ 
     - name: Upload macosx dmg
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v2
