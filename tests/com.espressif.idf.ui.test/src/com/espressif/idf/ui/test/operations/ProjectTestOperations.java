@@ -20,7 +20,6 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 
 import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
-
 /**
  * Class to contain the common operations related to project setup. The class can be used in different test classes to
  * setup the required projects
@@ -30,6 +29,7 @@ import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
  */
 public class ProjectTestOperations
 {
+	
 	private static final String DEFAULT_PROJECT_BUILD_WAIT_PROPERTY = "default.project.build.wait";
 
 	/**
@@ -72,6 +72,22 @@ public class ProjectTestOperations
 		b.menuItem(withRegex).click();
 		view.setFocus();
 		return view;
+	}
+	
+	public static void createDebugConfiguration(String projectName, SWTWorkbenchBot bot)
+	{
+		SWTBotView projectExplorerBotView = bot.viewByTitle("Project Explorer");
+		projectExplorerBotView.show();
+		projectExplorerBotView.setFocus();
+		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
+		if (projectItem != null)
+		{
+			projectItem.select().contextMenu("Debug As").menu("Debug Configurations...").click();
+			bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").select();
+			bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").doubleClick();
+			bot.button("Close").click();
+		}
+		
 	}
 
 	/**
@@ -148,7 +164,7 @@ public class ProjectTestOperations
 	 * @param bot            current SWT bot reference
 	 * @param deleteFromDisk delete from disk or only delete from workspace
 	 */
-	public static void deleteProject(String projectName, SWTWorkbenchBot bot, boolean deleteFromDisk)
+	public static void deleteProject(String projectName, SWTWorkbenchBot bot, boolean deleteFromDisk, boolean deleteRelatedConfigurations)
 	{
 		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
 		if (projectItem != null)
@@ -158,7 +174,11 @@ public class ProjectTestOperations
 			{
 				bot.checkBox("Delete project contents on disk (cannot be undone)").click();
 			}
-
+			
+			if (deleteRelatedConfigurations) 
+			{
+				bot.checkBox("Delete all related configurations").click();
+			}
 			bot.button("OK").click();
 			SWTBotView projectExplorView = bot.viewByTitle("Project Explorer");
 			projectExplorView.show();
@@ -189,7 +209,12 @@ public class ProjectTestOperations
 	 */
 	public static void deleteProject(String projectName, SWTWorkbenchBot bot)
 	{
-		ProjectTestOperations.deleteProject(projectName, bot, true);
+		ProjectTestOperations.deleteProject(projectName, bot, true, false);
+	}
+	
+	public static void deleteProjectAndAllRelatedConfigs(String projectName, SWTWorkbenchBot bot)
+	{
+		ProjectTestOperations.deleteProject(projectName, bot, true, true);
 	}
 
 	private static SWTBotTreeItem fetchProjectFromProjectExplorer(String projectName, SWTWorkbenchBot bot)

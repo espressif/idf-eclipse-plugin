@@ -15,15 +15,29 @@
 package com.espressif.idf.launch.serial.ui.internal;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import org.eclipse.cdt.core.CCorePlugin;
+import org.eclipse.cdt.core.model.CModelException;
+import org.eclipse.cdt.core.model.CoreModel;
+import org.eclipse.cdt.core.model.ICProject;
+import org.eclipse.cdt.core.settings.model.ICProjectDescription;
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
+import org.eclipse.cdt.launch.internal.ui.LaunchMessages;
 import org.eclipse.cdt.launch.ui.corebuild.GenericMainTab;
+import org.eclipse.cdt.ui.CElementLabelProvider;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
@@ -40,7 +54,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.json.simple.JSONArray;
 
 import com.espressif.idf.core.build.IDFLaunchConstants;
@@ -51,7 +67,9 @@ import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 import com.espressif.idf.launch.serial.internal.SerialFlashLaunchConfigDelegate;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
+import com.espressif.idf.ui.EclipseUtil;
 
+@SuppressWarnings("restriction")
 public class CMakeMainTab2 extends GenericMainTab {
 	private static final String EMPTY_CONFIG_OPTIONS = "-s ${openocd_path}/share/openocd/scripts"; //$NON-NLS-1$
 	private Button flashOverJtagButton;
@@ -66,6 +84,10 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private GridData openOcdGroupData;
 	private GridData locationAndWorkDirGroupData;
 	private ILaunchBarManager launchBarManager;
+	private Label fProjLabel;
+	private Text fProjText;
+	private Button fProjButton;
+	private IProject selectedProject;
 
 	@Override
 	public void createControl(Composite parent) {
@@ -82,6 +104,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 		mainComposite.setLayoutData(gridData);
 
 		createJtagFlashButton(mainComposite);
+		createProjectGroup(mainComposite, 1);
 		createLocationComponent(mainComposite);
 		createWorkDirectoryComponent(mainComposite);
 		createArgumentComponent(mainComposite);
@@ -91,6 +114,64 @@ public class CMakeMainTab2 extends GenericMainTab {
 		locationAndWorkDirGroupData = new GridData(SWT.FILL, SWT.NONE, true, false);
 		locationField.getParent().setLayoutData(locationAndWorkDirGroupData);
 		workDirectoryField.getParent().setLayoutData(locationAndWorkDirGroupData);
+	}
+
+	private void createProjectGroup(Composite parent, int colSpan) {
+		Group projectGroup = new Group(parent, SWT.NONE);
+		GridLayout projLayout = new GridLayout();
+		projLayout.numColumns = 2;
+		projLayout.marginHeight = 0;
+		projLayout.marginWidth = 0;
+		projectGroup.setLayout(projLayout);
+		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = colSpan;
+		projectGroup.setLayoutData(gd);
+		fProjLabel = new Label(projectGroup, SWT.NONE);
+		fProjLabel.setText(LaunchMessages.CMainTab_ProjectColon);
+		gd = new GridData();
+		gd.horizontalSpan = 2;
+		fProjLabel.setLayoutData(gd);
+		fProjText = new Text(projectGroup, SWT.SINGLE | SWT.BORDER);
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		fProjText.setLayoutData(gd);
+		fProjButton = createPushButton(projectGroup, LaunchMessages.Launch_common_Browse_1, null);
+		fProjText.addModifyListener(evt -> {
+			updateLaunchConfigurationDialog();
+		});
+		fProjButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent evt) {
+				chooseProject();
+				updateLaunchConfigurationDialog();
+			}
+		});
+	}
+
+	private void chooseProject() {
+		ICProject projects[];
+		try {
+			projects = CoreModel.getDefault().getCModel().getCProjects();
+			ILabelProvider labelProvider = new CElementLabelProvider();
+			ElementListSelectionDialog dialog = new ElementListSelectionDialog(getShell(), labelProvider);
+			dialog.setTitle(LaunchMessages.CMainTab_Project_Selection);
+			dialog.setMessage(LaunchMessages.CMainTab_Choose_project_to_constrain_search_for_program);
+			dialog.setElements(projects);
+
+			String initialProjectName = fProjText != null ? fProjText.getText().trim() : StringUtil.EMPTY;
+			ICProject cProject = initialProjectName.isEmpty() ? null
+					: CoreModel.getDefault().getCModel().getCProject(fProjText.getText());
+			if (cProject != null) {
+				dialog.setInitialSelections(new Object[] { cProject });
+			}
+			if (dialog.open() == Window.OK) {
+				selectedProject = ((ICProject) dialog.getFirstResult()).getProject();
+			}
+			if (fProjText != null && selectedProject != null) {
+				fProjText.setText(selectedProject.getName());
+			}
+		} catch (CModelException e) {
+			Logger.log(e);
+		}
 	}
 
 	private void createJtagFlashButton(Composite parent) {
@@ -128,6 +209,51 @@ public class CMakeMainTab2 extends GenericMainTab {
 		}
 	}
 
+	@Override
+	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
+		super.setDefaults(configuration);
+
+		selectedProject = getSelectedProject();
+		if (selectedProject != null) {
+			initializeCProject(selectedProject, configuration);
+		}
+		try {
+			configuration.doSave();
+		} catch (CoreException e) {
+			Logger.log(e);
+		}
+	}
+
+	private IProject getSelectedProject() {
+		List<IProject> projectList = new ArrayList<>(1);
+		Display.getDefault().syncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				IProject project = EclipseUtil.getSelectedProjectInExplorer();
+				projectList.add(project);
+			}
+		});
+		IProject project = projectList.get(0);
+		return project;
+	}
+
+	protected void initializeCProject(IProject project, ILaunchConfigurationWorkingCopy config) {
+		String name = null;
+		if (project != null && project.exists()) {
+			name = project.getName();
+			config.setMappedResources(new IResource[] { project });
+
+			ICProjectDescription projDes = CCorePlugin.getDefault().getProjectDescription(project);
+			if (projDes != null) {
+				String buildConfigID = projDes.getActiveConfiguration().getId();
+				config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_BUILD_CONFIG_ID, buildConfigID);
+			}
+
+		}
+		config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, name);
+	}
+
 	private void switchUI() {
 		if (!isJtagFlashAvailable) {
 			return;
@@ -141,6 +267,35 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	@Override
+	public boolean isValid(ILaunchConfiguration launchConfig) {
+		boolean isConfigValid = super.isValid(launchConfig);
+		boolean hasProject = false;
+		try {
+			hasProject = launchConfig.getMappedResources() != null
+					? launchConfig.getMappedResources()[0].getProject().exists()
+					: false;
+		} catch (CoreException e) {
+			Logger.log(e);
+		}
+		String projectName = fProjText.getText().trim();
+		if (projectName.length() == 0) {
+			setErrorMessage(LaunchMessages.CMainTab_Project_not_specified);
+			return false;
+		}
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+		if (!project.exists()) {
+			setErrorMessage(LaunchMessages.Launch_common_Project_does_not_exist);
+			return false;
+		}
+		if (!project.isOpen()) {
+			setErrorMessage(LaunchMessages.CMainTab_Project_must_be_opened);
+			return false;
+		}
+
+		return isConfigValid && hasProject;
+	}
+
+	@Override
 	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
 		super.performApply(configuration);
 		if (!isJtagFlashAvailable) {
@@ -148,6 +303,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 		}
 		try {
 			ILaunchConfigurationWorkingCopy wc = configuration.getWorkingCopy();
+			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, fProjText.getText());
 			wc.setAttribute(IDFLaunchConstants.JTAG_FLASH_VOLTAGE, fFlashVoltage.getText());
 			wc.setAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, fTarget.getText());
 			wc.setAttribute(IDFLaunchConstants.JTAG_BOARD, fTargetName.getText());
@@ -161,7 +317,13 @@ public class CMakeMainTab2 extends GenericMainTab {
 				wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, argumentField.getText());
 				wc.setAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, argumentsForJtagFlash);
 			}
+
+			if (selectedProject != null) {
+				wc.setMappedResources(new IResource[] { selectedProject });
+			}
+
 			wc.doSave();
+
 		} catch (CoreException e) {
 			Logger.log(e);
 		}
@@ -170,9 +332,22 @@ public class CMakeMainTab2 extends GenericMainTab {
 	@Override
 	public void initializeFrom(ILaunchConfiguration configuration) {
 		super.initializeFrom(configuration);
+		updateProjetFromConfig(configuration);
 		updateFlashOverJtagStatus(configuration);
 		updateArgumentsWithDefaultFlashCommand(configuration);
 		switchUI();
+	}
+
+	private void updateProjetFromConfig(ILaunchConfiguration configuration) {
+		String projectName = StringUtil.EMPTY;
+		try {
+			projectName = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME,
+					StringUtil.EMPTY);
+		} catch (CoreException ce) {
+			Logger.log(ce);
+		}
+		if (!fProjText.getText().equals(projectName))
+			fProjText.setText(projectName);
 	}
 
 	private void updateFlashOverJtagStatus(ILaunchConfiguration configuration) {
@@ -281,7 +456,12 @@ public class CMakeMainTab2 extends GenericMainTab {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					String updatedSelectedTarget = getLaunchTarget();
-					String selectedItem = fTarget.getItem(fTarget.getSelectionIndex());
+					int selectedIndex = fTarget.getSelectionIndex();
+					String selectedItem = StringUtil.EMPTY;
+					if (selectedIndex != -1) {
+						selectedItem = fTarget.getItem(fTarget.getSelectionIndex());
+					}
+
 					if (!selectedItem.contentEquals(updatedSelectedTarget) && isFlashOverJtag) {
 						try {
 							ILaunchConfigurationWorkingCopy wc = launchBarManager.getActiveLaunchConfiguration()
@@ -322,7 +502,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 					for (ILaunchTarget target : targets) {
 						String idfTarget = target.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", null); //$NON-NLS-1$
 						String targetSerialPort = target.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT,
-								""); //$NON-NLS-1$
+								StringUtil.EMPTY);
 						if (idfTarget.contentEquals(selectedItem)) {
 							if (targetSerialPort.contentEquals(getSerialPort())) {
 								return target;
@@ -372,10 +552,10 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	private String getLaunchTarget() {
-		String selectedTarget = ""; //$NON-NLS-1$
+		String selectedTarget = StringUtil.EMPTY;
 		try {
 			selectedTarget = launchBarManager.getActiveLaunchTarget().getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET,
-					""); //$NON-NLS-1$
+					StringUtil.EMPTY);
 		} catch (CoreException e) {
 			Logger.log(e);
 		}
@@ -384,10 +564,10 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 	private String getSerialPort() {
 
-		String serialPort = ""; //$NON-NLS-1$
+		String serialPort = StringUtil.EMPTY;
 		try {
 			serialPort = launchBarManager.getActiveLaunchTarget()
-					.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
+					.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, StringUtil.EMPTY);
 
 		} catch (CoreException e) {
 			Logger.log(e);

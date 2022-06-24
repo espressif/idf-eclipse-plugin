@@ -100,7 +100,7 @@ public class InitializeToolsStartup implements IStartup
 		File idf_json_file = new File(url.getPath() + File.separator + ESP_IDF_JSON_FILE);
 		if (!idf_json_file.exists())
 		{
-			Logger.log(MessageFormat.format("esp-idf.json file doesn't exist at this location: {0}", url.getPath()));
+			Logger.log(MessageFormat.format("esp-idf.json file doesn't exist at this location: '{0}'", url.getPath()));
 			return;
 		}
 

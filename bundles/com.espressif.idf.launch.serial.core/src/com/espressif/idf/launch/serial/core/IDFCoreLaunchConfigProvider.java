@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.debug.core.launch.CoreBuildGenericLaunchConfigProvider;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -55,11 +56,15 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 		// Set the project
 		IProject project = descriptor.getAdapter(IProject.class);
 		workingCopy.setMappedResources(new IResource[] { project });
-
+		workingCopy.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, project.getName());
+		workingCopy.doSave();
 	}
 
 	@Override
 	public boolean launchConfigurationAdded(ILaunchConfiguration configuration) throws CoreException {
+		if (configuration.getMappedResources() == null) {
+			return false;
+		}
 		IProject project = configuration.getMappedResources()[0].getProject();
 		if (project != null && !project.isOpen()) {
 			return true;
