@@ -82,11 +82,7 @@
          <unit id="org.eclipse.remote.serial.feature.group" version="0.0.0"/>
          <repository location="https://download.eclipse.org/tools/ptp/remote/releases/3.0/remote-3.0.1/"/>
       </location>
-      <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-         <unit id="org.eclipse.linuxtools.docker.feature.feature.group" version="0.0.0"/>
-         <repository location="https://download.eclipse.org/linuxtools/updates-docker-nightly/"/>
-      </location>
-      <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+       <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
          <repository location="https://download.eclipse.org/modeling/emf/emf/builds/release/latest/"/>
       </location>
       <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
