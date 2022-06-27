@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2022 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.ui.handlers;
 
 import java.io.BufferedReader;
@@ -13,19 +17,13 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsole;
-import org.eclipse.ui.console.IConsoleConstants;
-import org.eclipse.ui.console.IConsoleManager;
-import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.espressif.idf.core.ExecutableFinder;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.ui.IDFConsole;
 
 public class UpdateEspIdfHandler extends AbstractHandler
 {
@@ -36,7 +34,7 @@ public class UpdateEspIdfHandler extends AbstractHandler
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
-		activateIDFConsoleView();
+		console = new IDFConsole().getConsoleStream(Messages.UpdateEspIdfCommand_Title, null);
 		IPath gitPath = ExecutableFinder.find("git", true); //$NON-NLS-1$
 		if (gitPath != null)
 		{
@@ -84,59 +82,17 @@ public class UpdateEspIdfHandler extends AbstractHandler
 	{
 		List<String> command = new ArrayList<>();
 		command.add(gitExecutablePath);
-		command.add("checkout");
-		command.add("-f");
-		command.add("master");
+		command.add("checkout"); //$NON-NLS-1$
+		command.add("-f"); //$NON-NLS-1$
+		command.add("master"); //$NON-NLS-1$
 		return command;
-	}
-
-	protected void activateIDFConsoleView()
-	{
-		// Create Tools console
-		MessageConsole msgConsole = findConsole("Update ESP-IDF master console");
-		msgConsole.clearConsole();
-		console = msgConsole.newMessageStream();
-		msgConsole.activate();
-
-		// Open console view so that users can see the output
-		openConsoleView();
-	}
-
-	private void openConsoleView()
-	{
-		try
-		{
-			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-					.showView(IConsoleConstants.ID_CONSOLE_VIEW);
-		}
-		catch (PartInitException e)
-		{
-			Logger.log(e);
-		}
-
-	}
-
-	private MessageConsole findConsole(String name)
-	{
-		ConsolePlugin plugin = ConsolePlugin.getDefault();
-		IConsoleManager conMan = plugin.getConsoleManager();
-		IConsole[] existing = conMan.getConsoles();
-		for (int i = 0; i < existing.length; i++)
-		{
-			if (name.equals(existing[i].getName()))
-				return (MessageConsole) existing[i];
-		}
-		// no console found, so create a new one
-		MessageConsole myConsole = new MessageConsole(name, null);
-		conMan.addConsoles(new IConsole[] { myConsole });
-		return myConsole;
 	}
 
 	private List<String> getGitPullCommand()
 	{
 		List<String> command = new ArrayList<>();
 		command.add(gitExecutablePath);
-		command.add("pull");
+		command.add("pull"); //$NON-NLS-1$
 		return command;
 	}
 
@@ -144,18 +100,10 @@ public class UpdateEspIdfHandler extends AbstractHandler
 	{
 		List<String> command = new ArrayList<>();
 		command.add(gitExecutablePath);
-		command.add("submodule");
-		command.add("update");
-		command.add("--init");
-		command.add("--recursive");
+		command.add("submodule"); //$NON-NLS-1$
+		command.add("update"); //$NON-NLS-1$
+		command.add("--init"); //$NON-NLS-1$
+		command.add("--recursive"); //$NON-NLS-1$
 		return command;
-	}
-
-	protected String getCommandString(List<String> arguments)
-	{
-		StringBuilder builder = new StringBuilder();
-		arguments.forEach(entry -> builder.append(entry + " ")); //$NON-NLS-1$
-
-		return builder.toString().trim();
 	}
 }

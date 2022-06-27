@@ -4,6 +4,9 @@
  *******************************************************************************/
 package com.espressif.idf.ui;
 
+import java.net.URL;
+
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -24,13 +27,13 @@ public class IDFConsole
 {
 	public MessageConsoleStream getConsoleStream()
 	{
-		return getConsoleStream("ESP-IDF Console"); //$NON-NLS-1$
+		return getConsoleStream("ESP-IDF Console", null); //$NON-NLS-1$
 	}
 	
-	public MessageConsoleStream getConsoleStream(String consoleName)
+	public MessageConsoleStream getConsoleStream(String consoleName, URL imageUrl)
 	{
 		// Create Tools console
-		MessageConsole msgConsole = findConsole(consoleName);
+		MessageConsole msgConsole = findConsole(consoleName, imageUrl);
 		msgConsole.clearConsole();
 		MessageConsoleStream console = msgConsole.newMessageStream();
 		msgConsole.activate();
@@ -54,7 +57,7 @@ public class IDFConsole
 	 * @param name
 	 * @return
 	 */
-	private MessageConsole findConsole(String name)
+	private MessageConsole findConsole(String name, URL imageURL)
 	{
 		ConsolePlugin plugin = ConsolePlugin.getDefault();
 		IConsoleManager conMan = plugin.getConsoleManager();
@@ -65,7 +68,7 @@ public class IDFConsole
 				return (MessageConsole) existing[i];
 		}
 		// no console found, so create a new one
-		MessageConsole myConsole = new MessageConsole(name, null);
+		MessageConsole myConsole = new MessageConsole(name, ImageDescriptor.createFromURL(imageURL));
 		conMan.addConsoles(new IConsole[] { myConsole });
 		return myConsole;
 	}

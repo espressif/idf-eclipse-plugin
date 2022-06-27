@@ -13,6 +13,7 @@ public class Messages extends NLS
 	public static String NewProjectHandler_PathErrorTitle;
 	public static String LanguageChange_ErrorTitle;
 	public static String LanguageChange_ErrorMessage; 
+	public static String UpdateEspIdfCommand_Title;
 
 	static
 	{

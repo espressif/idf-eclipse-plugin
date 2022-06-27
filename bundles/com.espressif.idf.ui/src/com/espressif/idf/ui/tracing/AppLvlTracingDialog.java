@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -35,19 +34,13 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsole;
-import org.eclipse.ui.console.IConsoleConstants;
-import org.eclipse.ui.console.IConsoleManager;
-import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.UIPlugin;
 
 
@@ -333,42 +326,8 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 
 	private void activateTracingConsoleView()
 	{
-		MessageConsole msgConsole = findConsole(Messages.AppLvlTracing_ConsoleName);
-		msgConsole.clearConsole();
-		console = msgConsole.newMessageStream();
-		msgConsole.activate();
-		openConsoleView();
-	}
-
-	private MessageConsole findConsole(String name)
-	{
-		ConsolePlugin plugin = ConsolePlugin.getDefault();
-		IConsoleManager conMan = plugin.getConsoleManager();
-		IConsole[] existing = conMan.getConsoles();
-		for (int i = 0; i < existing.length; i++)
-		{
-			if (name.equals(existing[i].getName()))
-				return (MessageConsole) existing[i];
-		}
 		URL imageUrl = FileLocator.find(UIPlugin.getDefault().getBundle(), new Path("icons/ESP-IDF_Application_Level_Tracing.png")); //$NON-NLS-1$
-		MessageConsole myConsole = new MessageConsole(name, ImageDescriptor.createFromURL(imageUrl));
-		conMan.addConsoles(new IConsole[] { myConsole });
-		return myConsole;
-	}
-
-
-	private void openConsoleView()
-	{
-		try
-		{
-			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-					.showView(IConsoleConstants.ID_CONSOLE_VIEW);
-		}
-		catch (PartInitException e)
-		{
-			Logger.log(e);
-		}
-
+		console = new IDFConsole().getConsoleStream(Messages.AppLvlTracing_ConsoleName, imageUrl);
 	}
 
 	private void browseButtonSelected(String title, Text text) {
