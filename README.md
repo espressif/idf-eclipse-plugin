@@ -521,7 +521,7 @@ After meeting requirements you are free to build and flash via DFU. How to use D
 - Select the correct target and port through the target panel
 - Now, if you will use the build command an extra file will be created (dfu.bin), which will be later used for flashing.
 
-![DFU actions](https://user-images.githubusercontent.com/24419842/172332034-5aa07849-619e-466e-b25d-11c3828b3f42.png)
+![DFU actions](https://user-images.githubusercontent.com/24419842/175890153-42bd711e-a916-408e-a568-9b008f86a8b6.png)
 
 Additional information, including common errors and known issues, is mentioned in this [guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/dfu.html#usb-drivers-windows-only).
 
