@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
 import org.eclipse.cdt.core.CCorePlugin;
@@ -22,6 +23,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.swt.SWT;
@@ -65,22 +68,36 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				monitor.beginTask(Messages.InstallToolsHandler_ItWilltakeTimeMsg, 5);
 				monitor.worked(1);
 
-				handleToolsInstall();
-				monitor.worked(1);
+				IStatus status = handleToolsInstall();
+				if (status.getSeverity() == IStatus.ERROR)
+				{
+					return status;
+				}
 
+				monitor.worked(1);
 				monitor.setTaskName(Messages.InstallToolsHandler_InstallingPythonMsg);
-				handleToolsInstallPython();
+				status = handleToolsInstallPython();
+				if (status.getSeverity() == IStatus.ERROR)
+				{
+					return status;
+				}
+
 				monitor.worked(1);
 
 				monitor.setTaskName(Messages.InstallToolsHandler_ExportingPathsMsg);
-				new ExportIDFTools().runToolsExport(pythonExecutablenPath, gitExecutablePath, console);
+				status = new ExportIDFTools().runToolsExport(pythonExecutablenPath, gitExecutablePath, console);
+				if (status.getSeverity() == IStatus.ERROR)
+				{
+					return status;
+				}
+
 				monitor.worked(1);
 				console.println(Messages.InstallToolsHandler_ConfiguredBuildEnvVarMsg);
 
 				monitor.setTaskName(Messages.InstallToolsHandler_AutoConfigureToolchain);
 				configureToolChain();
 				monitor.worked(1);
-				
+
 				configEnv();
 				
 				monitor.setTaskName(Messages.InstallToolsHandler_InstallingWebscoketMsg);
@@ -105,6 +122,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		{
 			Logger.log(e);
 		}
+		installToolsJob.addJobChangeListener(new ToolInstallListener());
 		installToolsJob.schedule();
 	}
 
@@ -114,10 +132,10 @@ public class InstallToolsHandler extends AbstractToolsHandler
 	protected void configEnv()
 	{
 		IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
-		
-		//Enable IDF_COMPONENT_MANAGER by default
+
+		// Enable IDF_COMPONENT_MANAGER by default
 		idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER, "1");
-		
+
 	}
 
 	private void copyOpenOcdRules()
@@ -137,7 +155,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				Path target = Paths.get("/etc/udev/rules.d/60-openocd.rules"); //$NON-NLS-1$
 				console.println(String.format(Messages.InstallToolsHandler_OpenOCDRulesCopyPaths, source.toString(),
 						target.toString()));
-				
+
 				Display.getDefault().syncExec(new Runnable()
 				{
 					@Override
@@ -147,13 +165,14 @@ public class InstallToolsHandler extends AbstractToolsHandler
 						{
 							if (target.toFile().exists())
 							{
-								MessageBox messageBox = new MessageBox(Display.getDefault().getActiveShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
+								MessageBox messageBox = new MessageBox(Display.getDefault().getActiveShell(),
+										SWT.ICON_WARNING | SWT.YES | SWT.NO);
 								messageBox.setText(Messages.InstallToolsHandler_OpenOCDRulesCopyWarning);
 								messageBox.setMessage(Messages.InstallToolsHandler_OpenOCDRulesCopyWarningMessage);
 								int response = messageBox.open();
 								if (response == SWT.YES)
 								{
-									Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);		
+									Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
 								}
 								else
 								{
@@ -163,9 +182,9 @@ public class InstallToolsHandler extends AbstractToolsHandler
 							}
 							else
 							{
-								Files.copy(source, target);						
+								Files.copy(source, target);
 							}
-							
+
 							console.println(Messages.InstallToolsHandler_OpenOCDRulesCopied);
 						}
 						catch (IOException e)
@@ -190,7 +209,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		toolchainManager.initCMakeToolChain(tcManager, cmakeTcManager);
 	}
 
-	protected void handleToolsInstall()
+	protected IStatus handleToolsInstall()
 	{
 		// idf_tools.py install all
 		List<String> arguments = new ArrayList<String>();
@@ -199,20 +218,19 @@ public class InstallToolsHandler extends AbstractToolsHandler
 
 		console.println(Messages.InstallToolsHandler_InstallingToolsMsg);
 		console.println(Messages.InstallToolsHandler_ItWilltakeTimeMsg);
-		runCommand(arguments);
-
+		return runCommand(arguments);
 	}
 
-	protected void handleToolsInstallPython()
+	protected IStatus handleToolsInstallPython()
 	{
 		List<String> arguments;
 		// idf_tools.py install-python-env
 		arguments = new ArrayList<String>();
 		arguments.add(IDFConstants.TOOLS_INSTALL_PYTHON_CMD);
-		runCommand(arguments);
+		return runCommand(arguments);
 	}
-	
-	protected void handleWebSocketClientInstall()
+
+	protected IStatus handleWebSocketClientInstall()
 	{
 		 
 		// pip install websocket-client
@@ -229,7 +247,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		arguments.add("pip"); //$NON-NLS-1$
 		arguments.add("install"); //$NON-NLS-1$
 		arguments.add("websocket-client"); //$NON-NLS-1$
-		
+
 		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 
 		try
@@ -244,21 +262,92 @@ public class InstallToolsHandler extends AbstractToolsHandler
 			IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT, environment);
 			if (status == null)
 			{
-				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Unable to get the process status.", null)); //$NON-NLS-1$
+				Logger.log(IDFCorePlugin.getPlugin(),
+						IDFCorePlugin.errorStatus("Unable to get the process status.", null)); //$NON-NLS-1$
 				console.println("Unable to get the process status.");
-				return;
+				return IDFCorePlugin.errorStatus("Unable to get the process status.", null); //$NON-NLS-1$ ;
 			}
 
 			console.println(status.getMessage());
-
+			return status;
 		}
 		catch (Exception e1)
 		{
 			Logger.log(IDFCorePlugin.getPlugin(), e1);
 			console.println(e1.getLocalizedMessage());
-
+			return IDFCorePlugin.errorStatus(e1.getLocalizedMessage(), e1); // $NON-NLS-1$;
 		}
-		console.println();
 	}
 
+	private class ToolInstallListener implements IJobChangeListener
+	{
+		Map<String, String> existingVarMap;
+
+		@Override
+		public void aboutToRun(IJobChangeEvent event)
+		{
+			this.existingVarMap = loadExistingVars();
+		}
+
+		private Map<String, String> loadExistingVars()
+		{
+			IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+			Map<String, String> existingVarMap = new HashMap<>();
+
+			existingVarMap.put(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER,
+					idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER));
+			existingVarMap.put(IDFEnvironmentVariables.IDF_PATH,
+					idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH));
+			existingVarMap.put(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH,
+					idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH));
+			existingVarMap.put(IDFEnvironmentVariables.OPENOCD_SCRIPTS,
+					idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS));
+			existingVarMap.put(IDFEnvironmentVariables.PATH,
+					idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH));
+
+			return existingVarMap;
+		}
+
+		@Override
+		public void awake(IJobChangeEvent event)
+		{
+
+		}
+
+		@Override
+		public void done(IJobChangeEvent event)
+		{
+			if (event.getResult().getSeverity() == IStatus.ERROR)
+			{
+				restoreOldVars();
+			}
+		}
+
+		private void restoreOldVars()
+		{
+			IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+			for (Entry<String, String> varsEntry : existingVarMap.entrySet())
+			{
+				idfEnvironmentVariables.addEnvVariable(varsEntry.getKey(), varsEntry.getValue());
+			}
+		}
+		
+		@Override
+		public void running(IJobChangeEvent event)
+		{
+
+		}
+
+		@Override
+		public void scheduled(IJobChangeEvent event)
+		{
+
+		}
+
+		@Override
+		public void sleeping(IJobChangeEvent event)
+		{
+
+		}
+	}
 }

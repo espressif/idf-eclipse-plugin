@@ -49,4 +49,8 @@ public class IDFCorePlugin extends Plugin {
 		return new Status(IStatus.ERROR, PLUGIN_ID, msg, e);
 	}
 
+	public static IStatus okStatus(String msg, Exception e)
+	{
+		return new Status(IStatus.OK, PLUGIN_ID, msg, e);		
+	}
 }
