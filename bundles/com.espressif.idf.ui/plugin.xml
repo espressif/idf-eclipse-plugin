@@ -621,7 +621,7 @@
             <command
                   commandId="com.espressif.idf.ui.command.dfu"
                   helpContextId="%command.label.9"
-                  icon="icons/espressif.png"
+                  icon="icons/ESP-IDF_DFU.png"
                   label="%command.label.9"
                   style="toggle"
                   tooltip="%command.label.9">
