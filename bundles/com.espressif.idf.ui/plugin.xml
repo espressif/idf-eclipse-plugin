@@ -98,6 +98,11 @@
             id="com.espressif.idf.ui.command.eclipeguide"
             name="%command.name.9">
       </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.handlers.UpdateEspIdfHandler"
+            id="com.espressif.idf.ui.command.update"
+            name="%command.name.13">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -136,6 +141,16 @@
                   commandId="com.espressif.idf.ui.command.list"
                   icon="icons/ESP-IDF List Tools.png"
                   style="push">
+            </command>
+            <command
+                  commandId="com.espressif.idf.ui.command.update"
+                  icon="icons/espressif.png"
+                  style="push">
+               <visibleWhen>
+                  <test
+                        property="com.espressif.idf.ui.propertyTester1.testProperty">
+                  </test>
+               </visibleWhen>
             </command>
          </menu>
       </menuContribution>
@@ -612,6 +627,7 @@
       </menuContribution>
    </extension>
    <extension
+<<<<<<< HEAD
          point="org.eclipse.ui.menus">
       <menuContribution
             allPopups="false"
@@ -628,5 +644,15 @@
             </command>
          </toolbar>
       </menuContribution>
+=======
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="com.espressif.idf.ui.UpdateEspIdfMasterPropertyTester"
+            id="com.espressif.idf.ui.propertyTester1"
+            namespace="com.espressif.idf.ui.propertyTester1"
+            properties="testProperty"
+            type="java.lang.Object">
+      </propertyTester>
+>>>>>>> Ãadded ESP-IDF master update command
    </extension>
 </plugin>
