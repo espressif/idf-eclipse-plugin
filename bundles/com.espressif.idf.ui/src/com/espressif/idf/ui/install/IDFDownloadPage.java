@@ -310,7 +310,7 @@ public class IDFDownloadPage extends WizardPage
 		else
 		{
 			boolean supportSpaces = false;
-			if (versionCombo.getText() == "master")  //$NON-NLS-1$
+			if (versionCombo.getText().contentEquals("master")) //$NON-NLS-1$
 			{
 				supportSpaces = true;
 			} 

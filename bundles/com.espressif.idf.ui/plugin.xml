@@ -146,9 +146,10 @@
                   commandId="com.espressif.idf.ui.command.update"
                   icon="icons/espressif.png"
                   style="push">
-               <visibleWhen>
+               <visibleWhen
+                     checkEnabled="false">
                   <test
-                        property="com.espressif.idf.ui.propertyTester1.testProperty">
+                        property="com.espressif.idf.ui.propertyTester.testProperty">
                   </test>
                </visibleWhen>
             </command>
@@ -648,8 +649,8 @@
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
             class="com.espressif.idf.ui.UpdateEspIdfMasterPropertyTester"
-            id="com.espressif.idf.ui.propertyTester1"
-            namespace="com.espressif.idf.ui.propertyTester1"
+            id="com.espressif.idf.ui.propertyTester"
+            namespace="com.espressif.idf.ui.propertyTester"
             properties="testProperty"
             type="java.lang.Object">
       </propertyTester>

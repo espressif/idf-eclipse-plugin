@@ -11,11 +11,18 @@ import com.espressif.idf.core.util.IDFUtil;
 public class UpdateEspIdfMasterPropertyTester extends PropertyTester
 {
 
+	private static boolean isMasterBranch;
+
 	@Override
 	public boolean test(Object receiver, String property, Object[] args, Object expectedValue)
 	{
 		// Check if the master version of ESP-IDF is being used. If false, do not show update command
-		return IDFUtil.getEspIdfVersion().contains("dev"); //$NON-NLS-1$
+		return isMasterBranch;
+	}
+
+	public static void setEspIdfMasterPropertyTester()
+	{
+		isMasterBranch = IDFUtil.getEspIdfVersion().contains("dev"); //$NON-NLS-1$
 	}
 
 }
