@@ -62,6 +62,7 @@ public class InitializeToolsStartup implements IStartup
 	@Override
 	public void earlyStartup()
 	{
+		UpdateEspIdfMasterPropertyTester.setEspIdfMasterPropertyTester();
 		OpenDialogListenerSupport.getSupport().addPropertyChangeListener(new PropertyChangeListener()
 		{
 
