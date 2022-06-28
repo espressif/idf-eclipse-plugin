@@ -50,7 +50,7 @@ public class EnvSetupOperations
 		
 		TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 
-		bot.menu("Espressif").menu("ESP-IDF Tools Manager").click().menu("Install Tools").click();
+		bot.menu("Espressif").click().menu("ESP-IDF Tools Manager").click().menu("Install Tools").click();
 		bot.textWithLabel("ESP-IDF Directory:")
 				.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
 		bot.textWithLabel("Git Executable Location:")
