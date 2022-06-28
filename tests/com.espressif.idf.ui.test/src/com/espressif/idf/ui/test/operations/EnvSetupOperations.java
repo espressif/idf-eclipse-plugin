@@ -1,10 +1,15 @@
 package com.espressif.idf.ui.test.operations;
 
 import static org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory.withPartName;
+import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.withMnemonic;
 
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
+import org.eclipse.swtbot.swt.finder.waits.WaitForObjectCondition;
+import org.hamcrest.Matcher;
 
 import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
@@ -34,7 +39,8 @@ public class EnvSetupOperations
 		bot.tree().getTreeItem("General").getNode("Editors").getNode("File Associations").select();
 		bot.comboBox().setSelection("Text Editor");
 		bot.tree().getTreeItem("General").getNode("Workspace").select();
-		if (!bot.checkBox("Refresh using native hooks or polling").isChecked()) {
+		if (!bot.checkBox("Refresh using native hooks or polling").isChecked())
+		{
 			bot.checkBox("Refresh using native hooks or polling").click();
 		}
 		bot.button("Apply and Close").click();
@@ -50,7 +56,11 @@ public class EnvSetupOperations
 		
 		TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 
-		bot.menu("Espressif").click().menu("ESP-IDF Tools Manager").click().menu("Install Tools").click();
+		final Matcher<MenuItem> matcher = withMnemonic("Install Tools");
+		WaitForObjectCondition<MenuItem> waitForMenuItem = Conditions.waitForMenuItem(bot.menu("Espressif"), matcher,
+				true, 0);
+		bot.waitUntil(waitForMenuItem, 3000);
+		bot.menu("Espressif").menu("ESP-IDF Tools Manager").click().menu("Install Tools").click();
 		bot.textWithLabel("ESP-IDF Directory:")
 				.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
 		bot.textWithLabel("Git Executable Location:")
