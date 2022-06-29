@@ -78,7 +78,7 @@ public class EnvSetupOperations
 		SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
 		consoleView.show();
 		consoleView.setFocus();
-		TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 99000000);
+		TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 98000000);
 	}
 
 }
