@@ -53,7 +53,7 @@ public class EnvSetupOperations
 		bot.text().setText("progress");
 		bot.button("Open").click();
 		bot.viewByTitle("Progress").show();
-		
+
 		TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 
 		final Matcher<MenuItem> matcher = withMnemonic("Install Tools");
