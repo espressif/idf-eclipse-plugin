@@ -56,10 +56,6 @@ public class EnvSetupOperations
 
 		TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 
-		final Matcher<MenuItem> matcher = withMnemonic("Install Tools");
-		WaitForObjectCondition<MenuItem> waitForMenuItem = Conditions.waitForMenuItem(bot.menu("Espressif"), matcher,
-				true, 0);
-		bot.waitUntil(waitForMenuItem, 30000);
 		bot.menu("Espressif").menu("ESP-IDF Tools Manager").click().menu("Install Tools").click();
 		bot.textWithLabel("ESP-IDF Directory:")
 				.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
