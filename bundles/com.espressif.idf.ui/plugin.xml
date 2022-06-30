@@ -106,7 +106,7 @@
       <command
             defaultHandler="com.espressif.idf.ui.tools.ManageToolsInstallationHandler"
             id="com.espressif.idf.ui.command.managetoolsinstallation"
-            name="%command.name.10">
+            name="%command.name.15">
       </command>
    </extension>
    <extension
