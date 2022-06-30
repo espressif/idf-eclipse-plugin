@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -54,6 +55,7 @@ import com.espressif.idf.ui.tools.vo.ToolsVO;
 import com.espressif.idf.ui.tools.vo.VersionDetailsVO;
 import com.espressif.idf.ui.tools.vo.VersionsVO;
 import com.espressif.idf.ui.tools.wizard.IToolsInstallationWizardConstants;
+import com.espressif.idf.ui.tools.wizard.ToolsManagerWizardDialog;
 
 /**
  * Shell for displaying tools information on UI
@@ -81,12 +83,10 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 	private static final String SELECT_ALL = "icons/tools/select-all".concat(PNG_EXTENSION); //$NON-NLS-1$
 	private static final String UNSELECT_ALL = "icons/tools/unselect-all".concat(PNG_EXTENSION); //$NON-NLS-1$
 	private static final String SELECT_RECOMMENDED = "icons/tools/select-recommended".concat(PNG_EXTENSION); //$NON-NLS-1$
-	
 
 	private List<ToolsVO> toolsVOs;
 	private Text descriptionText;
 	private Tree toolsTree;
-	private Button btnInstallTools;
 	private Button btnDeleteTools;
 	private Button btnSelectButton;
 	private boolean selectionFlag;
@@ -102,11 +102,13 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 	private Queue<String> logQueue;
 	private LogMessagesThread logMessagesThread;
 	private Button btnCancel;
+	private Button btnFinish;
 	private ProgressBar progressBar;
 	private ToolsInstallationHandler toolsInstallationHandler;
 	private IDFEnvironmentVariables idfEnvironmentVariables;
 	private Preferences scopedPreferenceStore;
 	private Button forceDownloadBtn;
+	private Listener[] listenersForFinish;
 
 	public ManageToolsInstallationWizardPage(WizardDialog parentWizardDialog)
 	{
@@ -128,36 +130,12 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 
 		Composite treeControlsComposite = new Composite(parent, SWT.NONE);
 		treeControlsComposite.setLayout(new GridLayout(1, false));
-		
+
 		Composite subControlComposite = new Composite(treeControlsComposite, SWT.NONE);
 		subControlComposite.setLayout(new GridLayout(1, false));
 		subControlComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		
-		Composite topBarComposite = new Composite(subControlComposite, SWT.BORDER);
-		topBarComposite.setLayout(new GridLayout(5, false));
-		GridData topBarLayoutData = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
-		topBarLayoutData.heightHint = 100;
-		topBarComposite.setLayoutData(topBarLayoutData);
+
 		setPageComplete(false);
-		
-		btnSelectButton = new Button(topBarComposite, SWT.PUSH);
-		btnSelectButton.setImage(UIPlugin.getImage(SELECT_ALL));
-		btnSelectButton.redraw();
-		btnSelectButton.setToolTipText(Messages.SelectAllButton);
-		btnSelectButton.addSelectionListener(new SelectionAdapter()
-		{
-			@Override
-			public void widgetSelected(SelectionEvent e)
-			{
-				selectAllItems(!selectionFlag);
-				setButtonsEnabled(!selectionFlag);
-				btnSelectButton
-						.setImage(selectionFlag ? UIPlugin.getImage(SELECT_ALL) : UIPlugin.getImage(UNSELECT_ALL));
-				btnSelectButton.setToolTipText(selectionFlag ? Messages.SelectAllButton : Messages.DeselectAllButton);
-				btnSelectButton.redraw();
-				selectionFlag = !selectionFlag;
-			}
-		});
 
 		selectRecommendedButton = new Button(topBarComposite, SWT.PUSH);
 		selectRecommendedButton.setImage(UIPlugin.getImage(SELECT_RECOMMENDED));
@@ -305,7 +283,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 		Composite treeContainingComposite = new Composite(subControlComposite, SWT.NONE);
 		treeContainingComposite.setLayout(new GridLayout(2, false));
 		treeContainingComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		
+
 		toolsTree = new Tree(treeContainingComposite, SWT.BORDER | SWT.CHECK | SWT.FULL_SELECTION);
 		toolsTree.setHeaderVisible(true);
 		toolsTree.setLinesVisible(true);
@@ -356,17 +334,19 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 				logQueue.clear();
 			}
 		});
-		
+
 		logText = new Text(logAreaComposite,
 				SWT.BORDER | SWT.READ_ONLY | SWT.WRAP | SWT.H_SCROLL | SWT.V_SCROLL | SWT.CANCEL | SWT.MULTI);
 		GridData gd_text_log = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 2);
 		gd_text_log.heightHint = 200;
 		logText.setLayoutData(gd_text_log);
-		
+
 		progressBar = new ProgressBar(logAreaComposite, SWT.HORIZONTAL);
 		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		progressBar.setVisible(false);
-		
+
+		createButtonsBar(logAreaComposite);
+
 		setButtonsEnabled(itemChecked);
 
 		parent.layout();
@@ -381,27 +361,28 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 		{
 			logMessagesThread.start();
 		}
-		
+
 		setPageStatus();
 	}
-	
+
 	public void refreshTree() throws Exception
 	{
-		toolsTree.removeAll();	
+		toolsTree.removeAll();
 		addItemsToTree(toolsTree, chkAvailableVersions.getSelection());
 	}
-	
+
 	public void setPageStatus()
 	{
 		boolean pageCompletion = true;
-		for(TreeItem mainItem : toolsTree.getItems())
+		for (TreeItem mainItem : toolsTree.getItems())
 		{
 			ToolsVO toolsVO = (ToolsVO) mainItem.getData();
-			boolean alwaysInstall = toolsVO.getInstallType().equalsIgnoreCase(ALWAYS) || toolsVO.getInstallType().equalsIgnoreCase(RECOMMENDED);
+			boolean alwaysInstall = toolsVO.getInstallType().equalsIgnoreCase(ALWAYS)
+					|| toolsVO.getInstallType().equalsIgnoreCase(RECOMMENDED);
 			if (alwaysInstall)
 				pageCompletion &= toolsVO.isInstalled();
 		}
-		
+
 		scopedPreferenceStore.putBoolean(IToolsInstallationWizardConstants.INSTALL_TOOLS_FLAG, pageCompletion);
 		setPageComplete(pageCompletion);
 	}
@@ -419,6 +400,116 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 		}
 	}
 
+	private void createButtonsBar(Composite subControlComposite)
+	{
+		Composite topBarComposite = new Composite(subControlComposite, SWT.BORDER);
+		topBarComposite.setLayout(new GridLayout(5, false));
+		GridData topBarLayoutData = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
+		topBarLayoutData.heightHint = 100;
+		topBarComposite.setLayoutData(topBarLayoutData);
+
+		btnSelectButton = new Button(topBarComposite, SWT.PUSH);
+		btnSelectButton.setImage(UIPlugin.getImage(SELECT_ALL));
+		btnSelectButton.redraw();
+
+		btnSelectButton.setToolTipText(Messages.SelectAllButtonToolTip);
+		btnSelectButton.setText(Messages.SelectAllButton);
+		btnSelectButton.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				selectAllItems(!selectionFlag);
+				setButtonsEnabled(!selectionFlag);
+				btnSelectButton
+						.setImage(selectionFlag ? UIPlugin.getImage(SELECT_ALL) : UIPlugin.getImage(UNSELECT_ALL));
+				btnSelectButton.setToolTipText(
+						selectionFlag ? Messages.SelectAllButtonToolTip : Messages.DeselectAllButtonToolTip);
+				btnSelectButton.setText(selectionFlag ? Messages.SelectAllButton : Messages.DeselectAllButton);
+				btnSelectButton.redraw();
+				selectionFlag = !selectionFlag;
+				btnSelectButton.redraw();
+			}
+		});
+
+		selectRecommendedButton = new Button(topBarComposite, SWT.PUSH);
+		selectRecommendedButton.setImage(UIPlugin.getImage(SELECT_RECOMMENDED));
+		selectRecommendedButton.setToolTipText(Messages.SelectRecommendedToolTip);
+		selectRecommendedButton.setText(Messages.SelectRecommended);
+		selectRecommendedButton.addSelectionListener(new SelectRecommendedButtonSelectionAdapter());
+
+		String[] filterItems = getTargetFilterItems();
+		boolean filterVisibilityForTargets = filterItems != null && filterItems.length != 0;
+		Label targetFilterLabel = new Label(topBarComposite, SWT.NONE);
+		targetFilterLabel.setText(Messages.FilterTargets);
+		targetFilterLabel.setVisible(filterVisibilityForTargets);
+
+		filterTargetBox = new Combo(topBarComposite, SWT.READ_ONLY);
+		filterTargetBox.setItems(filterItems);
+		filterTargetBox.setToolTipText(Messages.FilterTargetBoxToolTip);
+		filterTargetBox.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				String selectedTarget = filterTargetBox.getItem(filterTargetBox.getSelectionIndex());
+				toolsTree.removeAll();
+				addItemsToTree(toolsTree, chkAvailableVersions.getSelection());
+				if (selectedTarget.equalsIgnoreCase(ALL))
+				{
+					return;
+				}
+				for (TreeItem item : toolsTree.getItems())
+				{
+					ToolsVO toolsVO = (ToolsVO) item.getData();
+					if (toolsVO.getSupportedTargets().contains(selectedTarget)
+							|| toolsVO.getSupportedTargets().contains(ALL))
+					{
+						continue;
+					}
+
+					item.dispose();
+				}
+			}
+		});
+		filterTargetBox.setVisible(filterVisibilityForTargets);
+
+		chkAvailableVersions = new Button(topBarComposite, SWT.CHECK);
+		chkAvailableVersions.setText(Messages.ShowAvailableVersionsOnly);
+		chkAvailableVersions.setToolTipText(Messages.ShowAvailableVersionsOnlyToolTip);
+		chkAvailableVersions.addSelectionListener(new SelectionAdapter()
+		{
+
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				toolsTree.removeAll();
+				addItemsToTree(toolsTree, chkAvailableVersions.getSelection());
+			}
+		});
+
+		btnFinish = ((ToolsManagerWizardDialog) parentWizardDialog).getButton(IDialogConstants.FINISH_ID);
+		btnFinish.setText(Messages.InstallToolsText);
+		listenersForFinish = btnFinish.getListeners(SWT.Selection);
+		for (Listener listener : listenersForFinish)
+		{
+			btnFinish.removeListener(SWT.Selection, listener);
+		}
+		btnFinish.addSelectionListener(new InstallButtonSelectionAdapter());
+
+		btnDeleteTools = new Button(topBarComposite, SWT.NONE);
+		btnDeleteTools.setText(Messages.DeleteToolsText);
+		btnDeleteTools.setToolTipText(Messages.DeleteToolsTextToolTip);
+		btnDeleteTools.addSelectionListener(new DeleteButtonSelectionAdapter());
+		btnDeleteTools.setEnabled(false);
+
+		forceDownloadBtn = new Button(topBarComposite, SWT.CHECK);
+		forceDownloadBtn.setText(Messages.ForceDownload);
+		forceDownloadBtn.setToolTipText(Messages.ForceDownloadToolTip);
+		new Label(topBarComposite, SWT.NONE);
+
+	}
+
 	private String[] getTargetFilterItems()
 	{
 		Set<String> targets = new HashSet<>();
@@ -426,7 +517,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 		{
 			if (toolsVO.getSupportedTargets() != null && toolsVO.getSupportedTargets().size() > 0)
 			{
-				targets.addAll(toolsVO.getSupportedTargets());				
+				targets.addAll(toolsVO.getSupportedTargets());
 			}
 		}
 		return targets.toArray(String[]::new);
@@ -440,7 +531,8 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 			TreeItem mainItem = new TreeItem(toolsTree, SWT.NONE);
 			boolean isInstalled = false;
 
-			boolean alwaysInstall = toolsVO.getInstallType().equalsIgnoreCase(ALWAYS) || toolsVO.getInstallType().equalsIgnoreCase(RECOMMENDED);
+			boolean alwaysInstall = toolsVO.getInstallType().equalsIgnoreCase(ALWAYS)
+					|| toolsVO.getInstallType().equalsIgnoreCase(RECOMMENDED);
 			if (alwaysInstall)
 			{
 				itemChecked = true;
@@ -484,7 +576,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 								continue;
 							}
 						}
-						
+
 						isInstalled = ToolsUtility.isToolInstalled(toolsVO.getName(), versionsVO.getName());
 						toolsVO.setInstalled(isInstalled);
 						versionsVO.getVersionOsMap().get(key).setSelected(alwaysInstall);
@@ -648,9 +740,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 	private void setButtonsEnabled(boolean enabled)
 	{
 		btnDeleteTools.setEnabled(enabled);
-		btnInstallTools.setEnabled(enabled);
 		btnDeleteTools.redraw();
-		btnInstallTools.redraw();
 	}
 
 	private void selectAllItems(boolean selectAll)
@@ -673,19 +763,18 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 	public void disableControls(boolean disable)
 	{
 		toolsTree.setEnabled(disable);
-		btnInstallTools.setEnabled(disable);
 		btnDeleteTools.setEnabled(disable);
 		btnSelectButton.setEnabled(disable);
 		filterTargetBox.setEnabled(disable);
 		chkAvailableVersions.setEnabled(disable);
 		selectRecommendedButton.setEnabled(disable);
 	}
-	
+
 	public void visibleCancelBtn(boolean visible)
 	{
 		this.btnCancel.setVisible(visible);
 	}
-	
+
 	public void setPageComposite(Composite pageComposite)
 	{
 		this.pageComposite = pageComposite;
@@ -695,16 +784,30 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 	{
 		return progressBar;
 	}
-	
+
 	@Override
 	public void cancel()
 	{
 		if (toolsInstallationHandler != null)
 		{
-			toolsInstallationHandler.setCancelled(true);	
+			toolsInstallationHandler.setCancelled(true);
 		}
-		
+
 		logQueue.clear();
+	}
+
+	/**
+	 * Restore the finish button to the original wizard style. Also call this method from the back pressed in Wizard
+	 * Dialog
+	 */
+	public void restoreFinishButton()
+	{
+		btnFinish.setText(IDialogConstants.FINISH_LABEL);
+
+		for (Listener listener : listenersForFinish)
+		{
+			btnFinish.addListener(SWT.Selection, listener);
+		}
 	}
 
 	private class TreeSelectionListener implements Listener
@@ -763,7 +866,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 				if (toolsVO.getSupportedTargets() != null && toolsVO.getSupportedTargets().size() > 0)
 				{
 					sb.append(Messages.SupportedTargetsDescriptionText);
-					sb.append(toolsVO.getSupportedTargets().toString());					
+					sb.append(toolsVO.getSupportedTargets().toString());
 				}
 				sb.append(System.lineSeparator());
 				sb.append(versionsVO.getName());
@@ -789,7 +892,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 				if (toolsVO.getSupportedTargets() != null && toolsVO.getSupportedTargets().size() > 0)
 				{
 					sb.append(Messages.SupportedTargetsDescriptionText);
-					sb.append(toolsVO.getSupportedTargets().toString());					
+					sb.append(toolsVO.getSupportedTargets().toString());
 				}
 				descriptionText.setText(sb.toString());
 			}
@@ -835,8 +938,17 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 			int result = messageBox.open();
 			if (result == SWT.YES)
 			{
-				toolsInstallationHandler = new ToolsInstallationHandler(logQueue, ManageToolsInstallationWizardPage.this, idfEnvironmentVariables);
-				toolsInstallationHandler.deleteTools(selectedItems);
+				toolsInstallationHandler = new ToolsInstallationHandler(logQueue,
+						ManageToolsInstallationWizardPage.this, idfEnvironmentVariables);
+				try
+				{
+					toolsInstallationHandler.operationToPerform(selectedItems, forceDownloadBtn.getSelection(),
+							ToolsInstallationHandler.DELETING_TOOLS);
+				}
+				catch (Exception e1)
+				{
+					Logger.log(e1);
+				}
 				toolsInstallationHandler.start();
 			}
 		}
@@ -844,13 +956,44 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 
 	private class InstallButtonSelectionAdapter extends SelectionAdapter
 	{
+		private boolean installPressed;
+
 		@Override
 		public void widgetSelected(SelectionEvent e)
 		{
-			toolsInstallationHandler = new ToolsInstallationHandler(logQueue, ManageToolsInstallationWizardPage.this, idfEnvironmentVariables);
-			Map<ToolsVO, List<VersionsVO>> selectedItems = getSelectedTools();
-			toolsInstallationHandler.installTools(selectedItems, forceDownloadBtn.getSelection());
-			toolsInstallationHandler.start();
+			if (!installPressed)
+			{
+				toolsInstallationHandler = new ToolsInstallationHandler(logQueue,
+						ManageToolsInstallationWizardPage.this, idfEnvironmentVariables);
+				Map<ToolsVO, List<VersionsVO>> selectedItems = getSelectedTools();
+				try
+				{
+					toolsInstallationHandler.operationToPerform(selectedItems, forceDownloadBtn.getSelection(),
+							ToolsInstallationHandler.INSTALLING_TOOLS);
+				}
+				catch (Exception e1)
+				{
+					Logger.log(e1);
+				}
+				toolsInstallationHandler.start();
+				installPressed = true;
+				return;
+			}
+
+			restoreFinishButton();
+		}
+	}
+
+	public void afterDeleteToolMessage()
+	{
+		MessageBox messageBox = new MessageBox(parentComposite.getShell(), SWT.ICON_INFORMATION | SWT.YES | SWT.NO);
+		messageBox.setMessage(Messages.RemoveToolMessageBoxFinish);
+		messageBox.setText(Messages.RemoveToolMessageBoxTitle);
+		int result = messageBox.open();
+		if (result == SWT.YES)
+		{
+			restoreFinishButton();
+			((ToolsManagerWizardDialog) parentWizardDialog).finishPressed();
 		}
 	}
 

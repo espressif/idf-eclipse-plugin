@@ -146,10 +146,17 @@ public class Messages extends NLS
 	public static String InstallToolsHandler_OpenOCDRulesNotCopied;
 	public static String AbstractToolsHandler_ExecutingMsg;
 	public static String ToolAreadyPresent;
-	public static String ForceDownload_ToolTip;
+	public static String ForceDownloadToolTip;
 	public static String ForceDownload;
+	public static String RemoveToolMessageBoxFinish;
 	public static String CancelMsg;
-
+	public static String SelectAllButtonToolTip;
+	public static String DeselectAllButtonToolTip;
+	public static String SelectRecommendedToolTip;
+	public static String FilterTargetBoxToolTip;
+	public static String ShowAvailableVersionsOnlyToolTip;
+	public static String DeleteToolsTextToolTip;
+	
 	static
 	{
 		// initialize resource bundle

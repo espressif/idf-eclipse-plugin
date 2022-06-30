@@ -66,6 +66,9 @@ import com.espressif.idf.ui.tools.wizard.pages.ManageToolsInstallationWizardPage
 @SuppressWarnings("restriction")
 public class ToolsInstallationHandler extends Thread
 {
+	public static final int DELETING_TOOLS = 0;
+	public static final int INSTALLING_TOOLS = 1;
+
 	private static final String PATH_SPLITOR = "/"; //$NON-NLS-1$
 	private static final String GZ_EXT = "gz"; //$NON-NLS-1$
 	private static final String ZIP_EXT = "zip"; //$NON-NLS-1$
@@ -77,9 +80,11 @@ public class ToolsInstallationHandler extends Thread
 	private Future<Boolean> threadResponse;
 	private IDFEnvironmentVariables idfEnvironmentVariables;
 	private Preferences scopedPreferenceStore;
+	private int currentOperation;
 
 	public ToolsInstallationHandler(Queue<String> logQueue,
-			ManageToolsInstallationWizardPage manageToolsInstallationWizardPage, IDFEnvironmentVariables idfEnvironmentVariables)
+			ManageToolsInstallationWizardPage manageToolsInstallationWizardPage,
+			IDFEnvironmentVariables idfEnvironmentVariables)
 	{
 		this.logQueue = logQueue;
 		this.manageToolsInstallationWizardPage = manageToolsInstallationWizardPage;
@@ -105,19 +110,20 @@ public class ToolsInstallationHandler extends Thread
 				logQueue.clear();
 				return;
 			}
-			
+
 			if (!threadResponse.get().booleanValue())
 			{
 				logQueue.add("Some errors have occurred in operation");
 			}
-			else 
+			else
 			{
-				logQueue.add("Operations completed!");	
+				logQueue.add("Operations completed!");
 			}
-			
+
 			try
 			{
-				scopedPreferenceStore.putBoolean(IToolsInstallationWizardConstants.INSTALL_TOOLS_FLAG, threadResponse.get().booleanValue());
+				scopedPreferenceStore.putBoolean(IToolsInstallationWizardConstants.INSTALL_TOOLS_FLAG,
+						threadResponse.get().booleanValue());
 				manageToolsInstallationWizardPage.getShell().getDisplay().asyncExec(new Runnable()
 				{
 					@Override
@@ -126,6 +132,15 @@ public class ToolsInstallationHandler extends Thread
 						try
 						{
 							manageToolsInstallationWizardPage.setPageComplete(threadResponse.get().booleanValue());
+							if (currentOperation == DELETING_TOOLS)
+							{
+								manageToolsInstallationWizardPage.afterDeleteToolMessage();
+							}
+							else
+							{
+								manageToolsInstallationWizardPage.restoreFinishButton();
+							}
+
 						}
 						catch (Exception e)
 						{
@@ -133,7 +148,6 @@ public class ToolsInstallationHandler extends Thread
 						}
 					}
 				});
-				
 			}
 			catch (Exception e)
 			{
@@ -149,23 +163,33 @@ public class ToolsInstallationHandler extends Thread
 		}
 	}
 
-	public void installTools(Map<ToolsVO, List<VersionsVO>> selectedItems, boolean forceDownload)
+	/**
+	 * Pass the arguments and select the operation to perform on the passed tools valid options INSTALLING_TOOLS and
+	 * DELETING_TOOLS constants in the class. The method just tells the class of the operation to perfrom start on the
+	 * thread must be called explicitly
+	 * 
+	 * @param selectedItems      the selected items
+	 * @param forceDownload      force download flag
+	 * @param operationToPerform operations to perfrom
+	 * @throws Exception
+	 */
+	public void operationToPerform(Map<ToolsVO, List<VersionsVO>> selectedItems, boolean forceDownload,
+			int operationToPerform) throws Exception
 	{
+		this.currentOperation = operationToPerform;
 		cancelled = false;
 		setControlsEnabled(false);
 		showProgressBarAndCancelBtn(true);
 		executorService = Executors.newSingleThreadExecutor();
-		InstallToolsThread installToolsThread = new InstallToolsThread(selectedItems, idfEnvironmentVariables, forceDownload);
-		threadResponse = executorService.submit(installToolsThread);
-	}
+		Callable<Boolean> operationsThread = operationToPerform == INSTALLING_TOOLS
+				? new InstallToolsThread(selectedItems, idfEnvironmentVariables, forceDownload)
+				: operationToPerform == DELETING_TOOLS ? new DeleteToolsThread(selectedItems) : null;
+		if (operationsThread == null)
+		{
+			throw new Exception("Invalid operation passed"); //$NON-NLS-1$
+		}
 
-	public void deleteTools(Map<ToolsVO, List<VersionsVO>> selectedItems)
-	{
-		cancelled = false;
-		setControlsEnabled(false);
-		showProgressBarAndCancelBtn(true);
-		DeleteToolsThread deleteToolsThread = new DeleteToolsThread(selectedItems);
-		threadResponse = executorService.submit(deleteToolsThread);
+		threadResponse = executorService.submit(operationsThread);
 	}
 
 	public boolean isCancelled()
@@ -240,7 +264,7 @@ public class ToolsInstallationHandler extends Thread
 			}
 		});
 	}
-	
+
 	private void showProgressBarAndCancelBtn(boolean show)
 	{
 		manageToolsInstallationWizardPage.getShell().getDisplay().asyncExec(new Runnable()
@@ -313,9 +337,9 @@ public class ToolsInstallationHandler extends Thread
 		if (cancelled)
 		{
 			logQueue.add(Messages.OperationCancelledByUser);
-			return;	
+			return;
 		}
-			
+
 		for (String key : versionsVO.getVersionOsMap().keySet())
 		{
 			if (!versionsVO.getVersionOsMap().get(key).isSelected())
@@ -332,9 +356,10 @@ public class ToolsInstallationHandler extends Thread
 					if (cancelled)
 					{
 						logQueue.add(Messages.OperationCancelledByUser);
-						return;	
+						return;
 					}
-					String extractionDir = extractDownloadedFile(nameOfDownloadedFile, toolsVO.getName(), versionsVO.getName());
+					String extractionDir = extractDownloadedFile(nameOfDownloadedFile, toolsVO.getName(),
+							versionsVO.getName());
 					updatePaths(extractionDir, toolsVO.getName(), toolsVO.getExportPaths());
 				}
 				catch (Exception e)
@@ -353,7 +378,7 @@ public class ToolsInstallationHandler extends Thread
 	{
 		if (StringUtil.isEmpty(toolPath))
 			return;
-		
+
 		logQueue.add(Messages.UpdatingPathMessage);
 		StringBuilder exportPathBuilder = new StringBuilder();
 		exportPathBuilder.append(toolPath);
@@ -365,7 +390,7 @@ public class ToolsInstallationHandler extends Thread
 			{
 				exportPathBuilder.append(exportPath);
 				exportPathBuilder.append(PATH_SPLITOR);
-			}			
+			}
 		}
 		if (updatedPath.toString().split(File.pathSeparator).length > 1)
 		{
@@ -377,10 +402,11 @@ public class ToolsInstallationHandler extends Thread
 		StringBuilder finalPathToExport = new StringBuilder(currentPath);
 		finalPathToExport.append(EnvironmentVariableManager.getDefault().getDefaultDelimiter());
 		finalPathToExport.append(pathToExport.toAbsolutePath().toString());
-		
+
 		logQueue.add(Messages.UpdateToolPathMessage.concat(pathToExport.toAbsolutePath().toString()));
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, finalPathToExport.toString());
-		logQueue.add(Messages.SystemPathMessage.concat(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH)));
+		logQueue.add(
+				Messages.SystemPathMessage.concat(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH)));
 		try
 		{
 			Thread.sleep(50); // wait for the variable to persist
@@ -390,7 +416,7 @@ public class ToolsInstallationHandler extends Thread
 			Logger.log(e);
 		}
 	}
-	
+
 	private void removeExistingToolPath(String toolName)
 	{
 		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
@@ -418,7 +444,7 @@ public class ToolsInstallationHandler extends Thread
 				}
 			}
 		}
-		
+
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, updatedPath.toString());
 	}
 
@@ -467,7 +493,7 @@ public class ToolsInstallationHandler extends Thread
 				logQueue.add(Messages.ToolAreadyPresent);
 				return name;
 			}
-			
+
 		}
 		double completedSize = 0;
 		try
@@ -507,8 +533,9 @@ public class ToolsInstallationHandler extends Thread
 	{
 		private Map<ToolsVO, List<VersionsVO>> selectedItems;
 		private boolean forceDownload;
-		
-		public InstallToolsThread(Map<ToolsVO, List<VersionsVO>> selectedItems, IDFEnvironmentVariables idfEnvironmentVariables, boolean forceDownload)
+
+		public InstallToolsThread(Map<ToolsVO, List<VersionsVO>> selectedItems,
+				IDFEnvironmentVariables idfEnvironmentVariables, boolean forceDownload)
 		{
 			this.selectedItems = selectedItems;
 			this.forceDownload = forceDownload;
@@ -526,23 +553,24 @@ public class ToolsInstallationHandler extends Thread
 					installTool(toolsVo, versionsVO, forceDownload);
 				}
 			}
-			
+
 			runPythonEnvCommand();
-			runToolsExport(getPythonExecutablePath(), idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.GIT_PATH));
+			runToolsExport(getPythonExecutablePath(),
+					idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.GIT_PATH));
 			handleWebSocketClientInstall();
 			configureToolChain();
 			configEnv();
 			copyOpenOcdRules();
 			return Boolean.TRUE;
 		}
-		
+
 		private void configEnv()
 		{
-			//Enable IDF_COMPONENT_MANAGER by default
+			// Enable IDF_COMPONENT_MANAGER by default
 			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER, "1");
-			
+
 		}
-		
+
 		private void runToolsExport(final String pythonExePath, final String gitExePath)
 		{
 			final List<String> arguments = new ArrayList<>();
@@ -562,7 +590,8 @@ public class ToolsInstallationHandler extends Thread
 			final ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 			try
 			{
-				final IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT, environment);
+				final IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT,
+						environment);
 				if (status == null)
 				{
 					Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
@@ -580,7 +609,7 @@ public class ToolsInstallationHandler extends Thread
 			}
 
 		}
-		
+
 		private void processExportCmdOutput(final String exportCmdOp, final String gitExecutablePath)
 		{
 			// process export command output
@@ -609,7 +638,7 @@ public class ToolsInstallationHandler extends Thread
 
 			}
 		}
-		
+
 		private String replacePathVariable(String value)
 		{
 			// Get system PATH
@@ -631,7 +660,7 @@ public class ToolsInstallationHandler extends Thread
 			}
 			return value;
 		}
-		
+
 		private String appendGitToPath(String path, String gitExecutablePath)
 		{
 			IPath gitPath = new org.eclipse.core.runtime.Path(gitExecutablePath);
@@ -648,7 +677,7 @@ public class ToolsInstallationHandler extends Thread
 			}
 			return path;
 		}
-		
+
 		private void addGitToEnvironment(Map<String, String> envMap, String executablePath)
 		{
 			IPath gitPath = new org.eclipse.core.runtime.Path(executablePath);
@@ -669,7 +698,7 @@ public class ToolsInstallationHandler extends Thread
 				}
 			}
 		}
-		
+
 		private void configureToolChain()
 		{
 			IToolChainManager tcManager = CCorePlugin.getService(IToolChainManager.class);
@@ -679,7 +708,7 @@ public class ToolsInstallationHandler extends Thread
 			toolchainManager.initToolChain(tcManager, ESPToolChainProvider.ID);
 			toolchainManager.initCMakeToolChain(tcManager, cmakeTcManager);
 		}
-		
+
 		private void copyOpenOcdRules()
 		{
 			if (Platform.getOS().equals(Platform.OS_LINUX)
@@ -700,7 +729,7 @@ public class ToolsInstallationHandler extends Thread
 							target.toString()));
 					logQueue.add(String.format(Messages.InstallToolsHandler_OpenOCDRulesCopyPaths, source.toString(),
 							target.toString()));
-					
+
 					Display.getDefault().syncExec(new Runnable()
 					{
 						@Override
@@ -710,13 +739,14 @@ public class ToolsInstallationHandler extends Thread
 							{
 								if (target.toFile().exists())
 								{
-									MessageBox messageBox = new MessageBox(Display.getDefault().getActiveShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
+									MessageBox messageBox = new MessageBox(Display.getDefault().getActiveShell(),
+											SWT.ICON_WARNING | SWT.YES | SWT.NO);
 									messageBox.setText(Messages.InstallToolsHandler_OpenOCDRulesCopyWarning);
 									messageBox.setMessage(Messages.InstallToolsHandler_OpenOCDRulesCopyWarningMessage);
 									int response = messageBox.open();
 									if (response == SWT.YES)
 									{
-										Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);		
+										Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
 									}
 									else
 									{
@@ -727,9 +757,9 @@ public class ToolsInstallationHandler extends Thread
 								}
 								else
 								{
-									Files.copy(source, target);						
+									Files.copy(source, target);
 								}
-								
+
 								Logger.log(Messages.InstallToolsHandler_OpenOCDRulesCopied);
 								logQueue.add(Messages.InstallToolsHandler_OpenOCDRulesCopied);
 							}
@@ -744,7 +774,7 @@ public class ToolsInstallationHandler extends Thread
 				}
 			}
 		}
-	
+
 		private String getCommandString(List<String> arguments)
 		{
 			StringBuilder builder = new StringBuilder();
@@ -752,16 +782,16 @@ public class ToolsInstallationHandler extends Thread
 
 			return builder.toString().trim();
 		}
-		
+
 		private String getPythonExecutablePath()
 		{
-			//find python from IDF_PYTHON_ENV_PATH env path
+			// find python from IDF_PYTHON_ENV_PATH env path
 			String pythonExecutablenPath = IDFUtil.getIDFPythonEnvPath();
 			if (!StringUtil.isEmpty(pythonExecutablenPath))
 			{
 				return pythonExecutablenPath;
 			}
-			
+
 			// Get Python
 			if (Platform.OS_WIN32.equals(Platform.getOS()))
 			{
@@ -783,11 +813,11 @@ public class ToolsInstallationHandler extends Thread
 			}
 			return pythonExecutablenPath;
 		}
-		
+
 		private void runPythonEnvCommand()
 		{
 			List<String> arguments = new ArrayList<String>();
-			
+
 			ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 
 			try
@@ -798,13 +828,14 @@ public class ToolsInstallationHandler extends Thread
 
 				String cmdMsg = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments);
 				logQueue.add(cmdMsg);
-				
+
 				Logger.log(cmdMsg);
 
 				Map<String, String> environment = new HashMap<>(System.getenv());
 				logQueue.add(environment.toString());
 
-				IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT, environment);
+				IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT,
+						environment);
 				if (status == null)
 				{
 					Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
@@ -823,12 +854,13 @@ public class ToolsInstallationHandler extends Thread
 
 		private void handleWebSocketClientInstall()
 		{
-			IPath pipPath = new org.eclipse.core.runtime.Path(getPythonExecutablePath()); //$NON-NLS-1$
+			IPath pipPath = new org.eclipse.core.runtime.Path(getPythonExecutablePath()); // $NON-NLS-1$
 			String pipPathLastSegment = pipPath.lastSegment().replace("python", "pip"); //$NON-NLS-1$ //$NON-NLS-2$
-			pipPath = pipPath.removeLastSegments(1).append(pipPathLastSegment); 
-			if (!pipPath.toFile().exists()) 
+			pipPath = pipPath.removeLastSegments(1).append(pipPathLastSegment);
+			if (!pipPath.toFile().exists())
 			{
-				logQueue.add(String.format("%s executable not found. Unable to run `%s install websocket-client`", pipPathLastSegment, pipPathLastSegment)); //$NON-NLS-1$
+				logQueue.add(String.format("%s executable not found. Unable to run `%s install websocket-client`", //$NON-NLS-1$
+						pipPathLastSegment, pipPathLastSegment));
 				return;
 			}
 
@@ -837,7 +869,7 @@ public class ToolsInstallationHandler extends Thread
 			arguments.add(pipPath.toOSString());
 			arguments.add("install"); //$NON-NLS-1$
 			arguments.add("websocket-client"); //$NON-NLS-1$
-			
+
 			ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 
 			try
@@ -849,10 +881,12 @@ public class ToolsInstallationHandler extends Thread
 				Map<String, String> environment = new HashMap<>(System.getenv());
 				Logger.log(environment.toString());
 
-				IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT, environment);
+				IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT,
+						environment);
 				if (status == null)
 				{
-					Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Unable to get the process status.", null)); //$NON-NLS-1$
+					Logger.log(IDFCorePlugin.getPlugin(),
+							IDFCorePlugin.errorStatus("Unable to get the process status.", null)); //$NON-NLS-1$
 					logQueue.add("Unable to get the process status.");
 					return;
 				}
@@ -883,7 +917,7 @@ public class ToolsInstallationHandler extends Thread
 		{
 			setProgressBarMaximum(selectedItems.keySet().size());
 			int progress = 0;
-			
+
 			for (ToolsVO toolsVO : selectedItems.keySet())
 			{
 				if (Thread.interrupted())
@@ -891,12 +925,12 @@ public class ToolsInstallationHandler extends Thread
 					logQueue.add(Messages.OperationCancelledByUser);
 					return Boolean.FALSE;
 				}
-				
+
 				for (VersionsVO versionsVO : selectedItems.get(toolsVO))
 				{
 					deleteTool(versionsVO, toolsVO.getName());
 				}
-				
+
 				updateProgressBar(++progress);
 			}
 			return Boolean.TRUE;
