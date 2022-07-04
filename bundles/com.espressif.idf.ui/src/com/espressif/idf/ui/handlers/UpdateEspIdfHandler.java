@@ -4,106 +4,76 @@
  *******************************************************************************/
 package com.espressif.idf.ui.handlers;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.ui.console.MessageConsoleStream;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 
-import com.espressif.idf.core.ExecutableFinder;
-import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.ui.IDFConsole;
+import com.espressif.idf.ui.install.GitProgressMonitor;
 
 public class UpdateEspIdfHandler extends AbstractHandler
 {
 
-	private MessageConsoleStream console;
-	private String gitExecutablePath;
-
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
-		console = new IDFConsole().getConsoleStream(Messages.UpdateEspIdfCommand_Title, null);
-		IPath gitPath = ExecutableFinder.find("git", true); //$NON-NLS-1$
-		if (gitPath != null)
-		{
-			this.gitExecutablePath = gitPath.toOSString();
-
-		}
-		Thread updateEspIdfMasterThread = new Thread(new Runnable()
+		Job job = new Job(Messages.UpdateEspIdfCommand_JobMsg)
 		{
 			@Override
-			public void run()
+			protected IStatus run(IProgressMonitor monitor)
 			{
-				ProcessBuilder[] builders = { new ProcessBuilder(getCheckoutMasterCommand()),
-						new ProcessBuilder(getGitPullCommand()), new ProcessBuilder(getSubmoduleUpdateCommand()) };
-				for (ProcessBuilder builder : builders)
-				{
-					builder.directory(new File(IDFUtil.getIDFPath()));
-					builder.redirectErrorStream(true);
-					Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
-					builder.environment().putAll(envMap);
-					startProcess(builder);
-				}
+				GitProgressMonitor gitProgressMonitor = new GitProgressMonitor(monitor);
 
-			}
-
-			private void startProcess(ProcessBuilder builder)
-			{
+				Git git;
 				try
 				{
-					Process process = builder.start();
-					InputStreamReader isr = new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8);
-					BufferedReader br = new BufferedReader(isr);
-					br.lines().forEach(line -> console.println((line)));
+					git = Git.open(new File(IDFUtil.getIDFPath()));
+					git.checkout().setName("master").setProgressMonitor(gitProgressMonitor).call(); //$NON-NLS-1$
+					git.pull().setProgressMonitor(gitProgressMonitor).call();
+					git.submoduleInit().call();
+					git.submoduleUpdate().setProgressMonitor(gitProgressMonitor).call();
+
+					return Status.OK_STATUS;
 				}
-				catch (IOException e)
+				catch (
+						IOException
+						| GitAPIException e)
 				{
 					Logger.log(e);
+					return Status.error(e.getLocalizedMessage());
 				}
 			}
-		});
-		updateEspIdfMasterThread.start();
-		return null;
+		};
+
+		job.setUser(true);
+		job.schedule();
+		openProgressView();
+		return job;
 	}
 
-	private List<String> getCheckoutMasterCommand()
+	private void openProgressView()
 	{
-		List<String> command = new ArrayList<>();
-		command.add(gitExecutablePath);
-		command.add("checkout"); //$NON-NLS-1$
-		command.add("-f"); //$NON-NLS-1$
-		command.add("master"); //$NON-NLS-1$
-		return command;
-	}
+		try
+		{
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+					.showView("org.eclipse.ui.views.ProgressView"); //$NON-NLS-1$
+		}
+		catch (PartInitException e)
+		{
+			Logger.log(e);
+		}
 
-	private List<String> getGitPullCommand()
-	{
-		List<String> command = new ArrayList<>();
-		command.add(gitExecutablePath);
-		command.add("pull"); //$NON-NLS-1$
-		return command;
-	}
-
-	private List<String> getSubmoduleUpdateCommand()
-	{
-		List<String> command = new ArrayList<>();
-		command.add(gitExecutablePath);
-		command.add("submodule"); //$NON-NLS-1$
-		command.add("update"); //$NON-NLS-1$
-		command.add("--init"); //$NON-NLS-1$
-		command.add("--recursive"); //$NON-NLS-1$
-		return command;
 	}
 }
