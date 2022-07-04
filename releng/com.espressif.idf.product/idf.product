@@ -27,10 +27,7 @@
    <windowImages i16="/com.espressif.idf.branding/icons/16x16.png" i32="/com.espressif.idf.branding/icons/32x32.png" i48="/com.espressif.idf.branding/icons/48x48.png" i64="/com.espressif.idf.branding/icons/64x64.png" i128="/com.espressif.idf.branding/icons/128x128.png" i256="/com.espressif.idf.branding/icons/256x256.png"/>
 
    <splash
-      location="com.espressif.idf.branding"
-      startupProgressRect="50,100,300,15"
-      startupMessageRect="100,100,300,18"
-      startupForegroundColor="FF2F92" />
+      location="com.espressif.idf.branding" />
    <launcher name="espressif-ide">
       <linux icon="laucher/espressif.xpm"/>
       <macosx icon="laucher/espressif.icns"/>
