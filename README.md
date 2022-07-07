@@ -40,6 +40,7 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 * [ Upgrading IDF Eclipse Plugin ](#upgradePlugins)<br>
 * [ Importing an existing IDF Project ](#ImportProject)<br>
 * [ Importing an existing Debug launch configuration ](#importDebugLaunchConfig)<br>
+* [ Device Firmware Upgrade (DFU) through USB ](#deviceFirmwareUpgrade)<br>
 * [ GDBStub Debugging ](#gdbStubDebugging)<br>
 * [ Application Level Tracing ](#appLvlTracing)<br>
 * [ Changing Language ](#changeLanguage)<br>
@@ -491,6 +492,38 @@ Build and flash the project and launch the serial monitor. On the line number 45
 ![](docs/images/GDBStubDebugging/debug_panic_mode.png)
 
 You can view the registers stack trace and even view the value of variables in stack frame. To exit the debug session simply press stop button.
+
+<a name="deviceFirmwareUpgrade"></a>
+
+# Device Firmware Upgrade (DFU) through USB
+
+Device Firmware Upgrade (DFU) is a mechanism for upgrading the firmware of devices through Universal Serial Bus (USB). There are a few  requirements that need to be met:
+
+- DFU is supported by ESP32-S2 and  ESP32-S3 chips. 
+- You will need to do some electrical connection work (Here is a [guide](https://blog.espressif.com/dfu-using-the-native-usb-on-esp32-s2-for-flashing-the-firmware-b2c4af3335f1) for the ESP32-S2 board). The necessary connections for the USB peripheral are shown in the following table.
+
+| GPIO | USB         |
+| -----| ------------|
+| 20   |  D+ (green) |
+| 19   |  D- (white) |
+| GND  |  GND (black)|
+| +5V  |  +5V (red)  |
+
+- The chip needs to be in bootloader mode for the detection as a DFU device and flashing. This can beachieved by pulling GPIO0 down (e.g. pressing the BOOT button), pulsing RESET down for a moment and releasing GPIO0.
+- Install USB drivers (Windows only). The drivers can be installed by the [Zadig tool](https://zadig.akeo.ie/>). The manual installation of the driver in Device Manager of Windows is not recommended because the flashing might not work properly. Please make sure that the device is in
+download mode before running the tool and that it detects the device before installing the drivers. The Zadig
+tool might detect several USB interfaces of the target. Please install the WinUSB driver for only that interface for
+which there is no driver installed (probably it is Interface 2) and don't re-install the driver for the other interface. 
+
+After meeting requirements you are free to build and flash via DFU. How to use DFU:
+
+- Activate the DFU toggle button on the toolbar.
+- Select the correct target and port through the target panel
+- Now, if you will use the build command an extra file will be created (dfu.bin), which will be later used for flashing.
+
+![DFU actions](https://user-images.githubusercontent.com/24419842/175890153-42bd711e-a916-408e-a568-9b008f86a8b6.png)
+
+Additional information, including common errors and known issues, is mentioned in this [guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/dfu.html#usb-drivers-windows-only).
 
 <a name="appLvlTracing"></a>
 

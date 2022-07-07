@@ -58,6 +58,7 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.IDFBuildConfiguration;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.DfuCommandsUtil;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
@@ -88,6 +89,15 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		// Start the launch (pause the serial port)
 		((SerialFlashLaunch) launch).start();
 		boolean isFlashOverJtag = configuration.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, false);
+		serialPort = ((SerialFlashLaunch) launch).getLaunchTarget()
+				.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
+		if (DfuCommandsUtil.isDfu()) {
+			if (checkIfPortIsEmpty(configuration)) {
+				return;
+			}
+			DfuCommandsUtil.flashDfuBins(getProject(configuration), launch, monitor, serialPort);
+			return;
+		}
 		if (isFlashOverJtag) {
 			flashOverJtag(configuration, launch);
 			return;
@@ -124,8 +134,6 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		commands.add(location);
 
 		//build the flash command
-		serialPort = ((SerialFlashLaunch) launch).getLaunchTarget()
-				.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
 		String espFlashCommand = ESPFlashUtil.getEspFlashCommand(serialPort);
 		Logger.log(espFlashCommand);
 		if (checkIfPortIsEmpty(configuration)) {

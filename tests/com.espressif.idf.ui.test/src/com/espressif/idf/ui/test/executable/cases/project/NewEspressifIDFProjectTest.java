@@ -128,7 +128,7 @@ public class NewEspressifIDFProjectTest
 		Fixture.closeProject("NewProjectTest2");
 		Fixture.deleteProject("NewProjectTest2");
 	}
-	
+
 	@Test
 	public void givenNewIDFProjectIsDeletedWithAllRelatedConfigurations() throws Exception
 	{
@@ -140,12 +140,12 @@ public class NewEspressifIDFProjectTest
 		Fixture.givenProjectNameIs("NewProjectTest2");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.givenProjectNameIs("NewProjectTest");
-		
+
 		Fixture.whenProjectHasDebugConfigurations();
 		Fixture.deleteProjectAndConfigs("NewProjectTest");
 		Fixture.thenAllConfigurationsAreDeleted();
 	}
-	
+
 	@Test
 	public void givenNewProjectCreatedAndRenamedAfterThenProjectIsBuildSuccessfully() throws Exception
 	{
@@ -168,6 +168,18 @@ public class NewEspressifIDFProjectTest
 		Fixture.whenProjectIsRenamed("NewProjectTest2");
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.thenConsoleShowsBuildSuccessful();
+	}
+
+	@Test
+	public void givenNewProjectCreatedDfuBuiltThenHasDfuBin() throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.switchDfuStatus();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.thenProjectHasTheFile("dfu.bin", "/build");
+		Fixture.switchDfuStatus();
 	}
 
 	private static class Fixture
@@ -217,7 +229,7 @@ public class NewEspressifIDFProjectTest
 			ProjectTestOperations.createDebugConfiguration(projectName, bot);
 			ProjectTestOperations.createDebugConfiguration(projectName, bot);
 		}
-		
+
 		private static void whenNewProjectIsSelected() throws Exception
 		{
 			ProjectTestOperations.setupProject(projectName, category, subCategory, bot);
@@ -228,6 +240,11 @@ public class NewEspressifIDFProjectTest
 			ProjectTestOperations.copyProjectToExistingWorkspace(projectName, projectCopyName, bot,
 					DefaultPropertyFetcher.getLongPropertyValue("default.project.copy.wait", 60000));
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+		}
+
+		private static void switchDfuStatus() throws IOException
+		{
+			bot.toolbarToggleButtonWithTooltip("DFU").click();
 		}
 
 		private static void whenProjectIsBuiltUsingContextMenu() throws IOException
@@ -246,11 +263,12 @@ public class NewEspressifIDFProjectTest
 			ProjectTestOperations.waitForProjectBuild(bot);
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 		}
-		
-		private static void thenAllConfigurationsAreDeleted() 
+
+		private static void thenAllConfigurationsAreDeleted()
 		{
 			ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
-			try {
+			try
+			{
 				ILaunchConfiguration[] configs = manager.getLaunchConfigurations();
 				for (ILaunchConfiguration config : configs)
 				{
@@ -261,11 +279,13 @@ public class NewEspressifIDFProjectTest
 					}
 				}
 				assertTrue(true);
-			} catch (CoreException e) {
+			}
+			catch (CoreException e)
+			{
 				e.printStackTrace();
 			}
 		}
-		
+
 		private static void thenProjectIsAddedToProjectExplorer()
 		{
 			bot.viewByTitle("Project Explorer").show();
@@ -323,7 +343,7 @@ public class NewEspressifIDFProjectTest
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 			ProjectTestOperations.deleteProject(projectName, bot);
 		}
-		
+
 		private static void deleteProjectAndConfigs(String projectName)
 		{
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
