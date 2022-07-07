@@ -25,7 +25,6 @@ import com.espressif.idf.ui.install.GitProgressMonitor;
 
 public class UpdateEspIdfHandler extends AbstractHandler
 {
-
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
@@ -40,7 +39,6 @@ public class UpdateEspIdfHandler extends AbstractHandler
 				try
 				{
 					git = Git.open(new File(IDFUtil.getIDFPath()));
-					git.checkout().setName("master").setProgressMonitor(gitProgressMonitor).call(); //$NON-NLS-1$
 					git.pull().setProgressMonitor(gitProgressMonitor).call();
 					git.submoduleInit().call();
 					git.submoduleUpdate().setProgressMonitor(gitProgressMonitor).call();
