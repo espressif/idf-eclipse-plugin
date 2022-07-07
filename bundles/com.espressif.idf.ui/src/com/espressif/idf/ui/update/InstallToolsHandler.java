@@ -18,7 +18,6 @@ import java.util.Map;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.build.IToolChainManager;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
@@ -72,10 +71,6 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				monitor.setTaskName(Messages.InstallToolsHandler_InstallingPythonMsg);
 				handleToolsInstallPython();
 				monitor.worked(1);
-				
-				monitor.setTaskName(Messages.InstallToolsHandler_InstallingWebscoketMsg);
-				handleWebSocketClientInstall();
-				monitor.worked(1);
 
 				monitor.setTaskName(Messages.InstallToolsHandler_ExportingPathsMsg);
 				new ExportIDFTools().runToolsExport(pythonExecutablenPath, gitExecutablePath, console);
@@ -87,6 +82,10 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				monitor.worked(1);
 				
 				configEnv();
+				
+				monitor.setTaskName(Messages.InstallToolsHandler_InstallingWebscoketMsg);
+				handleWebSocketClientInstall();
+				monitor.worked(1);
 				
 				copyOpenOcdRules();
 				console.println(Messages.InstallToolsHandler_ConfiguredCMakeMsg);
@@ -215,18 +214,12 @@ public class InstallToolsHandler extends AbstractToolsHandler
 	
 	protected void handleWebSocketClientInstall()
 	{
-		IPath pipPath = new org.eclipse.core.runtime.Path(pythonExecutablenPath); //$NON-NLS-1$
-		String pipPathLastSegment = pipPath.lastSegment().replace("python", "pip"); //$NON-NLS-1$ //$NON-NLS-2$
-		pipPath = pipPath.removeLastSegments(1).append(pipPathLastSegment); 
-		if (!pipPath.toFile().exists()) 
-		{
-			console.println(String.format("%s executable not found. Unable to run `%s install websocket-client`", pipPathLastSegment, pipPathLastSegment)); //$NON-NLS-1$
-			return;
-		}
-
+		 
 		// pip install websocket-client
 		List<String> arguments = new ArrayList<String>();
-		arguments.add(pipPath.toOSString());
+		arguments.add(IDFUtil.getIDFPythonEnvPath());
+		arguments.add("-m"); //$NON-NLS-1$
+		arguments.add("pip"); //$NON-NLS-1$
 		arguments.add("install"); //$NON-NLS-1$
 		arguments.add("websocket-client"); //$NON-NLS-1$
 		
