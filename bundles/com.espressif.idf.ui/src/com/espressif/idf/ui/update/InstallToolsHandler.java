@@ -218,7 +218,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		// pip install websocket-client
 		List<String> arguments = new ArrayList<String>();
 		final String pythonEnvPath = IDFUtil.getIDFPythonEnvPath();
-		if (pythonEnvPath != null && new File(pythonEnvPath).exists())
+		if (pythonEnvPath == null || !new File(pythonEnvPath).exists())
 		{
 			console.println(String.format("%s executable not found. Unable to run `%s -m pip install websocket-client`", //$NON-NLS-1$
 					IDFConstants.PYTHON_CMD, IDFConstants.PYTHON_CMD));
