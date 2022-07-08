@@ -392,10 +392,6 @@ public class ToolsInstallationHandler extends Thread
 				exportPathBuilder.append(PATH_SPLITOR);
 			}
 		}
-		if (updatedPath.toString().split(File.pathSeparator).length > 1)
-		{
-			updatedPath.append(File.pathSeparator);
-		}
 		
 		Path pathToExport = Paths.get(exportPathBuilder.toString()); // for correcting the path error in windows
 		String currentPath = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH);
@@ -568,7 +564,6 @@ public class ToolsInstallationHandler extends Thread
 		{
 			// Enable IDF_COMPONENT_MANAGER by default
 			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER, "1");
-
 		}
 
 		private void runToolsExport(final String pythonExePath, final String gitExePath)

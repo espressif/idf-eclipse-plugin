@@ -12,7 +12,6 @@ import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
@@ -30,8 +29,6 @@ import com.espressif.idf.ui.tools.wizard.pages.ManageToolsInstallationWizardPage
 public class ToolsManagerWizardDialog extends WizardDialog
 {
 	private Map<String, String> existingVarMap;
-	private Button finishButton;
-	private Listener[] listeners;
 
 	public ToolsManagerWizardDialog(Shell parentShell, IWizard newWizard, Map<String, String> existingVarMap)
 	{
@@ -75,6 +72,16 @@ public class ToolsManagerWizardDialog extends WizardDialog
 		}
 		super.backPressed();
 		updateSize();
+	}
+
+	@Override
+	public void updateButtons()
+	{
+		super.updateButtons();
+		if (getCurrentPage() instanceof ManageToolsInstallationWizardPage)
+		{
+			((ManageToolsInstallationWizardPage) getCurrentPage()).setButtonsEnabled(true);
+		}
 	}
 
 	@Override

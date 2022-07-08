@@ -77,16 +77,6 @@ public class ToolsUtility
 		return false;
 	}
 
-	public static void checkToolVersion(ToolsVO toolsVO)
-	{
-
-	}
-
-	public static void checkToolVersion(ToolsVO toolsVO)
-	{
-
-	}
-
 	public static void removeToolDirectory(String toolName) throws IOException
 	{
 		File toolDirectory = new File(ESPRESSIF_HOME_TOOLS_DIR.concat(FORWARD_SLASH).concat(toolName));

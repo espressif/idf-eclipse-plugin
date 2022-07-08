@@ -137,82 +137,6 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 
 		setPageComplete(false);
 
-		selectRecommendedButton = new Button(topBarComposite, SWT.PUSH);
-		selectRecommendedButton.setImage(UIPlugin.getImage(SELECT_RECOMMENDED));
-		selectRecommendedButton.setToolTipText(Messages.SelectRecommended);
-		selectRecommendedButton.addSelectionListener(new SelectRecommendedButtonSelectionAdapter());
-
-		String[] filterItems = getTargetFilterItems();
-		boolean filterVisibilityForTargets = filterItems != null && filterItems.length != 0;
-		Label targetFilterLabel = new Label(topBarComposite, SWT.NONE);
-		targetFilterLabel.setText(Messages.FilterTargets);
-		targetFilterLabel.setVisible(filterVisibilityForTargets);
-
-		filterTargetBox = new Combo(topBarComposite, SWT.READ_ONLY);
-		filterTargetBox.setItems(filterItems);
-		filterTargetBox.addSelectionListener(new SelectionAdapter()
-		{
-			@Override
-			public void widgetSelected(SelectionEvent e)
-			{
-				String selectedTarget = filterTargetBox.getItem(filterTargetBox.getSelectionIndex());
-				toolsTree.removeAll();
-				addItemsToTree(toolsTree, chkAvailableVersions.getSelection());
-				if (selectedTarget.equalsIgnoreCase(ALL))
-				{
-					return;
-				}
-				for (TreeItem item : toolsTree.getItems())
-				{
-					ToolsVO toolsVO = (ToolsVO) item.getData();
-					if (toolsVO.getSupportedTargets().contains(selectedTarget)
-							|| toolsVO.getSupportedTargets().contains(ALL))
-					{
-						continue;
-					}
-
-					item.dispose();
-				}
-			}
-		});
-		filterTargetBox.setVisible(filterVisibilityForTargets);
-		
-		chkAvailableVersions = new Button(topBarComposite, SWT.CHECK);
-		chkAvailableVersions.setText(Messages.ShowAvailableVersionsOnly);
-		chkAvailableVersions.addSelectionListener(new SelectionAdapter()
-		{
-
-			@Override
-			public void widgetSelected(SelectionEvent e)
-			{
-				toolsTree.removeAll();
-				addItemsToTree(toolsTree, chkAvailableVersions.getSelection());
-			}
-		});
-
-		
-
-		btnInstallTools = new Button(topBarComposite, SWT.NONE);
-		btnInstallTools.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		btnInstallTools.setText(Messages.InstallToolsText);
-		btnInstallTools.addSelectionListener(new InstallButtonSelectionAdapter());
-		btnInstallTools.setEnabled(false);
-
-		btnDeleteTools = new Button(topBarComposite, SWT.NONE);
-		btnDeleteTools.setText(Messages.DeleteToolsText);
-		btnDeleteTools.addSelectionListener(new DeleteButtonSelectionAdapter());
-		btnDeleteTools.setEnabled(false);
-		
-		forceDownloadBtn = new Button(topBarComposite, SWT.CHECK);
-		forceDownloadBtn.setText(Messages.ForceDownload);
-		forceDownloadBtn.setToolTipText(Messages.ForceDownload_ToolTip);
-		new Label(topBarComposite, SWT.NONE);
-		
-		forceDownloadBtn = new Button(topBarComposite, SWT.CHECK);
-		forceDownloadBtn.setText(Messages.ForceDownload);
-		forceDownloadBtn.setToolTipText(Messages.ForceDownload_ToolTip);
-		new Label(topBarComposite, SWT.NONE);
-		
 		Label filterTextLabel = new Label(subControlComposite, SWT.NONE);
 		filterTextLabel.setText(Messages.FilterLabel);
 		Text filterText = new Text(subControlComposite, SWT.SINGLE | SWT.BORDER);
@@ -362,6 +286,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 			logMessagesThread.start();
 		}
 
+		btnFinish.setEnabled(true);
 		setPageStatus();
 	}
 
@@ -386,7 +311,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 		scopedPreferenceStore.putBoolean(IToolsInstallationWizardConstants.INSTALL_TOOLS_FLAG, pageCompletion);
 		setPageComplete(pageCompletion);
 	}
-
+	
 	private void initializeJson()
 	{
 		try
@@ -490,6 +415,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 
 		btnFinish = ((ToolsManagerWizardDialog) parentWizardDialog).getButton(IDialogConstants.FINISH_ID);
 		btnFinish.setText(Messages.InstallToolsText);
+		btnFinish.setEnabled(true);
 		listenersForFinish = btnFinish.getListeners(SWT.Selection);
 		for (Listener listener : listenersForFinish)
 		{
@@ -737,8 +663,13 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 		return selectedItems;
 	}
 
-	private void setButtonsEnabled(boolean enabled)
+	public void setButtonsEnabled(boolean enabled)
 	{
+		if (btnFinish.getText().equals(Messages.InstallToolsText))
+		{
+			btnFinish.setEnabled(enabled);
+			btnFinish.redraw();
+		}
 		btnDeleteTools.setEnabled(enabled);
 		btnDeleteTools.redraw();
 	}
@@ -963,6 +894,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 		{
 			if (!installPressed)
 			{
+				btnFinish.setEnabled(false);
 				toolsInstallationHandler = new ToolsInstallationHandler(logQueue,
 						ManageToolsInstallationWizardPage.this, idfEnvironmentVariables);
 				Map<ToolsVO, List<VersionsVO>> selectedItems = getSelectedTools();
