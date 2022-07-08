@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Set;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -55,8 +54,6 @@ public class ProductInformationHandler extends ListInstalledToolsHandler
 		showEspIdfVersion();
 		console.println(Messages.PythonIdfEnvMsg + (Optional
 				.ofNullable(getPythonExeVersion(IDFUtil.getIDFPythonEnvPath())).orElse(Messages.NotFoundMsg)));
-		console.println(Messages.PythonPathMsg
-				+ (Optional.ofNullable(getPythonExeVersion("python")).orElse(Messages.NotFoundMsg))); //$NON-NLS-1$
 
 		return null;
 	}
