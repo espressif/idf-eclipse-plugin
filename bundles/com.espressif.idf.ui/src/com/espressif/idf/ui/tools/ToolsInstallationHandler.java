@@ -849,19 +849,18 @@ public class ToolsInstallationHandler extends Thread
 
 		private void handleWebSocketClientInstall()
 		{
-			IPath pipPath = new org.eclipse.core.runtime.Path(getPythonExecutablePath()); // $NON-NLS-1$
-			String pipPathLastSegment = pipPath.lastSegment().replace("python", "pip"); //$NON-NLS-1$ //$NON-NLS-2$
-			pipPath = pipPath.removeLastSegments(1).append(pipPathLastSegment);
-			if (!pipPath.toFile().exists())
+			List<String> arguments = new ArrayList<String>();
+			final String pythonEnvPath = IDFUtil.getIDFPythonEnvPath();
+			if (pythonEnvPath == null || !new File(pythonEnvPath).exists())
 			{
-				logQueue.add(String.format("%s executable not found. Unable to run `%s install websocket-client`", //$NON-NLS-1$
-						pipPathLastSegment, pipPathLastSegment));
+				logQueue.add(String.format("%s executable not found. Unable to run `%s -m pip install websocket-client`", //$NON-NLS-1$
+						IDFConstants.PYTHON_CMD, IDFConstants.PYTHON_CMD));
 				return;
 			}
-
-			// pip install websocket-client
-			List<String> arguments = new ArrayList<String>();
-			arguments.add(pipPath.toOSString());
+			arguments.add(pythonEnvPath);
+			arguments.add("-m"); //$NON-NLS-1$
+			arguments.add("pip"); //$NON-NLS-1$
+			
 			arguments.add("install"); //$NON-NLS-1$
 			arguments.add("websocket-client"); //$NON-NLS-1$
 
