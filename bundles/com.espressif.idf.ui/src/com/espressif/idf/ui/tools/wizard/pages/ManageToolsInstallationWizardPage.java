@@ -412,6 +412,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 				addItemsToTree(toolsTree, chkAvailableVersions.getSelection());
 			}
 		});
+		chkAvailableVersions.setVisible(false); // This will be enhanced in the feature update
 
 		btnFinish = ((ToolsManagerWizardDialog) parentWizardDialog).getButton(IDialogConstants.FINISH_ID);
 		btnFinish.setText(Messages.InstallToolsText);
@@ -428,10 +429,12 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 		btnDeleteTools.setToolTipText(Messages.DeleteToolsTextToolTip);
 		btnDeleteTools.addSelectionListener(new DeleteButtonSelectionAdapter());
 		btnDeleteTools.setEnabled(false);
+		btnDeleteTools.setVisible(false); // This will be enhanced in the feature update
 
 		forceDownloadBtn = new Button(topBarComposite, SWT.CHECK);
 		forceDownloadBtn.setText(Messages.ForceDownload);
 		forceDownloadBtn.setToolTipText(Messages.ForceDownloadToolTip);
+		forceDownloadBtn.setVisible(false);
 		new Label(topBarComposite, SWT.NONE);
 
 	}
@@ -592,7 +595,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 			int isInstalled)
 	{
 		String[] textArr = new String[4];
-		textArr[0] = key;
+		textArr[0] = name;
 		if (versionOsMap != null)
 		{
 			textArr[1] = versionOsMap.get(key).getReadableSize();
@@ -616,7 +619,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 			break;
 		}
 
-		textArr[3] = name.concat(" (").concat(status).concat(")"); //$NON-NLS-1$ //$NON-NLS-2$
+		textArr[3] = key.concat(" (").concat(status).concat(")"); //$NON-NLS-1$ //$NON-NLS-2$
 		return textArr;
 	}
 
