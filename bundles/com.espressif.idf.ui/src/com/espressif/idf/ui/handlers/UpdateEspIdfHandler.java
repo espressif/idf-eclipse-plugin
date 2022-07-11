@@ -35,7 +35,7 @@ public class UpdateEspIdfHandler extends AbstractHandler
 			{
 				GitProgressMonitor gitProgressMonitor = new GitProgressMonitor(monitor);
 
-				Git git;
+				Git git = null;
 				try
 				{
 					git = Git.open(new File(IDFUtil.getIDFPath()));
@@ -51,6 +51,12 @@ public class UpdateEspIdfHandler extends AbstractHandler
 				{
 					Logger.log(e);
 					return Status.error(e.getLocalizedMessage());
+				} finally
+				{
+					if (git != null)
+					{
+						git.close();
+					}
 				}
 			}
 		};

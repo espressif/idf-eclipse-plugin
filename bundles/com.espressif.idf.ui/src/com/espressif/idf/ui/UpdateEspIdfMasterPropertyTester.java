@@ -12,14 +12,17 @@ import org.eclipse.jgit.api.Git;
 
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.StringUtil;
 
 public class UpdateEspIdfMasterPropertyTester extends PropertyTester
 {
+	private final String MASTER_BRANCH = "master"; //$NON-NLS-1$
+
 	@Override
 	public boolean test(Object receiver, String property, Object[] args, Object expectedValue)
 	{
 		// Check if the master version of ESP-IDF is being used. If false, do not show update command
-		String branchName = ""; //$NON-NLS-1$
+		String branchName = StringUtil.EMPTY; // $NON-NLS-1$
 		try
 		{
 			Git git = Git.open(new File(IDFUtil.getIDFPath()));
@@ -29,6 +32,6 @@ public class UpdateEspIdfMasterPropertyTester extends PropertyTester
 		{
 			Logger.log(e);
 		}
-		return branchName.contentEquals("master"); //$NON-NLS-1$
+		return branchName.contentEquals(MASTER_BRANCH); // $NON-NLS-1$
 	}
 }
