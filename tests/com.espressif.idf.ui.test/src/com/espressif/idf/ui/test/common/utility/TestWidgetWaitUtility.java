@@ -58,9 +58,9 @@ public class TestWidgetWaitUtility
 			public String getFailureMessage()
 			{
 
-				return "Indexer taking longer to finish";
+				return "Operations taking longer to finish";
 			}
-		}, 90000000, 3000);
+		}, 99000000, 3000);
 	}
 	
 	/**
