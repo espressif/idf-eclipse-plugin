@@ -37,6 +37,7 @@ import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 import com.espressif.idf.ui.test.operations.EnvSetupOperations;
 import com.espressif.idf.ui.test.operations.ProjectTestOperations;
 import com.espressif.idf.ui.test.operations.SWTBotTreeOperations;
+import com.espressif.idf.ui.test.operations.selectors.LaunchBarTargetSelector;
 
 /**
  * Test class to test the project creation, build and basic operations
@@ -176,6 +177,7 @@ public class NewEspressifIDFProjectTest
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 		Fixture.givenProjectNameIs("NewProjectTest");
 		Fixture.whenNewProjectIsSelected();
+		Fixture.thenLaunchTargetIsSelectedFromLaunchTargets("esp32s2");
 		Fixture.switchDfuStatus();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.thenProjectHasTheFile("dfu.bin", "/build");
@@ -189,12 +191,26 @@ public class NewEspressifIDFProjectTest
 		private static String subCategory;
 		private static String projectName;
 		private static String projectTemplate;
+		private static LaunchBarTargetSelector launchBarTargetSelector;
 
 		private static void loadEnv() throws Exception
 		{
 			bot = WorkBenchSWTBot.getBot();
 			EnvSetupOperations.setupEspressifEnv(bot);
 			bot.sleep(1000);
+			try
+			{
+				launchBarTargetSelector = new LaunchBarTargetSelector(bot);
+			}
+			catch (WidgetNotFoundException e)
+			{
+				launchBarTargetSelector = new LaunchBarTargetSelector(bot, false);
+			}
+		}
+
+		public static void thenLaunchTargetIsSelectedFromLaunchTargets(String launchTargetName)
+		{
+			launchBarTargetSelector.select(launchTargetName);
 		}
 
 		private static void givenNewEspressifIDFProjectIsSelected(String category, String subCategory)
