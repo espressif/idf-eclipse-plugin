@@ -8,7 +8,10 @@
 	<artifactId>com.espressif.idf.tests</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
-
+	
+	<properties>
+		<JvmPath>/usr/bin</JvmPath>
+	</properties>
 	<parent>
 		<groupId>com.espressif.idf</groupId>
 		<artifactId>com.espressif.idf.root</artifactId>
