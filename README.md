@@ -125,7 +125,7 @@ ESP-IDF Directory selection dialog:
 # Create a new Project
 1. Make sure you are in `C/C++ Perspective`
 1. Go to `File` > `New` > `Espressif IDF Project` (If you don't see this, please reset the perspective from `Window` > `Perspective` > `Reset Perspective...`)
-1. Provide the `Project name`
+1. Provide the `Project name` (The ESP-IDF build system does not support spaces in the project path)
 1. Click `Finish`
 
 > **Note:** You will see a lot of unresolved inclusion errors in the editor and those will be resolved only after the build.
