@@ -21,6 +21,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
@@ -34,6 +35,7 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
@@ -54,6 +56,7 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 	private static final String CORE_DUMP_POSTMORTEM_LAUNCH_CONFIG = "%s_core_dump_postmortem_debug.launch"; //$NON-NLS-1$
 	private static final String GENERATED_CORE_ELF_NAME = "core.elf"; //$NON-NLS-1$
 	private static final String GENERATED_CORE_DUMP_NAME = "core.dump"; //$NON-NLS-1$
+	private static final String CORE_DUMP_FOLDER = "core_dump"; //$NON-NLS-1$
 	private IProject project;
 	private String messageReceived;
 	private String elfFilePath;
@@ -81,6 +84,8 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 
 	private void parseExtractedFileFromPythonScript() throws Exception
 	{
+		String coreDumpDestination = getCoreDumpFileFromBuildDir(GENERATED_CORE_ELF_NAME);
+
 		// espcoredump.py
 
 		List<String> commands = new ArrayList<>();
@@ -97,8 +102,7 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 		commands.add("-c"); //$NON-NLS-1$
 		commands.add(extractedFilePath);
 		commands.add("-s"); //$NON-NLS-1$
-		commands.add(project.getLocation().toOSString().concat(String.valueOf(IPath.SEPARATOR))
-				.concat(GENERATED_CORE_ELF_NAME));
+		commands.add(coreDumpDestination);
 		commands.add(elfFilePath);
 
 		executeCommands(commands);
@@ -153,9 +157,22 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 			idfConsole.getConsoleStream().print(errorMessage);
 			throw new Exception(errorMessage);
 		}
+		IFolder buildRootFolder = project.getFolder(IDFConstants.BUILD_FOLDER);
+		StringBuilder coreDumpDestination = new StringBuilder();
+		coreDumpDestination.append(buildRootFolder.getLocation().toString());
+		coreDumpDestination.append(IPath.SEPARATOR);
+		coreDumpDestination.append(CORE_DUMP_FOLDER);
 
-		java.nio.file.Path destinationPath = Paths.get(project.getLocation().toOSString()
-				.concat(String.valueOf(IPath.SEPARATOR)).concat(GENERATED_CORE_DUMP_NAME));
+		file = new File(coreDumpDestination.toString());
+		if (!file.exists())
+		{
+			Files.createDirectory(Paths.get(coreDumpDestination.toString()));
+		}
+
+		coreDumpDestination.append(IPath.SEPARATOR);
+		coreDumpDestination.append(GENERATED_CORE_DUMP_NAME);
+
+		java.nio.file.Path destinationPath = Paths.get(coreDumpDestination.toString());
 
 		Files.copy(Paths.get(extractedFilePath), destinationPath, StandardCopyOption.REPLACE_EXISTING);
 
@@ -195,7 +212,7 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 				String.valueOf(100));
 
 		createElement(dom, root, stringAttribute, "org.eclipse.cdt.launch.COREFILE_PATH", //$NON-NLS-1$
-				project.getFile(GENERATED_CORE_ELF_NAME).getRawLocation().toOSString());
+				getCoreDumpFileFromBuildDir(GENERATED_CORE_ELF_NAME));
 
 		createElement(dom, root, stringAttribute, "org.eclipse.cdt.launch.DEBUGGER_ID", "gdb"); //$NON-NLS-1$ //$NON-NLS-2$
 		createElement(dom, root, stringAttribute, "org.eclipse.cdt.launch.DEBUGGER_START_MODE", "core"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -222,11 +239,24 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 
 		Transformer tr = TransformerFactory.newInstance().newTransformer();
 		tr.setOutputProperty(OutputKeys.INDENT, "yes"); //$NON-NLS-1$
-		String launchFile = project.getLocation().makeAbsolute().toString().concat("/") //$NON-NLS-1$
-				.concat(String.format(CORE_DUMP_POSTMORTEM_LAUNCH_CONFIG, project.getName()));
+
+		String launchFile = getCoreDumpFileFromBuildDir(
+				String.format(CORE_DUMP_POSTMORTEM_LAUNCH_CONFIG, project.getName()));
 		tr.transform(new DOMSource(dom), new StreamResult(new File(launchFile)));
 		project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 
+	}
+
+	private String getCoreDumpFileFromBuildDir(String fileName)
+	{
+		IFolder buildRootFolder = project.getFolder(IDFConstants.BUILD_FOLDER);
+		StringBuilder coreDumpDestination = new StringBuilder();
+		coreDumpDestination.append(buildRootFolder.getLocation().toString());
+		coreDumpDestination.append(IPath.SEPARATOR);
+		coreDumpDestination.append(CORE_DUMP_FOLDER);
+		coreDumpDestination.append(IPath.SEPARATOR);
+		coreDumpDestination.append(fileName);
+		return coreDumpDestination.toString();
 	}
 
 	private Element createElement(Document dom, Element root, String attribName, String key, String value)

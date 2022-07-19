@@ -41,21 +41,17 @@ public class SocketServerMessageHandler
 		String event = messageJsonObject.get("event").toString(); //$NON-NLS-1$
 		ISerialWebSocketEventLauncher iSerialWebSocketEventLauncher = null;
 		Logger.log("Event Received on Socket Server: ".concat(event)); //$NON-NLS-1$
-		MessageBox messageBox = new MessageBox(Display.getDefault().getActiveShell(),
-				SWT.ICON_INFORMATION | SWT.YES | SWT.NO);
-		messageBox.setText(Messages.MessageBox_SocketServerEventTitle);
-		messageBox.setMessage(String.format(Messages.MessageBox_SocketServerEventMessage, event));
-		int messageBoxResponse = -1;
 
+		MessageBoxDisplay messageBoxDisplay = new MessageBoxDisplay(event);
+		Display.getDefault().syncExec(messageBoxDisplay);
+		int messageBoxResponse = messageBoxDisplay.getResponse();
 		if (ITerminalSocketEvents.GDB_STUB.equals(event)) // $NON-NLS-1$
 		{
 			iSerialWebSocketEventLauncher = new GDBStubDebuggerLauncher(message, project);
-			messageBoxResponse = messageBox.open();
 		}
 		else if (ITerminalSocketEvents.CORE_DUMP.equals(event))
 		{
 			iSerialWebSocketEventLauncher = new CoreDumpPostmortemDebuggerLauncher(message, project);
-			messageBoxResponse = messageBox.open();
 		}
 
 		if (iSerialWebSocketEventLauncher != null && messageBoxResponse == SWT.YES)
@@ -67,6 +63,33 @@ public class SocketServerMessageHandler
 		else
 		{
 			Logger.log("Event capture not yet implemented"); //$NON-NLS-1$
+		}
+	}
+
+	private class MessageBoxDisplay implements Runnable
+	{
+		private String event;
+
+		private int response;
+
+		private MessageBoxDisplay(String event)
+		{
+			this.event = event;
+		}
+
+		@Override
+		public void run()
+		{
+			MessageBox messageBox = new MessageBox(Display.getDefault().getActiveShell(),
+					SWT.ICON_INFORMATION | SWT.YES | SWT.NO);
+			messageBox.setText(Messages.MessageBox_SocketServerEventTitle);
+			messageBox.setMessage(String.format(Messages.MessageBox_SocketServerEventMessage, event));
+			response = messageBox.open();
+		}
+
+		private int getResponse()
+		{
+			return response;
 		}
 	}
 
