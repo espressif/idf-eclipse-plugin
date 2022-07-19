@@ -318,7 +318,15 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				}
 
 				command.add("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"); //$NON-NLS-1$
-				command.add("-DCCACHE_ENABLE=1"); //$NON-NLS-1$
+				final String ccache = System.getProperty("idf.disableccache"); //$NON-NLS-1$
+				if (Boolean.parseBoolean(ccache))
+				{
+					command.add("-DCCACHE_ENABLE=0"); //$NON-NLS-1$
+				}
+				else
+				{
+					command.add("-DCCACHE_ENABLE=1"); //$NON-NLS-1$
+				}
 
 				if (launchtarget != null) {
 					String idfTargetName = launchtarget.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
