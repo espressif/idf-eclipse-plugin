@@ -341,7 +341,10 @@ public class InstallEspIdfPage extends WizardPage implements IToolsWizardPage
 	@Override
 	public void cancel()
 	{
-		gitDownloadAndCloneThread.setCancelled(true);
+		if (gitDownloadAndCloneThread != null)
+		{
+			gitDownloadAndCloneThread.setCancelled(true);			
+		}
 	}
 	
 	private class DownloadButtonSelectionAdapter extends SelectionAdapter

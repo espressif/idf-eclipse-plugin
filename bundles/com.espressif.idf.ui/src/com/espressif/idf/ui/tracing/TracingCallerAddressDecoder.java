@@ -50,7 +50,7 @@ public class TracingCallerAddressDecoder
 		commands.add(elfFilePath);
 		commands.addAll(callerAddresses);
 		commands.add("-f");
-		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
+		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
 		String decodedAddress = runCommand(commands, new Path(project.getLocation().toOSString()), envMap);
 		return getListOfAddresses(decodedAddress, callerAddresses);
 	}

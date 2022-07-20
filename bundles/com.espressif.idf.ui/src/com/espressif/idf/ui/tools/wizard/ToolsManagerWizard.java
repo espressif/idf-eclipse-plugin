@@ -34,7 +34,6 @@ public class ToolsManagerWizard extends Wizard
 	public ToolsManagerWizard()
 	{
 		super();
-		setDefaultPageImageDescriptor(UIPlugin.getImageDescriptor(IToolsInstallationWizardConstants.ESPRESSIF_LOGO));
 		setNeedsProgressMonitor(true);
 		scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 	}

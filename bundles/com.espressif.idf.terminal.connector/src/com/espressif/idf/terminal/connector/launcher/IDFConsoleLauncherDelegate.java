@@ -373,7 +373,7 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 		}
 
 		//Set CDT build environment variables
-		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
+		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
 		Set<String> keySet = envMap.keySet();
 		for (String envKey : keySet) {
 			String envValue = envMap.get(envKey);

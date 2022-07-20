@@ -23,6 +23,7 @@ import com.espressif.idf.core.util.StringUtil;
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
+@SuppressWarnings("restriction") //$NON-NLS-1$
 public class IDFEnvironmentVariables
 {
 	/**
@@ -50,8 +51,15 @@ public class IDFEnvironmentVariables
 	public IEnvironmentVariable getEnv(String variableName)
 	{
 		IContributedEnvironment contributedEnvironment = getEnvironment();
+		
 		IEnvironmentVariable variable = contributedEnvironment.getVariable(variableName, null);
 		return variable;
+	}
+	
+	public void removeEnvVariable(String variableName)
+	{
+		IContributedEnvironment contributedEnvironment = getEnvironment();
+		contributedEnvironment.removeVariable(variableName, null);
 	}
 
 	protected IContributedEnvironment getEnvironment()
@@ -77,7 +85,6 @@ public class IDFEnvironmentVariables
 		return envValue;
 	}
 
-	@SuppressWarnings("restriction")
 	public void addEnvVariable(String name, String value)
 	{
 		Logger.log(MessageFormat.format("Updating environment variables with key:{0} value:{1}", name, value)); //$NON-NLS-1$
@@ -88,7 +95,6 @@ public class IDFEnvironmentVariables
 		EnvironmentVariableManager.fUserSupplier.storeWorkspaceEnvironment(true);
 	}
 	
-	@SuppressWarnings("restriction")
 	public void prependEnvVariableValue(String variableName, String value)
 	{
 		Logger.log(MessageFormat.format("Prepending environment variables with key:{0} to value:{1}", variableName, //$NON-NLS-1$
@@ -101,7 +107,7 @@ public class IDFEnvironmentVariables
 	/**
 	 * @return CDT build environment variables map
 	 */
-	public Map<String, String> getEnvMap()
+	public Map<String, String> getSystemEnvMap()
 	{
 		IEnvironmentVariableManager buildEnvironmentManager = CCorePlugin.getDefault().getBuildEnvironmentManager();
 		IEnvironmentVariable[] variables = buildEnvironmentManager.getVariables((ICConfigurationDescription) null,
@@ -120,4 +126,24 @@ public class IDFEnvironmentVariables
 		return envMap;
 	}
 
+	/**
+	 * @return CDT build environment variables map
+	 */
+	public Map<String, String> getEnvMap()
+	{
+		IEnvironmentVariableManager buildEnvironmentManager = CCorePlugin.getDefault().getBuildEnvironmentManager();
+		IEnvironmentVariable[] vars = buildEnvironmentManager.getContributedEnvironment().getVariables(null);
+		Map<String, String> envMap = new HashMap<>();
+		if (vars != null)
+		{
+			for (IEnvironmentVariable iEnvironmentVariable : vars)
+			{
+				String key = iEnvironmentVariable.getName();
+				String value = iEnvironmentVariable.getValue();
+				envMap.put(key, value);
+			}
+		}
+
+		return envMap;
+	}
 }

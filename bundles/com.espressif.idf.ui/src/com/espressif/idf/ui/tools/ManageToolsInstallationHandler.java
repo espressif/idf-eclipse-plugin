@@ -39,16 +39,6 @@ public class ManageToolsInstallationHandler extends AbstractHandler
 	private Map<String, String> loadExistingVars()
 	{
 		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
-		Map<String, String> existingVarMap = new HashMap<>();
-		
-		existingVarMap.put(IDFEnvironmentVariables.GIT_PATH, idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.GIT_PATH));
-		existingVarMap.put(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER, idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER));
-		existingVarMap.put(IDFEnvironmentVariables.IDF_PATH, idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH));
-		existingVarMap.put(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH, idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH));
-		existingVarMap.put(IDFEnvironmentVariables.OPENOCD_SCRIPTS, idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS));
-		existingVarMap.put(IDFEnvironmentVariables.PATH, idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH));
-		existingVarMap.put(IDFEnvironmentVariables.PYTHON_EXE_PATH, idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PYTHON_EXE_PATH));
-		
-		return existingVarMap;
+		return new HashMap<>(idfEnvironmentVariables.getEnvMap());
 	}
 }

@@ -449,7 +449,7 @@ public class IDFUtil
 			commands.add(IDFUtil.getIDFPythonEnvPath());
 			commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
 			commands.add("--version"); //$NON-NLS-1$
-			Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
+			Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
 			return runCommand(commands, envMap);
 		}
 
@@ -465,7 +465,7 @@ public class IDFUtil
 			List<String> commands = new ArrayList<>();
 			commands.add(IDFUtil.getOpenOCDLocation() + File.separator + openocdExecutable);
 			commands.add("--version"); //$NON-NLS-1$
-			Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
+			Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
 			return runCommand(commands, envMap);
 		}
 		return ""; //$NON-NLS-1$

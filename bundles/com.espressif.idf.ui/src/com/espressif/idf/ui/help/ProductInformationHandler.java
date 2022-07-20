@@ -61,7 +61,7 @@ public class ProductInformationHandler extends ListInstalledToolsHandler
 	private void showIDFEnvVars()
 	{
 		console.println("CDT Build environment variables");
-		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
+		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
 		for(Entry<String, String> entry : envMap.entrySet())
 		{
 			String IDFEnvVarValue = entry.getValue();
@@ -78,7 +78,7 @@ public class ProductInformationHandler extends ListInstalledToolsHandler
 			commands.add(IDFUtil.getIDFPythonEnvPath());
 			commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
 			commands.add("--version"); //$NON-NLS-1$
-			Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
+			Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
 			console.println(runCommand(commands, envMap));
 		}
 		else

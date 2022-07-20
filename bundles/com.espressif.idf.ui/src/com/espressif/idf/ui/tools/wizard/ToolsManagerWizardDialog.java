@@ -5,6 +5,7 @@
 package com.espressif.idf.ui.tools.wizard;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import org.eclipse.jface.wizard.IWizard;
@@ -98,9 +99,21 @@ public class ToolsManagerWizardDialog extends WizardDialog
 	private void restoreOldVars()
 	{
 		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+		
 		for (Entry<String, String> varsEntry : existingVarMap.entrySet())
 		{
 			idfEnvironmentVariables.addEnvVariable(varsEntry.getKey(), varsEntry.getValue());
+		}
+		
+		// we also need to remove any vars that were added and were not part of the original existing var map
+		Set<String> existingVars = existingVarMap.keySet();
+		Set<String> addedVars = idfEnvironmentVariables.getSystemEnvMap().keySet();
+		for(String addedVar : addedVars)
+		{
+			if (!existingVars.contains(addedVar))
+			{
+				idfEnvironmentVariables.removeEnvVariable(addedVar);
+			}
 		}
 	}
 }
