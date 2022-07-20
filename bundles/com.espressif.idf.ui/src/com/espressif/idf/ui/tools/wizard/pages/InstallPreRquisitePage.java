@@ -260,7 +260,7 @@ public class InstallPreRquisitePage extends WizardPage implements IToolsWizardPa
 		Preferences scopedPreferenceStore = getPreferences();
 		scopedPreferenceStore.put(IToolsInstallationWizardConstants.PYTHON_PATH_NODE_KEY, pythonExecutablePath);
 		scopedPreferenceStore.put(IToolsInstallationWizardConstants.GIT_PATH_NODE_KEY, gitExecutablePath);
-		idfEnvironmentVariables.prependEnvVariableValue(IDFEnvironmentVariables.PYTHON_EXE_PATH, pythonExecutablePath);
+		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PYTHON_EXE_PATH, pythonExecutablePath);
 		addGitToEnvironment(gitExecutablePath);
 
 		try
