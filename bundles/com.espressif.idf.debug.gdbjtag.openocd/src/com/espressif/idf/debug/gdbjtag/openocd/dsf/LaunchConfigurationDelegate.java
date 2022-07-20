@@ -196,7 +196,6 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		}
 
 		String gdbVersion = LaunchUtils.getGDBVersionFromText(status.getMessage());
-		// String gdbVersion = "7.10";
 		if (gdbVersion == null || gdbVersion.isEmpty())
 		{
 			throw new DebugException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, DebugException.REQUEST_FAILED,
@@ -205,9 +204,6 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 					null));// $NON-NLS-1$
 		}
 
-		// Used to test if version comparison works
-		// System.out.println(gdbVersion);
-		// gdbVersion = "7.10";
 		return gdbVersion;
 	}
 
