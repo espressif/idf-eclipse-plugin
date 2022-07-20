@@ -317,6 +317,12 @@ public class InstallEspIdfPage extends WizardPage implements IToolsWizardPage
 	{
 		return container;
 	}
+	
+	@Override
+	public Composite getPageComposite()
+	{
+		return container;
+	}
 
 	public Button getBtnCancel()
 	{
@@ -400,7 +406,7 @@ public class InstallEspIdfPage extends WizardPage implements IToolsWizardPage
 		public void widgetSelected(SelectionEvent e)
 		{
 			enableControls(getBtnNew().getSelection(), getBtnExisting().getSelection());
-			adjustPageCompletion(false, true);
+			adjustPageCompletion(false, false);
 		}
 
 		private void enableControls(boolean newSection, boolean existingSection)

@@ -4,14 +4,16 @@
  *******************************************************************************/
 package com.espressif.idf.ui.tools.wizard;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -30,11 +32,13 @@ import com.espressif.idf.ui.tools.wizard.pages.ManageToolsInstallationWizardPage
 public class ToolsManagerWizardDialog extends WizardDialog
 {
 	private Map<String, String> existingVarMap;
+	private Map<IWizardPage, Point> wizardPagePointMap;
 
 	public ToolsManagerWizardDialog(Shell parentShell, IWizard newWizard, Map<String, String> existingVarMap)
 	{
 		super(parentShell, newWizard);
 		this.existingVarMap = existingVarMap;
+		wizardPagePointMap = new HashMap<IWizardPage, Point>();
 	}
 
 	@Override
@@ -72,6 +76,8 @@ public class ToolsManagerWizardDialog extends WizardDialog
 			((ManageToolsInstallationWizardPage) currentPage).restoreFinishButton();
 		}
 		super.backPressed();
+		currentPage = getCurrentPage();
+		getShell().setSize(wizardPagePointMap.get(currentPage));
 		updateSize();
 	}
 
@@ -90,6 +96,17 @@ public class ToolsManagerWizardDialog extends WizardDialog
 	{
 		super.finishPressed();
 	}
+	
+	@Override
+	protected void nextPressed() 
+	{
+		if (getCurrentPage() instanceof IToolsWizardPage)
+		{
+			wizardPagePointMap.put(getCurrentPage(), getShell().getSize());
+		}
+		super.nextPressed();
+	}
+
 
 	public Button getButton(int id)
 	{

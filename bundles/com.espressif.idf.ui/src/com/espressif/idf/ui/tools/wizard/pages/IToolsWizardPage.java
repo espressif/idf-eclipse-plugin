@@ -4,6 +4,8 @@
  *******************************************************************************/
 package com.espressif.idf.ui.tools.wizard.pages;
 
+import org.eclipse.swt.widgets.Composite;
+
 /**
  * Interface to put some commomn methods in the wizard pages
  * 
@@ -13,4 +15,6 @@ package com.espressif.idf.ui.tools.wizard.pages;
 public interface IToolsWizardPage
 {
 	public void cancel();
+	
+	public Composite getPageComposite();
 }

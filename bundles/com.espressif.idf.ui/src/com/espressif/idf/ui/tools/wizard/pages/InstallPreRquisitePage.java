@@ -63,6 +63,7 @@ public class InstallPreRquisitePage extends WizardPage implements IToolsWizardPa
 	private Map<String, String> pythonVersions;
 	private String gitExecutablePath;
 	private IDFEnvironmentVariables idfEnvironmentVariables;
+	private Composite container;
 
 	public InstallPreRquisitePage()
 	{
@@ -76,7 +77,7 @@ public class InstallPreRquisitePage extends WizardPage implements IToolsWizardPa
 	@Override
 	public void createControl(Composite parent)
 	{
-		Composite container = new Composite(parent, SWT.NONE);
+		container = new Composite(parent, SWT.NONE);
 
 		final int numColumns = 3;
 		GridLayout gridLayout = new GridLayout(numColumns, false);
@@ -150,6 +151,12 @@ public class InstallPreRquisitePage extends WizardPage implements IToolsWizardPa
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, numColumns, 2));
 
 		setControl(container);
+	}
+	
+	@Override
+	public Composite getPageComposite()
+	{
+		return container;
 	}
 
 	private void loadGitExecutablePath()

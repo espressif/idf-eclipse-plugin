@@ -689,6 +689,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 		}
 	}
 
+	@Override
 	public Composite getPageComposite()
 	{
 		return pageComposite;
@@ -811,10 +812,16 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 				sb.append(name);
 				sb.append(System.lineSeparator());
 				sb.append(Messages.SizeDescriptionText);
-				sb.append(versionsVO.getVersionOsMap().get(name).getReadableSize());
+				if (versionsVO.getVersionOsMap().get(name) != null)
+				{
+					sb.append(versionsVO.getVersionOsMap().get(name).getReadableSize());
+				}
 				sb.append(System.lineSeparator());
 				sb.append(Messages.UrlDescriptionText);
-				sb.append(versionsVO.getVersionOsMap().get(name).getUrl());
+				if (versionsVO.getVersionOsMap().get(name) != null)
+				{
+					sb.append(versionsVO.getVersionOsMap().get(name).getUrl());
+				}
 
 				descriptionText.setText(sb.toString());
 			}
@@ -850,7 +857,11 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 			{
 				String key = item.getText(0);
 				VersionsVO versionsVO = (VersionsVO) item.getData();
-				versionsVO.getVersionOsMap().get(key).setSelected(checked);
+				VersionDetailsVO versionDetailsVO = versionsVO.getVersionOsMap().get(key);
+				if (versionDetailsVO != null)
+				{
+					versionDetailsVO.setSelected(checked);	
+				}
 			}
 			TreeItem[] items = item.getItems();
 			for (int i = 0; i < items.length; i++)
