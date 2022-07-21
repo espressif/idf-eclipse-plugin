@@ -120,9 +120,5 @@ jobs:
         aws s3 rm s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/nightly --recursive
         aws s3 cp --acl=public-read --recursive "./${FOLDER_NAME}/" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/nightly
         aws s3 cp --acl=public-read "./releng/index.html" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/nightly/
-        aws s3 cp --acl=public-read --recursive "./${FOLDER_NAME}/" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/${FOLDER_NAME}
-        aws s3 cp --acl=public-read --recursive --exclude "*" --include "Espressif-IDE-*" ./releng/com.espressif.idf.product/target/products/ s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
-        aws s3 cp --acl=public-read "${ARCHIVE_VERSION_NEW}" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/
-        aws s3 cp --acl=public-read "./releng/ide-dmg-builder/Espressif-IDE-${FOLDER_NAME}.dmg" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
         aws cloudfront create-invalidation --distribution-id ${{ secrets.DL_DISTRIBUTION_ID }} --paths "/dl/idf-eclipse-plugin/updates/nightly/*"
 Footer
