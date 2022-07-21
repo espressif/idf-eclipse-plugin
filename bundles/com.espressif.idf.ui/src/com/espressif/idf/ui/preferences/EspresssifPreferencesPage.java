@@ -77,9 +77,9 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		ccacheComp.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
 
 		ccacheBtn = new Button(ccacheComp, SWT.CHECK);
-		ccacheBtn.setText("Enable CMake CCache");
+		ccacheBtn.setText(Messages.EspresssifPreferencesPage_EnableCCache);
 		ccacheBtn.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		ccacheBtn.setToolTipText("This sets CCACHE_ENABLE=1 to the IDF CMake build");
+		ccacheBtn.setToolTipText(Messages.EspresssifPreferencesPage_CCacheToolTip);
 		ccacheBtn.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.CMAKE_CCACHE_STATUS));
 
 	}
