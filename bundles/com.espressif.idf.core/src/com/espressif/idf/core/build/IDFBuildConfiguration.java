@@ -325,10 +325,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				{
 					command.add("-DCCACHE_ENABLE=1"); //$NON-NLS-1$
 				}
-				else
-				{
-					command.add("-DCCACHE_ENABLE=0"); //$NON-NLS-1$
-				}
 
 				if (launchtarget != null) {
 					String idfTargetName = launchtarget.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
