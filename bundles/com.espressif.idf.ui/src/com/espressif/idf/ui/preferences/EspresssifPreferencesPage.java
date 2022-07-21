@@ -6,6 +6,7 @@ import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
@@ -14,8 +15,9 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
+import com.espressif.idf.core.IDFCorePreferenceConstants;
+import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.ui.UIPlugin;
 
 public class EspresssifPreferencesPage extends PreferencePage implements IWorkbenchPreferencePage
 {
@@ -29,11 +31,12 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 	private Text numberOfCharsInLineText;
 	private Text numberLineText;
 	private Text gdbSettingsText;
+	private Button ccacheBtn;
 
 	public EspresssifPreferencesPage()
 	{
 		super();
-		setPreferenceStore(new ScopedPreferenceStoreWithoutDefaults(InstanceScope.INSTANCE, UIPlugin.PLUGIN_ID));
+		setPreferenceStore(new ScopedPreferenceStoreWithoutDefaults(InstanceScope.INSTANCE, IDFCorePlugin.PLUGIN_ID));
 		setDescription(Messages.EspresssifPreferencesPage_IDFSpecificPrefs);
 	}
 
@@ -58,11 +61,27 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		data.horizontalAlignment = GridData.FILL;
 		mainComposite.setLayoutData(data);
 
+		addccacheControl(mainComposite);
+		
 		addGdbSettings(mainComposite);
 
 		addSerialSettings(mainComposite);
 
 		return mainComposite;
+	}
+
+	private void addccacheControl(Composite mainComposite)
+	{
+		Composite ccacheComp = new Composite(mainComposite, SWT.SHADOW_ETCHED_IN);
+		ccacheComp.setLayout(new GridLayout(1, false));
+		ccacheComp.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+
+		ccacheBtn = new Button(ccacheComp, SWT.CHECK);
+		ccacheBtn.setText("Enable CMake CCache");
+		ccacheBtn.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		ccacheBtn.setToolTipText("This sets CCACHE_ENABLE=1 to the IDF CMake build");
+		ccacheBtn.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.CMAKE_CCACHE_STATUS));
+
 	}
 
 	private void addSerialSettings(Composite parent)
@@ -114,6 +133,8 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 
 			int numberOfLines = Integer.parseInt(numberLineText.getText());
 			getPreferenceStore().setValue(NUMBER_OF_LINES, numberOfLines);
+			
+			getPreferenceStore().setValue(IDFCorePreferenceConstants.CMAKE_CCACHE_STATUS, ccacheBtn.getSelection());
 		}
 		catch (Exception e)
 		{
@@ -129,6 +150,7 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		gdbSettingsText.setText(Integer.toString(getPreferenceStore().getDefaultInt(GDB_SERVER_LAUNCH_TIMEOUT)));
 		numberLineText.setText(Integer.toString(getPreferenceStore().getDefaultInt(NUMBER_OF_LINES)));
 		numberOfCharsInLineText.setText(Integer.toString(getPreferenceStore().getDefaultInt(NUMBER_OF_CHARS_IN_A_LINE)));
+		ccacheBtn.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.CMAKE_CCACHE_STATUS));
 	}
 
 	private void initializeDefaults()
@@ -136,5 +158,6 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		getPreferenceStore().setDefault(GDB_SERVER_LAUNCH_TIMEOUT, 25);
 		getPreferenceStore().setDefault(NUMBER_OF_CHARS_IN_A_LINE, DEFAULT_SERIAL_MONITOR_NUMBER_OF_CHARS_IN_LINE);
 		getPreferenceStore().setDefault(NUMBER_OF_LINES, DEFAULT_SERIAL_MONITOR_NUBMER_OF_LINES);
+		getPreferenceStore().setDefault(IDFCorePreferenceConstants.CMAKE_CCACHE_STATUS, IDFCorePreferenceConstants.CMAKE_CCACHE_DEFAULT_STATUS);
 	}
 }
