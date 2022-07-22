@@ -455,6 +455,9 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 	private void addItemsToTree(Tree toolsTree, boolean availableOnly)
 	{
 		toolsTree.setRedraw(false);
+		final String os = Platform.getOS();
+		final String architecture = System.getProperty("os.arch").toLowerCase(); //$NON-NLS-1$
+		
 		for (ToolsVO toolsVO : toolsVOs)
 		{
 			TreeItem mainItem = new TreeItem(toolsTree, SWT.NONE);
@@ -469,7 +472,6 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 
 			mainItem.setChecked(alwaysInstall);
 			boolean platformAvailable = false;
-			boolean windowsx86_64 = false;
 
 			if (availableOnly)
 			{
@@ -482,30 +484,41 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 				{
 					for (String key : versionsVO.getVersionOsMap().keySet())
 					{
-						if (Platform.getOS().equals(Platform.OS_WIN32))
+						if (os.equals(Platform.OS_WIN32))
 						{
-							if (!key.toLowerCase().contains(WIN_OS) || windowsx86_64)
+							if (!key.toLowerCase().contains(WIN_OS))
 							{
 								continue;
 							}
-
-							windowsx86_64 = true;
+							
+							if (architecture.contains("amd64") && !key.contains(WIN_OS.concat("64"))) //$NON-NLS-1$ //$NON-NLS-2$
+							{
+								continue;
+							}
 						}
 						else if (Platform.getOS().equals(Platform.OS_LINUX))
 						{
-							if (!key.toLowerCase().contains(LINUX_OS))
+							String check = LINUX_OS.concat("-").concat(architecture); //$NON-NLS-1$
+							if (!key.toLowerCase().contains(check))
 							{
 								continue;
 							}
 						}
 						else if (Platform.getOS().equals(Platform.OS_MACOSX))
 						{
-							if (!key.toLowerCase().contains(MAC_OS))
+							if (!key.toLowerCase().contains(MAC_OS) && architecture.contains("x86_64")) //$NON-NLS-1$
+							{
+								continue;
+							}
+							
+							String check = MAC_OS.concat("-").concat(architecture); //$NON-NLS-1$
+							if (!key.toLowerCase().contains(check))
 							{
 								continue;
 							}
 						}
-
+						
+						alwaysInstall |= versionsVO.getStatus().equalsIgnoreCase(RECOMMENDED);
 						isInstalled = ToolsUtility.isToolInstalled(toolsVO.getName(), versionsVO.getName());
 						toolsVO.setInstalled(isInstalled);
 						versionsVO.getVersionOsMap().get(key).setSelected(alwaysInstall);
@@ -523,7 +536,15 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 					}
 				}
 			}
-
+			
+			// check if all subitems were checked check the main item
+			boolean check = true;
+			for (TreeItem subItem : mainItem.getItems())
+			{
+				check &= subItem.getChecked();
+			}
+			
+			mainItem.setChecked(check);
 			String[] itemText = getMainItemText(toolsVO, isInstalled, mainItem.getItems());
 			mainItem.setText(itemText);
 			mainItem.setData(toolsVO);
@@ -569,7 +590,6 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 			subItem.setText(subItemText);
 			subItem.setData(versionsVO);
 			subItem.setImage(2, installedImage);
-
 		}
 	}
 
