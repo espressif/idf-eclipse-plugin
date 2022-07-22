@@ -7,6 +7,7 @@ package com.espressif.idf.ui.handlers;
 import java.io.File;
 import java.io.IOException;
 
+import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -26,7 +27,7 @@ import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.install.GitProgressMonitor;
 import com.espressif.idf.ui.update.InstallToolsHandler;
 
-public class UpdateEspIdfHandler extends InstallToolsHandler
+public class UpdateEspIdfHandler extends AbstractHandler
 {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
