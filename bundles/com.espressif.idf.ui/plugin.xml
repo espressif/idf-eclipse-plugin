@@ -101,7 +101,7 @@
       <command
             defaultHandler="com.espressif.idf.ui.handlers.UpdateEspIdfHandler"
             id="com.espressif.idf.ui.command.update"
-            name="%command.name.14">
+            name="%command.name.updateEspIdfMaster">
       </command>
    </extension>
    <extension
