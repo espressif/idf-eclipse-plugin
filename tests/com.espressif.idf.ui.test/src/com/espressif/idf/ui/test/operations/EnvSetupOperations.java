@@ -15,9 +15,14 @@ public class EnvSetupOperations
 	private static final String GIT_PATH_PROPERTY = "default.env.esp.git.path";
 	private static final String PYTHON_PATH_PROPERTY = "default.env.esp.python.path";
 	private static final String PYTHON_VERSION_PROPERTY = "default.env.esp.python.version";
+	
+	private static boolean SETUP = false;
 
 	public static void setupEspressifEnv(SWTWorkbenchBot bot) throws Exception
 	{
+		if (SETUP)
+			return;
+		
 		for (SWTBotView view : bot.views(withPartName("Welcome")))
 		{
 			view.close();
@@ -70,6 +75,7 @@ public class EnvSetupOperations
 		consoleView.show();
 		consoleView.setFocus();
 		TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 98000000);
+		SETUP = true;
 	}
 
 }

@@ -50,7 +50,7 @@ import com.espressif.idf.ui.test.operations.selectors.LaunchBarTargetSelector;
 public class NewEspressifIDFProjectTest
 {
 	@BeforeClass
-	public static void beforeEachTest() throws Exception
+	public static void beforeTestClass() throws Exception
 	{
 		Fixture.loadEnv();
 	}
