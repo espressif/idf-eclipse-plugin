@@ -158,7 +158,7 @@ public class InstallEspIdfPage extends WizardPage implements IToolsWizardPage
 		btnDownload = new Button(compositeNew, SWT.NONE);
 		btnDownload.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		btnDownload.setText(Messages.InstallEspIdfPage_btnDownload_text);
-		btnDownload.setEnabled(enableNewSection);
+		btnDownload.setEnabled(enableNewSection && !StringUtil.isEmpty(txtDownloadDirectory.getText()));
 		btnDownload.addSelectionListener(new DownloadButtonSelectionAdapter(this));
 
 		Composite compositeLog = new Composite(getControlsContainer(), SWT.BORDER | SWT.EMBEDDED);
@@ -253,7 +253,7 @@ public class InstallEspIdfPage extends WizardPage implements IToolsWizardPage
 		return isPageComplete();
 	}
 
-	private void loadDirectory(Text text)
+	private boolean loadDirectory(Text text)
 	{
 		DirectoryDialog directoryDialog = new DirectoryDialog(getShell());
 		directoryDialog.setText(Messages.SelectDownloadDir);
@@ -261,7 +261,9 @@ public class InstallEspIdfPage extends WizardPage implements IToolsWizardPage
 		if (!StringUtil.isEmpty(dir))
 		{
 			text.setText(dir);
+			return true;
 		}
+		return false;
 	}
 
 	public void enableAllControls(boolean newSection, boolean existingSection, boolean revert)
@@ -394,7 +396,8 @@ public class InstallEspIdfPage extends WizardPage implements IToolsWizardPage
 			}
 			else if (getBtnNew().getSelection())
 			{
-				loadDirectory(txtDownloadDirectory);
+				boolean directoryLoaded = loadDirectory(txtDownloadDirectory);
+				btnDownload.setEnabled(directoryLoaded && enableNewSection);
 				adjustPageCompletion(false, false);
 			}
 		}

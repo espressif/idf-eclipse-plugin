@@ -94,7 +94,9 @@ public class GitDownloadAndCloneThread extends Thread
 				installEspIdfPage.getBtnNew().setEnabled(true);
 				installEspIdfPage.getBtnNew().setSelection(false);
 				installEspIdfPage.setCloningOrDownloading(false);
-				installEspIdfPage.setPageComplete(false); // Triggers internal flow to check for page completion
+				installEspIdfPage.setPageComplete(true); // Triggers internal flow to check for page completion
+				logMessages.clear();
+				logMessages.add(".... Operations Completed!");
 			}
 		});
 
@@ -169,6 +171,17 @@ public class GitDownloadAndCloneThread extends Thread
 		// Configure IDF_PATH
 		new IDFEnvironmentVariables().addEnvVariable("IDF_PATH", //$NON-NLS-1$
 				new File(destinationDir, folderName).getAbsolutePath());
+	}
+	
+	private void configurePath(String destinationDir)
+	{
+		String idf_path = new File(destinationDir).getAbsolutePath();
+		Logger.log("Setting IDF_PATH to:" + idf_path); //$NON-NLS-1$
+		logMessages.add(MessageFormat.format(Messages.IDFDownloadWizard_UpdatingIDFPathMessage, idf_path));
+
+		// Configure IDF_PATH
+		new IDFEnvironmentVariables().addEnvVariable("IDF_PATH", //$NON-NLS-1$
+				idf_path);
 	}
 
 	private void unZipFile(String downloadFile, String destinationLocation)
@@ -287,7 +300,7 @@ public class GitDownloadAndCloneThread extends Thread
 		try
 		{
 			gitBuilder.repositoryClone();
-			configurePath(destinationLocation, "esp-idf"); //$NON-NLS-1$
+			configurePath(destinationLocation);
 			logMessages.add(Messages.CloningCompletedMsg);
 
 		}
