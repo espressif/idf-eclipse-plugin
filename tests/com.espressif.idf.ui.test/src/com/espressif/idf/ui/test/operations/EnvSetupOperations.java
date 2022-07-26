@@ -55,6 +55,7 @@ public class EnvSetupOperations
 		bot.viewByTitle("Progress").show();
 
 		TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+		bot.activeShell();
 
 		bot.menu("Espressif").menu("ESP-IDF Tools Manager").click().menu("Install Tools").click();
 		bot.textWithLabel("ESP-IDF Directory:")
