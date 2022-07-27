@@ -44,7 +44,7 @@ jobs:
         distribution: 'adopt'
 
     - name: Build with Maven
-      run: sudo dbus-uuidgen > /var/lib/dbus/machine-id && export NO_AT_BRIDGE=1 && mvn clean verify -Djarsigner.skip=true spotbugs:spotbugs -DskipTests=false
+      run: export NO_AT_BRIDGE=1 && mvn clean verify -Djarsigner.skip=true spotbugs:spotbugs -DskipTests=false
     - uses: jwgmeligmeyling/spotbugs-github-action@master
       with:
         path: '**/spotbugsXml.xml'
