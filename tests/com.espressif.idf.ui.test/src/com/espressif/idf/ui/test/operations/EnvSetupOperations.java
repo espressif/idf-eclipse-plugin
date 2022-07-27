@@ -58,8 +58,18 @@ public class EnvSetupOperations
 		bot.activeShell();
 
 		bot.menu("Espressif").menu("ESP-IDF Tools Manager").click().menu("Install Tools").click();
-		bot.textWithLabel("ESP-IDF Directory:")
-				.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
+		bot.activeShell().activate();
+		
+		try
+		{
+			bot.textWithLabel("ESP-IDF Directory:", 1)
+			.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));			
+		}
+		catch (WidgetNotFoundException e)
+		{
+			bot.textWithLabel("ESP-IDF Directory:", 0)
+			.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
+		}
 		bot.textWithLabel("Git Executable Location:")
 				.setText(DefaultPropertyFetcher.getStringPropertyValue(GIT_PATH_PROPERTY, ""));
 		try
