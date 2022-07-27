@@ -29,7 +29,7 @@
 					<useUIHarness>true</useUIHarness>
 					<useUIThread>false</useUIThread>
 					<application>org.eclipse.ui.ide.workbench</application>
-					<argLine>-Xms2048m -Xmx4096m -Dorg.eclipse.swt.internal.gtk.cairoGraphics=false</argLine>  
+					<argLine>-Xms2048m -Xmx4096m -Dorg.eclipse.swt.internal.gtk.cairoGraphics=false -Duser.language=en -Duser.country=US</argLine>  
 					<skipTests>${skipTests}</skipTests>
 					<showEclipseLog>true</showEclipseLog>
 				</configuration>
