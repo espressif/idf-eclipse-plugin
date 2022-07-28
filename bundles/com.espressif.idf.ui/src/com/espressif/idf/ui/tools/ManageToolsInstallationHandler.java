@@ -10,9 +10,12 @@ import java.util.Map;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.ui.PlatformUI;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.ui.UIPlugin;
+import com.espressif.idf.ui.tools.wizard.IToolsInstallationWizardConstants;
 import com.espressif.idf.ui.tools.wizard.ToolsManagerWizard;
 import com.espressif.idf.ui.tools.wizard.ToolsManagerWizardDialog;
 
@@ -27,10 +30,11 @@ public class ManageToolsInstallationHandler extends AbstractHandler
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
-		Map<String, String> existingVarMap = loadExistingVars();	
+		Map<String, String> existingVarMap = loadExistingVars();
+		boolean exisitngInstallPreferencesStatus = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID).getBoolean(IToolsInstallationWizardConstants.INSTALL_TOOLS_FLAG, false);
 		ToolsManagerWizard toolsManagerWizard = new ToolsManagerWizard();
 		ToolsManagerWizardDialog toolsManagerWizardDialog = new ToolsManagerWizardDialog(
-				PlatformUI.getWorkbench().getDisplay().getActiveShell(), toolsManagerWizard, existingVarMap);
+				PlatformUI.getWorkbench().getDisplay().getActiveShell(), toolsManagerWizard, existingVarMap, exisitngInstallPreferencesStatus);
 		toolsManagerWizard.setParentWizardDialog(toolsManagerWizardDialog);
 		toolsManagerWizard.open();
 		return null;

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -19,6 +20,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.tools.Messages;
 import com.espressif.idf.ui.tools.wizard.pages.IToolsWizardPage;
 import com.espressif.idf.ui.tools.wizard.pages.ManageToolsInstallationWizardPage;
@@ -33,12 +35,14 @@ public class ToolsManagerWizardDialog extends WizardDialog
 {
 	private Map<String, String> existingVarMap;
 	private Map<IWizardPage, Point> wizardPagePointMap;
+	private boolean exisitngInstallPreferencesStatus;
 
-	public ToolsManagerWizardDialog(Shell parentShell, IWizard newWizard, Map<String, String> existingVarMap)
+	public ToolsManagerWizardDialog(Shell parentShell, IWizard newWizard, Map<String, String> existingVarMap, boolean exisitngInstallPreferencesStatus)
 	{
 		super(parentShell, newWizard);
 		this.existingVarMap = existingVarMap;
 		wizardPagePointMap = new HashMap<IWizardPage, Point>();
+		this.exisitngInstallPreferencesStatus = exisitngInstallPreferencesStatus;
 	}
 
 	@Override
@@ -59,7 +63,7 @@ public class ToolsManagerWizardDialog extends WizardDialog
 		{
 			IToolsWizardPage toolsWizardPage = (IToolsWizardPage) getCurrentPage();
 			toolsWizardPage.cancel();
-			restoreOldVars();
+			restoreOldConfigsAndVars();
 			super.cancelPressed();
 		}
 	}
@@ -113,7 +117,7 @@ public class ToolsManagerWizardDialog extends WizardDialog
 		return super.getButton(id);
 	}
 
-	private void restoreOldVars()
+	private void restoreOldConfigsAndVars()
 	{
 		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
 		
@@ -132,5 +136,7 @@ public class ToolsManagerWizardDialog extends WizardDialog
 				idfEnvironmentVariables.removeEnvVariable(addedVar);
 			}
 		}
+		
+		InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID).putBoolean(IToolsInstallationWizardConstants.INSTALL_TOOLS_FLAG, exisitngInstallPreferencesStatus);
 	}
 }

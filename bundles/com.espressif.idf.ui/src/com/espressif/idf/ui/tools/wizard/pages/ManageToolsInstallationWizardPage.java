@@ -307,7 +307,8 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 			if (alwaysInstall)
 				pageCompletion &= toolsVO.isInstalled();
 		}
-
+		
+		
 		scopedPreferenceStore.putBoolean(IToolsInstallationWizardConstants.INSTALL_TOOLS_FLAG, pageCompletion);
 		setPageComplete(pageCompletion);
 	}
