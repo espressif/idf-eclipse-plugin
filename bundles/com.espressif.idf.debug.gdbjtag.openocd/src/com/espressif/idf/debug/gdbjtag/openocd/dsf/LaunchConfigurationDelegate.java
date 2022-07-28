@@ -68,6 +68,7 @@ import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
+import com.espressif.idf.debug.gdbjtag.openocd.ui.Messages;
 
 /**
  * This class is referred in the plugin.xml as an "org.eclipse.debug.core.launchDelegates" extension point.
@@ -83,6 +84,7 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 	// ------------------------------------------------------------------------
 
 	private final static String NON_STOP_FIRST_VERSION = "6.8.50"; //$NON-NLS-1$
+	private final int STATUS_DLL_NOT_FOUND = -1073741515;
 
 	ILaunchConfiguration fConfig = null;
 	@SuppressWarnings("unused")
@@ -171,7 +173,7 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		return version;
 	}
 
-	public static String getGDBVersion(String gdbClientCommand) throws CoreException
+	private String getGDBVersion(String gdbClientCommand) throws CoreException
 	{
 
 		String[] cmdArray = new String[2];
@@ -184,23 +186,24 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		try
 		{
 			Map<String, String> idfEnvMap = new IDFEnvironmentVariables().getEnvMap();
-			idfEnvMap.put("PYTHONUNBUFFERED", "1");
 			ProcessBuilderFactory processBuilderFactory = new ProcessBuilderFactory();
 			status = processBuilderFactory.runInBackground(cmdArgsList, Path.ROOT, idfEnvMap);
 		}
 		catch (IOException e)
 		{
 			throw new DebugException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, DebugException.REQUEST_FAILED,
-					"Error while launching command: " + StringUtils.join(cmdArray, " "), //$NON-NLS-2$
+					"Error while launching command: " + StringUtils.join(cmdArray, " "), //$NON-NLS-1$
 					e.getCause()));
 		}
 
 		String gdbVersion = LaunchUtils.getGDBVersionFromText(status.getMessage());
 		if (gdbVersion == null || gdbVersion.isEmpty())
 		{
+			String errorMessage = status.getCode() == STATUS_DLL_NOT_FOUND ? Messages.DllNotFound_ExceptionMessage
+					: status.getMessage();
 			throw new DebugException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, DebugException.REQUEST_FAILED,
 					"Could not determine GDB version after sending: " + StringUtils.join(cmdArray, " ") + ", response: "
-							+ status.getMessage(),
+							+ errorMessage,
 					null));// $NON-NLS-1$
 		}
 

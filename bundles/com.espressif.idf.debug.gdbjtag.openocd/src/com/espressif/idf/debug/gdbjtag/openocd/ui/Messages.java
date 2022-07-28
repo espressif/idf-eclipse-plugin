@@ -22,7 +22,8 @@ import org.eclipse.osgi.util.NLS;
 
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 
-public class Messages {
+public class Messages
+{
 
 	// ------------------------------------------------------------------------
 
@@ -36,7 +37,7 @@ public class Messages {
 
 	public static String McuPage_executable_label;
 	public static String McuPage_executable_folder;
-	
+
 	public static String BreakPointPage_RadioGroupTitle;
 	public static String BreakPointPage_BtnStartHeapTrace;
 	public static String BreakPointPage_BtnStopHeapTrace;
@@ -55,36 +56,48 @@ public class Messages {
 	public static String MissingDebugConfigurationTitle;
 	public static String DebugConfigurationNotFoundMsg;
 	public static String AppLvlTracingJob;
+
+	public static String DllNotFound_ExceptionMessage;
 	// ------------------------------------------------------------------------
 
-	static {
+	static
+	{
 		// initialise resource bundle
 		NLS.initializeMessages(MESSAGES, Messages.class);
 	}
 
 	private static ResourceBundle RESOURCE_BUNDLE;
 
-
-	static {
-		try {
+	static
+	{
+		try
+		{
 			RESOURCE_BUNDLE = ResourceBundle.getBundle(MESSAGES);
-		} catch (MissingResourceException e) {
+		}
+		catch (MissingResourceException e)
+		{
 			Activator.log(e);
 		}
 	}
 
-	private Messages() {
+	private Messages()
+	{
 	}
 
-	public static String getString(String key) {
-		try {
+	public static String getString(String key)
+	{
+		try
+		{
 			return RESOURCE_BUNDLE.getString(key);
-		} catch (MissingResourceException e) {
+		}
+		catch (MissingResourceException e)
+		{
 			return '!' + key + '!';
 		}
 	}
 
-	public static ResourceBundle getResourceBundle() {
+	public static ResourceBundle getResourceBundle()
+	{
 		return RESOURCE_BUNDLE;
 	}
 
