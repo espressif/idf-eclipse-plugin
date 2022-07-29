@@ -59,29 +59,21 @@ public class EnvSetupOperations
 
 		bot.menu("Espressif").menu("ESP-IDF Tools Manager").click().menu("Install Tools").click();
 		bot.activeShell().activate();
+		bot.shell("Install Tools").bot().textWithLabel("ESP-IDF Directory:")
+		.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
 		
-		try
-		{
-			bot.textWithLabel("ESP-IDF Directory:", 1)
-			.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));			
-		}
-		catch (WidgetNotFoundException e)
-		{
-			bot.textWithLabel("ESP-IDF Directory:", 0)
-			.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
-		}
-		bot.textWithLabel("Git Executable Location:")
+		bot.shell("Install Tools").bot().textWithLabel("Git Executable Location:")
 				.setText(DefaultPropertyFetcher.getStringPropertyValue(GIT_PATH_PROPERTY, ""));
 		try
 		{
-			bot.comboBox().setSelection(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_VERSION_PROPERTY, ""));
+			bot.shell("Install Tools").bot().comboBox().setSelection(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_VERSION_PROPERTY, ""));
 		}
 		catch (WidgetNotFoundException e)
 		{
-			bot.textWithLabel("Python Executable Location:")
+			bot.shell("Install Tools").bot().textWithLabel("Python Executable Location:")
 					.setText(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_PATH_PROPERTY, ""));
 		}
-		bot.button("Install Tools").click();
+		bot.shell("Install Tools").bot().button("Install Tools").click();
 		SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
 		consoleView.show();
 		consoleView.setFocus();
