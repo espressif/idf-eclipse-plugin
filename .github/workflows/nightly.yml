@@ -118,4 +118,3 @@ jobs:
         aws s3 cp --acl=public-read --recursive "./${FOLDER_NAME}/" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/nightly
         aws s3 cp --acl=public-read "./releng/index.html" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/nightly/
         aws cloudfront create-invalidation --distribution-id ${{ secrets.DL_DISTRIBUTION_ID }} --paths "/dl/idf-eclipse-plugin/updates/nightly/*"
-Footer
