@@ -5,10 +5,7 @@ name: Nightly builds
 
 on:
   schedule:
-    - cron: cron: "0 0 * * *"
-on:
-  push:
-    branches: [ master ]
+    - cron: "0 0 * * *"
     
 jobs:
   build:
