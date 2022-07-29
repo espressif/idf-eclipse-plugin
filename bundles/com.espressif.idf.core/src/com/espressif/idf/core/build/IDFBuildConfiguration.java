@@ -76,11 +76,14 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.debug.core.ILaunchMode;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
+
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.IDFCorePreferenceConstants;
 import com.espressif.idf.core.internal.CMakeConsoleWrapper;
 import com.espressif.idf.core.internal.CMakeErrorParser;
 import com.espressif.idf.core.logging.Logger;
@@ -318,7 +321,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 				}
 
 				command.add("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"); //$NON-NLS-1$
-				command.add("-DCCACHE_ENABLE=1"); //$NON-NLS-1$
+				if (isCCacheEnabled())
+				{
+					command.add("-DCCACHE_ENABLE=1"); //$NON-NLS-1$
+				}
 
 				if (launchtarget != null) {
 					String idfTargetName = launchtarget.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
@@ -462,6 +468,12 @@ public class IDFBuildConfiguration extends CBuildConfiguration {
 							project.getName()),
 					e));
 		}
+	}
+
+	private boolean isCCacheEnabled()
+	{
+		IEclipsePreferences node = IDFCorePreferenceConstants.getPreferenceNode(IDFCorePreferenceConstants.CMAKE_CCACHE_STATUS, null);
+		return node.getBoolean(IDFCorePreferenceConstants.CMAKE_CCACHE_STATUS, true);
 	}
 
 	
