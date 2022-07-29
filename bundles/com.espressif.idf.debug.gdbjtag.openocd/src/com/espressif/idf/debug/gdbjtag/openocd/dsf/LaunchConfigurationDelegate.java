@@ -202,9 +202,9 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 			String errorMessage = status.getCode() == STATUS_DLL_NOT_FOUND ? Messages.DllNotFound_ExceptionMessage
 					: status.getMessage();
 			throw new DebugException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, DebugException.REQUEST_FAILED,
-					"Could not determine GDB version after sending: " + StringUtils.join(cmdArray, " ") + ", response: "
-							+ errorMessage,
-					null));// $NON-NLS-1$
+					"Could not determine GDB version after sending: " + StringUtils.join(cmdArray, " ")
+							+ ", response: \n" + errorMessage + "\nERROR CODE:" + status.getCode(),
+					null));// $NON-NLS-1$ // $NON-NLS-2$
 		}
 
 		return gdbVersion;
