@@ -6,7 +6,7 @@ name: Nightly builds
 on:
   schedule:
     - cron: "0 0 * * *"
-    
+
 jobs:
   build:
 
@@ -44,29 +44,53 @@ jobs:
         /usr/bin/security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
         /usr/bin/security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k espressif build.keychain
         
-        echo "codesigning espressif-ide"
+        echo "codesigning espressif-ide-macosx.cocoa.x86_64"
         /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app -v
         /usr/bin/codesign -v -vvv --deep $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app
+
+        echo "codesigning espressif-ide-macosx.cocoa.aarch64"
+        /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/aarch64/Espressif-IDE.app -v
+        /usr/bin/codesign -v -vvv --deep $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/aarch64/Espressif-IDE.app
         
-        echo "Creating dmg for Espressif-IDE.app"
+        echo "Creating dmg for espressif-ide-macosx.cocoa.x86_64"
         $PWD/releng/ide-dmg-builder/ide-dmg-builder.sh
-        /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE.dmg -v
-        /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE.dmg
+        /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg -v
+        /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
+      
+        echo "Creating dmg for espressif-ide-macosx.cocoa.aarch64"
+        $PWD/releng/ide-dmg-builder/ide-dmg-builder-aarch64.sh
+        /usr/bin/codesign --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg -v
+        /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
     
-    - name: Notarize Espressif-IDE
+    - name: Notarize Espressif-IDE-macosx-cocoa-x86_64.dmg
       env: 
         NOTARIZATION_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
         NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
       run: |
-        echo "Notarization of Espressif-IDE.dmg"
-        xcrun altool --notarize-app -f $PWD/releng/ide-dmg-builder/Espressif-IDE.dmg -u $NOTARIZATION_USERNAME -p $NOTARIZATION_PASSWORD --primary-bundle-id Espressif-ide.app
-    
-    - name: Upload macosx dmg
+        echo "Notarization of Espressif-IDE-macosx-cocoa-x86_64.dmg"
+        xcrun altool --notarize-app -f $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg -u $NOTARIZATION_USERNAME -p $NOTARIZATION_PASSWORD --primary-bundle-id Espressif-ide.app
+
+    - name: Notarize Espressif-IDE-macosx-cocoa-aarch64.dmg
+      env: 
+        NOTARIZATION_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
+        NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
+      run: |
+        echo "Notarization of Espressif-IDE-macosx-cocoa-aarch64.dmg"
+        xcrun altool --notarize-app -f $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg -u $NOTARIZATION_USERNAME -p $NOTARIZATION_PASSWORD --primary-bundle-id Espressif-ide.app
+
+    - name: Upload Espressif-IDE-macosx-cocoa-x86_64.dmg
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v2
       with:
-        name: espressif-ide-macosx-dmg
-        path: releng/ide-dmg-builder/Espressif-IDE.dmg
+        name: espressif-ide-macosx-cocoa-x86_64
+        path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
+
+    - name: Upload Espressif-IDE-macosx-cocoa-aarch64.dmg
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: espressif-ide-macosx.cocoa.aarch64
+        path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
 
     - name: Upload build artifacts
       if: ${{ !cancelled() }}
@@ -113,7 +137,8 @@ jobs:
         ARCHIVE_VERSION_NEW="${ARCHIVE_PREFIX}${ARCHIVE_VERSION}.zip"
         echo ${ARCHIVE_VERSION_NEW}
         mv ${ARCHIVE_FILE_NAME} ${ARCHIVE_VERSION_NEW}
-        mv releng/ide-dmg-builder/Espressif-IDE.dmg "releng/ide-dmg-builder/Espressif-IDE-${FOLDER_NAME}.dmg"
+        mv releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg "releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64-${FOLDER_NAME}.dmg"
+        mv releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg "releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64-${FOLDER_NAME}.dmg"
         aws s3 rm s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/nightly --recursive
         aws s3 cp --acl=public-read --recursive "./${FOLDER_NAME}/" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/nightly
         aws s3 cp --acl=public-read "./releng/index.html" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/nightly/
