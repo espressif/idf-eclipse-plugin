@@ -15,11 +15,12 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd.dsf;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -40,15 +41,16 @@ import org.eclipse.cdt.dsf.gdb.service.SessionType;
 import org.eclipse.cdt.dsf.gdb.service.command.IGDBControl;
 import org.eclipse.cdt.dsf.service.DsfServicesTracker;
 import org.eclipse.cdt.dsf.service.DsfSession;
+import org.eclipse.cdt.utils.spawner.ProcessFactory;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -61,8 +63,6 @@ import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.AbstractGnuMcuLaunchConfigura
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuServerServicesLaunchSequence;
 
 import com.espressif.idf.core.IDFConstants;
-import com.espressif.idf.core.IDFEnvironmentVariables;
-import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.util.GenericJsonReader;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
@@ -165,7 +165,7 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 	{
 
 		String gdbClientCommand = Configuration.getGdbClientCommand(config, null);
-		String version = getGDBVersion(gdbClientCommand);
+		String version = getGDBVersion(config, gdbClientCommand);
 		if (Activator.getInstance().isDebugging())
 		{
 			System.out.println("openocd.LaunchConfigurationDelegate.getGDBVersion " + version);
@@ -173,37 +173,97 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		return version;
 	}
 
-	private String getGDBVersion(String gdbClientCommand) throws CoreException
+	private String getGDBVersion(final ILaunchConfiguration configuration, String gdbClientCommand) throws CoreException
 	{
 
 		String[] cmdArray = new String[2];
 		cmdArray[0] = gdbClientCommand;
 		cmdArray[1] = "--version";
 
-		List<String> cmdArgsList = Arrays.asList(cmdArray);
-
-		IStatus status;
+		final Process process;
 		try
 		{
-			Map<String, String> idfEnvMap = new IDFEnvironmentVariables().getEnvMap();
-			ProcessBuilderFactory processBuilderFactory = new ProcessBuilderFactory();
-			status = processBuilderFactory.runInBackground(cmdArgsList, Path.ROOT, idfEnvMap);
+			process = ProcessFactory.getFactory().exec(cmdArray, DebugUtils.getLaunchEnvironment(configuration));
 		}
 		catch (IOException e)
 		{
 			throw new DebugException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, DebugException.REQUEST_FAILED,
-					"Error while launching command: " + StringUtils.join(cmdArray, " "), //$NON-NLS-1$
-					e.getCause()));
+					"Error while launching command: " + StringUtils.join(cmdArray, " "), e.getCause()));//$NON-NLS-2$
 		}
 
-		String gdbVersion = LaunchUtils.getGDBVersionFromText(status.getMessage());
+		// Start a timeout job to make sure we don't get stuck waiting for
+		// an answer from a gdb that is hanging
+		// Bug 376203
+		Job timeoutJob = new Job("GDB version timeout job") //$NON-NLS-1$
+		{
+			{
+				setSystem(true);
+			}
+
+			@Override
+			protected IStatus run(IProgressMonitor arg)
+			{
+				// Took too long. Kill the gdb process and
+				// let things clean up.
+				process.destroy();
+				return Status.OK_STATUS;
+			}
+		};
+		timeoutJob.schedule(10000);
+
+		InputStream stream = null;
+		StringBuilder cmdOutput = new StringBuilder(200);
+		try
+		{
+			stream = process.getInputStream();
+			Reader r = new InputStreamReader(stream);
+			BufferedReader reader = new BufferedReader(r);
+
+			String line;
+			while ((line = reader.readLine()) != null)
+			{
+				cmdOutput.append(line);
+				cmdOutput.append('\n'); // $NON-NLS-1$
+			}
+		}
+		catch (IOException e)
+		{
+			throw new DebugException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, DebugException.REQUEST_FAILED,
+					"Error reading GDB STDOUT after sending: " + StringUtils.join(cmdArray, " ") + ", response: "
+							+ cmdOutput,
+					e.getCause()));// $NON-NLS-1$
+		} finally
+		{
+			// If we get here we are obviously not stuck so we can cancel the
+			// timeout job.
+			// Note that it may already have executed, but that is not a
+			// problem.
+			timeoutJob.cancel();
+
+			// Cleanup to avoid leaking pipes
+			// Close the stream we used, and then destroy the process
+			// Bug 345164
+			if (stream != null)
+			{
+				try
+				{
+					stream.close();
+				}
+				catch (IOException e)
+				{
+				}
+			}
+			process.destroy();
+		}
+
+		String gdbVersion = LaunchUtils.getGDBVersionFromText(cmdOutput.toString());
 		if (gdbVersion == null || gdbVersion.isEmpty())
 		{
-			String errorMessage = status.getCode() == STATUS_DLL_NOT_FOUND ? Messages.DllNotFound_ExceptionMessage
-					: status.getMessage();
+			String errorMessage = process.exitValue() == STATUS_DLL_NOT_FOUND ? Messages.DllNotFound_ExceptionMessage
+					: cmdOutput.toString();
 			throw new DebugException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, DebugException.REQUEST_FAILED,
 					"Could not determine GDB version after sending: " + StringUtils.join(cmdArray, " ")
-							+ ", response: \n" + errorMessage + "\nERROR CODE:" + status.getCode(),
+							+ ", response: \n" + errorMessage + "\nERROR CODE:" + process.exitValue(),
 					null));// $NON-NLS-1$ // $NON-NLS-2$
 		}
 
