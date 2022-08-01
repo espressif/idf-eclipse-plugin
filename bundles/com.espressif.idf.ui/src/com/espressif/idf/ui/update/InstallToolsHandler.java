@@ -240,7 +240,8 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		{
 			console.println(String.format("%s executable not found. Unable to run `%s -m pip install websocket-client`", //$NON-NLS-1$
 					IDFConstants.PYTHON_CMD, IDFConstants.PYTHON_CMD));
-			return;
+			return IDFCorePlugin.errorStatus(String.format("%s executable not found. Unable to run `%s -m pip install websocket-client`", //$NON-NLS-1$
+					IDFConstants.PYTHON_CMD, IDFConstants.PYTHON_CMD), null);
 		}
 		arguments.add(pythonEnvPath);
 		arguments.add("-m"); //$NON-NLS-1$
