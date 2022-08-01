@@ -144,7 +144,7 @@
             </command>
             <command
                   commandId="com.espressif.idf.ui.command.update"
-                  icon="icons/espressif.png"
+                  icon="icons/Update_ESP-IDF.png"
                   style="push">
                <visibleWhen
                      checkEnabled="false">
