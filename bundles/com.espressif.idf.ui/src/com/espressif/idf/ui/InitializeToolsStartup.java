@@ -55,7 +55,7 @@ public class InitializeToolsStartup implements IStartup
 	private static final String IDF_INSTALLED_LIST_KEY = "idfInstalled"; //$NON-NLS-1$
 	private static final String PYTHON_PATH = "python"; //$NON-NLS-1$
 	private static final String IDF_PATH = "path"; //$NON-NLS-1$
-	private static final String IS_INSTALLER_CONFIG_SET = "isInstallerConfigSet" ; //$NON-NLS-1$
+	private static final String IS_INSTALLER_CONFIG_SET = "isInstallerConfigSet"; //$NON-NLS-1$
 	private static final String DOC_URL = "\"https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/partition-tables.html?highlight=partitions%20csv#creating-custom-tables\""; //$NON-NLS-1$
 
 	@SuppressWarnings("restriction")
@@ -95,7 +95,7 @@ public class InitializeToolsStartup implements IStartup
 		Location installLocation = Platform.getInstallLocation();
 		URL url = installLocation.getURL();
 		Logger.log("Eclipse Install location::" + url);
-		
+
 		// Check the esp-idf.json
 		File idf_json_file = new File(url.getPath() + File.separator + ESP_IDF_JSON_FILE);
 		if (!idf_json_file.exists())
@@ -122,13 +122,13 @@ public class InitializeToolsStartup implements IStartup
 				// Add IDF_PATH to the eclipse CDT build environment variables
 				IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
 				idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, idfPath);
-				
+
 				if (!StringUtil.isEmpty(pythonExecutablePath) && !StringUtil.isEmpty(gitExecutablePath))
 				{
 					ExportIDFTools exportIDFTools = new ExportIDFTools();
 					exportIDFTools.runToolsExport(pythonExecutablePath, gitExecutablePath, null);
-					
-					//Configure toolchains
+
+					// Configure toolchains
 					configureToolChain();
 
 					Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
@@ -144,7 +144,7 @@ public class InitializeToolsStartup implements IStartup
 				}
 			}
 
-			//save state
+			// save state
 			Preferences prefs = getPreferences();
 			prefs.putBoolean(IS_INSTALLER_CONFIG_SET, true);
 			try
@@ -164,11 +164,12 @@ public class InitializeToolsStartup implements IStartup
 			Logger.log(e);
 		}
 	}
-	
-	private Preferences getPreferences() {
+
+	private Preferences getPreferences()
+	{
 		return InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 	}
-	
+
 	private boolean isInstallerConfigSet()
 	{
 		return getPreferences().getBoolean(IS_INSTALLER_CONFIG_SET, false);

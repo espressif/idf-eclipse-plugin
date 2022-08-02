@@ -43,6 +43,7 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 * [ Device Firmware Upgrade (DFU) through USB ](#deviceFirmwareUpgrade)<br>
 * [ GDBStub Debugging ](#gdbStubDebugging)<br>
 * [ Application Level Tracing ](#appLvlTracing)<br>
+* [ ESP-IDF master update](#updateEspIdfMaster)<br>
 * [ Changing Language ](#changeLanguage)<br>
 * [ Troubleshooting Guide](#troubleshooting)<br>
 * [ How to raise bugs ](#howToRaiseBugs)<br>
@@ -572,6 +573,17 @@ The `Start parse` button is disabled until a dump file is available. To generate
 
 When output file is generated, you can click on `Start parse` button and you will see parse script output in the eclipse console:
 ![](docs/images/AppLvlTracing_5.png)
+
+<a name ="updateEspIdfMaster"></a>
+
+# ESP-IDF Master Update
+
+If you are using the master version of ESP-IDF and want to update it, you can do so in the plugin by going to `Espressif -> ESP-IDF Tool Manager` and clicking the `Update ESP-IDF master` command there.
+
+![image](https://user-images.githubusercontent.com/24419842/182107159-16723759-65e0-4c34-9440-ebe2f536e62a.png)
+
+**Note:** This command is visible only if you are on the master branch in ESP-IDF
+
 <a name="howToRaiseBugs"></a>
 # How to raise bugs
 Please raise the issues here https://github.com/espressif/idf-eclipse-plugin/issues with the complete environment details and log.

@@ -98,6 +98,11 @@
             id="com.espressif.idf.ui.command.eclipeguide"
             name="%command.name.9">
       </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.handlers.UpdateEspIdfHandler"
+            id="com.espressif.idf.ui.command.update"
+            name="%command.name.updateEspIdfMaster">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -136,6 +141,17 @@
                   commandId="com.espressif.idf.ui.command.list"
                   icon="icons/ESP-IDF List Tools.png"
                   style="push">
+            </command>
+            <command
+                  commandId="com.espressif.idf.ui.command.update"
+                  icon="icons/Update_ESP-IDF.png"
+                  style="push">
+               <visibleWhen
+                     checkEnabled="false">
+                  <test
+                        property="com.espressif.idf.ui.propertyTester.testProperty">
+                  </test>
+               </visibleWhen>
             </command>
          </menu>
       </menuContribution>
@@ -607,7 +623,7 @@
                   label="%command.label.7"
                   tooltip="%command.tooltip">
             </command>
-            
+
          </toolbar>
       </menuContribution>
    </extension>
@@ -628,5 +644,25 @@
             </command>
          </toolbar>
       </menuContribution>
-   </extension>
+      </extension>
+      <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="com.espressif.idf.ui.UpdateEspIdfMasterPropertyTester"
+            id="com.espressif.idf.ui.propertyTester"
+            namespace="com.espressif.idf.ui.propertyTester"
+            properties="testProperty"
+            type="java.lang.Object">
+      </propertyTester>
+	</extension>
+   <extension
+      point="org.eclipse.core.expressions.propertyTesters">
+   <propertyTester
+         class="com.espressif.idf.ui.UpdateEspIdfMasterPropertyTester"
+         id="com.espressif.idf.ui.propertyTester"
+         namespace="com.espressif.idf.ui.propertyTester"
+         properties="testProperty"
+         type="java.lang.Object">
+   </propertyTester>
+</extension>
 </plugin>

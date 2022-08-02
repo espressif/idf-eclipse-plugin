@@ -52,11 +52,6 @@ import org.eclipse.ui.ISaveablePart;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsole;
-import org.eclipse.ui.console.IConsoleConstants;
-import org.eclipse.ui.console.IConsoleManager;
-import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
@@ -80,6 +75,7 @@ import com.espressif.idf.sdk.config.core.server.IJsonConfigOutput;
 import com.espressif.idf.sdk.config.core.server.IMessageHandlerListener;
 import com.espressif.idf.sdk.config.core.server.JsonConfigProcessor;
 import com.espressif.idf.sdk.config.core.server.JsonConfigServer;
+import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.dialogs.HelpPopupDialog;
 
 /**
@@ -363,12 +359,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	{
 
 		// Create console
-		MessageConsole msgConsole = createConsole("JSON Configuration Server Console"); //$NON-NLS-1$
-		msgConsole.clearConsole();
+		MessageConsoleStream console = new IDFConsole().getConsoleStream("JSON Configuration Server Console", null); //$NON-NLS-1$
 
-		MessageConsoleStream console = msgConsole.newMessageStream();
-		msgConsole.activate();
-		openConsoleView();
 
 		configServer = ConfigServerManager.INSTANCE.getServer(project);
 
@@ -964,42 +956,6 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			}
 		}
 
-	}
-
-	private MessageConsole createConsole(String name)
-	{
-		ConsolePlugin plugin = ConsolePlugin.getDefault();
-		IConsoleManager conMan = plugin.getConsoleManager();
-		IConsole[] existing = conMan.getConsoles();
-		for (int i = 0; i < existing.length; i++)
-		{
-			if (name.equals(existing[i].getName()))
-				return (MessageConsole) existing[i];
-		}
-		// no console found, so create a new one
-		MessageConsole myConsole = new MessageConsole(name, null);
-		conMan.addConsoles(new IConsole[] { myConsole });
-		return myConsole;
-	}
-
-	private void openConsoleView()
-	{
-		Display.getDefault().asyncExec(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				try
-				{
-					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-							.showView(IConsoleConstants.ID_CONSOLE_VIEW);
-				}
-				catch (PartInitException e)
-				{
-					Logger.log(e);
-				}
-			}
-		});
 	}
 
 	public String getSystemProperty(String option)

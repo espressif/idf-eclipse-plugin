@@ -15,9 +15,14 @@ public class EnvSetupOperations
 	private static final String GIT_PATH_PROPERTY = "default.env.esp.git.path";
 	private static final String PYTHON_PATH_PROPERTY = "default.env.esp.python.path";
 	private static final String PYTHON_VERSION_PROPERTY = "default.env.esp.python.version";
+	
+	private static boolean SETUP = false;
 
 	public static void setupEspressifEnv(SWTWorkbenchBot bot) throws Exception
 	{
+		if (SETUP)
+			return;
+		
 		for (SWTBotView view : bot.views(withPartName("Welcome")))
 		{
 			view.close();
@@ -34,7 +39,8 @@ public class EnvSetupOperations
 		bot.tree().getTreeItem("General").getNode("Editors").getNode("File Associations").select();
 		bot.comboBox().setSelection("Text Editor");
 		bot.tree().getTreeItem("General").getNode("Workspace").select();
-		if (!bot.checkBox("Refresh using native hooks or polling").isChecked()) {
+		if (!bot.checkBox("Refresh using native hooks or polling").isChecked())
+		{
 			bot.checkBox("Refresh using native hooks or polling").click();
 		}
 		bot.button("Apply and Close").click();
@@ -47,28 +53,32 @@ public class EnvSetupOperations
 		bot.text().setText("progress");
 		bot.button("Open").click();
 		bot.viewByTitle("Progress").show();
-		
+
 		TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+		bot.activeShell();
 
 		bot.menu("Espressif").menu("ESP-IDF Tools Manager").click().menu("Install Tools").click();
-		bot.textWithLabel("ESP-IDF Directory:")
-				.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
-		bot.textWithLabel("Git Executable Location:")
+		bot.activeShell().activate();
+		bot.shell("Install Tools").bot().textWithLabel("ESP-IDF Directory:")
+		.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
+		
+		bot.shell("Install Tools").bot().textWithLabel("Git Executable Location:")
 				.setText(DefaultPropertyFetcher.getStringPropertyValue(GIT_PATH_PROPERTY, ""));
 		try
 		{
-			bot.comboBox().setSelection(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_VERSION_PROPERTY, ""));
+			bot.shell("Install Tools").bot().comboBox().setSelection(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_VERSION_PROPERTY, ""));
 		}
 		catch (WidgetNotFoundException e)
 		{
-			bot.textWithLabel("Python Executable Location:")
+			bot.shell("Install Tools").bot().textWithLabel("Python Executable Location:")
 					.setText(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_PATH_PROPERTY, ""));
 		}
-		bot.button("Install Tools").click();
+		bot.shell("Install Tools").bot().button("Install Tools").click();
 		SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
 		consoleView.show();
 		consoleView.setFocus();
-		TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 6000000);
+		TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 98000000);
+		SETUP = true;
 	}
 
 }

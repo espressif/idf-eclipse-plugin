@@ -12,7 +12,10 @@ public class Messages extends NLS
 	public static String NewProjectHandler_NavigateToHelpMenu;
 	public static String NewProjectHandler_PathErrorTitle;
 	public static String LanguageChange_ErrorTitle;
-	public static String LanguageChange_ErrorMessage; 
+	public static String LanguageChange_ErrorMessage;
+	public static String UpdateEspIdfCommand_JobMsg;
+	public static String UpdateEspIdfCommand_InstallToolsJobMsg;
+	public static String UpdateEspIdfCommand_SuggestToOpenInstallToolsWizard;
 
 	static
 	{
