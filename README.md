@@ -77,6 +77,7 @@ You can install the IDF Eclipse plugin into an existing Eclipse CDT installation
 	* Enter `Location` of the repository:
 		* Stable releases: https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/
 		* Beta versions: https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/
+		* Nightly build: https://dl.espressif.com/dl/idf-eclipse-plugin/updates/nightly/
 	* Click `Add`
 1. Select `Espressif IDF` from the list and proceed with the installation 
 
