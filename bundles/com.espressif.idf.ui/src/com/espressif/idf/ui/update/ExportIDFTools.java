@@ -38,7 +38,7 @@ public class ExportIDFTools
 	 * @param gitExePath    git executable full path
 	 * @param console       Console stream to write messages
 	 */
-	public void runToolsExport(final String pythonExePath, final String gitExePath, final MessageConsoleStream console)
+	public IStatus runToolsExport(final String pythonExePath, final String gitExePath, final MessageConsoleStream console)
 	{
 		final List<String> arguments = new ArrayList<>();
 		arguments.add(pythonExePath);
@@ -61,19 +61,26 @@ public class ExportIDFTools
 			if (status == null)
 			{
 				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
-				return;
+				return IDFCorePlugin.errorStatus("Status can't be null", null); //$NON-NLS-1$
+			}
+			
+			if (status.getSeverity() == IStatus.ERROR)
+			{
+				return status;				
 			}
 
 			// process export command output
 			final String exportCmdOp = status.getMessage();
 			log(exportCmdOp, console);
 			processExportCmdOutput(exportCmdOp, gitExePath);
+			
+			return status;
 		}
 		catch (IOException e1)
 		{
 			Logger.log(IDFCorePlugin.getPlugin(), e1);
+			return IDFCorePlugin.errorStatus(e1.getMessage(), e1);
 		}
-
 	}
 
 	private void log(final String cmd, final MessageConsoleStream console)

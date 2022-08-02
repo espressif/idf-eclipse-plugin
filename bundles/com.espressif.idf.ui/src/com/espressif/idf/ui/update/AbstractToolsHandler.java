@@ -149,7 +149,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 	 */
 	protected abstract void execute();
 
-	protected void runCommand(List<String> arguments)
+	protected IStatus runCommand(List<String> arguments)
 	{
 		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 
@@ -174,17 +174,18 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 			if (status == null)
 			{
 				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
-				return;
+				return IDFCorePlugin.errorStatus("Status can't be null", null); //$NON-NLS-1$
 			}
 
 			console.println(status.getMessage());
 			console.println();
-
+			
+			return IDFCorePlugin.okStatus(status.getMessage(), null);
 		}
 		catch (Exception e1)
 		{
 			Logger.log(IDFCorePlugin.getPlugin(), e1);
-
+			return IDFCorePlugin.errorStatus(e1.getMessage(), e1);
 		}
 	}
 	
