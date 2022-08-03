@@ -16,7 +16,6 @@ public class GitWinRegistryReader
 {
 	private static String GIT_REG_PATH = "SOFTWARE\\GitForWindows"; //$NON-NLS-1$
 	private static String GIT_INSTALL_PATH = "InstallPath"; //$NON-NLS-1$
-	private static String GIT_EXE_PATH = "ExecutablePath"; //$NON-NLS-1$
 
 	/**
 	 * @return
