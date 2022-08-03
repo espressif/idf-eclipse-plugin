@@ -14,12 +14,11 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.debug.internal.core.LaunchConfiguration;
+import org.eclipse.debug.internal.core.LaunchManager;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -46,7 +45,6 @@ public class GDBStubDebuggerLauncher implements ISerialWebSocketEventLauncher
 	private IProject project;
 	private String port;
 	private String elfFile;
-	private GDBLaunchConfig gdbLaunchConfig;
 
 	public GDBStubDebuggerLauncher(String messageReceived, IProject project)
 	{
@@ -59,8 +57,9 @@ public class GDBStubDebuggerLauncher implements ISerialWebSocketEventLauncher
 	{
 		parseMessageReceived();
 		createXMLConfig();
-		gdbLaunchConfig = new GDBLaunchConfig(project.getFile(GDBSTUB_DEBUG_LAUNCH_CONFIG_FILE));
-		gdbLaunchConfig.launch("debug", new NullProgressMonitor()); //$NON-NLS-1$
+		LaunchManager launchManager = new LaunchManager();
+		launchManager.getLaunchConfiguration(project.getFile(GDBSTUB_DEBUG_LAUNCH_CONFIG_FILE)).launch("debug", //$NON-NLS-1$
+				new NullProgressMonitor());
 	}
 
 	private void parseMessageReceived() throws ParseException
@@ -245,13 +244,5 @@ public class GDBStubDebuggerLauncher implements ISerialWebSocketEventLauncher
 				.concat(GDBSTUB_DEBUG_LAUNCH_CONFIG_FILE);
 		tr.transform(new DOMSource(dom), new StreamResult(new File(launchFile)));
 		project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-	}
-
-	private class GDBLaunchConfig extends LaunchConfiguration
-	{
-		protected GDBLaunchConfig(IFile file)
-		{
-			super(file);
-		}
 	}
 }

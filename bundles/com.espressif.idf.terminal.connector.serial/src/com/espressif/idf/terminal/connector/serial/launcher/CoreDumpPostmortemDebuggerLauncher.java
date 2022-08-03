@@ -28,7 +28,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.debug.internal.core.LaunchConfiguration;
+import org.eclipse.debug.internal.core.LaunchManager;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.w3c.dom.Attr;
@@ -77,9 +77,10 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 		parseExtractedFileFromPythonScript();
 		createXMLConfig();
 		project.refreshLocal(IResource.DEPTH_INFINITE, null);
-		CoreDumpPostMortemLaunchConfig coreDumpPostMortemLaunchConfig = new CoreDumpPostMortemLaunchConfig(
-				project.getFile(String.format(CORE_DUMP_POSTMORTEM_LAUNCH_CONFIG, project.getName())));
-		coreDumpPostMortemLaunchConfig.launch("debug", new NullProgressMonitor()); //$NON-NLS-1$
+		IFile launchFile = project.getFolder(IDFConstants.BUILD_FOLDER).getFolder(CORE_DUMP_FOLDER)
+				.getFile(String.format(CORE_DUMP_POSTMORTEM_LAUNCH_CONFIG, project.getName()));
+		LaunchManager launchManager = new LaunchManager();
+		launchManager.getLaunchConfiguration(launchFile).launch("debug", new NullProgressMonitor()); //$NON-NLS-1$
 	}
 
 	private void parseExtractedFileFromPythonScript() throws Exception
@@ -113,32 +114,25 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 	{
 		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
 		Path pathToProject = new Path(project.getLocation().toString());
-		idfConsole.getConsoleStream().print((runCommand(commands, pathToProject, envMap)));
+		runCommand(commands, pathToProject, envMap);
 		project.refreshLocal(IResource.DEPTH_INFINITE, null);
 	}
 
-	private String runCommand(List<String> arguments, Path workDir, Map<String, String> env)
+	private String runCommand(List<String> arguments, Path workDir, Map<String, String> env) throws Exception
 	{
 		String exportCmdOp = ""; //$NON-NLS-1$
 		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
-		try
+		IStatus status = processRunner.runInBackground(arguments, workDir, env);
+		if (status == null)
 		{
-			IStatus status = processRunner.runInBackground(arguments, workDir, env);
-			if (status == null)
-			{
-				IStatus errorStatus = IDFCorePlugin.errorStatus("Status can't be null", null); //$NON-NLS-1$
-				Logger.log(IDFCorePlugin.getPlugin(), errorStatus);
-				return errorStatus.toString();
-			}
+			IStatus errorStatus = IDFCorePlugin.errorStatus("Status can't be null", null); //$NON-NLS-1$
+			Logger.log(IDFCorePlugin.getPlugin(), errorStatus);
+			return errorStatus.toString();
+		}
 
-			// process export command output
-			exportCmdOp = status.getMessage();
-			Logger.log(exportCmdOp);
-		}
-		catch (Exception e1)
-		{
-			Logger.log(e1);
-		}
+		// process export command output
+		exportCmdOp = status.getMessage();
+		Logger.log(exportCmdOp);
 		return exportCmdOp;
 	}
 
@@ -270,13 +264,5 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 		root.appendChild(element);
 
 		return element;
-	}
-
-	private class CoreDumpPostMortemLaunchConfig extends LaunchConfiguration
-	{
-		protected CoreDumpPostMortemLaunchConfig(IFile file)
-		{
-			super(file);
-		}
 	}
 }
