@@ -129,7 +129,7 @@ ESP-IDF Directory selection dialog:
 You can use the install tools manager to manage the tools installation via a wizard. The advantage of this method over the exisitng installation is that you can easily manage the whole flow via wizard and install the tools in ESP-IDF framework that you only need.<br/>
 
 For getting started:
-1. Navigate to `Espressif` > `ESP-IDF Tools Manager` > `Manage Tools Installation`
+1. Navigate to `Espressif` > `ESP-IDF Tools Manager` > `Tools Installation Wizard (Preview)`
 ![](docs/images/ToolsManager/install_tools_manager.png)
 
 2. The wizard will start and you can select the location for the Git and Python, if they are already present on the system PATH or registry the tools will be populated. After selection you can click Next.
@@ -138,7 +138,7 @@ For getting started:
 3. Next page will let you select the folder for existing ESP-IDF or you can also select from the drop down list to download the available versions. You can also select master from the list to clone the master for ESP-IDF from github
 ![](docs/images/ToolsManager/select_or_download_new_esp_idf.png)
 
-4. After you select Next you will see the list of all the available tools in the selected ESP-IDF version, this page lets you select only the recommended tools or you can select the tools you want to. You can also filter out the tools via the filter text box or based on the target. You can also see the list of available version that are already present on your system in the ESPRESSIF home directory. The wizard page is the last page and will Install and Download if necessary all the selected tools required. After you have installed all the tools you can finish the wizard and start creating projects.
+1. After you select Next you will see the list of all the available tools in the selected ESP-IDF version, this page lets you select only the recommended tools or you can select the tools you want to. You can also filter out the tools via the filter text box or based on the target. The wizard page is the last page and will Install and Download if necessary all the selected tools required. After you have installed all the tools you can finish the wizard and start creating projects.
 ![](docs/images/ToolsManager/manage_tools_installation.png)
 
 
