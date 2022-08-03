@@ -4,6 +4,10 @@
  *******************************************************************************/
 package com.espressif.idf.ui.tools.wizard;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.wizard.IWizardPage;
@@ -11,8 +15,10 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.widgets.Composite;
 import org.osgi.service.prefs.Preferences;
 
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.tools.Messages;
+import com.espressif.idf.ui.tools.wizard.pages.IToolsWizardPage;
 import com.espressif.idf.ui.tools.wizard.pages.InstallEspIdfPage;
 import com.espressif.idf.ui.tools.wizard.pages.InstallPreRquisitePage;
 import com.espressif.idf.ui.tools.wizard.pages.ManageToolsInstallationWizardPage;
@@ -30,13 +36,17 @@ public class ToolsManagerWizard extends Wizard
 	private ManageToolsInstallationWizardPage manageToolsInstallationPage;
 	private ToolsManagerWizardDialog parentWizardDialog;
 	private Preferences scopedPreferenceStore;
+	private Map<String, String> existingVarMap;
+	private boolean exisitngInstallPreferencesStatus;
 
-	public ToolsManagerWizard()
+	public ToolsManagerWizard(Map<String, String> existingVarMap, boolean exisitngInstallPreferencesStatus)
 	{
 		super();
 		setNeedsProgressMonitor(true);
 		scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 		scopedPreferenceStore.putBoolean(IToolsInstallationWizardConstants.INSTALL_TOOLS_FLAG, false);
+		this.existingVarMap = existingVarMap;
+		this.exisitngInstallPreferencesStatus = exisitngInstallPreferencesStatus;
 	}
 
 	@Override
@@ -90,6 +100,15 @@ public class ToolsManagerWizard extends Wizard
 		return true;
 	}
 	
+	@Override
+	public boolean performCancel() 
+	{
+		IToolsWizardPage toolsWizardPage = (IToolsWizardPage) parentWizardDialog.getCurrentPage();
+		toolsWizardPage.cancel();
+		restoreOldConfigsAndVars();
+		return true;
+	}
+	
 	public void open()
 	{
 		parentWizardDialog.open();
@@ -103,5 +122,28 @@ public class ToolsManagerWizard extends Wizard
 	public void setParentWizardDialog(ToolsManagerWizardDialog parentWizardDialog)
 	{
 		this.parentWizardDialog = parentWizardDialog;
+	}
+	
+	private void restoreOldConfigsAndVars()
+	{
+		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+		
+		for (Entry<String, String> varsEntry : existingVarMap.entrySet())
+		{
+			idfEnvironmentVariables.addEnvVariable(varsEntry.getKey(), varsEntry.getValue());
+		}
+		
+		// we also need to remove any vars that were added and were not part of the original existing var map
+		Set<String> existingVars = existingVarMap.keySet();
+		Set<String> addedVars = idfEnvironmentVariables.getSystemEnvMap().keySet();
+		for(String addedVar : addedVars)
+		{
+			if (!existingVars.contains(addedVar))
+			{
+				idfEnvironmentVariables.removeEnvVariable(addedVar);
+			}
+		}
+		
+		InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID).putBoolean(IToolsInstallationWizardConstants.INSTALL_TOOLS_FLAG, exisitngInstallPreferencesStatus);
 	}
 }

@@ -32,7 +32,7 @@ public class ManageToolsInstallationHandler extends AbstractHandler
 	{
 		Map<String, String> existingVarMap = loadExistingVars();
 		boolean exisitngInstallPreferencesStatus = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID).getBoolean(IToolsInstallationWizardConstants.INSTALL_TOOLS_FLAG, false);
-		ToolsManagerWizard toolsManagerWizard = new ToolsManagerWizard();
+		ToolsManagerWizard toolsManagerWizard = new ToolsManagerWizard(existingVarMap, exisitngInstallPreferencesStatus);
 		ToolsManagerWizardDialog toolsManagerWizardDialog = new ToolsManagerWizardDialog(
 				PlatformUI.getWorkbench().getDisplay().getActiveShell(), toolsManagerWizard, existingVarMap, exisitngInstallPreferencesStatus);
 		toolsManagerWizard.setParentWizardDialog(toolsManagerWizardDialog);

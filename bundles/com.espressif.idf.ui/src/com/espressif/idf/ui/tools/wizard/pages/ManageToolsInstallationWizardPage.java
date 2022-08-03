@@ -749,7 +749,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 			toolsInstallationHandler.setCancelled(true);
 		}
 
-		logQueue.clear();
+		if (logQueue != null) logQueue.clear();
 	}
 
 	/**
