@@ -36,6 +36,7 @@ public class ToolsManagerWizard extends Wizard
 		super();
 		setNeedsProgressMonitor(true);
 		scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
+		scopedPreferenceStore.putBoolean(IToolsInstallationWizardConstants.INSTALL_TOOLS_FLAG, false);
 	}
 
 	@Override

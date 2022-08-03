@@ -194,6 +194,10 @@ public class InstallEspIdfPage extends WizardPage implements IToolsWizardPage
 		logMessagesThread = new LogMessagesThread(logMessages, logAreaText, container.getDisplay());
 		logMessagesThread.start();
 		setControl(getControlsContainer());
+		if (enableNewSection)
+		{
+			setPageComplete(false);
+		}
 	}
 
 	@Override
