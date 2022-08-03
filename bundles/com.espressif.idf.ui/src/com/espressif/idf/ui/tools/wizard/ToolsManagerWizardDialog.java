@@ -55,17 +55,10 @@ public class ToolsManagerWizardDialog extends WizardDialog
 	@Override
 	protected void cancelPressed()
 	{
-		MessageBox messageBox = new MessageBox(getParentShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
-		messageBox.setText(Messages.BtnCancel);
-		messageBox.setMessage(Messages.CancelMsg);
-		int resp = messageBox.open();
-		if (resp == SWT.YES && getCurrentPage() instanceof IToolsWizardPage)
-		{
-			IToolsWizardPage toolsWizardPage = (IToolsWizardPage) getCurrentPage();
-			toolsWizardPage.cancel();
-			restoreOldConfigsAndVars();
-			super.cancelPressed();
-		}
+		IToolsWizardPage toolsWizardPage = (IToolsWizardPage) getCurrentPage();
+		toolsWizardPage.cancel();
+		restoreOldConfigsAndVars();
+		super.cancelPressed();
 	}
 
 	/**
