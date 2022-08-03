@@ -28,7 +28,6 @@ public class Messages extends NLS
 	public static String DeleteToolsText;
 	public static String Installed;
 	public static String DownloadFileText;
-	public static String DownloadProgressText;
 	public static String ExtractionTextMessage;
 	public static String InstallingToolMessage;
 	public static String UpdatingPathMessage;
@@ -52,7 +51,6 @@ public class Messages extends NLS
 	public static String DirectorySelectionDialogMessage;
 	public static String GitLabel;
 	public static String PythonLabel;
-	public static String InstallButton;
 	public static String BrowseButton;
 	public static String InstallEspIdfPage;
 	public static String InstallEspIdfPageDescription;
@@ -84,7 +82,6 @@ public class Messages extends NLS
 	public static String ToolAreadyPresent;
 	public static String ForceDownload_ToolTip;
 	public static String ForceDownload;
-	public static String CancelMsg;
 	public static String InstallToolsProgressShell_lblNewLabel_text;
 	public static String InstallToolsProgressShell_text_text;
 	public static String InstallToolsProgressShell_txtTxtinstalledtool_text;
@@ -97,7 +94,6 @@ public class Messages extends NLS
 	public static String Warning;
 	public static String DirectorySelectionDialog_IDFDirLabel;
 	public static String DirectorySelectionDialog_SelectIDFDirMessage;
-	public static String WarningMessagebox;
 	public static String NotInstalled;
 	public static String Available;
 	public static String ShowAvailableVersionsOnly;
