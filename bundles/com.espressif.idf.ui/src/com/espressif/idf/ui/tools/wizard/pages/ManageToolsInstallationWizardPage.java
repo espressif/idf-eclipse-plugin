@@ -458,6 +458,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 		toolsTree.setRedraw(false);
 		final String os = Platform.getOS();
 		final String architecture = System.getProperty("os.arch").toLowerCase(); //$NON-NLS-1$
+		Logger.log("Adding Items to Tree for OS: ".concat(os).concat(" ARCH: ".concat(architecture))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		
 		for (ToolsVO toolsVO : toolsVOs)
 		{
@@ -489,11 +490,13 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 						{
 							if (!key.toLowerCase().contains(WIN_OS))
 							{
+								Logger.log("Ignoring tool with key: " + key + " for " + os); //$NON-NLS-1$ //$NON-NLS-2$
 								continue;
 							}
 							
 							if (architecture.contains("amd64") && !key.contains(WIN_OS.concat("64"))) //$NON-NLS-1$ //$NON-NLS-2$
 							{
+								Logger.log("Ignoring tool with key: " + key + " for " + os); //$NON-NLS-1$ //$NON-NLS-2$
 								continue;
 							}
 						}
@@ -502,19 +505,22 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 							String check = LINUX_OS.concat("-").concat(architecture); //$NON-NLS-1$
 							if (!key.toLowerCase().contains(check))
 							{
+								Logger.log("Ignoring tool with key: " + key + " for " + check); //$NON-NLS-1$ //$NON-NLS-2$
 								continue;
 							}
 						}
-						else if (Platform.getOS().equals(Platform.OS_MACOSX))
+						else if (os.equals(Platform.OS_MACOSX))
 						{
 							if (!key.toLowerCase().contains(MAC_OS) && architecture.contains("x86_64")) //$NON-NLS-1$
 							{
+								Logger.log("Ignoring tool with key: " + key + " for " + os); //$NON-NLS-1$ //$NON-NLS-2$ 
 								continue;
 							}
 							
 							String check = MAC_OS.concat("-").concat(architecture); //$NON-NLS-1$
 							if (!key.toLowerCase().contains(check))
 							{
+								Logger.log("Ignoring tool with key: " + key + " for " + check); //$NON-NLS-1$ //$NON-NLS-2$
 								continue;
 							}
 						}
