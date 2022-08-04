@@ -5,6 +5,7 @@
 package com.espressif.idf.ui.tools.wizard.pages;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Queue;
@@ -436,7 +437,9 @@ public class InstallEspIdfPage extends WizardPage implements IToolsWizardPage
 			btnBrowse.setEnabled(existingSection);
 
 			versionCombo.setEnabled(newSection);
-			btnDownload.setEnabled(newSection);
+			
+			boolean directoryLoaded = !StringUtil.isEmpty(Paths.get(txtDownloadDirectory.getText()).toString());
+			btnDownload.setEnabled(directoryLoaded && newSection);
 			btnBrowseDownloadDir.setEnabled(newSection);
 			txtDownloadDirectory.setEnabled(newSection);
 		}
