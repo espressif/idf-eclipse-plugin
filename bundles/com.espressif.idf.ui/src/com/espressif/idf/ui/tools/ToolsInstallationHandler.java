@@ -567,6 +567,7 @@ public class ToolsInstallationHandler extends Thread
 		private void runToolsExport(final String gitExePath)
 		{
 			final List<String> arguments = new ArrayList<>();
+			Logger.log("Python path:" + idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PYTHON_EXE_PATH));
 			arguments.add(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PYTHON_EXE_PATH));
 			arguments.add(IDFUtil.getIDFToolsScriptFile().getAbsolutePath());
 			arguments.add(IDFConstants.TOOLS_EXPORT_CMD);
@@ -574,6 +575,7 @@ public class ToolsInstallationHandler extends Thread
 
 			final String cmd = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments); //$NON-NLS-1$
 			logQueue.add(cmd);
+			Logger.log(cmd);
 
 			final Map<String, String> environment = new HashMap<>(System.getenv());
 			if (gitExePath != null)
@@ -805,6 +807,7 @@ public class ToolsInstallationHandler extends Thread
 				}
 
 				logQueue.add(status.getMessage());
+				Logger.log(status.getMessage());
 				logQueue.add(System.lineSeparator());
 			}
 			catch (Exception e1)
