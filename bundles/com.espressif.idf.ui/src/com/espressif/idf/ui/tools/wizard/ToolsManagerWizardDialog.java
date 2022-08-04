@@ -13,15 +13,12 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardDialog;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.ui.UIPlugin;
-import com.espressif.idf.ui.tools.Messages;
 import com.espressif.idf.ui.tools.wizard.pages.IToolsWizardPage;
 import com.espressif.idf.ui.tools.wizard.pages.ManageToolsInstallationWizardPage;
 

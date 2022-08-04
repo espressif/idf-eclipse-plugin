@@ -49,7 +49,6 @@ import com.espressif.idf.core.build.ESPToolChainManager;
 import com.espressif.idf.core.build.ESPToolChainProvider;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.core.util.PyWinRegistryReader;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.tools.vo.ToolsVO;
@@ -551,8 +550,7 @@ public class ToolsInstallationHandler extends Thread
 			}
 
 			runPythonEnvCommand();
-			runToolsExport(getPythonExecutablePath(),
-					idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.GIT_PATH));
+			runToolsExport(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.GIT_PATH));
 			handleWebSocketClientInstall();
 			configureToolChain();
 			configEnv();
@@ -566,10 +564,10 @@ public class ToolsInstallationHandler extends Thread
 			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER, "1");
 		}
 
-		private void runToolsExport(final String pythonExePath, final String gitExePath)
+		private void runToolsExport(final String gitExePath)
 		{
 			final List<String> arguments = new ArrayList<>();
-			arguments.add(pythonExePath);
+			arguments.add(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PYTHON_EXE_PATH));
 			arguments.add(IDFUtil.getIDFToolsScriptFile().getAbsolutePath());
 			arguments.add(IDFConstants.TOOLS_EXPORT_CMD);
 			arguments.add(IDFConstants.TOOLS_EXPORT_CMD_FORMAT_VAL);
@@ -776,37 +774,6 @@ public class ToolsInstallationHandler extends Thread
 			arguments.forEach(entry -> builder.append(entry + " ")); //$NON-NLS-1$
 
 			return builder.toString().trim();
-		}
-
-		private String getPythonExecutablePath()
-		{
-			// find python from IDF_PYTHON_ENV_PATH env path
-			String pythonExecutablenPath = IDFUtil.getIDFPythonEnvPath();
-			if (!StringUtil.isEmpty(pythonExecutablenPath))
-			{
-				return pythonExecutablenPath;
-			}
-
-			// Get Python
-			if (Platform.OS_WIN32.equals(Platform.getOS()))
-			{
-				PyWinRegistryReader pyWinRegistryReader = new PyWinRegistryReader();
-				Map<String, String> pythonVersions = pyWinRegistryReader.getPythonVersions();
-				if (pythonVersions.isEmpty())
-				{
-					Logger.log("No Python installations found in the system."); //$NON-NLS-1$
-				}
-				if (pythonVersions.size() == 1)
-				{
-					Map.Entry<String, String> entry = pythonVersions.entrySet().iterator().next();
-					pythonExecutablenPath = entry.getValue();
-				}
-			}
-			else
-			{
-				pythonExecutablenPath = IDFUtil.getPythonExecutable();
-			}
-			return pythonExecutablenPath;
 		}
 
 		private void runPythonEnvCommand()
