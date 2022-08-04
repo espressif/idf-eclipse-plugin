@@ -70,7 +70,7 @@ public class GitDownloadAndCloneThread extends Thread
 	@Override
 	public void run()
 	{
-		installEspIdfPage.setCloningOrDownloading(true);
+		installEspIdfPage.setCloningOrDownloading(InstallEspIdfPage.GIT_DOWNLOAD_THREAD_STATUS_CLONING_OR_DOWNLOADING);
 		if (version.getName().equals("master")) //$NON-NLS-1$
 		{
 			cloning = true;
@@ -93,8 +93,6 @@ public class GitDownloadAndCloneThread extends Thread
 				installEspIdfPage.enableAllControls(false, true, false);
 				installEspIdfPage.getBtnNew().setEnabled(true);
 				installEspIdfPage.getBtnNew().setSelection(false);
-				installEspIdfPage.setCloningOrDownloading(false);
-				installEspIdfPage.setPageComplete(true); // Triggers internal flow to check for page completion
 				logMessages.clear();
 				logMessages.add(".... Operations Completed!");
 			}
@@ -116,11 +114,22 @@ public class GitDownloadAndCloneThread extends Thread
 				logMessages.add(Messages.IDFDownloadWizard_DecompressingCompleted);
 				new File(downloadFile).delete();
 				configurePath(destinationLocation, folderName);
-
+				installEspIdfPage.setCloningOrDownloading(InstallEspIdfPage.GIT_DOWNLOAD_THREAD_STATUS_COMPLETED);
 			}
 		}
 		catch (IOException e)
 		{
+			installEspIdfPage.getControlsContainer().getDisplay().asyncExec(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					installEspIdfPage.setCloningOrDownloading(InstallEspIdfPage.GIT_DOWNLOAD_THREAD_STATUS_FAILED);
+					installEspIdfPage.setPageComplete(false); // Triggers internal flow to check for page completion
+					logMessages.clear();
+					logMessages.add(".... Operations Failed!"); //$NON-NLS-1$
+				}
+			});
 			logMessages.add(e.getLocalizedMessage());
 		}
 	}
@@ -302,12 +311,13 @@ public class GitDownloadAndCloneThread extends Thread
 			gitBuilder.repositoryClone();
 			configurePath(destinationLocation);
 			logMessages.add(Messages.CloningCompletedMsg);
-
+			installEspIdfPage.setCloningOrDownloading(InstallEspIdfPage.GIT_DOWNLOAD_THREAD_STATUS_COMPLETED);
 		}
 		catch (Exception e)
 		{
 			Logger.log(e);
 			logMessages.add(e.getLocalizedMessage());
+			installEspIdfPage.setCloningOrDownloading(InstallEspIdfPage.GIT_DOWNLOAD_THREAD_STATUS_FAILED);
 		}
 	}
 

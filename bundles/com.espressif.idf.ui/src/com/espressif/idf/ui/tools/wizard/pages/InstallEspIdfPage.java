@@ -11,6 +11,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -33,9 +34,11 @@ import com.espressif.idf.core.IDFVersion;
 import com.espressif.idf.core.IDFVersionsReader;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.tools.GitDownloadAndCloneThread;
 import com.espressif.idf.ui.tools.LogMessagesThread;
 import com.espressif.idf.ui.tools.Messages;
+import com.espressif.idf.ui.tools.wizard.IToolsInstallationWizardConstants;
 import com.espressif.idf.ui.tools.wizard.ToolsManagerWizard;
 
 /**
@@ -46,6 +49,10 @@ import com.espressif.idf.ui.tools.wizard.ToolsManagerWizard;
  */
 public class InstallEspIdfPage extends WizardPage implements IToolsWizardPage
 {
+	public static final int GIT_DOWNLOAD_THREAD_STATUS_CLONING_OR_DOWNLOADING = 1;
+	public static final int GIT_DOWNLOAD_THREAD_STATUS_COMPLETED = 3;
+	public static final int GIT_DOWNLOAD_THREAD_STATUS_FAILED = 4;
+	
 	private Text logAreaText;
 	private Text txtIdfpath;
 	private boolean enableNewSection;
@@ -65,7 +72,8 @@ public class InstallEspIdfPage extends WizardPage implements IToolsWizardPage
 	private Queue<String> logMessages;
 	private GitDownloadAndCloneThread gitDownloadAndCloneThread;
 	private Composite container;
-	private boolean cloningOrDownloading;
+	private int cloningOrDownloading;
+	
 	private ProgressBar progressBar;
 
 	public InstallEspIdfPage()
@@ -110,6 +118,12 @@ public class InstallEspIdfPage extends WizardPage implements IToolsWizardPage
 			public void modifyText(ModifyEvent e)
 			{
 				adjustPageCompletion(false, false);
+				String idfOldPath = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH);
+				if (!idfOldPath.equals(txtIdfpath.getText()))
+				{
+					setPageComplete(false);
+					InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID).putBoolean(IToolsInstallationWizardConstants.INSTALL_TOOLS_FLAG, false);
+				}
 			}
 		});
 
@@ -227,7 +241,7 @@ public class InstallEspIdfPage extends WizardPage implements IToolsWizardPage
 	@Override
 	public void setPageComplete(boolean isPageComplete)
 	{
-		if (gitDownloadAndCloneThread != null && cloningOrDownloading)
+		if (btnNew.getSelection() && gitDownloadAndCloneThread != null && cloningOrDownloading != GIT_DOWNLOAD_THREAD_STATUS_COMPLETED)
 		{
 			super.setPageComplete(false);
 			return;
@@ -236,9 +250,6 @@ public class InstallEspIdfPage extends WizardPage implements IToolsWizardPage
 		if (btnExisting.getSelection() && !StringUtil.isEmpty(txtIdfpath.getText())
 				&& new File(txtIdfpath.getText()).exists())
 		{
-//			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, txtIdfpath.getText());
-//			logMessages
-//					.add(MessageFormat.format(Messages.IDFDownloadWizard_UpdatingIDFPathMessage, txtIdfpath.getText()));
 			super.setPageComplete(true);
 			return;
 		}
@@ -303,7 +314,7 @@ public class InstallEspIdfPage extends WizardPage implements IToolsWizardPage
 		container.redraw();
 	}
 
-	public void setCloningOrDownloading(boolean cloningOrDownloading)
+	public void setCloningOrDownloading(int cloningOrDownloading)
 	{
 		this.cloningOrDownloading = cloningOrDownloading;
 	}
