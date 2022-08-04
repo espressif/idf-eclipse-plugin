@@ -490,13 +490,13 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 						{
 							if (!key.toLowerCase().contains(WIN_OS))
 							{
-								Logger.log("Ignoring tool with key: " + key + " for " + os); //$NON-NLS-1$ //$NON-NLS-2$
+								Logger.log("Ignoring tool " + toolsVO.getName() + " with key: " + key + " for " + os); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 								continue;
 							}
 							
 							if (architecture.contains("amd64") && !key.contains(WIN_OS.concat("64"))) //$NON-NLS-1$ //$NON-NLS-2$
 							{
-								Logger.log("Ignoring tool with key: " + key + " for " + os); //$NON-NLS-1$ //$NON-NLS-2$
+								Logger.log("Ignoring tool " + toolsVO.getName() + " with key: " + key + " for " + os); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 								continue;
 							}
 						}
@@ -505,7 +505,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 							String check = LINUX_OS.concat("-").concat(architecture); //$NON-NLS-1$
 							if (!key.toLowerCase().contains(check))
 							{
-								Logger.log("Ignoring tool with key: " + key + " for " + check); //$NON-NLS-1$ //$NON-NLS-2$
+								Logger.log("Ignoring tool " + toolsVO.getName() + " with key: " + key + " for " + check); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 								continue;
 							}
 						}
@@ -513,14 +513,14 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 						{
 							if (!key.toLowerCase().contains(MAC_OS) && architecture.contains("x86_64")) //$NON-NLS-1$
 							{
-								Logger.log("Ignoring tool with key: " + key + " for " + os); //$NON-NLS-1$ //$NON-NLS-2$ 
+								Logger.log("Ignoring tool " + toolsVO.getName() + " with key: " + key + " for " + os); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 								continue;
 							}
 							
 							String check = MAC_OS.concat("-").concat(architecture); //$NON-NLS-1$
 							if (!key.toLowerCase().contains(check))
 							{
-								Logger.log("Ignoring tool with key: " + key + " for " + check); //$NON-NLS-1$ //$NON-NLS-2$
+								Logger.log("Ignoring tool " + toolsVO.getName() + " with key: " + key + " for " + check); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 								continue;
 							}
 						}
