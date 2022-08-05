@@ -521,11 +521,6 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 								Logger.log("Ignoring tool " + toolsVO.getName() + " with key: " + key + " for " + os); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 								continue;
 							}
-							else if (!key.toLowerCase().contains(MAC_OS) && !architecture.contains("x86_64"))
-							{
-								Logger.log("Ignoring tool " + toolsVO.getName() + " with key: " + key + " for " + check); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-								continue;
-							}
 						}
 						
 						alwaysInstall |= versionsVO.getStatus().equalsIgnoreCase(RECOMMENDED);
