@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -46,6 +47,10 @@ public class ToolsManagerWizardDialog extends WizardDialog
 	public void showPage(IWizardPage page)
 	{
 		super.showPage(page);
+		if (!(page instanceof ManageToolsInstallationWizardPage))
+		{
+//			getButton(IDialogConstants.FINISH_ID).setEnabled(false);
+		}
 		updateSize();
 	}
 
@@ -68,7 +73,9 @@ public class ToolsManagerWizardDialog extends WizardDialog
 		if (currentPage instanceof ManageToolsInstallationWizardPage)
 		{
 			((ManageToolsInstallationWizardPage) currentPage).restoreFinishButton();
+			InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID).putBoolean(IToolsInstallationWizardConstants.INSTALL_TOOLS_FLAG, false);
 		}
+		
 		super.backPressed();
 		currentPage = getCurrentPage();
 		getShell().setSize(wizardPagePointMap.get(currentPage));
