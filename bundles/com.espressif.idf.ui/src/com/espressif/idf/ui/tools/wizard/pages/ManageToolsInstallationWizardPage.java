@@ -511,7 +511,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 						}
 						else if (os.equals(Platform.OS_MACOSX))
 						{
-							if (!key.toLowerCase().contains(MAC_OS) && architecture.contains("x86_64")) //$NON-NLS-1$
+							if (!key.toLowerCase().contains(MAC_OS) && !architecture.contains("x86_64")) //$NON-NLS-1$
 							{
 								Logger.log("Ignoring tool " + toolsVO.getName() + " with key: " + key + " for " + os); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 								continue;

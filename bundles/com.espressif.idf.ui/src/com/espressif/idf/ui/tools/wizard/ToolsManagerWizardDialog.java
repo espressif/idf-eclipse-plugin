@@ -49,7 +49,7 @@ public class ToolsManagerWizardDialog extends WizardDialog
 		super.showPage(page);
 		if (!(page instanceof ManageToolsInstallationWizardPage))
 		{
-//			getButton(IDialogConstants.FINISH_ID).setEnabled(false);
+			getButton(IDialogConstants.FINISH_ID).setEnabled(false);
 		}
 		updateSize();
 	}
