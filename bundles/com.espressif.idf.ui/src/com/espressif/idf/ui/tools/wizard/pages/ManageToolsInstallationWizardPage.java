@@ -486,58 +486,24 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 				{
 					for (String key : versionsVO.getVersionOsMap().keySet())
 					{
-						if (os.equals(Platform.OS_WIN32))
+						if (ToolsPlatformMapping.isSupported(key))
 						{
-							if (!key.toLowerCase().contains(WIN_OS))
-							{
-								Logger.log("Ignoring tool " + toolsVO.getName() + " with key: " + key + " for " + os); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-								continue;
-							}
-							else if (architecture.contains("amd64") && !key.contains(WIN_OS.concat("64"))) //$NON-NLS-1$ //$NON-NLS-2$
-							{
-								Logger.log("Ignoring tool " + toolsVO.getName() + " with key: " + key + " for " + os); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-								continue;
-							}
-						}
-						else if (Platform.getOS().equals(Platform.OS_LINUX))
-						{
-							String check = LINUX_OS.concat("-").concat(architecture); //$NON-NLS-1$
-							if (!key.toLowerCase().contains(check))
-							{
-								Logger.log("Ignoring tool " + toolsVO.getName() + " with key: " + key + " for " + check); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-								continue;
-							}
-						}
-						else if (os.equals(Platform.OS_MACOSX))
-						{
-							String check = MAC_OS.concat("-").concat(architecture); //$NON-NLS-1$
-							if (architecture.contains("x86_64") && !key.equals(Platform.OS_MACOSX)) //$NON-NLS-1$
-							{
-								Logger.log("Ignoring tool " + toolsVO.getName() + " with key: " + key + " for " + os); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-								continue;	
-							}
-							else if (!key.toLowerCase().equals(check))
-							{
-								Logger.log("Ignoring tool " + toolsVO.getName() + " with key: " + key + " for " + os); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-								continue;
-							}
-						}
-						
-						alwaysInstall |= versionsVO.getStatus().equalsIgnoreCase(RECOMMENDED);
-						isInstalled = ToolsUtility.isToolInstalled(toolsVO.getName(), versionsVO.getName());
-						toolsVO.setInstalled(isInstalled);
-						versionsVO.getVersionOsMap().get(key).setSelected(alwaysInstall);
+							alwaysInstall |= versionsVO.getStatus().equalsIgnoreCase(RECOMMENDED);
+							isInstalled = ToolsUtility.isToolInstalled(toolsVO.getName(), versionsVO.getName());
+							toolsVO.setInstalled(isInstalled);
+							versionsVO.getVersionOsMap().get(key).setSelected(alwaysInstall);
 
-						TreeItem subItem = new TreeItem(mainItem, SWT.NONE);
-						String[] subItemText = getSubItemText(key, versionsVO.getVersionOsMap(), versionsVO.getName(),
-								versionsVO.getStatus(), isInstalled ? 1 : 2);
-						subItem.setText(subItemText);
-						subItem.setData(versionsVO);
-						Image image = getOsImageForItem(subItem);
-						subItem.setImage(0, image);
-						subItem.setImage(2, isInstalled ? UIPlugin.getImage(GREEN) : UIPlugin.getImage(WHITE));
-						subItem.setChecked(alwaysInstall);
-						platformAvailable = true;
+							TreeItem subItem = new TreeItem(mainItem, SWT.NONE);
+							String[] subItemText = getSubItemText(key, versionsVO.getVersionOsMap(),
+									versionsVO.getName(), versionsVO.getStatus(), isInstalled ? 1 : 2);
+							subItem.setText(subItemText);
+							subItem.setData(versionsVO);
+							Image image = getOsImageForItem(subItem);
+							subItem.setImage(0, image);
+							subItem.setImage(2, isInstalled ? UIPlugin.getImage(GREEN) : UIPlugin.getImage(WHITE));
+							subItem.setChecked(alwaysInstall);
+							platformAvailable = true;
+						}
 					}
 				}
 			}
