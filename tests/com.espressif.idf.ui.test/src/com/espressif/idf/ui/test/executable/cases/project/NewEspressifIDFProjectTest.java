@@ -175,7 +175,7 @@ public class NewEspressifIDFProjectTest
 	public void givenNewProjectCreatedDfuBuiltThenHasDfuBin() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectTest");
+		Fixture.givenProjectNameIs("NewProjectTestDFU");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.thenLaunchTargetIsSelectedFromLaunchTargets("esp32s2");
 		Fixture.switchDfuStatus();

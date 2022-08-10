@@ -42,7 +42,7 @@ public class ProjectFullCleanCommandHandler extends AbstractToolsHandler
 		commands.add(IDFUtil.getIDFPythonEnvPath());
 		commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
 		commands.add("fullclean"); //$NON-NLS-1$
-		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
+		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
 		console.println(commands.toString());
 		console.print((runCommand(commands, pathToProject, envMap)));
 		return event;

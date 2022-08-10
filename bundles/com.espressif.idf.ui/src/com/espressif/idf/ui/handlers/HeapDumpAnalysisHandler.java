@@ -72,7 +72,7 @@ public class HeapDumpAnalysisHandler extends AbstractHandler
 			messageConsoleStream.print(" "); //$NON-NLS-1$
 		}
 		
-		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
+		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
 		Path pathToProject = new Path(selectedProject.getLocation().toString());
 		String jsonOutput = runCommand(commands, pathToProject, envMap);
 		FileUtil.writeFile(selectedProject, "build/dump.json", jsonOutput, false); //$NON-NLS-1$

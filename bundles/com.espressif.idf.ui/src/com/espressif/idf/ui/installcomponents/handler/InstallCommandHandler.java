@@ -62,7 +62,7 @@ public class InstallCommandHandler
 		// setting the env variable to let the cmake build know to fetch the components sources
 		idfEnvironmentVariables.addEnvVariable("IDF_COMPONENT_MANAGER", "1"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
+		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
 
 		Path pathToProject = new Path(project.getLocation().toString());
 		List<String> commands = new ArrayList<>();

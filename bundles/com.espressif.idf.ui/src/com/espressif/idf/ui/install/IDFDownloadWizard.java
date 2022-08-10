@@ -141,7 +141,7 @@ public class IDFDownloadWizard extends Wizard
 
 	protected void repositoryClone(String version, String url, String destinationLocation, IProgressMonitor monitor)
 	{
-		GitRepositoryBuilder gitBuilder = new GitRepositoryBuilder();
+		GitRepositoryBuilder gitBuilder = new GitRepositoryBuilder(false, null);
 		gitBuilder.repositoryURI(url);
 		gitBuilder.repositoryDirectory(new File(destinationLocation + "/" + "esp-idf")); //$NON-NLS-1$ //$NON-NLS-2$
 		gitBuilder.activeBranch(version);

@@ -56,7 +56,7 @@ public class NewComponentWizardPage extends WizardPage
 		commands.add("components"); //$NON-NLS-1$
 		commands.add("create-component"); //$NON-NLS-1$
 		commands.add(componentName.getText());
-		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
+		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
 		return runCommand(commands, envMap);
 	}
 

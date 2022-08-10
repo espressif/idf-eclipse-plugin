@@ -315,7 +315,8 @@ public class FileUtil
 
 	/**
 	 * Reads the file contents from the project.
-	 * @param project The project to read file from
+	 * 
+	 * @param project          The project to read file from
 	 * @param relativeFilePath Relative path to project leading to a file
 	 * @return String contents for the read file
 	 */
@@ -327,19 +328,20 @@ public class FileUtil
 			Logger.log(MessageFormat.format("{0} couldn't find", filePath.toString())); //$NON-NLS-1$
 			return null;
 		}
-		
+
 		return readFile(filePath.getRawLocation().toOSString());
 	}
-	
+
 	/**
 	 * Reads the file contents from the given path.
+	 * 
 	 * @param absoluteFilePath Absolute path to a file
 	 * @return String contents for the read file
 	 */
 	public static String readFile(String absoluteFilePath)
 	{
 		StringBuilder fileContents = new StringBuilder();
-		
+
 		try
 		{
 			Scanner scanner = new Scanner(new File(absoluteFilePath));
@@ -358,7 +360,7 @@ public class FileUtil
 
 		return fileContents.toString();
 	}
-	
+
 	public static void writeFile(IProject project, String relativeFilePath, String contents, boolean append)
 	{
 		InputStream inputStream = new ByteArrayInputStream(contents.getBytes());
@@ -375,13 +377,33 @@ public class FileUtil
 			}
 			else
 			{
-				filePath.setContents(inputStream, IFile.FORCE, null);	
+				filePath.setContents(inputStream, IFile.FORCE, null);
 			}
 		}
 		catch (Exception e)
 		{
 			Logger.log(e);
 		}
-		
+
 	}
+
+	public static void deleteDirectory(File file) throws IOException
+	{
+		if (file.isDirectory())
+		{
+			File[] entries = file.listFiles();
+			if (entries != null)
+			{
+				for (File entry : entries)
+				{
+					deleteDirectory(entry);
+				}
+			}
+		}
+		if (!file.delete())
+		{
+			throw new IOException("Failed to delete " + file); //$NON-NLS-1$
+		}
+	}
+
 }

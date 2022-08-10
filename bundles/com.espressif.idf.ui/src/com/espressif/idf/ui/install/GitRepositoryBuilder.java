@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jgit.api.Git;
 
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.ui.tools.GitWizardRepProgressMonitor;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -25,7 +26,15 @@ public class GitRepositoryBuilder
 	private String activeBranch;
 	private String uri;
 	private IProgressMonitor monitor;
-
+	private boolean fromWizard;
+	private GitWizardRepProgressMonitor gitWizardRepProgressMonitor;
+	
+	public GitRepositoryBuilder(boolean fromWizard, GitWizardRepProgressMonitor gitWizardRepProgressMonitor)
+	{
+		this.fromWizard = fromWizard;
+		this.gitWizardRepProgressMonitor = gitWizardRepProgressMonitor;
+	}
+	
 	/**
 	 * Location of the repository, or where the repository should be cloned.
 	 *
@@ -56,7 +65,7 @@ public class GitRepositoryBuilder
 
 		// @formatter:off
 		Git git = Git.cloneRepository()
-				  .setProgressMonitor(gitProgressMonitor)
+				  .setProgressMonitor(fromWizard ? gitWizardRepProgressMonitor : gitProgressMonitor)
 				  .setCloneSubmodules(true)
 				  .setURI(this.uri)
 				  .setDirectory(this.repositoryDirectory)

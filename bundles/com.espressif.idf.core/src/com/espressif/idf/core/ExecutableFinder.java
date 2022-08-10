@@ -41,7 +41,7 @@ public class ExecutableFinder
 		return null;
 	}
 
-	private static IPath findExecutable(IPath path, boolean appendExtension)
+	public static IPath findExecutable(IPath path, boolean appendExtension)
 	{
 		if (Platform.OS_WIN32.equals(Platform.getOS()) && appendExtension)
 		{

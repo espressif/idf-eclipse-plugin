@@ -160,7 +160,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		}
 
 		//Reading CDT build environment variables
-		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
+		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
 
 		// Turn it into an envp format
 		List<String> strings = new ArrayList<>(envMap.size());

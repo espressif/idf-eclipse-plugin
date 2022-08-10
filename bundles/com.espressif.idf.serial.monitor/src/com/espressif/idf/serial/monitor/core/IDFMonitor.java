@@ -114,7 +114,7 @@ public class IDFMonitor
 		Logger.log(arguments.toString());
 
 		// CDT Build environment variables
-		Map<String, String> idfEnvMap = new IDFEnvironmentVariables().getEnvMap();
+		Map<String, String> idfEnvMap = new IDFEnvironmentVariables().getSystemEnvMap();
 
 		// Disable buffering of output
 		idfEnvMap.put("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$

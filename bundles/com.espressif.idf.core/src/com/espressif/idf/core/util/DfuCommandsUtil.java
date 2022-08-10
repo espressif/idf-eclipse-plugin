@@ -103,7 +103,7 @@ public class DfuCommandsUtil
 		commands.add("dfu-flash"); //$NON-NLS-1$
 		File workingDir = null;
 		workingDir = new File(project.getLocationURI());
-		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
+		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
 		List<String> strings = new ArrayList<>(envMap.size());
 		for (Entry<String, String> entry : envMap.entrySet())
 		{
