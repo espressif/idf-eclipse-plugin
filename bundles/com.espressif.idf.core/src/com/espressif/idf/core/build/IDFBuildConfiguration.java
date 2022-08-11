@@ -84,6 +84,7 @@ import org.eclipse.launchbar.core.target.ILaunchTarget;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFCorePreferenceConstants;
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.internal.CMakeConsoleWrapper;
 import com.espressif.idf.core.internal.CMakeErrorParser;
 import com.espressif.idf.core.logging.Logger;
@@ -507,7 +508,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		}
 	}
 
-	private static String getIdfToolsPath()
+	private static String getIDFPath()
 	{
 		return new org.eclipse.core.runtime.Path(IDFUtil.getIDFPath()).toOSString();
 	}
@@ -524,6 +525,9 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 				.append(new org.eclipse.core.runtime.Path(COMPILE_COMMANDS_JSON));
 		File jsonDiskFile = jsonIPath.toFile();
 
+		URI uri = new File(IDFUtil.getIDFPath()).toURI();
+		getProject().getPathVariableManager().setURIValue(IDFEnvironmentVariables.IDF_PATH, uri);
+		
 		IFolder folder = getIDFComponentsFolder();
 		CommandEntry[] sourceFileInfos = null;
 		try (Reader in = new FileReader(jsonDiskFile))
@@ -592,7 +596,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	private void createLinkForSourceFileOnly(String sourceFile, IProject project, IFolder folder,
 			IProgressMonitor monitor) throws Exception
 	{
-		String sourceFileToSplit = sourceFile.substring(getIdfToolsPath().length(), sourceFile.length());
+		String sourceFileToSplit = sourceFile.substring(getIDFPath().length(), sourceFile.length());
 		String[] segments = new org.eclipse.core.runtime.Path(sourceFileToSplit).segments();
 
 		for (int i = 0; i < (segments.length - 1); i++)
@@ -696,7 +700,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	 *                output is wanted.
 	 * @param monitor the job's progress monitor
 	 */
-	private void processCompileCommandsFile(IConsole console, IProgressMonitor monitor) throws CoreException
+	private void processCompileCommandsFile(IConsole console, IProgressMonitor monitor) throws Exception
 	{
 		IFile file = getCompileCommandsJsonFile(monitor);
 
@@ -706,7 +710,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		parser.parse(monitor);
 	}
 
-	private IFile getCompileCommandsJsonFile(IProgressMonitor monitor) throws CoreException
+	private IFile getCompileCommandsJsonFile(IProgressMonitor monitor) throws Exception
 	{
 		IFile file = getBuildContainer().getFile(new org.eclipse.core.runtime.Path(COMPILE_COMMANDS_JSON));
 		if (hasCustomBuild())
@@ -781,7 +785,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 			{
 				processCompileCommandsFile(null, new NullProgressMonitor());
 			}
-			catch (CoreException e)
+			catch (Exception e)
 			{
 				Logger.log(e);
 			}
@@ -956,11 +960,11 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 			}
 
 			String sourceFile = path.toOSString();
-			String pathtolookfor = new org.eclipse.core.runtime.Path(getIdfToolsPath()).append(COMPONENTS).toOSString(); // $NON-NLS-1$
+			String pathtolookfor = new org.eclipse.core.runtime.Path(getIDFPath()).append(COMPONENTS).toOSString(); // $NON-NLS-1$
 			int startIndex = sourceFile.indexOf(pathtolookfor);
 			if (startIndex == -1) // esp-idf/examples/
 			{
-				pathtolookfor = getIdfToolsPath();
+				pathtolookfor = getIDFPath();
 				startIndex = sourceFile.indexOf(pathtolookfor);
 			}
 			String relativePath = sourceFile.substring(startIndex + pathtolookfor.length() + 1);
