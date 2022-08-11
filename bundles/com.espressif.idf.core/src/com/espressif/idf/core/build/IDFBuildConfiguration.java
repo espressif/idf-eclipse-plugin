@@ -965,8 +965,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 			}
 			String relativePath = sourceFile.substring(startIndex + pathtolookfor.length() + 1);
 
-			IPath projectPath = new org.eclipse.core.runtime.Path(IDFConstants.BUILD_FOLDER).append(getComponentsPath())
-					.append(relativePath);
+			IPath projectPath = getComponentsPath().append(relativePath);
 			IResource resourcePath = project.findMember(projectPath);
 			if (resourcePath != null && resourcePath instanceof IFile)
 			{
