@@ -5,7 +5,7 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS
 {
 	private static final String BUNDLE_NAME = "com.espressif.idf.ui.dialogs.messages"; //$NON-NLS-1$
-	public static String DeleteResourcesWizard_project_deleteConfigurations; 
+	public static String DeleteResourcesWizard_project_deleteConfigurations;
 	public static String CMakeBuildTab2_AdditionalCMakeArgs;
 	public static String CMakeBuildTab2_BuildCmd;
 	public static String CMakeBuildTab2_CleanCmd;
@@ -22,6 +22,9 @@ public class Messages extends NLS
 	public static String EraseFlashDialog_EraseFlashInProcessMessage;
 	public static String EraseFlashDialog_EraseFlashInProcessMessageTitle;
 	public static String EraseFlashDialog_EraseFlashInProcessMessageQuestion;
+	public static String ColumnDetailsTitle;
+	public static String FilterMessage;
+
 	static
 	{
 		// initialize resource bundle

@@ -565,6 +565,13 @@
             name="%view.name"
             restorable="true">
       </view>
+      <view
+            class="com.espressif.idf.ui.dialogs.HintsView"
+            icon="icons/espressif.png"
+            id="com.espressif.idf.ui.views.hints"
+            name="%hints_view.name"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.intro">
