@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.core.util;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -20,23 +21,32 @@ public class HintsUtil
 
 	public static List<String[]> getReHintsList()
 	{
-		Yaml yaml = new Yaml();
-		InputStream inputStream = null;
+
+		File hintsYmFile = new File(IDFUtil.getIDFPath() + "\\tools\\idf_py_actions\\hints.yml");
+		List<String[]> reHintsPairArray = new ArrayList<>();
 		try
 		{
-			inputStream = new FileInputStream(IDFUtil.getIDFPath() + "\\tools\\idf_py_actions\\hints.yml"); //$NON-NLS-1$
+			reHintsPairArray = hintsYmFile.isFile() ? parseHintsYamlFile(hintsYmFile) : reHintsPairArray;
 		}
 		catch (FileNotFoundException e)
 		{
 			Logger.log(e);
 		}
-		ArrayList<LinkedHashMap<String, String>> reHintsArray = yaml.load(inputStream);
+
+		return reHintsPairArray;
+	}
+
+	private static List<String[]> parseHintsYamlFile(File hintsYmFile) throws FileNotFoundException
+	{
+		Yaml yaml = new Yaml();
 		List<String[]> reHintsPairArray = new ArrayList<>();
+		InputStream inputStream;
+		inputStream = new FileInputStream(hintsYmFile);
+		ArrayList<LinkedHashMap<String, String>> reHintsArray = yaml.load(inputStream);
 		for (LinkedHashMap<String, String> entry : reHintsArray)
 		{
 			reHintsPairArray.add(new String[] { entry.get("re"), entry.get("hint") }); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-
 		return reHintsPairArray;
 	}
 }
