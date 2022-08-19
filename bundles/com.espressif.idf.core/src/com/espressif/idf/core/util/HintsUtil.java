@@ -17,10 +17,6 @@ import com.espressif.idf.core.logging.Logger;
 
 public class HintsUtil
 {
-	public static enum ReHintsArrayEntries
-	{
-		RE, HINT
-	};
 
 	public static List<String[]> getReHintsList()
 	{

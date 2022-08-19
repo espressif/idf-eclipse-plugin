@@ -111,7 +111,7 @@ public class HintsView extends ViewPart
 			{
 
 				StructuredSelection selection = (StructuredSelection) event.getViewer().getSelection();
-				MessageDialog.openInformation(container.getShell(), Messages.ColumnDetailsTitle,
+				MessageDialog.openInformation(container.getShell(), Messages.HintDetailsTitle,
 						((String[]) selection.getFirstElement())[1]);
 
 			}

@@ -22,7 +22,7 @@ public class Messages extends NLS
 	public static String EraseFlashDialog_EraseFlashInProcessMessage;
 	public static String EraseFlashDialog_EraseFlashInProcessMessageTitle;
 	public static String EraseFlashDialog_EraseFlashInProcessMessageQuestion;
-	public static String ColumnDetailsTitle;
+	public static String HintDetailsTitle;
 	public static String FilterMessage;
 
 	static
