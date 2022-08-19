@@ -7,6 +7,7 @@ package com.espressif.idf.ui;
 import java.net.URL;
 
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -29,10 +30,10 @@ public class IDFConsole
 	
 	public MessageConsoleStream getConsoleStream()
 	{
-		return getConsoleStream("ESP-IDF Console", null); //$NON-NLS-1$
+		return getConsoleStream("ESP-IDF Console", null, false); //$NON-NLS-1$
 	}
 	
-	public MessageConsoleStream getConsoleStream(String consoleName, URL imageUrl)
+	public MessageConsoleStream getConsoleStream(String consoleName, URL imageUrl, boolean errorStream)
 	{
 		// Create Tools console
 		MessageConsole msgConsole = findConsole(consoleName, imageUrl);
@@ -47,9 +48,10 @@ public class IDFConsole
 			public void run()
 			{
 				openConsoleView();
+				if (errorStream) console.setColor(new Color(255, 0, 0));
 			}
 		});
-
+		
 		return console;
 	}
 

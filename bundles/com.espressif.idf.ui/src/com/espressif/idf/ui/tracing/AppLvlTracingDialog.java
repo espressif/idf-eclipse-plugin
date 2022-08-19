@@ -327,7 +327,7 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 	private void activateTracingConsoleView()
 	{
 		URL imageUrl = FileLocator.find(UIPlugin.getDefault().getBundle(), new Path("icons/ESP-IDF_Application_Level_Tracing.png")); //$NON-NLS-1$
-		console = new IDFConsole().getConsoleStream(Messages.AppLvlTracing_ConsoleName, imageUrl);
+		console = new IDFConsole().getConsoleStream(Messages.AppLvlTracing_ConsoleName, imageUrl, false);
 	}
 
 	private void browseButtonSelected(String title, Text text) {

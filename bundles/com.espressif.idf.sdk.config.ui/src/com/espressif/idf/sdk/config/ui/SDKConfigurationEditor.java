@@ -359,7 +359,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	{
 
 		// Create console
-		MessageConsoleStream console = new IDFConsole().getConsoleStream("JSON Configuration Server Console", null); //$NON-NLS-1$
+		MessageConsoleStream console = new IDFConsole().getConsoleStream("JSON Configuration Server Console", null, false); //$NON-NLS-1$
 
 
 		configServer = ConfigServerManager.INSTANCE.getServer(project);
