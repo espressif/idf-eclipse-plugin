@@ -39,8 +39,7 @@ public class IDFVersionsReader
 		{
 			URL url = new URL(VERSIONS_URL);
 			URLConnection yc = url.openConnection();
-			BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream(), yc.getContentEncoding()));
-
+			BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
 			String inputLine;
 			while ((inputLine = in.readLine()) != null)
 			{
