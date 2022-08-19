@@ -67,7 +67,7 @@ public class ExportIDFTools
 			
 			if (status.getSeverity() == IStatus.ERROR)
 			{
-				log(status.getException().getMessage(), errorConsoleStream);
+				log(status.getException() != null ? status.getException().getMessage() : status.getMessage(), errorConsoleStream);
 				return status;				
 			}
 

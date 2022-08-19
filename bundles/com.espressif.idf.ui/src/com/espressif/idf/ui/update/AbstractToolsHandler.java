@@ -167,7 +167,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 			}
 			if (status.getSeverity() == IStatus.ERROR)
 			{
-				errorConsoleStream.print(status.getException().getMessage());
+				errorConsoleStream.print(status.getException() != null ? status.getException().getMessage() : status.getMessage());
 			}
 			console.println(status.getMessage());
 			console.println();
