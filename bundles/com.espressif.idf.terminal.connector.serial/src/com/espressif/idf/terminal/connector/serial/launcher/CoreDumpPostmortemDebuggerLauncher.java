@@ -85,6 +85,7 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 
 	private void parseExtractedFileFromPythonScript() throws Exception
 	{
+		Logger.log("Converting coredump"); //$NON-NLS-1$
 		String coreDumpDestination = getCoreDumpFileFromBuildDir(GENERATED_CORE_ELF_NAME);
 
 		// espcoredump.py
@@ -106,6 +107,7 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 		commands.add(coreDumpDestination);
 		commands.add(elfFilePath);
 
+		Logger.log(commands.toString());
 		executeCommands(commands);
 
 	}
