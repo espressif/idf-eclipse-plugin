@@ -19,12 +19,15 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.espressif.idf.core.util.HintsUtil;
@@ -97,6 +100,11 @@ public class HintsView extends ViewPart
 		col = createTableViewerColumn(titles[1]);
 		col.setLabelProvider(new ColumnLabelProvider()
 		{
+			@Override
+			public Image getImage(Object element)
+			{
+				return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_INFO_TSK);
+			}
 			@Override
 			public String getText(Object element)
 			{

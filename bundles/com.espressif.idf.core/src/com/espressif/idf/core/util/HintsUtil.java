@@ -22,7 +22,9 @@ public class HintsUtil
 	public static List<String[]> getReHintsList()
 	{
 
-		File hintsYmFile = new File(IDFUtil.getIDFPath() + "\\tools\\idf_py_actions\\hints.yml");
+		File hintsYmFile = new File(IDFUtil.getIDFPath() + File.separator + "tools" + File.separator + "idf_py_actions"
+				+ File.separator
+				+ "hints.yml"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		List<String[]> reHintsPairArray = new ArrayList<>();
 		try
 		{
