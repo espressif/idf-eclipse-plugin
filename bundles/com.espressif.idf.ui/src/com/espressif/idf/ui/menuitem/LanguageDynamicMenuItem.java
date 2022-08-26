@@ -5,9 +5,6 @@
 
 package com.espressif.idf.ui.menuitem;
 
-import java.io.File;
-import java.net.URL;
-
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.ContributionItem;
@@ -52,7 +49,7 @@ public class LanguageDynamicMenuItem extends ContributionItem
 	public void fill(Menu menu, int index)
 	{
 		IConfigurationElement[] configElements = Platform.getExtensionRegistry()
-				.getConfigurationElementsFor("com.espressif.idf.ui.locale.support");
+				.getConfigurationElementsFor("com.espressif.idf.ui.locale.support"); //$NON-NLS-1$
 		for (IConfigurationElement iConfigurationElement : configElements)
 		{
 			MenuItem menuItem = new MenuItem(menu, SWT.PUSH);
@@ -98,9 +95,7 @@ public class LanguageDynamicMenuItem extends ContributionItem
 
 	private void restartEclipse() throws Exception
 	{
-		URL eclipseInstallationUrl = Platform.getInstallLocation().getURL();
-		String pathToEclipse = new File(eclipseInstallationUrl.toURI().resolve("eclipse")).toString();
-		ProcessBuilder processBuilder = new ProcessBuilder(pathToEclipse);
+		ProcessBuilder processBuilder = new ProcessBuilder(System.getProperty("eclipse.launcher")); //$NON-NLS-1$
 		processBuilder.start();
 		PlatformUI.getWorkbench().close();
 	}

@@ -18,10 +18,10 @@ import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 
-import ilg.gnumcueclipse.core.EclipseUtils;
-import ilg.gnumcueclipse.core.preferences.Discoverer;
+import org.eclipse.embedcdt.core.EclipseUtils;
+import org.eclipse.embedcdt.core.preferences.Discoverer;
 
-public class DefaultPreferences extends ilg.gnumcueclipse.debug.gdbjtag.preferences.DefaultPreferences {
+public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.preferences.DefaultPreferences {
 
 	// ------------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ public class DefaultPreferences extends ilg.gnumcueclipse.debug.gdbjtag.preferen
 
 	public static final String GDB_SERVER_EXECUTABLE_DEFAULT_NAME = "openocd";
 	protected static final String GDB_CLIENT_EXECUTABLE_DEFAULT = "${cross_prefix}gdb${cross_suffix}";
-
+	
 	// ------------------------------------------------------------------------
 
 	// Not yet preferences

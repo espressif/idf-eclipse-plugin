@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.core.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -14,14 +15,18 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.channels.FileChannel;
 import java.text.MessageFormat;
+import java.util.Scanner;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.IFileSystem;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 
 import com.espressif.idf.core.IDFCorePlugin;
@@ -40,7 +45,6 @@ public class FileUtil
 	private static final String EMPTY_STR = ""; //$NON-NLS-1$
 	private static final int BUFFER_SIZE = 8192;
 
-	
 	/**
 	 * Recursively copy one directory to a new destination directory while showing progress.
 	 * 
@@ -79,22 +83,22 @@ public class FileUtil
 			if (source.canRead() == false)
 			{
 				error = Messages.FileUtil_SourceDirNotavailable;
-			} else
-				if (destination.exists() == false)
+			}
+			else if (destination.exists() == false)
+			{
+				if (destination.mkdir() == false)
 				{
-					if (destination.mkdir() == false)
-					{
-						error = Messages.FileUtil_DesDirNotavailable;
-					}
-				} else
-					if (destination.isDirectory() == false)
-					{
-						error = Messages.FileUtil_DestinationNotaDir;
-					} else
-						if (destination.canWrite() == false)
-						{
-							error = Messages.FileUtil_WritableProblemMsg;
-						}
+					error = Messages.FileUtil_DesDirNotavailable;
+				}
+			}
+			else if (destination.isDirectory() == false)
+			{
+				error = Messages.FileUtil_DestinationNotaDir;
+			}
+			else if (destination.canWrite() == false)
+			{
+				error = Messages.FileUtil_WritableProblemMsg;
+			}
 
 			if (error == null)
 			{
@@ -108,14 +112,15 @@ public class FileUtil
 						return status;
 					}
 				}
-			} else
+			}
+			else
 			{
-				String message = MessageFormat.format(Messages.FileUtil_UnableToCopy, source, destination,
-						error);
+				String message = MessageFormat.format(Messages.FileUtil_UnableToCopy, source, destination, error);
 
 				Logger.logError(message);
 			}
-		} else
+		}
+		else
 		{
 			try
 			{
@@ -123,7 +128,8 @@ public class FileUtil
 				IFileSystem system = EFS.getLocalFileSystem();
 				IFileStore src = system.fromLocalFile(source);
 				src.copy(system.fromLocalFile(destination), EFS.OVERWRITE, new NullProgressMonitor());
-			} catch (CoreException e)
+			}
+			catch (CoreException e)
 			{
 				return new Status(IStatus.ERROR, IDFCorePlugin.PLUGIN_ID, IStatus.ERROR, e.getMessage(), e);
 			}
@@ -172,7 +178,8 @@ public class FileUtil
 					{
 						in.close();
 					}
-				} catch (Exception e)
+				}
+				catch (Exception e)
 				{
 					// ignore
 				}
@@ -183,7 +190,8 @@ public class FileUtil
 					{
 						out.close();
 					}
-				} catch (Exception e)
+				}
+				catch (Exception e)
 				{
 					// ignore
 				}
@@ -227,7 +235,8 @@ public class FileUtil
 				{
 					iStream.close();
 				}
-			} catch (Exception e)
+			}
+			catch (Exception e)
 			{
 				// ignore
 			}
@@ -238,13 +247,13 @@ public class FileUtil
 				{
 					oStream.close();
 				}
-			} catch (Exception e)
+			}
+			catch (Exception e)
 			{
 				// ignore
 			}
 		}
 	}
-
 
 	public static void write(OutputStream stream, String rawSource, String charset)
 	{
@@ -267,7 +276,8 @@ public class FileUtil
 		{
 			writer = new OutputStreamWriter(stream, charset);
 			writer.write(rawSource);
-		} catch (IOException e)
+		}
+		catch (IOException e)
 		{
 			Logger.log(e);
 		} finally
@@ -278,7 +288,8 @@ public class FileUtil
 				{
 					writer.close();
 				}
-			} catch (IOException e)
+			}
+			catch (IOException e)
 			{
 				// ignore
 			}
@@ -299,6 +310,99 @@ public class FileUtil
 		for (int bytes = input.read(buffer); bytes >= 0; bytes = input.read(buffer))
 		{
 			output.write(buffer, 0, bytes);
+		}
+	}
+
+	/**
+	 * Reads the file contents from the project.
+	 * 
+	 * @param project          The project to read file from
+	 * @param relativeFilePath Relative path to project leading to a file
+	 * @return String contents for the read file
+	 */
+	public static String readFile(IProject project, String relativeFilePath)
+	{
+		IFile filePath = project.getFile(new Path(relativeFilePath));
+		if (!filePath.exists())
+		{
+			Logger.log(MessageFormat.format("{0} couldn't find", filePath.toString())); //$NON-NLS-1$
+			return null;
+		}
+
+		return readFile(filePath.getRawLocation().toOSString());
+	}
+
+	/**
+	 * Reads the file contents from the given path.
+	 * 
+	 * @param absoluteFilePath Absolute path to a file
+	 * @return String contents for the read file
+	 */
+	public static String readFile(String absoluteFilePath)
+	{
+		StringBuilder fileContents = new StringBuilder();
+
+		try
+		{
+			Scanner scanner = new Scanner(new File(absoluteFilePath));
+			while (scanner.hasNext())
+			{
+				fileContents.append(scanner.nextLine());
+				fileContents.append(System.getProperty("line.separator"));
+			}
+			scanner.close();
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+			return null;
+		}
+
+		return fileContents.toString();
+	}
+
+	public static void writeFile(IProject project, String relativeFilePath, String contents, boolean append)
+	{
+		InputStream inputStream = new ByteArrayInputStream(contents.getBytes());
+		IFile filePath = project.getFile(new Path(relativeFilePath));
+		try
+		{
+			if (!filePath.exists())
+			{
+				filePath.create(inputStream, true, null);
+			}
+			else if (append)
+			{
+				filePath.appendContents(inputStream, true, true, null);
+			}
+			else
+			{
+				filePath.setContents(inputStream, IFile.FORCE, null);
+			}
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+		}
+
+	}
+
+	public static void deleteDirectory(File file) throws IOException
+	{
+		if (file.isDirectory())
+		{
+			File[] entries = file.listFiles();
+			if (entries != null)
+			{
+				for (File entry : entries)
+				{
+					deleteDirectory(entry);
+				}
+			}
+		}
+		if (!file.delete())
+		{
+			throw new IOException("Failed to delete " + file); //$NON-NLS-1$
 		}
 	}
 

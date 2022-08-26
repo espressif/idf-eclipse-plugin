@@ -9,26 +9,14 @@
    <feature id="org.eclipse.swtchart.feature">
       <category name="com.espressif.idf"/>
    </feature>
-   <feature id="ilg.gnumcueclipse.debug.gdbjtag.openocd.feature">
+   <feature id="org.eclipse.nebula.widgets.xviewer.feature">
       <category name="com.espressif.idf"/>
    </feature>
-   <bundle id="ilg.gnumcueclipse.debug.gdbjtag">
+   <feature id="org.eclipse.embedcdt">
       <category name="com.espressif.idf"/>
-   </bundle>
-   <bundle id="ilg.gnumcueclipse.core">
+   </feature>
+   <feature id="org.eclipse.embedcdt.debug.gdbjtag">
       <category name="com.espressif.idf"/>
-   </bundle>
-   <bundle id="ilg.gnumcueclipse.debug.core">
-      <category name="com.espressif.idf"/>
-   </bundle>
-   <bundle id="ilg.gnumcueclipse.managedbuild.cross">
-      <category name="com.espressif.idf"/>
-   </bundle>
-   <bundle id="ilg.gnumcueclipse.packs.core">
-      <category name="com.espressif.idf"/>
-   </bundle>
-   <bundle id="ilg.gnumcueclipse.packs.data">
-      <category name="com.espressif.idf"/>
-   </bundle>
+   </feature>
    <category-def name="com.espressif.idf" label="Espressif IDF"/>
 </site>

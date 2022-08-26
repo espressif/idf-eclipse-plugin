@@ -36,9 +36,15 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
+import org.eclipse.embedcdt.core.EclipseUtils;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.window.Window;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.launchbar.core.ILaunchBarManager;
+import org.eclipse.launchbar.core.target.ILaunchTarget;
+import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -51,15 +57,19 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.json.simple.JSONArray;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.EspConfigParser;
 import com.espressif.idf.core.util.IDFUtil;
@@ -72,8 +82,8 @@ import com.espressif.idf.debug.gdbjtag.openocd.preferences.PersistentPreferences
 import com.espressif.idf.debug.gdbjtag.openocd.ui.preferences.GlobalMcuPage;
 import com.espressif.idf.debug.gdbjtag.openocd.ui.preferences.WorkspaceMcuPage;
 import com.espressif.idf.debug.gdbjtag.openocd.ui.properties.ProjectMcuPage;
-
-import ilg.gnumcueclipse.core.EclipseUtils;
+import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
+import com.espressif.idf.launch.serial.ui.internal.NewSerialFlashTargetWizard;
 
 /**
  * @since 7.0
@@ -126,6 +136,8 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 	private DefaultPreferences fDefaultPreferences;
 	private PersistentPreferences fPersistentPreferences;
 
+	private ILaunchBarManager launchBarManager;
+
 	// ------------------------------------------------------------------------
 
 	protected TabDebugger(TabStartup tabStartup) {
@@ -133,6 +145,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 
 		fDefaultPreferences = Activator.getInstance().getDefaultPreferences();
 		fPersistentPreferences = Activator.getInstance().getPersistentPreferences();
+		launchBarManager = Activator.getService(ILaunchBarManager.class);
 	}
 
 	// ------------------------------------------------------------------------
@@ -154,6 +167,24 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 			System.out.println("openocd.TabDebugger.createControl() ");
 		}
 
+		if (!(parent instanceof ScrolledComposite))
+		{
+			ScrolledComposite sc = new ScrolledComposite(parent, SWT.V_SCROLL | SWT.H_SCROLL);
+			sc.setFont(parent.getFont());
+			sc.setExpandHorizontal(true);
+			sc.setExpandVertical(true);
+			sc.setShowFocusedControl(true);
+			this.createControl(sc);
+			Control control = this.getControl();
+			if (control != null)
+			{
+				sc.setContent(control);
+				sc.setMinSize(control.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+				this.setControl(control.getParent());
+			}
+			return;
+
+		}
 		Composite comp = new Composite(parent, SWT.NONE);
 		setControl(comp);
 		GridLayout layout = new GridLayout();
@@ -219,6 +250,28 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 		}
 	}
 
+	private static void showNoTargetMessage(String selectedTarget)
+	{
+		Display.getDefault().asyncExec(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				boolean isYes = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
+						Messages.IDFLaunchTargetNotFoundIDFLaunchTargetNotFoundTitle,
+						Messages.IDFLaunchTargetNotFoundMsg1 + selectedTarget + Messages.IDFLaunchTargetNotFoundMsg2
+								+ Messages.IDFLaunchTargetNotFoundMsg3);
+				if (isYes)
+				{
+					NewSerialFlashTargetWizard wizard = new NewSerialFlashTargetWizard();
+					WizardDialog dialog = new WizardDialog(
+							PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
+					dialog.open();
+				}
+			}
+		});
+	}
+
 	private void createGdbServerGroup(Composite parent) {
 
 		Group group = new Group(parent, SWT.NONE);
@@ -241,14 +294,23 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 		}
 
 		{
-			fDoStartGdbServer = new Button(comp, SWT.CHECK);
+			Composite local = new Composite(comp, SWT.NONE);
+			GridLayout layout = new GridLayout();
+			layout.numColumns = 1;
+			layout.marginHeight = 0;
+			layout.marginWidth = 0;
+			layout.makeColumnsEqualWidth = true;
+			local.setLayout(layout);
+			GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+			gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns;
+			local.setLayoutData(gd);
+
+			fDoStartGdbServer = new Button(local, SWT.CHECK);
 			fDoStartGdbServer.setText(Messages.getString("DebuggerTab.doStartGdbServer_Text"));
 			fDoStartGdbServer.setToolTipText(Messages.getString("DebuggerTab.doStartGdbServer_ToolTipText"));
-			GridData gd = new GridData();
-			gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns;
+			gd = new GridData(GridData.FILL_HORIZONTAL);
 			fDoStartGdbServer.setLayoutData(gd);
 		}
-
 		{
 			Label label = new Label(comp, SWT.NONE);
 			label.setText(Messages.getString("DebuggerTab.gdbServerExecutable_Label"));
@@ -377,9 +439,75 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 					@Override
 					public void widgetSelected(SelectionEvent e)
 					{
-						String selectedItem = fTarget.getItem(fTarget.getSelectionIndex());
+						String updatedSelectedTarget = getLaunchTarget();
+						String selectedItem = fTarget.getText();
+						if (!selectedItem.contentEquals(updatedSelectedTarget))
+						{
+							try
+							{
+								ILaunchConfigurationWorkingCopy wc = launchBarManager.getActiveLaunchConfiguration()
+										.getWorkingCopy();
+								wc.setAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, selectedItem);
+								wc.doSave();
+							}
+							catch (CoreException e1)
+							{
+								Logger.log(e1);
+							}
+							updateLaunchBar(selectedItem);
+						}
+						fGdbClientExecutable.setText(IDFUtil.getXtensaToolchainExecutablePathByTarget(selectedItem));
 						boardConfigsMap = parser.getBoardsConfigs(selectedItem);
 						fTargetName.setItems(parser.getBoardsConfigs(selectedItem).keySet().toArray(new String[0]));
+						fTargetName.select(0);
+						fTargetName.notifyListeners(SWT.Selection, null);
+					}
+
+					private void updateLaunchBar(String selectedItem)
+					{
+						ILaunchTarget target = findSuitableTargetForSelectedItem(selectedItem);
+						try
+						{
+							if (target != null)
+							{
+								launchBarManager.setActiveLaunchTarget(target);
+							}
+							else
+							{
+								showNoTargetMessage(selectedItem);
+							}
+							IDFUtil.getXtensaToolchainExecutablePathByTarget(selectedItem);
+
+						}
+						catch (CoreException e1)
+						{
+							Logger.log(e1);
+						}
+					}
+
+					private ILaunchTarget findSuitableTargetForSelectedItem(String selectedItem)
+					{
+						ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
+						ILaunchTarget[] targets = launchTargetManager
+								.getLaunchTargetsOfType("com.espressif.idf.launch.serial.core.serialFlashTarget"); //$NON-NLS-1$
+						ILaunchTarget suitableTarget = null;
+
+						for (ILaunchTarget target : targets)
+						{
+							String idfTarget = target.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
+									null);
+							String targetSerialPort = target
+									.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
+							if (idfTarget.contentEquals(selectedItem))
+							{
+								if (targetSerialPort.contentEquals(getSerialPort()))
+								{
+									return target;
+								}
+								suitableTarget = target;
+							}
+						}
+						return suitableTarget;
 					}
 				});
 				fTarget.setLayoutData(gd);
@@ -396,6 +524,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 				fTargetName.setItems(parser.getBoardsConfigs(selectedTarget).keySet().toArray(new String[0]));
 				boardConfigsMap = parser.getBoardsConfigs(selectedTarget);
 				
+				fTargetName.select(0);
 				fTargetName.addSelectionListener(new SelectionAdapter()
 				{
 					@SuppressWarnings("unchecked")
@@ -419,10 +548,10 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 						}
 
 					}
+
 				});
 				fTargetName.setLayoutData(gd);
 			}
-
 		}
 
 		{
@@ -574,11 +703,12 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 
 	private String getLaunchTarget()
 	{
-		ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
+		launchBarManager = Activator.getService(ILaunchBarManager.class);
 		String selectedTarget = ""; //$NON-NLS-1$
 		try
 		{
-			selectedTarget = launchBarManager.getActiveLaunchTarget().getId();
+			selectedTarget = launchBarManager.getActiveLaunchTarget().getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET,
+					""); //$NON-NLS-1$
 		}
 		catch (CoreException e)
 		{
@@ -858,8 +988,20 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 			Boolean booleanDefault;
 			String stringDefault;
 
+			// JTAG options
+			if (fFlashVoltage != null && fTarget != null && fTargetName != null)
+			{
+				fFlashVoltage.setText(
+						configuration.getAttribute(IDFLaunchConstants.JTAG_FLASH_VOLTAGE, fFlashVoltage.getText()));
+				fTarget.setText(configuration.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, fTarget.getText()));
+				fTarget.notifyListeners(SWT.Selection, null);
+				fTargetName.setText(configuration.getAttribute(IDFLaunchConstants.JTAG_BOARD, fTargetName.getText()));
+
+			}
+
 			// OpenOCD GDB server
 			{
+
 				// Start server locally
 
 				booleanDefault = fPersistentPreferences.getGdbServerDoStart();
@@ -1003,7 +1145,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 			fDoStartGdbClient.setSelection(DefaultPreferences.DO_START_GDB_CLIENT_DEFAULT);
 
 			//Set Xtensa toolchain path
-			String clientExecutablePath = getGdbClientExecutable();
+			String clientExecutablePath = getGdbClientExecutable(fConfiguration);
 			if (clientExecutablePath != null)
 			{
 				fGdbClientExecutable.setText(clientExecutablePath);
@@ -1248,6 +1390,25 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 			}
 		}
 
+		// JTAG options
+		if (fFlashVoltage != null && fTarget != null && fTargetName != null)
+		{
+			try
+			{
+				ILaunchConfigurationWorkingCopy wc = configuration.getWorkingCopy();
+				wc.setAttribute(IDFLaunchConstants.JTAG_FLASH_VOLTAGE, fFlashVoltage.getText());
+				wc.setAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, fTarget.getText());
+				wc.setAttribute(IDFLaunchConstants.JTAG_BOARD, fTargetName.getText());
+				wc.doSave();
+			}
+			catch (CoreException e)
+			{
+				Logger.log(e);
+			}
+
+		}
+
+
 		// Force thread update
 		configuration.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUGGER_UPDATE_THREADLIST_ON_SUSPEND,
 				fUpdateThreadlistOnSuspend.getSelection());
@@ -1312,7 +1473,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 
 		// GDB client setup
 		{
-			defaultString = getGdbClientExecutable();
+			defaultString = getGdbClientExecutable(configuration);
 			configuration.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, defaultString);
 
 			configuration.setAttribute(IGDBJtagConstants.ATTR_USE_REMOTE_TARGET,
@@ -1330,14 +1491,31 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 				DefaultPreferences.UPDATE_THREAD_LIST_DEFAULT);
 	}
 	
+	private String getSerialPort()
+	{
+
+		String serialPort = ""; //$NON-NLS-1$
+		try
+		{
+			serialPort = launchBarManager.getActiveLaunchTarget()
+					.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
+
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+		return serialPort;
+	}
+
 	//Get Xtensa toolchain path based on the target configured for the project
-	private String getGdbClientExecutable()
+	private String getGdbClientExecutable(ILaunchConfiguration configuration)
 	{
 		// Find the project and current launch target configured
 		IProject project = null;
-		if (fConfiguration != null)
+		if (configuration != null)
 		{
-			project = EclipseUtils.getProjectByLaunchConfiguration(fConfiguration);
+			project = EclipseUtils.getProjectByLaunchConfiguration(configuration);
 		}
 		String exePath = IDFUtil.getXtensaToolchainExecutablePath(project);
 		return StringUtil.isEmpty(exePath) ? StringUtil.EMPTY : exePath;

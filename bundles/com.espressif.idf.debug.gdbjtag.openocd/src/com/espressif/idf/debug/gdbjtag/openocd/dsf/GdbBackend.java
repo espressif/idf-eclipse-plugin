@@ -21,12 +21,11 @@ import org.eclipse.cdt.dsf.service.DsfSession;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.embedcdt.debug.gdbjtag.core.DebugUtils;
+import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuGdbBackend;
 
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
-
-import ilg.gnumcueclipse.debug.gdbjtag.DebugUtils;
-import ilg.gnumcueclipse.debug.gdbjtag.dsf.GnuMcuGdbBackend;
 
 /**
  * The Kepler CDT GDBBackend does not allow such a simple customisation, we had
@@ -89,7 +88,7 @@ public class GdbBackend extends GnuMcuGdbBackend {
 	 */
 	protected String[] getGDBCommandLineArray() {
 		String[] commandLineArray = Configuration.getGdbClientCommandLineArray(fLaunchConfiguration);
-
+		
 		return commandLineArray;
 	}
 

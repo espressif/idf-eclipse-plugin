@@ -87,7 +87,7 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 		Assert.isNotNull(properties);
 
 		// Set the terminal tab title
-		String terminalTitle = getTerminalTitle(properties);
+		String terminalTitle = getTerminalTitle();
 		if (terminalTitle != null) {
 			properties.put(ITerminalsConnectorConstants.PROP_TITLE, terminalTitle);
 		}
@@ -235,8 +235,8 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 	 *
 	 * @return The terminal title string
 	 */
-	private String getTerminalTitle(Map<String, Object> properties) {
-		return "ESP-IDF Terminal"; //$NON-NLS-1$
+	private String getTerminalTitle() {
+		return Messages.IDFConsoleLauncherDelegate_ESPIDFTerminal;
 	}
 
 	@Override
@@ -373,7 +373,7 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 		}
 
 		//Set CDT build environment variables
-		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
+		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
 		Set<String> keySet = envMap.keySet();
 		for (String envKey : keySet) {
 			String envValue = envMap.get(envKey);
@@ -382,7 +382,7 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 				String idfExtraPaths = IDFUtil.getIDFExtraPaths();
 				if(!StringUtil.isEmpty(idfExtraPaths))
 				{
-					envValue = envValue + ":" + idfExtraPaths;
+					envValue = envValue + ":" + idfExtraPaths; //$NON-NLS-1$
 				}
 			}
 			envpList.add(envKey + "=" + envValue); //$NON-NLS-1$

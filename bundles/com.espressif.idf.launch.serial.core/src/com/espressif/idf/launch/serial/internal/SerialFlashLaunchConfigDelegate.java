@@ -44,22 +44,25 @@ import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.embedcdt.core.EclipseUtils;
+import org.eclipse.embedcdt.core.StringUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
+import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.launchbar.core.target.launch.ITargetedLaunch;
+import org.eclipse.launchbar.ui.internal.Activator;
+import org.eclipse.launchbar.ui.target.ILaunchTargetUIManager;
 import org.eclipse.swt.widgets.Display;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.IDFBuildConfiguration;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.DfuCommandsUtil;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
-
-import ilg.gnumcueclipse.core.EclipseUtils;
-import ilg.gnumcueclipse.core.StringUtils;
 
 /**
  * Flashing into esp32 board
@@ -86,6 +89,15 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		// Start the launch (pause the serial port)
 		((SerialFlashLaunch) launch).start();
 		boolean isFlashOverJtag = configuration.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, false);
+		serialPort = ((SerialFlashLaunch) launch).getLaunchTarget()
+				.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
+		if (DfuCommandsUtil.isDfu()) {
+			if (checkIfPortIsEmpty(configuration)) {
+				return;
+			}
+			DfuCommandsUtil.flashDfuBins(getProject(configuration), launch, monitor, serialPort);
+			return;
+		}
 		if (isFlashOverJtag) {
 			flashOverJtag(configuration, launch);
 			return;
@@ -122,15 +134,14 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		commands.add(location);
 
 		//build the flash command
-		serialPort = ((SerialFlashLaunch) launch).getLaunchTarget()
-				.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
 		String espFlashCommand = ESPFlashUtil.getEspFlashCommand(serialPort);
 		Logger.log(espFlashCommand);
-		if (checkIfPortIsEmpty()) {
+		if (checkIfPortIsEmpty(configuration)) {
 			return;
 		}
 		String arguments = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS,
 				espFlashCommand);
+		arguments = arguments.replace(ESPFlashUtil.SERIAL_PORT, serialPort);
 		if (!arguments.isEmpty()) {
 			commands.addAll(Arrays.asList(varManager.performStringSubstitution(arguments).split(" "))); //$NON-NLS-1$
 		}
@@ -149,7 +160,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		}
 
 		//Reading CDT build environment variables
-		Map<String, String> envMap = new IDFEnvironmentVariables().getEnvMap();
+		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
 
 		// Turn it into an envp format
 		List<String> strings = new ArrayList<>(envMap.size());
@@ -189,7 +200,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		}
 	}
 
-	private boolean checkIfPortIsEmpty() {
+	private boolean checkIfPortIsEmpty(ILaunchConfiguration configuration) {
 		boolean isMatch = false;
 		try {
 			String[] ports = SerialPort.list();
@@ -203,19 +214,24 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 			Logger.log(e);
 		}
 		if (!isMatch) {
-			showMessage();
+			showMessage(configuration);
 			return true;
 		}
 		return false;
 	}
 
-	private static void showMessage() {
+	private static void showMessage(ILaunchConfiguration configuration) {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				MessageDialog.openError(Display.getDefault().getActiveShell(),
+				boolean isYes = MessageDialog.openConfirm(Display.getDefault().getActiveShell(),
 						com.espressif.idf.launch.serial.internal.Messages.SerialPortNotFoundTitle,
 						com.espressif.idf.launch.serial.internal.Messages.SerialPortNotFoundMsg);
+				if (isYes) {
+					ILaunchTargetUIManager targetUIManager = Activator.getService(ILaunchTargetUIManager.class);
+					ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
+					targetUIManager.editLaunchTarget(launchTargetManager.getDefaultLaunchTarget(configuration));
+				}
 			}
 		});
 	}

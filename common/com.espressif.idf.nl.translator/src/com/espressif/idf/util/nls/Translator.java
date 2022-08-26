@@ -19,19 +19,27 @@ public class Translator
 				System.out.println(file.getAbsolutePath());
 
 				// cmd
-				String[] cmdArray = new String[3];
-				cmdArray[0] = native2asciiExePath;
-
+				StringBuilder command = new StringBuilder();
+				command.append(native2asciiExePath);
+				
+				//encoding option
+				command.append(" ");
+				command.append("-encoding UTF-8");
+				
 				// source properties file - original
-				cmdArray[1] = file.getAbsolutePath();
+				command.append(" ");
+				command.append(file.getAbsolutePath());
 
 				// destination properties - converted
-				cmdArray[2] = file.getAbsolutePath();
-				System.out.println(cmdArray);
+				command.append(" ");
+				command.append(file.getAbsolutePath());
+				
+				System.out.println(command.toString());
 
 				// run cmd
-				Process process = Runtime.getRuntime().exec(cmdArray);
+				Process process = Runtime.getRuntime().exec(command.toString());
 				process.waitFor();
+				process.getOutputStream().close();
 			}
 
 		}
@@ -40,8 +48,8 @@ public class Translator
 	// Test
 	public static void main(String[] args)
 	{
-		String folder = "/Users/kondal/Downloads/20210511/IEP-EN:CN/";
-		String native2asciiExePath = "/Library/Java/JavaVirtualMachines/jdk1.8.0_201.jdk/Contents/Home/bin/native2ascii";
+		String folder = "C:\\Users\\aliaz\\Documents\\idf-eclipse-plugin\\common\\MissingProperties\\idf-eclipse-plugin";
+		String native2asciiExePath = "C:\\Program Files\\Java\\jdk1.8.0_291\\bin\\native2ascii.exe";
 		try
 		{
 			translator(folder, native2asciiExePath);

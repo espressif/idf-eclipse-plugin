@@ -14,25 +14,25 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd.dsf;
 
-import ilg.gnumcueclipse.core.StringUtils;
-import ilg.gnumcueclipse.debug.gdbjtag.dsf.GnuMcuGdbServerBackend;
-
 import org.eclipse.cdt.dsf.concurrent.RequestMonitor;
 import org.eclipse.cdt.dsf.service.DsfSession;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.embedcdt.core.StringUtils;
+import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuGdbServerBackend;
 import org.osgi.framework.BundleContext;
 
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
+import com.espressif.idf.ui.UIPlugin;
 
 public class GdbServerBackend extends GnuMcuGdbServerBackend {
 
 	// ------------------------------------------------------------------------
-
-	protected int fGdbServerLaunchTimeout = 15;
+	protected int fGdbServerLaunchDefaultTimeout = 25;
 	protected boolean fDoStartGdbClient;
 
 	// ------------------------------------------------------------------------
@@ -139,7 +139,7 @@ public class GdbServerBackend extends GnuMcuGdbServerBackend {
 
 	@Override
 	public int getServerLaunchTimeoutSeconds() {
-		return fGdbServerLaunchTimeout;
+		return Platform.getPreferencesService().getInt(UIPlugin.PLUGIN_ID, Activator.GDB_SERVER_LAUNCH_TIMEOUT, fGdbServerLaunchDefaultTimeout, null);
 	}
 
 	public String getServerName() {

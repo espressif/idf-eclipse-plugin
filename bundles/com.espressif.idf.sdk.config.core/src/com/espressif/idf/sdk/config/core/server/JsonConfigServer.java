@@ -81,7 +81,7 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 	public void start() throws IOException
 	{
 		IPath workingDir = project.getLocation();
-		Map<String, String> idfEnvMap = new IDFEnvironmentVariables().getEnvMap();
+		Map<String, String> idfEnvMap = new IDFEnvironmentVariables().getSystemEnvMap();
 
 		// Disable buffering of output
 		idfEnvMap.put("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$

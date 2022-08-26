@@ -22,11 +22,14 @@ import org.eclipse.osgi.util.NLS;
 
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 
-public class Messages {
+public class Messages
+{
 
 	// ------------------------------------------------------------------------
 
 	private static final String MESSAGES = Activator.PLUGIN_ID + ".ui.messages"; //$NON-NLS-1$
+
+	public static String OpenOcdFailedMsg;
 
 	public static String ProjectMcuPagePropertyPage_description;
 	public static String WorkspaceMcuPagePropertyPage_description;
@@ -35,34 +38,66 @@ public class Messages {
 	public static String McuPage_executable_label;
 	public static String McuPage_executable_folder;
 
+	public static String BreakPointPage_RadioGroupTitle;
+	public static String BreakPointPage_BtnStartHeapTrace;
+	public static String BreakPointPage_BtnStopHeapTrace;
+	public static String BreakPointPage_TextHeapDumpFileName;
+	public static String BreakPointPage_BtnBrowse;
+
+	public static String IDFLaunchTargetNotFoundIDFLaunchTargetNotFoundTitle;
+	public static String IDFLaunchTargetNotFoundMsg1;
+	public static String IDFLaunchTargetNotFoundMsg2;
+	public static String IDFLaunchTargetNotFoundMsg3;
+
+	public static String StartupTabOpenOcdGroup;
+	public static String StartupTabFlashBeforeStart;
+	public static String StartupTabEnableVerboseOutput;
+
+	public static String MissingDebugConfigurationTitle;
+	public static String DebugConfigurationNotFoundMsg;
+	public static String AppLvlTracingJob;
+
+	public static String DllNotFound_ExceptionMessage;
 	// ------------------------------------------------------------------------
 
-	static {
+	static
+	{
 		// initialise resource bundle
 		NLS.initializeMessages(MESSAGES, Messages.class);
 	}
 
 	private static ResourceBundle RESOURCE_BUNDLE;
-	static {
-		try {
+
+	static
+	{
+		try
+		{
 			RESOURCE_BUNDLE = ResourceBundle.getBundle(MESSAGES);
-		} catch (MissingResourceException e) {
+		}
+		catch (MissingResourceException e)
+		{
 			Activator.log(e);
 		}
 	}
 
-	private Messages() {
+	private Messages()
+	{
 	}
 
-	public static String getString(String key) {
-		try {
+	public static String getString(String key)
+	{
+		try
+		{
 			return RESOURCE_BUNDLE.getString(key);
-		} catch (MissingResourceException e) {
+		}
+		catch (MissingResourceException e)
+		{
 			return '!' + key + '!';
 		}
 	}
 
-	public static ResourceBundle getResourceBundle() {
+	public static ResourceBundle getResourceBundle()
+	{
 		return RESOURCE_BUNDLE;
 	}
 

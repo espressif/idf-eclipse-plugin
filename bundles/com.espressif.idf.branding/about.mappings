@@ -7,3 +7,4 @@
 # e.g. "0=20200106-1728"
 # This value will be added automatically via the build scripts
 0=${buildId}
+1=${releaseName}

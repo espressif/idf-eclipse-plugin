@@ -14,11 +14,6 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd.dsf;
 
-import ilg.gnumcueclipse.core.EclipseUtils;
-import ilg.gnumcueclipse.core.StringUtils;
-import ilg.gnumcueclipse.debug.gdbjtag.DebugUtils;
-import ilg.gnumcueclipse.debug.gdbjtag.dsf.GnuMcuDebuggerCommandsService;
-
 import java.util.List;
 
 import org.eclipse.cdt.debug.core.CDebugUtils;
@@ -27,6 +22,10 @@ import org.eclipse.cdt.dsf.service.DsfSession;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.embedcdt.core.EclipseUtils;
+import org.eclipse.embedcdt.core.StringUtils;
+import org.eclipse.embedcdt.debug.gdbjtag.core.DebugUtils;
+import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuDebuggerCommandsService;
 import org.osgi.framework.BundleContext;
 
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
@@ -53,7 +52,6 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService {
 
 	@Override
 	public IStatus addGdbInitCommandsCommands(List<String> commandsList) {
-
 		String otherInits = CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.GDB_CLIENT_OTHER_COMMANDS,
 				DefaultPreferences.GDB_CLIENT_OTHER_COMMANDS_DEFAULT).trim();
 
@@ -110,7 +108,6 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService {
 
 	@Override
 	public IStatus addFirstResetCommands(List<String> commandsList) {
-
 		if (CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.DO_FIRST_RESET,
 				DefaultPreferences.DO_FIRST_RESET_DEFAULT)) {
 
@@ -126,14 +123,15 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService {
 		}
 
 		String otherInits = CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.OTHER_INIT_COMMANDS,
-				DefaultPreferences.OTHER_INIT_COMMANDS_DEFAULT).trim();
-
+					DefaultPreferences.OTHER_INIT_COMMANDS_DEFAULT).trim();
+		
 		otherInits = DebugUtils.resolveAll(otherInits, fAttributes);
 		if (fDoDoubleBackslash && EclipseUtils.isWindows()) {
 			otherInits = StringUtils.duplicateBackslashes(otherInits);
 		}
 		DebugUtils.addMultiLine(otherInits, commandsList);
 
+		
 		if (CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.ENABLE_SEMIHOSTING,
 				DefaultPreferences.ENABLE_SEMIHOSTING_DEFAULT)) {
 			String commandStr = DefaultPreferences.ENABLE_SEMIHOSTING_COMMAND;
@@ -145,7 +143,6 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService {
 
 	@Override
 	public IStatus addStartRestartCommands(boolean doReset, List<String> commandsList) {
-
 		if (doReset) {
 			if (CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.DO_SECOND_RESET,
 					DefaultPreferences.DO_SECOND_RESET_DEFAULT)) {

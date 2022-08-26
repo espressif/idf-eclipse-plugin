@@ -5,7 +5,17 @@
 package com.espressif.idf.ui.wizard;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -19,6 +29,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
 import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.handlers.NewProjectHandlerUtil;
 import com.espressif.idf.ui.templates.IDFProjectGenerator;
@@ -37,7 +48,11 @@ public class NewIDFProjectWizard extends TemplateWizard
 
 	private WizardNewProjectCreationPage mainPage;
 	private TemplateListSelectionPage templatesPage;
-
+	private static final String cmakeProjectNamePattern = "(project[(].+[)])"; //$NON-NLS-1$
+	private static final String[] cmakeListCommands = {"get_filename_component(ProjectId ${CMAKE_CURRENT_LIST_DIR} NAME)", //$NON-NLS-1$
+			"string(REPLACE \" \" \"_\" ProjectId ${ProjectId})", //$NON-NLS-1$
+			"project(${ProjectId})"}; //$NON-NLS-1$
+	
 	public NewIDFProjectWizard()
 	{
 		IDialogSettings workbenchSettings = IDEWorkbenchPlugin.getDefault().getDialogSettings();
@@ -107,13 +122,44 @@ public class NewIDFProjectWizard extends TemplateWizard
 			{
 				ISelectionProvider selProvider = viewPart.getSite().getSelectionProvider();
 				String projectName = mainPage.getProjectName();
+				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 				selProvider.setSelection(
-						new StructuredSelection(ResourcesPlugin.getWorkspace().getRoot().getProject(projectName)));
+						new StructuredSelection(project));
+				renameProjectInCmakeList(project);
 			}
 		}
 		return performFinish;
 	}
 
+	private void renameProjectInCmakeList(IProject project)
+	{
+		Path cMakeListLocation = new File(project.getLocation() + "/CMakeLists.txt").toPath(); //$NON-NLS-1$
+		List<String> fileContent;
+		try
+		{
+			fileContent = new ArrayList<>(Files.readAllLines(cMakeListLocation));
+			for (int i = 0; i < fileContent.size(); i++)
+			{
+
+				Pattern p = Pattern.compile(cmakeProjectNamePattern); 
+				Matcher m = p.matcher(fileContent.get(i));
+				if (m.find())
+				{
+					fileContent.set(i, cmakeListCommands[0]);
+					fileContent.add(cmakeListCommands[1]);
+					fileContent.add(cmakeListCommands[2]);
+					break;
+				}
+			}
+
+			Files.write(cMakeListLocation, fileContent, StandardCharsets.UTF_8);
+		}
+		catch (IOException e)
+		{
+			Logger.log(e);
+		}
+	}
+	
 	@Override
 	protected IGenerator getGenerator()
 	{

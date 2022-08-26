@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension-point id="com.espressif.idf.ui.locale.support" name="Languages" schema="schema/com.espressif.ifg/com.espressif.idf.ui.extensionspoint.exsd"/>
+   <extension-point id="com.espressif.idf.ui.locale.support" name="%extension-point.name" schema="schema/com.espressif.ifg/com.espressif.idf.ui.extensionspoint.exsd"/>
    <extension
          point="org.eclipse.ui.newWizards">
       <category
@@ -26,7 +26,7 @@
             category="com.espressif.idf.ui.new.wizard.category"
             class="com.espressif.idf.ui.wizard.NewComponentMainWizard"
             hasPages="false"
-            icon="icons/Espressif IDF Component.png"
+            icon="icons/Espressif_IDF_Component.png"
             id="com.espressif.idf.ui.component.wizard"
             name="%wizard.name.1"
             project="true">
@@ -89,66 +89,39 @@
       </command>
       <command
             defaultHandler="ChangeLanguageHandler"
-            description="Changes the language based on label"
+            description="%command.description"
             id="com.espressif.idf.ui.changeLanguage"
-            name="Change Language">
+            name="%command.name.6">
+      </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.help.EclipsePluginDocHandler"
+            id="com.espressif.idf.ui.command.eclipeguide"
+            name="%command.name.9">
+      </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.handlers.UpdateEspIdfHandler"
+            id="com.espressif.idf.ui.command.update"
+            name="%command.name.updateEspIdfMaster">
+      </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.tools.ManageToolsInstallationHandler"
+            id="com.espressif.idf.ui.command.managetoolsinstallation"
+            name="%command.name.15">
       </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
-            allPopups="false"
-            locationURI="menu:help?after=installespidf">
-         <menu
-               icon="icons/espressif.png"
-               id="espidftoolsInstall"
-               label="%menu.label">
-            <command
-                  commandId="com.espressif.idf.ui.command.install"
-                  icon="icons/espressif.png"
-                  style="push">
-            </command>
-            <command
-                  commandId="com.espressif.idf.ui.command.list"
-                  icon="icons/espressif.png"
-                  style="push">
-            </command>
-         </menu>
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="menu:help?after=idfversiondoc">
-         <menu
-               icon="icons/Change Language.png"
-               id="changeLanguage"
-               label="Change Language">
-            <dynamic
-                  class="com.espressif.idf.ui.menuitem.LanguageDynamicMenuItem"
-                  id="com.espressif.idf.ui.LanguageDynamicMenu">
-            </dynamic>
-         </menu>
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="menu:help">
-         <separator
-               name="com.espressif.idf.espressif.seperator"
-               visible="true">
-         </separator>
-         <command
-               commandId="com.espressif.idf.ui.command.idfversiondoc"
-               icon="icons/ESP-IDF Programming Guide.png"
-               id="idfversiondoc"
-               label="%command.label"
-               style="push">
-         </command>
-      </menuContribution>
-      <menuContribution
             locationURI="menu:org.eclipse.ui.main.menu?after=additions">
+         <menu
+               id="espressifMenu"
+               label="%menu.label.1"
+               mnemonic="%menu.mnemonic">
+         </menu>
       </menuContribution>
       <menuContribution
             allPopups="false"
-            locationURI="menu:help?after=idfversiondoc">
+            locationURI="menu:espressifMenu">
          <command
                commandId="com.espressif.idf.ui.commands.installespidf"
                icon="icons/Download and configure ESP-IDF.png"
@@ -159,10 +132,95 @@
       </menuContribution>
       <menuContribution
             allPopups="false"
-            locationURI="menu:help?after=idfversiondoc">
+            locationURI="menu:espressifMenu?after=installespidf">
+         <menu
+               icon="icons/ESP-IDF Tools Manager.png"
+               id="espidftoolsInstall"
+               label="%menu.label">
+            <command
+                  commandId="com.espressif.idf.ui.command.install"
+                  icon="icons/ESP-IDF Install Tools.png"
+                  style="push">
+            </command>
+            <command
+                  commandId="com.espressif.idf.ui.command.list"
+                  icon="icons/ESP-IDF List Tools.png"
+                  style="push">
+            </command>
+            <command
+                  commandId="com.espressif.idf.ui.command.update"
+                  icon="icons/Update_ESP-IDF.png"
+                  style="push">
+               <visibleWhen
+                     checkEnabled="false">
+                  <test
+                        property="com.espressif.idf.ui.propertyTester.testProperty">
+                  </test>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="com.espressif.idf.ui.command.managetoolsinstallation"
+                  icon="icons/ESP-IDFManageToolsInstallation.png"
+                  style="push">
+            </command>
+         </menu>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:espressifMenu?after=espidftoolsInstall">
+         <command
+               commandId="org.plugin.espressif.commands.eraseFlash"
+               icon="icons/Erase Flash.png"
+               id="org.plugin.espressif.menus.eraseFlashCommand"
+               label="%command.label.5">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:espressifMenu?after=org.plugin.espressif.menus.eraseFlashCommand">
+         <menu
+               icon="icons/Change Language.png"
+               id="changeLanguage"
+               label="%menu.label.0">
+            <dynamic
+                  class="com.espressif.idf.ui.menuitem.LanguageDynamicMenuItem"
+                  id="com.espressif.idf.ui.LanguageDynamicMenu">
+            </dynamic>
+         </menu>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:espressifMenu?after=changeLanguage">
+         <separator
+               name="com.espressif.idf.espressif.seperator"
+               visible="true">
+         </separator>
+         <command
+               commandId="com.espressif.idf.ui.command.idfversiondoc"
+               icon="icons/ESP-IDF Programming Guide.png"
+               id="idfprogguide"
+               label="%command.label"
+               style="push">
+         </command>
+         <command
+               commandId="com.espressif.idf.ui.command.eclipeguide"
+               icon="icons/ESP-IDF Programming Guide.png"
+               id="eclipseguide"
+               label="%command.label.7"
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:espressifMenu?after=eclipseguide">
+         <separator
+               name="com.espressif.idf.espressif.seperator.2"
+               visible="true">
+         </separator>
          <command
                commandId="com.espressif.idf.ui.command.productInfo"
                icon="icons/Product Information.png"
+               id="productinfo"
                label="%command.label.4 "
                style="push">
          </command>
@@ -202,7 +260,7 @@
          </command>
          <command
                commandId="com.espressif.idf.ui.command.component"
-               icon="icons/Espressif IDF Component.png"
+               icon="icons/Espressif_IDF_Component.png"
                label="%wizard.name.1"
                style="push">
          </command>
@@ -219,7 +277,7 @@
          </separator>
          <command
                commandId="com.espressif.idf.ui.memoryanalysis"
-               icon="icons/ESP-IDF Application Size Analysis.png"
+               icon="icons/ESP-IDF_ApplicationSizeAnalysis.png"
                label="%command.label.1"
                style="push">
             <visibleWhen
@@ -237,6 +295,57 @@
                commandId="com.espressif.commands.cleanCommand"
                icon="icons/Python Clean.png"
                label="%command.label.2"
+               style="push"
+               tooltip="%command.tooltip">
+            <visibleWhen
+                  checkEnabled="false">
+               <iterate
+                     ifEmpty="false"
+                     operator="or">
+                  <instanceof
+                        value="org.eclipse.core.resources.IResource">
+                  </instanceof>
+               </iterate>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="com.espressif.commands.fullcleanCommand"
+               icon="icons/Python Clean.png"
+               label="%command.label.9"
+               style="push"
+               tooltip="%command.tooltip.0">
+            <visibleWhen
+                  checkEnabled="false">
+               <iterate
+                     ifEmpty="false"
+                     operator="or">
+                  <instanceof
+                        value="org.eclipse.core.resources.IResource">
+                  </instanceof>
+               </iterate>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="com.espressif.commands.pythoncleanCommand"
+               icon="icons/Python Clean.png"
+               label="%command.label.10"
+               style="push"
+               tooltip="%command.tooltip.1">
+            <visibleWhen
+                  checkEnabled="false">
+               <iterate
+                     ifEmpty="false"
+                     operator="or">
+                  <instanceof
+                        value="org.eclipse.core.resources.IResource">
+                  </instanceof>
+               </iterate>
+            </visibleWhen>
+         </command>
+                  <command
+               commandId="com.espressif.idf.ui.appLvlTracing"
+               icon="icons/ESP-IDF_Application_Level_Tracing.png"
+               label="%command.label.8"
                style="push">
             <visibleWhen
                   checkEnabled="false">
@@ -249,6 +358,43 @@
                </iterate>
             </visibleWhen>
          </command>
+         <command
+               commandId="com.espressif.idf.ui.heapDumpAnalysis"
+               icon="icons/espressif.png"
+               label="%command.label.3"
+               style="push">
+			<visibleWhen>
+				<with variable="activeMenuSelection">
+					<iterate
+				    	ifEmpty="false">
+				        	<adapt type="org.eclipse.core.resources.IResource">
+				            	<test property="org.eclipse.core.resources.name" value="*.svdat" />
+				             </adapt>
+				    </iterate>
+				</with>
+         	</visibleWhen>
+         </command>
+         <command
+               commandId="com.espressif.idf.ui.installidfcomponents"
+               icon="icons/ESP-IDF_InstallComponents.png"
+               label="%command.label.6"
+               style="push">
+            <visibleWhen>
+               <with
+                     variable="activeMenuSelection">
+                  <iterate
+                        ifEmpty="false">
+                     <adapt
+                           type="org.eclipse.core.resources.IResource">
+                        <test
+                           property="org.eclipse.core.resources.projectNature"
+                           value="com.espressif.idf.core.idfNature">
+                        </test>
+                     </adapt>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
       </menuContribution>
    </extension>
    <extension
@@ -258,13 +404,23 @@
             id="com.espressif.idf.ui.memoryanalysis"
             name="%command.name.3">
       </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.handlers.HeapDumpAnalysisHandler"
+            id="com.espressif.idf.ui.heapDumpAnalysis"
+            name="%command.name.7">
+      </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.installcomponents.handler.InstallIDFComponentsHandler"
+            id="com.espressif.idf.ui.installidfcomponents"
+            name="%command.name.8">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.editors">
       <editor
             class="com.espressif.idf.ui.size.IDFSizeAnalysisEditor"
             default="false"
-            icon="icons/espressif.png"
+            icon="icons/ESP-IDF_ApplicationSizeAnalysis.png"
             id="com.espressif.idf.ui.editor.idfsize"
             name="%editor.name">
       </editor>
@@ -282,6 +438,9 @@
             class="com.espressif.idf.ui.install.IDFDownloadHandler"
             commandId="com.espressif.idf.ui.commands.installespidf">
       </handler>
+      <handler
+            commandId="com.espressif.idf.ui.appLvlTracing">
+      </handler>
    </extension>
    	<extension point="org.eclipse.ui.preferencePages">
   	<page
@@ -296,7 +455,6 @@
              class="com.espressif.idf.ui.InitializeToolsStartup">
        </startup>
     </extension>
-
     <extension
           id="com.espressif.idf.ui.extension.locale.support"
           name="LocaleSupport"
@@ -317,24 +475,87 @@
             id="com.espressif.commands.cleanCommand"
             name="%command.name.5">
       </command>
+      <command
+            categoryId="com.espressif.commands.category"
+            id="com.espressif.commands.fullcleanCommand"
+            name="%command.name.11">
+      </command>
+      <command
+            categoryId="com.espressif.commands.category"
+            id="com.espressif.commands.pythoncleanCommand"
+            name="%command.name.12">
+      </command>
+      <command
+            id="org.eclipse.ltk.ui.refactoring.commands.deleteResources"
+            name="%command.name.delete">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-            class="com.espressif.idf.ui.handlers.PythonCleanCommandHandler"
+            class="com.espressif.idf.ui.handlers.ProjectCleanCommandHandler"
             commandId="com.espressif.commands.cleanCommand">
+      </handler>
+      <handler
+            class="com.espressif.idf.ui.handlers.ProjectFullCleanCommandHandler"
+            commandId="com.espressif.commands.fullcleanCommand">
+      </handler>
+      <handler
+            class="com.espressif.idf.ui.handlers.PythonCleanCommandHandler"
+            commandId="com.espressif.commands.pythoncleanCommand">
+      </handler>
+       <handler
+            class="com.espressif.idf.ui.handlers.DeleteResourceHandler"
+            commandId="org.eclipse.ltk.ui.refactoring.commands.deleteResources">
+         	<activeWhen>
+			<with variable="selection">
+			  <iterate
+                  ifEmpty="false">
+               <instanceof
+                     value="org.eclipse.core.resources.IProject">
+               </instanceof>
+               <test
+                     property="org.eclipse.core.resources.projectNature"
+                     value="com.espressif.idf.core.idfNature">
+               </test>
+            </iterate>
+			</with>
+	</activeWhen>
       </handler>
     </extension>
    <extension
          point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="com.espressif.idf.ui.handlers.DfuCommandHandler"
+            id="com.espressif.idf.ui.command.dfu"
+            name="%command.name.13">
+         <state
+               class="org.eclipse.ui.handlers.RegistryToggleState"
+               id="org.eclipse.ui.commands.toggleState">
+         </state>
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
       <category
             id="org.plugin.espressif.commands.category"
-            name="Espressif">
+            name="%category.name.1">
       </category>
       <command
             categoryId="org.plugin.espressif.commands.category"
             id="org.plugin.espressif.commands.eraseFlash"
             name="%command.name.6">
+      </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.handlers.HelpContribItemHandler"
+            id="com.espressif.idf.ui.contributions.help"
+            name="%command.name.9">
+      </command>
+      <command
+            categoryId="org.plugin.espressif.commands.category"
+            defaultHandler="com.espressif.idf.ui.installcomponents.handler.InstallIDFComponentsHandler"
+            id="com.espressif.idf.bundles.installIdfComponents"
+            name="%command.name.10">
       </command>
    </extension>
    <extension
@@ -345,19 +566,113 @@
       </handler>
    </extension>
    <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            locationURI="menu:org.eclipse.ui.main.menu?after=additions">
-         <menu
-               id="org.plugin.espressif.menus.espressifMenu"
-               label="%menu.label.0"
-               mnemonic="E">
+         point="org.eclipse.ui.editors">
+      <editor
+            class="com.espressif.idf.ui.tracing.heaptracing.HeapTracingAnalysisEditor"
+            default="false"
+            icon="icons/espressif.png"
+            id="com.espressif.idf.ui.editor.heapTraceAnalysis"
+            name="%editor.name.0">
+      </editor>
+      <editor
+            class="com.espressif.idf.ui.installcomponents.InstallComponentsEditor"
+            default="false"
+            icon="icons/ESP-IDF_InstallComponents.png"
+            id="com.espressif.idf.ui.installComponents"
+            name="%editor.name.1">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="com.espressif.idf.ui.tracing.TracingCallersView"
+            icon="icons/espressif.png"
+            id="com.espressif.idf.ui.views.tracingcallersview"
+            name="%view.name"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.intro">
+      <intro
+            class="org.eclipse.ui.intro.config.CustomizableIntroPart"
+            icon="icons/espressif.png"
+            id="com.espressif.idf.ui.intro">
+      </intro>
+      <introProductBinding
+            introId="com.espressif.idf.ui.intro"
+            productId="com.espressif.idf.branding.idf">
+      </introProductBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.intro.config">
+      <config
+            content="introcontent.xml"
+            id="com.espressif.idf.ui.introConfigId"
+            introId="com.espressif.idf.ui.intro">
+         <presentation
+               home-page-id="root">
+            <implementation
+                  kind="html"
+                  os="win32,linux,macosx"
+                  style="content/shared.css">
+            </implementation>
+         </presentation>
+      </config>
+   </extension>
+   <extension
+   		point="org.eclipse.ui.menus">
+   	<menuContribution
+            locationURI="toolbar:org.eclipse.ui.trim.status">
+         <toolbar
+               id="com.espressif.idf.ui.contributions.contributedTrim">
             <command
-                  commandId="org.plugin.espressif.commands.eraseFlash"
-                  icon="icons/Erase Flash.png"
-                  id="org.plugin.espressif.menus.eraseFlashCommand">
+                  commandId="com.espressif.idf.ui.contributions.help"
+                  icon="icons/help-icon.png"
+                  id="contributions.trimItem"
+                  label="%command.label.7"
+                  tooltip="%command.tooltip">
             </command>
-         </menu>
+
+         </toolbar>
       </menuContribution>
    </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar">
+         <toolbar
+               id="com.espressif.idf.ui.toolbar">
+            <command
+                  commandId="com.espressif.idf.ui.command.dfu"
+                  helpContextId="DFU"
+                  icon="icons/ESP-IDF_DFU.png"
+                  label="%command.label.11"
+                  style="toggle"
+                  tooltip="%command.tooltip.2">
+            </command>
+         </toolbar>
+      </menuContribution>
+      </extension>
+      <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="com.espressif.idf.ui.UpdateEspIdfMasterPropertyTester"
+            id="com.espressif.idf.ui.propertyTester"
+            namespace="com.espressif.idf.ui.propertyTester"
+            properties="testProperty"
+            type="java.lang.Object">
+      </propertyTester>
+	</extension>
+   <extension
+      point="org.eclipse.core.expressions.propertyTesters">
+   <propertyTester
+         class="com.espressif.idf.ui.UpdateEspIdfMasterPropertyTester"
+         id="com.espressif.idf.ui.propertyTester"
+         namespace="com.espressif.idf.ui.propertyTester"
+         properties="testProperty"
+         type="java.lang.Object">
+   </propertyTester>
+</extension>
 </plugin>

@@ -133,13 +133,16 @@ For getting started:
 1. Navigate to `Espressif` > `ESP-IDF Tools Manager` > `Tools Installation Wizard (Preview)`
 ![](docs/images/ToolsManager/install_tools_manager.png)
 
+
 2. The wizard will start and you can select the location for the Git and Python, if they are already present on the system PATH or registry the tools will be populated. After selection you can click `Next`.
 ![](docs/images/ToolsManager/git_python_selection.png)
 
 3. Next page will let you select the folder for existing ESP-IDF or you can also select from the drop down list to download the available versions. You can also select master from the list to clone the master for ESP-IDF from github
 ![](docs/images/ToolsManager/select_or_download_new_esp_idf.png)
 
+
 1. After you select `Next` you will see the list of all the available tools in the selected ESP-IDF version, this page lets you select only the recommended tools or you can select the tools you want to. You can also filter out the tools via the filter text box or based on the target. The wizard page is the last page and will Install and Download if necessary all the selected tools required. After you have installed all the tools you can finish the wizard and start creating projects.
+
 ![](docs/images/ToolsManager/manage_tools_installation.png)
 
 
@@ -499,6 +502,7 @@ To enable gdb stub debugging for a project you need to enable it first in the sd
 Expand the `Component Config` section and select `ESP System Settings`. From the settings on the right for `Panic Handler behaviour` select the `GDBStub on Panic option` from the list
 ![](docs/images/GDBStubDebugging/sdkconfig_editor_panic_behavior.png)
 
+
 Now you will be taken to the gdbstub debugger automatically when you connect the serial monitor and there is a panic for this example. 
 
 Create a template `hello_world` project and add the following lines in the main c file.
@@ -568,6 +572,7 @@ After debug configuration is created, right click on the project in project expl
 
 It can take a while to open the application level tracing dialog because the OpenOCD server starts first, so you don't need to start it externally. At the very top of the application-level trace dialog, there are auto-configured fields that you can change for the trace start command.
 
+
 Start command:
 
 * Syntax: `start <outfile> [poll_period [trace_size [stop_tmo [wait4halt [skip_size]]]]`
@@ -581,6 +586,7 @@ Start command:
 
 Additional information can be found [here](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c3/api-guides/app_trace.html?).
 ![](docs/images/AppLvlTracing_4.png)
+
 
 The next two fields `Trace Processing Script` and `Start Parsing Command` are used to parse the output file. 
 

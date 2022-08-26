@@ -58,7 +58,7 @@ public class TemplatesReader
 			if (isCMakeFileExists(file))
 			{
 				// it's a cmake project - so add it to template
-				root.add(new TemplateNode(file.getName(), file, null, IResource.PROJECT));
+				root.add(new TemplateNode(file.getName(), file, root, IResource.PROJECT));
 			} else
 				if (file.isDirectory() && file.getName().equals("get-started")) //$NON-NLS-1$
 				{

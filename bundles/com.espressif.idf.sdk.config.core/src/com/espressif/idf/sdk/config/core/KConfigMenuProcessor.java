@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.sdk.config.core;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class KConfigMenuProcessor
 
 	/**
 	 * Process the kconfig_menus.json file and construct the hierarchical menu items tree
-	 *    
+	 * 
 	 * @return root to the kconfig_menus.json
 	 * @throws Exception
 	 */
@@ -51,19 +52,36 @@ public class KConfigMenuProcessor
 		JSONParser parser = new JSONParser();
 		KConfigMenuItem root = new KConfigMenuItem(null);
 
+		BufferedReader breader = null;
 		try
 		{
-			Object obj = parser.parse(new FileReader(menuConfigPath));
+			breader = new BufferedReader(new FileReader(menuConfigPath));
+			Object obj = parser.parse(breader);
 			read(obj, root);
 
-		} catch (IOException | ParseException e)
+		}
+		catch (
+				IOException
+				| ParseException e)
 		{
 			throw new Exception(e);
+		} finally
+		{
+			try
+			{
+				if (breader != null)
+				{
+					breader.close();
+				}
+			}
+			catch (IOException ex)
+			{
+				breader = null;
+			}
 		}
 		return root;
 	}
 
-	
 	/**
 	 * @param obj
 	 * @param menuItem
@@ -84,7 +102,10 @@ public class KConfigMenuProcessor
 			childMenu.setId((String) jsonObject.get("id")); //$NON-NLS-1$
 			childMenu.setType((String) jsonObject.get("type")); //$NON-NLS-1$
 			childMenu.setHelp((String) jsonObject.get("help")); //$NON-NLS-1$
-
+			if (jsonObject.get("is_menuconfig") != null) {
+				childMenu.setIsMenuConfig((boolean) jsonObject.get("is_menuconfig")); //$NON-NLS-1$ //$NON-NLS-2$ 
+			}
+		
 			String title = (String) jsonObject.get("title"); //$NON-NLS-1$
 			childMenu.setTitle(title);
 

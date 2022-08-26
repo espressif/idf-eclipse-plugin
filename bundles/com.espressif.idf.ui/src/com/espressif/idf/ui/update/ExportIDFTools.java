@@ -4,18 +4,13 @@
  *******************************************************************************/
 package com.espressif.idf.ui.update;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
@@ -43,7 +38,7 @@ public class ExportIDFTools
 	 * @param gitExePath    git executable full path
 	 * @param console       Console stream to write messages
 	 */
-	public void runToolsExport(final String pythonExePath, final String gitExePath, final MessageConsoleStream console)
+	public IStatus runToolsExport(final String pythonExePath, final String gitExePath, final MessageConsoleStream console)
 	{
 		final List<String> arguments = new ArrayList<>();
 		arguments.add(pythonExePath);
@@ -66,19 +61,26 @@ public class ExportIDFTools
 			if (status == null)
 			{
 				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
-				return;
+				return IDFCorePlugin.errorStatus("Status can't be null", null); //$NON-NLS-1$
+			}
+			
+			if (status.getSeverity() == IStatus.ERROR)
+			{
+				return status;				
 			}
 
 			// process export command output
 			final String exportCmdOp = status.getMessage();
 			log(exportCmdOp, console);
 			processExportCmdOutput(exportCmdOp, gitExePath);
+			
+			return status;
 		}
 		catch (IOException e1)
 		{
 			Logger.log(IDFCorePlugin.getPlugin(), e1);
+			return IDFCorePlugin.errorStatus(e1.getMessage(), e1);
 		}
-
 	}
 
 	private void log(final String cmd, final MessageConsoleStream console)
@@ -120,57 +122,8 @@ public class ExportIDFTools
 					value = appendGitToPath(value, gitExecutablePath);
 				}
 
-				final IEnvironmentVariable env = idfEnvMgr.getEnv(key);
-
-				// Environment variable not found
-				if (env == null)
-				{
-					idfEnvMgr.addEnvVariable(key, value);
-				}
-				else if (key.equals(IDFEnvironmentVariables.PATH)) // Special processing in case of PATH
-				{
-					// PATH is already defined in the environment variables - so let's identify and append the missing
-					// paths
-
-					// Process the old PATH
-					String oldPath = env.getValue();
-					String[] oldPathEntries = oldPath.split(File.pathSeparator);
-
-					// Prepare a new set of entries
-					Set<String> newPathSet = new LinkedHashSet<>(); // Order is important here, check IEP-60
-
-					// Process a new PATH
-					String[] newPathEntries = value.split(File.pathSeparator);
-					newPathSet.addAll(Arrays.asList(newPathEntries));
-
-					// Add old entries
-					newPathSet.addAll(Arrays.asList(oldPathEntries));
-
-					// Prepare PATH string
-					StringBuilder pathBuilder = new StringBuilder();
-					for (String newEntry : newPathSet)
-					{
-						newEntry = replacePathVariable(newEntry);
-						if (!StringUtil.isEmpty(newEntry))
-						{
-							pathBuilder.append(newEntry);
-							pathBuilder.append(File.pathSeparator);
-						}
-					}
-
-					// remove the last pathSeparator
-					pathBuilder.deleteCharAt(pathBuilder.length() - 1);
-
-					// Replace with a new PATH entry
-					Logger.log(pathBuilder.toString());
-					idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.PATH, pathBuilder.toString());
-				}
-				else
-				{
-					// Other build variables - let's replace with new values
-					idfEnvMgr.addEnvVariable(key, value);
-				}
-
+				// add new or replace old entries
+				idfEnvMgr.addEnvVariable(key, value);
 			}
 
 		}

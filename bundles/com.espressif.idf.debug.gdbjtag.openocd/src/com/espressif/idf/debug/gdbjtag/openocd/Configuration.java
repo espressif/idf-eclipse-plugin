@@ -29,9 +29,9 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 
-import ilg.gnumcueclipse.core.EclipseUtils;
-import ilg.gnumcueclipse.core.StringUtils;
-import ilg.gnumcueclipse.debug.gdbjtag.DebugUtils;
+import org.eclipse.embedcdt.core.EclipseUtils;
+import org.eclipse.embedcdt.core.StringUtils;
+import org.eclipse.embedcdt.debug.gdbjtag.core.DebugUtils;
 
 @SuppressWarnings("restriction")
 public class Configuration {
@@ -106,9 +106,13 @@ public class Configuration {
 				lst.addAll(StringUtils.splitCommandLineOptions(other));
 			}
 
-			if (ESPFlashUtil.checkIfJtagIsAvailable())
+			if (ESPFlashUtil.checkIfJtagIsAvailable() && getDoFlashBeforeStart(configuration))
 			{
 				lst.add(ESPFlashUtil.getEspJtagFlashCommand(configuration));
+			}
+			
+			if (isVerboseOutputEnabled(configuration)) {
+				lst.add("-d3"); //$NON-NLS-1$
 			}
 
 		} catch (CoreException e) {
@@ -122,6 +126,10 @@ public class Configuration {
 		lst.add("echo \"Started by GNU MCU Eclipse\"");
 
 		return lst.toArray(new String[0]);
+	}
+
+	private static boolean isVerboseOutputEnabled(ILaunchConfiguration configuration) throws CoreException {
+		return configuration.getAttribute(ConfigurationAttributes.ENABLE_VERBOSE_OUTPUT, false);
 	}
 
 	public static String getGdbServerCommandName(ILaunchConfiguration config) {
@@ -162,6 +170,10 @@ public class Configuration {
 		return executable;
 	}
 
+	public static boolean getDoFlashBeforeStart(ILaunchConfiguration configuration) throws CoreException
+	{
+		return configuration.getAttribute(ConfigurationAttributes.DO_FLASH_BEFORE_START, false);
+	}
 	public static String[] getGdbClientCommandLineArray(ILaunchConfiguration configuration) {
 
 		List<String> lst = new ArrayList<String>();

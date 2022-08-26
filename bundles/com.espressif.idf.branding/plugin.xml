@@ -3,14 +3,48 @@
 <plugin>
    <extension
          id="idf"
+         name="Espressif-IDE"
          point="org.eclipse.core.runtime.products">
       <product
             application="org.eclipse.ui.ide.workbench"
+            description="Espressif-IDE brings developers an easy-to-use Eclipse-based development environment for developing ESP32 based IoT applications"
             name="%product.name">
          <property
                name="appName"
-               value="Eclipse IDE for ESP-IDF Developers">
+               value="Espressif-IDE">
          </property>
+         <property
+               name="aboutText"
+               value="%productBlurb"></property>
+         <property name="aboutImage" value="icons/128x128.png"/>
+         <property
+               name="windowImages"
+               value="icons/16x16.png,icons/32x32.png,icons/48x48.png,icons/64x64.png,icons/256x256.png">
+         </property>
+         <property
+               name="introTitle"
+               value="Welcome to Espressif-IDE">
+         </property>
+         <property
+               name="introBrandingImageText"
+               value="Espressif-IDE">
+         </property>
+    	<property
+               name="preferenceCustomization"
+               value="plugin_customization.ini">
+         </property>
+     <property
+           name="startupForegroundColor"
+           value="000000">
+     </property>
+     <property
+           name="startupMessageRect"
+           value="7,305,285,20">
+     </property>
+     <property
+           name="startupProgressRect"
+           value="7,290,490,15">
+     </property>
       </product>
    </extension>
 

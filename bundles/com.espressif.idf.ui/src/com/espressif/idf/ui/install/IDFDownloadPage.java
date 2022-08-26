@@ -10,8 +10,11 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -24,6 +27,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
@@ -283,11 +287,11 @@ public class IDFDownloadPage extends WizardPage
 				setPageComplete(false);
 				return;
 			}
-			
 			if (idfPath.contains(" ")) //$NON-NLS-1$
 			{
 				setErrorMessage(Messages.IDFDownloadPage_IDFBuildNotSupported);
 				setPageComplete(false);
+				showMessage();
 				return;
 			}
 			
@@ -299,26 +303,36 @@ public class IDFDownloadPage extends WizardPage
 				return;
 			}
 			
-			String requirementsPath = idfPath + File.separator + "requirements.txt"; //$NON-NLS-1$
-			if (!new File (requirementsPath).exists())
-			{
-				setErrorMessage(MessageFormat.format(Messages.IDFDownloadPage_CantFindRequirementsFile, idfPath));
-				setPageComplete(false);
-				return;
-			}
-			
 			setPageComplete(true);
 			setErrorMessage(null);
-			setMessage(Messages.IDFDownloadPage_ClickOnFinish+ idfPath);
+			setMessage(Messages.IDFDownloadPage_ClickOnFinish + idfPath);
 		}
 		else
 		{
+			boolean supportSpaces = false;
+			if (versionCombo.getText().contentEquals("master")) //$NON-NLS-1$
+			{
+				supportSpaces = true;
+			} 
+			else 
+			{
+				Pattern p = Pattern.compile("([0-9][.][0-9])"); //$NON-NLS-1$
+				Matcher m = p.matcher(versionCombo.getText());
+				supportSpaces = m.find() && Double.parseDouble(m.group(0)) >= 5.0;
+			}
 			if (StringUtil.isEmpty(directoryTxt.getText()))
 			{
 				setPageComplete(false);
 				return;
 			}
 			
+			if (!supportSpaces && directoryTxt.getText().contains(" ")) //$NON-NLS-1$
+			{
+				setErrorMessage(Messages.IDFDownloadPage_IDFBuildNotSupported);
+				setPageComplete(false);
+				return;
+			}
+
 			setPageComplete(true);
 			setErrorMessage(null);
 			setMessage(Messages.IDFDownloadPage_ClickFinishToDownload);
@@ -346,6 +360,24 @@ public class IDFDownloadPage extends WizardPage
 	public boolean isConfigureExistingEnabled()
 	{
 		return fileSystemBtn.getSelection();
+	}
+	
+	private void showMessage()
+	{
+		Display.getDefault().asyncExec(new Runnable()
+		{
+
+			@Override
+			public void run() {
+				boolean allowToCreateProjectWithSpaces = MessageDialog.openQuestion(Display.getDefault().getActiveShell(), Messages.IDFDownloadWizard_AllowSpacesTitle, 
+						Messages.IDFDownloadWizard_AllowSpacesMsg);
+				
+				if (allowToCreateProjectWithSpaces) {
+					setErrorMessage(null);
+					setPageComplete(true);
+				}
+			}
+		});
 	}
 
 }

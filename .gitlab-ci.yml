@@ -1,5 +1,6 @@
 stages:
   - build
+  # - codesign
   - private_deploy
   - public_deploy
 
@@ -7,32 +8,32 @@ image: ${CI_DOCKER_REGISTRY}/esp32-ci-env
 
 variables:
   ARCHIVE_DIR: "dist"
-  ORIGIN_NAME: "com.espressif.idf.update-2.1.2-SNAPSHOT.zip"
+  ORIGIN_NAME: "com.espressif.idf.update-2.3.0-SNAPSHOT.zip"
 
 .add_gh_key_remote: &add_gh_key_remote |
   cit_add_ssh_key "${GH_PUSH_KEY}"
   git remote remove github || true
   git remote add github ${GH_PUSH_REPO}
 
-before_script:
-  # Use CI Tools
-  - curl -sSL ${CIT_LOADER_URL} | sh
-  - source citools/import_functions
+# before_script:
+#   # Use CI Tools
+#   - curl -sSL ${CIT_LOADER_URL} | sh
+#   - source citools/import_functions
 
 build:
   stage: build
   image: jimador/docker-jdk-8-maven-node
-  tags:
-    - build_maven
+  tags: ["build_maven", "build"]
   artifacts:
     paths:
       - ${ARCHIVE_DIR}/
+  
     expire_in: 2 weeks
   script:
     # Use an unique name for the archive
     - UNIQ_SUFFIX="$(git describe --tags --dirty --abbrev=8)"
     - mkdir -p ${ARCHIVE_DIR} && echo "${UNIQ_SUFFIX}" > ${ARCHIVE_DIR}/uniq_suffix_value
-    - ARCHIVE_NAME=${ORIGIN_NAME/2.1.2-SNAPSHOT/$UNIQ_SUFFIX}
+    - ARCHIVE_NAME=${ORIGIN_NAME/2.3.0-SNAPSHOT/$UNIQ_SUFFIX}
     # build
     - export JARSIGNER_KEYSTORE_B64=${JARSIGNER_REL_KEYSTORE_B64:-${JARSIGNER_DEV_KEYSTORE_B64}}
     - export JARSIGNER_STOREPASS=${JARSIGNER_REL_STOREPASS:-${JARSIGNER_DEV_STOREPASS}}
@@ -43,9 +44,26 @@ build:
     - rm -v "${KEYSTORE_FILE}"
     - mkdir -p ${ARCHIVE_DIR} && mv -v releng/com.espressif.idf.update/target/${ORIGIN_NAME} ${ARCHIVE_DIR}/${ARCHIVE_NAME}
     - ls -l ${ARCHIVE_DIR}
+    - export PRODUCTS_PATH=releng/com.espressif.idf.product/target/products/
+    - echo ${PRODUCTS_PATH}
+
+# osx_code_sign:
+#   stage: codesign
+#   when: on_success
+#   tags:
+#     - macos_shell
+#   dependencies:
+#    - build
+#   script:
+#     - echo "code signing .app"
+#     - $PWD/tools/codesign.sh
+#     - $PWD/tools/notarize.sh
 
 .upload_template: &upload_template
   when: manual
+  image:
+    name: rclone/rclone:1
+    entrypoint: [""]
   tags:
     - deploy
   dependencies:
@@ -53,25 +71,49 @@ build:
   script:
     # getting the corresponding unique suffix
     - UNIQ_SUFFIX=$(cat ${ARCHIVE_DIR}/uniq_suffix_value)
-    - ARCHIVE_NAME=${ORIGIN_NAME/2.1.2-SNAPSHOT/$UNIQ_SUFFIX}
+    - ARCHIVE_NAME=${ORIGIN_NAME/2.3.0-SNAPSHOT/$UNIQ_SUFFIX}
     # upload archive
     - cit_add_ssh_key "${SRV_KEY}"
     - cd ${ARCHIVE_DIR}
-    - scp ${ARCHIVE_NAME} ${SRV_UPLOAD_PATH}
+    - rclone --config=$RCLONE_CONFIG copy ${ARCHIVE_NAME} ${SRV_UPLOAD_PATH}
     # upload directory
     - UNIQ_DIR=${UNIQ_SUFFIX}
     - mkdir ${UNIQ_DIR} && cd ${UNIQ_DIR} && unzip -q ../${ARCHIVE_NAME} && cd ..
-    - scp -r ${UNIQ_DIR} ${SRV_UPLOAD_PATH}
+    - rclone --config=$RCLONE_CONFIG copy ${UNIQ_DIR} ${SRV_UPLOAD_PATH}
     - ssh ${SRV_SERVER_SSH} "cd ${SRV_DIR} && ln -srnf ${UNIQ_DIR} ${SRV_LATEST_NAME}"
     # Show info
     - echo -e "\nAn archives was published there:\n\n${SRV_HTTP_URL}/${ARCHIVE_NAME}"
     - echo -e "\n\n\nThe plugin was published there:\n\n${SRV_HTTP_URL}/${SRV_LATEST_NAME}"
 
+.upload_ide: &upload_ide
+  when: manual
+  image:
+    name: rclone/rclone:1
+    entrypoint: [""]
+  tags:
+    - deploy
+  dependencies:
+    - build
+  script:
+    # getting the corresponding unique suffix
+    - UNIQ_SUFFIX=$(cat ${ARCHIVE_DIR}/uniq_suffix_value)
+    - WIN32_IDE_PATH= ${PRODUCTS_PATH}/Espressif-IDE-*-win32.win32.x86_64.zip
+    - MACOSX_IDE_PATH= ${PRODUCTS_PATH}/Espressif-IDE-*-macosx.cocoa.x86_64.tar.gz
+    - LINUX_IDE_PATH= ${PRODUCTS_PATH}/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
+    # upload archive
+    - cit_add_ssh_key "${SRV_KEY}"
+    - rclone --config=$RCLONE_CONFIG copy ${WIN32_IDE_PATH} ${SRV_UPLOAD_PATH}
+    - rclone --config=$RCLONE_CONFIG copy ${MACOSX_IDE_PATH} ${SRV_UPLOAD_PATH}
+    - rclone --config=$RCLONE_CONFIG copy ${LINUX_IDE_PATH} ${SRV_UPLOAD_PATH}
+    # Show info
+    - echo -e "\nAn win32 Espressif-IDE was published there:\n\n${SRV_HTTP_URL}/${WIN32_IDE_PATH}"
+    - echo -e "\nAn macosx Espressif-IDE was published there:\n\n${SRV_HTTP_URL}/${MACOSX_IDE_PATH}"
+    - echo -e "\nAn linux Espressif-IDE was published there:\n\n${SRV_HTTP_URL}/${LINUX_IDE_PATH}"
+
 internal_http:
   <<: *upload_template
   tags:
     - deploy
-    - shanghai
   stage: private_deploy
   variables:
     GIT_STRATEGY: none
@@ -109,6 +151,20 @@ public_http_beta:
     SRV_UPLOAD_PATH: ${DL_SERVER_SSH}:${DL_SERVER_CD_DIR}
     SRV_LATEST_NAME: beta
     SRV_HTTP_URL: ${DL_SERVER_HTTP}/${DL_SERVER_CD_DIR}
+
+publish_ide:
+  <<: *upload_ide
+  stage: public_deploy
+  only:
+    - /^v[0-9].*$/
+  variables:
+    GIT_STRATEGY: none
+    SRV_KEY: ${DL_KEY}
+    SRV_DIR: ${DL_SERVER_IDE_DIR}
+    SRV_SERVER_SSH: ${DL_SERVER_SSH}
+    SRV_UPLOAD_PATH: ${DL_SERVER_SSH}:${DL_SERVER_IDE_DIR}
+    SRV_LATEST_NAME: latest
+    SRV_HTTP_URL: ${DL_SERVER_HTTP}/${DL_SERVER_IDE_DIR}
 
 .git_sync_template: &git_sync_template
   stage: public_deploy

@@ -7,55 +7,79 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.CountDownLatch;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
 
+import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.serial.monitor.handlers.SerialMonitorHandler;
+import com.espressif.idf.serial.monitor.server.SocketServerHandler;
 import com.espressif.idf.terminal.connector.serial.activator.Activator;
+import com.espressif.idf.terminal.connector.serial.launcher.GDBStubDebuggerLauncher;
 
-public class SerialPortHandler {
+public class SerialPortHandler
+{
 
 	private final String portName;
 	private boolean isOpen;
 	private boolean isPaused;
 	private Object pauseMutex = new Object();
+	private IProject project;
 
 	private static final Map<String, LinkedList<WeakReference<SerialPortHandler>>> openPorts = new HashMap<>();
 
 	private Process process;
 	private Thread thread;
 	private SerialConnector serialConnector;
+	private String socketServerMessage;
 
-	private static String adjustPortName(String portName) {
-		if (System.getProperty("os.name").startsWith("Windows") && !portName.startsWith("\\\\.\\")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	private Thread socketServerThread;
+	private SocketServerHandler socketServerHandler;
+
+	private static String adjustPortName(String portName)
+	{
+		if (System.getProperty("os.name").startsWith("Windows") && !portName.startsWith("\\\\.\\")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		{
 			return "\\\\.\\" + portName; //$NON-NLS-1$
-		} else {
+		}
+		else
+		{
 			return portName;
 		}
 	}
 
 	/**
-	 * Return an the SerialPortHandler with the given name or null if it hasn't been allocated yet. This
-	 * would be used by components that need to pause and resume a serial port.
+	 * Return an the SerialPortHandler with the given name or null if it hasn't been allocated yet. This would be used
+	 * by components that need to pause and resume a serial port.
 	 *
 	 * @param portName
 	 * @return
 	 * @since 1.1
 	 */
-	public static SerialPortHandler get(String portName) {
-		synchronized (openPorts) {
+	public static SerialPortHandler get(String portName)
+	{
+		synchronized (openPorts)
+		{
 			LinkedList<WeakReference<SerialPortHandler>> list = openPorts.get(adjustPortName(portName));
-			if (list == null) {
+			if (list == null)
+			{
 				return null;
 			}
 
 			Iterator<WeakReference<SerialPortHandler>> i = list.iterator();
-			while (i.hasNext()) {
+			while (i.hasNext())
+			{
 				WeakReference<SerialPortHandler> ref = i.next();
 				SerialPortHandler port = ref.get();
-				if (port == null) {
+				if (port == null)
+				{
 					i.remove();
-				} else {
+				}
+				else
+				{
 					return port;
 				}
 			}
@@ -64,39 +88,121 @@ public class SerialPortHandler {
 		}
 	}
 
-	public SerialPortHandler(String portName, SerialConnector serialConnector) {
+	public SerialPortHandler(String portName, SerialConnector serialConnector, IProject project)
+	{
 		this.portName = adjustPortName(portName);
 		this.serialConnector = serialConnector;
+		this.project = project;
 	}
 
-	public String getPortName() {
+	public String getPortName()
+	{
 		return portName;
 	}
 
-	public synchronized void open() {
+	private void handleSocketServerMessage(String message)
+	{
+		if (StringUtil.isEmpty(message))
+		{
+			return;
+		}
 
-		//set state
+		Logger.log("GDB Stub Event Received on Socket Server"); //$NON-NLS-1$
+		GDBStubDebuggerLauncher gdbStubDebuggerLauncher = new GDBStubDebuggerLauncher(message, project);
+		try
+		{
+			gdbStubDebuggerLauncher.launchDebugSession();
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+		}
+	}
+
+	private void startSocketServerThread()
+	{
+		socketServerHandler = new SocketServerHandler();
+		CountDownLatch latch = new CountDownLatch(1);
+		socketServerThread = new Thread()
+		{
+			@Override
+			public void run()
+			{
+				try
+				{
+					socketServerHandler.startServer();
+					latch.countDown();
+					Queue<String> messagesQueue = socketServerHandler.getMessagesQueue();
+
+					while (messagesQueue.isEmpty())
+					{
+						sleep(250);
+					}
+
+					String message = messagesQueue.poll();
+					if (message.contains("\"event\": \"gdb_stub\"")) //$NON-NLS-1$
+					{
+						socketServerHandler.broadcastMessageToClients("{\"event\" : \"debug_finished\"}"); //$NON-NLS-1$
+						socketServerMessage = message;
+						serialConnector.disconnect();
+					}
+				}
+				catch (Exception e)
+				{
+					Logger.log(e);
+				}
+			}
+		};
+
+		socketServerThread.start();
+		try
+		{
+			latch.await();
+		}
+		catch (InterruptedException e)
+		{
+			Logger.log(e);
+		}
+	}
+
+	public synchronized void open()
+	{
+
+		// set state
 		serialConnector.control.setState(TerminalState.CONNECTING);
-
-		//Hook IDF Monitor with the CDT serial monitor
+		boolean withSocketServer = false;
+		if (SocketServerHandler.needSocketServer(project))
+		{
+			startSocketServerThread();
+			withSocketServer = true;
+		}
+		// Hook IDF Monitor with the CDT serial monitor
 		SerialMonitorHandler serialMonitorHandler = new SerialMonitorHandler(serialConnector.project, portName,
 				serialConnector.filterOptions);
-		process = serialMonitorHandler.invokeIDFMonitor();
 
-		thread = new Thread() {
+		process = serialMonitorHandler.invokeIDFMonitor(withSocketServer);
+		serialConnector.process = process;
+		thread = new Thread()
+		{
 			@Override
-			public void run() {
+			public void run()
+			{
 				InputStream targetIn = process.getInputStream();
 				byte[] buff = new byte[256];
 				int n;
-				try {
-					while ((n = targetIn.read(buff, 0, buff.length)) >= 0) {
-						if (n != 0) {
+				try
+				{
+					while ((n = targetIn.read(buff, 0, buff.length)) >= 0)
+					{
+						if (n != 0)
+						{
 							serialConnector.control.getRemoteToTerminalOutputStream().write(buff, 0, n);
 						}
 					}
 					serialConnector.disconnect();
-				} catch (IOException e) {
+				}
+				catch (IOException e)
+				{
 					Activator.log(e);
 					serialConnector.control.setState(TerminalState.CLOSED);
 				}
@@ -109,9 +215,11 @@ public class SerialPortHandler {
 
 		serialConnector.control.setState(TerminalState.CONNECTED);
 
-		synchronized (openPorts) {
+		synchronized (openPorts)
+		{
 			LinkedList<WeakReference<SerialPortHandler>> list = openPorts.get(portName);
-			if (list == null) {
+			if (list == null)
+			{
 				list = new LinkedList<>();
 				openPorts.put(portName, list);
 			}
@@ -119,64 +227,94 @@ public class SerialPortHandler {
 		}
 	}
 
-	public synchronized void close() throws IOException {
-		if (isOpen) {
+	public synchronized void close() throws IOException
+	{
+		if (isOpen)
+		{
 			isOpen = false;
 
-			//kill the port process and thread
-			if (process != null) {
+			// kill the port process and thread
+			if (process != null)
+			{
 				process.destroy();
 			}
-			if (thread != null) {
+			if (thread != null)
+			{
 				thread.interrupt();
 			}
+			if (socketServerThread != null)
+			{
+				socketServerThread.interrupt();
+			}
 
-			synchronized (openPorts) {
+			synchronized (openPorts)
+			{
 				LinkedList<WeakReference<SerialPortHandler>> list = openPorts.get(portName);
-				if (list != null) {
+				if (list != null)
+				{
 					Iterator<WeakReference<SerialPortHandler>> i = list.iterator();
-					while (i.hasNext()) {
+					while (i.hasNext())
+					{
 						WeakReference<SerialPortHandler> ref = i.next();
 						SerialPortHandler port = ref.get();
-						if (port == null || port.equals(this)) {
+						if (port == null || port.equals(this))
+						{
 							i.remove();
 						}
 					}
 				}
 			}
 
-			try {
+			try
+			{
 				// Sleep for a second since some serial ports take a while to actually close
 				Thread.sleep(500);
-			} catch (InterruptedException e) {
+			}
+			catch (InterruptedException e)
+			{
 				// nothing to do
+			}
+
+			if (SocketServerHandler.needSocketServer(project))
+			{
+				handleSocketServerMessage(socketServerMessage);
 			}
 		}
 	}
 
-	public boolean isOpen() {
+	public boolean isOpen()
+	{
 		return isOpen;
 	}
 
-	public void pause() throws IOException {
-		if (!isOpen) {
+	public void pause() throws IOException
+	{
+		if (!isOpen)
+		{
 			return;
 		}
-		synchronized (pauseMutex) {
+		synchronized (pauseMutex)
+		{
 			isPaused = true;
 			close();
-			try {
+			try
+			{
 				// Sleep for a second since some serial ports take a while to actually close
 				Thread.sleep(500);
-			} catch (InterruptedException e) {
+			}
+			catch (InterruptedException e)
+			{
 				// nothing to do
 			}
 		}
 	}
 
-	public void resume() throws IOException {
-		synchronized (pauseMutex) {
-			if (!isPaused) {
+	public void resume() throws IOException
+	{
+		synchronized (pauseMutex)
+		{
+			if (!isPaused)
+			{
 				return;
 			}
 			isPaused = false;

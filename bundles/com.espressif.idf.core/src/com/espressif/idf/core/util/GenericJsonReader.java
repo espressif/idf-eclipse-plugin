@@ -1,12 +1,11 @@
 package com.espressif.idf.core.util;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.MessageFormat;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.Path;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -19,13 +18,14 @@ import com.espressif.idf.core.logging.Logger;
  */
 public class GenericJsonReader
 {
-	private IProject project;
-	private String relativeFilePath;
+	private String filePath;
 
-	public GenericJsonReader(IProject project, String relativeFilePath)
+	/**
+	 * @param filePath AbsolutePath file path for json file
+	 */
+	public GenericJsonReader(String filePath)
 	{
-		this.project = project;
-		this.relativeFilePath = relativeFilePath;
+		this.filePath = filePath;
 	}
 
 	public String getValue(String key)
@@ -46,19 +46,20 @@ public class GenericJsonReader
 		return null;
 	}
 
-	protected JSONObject read() throws Exception
+	public JSONObject read() throws Exception
 	{
-		IFile filePath = project.getFile(new Path(relativeFilePath));
-		if (!filePath.exists())
+		if (!new File(filePath).exists())
 		{
-			Logger.log(MessageFormat.format("{0} couldn't find", filePath.toString())); //$NON-NLS-1$
+			Logger.log(MessageFormat.format("{0} could not find", filePath.toString())); //$NON-NLS-1$
 			return null;
 		}
 
 		JSONParser parser = new JSONParser();
+		BufferedReader breader = null;
 		try
 		{
-			return (JSONObject) parser.parse(new FileReader(filePath.getLocation().toFile()));
+			breader = new BufferedReader(new FileReader(new File(filePath)));
+			return (JSONObject) parser.parse(breader);
 
 		}
 		catch (
@@ -66,6 +67,19 @@ public class GenericJsonReader
 				| ParseException e)
 		{
 			throw new Exception(e);
+		} finally
+		{
+			try
+			{
+				if (breader != null)
+				{
+					breader.close();
+				}
+			}
+			catch (IOException ex)
+			{
+				breader = null;
+			}
 		}
 	}
 

@@ -54,6 +54,9 @@ public interface ConfigurationAttributes {
 	// ------------------------------------------------------------------------
 
 	// TabStartup
+	public static final String DO_FLASH_BEFORE_START = PREFIX + ".doFlashBeforeStart"; //$NON-NLS-1$
+	public static final String ENABLE_VERBOSE_OUTPUT = PREFIX + "enableVerboseOutput"; //$NON-NLS-1$
+	
 	public static final String DO_FIRST_RESET = PREFIX + ".doFirstReset"; //$NON-NLS-1$
 	public static final String FIRST_RESET_TYPE = PREFIX + ".firstResetType"; //$NON-NLS-1$
 

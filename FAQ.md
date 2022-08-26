@@ -4,7 +4,7 @@
 Java 11 and above. We suggest to use the latest LTS version. Check the plugin [Prerequisites](https://github.com/espressif/idf-eclipse-plugin#Prerequisites). 
 Also check [why we recommend Java 11](https://github.com/espressif/idf-eclipse-plugin/blob/master/FAQ.md#why-java-11-recommended-for-idf-eclipse-plugin) while using the IDF Eclipse plugin 
 ## Which version of Eclipse should I use?
-Eclipse 2020-12 CDT and above (Eclipse IDE for C/C++ Developers). Check the plugin [Prerequisites](https://github.com/espressif/idf-eclipse-plugin#Prerequisites)
+Eclipse 2021-06 CDT and above (Eclipse IDE for C/C++ Developers). Check the plugin [Prerequisites](https://github.com/espressif/idf-eclipse-plugin#Prerequisites)
 ## How do I know the installed version of Java in my system?
 You can check using `java -version` command from the terminal
 ##  How to check the Java version used by Eclipse?
@@ -103,3 +103,45 @@ There is no UI option to delete launch targets directly from the eclipse, howeve
 - Search for the launch target name you want to delete and remove all those entries from the file
 - Save the file
 - Restart the eclipse
+
+## How do I access project build log?
+  - To enable logging navigate to `Preferences > Project > C/C++ > Build > Logging` 
+  - Check `Enable global build logging`
+  - Build the project
+  - Export `global-build.log`. This is the same build console log which appears in the CDT build console but the build console usually have limited buffer size hence it won't display everything.
+  
+ ## How do I enable verbose debug output to my project build?
+  IDF Eclipse plugin uses CMake commands to build the project so it's possible to pass cmake arguments from the build configuration wizard. To configure this. 
+  - Click on the editor configuration wizard
+  - Navigate to `Build Settings` tab
+  - Add `--debug-output` or other verbose arguments in the `Additional CMake arguments` text field
+  - Click on Ok and compile the project to start in the debug output mode. Please refer to https://cmake.org/cmake/help/v3.5/manual/cmake.1.html 
+  
+## How do I view Product Information?
+  - Navigate to `Espressif > Product Information`
+
+## Eclipse launch fails with `Java was started but returned exit code=13` when directory path contains special characters
+Eclipse will fail to launch if installed in a directory whose path contains certain invalid characters, including :%#<>"!. The workaround is to install Eclipse in a directory whose path does not contain invalid characters.
+
+## How do I generate OpenOCD log ?
+  - Open the project OpenOCD `Edit Configuration` dialog
+  - Navigate to the `Debugger` tab
+  - Add `-d3 -l oocd.log` in the `Config Options` section of the `Debugger` tab
+  - Click `Ok` and start the debugging process. This generates `oocd.log` file your project
+  
+
+## Why esp_idf_components folder is created in the project?
+`esp_idf_components` folder is introduced with v2.4.0 release to achieve source code navigation for the function definitions((Press F3 or Ctrl+Click on the functional call) and to fix unresolved header problems with the indexer. It will be created immediately after the build based on the `build/compile_commands.json` file list. secondly, it also helps the users who want to check source of esp-idf components directly from the IDE. The files created under esp_idf_componenets are virtual folders for /esp-idf/components and these will be re-generated everytime after the build.
+ 
+ This could be disabled by adding the `-Dskip.idf.components=true` VM argument in the eclipse.ini(espressif-ide.ini) file but this might create inconsistency issues with the indexer where it's unable to resovle headers properly and you might not be able to navigate to the function definitions from the code editors.
+  
+## Installation of drivers
+  If you are a windows user, always prefer [ESP-IDF Windows Installer](https://dl.espressif.com/dl/esp-idf/) for installing pre-requisites and required drivers
+  
+  To install it manually refer to [this](https://github.com/espressif/idf-installer#manual-installation-of-drivers)
+  
+  To installation of the USB drivers for Libusb and FTDI D2XX drivers for your devices, you could refer to this [tool](https://visualgdb.com/UsbDriverTool/)
+  
+ ## Do you have the board with JTAG or without JTAG?
+  This [thread](https://github.com/espressif/idf-installer/issues/133#issuecomment-1136990432) and subsequent discussion could help you understand this.
+

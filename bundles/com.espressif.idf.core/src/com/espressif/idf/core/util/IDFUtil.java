@@ -8,21 +8,29 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import com.espressif.idf.core.ExecutableFinder;
 import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.build.ESP32C3ToolChain;
 import com.espressif.idf.core.build.ESPToolChainProvider;
 import com.espressif.idf.core.logging.Logger;
@@ -33,6 +41,18 @@ import com.espressif.idf.core.logging.Logger;
  */
 public class IDFUtil
 {
+	private static Boolean idfSupportsSpaces;
+
+	/**
+	 * @return sysviewtrace_proc.py file path based on the IDF_PATH defined in the environment variables
+	 */
+	public static File getIDFSysviewTraceScriptFile()
+	{
+		String idf_path = getIDFPath();
+		String idf_sysview_trace_script = idf_path + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
+				+ IDFConstants.IDF_APP_TRACE_FOLDER + IPath.SEPARATOR + IDFConstants.IDF_SYSVIEW_TRACE_SCRIPT;
+		return new File(idf_sysview_trace_script);
+	}
 
 	/**
 	 * @return idf.py file path based on the IDF_PATH defined in the environment variables
@@ -42,6 +62,17 @@ public class IDFUtil
 		String idf_path = getIDFPath();
 		String idf_py_script = idf_path + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
 				+ IDFConstants.IDF_PYTHON_SCRIPT;
+		return new File(idf_py_script);
+	}
+
+	/**
+	 * @return idf_monitor.py file path based on the IDF_PATH defined in the environment variables
+	 */
+	public static File getIDFMonitorPythonScriptFile()
+	{
+		String idf_path = getIDFPath();
+		String idf_py_script = idf_path + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
+				+ IDFConstants.IDF_MONITOR_PYTHON_SCRIPT;
 		return new File(idf_py_script);
 	}
 
@@ -68,18 +99,6 @@ public class IDFUtil
 	}
 
 	/**
-	 * @return esptool.py file path based on configured IDF_PATH in the CDT build environment variables
-	 */
-	public static File getEspToolScriptFile()
-	{
-		String idf_path = getIDFPath();
-		String esp_tool_script = idf_path + IPath.SEPARATOR + IDFConstants.COMPONENTS_FOLDER + IPath.SEPARATOR
-				+ IDFConstants.ESP_TOOL_FOLDER_PY + IPath.SEPARATOR + IDFConstants.ESP_TOOL_FOLDER + IPath.SEPARATOR
-				+ IDFConstants.ESP_TOOL_SCRIPT;
-		return new File(esp_tool_script);
-	}
-
-	/**
 	 * @return idf_size.py file path based on the IDF_PATH defined in the environment variables
 	 */
 	public static File getIDFSizeScriptFile()
@@ -88,6 +107,17 @@ public class IDFUtil
 		String idf_py_script = idf_path + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
 				+ IDFConstants.IDF_SIZE_SCRIPT;
 		return new File(idf_py_script);
+	}
+	
+	/**
+	 * @return tools.json file for tools to install
+	 */
+	public static File getIDFToolsJsonFileForInstallation()
+	{
+		String idf_path = getIDFPath();
+		String idf_tools_json_file = idf_path + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
+				+ IDFConstants.IDF_TOOLS_JSON;
+		return new File(idf_tools_json_file);
 	}
 
 	/**
@@ -117,6 +147,7 @@ public class IDFUtil
 	public static String getIDFPythonEnvPath()
 	{
 		String idfPyEnvPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH);
+		idfPyEnvPath = idfPyEnvPath.strip();
 		if (!StringUtil.isEmpty(idfPyEnvPath))
 		{
 
@@ -138,9 +169,27 @@ public class IDFUtil
 
 	}
 
+	public static boolean checkIfIdfSupportsSpaces()
+	{
+
+		if (idfSupportsSpaces != null)
+		{
+			return idfSupportsSpaces;
+		}
+		String version = getEspIdfVersion();
+		Pattern p = Pattern.compile("([0-9][.][0-9])"); //$NON-NLS-1$
+		Matcher m = p.matcher(version);
+		idfSupportsSpaces = m.find() && Double.parseDouble(m.group(0)) >= 5.0;
+		return idfSupportsSpaces;
+	}
+
 	public static String getPythonExecutable()
 	{
-		IPath pythonPath = ExecutableFinder.find(IDFConstants.PYTHON_CMD, true);
+		IPath pythonPath = ExecutableFinder.find(IDFConstants.PYTHON3_CMD, true); // look for python3
+		if (pythonPath == null)
+		{
+			pythonPath = ExecutableFinder.find(IDFConstants.PYTHON_CMD, true); // look for python
+		}
 		if (pythonPath != null)
 		{
 			return pythonPath.toOSString();
@@ -231,8 +280,7 @@ public class IDFUtil
 		String IDF_PATH = getIDFPath();
 		if (!StringUtil.isEmpty(IDF_PATH))
 		{
-			IPath IDF_ADD_PATHS_EXTRAS = new Path(StringUtil.EMPTY);
-			IDF_ADD_PATHS_EXTRAS = IDF_ADD_PATHS_EXTRAS.append(IDF_PATH).append("components/esptool_py/esptool"); //$NON-NLS-1$
+			IPath IDF_ADD_PATHS_EXTRAS = new Path(IDF_PATH).append("components/esptool_py/esptool"); //$NON-NLS-1$
 			IDF_ADD_PATHS_EXTRAS = IDF_ADD_PATHS_EXTRAS.append(":"); //$NON-NLS-1$
 			IDF_ADD_PATHS_EXTRAS = IDF_ADD_PATHS_EXTRAS.append(IDF_PATH).append("components/espcoredump"); //$NON-NLS-1$
 			IDF_ADD_PATHS_EXTRAS = IDF_ADD_PATHS_EXTRAS.append(":"); //$NON-NLS-1$
@@ -271,16 +319,22 @@ public class IDFUtil
 	 */
 	public static String getXtensaToolchainExecutablePath(IProject project)
 	{
-		Pattern gcc_pattern = ESPToolChainProvider.GCC_PATTERN; // default
 		String projectEspTarget = null;
 		if (project != null)
 		{
 			projectEspTarget = new SDKConfigJsonReader(project).getValue("IDF_TARGET"); //$NON-NLS-1$
-			if (!StringUtil.isEmpty(projectEspTarget) && projectEspTarget.equals(ESP32C3ToolChain.OS))
-			{
-				gcc_pattern = ESPToolChainProvider.GCC_PATTERN_ESP32C3;
-				projectEspTarget = ESP32C3ToolChain.ARCH;
-			}
+		}
+		return getXtensaToolchainExecutablePathByTarget(projectEspTarget);
+	}
+
+	public static String getXtensaToolchainExecutablePathByTarget(String projectEspTarget)
+	{
+
+		Pattern gdb_pattern = ESPToolChainProvider.GDB_PATTERN; // default
+		if (!StringUtil.isEmpty(projectEspTarget) && projectEspTarget.equals(ESP32C3ToolChain.OS))
+		{
+			gdb_pattern = ESPToolChainProvider.GDB_PATTERN_ESP32C3;
+			projectEspTarget = ESP32C3ToolChain.ARCH;
 		}
 
 		// Process PATH to find the toolchain path
@@ -299,16 +353,17 @@ public class IDFUtil
 							continue;
 						}
 
-						Matcher matcher = gcc_pattern.matcher(file.getName());
+						Matcher matcher = gdb_pattern.matcher(file.getName());
 						if (matcher.matches())
 						{
 							String path = file.getAbsolutePath();
 							Logger.log("GDB executable:" + path); //$NON-NLS-1$
+							String[] tuples = file.getName().split("-"); //$NON-NLS-1$
 							if (projectEspTarget == null) // If no IDF_TARGET
 							{
 								return path;
 							}
-							else if (file.getName().contains(projectEspTarget))
+							else if (tuples[1].equals(projectEspTarget) || tuples[0].equals(projectEspTarget))
 							{
 								return path;
 							}
@@ -318,6 +373,227 @@ public class IDFUtil
 					}
 				}
 			}
+		}
+		return null;
+	}
+
+	/**
+	 * Get Addr2Line path based on the target configured for the project with toolchain
+	 * 
+	 * @return
+	 */
+	public static String getXtensaToolchainExecutableAddr2LinePath(IProject project)
+	{
+		Pattern GDB_PATTERN = Pattern.compile("xtensa-esp(.*)-elf-addr2line(\\.exe)?"); //$NON-NLS-1$
+		String projectEspTarget = null;
+		if (project != null)
+		{
+			projectEspTarget = new SDKConfigJsonReader(project).getValue("IDF_TARGET"); //$NON-NLS-1$
+		}
+
+		// Process PATH to find the toolchain path
+		IEnvironmentVariable cdtPath = new IDFEnvironmentVariables().getEnv("PATH"); //$NON-NLS-1$
+		if (cdtPath != null)
+		{
+			for (String dirStr : cdtPath.getValue().split(File.pathSeparator))
+			{
+				File dir = new File(dirStr);
+				if (dir.isDirectory())
+				{
+					for (File file : dir.listFiles())
+					{
+						if (file.isDirectory())
+						{
+							continue;
+						}
+						Matcher matcher = GDB_PATTERN.matcher(file.getName());
+						if (matcher.matches())
+						{
+							String path = file.getAbsolutePath();
+							Logger.log("addr2line executable:" + path); //$NON-NLS-1$
+							String[] tuples = file.getName().split("-"); //$NON-NLS-1$
+							if (projectEspTarget == null) // If no IDF_TARGET
+							{
+								return path;
+							}
+							else if (tuples[1].equals(projectEspTarget))
+							{
+								return path;
+							}
+
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * @return esptool.py file path based on configured IDF_PATH in the CDT build environment variables
+	 */
+	public static File getEspToolScriptFile()
+	{
+		String idf_path = getIDFPath();
+		String esp_tool_script = idf_path + IPath.SEPARATOR + IDFConstants.COMPONENTS_FOLDER + IPath.SEPARATOR
+				+ IDFConstants.ESP_TOOL_FOLDER_PY + IPath.SEPARATOR + IDFConstants.ESP_TOOL_FOLDER + IPath.SEPARATOR
+				+ IDFConstants.ESP_TOOL_SCRIPT;
+		return new File(esp_tool_script);
+	}
+
+	public static String getEspIdfVersion()
+	{
+		if (IDFUtil.getIDFPath() != null && IDFUtil.getIDFPythonEnvPath() != null)
+		{
+			List<String> commands = new ArrayList<>();
+			commands.add(IDFUtil.getIDFPythonEnvPath());
+			commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
+			commands.add("--version"); //$NON-NLS-1$
+			Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
+			return runCommand(commands, envMap);
+		}
+
+		return ""; //$NON-NLS-1$
+	}
+
+	public static String getOpenocdVersion()
+	{
+		String openocdLocation = IDFUtil.getOpenOCDLocation();
+		String openocdExecutable = Platform.getOS().equals(Platform.OS_WIN32) ? "openocd.exe" : "openocd"; //$NON-NLS-1$ //$NON-NLS-2$
+		if (openocdLocation != null && !openocdLocation.isBlank())
+		{
+			List<String> commands = new ArrayList<>();
+			commands.add(IDFUtil.getOpenOCDLocation() + File.separator + openocdExecutable);
+			commands.add("--version"); //$NON-NLS-1$
+			Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
+			return runCommand(commands, envMap);
+		}
+		return ""; //$NON-NLS-1$
+	}
+
+	private static String runCommand(List<String> arguments, Map<String, String> env)
+	{
+		String exportCmdOp = ""; //$NON-NLS-1$
+		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
+		try
+		{
+			IStatus status = processRunner.runInBackground(arguments, Path.ROOT, env);
+			if (status == null)
+			{
+				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
+				return exportCmdOp;
+			}
+
+			// process export command output
+			exportCmdOp = status.getMessage();
+			Logger.log(exportCmdOp);
+		}
+		catch (Exception e1)
+		{
+			Logger.log(IDFCorePlugin.getPlugin(), e1);
+		}
+		return exportCmdOp;
+	}
+
+	/**
+	 * Project build directory
+	 * 
+	 * @param project
+	 * @return
+	 * @throws CoreException
+	 */
+	public static String getBuildDir(IProject project) throws CoreException
+	{
+		String buildDirectory = project
+				.getPersistentProperty(new QualifiedName(IDFCorePlugin.PLUGIN_ID, IDFConstants.BUILD_DIR_PROPERTY));
+		if (StringUtil.isEmpty(buildDirectory))
+		{
+			buildDirectory = project.getFolder(IDFConstants.BUILD_FOLDER).getLocation().toOSString();
+		}
+
+		return buildDirectory;
+	}
+
+	/**
+	 * Project .map file path
+	 * 
+	 * @param project
+	 * @return
+	 */
+	public static IPath getMapFilePath(IProject project)
+	{
+		try
+		{
+			String buildDir = IDFUtil.getBuildDir(project);
+			String filePath = buildDir + File.separator + IDFConstants.PROECT_DESCRIPTION_JSON;
+			GenericJsonReader jsonReader = new GenericJsonReader(filePath);
+			String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
+			if (!StringUtil.isEmpty(value))
+			{
+				value = value.replace(".elf", ".map"); // Assuming .elf and .map files have //$NON-NLS-1$ //$NON-NLS-2$
+														// the
+														// same file name
+
+				return new Path(buildDir).append(value);
+			}
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+		return null;
+	}
+
+	/**
+	 * Project .bin file path
+	 * 
+	 * @param project
+	 * @return
+	 */
+	public static IPath getBinFilePath(IProject project)
+	{
+		try
+		{
+			String buildDir = IDFUtil.getBuildDir(project);
+			String filePath = buildDir + File.separator + IDFConstants.PROECT_DESCRIPTION_JSON;
+			GenericJsonReader jsonReader = new GenericJsonReader(filePath);
+			String value = jsonReader.getValue("app_bin"); //$NON-NLS-1$
+			if (!StringUtil.isEmpty(value))
+			{
+				return new Path(buildDir).append(value);
+
+			}
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+		return null;
+	}
+	
+	/**
+	 * Project .elf file path
+	 * 
+	 * @param project
+	 * @return
+	 */
+	public static IPath getELFFilePath(IProject project)
+	{
+		try
+		{
+			String buildDir = IDFUtil.getBuildDir(project);
+			String filePath = buildDir + File.separator + IDFConstants.PROECT_DESCRIPTION_JSON;
+			GenericJsonReader jsonReader = new GenericJsonReader(filePath);
+			String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
+			if (!StringUtil.isEmpty(value))
+			{
+				return new Path(buildDir).append(value);
+
+			}
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
 		}
 		return null;
 	}

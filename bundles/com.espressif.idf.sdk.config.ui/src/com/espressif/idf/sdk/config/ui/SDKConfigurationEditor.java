@@ -52,11 +52,6 @@ import org.eclipse.ui.ISaveablePart;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsole;
-import org.eclipse.ui.console.IConsoleConstants;
-import org.eclipse.ui.console.IConsoleManager;
-import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
@@ -80,6 +75,7 @@ import com.espressif.idf.sdk.config.core.server.IJsonConfigOutput;
 import com.espressif.idf.sdk.config.core.server.IMessageHandlerListener;
 import com.espressif.idf.sdk.config.core.server.JsonConfigProcessor;
 import com.espressif.idf.sdk.config.core.server.JsonConfigServer;
+import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.dialogs.HelpPopupDialog;
 
 /**
@@ -96,6 +92,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	public static String EDITOR_ID = "com.espressif.idf.sdk.config.ui.editor"; //$NON-NLS-1$
 
 	private static final String ICONS_INFO_OBJ_GIF = "icons/help.gif"; //$NON-NLS-1$
+
+	private static final String ICONS_SDK_TOOL_CONFIG_PNG = "icons/sdk_tool_config.png"; //$NON-NLS-1$
 
 	private TreeViewer treeViewer;
 
@@ -361,12 +359,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	{
 
 		// Create console
-		MessageConsole msgConsole = createConsole("JSON Configuration Server Console"); //$NON-NLS-1$
-		msgConsole.clearConsole();
+		MessageConsoleStream console = new IDFConsole().getConsoleStream("JSON Configuration Server Console", null); //$NON-NLS-1$
 
-		MessageConsoleStream console = msgConsole.newMessageStream();
-		msgConsole.activate();
-		openConsoleView();
 
 		configServer = ConfigServerManager.INSTANCE.getServer(project);
 
@@ -611,7 +605,6 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 					: false);
 			Object newConfigValue = modifiedJsonMap.get(configKey);
 			String helpInfo = kConfigMenuItem.getHelp();
-
 			if (isVisible && type.equals(IJsonServerConfig.STRING_TYPE))
 			{
 				Label labelName = new Label(updateUIComposite, SWT.NONE);
@@ -648,28 +641,34 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				textControl.addModifyListener(addModifyListener(configKey, textControl));
 				addTooltipImage(kConfigMenuItem);
 			}
-			else if (isVisible && type.equals(IJsonServerConfig.BOOL_TYPE))
+			else if (kConfigMenuItem.isMenuConfig())
 			{
-				Button button = new Button(updateUIComposite, SWT.CHECK);
-				button.setText(kConfigMenuItem.getTitle());
-				button.setLayoutData(new GridData(SWT.NONE, SWT.NONE, false, false, 2, 1));
-				button.setToolTipText(helpInfo);
-				if (configValue != null)
-				{
-					button.setSelection((boolean) configValue);
-				}
+				Button button = createCheckBox(kConfigMenuItem, configKey, configValue, helpInfo);
 				button.addSelectionListener(new SelectionAdapter()
 				{
 					@Override
 					public void widgetSelected(SelectionEvent e)
 					{
-						JSONObject jsonObj = new JSONObject();
-						jsonObj.put(configKey, button.getSelection());
-						executeCommand(jsonObj);
+						renderMenuItems(kConfigMenuItem);
 					}
 
 				});
-				addTooltipImage(kConfigMenuItem);
+				if (kConfigMenuItem.hasChildren())
+				{
+					button.setImage(SDKConfigUIPlugin.getImage(ICONS_SDK_TOOL_CONFIG_PNG));
+				}
+
+				if (button.getSelection())
+				{
+					renderMenuItems(kConfigMenuItem);
+				}
+
+
+
+			}
+			else if (isVisible && type.equals(IJsonServerConfig.BOOL_TYPE))
+			{
+				createCheckBox(kConfigMenuItem, configKey, configValue, helpInfo);
 			}
 
 			else if (isVisible && type.equals(IJsonServerConfig.INT_TYPE))
@@ -759,6 +758,31 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				renderMenuItems(kConfigMenuItem);
 			}
 		}
+	}
+
+	private Button createCheckBox(KConfigMenuItem kConfigMenuItem, String configKey, Object configValue,
+			String helpInfo) {
+		Button button = new Button(updateUIComposite, SWT.CHECK);
+		button.setText(kConfigMenuItem.getTitle());
+		button.setLayoutData(new GridData(SWT.NONE, SWT.NONE, false, false, 2, 1));
+		button.setToolTipText(helpInfo);
+		if (configValue != null)
+		{
+			button.setSelection((boolean) configValue);
+		}
+		button.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				JSONObject jsonObj = new JSONObject();
+				jsonObj.put(configKey, button.getSelection());
+				executeCommand(jsonObj);
+			}
+
+		});
+		addTooltipImage(kConfigMenuItem);
+		return button;
 	}
 
 	protected boolean isExist(JSONObject jsonMap, String key)
@@ -932,42 +956,6 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			}
 		}
 
-	}
-
-	private MessageConsole createConsole(String name)
-	{
-		ConsolePlugin plugin = ConsolePlugin.getDefault();
-		IConsoleManager conMan = plugin.getConsoleManager();
-		IConsole[] existing = conMan.getConsoles();
-		for (int i = 0; i < existing.length; i++)
-		{
-			if (name.equals(existing[i].getName()))
-				return (MessageConsole) existing[i];
-		}
-		// no console found, so create a new one
-		MessageConsole myConsole = new MessageConsole(name, null);
-		conMan.addConsoles(new IConsole[] { myConsole });
-		return myConsole;
-	}
-
-	private void openConsoleView()
-	{
-		Display.getDefault().asyncExec(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				try
-				{
-					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-							.showView(IConsoleConstants.ID_CONSOLE_VIEW);
-				}
-				catch (PartInitException e)
-				{
-					Logger.log(e);
-				}
-			}
-		});
 	}
 
 	public String getSystemProperty(String option)

@@ -19,11 +19,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleConstants;
-import org.eclipse.ui.console.IConsoleManager;
-import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.espressif.idf.core.ExecutableFinder;
@@ -34,6 +30,7 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.PyWinRegistryReader;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.ui.IDFConsole;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -110,25 +107,11 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 
 	protected void activateIDFConsoleView()
 	{
-		// Create Tools console
-		MessageConsole msgConsole = findConsole(Messages.IDFToolsHandler_ToolsManagerConsole);
-		msgConsole.clearConsole();
-		console = msgConsole.newMessageStream();
-		msgConsole.activate();
-
-		// Open console view so that users can see the output
-		openConsoleView();
+		console = new IDFConsole().getConsoleStream(Messages.IDFToolsHandler_ToolsManagerConsole, null);
 	}
 
 	protected String getPythonExecutablePath()
 	{
-		//find python from IDF_PYTHON_ENV_PATH env path
-		pythonExecutablenPath = IDFUtil.getIDFPythonEnvPath();
-		if (!StringUtil.isEmpty(pythonExecutablenPath))
-		{
-			return pythonExecutablenPath;
-		}
-		
 		// Get Python
 		if (Platform.OS_WIN32.equals(Platform.getOS()))
 		{
@@ -156,7 +139,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 	 */
 	protected abstract void execute();
 
-	protected void runCommand(List<String> arguments)
+	protected IStatus runCommand(List<String> arguments)
 	{
 		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 
@@ -181,18 +164,44 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 			if (status == null)
 			{
 				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
-				return;
+				return IDFCorePlugin.errorStatus("Status can't be null", null); //$NON-NLS-1$
 			}
 
 			console.println(status.getMessage());
 			console.println();
-
+			
+			return IDFCorePlugin.okStatus(status.getMessage(), null);
 		}
 		catch (Exception e1)
 		{
 			Logger.log(IDFCorePlugin.getPlugin(), e1);
-
+			return IDFCorePlugin.errorStatus(e1.getMessage(), e1);
 		}
+	}
+	
+	protected String runCommand(List<String> arguments, Path workDir, Map<String, String> env)
+	{
+		String exportCmdOp = ""; //$NON-NLS-1$
+		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
+		try
+		{
+			IStatus status = processRunner.runInBackground(arguments, workDir, env);
+			if (status == null)
+			{
+				IStatus errorStatus = IDFCorePlugin.errorStatus("Status can't be null", null); //$NON-NLS-1$
+				Logger.log(IDFCorePlugin.getPlugin(), errorStatus);
+				return errorStatus.getMessage();
+			}
+
+			// process export command output
+			exportCmdOp = status.getMessage();
+			Logger.log(exportCmdOp);
+		}
+		catch (Exception e1)
+		{
+			Logger.log(IDFCorePlugin.getPlugin(), e1);
+		}
+		return exportCmdOp;
 	}
 
 	protected void addGitToEnvironment(Map<String, String> environment, String gitExecutablePath)
@@ -222,41 +231,6 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 		arguments.forEach(entry -> builder.append(entry + " ")); //$NON-NLS-1$
 
 		return builder.toString().trim();
-	}
-
-	/**
-	 * Find a console for a given name. If not found, it will create a new one and return
-	 * 
-	 * @param name
-	 * @return
-	 */
-	private MessageConsole findConsole(String name)
-	{
-		ConsolePlugin plugin = ConsolePlugin.getDefault();
-		IConsoleManager conMan = plugin.getConsoleManager();
-		IConsole[] existing = conMan.getConsoles();
-		for (int i = 0; i < existing.length; i++)
-		{
-			if (name.equals(existing[i].getName()))
-				return (MessageConsole) existing[i];
-		}
-		// no console found, so create a new one
-		MessageConsole myConsole = new MessageConsole(name, null);
-		conMan.addConsoles(new IConsole[] { myConsole });
-		return myConsole;
-	}
-
-	protected void openConsoleView()
-	{
-		try
-		{
-			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-					.showView(IConsoleConstants.ID_CONSOLE_VIEW);
-		}
-		catch (PartInitException e)
-		{
-			Logger.log(e);
-		}
 	}
 	
 	public void setCommandId(String commandId)

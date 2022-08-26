@@ -44,6 +44,8 @@ import org.eclipse.ui.internal.ide.IIDEHelpContextIds;
 import org.eclipse.ui.internal.ide.dialogs.ProjectContentsLocationArea;
 import org.eclipse.ui.internal.ide.dialogs.ProjectContentsLocationArea.IErrorMessageReporter;
 
+import com.espressif.idf.core.util.IDFUtil;
+
 /**
  * Standard main page for a wizard that is creates a project resource.
  */
@@ -288,7 +290,7 @@ public class WizardNewProjectCreationPage extends WizardPage
 			worspaceLocation = locationArea.getProjectLocation();
 		}
 
-		if (worspaceLocation.contains(" ")) //$NON-NLS-1$
+		if (!IDFUtil.checkIfIdfSupportsSpaces() && worspaceLocation.contains(" ")) //$NON-NLS-1$
 		{
 			setErrorMessage(Messages.WizardNewProjectCreationPage_WorkspaceLocCantIncludeSpaceErr);
 			return false;
@@ -302,7 +304,7 @@ public class WizardNewProjectCreationPage extends WizardPage
 			return false;
 		}
 
-		if (projectFieldContents.contains(" ")) //$NON-NLS-1$
+		if (!IDFUtil.checkIfIdfSupportsSpaces() && projectFieldContents.contains(" ")) //$NON-NLS-1$
 		{
 			setErrorMessage(Messages.WizardNewProjectCreationPage_NameCantIncludeSpaceErr);
 			return false;
