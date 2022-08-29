@@ -136,7 +136,8 @@ public class SerialPortHandler
 				int n;
 				try
 				{
-					while ((n = targetIn.read(buff, 0, buff.length)) >= 0)
+					while ((n = targetIn.read(buff, 0, buff.length)) >= 0
+							|| !SocketServerHandler.getInstance().getMessagesQueue().isEmpty())
 					{
 						if (n != 0)
 						{
