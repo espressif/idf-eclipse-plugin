@@ -24,7 +24,7 @@ import com.espressif.idf.terminal.connector.serial.nls.Messages;
  * @author Ali Azam Rana
  *
  */
-public class SocketServerMessageHandler
+public class SocketServerMessageHandler extends Thread
 {
 	private SerialConnector serialConnector;
 	private IProject project;
@@ -35,7 +35,37 @@ public class SocketServerMessageHandler
 		this.serialConnector = serialConnector;
 	}
 
-	public void parseMessage(String message) throws Exception
+	@Override
+	public void run()
+	{
+		boolean running = true;
+		while (running)
+		{
+			if (SocketServerHandler.getInstance().getMessagesQueue().isEmpty())
+			{
+				try
+				{
+					sleep(500);
+				}
+				catch (InterruptedException e)
+				{
+					Logger.logError(e.getMessage());
+				}
+				continue;
+			}
+
+			try
+			{
+				parseMessage(SocketServerHandler.getInstance().getMessagesQueue().poll());
+			}
+			catch (Exception e)
+			{
+				Logger.log(e);
+			}
+		}
+	}
+
+	private void parseMessage(String message) throws Exception
 	{
 		JSONObject messageJsonObject = (JSONObject) new JSONParser().parse(message);
 		String event = messageJsonObject.get("event").toString(); //$NON-NLS-1$
@@ -92,5 +122,4 @@ public class SocketServerMessageHandler
 			return response;
 		}
 	}
-
 }

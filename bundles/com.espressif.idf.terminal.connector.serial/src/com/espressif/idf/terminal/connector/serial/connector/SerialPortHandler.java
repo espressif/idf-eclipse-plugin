@@ -136,14 +136,8 @@ public class SerialPortHandler
 				int n;
 				try
 				{
-					while ((n = targetIn.read(buff, 0, buff.length)) >= 0
-							|| !SocketServerHandler.getInstance().getMessagesQueue().isEmpty())
+					while ((n = targetIn.read(buff, 0, buff.length)) >= 0)
 					{
-						if (!SocketServerHandler.getInstance().getMessagesQueue().isEmpty())
-						{
-							serverMessageHandler
-									.parseMessage(SocketServerHandler.getInstance().getMessagesQueue().poll());
-						}
 						if (n != 0)
 						{
 							serialConnector.control.getRemoteToTerminalOutputStream().write(buff, 0, n);
@@ -162,7 +156,7 @@ public class SerialPortHandler
 		};
 
 		thread.start();
-
+		serverMessageHandler.start();
 		isOpen = true;
 
 		serialConnector.control.setState(TerminalState.CONNECTED);
