@@ -139,14 +139,14 @@ public class SerialPortHandler
 					while ((n = targetIn.read(buff, 0, buff.length)) >= 0
 							|| !SocketServerHandler.getInstance().getMessagesQueue().isEmpty())
 					{
-						if (n != 0)
-						{
-							serialConnector.control.getRemoteToTerminalOutputStream().write(buff, 0, n);
-						}
 						if (!SocketServerHandler.getInstance().getMessagesQueue().isEmpty())
 						{
 							serverMessageHandler
 									.parseMessage(SocketServerHandler.getInstance().getMessagesQueue().poll());
+						}
+						if (n != 0)
+						{
+							serialConnector.control.getRemoteToTerminalOutputStream().write(buff, 0, n);
 						}
 					}
 
