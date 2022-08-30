@@ -4,7 +4,9 @@
  *******************************************************************************/
 package com.espressif.idf.terminal.connector.serial.launcher;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -25,7 +27,6 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.internal.core.LaunchManager;
@@ -36,9 +37,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.espressif.idf.core.IDFConstants;
-import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
-import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.IDFConsole;
@@ -122,20 +121,36 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 
 	private String runCommand(List<String> arguments, Path workDir, Map<String, String> env) throws Exception
 	{
-		String exportCmdOp = ""; //$NON-NLS-1$
-		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
-		IStatus status = processRunner.runInBackground(arguments, workDir, env);
-		if (status == null)
+		ProcessBuilder processBuilder = new ProcessBuilder(arguments);
+		processBuilder.directory(new File(workDir.toOSString()));
+		processBuilder.environment().putAll(env);
+		processBuilder.redirectErrorStream(true);
+		Process process = processBuilder.start();
+
+		Thread.sleep(100);
+		StringBuilder sBuilder = new StringBuilder();
+		if (process.isAlive() && process.getInputStream() != null)
 		{
-			IStatus errorStatus = IDFCorePlugin.errorStatus("Status can't be null", null); //$NON-NLS-1$
-			Logger.log(IDFCorePlugin.getPlugin(), errorStatus);
-			return errorStatus.toString();
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			String line = bufferedReader.readLine();
+			while (line != null)
+			{
+				sBuilder.append(line);
+				sBuilder.append(System.lineSeparator());
+				if (line.contains("gdb") || line.contains("GDB")) //$NON-NLS-1$ //$NON-NLS-2$
+				{
+					process.destroyForcibly(); // we are closing the gdb from the process here forcibly
+												// since the eclipse will launch its own debug session
+					line = null;
+					continue;
+				}
+				line = bufferedReader.readLine();
+			}
+
 		}
 
-		// process export command output
-		exportCmdOp = status.getMessage();
-		Logger.log(exportCmdOp);
-		return exportCmdOp;
+		Logger.log(sBuilder.toString());
+		return sBuilder.toString();
 	}
 
 	private void parseMessageReceived() throws Exception
