@@ -57,6 +57,7 @@ public class SocketServerMessageHandler extends Thread
 			try
 			{
 				parseMessage(SocketServerHandler.getInstance().getMessagesQueue().poll());
+				running = false;
 			}
 			catch (Exception e)
 			{
