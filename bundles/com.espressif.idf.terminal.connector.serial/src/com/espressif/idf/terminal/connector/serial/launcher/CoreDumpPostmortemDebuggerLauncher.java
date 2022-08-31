@@ -139,8 +139,9 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 				sBuilder.append(System.lineSeparator());
 				if (line.contains("gdb") || line.contains("GDB")) //$NON-NLS-1$ //$NON-NLS-2$
 				{
-					process.destroyForcibly(); // we are closing the gdb from the process here forcibly
-												// since the eclipse will launch its own debug session
+					if (process.isAlive())
+						process.destroyForcibly(); // we are closing the gdb from the process here forcibly
+													// since the eclipse will launch its own debug session
 					line = null;
 					continue;
 				}
