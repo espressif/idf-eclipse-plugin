@@ -628,7 +628,7 @@ ESP-IDF 的 [应用层追踪](https://docs.espressif.com/projects/esp-idf/en/lat
 
 # ESP-IDF Master 更新
 
-您如何在使用 ESP-IDF 的 master 分支，并希望进行升级：请打开 Eclipse 插件，前往 `乐鑫` -> `ESP-IDF 工具管理器`，并点击 `更新 ESP-IDF master`。
+您如果在使用 ESP-IDF 的 master 分支，并希望进行升级：请打开 Eclipse 插件，前往 `乐鑫` -> `ESP-IDF 工具管理器`，并点击 `更新 ESP-IDF master`。
 
 ![image](https://user-images.githubusercontent.com/24419842/182107159-16723759-65e0-4c34-9440-ebe2f536e62a.png)
 
@@ -655,7 +655,7 @@ ESP-IDF 的 [应用层追踪](https://docs.espressif.com/projects/esp-idf/en/lat
 
 后续可按照 <a href="https://github.com/espressif/idf-eclipse-plugin#installPluginsUsingLocalFile">介绍</a> 进行安装。
 
-# 如果获得最新的开发构建
+# 如何获得最新的开发构建
 1. 前往最新 master 分支，找到 <a href="https://github.com/espressif/idf-eclipse-plugin/commits/master">最新 commit</a> 。
 1. 点击最新 commit 处的 :white_check_mark:。
 1. 点击 `Details`。
