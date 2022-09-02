@@ -21,7 +21,7 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 * [ Installing Prerequisites ](#Prerequisites) <br>
 * [ Installing IDF Eclipse Plugin ](#GettingStarted) <br>
 * [ Installing ESP-IDF and Tools ](#InstallTools) <br>
-* [ Installing ESP-IDF and Tools via Tools Installation Wizard ](#InstallToolsManager) <br>
+* [ Installing ESP-IDF and Tools via Tools Installation Wizard ](#InstallToolsWizard) <br>
 * [ Creating a new Project ](#NewProjectUsingDefault)<br>
 * [ Configuring Launch Target ](#ConfigureLaunchTarget)<br>
 * [ Compiling the Project ](#BuildApplication)<br>
@@ -125,7 +125,7 @@ ESP-IDF Directory selection dialog:
 
 ![](docs/images/esp_idf_dir.png)
 
-<a name="Installing ESP-IDF and Tools via Tools Installation Wizard"></a>
+<a name="InstallToolsWizard"></a>
 # Tools Installation Wizard
 You can use the install tools wizard to manage the tools installation via a wizard. The advantage of this method over the exisitng installation is that you can easily manage the whole flow via wizard and install the tools in ESP-IDF framework that you only need.<br/>
 

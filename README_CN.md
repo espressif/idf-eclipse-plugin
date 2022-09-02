@@ -20,7 +20,7 @@ ESP-IDF Eclipse 插件支持 `macOS`、`Window` 和 `Linux` 操作系统。
 * [安装依赖资源](#Prerequisites) <br>
 * [安装 IDF Eclipse 插件](#GettingStarted) <br>
 * [安装 ESP-IDF 和相关工具集](#InstallTools) <br>
-* [使用工具安装助手，安装 ESP-IDF 和相关工具](#InstallToolsManager) <br>
+* [使用工具安装助手，安装 ESP-IDF 和相关工具](#InstallToolsWizard) <br>
 * [创建一个新项目](#NewProjectUsingDefault)<br>
 * [配置启动目标](#ConfigureLaunchTarget)<br>
 * [编译项目](#BuildApplication)<br>
@@ -128,7 +128,7 @@ ESP-IDF 目录选择对话框：
 
 ![](docs/images/zh/esp_idf_dir.png)
 
-<a name="使用工具安装助手，安装 ESP-IDF 和相关工具"></a>
+<a name="InstallToolsWizard"></a>
 # 工具安装助手
 您可以使用工具安装助手，安装相关工具，优势在于可以简化安装过程，且仅安装 ESP-IDF 框架下您需要的工具。<br/>
 
