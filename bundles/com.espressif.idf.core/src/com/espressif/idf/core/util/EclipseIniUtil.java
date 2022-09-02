@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.Platform;
@@ -108,27 +109,27 @@ public class EclipseIniUtil
 	{
 		File file = new File(eclipseIniUri);
 		List<String> contentsToWrite = new ArrayList<String>();
-		for (String key : eclipseIniSwitchMap.keySet())
+		for (Entry<String, String> entry : eclipseIniSwitchMap.entrySet())
 		{
-			contentsToWrite.add(key);
-			if (!StringUtil.isEmpty(eclipseIniSwitchMap.get(key)))
+			contentsToWrite.add(entry.getKey());
+			if (!StringUtil.isEmpty(entry.getValue()))
 			{
-				contentsToWrite.add(eclipseIniSwitchMap.get(key));
+				contentsToWrite.add(entry.getValue());
 			}
 		}
 
 		contentsToWrite.add(ECLIPSE_INI_VMARGS);
 
-		for (String key : eclipseVmArgMap.keySet())
+		for (Entry<String, String> entry : eclipseVmArgMap.entrySet())
 		{
-			if (!StringUtil.isEmpty(eclipseVmArgMap.get(key)))
+			if (!StringUtil.isEmpty(entry.getValue()))
 			{
-				String contentToWrite = key + "=" + eclipseVmArgMap.get(key); //$NON-NLS-1$
+				String contentToWrite = entry.getKey() + "=" + entry.getValue(); //$NON-NLS-1$
 				contentsToWrite.add(contentToWrite);
 			}
 			else
 			{
-				contentsToWrite.add(key);
+				contentsToWrite.add(entry.getKey());
 			}
 		}
 

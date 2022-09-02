@@ -85,7 +85,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				monitor.worked(1);
 
 				monitor.setTaskName(Messages.InstallToolsHandler_ExportingPathsMsg);
-				status = new ExportIDFTools().runToolsExport(pythonExecutablenPath, gitExecutablePath, console);
+				status = new ExportIDFTools().runToolsExport(pythonExecutablenPath, gitExecutablePath, console, errorConsoleStream);
 				if (status.getSeverity() == IStatus.ERROR)
 				{
 					return status;
@@ -190,7 +190,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 						catch (IOException e)
 						{
 							Logger.log(e);
-							console.println(Messages.InstallToolsHandler_OpenOCDRulesCopyError);
+							errorConsoleStream.println(Messages.InstallToolsHandler_OpenOCDRulesCopyError);
 						}
 					}
 				});
@@ -265,7 +265,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 			{
 				Logger.log(IDFCorePlugin.getPlugin(),
 						IDFCorePlugin.errorStatus("Unable to get the process status.", null)); //$NON-NLS-1$
-				console.println("Unable to get the process status.");
+				errorConsoleStream.println("Unable to get the process status.");
 				return IDFCorePlugin.errorStatus("Unable to get the process status.", null); //$NON-NLS-1$ ;
 			}
 
@@ -275,7 +275,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		catch (Exception e1)
 		{
 			Logger.log(IDFCorePlugin.getPlugin(), e1);
-			console.println(e1.getLocalizedMessage());
+			errorConsoleStream.println(e1.getLocalizedMessage());
 			return IDFCorePlugin.errorStatus(e1.getLocalizedMessage(), e1); // $NON-NLS-1$;
 		}
 	}

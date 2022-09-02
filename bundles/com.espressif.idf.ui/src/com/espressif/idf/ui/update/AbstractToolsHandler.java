@@ -17,9 +17,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.espressif.idf.core.ExecutableFinder;
@@ -42,6 +39,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 	 * Tools console
 	 */
 	protected MessageConsoleStream console;
+	protected MessageConsoleStream errorConsoleStream;
 	protected String idfPath;
 	protected String pythonExecutablenPath;
 	protected String gitExecutablePath;
@@ -92,7 +90,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 		if (StringUtil.isEmpty(pythonExecutablenPath) || StringUtil.isEmpty(gitExecutablePath)
 				|| StringUtil.isEmpty(idfPath))
 		{
-			console.print("One or more paths are empty! Make sure you provide IDF_PATH, git and python executables"); //$NON-NLS-1$
+			errorConsoleStream.print("One or more paths are empty! Make sure you provide IDF_PATH, git and python executables"); //$NON-NLS-1$
 			return null;
 		}
 
@@ -104,10 +102,11 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 
 		return null;
 	}
-
+	
 	protected void activateIDFConsoleView()
 	{
-		console = new IDFConsole().getConsoleStream(Messages.IDFToolsHandler_ToolsManagerConsole, null);
+		console = new IDFConsole().getConsoleStream(Messages.IDFToolsHandler_ToolsManagerConsole, null, false);
+		errorConsoleStream = new IDFConsole().getConsoleStream(Messages.IDFToolsHandler_ToolsManagerConsole, null, true);
 	}
 
 	protected String getPythonExecutablePath()
@@ -166,7 +165,10 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
 				return IDFCorePlugin.errorStatus("Status can't be null", null); //$NON-NLS-1$
 			}
-
+			if (status.getSeverity() == IStatus.ERROR)
+			{
+				errorConsoleStream.print(status.getException() != null ? status.getException().getMessage() : status.getMessage());
+			}
 			console.println(status.getMessage());
 			console.println();
 			

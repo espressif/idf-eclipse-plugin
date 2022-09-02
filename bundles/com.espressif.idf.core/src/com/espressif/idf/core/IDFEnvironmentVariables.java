@@ -30,19 +30,19 @@ public class IDFEnvironmentVariables
 	 * ESPRESSIF IDF_PATH environment variable identifier
 	 * 
 	 */
-	public static String IDF_PATH = "IDF_PATH"; //$NON-NLS-1$
+	public static final String IDF_PATH = "IDF_PATH"; //$NON-NLS-1$
 
-	public static String IDF_PYTHON_ENV_PATH = "IDF_PYTHON_ENV_PATH"; //$NON-NLS-1$
+	public static final String IDF_PYTHON_ENV_PATH = "IDF_PYTHON_ENV_PATH"; //$NON-NLS-1$
 
-	public static String PATH = "PATH"; //$NON-NLS-1$
+	public static final String PATH = "PATH"; //$NON-NLS-1$
 
-	public static String OPENOCD_SCRIPTS = "OPENOCD_SCRIPTS"; //$NON-NLS-1$
+	public static final String OPENOCD_SCRIPTS = "OPENOCD_SCRIPTS"; //$NON-NLS-1$
 
-	public static String IDF_COMPONENT_MANAGER = "IDF_COMPONENT_MANAGER"; //$NON-NLS-1$
+	public static final String IDF_COMPONENT_MANAGER = "IDF_COMPONENT_MANAGER"; //$NON-NLS-1$
 
-	public static String GIT_PATH ="GIT_PATH"; //$NON-NLS-1$
+	public static final String GIT_PATH ="GIT_PATH"; //$NON-NLS-1$
 	
-	public static String PYTHON_EXE_PATH ="PYTHON_EXE_PATH"; //$NON-NLS-1$
+	public static final String PYTHON_EXE_PATH ="PYTHON_EXE_PATH"; //$NON-NLS-1$
 	
 	/**
 	 * @param variableName Environment variable Name

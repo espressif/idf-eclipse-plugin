@@ -37,8 +37,9 @@ public class ExportIDFTools
 	 * @param pythonExePath python executable full path
 	 * @param gitExePath    git executable full path
 	 * @param console       Console stream to write messages
+	 * @param errorConsoleStream
 	 */
-	public IStatus runToolsExport(final String pythonExePath, final String gitExePath, final MessageConsoleStream console)
+	public IStatus runToolsExport(final String pythonExePath, final String gitExePath, final MessageConsoleStream console, MessageConsoleStream errorConsoleStream)
 	{
 		final List<String> arguments = new ArrayList<>();
 		arguments.add(pythonExePath);
@@ -66,6 +67,7 @@ public class ExportIDFTools
 			
 			if (status.getSeverity() == IStatus.ERROR)
 			{
+				log(status.getException() != null ? status.getException().getMessage() : status.getMessage(), errorConsoleStream);
 				return status;				
 			}
 

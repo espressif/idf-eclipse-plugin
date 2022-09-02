@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.osgi.framework.Version;
 
@@ -39,7 +40,6 @@ public class IDFVersionsReader
 			URL url = new URL(VERSIONS_URL);
 			URLConnection yc = url.openConnection();
 			BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
-
 			String inputLine;
 			while ((inputLine = in.readLine()) != null)
 			{
@@ -127,10 +127,10 @@ public class IDFVersionsReader
 	{
 		IDFVersionsReader reader = new IDFVersionsReader();
 		Map<String, IDFVersion> versionsMap = reader.getVersionsMap();
-		for (String version : versionsMap.keySet())
+		for (Entry<String, IDFVersion> entry : versionsMap.entrySet())
 		{
-			IDFVersion idfVersion = versionsMap.get(version);
-			System.out.println("Version:" + version); //$NON-NLS-1$
+			IDFVersion idfVersion = entry.getValue();
+			System.out.println("Version:" + entry.getKey()); //$NON-NLS-1$
 			System.out.println("URL:" + idfVersion.getUrl()); //$NON-NLS-1$
 			System.out.println("Mirror URL:" + idfVersion.getMirrorUrl()); //$NON-NLS-1$
 			System.out.println(""); //$NON-NLS-1$

@@ -41,6 +41,7 @@ import com.espressif.idf.ui.dialogs.MessageLinkDialog;
 import com.espressif.idf.ui.update.ExportIDFTools;
 import com.espressif.idf.ui.update.InstallToolsHandler;
 
+@SuppressWarnings("restriction")
 public class InitializeToolsStartup implements IStartup
 {
 
@@ -58,7 +59,6 @@ public class InitializeToolsStartup implements IStartup
 	private static final String IS_INSTALLER_CONFIG_SET = "isInstallerConfigSet"; //$NON-NLS-1$
 	private static final String DOC_URL = "\"https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/partition-tables.html?highlight=partitions%20csv#creating-custom-tables\""; //$NON-NLS-1$
 
-	@SuppressWarnings("restriction")
 	@Override
 	public void earlyStartup()
 	{
@@ -126,7 +126,7 @@ public class InitializeToolsStartup implements IStartup
 				if (!StringUtil.isEmpty(pythonExecutablePath) && !StringUtil.isEmpty(gitExecutablePath))
 				{
 					ExportIDFTools exportIDFTools = new ExportIDFTools();
-					exportIDFTools.runToolsExport(pythonExecutablePath, gitExecutablePath, null);
+					exportIDFTools.runToolsExport(pythonExecutablePath, gitExecutablePath, null, null);
 
 					// Configure toolchains
 					configureToolChain();
