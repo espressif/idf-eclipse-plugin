@@ -68,11 +68,6 @@ public class HintsView extends ViewPart
 
 	private void createHintsViewer(Composite container)
 	{
- 		if (reHintsList.isEmpty()) {
-			Text txtField = new Text(container, SWT.READ_ONLY | SWT.H_SCROLL);
-			txtField.setText("hints.yml not found");
-			return;
- 		}
 		hintsTableViewer = new TableViewer(container,
 				SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
 		createColumns(container);
@@ -168,7 +163,7 @@ public class HintsView extends ViewPart
 				for (String[] reHintEntry : reHintsList)
 				{
 					boolean isRegexMatchesWithField = Pattern.compile(reHintEntry[0]).matcher(searchField.getText())
-							.matches();
+							.find();
 					if (isRegexMatchesWithField)
 					{
 						allMatchesList.add(reHintEntry);
