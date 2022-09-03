@@ -559,6 +559,7 @@
    <extension
          point="org.eclipse.ui.views">
       <view
+            category="com.espressif.idf.ui.category"
             class="com.espressif.idf.ui.tracing.TracingCallersView"
             icon="icons/espressif.png"
             id="com.espressif.idf.ui.views.tracingcallersview"
@@ -566,12 +567,17 @@
             restorable="true">
       </view>
       <view
+            category="com.espressif.idf.ui.category"
             class="com.espressif.idf.ui.dialogs.HintsView"
             icon="icons/Hints_View.png"
             id="com.espressif.idf.ui.views.hints"
             name="%hints_view.name"
             restorable="true">
       </view>
+      <category
+            id="com.espressif.idf.ui.category"
+            name="%views_category.name">
+      </category>
    </extension>
    <extension
          point="org.eclipse.ui.intro">

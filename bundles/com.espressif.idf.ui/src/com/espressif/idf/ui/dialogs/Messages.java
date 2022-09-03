@@ -24,6 +24,7 @@ public class Messages extends NLS
 	public static String EraseFlashDialog_EraseFlashInProcessMessageQuestion;
 	public static String HintDetailsTitle;
 	public static String FilterMessage;
+	public static String HintsYmlNotFoundErrMsg;
 
 	static
 	{

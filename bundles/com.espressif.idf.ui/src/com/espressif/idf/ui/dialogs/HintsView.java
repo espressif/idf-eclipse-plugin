@@ -17,6 +17,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Image;
@@ -52,13 +53,26 @@ public class HintsView extends ViewPart
 		container.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		GridLayout layout = new GridLayout(1, true);
 		container.setLayout(layout);
+		reHintsList = HintsUtil.getReHintsList();
+		if (reHintsList.isEmpty())
+		{
+			CLabel errorField = new CLabel(container, SWT.H_SCROLL);
+			errorField
+					.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK));
+			errorField.setText(Messages.HintsYmlNotFoundErrMsg);
+			return;
+		}
 		createSearchField(container);
 		createHintsViewer(container);
 	}
 
 	private void createHintsViewer(Composite container)
 	{
-		reHintsList = HintsUtil.getReHintsList();
+ 		if (reHintsList.isEmpty()) {
+			Text txtField = new Text(container, SWT.READ_ONLY | SWT.H_SCROLL);
+			txtField.setText("hints.yml not found");
+			return;
+ 		}
 		hintsTableViewer = new TableViewer(container,
 				SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
 		createColumns(container);
@@ -154,7 +168,7 @@ public class HintsView extends ViewPart
 				for (String[] reHintEntry : reHintsList)
 				{
 					boolean isRegexMatchesWithField = Pattern.compile(reHintEntry[0]).matcher(searchField.getText())
-							.find();
+							.matches();
 					if (isRegexMatchesWithField)
 					{
 						allMatchesList.add(reHintEntry);
@@ -162,9 +176,16 @@ public class HintsView extends ViewPart
 				}
 				if (allMatchesList.isEmpty())
 				{
-					allMatchesList = reHintsList;
+					for (String[] reHintEntry : reHintsList)
+					{
+						if (reHintEntry[0].contains(searchField.getText()))
+						{
+							allMatchesList.add(reHintEntry);
+						}
+					}
 				}
 
+				allMatchesList = allMatchesList.isEmpty() ? reHintsList : allMatchesList;
 				hintsTableViewer.setInput(allMatchesList);
 				hintsTableViewer.refresh();
 			}
@@ -175,7 +196,10 @@ public class HintsView extends ViewPart
 	@Override
 	public void setFocus()
 	{
-		searchField.setFocus();
+		if (searchField != null)
+		{
+			searchField.setFocus();
+		}
 	}
 
 }

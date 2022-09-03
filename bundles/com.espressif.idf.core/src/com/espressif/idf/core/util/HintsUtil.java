@@ -7,10 +7,14 @@ package com.espressif.idf.core.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.yaml.snakeyaml.Yaml;
 
@@ -22,33 +26,71 @@ public class HintsUtil
 	public static List<String[]> getReHintsList()
 	{
 
-		File hintsYmFile = new File(IDFUtil.getIDFPath() + File.separator + "tools" + File.separator + "idf_py_actions"
+		File hintsYmFile = new File(IDFUtil.getIDFPath() + File.separator + "tools" + File.separator + "idf_py_actions" //$NON-NLS-1$ //$NON-NLS-2$
 				+ File.separator
-				+ "hints.yml"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				+ "hints.yml"); // $NON-NLS-3$
 		List<String[]> reHintsPairArray = new ArrayList<>();
+		InputStream inputStream = null;
 		try
 		{
-			reHintsPairArray = hintsYmFile.isFile() ? parseHintsYamlFile(hintsYmFile) : reHintsPairArray;
+			inputStream = hintsYmFile.isFile() ? new FileInputStream(hintsYmFile) : null;
+			reHintsPairArray = inputStream != null ? loadHintsYamlFis(inputStream) : reHintsPairArray;
 		}
 		catch (FileNotFoundException e)
 		{
 			Logger.log(e);
 		}
 
+		Optional.ofNullable(inputStream).ifPresent(is -> {
+			try
+			{
+				is.close();
+			}
+			catch (IOException e)
+			{
+				Logger.log(e);
+			}
+		});
+
 		return reHintsPairArray;
 	}
 
-	private static List<String[]> parseHintsYamlFile(File hintsYmFile) throws FileNotFoundException
+	private static List<String[]> loadHintsYamlFis(InputStream inputStream) throws FileNotFoundException
 	{
 		Yaml yaml = new Yaml();
 		List<String[]> reHintsPairArray = new ArrayList<>();
-		InputStream inputStream;
-		inputStream = new FileInputStream(hintsYmFile);
-		ArrayList<LinkedHashMap<String, String>> reHintsArray = yaml.load(inputStream);
-		for (LinkedHashMap<String, String> entry : reHintsArray)
+		List<Map<String, List<Map<String, List<String>>>>> reHintsArray = yaml.load(inputStream);
+		for (Map<String, List<Map<String, List<String>>>> entry : reHintsArray)
 		{
-			reHintsPairArray.add(new String[] { entry.get("re"), entry.get("hint") }); //$NON-NLS-1$ //$NON-NLS-2$
+			List<Map<String, List<String>>> reHintVarsMapList = entry.get("variables"); //$NON-NLS-1$
+			reHintVarsMapList = reHintVarsMapList == null ? new ArrayList<>() : reHintVarsMapList;
+			for (Map<String, List<String>> reHintVarsMap : reHintVarsMapList)
+			{
+				String re = String.valueOf(entry.get("re")); //$NON-NLS-1$
+				String hint = String.valueOf(entry.get("hint")); //$NON-NLS-1$
+				List<String> reVariables = reHintVarsMap.get("re_variables"); //$NON-NLS-1$
+				List<String> hintsVariables = reHintVarsMap.get("hint_variables"); //$NON-NLS-1$
+				re = formatEntry(reVariables, re);
+				hint = formatEntry(hintsVariables, hint);
+				reHintsPairArray.add(new String[] { re, hint });
+			}
+			if (reHintVarsMapList.isEmpty())
+			{
+				reHintsPairArray.add(new String[] { String.valueOf(entry.get("re")), //$NON-NLS-1$
+						String.valueOf(entry.get("hint")) }); //$NON-NLS-1$
+			}
 		}
 		return reHintsPairArray;
+	}
+
+	private static String formatEntry(List<String> vars, String entry)
+	{
+		int i = 0;
+		entry = entry.replaceAll("'", "''"); //$NON-NLS-1$ //$NON-NLS-2$
+		while (entry.contains("{}")) //$NON-NLS-1$
+		{
+			entry = entry.replaceFirst(Pattern.quote("{}"), "{" + i++ + "}"); //$NON-NLS-1$ //$NON-NLS-2$ /$NON-NLS-3$
+		}
+		return MessageFormat.format(entry, vars.toArray());
 	}
 }
