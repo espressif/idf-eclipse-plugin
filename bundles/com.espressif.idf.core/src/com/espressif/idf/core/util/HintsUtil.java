@@ -27,9 +27,7 @@ public class HintsUtil
 	public static List<ReHintPair> getReHintsList()
 	{
 
-		File hintsYmFile = new File(IDFUtil.getIDFPath() + File.separator + "tools" + File.separator + "idf_py_actions" //$NON-NLS-1$ //$NON-NLS-2$
-				+ File.separator
-				+ "hints.yml"); // $NON-NLS-3$
+		File hintsYmFile = new File(getHintsYmlPath());
 		List<ReHintPair> reHintsPairArray = new ArrayList<>();
 		InputStream inputStream = null;
 		try
@@ -54,6 +52,13 @@ public class HintsUtil
 		});
 
 		return reHintsPairArray;
+	}
+
+	public static String getHintsYmlPath()
+	{
+		return IDFUtil.getIDFPath() + File.separator + "tools" + File.separator + "idf_py_actions" //$NON-NLS-1$ //$NON-NLS-2$
+				+ File.separator
+				+ "hints.yml"; // $NON-NLS-3$
 	}
 
 	private static List<ReHintPair> loadHintsYamlFis(InputStream inputStream) throws FileNotFoundException

@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.ui.dialogs;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -60,7 +61,7 @@ public class HintsView extends ViewPart
 			CLabel errorField = new CLabel(container, SWT.H_SCROLL);
 			errorField
 					.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK));
-			errorField.setText(Messages.HintsYmlNotFoundErrMsg);
+			errorField.setText(MessageFormat.format(Messages.HintsYmlNotFoundErrMsg, HintsUtil.getHintsYmlPath()));
 			return;
 		}
 		createSearchField(container);
