@@ -31,6 +31,7 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import com.espressif.idf.core.build.ReHintPair;
 import com.espressif.idf.core.util.HintsUtil;
 
 public class HintsView extends ViewPart
@@ -39,7 +40,7 @@ public class HintsView extends ViewPart
 	private Table hintsTable;
 	private final String[] titles = { "Error Type", "Hint" }; //$NON-NLS-1$ //$NON-NLS-2$
 	private Text searchField;
-	private List<String[]> reHintsList;
+	private List<ReHintPair> reHintsList;
 
 	public HintsView()
 	{
@@ -103,7 +104,7 @@ public class HintsView extends ViewPart
 			@Override
 			public String getText(Object element)
 			{
-				return ((String[]) element)[0];
+				return ((ReHintPair) element).getRe();
 			}
 		});
 		col = createTableViewerColumn(titles[1]);
@@ -117,7 +118,7 @@ public class HintsView extends ViewPart
 			@Override
 			public String getText(Object element)
 			{
-				return ((String[]) element)[1];
+				return ((ReHintPair) element).getHint();
 			}
 		});
 		col.getViewer().addDoubleClickListener(new IDoubleClickListener()
@@ -159,10 +160,11 @@ public class HintsView extends ViewPart
 			@Override
 			public void modifyText(ModifyEvent e)
 			{
-				List<String[]> allMatchesList = new ArrayList<>();
-				for (String[] reHintEntry : reHintsList)
+				List<ReHintPair> allMatchesList = new ArrayList<>();
+				for (ReHintPair reHintEntry : reHintsList)
 				{
-					boolean isRegexMatchesWithField = Pattern.compile(reHintEntry[0]).matcher(searchField.getText())
+					boolean isRegexMatchesWithField = Pattern.compile(reHintEntry.getRe())
+							.matcher(searchField.getText())
 							.find();
 					if (isRegexMatchesWithField)
 					{
@@ -171,9 +173,9 @@ public class HintsView extends ViewPart
 				}
 				if (allMatchesList.isEmpty())
 				{
-					for (String[] reHintEntry : reHintsList)
+					for (ReHintPair reHintEntry : reHintsList)
 					{
-						if (reHintEntry[0].contains(searchField.getText()))
+						if (reHintEntry.getRe().contains(searchField.getText()))
 						{
 							allMatchesList.add(reHintEntry);
 						}

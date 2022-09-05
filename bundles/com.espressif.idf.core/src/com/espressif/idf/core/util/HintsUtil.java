@@ -18,18 +18,19 @@ import java.util.regex.Pattern;
 
 import org.yaml.snakeyaml.Yaml;
 
+import com.espressif.idf.core.build.ReHintPair;
 import com.espressif.idf.core.logging.Logger;
 
 public class HintsUtil
 {
 
-	public static List<String[]> getReHintsList()
+	public static List<ReHintPair> getReHintsList()
 	{
 
 		File hintsYmFile = new File(IDFUtil.getIDFPath() + File.separator + "tools" + File.separator + "idf_py_actions" //$NON-NLS-1$ //$NON-NLS-2$
 				+ File.separator
 				+ "hints.yml"); // $NON-NLS-3$
-		List<String[]> reHintsPairArray = new ArrayList<>();
+		List<ReHintPair> reHintsPairArray = new ArrayList<>();
 		InputStream inputStream = null;
 		try
 		{
@@ -55,10 +56,10 @@ public class HintsUtil
 		return reHintsPairArray;
 	}
 
-	private static List<String[]> loadHintsYamlFis(InputStream inputStream) throws FileNotFoundException
+	private static List<ReHintPair> loadHintsYamlFis(InputStream inputStream) throws FileNotFoundException
 	{
 		Yaml yaml = new Yaml();
-		List<String[]> reHintsPairArray = new ArrayList<>();
+		List<ReHintPair> reHintsPairArray = new ArrayList<>();
 		List<Map<String, List<Map<String, List<String>>>>> reHintsArray = yaml.load(inputStream);
 		for (Map<String, List<Map<String, List<String>>>> entry : reHintsArray)
 		{
@@ -72,12 +73,12 @@ public class HintsUtil
 				List<String> hintsVariables = reHintVarsMap.get("hint_variables"); //$NON-NLS-1$
 				re = formatEntry(reVariables, re);
 				hint = formatEntry(hintsVariables, hint);
-				reHintsPairArray.add(new String[] { re, hint });
+				reHintsPairArray.add(new ReHintPair(re, hint));
 			}
 			if (reHintVarsMapList.isEmpty())
 			{
-				reHintsPairArray.add(new String[] { String.valueOf(entry.get("re")), //$NON-NLS-1$
-						String.valueOf(entry.get("hint")) }); //$NON-NLS-1$
+				reHintsPairArray.add(new ReHintPair(String.valueOf(entry.get("re")), //$NON-NLS-1$
+						String.valueOf(entry.get("hint")))); // $NON-NLS-2$
 			}
 		}
 		return reHintsPairArray;
