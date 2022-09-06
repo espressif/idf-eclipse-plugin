@@ -23,18 +23,10 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Environment Information:** 
-Eclipse > About Eclipse > Installation Details > Configuration > Copy to Clipboard (Attach as a file)
-
-**ESP-IDF Tools Information:**
-Help > Espressif Tools Manager > List Installed Tools
-
-**IDF Eclipse Plugin Version:** 
-Eclipse > About Eclipse > Installation Details > Installed Software > Search for "espressif"
-
-For v1.1.0 and above: Eclipse > About Eclipse > Click on "espresif" icon
+**Espressif-IDE Product Information:**
+Espressif > Product Information (Copy content from the console and attach as a file)
 
 **Eclipse Error log:** 
-Window > Show View > Error Log
+Window > Show View > Other > Search for "Error Log" (Attach as a file)
 
 Please attach the error log as described here https://github.com/espressif/idf-eclipse-plugin#error-log 
