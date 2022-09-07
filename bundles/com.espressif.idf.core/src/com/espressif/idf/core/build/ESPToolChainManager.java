@@ -31,7 +31,6 @@ import org.eclipse.cdt.core.build.IToolChainProvider;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jgit.transport.TcpTransport;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
@@ -120,12 +119,16 @@ public class ESPToolChainManager
 		}
 	}
 
-	public void removePrevInstalledToolchains(IToolChainManager manager) {
-		try {
+	public void removePrevInstalledToolchains(IToolChainManager manager)
+	{
+		try
+		{
 			Collection<IToolChain> toolchains = manager.getAllToolChains();
 			ArrayList<IToolChain> tcList = new ArrayList<IToolChain>(toolchains);
 			tcList.forEach(tc -> manager.removeToolChain(tc));
-		} catch (CoreException e) {
+		}
+		catch (CoreException e)
+		{
 			Logger.log(e);
 		}
 	}
@@ -164,6 +167,11 @@ public class ESPToolChainManager
 						// Only add if another provider hasn't already added it
 						if (matcher.matches())
 						{
+							if (info.target.contentEquals(ESP32C3ToolChain.ID))
+							{
+								manager.addToolChain(new ESP32C2ToolChain(toolchainProvider, file.toPath()));
+								manager.addToolChain(new ESP32H2ToolChain(toolchainProvider, file.toPath()));
+							}
 							manager.addToolChain(gcc);
 						}
 					}
@@ -339,6 +347,20 @@ public class ESPToolChainManager
 		esp32c3.put(IToolChain.ATTR_ARCH, ESP32C3ToolChain.ARCH);
 		esp32c3.put(TOOLCHAIN_ATTR_ID, ESP32C3CMakeToolChainProvider.TOOLCHAIN_NAME);
 		propertiesList.add(esp32c3);
+
+		// esp32c2
+		Map<String, String> esp32c2 = new HashMap<>();
+		esp32c2.put(IToolChain.ATTR_OS, ESP32C2ToolChain.OS);
+		esp32c2.put(IToolChain.ATTR_ARCH, ESP32C2ToolChain.ARCH);
+		esp32c2.put(TOOLCHAIN_ATTR_ID, ESP32C2CMakeToolChainProvider.TOOLCHAIN_NAME);
+		propertiesList.add(esp32c2);
+
+		// esp32h2
+		Map<String, String> esp32h2 = new HashMap<>();
+		esp32h2.put(IToolChain.ATTR_OS, ESP32H2ToolChain.OS);
+		esp32h2.put(IToolChain.ATTR_ARCH, ESP32H2ToolChain.ARCH);
+		esp32h2.put(TOOLCHAIN_ATTR_ID, ESP32H2CMakeToolChainProvider.TOOLCHAIN_NAME);
+		propertiesList.add(esp32h2);
 
 		return propertiesList;
 	}

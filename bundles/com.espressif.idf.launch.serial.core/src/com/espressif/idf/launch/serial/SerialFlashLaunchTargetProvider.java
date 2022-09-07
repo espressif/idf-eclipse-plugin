@@ -25,7 +25,9 @@ import org.eclipse.launchbar.core.target.ILaunchTargetWorkingCopy;
 import org.eclipse.launchbar.core.target.TargetStatus;
 
 import com.espressif.idf.core.build.AbstractESPToolchain;
+import com.espressif.idf.core.build.ESP32C2ToolChain;
 import com.espressif.idf.core.build.ESP32C3ToolChain;
+import com.espressif.idf.core.build.ESP32H2ToolChain;
 import com.espressif.idf.core.build.ESP32S2ToolChain;
 import com.espressif.idf.core.build.ESP32S3ToolChain;
 import com.espressif.idf.core.build.ESP32ToolChain;
@@ -50,6 +52,8 @@ public class SerialFlashLaunchTargetProvider implements ILaunchTargetProvider {
 		toolchainlist.add(ESP32S2ToolChain.class);
 		toolchainlist.add(ESP32S3ToolChain.class);
 		toolchainlist.add(ESP32C3ToolChain.class);
+		toolchainlist.add(ESP32C2ToolChain.class);
+		toolchainlist.add(ESP32H2ToolChain.class);
 
 		try {
 			addLaunchTarget(targetManager, toolchainlist);

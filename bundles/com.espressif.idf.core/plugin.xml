@@ -32,6 +32,12 @@
      <provider
            class="com.espressif.idf.core.build.ESP32C3CMakeToolChainProvider">
      </provider>
+     <provider
+           class="com.espressif.idf.core.build.ESP32C2CMakeToolChainProvider">
+     </provider>
+     <provider
+           class="com.espressif.idf.core.build.ESP32H2CMakeToolChainProvider">
+     </provider>
   </extension>
   <extension
         point="org.eclipse.cdt.core.toolChainProvider">
