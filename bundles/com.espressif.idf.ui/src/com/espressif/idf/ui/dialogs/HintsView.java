@@ -59,8 +59,7 @@ public class HintsView extends ViewPart
 		if (reHintsList.isEmpty())
 		{
 			CLabel errorField = new CLabel(container, SWT.H_SCROLL);
-			errorField
-					.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK));
+			errorField.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK));
 			errorField.setText(MessageFormat.format(Messages.HintsYmlNotFoundErrMsg, HintsUtil.getHintsYmlPath()));
 			return;
 		}
@@ -116,6 +115,7 @@ public class HintsView extends ViewPart
 			{
 				return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_INFO_TSK);
 			}
+
 			@Override
 			public String getText(Object element)
 			{
@@ -131,7 +131,7 @@ public class HintsView extends ViewPart
 
 				StructuredSelection selection = (StructuredSelection) event.getViewer().getSelection();
 				MessageDialog.openInformation(container.getShell(), Messages.HintDetailsTitle,
-						((String[]) selection.getFirstElement())[1]);
+						((ReHintPair) selection.getFirstElement()).getHint());
 
 			}
 		});
@@ -165,8 +165,7 @@ public class HintsView extends ViewPart
 				for (ReHintPair reHintEntry : reHintsList)
 				{
 					boolean isRegexMatchesWithField = Pattern.compile(reHintEntry.getRe())
-							.matcher(searchField.getText())
-							.find();
+							.matcher(searchField.getText()).find();
 					if (isRegexMatchesWithField)
 					{
 						allMatchesList.add(reHintEntry);
