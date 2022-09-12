@@ -47,6 +47,7 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 * [ Application Level Tracing ](#appLvlTracing)<br>
 * [ ESP-IDF master update](#updateEspIdfMaster)<br>
 * [ Changing Language ](#changeLanguage)<br>
+* [ Suggestions for solving errors from ESP-IDF by hints viewer](#hintsViewer)<br>
 * [ Troubleshooting Guide](#troubleshooting)<br>
 * [ How to raise bugs ](#howToRaiseBugs)<br>
 * <a href ="https://github.com/espressif/idf-eclipse-plugin/blob/master/FAQ.md#FAQ">FAQ</a>
@@ -605,6 +606,26 @@ If you are using the master version of ESP-IDF and want to update it, you can do
 ![image](https://user-images.githubusercontent.com/24419842/182107159-16723759-65e0-4c34-9440-ebe2f536e62a.png)
 
 **Note:** This command is visible only if you are on the master branch in ESP-IDF
+
+<a name ="#hintsViewer"></a>
+# Suggestions for solving errors from ESP-IDF by hints viewer
+
+If you run into a problem during a build, chances are that there is a hint for this error in the esp-idf hint database, which is stored in `tools/idf_py_actions/hints.yml` of ESP-IDF. The ESP-IDF Eclipse plugin provides a hint viewer where you can type an error message and find a hint for it. 
+Prerequisites for it is to have `hints.yml`, which is available from esp-idf v5.0 and higher. If you are using lower version of the esp-idf, you can still use the hints viewer. To do it, you have manually download the hints.yml file from [here](https://github.com/espressif/esp-idf/blob/master/tools/idf_py_actions/hints.yml) and put it to your `esp-idf/tools/idf_py_actions/` path. To download a file from the github, right click the `Raw` button and then `Save as...`
+
+To open hints viewer go to `Windows -> Show View -> Other... -> Espressif -> Hints`. You will see the following view:
+![image](https://user-images.githubusercontent.com/24419842/189666994-78cc8b24-b934-426f-9df5-79af28c50c55.png)
+
+Now you can type or copy paste some error from the build log, for example:
+`ccache error: Failed to create temporary file for esp-idf/libsodium/CMakeFiles/..../....: No such file or directory`
+
+![image](https://user-images.githubusercontent.com/24419842/189672552-994624f3-c0c5-48e6-aa2c-61e4ed8915e5.png)
+
+Double clicking on the row will give you a hint message so you can clearly see it if it doesn't fit on your screen in the table view.
+
+![image](https://user-images.githubusercontent.com/24419842/189673174-8ce40cda-6933-4dc4-a555-5d2ca617256e.png)
+
+
 
 <a name="howToRaiseBugs"></a>
 # How to raise bugs
