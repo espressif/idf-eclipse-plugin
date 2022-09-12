@@ -607,7 +607,7 @@ If you are using the master version of ESP-IDF and want to update it, you can do
 
 **Note:** This command is visible only if you are on the master branch in ESP-IDF
 
-<a name ="#hintsViewer"></a>
+<a name ="hintsViewer"></a>
 # Suggestions for solving errors from ESP-IDF by hints viewer
 
 If you run into a problem during a build, chances are that there is a hint for this error in the esp-idf hint database, which is stored in `tools/idf_py_actions/hints.yml` of ESP-IDF. The ESP-IDF Eclipse plugin provides a hint viewer where you can type an error message and find a hint for it. 
