@@ -48,7 +48,7 @@ public class Translator
 	// Test
 	public static void main(String[] args)
 	{
-		String folder = "C:\\Users\\aliaz\\Documents\\idf-eclipse-plugin\\common\\MissingProperties\\idf-eclipse-plugin";
+		String folder = "C:\\Users\\aliaz\\Documents\\idf-eclipse-plugin\\common\\MissingProperties\\zh0907\\idf-eclipse-plugin";
 		String native2asciiExePath = "C:\\Program Files\\Java\\jdk1.8.0_291\\bin\\native2ascii.exe";
 		try
 		{
