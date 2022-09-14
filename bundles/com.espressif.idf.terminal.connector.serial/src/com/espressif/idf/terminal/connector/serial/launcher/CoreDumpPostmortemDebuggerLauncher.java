@@ -29,7 +29,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.debug.internal.core.LaunchManager;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.w3c.dom.Attr;
@@ -49,7 +48,6 @@ import com.espressif.idf.ui.IDFConsole;
  * @author Ali Azam Rana
  *
  */
-@SuppressWarnings("restriction")
 public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEventLauncher
 {
 	private static final String CORE_DUMP_POSTMORTEM_LAUNCH_CONFIG = "%s_core_dump_postmortem_debug.launch"; //$NON-NLS-1$
@@ -70,7 +68,7 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 	}
 
 	@Override
-	public void launchDebugSession() throws Exception
+	public IFile launchDebugSession() throws Exception
 	{
 		parseMessageReceived();
 		parseExtractedFileFromPythonScript();
@@ -78,8 +76,7 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 		project.refreshLocal(IResource.DEPTH_INFINITE, null);
 		IFile launchFile = project.getFolder(IDFConstants.BUILD_FOLDER).getFolder(CORE_DUMP_FOLDER)
 				.getFile(String.format(CORE_DUMP_POSTMORTEM_LAUNCH_CONFIG, project.getName()));
-		LaunchManager launchManager = new LaunchManager();
-		launchManager.getLaunchConfiguration(launchFile).launch("debug", new NullProgressMonitor()); //$NON-NLS-1$
+		return launchFile;
 	}
 
 	private void parseExtractedFileFromPythonScript() throws Exception

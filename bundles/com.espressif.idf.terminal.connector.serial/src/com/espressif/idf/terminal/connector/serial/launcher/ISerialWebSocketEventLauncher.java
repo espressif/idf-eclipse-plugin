@@ -4,6 +4,8 @@
  *******************************************************************************/
 package com.espressif.idf.terminal.connector.serial.launcher;
 
+import org.eclipse.core.resources.IFile;
+
 /**
  * Interface to generalize and hide the implementation details for the socket server message handler to launch
  * configurations.
@@ -13,5 +15,5 @@ package com.espressif.idf.terminal.connector.serial.launcher;
  */
 public interface ISerialWebSocketEventLauncher
 {
-	public void launchDebugSession() throws Exception;
+	public IFile launchDebugSession() throws Exception;
 }

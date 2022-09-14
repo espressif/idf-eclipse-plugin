@@ -4,7 +4,11 @@
  *******************************************************************************/
 package com.espressif.idf.terminal.connector.serial.server;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.internal.core.LaunchManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -24,6 +28,7 @@ import com.espressif.idf.terminal.connector.serial.nls.Messages;
  * @author Ali Azam Rana
  *
  */
+@SuppressWarnings("restriction")
 public class SocketServerMessageHandler extends Thread
 {
 	private SerialConnector serialConnector;
@@ -87,9 +92,32 @@ public class SocketServerMessageHandler extends Thread
 
 		if (iSerialWebSocketEventLauncher != null && messageBoxResponse == SWT.YES)
 		{
-			iSerialWebSocketEventLauncher.launchDebugSession();
+			IFile launchFile = iSerialWebSocketEventLauncher.launchDebugSession();
 			serialConnector.disconnect();
+			LaunchManager launchManager = new LaunchManager();
+			Thread launchDebugThread = new Thread(new Runnable()
+			{
+
+				@Override
+				public void run()
+				{
+					try
+					{
+						launchManager.getLaunchConfiguration(launchFile).launch(ILaunchManager.DEBUG_MODE,
+								new NullProgressMonitor()); // $NON-NLS-1$
+					}
+					catch (Exception e)
+					{
+						Logger.log(e);
+					}
+
+				}
+			});
 			SocketServerHandler.getInstance().broadcastMessageToClients("{\"event\" : \"debug_finished\"}"); //$NON-NLS-1$
+			if (launchFile != null && launchFile.exists())
+			{
+				launchDebugThread.start();
+			}
 		}
 		else
 		{
