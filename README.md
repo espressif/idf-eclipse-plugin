@@ -44,6 +44,7 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 * [ Importing an existing Debug launch configuration ](#importDebugLaunchConfig)<br>
 * [ Device Firmware Upgrade (DFU) through USB ](#deviceFirmwareUpgrade)<br>
 * [ GDBStub Debugging ](#gdbStubDebugging)<br>
+* [ Core Dump Debugging ](#coreDumpDebugging)<br>
 * [ Application Level Tracing ](#appLvlTracing)<br>
 * [ ESP-IDF master update](#updateEspIdfMaster)<br>
 * [ Changing Language ](#changeLanguage)<br>
@@ -537,6 +538,22 @@ The final file should be something like this
 
 Build and flash the project and launch the serial monitor. On the line number 45 we are signaling for a failing assert which will put the chip in panic mode and when that line reaches you will be prompted to switch the perspective to debug mode and the chip will be halted, remember that this is a panic mode and you cannot continue the execution from here you will have to stop and restart the chip through idf commands or simply restart the serial monitor.
 ![](docs/images/GDBStubDebugging/debug_panic_mode.png)
+
+You can view the registers stack trace and even view the value of variables in stack frame. To exit the debug session simply press stop button.
+
+
+<a name="coreDumpDebugging"></a>
+
+# Core Dump Debugging
+
+The idf eclipse plugin allows you to debug the core dump if any crash occurs on the chip and the configurations are set. Currently only the UART core dump capture and debugging is supported.
+
+To enable core dump debugging for a project you need to enable it first in the sdkconfig. Launch the sdkconfig in project root by double clicking on it which will open the configuration editor.
+<br/>
+Click on the the `Core Dump` from the settings on the left. and select Data Destination as `UART`.
+![](docs/images/CoreDumpDebugging/sdkconfig_editor.png)
+
+This will enable the core dump debugging and whenever you connect a serial monitor for that project if any crash occurs it will load the dump and open a debug perspective in eclipse to let you diagnose the dump where you can view all the information in the core dump.
 
 You can view the registers stack trace and even view the value of variables in stack frame. To exit the debug session simply press stop button.
 

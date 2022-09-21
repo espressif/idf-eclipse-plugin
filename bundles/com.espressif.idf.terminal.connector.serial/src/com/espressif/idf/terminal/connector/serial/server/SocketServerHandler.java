@@ -2,25 +2,36 @@
  * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.serial.monitor.server;
+package com.espressif.idf.terminal.connector.serial.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.Queue;
 
-import org.eclipse.core.resources.IProject;
-
-import com.espressif.idf.core.util.SDKConfigJsonReader;
-
 /**
  * Socket server handler responsible for starting and handling the socket server
- * 
+ *
  * @author Ali Azam Rana
  *
  */
 public class SocketServerHandler
 {
+	private static SocketServerHandler socketServerHandler;
 	private static TerminalWebSocketServer terminalWebSocketServer;
+
+	private SocketServerHandler()
+	{
+	}
+
+	public static synchronized SocketServerHandler getInstance()
+	{
+		if (socketServerHandler == null)
+		{
+			socketServerHandler = new SocketServerHandler();
+		}
+
+		return socketServerHandler;
+	}
 
 	public int startServer() throws Exception
 	{
@@ -57,15 +68,4 @@ public class SocketServerHandler
 	{
 		return terminalWebSocketServer.getPort();
 	}
-
-	public static boolean needSocketServer(IProject project)
-	{
-		return Boolean.valueOf(getGdbPanicStubInfo(project)).booleanValue();
-	}
-
-	private static String getGdbPanicStubInfo(IProject project)
-	{
-		return new SDKConfigJsonReader(project).getValue("ESP_SYSTEM_PANIC_GDBSTUB"); //$NON-NLS-1$
-	}
-
 }

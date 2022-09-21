@@ -7,18 +7,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.CountDownLatch;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
 
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.serial.monitor.handlers.SerialMonitorHandler;
-import com.espressif.idf.serial.monitor.server.SocketServerHandler;
 import com.espressif.idf.terminal.connector.serial.activator.Activator;
-import com.espressif.idf.terminal.connector.serial.launcher.GDBStubDebuggerLauncher;
+import com.espressif.idf.terminal.connector.serial.server.SocketServerHandler;
+import com.espressif.idf.terminal.connector.serial.server.SocketServerMessageHandler;
 
 public class SerialPortHandler
 {
@@ -34,9 +31,8 @@ public class SerialPortHandler
 	private Process process;
 	private Thread thread;
 	private SerialConnector serialConnector;
-	private String socketServerMessage;
+	private SocketServerMessageHandler serverMessageHandler;
 
-	private Thread socketServerThread;
 	private SocketServerHandler socketServerHandler;
 
 	private static String adjustPortName(String portName)
@@ -93,6 +89,7 @@ public class SerialPortHandler
 		this.portName = adjustPortName(portName);
 		this.serialConnector = serialConnector;
 		this.project = project;
+		this.serverMessageHandler = new SocketServerMessageHandler(serialConnector, project);
 	}
 
 	public String getPortName()
@@ -100,69 +97,12 @@ public class SerialPortHandler
 		return portName;
 	}
 
-	private void handleSocketServerMessage(String message)
+	private int startSocketServerThread() throws Exception
 	{
-		if (StringUtil.isEmpty(message))
-		{
-			return;
-		}
+		socketServerHandler = SocketServerHandler.getInstance();
+		socketServerHandler.startServer();
 
-		Logger.log("GDB Stub Event Received on Socket Server"); //$NON-NLS-1$
-		GDBStubDebuggerLauncher gdbStubDebuggerLauncher = new GDBStubDebuggerLauncher(message, project);
-		try
-		{
-			gdbStubDebuggerLauncher.launchDebugSession();
-		}
-		catch (Exception e)
-		{
-			Logger.log(e);
-		}
-	}
-
-	private void startSocketServerThread()
-	{
-		socketServerHandler = new SocketServerHandler();
-		CountDownLatch latch = new CountDownLatch(1);
-		socketServerThread = new Thread()
-		{
-			@Override
-			public void run()
-			{
-				try
-				{
-					socketServerHandler.startServer();
-					latch.countDown();
-					Queue<String> messagesQueue = socketServerHandler.getMessagesQueue();
-
-					while (messagesQueue.isEmpty())
-					{
-						sleep(250);
-					}
-
-					String message = messagesQueue.poll();
-					if (message.contains("\"event\": \"gdb_stub\"")) //$NON-NLS-1$
-					{
-						socketServerHandler.broadcastMessageToClients("{\"event\" : \"debug_finished\"}"); //$NON-NLS-1$
-						socketServerMessage = message;
-						serialConnector.disconnect();
-					}
-				}
-				catch (Exception e)
-				{
-					Logger.log(e);
-				}
-			}
-		};
-
-		socketServerThread.start();
-		try
-		{
-			latch.await();
-		}
-		catch (InterruptedException e)
-		{
-			Logger.log(e);
-		}
+		return SocketServerHandler.getServerPort();
 	}
 
 	public synchronized void open()
@@ -170,17 +110,21 @@ public class SerialPortHandler
 
 		// set state
 		serialConnector.control.setState(TerminalState.CONNECTING);
-		boolean withSocketServer = false;
-		if (SocketServerHandler.needSocketServer(project))
+		int serverPort;
+		try
 		{
-			startSocketServerThread();
-			withSocketServer = true;
+			serverPort = startSocketServerThread();
 		}
+		catch (Exception e1)
+		{
+			Logger.log(e1);
+			return;
+		}
+
 		// Hook IDF Monitor with the CDT serial monitor
 		SerialMonitorHandler serialMonitorHandler = new SerialMonitorHandler(serialConnector.project, portName,
-				serialConnector.filterOptions);
-
-		process = serialMonitorHandler.invokeIDFMonitor(withSocketServer);
+				serialConnector.filterOptions, serverPort);
+		process = serialMonitorHandler.invokeIDFMonitor();
 		serialConnector.process = process;
 		thread = new Thread()
 		{
@@ -199,18 +143,20 @@ public class SerialPortHandler
 							serialConnector.control.getRemoteToTerminalOutputStream().write(buff, 0, n);
 						}
 					}
+
 					serialConnector.disconnect();
 				}
-				catch (IOException e)
+				catch (Exception e)
 				{
 					Activator.log(e);
+					serialConnector.disconnect();
 					serialConnector.control.setState(TerminalState.CLOSED);
 				}
 			}
 		};
 
 		thread.start();
-
+		serverMessageHandler.start();
 		isOpen = true;
 
 		serialConnector.control.setState(TerminalState.CONNECTED);
@@ -242,10 +188,6 @@ public class SerialPortHandler
 			{
 				thread.interrupt();
 			}
-			if (socketServerThread != null)
-			{
-				socketServerThread.interrupt();
-			}
 
 			synchronized (openPorts)
 			{
@@ -273,11 +215,6 @@ public class SerialPortHandler
 			catch (InterruptedException e)
 			{
 				// nothing to do
-			}
-
-			if (SocketServerHandler.needSocketServer(project))
-			{
-				handleSocketServerMessage(socketServerMessage);
 			}
 		}
 	}

@@ -19,7 +19,6 @@ import com.espressif.idf.core.util.GenericJsonReader;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.SDKConfigJsonReader;
 import com.espressif.idf.core.util.StringUtil;
-import com.espressif.idf.serial.monitor.server.SocketServerHandler;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -29,33 +28,17 @@ public class IDFMonitor
 {
 	private String port;
 	private String pythonBinPath;
-	private String idfMonitorToolPath;
 	private IProject project;
 	private String filterOptions;
-	private boolean withSocketServer;
+	private int serverPort;
 
-	public IDFMonitor(IProject project, String port, String filterOptions, String pythonBinPath,
-			String idfMonitorToolPath, boolean withSocketServer)
+	public IDFMonitor(IProject project, String port, String filterOptions, String pythonBinPath, int serverPort)
 	{
 		this.project = project;
 		this.port = port;
 		this.pythonBinPath = pythonBinPath;
-		this.idfMonitorToolPath = idfMonitorToolPath;
 		this.filterOptions = filterOptions;
-		this.withSocketServer = withSocketServer;
-	}
-
-	public List<String> commandArgsWithoutSocketServer()
-	{
-		List<String> args = new ArrayList<>();
-		args.add(pythonBinPath);
-		args.add(idfMonitorToolPath);
-		args.add("monitor"); //$NON-NLS-1$
-		args.add("-p"); //$NON-NLS-1$
-		args.add(port);
-		args.add("--print-filter=" + filterOptions); //$NON-NLS-1$
-
-		return args;
+		this.serverPort = serverPort;
 	}
 
 	private List<String> commandArgsWithSocketServer()
@@ -63,12 +46,17 @@ public class IDFMonitor
 		List<String> args = new ArrayList<>();
 		args.add(pythonBinPath);
 		args.add(IDFUtil.getIDFMonitorPythonScriptFile().getAbsolutePath());
+		if(!StringUtil.isEmpty(filterOptions))
+		{
+			args.add("--print_filter"); //$NON-NLS-1$
+			args.add(filterOptions);
+		}
 		args.add("-p"); //$NON-NLS-1$
 		args.add(port);
 		args.add("-b"); //$NON-NLS-1$
 		args.add(getMonitorBaudRate());
 		args.add("--ws"); //$NON-NLS-1$
-		args.add("ws://localhost:".concat(String.valueOf(SocketServerHandler.getServerPort()))); //$NON-NLS-1$
+		args.add("ws://localhost:".concat(String.valueOf(serverPort))); //$NON-NLS-1$
 		args.add(getElfFilePath(project).toString());
 		return args;
 	}
@@ -100,16 +88,8 @@ public class IDFMonitor
 
 	public Process start() throws IOException
 	{
-		List<String> arguments = null;
-		if (!withSocketServer)
-		{
-			arguments = commandArgsWithoutSocketServer();
-		}
-		else
-		{
-			arguments = commandArgsWithSocketServer();
-		}
-
+		List<String> arguments = commandArgsWithSocketServer();
+		
 		// command to execute
 		Logger.log(arguments.toString());
 

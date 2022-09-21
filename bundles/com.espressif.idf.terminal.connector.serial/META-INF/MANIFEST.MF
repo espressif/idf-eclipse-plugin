@@ -17,7 +17,9 @@ Require-Bundle: org.eclipse.core.expressions;bundle-version="3.4.400",
  com.espressif.idf.core,
  com.espressif.idf.ui,
  com.espressif.idf.serial.monitor,
- org.eclipse.cdt.core.native
+ org.eclipse.cdt.core.native,
+ org.eclipse.ui.console,
+ org.slf4j.api
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
@@ -26,3 +28,6 @@ Export-Package: com.espressif.idf.terminal.connector.serial.activator;x-internal
  com.espressif.idf.terminal.connector.serial.controls,
  com.espressif.idf.terminal.connector.serial.launcher,
  com.espressif.idf.terminal.connector.serial.nls;x-internal:=true
+Bundle-ClassPath: .,
+ lib/javax.websocket-client-api-1.1.jar,
+ lib/Java-WebSocket-1.5.2.jar

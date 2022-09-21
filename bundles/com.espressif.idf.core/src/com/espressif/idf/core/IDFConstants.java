@@ -144,6 +144,10 @@ public interface IDFConstants
 	 * <IDF_PATH>/components
 	 */
 	String COMPONENTS_FOLDER = "components"; //$NON-NLS-1$
+	
+	String ESP_CORE_DUMP_FOLDER = "espcoredump"; //$NON-NLS-1$
+	
+	String ESP_CORE_DUMP_SCRIPT = "espcoredump.py";
 
 	/**
 	 * COMPONENT_FOLDER/esptool_py
