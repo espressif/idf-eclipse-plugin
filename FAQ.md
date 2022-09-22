@@ -153,5 +153,5 @@ Eclipse will fail to launch if installed in a directory whose path contains cert
 - Launch Espressif IDE and import using `File > New > Import > Existing IDF Project`
 - Run Install Tools using `Espressif > ESP-IDF Tools Manager > Install Tools` and provide esp-idf directory path from the cloned esp-adf directory
 - Configure `ADF_PATH` in the eclipse build preferences: `Preferences > C/C++ Build > Environment`
-- Select `ADF_PATH` from the preferences list and click on Edit and Click Ok without changing any value(There is a bug in CDT that is appending a null value before the path hence we need to click on editor and save it.)
+- Select `ADF_PATH` from the preferences list and click on Edit and Click Ok without changing any value(There is a bug in CDT that is appending a null value before the path hence we need to click on edit and save it.)
 - Select the target and click on build 
