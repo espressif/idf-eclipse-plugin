@@ -145,3 +145,9 @@ Eclipse will fail to launch if installed in a directory whose path contains cert
  ## Do you have the board with JTAG or without JTAG?
   This [thread](https://github.com/espressif/idf-installer/issues/133#issuecomment-1136990432) and subsequent discussion could help you understand this.
 
+# How to configure esp-adf in Espressif-IDE
+- Import using "File > New > Import > Existing IDF Project"
+- Run Install Tools and provide esp-idf directory path from the cloned esp-adf directory
+- Configure ADF_PATH in the eclipse build preferences
+- Select ADF_PATH and click on Edit and Click Ok without changing any value(There is a bug in CDT that is appending a null value before the path hence we need to click on editor and save it.)
+- Select the right target and click on the build
