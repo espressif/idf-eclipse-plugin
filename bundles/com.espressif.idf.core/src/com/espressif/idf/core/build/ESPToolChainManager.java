@@ -146,6 +146,10 @@ public class ESPToolChainManager
 				{
 				case ESP32ToolChain.ID:
 					gcc = new ESP32ToolChain(toolchainProvider, file.toPath());
+					if (file.toString().contains("clang")) //$NON-NLS-1$
+					{
+						gcc = new ESP32ClangToolChain(toolchainProvider, file.toPath());
+					}
 					break;
 				case ESP32S2ToolChain.ID:
 					gcc = new ESP32S2ToolChain(toolchainProvider, file.toPath());
@@ -169,8 +173,8 @@ public class ESPToolChainManager
 						{
 							if (info.target.contentEquals(ESP32C3ToolChain.ID))
 							{
-								manager.addToolChain(new ESP32C2ToolChain(toolchainProvider, file.toPath()));
 								manager.addToolChain(new ESP32H2ToolChain(toolchainProvider, file.toPath()));
+								manager.addToolChain(new ESP32C2ToolChain(toolchainProvider, file.toPath()));
 							}
 							manager.addToolChain(gcc);
 						}
@@ -326,6 +330,12 @@ public class ESPToolChainManager
 		esp32.put(IToolChain.ATTR_ARCH, ESP32ToolChain.ARCH);
 		esp32.put(TOOLCHAIN_ATTR_ID, ESP32CMakeToolChainProvider.TOOLCHAIN_NAME);
 		propertiesList.add(esp32);
+
+		Map<String, String> esp32Clang = new HashMap<>();
+		esp32Clang.put(IToolChain.ATTR_OS, ESP32ClangToolChain.OS);
+		esp32Clang.put(IToolChain.ATTR_ARCH, ESP32ClangToolChain.ARCH);
+		esp32Clang.put(TOOLCHAIN_ATTR_ID, ESP32ClangCmakeToolChainProvider.TOOLCHAIN_NAME);
+		propertiesList.add(esp32Clang);
 
 		// esp32s2
 		Map<String, String> esp32s2 = new HashMap<>();

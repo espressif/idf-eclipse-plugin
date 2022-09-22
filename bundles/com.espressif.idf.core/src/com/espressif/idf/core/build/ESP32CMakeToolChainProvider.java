@@ -19,7 +19,7 @@ public class ESP32CMakeToolChainProvider extends AbstractESPCMakeToolChainProvid
 	@Override
 	protected IToolChain getToolchain() throws CoreException
 	{
-		return tcManager.getToolChain(ESPToolChainProvider.ID, ESP32ToolChain.ID);
+		return tcManager.getToolChain(ESPToolChainProvider.ID, ESP32ClangToolChain.ID);
 	}
 
 }

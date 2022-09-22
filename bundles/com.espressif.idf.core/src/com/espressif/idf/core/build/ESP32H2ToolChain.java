@@ -30,4 +30,11 @@ public class ESP32H2ToolChain extends AbstractESPToolchain
 		super(provider, pathToToolChain, OS, ARCH);
 	}
 
+	@Override
+	public String getId()
+	{
+		// TODO Auto-generated method stub
+		return super.getId() + "-" + OS;
+	}
+
 }
