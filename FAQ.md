@@ -160,7 +160,7 @@ Eclipse will fail to launch if installed in a directory whose path contains cert
 - Clone esp-who: `git clone https://github.com/espressif/esp-who.git`
 - `cd esp-who`
 - `git submodule update --init --recursive`
-- Clone esp-idf which is compatible with esp-who, as per the documentation release/v4.4 is compatible with the latest esp-who
+- Clone esp-idf which is compatible with esp-who, as per the documentation release/v4.4 is compatible with the esp-who v0.9.0. Follow below instructions to configure esp-idf
 - `git clone -b v4.4.2 --recursive https://github.com/espressif/esp-idf.git esp-idf-v4.4.2`
 - `cd esp-idf-v4.4.2/`
 - `git submodule update --init --recursive`
