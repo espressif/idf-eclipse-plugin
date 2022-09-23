@@ -1,3 +1,8 @@
+/*******************************************************************************
+
+ * Copyright 2022-2023 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.core.build;
 
 import org.eclipse.cdt.core.build.IToolChain;
@@ -11,7 +16,7 @@ public class ESP32ClangCmakeToolChainProvider extends AbstractESPCMakeToolChainP
 	@Override
 	protected IToolChain getToolchain() throws CoreException
 	{
-		return tcManager.getToolChain(ESPToolChainProvider.ID, ESP32ToolChain.ID);
+		return tcManager.getToolChain(ESPToolChainProvider.ID, ESP32ClangToolChain.ID);
 	}
 
 }
