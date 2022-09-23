@@ -155,3 +155,18 @@ Eclipse will fail to launch if installed in a directory whose path contains cert
 - Configure `ADF_PATH` in the eclipse build preferences: `Preferences > C/C++ Build > Environment`
 - Select `ADF_PATH` from the preferences list and click on Edit and Click Ok without changing any value(There is a bug in CDT that is appending a null value before the path hence we need to click on edit and save it.)
 - Select the target and click on build 
+
+  # How to configure esp-who in Espressif-IDE
+- Clone esp-who: `git clone https://github.com/espressif/esp-who.git`
+- `cd esp-who`
+- `git submodule update --init --recursive`
+- Clone esp-idf which is compatible with esp-who, as per the documentation release/v4.4 is compatible with the latest esp-who
+- `git clone -b v4.4.2 --recursive https://github.com/espressif/esp-idf.git esp-idf-v4.4.2`
+- `cd esp-idf-v4.4.2/`
+- `git submodule update --init --recursive`
+- Launch Espressif IDE and import using `File > New > Import > Existing IDF Project` from the existing esp-who examples list
+- Run Install Tools using `Espressif > ESP-IDF Tools Manager > Install Tools` and provide esp-idf directory path which you have cloned earlier
+- Configure `WHO_PATH` in the eclipse build preferences: `Preferences > C/C++ Build > Environment`
+- Select `WHO_PATH` from the preferences list and click on Edit and Click Ok without changing any value(There is a bug in CDT that is appending a null value before the path hence we need to click on edit and save it.)
+- Open `CMakeLists.txt` from the project root and change this from `set(EXTRA_COMPONENT_DIRS ../../../components)` to `set(EXTRA_COMPONENT_DIRS $ENV{WHO_PATH}/components)` in the line 5
+- Select the target and click on build. 
