@@ -9,7 +9,7 @@ import org.eclipse.cdt.core.build.IToolChainProvider;
 public class ESP32ClangToolChain extends ClangToolChain
 {
 
-	public static final String ID = "xtensa-esp32-elf"; //$NON-NLS-1$
+	public static final String ID = "xtensa"; //$NON-NLS-1$
 	public static final String OS = "esp32"; //$NON-NLS-1$
 	public static final String ARCH = "xtensa"; //$NON-NLS-1$
 

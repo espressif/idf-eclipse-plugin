@@ -139,17 +139,16 @@ public class ESPToolChainManager
 		try
 		{
 			GCCInfo info = new GCCInfo(file.toString());
-			if (info.target != null && info.version != null)
+			if (info.target != null)
 			{
 				GCCToolChain gcc = null;
 				switch (info.target)
 				{
 				case ESP32ToolChain.ID:
 					gcc = new ESP32ToolChain(toolchainProvider, file.toPath());
-					if (file.toString().contains("clang")) //$NON-NLS-1$
-					{
-						gcc = new ESP32ClangToolChain(toolchainProvider, file.toPath());
-					}
+					break;
+				case ESP32ClangToolChain.ID:
+					gcc = new ESP32ClangToolChain(toolchainProvider, file.toPath());
 					break;
 				case ESP32S2ToolChain.ID:
 					gcc = new ESP32S2ToolChain(toolchainProvider, file.toPath());

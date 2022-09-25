@@ -40,11 +40,14 @@ public class IDFEnvironmentVariables
 
 	public static String IDF_COMPONENT_MANAGER = "IDF_COMPONENT_MANAGER"; //$NON-NLS-1$
 
-	public static final String GIT_PATH = "GIT_PATH"; //$NON-NLS-1$
-
-	public static final String PYTHON_EXE_PATH = "PYTHON_EXE_PATH"; //$NON-NLS-1$
-
 	public static final String ESP_IDF_VERSION = "ESP_IDF_VERSION"; //$NON-NLS-1$
+
+	public static String GIT_PATH ="GIT_PATH"; //$NON-NLS-1$
+	
+	public static String PYTHON_EXE_PATH ="PYTHON_EXE_PATH"; //$NON-NLS-1$
+	
+	public static String IDF_MAINTAINER = "IDF_MAINTAINER"; //$NON-NLS-1$
+
 
 	/**
 	 * @param variableName Environment variable Name

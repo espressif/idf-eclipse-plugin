@@ -136,6 +136,8 @@ public class InstallToolsHandler extends AbstractToolsHandler
 
 		// Enable IDF_COMPONENT_MANAGER by default
 		idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER, "1");
+		// IDF_MAINTAINER=1 to be able to build with the clang toolchain
+		idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.IDF_MAINTAINER, "1");
 
 	}
 
