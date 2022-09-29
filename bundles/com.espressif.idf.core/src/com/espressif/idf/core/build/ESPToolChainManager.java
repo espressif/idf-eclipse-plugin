@@ -138,14 +138,20 @@ public class ESPToolChainManager
 	{
 		try
 		{
-			GCCInfo info = new GCCInfo(file.toString());
+			Map<String, String> pathEnv = new HashMap<>();
+			pathEnv.put(IDFEnvironmentVariables.PATH,
+					new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.PATH));
+			GCCInfo info = new GCCInfo(file.toString(), pathEnv);
 			if (info.target != null)
 			{
 				GCCToolChain gcc = null;
 				switch (info.target)
 				{
 				case ESP32ToolChain.ID:
-					gcc = new ESP32ToolChain(toolchainProvider, file.toPath());
+					if (!file.toPath().toString().contains("clang"))
+					{
+						gcc = new ESP32ToolChain(toolchainProvider, file.toPath());
+					}
 					break;
 				case ESP32ClangToolChain.ID:
 					gcc = new ESP32ClangToolChain(toolchainProvider, file.toPath());
@@ -165,7 +171,7 @@ public class ESPToolChainManager
 				}
 				try
 				{
-					if (manager.getToolChain(gcc.getTypeId(), gcc.getId()) == null)
+					if (gcc != null && manager.getToolChain(gcc.getTypeId(), gcc.getId()) == null)
 					{
 						// Only add if another provider hasn't already added it
 						if (matcher.matches())
