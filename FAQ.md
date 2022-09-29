@@ -122,6 +122,9 @@ There is no UI option to delete launch targets directly from the eclipse, howeve
 
 ## Eclipse launch fails with `Java was started but returned exit code=13` when directory path contains special characters
 Eclipse will fail to launch if installed in a directory whose path contains certain invalid characters, including :%#<>"!. The workaround is to install Eclipse in a directory whose path does not contain invalid characters.
+  
+## [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate
+If you see this error while installing tools in macOS, you may run `Install Certificates.command` in the Python folder of your computer to install certificates. For details, see [Download Error While Installing ESP-IDF Tools](https://github.com/espressif/esp-idf/issues/4775).
 
 ## How do I generate OpenOCD log ?
   - Open the project OpenOCD `Edit Configuration` dialog
