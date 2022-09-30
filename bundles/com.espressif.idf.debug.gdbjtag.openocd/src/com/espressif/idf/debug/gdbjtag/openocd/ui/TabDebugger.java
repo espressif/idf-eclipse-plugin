@@ -25,6 +25,7 @@
 package com.espressif.idf.debug.gdbjtag.openocd.ui;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Map;
 
 import org.eclipse.cdt.debug.gdbjtag.core.IGDBJtagConstants;
@@ -32,6 +33,8 @@ import org.eclipse.cdt.debug.gdbjtag.ui.GDBJtagImages;
 import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
@@ -448,6 +451,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 								ILaunchConfigurationWorkingCopy wc = launchBarManager.getActiveLaunchConfiguration()
 										.getWorkingCopy();
 								wc.setAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, selectedItem);
+								updateSvd(selectedItem, wc);
 								wc.doSave();
 							}
 							catch (CoreException e1)
@@ -463,6 +467,26 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 						fTargetName.notifyListeners(SWT.Selection, null);
 					}
 
+					private void updateSvd(String selectedTarget, ILaunchConfigurationWorkingCopy wc)
+					{
+						try
+						{
+							selectedTarget = wc.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, StringUtil.EMPTY);
+							URL svdUrl = Platform.getBundle(Activator.PLUGIN_ID).getEntry("svd/".concat(selectedTarget.concat(".svd")));
+							String selectedTargetPath = new File(FileLocator.resolve(svdUrl).toURI()).getPath();
+							String currentSvdPath = wc.getAttribute(org.eclipse.embedcdt.debug.gdbjtag.core.ConfigurationAttributes.SVD_PATH, StringUtil.EMPTY);
+							if(StringUtil.isEmpty(currentSvdPath) && !currentSvdPath.equals(selectedTargetPath ))
+							{
+								wc.setAttribute(org.eclipse.embedcdt.debug.gdbjtag.core.ConfigurationAttributes.SVD_PATH, selectedTargetPath);		
+							}
+						}
+						catch (Exception e)
+						{
+							selectedTarget = StringUtil.EMPTY;
+							Logger.log(e);
+						}
+					}
+					
 					private void updateLaunchBar(String selectedItem)
 					{
 						ILaunchTarget target = findSuitableTargetForSelectedItem(selectedItem);
