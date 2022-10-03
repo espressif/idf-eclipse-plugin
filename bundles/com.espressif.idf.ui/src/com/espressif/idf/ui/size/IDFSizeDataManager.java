@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
@@ -20,6 +21,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
@@ -58,7 +60,7 @@ public class IDFSizeDataManager
 		String pythonExecutablePath = preconditionsCheck();
 		List<String> commandArgs = getCommandArgs(pythonExecutablePath, mapFile, targetName);
 		String detailsJsonOp = getOutput(mapFile, commandArgs);
-		detailsJsonOp = detailsJsonOp.replace("NaN", "0"); //$NON-NLS-1$ //$NON-NLS-2$ 
+		detailsJsonOp = detailsJsonOp.replace("NaN", "0"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (!StringUtil.isEmpty(detailsJsonOp))
 		{
 			return getJSON(detailsJsonOp);
@@ -98,7 +100,7 @@ public class IDFSizeDataManager
 					if (symbolsKey.startsWith(key))
 					{
 						String symbolName = symbolsKey.substring(key.length() + 1); // libnet80211.a:ieee80211_output.o
-						
+
 						JSONObject symbolObj = (JSONObject) symbolJsonObj.get(symbolsKey);
 						record.getChildren().add(getSizeRecord(symbolName, symbolObj));
 					}
@@ -112,16 +114,12 @@ public class IDFSizeDataManager
 
 	protected IDFSizeData getSizeRecord(String key, JSONObject object)
 	{
-		IDFSizeData record = new IDFSizeData(key,
-				getValue(object.get(IDFSizeConstants.DATA)),
-				getValue(object.get(IDFSizeConstants.BSS)),
-				getValue(object.get(IDFSizeConstants.DIRAM)),
-				getValue(object.get(IDFSizeConstants.IRAM)),
-				getValue(object.get(IDFSizeConstants.FLASH_TEXT)),
-				getValue(object.get(IDFSizeConstants.FLASH_RODATA)),
-				getValue(object.get(IDFSizeConstants.OTHER)),
+		IDFSizeData record = new IDFSizeData(key, getValue(object.get(IDFSizeConstants.DATA)),
+				getValue(object.get(IDFSizeConstants.BSS)), getValue(object.get(IDFSizeConstants.DIRAM)),
+				getValue(object.get(IDFSizeConstants.IRAM)), getValue(object.get(IDFSizeConstants.FLASH_TEXT)),
+				getValue(object.get(IDFSizeConstants.FLASH_RODATA)), getValue(object.get(IDFSizeConstants.OTHER)),
 				getValue(object.get(IDFSizeConstants.TOTAL)));
-		
+
 		return record;
 	}
 
@@ -184,8 +182,25 @@ public class IDFSizeDataManager
 		arguments.add(IDFUtil.getIDFSizeScriptFile().getAbsolutePath());
 		arguments.add(file.getLocation().toOSString());
 		arguments.add("--archives"); //$NON-NLS-1$
-		arguments.add("--json"); //$NON-NLS-1$
+		arguments.addAll(addJsonParseCommand());
 
+		return arguments;
+	}
+
+	private List<String> addJsonParseCommand()
+	{
+		List<String> arguments = new ArrayList<String>();
+		IEnvironmentVariable idfVersionEnv = new IDFEnvironmentVariables().getEnv("ESP_IDF_VERSION"); //$NON-NLS-1$
+		String idfVersion = idfVersionEnv != null ? idfVersionEnv.getValue() : null;
+		if (idfVersion != null && Double.parseDouble(idfVersion) >= 5.0)
+		{
+			arguments.add("--format"); //$NON-NLS-1$
+			arguments.add("json"); //$NON-NLS-1$
+		}
+		else
+		{
+			arguments.add("--json"); //$NON-NLS-1$
+		}
 		return arguments;
 	}
 
@@ -196,7 +211,7 @@ public class IDFSizeDataManager
 		arguments.add(IDFUtil.getIDFSizeScriptFile().getAbsolutePath());
 		arguments.add(file.getLocation().toOSString());
 		arguments.add("--file"); //$NON-NLS-1$
-		arguments.add("--json"); //$NON-NLS-1$
+		arguments.addAll(addJsonParseCommand());
 
 		return arguments;
 	}
@@ -207,7 +222,7 @@ public class IDFSizeDataManager
 		arguments.add(pythonExecutablenPath);
 		arguments.add(IDFUtil.getIDFSizeScriptFile().getAbsolutePath());
 		arguments.add(file.getLocation().toOSString());
-		arguments.add("--json"); //$NON-NLS-1$
+		arguments.addAll(addJsonParseCommand());
 
 		return arguments;
 	}
