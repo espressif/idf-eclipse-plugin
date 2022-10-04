@@ -45,13 +45,29 @@ public class TabSvdTarget extends TabSvd
 				selectedTarget = Activator.getService(ILaunchBarManager.class).getActiveLaunchTarget()
 						.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY);
 			}
+			updateSvd(selectedTarget, wc);
+			wc.doSave();
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+		}
+
+		super.initializeFrom(configuration);
+	}
+	
+	public static void updateSvd(String selectedTarget, ILaunchConfigurationWorkingCopy wc)
+	{
+		try
+		{
+			if (StringUtil.isEmpty(selectedTarget)) return;
+			selectedTarget = wc.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, StringUtil.EMPTY);
 			URL svdUrl = Platform.getBundle(Activator.PLUGIN_ID).getEntry("svd/".concat(selectedTarget.concat(".svd")));
 			String selectedTargetPath = new File(FileLocator.resolve(svdUrl).toURI()).getPath();
-			String currentSvdPath = configuration.getAttribute(ConfigurationAttributes.SVD_PATH, StringUtil.EMPTY);
-			if (StringUtil.isEmpty(currentSvdPath) && !currentSvdPath.equals(selectedTargetPath))
+			String currentSvdPath = wc.getAttribute(org.eclipse.embedcdt.debug.gdbjtag.core.ConfigurationAttributes.SVD_PATH, StringUtil.EMPTY);
+			if(StringUtil.isEmpty(currentSvdPath) || !currentSvdPath.equals(selectedTargetPath))
 			{
-				((ILaunchConfigurationWorkingCopy) configuration).setAttribute(ConfigurationAttributes.SVD_PATH,
-						selectedTargetPath);
+				wc.setAttribute(org.eclipse.embedcdt.debug.gdbjtag.core.ConfigurationAttributes.SVD_PATH, selectedTargetPath);		
 			}
 		}
 		catch (Exception e)
@@ -59,7 +75,5 @@ public class TabSvdTarget extends TabSvd
 			selectedTarget = StringUtil.EMPTY;
 			Logger.log(e);
 		}
-
-		super.initializeFrom(configuration);
 	}
 }

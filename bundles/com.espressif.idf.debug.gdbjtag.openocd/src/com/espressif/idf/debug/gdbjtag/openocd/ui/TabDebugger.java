@@ -451,7 +451,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 								ILaunchConfigurationWorkingCopy wc = launchBarManager.getActiveLaunchConfiguration()
 										.getWorkingCopy();
 								wc.setAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, selectedItem);
-								updateSvd(selectedItem, wc);
+								TabSvdTarget.updateSvd(selectedItem, wc);
 								wc.doSave();
 							}
 							catch (CoreException e1)
@@ -467,26 +467,6 @@ public class TabDebugger extends AbstractLaunchConfigurationTab {
 						fTargetName.notifyListeners(SWT.Selection, null);
 					}
 
-					private void updateSvd(String selectedTarget, ILaunchConfigurationWorkingCopy wc)
-					{
-						try
-						{
-							selectedTarget = wc.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, StringUtil.EMPTY);
-							URL svdUrl = Platform.getBundle(Activator.PLUGIN_ID).getEntry("svd/".concat(selectedTarget.concat(".svd")));
-							String selectedTargetPath = new File(FileLocator.resolve(svdUrl).toURI()).getPath();
-							String currentSvdPath = wc.getAttribute(org.eclipse.embedcdt.debug.gdbjtag.core.ConfigurationAttributes.SVD_PATH, StringUtil.EMPTY);
-							if(StringUtil.isEmpty(currentSvdPath) && !currentSvdPath.equals(selectedTargetPath ))
-							{
-								wc.setAttribute(org.eclipse.embedcdt.debug.gdbjtag.core.ConfigurationAttributes.SVD_PATH, selectedTargetPath);		
-							}
-						}
-						catch (Exception e)
-						{
-							selectedTarget = StringUtil.EMPTY;
-							Logger.log(e);
-						}
-					}
-					
 					private void updateLaunchBar(String selectedItem)
 					{
 						ILaunchTarget target = findSuitableTargetForSelectedItem(selectedItem);
