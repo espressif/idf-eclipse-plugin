@@ -126,6 +126,9 @@ Eclipse will fail to launch if installed in a directory whose path contains cert
 ## [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate
 If you see this error while installing tools in macOS, you may run `Install Certificates.command` in the Python folder of your computer to install certificates. For details, see [Download Error While Installing ESP-IDF Tools](https://github.com/espressif/esp-idf/issues/4775).
 
+## Espressif-IDE, Linux Install tools fail due to permissions in udev rules in /etc/udev/ 
+This occurs basically because the directory `/etc/udev/` requires elevated permissions. Can you please try running the IDE with sudo and see if the issue persists? You can also try to manually copy the rules file with terminal using sudo to the `/etc/udev` directory. The file to copy is `60-openocd.rules` it can be found in the directory where you installed tools inside openocd directory at the path .`..../share/openocd/contrib/60-openocd.rules` 
+  
 ## How do I generate OpenOCD log ?
   - Open the project OpenOCD `Edit Configuration` dialog
   - Navigate to the `Debugger` tab
