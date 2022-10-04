@@ -85,7 +85,8 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				monitor.worked(1);
 
 				monitor.setTaskName(Messages.InstallToolsHandler_ExportingPathsMsg);
-				status = new ExportIDFTools().runToolsExport(pythonExecutablenPath, gitExecutablePath, console, errorConsoleStream);
+				status = new ExportIDFTools().runToolsExport(pythonExecutablenPath, gitExecutablePath, console,
+						errorConsoleStream);
 				if (status.getSeverity() == IStatus.ERROR)
 				{
 					return status;
@@ -99,11 +100,11 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				monitor.worked(1);
 
 				configEnv();
-				
+
 				monitor.setTaskName(Messages.InstallToolsHandler_InstallingWebscoketMsg);
 				handleWebSocketClientInstall();
 				monitor.worked(1);
-				
+
 				copyOpenOcdRules();
 				console.println(Messages.InstallToolsHandler_ConfiguredCMakeMsg);
 
@@ -232,7 +233,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 
 	protected IStatus handleWebSocketClientInstall()
 	{
-		 
+
 		// pip install websocket-client
 		List<String> arguments = new ArrayList<String>();
 		final String pythonEnvPath = IDFUtil.getIDFPythonEnvPath();
@@ -240,8 +241,10 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		{
 			console.println(String.format("%s executable not found. Unable to run `%s -m pip install websocket-client`", //$NON-NLS-1$
 					IDFConstants.PYTHON_CMD, IDFConstants.PYTHON_CMD));
-			return IDFCorePlugin.errorStatus(String.format("%s executable not found. Unable to run `%s -m pip install websocket-client`", //$NON-NLS-1$
-					IDFConstants.PYTHON_CMD, IDFConstants.PYTHON_CMD), null);
+			return IDFCorePlugin.errorStatus(
+					String.format("%s executable not found. Unable to run `%s -m pip install websocket-client`", //$NON-NLS-1$
+							IDFConstants.PYTHON_CMD, IDFConstants.PYTHON_CMD),
+					null);
 		}
 		arguments.add(pythonEnvPath);
 		arguments.add("-m"); //$NON-NLS-1$
@@ -287,6 +290,8 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		@Override
 		public void aboutToRun(IJobChangeEvent event)
 		{
+			// clean the ESP_IDF_VERSION variable first, because it's not coming from older versions of the ESP-IDF
+			new IDFEnvironmentVariables().removeEnvVariable(IDFEnvironmentVariables.ESP_IDF_VERSION);
 			this.existingVarMap = loadExistingVars();
 		}
 
@@ -294,7 +299,6 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		{
 			IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
 			Map<String, String> existingVarMap = new HashMap<>();
-
 			existingVarMap.put(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER,
 					idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER));
 			existingVarMap.put(IDFEnvironmentVariables.IDF_PATH,
@@ -332,7 +336,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				idfEnvironmentVariables.addEnvVariable(varsEntry.getKey(), varsEntry.getValue());
 			}
 		}
-		
+
 		@Override
 		public void running(IJobChangeEvent event)
 		{

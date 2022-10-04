@@ -190,7 +190,8 @@ public class IDFSizeDataManager
 	private List<String> addJsonParseCommand()
 	{
 		List<String> arguments = new ArrayList<String>();
-		IEnvironmentVariable idfVersionEnv = new IDFEnvironmentVariables().getEnv("ESP_IDF_VERSION"); //$NON-NLS-1$
+		IEnvironmentVariable idfVersionEnv = new IDFEnvironmentVariables()
+				.getEnv(IDFEnvironmentVariables.ESP_IDF_VERSION);
 		String idfVersion = idfVersionEnv != null ? idfVersionEnv.getValue() : null;
 		if (idfVersion != null && Double.parseDouble(idfVersion) >= 5.0)
 		{
