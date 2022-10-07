@@ -40,10 +40,12 @@ public class IDFEnvironmentVariables
 
 	public static String IDF_COMPONENT_MANAGER = "IDF_COMPONENT_MANAGER"; //$NON-NLS-1$
 
-	public static final String GIT_PATH ="GIT_PATH"; //$NON-NLS-1$
-	
-	public static final String PYTHON_EXE_PATH ="PYTHON_EXE_PATH"; //$NON-NLS-1$
-	
+	public static final String GIT_PATH = "GIT_PATH"; //$NON-NLS-1$
+
+	public static final String PYTHON_EXE_PATH = "PYTHON_EXE_PATH"; //$NON-NLS-1$
+
+	public static final String ESP_IDF_VERSION = "ESP_IDF_VERSION"; //$NON-NLS-1$
+
 	/**
 	 * @param variableName Environment variable Name
 	 * @return IEnvironmentVariable
@@ -51,11 +53,11 @@ public class IDFEnvironmentVariables
 	public IEnvironmentVariable getEnv(String variableName)
 	{
 		IContributedEnvironment contributedEnvironment = getEnvironment();
-		
+
 		IEnvironmentVariable variable = contributedEnvironment.getVariable(variableName, null);
 		return variable;
 	}
-	
+
 	public void removeEnvVariable(String variableName)
 	{
 		IContributedEnvironment contributedEnvironment = getEnvironment();
@@ -94,7 +96,7 @@ public class IDFEnvironmentVariables
 		// Without this environment variables won't be persisted
 		EnvironmentVariableManager.fUserSupplier.storeWorkspaceEnvironment(true);
 	}
-	
+
 	public void prependEnvVariableValue(String variableName, String value)
 	{
 		Logger.log(MessageFormat.format("Prepending environment variables with key:{0} to value:{1}", variableName, //$NON-NLS-1$
@@ -103,7 +105,7 @@ public class IDFEnvironmentVariables
 				IBuildEnvironmentVariable.ENVVAR_PREPEND,
 				EnvironmentVariableManager.getDefault().getDefaultDelimiter());
 	}
-	
+
 	/**
 	 * @return CDT build environment variables map
 	 */
