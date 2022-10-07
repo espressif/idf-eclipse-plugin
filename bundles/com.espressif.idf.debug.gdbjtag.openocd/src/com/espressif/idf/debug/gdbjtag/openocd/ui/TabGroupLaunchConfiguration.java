@@ -19,7 +19,6 @@ import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.sourcelookup.SourceLookupTab;
-import org.eclipse.embedcdt.debug.gdbjtag.ui.TabSvd;
 
 public class TabGroupLaunchConfiguration extends AbstractLaunchConfigurationTabGroup
 {
@@ -39,9 +38,9 @@ public class TabGroupLaunchConfiguration extends AbstractLaunchConfigurationTabG
 		// we manually define the tabs here.
 
 		TabStartup tabStartup = new TabStartup();
-
+		
 		ILaunchConfigurationTab tabs[] = new ILaunchConfigurationTab[] { new TabMain(), new TabDebugger(tabStartup),
-				tabStartup, new SourceLookupTab(), new CommonTab(), new TabSvd() };
+				tabStartup, new SourceLookupTab(), new CommonTab(), new TabSvdTarget() };
 
 		setTabs(tabs);
 

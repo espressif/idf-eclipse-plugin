@@ -4,6 +4,8 @@ Bundle-Name: %bundle.name
 Bundle-SymbolicName: com.espressif.idf.debug.gdbjtag.openocd;singleton:=true
 Bundle-Version: 1.0.1.qualifier
 Bundle-Activator: com.espressif.idf.debug.gdbjtag.openocd.Activator
+Bundle-ClassPath: .,
+ svd/
 Require-Bundle: org.eclipse.cdt.core;bundle-version="6.2.0",
  org.eclipse.cdt.debug.core;bundle-version="8.1.0",
  org.eclipse.cdt.debug.gdbjtag.core;bundle-version="9.0.0",
