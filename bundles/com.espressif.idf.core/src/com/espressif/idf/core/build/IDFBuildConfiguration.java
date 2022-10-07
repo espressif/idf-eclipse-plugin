@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import org.eclipse.cdt.build.gcc.core.ClangToolChain;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainFile;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
 import org.eclipse.cdt.cmake.core.internal.CMakeUtils;
@@ -342,6 +343,11 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 					{
 						command.add("-DIDF_TARGET=" + idfTargetName); //$NON-NLS-1$
 					}
+				}
+
+				if (getToolChain().getTypeId() == ClangToolChain.TYPE_ID)
+				{
+					command.add("-DIDF_TOOLCHAIN=clang");
 				}
 
 				String userArgs = getProperty(CMAKE_ARGUMENTS);

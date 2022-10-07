@@ -23,6 +23,7 @@ public class ESP32ToolChain extends AbstractESPToolchain
 	public ESP32ToolChain(IToolChainProvider provider, Path pathToToolChain)
 	{
 		super(provider, pathToToolChain, OS, ARCH);
+		setProperty("ATTR_ID", ESP32CMakeToolChainProvider.TOOLCHAIN_NAME); //$NON-NLS-1$
 	}
 
 }

@@ -118,6 +118,7 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 		{
 			properties.put(IToolChain.ATTR_ARCH, arch);
 		}
+		properties.put("ATTR_ID", toolChain.getProperty("ATTR_ID")); //$NON-NLS-1$ //$NON-NLS-2$
 		ICMakeToolChainFile file = manager.getToolChainFileFor(toolChain);
 		if (file == null)
 		{
@@ -130,15 +131,19 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 
 		// Let's generate build artifacts directly under the build folder so that CLI and eclipse IDF will be in sync
 		String name = ICBuildConfiguration.DEFAULT_NAME;
-
-		if (configManager.hasConfiguration(this, project, name)
-				&& project.getActiveBuildConfig().getName().contains(name))
+		IBuildConfiguration buildConfig;
+		if (configManager.hasConfiguration(this, project, name))
 		{
-			return configManager.getBuildConfiguration(project.getActiveBuildConfig());
+			buildConfig = project.getActiveBuildConfig();
 		}
-		IBuildConfiguration config = configManager.createBuildConfiguration(this, project, name, monitor);
-		CBuildConfiguration cmakeConfig = new IDFBuildConfiguration(config, name, toolChain, file, launchMode);
-		configManager.addBuildConfiguration(config, cmakeConfig);
+		else
+		{
+			buildConfig = configManager.createBuildConfiguration(this, project, name, monitor);
+
+		}
+
+		CBuildConfiguration cmakeConfig = new IDFBuildConfiguration(buildConfig, name, toolChain, file, launchMode);
+		configManager.addBuildConfiguration(buildConfig, cmakeConfig);
 		return cmakeConfig;
 	}
 
