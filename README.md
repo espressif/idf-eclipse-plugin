@@ -35,8 +35,8 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 * [ ESP-IDF Terminal](#idfterminal)<br>
 * [ Configuring Build Environment Variables ](#configureEnvironmentVariables)<br>
 * [ Configuring Core Build Toolchain ](#ConfigureToolchains)<br>
-* [ Configuring Clang Toolchain ](#ConfigureCMakeToolchain)<br>
-* [ Selecting different Toolchain](#SelectDifferentToolchain)<br>
+* [ Configuring CMake Toolchain ](#ConfigureCMakeToolchain)<br>
+* [ Selecting Clang Toolchain](#SelectDifferentToolchain)<br>
 * [ Configuring the flash arguments ](#customizeLaunchConfig)<br>
 * [ Installing IDF Eclipse Plugin from Eclipse Market Place](#installPluginsFromMarketPlace) <br>
 * [ Installing IDF Eclipse Plugin using local archive ](#installPluginsUsingLocalFile) <br>
