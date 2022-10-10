@@ -35,7 +35,8 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 * [ ESP-IDF Terminal](#idfterminal)<br>
 * [ Configuring Build Environment Variables ](#configureEnvironmentVariables)<br>
 * [ Configuring Core Build Toolchain ](#ConfigureToolchains)<br>
-* [ Configuring CMake Toolchain ](#ConfigureCMakeToolchain)<br>
+* [ Configuring Clang Toolchain ](#ConfigureCMakeToolchain)<br>
+* [ Selecting different Toolchain](#SelectDifferentToolchain)<br>
 * [ Configuring the flash arguments ](#customizeLaunchConfig)<br>
 * [ Installing IDF Eclipse Plugin from Eclipse Market Place](#installPluginsFromMarketPlace) <br>
 * [ Installing IDF Eclipse Plugin using local archive ](#installPluginsUsingLocalFile) <br>
@@ -363,6 +364,70 @@ We now need to tell CDT which toolchain to use when building the project. This w
 
 ![](docs/images/7_cmake_toolchain.png)
 
+<a name="SelectDifferentToolchain"></a>
+# Selecting Clang Toolchain
+In ESP-IDF Eclipse Plugin v2.7.0 you can build your project with Clang Toolchain.
+
+1. After updating/installing the ESP-IDF Eclipse plugin to v2.7.0 or higher,  you need to run `Espressif -> ESP-IDF Tools Manager -> Install Tools` to update the toolchain list and environments variables, that are necessary for Clang Toolchain.
+1. After creating a new project, edit project's configuration
+![image](https://user-images.githubusercontent.com/24419842/194882285-9faadb5d-0fe2-4012-bb6e-bc23dedbdbd2.png)
+1. Go to `Build Settings` tab and select clang toolchain there:
+![image](https://user-images.githubusercontent.com/24419842/194882462-3c0fd660-b223-4caf-964d-58224d91b518.png)
+
+> **NOTE:** Clang Toolchain now is an experimental feature and you may face some build issues due to the incompatibility of esp-idf. Below is a description of how to fix the most common build issue on the current esp-idf master (ESP-IDF v5.1-dev-992-gaf28c1fa21-dirty)
+
+Workaround for build errors:
+1. ``error: `__cxa_guard_release(abourt)` is missing exception specification `throw()``. Edit file `esp-idf/components/cxx/cxx_guards.cpp`
+```diff
+-extern "C" void __cxa_guard_release(__guard* pg)
++extern "C" void __cxa_guard_release(__guard* pg) throw()
+ {
+     guard_t* g = reinterpret_cast<guard_t*>(pg);
+     const auto scheduler_started = xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED;
+     ...
+ }
+ 
+-extern "C" void __cxa_guard_abort(__guard* pg)
++extern "C" void __cxa_guard_abort(__guard* pg) throw()
+ {
+     guard_t* g = reinterpret_cast<guard_t*>(pg);
+     const auto scheduler_started = xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED;
+```
+
+2. `error: variable 'usec' set but not used [-Werror,-Wunused-but-set-variable] int sec, usec`. Edit file `esp-idf/CMakeLists.txt`.
+
+```diff
+     list(APPEND compile_options "-Wno-atomic-alignment")
+     # Clang also produces many -Wunused-function warnings which GCC doesn't.
+     # However these aren't treated as errors.
+
++    list(APPEND compile_options "-Wno-unused-but-set-variable")
++    list(APPEND compile_options "-Wno-unused-command-line-argument")
++    list(APPEND compile_options "-Wno-unknown-warning-option")
+```
+3. `error: equality comparison with extraneous parentheses [-Werror,-Wparentheses-equality]`. Edit file `esp-idf/CMakeLists.txt`.
+
+```diff
+    list(APPEND compile_options "-Wno-unused-but-set-variable")
+    list(APPEND compile_options "-Wno-unused-command-line-argument")
+    list(APPEND compile_options "-Wno-unknown-warning-option")
++   list(APPEND compile_options "-Wno-parentheses-equality")
+endif()
+```
+4. Windows specific issue saying clang++ file is missing from toolchain folder:
+```
+ The CMAKE_CXX_COMPILER:
+clang++
+  is not a full path and was not found in the PATH.
+```
+To fix it, you can use clang instead clang++. Edit file `esp-idf\tools\cmake\toolchain-clang-esp32.cmake`:
+```diff
+set(CMAKE_C_COMPILER clang)
+- set(CMAKE_CXX_COMPILER clang++)
++ set(CMAKE_CXX_COMPILER clang)
+set(CMAKE_ASM_COMPILER clang)
+
+```
 <a name="customizeLaunchConfig"></a>
 # Launch Configuration
 To provide the customized launch configuration and flash arguments, please follow the step by step instructions below.
