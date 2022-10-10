@@ -368,7 +368,7 @@ We now need to tell CDT which toolchain to use when building the project. This w
 # Selecting Clang Toolchain
 In ESP-IDF Eclipse Plugin v2.7.0 you can build your project with Clang Toolchain.
 
-1. After updating/installing the ESP-IDF Eclipse plugin to v2.7.0 or higher,  you need to run `Espressif -> ESP-IDF Tools Manager -> Install Tools` to update the toolchain list and environments variables, that are necessary for Clang Toolchain.
+1. After updating/installing the ESP-IDF Eclipse plugin to v2.7.0 or higher,  you need to run `Espressif -> ESP-IDF Tools Manager -> Install Tools` to update the toolchain list and environment variables, that are necessary for Clang Toolchain.
 1. After creating a new project, edit project's configuration
 ![image](https://user-images.githubusercontent.com/24419842/194882285-9faadb5d-0fe2-4012-bb6e-bc23dedbdbd2.png)
 1. Go to `Build Settings` tab and select clang toolchain there:
