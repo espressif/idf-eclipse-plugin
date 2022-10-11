@@ -376,7 +376,7 @@ With ESP-IDF Eclipse Plugin v2.7.0 and higher you can build your project with Cl
 
 > **NOTE:** Clang Toolchain now is an experimental feature and you may face some build issues due to the incompatibility of esp-idf. Below is a description of how to fix the most common build issue on the current esp-idf master (ESP-IDF v5.1-dev-992-gaf28c1fa21-dirty)
 
-To work around clang build errors please refer to [this](https://github.com/espressif/idf-eclipse-plugin/blob/master/WORKAROUNDS.md).
+To work around clang build errors please refer to [this](https://github.com/espressif/idf-eclipse-plugin/blob/master/WORKAROUNDS.md#clang-toolchain-buid-errors).
 
 <a name="customizeLaunchConfig"></a>
 # Launch Configuration
