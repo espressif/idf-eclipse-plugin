@@ -36,6 +36,7 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 * [ Configuring Build Environment Variables ](#configureEnvironmentVariables)<br>
 * [ Configuring Core Build Toolchain ](#ConfigureToolchains)<br>
 * [ Configuring CMake Toolchain ](#ConfigureCMakeToolchain)<br>
+* [ Selecting Clang Toolchain](#SelectDifferentToolchain)<br>
 * [ Configuring the flash arguments ](#customizeLaunchConfig)<br>
 * [ Installing IDF Eclipse Plugin from Eclipse Market Place](#installPluginsFromMarketPlace) <br>
 * [ Installing IDF Eclipse Plugin using local archive ](#installPluginsUsingLocalFile) <br>
@@ -51,7 +52,7 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 * [ Troubleshooting Guide](#troubleshooting)<br>
 * [ How to raise bugs ](#howToRaiseBugs)<br>
 * <a href ="https://github.com/espressif/idf-eclipse-plugin/blob/master/FAQ.md#FAQ">FAQ</a>
-
+* <a href ="https://github.com/espressif/idf-eclipse-plugin/blob/master/WORKAROUNDS.md#WORKAROUNS">WORKAROUNDS</a>
 
 <a name="Prerequisites"></a>
 # Installing Prerequisites
@@ -362,6 +363,20 @@ We now need to tell CDT which toolchain to use when building the project. This w
 > **NOTE:**  Eclipse CDT has a bug in saving the toolchain preferences, hence it's recommended to restart Eclipse before we move further configuring the launch target.
 
 ![](docs/images/7_cmake_toolchain.png)
+
+<a name="SelectDifferentToolchain"></a>
+# Selecting Clang Toolchain
+With ESP-IDF Eclipse Plugin v2.7.0 and higher you can build your project with Clang Toolchain
+
+1. After updating/installing the ESP-IDF Eclipse plugin to v2.7.0 or higher,  you need to run `Espressif -> ESP-IDF Tools Manager -> Install Tools` to update the toolchain list and environment variables, that are necessary for Clang Toolchain.
+1. After creating a new project, edit project's configuration
+![image](https://user-images.githubusercontent.com/24419842/194882285-9faadb5d-0fe2-4012-bb6e-bc23dedbdbd2.png)
+1. Go to `Build Settings` tab and select clang toolchain there:
+![image](https://user-images.githubusercontent.com/24419842/194882462-3c0fd660-b223-4caf-964d-58224d91b518.png)
+
+> **NOTE:** Clang Toolchain now is an experimental feature and you may face some build issues due to the incompatibility of esp-idf. Below is a description of how to fix the most common build issue on the current esp-idf master (ESP-IDF v5.1-dev-992-gaf28c1fa21-dirty)
+
+To work around clang build errors please refer to [this](https://github.com/espressif/idf-eclipse-plugin/blob/master/WORKAROUNDS.md).
 
 <a name="customizeLaunchConfig"></a>
 # Launch Configuration
