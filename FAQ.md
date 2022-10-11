@@ -162,6 +162,16 @@ This occurs basically because the directory `/etc/udev/` requires elevated permi
 - Select `ADF_PATH` from the preferences list and click on Edit and Click Ok without changing any value(There is a bug in CDT that is appending a null value before the path hence we need to click on edit and save it.)
 - Select the target and click on build 
 
+# How to choose to build with Clang or GCC toolchain?
+- Select a project from the project explorer
+- Select project build configuration from the top toolbar
+- Click on the gear icon and this will launch a build edit configuration window
+- Click on the Build Settings tab
+- Choose either GCC or Clang toolchain from the list
+- Click Ok
+
+![](docs/images/buildconfiguration_clang.png)
+
   # How to configure esp-who in Espressif-IDE
 - Clone esp-who: `git clone https://github.com/espressif/esp-who.git`
 - `cd esp-who`
