@@ -1,5 +1,5 @@
 # Workarounds for build errors
-
+## Clang Toolchain buid errors
 1. ``error: `__cxa_guard_release(abort)` is missing exception specification `throw()``. Edit a file `esp-idf/components/cxx/cxx_guards.cpp`
 
 ```diff
