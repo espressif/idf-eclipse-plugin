@@ -52,7 +52,7 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 * [ Troubleshooting Guide](#troubleshooting)<br>
 * [ How to raise bugs ](#howToRaiseBugs)<br>
 * <a href ="https://github.com/espressif/idf-eclipse-plugin/blob/master/FAQ.md#FAQ">FAQ</a>
-
+* <a href ="https://github.com/espressif/idf-eclipse-plugin/blob/master/WORKAROUNDS.md#WORKAROUNS">WORKAROUNDS</a>
 
 <a name="Prerequisites"></a>
 # Installing Prerequisites
@@ -366,7 +366,7 @@ We now need to tell CDT which toolchain to use when building the project. This w
 
 <a name="SelectDifferentToolchain"></a>
 # Selecting Clang Toolchain
-In ESP-IDF Eclipse Plugin v2.7.0 you can build your project with Clang Toolchain.
+With ESP-IDF Eclipse Plugin v2.7.0 and higher you can build your project with Clang Toolchain
 
 1. After updating/installing the ESP-IDF Eclipse plugin to v2.7.0 or higher,  you need to run `Espressif -> ESP-IDF Tools Manager -> Install Tools` to update the toolchain list and environment variables, that are necessary for Clang Toolchain.
 1. After creating a new project, edit project's configuration
@@ -376,58 +376,8 @@ In ESP-IDF Eclipse Plugin v2.7.0 you can build your project with Clang Toolchain
 
 > **NOTE:** Clang Toolchain now is an experimental feature and you may face some build issues due to the incompatibility of esp-idf. Below is a description of how to fix the most common build issue on the current esp-idf master (ESP-IDF v5.1-dev-992-gaf28c1fa21-dirty)
 
-Workaround for build errors:
-1. ``error: `__cxa_guard_release(abort)` is missing exception specification `throw()``. Edit a file `esp-idf/components/cxx/cxx_guards.cpp`
-```diff
--extern "C" void __cxa_guard_release(__guard* pg)
-+extern "C" void __cxa_guard_release(__guard* pg) throw()
- {
-     guard_t* g = reinterpret_cast<guard_t*>(pg);
-     const auto scheduler_started = xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED;
-     ...
- }
- 
--extern "C" void __cxa_guard_abort(__guard* pg)
-+extern "C" void __cxa_guard_abort(__guard* pg) throw()
- {
-     guard_t* g = reinterpret_cast<guard_t*>(pg);
-     const auto scheduler_started = xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED;
-```
+To work around clang build errors please refer to [this](https://github.com/espressif/idf-eclipse-plugin/blob/master/WORKAROUNDS.md).
 
-2. `error: variable 'usec' set but not used [-Werror,-Wunused-but-set-variable] int sec, usec`. Edit a file `esp-idf/CMakeLists.txt`.
-
-```diff
-     list(APPEND compile_options "-Wno-atomic-alignment")
-     # Clang also produces many -Wunused-function warnings which GCC doesn't.
-     # However these aren't treated as errors.
-
-+    list(APPEND compile_options "-Wno-unused-but-set-variable")
-+    list(APPEND compile_options "-Wno-unused-command-line-argument")
-+    list(APPEND compile_options "-Wno-unknown-warning-option")
-```
-3. `error: equality comparison with extraneous parentheses [-Werror,-Wparentheses-equality]`. Edit a file `esp-idf/CMakeLists.txt`.
-
-```diff
-    list(APPEND compile_options "-Wno-unused-but-set-variable")
-    list(APPEND compile_options "-Wno-unused-command-line-argument")
-    list(APPEND compile_options "-Wno-unknown-warning-option")
-+   list(APPEND compile_options "-Wno-parentheses-equality")
-endif()
-```
-4. Windows specific issue saying clang++ file is missing from the toolchain folder:
-```
- The CMAKE_CXX_COMPILER:
-clang++
-  is not a full path and was not found in the PATH.
-```
-To fix this you can use clang instead of clang++. Edit a file `esp-idf\tools\cmake\toolchain-clang-esp32.cmake`:
-```diff
-set(CMAKE_C_COMPILER clang)
-- set(CMAKE_CXX_COMPILER clang++)
-+ set(CMAKE_CXX_COMPILER clang)
-set(CMAKE_ASM_COMPILER clang)
-
-```
 <a name="customizeLaunchConfig"></a>
 # Launch Configuration
 To provide the customized launch configuration and flash arguments, please follow the step by step instructions below.
