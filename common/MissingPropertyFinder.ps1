@@ -42,7 +42,7 @@ foreach($file in $filesFiltered)
     }
     $containsMissingKeys = $false
     $translatedFilesPath = $file.PSParentPath + "\" + $file.BaseName + "_*.properties"
-    $translationExisits = Test-Path $translatedFilesPath
+    $translationExisits = Test-Path -Path $translatedFilesPath -PathType Leaf
     [hashtable]$missingProperties = @{}
     [hashTable]$missingPropertyFile = @{}
     if ($translationExisits)
