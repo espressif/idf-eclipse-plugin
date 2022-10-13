@@ -368,7 +368,7 @@ We now need to tell CDT which toolchain to use when building the project. This w
 # Selecting Clang Toolchain
 With ESP-IDF Eclipse Plugin v2.7.0 and higher you can build your project with Clang Toolchain
 
-1. After updating/installing the ESP-IDF Eclipse plugin to v2.7.0 or higher,  you need to run `Espressif -> ESP-IDF Tools Manager -> Install Tools` to update the toolchain list and environment variables, that are necessary for Clang Toolchain.
+1. After updating/installing the ESP-IDF Eclipse plugin to v2.7.0 or higher,  you need to run `Espressif` > `ESP-IDF Tools Manager` > `Install Tools` to update the toolchain list and environment variables, that are necessary for Clang Toolchain.
 1. After creating a new project, edit project's configuration
 ![image](https://user-images.githubusercontent.com/24419842/194882285-9faadb5d-0fe2-4012-bb6e-bc23dedbdbd2.png)
 1. Go to `Build Settings` tab and select clang toolchain there:
@@ -412,7 +412,7 @@ To change the plugin language a menu is provided to show the list of available l
 ## Suggestions for solving errors from ESP-IDF by hints viewer
 
 If you run into a problem during a build, chances are that there is a hint for this error in the esp-idf hint database, which is stored in `tools/idf_py_actions/hints.yml` of ESP-IDF. The ESP-IDF Eclipse plugin provides a hint viewer where you can type an error message and find a hint for it. 
-Prerequisites for it is to have `hints.yml`, which is available from esp-idf v5.0 and higher. If you are using lower version of the esp-idf, you can still use the hints viewer. To do it, you have manually download the hints.yml file from [here](https://github.com/espressif/esp-idf/blob/master/tools/idf_py_actions/hints.yml) and put it to your `esp-idf/tools/idf_py_actions/` path. To download a file from the github, right click the `Raw` button and then `Save as...`
+Prerequisites for it is to have `hints.yml`, which is available from esp-idf v5.0 and higher. If you are using lower version of the esp-idf, you can still use the hints viewer. To do it, you have manually download the hints.yml file from [here](https://github.com/espressif/esp-idf/blob/master/tools/idf_py_actions/hints.yml) and put it to your `esp-idf/tools/idf_py_actions/` path. To download a file from the GitHub, right click the `Raw` button and then `Save as...`
 
 To open hints viewer go to `Windows -> Show View -> Other... -> Espressif -> Hints`. You will see the following view:
 ![image](https://user-images.githubusercontent.com/24419842/189666994-78cc8b24-b934-426f-9df5-79af28c50c55.png)
@@ -563,14 +563,17 @@ You can view the registers stack trace and even view the value of variables in s
 
 The idf eclipse plugin allows you to debug the core dump if any crash occurs on the chip and the configurations are set. Currently only the UART core dump capture and debugging is supported.
 
-To enable core dump debugging for a project you need to enable it first in the sdkconfig. Launch the sdkconfig in project root by double clicking on it which will open the configuration editor.
+To enable core dump debugging for a project:
+1. You need to enable it first in the sdkconfig. Launch the sdkconfig in project root by double clicking on it which will open the configuration editor.
 <br/>
-Click on the the `Core Dump` from the settings on the left. and select Data Destination as `UART`.
+1. Click on the the `Core Dump` from the settings on the left. and select `Data Destination` as `UART`.
 ![](docs/images/CoreDumpDebugging/sdkconfig_editor.png)
 
 This will enable the core dump debugging and whenever you connect a serial monitor for that project if any crash occurs it will load the dump and open a debug perspective in eclipse to let you diagnose the dump where you can view all the information in the core dump.
 
-You can view the registers stack trace and even view the value of variables in stack frame. To exit the debug session simply press stop button.
+You can view the registers stack trace and even view the value of variables in stack frame. 
+
+To exit the debug session: simply press stop button.
 
 <a name="deviceFirmwareUpgrade"></a>
 

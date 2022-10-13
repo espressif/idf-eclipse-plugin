@@ -1,4 +1,4 @@
-[![GitHub 发布](https://img.shields.io/github/release/espressif/idf-eclipse-plugin.svg)](https://github.com/espressif/idf-eclipse-plugin/releases/latest) 
+[![GitHub 发布](https://img.shields.io/github/release/espressif/idf-eclipse-plugin.svg)](https://github.com/espressif/idf-eclipse-plugin/releases/latest)
 
 [English](./README.md)
 
@@ -35,6 +35,7 @@ ESP-IDF Eclipse 插件支持 `macOS`、`Window` 和 `Linux` 操作系统。
 * [配置构建环境变量](#configureEnvironmentVariables)<br>
 * [配置核心构建工具链](#ConfigureToolchains)<br>
 * [配置的 CMake 工具链](#ConfigureCMakeToolchain)<br>
+* [选择 Clang 工具链](#SelectDifferentToolchain)<br>
 * [配置烧录参数](#customizeLaunchConfig)<br>
 * [从 Eclipse 市场安装 IDF Eclipse 插件](#installPluginsFromMarketPlace)<br>
 * [使用本地文件安装 IDF Eclipse 插件](#installPluginsUsingLocalFile) <br>
@@ -43,13 +44,14 @@ ESP-IDF Eclipse 插件支持 `macOS`、`Window` 和 `Linux` 操作系统。
 * [导入一个现有的 Debug 启动配置](#importDebugLaunchConfig)<br>
 * [通过 USB 升级设备固件 (DFU)](#deviceFirmwareUpgrade)<br>
 * [GDBStub 调试](#gdbStubDebugging)<br>
+* [Core Dump 调试](#coreDumpDebugging)<br>
 * [应用层追踪](#appLvlTracing)<br>
 * [ESP-IDF master 分支更新](#updateEspIdfMaster)<br>
 * [更改语言](#changeLanguage)<br>
 * [故障排除指南](#troubleshooting)<br>
 * [如何提交 bug](#howToRaiseBugs)<br>
 * <a href ="https://github.com/espressif/idf-eclipse-plugin/blob/master/FAQ.md#FAQ">常见问题</a>
-
+* <a href ="https://github.com/espressif/idf-eclipse-plugin/blob/master/WORKAROUNDS.md#WORKAROUNS">临时解决方法</a>
 
 <a name="Prerequisites"></a>
 # 安装依赖资源
@@ -57,9 +59,9 @@ ESP-IDF Eclipse 插件支持 `macOS`、`Window` 和 `Linux` 操作系统。
 IDF Eclipse 插件的运行环境要求如下。
 
 * **Java 11 及以上**：点击<a href= "https://www.oracle.com/technetwork/java/javase/downloads/index.html">这里</a>下载并安装 Java SE
-* **Python 3.6 及以上**：点击<a href="https://www.python.org/downloads/">这里</a>下载并安装 Python 
-* **Eclipse IDE C/C++ 开发工具 2022-06（2021-06 及以上）**：点击<a href= "https://www.eclipse.org/downloads/packages/release/2022-06/r/eclipse-ide-cc-developers">这里</a>下载并安装 Eclipse CDT 安装包 
-* **Git**：点击<a href ="https://git-scm.com/downloads">这里</a>获得最新 Git 
+* **Python 3.6 及以上**：点击<a href="https://www.python.org/downloads/">这里</a>下载并安装 Python
+* **Eclipse IDE C/C++ 开发工具 2022-06（2021-06 及以上）**：点击<a href= "https://www.eclipse.org/downloads/packages/release/2022-06/r/eclipse-ide-cc-developers">这里</a>下载并安装 Eclipse CDT 安装包
+* **Git**：点击<a href ="https://git-scm.com/downloads">这里</a>获得最新 Git
 * **ESP-IDF 4.0 及以上**：点击<a href ="https://github.com/espressif/esp-idf/releases">这里</a>克隆 ESP-IDF 仓库
 
 > **Note:** 请确保系统环境 `PATH` 可以访问 Java、Python 和 Git。
@@ -83,7 +85,7 @@ IDF Eclipse 插件的运行环境要求如下。
 		* 测试版：https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/
 		* 每日构建版：https://dl.espressif.com/dl/idf-eclipse-plugin/updates/nightly/
 	* 点击`添加`。
-1. 从列表中选择`Espressif IDF`，并按照提示完成所有安装步骤。 
+1. 从列表中选择`Espressif IDF`，并按照提示完成所有安装步骤。
 
 > **Note:** 本文档中的所有截图均来自 `macOS` 操作系统，但安装步骤同时适用于 `Windows`、`Linux` 和 `macOS` 操作系统。
 
@@ -203,7 +205,7 @@ ESP-IDF 的 `idf.py` 工具可以打包 `make flash` 命令和常用指令。用
 
 <a name="ConfigureLaunchTerminal"></a>
 # 查看串口输出
-为了查看 Eclipse 的串口输出，我们需要在`ESP-IDF 串口监视器`中配置需要监测的串口。本功能已经集成至`IDF 监视器`。更多详情，请见 <a href="https://docs.espressif.com/projects/esp-idf/zh_CN/latest/esp32/api-guides/tools/idf-monitor.html">这里</a>。 
+为了查看 Eclipse 的串口输出，我们需要在`ESP-IDF 串口监视器`中配置需要监测的串口。本功能已经集成至`IDF 监视器`。更多详情，请见 <a href="https://docs.espressif.com/projects/esp-idf/zh_CN/latest/esp32/api-guides/tools/idf-monitor.html">这里</a>。
 
 1. 点击工具栏中的`打开终端`图标。
 1. 从终端下拉菜单中选择`ESP-IDF 串口监视器`。
@@ -215,7 +217,7 @@ ESP-IDF 的 `idf.py` 工具可以打包 `make flash` 命令和常用指令。用
 
 ### ESP-IDF 串口监视器设置
 
-设置 ESP-IDF 串口监视器的字符和行数上限： 
+设置 ESP-IDF 串口监视器的字符和行数上限：
 1. 进入 Eclipse 偏好设置，选择 `乐鑫`
 1. 点击 `ESP-IDF 串口监视器设置`
 1. 配置 `控制台行宽 (Console Line Width)` 和 `控制台输出上限 (Limit Console Output)`
@@ -276,7 +278,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 
 <a name="idfterminal"></a>
 # ESP-IDF 终端
-`ESP-IDF 终端`可为用户在 Eclipse 环境中启动一个本地终端窗口。用户可通过`偏好设置`>`C/C++`>`构建`>`环境`配置所有环境变量。本终端窗口的默认工作目录为当前选定的项目或 `IDF_PATH`（如未选定项目）。 
+`ESP-IDF 终端`可为用户在 Eclipse 环境中启动一个本地终端窗口。用户可通过`偏好设置`>`C/C++`>`构建`>`环境`配置所有环境变量。本终端窗口的默认工作目录为当前选定的项目或 `IDF_PATH`（如未选定项目）。
 
 终端 PATH 还将同时配置 `esptool`、`espcoredump`、`partition_table` 和 `app_update` 组件路径，允许用户从 ESP-IDF 终端直接进行访问。
 
@@ -313,7 +315,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 
 如上述环境变量未能自动正确配置，请按照以下步骤操作。
 
-1. 前往`C/C++ 构建`下的`环境`偏好设置页。 
+1. 前往`C/C++ 构建`下的`环境`偏好设置页。
 1. 再次点击`添加...`，并输入`IDF_PATH`，即 ESP-IDF 的完整安装路径。
 1. 按照相同步骤，配置 OPENOCD_SCRIPTS、IDF_PYTHON_ENV_PATH 和 PATH 环境变量
 
@@ -367,6 +369,19 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 
 ![](docs/images/7_cmake_toolchain.png)
 
+<a name="SelectDifferentToolchain"></a>
+# 选择 Clang 工具链
+
+ESP-IDF Eclipse 插件 v2.7.0 及以上版本支持使用 Clang 工具链构建项目。
+
+1. 在升级至或安装 ESP-IDF Eclipse 插件 v2.7.0 或以上版本后，请前往 `乐鑫` > `ESP-IDF 工具管理` > `安装工具` 更新工具链列表及 Clang 工具链所需要的环境变量。
+1. 创建新项目，并编辑项目配置。
+![image](https://user-images.githubusercontent.com/24419842/194882285-9faadb5d-0fe2-4012-bb6e-bc23dedbdbd2.png)
+1. 前往 `构建设置`，并选择 clang 工具链。
+![image](https://user-images.githubusercontent.com/24419842/194882462-3c0fd660-b223-4caf-964d-58224d91b518.png)
+
+> **NOTE:** Clang 工具链目前仅供研发试用，可能会出现一些与 esp-idf 不兼容的构建错误。下方针对目前的 esp-idf master 分支 (ESP-IDF v5.1-dev-992-gaf28c1fa21-dirty)，罗列了一些与 Clang 工具链有关的常见问题及解决方法，详情请见[这里](https://github.com/espressif/idf-eclipse-plugin/blob/master/WORKAROUNDS.md).
+
 <a name="customizeLaunchConfig"></a>
 # 启动配置
 如需使用自定义启动配置和烧录参数，请按照以下步骤操作。
@@ -398,10 +413,27 @@ IDF Eclipse 插件可支持不同语言。如需更改，请按照以下步骤�
 注意，上述操作仅提供针对插件界面的汉化。如需全部汉化，则请另外安装 Eclipse 汉化包。
 
 <a name="troubleshooting"></a>
-# 故障排除 
+# 故障排除
+
+## 有关借助提示查看器解决 ESP-IDF 常见问题的建议
+
+ESP-IDF 项目构建中的大多数常见错误均可从提示数据库 (`tools/idf_py_actions/hints.yml`) 中找到答案。ESP-IDF Eclipse 插件专门提供了一个提示查看器，允许用户查找错误信息。
+使用提示查看器必须首先拥有 `hints.yml` 文件（esp-idf v5.0 及以上版本均支持）。如果你的 esp-idf 版本较低，则可从[这里](https://github.com/espressif/esp-idf/blob/master/tools/idf_py_actions/hints.yml)手动下载 `hints.yml` 并将其保存至 `esp-idf/tools/idf_py_actions/` 目录下。如需从 GitHub 下载文件，请单击 `Raw` 按钮并选择 `Save as...`。
+
+打开提示查看器：前往 `窗口` > `显示视图` > `其他` > `乐鑫` > `提示`，即可打开如下视图：
+![image](https://user-images.githubusercontent.com/24419842/189666994-78cc8b24-b934-426f-9df5-79af28c50c55.png)
+
+现在，你可以直接输入或从构建日志复制粘贴错误信息，比如：
+`ccache error: Failed to create temporary file for esp-idf/libsodium/CMakeFiles/..../....: No such file or directory`
+
+![image](https://user-images.githubusercontent.com/24419842/189672552-994624f3-c0c5-48e6-aa2c-61e4ed8915e5.png)
+
+此外，双击错误信息还可以放大提示信息。
+
+![image](https://user-images.githubusercontent.com/24419842/189673174-8ce40cda-6933-4dc4-a555-5d2ca617256e.png)
 
 ## 错误日志
-`错误日志`视图可以显示插件记录的所有警告和错误，其底层日志文件 (.log 文件) 保存在工作空间的 .metadata 子目录下。 
+`错误日志`视图可以显示插件记录的所有警告和错误，其底层日志文件 (.log 文件) 保存在工作空间的 .metadata 子目录下。
 
 打开`错误日志`视图，请前往`窗口`>`显示视图`>`错误日志`。
 
@@ -414,7 +446,7 @@ IDF Eclipse 插件可支持不同语言。如需更改，请按照以下步骤�
 ## 控制台视图日志
 `控制台`视图可显示与当前运行或构建有关的所有警告和错误。
 
-打开`控制台`视图，请前往`窗口`>`显示视图`>`控制台`。 
+打开`控制台`视图，请前往`窗口`>`显示视图`>`控制台`。
 
 ![](docs/images/CDT_Build_Console.png)
 
@@ -422,7 +454,7 @@ IDF Eclipse 插件可支持不同语言。如需更改，请按照以下步骤�
 打开 CDT 全局构建日志，请前往`偏好设置`>`C/C++`>`构建`>`日志`
 
 ## 乐鑫 IDF 工具集控制台
-`乐鑫 IDF 工具控制台`为`控制台`视图的组成部分，通常仅在通过 Eclipse 安装 IDF 工具集时使用。 
+`乐鑫 IDF 工具控制台`为`控制台`视图的组成部分，通常仅在通过 Eclipse 安装 IDF 工具集时使用。
 
 如您在通过`乐鑫`>`ESP-IDF 工具管理器`>`安装工具`方式安装 IDF 工具集时出现任何问题，即可使用本控制台查看错误报告。
 
@@ -453,7 +485,7 @@ IDF Eclipse 插件可支持不同语言。如需更改，请按照以下步骤�
 1. 点击`添加`按钮。
 1. 在`添加`仓库对话框中选择`存档`> `com.espressif.idf.update-vxxxxxxx.zip` 文件。
 1. 点击`添加`。
-1. 从列表中选择`Espressif IDF`，并按照提示完成所有安装步骤。 
+1. 从列表中选择`Espressif IDF`，并按照提示完成所有安装步骤。
 1. 重启 Eclipse。
 
 ![](docs/images/zh/1_idffeature_install.png)
@@ -549,13 +581,32 @@ IDF Eclipse 插件可支持不同语言。如需更改，请按照以下步骤�
 
 1. 点击 `停止`。
 
+
+<a name="coreDumpDebugging"></a>
+
+# Core Dump 调试
+
+乐鑫 ESP-IDF Eclipse 插件允许用户调试芯片崩溃时的 core dump 信息，且无需进行额外配置。目前，仅支持 UART core dump 捕获与调试。
+
+为你的项目打开 core dump 调试功能：
+1. 在项目的根目录中打开 `sdkconfig` 文件。此时，你会看到配置编辑器窗口。
+<br/>
+1. 在左侧列表中选择 `Core Dump`，并将 `Data Destination` 配置为 `UART`。
+![](docs/images/CoreDumpDebugging/sdkconfig_editor.png)
+
+至此，core dump 功能已经打开。此后，一旦项目发生任何崩溃，仅需打开串口监控器即可查看 core dump 信息，还可在 eclipse 中打开调试视图，方便用户的诊断。
+
+你还可以查看寄存器堆栈追踪，甚至查看堆栈帧中的变量值。
+
+退出调试窗口：点击`停止`按钮。
+
 <a name="deviceFirmwareUpgrade"></a>
 
 # 通过 USB 升级设备固件 (DFU)
 
 设备固件升级 (DFU) 允许用户通过 USB 升级设备固件，但必须满足一些条件：
 
-- DFU 支持仅限 ESP32-S2 和 ESP32-S3 系列。 
+- DFU 支持仅限 ESP32-S2 和 ESP32-S3 系列。
 - 其次，您还需额外链接一些导线，具体见下表。此外，您还可以参考针对 ESP32-S2 开发板的[示例](https://blog.espressif.com/dfu-using-the-native-usb-on-esp32-s2-for-flashing-the-firmware-b2c4af3335f1)。
 
 | GPIO | USB         |
@@ -604,7 +655,7 @@ ESP-IDF 的 [应用层追踪](https://docs.espressif.com/projects/esp-idf/en/lat
 开始命令：
 
 * 语法：`start <outfile> [poll_period [trace_size [stop_tmo [wait4halt [skip_size]]]]`
-* 参数：  
+* 参数：
 	* `outfile`：文件路径（从任一 CPU），格式应满足 `file://path/to/file`。
 	* `poll_period`：可用追踪数据的轮询周期（单位：毫秒）。如果大于 0，则命令以“非阻塞”模式运行。默认值 1（1 毫秒）。
 	* `trace_size`：可追踪数据的最大长度限制（单位：字节）。注意，该参数使能后，追踪数据达到配置的长度后则自动停止。默认值 -1（不限制最大长度）。
@@ -661,7 +712,7 @@ ESP-IDF 的 [应用层追踪](https://docs.espressif.com/projects/esp-idf/en/lat
 1. 点击 `Details`。
 1. 点击左侧 `Summary`。
 1. 下滑至页面底部，找到 `Artifacts`。
-1. 下载 `com.espressif.idf.update`，并按照 <a 
+1. 下载 `com.espressif.idf.update`，并按照 <a
 href="https://github.com/espressif/idf-eclipse-plugin#installPluginsUsingLocalFile">介绍</a> 进行安装。
 
 # 自定义 IDE 配置
@@ -687,5 +738,5 @@ IDE 支持配置自定义构架目录：
 | IEP 2.1.2 | Eclipse 2021-06, 2021-03, 2020-12, 2020-09 |Java 11 及以上 | ESP-IDF 工具安装器 (Windows) 2.9| IEP 2.1.2 增加了对 Eclipse 2021-06 的支持|
 | IEP 2.1.1 | Eclipse 2021-03, 2020-12, 2020-09 | Java 11 及以上 | ESP-IDF 工具安装器 (Windows) 2.8 | ESP-IDF 工具安装器 (Windows) 集成 IEP 2.1.0，需升级至 2.1.1
 | IEP 2.1.0 | Eclipse 2021-03, 2020-12, 2020-09 | Java 11 及以上 | ESP-IDF 工具安装器 (Windows) 2.6 beta | IEP 2.1.0 增加了对 Eclipse 2021-03 的支持|
-| IEP 2.0.0 | Eclipse 2020-12, 2020-09, 2020-06 | Java 11 及以上 | ESP-IDF 工具安装器 (Windows) 2.6 beta  || 
+| IEP 2.0.0 | Eclipse 2020-12, 2020-09, 2020-06 | Java 11 及以上 | ESP-IDF 工具安装器 (Windows) 2.6 beta  ||
 | IEP 1.2.4 | Eclipse 2020-12, 2020-09, 2020-06, 2020-03 | Java 1.8 及以上 | 不支持 | IEP 1.2.4 增加了对 Eclipse 2020-12 的支持|
