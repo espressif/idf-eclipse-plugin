@@ -398,7 +398,7 @@
          <command
                commandId="com.espressif.idf.ui.partitionTableEditorCommand"
                icon="icons/espressif.png"
-               label="ESP-IDF: Partition Table Editor"
+               label="%command.label.PartitionTableEditor"
                style="push">
          </command>
       </menuContribution>
@@ -498,7 +498,7 @@
       <command
             categoryId="com.espressif.commands.category"
             id="com.espressif.idf.ui.partitionTableEditorCommand"
-            name="ESP-IDF: Partition Table Editor">
+            name="%command.name.PartitionTableEditor">
       </command>
    </extension>
    <extension
@@ -534,7 +534,7 @@
 	</activeWhen>
       </handler>
        <handler
-             class="com.espressif.idf.ui.handlers.PartitionTableEditorHandler"
+             class="com.espressif.idf.ui.partitiontable.handlers.PartitionTableEditorHandler"
              commandId="com.espressif.idf.ui.partitionTableEditorCommand">
        </handler>
     </extension>

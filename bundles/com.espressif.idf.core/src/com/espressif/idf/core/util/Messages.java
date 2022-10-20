@@ -22,6 +22,17 @@ public class Messages extends NLS {
 	public static String MsgLinkDialog_DoNotShowMsg;
 	public static String DfuWarningDialog_Title;
 	public static String DfuWarningDialog_WrongTargterMsg;
+	public static String NameValidationError_1;
+	public static String NameValidationError_2;
+	public static String OffSetValidationError_1;
+	public static String SizeValidationError_1;
+	public static String SizeValidationError_2;
+	public static String SubTypeValidationError_1;
+	public static String SubTypeValidationError_2;
+	public static String SubTypeValidationError_3;
+	public static String SubTypeValidationError_4;
+	public static String TypeValidationError_1;
+	public static String TypeValidationError_2;
 	
 	static {
 		// initialize resource bundle
