@@ -11,7 +11,6 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
-import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.ComboBoxCellEditor;
 import org.eclipse.jface.viewers.ICellModifier;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -38,6 +37,7 @@ import org.eclipse.swt.widgets.ToolBar;
 import com.espressif.idf.core.build.PartitionTableBean;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.PartitionBeanValidator;
+import com.espressif.idf.core.util.PartitionTableDataUtil;
 import com.espressif.idf.core.util.StringUtil;
 
 public class PartitionTableEditorDialog extends Dialog
@@ -160,7 +160,7 @@ public class PartitionTableEditorDialog extends Dialog
 
 		try
 		{
-			List<PartitionTableBean> list = PartitionTableBean.parseCsv(Paths.get(csvFile.getLocationURI()));
+			List<PartitionTableBean> list = PartitionTableDataUtil.parseCsv(Paths.get(csvFile.getLocationURI()));
 			tableViewer.setInput(list);
 			for (PartitionTableBean bean : list)
 			{
@@ -174,13 +174,12 @@ public class PartitionTableEditorDialog extends Dialog
 
 		tableViewer.setLabelProvider(new PartitionTableLabelProvider());
 
-		ColumnViewerToolTipSupport.enableFor(tableViewer);
 		// Set cell editors
 		tableViewer.setColumnProperties(columnNames);
 		cellEditors = new CellEditor[6];
 		cellEditors[0] = new TextCellEditor(csvTable);
-		cellEditors[1] = new ComboBoxTextCellEditor(csvTable, PartitionTableBean.getTypeValues(), SWT.BORDER);
-		cellEditors[2] = new ComboBoxTextCellEditor(csvTable, PartitionTableBean.getSubTypeValues(StringUtil.EMPTY),
+		cellEditors[1] = new ComboBoxTextCellEditor(csvTable, PartitionTableDataUtil.getTypeValues(), SWT.BORDER);
+		cellEditors[2] = new ComboBoxTextCellEditor(csvTable, PartitionTableDataUtil.getSubTypeValues(StringUtil.EMPTY),
 				SWT.BORDER);
 		cellEditors[3] = cellEditors[0];
 		cellEditors[4] = cellEditors[0];
@@ -224,9 +223,10 @@ public class PartitionTableEditorDialog extends Dialog
 					}
 					else
 					{
-						bean.setType(PartitionTableBean.getTypeValues()[(int) value]);
+						bean.setType(PartitionTableDataUtil.getTypeValues()[(int) value]);
 					}
-					((ComboBoxCellEditor) cellEditors[2]).setItems(PartitionTableBean.getSubTypeValues(bean.getType()));
+					((ComboBoxCellEditor) cellEditors[2])
+							.setItems(PartitionTableDataUtil.getSubTypeValues(bean.getType()));
 					tableViewer.refresh();
 					break;
 				case 2:
@@ -237,7 +237,7 @@ public class PartitionTableEditorDialog extends Dialog
 					}
 					else
 					{
-						bean.setSubType(PartitionTableBean.getSubTypeValues(bean.getType())[(int) value]);
+						bean.setSubType(PartitionTableDataUtil.getSubTypeValues(bean.getType())[(int) value]);
 					}
 					break;
 				case 3:
@@ -277,7 +277,7 @@ public class PartitionTableEditorDialog extends Dialog
 					return bean.getName();
 				case 1:
 					stringValue = bean.getType();
-					choices = PartitionTableBean.getTypeValues();
+					choices = PartitionTableDataUtil.getTypeValues();
 					i = choices.length - 1;
 					while (!stringValue.equals(choices[i]) && i > 0)
 						--i;
@@ -287,9 +287,10 @@ public class PartitionTableEditorDialog extends Dialog
 					}
 					return i;
 				case 2:
-					((ComboBoxCellEditor) cellEditors[2]).setItems(PartitionTableBean.getSubTypeValues(bean.getType()));
+					((ComboBoxCellEditor) cellEditors[2])
+							.setItems(PartitionTableDataUtil.getSubTypeValues(bean.getType()));
 					stringValue = bean.getSubType();
-					choices = PartitionTableBean.getSubTypeValues(bean.getType());
+					choices = PartitionTableDataUtil.getSubTypeValues(bean.getType());
 					i = choices.length - 1;
 					while (!stringValue.equals(choices[i]) && i > 0)
 						--i;
@@ -401,7 +402,7 @@ public class PartitionTableEditorDialog extends Dialog
 				List<PartitionTableBean> beansToSave = (List<PartitionTableBean>) tableViewer.getInput();
 				if (validateBeansBeforeSaving(beansToSave))
 				{
-					PartitionTableBean.saveCsv(csvFile, beansToSave);
+					PartitionTableDataUtil.saveCsv(csvFile, beansToSave);
 					MessageDialog.openInformation(getShell(), Messages.PartitionTableEditorDialog_SaveInfoTitle,
 							Messages.PartitionTableEditorDialog_SaveInfoMsg);
 				}
@@ -412,7 +413,7 @@ public class PartitionTableEditorDialog extends Dialog
 
 	private boolean validateBeansBeforeSaving(List<PartitionTableBean> beans)
 	{
-		String errorMsg = StringUtil.EMPTY; // $NON-NLS-1$
+		String errorMsg = StringUtil.EMPTY;
 		for (PartitionTableBean bean : beans)
 		{
 			for (int i = 0; i < columnNames.length; i++)

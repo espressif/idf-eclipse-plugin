@@ -12,6 +12,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 
 import com.espressif.idf.core.build.PartitionTableBean;
+import com.espressif.idf.core.util.PartitionTableDataUtil;
 import com.espressif.idf.core.util.SDKConfigJsonReader;
 import com.espressif.idf.ui.EclipseUtil;
 import com.espressif.idf.ui.partitiontable.dialog.PartitionTableEditorDialog;
@@ -37,7 +38,7 @@ public class PartitionTableEditorHandler extends AbstractHandler
 		if (!csvFile.exists())
 		{
 			List<PartitionTableBean> emptyList = new ArrayList<>();
-			PartitionTableBean.saveCsv(csvFile, emptyList);
+			PartitionTableDataUtil.saveCsv(csvFile, emptyList);
 		}
 
 		dialog.create(csvFile);

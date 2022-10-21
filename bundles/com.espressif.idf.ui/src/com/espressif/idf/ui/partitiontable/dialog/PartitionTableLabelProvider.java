@@ -9,14 +9,22 @@ import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 
 import com.espressif.idf.core.build.PartitionTableBean;
 import com.espressif.idf.core.util.PartitionBeanValidator;
 
 public class PartitionTableLabelProvider extends CellLabelProvider implements ITableLabelProvider, ITableColorProvider
 {
+
+	private static final String CHECKED_KEY = "CHECKED"; //$NON-NLS-1$
+	private static final String UNCHECK_KEY = "UNCHECKED"; //$NON-NLS-1$
+
 	@Override
 	public void addListener(ILabelProviderListener listener)
 	{
@@ -24,11 +32,35 @@ public class PartitionTableLabelProvider extends CellLabelProvider implements IT
 
 	public PartitionTableLabelProvider()
 	{
+		Shell shell = Display.getDefault().getActiveShell();
+		if (JFaceResources.getImageRegistry().getDescriptor(CHECKED_KEY) == null)
+		{
+			JFaceResources.getImageRegistry().put(UNCHECK_KEY, makeShot(shell, false));
+			JFaceResources.getImageRegistry().put(CHECKED_KEY, makeShot(shell, true));
+		}
 	}
 
 	@Override
 	public void dispose()
 	{
+	}
+
+	private Image makeShot(Shell shell, boolean type)
+	{
+		Shell s = new Shell(shell, SWT.NO_TRIM);
+		Button b = new Button(s, SWT.CHECK);
+		b.setSelection(type);
+		Point bsize = b.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+		b.setSize(bsize);
+		b.setLocation(0, 0);
+		s.setSize(bsize);
+		s.open();
+		GC gc = new GC(b);
+		Image image = new Image(shell.getDisplay(), bsize.x + 1, bsize.y);
+		gc.copyArea(image, -1, 0);
+		gc.dispose();
+		s.close();
+		return image;
 	}
 
 	@Override
@@ -45,6 +77,13 @@ public class PartitionTableLabelProvider extends CellLabelProvider implements IT
 	@Override
 	public Image getColumnImage(Object element, int columnIndex)
 	{
+		if (columnIndex == 5)
+		{
+			Image checkBoxImage = ((PartitionTableBean) element).getFlag().contentEquals("encrypted") //$NON-NLS-1$
+					? JFaceResources.getImage(CHECKED_KEY)
+					: JFaceResources.getImage(UNCHECK_KEY);
+			return checkBoxImage;
+		}
 		String status = new PartitionBeanValidator().validateBean((PartitionTableBean) element, columnIndex);
 		if (!status.isBlank())
 		{
@@ -83,7 +122,6 @@ public class PartitionTableLabelProvider extends CellLabelProvider implements IT
 		String status = new PartitionBeanValidator().validateBean((PartitionTableBean) element, columnIndex);
 		if (!status.isBlank())
 		{
-
 			return Display.getCurrent().getSystemColor(SWT.COLOR_RED);
 		}
 
