@@ -397,7 +397,7 @@
          </command>
          <command
                commandId="com.espressif.idf.ui.partitionTableEditorCommand"
-               icon="icons/espressif.png"
+               icon="icons/ESP-IDF_Partition_Table_Editor.png"
                label="%command.label.PartitionTableEditor"
                style="push">
          </command>
