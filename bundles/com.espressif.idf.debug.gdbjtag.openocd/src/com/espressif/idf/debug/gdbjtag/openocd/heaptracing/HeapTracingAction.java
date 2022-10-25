@@ -33,7 +33,7 @@ import org.w3c.dom.Element;
 @SuppressWarnings("restriction")
 public class HeapTracingAction extends AbstractBreakpointAction
 {
-	public static final String ID = "com.espressif.idf.debug.gdbjtag.openocd.heaptracing.HeapTracingAction";
+	public static final String ID = "com.espressif.idf.debug.gdbjtag.openocd.heaptracing.HeapTracingAction"; //$NON-NLS-1$
 	private String command;
 	private String fileName;
 	private static final String COMMAND_ATT = "command"; //$NON-NLS-1$
@@ -56,7 +56,7 @@ public class HeapTracingAction extends AbstractBreakpointAction
 
 	public String getFileName()
 	{
-		return fileName.replace('\\', '/'); // $NON-NLS-1$ //$NON-NLS-2$
+		return fileName.replace('\\', '/');
 	}
 
 	public String getCommand()

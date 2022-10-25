@@ -43,9 +43,9 @@ public class RecheckConfigsHelper
 			IToolChainManager toolChainManager = CCorePlugin.getService(IToolChainManager.class);
 			IToolChain toolChain = getESPToolChain(toolChainManager);
 			settings.put(ICBuildConfiguration.TOOLCHAIN_TYPE,
-					Optional.ofNullable(toolChain).map(o -> o.getTypeId()).orElse("")); //$NON-NLS-1$
+					Optional.ofNullable(toolChain).map(IToolChain::getTypeId).orElse("")); //$NON-NLS-1$
 			settings.put(ICBuildConfiguration.TOOLCHAIN_ID,
-					Optional.ofNullable(toolChain).map(o -> o.getId()).orElse("")); //$NON-NLS-1$
+					Optional.ofNullable(toolChain).map(IToolChain::getId).orElse("")); //$NON-NLS-1$
 			recheckConfigs();
 		}
 		catch (CoreException e)
