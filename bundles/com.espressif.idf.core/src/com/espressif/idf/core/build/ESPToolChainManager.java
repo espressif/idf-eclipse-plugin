@@ -387,8 +387,7 @@ public class ESPToolChainManager
 	public List<String> getAvailableEspTargetList()
 	{
 		Set<String> targetSet = new HashSet<>();
-		Collection<IToolChain> toolchains = getAllEspToolchains();
-		for (IToolChain toolchain : toolchains)
+		for (IToolChain toolchain : getAllEspToolchains())
 		{
 			targetSet.add(toolchain.getProperty(IToolChain.ATTR_OS));
 		}
@@ -407,7 +406,7 @@ public class ESPToolChainManager
 		{
 			Logger.log(e);
 		}
-		return toolchains.stream().filter(tc -> tc.getProperty(IToolChain.ATTR_OS).contains("esp"))
+		return toolchains.stream().filter(tc -> tc.getProperty(IToolChain.ATTR_OS).contains("esp")) //$NON-NLS-1$
 				.collect(Collectors.toList());
 
 	}
