@@ -15,22 +15,20 @@
  *******************************************************************************/
 package com.espressif.idf.launch.serial;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
+import org.eclipse.cdt.core.build.IToolChain;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.launchbar.core.target.ILaunchTargetProvider;
 import org.eclipse.launchbar.core.target.ILaunchTargetWorkingCopy;
 import org.eclipse.launchbar.core.target.TargetStatus;
 
-import com.espressif.idf.core.build.AbstractESPToolchain;
-import com.espressif.idf.core.build.ESP32C2ToolChain;
-import com.espressif.idf.core.build.ESP32C3ToolChain;
-import com.espressif.idf.core.build.ESP32H2ToolChain;
-import com.espressif.idf.core.build.ESP32S2ToolChain;
-import com.espressif.idf.core.build.ESP32S3ToolChain;
-import com.espressif.idf.core.build.ESP32ToolChain;
+import com.espressif.idf.core.build.ESPToolChainManager;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 
@@ -47,29 +45,29 @@ public class SerialFlashLaunchTargetProvider implements ILaunchTargetProvider {
 	@Override
 	public void init(ILaunchTargetManager targetManager) {
 
-		List<Class<? extends AbstractESPToolchain>> toolchainlist = new ArrayList<>();
-		toolchainlist.add(ESP32ToolChain.class);
-		toolchainlist.add(ESP32S2ToolChain.class);
-		toolchainlist.add(ESP32S3ToolChain.class);
-		toolchainlist.add(ESP32C3ToolChain.class);
-		toolchainlist.add(ESP32C2ToolChain.class);
-		toolchainlist.add(ESP32H2ToolChain.class);
+		Collection<IToolChain> toolchainsWithoutDuplicateTargets = new ESPToolChainManager().getAllEspToolchains()
+				.stream().filter(distinctByOs(tc -> tc.getProperty(IToolChain.ATTR_OS))).collect(Collectors.toList());
 
 		try {
-			addLaunchTarget(targetManager, toolchainlist);
+			addLaunchTarget(targetManager, toolchainsWithoutDuplicateTargets);
 		} catch (Exception e) {
 			Logger.log(e);
 		}
 
 	}
 
+	private <T> Predicate<T> distinctByOs(Function<? super T, Object> extractor) {
+		HashSet<Object> osSet = new HashSet<>();
+		return t -> osSet.add(extractor.apply(t));
+	}
+
 	private void addLaunchTarget(ILaunchTargetManager targetManager,
-			List<Class<? extends AbstractESPToolchain>> toolchainlist)
+			Collection<IToolChain> toolchainsWithoutDuplicateTargets)
 			throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 
-		for (Class<?> toolchain : toolchainlist) {
-			String os = (String) toolchain.getField("OS").get(null); //$NON-NLS-1$
-			String arch = (String) toolchain.getField("ARCH").get(null); //$NON-NLS-1$
+		for (IToolChain toolchain : toolchainsWithoutDuplicateTargets) {
+			String os = toolchain.getProperty(IToolChain.ATTR_OS);
+			String arch = toolchain.getProperty(IToolChain.ATTR_ARCH);
 
 			if (targetManager.getLaunchTarget(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE, os) == null) {
 				ILaunchTarget target = targetManager.addLaunchTarget(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE, os);

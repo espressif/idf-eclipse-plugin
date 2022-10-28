@@ -12,12 +12,16 @@ import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.eclipse.cdt.build.gcc.core.GCCToolChain;
 import org.eclipse.cdt.build.gcc.core.GCCToolChain.GCCInfo;
@@ -378,6 +382,34 @@ public class ESPToolChainManager
 		propertiesList.add(esp32h2);
 
 		return propertiesList;
+	}
+
+	public List<String> getAvailableEspTargetList()
+	{
+		Set<String> targetSet = new HashSet<>();
+		Collection<IToolChain> toolchains = getAllEspToolchains();
+		for (IToolChain toolchain : toolchains)
+		{
+			targetSet.add(toolchain.getProperty(IToolChain.ATTR_OS));
+		}
+		return targetSet.stream().collect(Collectors.toList());
+	}
+
+	public Collection<IToolChain> getAllEspToolchains()
+	{
+		IToolChainManager tcManager = CCorePlugin.getService(IToolChainManager.class);
+		Collection<IToolChain> toolchains = Collections.emptyList();
+		try
+		{
+			toolchains = tcManager.getAllToolChains();
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+		return toolchains.stream().filter(tc -> tc.getProperty(IToolChain.ATTR_OS).contains("esp"))
+				.collect(Collectors.toList());
+
 	}
 
 	protected String getIdfCMakePath(String idfPath)
