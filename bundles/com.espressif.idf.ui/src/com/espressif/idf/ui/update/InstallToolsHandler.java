@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -109,7 +110,6 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				console.println(Messages.InstallToolsHandler_ConfiguredCMakeMsg);
 
 				console.println(Messages.InstallToolsHandler_ToolsCompleted);
-
 				return Status.OK_STATUS;
 			}
 		};
@@ -210,6 +210,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		toolchainManager.removePrevInstalledToolchains(tcManager);
 		toolchainManager.initToolChain(tcManager, ESPToolChainProvider.ID);
 		toolchainManager.initCMakeToolChain(tcManager, cmakeTcManager);
+		toolchainManager.addToolChainBasedTargets(IDFCorePlugin.getService(ILaunchTargetManager.class));
 	}
 
 	protected IStatus handleToolsInstall()
