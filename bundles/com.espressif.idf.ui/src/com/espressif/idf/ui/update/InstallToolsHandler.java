@@ -210,7 +210,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		toolchainManager.removePrevInstalledToolchains(tcManager);
 		toolchainManager.initToolChain(tcManager, ESPToolChainProvider.ID);
 		toolchainManager.initCMakeToolChain(tcManager, cmakeTcManager);
-		toolchainManager.addToolChainBasedTargets(IDFCorePlugin.getService(ILaunchTargetManager.class));
+		toolchainManager.addToolchainBasedTargets(IDFCorePlugin.getService(ILaunchTargetManager.class));
 	}
 
 	protected IStatus handleToolsInstall()
