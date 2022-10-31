@@ -8,6 +8,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
@@ -53,6 +54,7 @@ public class PartitionTableEditorDialog extends Dialog
 	private CellEditor[] cellEditors;
 	private ToolBar toolBar;
 	private IFile csvFile;
+	private Boolean isPageValid;
 
 	public PartitionTableEditorDialog(Shell parentShell)
 	{
@@ -400,7 +402,8 @@ public class PartitionTableEditorDialog extends Dialog
 			public void run()
 			{
 				List<PartitionTableBean> beansToSave = (List<PartitionTableBean>) tableViewer.getInput();
-				if (validateBeansBeforeSaving(beansToSave))
+				isPageValid = validateBeansBeforeSaving(beansToSave);
+				if (isPageValid)
 				{
 					PartitionTableDataUtil.saveCsv(csvFile, beansToSave);
 					MessageDialog.openInformation(getShell(), Messages.PartitionTableEditorDialog_SaveInfoTitle,
@@ -430,6 +433,21 @@ public class PartitionTableEditorDialog extends Dialog
 
 		return true;
 
+	}
+
+	@Override
+	protected void createButtonsForButtonBar(Composite parent)
+	{
+		createButton(parent, IDialogConstants.OK_ID, Messages.PartitionTableEditorSaveAndQuitButtonLable, true);
+		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
+	}
+
+	@Override
+	protected void okPressed()
+	{
+		saveAction.run();
+		if (isPageValid)
+			super.okPressed();
 	}
 
 	@Override

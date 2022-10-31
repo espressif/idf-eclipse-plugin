@@ -15,6 +15,8 @@ public class Messages extends NLS
 	public static String PartitionTableEditorDialog_SaveInfoMsg;
 	public static String PartitionTableEditorDialog_SaveInfoTitle;
 	public static String PartitionTableEditorDialog_Title;
+	public static String PartitionTableEditorSaveAndQuitButtonLable;
+
 	static
 	{
 		// initialize resource bundle
