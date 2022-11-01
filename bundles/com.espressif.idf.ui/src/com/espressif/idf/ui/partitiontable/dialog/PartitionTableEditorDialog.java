@@ -5,7 +5,11 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -40,6 +44,7 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.PartitionBeanValidator;
 import com.espressif.idf.core.util.PartitionTableDataUtil;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.ui.EclipseUtil;
 
 public class PartitionTableEditorDialog extends Dialog
 {
@@ -140,7 +145,9 @@ public class PartitionTableEditorDialog extends Dialog
 		toolBar = new ToolBar(parent, SWT.RIGHT | SWT.FLAT);
 		ToolBarManager manager = new ToolBarManager(toolBar);
 		manager.add(addAction);
+		manager.add(new Separator());
 		manager.add(deleteAction);
+		manager.add(new Separator());
 		manager.add(saveAction);
 		manager.update(true);
 	}
@@ -403,11 +410,22 @@ public class PartitionTableEditorDialog extends Dialog
 			{
 				List<PartitionTableBean> beansToSave = (List<PartitionTableBean>) tableViewer.getInput();
 				isPageValid = validateBeansBeforeSaving(beansToSave);
-				if (isPageValid)
+				if (!isPageValid)
 				{
-					PartitionTableDataUtil.saveCsv(csvFile, beansToSave);
-					MessageDialog.openInformation(getShell(), Messages.PartitionTableEditorDialog_SaveInfoTitle,
-							Messages.PartitionTableEditorDialog_SaveInfoMsg);
+					return;
+				}
+				PartitionTableDataUtil.saveCsv(csvFile, beansToSave);
+				MessageDialog.openInformation(getShell(), Messages.PartitionTableEditorDialog_SaveInfoTitle,
+						Messages.PartitionTableEditorDialog_SaveInfoMsg);
+				try
+				{
+					// Sometimes the file is not saved in Linux because explorer is not updated
+					EclipseUtil.getSelectedProjectInExplorer().refreshLocal(IResource.DEPTH_INFINITE,
+							new NullProgressMonitor());
+				}
+				catch (CoreException e)
+				{
+					Logger.log(e);
 				}
 
 			}
