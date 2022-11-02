@@ -51,12 +51,15 @@ public class PartitionTableLabelProvider extends CellLabelProvider implements IT
 		Button b = new Button(s, SWT.CHECK);
 		b.setSelection(type);
 		Point bsize = b.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+		bsize.x = Math.max(bsize.x - 1, bsize.y - 1);
+		bsize.y = Math.max(bsize.x - 1, bsize.y - 1);
 		b.setSize(bsize);
-		b.setLocation(0, 0);
+		b.setLocation(1, 1);
 		s.setSize(bsize);
 		s.open();
 		GC gc = new GC(b);
-		Image image = new Image(shell.getDisplay(), bsize.x + 1, bsize.y);
+
+		Image image = new Image(shell.getDisplay(), bsize.x, bsize.y);
 		gc.copyArea(image, -1, 0);
 		gc.dispose();
 		s.close();
