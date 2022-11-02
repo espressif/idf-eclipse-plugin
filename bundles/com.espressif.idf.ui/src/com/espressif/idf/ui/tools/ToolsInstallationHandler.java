@@ -35,6 +35,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
@@ -371,6 +372,7 @@ public class ToolsInstallationHandler extends Thread
 				updatePaths(versionsVO.getAvailablePath(), toolsVO.getName(), toolsVO.getExportPaths());
 			}
 		}
+
 	}
 
 	private void updatePaths(String toolPath, String toolName, List<String> exportPaths)
@@ -391,7 +393,7 @@ public class ToolsInstallationHandler extends Thread
 				exportPathBuilder.append(PATH_SPLITOR);
 			}
 		}
-		
+
 		Path pathToExport = Paths.get(exportPathBuilder.toString()); // for correcting the path error in windows
 		String currentPath = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH);
 		StringBuilder finalPathToExport = new StringBuilder(currentPath);
@@ -702,6 +704,7 @@ public class ToolsInstallationHandler extends Thread
 			ESPToolChainManager toolchainManager = new ESPToolChainManager();
 			toolchainManager.initToolChain(tcManager, ESPToolChainProvider.ID);
 			toolchainManager.initCMakeToolChain(tcManager, cmakeTcManager);
+			toolchainManager.addToolchainBasedTargets(IDFCorePlugin.getService(ILaunchTargetManager.class));
 		}
 
 		private void copyOpenOcdRules()
@@ -823,14 +826,15 @@ public class ToolsInstallationHandler extends Thread
 			final String pythonEnvPath = IDFUtil.getIDFPythonEnvPath();
 			if (pythonEnvPath == null || !new File(pythonEnvPath).exists())
 			{
-				logQueue.add(String.format("%s executable not found. Unable to run `%s -m pip install websocket-client`", //$NON-NLS-1$
-						IDFConstants.PYTHON_CMD, IDFConstants.PYTHON_CMD));
+				logQueue.add(
+						String.format("%s executable not found. Unable to run `%s -m pip install websocket-client`", //$NON-NLS-1$
+								IDFConstants.PYTHON_CMD, IDFConstants.PYTHON_CMD));
 				return;
 			}
 			arguments.add(pythonEnvPath);
 			arguments.add("-m"); //$NON-NLS-1$
 			arguments.add("pip"); //$NON-NLS-1$
-			
+
 			arguments.add("install"); //$NON-NLS-1$
 			arguments.add("websocket-client"); //$NON-NLS-1$
 

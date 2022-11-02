@@ -12,12 +12,18 @@ import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.eclipse.cdt.build.gcc.core.GCCToolChain;
 import org.eclipse.cdt.build.gcc.core.GCCToolChain.GCCInfo;
@@ -31,6 +37,9 @@ import org.eclipse.cdt.core.build.IToolChainProvider;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.launchbar.core.target.ILaunchTarget;
+import org.eclipse.launchbar.core.target.ILaunchTargetManager;
+import org.eclipse.launchbar.core.target.ILaunchTargetWorkingCopy;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
@@ -378,6 +387,75 @@ public class ESPToolChainManager
 		propertiesList.add(esp32h2);
 
 		return propertiesList;
+	}
+
+	public List<String> getAvailableEspTargetList()
+	{
+		Set<String> targetSet = new HashSet<>();
+		for (IToolChain toolchain : getAllEspToolchains())
+		{
+			targetSet.add(toolchain.getProperty(IToolChain.ATTR_OS));
+		}
+		return targetSet.stream().collect(Collectors.toList());
+	}
+
+	public Collection<IToolChain> getAllEspToolchains()
+	{
+		IToolChainManager tcManager = CCorePlugin.getService(IToolChainManager.class);
+		Collection<IToolChain> toolchains = Collections.emptyList();
+		try
+		{
+			toolchains = tcManager.getAllToolChains();
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+		return toolchains.stream().filter(tc -> tc.getProperty(IToolChain.ATTR_OS).contains("esp")) //$NON-NLS-1$
+				.collect(Collectors.toList());
+
+	}
+
+	public void addToolchainBasedTargets(ILaunchTargetManager targetManager)
+	{
+		Collection<IToolChain> toolchainsWithoutDuplicateTargets = getAllEspToolchains().stream()
+				.filter(distinctByOs(tc -> tc.getProperty(IToolChain.ATTR_OS))).collect(Collectors.toList());
+
+		try
+		{
+			addLaunchTargets(targetManager, toolchainsWithoutDuplicateTargets);
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+		}
+	}
+
+	private <T> Predicate<T> distinctByOs(Function<? super T, Object> extractor)
+	{
+		HashSet<Object> osSet = new HashSet<>();
+		return t -> osSet.add(extractor.apply(t));
+	}
+
+	private void addLaunchTargets(ILaunchTargetManager targetManager,
+			Collection<IToolChain> toolchainsWithoutDuplicateTargets) throws SecurityException, IllegalArgumentException
+	{
+
+		for (IToolChain toolchain : toolchainsWithoutDuplicateTargets)
+		{
+			String os = toolchain.getProperty(IToolChain.ATTR_OS);
+			String arch = toolchain.getProperty(IToolChain.ATTR_ARCH);
+
+			if (targetManager.getLaunchTarget(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE, os) == null)
+			{
+				ILaunchTarget target = targetManager.addLaunchTarget(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE, os);
+				ILaunchTargetWorkingCopy wc = target.getWorkingCopy();
+				wc.setAttribute(ILaunchTarget.ATTR_OS, os);
+				wc.setAttribute(ILaunchTarget.ATTR_ARCH, arch);
+				wc.setAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, os);
+				wc.save();
+			}
+		}
 	}
 
 	protected String getIdfCMakePath(String idfPath)

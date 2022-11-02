@@ -16,10 +16,8 @@
 package com.espressif.idf.launch.serial.ui.internal;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.cdt.core.build.IToolChain;
 import org.eclipse.cdt.serial.SerialPort;
@@ -144,10 +142,9 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 	}
 
 	public String getArch() {
-		Collection<Map<String, String>> toolchains = getToolchains();
-		for (Map<String, String> map : toolchains) {
-			if (map.get(IToolChain.ATTR_OS).equals(getIDFTarget())) {
-				return map.get(IToolChain.ATTR_ARCH);
+		for (IToolChain map : getToolchains()) {
+			if (map.getProperty(IToolChain.ATTR_OS).equals(getIDFTarget())) {
+				return map.getProperty(IToolChain.ATTR_ARCH);
 			}
 		}
 		return ARCH;
@@ -162,19 +159,11 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 	}
 
 	private List<String> getIDFTargetList() {
-		List<String> targetList = new ArrayList<>();
-
-		Collection<Map<String, String>> toolchains = getToolchains();
-		for (Map<String, String> toolchain : toolchains) {
-			targetList.add(toolchain.get(IToolChain.ATTR_OS));
-		}
-
-		return targetList;
+		return new ESPToolChainManager().getAvailableEspTargetList();
 
 	}
 
-	private Collection<Map<String, String>> getToolchains() {
-		Collection<Map<String, String>> toolchains = new ESPToolChainManager().getToolchainProperties();
-		return toolchains;
+	private Collection<IToolChain> getToolchains() {
+		return new ESPToolChainManager().getAllEspToolchains();
 	}
 }
