@@ -598,7 +598,11 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	private void createLinkForSourceFileOnly(String sourceFile, IProject project, IFolder folder,
 			IProgressMonitor monitor) throws Exception
 	{
-		String sourceFileToSplit = sourceFile.substring(getIdfToolsPath().length(), sourceFile.length());
+		String sourceFileToSplit = sourceFile;
+		if (sourceFile.contains(getIdfToolsPath()))
+		{
+			sourceFileToSplit = sourceFile.substring(getIdfToolsPath().length(), sourceFile.length());
+		}
 		String[] segments = new org.eclipse.core.runtime.Path(sourceFileToSplit).segments();
 
 		for (int i = 0; i < (segments.length - 1); i++)
