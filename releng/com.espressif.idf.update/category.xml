@@ -21,5 +21,8 @@
    <bundle id="org.apache.batik.xml">
       <category name="com.espressif.idf"/>
    </bundle>
+   <bundle id="org.eclipse.embedcdt.templates.core">
+      <category name="com.espressif.idf"/>
+   </bundle>
    <category-def name="com.espressif.idf" label="Espressif IDF"/>
 </site>
