@@ -22,17 +22,11 @@
 			<repository location="http://download.eclipse.org/releases/latest" />
 			<unit id="org.eclipse.cdt.autotools.feature.group" version="0.0.0" />
 			<unit id="org.eclipse.cdt.feature.group" version="0.0.0" />
-			-
 			<unit id="org.eclipse.cdt.sdk.feature.group" version="0.0.0" />
-			-
 			<unit id="org.eclipse.cdt.cmake.feature.group" version="0.0.0" />
-			-
 			<unit id="org.eclipse.tm.terminal.control.feature.feature.group" version="0.0.0" />
-			-
 			<unit id="org.eclipse.tm.terminal.feature.feature.group" version="0.0.0" />
-			-
 			<unit id="org.eclipse.tm.terminal.view.feature.feature.group" version="0.0.0" />
-			-
 			<unit id="org.eclipse.launchbar.feature.group" version="0.0.0" />
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
@@ -61,7 +55,7 @@
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<unit id="org.eclipse.lsp4e" version="0.0.0" />
 			<unit id="org.eclipse.lsp4e.debug" version="0.0.0" />
-			<repository location="https://download.eclipse.org/lsp4e/releases/0.18.0/" />
+			<repository location="https://download.eclipse.org/lsp4e/releases/latest/" />
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<unit id="com.cthing.cmakeed.feature.feature.group" version="1.17.0" />
@@ -97,10 +91,7 @@
 			<repository location="https://download.eclipse.org/modeling/emf/emf/builds/release/latest/" />
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<repository location="https://download.eclipse.org/mylyn/docs/releases/3.0.38/" />
-		</location>
-		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<repository location="https://download.eclipse.org/mylyn/drops/3.25.2/v20200831-1956/" />
+			<repository location="http://download.eclipse.org/mylyn/releases/latest" />
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<unit id="org.eclipse.swtbot.eclipse.feature.group" version="0.0.0" />
@@ -122,6 +113,7 @@
 			<unit id="org.eclipse.embedcdt.debug.gdbjtag.openocd.feature.group" version="" />
 			<unit id="org.eclipse.embedcdt.feature.group" version="" />
 			<unit id="org.eclipse.embedcdt.packs.feature.group" version="" />
+			
 		</location>
 	</locations>
 </target>
