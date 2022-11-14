@@ -90,14 +90,6 @@ public class MessageLinkDialog extends MessageDialog
 			public void widgetSelected(SelectionEvent e)
 			{
 				preferences.putBoolean(DO_NOT_SHOW_MSG, checkBox.getSelection());
-				try
-				{
-					preferences.flush();
-				}
-				catch (BackingStoreException e1)
-				{
-					Logger.log(e1);
-				}
 			}
 
 			@Override
@@ -119,6 +111,19 @@ public class MessageLinkDialog extends MessageDialog
 		}
 	}
 
+	@Override
+	protected void buttonPressed(int buttonId)
+	{
+		try
+		{
+			preferences.flush();
+		}
+		catch (BackingStoreException e1)
+		{
+			Logger.log(e1);
+		}
+		super.buttonPressed(buttonId);
+	}
 	public static boolean open(int kind, Shell parent, String title, String message, int style)
 	{
 		MessageLinkDialog dialog = new MessageLinkDialog(parent, title, null, message, kind, 0,
