@@ -396,36 +396,24 @@
             </visibleWhen>
          </command>
          <command
-               commandId="com.espressif.idf.ui.partitionTableEditorCommand"
-               icon="icons/ESP-IDF_Partition_Table_Editor.png"
-               label="%command.label.PartitionTableEditor"
+               commandId="com.espressif.idf.ui.startwokwisimulator"
+               icon="icons/wokwi.png"
+               label="Launch Wokwi Simulator"
                style="push">
-            <visibleWhen
-                  checkEnabled="false">
-               <iterate
-                     ifEmpty="false"
-                     operator="or">
-                  <instanceof
-                        value="org.eclipse.core.resources.IResource">
-                  </instanceof>
-               </iterate>
-            </visibleWhen>
-         </command>
-         <command
-               commandId="com.espressif.idf.ui.nvsEditorCommand"
-               icon="icons/ESP-IDF_NVS_Table_Editor.png"
-               label="%command.label.nsvTableEditor"
-               style="push"
-               tooltip="%command.tooltip.nvsTableEditor">
-            <visibleWhen
-                  checkEnabled="false">
-               <iterate
-                     ifEmpty="false"
-                     operator="or">
-                  <instanceof
-                        value="org.eclipse.core.resources.IResource">
-                  </instanceof>
-               </iterate>
+            <visibleWhen>
+               <with
+                     variable="activeMenuSelection">
+                  <iterate
+                        ifEmpty="false">
+                     <adapt
+                           type="org.eclipse.core.resources.IResource">
+                        <test
+                              property="org.eclipse.core.resources.projectNature"
+                              value="com.espressif.idf.core.idfNature">
+                        </test>
+                     </adapt>
+                  </iterate>
+               </with>
             </visibleWhen>
          </command>
       </menuContribution>
@@ -446,6 +434,11 @@
             defaultHandler="com.espressif.idf.ui.installcomponents.handler.InstallIDFComponentsHandler"
             id="com.espressif.idf.ui.installidfcomponents"
             name="%command.name.8">
+      </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.install.WokWiSimulatorHandler"
+            id="com.espressif.idf.ui.startwokwisimulator"
+            name="Launch Wokwi Simulator">
       </command>
    </extension>
    <extension
