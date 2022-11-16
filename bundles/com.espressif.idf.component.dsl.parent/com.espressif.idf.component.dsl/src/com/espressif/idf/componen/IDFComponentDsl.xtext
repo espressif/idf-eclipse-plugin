@@ -1,0 +1,45 @@
+grammar com.espressif.idf.componen.IDFComponentDsl with org.eclipse.xtext.common.Terminals
+
+generate iDFComponentDsl "http://www.espressif.com/idf/componen/IDFComponentDsl"
+
+ComponentModel:
+	(elements+=Type)*;
+
+Type:
+	Description | VersionInfo | DependenciesComp | URL | COMMENT;
+
+Description:
+	'description:' name=STRING;
+
+VersionInfo:
+	'version:' name=STRING;
+
+URL:
+	'url:' name=STRING;
+	
+COMMENT:
+	'#' (name=ID)*;
+
+DependenciesComp:
+	'dependencies:' (features+=Feature)*;
+
+Feature:
+	IDF | OVERRIDE_PATH | COMPONENT_NAME;
+
+IDF:
+	'idf:' name=STRING;
+
+COMPONENT_NAME:
+	name=ID ':' (features+=COMPONENT_NAME_FEATURE)*;
+
+COMPONENT_NAME_FEATURE:
+	RULES | PUBLIC;
+
+PUBLIC:
+	'public:' name=ID;
+
+OVERRIDE_PATH:
+	'override_path:' name=STRING;
+
+RULES:
+	'rules:' name=STRING;
