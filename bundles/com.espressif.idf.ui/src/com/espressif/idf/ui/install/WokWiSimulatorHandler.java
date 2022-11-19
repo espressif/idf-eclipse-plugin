@@ -1,24 +1,21 @@
 package com.espressif.idf.ui.install;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.cdt.core.CCorePlugin;
-import org.eclipse.cdt.core.ConsoleOutputStream;
-import org.eclipse.cdt.core.resources.IConsole;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.expressions.IEvaluationContext;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.swt.widgets.Display;
 
 import com.espressif.idf.core.ExecutableFinder;
 import com.espressif.idf.core.IDFCorePlugin;
@@ -28,6 +25,10 @@ import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.SDKConfigJsonReader;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 
+/**
+ * @author Kondal Kolipaka
+ *
+ */
 public class WokWiSimulatorHandler extends AbstractHandler
 {
 
@@ -86,34 +87,58 @@ public class WokWiSimulatorHandler extends AbstractHandler
 				arguments.add("345932416223806035");
 				arguments.add(elfFilePath);
 
-				Display.getDefault().asyncExec(new Runnable()
+				ProcessBuilder processBuilder = new ProcessBuilder(arguments);
+				try
 				{
+					Process process = processBuilder.start();
 
-					@Override
-					public void run()
+					Thread includePathReaderThread = new Thread("Error Reader")
 					{
-						try
+						@Override
+						public void run()
 						{
-							IStatus runInBackground = new ProcessBuilderFactory().runInBackground(arguments, wokwiPath,
-									null);
-							System.out.println(runInBackground.getMessage());
-
-//							IConsole console = CCorePlugin.getDefault().getConsole();
-//							console.start(project);
-//							
-//							ConsoleOutputStream infoStream = console.getInfoStream();
-//							ConsoleOutputStream errorStream = console.getErrorStream();
-//							ConsoleOutputStream outputStream = console.getOutputStream();
-//							infoStream.write(runInBackground.getMessage());
-
+							try (BufferedReader reader = new BufferedReader(
+									new InputStreamReader(process.getErrorStream())))
+							{
+								for (String line = reader.readLine(); line != null; line = reader.readLine())
+								{
+									System.out.println("es::" + line);
+								}
+							}
+							catch (IOException e)
+							{
+								CCorePlugin.log(e);
+							}
 						}
-						catch (Exception e)
+					};
+					includePathReaderThread.start();
+
+					Thread macroReaderThread = new Thread("Input reader")
+					{
+						@Override
+						public void run()
 						{
-							e.printStackTrace();
+							try (BufferedReader reader = new BufferedReader(
+									new InputStreamReader(process.getInputStream())))
+							{
+								for (String line = reader.readLine(); line != null; line = reader.readLine())
+								{
+									System.out.println("is::" + line);
+								}
+							}
+							catch (IOException e)
+							{
+								CCorePlugin.log(e);
+							}
 						}
+					};
+					macroReaderThread.start();
 
-					}
-				});
+				}
+				catch (IOException e1)
+				{
+					e1.printStackTrace();
+				}
 
 			}
 
@@ -121,26 +146,5 @@ public class WokWiSimulatorHandler extends AbstractHandler
 
 		return null;
 	}
-
-//	protected int watchProcess(Process process, IConsole console) throws CoreException {
-//		Thread t1 = new ReaderThread(process.getInputStream(), console.getOutputStream());
-//		t1.start();
-//		Thread t2 = new ReaderThread(process.getErrorStream(), console.getErrorStream());
-//		t2.start();
-//		try {
-//			int rc = process.waitFor();
-//			// Allow reader threads the chance to process all output to console
-//			while (t1.isAlive()) {
-//				Thread.sleep(100);
-//			}
-//			while (t2.isAlive()) {
-//				Thread.sleep(100);
-//			}
-//			return rc;
-//		} catch (InterruptedException e) {
-//			CCorePlugin.log(e);
-//			return -1;
-//		}
-//	}
 
 }
