@@ -54,3 +54,4 @@ Bundle-ClassPath: .,
  lib/ini4j-0.5.4.jar,
  lib/gson-2.8.7.jar,
  lib/commons-compress-1.21.jar
+Import-Package: org.apache.commons.collections4.queue

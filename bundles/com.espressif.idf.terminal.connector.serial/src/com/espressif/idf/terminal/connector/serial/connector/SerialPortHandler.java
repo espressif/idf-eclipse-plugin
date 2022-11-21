@@ -16,6 +16,7 @@ import com.espressif.idf.serial.monitor.handlers.SerialMonitorHandler;
 import com.espressif.idf.terminal.connector.serial.activator.Activator;
 import com.espressif.idf.terminal.connector.serial.server.SocketServerHandler;
 import com.espressif.idf.terminal.connector.serial.server.SocketServerMessageHandler;
+import com.espressif.idf.ui.TelemetryViewerObserver;
 
 public class SerialPortHandler
 {
@@ -136,11 +137,14 @@ public class SerialPortHandler
 				int n;
 				try
 				{
-					while ((n = targetIn.read(buff, 0, buff.length)) >= 0)
+					while ((n = targetIn.read(buff = new byte[256], 0, buff.length)) >= 0)
 					{
 						if (n != 0)
 						{
+							System.out.println((new String(buff).replaceAll("\u0000.*", "")
+									.replaceAll("\u001B\\[[\\d;]*[^\\d;]", "")));
 							serialConnector.control.getRemoteToTerminalOutputStream().write(buff, 0, n);
+							TelemetryViewerObserver.updateGraphs(buff);
 						}
 					}
 

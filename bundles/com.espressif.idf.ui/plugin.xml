@@ -395,6 +395,11 @@
                </with>
             </visibleWhen>
          </command>
+         <command
+               commandId="com.espressif.idf.ui.telemetry"
+               label="ESP-IDF: Telemetry"
+               style="push">
+         </command>
       </menuContribution>
    </extension>
    <extension
@@ -413,6 +418,11 @@
             defaultHandler="com.espressif.idf.ui.installcomponents.handler.InstallIDFComponentsHandler"
             id="com.espressif.idf.ui.installidfcomponents"
             name="%command.name.8">
+      </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.handlers.TelemetryHandler"
+            id="com.espressif.idf.ui.telemetry"
+            name="ESP-IDF: Telemetry">
       </command>
    </extension>
    <extension
@@ -534,6 +544,11 @@
                id="org.eclipse.ui.commands.toggleState">
          </state>
       </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.handlers.TelemetryHandler"
+            id="com.espressif.idf.ui.command.telemetry"
+            name="Telemetry">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -604,6 +619,14 @@
             id="com.espressif.idf.ui.category"
             name="%views_category.name">
       </category>
+      <view
+            allowMultiple="true"
+            class="com.espressif.idf.ui.TelemetryViewer"
+            icon="icons/espressif.png"
+            id="com.espressif.idf.ui.telemetry"
+            name="Telemetry"
+            restorable="false">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.intro">
@@ -664,6 +687,11 @@
                   label="%command.label.11"
                   style="toggle"
                   tooltip="%command.tooltip.2">
+            </command>
+            <command
+                  commandId="com.espressif.idf.ui.command.telemetry"
+                  icon="icons/espressif.png"
+                  style="push">
             </command>
          </toolbar>
       </menuContribution>
