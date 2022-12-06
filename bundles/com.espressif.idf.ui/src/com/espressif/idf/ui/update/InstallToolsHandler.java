@@ -26,6 +26,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.preferences.DefaultScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.swt.SWT;
@@ -328,6 +330,24 @@ public class InstallToolsHandler extends AbstractToolsHandler
 			if (event.getResult().getSeverity() == IStatus.ERROR)
 			{
 				restoreOldVars();
+			}
+			else
+			{
+				updateEspressifPrefPageOpenocdPath();
+			}
+		}
+
+		private void updateEspressifPrefPageOpenocdPath()
+		{
+			IEclipsePreferences newNode = DefaultScope.INSTANCE.getNode("com.espressif.idf.debug.gdbjtag.openocd"); //$NON-NLS-1$
+			newNode.put("install.folder", IDFUtil.getOpenOCDLocation()); //$NON-NLS-1$
+			try
+			{
+				newNode.flush();
+			}
+			catch (BackingStoreException e)
+			{
+				Logger.log(e);
 			}
 		}
 
