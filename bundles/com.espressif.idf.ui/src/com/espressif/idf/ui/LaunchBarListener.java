@@ -5,6 +5,7 @@
 package com.espressif.idf.ui;
 
 import java.io.File;
+import java.text.MessageFormat;
 
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.core.resources.IProject;
@@ -97,7 +98,10 @@ public class LaunchBarListener implements ILaunchBarListener
 							String targetForJtagFlash = activeConfig.getWorkingCopy().getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, ""); //$NON-NLS-1$
 							if (!newTarget.equals(targetForJtagFlash)) 
 							{
-								boolean isYes = MessageDialog.openQuestion(EclipseUtil.getShell(), Messages.LaunchBarListener_TargetChanged_Title, Messages.LaunchBarListener_TargetDontMatch_Msg);
+								boolean isYes = MessageDialog.openQuestion(EclipseUtil.getShell(),
+										Messages.LaunchBarListener_TargetChanged_Title,
+										MessageFormat.format(Messages.LaunchBarListener_TargetDontMatch_Msg, newTarget,
+												targetForJtagFlash, activeConfig.getName()));
 								if (isYes) {
 									ILaunchBarUIManager uiManager = UIPlugin.getService(ILaunchBarUIManager.class);
 									uiManager.openConfigurationEditor(launchBarManager.getActiveLaunchDescriptor());
@@ -112,7 +116,8 @@ public class LaunchBarListener implements ILaunchBarListener
 
 							boolean isDelete = MessageDialog.openQuestion(EclipseUtil.getShell(),
 									Messages.LaunchBarListener_TargetChanged_Title,
-									Messages.LaunchBarListener_TargetChanged_Msg);
+									MessageFormat.format(Messages.LaunchBarListener_TargetChanged_Msg,
+											project.getName(), currentTarget, newTarget));
 							if (isDelete)
 							{
 								IWorkspaceRunnable runnable = new IWorkspaceRunnable()
