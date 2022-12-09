@@ -193,7 +193,7 @@ public class IDFSizeDataManager
 		IEnvironmentVariable idfVersionEnv = new IDFEnvironmentVariables()
 				.getEnv(IDFEnvironmentVariables.ESP_IDF_VERSION);
 		String idfVersion = idfVersionEnv != null ? idfVersionEnv.getValue() : null;
-		if (idfVersion != null && Double.parseDouble(idfVersion) >= 5.0)
+		if (idfVersion != null && Double.parseDouble(idfVersion) >= 5.1)
 		{
 			arguments.add("--format"); //$NON-NLS-1$
 			arguments.add("json"); //$NON-NLS-1$
