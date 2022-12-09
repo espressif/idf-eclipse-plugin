@@ -12,13 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Pull Request and Jira issue integration
-        uses: Timmatt-Lee/GitHub-Jira-Integration@v1.14
+        uses: Timmatt-Lee/GitHub-Jira-Integration@master
         with:
           host: ${{ secrets.JIRA_BASE_URL }}
           email: ${{ secrets.JIRA_USER }}
           token: ${{ secrets.JIRA_PASS }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          project: ${{ secrets.JIRA_PROJECT_NAME }}
+          project: IEP
           transition: ${{ secrets.JIRA_PR_TRANSITION_NAME }}
           # type: ${{ secrets.JIRA_ISSUE_TYPE }} # optional, but required if you want to create issue
           # component: ${{ secrets.JIRA_COMPONENT_NAME }} # optional, created issue property
