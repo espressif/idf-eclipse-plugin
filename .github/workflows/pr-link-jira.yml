@@ -19,7 +19,7 @@ jobs:
           token: ${{ secrets.JIRA_PASS }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           project: IEP
-          transition:  IN PROGRESS
+          transition: ${{ secrets.JIRA_PR_TRANSITION_NAME }}
           # type: ${{ secrets.JIRA_ISSUE_TYPE }} # optional, but required if you want to create issue
           # component: ${{ secrets.JIRA_COMPONENT_NAME }} # optional, created issue property
           # version: ${{ secrets.JIRA_VERSION_PREFIX }} # optional, created issue property
