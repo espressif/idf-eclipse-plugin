@@ -14,9 +14,9 @@ jobs:
       - name: Pull Request and Jira issue integration
         uses: Timmatt-Lee/GitHub-Jira-Integration@v1.15
         with:
-          host: ${{ secrets.JIRA_URL }}
-          email: ${{ secrets.JIRA_USER }}
-          token: ${{ secrets.JIRA_PASS }}
+          host: ${{ secrets.JIRA_BASE_URL }}
+          email: ${{ secrets.JIRA_USER_ALI }}
+          token: ${{ secrets.JIRA_TOKEN_ALI }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           project: ${{ secrets.JIRA_PROJECT_NAME }}
           transition: ${{ secrets.JIRA_PR_TRANSITION_NAME }}
