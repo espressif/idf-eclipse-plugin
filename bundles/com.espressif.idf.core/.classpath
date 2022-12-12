@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-beanutils-1.9.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-text-1.10.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/opencsv-5.7.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/snakeyaml-1.30.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/json-simple-1.1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-io-2.9.0.jar" sourcepath="lib/commons-io-2.9.0-sources.jar">

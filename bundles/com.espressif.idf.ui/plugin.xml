@@ -395,6 +395,12 @@
                </with>
             </visibleWhen>
          </command>
+         <command
+               commandId="com.espressif.idf.ui.partitionTableEditorCommand"
+               icon="icons/ESP-IDF_Partition_Table_Editor.png"
+               label="%command.label.PartitionTableEditor"
+               style="push">
+         </command>
       </menuContribution>
    </extension>
    <extension
@@ -489,6 +495,11 @@
             id="org.eclipse.ltk.ui.refactoring.commands.deleteResources"
             name="%command.name.delete">
       </command>
+      <command
+            categoryId="com.espressif.commands.category"
+            id="com.espressif.idf.ui.partitionTableEditorCommand"
+            name="%command.name.PartitionTableEditor">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -522,6 +533,10 @@
 			</with>
 	</activeWhen>
       </handler>
+       <handler
+             class="com.espressif.idf.ui.partitiontable.handlers.PartitionTableEditorHandler"
+             commandId="com.espressif.idf.ui.partitionTableEditorCommand">
+       </handler>
     </extension>
    <extension
          point="org.eclipse.ui.commands">
