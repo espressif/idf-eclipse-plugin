@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Pull Request and Jira issue integration
-        uses: Timmatt-Lee/GitHub-Jira-Integration@master
+        uses: Timmatt-Lee/GitHub-Jira-Integration@v1.14
         with:
           host: ${{ secrets.JIRA_BASE_URL }}
           email: ${{ secrets.JIRA_USER }}
