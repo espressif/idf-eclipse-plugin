@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Pull Request and Jira issue integration
-        uses: supplypike/jira-pr-link-action@v2
+        uses: supplypike/jira-pr-link-action@master
         with:
           ignore-author: dependabot[bot]
           jira-host: ${{ secrets.JIRA_BASE_URL }}
