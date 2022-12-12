@@ -7,23 +7,24 @@ on:
 name: Pull Request and Jira issue integration
 
 jobs:
-  jira:
+  enforce-issue:
     name: Pull Request and Jira issue integration
     runs-on: ubuntu-latest
     steps:
       - name: Pull Request and Jira issue integration
-        uses: Timmatt-Lee/GitHub-Jira-Integration@v1.14
+        uses: supplypike/jira-pr-link-action@v2
         with:
-          host: ${{ secrets.JIRA_BASE_URL }}
-          email: ${{ secrets.JIRA_USER }}
-          token: ${{ secrets.JIRA_PASS }}
+          ignore-author: dependabot[bot]
+          jira-host: ${{ secrets.JIRA_BASE_URL }}
+          jira-email: ${{ secrets.JIRA_USER }}
+          jira-api-token: ${{ secrets.JIRA_PASS }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           project: IEP
-          transition: ${{ secrets.JIRA_PR_TRANSITION_NAME }}
+          #transition: ${{ secrets.JIRA_PR_TRANSITION_NAME }}
           # type: ${{ secrets.JIRA_ISSUE_TYPE }} # optional, but required if you want to create issue
           # component: ${{ secrets.JIRA_COMPONENT_NAME }} # optional, created issue property
           # version: ${{ secrets.JIRA_VERSION_PREFIX }} # optional, created issue property
           # board: ${{ secrets.JIRA_BOARD_ID }} # optional, sprint detection for created issue
-          isCreateIssue: false # optional, if you want to auto create issue
-          isOnlyAppendDesc: false # optional, if you only need update PR description
+          #isCreateIssue: false # optional, if you want to auto create issue
+          #isOnlyAppendDesc: false # optional, if you only need update PR description
           # appendDescAfterRegex: "Jira Issue Link:" # optional, insert link after regex in PR description
