@@ -28,7 +28,7 @@ public class EspConfigParser
 	public EspConfigParser()
 	{
 		espConfigPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS)
-				+ "/esp-config.json"; // $NON-NLS-1$
+				+ "/esp-config.json"; //$NON-NLS-1$
 	}
 
 	@SuppressWarnings("unchecked")
@@ -40,8 +40,8 @@ public class EspConfigParser
 		try (FileReader reader = new FileReader(espConfigPath))
 		{
 			JSONObject json = (JSONObject) jsonParser.parse(reader);
-			JSONArray targetsArray = (JSONArray) json.get("targets"); // $NON-NLS-1$
-			targetsArray.forEach(target -> targets.add((String) ((JSONObject) target).get("id"))); // $NON-NLS-1$
+			JSONArray targetsArray = (JSONArray) json.get("targets"); //$NON-NLS-1$
+			targetsArray.forEach(target -> targets.add((String) ((JSONObject) target).get("id"))); //$NON-NLS-1$
 			reader.close();
 		}
 		catch (FileNotFoundException e)
@@ -69,9 +69,9 @@ public class EspConfigParser
 		try (FileReader reader = new FileReader(espConfigPath))
 		{
 			JSONObject json = (JSONObject) jsonParser.parse(reader);
-			JSONArray optionsArray = (JSONArray) json.get("options"); // $NON-NLS-1$
+			JSONArray optionsArray = (JSONArray) json.get("options"); //$NON-NLS-1$
 			voltageOption = (JSONObject) optionsArray.stream()
-					.filter(option -> ((JSONObject) option).get("name").equals("ESP_FLASH_VOLTAGE")).findFirst() //$NON-NLS-1$
+					.filter(option -> ((JSONObject) option).get("name").equals("ESP_FLASH_VOLTAGE")).findFirst() //$NON-NLS-1$ //$NON-NLS-2$
 					.orElse(null);
 			((JSONArray) voltageOption.get("values")).forEach(value -> voltages.add(value.toString())); //$NON-NLS-1$
 			reader.close();
@@ -102,14 +102,14 @@ public class EspConfigParser
 		try (FileReader reader = new FileReader(espConfigPath))
 		{
 			JSONObject json = (JSONObject) jsonParser.parse(reader);
-			JSONArray boardsArray = (JSONArray) json.get("boards"); // $NON-NLS-1$
+			JSONArray boardsArray = (JSONArray) json.get("boards"); //$NON-NLS-1$
 			boardsArray.forEach(board -> objects.add((JSONObject) board));
 			for (JSONObject object : objects)
 			{
-				if (object.get("target").equals(target)) // $NON-NLS-1$
+				if (object.get("target").equals(target)) //$NON-NLS-1$
 				{
-					boardsConfigs.put((String) object.get("name"), // $NON-NLS-1$
-							((JSONArray) object.get("config_files"))); // $NON-NLS-1$
+					boardsConfigs.put((String) object.get("name"), //$NON-NLS-1$
+							((JSONArray) object.get("config_files"))); //$NON-NLS-1$
 				}
 			}
 			reader.close();

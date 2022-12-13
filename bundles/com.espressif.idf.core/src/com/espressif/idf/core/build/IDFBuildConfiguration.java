@@ -120,7 +120,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	private ICMakeToolChainFile toolChainFile;
 	private String customBuildDir;
 	private IBuildConfiguration buildConfiguration;
-	
+
 	public IDFBuildConfiguration(IBuildConfiguration config, String name) throws CoreException
 	{
 		super(config, name);
@@ -347,7 +347,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 
 				if (getToolChain().getTypeId() == ClangToolChain.TYPE_ID)
 				{
-					command.add("-DIDF_TOOLCHAIN=clang");
+					command.add("-DIDF_TOOLCHAIN=clang"); //$NON-NLS-1$
 				}
 
 				String userArgs = getProperty(CMAKE_ARGUMENTS);
@@ -454,13 +454,14 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 					linkBuildComponents(project, monitor);
 					project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 				}
-				
+
 				// parse compile_commands.json file
 				// built-ins detection output goes to the build console, if the user requested
 				// output
 
 				processCompileCommandsFile(console, monitor);
-				if (DfuCommandsUtil.isDfu() && DfuCommandsUtil.isDfuSupported(launchtarget)) {
+				if (DfuCommandsUtil.isDfu() && DfuCommandsUtil.isDfuSupported(launchtarget))
+				{
 					watchProcess(DfuCommandsUtil.dfuBuild(project, infoStream, buildConfiguration, envVars), console);
 				}
 				project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
@@ -489,10 +490,11 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 
 	private boolean isCCacheEnabled()
 	{
-		IEclipsePreferences node = IDFCorePreferenceConstants.getPreferenceNode(IDFCorePreferenceConstants.CMAKE_CCACHE_STATUS, null);
+		IEclipsePreferences node = IDFCorePreferenceConstants
+				.getPreferenceNode(IDFCorePreferenceConstants.CMAKE_CCACHE_STATUS, null);
 		return node.getBoolean(IDFCorePreferenceConstants.CMAKE_CCACHE_STATUS, true);
 	}
-	
+
 	public void update(IProject project)
 	{
 		ICProject cproject = CCorePlugin.getDefault().getCoreModel().create(project);
@@ -539,8 +541,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 			for (CommandEntry sourceFileInfo : sourceFileInfos)
 			{
 				String sourceFile = sourceFileInfo.getFile();
-				Logger.log("command::" + sourceFileInfo.getCommand(), true);
-				Logger.log("file::" + sourceFile, true);
+				Logger.log("command::" + sourceFileInfo.getCommand(), true); //$NON-NLS-1$
+				Logger.log("file::" + sourceFile, true); //$NON-NLS-1$
 
 				org.eclipse.core.runtime.Path path = new org.eclipse.core.runtime.Path(sourceFile);
 				IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(path);

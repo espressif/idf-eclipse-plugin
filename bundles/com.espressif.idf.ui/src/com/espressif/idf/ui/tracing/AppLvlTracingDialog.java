@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IStatus;
@@ -40,13 +41,13 @@ import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.ProjectDescriptionReader;
 import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.UIPlugin;
 
+public class AppLvlTracingDialog extends TitleAreaDialog
+{
 
-
-public class AppLvlTracingDialog extends TitleAreaDialog {
-	
 	private Text outFilePath;
 	private Spinner pollTimer;
 	private Spinner traceSize;
@@ -55,7 +56,7 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 	private Spinner skipSize;
 	private Button browseBtn;
 	private TclClient tclClient;
-	
+
 	private String pathToProject;
 	private Button browseParseScriptBtn;
 	private Text openocdLog;
@@ -68,20 +69,25 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 
 	private boolean isOutputDirectoryValid;
 	private boolean isDumpFileExists;
+
 	/**
 	 * Create the dialog.
+	 * 
 	 * @param parentShell
 	 */
-	public AppLvlTracingDialog(Shell parentShell) {
+	public AppLvlTracingDialog(Shell parentShell)
+	{
 		super(parentShell);
 	}
 
 	/**
 	 * Create contents of the dialog.
+	 * 
 	 * @param parent
 	 */
 	@Override
-	protected Control createDialogArea(Composite parent) {
+	protected Control createDialogArea(Composite parent)
+	{
 		setTitle(Messages.AppLvlTracingDialog_Title);
 		setTitleImage(UIPlugin.getImage("icons/espressif_logo.png")); //$NON-NLS-1$
 		setMessage(Messages.AppLvlTracingDialog_Description);
@@ -91,7 +97,7 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		GridData gdContainer = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
 		container.setLayoutData(gdContainer);
 		container.setLayout(new GridLayout(4, false));
-		
+
 		Label pollTimerLbl = new Label(container, SWT.NONE);
 		pollTimerLbl.setText(Messages.AppLvlTracing_PollPeriod);
 		pollTimer = new Spinner(container, SWT.BORDER);
@@ -104,8 +110,7 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		Label pollTimerUnitsLbl = new Label(unitsOneLblComp, SWT.NONE);
 		waitForHalt = new Button(unitsOneLblComp, SWT.CHECK);
 		waitForHalt.setText(Messages.AppLvlTracing_WaitForHalt);
-		pollTimerUnitsLbl.setText(ITracingConstants.UNIT_MILISECONDS); 
-		
+		pollTimerUnitsLbl.setText(ITracingConstants.UNIT_MILISECONDS);
 
 		new Label(container, SWT.NONE);
 		Label traceSizeLbl = new Label(container, SWT.NONE);
@@ -116,7 +121,7 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		traceSize.setSelection(-1);
 		Label traceSizeUnitsLbl = new Label(container, SWT.NONE);
 		traceSizeUnitsLbl.setText(ITracingConstants.UNIT_BYTES);
-		
+
 		new Label(container, SWT.NONE);
 		Label timeoutLbl = new Label(container, SWT.NONE);
 		timeoutLbl.setText(Messages.AppLvlTracing_StopTmo);
@@ -126,7 +131,7 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		stopTmo.setSelection(-1);
 		Label timeoutUnitsLbl = new Label(container, SWT.NONE);
 		timeoutUnitsLbl.setText(ITracingConstants.UNIT_SECONDS);
-		
+
 		new Label(container, SWT.NONE);
 		Label bytesToSkipLbl = new Label(container, SWT.NONE);
 		bytesToSkipLbl.setText(Messages.AppLvlTracing_BytesToSKip);
@@ -135,7 +140,7 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		skipSize.setMaximum(Integer.MAX_VALUE);
 		Label bytesUnitsLbl = new Label(container, SWT.NONE);
 		bytesUnitsLbl.setText(ITracingConstants.UNIT_BYTES);
-		
+
 		new Label(container, SWT.NONE);
 		Label outFileLbl = new Label(container, SWT.NONE);
 		outFileLbl.setText(Messages.AppLvlTracing_OutFile);
@@ -143,7 +148,7 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		outFilePath.setText(pathToProject);
 		outFilePath.addModifyListener(new ModifyListener()
 		{
-			
+
 			@Override
 			public void modifyText(ModifyEvent e)
 			{
@@ -170,11 +175,12 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		outFilePath.setLayoutData(gdOutFile);
 		browseBtn = new Button(container, SWT.NONE);
 		browseBtn.setText(Messages.AppLvlTracingDialog_Browse);
-		browseBtn.addSelectionListener(new SelectionAdapter() {
+		browseBtn.addSelectionListener(new SelectionAdapter()
+		{
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				browseButtonSelected(Messages.AppLvlTracingDialog_OutputFileDirLbl,
-						outFilePath);
+			public void widgetSelected(SelectionEvent e)
+			{
+				browseButtonSelected(Messages.AppLvlTracingDialog_OutputFileDirLbl, outFilePath);
 			}
 		});
 
@@ -183,12 +189,11 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		parseScritPath = new Text(container, SWT.BORDER);
 		GridData gdParseScriptPath = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
 		parseScritPath.setLayoutData(gdParseScriptPath);
-		parseScritPath.setText(
-				IDFUtil.getIDFPath() + File.separator + "tools" + File.separator + "esp_app_trace" + File.separator
-				+ "logtrace_proc.py"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		parseScritPath.setText(IDFUtil.getIDFPath() + File.separator + "tools" + File.separator + "esp_app_trace" //$NON-NLS-1$ //$NON-NLS-2$
+				+ File.separator + "logtrace_proc.py"); //$NON-NLS-1$
 		parseScritPath.addModifyListener(new ModifyListener()
 		{
-			
+
 			@Override
 			public void modifyText(ModifyEvent e)
 			{
@@ -196,7 +201,9 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 				{
 					startParseBtn.setEnabled(false);
 					setErrorMessage(parseScritPath.getText() + Messages.AppLvlTracing_NotValidScriptFilePath);
-				} else if(isDumpFileExists){
+				}
+				else if (isDumpFileExists)
+				{
 					startParseBtn.setEnabled(true);
 					parseCommandTxt.setText(getDefaultParseCommand());
 					setErrorMessage(null);
@@ -205,7 +212,6 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 				{
 					setErrorMessage(null);
 				}
-				
 
 			}
 		});
@@ -213,7 +219,8 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		browseParseScriptBtn.addSelectionListener(new SelectionAdapter()
 		{
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(SelectionEvent e)
+			{
 				FileDialog fd = new FileDialog(getParentShell(), SWT.OPEN);
 				fd.setText(Messages.AppLvlTracing_ScriptBrowseLbl); // $NON-NLS-1$
 				fd.setFilterExtensions(new String[] { ".py" }); //$NON-NLS-1$
@@ -326,11 +333,13 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 
 	private void activateTracingConsoleView()
 	{
-		URL imageUrl = FileLocator.find(UIPlugin.getDefault().getBundle(), new Path("icons/ESP-IDF_Application_Level_Tracing.png")); //$NON-NLS-1$
+		URL imageUrl = FileLocator.find(UIPlugin.getDefault().getBundle(),
+				new Path("icons/ESP-IDF_Application_Level_Tracing.png")); //$NON-NLS-1$
 		console = new IDFConsole().getConsoleStream(Messages.AppLvlTracing_ConsoleName, imageUrl, false);
 	}
 
-	private void browseButtonSelected(String title, Text text) {
+	private void browseButtonSelected(String title, Text text)
+	{
 		DirectoryDialog dialog = new DirectoryDialog(getParentShell(), SWT.NONE);
 		dialog.setText(title);
 		String str = text.getText().trim();
@@ -342,34 +351,36 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 		str = wrapOutputFilePath(str);
 		outFilePath.setText(str);
 	}
-	
-	private String wrapOutputFilePath(String baseFilePath) {
+
+	private String wrapOutputFilePath(String baseFilePath)
+	{
 		baseFilePath = baseFilePath + "/trace.log"; //$NON-NLS-1$
 		baseFilePath = baseFilePath.replace("/", "//"); //$NON-NLS-1$ //$NON-NLS-2$
 		baseFilePath = "file://" + baseFilePath; //$NON-NLS-1$
 		return baseFilePath;
 	}
-	
-	public void setProjectPath(IResource project) {
+
+	public void setProjectPath(IResource project)
+	{
 		pathToProject = project.getLocation().toString();
-
-		elfFilePath = project.getProject().getFolder("build").getFile(project.getName().replace(" ", "_").concat(".elf")).getLocation() //$NON-NLS-1$ //$NON-NLS-2$
-				.toString();
+		IFile elfFile = new ProjectDescriptionReader(project.getProject()).getAppElfFile();
+		elfFilePath = elfFile == null ? null : elfFile.getLocation().toString();
 		pathToProject = wrapOutputFilePath(pathToProject);
-
 	}
-	
+
 	@Override
 	protected void okPressed()
 	{
 	}
-	
+
 	/**
 	 * Create contents of the button bar.
+	 * 
 	 * @param parent
 	 */
 	@Override
-	protected void createButtonsForButtonBar(Composite parent) {
+	protected void createButtonsForButtonBar(Composite parent)
+	{
 		startButton = createButton(parent, IDialogConstants.OK_ID, ITracingConstants.START_LABEL, true);
 		startButton.addListener(SWT.Selection, new Listener()
 		{
@@ -385,14 +396,15 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 					String waitForHaltStringValue = waitForHalt.getSelection() ? "1" : "0"; //$NON-NLS-1$ //$NON-NLS-2$
 					tclClient = new TclClient();
 					tclClient.startTracing(new String[] { outFilePath.getText(), pollTimer.getText(),
-							traceSize.getText(), stopTmo.getText(), waitForHaltStringValue,
-							skipSize.getText() });
+							traceSize.getText(), stopTmo.getText(), waitForHaltStringValue, skipSize.getText() });
 					openocdLog.setText(""); //$NON-NLS-1$
 					clientWorker = new ClientWorker(tclClient, openocdLog);
 					Thread thread = new Thread(clientWorker);
 					thread.start();
 					startButton.setText(ITracingConstants.STOP_LABEL);
-				} else {
+				}
+				else
+				{
 					tclClient.stopTracing();
 					Thread thread = new Thread(clientWorker);
 					thread.start();
@@ -400,7 +412,7 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 					outFilePath.notifyListeners(SWT.Modify, null);
 					parseScritPath.notifyListeners(SWT.Modify, null);
 				}
-				
+
 			}
 		});
 		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
@@ -411,7 +423,8 @@ public class AppLvlTracingDialog extends TitleAreaDialog {
 	 * Return the initial size of the dialog.
 	 */
 	@Override
-	protected Point getInitialSize() {
+	protected Point getInitialSize()
+	{
 		return new Point(800, 700);
 	}
 
