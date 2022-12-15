@@ -580,9 +580,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		return folder;
 	}
 
-	private static IPath getComponentsPath()
+	private IPath getComponentsPath() throws CoreException
 	{
-		return new org.eclipse.core.runtime.Path(IDFConstants.BUILD_FOLDER).append("ide").append(ESP_IDF_COMPONENTS); //$NON-NLS-1$
+		IPath buildContainerPath = getBuildContainerPath();
+		return buildContainerPath.append("ide").append(ESP_IDF_COMPONENTS); //$NON-NLS-1$
 	}
 
 	private void setLinkLocation(IResource toLink, IPath rawLinkLocation) throws CoreException
@@ -713,7 +714,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		IFile file = getCompileCommandsJsonFile(monitor);
 
 		CompileCommandsJsonParser parser = new CompileCommandsJsonParser(
-				new ParseRequest(file, new CMakeIndexerInfoConsumer(this::setScannerInformation, getProject()),
+				new ParseRequest(file, new CMakeIndexerInfoConsumer(this::setScannerInformation, getProject(), this),
 						CommandLauncherManager.getInstance().getCommandLauncher(this), console));
 		parser.parse(monitor);
 	}
@@ -921,15 +922,17 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		private boolean haveUpdates;
 		private final Consumer<Map<IResource, IScannerInfo>> resultSetter;
 		private IProject project;
+		private IDFBuildConfiguration buildConfig;
 
 		/**
 		 * @param resultSetter receives the all scanner information when processing is finished
 		 * @param iProject
 		 */
-		public CMakeIndexerInfoConsumer(Consumer<Map<IResource, IScannerInfo>> resultSetter, IProject project)
+		public CMakeIndexerInfoConsumer(Consumer<Map<IResource, IScannerInfo>> resultSetter, IProject project, IDFBuildConfiguration buildConfig)
 		{
 			this.resultSetter = Objects.requireNonNull(resultSetter);
 			this.project = project;
+			this.buildConfig = buildConfig;
 		}
 
 		@Override
@@ -937,9 +940,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 				Map<String, String> definedSymbols, List<String> includePaths, List<String> macroFiles,
 				List<String> includeFiles)
 		{
-			IFile file = getFileForCMakePath(sourceFileName, project);
-			if (file != null)
+			IFile file;
+			try
 			{
+				file = getFileForCMakePath(sourceFileName, project);
 				systemIncludePaths.addAll(includePaths);
 
 				ExtendedScannerInfo info = new ExtendedScannerInfo(definedSymbols,
@@ -948,6 +952,11 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 				infoPerResource.put(file, info);
 				haveUpdates = true;
 			}
+			catch (CoreException e)
+			{
+				Logger.log(e);
+			}
+			
 		}
 
 		/**
@@ -957,8 +966,9 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		 *                       filenames with forward slashes (/) such as {@code H://path//to//source.c}.
 		 * @param project2
 		 * @return a IFile object or <code>null</code>
+		 * @throws CoreException 
 		 */
-		private IFile getFileForCMakePath(String sourceFileName, IProject project)
+		private IFile getFileForCMakePath(String sourceFileName, IProject project) throws CoreException
 		{
 			org.eclipse.core.runtime.Path path = new org.eclipse.core.runtime.Path(sourceFileName);
 			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(path);
@@ -977,7 +987,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 			}
 			String relativePath = sourceFile.substring(startIndex + pathtolookfor.length() + 1);
 
-			IPath projectPath = getComponentsPath().append(relativePath);
+			
+			IPath projectPath = buildConfig.getComponentsPath().append(relativePath);
 			IResource resourcePath = project.findMember(projectPath);
 			if (resourcePath != null && resourcePath instanceof IFile)
 			{
