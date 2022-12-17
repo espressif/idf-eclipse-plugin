@@ -2,7 +2,7 @@ package com.espressif.idf.core.build;
 
 import com.opencsv.bean.CsvBindByPosition;
 
-public class PartitionTableBean
+public class PartitionTableBean implements CsvBean
 {
 
 	@CsvBindByPosition(position = 0)

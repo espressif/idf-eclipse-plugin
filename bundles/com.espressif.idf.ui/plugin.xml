@@ -401,6 +401,12 @@
                label="%command.label.PartitionTableEditor"
                style="push">
          </command>
+         <command
+               commandId="com.espressif.idf.ui.nvsEditorCommand"
+               icon="icons/ESP-IDF_Partition_Table_Editor.png"
+               label="%command.label.nsvTableEditor"
+               style="push">
+         </command>
       </menuContribution>
    </extension>
    <extension
@@ -500,6 +506,11 @@
             id="com.espressif.idf.ui.partitionTableEditorCommand"
             name="%command.name.PartitionTableEditor">
       </command>
+      <command
+            categoryId="com.espressif.commands.category"
+            id="com.espressif.idf.ui.nvsEditorCommand"
+            name="%command.name.nvsTableEditor">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -536,6 +547,10 @@
        <handler
              class="com.espressif.idf.ui.partitiontable.handlers.PartitionTableEditorHandler"
              commandId="com.espressif.idf.ui.partitionTableEditorCommand">
+       </handler>
+       <handler
+             class="com.espressif.idf.ui.nvs.handlers.NvsEditorHandler"
+             commandId="com.espressif.idf.ui.nvsEditorCommand">
        </handler>
     </extension>
    <extension
