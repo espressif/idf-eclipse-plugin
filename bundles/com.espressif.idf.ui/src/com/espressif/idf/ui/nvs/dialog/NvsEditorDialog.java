@@ -49,6 +49,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.Widget;
 
 import com.espressif.idf.core.build.NvsTableBean;
 import com.espressif.idf.core.logging.Logger;
@@ -61,7 +62,6 @@ import com.espressif.idf.ui.EclipseUtil;
 public class NvsEditorDialog extends Dialog
 {
 
-	private ToolBar toolBar;
 	private Table csvTable;
 	private TableViewer tableViewer;
 	@SuppressWarnings("nls")
@@ -110,7 +110,7 @@ public class NvsEditorDialog extends Dialog
 			return;
 		}
 		generateEncryptionKeyCheckBox = new Button(encryptionComposite, SWT.CHECK);
-		generateEncryptionKeyCheckBox.setText("Generate encryption key?");
+		generateEncryptionKeyCheckBox.setText(Messages.NvsEditorDialog_GenEncKeyCheckBoxTxt);
 		generateEncryptionKeyCheckBox.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
 		List<Control> canBeDisposedList = new ArrayList<>();
 		generateEncryptionKeyCheckBox.addSelectionListener(new SelectionListener()
@@ -120,18 +120,18 @@ public class NvsEditorDialog extends Dialog
 			public void widgetSelected(SelectionEvent e)
 			{
 				if (generateEncryptionKeyCheckBox.getSelection()) {
-					canBeDisposedList.forEach(t -> t.dispose());
+					canBeDisposedList.forEach(Widget::dispose);
 					getShell().pack();
 					return;
 				}
 				encyptionKeyLbl = new Label(encryptionComposite, SWT.NONE);
-				encyptionKeyLbl.setText("Path to encryption key");
+				encyptionKeyLbl.setText(Messages.NvsEditorDialog_PathToEncrKeyLbl);
 				encyptionKeyLbl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 				encryptionKeyText = new Text(encryptionComposite, SWT.BORDER);
-				encryptionKeyText.setMessage("path/to/keys.bin");
+				encryptionKeyText.setMessage(Messages.NvsEditorDialog_PathToKeysTxt);
 				encryptionKeyText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 				encyptionKeyBrowseButton = new Button(encryptionComposite, SWT.PUSH);
-				encyptionKeyBrowseButton.setText("Browse");
+				encyptionKeyBrowseButton.setText(Messages.NvsEditorDialog_EncKeyBrowseTxt);
 				encyptionKeyBrowseButton.addSelectionListener(new SelectionAdapter()
 				{
 					@Override
@@ -139,8 +139,8 @@ public class NvsEditorDialog extends Dialog
 					{
 						DirectoryDialog dlg = new DirectoryDialog(getShell());
 						dlg.setFilterPath(encryptionKeyText.getText());
-						dlg.setText("Encryption partition key:");
-						dlg.setMessage("Select encryption partition key");
+						dlg.setText(Messages.NvsEditorDialog_EncrPartitionKeyDlgTxt);
+						dlg.setMessage(Messages.NvsEditorDialog_SelEncrPartKeyDlgMsg);
 
 						String dir = dlg.open();
 						if (dir != null)
@@ -177,7 +177,7 @@ public class NvsEditorDialog extends Dialog
 		sizeOfPartitionLbl.setLayoutData(new GridData(GridData.FILL_BOTH));
 		sizeText = new Text(sizeComposite, SWT.BORDER);
 		sizeText.setLayoutData(new GridData(GridData.FILL_BOTH));
-		sizeText.setMessage("0x3000");
+		sizeText.setMessage(Messages.NvsEditorDialog_DefaultSizeMsg);
 
 	}
 
@@ -402,7 +402,7 @@ public class NvsEditorDialog extends Dialog
 
 	private void createToolBar(Composite parent)
 	{
-		toolBar = new ToolBar(parent, SWT.RIGHT | SWT.FLAT);
+		ToolBar toolBar = new ToolBar(parent, SWT.RIGHT | SWT.FLAT);
 		ToolBarManager manager = new ToolBarManager(toolBar);
 		encryptAction = getEncryptionAction();
 		manager.add(getAddRowAction());
@@ -425,7 +425,8 @@ public class NvsEditorDialog extends Dialog
 			public void run()
 			{
 				String errorMsg = validateInputParameters();
-				MessageDialog.openInformation(getShell(), "Generated partitiont", errorMsg.isEmpty() ?
+				MessageDialog.openInformation(getShell(), Messages.NvsEditorDialog_GenPartitionInfDialTitle,
+						errorMsg.isEmpty() ?
 						NvsPartitionGenerator.generateNvsPartititon(encryptAction.isChecked(), getEncKeyPath(),
 								sizeText.getText(), csvFile)
 						: errorMsg);
@@ -441,11 +442,11 @@ public class NvsEditorDialog extends Dialog
 				}
 				catch (NumberFormatException e)
 				{
-					return "Size cannot be decoded. " + e.getMessage();
+					return Messages.NvsEditorDialog_SizeValidationDecodedErr + e.getMessage();
 				}
 				if (decodedSize < 4096 && decodedSize % 4096 != 0)
 				{
-					return "Size must be more than 4096 and be multiply of it";
+					return Messages.NvsEditorDialog_WrongSizeFormatErrMsg;
 				}
 
 				String encKeyPath = getEncKeyPath().orElseGet(() -> StringUtil.EMPTY);
@@ -453,7 +454,7 @@ public class NvsEditorDialog extends Dialog
 				if (encryptAction.isChecked() && !generateEncryptionKeyCheckBox.getSelection()
 						&& !new File(encKeyPath).canRead())
 				{
-					return "encryption key cannot be read";
+					return Messages.NvsEditorDialog_EncKeyCantBeReadErrMsg;
 				}
 
 				return StringUtil.EMPTY;
@@ -507,8 +508,8 @@ public class NvsEditorDialog extends Dialog
 	private boolean validateBeansBeforeSaving(List<NvsTableBean> beansToSave)
 	{
 
-		String errorMsg = StringUtil.EMPTY;
-		if (validateFirstBean(beansToSave.get(0)) != true)
+		String errorMsg;
+		if (!validateFirstBean(beansToSave.get(0)))
 		{
 			return false;
 		}
@@ -562,7 +563,7 @@ public class NvsEditorDialog extends Dialog
 
 			private void cleanEncryptionComposite()
 			{
-				Stream.of(encryptionComposite.getChildren()).forEach(t -> t.dispose());
+				Stream.of(encryptionComposite.getChildren()).forEach(Widget::dispose);
 
 			}
 		};
@@ -578,8 +579,7 @@ public class NvsEditorDialog extends Dialog
 			{
 				List<NvsTableBean> beansToSave = (List<NvsTableBean>) tableViewer.getInput();
 				boolean confirmDelete = MessageDialog.openConfirm(getShell(),
-						Messages.NvsTableEditorDialog_DeleteSelectedAction,
-						Messages.NvsEditorDialog_ConfirmDeleteMsg);
+						Messages.NvsTableEditorDialog_DeleteSelectedAction, Messages.NvsEditorDialog_ConfirmDeleteMsg);
 				if (!confirmDelete)
 				{
 					return;
@@ -610,6 +610,21 @@ public class NvsEditorDialog extends Dialog
 		};
 	}
 	
+	@Override
+	protected void createButtonsForButtonBar(Composite parent)
+	{
+		createButton(parent, IDialogConstants.OK_ID, Messages.NvsTableEditorSaveAndQuitButtonLable, true);
+		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
+	}
+
+	@Override
+	protected void okPressed()
+	{
+		getSaveAction().run();
+		if (isPageValid)
+			super.okPressed();
+	}
+
 	@Override
 	protected boolean isResizable()
 	{

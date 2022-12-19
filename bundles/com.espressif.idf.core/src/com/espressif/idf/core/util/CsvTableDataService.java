@@ -11,7 +11,7 @@ import com.espressif.idf.core.build.CsvBean;
 public interface CsvTableDataService<T extends CsvBean>
 {
 
-	public List<T> parseCsv(Path csvFile, int linesToSkip) throws IOException;
+	public List<T> parseCsv(Path csvFile) throws IOException;
 
 	public void saveCsv(IFile csvFile, List<T> beansToSave);
 }

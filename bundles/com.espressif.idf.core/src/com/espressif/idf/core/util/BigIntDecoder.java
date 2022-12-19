@@ -4,6 +4,10 @@ import java.math.BigInteger;
 
 public class BigIntDecoder
 {
+	private BigIntDecoder()
+	{
+	}
+
 	public static BigInteger decode(String stringToDecode) throws NumberFormatException
 	{
 

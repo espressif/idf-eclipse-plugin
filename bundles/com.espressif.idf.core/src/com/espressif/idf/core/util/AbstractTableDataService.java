@@ -31,18 +31,19 @@ public abstract class AbstractTableDataService<T extends CsvBean> implements Csv
 	}
 
 	@Override
-	public List<T> parseCsv(Path csvFile, int linesToSkip) throws IOException
+	public List<T> parseCsv(Path csvFile) throws IOException
 	{
 		try (Reader reader = Files.newBufferedReader(csvFile))
 		{
 			CsvToBean<T> csvToBean = null;
-			csvToBean = new CsvToBeanBuilder<T>(reader).withSkipLines(linesToSkip)
+			csvToBean = new CsvToBeanBuilder<T>(reader).withSkipLines(getLinesToSkip())
 					.withType(genericTypeClass).build();
-			List<T> beansList = csvToBean.parse();
-			return beansList;
+			return csvToBean.parse();
 		}
 	}
 	
+	protected abstract int getLinesToSkip();
+
 	@Override
 	public void saveCsv(IFile csvFile, List<T> beansToSave)
 	{
@@ -75,18 +76,14 @@ public abstract class AbstractTableDataService<T extends CsvBean> implements Csv
 			}
 
 		}
-		catch (IOException e)
+		catch (
+				IOException
+				| CsvDataTypeMismatchException
+				| CsvRequiredFieldEmptyException e)
 		{
 			Logger.log(e);
 		}
-		catch (CsvDataTypeMismatchException e)
-		{
-			Logger.log(e);
-		}
-		catch (CsvRequiredFieldEmptyException e)
-		{
-			Logger.log(e);
-		}
+
 	}
 
 	protected abstract void writeDefaultCsvHeader(Writer writer);

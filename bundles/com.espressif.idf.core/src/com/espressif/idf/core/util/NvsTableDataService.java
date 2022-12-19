@@ -2,39 +2,17 @@ package com.espressif.idf.core.util;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.nio.file.Path;
-import java.util.List;
-
-import org.eclipse.core.resources.IFile;
 
 import com.espressif.idf.core.build.NvsTableBean;
 import com.espressif.idf.core.logging.Logger;
 
 public class NvsTableDataService extends AbstractTableDataService<NvsTableBean>
 {
-	private final int LINES_TO_SKIP = 1;
 
 	public NvsTableDataService()
 	{
 		initGenericTypeClass(NvsTableBean.class);
 	}
-	@Override
-	public List<NvsTableBean> parseCsv(Path csvFile, int linesToSkip) throws IOException
-	{
-		return super.parseCsv(csvFile, linesToSkip);
-	}
-
-	public List<NvsTableBean> parseCsv(Path csvFile) throws IOException
-	{
-		return super.parseCsv(csvFile, LINES_TO_SKIP);
-	}
-
-	@Override
-	public void saveCsv(IFile csvFile, List<NvsTableBean> beansToSave)
-	{
-		super.saveCsv(csvFile, beansToSave);
-	}
-
 
 	@Override
 	protected void writeDefaultCsvHeader(Writer writer)
@@ -86,6 +64,12 @@ public class NvsTableDataService extends AbstractTableDataService<NvsTableBean>
 	public static String[] getTypes()
 	{
 		return new String[] { "file", "data", "namespace" };
+	}
+
+	@Override
+	protected int getLinesToSkip()
+	{
+		return 1;
 	}
 
 }

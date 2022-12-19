@@ -19,6 +19,17 @@ public class Messages extends NLS
 	public static String NvsTableEditorIsEncryptedActionMsg;
 	public static String NvsTableEditorGeneratePartitionActionMsg;
 	public static String NvsTableEditorSizeOfPartitionLblMsg;
+	public static String NvsEditorDialog_DefaultSizeMsg;
+	public static String NvsEditorDialog_EncKeyBrowseTxt;
+	public static String NvsEditorDialog_EncKeyCantBeReadErrMsg;
+	public static String NvsEditorDialog_EncrPartitionKeyDlgTxt;
+	public static String NvsEditorDialog_GenEncKeyCheckBoxTxt;
+	public static String NvsEditorDialog_GenPartitionInfDialTitle;
+	public static String NvsEditorDialog_PathToEncrKeyLbl;
+	public static String NvsEditorDialog_PathToKeysTxt;
+	public static String NvsEditorDialog_SelEncrPartKeyDlgMsg;
+	public static String NvsEditorDialog_SizeValidationDecodedErr;
+	public static String NvsEditorDialog_WrongSizeFormatErrMsg;
 
 	static
 	{

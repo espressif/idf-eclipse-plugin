@@ -9,6 +9,7 @@ import com.espressif.idf.core.build.NvsTableBean;
 
 public class NvsBeanValidator
 {
+	private static final String NAMESPACE = "namespace"; //$NON-NLS-1$
 	private static final Map<String, BigInteger> minValuesMap = initMinValuesMap();
 	private static final Map<String, BigInteger> maxValuesMap = initMaxValuesMap();
 
@@ -60,9 +61,9 @@ public class NvsBeanValidator
 
 	public String validateFirstBean(NvsTableBean bean)
 	{
-		if (!bean.getType().contentEquals("namespace")) //$NON-NLS-1$
+		if (!bean.getType().contentEquals(NAMESPACE))
 		{
-			return "First entry should be of type \"namespace\""; //$NON-NLS-1$
+			return Messages.NvsValidation_FirstBeanValidationErr;
 		}
 
 		
@@ -71,19 +72,19 @@ public class NvsBeanValidator
 
 	private String validateValue(String value, String type, String encoding)
 	{
-		if (type.contentEquals("namespace") && !value.isBlank()) //$NON-NLS-1$
+		if (type.contentEquals(NAMESPACE) && !value.isBlank())
 		{
-			return "value must be empty for namespace type"; //$NON-NLS-1$
+			return Messages.NvsValidation_ValueValidationErr_1;
 		}
 
-		if (type.contentEquals("namespace") && value.isBlank()) //$NON-NLS-1$
+		if (type.contentEquals(NAMESPACE) && value.isBlank())
 		{
 			return StringUtil.EMPTY;
 		}
 
 		if (value.isBlank())
 		{
-			return "value is required"; //$NON-NLS-1$
+			return Messages.NameValidationError_2;
 		}
 
 		if (type.contentEquals("file")) //$NON-NLS-1$
@@ -95,7 +96,7 @@ public class NvsBeanValidator
 		{
 			if (value.length() > 4000)
 			{
-				return "String value is limited to 4000 bytes"; //$NON-NLS-1$
+				return Messages.NvsValidation_ValueValidationErr_3;
 			}
 			return StringUtil.EMPTY;
 		}
@@ -118,7 +119,7 @@ public class NvsBeanValidator
 		}
 		catch (NumberFormatException e)
 		{
-			return "Incorrect number format " + e.getLocalizedMessage(); //$NON-NLS-1$
+			return String.format(Messages.NvsValidation_NumberValueValidationErr_1, e.getLocalizedMessage());
 		}
 
 		if (bigIntegerValue.compareTo(minValuesMap.get(encoding)) >= 0
@@ -128,7 +129,7 @@ public class NvsBeanValidator
 		}
 		else
 		{
-			return value + " is out of range for " + encoding; //$NON-NLS-1$
+			return String.format(Messages.NvsValidation_NumberValueValidationErr_2, value, encoding);
 		}
 	}
 
@@ -137,12 +138,13 @@ public class NvsBeanValidator
 
 		if (!List.of(NvsTableDataService.getEncodings(type)).contains(encoding))
 		{
-			return String.format("Unsupported coding for type %s, expected on of %s. Instead got %s", type, //$NON-NLS-1$
+			return String.format(Messages.NvsValidation_EncodingValidationErr_1, type,
 					NvsTableDataService.getEncodings(type), encoding);
 		}
 		return StringUtil.EMPTY;
 	}
 
+	// Always true for now
 	private String validateType(String type)
 	{
 		return StringUtil.EMPTY;
@@ -152,12 +154,12 @@ public class NvsBeanValidator
 	{
 		if (key.isBlank())
 		{
-			return "Key is required"; //$NON-NLS-1$
+			return Messages.NvsValidation_KeyValidationErr_1;
 		}
 
 		if (key.length() > 15)
 		{
-			return "Maximum key length is 15 characters"; //$NON-NLS-1$
+			return Messages.NvsValidation_KeyValidationErr_2;
 		}
 
 		return StringUtil.EMPTY;
