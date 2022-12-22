@@ -32,7 +32,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.osgi.service.prefs.BackingStoreException;
 
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.Messages;
 
 public class MessageLinkDialog extends MessageDialog
@@ -84,7 +86,6 @@ public class MessageLinkDialog extends MessageDialog
 		Button checkBox = new Button(parent, SWT.CHECK);
 		checkBox.addSelectionListener(new SelectionListener()
 		{
-
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
@@ -110,6 +111,19 @@ public class MessageLinkDialog extends MessageDialog
 		}
 	}
 
+	@Override
+	protected void buttonPressed(int buttonId)
+	{
+		try
+		{
+			preferences.flush();
+		}
+		catch (BackingStoreException e1)
+		{
+			Logger.log(e1);
+		}
+		super.buttonPressed(buttonId);
+	}
 	public static boolean open(int kind, Shell parent, String title, String message, int style)
 	{
 		MessageLinkDialog dialog = new MessageLinkDialog(parent, title, null, message, kind, 0,
