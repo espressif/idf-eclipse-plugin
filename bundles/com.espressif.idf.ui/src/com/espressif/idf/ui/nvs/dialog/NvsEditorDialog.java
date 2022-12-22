@@ -12,13 +12,10 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.action.ToolBarManager;
-import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ComboBoxCellEditor;
 import org.eclipse.jface.viewers.ICellModifier;
@@ -28,7 +25,7 @@ import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseTrackListener;
+import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -41,6 +38,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -48,7 +46,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Widget;
 
 import com.espressif.idf.core.build.NvsTableBean;
@@ -59,7 +56,7 @@ import com.espressif.idf.core.util.NvsTableDataService;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.EclipseUtil;
 
-public class NvsEditorDialog extends Dialog
+public class NvsEditorDialog extends TitleAreaDialog
 {
 
 	private Table csvTable;
@@ -74,8 +71,9 @@ public class NvsEditorDialog extends Dialog
 	private Label encyptionKeyLbl;
 	private Text encryptionKeyText;
 	private Button generateEncryptionKeyCheckBox;
-	private IAction encryptAction;
+	private Button encryptAction;
 	private Button encyptionKeyBrowseButton;
+
 
 	public NvsEditorDialog(Shell parentShell)
 	{
@@ -88,16 +86,86 @@ public class NvsEditorDialog extends Dialog
 	}
 
 	@Override
+	public void create()
+	{
+		super.create();
+		setTitle(Messages.NvsTableEditorDialog_Title);
+		setMessage(Messages.NvsEditorDialog_DefaultMessage, IMessageProvider.INFORMATION);
+	}
+
+	@Override
 	protected Control createDialogArea(Composite parent)
 	{
 		getShell().setText(Messages.NvsTableEditorDialog_Title);
-		createToolBar(parent);
+
 		createEnctyptionLable(parent);
 		createSizeOfPartitionLable(parent);
-		createTable(parent);
+
+		Group group = new Group(parent, SWT.NONE);
+		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		group.setLayout(new GridLayout(2, false));
+
+		createTable(group);
+		createToolButtonBar(group);
 		createColumns();
 		createTableViewer();
 		return super.createDialogArea(parent);
+	}
+
+	private void createToolButtonBar(Composite parent)
+	{
+		Composite userButtonComp = new Composite(parent, SWT.NONE);
+		userButtonComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true));
+		userButtonComp.setLayout(new GridLayout());
+
+		encryptAction = new Button(userButtonComp, SWT.CHECK);
+		encryptAction.setText(Messages.NvsTableEditorIsEncryptedActionMsg);
+		encryptAction.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, false, false));
+		encryptAction.addSelectionListener(new SelectionAdapter()
+		{
+			
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				if (encryptAction.getSelection())
+				{
+					createEnctyptionLable(encryptionComposite);
+					getShell().pack();
+
+					return;
+				}
+				cleanEncryptionComposite();
+				getShell().pack();
+			}
+
+			private void cleanEncryptionComposite()
+			{
+				Stream.of(encryptionComposite.getChildren()).forEach(Widget::dispose);
+			}
+		});
+
+		Button addButton = new Button(userButtonComp, SWT.PUSH);
+		addButton.setText(Messages.NvsTableEditorDialog_AddRowAction);
+		addButton.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, false, false));
+		addButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(t -> getAddRowAction()));
+
+		Button deleteRowButton = new Button(userButtonComp, SWT.PUSH);
+		deleteRowButton.setText(Messages.NvsTableEditorDialog_DeleteSelectedAction);
+		deleteRowButton.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, false, false));
+		deleteRowButton
+				.addSelectionListener(SelectionListener.widgetSelectedAdapter(t -> getDeleteRowAction()));
+
+		Button saveButton = new Button(userButtonComp, SWT.PUSH);
+		saveButton.setText(Messages.NvsTableEditorDialog_SaveAction);
+		saveButton.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, false, false));
+		saveButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(t -> getSaveAction()));
+
+		Button generateButton = new Button(userButtonComp, SWT.PUSH);
+		generateButton.setText(Messages.NvsTableEditorGeneratePartitionActionMsg);
+		generateButton.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, false, false));
+		generateButton.addSelectionListener(
+				SelectionListener.widgetSelectedAdapter(t -> getGeneratePartitionAction()));
+
 	}
 
 	private void createEnctyptionLable(Composite parent)
@@ -105,7 +173,7 @@ public class NvsEditorDialog extends Dialog
 		encryptionComposite = encryptionComposite == null ? new Composite(parent, SWT.NONE) : encryptionComposite;
 		encryptionComposite.setLayout(new GridLayout(3, false));
 
-		if (!encryptAction.isChecked())
+		if (encryptAction == null || !encryptAction.getSelection())
 		{
 			return;
 		}
@@ -113,7 +181,7 @@ public class NvsEditorDialog extends Dialog
 		generateEncryptionKeyCheckBox.setText(Messages.NvsEditorDialog_GenEncKeyCheckBoxTxt);
 		generateEncryptionKeyCheckBox.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
 		List<Control> canBeDisposedList = new ArrayList<>();
-		generateEncryptionKeyCheckBox.addSelectionListener(new SelectionListener()
+		generateEncryptionKeyCheckBox.addSelectionListener(new SelectionAdapter()
 		{
 			
 			@Override
@@ -156,12 +224,6 @@ public class NvsEditorDialog extends Dialog
 				canBeDisposedList.add(encyptionKeyBrowseButton);
 				getShell().pack();
 			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e)
-			{
-				
-			}
 		});
 		generateEncryptionKeyCheckBox.setSelection(true);
 
@@ -195,7 +257,7 @@ public class NvsEditorDialog extends Dialog
 				return list.toArray();
 			}
 		});
-
+		
 		try
 		{
 			List<NvsTableBean> list = new NvsTableDataService().parseCsv(Paths.get(csvFile.getLocationURI()));
@@ -357,15 +419,16 @@ public class NvsEditorDialog extends Dialog
 		csvTable = new Table(parent, SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL | SWT.H_SCROLL);
 		csvTable.setHeaderVisible(true);
 		csvTable.setLinesVisible(true);
-		csvTable.setLayoutData(new GridData(GridData.FILL_BOTH));
-		csvTable.addMouseTrackListener(new MouseTrackListener()
+		csvTable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true));
+		((GridData) csvTable.getLayoutData()).widthHint = 1000;
+
+		csvTable.addMouseTrackListener(new MouseTrackAdapter()
 		{
 			Shell errorToolTip;
 
 			@Override
 			public void mouseHover(MouseEvent event)
 			{
-
 				ViewerCell item = tableViewer.getCell(new Point(event.x, event.y));
 				if (item != null)
 				{
@@ -388,121 +451,80 @@ public class NvsEditorDialog extends Dialog
 				}
 			}
 
-			@Override
-			public void mouseExit(MouseEvent e)
-			{
-			}
-
-			@Override
-			public void mouseEnter(MouseEvent e)
-			{
-			}
 		});
 	}
 
-	private void createToolBar(Composite parent)
+	private void getGeneratePartitionAction()
 	{
-		ToolBar toolBar = new ToolBar(parent, SWT.RIGHT | SWT.FLAT);
-		ToolBarManager manager = new ToolBarManager(toolBar);
-		encryptAction = getEncryptionAction();
-		manager.add(getAddRowAction());
-		manager.add(new Separator());
-		manager.add(getDeleteRowAction());
-		manager.add(new Separator());
-		manager.add(encryptAction);
-		manager.add(new Separator());
-		manager.add(getSaveAction());
-		manager.add(new Separator());
-		manager.add(getGeneratePartitionAction());
-		manager.update(true);
-	}
-
-	private IAction getGeneratePartitionAction()
-	{
-		return new Action(Messages.NvsTableEditorGeneratePartitionActionMsg)
-		{
-			@Override
-			public void run()
-			{
-				String errorMsg = validateInputParameters();
-				MessageDialog.openInformation(getShell(), Messages.NvsEditorDialog_GenPartitionInfDialTitle,
-						errorMsg.isEmpty() ?
-						NvsPartitionGenerator.generateNvsPartititon(encryptAction.isChecked(), getEncKeyPath(),
-								sizeText.getText(), csvFile)
+		String errorMsg = validateInputParameters();
+		MessageDialog.openInformation(getShell(), Messages.NvsEditorDialog_GenPartitionInfDialTitle,
+				errorMsg.isEmpty()
+						? NvsPartitionGenerator.generateNvsPartititon(encryptAction.getSelection(),
+								getEncKeyPath(), sizeText.getText(), csvFile)
 						: errorMsg);
-				super.run();
-			}
 
-			private String validateInputParameters()
-			{
-				Long decodedSize = 0l;
-				try
-				{
-					decodedSize = Long.decode(sizeText.getText());
-				}
-				catch (NumberFormatException e)
-				{
-					return Messages.NvsEditorDialog_SizeValidationDecodedErr + e.getMessage();
-				}
-				if (decodedSize < 4096 && decodedSize % 4096 != 0)
-				{
-					return Messages.NvsEditorDialog_WrongSizeFormatErrMsg;
-				}
-
-				String encKeyPath = getEncKeyPath().orElseGet(() -> StringUtil.EMPTY);
-
-				if (encryptAction.isChecked() && !generateEncryptionKeyCheckBox.getSelection()
-						&& !new File(encKeyPath).canRead())
-				{
-					return Messages.NvsEditorDialog_EncKeyCantBeReadErrMsg;
-				}
-
-				return StringUtil.EMPTY;
-
-			}
-
-			private Optional<String> getEncKeyPath()
-			{
-				if (encryptionKeyText == null || encryptionKeyText.isDisposed())
-				{
-					return Optional.empty();
-				}
-
-				return Optional.of(encryptionKeyText.getText());
-			}
-		};
 	}
 
-	private IAction getSaveAction()
+	private String validateInputParameters()
 	{
-		return new Action(Messages.NvsTableEditorDialog_SaveAction)
+		Long decodedSize = 0l;
+		try
 		{
-			@SuppressWarnings("unchecked")
-			@Override
-			public void run()
-			{
-				List<NvsTableBean> beansToSave = (List<NvsTableBean>) tableViewer.getInput();
-				isPageValid = validateBeansBeforeSaving(beansToSave);
-				if (!isPageValid)
-				{
-					return;
-				}
-				new NvsTableDataService().saveCsv(csvFile, beansToSave);
-				MessageDialog.openInformation(getShell(), Messages.NvsTableEditorDialog_SaveInfoTitle,
-						Messages.NvsTableEditorDialog_SaveInfoMsg);
-				try
-				{
-					// Sometimes the file is not saved in Linux because explorer is not updated
-					EclipseUtil.getSelectedProjectInExplorer().refreshLocal(IResource.DEPTH_INFINITE,
-							new NullProgressMonitor());
-				}
-				catch (CoreException e)
-				{
-					Logger.log(e);
-				}
+			decodedSize = Long.decode(sizeText.getText());
+		}
+		catch (NumberFormatException e)
+		{
+			return Messages.NvsEditorDialog_SizeValidationDecodedErr + e.getMessage();
+		}
+		if (decodedSize < 4096 && decodedSize % 4096 != 0)
+		{
+			return Messages.NvsEditorDialog_WrongSizeFormatErrMsg;
+		}
 
-			}
-		};
+		String encKeyPath = getEncKeyPath().orElseGet(() -> StringUtil.EMPTY);
+
+		if (encryptAction.getSelection() && !generateEncryptionKeyCheckBox.getSelection()
+				&& !new File(encKeyPath).canRead())
+		{
+			return Messages.NvsEditorDialog_EncKeyCantBeReadErrMsg;
+		}
+
+		return StringUtil.EMPTY;
+
+	}
+
+	private Optional<String> getEncKeyPath()
+	{
+		if (encryptionKeyText == null || encryptionKeyText.isDisposed())
+		{
+			return Optional.empty();
+		}
+
+		return Optional.of(encryptionKeyText.getText());
+	}
+
+	private void getSaveAction()
+	{
+		@SuppressWarnings("unchecked")
+		List<NvsTableBean> beansToSave = (List<NvsTableBean>) tableViewer.getInput();
+		isPageValid = validateBeansBeforeSaving(beansToSave);
+		if (!isPageValid)
+		{
+			return;
+		}
+		new NvsTableDataService().saveCsv(csvFile, beansToSave);
+		MessageDialog.openInformation(getShell(), Messages.NvsTableEditorDialog_SaveInfoTitle,
+				Messages.NvsTableEditorDialog_SaveInfoMsg);
+		try
+		{
+			// Sometimes the file is not saved in Linux because explorer is not updated
+			EclipseUtil.getSelectedProjectInExplorer().refreshLocal(IResource.DEPTH_INFINITE,
+					new NullProgressMonitor());
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
 	}
 
 	private boolean validateBeansBeforeSaving(List<NvsTableBean> beansToSave)
@@ -542,72 +564,31 @@ public class NvsEditorDialog extends Dialog
 		return true;
 	}
 
-	private IAction getEncryptionAction()
+	private void getDeleteRowAction()
 	{
-
-		return new Action(Messages.NvsTableEditorIsEncryptedActionMsg, SWT.TOGGLE)
+		@SuppressWarnings("unchecked")
+		List<NvsTableBean> beansToSave = (List<NvsTableBean>) tableViewer.getInput();
+		boolean confirmDelete = MessageDialog.openConfirm(getShell(),
+				Messages.NvsTableEditorDialog_DeleteSelectedAction, Messages.NvsEditorDialog_ConfirmDeleteMsg);
+		if (!confirmDelete)
 		{
-			@Override
-			public void run()
-			{
-				if (this.isChecked())
-				{
-					createEnctyptionLable(encryptionComposite);
-					getShell().pack();
-
-					return;
-				}
-				cleanEncryptionComposite();
-				getShell().pack();
-			}
-
-			private void cleanEncryptionComposite()
-			{
-				Stream.of(encryptionComposite.getChildren()).forEach(Widget::dispose);
-
-			}
-		};
+			return;
+		}
+		beansToSave.remove(tableViewer.getElementAt(csvTable.getSelectionIndex()));
+		tableViewer.setInput(beansToSave);
+		tableViewer.refresh();
+		getShell().pack();
 	}
 
-	private IAction getDeleteRowAction()
+	private void getAddRowAction()
 	{
-		return new Action(Messages.NvsTableEditorDialog_DeleteSelectedAction)
-		{
-			@SuppressWarnings("unchecked")
-			@Override
-			public void run()
-			{
-				List<NvsTableBean> beansToSave = (List<NvsTableBean>) tableViewer.getInput();
-				boolean confirmDelete = MessageDialog.openConfirm(getShell(),
-						Messages.NvsTableEditorDialog_DeleteSelectedAction, Messages.NvsEditorDialog_ConfirmDeleteMsg);
-				if (!confirmDelete)
-				{
-					return;
-				}
-				beansToSave.remove(tableViewer.getElementAt(csvTable.getSelectionIndex()));
-				tableViewer.setInput(beansToSave);
-				tableViewer.refresh();
-				getShell().pack();
-			}
-		};
-	}
-
-	private IAction getAddRowAction()
-	{
-		return new Action(Messages.NvsTableEditorDialog_AddRowAction)
-		{
-			@SuppressWarnings("unchecked")
-			@Override
-			public void run()
-			{
-				List<NvsTableBean> beansToSave = (List<NvsTableBean>) tableViewer.getInput();
-				beansToSave.add(new NvsTableBean());
-				tableViewer.setInput(beansToSave);
-				tableViewer.refresh();
-				csvTable.select(csvTable.getItemCount() - 1);
-				getShell().pack();
-			}
-		};
+		@SuppressWarnings("unchecked")
+		List<NvsTableBean> beansToSave = (List<NvsTableBean>) tableViewer.getInput();
+		beansToSave.add(new NvsTableBean());
+		tableViewer.setInput(beansToSave);
+		tableViewer.refresh();
+		csvTable.select(csvTable.getItemCount() - 1);
+		getShell().pack();
 	}
 	
 	@Override
@@ -620,7 +601,7 @@ public class NvsEditorDialog extends Dialog
 	@Override
 	protected void okPressed()
 	{
-		getSaveAction().run();
+		getSaveAction();
 		if (isPageValid)
 			super.okPressed();
 	}
