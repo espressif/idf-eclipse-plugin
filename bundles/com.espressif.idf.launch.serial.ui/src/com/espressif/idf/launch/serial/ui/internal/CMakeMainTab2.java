@@ -18,6 +18,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.model.CModelException;
@@ -227,15 +229,21 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private IProject getSelectedProject() {
 		List<IProject> projectList = new ArrayList<>(1);
 		Display.getDefault().syncExec(new Runnable() {
-
 			@Override
 			public void run() {
 				IProject project = EclipseUtil.getSelectedProjectInExplorer();
-				projectList.add(project);
+				if (project != null)
+					projectList.add(project);
 			}
 		});
-		IProject project = projectList.get(0);
-		return project;
+		try {
+			ICProject[] projects = CoreModel.getDefault().getCModel().getCProjects();
+			projectList.addAll(Stream.of(projects).map(ICProject::getProject).collect(Collectors.toList()));
+		} catch (CModelException e) {
+			Logger.log(e);
+		}
+
+		return projectList.get(0);
 	}
 
 	protected void initializeCProject(IProject project, ILaunchConfigurationWorkingCopy config) {
