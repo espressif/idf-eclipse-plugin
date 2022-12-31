@@ -148,6 +148,7 @@ public class NvsEditorDialog extends TitleAreaDialog
 		createToolButtonBar(group);
 		createColumns();
 		createTableViewer();
+
 		return super.createDialogArea(parent);
 	}
 
@@ -524,8 +525,7 @@ public class NvsEditorDialog extends TitleAreaDialog
 				? NvsPartitionGenerator.generateNvsPartititon(encryptAction.getSelection(), getEncKeyPath(),
 						sizeText.getText(), csvFile)
 				: errorMsg;
-		MessageDialog.openInformation(getShell(), Messages.NvsEditorDialog_GenPartitionInfDialTitle,
-				infoMsg);
+		setMessage(infoMsg, IMessageProvider.INFORMATION);
 		Logger.log(infoMsg);
 		try
 		{
@@ -606,8 +606,7 @@ public class NvsEditorDialog extends TitleAreaDialog
 			return;
 		}
 		new NvsTableDataService().saveCsv(csvFile, beansToSave);
-		MessageDialog.openInformation(getShell(), Messages.NvsTableEditorDialog_SaveInfoTitle,
-				Messages.NvsTableEditorDialog_SaveInfoMsg);
+		setMessage(Messages.NvsTableEditorDialog_SaveInfoMsg, IMessageProvider.INFORMATION);
 		Logger.log(Messages.NvsTableEditorDialog_SaveInfoMsg);
 		try
 		{
@@ -703,7 +702,11 @@ public class NvsEditorDialog extends TitleAreaDialog
 	{
 		getSaveAction();
 		if (isPageValid)
+		{
 			super.okPressed();
+			MessageDialog.openInformation(getShell(), Messages.NvsTableEditorDialog_SaveInfoTitle,
+					Messages.NvsTableEditorDialog_SaveInfoMsg);
+		}
 	}
 
 	public void updateErrorMessage()
