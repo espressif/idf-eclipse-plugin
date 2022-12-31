@@ -31,6 +31,9 @@ public class Messages extends NLS
 	public static String NvsEditorDialog_SizeValidationDecodedErr;
 	public static String NvsEditorDialog_WrongSizeFormatErrMsg;
 	public static String NvsEditorDialog_DefaultMessage;
+	public static String NvsEditorDialog_EmptyTableErrorMsg;
+	public static String NvsEditorDialog_ComplexSaveErrorMsg;
+	public static String NvsEditorDialog_GenerateButtonComplexErrorMsg;
 
 	static
 	{

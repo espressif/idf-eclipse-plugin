@@ -13,7 +13,7 @@ import org.eclipse.core.resources.IFile;
 
 import com.espressif.idf.core.build.CsvBean;
 import com.espressif.idf.core.logging.Logger;
-import com.opencsv.CSVWriter;
+import com.opencsv.ICSVWriter;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.StatefulBeanToCsv;
@@ -63,7 +63,7 @@ public abstract class AbstractTableDataService<T extends CsvBean> implements Csv
 		{
 
 			StatefulBeanToCsv<T> sbc = new StatefulBeanToCsvBuilder<T>(writer).withQuotechar(Character.MIN_VALUE)
-					.withSeparator(CSVWriter.DEFAULT_SEPARATOR).build();
+					.withSeparator(ICSVWriter.DEFAULT_SEPARATOR).build();
 
 			writeDefaultCsvHeader(writer);
 			if (beansToSave.isEmpty())
