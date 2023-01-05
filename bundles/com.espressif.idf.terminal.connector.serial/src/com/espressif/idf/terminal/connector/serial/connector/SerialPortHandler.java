@@ -156,7 +156,11 @@ public class SerialPortHandler
 		};
 
 		thread.start();
-		serverMessageHandler.start();
+		if (!serverMessageHandler.isAlive())
+		{
+			serverMessageHandler.start();
+		}
+
 		isOpen = true;
 
 		serialConnector.control.setState(TerminalState.CONNECTED);
