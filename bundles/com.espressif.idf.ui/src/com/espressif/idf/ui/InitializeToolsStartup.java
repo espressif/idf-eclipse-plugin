@@ -60,9 +60,9 @@ public class InitializeToolsStartup implements IStartup
 	private static final String IDF_PATH = "path"; //$NON-NLS-1$
 	private static final String IS_INSTALLER_CONFIG_SET = "isInstallerConfigSet"; //$NON-NLS-1$
 	private static final String DOC_URL = "\"https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/partition-tables.html?highlight=partitions%20csv#creating-custom-tables\""; //$NON-NLS-1$
-	
+
 	private String newIdfPath;
-	
+
 	@Override
 	public void earlyStartup()
 	{
@@ -89,7 +89,7 @@ public class InitializeToolsStartup implements IStartup
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(new ResourceChangeListener());
 		ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
 		launchBarManager.addListener(new LaunchBarListener());
-		
+
 		// Get the location of the eclipse root directory
 		Location installLocation = Platform.getInstallLocation();
 		URL url = installLocation.getURL();
@@ -106,32 +106,30 @@ public class InitializeToolsStartup implements IStartup
 			if (isInstallerConfigSet())
 			{
 				Logger.log("Ignoring esp_idf.json settings as it was configured earilier and idf_path is similar.");
-				return;		
+				return;
 			}
-			else 
+
+			IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
+			MessageBox messageBox = new MessageBox(Display.getDefault().getActiveShell(),
+					SWT.ICON_WARNING | SWT.YES | SWT.NO);
+			messageBox.setText(Messages.ToolsInitializationDifferentPathMessageBoxTitle);
+			messageBox.setMessage(MessageFormat.format(Messages.ToolsInitializationDifferentPathMessageBoxMessage,
+					newIdfPath, idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PATH)));
+			int response = messageBox.open();
+			if (response == SWT.NO)
 			{
-				IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
-				MessageBox messageBox = new MessageBox(Display.getDefault().getActiveShell(),
-						SWT.ICON_WARNING | SWT.YES | SWT.NO);
-				messageBox.setText(Messages.ToolsInitializationDifferentPathMessageBoxTitle);
-				messageBox.setMessage(MessageFormat.format(Messages.ToolsInitializationDifferentPathMessageBoxMessage, newIdfPath, idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PATH)));
-				int response = messageBox.open();
-				if (response == SWT.NO)
+				Preferences prefs = getPreferences();
+				prefs.putBoolean(IS_INSTALLER_CONFIG_SET, true);
+				try
 				{
-					Preferences prefs = getPreferences();
-					prefs.putBoolean(IS_INSTALLER_CONFIG_SET, true);
-					try
-					{
-						prefs.flush();
-					}
-					catch (BackingStoreException e)
-					{
-						Logger.log(e);
-					}
-					
-					return;
+					prefs.flush();
 				}
-				
+				catch (BackingStoreException e)
+				{
+					Logger.log(e);
+				}
+
+				return;
 			}
 		}
 
@@ -149,7 +147,7 @@ public class InitializeToolsStartup implements IStartup
 				JSONObject selectedIDFInfo = (JSONObject) list.get(idfVersionId);
 				String idfPath = (String) selectedIDFInfo.get(IDF_PATH);
 				String pythonExecutablePath = (String) selectedIDFInfo.get(PYTHON_PATH);
-				
+
 				// Add IDF_PATH to the eclipse CDT build environment variables
 				IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
 				idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, idfPath);
@@ -200,29 +198,31 @@ public class InitializeToolsStartup implements IStartup
 	{
 		// read esp-idf.json file
 		JSONParser parser = new JSONParser();
-		try
+		try (FileReader reader = new FileReader(idf_json_file))
 		{
-			JSONObject jsonObj = (JSONObject) parser.parse(new FileReader(idf_json_file));
+			JSONObject jsonObj = (JSONObject) parser.parse(reader);
 			String idfVersionId = (String) jsonObj.get(IDF_VERSIONS_ID);
 			JSONObject list = (JSONObject) jsonObj.get(IDF_INSTALLED_LIST_KEY);
-			if (list != null)
+			if (list == null)
 			{
-				// selected esp-idf version information
-				JSONObject selectedIDFInfo = (JSONObject) list.get(idfVersionId);
-				String idfPath = (String) selectedIDFInfo.get(IDF_PATH);
-				IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
-				if (idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PATH).equals(idfPath)) return;
-				newIdfPath = idfPath;
-				Preferences prefs = getPreferences();
-				prefs.putBoolean(IS_INSTALLER_CONFIG_SET, false);
-				try
-				{
-					prefs.flush();
-				}
-				catch (BackingStoreException e)
-				{
-					Logger.log(e);
-				}				
+				return;
+			}
+			// selected esp-idf version information
+			JSONObject selectedIDFInfo = (JSONObject) list.get(idfVersionId);
+			String idfPath = (String) selectedIDFInfo.get(IDF_PATH);
+			IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
+			if (idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PATH).equals(idfPath))
+				return;
+			newIdfPath = idfPath;
+			Preferences prefs = getPreferences();
+			prefs.putBoolean(IS_INSTALLER_CONFIG_SET, false);
+			try
+			{
+				prefs.flush();
+			}
+			catch (BackingStoreException e)
+			{
+				Logger.log(e);
 			}
 		}
 		catch (
