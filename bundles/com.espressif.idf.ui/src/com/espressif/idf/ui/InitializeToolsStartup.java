@@ -24,6 +24,7 @@ import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IStartup;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -110,27 +111,30 @@ public class InitializeToolsStartup implements IStartup
 			}
 
 			IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
-			MessageBox messageBox = new MessageBox(Display.getDefault().getActiveShell(),
-					SWT.ICON_WARNING | SWT.YES | SWT.NO);
-			messageBox.setText(Messages.ToolsInitializationDifferentPathMessageBoxTitle);
-			messageBox.setMessage(MessageFormat.format(Messages.ToolsInitializationDifferentPathMessageBoxMessage,
-					newIdfPath, idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PATH)));
-			int response = messageBox.open();
-			if (response == SWT.NO)
-			{
-				Preferences prefs = getPreferences();
-				prefs.putBoolean(IS_INSTALLER_CONFIG_SET, true);
-				try
+			Display.getDefault().syncExec(() -> {
+				Shell shell = new Shell(Display.getDefault());
+				MessageBox messageBox = new MessageBox(shell,
+						SWT.ICON_WARNING | SWT.YES | SWT.NO);
+				messageBox.setText(Messages.ToolsInitializationDifferentPathMessageBoxTitle);
+				messageBox.setMessage(MessageFormat.format(Messages.ToolsInitializationDifferentPathMessageBoxMessage,
+						newIdfPath, idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PATH)));
+				int response = messageBox.open();
+				if (response == SWT.NO)
 				{
-					prefs.flush();
-				}
-				catch (BackingStoreException e)
-				{
-					Logger.log(e);
-				}
+					Preferences prefs = getPreferences();
+					prefs.putBoolean(IS_INSTALLER_CONFIG_SET, true);
+					try
+					{
+						prefs.flush();
+					}
+					catch (BackingStoreException e)
+					{
+						Logger.log(e);
+					}
 
-				return;
-			}
+					return;
+				}
+			});		
 		}
 
 		// read esp-idf.json file
