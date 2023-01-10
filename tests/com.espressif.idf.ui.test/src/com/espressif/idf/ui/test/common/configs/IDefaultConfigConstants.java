@@ -13,9 +13,14 @@ package com.espressif.idf.ui.test.common.configs;
 public interface IDefaultConfigConstants
 {
 	/**
-	 * The default property file for tests inside configs folder
+	 * The default property file for tests for Linux inside configs folder
 	 */
-	String DEFAULT_CONFIG_PROPERTY_FILE = "default-test.properties";
+	String DEFAULT_CONFIG_PROPERTY_FILE_LINUX = "default-test-linux.properties";
+	
+	/**
+	 * The default property file for tests for Windows inside configs folder
+	 */
+	String DEFAULT_CONFIG_PROPERTY_FILE_WINDOWS = "default-test-win.properties";
 
 	/**
 	 * The default file directory inside resources folder
