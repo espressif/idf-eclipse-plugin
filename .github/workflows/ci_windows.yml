@@ -43,10 +43,7 @@ jobs:
         distribution: 'temurin'
 
     - name: Build with Maven
-      run: mvn clean verify "-Djarsigner.skip=true" "spotbugs:spotbugs" "-DskipTests=false"
-    - uses: jwgmeligmeyling/spotbugs-github-action@master
-      with:
-        path: '**/spotbugsXml.xml'
+      run: mvn clean verify "-Djarsigner.skip=true" "-DskipTests=false"
 
     - name: Publish Test Reports
       if: ${{ always() }}
