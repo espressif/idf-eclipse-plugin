@@ -15,8 +15,6 @@ jobs:
     runs-on: windows-latest
     
     steps:
-    - name: Build debug info
-      run: echo %GITHUB_WORKSPACE%
 
     - uses: actions/checkout@v2
 
