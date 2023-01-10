@@ -52,6 +52,8 @@ jobs:
     - name: Publish Test Reports
       if: ${{ always() }}
       uses: scacap/action-surefire-report@v1
+      with:
+           check_name: 'Linux Test Reports'
   
     - name: Upload build artifacts
       if: ${{ !cancelled() }}
