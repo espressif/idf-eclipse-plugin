@@ -249,7 +249,7 @@ public class NvsEditorDialog extends TitleAreaDialog
 			{
 				FileDialog dlg = new FileDialog(getShell(), SWT.OPEN);
 				dlg.setFilterPath(csvFile.getProject().getLocationURI().toString());
-				dlg.setFilterExtensions(new String[] {".bin"}); //$NON-NLS-1$
+				dlg.setFilterExtensions(new String[] { "*.bin", "*" }); //$NON-NLS-1$ //$NON-NLS-2$
 				dlg.setText(Messages.NvsEditorDialog_EncrPartitionKeyDlgTxt);
 				String dir = dlg.open();
 				if (dir != null)
