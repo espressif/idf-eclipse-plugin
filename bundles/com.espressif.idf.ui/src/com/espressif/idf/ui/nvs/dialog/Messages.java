@@ -1,3 +1,8 @@
+/*******************************************************************************
+ * Copyright 2023 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
+
 package com.espressif.idf.ui.nvs.dialog;
 
 import org.eclipse.osgi.util.NLS;
@@ -34,6 +39,8 @@ public class Messages extends NLS
 	public static String NvsEditorDialog_EmptyTableErrorMsg;
 	public static String NvsEditorDialog_ComplexSaveErrorMsg;
 	public static String NvsEditorDialog_GenerateButtonComplexErrorMsg;
+	public static String NvsEditorDialog_FirstRowIsFixedInfoMsg;
+	public static String NvsEditorDialog_NamespaceEditLimitationInfoMsg;
 
 	static
 	{

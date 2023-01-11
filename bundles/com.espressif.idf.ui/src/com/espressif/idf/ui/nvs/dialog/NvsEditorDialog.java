@@ -314,7 +314,6 @@ public class NvsEditorDialog extends TitleAreaDialog
 	private void createTableViewer()
 	{
 		tableViewer = new TableViewer(csvTable);
-
 		tableViewer.setContentProvider((IStructuredContentProvider) input -> {
 			@SuppressWarnings("unchecked")
 			List<NvsTableBean> list = (List<NvsTableBean>) input;
@@ -448,8 +447,18 @@ public class NvsEditorDialog extends TitleAreaDialog
 			@Override
 			public boolean canModify(Object element, String property)
 			{
-
-				return true;
+				if (tableViewer.getElementAt(0).equals(element))
+				{
+					if (!property.contentEquals(columnNames[0]))
+							setMessage(Messages.NvsEditorDialog_FirstRowIsFixedInfoMsg, IMessageProvider.INFORMATION);
+					return property.contentEquals(columnNames[0]);
+				}
+				NvsTableBean bean = (NvsTableBean) element;
+				boolean isCellEditable = !(bean.getType().contentEquals("namespace") //$NON-NLS-1$
+						&& (property.contentEquals(columnNames[2]) || property.contentEquals(columnNames[3])));
+				if (!isCellEditable)
+					setMessage(Messages.NvsEditorDialog_NamespaceEditLimitationInfoMsg, IMessageProvider.INFORMATION);
+				return isCellEditable;
 			}
 		});
 
@@ -587,7 +596,7 @@ public class NvsEditorDialog extends TitleAreaDialog
 
 	private Optional<String> getEncKeyPath()
 	{
-		if (encryptionKeyText == null || encryptionKeyText.isDisposed())
+		if (!encryptionKeyText.isEnabled())
 		{
 			return Optional.empty();
 		}
@@ -665,13 +674,25 @@ public class NvsEditorDialog extends TitleAreaDialog
 	{
 		@SuppressWarnings("unchecked")
 		List<NvsTableBean> beansToSave = (List<NvsTableBean>) tableViewer.getInput();
+		NvsTableBean selectedElement = (NvsTableBean) tableViewer.getElementAt(csvTable.getSelectionIndex());
+		if (selectedElement == null)
+		{
+			return;
+		}
+
+		if (selectedElement.equals(tableViewer.getElementAt(0)))
+		{
+			setMessage(Messages.NvsEditorDialog_FirstRowIsFixedInfoMsg,
+					IMessageProvider.INFORMATION);
+			return;
+		}
 		boolean confirmDelete = MessageDialog.openConfirm(getShell(),
 				Messages.NvsTableEditorDialog_DeleteSelectedAction, Messages.NvsEditorDialog_ConfirmDeleteMsg);
 		if (!confirmDelete)
 		{
 			return;
 		}
-		beansToSave.remove(tableViewer.getElementAt(csvTable.getSelectionIndex()));
+		beansToSave.remove(selectedElement);
 		tableViewer.setInput(beansToSave);
 		tableViewer.refresh();
 		getShell().pack();

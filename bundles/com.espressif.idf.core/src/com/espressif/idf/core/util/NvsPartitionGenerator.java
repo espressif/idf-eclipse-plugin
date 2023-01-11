@@ -1,3 +1,8 @@
+/*******************************************************************************
+ * Copyright 2023 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
+
 package com.espressif.idf.core.util;
 
 import java.util.ArrayList;
@@ -16,6 +21,10 @@ import com.espressif.idf.core.logging.Logger;
 
 public class NvsPartitionGenerator
 {
+	private NvsPartitionGenerator()
+	{
+	}
+
 	public static String generateNvsPartititon(boolean isEncrypted, Optional<String> encryptionKeyPathOpt, String size,
 			IFile nvsCsvFile)
 	{
