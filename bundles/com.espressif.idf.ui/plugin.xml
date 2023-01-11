@@ -403,7 +403,7 @@
          </command>
          <command
                commandId="com.espressif.idf.ui.nvsEditorCommand"
-               icon="icons/ESP-IDF_Partition_Table_Editor.png"
+               icon="icons/ESP-IDF_NVS_Table_Editor.png"
                label="%command.label.nsvTableEditor"
                style="push">
          </command>
