@@ -700,8 +700,6 @@ public class NvsEditorDialog extends TitleAreaDialog
 		beansToSave.remove(selectedElement);
 		tableViewer.setInput(beansToSave);
 		tableViewer.refresh();
-		getShell().pack();
-
 	}
 
 	private void getAddRowAction()
@@ -712,8 +710,7 @@ public class NvsEditorDialog extends TitleAreaDialog
 		tableViewer.setInput(beansToSave);
 		tableViewer.refresh();
 		csvTable.select(csvTable.getItemCount() - 1);
-		getShell().pack();
-
+		tableViewer.refresh();
 	}
 	
 	@Override
