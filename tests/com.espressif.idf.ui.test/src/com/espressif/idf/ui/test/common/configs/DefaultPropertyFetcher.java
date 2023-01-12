@@ -6,7 +6,10 @@ package com.espressif.idf.ui.test.common.configs;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.Properties;
+
+import org.eclipse.core.runtime.Platform;
 
 /**
  * The class to fetch the properties from the default config file specified in {@link IDefaultConfigConstants}
@@ -18,7 +21,7 @@ public class DefaultPropertyFetcher
 {
 	/**
 	 * Gets the long property value from the default config file
-	 * ({@link IDefaultConfigConstants#DEFAULT_CONFIG_PROPERTY_FILE}) and if not found returns the default value
+	 * ({@link IDefaultConfigConstants#DEFAULT_CONFIG_PROPERTY_FILE_LINUX}) and if not found returns the default value
 	 * 
 	 * @param propertyName property name to look for
 	 * @param defaultValue the default value to return if property not present in file
@@ -29,7 +32,7 @@ public class DefaultPropertyFetcher
 	{
 		Properties properties = new Properties();
 		InputStream inputStream = DefaultPropertyFetcher.class.getClassLoader()
-				.getResourceAsStream(IDefaultConfigConstants.DEFAULT_CONFIG_PROPERTY_FILE);
+				.getResourceAsStream(getPropertyFile());
 
 		if (inputStream == null)
 		{
@@ -47,7 +50,7 @@ public class DefaultPropertyFetcher
 
 	/**
 	 * Gets the String property value from the default config file
-	 * ({@link IDefaultConfigConstants#DEFAULT_CONFIG_PROPERTY_FILE}) and if not found returns the default value
+	 * ({@link IDefaultConfigConstants#DEFAULT_CONFIG_PROPERTY_FILE_LINUX}) and if not found returns the default value
 	 * 
 	 * @param propertyName property name to look for
 	 * @param defaultValue the default value to return if property not present in file
@@ -58,7 +61,7 @@ public class DefaultPropertyFetcher
 	{
 		Properties properties = new Properties();
 		InputStream inputStream = DefaultPropertyFetcher.class.getClassLoader()
-				.getResourceAsStream(IDefaultConfigConstants.DEFAULT_CONFIG_PROPERTY_FILE);
+				.getResourceAsStream(getPropertyFile());
 
 		if (inputStream == null)
 		{
@@ -68,9 +71,20 @@ public class DefaultPropertyFetcher
 		properties.load(inputStream);
 		if (properties.containsKey(propertyName))
 		{
-			return properties.getProperty(propertyName);
+			String property = properties.getProperty(propertyName);
+			return MessageFormat.format(property, System.getenv("GITHUB_WORKSPACE"));
 		}
 
 		return defaultValue;
+	}
+	
+	private static String getPropertyFile()
+	{
+		if (Platform.getOS().equals(Platform.OS_LINUX))
+		{
+			return IDefaultConfigConstants.DEFAULT_CONFIG_PROPERTY_FILE_LINUX;			
+		}
+		
+		return IDefaultConfigConstants.DEFAULT_CONFIG_PROPERTY_FILE_WINDOWS;
 	}
 }
