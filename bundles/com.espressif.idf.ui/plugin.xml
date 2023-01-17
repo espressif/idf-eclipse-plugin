@@ -400,12 +400,33 @@
                icon="icons/ESP-IDF_Partition_Table_Editor.png"
                label="%command.label.PartitionTableEditor"
                style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <iterate
+                     ifEmpty="false"
+                     operator="or">
+                  <instanceof
+                        value="org.eclipse.core.resources.IResource">
+                  </instanceof>
+               </iterate>
+            </visibleWhen>
          </command>
          <command
                commandId="com.espressif.idf.ui.nvsEditorCommand"
                icon="icons/ESP-IDF_NVS_Table_Editor.png"
                label="%command.label.nsvTableEditor"
-               style="push">
+               style="push"
+               tooltip="%command.tooltip.nvsTableEditor">
+            <visibleWhen
+                  checkEnabled="false">
+               <iterate
+                     ifEmpty="false"
+                     operator="or">
+                  <instanceof
+                        value="org.eclipse.core.resources.IResource">
+                  </instanceof>
+               </iterate>
+            </visibleWhen>
          </command>
       </menuContribution>
    </extension>
