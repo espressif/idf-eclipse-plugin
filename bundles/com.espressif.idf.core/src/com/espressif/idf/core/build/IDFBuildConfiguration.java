@@ -98,7 +98,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 {
 
 	protected static final String COMPILE_COMMANDS_JSON = "compile_commands.json"; //$NON-NLS-1$
-	protected static final String COMPONENTS = "components"; // $NON-NLS-1$
+	protected static final String COMPONENTS = "components"; //$NON-NLS-1$
 	private static final String ESP_IDF_COMPONENTS = "esp_idf_components"; //$NON-NLS-1$
 	public static final String CMAKE_GENERATOR = "cmake.generator"; //$NON-NLS-1$
 	public static final String CMAKE_ARGUMENTS = "cmake.arguments"; //$NON-NLS-1$
