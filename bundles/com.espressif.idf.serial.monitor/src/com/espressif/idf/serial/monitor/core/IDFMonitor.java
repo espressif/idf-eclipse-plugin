@@ -10,10 +10,13 @@ import java.util.Map;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 
 import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.GenericJsonReader;
 import com.espressif.idf.core.util.IDFUtil;
@@ -86,8 +89,12 @@ public class IDFMonitor
 		return new SDKConfigJsonReader(project).getValue("ESPTOOLPY_MONITOR_BAUD"); //$NON-NLS-1$
 	}
 
-	public Process start() throws IOException
+	public Process start() throws Exception
 	{
+		if(!dependenciesAreInstalled())
+		{
+			throw new Exception("Missing Dependencies"); //$NON-NLS-1$
+		}
 		List<String> arguments = commandArgsWithSocketServer();
 		
 		// command to execute
@@ -127,4 +134,67 @@ public class IDFMonitor
 		LocalTerminal localTerminal = new LocalTerminal(arguments, workingDir.toFile(), environment);
 		return localTerminal.connect();
 	}
+	
+	public boolean dependenciesAreInstalled()
+	{
+		List<String> arguments = new ArrayList<>();
+		String websocketClient = "websocket-client"; //$NON-NLS-1$
+		final String pythonEnvPath = IDFUtil.getIDFPythonEnvPath();
+		arguments.add(pythonEnvPath);
+		arguments.add("-m"); //$NON-NLS-1$
+		arguments.add("pip"); //$NON-NLS-1$
+		arguments.add("list"); //$NON-NLS-1$
+
+		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
+		String cmdMsg = "Executing " + getCommandString(arguments); //$NON-NLS-1$
+		Logger.log(cmdMsg);
+		Map<String, String> environment = new HashMap<>(System.getenv());
+		Logger.log(environment.toString());
+
+		IStatus status;
+		try
+		{
+			status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT, environment);
+			if (status == null)
+			{
+				Logger.log(IDFCorePlugin.getPlugin(),
+						IDFCorePlugin.errorStatus("Unable to get the process status.", null)); //$NON-NLS-1$
+				return false;
+			}
+
+			String cmdOutput = status.getMessage();
+			if (cmdOutput.contains(websocketClient))
+			{
+				return true;
+			}
+
+			arguments.remove(arguments.size() - 1);
+			arguments.add("install"); //$NON-NLS-1$
+			arguments.add(websocketClient);
+			status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT, environment);
+			if (status == null)
+			{
+				Logger.log(IDFCorePlugin.getPlugin(),
+						IDFCorePlugin.errorStatus("Unable to get the process status.", null)); //$NON-NLS-1$
+				return false;
+			}
+
+			Logger.log(status.getMessage());
+			return true;
+		}
+		catch (IOException e)
+		{
+			Logger.log(e);
+			return false;
+		}
+	}
+
+	private String getCommandString(List<String> arguments)
+	{
+		StringBuilder builder = new StringBuilder();
+		arguments.forEach(entry -> builder.append(entry + " ")); //$NON-NLS-1$
+
+		return builder.toString().trim();
+	}
+
 }
