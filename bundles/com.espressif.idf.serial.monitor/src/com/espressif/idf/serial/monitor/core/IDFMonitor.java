@@ -1,7 +1,6 @@
 package com.espressif.idf.serial.monitor.core;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,12 +15,12 @@ import org.eclipse.core.runtime.Path;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
-import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.GenericJsonReader;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.SDKConfigJsonReader;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.ui.update.InstallToolsHandler;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -137,64 +136,16 @@ public class IDFMonitor
 	
 	public boolean dependenciesAreInstalled()
 	{
-		List<String> arguments = new ArrayList<>();
-		String websocketClient = "websocket-client"; //$NON-NLS-1$
-		final String pythonEnvPath = IDFUtil.getIDFPythonEnvPath();
-		arguments.add(pythonEnvPath);
-		arguments.add("-m"); //$NON-NLS-1$
-		arguments.add("pip"); //$NON-NLS-1$
-		arguments.add("list"); //$NON-NLS-1$
-
-		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
-		String cmdMsg = "Executing " + getCommandString(arguments); //$NON-NLS-1$
-		Logger.log(cmdMsg);
-		Map<String, String> environment = new HashMap<>(System.getenv());
-		Logger.log(environment.toString());
-
-		IStatus status;
-		try
+		InstallToolsHandler installToolsHandler = new InstallToolsHandler();
+		IStatus status = installToolsHandler.handleWebSocketClientInstall();
+		if (status == null || status.getSeverity() == IStatus.ERROR)
 		{
-			status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT, environment);
-			if (status == null)
-			{
-				Logger.log(IDFCorePlugin.getPlugin(),
-						IDFCorePlugin.errorStatus("Unable to get the process status.", null)); //$NON-NLS-1$
-				return false;
-			}
-
-			String cmdOutput = status.getMessage();
-			if (cmdOutput.contains(websocketClient))
-			{
-				return true;
-			}
-
-			arguments.remove(arguments.size() - 1);
-			arguments.add("install"); //$NON-NLS-1$
-			arguments.add(websocketClient);
-			status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT, environment);
-			if (status == null)
-			{
-				Logger.log(IDFCorePlugin.getPlugin(),
-						IDFCorePlugin.errorStatus("Unable to get the process status.", null)); //$NON-NLS-1$
-				return false;
-			}
-
-			Logger.log(status.getMessage());
-			return true;
-		}
-		catch (IOException e)
-		{
-			Logger.log(e);
+			Logger.log(IDFCorePlugin.getPlugin(),
+					IDFCorePlugin.errorStatus("Unable to get the process status.", null)); //$NON-NLS-1$
 			return false;
 		}
+
+		Logger.log(status.getMessage());
+		return true;
 	}
-
-	private String getCommandString(List<String> arguments)
-	{
-		StringBuilder builder = new StringBuilder();
-		arguments.forEach(entry -> builder.append(entry + " ")); //$NON-NLS-1$
-
-		return builder.toString().trim();
-	}
-
 }
