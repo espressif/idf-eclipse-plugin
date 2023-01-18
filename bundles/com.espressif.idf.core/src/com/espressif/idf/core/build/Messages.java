@@ -26,6 +26,9 @@ public class Messages extends NLS
 	public static String IncreasePartitionSizeTitle;
 	public static String IncreasePartitionSizeMessage;
 
+	public static String ToolsInitializationDifferentPathMessageBoxMessage;
+	public static String ToolsInitializationDifferentPathMessageBoxTitle;
+	
 	static
 	{
 		// initialize resource bundle
