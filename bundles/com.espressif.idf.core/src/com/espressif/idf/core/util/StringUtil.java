@@ -12,6 +12,8 @@ public class StringUtil
 {
 	public static String EMPTY = ""; //$NON-NLS-1$
 
+	public static final String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
+
 	public static boolean isEmpty(String text)
 	{
 		return text == null || text.trim().length() == 0;

@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
 import org.eclipse.core.resources.IProject;
@@ -604,5 +606,13 @@ public class IDFUtil
 			Logger.log(e);
 		}
 		return null;
+	}
+
+	@SuppressWarnings("nls")
+	public static String getNvsGeneratorScriptPath()
+	{
+		return Stream.of(getIDFPath(), "components", "nvs_flash", "nvs_partition_generator", "nvs_partition_gen.py")
+				.collect(Collectors.joining(String.valueOf(IPath.SEPARATOR)));
+
 	}
 }

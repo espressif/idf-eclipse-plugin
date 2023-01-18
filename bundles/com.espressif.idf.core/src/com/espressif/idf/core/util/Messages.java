@@ -33,6 +33,15 @@ public class Messages extends NLS {
 	public static String SubTypeValidationError_4;
 	public static String TypeValidationError_1;
 	public static String TypeValidationError_2;
+	public static String NvsValidation_FirstBeanValidationErr;
+	public static String NvsValidation_ValueValidationErr_1;
+	public static String NvsValidation_ValueValidationErr_2;
+	public static String NvsValidation_ValueValidationErr_3;
+	public static String NvsValidation_NumberValueValidationErr_1;
+	public static String NvsValidation_NumberValueValidationErr_2;
+	public static String NvsValidation_EncodingValidationErr_1;
+	public static String NvsValidation_KeyValidationErr_1;
+	public static String NvsValidation_KeyValidationErr_2;
 	
 	static {
 		// initialize resource bundle
