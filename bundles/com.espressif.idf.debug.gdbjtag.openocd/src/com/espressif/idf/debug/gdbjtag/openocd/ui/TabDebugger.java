@@ -1436,9 +1436,8 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			}
 
 			// Other options
-			stringValue = fGdbServerOtherOptions.getText().trim();
-			configuration.setAttribute(ConfigurationAttributes.GDB_SERVER_OTHER, stringValue);
-			fPersistentPreferences.putGdbServerOtherOptions(stringValue);
+			configuration.setAttribute(ConfigurationAttributes.GDB_SERVER_OTHER,
+					fGdbServerOtherOptions.getText().trim());
 
 			// Allocate server console
 			configuration.setAttribute(ConfigurationAttributes.DO_GDB_SERVER_ALLOCATE_CONSOLE,
@@ -1586,9 +1585,6 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 			configuration.setAttribute(ConfigurationAttributes.GDB_SERVER_LOG,
 					DefaultPreferences.GDB_SERVER_LOG_DEFAULT);
-
-			defaultString = null;
-			configuration.setAttribute(ConfigurationAttributes.GDB_SERVER_OTHER, defaultString);
 
 			configuration.setAttribute(ConfigurationAttributes.DO_GDB_SERVER_ALLOCATE_CONSOLE,
 					DefaultPreferences.DO_GDB_SERVER_ALLOCATE_CONSOLE_DEFAULT);
