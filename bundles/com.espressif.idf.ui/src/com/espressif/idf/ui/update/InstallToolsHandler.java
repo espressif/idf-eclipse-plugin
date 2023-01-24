@@ -236,9 +236,9 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		return runCommand(arguments);
 	}
 
-	protected IStatus handleWebSocketClientInstall()
+	public IStatus handleWebSocketClientInstall()
 	{
-
+		String websocketClient = "websocket-client"; //$NON-NLS-1$
 		// pip install websocket-client
 		List<String> arguments = new ArrayList<String>();
 		final String pythonEnvPath = IDFUtil.getIDFPythonEnvPath();
@@ -254,15 +254,17 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		arguments.add(pythonEnvPath);
 		arguments.add("-m"); //$NON-NLS-1$
 		arguments.add("pip"); //$NON-NLS-1$
-		arguments.add("install"); //$NON-NLS-1$
-		arguments.add("websocket-client"); //$NON-NLS-1$
+		arguments.add("list"); //$NON-NLS-1$
 
 		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 
 		try
 		{
 			String cmdMsg = "Executing " + getCommandString(arguments); //$NON-NLS-1$
-			console.println(cmdMsg);
+			if (console != null)
+			{
+				console.println(cmdMsg);
+			}
 			Logger.log(cmdMsg);
 
 			Map<String, String> environment = new HashMap<>(System.getenv());
@@ -273,17 +275,50 @@ public class InstallToolsHandler extends AbstractToolsHandler
 			{
 				Logger.log(IDFCorePlugin.getPlugin(),
 						IDFCorePlugin.errorStatus("Unable to get the process status.", null)); //$NON-NLS-1$
-				errorConsoleStream.println("Unable to get the process status.");
-				return IDFCorePlugin.errorStatus("Unable to get the process status.", null); //$NON-NLS-1$ ;
+				if (errorConsoleStream != null)
+				{
+					errorConsoleStream.println("Unable to get the process status.");	
+				}
+				return IDFCorePlugin.errorStatus("Unable to get the process status.", null); //$NON-NLS-1$
 			}
 
-			console.println(status.getMessage());
+			String cmdOutput = status.getMessage();
+			if (cmdOutput.contains(websocketClient))
+			{
+				return IDFCorePlugin.okStatus("websocket-client already installed", null); //$NON-NLS-1$
+			}
+			
+			// websocket client not installed so installing it now.
+			arguments.remove(arguments.size() - 1);
+			arguments.add("install"); //$NON-NLS-1$
+			arguments.add(websocketClient);
+			
+			status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT, environment);
+			if (status == null)
+			{
+				Logger.log(IDFCorePlugin.getPlugin(),
+						IDFCorePlugin.errorStatus("Unable to get the process status.", null)); //$NON-NLS-1$
+				if (errorConsoleStream != null)
+				{
+					errorConsoleStream.println("Unable to get the process status.");	
+				}
+				return IDFCorePlugin.errorStatus("Unable to get the process status.", null); //$NON-NLS-1$
+			}
+			
+			if (console != null)
+			{
+				console.println(status.getMessage());
+			}
+			
 			return status;
 		}
 		catch (Exception e1)
 		{
 			Logger.log(IDFCorePlugin.getPlugin(), e1);
-			errorConsoleStream.println(e1.getLocalizedMessage());
+			if (errorConsoleStream != null)
+			{
+				errorConsoleStream.println(e1.getLocalizedMessage());
+			}
 			return IDFCorePlugin.errorStatus(e1.getLocalizedMessage(), e1); // $NON-NLS-1$;
 		}
 	}
