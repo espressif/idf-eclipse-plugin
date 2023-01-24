@@ -92,7 +92,7 @@ public class IDFMonitor
 	{
 		if(!dependenciesAreInstalled())
 		{
-			throw new Exception("Missing Dependencies"); //$NON-NLS-1$
+			throw new Exception("The WebSocket dependency is missing and cannot be installed automatically"); //$NON-NLS-1$
 		}
 		List<String> arguments = commandArgsWithSocketServer();
 		
