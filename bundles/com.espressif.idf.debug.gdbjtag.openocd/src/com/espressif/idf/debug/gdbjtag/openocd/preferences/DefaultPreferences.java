@@ -79,7 +79,7 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 	// ------------------------------------------------------------------------
 
 	// Debugger commands
-	public static final String GDB_CLIENT_OTHER_COMMANDS_DEFAULT = "set mem inaccessible-by-default off\n";
+	public static final String GDB_CLIENT_OTHER_COMMANDS_DEFAULT = "set mem inaccessible-by-default off\nset remotetimeout 20";
 	public static final String DO_FIRST_RESET_COMMAND = "monitor reset ";
 	public static final String HALT_COMMAND = "monitor halt";
 	public static final String ENABLE_SEMIHOSTING_COMMAND = "monitor arm semihosting enable";

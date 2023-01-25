@@ -61,6 +61,9 @@ public class DefaultPreferenceInitializer extends AbstractPreferenceInitializer 
 
 		fDefaultPreferences.putBoolean(PersistentPreferences.TAB_MAIN_CHECK_PROGRAM,
 				DefaultPreferences.TAB_MAIN_CHECK_PROGRAM_DEFAULT);
+		
+		//reset
+		fPersistentPreferences.putGdbClientCommands(DefaultPreferences.GDB_CLIENT_OTHER_COMMANDS_DEFAULT);
 
 		// When the 'ilg.gnumcueclipse.managedbuild.cross' node is completely
 		// added to /default, a NodeChangeEvent is raised.
