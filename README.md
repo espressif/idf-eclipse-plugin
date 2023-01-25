@@ -18,18 +18,26 @@ The plug-in runs on `macOS`, `Windows` and `Linux` platforms.
 To get a quick understanding about ESP-IDF and Eclipse plugin features check our session which was presented in <a href= "https://youtu.be/CbPX3q7LeBc">EclipseCon 2020</a>
 
 # Table Of Contents
-* [ Installing Prerequisites ](#Prerequisites) <br>
-* [ Installing IDF Eclipse Plugin ](#GettingStarted) <br>
-* [ Installing ESP-IDF and Tools ](#InstallTools) <br>
-* [ Installing ESP-IDF and Tools via Tools Installation Wizard ](#InstallToolsWizard) <br>
+<details open>
+  <summary>Get Started</summary>
+  
+* [ Installation](#Installation) <br>
 * [ Creating a new Project ](#NewProjectUsingDefault)<br>
 * [ Configuring Launch Target ](#ConfigureLaunchTarget)<br>
 * [ Compiling the Project ](#BuildApplication)<br>
 * [ Flashing the Project ](#FlashApplication)<br>
 * [ Viewing Serial Output ](#ConfigureLaunchTerminal)<br>
+* [ Debugging the Project ](#debugging)<br>
+* [ Troubleshooting Guide](#troubleshooting)<br>
+* <a href ="https://github.com/espressif/idf-eclipse-plugin/blob/master/FAQ.md#FAQ">FAQ</a>
+</details>
+
+<details>
+  <summary>Other IDE Features</summary>
+
+* [ Installing ESP-IDF and Tools via Tools Installation Wizard ](#InstallToolsWizard) <br>
 * [ Configuring the Project using sdkconfig Editor](#projectconfigure)<br>
 * [ CMake Editor](#cmakeproject)<br>
-* [ Debugging the Project ](#debugging)<br>
 * [ ESP-IDF Application Size Analysis Editor](#sizeanalysiseditor)<br>
 * [ Installing ESP-IDF Components](#espidfcomponents)<br>
 * [ ESP-IDF Terminal](#idfterminal)<br>
@@ -49,12 +57,10 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 * [ Application Level Tracing ](#appLvlTracing)<br>
 * [ ESP-IDF master update](#updateEspIdfMaster)<br>
 * [ Changing Language ](#changeLanguage)<br>
-* [ Troubleshooting Guide](#troubleshooting)<br>
-* [ How to raise bugs ](#howToRaiseBugs)<br>
-* <a href ="https://github.com/espressif/idf-eclipse-plugin/blob/master/FAQ.md#FAQ">FAQ</a>
-* <a href ="https://github.com/espressif/idf-eclipse-plugin/blob/master/WORKAROUNDS.md#WORKAROUNS">WORKAROUNDS</a>
 
-<a name="Prerequisites"></a>
+</details>
+
+<a name="Installation"></a>
 # Installing Prerequisites
 The minimum requirements for running the IDF Eclipse plug-ins are below. 
 
@@ -127,27 +133,6 @@ ESP-IDF Directory selection dialog:
 
 ![](docs/images/esp_idf_dir.png)
 
-<a name="InstallToolsWizard"></a>
-# Tools Installation Wizard
-You can use the install tools wizard to manage the tools installation via a wizard. The advantage of this method over the exisitng installation is that you can easily manage the whole flow via wizard and install the tools in ESP-IDF framework that you only need.<br/>
-
-For getting started:
-1. Navigate to `Espressif` > `ESP-IDF Tools Manager` > `Tools Installation Wizard (Preview)`
-![](docs/images/ToolsManager/install_tools_manager.png)
-
-
-2. The wizard will start and you can select the location for the Git and Python, if they are already present on the system PATH or registry the tools will be populated. After selection you can click `Next`.
-![](docs/images/ToolsManager/git_python_selection.png)
-
-3. Next page will let you select the folder for existing ESP-IDF or you can also select from the drop down list to download the available versions. You can also select master from the list to clone the master for ESP-IDF from github
-![](docs/images/ToolsManager/select_or_download_new_esp_idf.png)
-
-
-1. After you select `Next` you will see the list of all the available tools in the selected ESP-IDF version, this page lets you select only the recommended tools or you can select the tools you want to. You can also filter out the tools via the filter text box or based on the target. The wizard page is the last page and will Install and Download if necessary all the selected tools required. After you have installed all the tools you can finish the wizard and start creating projects.
-
-![](docs/images/ToolsManager/manage_tools_installation.png)
-
-
 <a name="NewProjectUsingDefault"></a>
 # Create a new Project
 1. Make sure you are in `C/C++ Perspective`
@@ -155,23 +140,12 @@ For getting started:
 1. Provide the `Project name` (The ESP-IDF build system does not support spaces in the project path)
 1. Click `Finish`
 
+To create a project using existing esp-idf templates, please refer to [this](#NewProjectUsingTemplates)
+
+
 > **Note:** You will see a lot of unresolved inclusion errors in the editor and those will be resolved only after the build.
 
 ![](docs/images/3_new_project_default.png)
-
-<a name="NewProjectUsingTemplates"></a>
-## Create a new project using ESP-IDF Templates
-1. Make sure you're in `C/C++ Perspective`
-1. Go to `File` > `New` > `Espressif IDF Project` (If you don't see this, please reset the perspective from `Window` > `Perspective` > `Reset Perspective..`)
-1. Provide the `Project name`
-1. Click `Next`
-1. Check `Create a project using one of the templates`
-1. Select the required template from the tree
-1. Click `Finish`
-
-> **Note:** You will see a lot of unresolved inclusion errors in the editor and those will be resolved only after the build.
-
-![](docs/images/4_new_project_templates.png)
 
 <a name="ConfigureLaunchTarget"></a>
 # Configuring Launch target
@@ -220,11 +194,53 @@ ESP-IDF Serial Monitor will allow you to configure the default settings of the s
 1. Click on `ESP-IDF Serial Monitor Settings`
 1. Provide `Console Line Width` and `Limit Console Output`
 
-<a name="projectconfigure"></a>
-# Configuring the Project
-IDF plugin will allow you to configure `sdkconfig` without leaving the Eclipse environment.
+<a name="debugging"></a>
+# Debugging the Project
 
-## SDK Configuration editor
+* <a href ="https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/jtag-debugging/index.html" > GDB Hardware Debugging</a>
+* <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs/OpenOCD%20Debugging.md">GDB OpenOCD Debugging</a>
+* [Core Dump Debugging](#core-dump-debugging)
+* [GDB Stub Debugging](#gdbStubDebugging)
+
+# Other IDE Features
+
+<a name="NewProjectUsingTemplates"></a>
+## Create a new project using ESP-IDF Templates
+1. Make sure you're in `C/C++ Perspective`
+1. Go to `File` > `New` > `Espressif IDF Project` (If you don't see this, please reset the perspective from `Window` > `Perspective` > `Reset Perspective..`)
+1. Provide the `Project name`
+1. Click `Next`
+1. Check `Create a project using one of the templates`
+1. Select the required template from the tree
+1. Click `Finish`
+
+> **Note:** You will see a lot of unresolved inclusion errors in the editor and those will be resolved only after the build.
+
+![](docs/images/4_new_project_templates.png)
+
+<a name="InstallToolsWizard"></a>
+# Tools Installation Wizard
+You can use the install tools wizard to manage the tools installation via a wizard. The advantage of this method over the exisitng installation is that you can easily manage the whole flow via wizard and install the tools in ESP-IDF framework that you only need.<br/>
+
+For getting started:
+1. Navigate to `Espressif` > `ESP-IDF Tools Manager` > `Tools Installation Wizard (Preview)`
+![](docs/images/ToolsManager/install_tools_manager.png)
+
+
+2. The wizard will start and you can select the location for the Git and Python, if they are already present on the system PATH or registry the tools will be populated. After selection you can click `Next`.
+![](docs/images/ToolsManager/git_python_selection.png)
+
+3. Next page will let you select the folder for existing ESP-IDF or you can also select from the drop down list to download the available versions. You can also select master from the list to clone the master for ESP-IDF from github
+![](docs/images/ToolsManager/select_or_download_new_esp_idf.png)
+
+
+1. After you select `Next` you will see the list of all the available tools in the selected ESP-IDF version, this page lets you select only the recommended tools or you can select the tools you want to. You can also filter out the tools via the filter text box or based on the target. The wizard page is the last page and will Install and Download if necessary all the selected tools required. After you have installed all the tools you can finish the wizard and start creating projects.
+
+![](docs/images/ToolsManager/manage_tools_installation.png)
+
+<a name="projectconfigure"></a>
+
+# SDK Configuration editor
 Project configuration is held in a single file called `sdkconfig` in the root directory of the project. This configuration file can be modified using `SDK Configuration Editor`
 
 To launch the SDK Configuration editor:
@@ -246,21 +262,11 @@ CMake editor preferences can be controlled using `Eclipse` > `Preferences` > `CM
 
 ![](docs/images/cmake_editor_preferences.png)
 
-<a name="debugging"></a>
-# Debugging the Project
-## GDB Hardware Debugging
-Please refer to <a href ="https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/jtag-debugging/index.html" > GDB Hardware Debugging guide</a>
-
-## GDB OpenOCD Debugging
-Please refer to this <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs/OpenOCD%20Debugging.md">GDB OpenOCD Debugging</a>
-
-
 <a name="sizeanalysiseditor"></a>
 # ESP-IDF Application Size Analysis
 Application Size Analysis editor provides a way to analyze the static memory footprint of your application. It has two sections - Overview and Details. The **Overview** section provides a summary of the application memory usage and the **Details** section will have in-depth details about components and per-symbol level memory information.
 
 Details table viewer also provides you with searching and sorting capabilities on various columns.
-
 To launch the Application Size Analysis editor:
 1. Right-click on the project
 1. Select `ESP-IDF: Application Size Analysis` menu option to launch the editor
@@ -655,9 +661,6 @@ If you are using the master version of ESP-IDF and want to update it, you can do
 
 **Note:** This command is visible only if you are on the master branch in ESP-IDF
 
-<a name="howToRaiseBugs"></a>
-# How to raise bugs
-Please raise the issues here https://github.com/espressif/idf-eclipse-plugin/issues with the complete environment details and log.
 
 # How to build locally
 1. Install prerequisites Java 11+ and Maven
@@ -704,3 +707,7 @@ Note this configuration changes where all the project build artifacts will be ge
 | IEP 2.1.0 | Eclipse 2021-03, 2020-12, 2020-09 | Java 11 and above | ESP-IDF Tools Windows Installer 2.6 beta | IEP 2.1.0 added a support for Eclipse 2021-03
 | IEP 2.0.0 | Eclipse 2020-12, 2020-09, 2020-06 | Java 11 and above | ESP-IDF Tools Windows Installer 2.6 beta  | 
 | IEP 1.2.4 | Eclipse 2020-12, 2020-09, 2020-06, 2020-03 | Java 1.8 and above | Not supported | IEP 1.2.4 added a support for Eclipse 2020-12
+
+<a name="Support"></a>
+# How to raise bugs
+Please raise the issues here https://github.com/espressif/idf-eclipse-plugin/issues with the complete environment details and log.
