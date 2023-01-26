@@ -59,6 +59,17 @@ public class ESPToolChainManager
 	 * Toolchain target property id.
 	 */
 	private static final String TOOLCHAIN_ATTR_ID = "ATTR_ID"; //$NON-NLS-1$
+	private String envValue;
+	
+	public ESPToolChainManager(String envValue)
+	{
+		this.envValue = envValue;
+	}
+	
+	// Default constructor kept for compatibility
+	public ESPToolChainManager()
+	{
+	}
 
 	/**
 	 * @param manager
@@ -85,7 +96,7 @@ public class ESPToolChainManager
 	{
 		Logger.log("Initializing toolchain..."); //$NON-NLS-1$
 		List<String> paths = new ArrayList<String>();
-		String idfToolsExportPath = getIdfToolsExportPath();
+		String idfToolsExportPath = StringUtil.isEmpty(envValue) ? getIdfToolsExportPath() : envValue;
 		if (idfToolsExportPath != null)
 		{
 			paths.add(idfToolsExportPath);

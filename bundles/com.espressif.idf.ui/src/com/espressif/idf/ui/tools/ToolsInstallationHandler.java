@@ -27,7 +27,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.eclipse.cdt.cmake.core.ICMakeToolChainFile;
+import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
+import org.eclipse.cdt.core.CCorePlugin;
+import org.eclipse.cdt.core.build.IToolChain;
+import org.eclipse.cdt.core.build.IToolChainManager;
 import org.eclipse.cdt.internal.core.envvar.EnvironmentVariableManager;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
@@ -51,6 +57,7 @@ import com.espressif.idf.ui.tools.vo.ToolsVO;
 import com.espressif.idf.ui.tools.vo.VersionsVO;
 import com.espressif.idf.ui.tools.wizard.IToolsInstallationWizardConstants;
 import com.espressif.idf.ui.tools.wizard.pages.ManageToolsInstallationWizardPage;
+import com.espressif.idf.ui.update.InstallToolsHandler;
 
 /**
  * Class to carry out download and install of tools
@@ -76,6 +83,7 @@ public class ToolsInstallationHandler extends Thread
 	private IDFEnvironmentVariables idfEnvironmentVariables;
 	private Preferences scopedPreferenceStore;
 	private int currentOperation;
+	private List<String> exisitngPathsToRemoveWhenProcessingExportCommands;
 
 	public ToolsInstallationHandler(Queue<String> logQueue,
 			ManageToolsInstallationWizardPage manageToolsInstallationWizardPage,
@@ -86,6 +94,7 @@ public class ToolsInstallationHandler extends Thread
 		executorService = Executors.newSingleThreadExecutor();
 		this.idfEnvironmentVariables = idfEnvironmentVariables;
 		scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
+		exisitngPathsToRemoveWhenProcessingExportCommands = new ArrayList<>();
 	}
 
 	@Override
@@ -375,11 +384,32 @@ public class ToolsInstallationHandler extends Thread
 		if (StringUtil.isEmpty(toolPath))
 			return;
 
+		Path path = Paths.get(toolPath);
+		exisitngPathsToRemoveWhenProcessingExportCommands.add(path.getParent().toString());
+		
 		logQueue.add(Messages.UpdatingPathMessage);
 		StringBuilder exportPathBuilder = new StringBuilder();
 		exportPathBuilder.append(toolPath);
 		removeExistingToolPath(toolName);
 		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+		
+		// sometimes tar.gz archives can result in different types of outputs verify that the
+		// first directory in export paths is present the toolpath
+		File[] files =  new File(toolPath).listFiles();
+		if (files.length >= 1 && exportPaths.size() > 0)
+		{
+			String nameOfPresentDir = files[0].getName();
+			while (nameOfPresentDir.charAt(0) == '.')
+			{
+				nameOfPresentDir = files[1].getName();
+			}
+			String pathToCheckFromExport = exportPaths.get(0);
+			if (!pathToCheckFromExport.contains(nameOfPresentDir))
+			{
+				exportPathBuilder.append(nameOfPresentDir);
+				exportPathBuilder.append(PATH_SPLITOR);
+			}
+		}
 		if (exportPaths != null && exportPaths.size() > 0)
 		{
 			for (String exportPath : exportPaths)
@@ -553,6 +583,7 @@ public class ToolsInstallationHandler extends Thread
 			configEnv();
 			copyOpenOcdRules();
 			IDFUtil.updateEspressifPrefPageOpenocdPath();
+			scopedPreferenceStore.putBoolean(InstallToolsHandler.INSTALL_TOOLS_FLAG, true);
 			return Boolean.TRUE;
 		}
 
@@ -580,10 +611,28 @@ public class ToolsInstallationHandler extends Thread
 			{
 				addGitToEnvironment(environment, gitExePath);
 			}
+//			if (environment.containsKey("PATH"))
+//			{
+//				environment.put("PATH", idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH).
+//						concat(File.pathSeparator).
+//						concat(environment.get("PATH")));
+//			}
+//			else if (environment.containsKey("Path"))
+//			{
+//				environment.put("Path",environment.get("Path").
+//						concat(File.pathSeparator).
+//						concat(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH)));
+//			}
+			environment.put("IDF_TOOLS_PATH", idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH));
+//			environment.put(IDFEnvironmentVariables.IDF_PATH, idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH));
+//			environment.putAll(idfEnvironmentVariables.getSystemEnvMap());
 			final ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
+			
 			try
 			{
-				final IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT,
+				final IStatus status = processRunner.runInBackground(arguments, 
+						org.eclipse.core.runtime.Path.
+						fromOSString(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH)),
 						environment);
 				if (status == null)
 				{
@@ -593,6 +642,7 @@ public class ToolsInstallationHandler extends Thread
 
 				// process export command output
 				final String exportCmdOp = status.getMessage();
+				Logger.log(exportCmdOp);
 				logQueue.add(exportCmdOp);
 				processExportCmdOutput(exportCmdOp, gitExePath);
 			}
@@ -607,6 +657,7 @@ public class ToolsInstallationHandler extends Thread
 		{
 			// process export command output
 			final String[] exportEntries = exportCmdOp.split("\n"); //$NON-NLS-1$
+			final IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
 			for (String entry : exportEntries)
 			{
 				entry = entry.replaceAll("\\r", ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -616,23 +667,29 @@ public class ToolsInstallationHandler extends Thread
 					final String msg = MessageFormat.format("Key: {0} Value: {1}", keyValue[0], keyValue[1]); //$NON-NLS-1$
 					Logger.log(msg);
 
-					final IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
+					
 					String key = keyValue[0];
 					String value = keyValue[1];
 					if (key.equals(IDFEnvironmentVariables.PATH))
 					{
-						value = replacePathVariable(value);
-						value = appendGitToPath(value, gitExecutablePath);
+						continue;
+//						Logger.log("idf_tools.py export value: ".concat(value)); //$NON-NLS-1$
+//						value = idfEnvMgr.getEnvValue(IDFEnvironmentVariables.PATH).
+//								concat(File.pathSeparator).concat(value);
+//						Logger.log("idf_tools.py export value after prepending the installed env value: " //$NON-NLS-1$
+//								.concat(value));
+//						value = replacePathVariable(value, idfEnvMgr);
+						
+//						value = appendGitToPath(value, gitExecutablePath);
 					}
 
 					// add new or replace old entries
 					idfEnvMgr.addEnvVariable(key, value);
 				}
-
 			}
 		}
 
-		private String replacePathVariable(String value)
+		private String replacePathVariable(String value, IDFEnvironmentVariables idfEnvMgr)
 		{
 			// Get system PATH
 			Map<String, String> systemEnv = new HashMap<>(System.getenv());
@@ -651,7 +708,22 @@ public class ToolsInstallationHandler extends Thread
 				value = value.replace("$PATH", pathEntry); // macOS //$NON-NLS-1$
 				value = value.replace("%PATH%", pathEntry); // Windows //$NON-NLS-1$
 			}
-			return value;
+			
+			StringBuilder stringBuilder = new StringBuilder();
+			for (String path : value.split(File.pathSeparator))
+			{
+				boolean removed = exisitngPathsToRemoveWhenProcessingExportCommands.removeIf(p -> path.contains(p));
+				// if something is removed means we dont use this path as 
+				// it was already present with a different version in the local variable manager
+				if (removed) continue;
+				stringBuilder.append(path);
+				stringBuilder.append(File.pathSeparator);
+			}
+//			
+//			stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+//			
+			return stringBuilder.toString();
+//			return value;
 		}
 
 		private String appendGitToPath(String path, String gitExecutablePath)
@@ -690,6 +762,26 @@ public class ToolsInstallationHandler extends Thread
 					envMap.put("Path", path2); //$NON-NLS-1$
 				}
 			}
+		}
+		private void configureToolChain()
+		{
+			IToolChainManager tcManager = CCorePlugin.getService(IToolChainManager.class);
+			try
+			{
+				for(IToolChain toolChain : new ArrayList<>(tcManager.getAllToolChains()))
+				{
+					tcManager.removeToolChain(toolChain);
+				}
+			}
+			catch (CoreException e)
+			{
+				Logger.log(e);
+			}
+			ICMakeToolChainManager cmakeTcManager = CCorePlugin.getService(ICMakeToolChainManager.class);
+			ESPToolChainManager toolchainManager = new ESPToolChainManager(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH));
+			toolchainManager.initToolChain(tcManager, ESPToolChainProvider.ID);
+			toolchainManager.initCMakeToolChain(tcManager, cmakeTcManager);
+			toolchainManager.addToolchainBasedTargets(IDFCorePlugin.getService(ILaunchTargetManager.class));
 		}
 
 		private void copyOpenOcdRules()
