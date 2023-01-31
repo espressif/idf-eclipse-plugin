@@ -12,9 +12,11 @@ import java.util.Map;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.EclipseUtil;
 import com.espressif.idf.ui.update.AbstractToolsHandler;
@@ -35,6 +37,16 @@ public class ProjectCleanCommandHandler extends AbstractToolsHandler
 		List<String> commands = new ArrayList<>();
 		commands.add(IDFUtil.getIDFPythonEnvPath());
 		commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
+		commands.add("-B"); //$NON-NLS-1$
+		try
+		{
+			commands.add(IDFUtil.getBuildDir(selectedProject));
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+
 		commands.add("clean"); //$NON-NLS-1$
 		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
 		console.println(commands.toString());
