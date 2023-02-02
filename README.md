@@ -56,6 +56,8 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 * [ Core Dump Debugging ](#coreDumpDebugging)<br>
 * [ Application Level Tracing ](#appLvlTracing)<br>
 * [ ESP-IDF master update](#updateEspIdfMaster)<br>
+* [ Partition Table Editor UI for ESP-IDF](#partitionTableEditor)<br>
+* [ NVS Table Editor](#nvsTableEditor)<br>
 * [ Changing Language ](#changeLanguage)<br>
 
 </details>
@@ -661,6 +663,60 @@ If you are using the master version of ESP-IDF and want to update it, you can do
 
 **Note:** This command is visible only if you are on the master branch in ESP-IDF
 
+<a name ="partitionTableEditor"></a>
+
+# Partition Table Editor UI for ESP-IDF
+
+`ESP-IDF: Partition Table Editor` command allows to edit your [partition table](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/partition-tables.html) in a more convenient way, where you can see the supported types and subtypes and monitor the correctness of the entered data.
+
+> Note: This command is available in the idf-eclipse plugin 2.8.0 and higher
+
+Steps:
+1. Open any IDF Project in Project Explorer where you want to have custom partition table.
+2. To use a custom partition table, `Custom partition table CSV' must be set in the sdkconfig like this:
+
+![partition_table_editor](https://user-images.githubusercontent.com/24419842/216104107-2844068b-8412-468b-931f-b4778af4417c.png)
+
+3. Right click on project in the Project Explorer and click on `ESP-IDF: Partition Table Editor` command:
+
+![partition_table_editor_3](https://user-images.githubusercontent.com/24419842/216105408-ca2e73ce-5df3-4bdd-ac61-b7265deb9b44.png)
+
+4. When you first open the partition table editor for the selected project, you will see the standard editable content. If there is any error it will be highlighted, you can hover your mouse over it to read a hint what it is about:
+![partition_table_editor_4](https://user-images.githubusercontent.com/24419842/216106804-703b2eb4-b141-48de-8559-0599f072219f.png)
+
+5. Don't forget to click "Save" or "Save and Quit" to save your changes.
+
+<a name ="nvsTableEditor"></a>
+
+# NVS Table Editor
+
+`NVS Table Editor` helps to create a binary file based on key-value pairs provided in a CSV file. The resulting binary file is compatible with NVS architecture defined in [ESP_IDF Non Volatile Storage](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/storage/nvs_flash.html). The expected CSV format is:
+
+```
+key,type,encoding,value     <-- column header (must be the first line)
+namespace_name,namespace,,  <-- First entry must be of type "namespace"
+key1,data,u8,1
+key2,file,string,/path/to/file
+```
+> Note: This is based on ESP-IDF [NVS Partition Generator Utility](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/storage/nvs_partition_gen.html). 
+
+Steps: 
+1. Right click on project in the Project Explorer
+2. Select the `ESP-IDF: NVS Table Editor` command:
+
+![NVS Table Editor](https://user-images.githubusercontent.com/24419842/216114697-9f231211-f5dd-431b-9432-93ecc656cfec.png)
+> Note: This command is available in the idf-eclipse plugin 2.8.0 and higher
+3. Make desire changes to CSV data.
+4. Save changes by clicking the `Save` button. If everything is ok, you will see an information message at the top of the dialog:
+![NVS_TABLE_EDITOR_2png](https://user-images.githubusercontent.com/24419842/216115906-9bb4fe55-293b-4c6b-8d22-0aa3520581ab.png)
+5. Generate the partition binary (Choose encrypt to encrypt the binary and disable the generate key option to use your own key if desired). You will see an information message at the  top of the dialog about the result of generation the binaries.  you can hover your mouse over it to read the whole message if it's too long:
+![NVS_Table_Editor_4](https://user-images.githubusercontent.com/24419842/216117261-9bee798a-3a9e-4be5-9466-fc9d3847834b.png)
+
+Note: If there are any errors, you will see them highlight, hover on the error icon to read more about the error. Also, the error message at the top of the dialog if saving the CSV file is not successful: 
+
+![NVS_Table_editor_5](https://user-images.githubusercontent.com/24419842/216118486-69f819fa-7a95-49ae-805e-473cd2c424e8.png)
+
+After all these steps, you should see `nvs.csv` and `nvs.bin` files in the project directory.
 
 # How to build locally
 1. Install prerequisites Java 11+ and Maven
