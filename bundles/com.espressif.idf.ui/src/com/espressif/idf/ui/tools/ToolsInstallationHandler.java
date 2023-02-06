@@ -34,12 +34,15 @@ import org.eclipse.cdt.internal.core.envvar.EnvironmentVariableManager;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.DefaultScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
+import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFConstants;
@@ -557,9 +560,24 @@ public class ToolsInstallationHandler extends Thread
 			configureToolChain();
 			configEnv();
 			copyOpenOcdRules();
+			updateEspressifPrefPageOpenocdPath();
 			return Boolean.TRUE;
 		}
 
+		private void updateEspressifPrefPageOpenocdPath()
+		{
+			IEclipsePreferences newNode = DefaultScope.INSTANCE.getNode("com.espressif.idf.debug.gdbjtag.openocd"); //$NON-NLS-1$
+			newNode.put("install.folder", IDFUtil.getOpenOCDLocation()); //$NON-NLS-1$
+			try
+			{
+				newNode.flush();
+			}
+			catch (BackingStoreException e)
+			{
+				Logger.log(e);
+			}
+		}
+		
 		private void configEnv()
 		{
 			// Enable IDF_COMPONENT_MANAGER by default
