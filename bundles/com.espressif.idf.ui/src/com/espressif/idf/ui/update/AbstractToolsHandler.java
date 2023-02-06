@@ -24,6 +24,7 @@ import com.espressif.idf.core.ExecutableFinder;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
+import com.espressif.idf.core.Version;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.PyWinRegistryReader;
@@ -123,9 +124,10 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 			{
 				Logger.log("No Python installations found in the system."); //$NON-NLS-1$
 			}
-			pythonExecutablenPath = pythonVersions.entrySet().stream()
-					.filter(e -> Double.parseDouble(e.getKey()) >= 3.6).map(Entry::getValue).findAny()
-					.orElseGet(IDFUtil::getPythonExecutable);
+
+			pythonExecutablenPath = pythonVersions.entrySet().stream().filter(
+					e -> new Version(e.getKey().replaceAll("-.+", StringUtil.EMPTY)).compareTo(new Version("3.6")) >= 0) //$NON-NLS-1$ //$NON-NLS-2$
+					.map(Entry::getValue).findAny().orElseGet(IDFUtil::getPythonExecutable);
 
 		}
 		else
