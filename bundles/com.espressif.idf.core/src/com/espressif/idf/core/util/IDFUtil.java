@@ -110,7 +110,7 @@ public class IDFUtil
 				+ IDFConstants.IDF_SIZE_SCRIPT;
 		return new File(idf_py_script);
 	}
-	
+
 	/**
 	 * @return tools.json file for tools to install
 	 */
@@ -363,7 +363,7 @@ public class IDFUtil
 							String[] tuples = file.getName().split("-"); //$NON-NLS-1$
 							if (projectEspTarget == null) // If no IDF_TARGET
 							{
-								return path;
+								return null;
 							}
 							else if (tuples[1].equals(projectEspTarget) || tuples[0].equals(projectEspTarget))
 							{
@@ -442,7 +442,7 @@ public class IDFUtil
 				+ IDFConstants.ESP_TOOL_SCRIPT;
 		return new File(esp_tool_script);
 	}
-	
+
 	public static File getEspCoreDumpScriptFile()
 	{
 		String idf_path = getIDFPath();
@@ -450,7 +450,7 @@ public class IDFUtil
 				+ IDFConstants.ESP_CORE_DUMP_FOLDER + IPath.SEPARATOR + IDFConstants.ESP_CORE_DUMP_SCRIPT;
 		return new File(esp_tool_script);
 	}
-	
+
 	public static String getEspIdfVersion()
 	{
 		if (IDFUtil.getIDFPath() != null && IDFUtil.getIDFPythonEnvPath() != null)
@@ -580,7 +580,7 @@ public class IDFUtil
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Project .elf file path
 	 * 
