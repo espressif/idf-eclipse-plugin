@@ -1125,9 +1125,8 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 						configuration.getAttribute(ConfigurationAttributes.DO_START_GDB_CLIENT, booleanDefault));
 
 				// Executable
-				stringDefault = fPersistentPreferences.getGdbClientExecutable();
 				String gdbCommandAttr = configuration.getAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME,
-						stringDefault);
+						fGdbClientExecutable.getText());
 				fGdbClientExecutable.setText(gdbCommandAttr);
 
 				// Other options
@@ -1461,7 +1460,6 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 			stringValue = fGdbClientExecutable.getText().trim();
 			configuration.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, stringValue); // DSF
-			fPersistentPreferences.putGdbClientExecutable(stringValue);
 
 			stringValue = fGdbClientOtherOptions.getText().trim();
 			configuration.setAttribute(ConfigurationAttributes.GDB_CLIENT_OTHER_OPTIONS, stringValue);
@@ -1595,9 +1593,6 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 		// GDB client setup
 		{
-			defaultString = getGdbClientExecutable(configuration);
-			configuration.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, defaultString);
-
 			configuration.setAttribute(IGDBJtagConstants.ATTR_USE_REMOTE_TARGET,
 					DefaultPreferences.USE_REMOTE_TARGET_DEFAULT);
 
