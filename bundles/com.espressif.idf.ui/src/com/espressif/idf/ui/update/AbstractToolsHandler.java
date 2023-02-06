@@ -125,9 +125,9 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 				Logger.log("No Python installations found in the system."); //$NON-NLS-1$
 			}
 
-			pythonExecutablenPath = pythonVersions.entrySet().stream()
-					.filter(e -> new Version(e.getKey()).compareTo(new Version("3.6")) >= 0).map(Entry::getValue) //$NON-NLS-1$
-					.findAny().orElseGet(IDFUtil::getPythonExecutable);
+			pythonExecutablenPath = pythonVersions.entrySet().stream().filter(
+					e -> new Version(e.getKey().replaceAll("-.+", StringUtil.EMPTY)).compareTo(new Version("3.6")) >= 0) //$NON-NLS-1$ //$NON-NLS-2$
+					.map(Entry::getValue).findAny().orElseGet(IDFUtil::getPythonExecutable);
 
 		}
 		else
