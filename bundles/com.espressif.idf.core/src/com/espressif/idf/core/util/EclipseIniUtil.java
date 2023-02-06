@@ -52,7 +52,7 @@ public class EclipseIniUtil
 	private void loadIniFilePath() throws Exception
 	{
 		URL url = new URL(
-				Platform.getInstallLocation().getURL() + System.getProperty("eclipse.launcher.name") + ".ini"); //$NON-NLS-1$ //$NON-NLS-2$
+				Platform.getInstallLocation().getURL() + System.getProperty("eclipse.launcher.name").toLowerCase() + ".ini"); //$NON-NLS-1$ //$NON-NLS-2$
 		ECLIPSE_INI_FILE = url.toString();
 	}
 
