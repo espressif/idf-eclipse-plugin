@@ -24,9 +24,11 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.osgi.service.prefs.BackingStoreException;
 
 import com.espressif.idf.core.ExecutableFinder;
 import com.espressif.idf.core.IDFConstants;
@@ -614,5 +616,22 @@ public class IDFUtil
 		return Stream.of(getIDFPath(), "components", "nvs_flash", "nvs_partition_generator", "nvs_partition_gen.py")
 				.collect(Collectors.joining(String.valueOf(IPath.SEPARATOR)));
 
+	}
+	
+	/**
+	 * Update the openocd path in configurations
+	 */
+	public static void updateEspressifPrefPageOpenocdPath()
+	{
+		IEclipsePreferences newNode = DefaultScope.INSTANCE.getNode("com.espressif.idf.debug.gdbjtag.openocd"); //$NON-NLS-1$
+		newNode.put("install.folder", getOpenOCDLocation()); //$NON-NLS-1$
+		try
+		{
+			newNode.flush();
+		}
+		catch (BackingStoreException e)
+		{
+			Logger.log(e);
+		}
 	}
 }
