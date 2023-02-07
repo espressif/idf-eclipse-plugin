@@ -35,7 +35,9 @@ import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
+import com.espressif.idf.core.build.ESP32C2ToolChain;
 import com.espressif.idf.core.build.ESP32C3ToolChain;
+import com.espressif.idf.core.build.ESP32H2ToolChain;
 import com.espressif.idf.core.build.ESPToolChainProvider;
 import com.espressif.idf.core.logging.Logger;
 
@@ -45,6 +47,11 @@ import com.espressif.idf.core.logging.Logger;
  */
 public class IDFUtil
 {
+
+	private IDFUtil()
+	{
+	}
+
 	private static Boolean idfSupportsSpaces;
 
 	/**
@@ -333,9 +340,9 @@ public class IDFUtil
 
 	public static String getXtensaToolchainExecutablePathByTarget(String projectEspTarget)
 	{
-
 		Pattern gdb_pattern = ESPToolChainProvider.GDB_PATTERN; // default
-		if (!StringUtil.isEmpty(projectEspTarget) && projectEspTarget.equals(ESP32C3ToolChain.OS))
+		if (!StringUtil.isEmpty(projectEspTarget) && (projectEspTarget.equals(ESP32C3ToolChain.OS)
+				|| projectEspTarget.equals(ESP32C2ToolChain.OS) || projectEspTarget.equals(ESP32H2ToolChain.OS)))
 		{
 			gdb_pattern = ESPToolChainProvider.GDB_PATTERN_ESP32C3;
 			projectEspTarget = ESP32C3ToolChain.ARCH;
