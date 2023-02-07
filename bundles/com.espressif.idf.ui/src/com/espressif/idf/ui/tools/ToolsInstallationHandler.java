@@ -557,6 +557,7 @@ public class ToolsInstallationHandler extends Thread
 			configureToolChain();
 			configEnv();
 			copyOpenOcdRules();
+			IDFUtil.updateEspressifPrefPageOpenocdPath();
 			return Boolean.TRUE;
 		}
 
