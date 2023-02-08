@@ -1220,18 +1220,14 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			fDoGdbServerAllocateTelnetConsole
 					.setSelection(DefaultPreferences.DO_GDB_SERVER_ALLOCATE_TELNET_CONSOLE_DEFAULT);
 
+			fFlashVoltage.select(0);
+			fTarget.select(0);
+			fTarget.notifyListeners(SWT.Selection, null);
 		}
 
 		// GDB Client Setup
 		{
 			fDoStartGdbClient.setSelection(DefaultPreferences.DO_START_GDB_CLIENT_DEFAULT);
-
-			// Set Xtensa toolchain path
-			String clientExecutablePath = getGdbClientExecutable(fConfiguration);
-			if (clientExecutablePath != null)
-			{
-				fGdbClientExecutable.setText(clientExecutablePath);
-			}
 
 			// Other options
 			fGdbClientOtherOptions.setText(DefaultPreferences.GDB_CLIENT_OTHER_OPTIONS_DEFAULT);
@@ -1589,6 +1585,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 			configuration.setAttribute(ConfigurationAttributes.DO_GDB_SERVER_ALLOCATE_TELNET_CONSOLE,
 					DefaultPreferences.DO_GDB_SERVER_ALLOCATE_TELNET_CONSOLE_DEFAULT);
+
 		}
 
 		// GDB client setup
