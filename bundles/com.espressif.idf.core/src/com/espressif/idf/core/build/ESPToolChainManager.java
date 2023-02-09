@@ -60,13 +60,7 @@ public class ESPToolChainManager
 	 */
 	private static final String TOOLCHAIN_ATTR_ID = "ATTR_ID"; //$NON-NLS-1$
 	private String envValue;
-	
-	public ESPToolChainManager(String envValue)
-	{
-		this.envValue = envValue;
-	}
-	
-	// Default constructor kept for compatibility
+
 	public ESPToolChainManager()
 	{
 	}
