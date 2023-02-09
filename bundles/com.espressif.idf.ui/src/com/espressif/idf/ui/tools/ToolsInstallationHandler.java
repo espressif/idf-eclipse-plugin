@@ -27,15 +27,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
-import org.eclipse.cdt.core.CCorePlugin;
-import org.eclipse.cdt.core.build.IToolChainManager;
 import org.eclipse.cdt.internal.core.envvar.EnvironmentVariableManager;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
@@ -46,11 +42,10 @@ import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
-import com.espressif.idf.core.build.ESPToolChainManager;
-import com.espressif.idf.core.build.ESPToolChainProvider;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.core.util.ToolChainUtil;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.tools.vo.ToolsVO;
 import com.espressif.idf.ui.tools.vo.VersionsVO;
@@ -554,7 +549,7 @@ public class ToolsInstallationHandler extends Thread
 			runPythonEnvCommand();
 			runToolsExport(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.GIT_PATH));
 			handleWebSocketClientInstall();
-			configureToolChain();
+			ToolChainUtil.configureToolChain();
 			configEnv();
 			copyOpenOcdRules();
 			IDFUtil.updateEspressifPrefPageOpenocdPath();
@@ -695,17 +690,6 @@ public class ToolsInstallationHandler extends Thread
 					envMap.put("Path", path2); //$NON-NLS-1$
 				}
 			}
-		}
-
-		private void configureToolChain()
-		{
-			IToolChainManager tcManager = CCorePlugin.getService(IToolChainManager.class);
-			ICMakeToolChainManager cmakeTcManager = CCorePlugin.getService(ICMakeToolChainManager.class);
-
-			ESPToolChainManager toolchainManager = new ESPToolChainManager();
-			toolchainManager.initToolChain(tcManager, ESPToolChainProvider.ID);
-			toolchainManager.initCMakeToolChain(tcManager, cmakeTcManager);
-			toolchainManager.addToolchainBasedTargets(IDFCorePlugin.getService(ILaunchTargetManager.class));
 		}
 
 		private void copyOpenOcdRules()
