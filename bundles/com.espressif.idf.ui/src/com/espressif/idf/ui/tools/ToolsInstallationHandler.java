@@ -29,9 +29,7 @@ import java.util.concurrent.Future;
 
 import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
 import org.eclipse.cdt.core.CCorePlugin;
-import org.eclipse.cdt.core.build.IToolChain;
 import org.eclipse.cdt.core.build.IToolChainManager;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -563,6 +561,7 @@ public class ToolsInstallationHandler extends Thread
 			handleWebSocketClientInstall();
 			ToolChainUtil.configureToolChain();
 			configEnv();
+			handleWebSocketClientInstall();
 			copyOpenOcdRules();
 			IDFUtil.updateEspressifPrefPageOpenocdPath();
 			scopedPreferenceStore.putBoolean(InstallToolsHandler.INSTALL_TOOLS_FLAG, true);
@@ -592,18 +591,6 @@ public class ToolsInstallationHandler extends Thread
 
 			final Map<String, String> environment = new HashMap<>(System.getenv());
 			
-//			if (environment.containsKey("PATH"))
-//			{
-//				environment.put("PATH", idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH).
-//						concat(File.pathSeparator).
-//						concat(environment.get("PATH")));
-//			}
-//			else if (environment.containsKey("Path"))
-//			{
-//				environment.put("Path",environment.get("Path").
-//						concat(File.pathSeparator).
-//						concat(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH)));
-//			}
 			StringBuilder paths = new StringBuilder();
 			
 			for (Path toolPath : listOfPathsToUpdate)
@@ -628,9 +615,6 @@ public class ToolsInstallationHandler extends Thread
 				environment.put(IDFEnvironmentVariables.PATH, paths.toString());
 			}
 			
-			
-//			environment.put(IDFEnvironmentVariables.IDF_PATH, idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH));
-//			environment.putAll(idfEnvironmentVariables.getSystemEnvMap());
 			final ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 			
 			try
@@ -698,17 +682,6 @@ public class ToolsInstallationHandler extends Thread
 			}
 			return value;
 		}
-		private void configureToolChain()
-		{
-			IToolChainManager tcManager = CCorePlugin.getService(IToolChainManager.class);
-			ICMakeToolChainManager cmakeTcManager = CCorePlugin.getService(ICMakeToolChainManager.class);
-			ESPToolChainManager toolchainManager = new ESPToolChainManager();
-			toolchainManager.removePrevInstalledToolchains(tcManager);
-			toolchainManager.initToolChain(tcManager, ESPToolChainProvider.ID);
-			toolchainManager.initCMakeToolChain(tcManager, cmakeTcManager);
-			toolchainManager.addToolchainBasedTargets(IDFCorePlugin.getService(ILaunchTargetManager.class));
-		}
-
 		private void copyOpenOcdRules()
 		{
 			if (Platform.getOS().equals(Platform.OS_LINUX)
