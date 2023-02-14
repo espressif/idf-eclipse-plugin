@@ -16,9 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
-import org.eclipse.cdt.core.CCorePlugin;
-import org.eclipse.cdt.core.build.IToolChainManager;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
@@ -27,7 +24,6 @@ import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -38,11 +34,10 @@ import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
-import com.espressif.idf.core.build.ESPToolChainManager;
-import com.espressif.idf.core.build.ESPToolChainProvider;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.core.util.ToolChainUtil;
 import com.espressif.idf.ui.UIPlugin;
 
 /**
@@ -55,8 +50,6 @@ public class InstallToolsHandler extends AbstractToolsHandler
 {
 
 	public static final String INSTALL_TOOLS_FLAG = "INSTALL_TOOLS_FLAG"; //$NON-NLS-1$
-	private IToolChainManager tcManager = CCorePlugin.getService(IToolChainManager.class);
-	private ICMakeToolChainManager cmakeTcManager = CCorePlugin.getService(ICMakeToolChainManager.class);
 
 	@Override
 	protected void execute()
@@ -97,7 +90,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				console.println(Messages.InstallToolsHandler_ConfiguredBuildEnvVarMsg);
 
 				monitor.setTaskName(Messages.InstallToolsHandler_AutoConfigureToolchain);
-				configureToolChain();
+				ToolChainUtil.configureToolChain();
 				monitor.worked(1);
 
 				configEnv();
@@ -201,18 +194,6 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		}
 	}
 
-	/**
-	 * Configure the toolchain and toolchain file in the preferences
-	 */
-	protected void configureToolChain()
-	{
-		ESPToolChainManager toolchainManager = new ESPToolChainManager();
-		toolchainManager.removePrevInstalledToolchains(tcManager);
-		toolchainManager.initToolChain(tcManager, ESPToolChainProvider.ID);
-		toolchainManager.initCMakeToolChain(tcManager, cmakeTcManager);
-		toolchainManager.addToolchainBasedTargets(IDFCorePlugin.getService(ILaunchTargetManager.class));
-	}
-
 	protected IStatus handleToolsInstall()
 	{
 		// idf_tools.py install all
@@ -275,7 +256,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 						IDFCorePlugin.errorStatus("Unable to get the process status.", null)); //$NON-NLS-1$
 				if (errorConsoleStream != null)
 				{
-					errorConsoleStream.println("Unable to get the process status.");	
+					errorConsoleStream.println("Unable to get the process status.");
 				}
 				return IDFCorePlugin.errorStatus("Unable to get the process status.", null); //$NON-NLS-1$
 			}
@@ -285,12 +266,12 @@ public class InstallToolsHandler extends AbstractToolsHandler
 			{
 				return IDFCorePlugin.okStatus("websocket-client already installed", null); //$NON-NLS-1$
 			}
-			
+
 			// websocket client not installed so installing it now.
 			arguments.remove(arguments.size() - 1);
 			arguments.add("install"); //$NON-NLS-1$
 			arguments.add(websocketClient);
-			
+
 			status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT, environment);
 			if (status == null)
 			{
@@ -298,16 +279,16 @@ public class InstallToolsHandler extends AbstractToolsHandler
 						IDFCorePlugin.errorStatus("Unable to get the process status.", null)); //$NON-NLS-1$
 				if (errorConsoleStream != null)
 				{
-					errorConsoleStream.println("Unable to get the process status.");	
+					errorConsoleStream.println("Unable to get the process status.");
 				}
 				return IDFCorePlugin.errorStatus("Unable to get the process status.", null); //$NON-NLS-1$
 			}
-			
+
 			if (console != null)
 			{
 				console.println(status.getMessage());
 			}
-			
+
 			return status;
 		}
 		catch (Exception e1)

@@ -12,10 +12,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.MessageFormat;
 
-import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
 import org.eclipse.cdt.cmake.core.internal.Activator;
-import org.eclipse.cdt.core.CCorePlugin;
-import org.eclipse.cdt.core.build.IToolChainManager;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -33,13 +30,12 @@ import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
-import com.espressif.idf.core.build.ESPToolChainManager;
-import com.espressif.idf.core.build.ESPToolChainProvider;
 import com.espressif.idf.core.build.Messages;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.resources.OpenDialogListenerSupport;
 import com.espressif.idf.core.resources.ResourceChangeListener;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.core.util.ToolChainUtil;
 import com.espressif.idf.ui.dialogs.MessageLinkDialog;
 import com.espressif.idf.ui.update.ExportIDFTools;
 import com.espressif.idf.ui.update.InstallToolsHandler;
@@ -113,8 +109,7 @@ public class InitializeToolsStartup implements IStartup
 			IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
 			Display.getDefault().syncExec(() -> {
 				Shell shell = new Shell(Display.getDefault());
-				MessageBox messageBox = new MessageBox(shell,
-						SWT.ICON_WARNING | SWT.YES | SWT.NO);
+				MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO);
 				messageBox.setText(Messages.ToolsInitializationDifferentPathMessageBoxTitle);
 				messageBox.setMessage(MessageFormat.format(Messages.ToolsInitializationDifferentPathMessageBoxMessage,
 						newIdfPath, idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PATH)));
@@ -134,7 +129,7 @@ public class InitializeToolsStartup implements IStartup
 
 					return;
 				}
-			});		
+			});
 		}
 
 		// read esp-idf.json file
@@ -162,7 +157,7 @@ public class InitializeToolsStartup implements IStartup
 					exportIDFTools.runToolsExport(pythonExecutablePath, gitExecutablePath, null, null);
 
 					// Configure toolchains
-					configureToolChain();
+					ToolChainUtil.configureToolChain();
 
 					Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 					scopedPreferenceStore.putBoolean(InstallToolsHandler.INSTALL_TOOLS_FLAG, true);
@@ -246,18 +241,5 @@ public class InitializeToolsStartup implements IStartup
 	private boolean isInstallerConfigSet()
 	{
 		return getPreferences().getBoolean(IS_INSTALLER_CONFIG_SET, false);
-	}
-
-	/**
-	 * Configure the toolchain and toolchain file in the preferences
-	 */
-	protected void configureToolChain()
-	{
-		IToolChainManager tcManager = CCorePlugin.getService(IToolChainManager.class);
-		ICMakeToolChainManager cmakeTcManager = CCorePlugin.getService(ICMakeToolChainManager.class);
-
-		ESPToolChainManager toolchainManager = new ESPToolChainManager();
-		toolchainManager.initToolChain(tcManager, ESPToolChainProvider.ID);
-		toolchainManager.initCMakeToolChain(tcManager, cmakeTcManager);
 	}
 }
