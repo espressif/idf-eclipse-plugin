@@ -6,6 +6,7 @@ package com.espressif.idf.ui;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -15,6 +16,9 @@ import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+
+import com.espressif.idf.core.build.IDFBuildConfigurationProvider;
+import com.espressif.idf.core.logging.Logger;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -58,6 +62,28 @@ public class EclipseUtil
 		return getSelectedProject(IPageLayout.ID_PROJECT_EXPLORER);
 	}
 
+	/**
+	 * @return
+	 */
+	public static IProject getSelectedIDFProjectInExplorer()
+	{
+		IProject project = getSelectedProject(IPageLayout.ID_PROJECT_EXPLORER);
+		try
+		{
+			if (project != null && project.getActiveBuildConfig() != null
+					&& project.getActiveBuildConfig().getName().startsWith(IDFBuildConfigurationProvider.ID))
+			{
+				return project;
+			}
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+
+		return null;
+	}
+	
 	/**
 	 * @param viewID
 	 * @return
