@@ -26,6 +26,23 @@ public class Messages extends NLS
 	public static String FilterMessage;
 	public static String HintsYmlNotFoundErrMsg;
 
+	public static String TelemetryDialog_CacheLimitLbl;
+	public static String TelemetryDialog_ColumnNumberLbl;
+	public static String TelemetryDialog_DataFormatLbl;
+	public static String TelemetryDialog_DefaultAxisY;
+	public static String TelemetryDialog_DefaultCacheLimit;
+	public static String TelemetryDialog_DefaultColumnsText;
+	public static String TelemetryDialog_DefaultGraphName;
+	public static String TelemetryDialog_DefaultSeparator;
+	public static String TelemetryDialog_GraphNameLbl;
+	public static String TelemetryDialog_Message;
+	public static String TelemetryDialog_RegexLbl;
+	public static String TelemetryDialog_SeparatorLbl;
+	public static String TelemetryDialog_ShellText;
+	public static String TelemetryDialog_Title;
+	public static String TelemetryDialog_TotalColumnsLbl;
+	public static String TelemetryDialog_YNameLbl;
+
 	static
 	{
 		// initialize resource bundle
