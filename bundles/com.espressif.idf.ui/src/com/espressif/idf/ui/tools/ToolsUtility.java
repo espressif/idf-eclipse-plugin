@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.text.DecimalFormat;
 import java.util.HashMap;
@@ -72,7 +73,7 @@ public class ToolsUtility
 				}
 			}
 		}
-
+		
 		return false;
 	}
 
@@ -150,10 +151,14 @@ public class ToolsUtility
 				if (archiveentry.isDirectory())
 				{
 					if (!Files.exists(pathEntryOutput))
-						Files.createDirectory(pathEntryOutput);
+						Files.createDirectories(pathEntryOutput);
 				}
 				else
-					Files.copy(tararchiveinputstream, pathEntryOutput);
+				{
+					Files.copy(tararchiveinputstream, pathEntryOutput, StandardCopyOption.REPLACE_EXISTING);
+					Runtime.getRuntime().exec("/bin/chmod 755 ".concat(pathEntryOutput.toString()));
+				}
+					
 			}
 
 			tararchiveinputstream.close();

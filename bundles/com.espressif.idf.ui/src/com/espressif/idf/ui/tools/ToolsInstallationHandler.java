@@ -27,12 +27,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.eclipse.cdt.internal.core.envvar.EnvironmentVariableManager;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -51,6 +48,7 @@ import com.espressif.idf.ui.tools.vo.ToolsVO;
 import com.espressif.idf.ui.tools.vo.VersionsVO;
 import com.espressif.idf.ui.tools.wizard.IToolsInstallationWizardConstants;
 import com.espressif.idf.ui.tools.wizard.pages.ManageToolsInstallationWizardPage;
+import com.espressif.idf.ui.update.InstallToolsHandler;
 
 /**
  * Class to carry out download and install of tools
@@ -58,7 +56,6 @@ import com.espressif.idf.ui.tools.wizard.pages.ManageToolsInstallationWizardPage
  * @author Ali Azam Rana
  *
  */
-@SuppressWarnings("restriction")
 public class ToolsInstallationHandler extends Thread
 {
 	public static final int DELETING_TOOLS = 0;
@@ -76,6 +73,8 @@ public class ToolsInstallationHandler extends Thread
 	private IDFEnvironmentVariables idfEnvironmentVariables;
 	private Preferences scopedPreferenceStore;
 	private int currentOperation;
+	private List<String> exisitngPathsToRemoveWhenProcessingExportCommands;
+	private List<Path> listOfPathsToUpdate;
 
 	public ToolsInstallationHandler(Queue<String> logQueue,
 			ManageToolsInstallationWizardPage manageToolsInstallationWizardPage,
@@ -86,6 +85,8 @@ public class ToolsInstallationHandler extends Thread
 		executorService = Executors.newSingleThreadExecutor();
 		this.idfEnvironmentVariables = idfEnvironmentVariables;
 		scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
+		exisitngPathsToRemoveWhenProcessingExportCommands = new ArrayList<>();
+		listOfPathsToUpdate = new ArrayList<>();
 	}
 
 	@Override
@@ -355,7 +356,7 @@ public class ToolsInstallationHandler extends Thread
 					}
 					String extractionDir = extractDownloadedFile(nameOfDownloadedFile, toolsVO.getName(),
 							versionsVO.getName());
-					updatePaths(extractionDir, toolsVO.getName(), toolsVO.getExportPaths());
+					addPathsToList(extractionDir, toolsVO.getName(), toolsVO.getExportPaths());
 				}
 				catch (Exception e)
 				{
@@ -364,22 +365,42 @@ public class ToolsInstallationHandler extends Thread
 			}
 			else
 			{
-				updatePaths(versionsVO.getAvailablePath(), toolsVO.getName(), toolsVO.getExportPaths());
+				addPathsToList(versionsVO.getAvailablePath(), toolsVO.getName(), toolsVO.getExportPaths());
 			}
 		}
 
 	}
 
-	private void updatePaths(String toolPath, String toolName, List<String> exportPaths)
+	private void addPathsToList(String toolPath, String toolName, List<String> exportPaths)
 	{
 		if (StringUtil.isEmpty(toolPath))
 			return;
 
+		Path path = Paths.get(toolPath);
+		exisitngPathsToRemoveWhenProcessingExportCommands.add(path.getParent().toString());
+		
 		logQueue.add(Messages.UpdatingPathMessage);
 		StringBuilder exportPathBuilder = new StringBuilder();
 		exportPathBuilder.append(toolPath);
 		removeExistingToolPath(toolName);
-		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+		
+		// sometimes tar.gz archives can result in different types of outputs verify that the
+		// first directory in export paths is present the toolpath
+		File[] files =  new File(toolPath).listFiles();
+		if (files.length >= 1 && exportPaths.size() > 0)
+		{
+			String nameOfPresentDir = files[0].getName();
+			while (nameOfPresentDir.charAt(0) == '.')
+			{
+				nameOfPresentDir = files[1].getName();
+			}
+			String pathToCheckFromExport = exportPaths.get(0);
+			if (!pathToCheckFromExport.contains(nameOfPresentDir))
+			{
+				exportPathBuilder.append(nameOfPresentDir);
+				exportPathBuilder.append(PATH_SPLITOR);
+			}
+		}
 		if (exportPaths != null && exportPaths.size() > 0)
 		{
 			for (String exportPath : exportPaths)
@@ -390,23 +411,7 @@ public class ToolsInstallationHandler extends Thread
 		}
 
 		Path pathToExport = Paths.get(exportPathBuilder.toString()); // for correcting the path error in windows
-		String currentPath = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH);
-		StringBuilder finalPathToExport = new StringBuilder(currentPath);
-		finalPathToExport.append(EnvironmentVariableManager.getDefault().getDefaultDelimiter());
-		finalPathToExport.append(pathToExport.toAbsolutePath().toString());
-
-		logQueue.add(Messages.UpdateToolPathMessage.concat(pathToExport.toAbsolutePath().toString()));
-		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, finalPathToExport.toString());
-		logQueue.add(
-				Messages.SystemPathMessage.concat(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH)));
-		try
-		{
-			Thread.sleep(50); // wait for the variable to persist
-		}
-		catch (InterruptedException e)
-		{
-			Logger.log(e);
-		}
+		listOfPathsToUpdate.add(pathToExport);
 	}
 
 	private void removeExistingToolPath(String toolName)
@@ -551,8 +556,10 @@ public class ToolsInstallationHandler extends Thread
 			handleWebSocketClientInstall();
 			ToolChainUtil.configureToolChain();
 			configEnv();
+			handleWebSocketClientInstall();
 			copyOpenOcdRules();
 			IDFUtil.updateEspressifPrefPageOpenocdPath();
+			scopedPreferenceStore.putBoolean(InstallToolsHandler.INSTALL_TOOLS_FLAG, true);
 			return Boolean.TRUE;
 		}
 
@@ -560,6 +567,8 @@ public class ToolsInstallationHandler extends Thread
 		{
 			// Enable IDF_COMPONENT_MANAGER by default
 			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER, "1");
+			// IDF_MAINTAINER=1 to be able to build with the clang toolchain
+			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_MAINTAINER, "1");
 		}
 
 		private void runToolsExport(final String gitExePath)
@@ -576,14 +585,38 @@ public class ToolsInstallationHandler extends Thread
 			Logger.log(cmd);
 
 			final Map<String, String> environment = new HashMap<>(System.getenv());
+			
+			StringBuilder paths = new StringBuilder();
+			
+			for (Path toolPath : listOfPathsToUpdate)
+			{
+				paths.append(toolPath.toAbsolutePath().toString());
+				paths.append(File.pathSeparatorChar);
+			}
+			
 			if (gitExePath != null)
 			{
-				addGitToEnvironment(environment, gitExePath);
+				paths.append(gitExePath);
+				paths.append(File.pathSeparator);
 			}
+			
+			if (environment.containsKey(IDFEnvironmentVariables.PATH))
+			{
+				paths.append(environment.get(IDFEnvironmentVariables.PATH));
+				environment.put(IDFEnvironmentVariables.PATH, paths.toString());
+			}
+			else
+			{
+				environment.put(IDFEnvironmentVariables.PATH, paths.toString());
+			}
+			
 			final ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
+			
 			try
 			{
-				final IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT,
+				final IStatus status = processRunner.runInBackground(arguments, 
+						org.eclipse.core.runtime.Path.
+						fromOSString(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH)),
 						environment);
 				if (status == null)
 				{
@@ -593,8 +626,10 @@ public class ToolsInstallationHandler extends Thread
 
 				// process export command output
 				final String exportCmdOp = status.getMessage();
+				Logger.log(exportCmdOp);
 				logQueue.add(exportCmdOp);
-				processExportCmdOutput(exportCmdOp, gitExePath);
+				
+				processExportCmdOutput(exportCmdOp, gitExePath, paths.toString());
 			}
 			catch (IOException e1)
 			{
@@ -603,7 +638,7 @@ public class ToolsInstallationHandler extends Thread
 
 		}
 
-		private void processExportCmdOutput(final String exportCmdOp, final String gitExecutablePath)
+		private void processExportCmdOutput(final String exportCmdOp, final String gitExecutablePath, final String pathToAppend)
 		{
 			// process export command output
 			final String[] exportEntries = exportCmdOp.split("\n"); //$NON-NLS-1$
@@ -616,82 +651,32 @@ public class ToolsInstallationHandler extends Thread
 					final String msg = MessageFormat.format("Key: {0} Value: {1}", keyValue[0], keyValue[1]); //$NON-NLS-1$
 					Logger.log(msg);
 
-					final IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
+					
 					String key = keyValue[0];
 					String value = keyValue[1];
 					if (key.equals(IDFEnvironmentVariables.PATH))
 					{
-						value = replacePathVariable(value);
-						value = appendGitToPath(value, gitExecutablePath);
+						Logger.log("idf_tools.py export value: ".concat(value)); //$NON-NLS-1$
+						value = replacePathVariable(value, pathToAppend);
+						Logger.log("idf_tools.py export value after prepending the installed env value: " //$NON-NLS-1$
+								.concat(value));
 					}
 
 					// add new or replace old entries
-					idfEnvMgr.addEnvVariable(key, value);
+					idfEnvironmentVariables.addEnvVariable(key, value);
 				}
-
 			}
 		}
 
-		private String replacePathVariable(String value)
+		private String replacePathVariable(String value, String pathToAppend)
 		{
-			// Get system PATH
-			Map<String, String> systemEnv = new HashMap<>(System.getenv());
-			String pathEntry = systemEnv.get("PATH"); //$NON-NLS-1$
-			if (pathEntry == null)
+			if (!StringUtil.isEmpty(pathToAppend))
 			{
-				pathEntry = systemEnv.get("Path"); // for Windows //$NON-NLS-1$
-				if (pathEntry == null) // no idea
-				{
-					Logger.log(new Exception("No PATH found in the system environment variables")); //$NON-NLS-1$
-				}
-			}
-
-			if (!StringUtil.isEmpty(pathEntry))
-			{
-				value = value.replace("$PATH", pathEntry); // macOS //$NON-NLS-1$
-				value = value.replace("%PATH%", pathEntry); // Windows //$NON-NLS-1$
+				value = value.replace("$PATH", pathToAppend); // macOS //$NON-NLS-1$
+				value = value.replace("%PATH%", pathToAppend); // Windows //$NON-NLS-1$
 			}
 			return value;
 		}
-
-		private String appendGitToPath(String path, String gitExecutablePath)
-		{
-			IPath gitPath = new org.eclipse.core.runtime.Path(gitExecutablePath);
-			if (!gitPath.toFile().exists())
-			{
-				Logger.log(NLS.bind("{0} doesn't exist", gitExecutablePath)); //$NON-NLS-1$
-				return path;
-			}
-
-			String gitDir = gitPath.removeLastSegments(1).toOSString(); // ../bin/git
-			if (!StringUtil.isEmpty(path) && !path.contains(gitDir)) // Git not found on the CDT build PATH environment
-			{
-				return path.concat(";").concat(gitDir); // append git path //$NON-NLS-1$
-			}
-			return path;
-		}
-
-		private void addGitToEnvironment(Map<String, String> envMap, String executablePath)
-		{
-			IPath gitPath = new org.eclipse.core.runtime.Path(executablePath);
-			if (gitPath.toFile().exists())
-			{
-				String gitDir = gitPath.removeLastSegments(1).toOSString();
-				String path1 = envMap.get("PATH"); //$NON-NLS-1$
-				String path2 = envMap.get("Path"); //$NON-NLS-1$
-				if (!StringUtil.isEmpty(path1) && !path1.contains(gitDir)) // Git not found on the PATH environment
-				{
-					path1 = gitDir.concat(";").concat(path1); //$NON-NLS-1$
-					envMap.put("PATH", path1); //$NON-NLS-1$
-				}
-				else if (!StringUtil.isEmpty(path2) && !path2.contains(gitDir)) // Git not found on the Path environment
-				{
-					path2 = gitDir.concat(";").concat(path2); //$NON-NLS-1$
-					envMap.put("Path", path2); //$NON-NLS-1$
-				}
-			}
-		}
-
 		private void copyOpenOcdRules()
 		{
 			if (Platform.getOS().equals(Platform.OS_LINUX)
@@ -778,7 +763,7 @@ public class ToolsInstallationHandler extends Thread
 				arguments.add(IDFUtil.getIDFToolsScriptFile().getAbsolutePath());
 				arguments.add(IDFConstants.TOOLS_INSTALL_PYTHON_CMD);
 
-				String cmdMsg = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments);
+				String cmdMsg = Messages.AbstractToolsHandler_ExecutingMsg + "  " + getCommandString(arguments);
 				logQueue.add(cmdMsg);
 
 				Logger.log(cmdMsg);
