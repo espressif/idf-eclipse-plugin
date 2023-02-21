@@ -101,16 +101,16 @@ public class InstallEspIdfPage extends WizardPage implements IToolsWizardPage
 		btnExisting.addSelectionListener(new RadioSectionButtonSelectionAdapter());
 		btnExisting.setSelection(enableExistingSection);
 
-		Composite compositeExisting = new Composite(getControlsContainer(), SWT.BORDER | SWT.EMBEDDED);
+		Composite compositeExisting = new Composite(getControlsContainer(), SWT.BORDER);
 		compositeExisting.setLayout(new GridLayout(3, false));
 		compositeExisting.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
 		Label lblEspidfPath = new Label(compositeExisting, SWT.NONE);
-		lblEspidfPath.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblEspidfPath.setLayoutData(new GridData(SWT.RIGHT, SWT.LEFT, false, false, 1, 1));
 		lblEspidfPath.setText(Messages.InstallEspIdfPage_lblEspidfPath_text);
 
 		txtIdfpath = new Text(compositeExisting, SWT.BORDER);
-		txtIdfpath.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		txtIdfpath.setLayoutData(new GridData(SWT.FILL, SWT.LEFT, true, false, 1, 1));
 		txtIdfpath.setText(enableExistingSection ? idfPath : StringUtil.EMPTY);
 		txtIdfpath.setEnabled(enableExistingSection);
 		txtIdfpath.addModifyListener(new ModifyListener()
@@ -138,30 +138,30 @@ public class InstallEspIdfPage extends WizardPage implements IToolsWizardPage
 		btnNew.addSelectionListener(new RadioSectionButtonSelectionAdapter());
 		btnNew.setSelection(enableNewSection);
 
-		Composite compositeNew = new Composite(getControlsContainer(), SWT.BORDER | SWT.EMBEDDED);
+		Composite compositeNew = new Composite(getControlsContainer(), SWT.BORDER);
 		compositeNew.setLayout(new GridLayout(3, false));
 		compositeNew.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
 		lblDownloadDirectory = new Label(compositeNew, SWT.NONE);
-		lblDownloadDirectory.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblDownloadDirectory.setLayoutData(new GridData(SWT.RIGHT, SWT.LEFT, false, false, 1, 1));
 		lblDownloadDirectory.setText(Messages.InstallEspIdfPage_lblDownloadDirectory_text);
 
 		txtDownloadDirectory = new Text(compositeNew, SWT.BORDER);
-		txtDownloadDirectory.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		txtDownloadDirectory.setLayoutData(new GridData(SWT.FILL, SWT.LEFT, true, false, 1, 1));
 		txtDownloadDirectory.setEnabled(enableNewSection);
 
 		btnBrowseDownloadDir = new Button(compositeNew, SWT.PUSH);
-		btnBrowseDownloadDir.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnBrowseDownloadDir.setLayoutData(new GridData(SWT.FILL, SWT.LEFT, false, false, 1, 1));
 		btnBrowseDownloadDir.setText(Messages.BrowseButton);
 		btnBrowseDownloadDir.addSelectionListener(new BrowseButtonSelectionAdapter());
 		btnBrowseDownloadDir.setEnabled(enableNewSection);
 
 		Label lblEspidfVersion = new Label(compositeNew, SWT.NONE);
-		lblEspidfVersion.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblEspidfVersion.setLayoutData(new GridData(SWT.RIGHT, SWT.LEFT, false, false, 1, 1));
 		lblEspidfVersion.setText(Messages.InstallEspIdfPage_lblEspidfVersion_text);
 
 		versionCombo = new Combo(compositeNew, SWT.READ_ONLY);
-		versionCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		versionCombo.setLayoutData(new GridData(SWT.FILL, SWT.LEFT, false, false, 1, 1));
 		Set<String> keySet = versionsMap.keySet();
 		versionCombo.setItems(keySet.toArray(new String[keySet.size()]));
 		if (keySet.size() > 0)
@@ -171,12 +171,12 @@ public class InstallEspIdfPage extends WizardPage implements IToolsWizardPage
 		versionCombo.setEnabled(enableNewSection);
 
 		btnDownload = new Button(compositeNew, SWT.NONE);
-		btnDownload.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnDownload.setLayoutData(new GridData(SWT.FILL, SWT.LEFT, false, false, 1, 1));
 		btnDownload.setText(Messages.InstallEspIdfPage_btnDownload_text);
 		btnDownload.setEnabled(enableNewSection && !StringUtil.isEmpty(txtDownloadDirectory.getText()));
 		btnDownload.addSelectionListener(new DownloadButtonSelectionAdapter(this));
 
-		Composite compositeLog = new Composite(getControlsContainer(), SWT.BORDER | SWT.EMBEDDED);
+		Composite compositeLog = new Composite(getControlsContainer(), SWT.BORDER);
 		compositeLog.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		compositeLog.setLayout(new GridLayout(1, false));
 
@@ -204,7 +204,7 @@ public class InstallEspIdfPage extends WizardPage implements IToolsWizardPage
 		logGridData.widthHint = 500;
 		logAreaText.setLayoutData(logGridData);
 		progressBar = new ProgressBar(compositeLog, SWT.HORIZONTAL);
-		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.LEFT, false, false, 1, 1));
 		
 		logMessagesThread = new LogMessagesThread(logMessages, logAreaText, container.getDisplay());
 		logMessagesThread.start();
