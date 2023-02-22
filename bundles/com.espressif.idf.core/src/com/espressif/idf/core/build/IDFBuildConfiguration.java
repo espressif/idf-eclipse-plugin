@@ -188,10 +188,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		String userArgs = getProperty(CMAKE_ARGUMENTS);
 		// Custom build directory
 		int buildDirIndex = userArgs.indexOf("-B"); //$NON-NLS-1$
-		if (buildDirIndex != -1)
-		{
-			this.customBuildDir = userArgs.replaceFirst("-B", StringUtil.EMPTY).stripLeading(); //$NON-NLS-1$
-		}
+		customBuildDir = buildDirIndex == -1 ? StringUtil.EMPTY
+				: userArgs.replaceFirst("-B", StringUtil.EMPTY).stripLeading(); //$NON-NLS-1$
 		try
 		{
 			getProject().setPersistentProperty(
@@ -202,7 +200,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 			Logger.log(e);
 		}
 
-		return this.customBuildDir != null;
+		return !customBuildDir.isBlank();
 	}
 
 	@Override
@@ -335,7 +333,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 
 			String envStr = getProperty(CMAKE_ENV);
 			List<IEnvironmentVariable> envVars = new ArrayList<>();
-			if (envStr != null)
+			if (envStr != null && !envStr.isBlank())
 			{
 				List<String> envList = CMakeUtils.stripEnvVars(envStr);
 				for (String s : envList)
