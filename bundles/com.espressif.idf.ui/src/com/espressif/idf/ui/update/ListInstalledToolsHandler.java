@@ -78,7 +78,7 @@ public class ListInstalledToolsHandler extends AbstractToolsHandler
 		List<String> arguments = new ArrayList<String>();
 		arguments.add(IDFConstants.TOOLS_LIST_CMD);
 
-		runCommand(arguments);
+		runCommand(arguments, console);
 	}
 
 }
