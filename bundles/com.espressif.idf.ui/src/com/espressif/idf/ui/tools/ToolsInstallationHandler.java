@@ -395,7 +395,7 @@ public class ToolsInstallationHandler extends Thread
 				nameOfPresentDir = files[1].getName();
 			}
 			String pathToCheckFromExport = exportPaths.get(0);
-			if (!pathToCheckFromExport.contains(nameOfPresentDir))
+			if (!StringUtil.isEmpty(pathToCheckFromExport) && !pathToCheckFromExport.contains(nameOfPresentDir))
 			{
 				exportPathBuilder.append(nameOfPresentDir);
 				exportPathBuilder.append(PATH_SPLITOR);
@@ -405,8 +405,11 @@ public class ToolsInstallationHandler extends Thread
 		{
 			for (String exportPath : exportPaths)
 			{
-				exportPathBuilder.append(exportPath);
-				exportPathBuilder.append(PATH_SPLITOR);
+				if (!StringUtil.isEmpty(exportPath))
+				{
+					exportPathBuilder.append(exportPath);
+					exportPathBuilder.append(PATH_SPLITOR);					
+				}
 			}
 		}
 
