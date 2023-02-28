@@ -111,9 +111,18 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 	@Override
 	public void launchDescriptorRemoved(ILaunchDescriptor descriptor) throws CoreException {
 		IProject project = descriptor.getAdapter(IProject.class);
-		if (project != null) {
-			configs.remove(project);
+		if (project == null) {
+			return;
 		}
+		Map<String, ILaunchConfiguration> projectConfigs = configs.get(project);
+		if (projectConfigs != null) {
+			for (ILaunchConfiguration config : projectConfigs.values()) {
+				if (config.contentsEqual(((IDFProjectLaunchDescriptor) descriptor).getConfiguration())) {
+					config.delete();
+				}
+			}
+		}
+
 	}
 
 	@Override
