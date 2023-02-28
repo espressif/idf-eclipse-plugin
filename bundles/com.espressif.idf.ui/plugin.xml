@@ -504,17 +504,14 @@
     <extension
          point="org.eclipse.ui.commands">
       <command
-            categoryId="com.espressif.commands.category"
             id="com.espressif.commands.cleanCommand"
             name="%command.name.5">
       </command>
       <command
-            categoryId="com.espressif.commands.category"
             id="com.espressif.commands.fullcleanCommand"
             name="%command.name.11">
       </command>
       <command
-            categoryId="com.espressif.commands.category"
             id="com.espressif.commands.pythoncleanCommand"
             name="%command.name.12">
       </command>
@@ -523,12 +520,10 @@
             name="%command.name.delete">
       </command>
       <command
-            categoryId="com.espressif.commands.category"
             id="com.espressif.idf.ui.partitionTableEditorCommand"
             name="%command.name.PartitionTableEditor">
       </command>
       <command
-            categoryId="com.espressif.commands.category"
             id="com.espressif.idf.ui.nvsEditorCommand"
             name="%command.name.nvsTableEditor">
       </command>
