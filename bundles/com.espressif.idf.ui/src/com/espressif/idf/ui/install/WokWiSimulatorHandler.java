@@ -19,6 +19,8 @@ import org.eclipse.core.runtime.IPath;
 //import org.eclipse.core.resources.IProject;
 //import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
 
 import com.espressif.idf.core.ExecutableFinder;
 import com.espressif.idf.core.IDFCorePlugin;
@@ -61,8 +63,9 @@ public class WokWiSimulatorHandler extends AbstractHandler
 		String wokwiExecutablePath = getWokwiServerPath();
 		if (StringUtil.isEmpty(wokwiExecutablePath))
 		{
-			Logger.log("wokwi-server executable neither not found nor installed. Please check.");
-			return null;
+			String msg = "wokwi-server executable is not found. Please check.";
+			MessageDialog.openError(Display.getDefault().getActiveShell(), "wokwi-server not found", msg);
+			throw new ExecutionException(msg);
 		}
 
 		String diagram_id = null;
