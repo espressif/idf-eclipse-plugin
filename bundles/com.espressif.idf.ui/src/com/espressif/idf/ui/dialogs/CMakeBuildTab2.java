@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.cdt.cmake.core.internal.CMakeBuildConfiguration;
-import org.eclipse.cdt.core.build.ICBuildConfiguration;
 import org.eclipse.cdt.core.build.ICBuildConfigurationManager;
 import org.eclipse.cdt.core.build.ICBuildConfigurationProvider;
 import org.eclipse.cdt.core.build.IToolChain;
@@ -187,17 +186,16 @@ public class CMakeBuildTab2 extends CommonBuildTab
 
 	}
 
-	private ICBuildConfiguration getBuildConfiguration(ILaunchConfiguration configuration, IProject project)
+	private void createBuildConfiguration(ILaunchConfiguration configuration)
 			throws CoreException
 	{
-		ICBuildConfiguration buildConfig = null;
+		IProject project = CoreBuildLaunchConfigDelegate.getProject(configuration);
 		IDFBuildConfigurationProvider provider = new IDFBuildConfigurationProvider();
 		provider.setNameBasedOnLaunchConfiguration(configuration);
-		buildConfig = provider.createBuildConfiguration(project,
+		provider.createBuildConfiguration(project,
 				getBuildConfiguration() == null ? getDefaultMatchingToolChain()
 						: getBuildConfiguration().getToolChain(),
 				IDFCorePlugin.getService(ILaunchBarManager.class).getActiveLaunchMode().getIdentifier(), null);
-		return buildConfig;
 	}
 
 	private IToolChain getDefaultMatchingToolChain()
@@ -275,6 +273,15 @@ public class CMakeBuildTab2 extends CommonBuildTab
 		else
 		{
 			configuration.removeAttribute(CMakeBuildConfiguration.CLEAN_COMMAND);
+		}
+
+		try
+		{
+			createBuildConfiguration(configuration);
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
 		}
 	}
 
