@@ -5,26 +5,19 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.cdt.core.CCorePlugin;
+import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IPath;
-//import org.eclipse.core.resources.IProject;
-//import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 
-import com.espressif.idf.core.ExecutableFinder;
-import com.espressif.idf.core.IDFCorePlugin;
-import com.espressif.idf.core.ProcessBuilderFactory;
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.SDKConfigJsonReader;
@@ -43,6 +36,7 @@ public class WokWiSimulatorHandler extends AbstractHandler
 {
 
 	private static final String WOKWI_CONFIG_JSON = "wokwi-config.json";//$NON-NLS-1$
+	private static final String WOKWI_SERVER_PATH = "WOKWI_SERVER_PATH";//$NON-NLS-1$
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
@@ -63,7 +57,7 @@ public class WokWiSimulatorHandler extends AbstractHandler
 		String wokwiExecutablePath = getWokwiServerPath();
 		if (StringUtil.isEmpty(wokwiExecutablePath))
 		{
-			String msg = "wokwi-server executable is not found. Please check.";
+			String msg = "WOKWI_SERVER_PATH is not found. Please make sure WOKWI_SERVER_PATH is configured in the Preferences > C/C+ > Build > Environment";
 			MessageDialog.openError(Display.getDefault().getActiveShell(), "wokwi-server not found", msg);
 			throw new ExecutionException(msg);
 		}
@@ -148,35 +142,10 @@ public class WokWiSimulatorHandler extends AbstractHandler
 
 	private String getWokwiServerPath()
 	{
-		// Look for wokwi path
-		IPath wokwiPath = ExecutableFinder.find("wokwi-server", false); //$NON-NLS-1$
-		Logger.log("wokwiPath path:" + wokwiPath); //$NON-NLS-1$
-		if (wokwiPath == null)
+		IEnvironmentVariable env = new IDFEnvironmentVariables().getEnv(WOKWI_SERVER_PATH);
+		if (env != null)
 		{
-			List<String> arguments = new ArrayList<String>();
-			ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
-			try
-			{
-				arguments.add("whereis"); //$NON-NLS-1$
-				arguments.add("wokwi-server"); //$NON-NLS-1$
-
-				Map<String, String> environment = new HashMap<>(System.getenv());
-				IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT,
-						environment);
-				if (status == null)
-				{
-					Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
-					return null;
-				}
-				Logger.log(status.getMessage());
-				String wokwiLocation = status.getMessage().split(" ").length > 1 ? status.getMessage().split(" ")[1]
-						: "";
-				return wokwiLocation.strip();
-			}
-			catch (Exception e)
-			{
-				Logger.log(e);
-			}
+			return env.getValue();
 		}
 		return null;
 	}
