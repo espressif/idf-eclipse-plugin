@@ -21,6 +21,11 @@
             id="com.espressif.idf.launch.serial.ui.launchConfigurationTabGroup"
             type="com.espressif.idf.launch.serial.launchConfigurationType">
       </launchConfigurationTabGroup>
+      <launchConfigurationTabGroup
+            class="com.espressif.idf.launch.serial.ui.internal.WokwiLaunchConfigGroup"
+            id="com.espressif.idf.launch.serial.ui.launchConfigurationTabGroup1"
+            type="com.espressif.idf.launch.serial.core.wokwiLaunchConfigurationType">
+      </launchConfigurationTabGroup>
    </extension>
    <extension
          point="org.eclipse.launchbar.ui.launchBarUIContributions">
@@ -40,6 +45,11 @@
             configTypeID="com.espressif.idf.launch.serial.launchConfigurationType"
             icon="icons/esp_target.png"
             id="com.espressif.idf.launch.serial.ui.launchConfigurationTypeImage">
+      </launchConfigurationTypeImage>
+      <launchConfigurationTypeImage
+            configTypeID="com.espressif.idf.launch.serial.core.wokwiLaunchConfigurationType"
+            icon="icons/wokwi.png"
+            id="com.espressif.idf.launch.serial.ui.launchConfigurationTypeImage1">
       </launchConfigurationTypeImage>
    </extension>
 

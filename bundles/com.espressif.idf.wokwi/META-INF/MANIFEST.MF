@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Wokwi Integration Plugin
+Bundle-SymbolicName: com.espressif.idf.wokwi;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: com.espressif.idf.wokwi.Activator
+Bundle-Vendor: Espressif Systems
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.launchbar.ui,
+ com.google.gson,
+ org.eclipse.cdt.debug.ui,
+ org.eclipse.cdt.debug.core,
+ org.eclipse.cdt.core;bundle-version="7.3.0",
+ com.espressif.idf.core;bundle-version="1.0.1",
+ org.eclipse.launchbar.core;bundle-version="2.4.200",
+ org.eclipse.cdt.ui;bundle-version="7.3.0",
+ org.eclipse.debug.ui;bundle-version="3.15.100",
+ com.espressif.idf.ui;bundle-version="1.0.1"
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: com.espressif.idf.wokwi
+Bundle-ActivationPolicy: lazy
