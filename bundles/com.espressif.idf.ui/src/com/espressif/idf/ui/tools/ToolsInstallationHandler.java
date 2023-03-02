@@ -63,6 +63,7 @@ public class ToolsInstallationHandler extends Thread
 
 	private static final String PATH_SPLITOR = "/"; //$NON-NLS-1$
 	private static final String GZ_EXT = "gz"; //$NON-NLS-1$
+	private static final String XZ_EXT = "xz"; //$NON-NLS-1$
 	private static final String ZIP_EXT = "zip"; //$NON-NLS-1$
 	private static final String SHA256 = "SHA-256"; //$NON-NLS-1$
 	private Queue<String> logQueue;
@@ -470,6 +471,11 @@ public class ToolsInstallationHandler extends Thread
 		else if (extension.equals(GZ_EXT))
 		{
 			ToolsUtility.extractTarGz(ToolsUtility.ESPRESSIF_HOME_DIR.concat(PATH_SPLITOR).concat(downloadedName),
+					extractionName);
+		}
+		else if (extension.equals(XZ_EXT))
+		{
+			ToolsUtility.extractTarXz(ToolsUtility.ESPRESSIF_HOME_DIR.concat(PATH_SPLITOR).concat(downloadedName),
 					extractionName);
 		}
 

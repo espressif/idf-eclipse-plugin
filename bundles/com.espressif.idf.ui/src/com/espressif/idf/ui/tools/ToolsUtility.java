@@ -25,6 +25,7 @@ import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.eclipse.core.runtime.Platform;
 
@@ -143,7 +144,42 @@ public class ToolsUtility
 		{
 			TarArchiveInputStream tararchiveinputstream = new TarArchiveInputStream(
 					new GzipCompressorInputStream(new BufferedInputStream(Files.newInputStream(pathInput))));
+			
+			ArchiveEntry archiveentry = null;
+			while ((archiveentry = tararchiveinputstream.getNextEntry()) != null)
+			{
+				Path pathEntryOutput = pathOutput.resolve(archiveentry.getName());
+				if (archiveentry.isDirectory())
+				{
+					if (!Files.exists(pathEntryOutput))
+						Files.createDirectories(pathEntryOutput);
+				}
+				else
+				{
+					Files.copy(tararchiveinputstream, pathEntryOutput, StandardCopyOption.REPLACE_EXISTING);
+					Runtime.getRuntime().exec("/bin/chmod 755 ".concat(pathEntryOutput.toString()));
+				}
+					
+			}
 
+			tararchiveinputstream.close();
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+		}
+	}
+	
+	public static void extractTarXz(String tarFile, String outputDir)
+	{
+		Path pathInput = Paths.get(tarFile);
+		Path pathOutput = Paths.get(outputDir);
+		try
+		{
+			BufferedInputStream bufferedInputStream = new BufferedInputStream(Files.newInputStream(pathInput));
+			XZCompressorInputStream xzCompressorInputStream = new XZCompressorInputStream(bufferedInputStream);
+			
+			TarArchiveInputStream tararchiveinputstream = new TarArchiveInputStream(xzCompressorInputStream);
 			ArchiveEntry archiveentry = null;
 			while ((archiveentry = tararchiveinputstream.getNextEntry()) != null)
 			{
