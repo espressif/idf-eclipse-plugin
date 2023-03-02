@@ -43,14 +43,14 @@ public class WokwiSimulatorHandler
 		String wokwiExecutablePath = getWokwiServerPath();
 		if (StringUtil.isEmpty(wokwiExecutablePath))
 		{
-			String msg = "WOKWI_SERVER_PATH is not found. Please make sure WOKWI_SERVER_PATH is configured in the Preferences > C/C+ > Build > Environment";
+			String msg = Messages.WokwiSimulatorHandler_ServerPathNotFound;
 			Display.getDefault().asyncExec(new Runnable()
 			{
 
 				@Override
 				public void run()
 				{
-					MessageDialog.openError(Display.getDefault().getActiveShell(), "wokwi-server not found", msg);
+					MessageDialog.openError(Display.getDefault().getActiveShell(), Messages.WokwiSimulatorHandler_ServerNotFound, msg);
 				}
 			});
 

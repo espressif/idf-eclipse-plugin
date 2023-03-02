@@ -6,7 +6,7 @@
       <launchConfigurationType
             id="com.espressif.idf.launch.serial.core.wokwiLaunchConfigurationType"
             modes="run"
-            name="Wokwi Simulator">
+            name="%launchConfigurationType.name">
       </launchConfigurationType>
    </extension>
    <extension

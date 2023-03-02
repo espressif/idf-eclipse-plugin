@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Wokwi Integration Plugin
+Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: com.espressif.idf.wokwi;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: com.espressif.idf.wokwi.Activator
-Bundle-Vendor: Espressif Systems
+Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.launchbar.ui,

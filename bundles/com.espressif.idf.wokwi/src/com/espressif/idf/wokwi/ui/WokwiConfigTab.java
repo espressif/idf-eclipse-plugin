@@ -86,14 +86,14 @@ public class WokwiConfigTab extends AbstractLaunchConfigurationTab
 		projectGroup.setLayoutData(gd);
 
 		fProjLabel = new Label(projectGroup, SWT.NONE);
-		fProjLabel.setText("Project:");
+		fProjLabel.setText(Messages.WokwiConfigTab_Project);
 		gd = new GridData();
 		fProjLabel.setLayoutData(gd);
 
 		projectTxt = new Text(projectGroup, SWT.SINGLE | SWT.BORDER);
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		projectTxt.setLayoutData(gd);
-		fProjButton = createPushButton(projectGroup, "Browse...", null);
+		fProjButton = createPushButton(projectGroup, Messages.WokwiConfigTab_Browse, null);
 		projectTxt.addModifyListener(evt -> {
 			updateLaunchConfigurationDialog();
 		});
@@ -108,13 +108,13 @@ public class WokwiConfigTab extends AbstractLaunchConfigurationTab
 		});
 
 		Label projectIdLbl = new Label(projectGroup, SWT.NONE);
-		projectIdLbl.setText("Wokwi Project ID:");
+		projectIdLbl.setText(Messages.WokwiConfigTab_ProjectID);
 
 		wokwiProjectIdTxt = new Text(projectGroup, SWT.SINGLE | SWT.BORDER);
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan = 2;
 		wokwiProjectIdTxt.setLayoutData(gd);
-		wokwiProjectIdTxt.setMessage("328451800839488084");
+		wokwiProjectIdTxt.setMessage("328451800839488084"); //$NON-NLS-1$
 
 	}
 
@@ -126,8 +126,8 @@ public class WokwiConfigTab extends AbstractLaunchConfigurationTab
 			projects = CoreModel.getDefault().getCModel().getCProjects();
 			ILabelProvider labelProvider = new CElementLabelProvider();
 			ElementListSelectionDialog dialog = new ElementListSelectionDialog(getShell(), labelProvider);
-			dialog.setTitle("Project Selection");
-			dialog.setMessage("Choose a project to constrain the search for a program");
+			dialog.setTitle(Messages.WokwiConfigTab_ProjectSelection);
+			dialog.setMessage(Messages.WokwiConfigTab_ChooseProject);
 			dialog.setElements(projects);
 
 			String initialProjectName = projectTxt != null ? projectTxt.getText().trim() : StringUtil.EMPTY;
@@ -224,18 +224,18 @@ public class WokwiConfigTab extends AbstractLaunchConfigurationTab
 		String projectName = projectTxt.getText().trim();
 		if (projectName.length() == 0)
 		{
-			setErrorMessage("Project not specified");
+			setErrorMessage(Messages.WokwiConfigTab_ProjectNotSpecified);
 			return false;
 		}
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 		if (!project.exists())
 		{
-			setErrorMessage("Project does not exist");
+			setErrorMessage(Messages.WokwiConfigTab_ProjDoesNotExist);
 			return false;
 		}
 		if (!project.isOpen())
 		{
-			setErrorMessage("Project must be opened");
+			setErrorMessage(Messages.WokwiConfigTab_ProjMustOpened);
 			return false;
 		}
 
@@ -303,7 +303,7 @@ public class WokwiConfigTab extends AbstractLaunchConfigurationTab
 	@Override
 	public String getName()
 	{
-		return "Wokwi Server";
+		return Messages.WokwiConfigTab_WokwiServer;
 	}
 
 }
