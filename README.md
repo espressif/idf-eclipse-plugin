@@ -59,6 +59,7 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 * [ Partition Table Editor UI for ESP-IDF](#partitionTableEditor)<br>
 * [ NVS Table Editor](#nvsTableEditor)<br>
 * [ Changing Language ](#changeLanguage)<br>
+* [ Wokwi Simulator](#wokwisimulator)<br>
 
 </details>
 
@@ -751,6 +752,18 @@ IDE allows configuring a custom build directory to the project:
 Note this configuration changes where all the project build artifacts will be generated.
 
 ![](docs/images/custombuilddir.png)
+
+<a name ="wokwisimulator"></a>
+
+# Wokwi Simulator
+- Install `wokwi-server` as mentioned [here](https://github.com/MabezDev/wokwi-server/)
+- Configure `WOKWI_SERVER_PATH` in the Eclipse CDT build environment variables with the wokwi-server executable path (Preferences > C/C++ > Build > Environment)
+- Create a new Run launch configuration with the `Wokwi Simulator`
+- Choose a project and add the project ID of the Wokwi project. The ID of a Wokwi project can be found in the URL. E.g., the ID of [ESP32 Rust Blinky](https://wokwi.com/projects/345932416223806035) is 345932416223806035.
+- Click Finish to save the changes
+- From the IDE Toolbar, click on the Launch button to launch the Wokwi simulator
+- Wokwi Simulator will be launched in the external browser and observe that serial monitor output also display in the Eclipse CDT build console
+- To kill a Wokwi simulator, click on the Stop button from the toolbar
 
 # ESP-IDF Eclipse Plugin Compatibility Matrix
 
