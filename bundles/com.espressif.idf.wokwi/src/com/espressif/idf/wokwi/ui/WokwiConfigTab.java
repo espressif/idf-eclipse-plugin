@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.wokwi.ui;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,14 +30,19 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.EclipseUtil;
@@ -54,6 +60,7 @@ public class WokwiConfigTab extends AbstractLaunchConfigurationTab
 	private Button fProjButton;
 	private IProject selectedProject;
 	private Text wokwiProjectIdTxt;
+	private Text wokwiServerTxt;
 
 	@Override
 	public void createControl(Composite parent)
@@ -107,6 +114,19 @@ public class WokwiConfigTab extends AbstractLaunchConfigurationTab
 			}
 		});
 
+		Label wokwiServerLbl = new Label(projectGroup, SWT.NONE);
+		wokwiServerLbl.setText(Messages.WokwiConfigTab_Server);
+		gd = new GridData();
+		wokwiServerLbl.setLayoutData(gd);
+
+		wokwiServerTxt = new Text(projectGroup, SWT.SINGLE | SWT.BORDER);
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 2;
+		wokwiServerTxt.setLayoutData(gd);
+		wokwiServerTxt.addModifyListener(evt -> {
+			updateLaunchConfigurationDialog();
+		});
+
 		Label projectIdLbl = new Label(projectGroup, SWT.NONE);
 		projectIdLbl.setText(Messages.WokwiConfigTab_ProjectID);
 
@@ -114,7 +134,44 @@ public class WokwiConfigTab extends AbstractLaunchConfigurationTab
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan = 2;
 		wokwiProjectIdTxt.setLayoutData(gd);
-		wokwiProjectIdTxt.setMessage("328451800839488084"); //$NON-NLS-1$
+
+		Link wokwiProjectIdhelp = new Link(projectGroup, SWT.NONE);
+		wokwiProjectIdhelp.setText(
+				Messages.WokwiConfigTab_HelpTxt);
+		gd = new GridData();
+		wokwiProjectIdhelp.setLayoutData(gd);
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 3;
+		gd.verticalIndent = 5;
+		wokwiProjectIdhelp.setLayoutData(gd);
+		wokwiProjectIdhelp.addListener(SWT.Selection, new Listener()
+		{
+			@Override
+			public void handleEvent(Event event)
+			{
+				Program.launch(IWokwiLaunchConstants.WOKWI_ESP32_BLINK);
+
+			}
+		});
+
+		Link wokwiserverConfigLbl = new Link(parent, SWT.NONE);
+		wokwiserverConfigLbl.setText(
+				Messages.WokwiConfigTab_InstallationHelpTxt + IWokwiLaunchConstants.WOKWI_SERVER_URL + "</a>"); //$NON-NLS-2$
+		gd = new GridData();
+		wokwiserverConfigLbl.setLayoutData(gd);
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 3;
+		gd.verticalIndent = 5;
+		wokwiserverConfigLbl.setLayoutData(gd);
+		wokwiserverConfigLbl.addListener(SWT.Selection, new Listener()
+		{
+			@Override
+			public void handleEvent(Event event)
+			{
+				Program.launch(event.text);
+
+			}
+		});
 
 	}
 
@@ -239,6 +296,18 @@ public class WokwiConfigTab extends AbstractLaunchConfigurationTab
 			return false;
 		}
 
+		String wokwiServerPath = wokwiServerTxt.getText().trim();
+		if (wokwiServerPath.length() == 0)
+		{
+			setErrorMessage(Messages.WokwiConfigTab_ServerCantEmpty);
+			return false;
+		}
+		if (!new File(wokwiServerPath).exists())
+		{
+			setErrorMessage(Messages.WokwiConfigTab_ServerDoesntExist);
+			return false;
+		}
+
 		if (isConfigValid && hasProject)
 		{
 			setErrorMessage(null);
@@ -254,6 +323,9 @@ public class WokwiConfigTab extends AbstractLaunchConfigurationTab
 			ILaunchConfigurationWorkingCopy wc = configuration.getWorkingCopy();
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, projectTxt.getText());
 			wc.setAttribute(IWokwiLaunchConstants.ATTR_WOKWI_PROJECT_ID, wokwiProjectIdTxt.getText());
+
+			new IDFEnvironmentVariables().addEnvVariable(IWokwiLaunchConstants.WOKWI_SERVER_PATH,
+					wokwiServerTxt.getText());
 
 			if (selectedProject != null)
 			{
@@ -279,13 +351,13 @@ public class WokwiConfigTab extends AbstractLaunchConfigurationTab
 	{
 		String projectName = StringUtil.EMPTY;
 		String wokwiProjectId = StringUtil.EMPTY;
+		String wokwiSeverPath = StringUtil.EMPTY;
 		try
 		{
 			projectName = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME,
 					StringUtil.EMPTY);
-
 			wokwiProjectId = configuration.getAttribute(IWokwiLaunchConstants.ATTR_WOKWI_PROJECT_ID, StringUtil.EMPTY);
-
+			wokwiSeverPath = new IDFEnvironmentVariables().getEnvValue(IWokwiLaunchConstants.WOKWI_SERVER_PATH);
 		}
 		catch (CoreException ce)
 		{
@@ -297,6 +369,11 @@ public class WokwiConfigTab extends AbstractLaunchConfigurationTab
 		if (!StringUtil.isEmpty(wokwiProjectId))
 		{
 			wokwiProjectIdTxt.setText(wokwiProjectId);
+		}
+
+		if (!StringUtil.isEmpty(wokwiSeverPath))
+		{
+			wokwiServerTxt.setText(wokwiSeverPath);
 		}
 	}
 

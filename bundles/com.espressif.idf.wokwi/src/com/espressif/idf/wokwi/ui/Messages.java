@@ -7,12 +7,17 @@ public class Messages extends NLS
 	private static final String BUNDLE_NAME = Messages.class.getPackageName() + ".messages"; //$NON-NLS-1$
 	public static String WokwiConfigTab_Browse;
 	public static String WokwiConfigTab_ChooseProject;
+	public static String WokwiConfigTab_HelpTxt;
+	public static String WokwiConfigTab_InstallationHelpTxt;
 	public static String WokwiConfigTab_ProjDoesNotExist;
 	public static String WokwiConfigTab_Project;
 	public static String WokwiConfigTab_ProjectID;
 	public static String WokwiConfigTab_ProjectNotSpecified;
 	public static String WokwiConfigTab_ProjectSelection;
 	public static String WokwiConfigTab_ProjMustOpened;
+	public static String WokwiConfigTab_Server;
+	public static String WokwiConfigTab_ServerCantEmpty;
+	public static String WokwiConfigTab_ServerDoesntExist;
 	public static String WokwiConfigTab_WokwiServer;
 	static
 	{
