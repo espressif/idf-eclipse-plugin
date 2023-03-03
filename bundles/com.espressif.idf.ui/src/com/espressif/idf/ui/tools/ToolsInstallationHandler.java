@@ -668,13 +668,17 @@ public class ToolsInstallationHandler extends Thread
 
 			// Appending the virtual python env scripts manually to 
 			// path as the dependency on the python export script is removed slowly
-			StringBuilder scriptPath = new StringBuilder();
-			scriptPath.append(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH));
-			scriptPath.append(File.separatorChar);
-			scriptPath.append("Scripts"); //$NON-NLS-1$
+			StringBuilder pythonVirtualEnvPath = new StringBuilder();
+			pythonVirtualEnvPath.append(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH));
+			pythonVirtualEnvPath.append(File.separatorChar);
+			pythonVirtualEnvPath.append("Scripts"); //$NON-NLS-1$
+			pythonVirtualEnvPath.append(File.pathSeparator);
+			pythonVirtualEnvPath.append(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH));
+			pythonVirtualEnvPath.append(File.separatorChar);
+			pythonVirtualEnvPath.append("bin"); //$NON-NLS-1$
+			pythonVirtualEnvPath.append(File.pathSeparator);
 			
-			paths.insert(0, scriptPath.toString());
-			paths.insert(scriptPath.length(), File.pathSeparator);
+			paths.insert(0, pythonVirtualEnvPath.toString());
 			replacePathVariable(paths);			
 		}
 
