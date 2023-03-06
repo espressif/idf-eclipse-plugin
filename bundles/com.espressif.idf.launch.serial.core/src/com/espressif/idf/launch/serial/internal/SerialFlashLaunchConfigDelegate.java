@@ -247,8 +247,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		if (!configManager.hasConfiguration(configurationProvider, project, configuration.getName())) {
 			configurationProvider.setNameBasedOnLaunchConfiguration(configuration);
 		}
-		IBuildConfiguration buildConfig = project
-				.getBuildConfig(IDFBuildConfigurationProvider.ID + '/' + configuration.getName());
+		IBuildConfiguration buildConfig = project.getActiveBuildConfig();
 
 		IProjectDescription desc = project.getDescription();
 		desc.setActiveBuildConfig(IDFBuildConfigurationProvider.ID + '/' + configuration.getName());
