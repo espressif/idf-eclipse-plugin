@@ -183,19 +183,15 @@ public class CMakeBuildTab2 extends CommonBuildTab
 			Logger.log(e);
 		}
 
-
 	}
 
-	private void createBuildConfiguration(ILaunchConfiguration configuration)
-			throws CoreException
+	private void createBuildConfiguration(ILaunchConfiguration configuration) throws CoreException
 	{
 		IProject project = CoreBuildLaunchConfigDelegate.getProject(configuration);
 		IDFBuildConfigurationProvider provider = new IDFBuildConfigurationProvider();
 		provider.setNameBasedOnLaunchConfiguration(configuration);
-		provider.createBuildConfiguration(project,
-				getBuildConfiguration() == null ? getDefaultMatchingToolChain()
-						: getBuildConfiguration().getToolChain(),
-				IDFCorePlugin.getService(ILaunchBarManager.class).getActiveLaunchMode().getIdentifier(), null);
+		provider.createBuildConfiguration(project, getBuildConfiguration() == null ? getDefaultMatchingToolChain()
+				: getBuildConfiguration().getToolChain(), "run", null); //$NON-NLS-1$
 	}
 
 	private IToolChain getDefaultMatchingToolChain()
