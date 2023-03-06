@@ -26,6 +26,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.swt.SWT;
@@ -191,7 +192,7 @@ public class CMakeBuildTab2 extends CommonBuildTab
 		IDFBuildConfigurationProvider provider = new IDFBuildConfigurationProvider();
 		provider.setNameBasedOnLaunchConfiguration(configuration);
 		provider.createBuildConfiguration(project, getBuildConfiguration() == null ? getDefaultMatchingToolChain()
-				: getBuildConfiguration().getToolChain(), "run", null); //$NON-NLS-1$
+				: getBuildConfiguration().getToolChain(), ILaunchManager.RUN_MODE, null);
 	}
 
 	private IToolChain getDefaultMatchingToolChain()
