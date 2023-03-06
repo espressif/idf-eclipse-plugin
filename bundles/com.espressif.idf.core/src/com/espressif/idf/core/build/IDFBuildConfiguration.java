@@ -453,7 +453,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		}
 
 		String userArgs = getProperty(CMAKE_ARGUMENTS);
-		if (userArgs != null)
+		if (userArgs != null && !userArgs.isBlank())
 		{
 			command.addAll(Arrays.asList(userArgs.trim().split("\\s+"))); //$NON-NLS-1$
 		}
