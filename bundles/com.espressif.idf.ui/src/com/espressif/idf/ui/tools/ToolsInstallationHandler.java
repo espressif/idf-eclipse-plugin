@@ -562,7 +562,7 @@ public class ToolsInstallationHandler extends Thread
 
 			runPythonEnvCommand();
 			runToolsExport(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.GIT_PATH));
-			ToolChainUtil.configureToolChain(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH));
+			ToolChainUtil.configureToolChain();
 			configEnv();
 			handleWebSocketClientInstall();
 			copyOpenOcdRules();
