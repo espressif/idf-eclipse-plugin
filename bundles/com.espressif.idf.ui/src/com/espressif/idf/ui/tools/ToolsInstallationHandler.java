@@ -562,8 +562,7 @@ public class ToolsInstallationHandler extends Thread
 
 			runPythonEnvCommand();
 			runToolsExport(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.GIT_PATH));
-			handleWebSocketClientInstall();
-			ToolChainUtil.configureToolChain();
+			ToolChainUtil.configureToolChain(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH));
 			configEnv();
 			handleWebSocketClientInstall();
 			copyOpenOcdRules();
@@ -672,13 +671,20 @@ public class ToolsInstallationHandler extends Thread
 			pythonVirtualEnvPath.append(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH));
 			pythonVirtualEnvPath.append(File.separatorChar);
 			pythonVirtualEnvPath.append("Scripts"); //$NON-NLS-1$
+			pythonVirtualEnvPath.append(File.separatorChar);
 			pythonVirtualEnvPath.append(File.pathSeparator);
 			pythonVirtualEnvPath.append(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH));
 			pythonVirtualEnvPath.append(File.separatorChar);
 			pythonVirtualEnvPath.append("bin"); //$NON-NLS-1$
+			pythonVirtualEnvPath.append(File.separatorChar);
+			pythonVirtualEnvPath.append(File.pathSeparator);
+			pythonVirtualEnvPath.append(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH));
+			pythonVirtualEnvPath.append(File.separatorChar);
+			pythonVirtualEnvPath.append("tools"); //$NON-NLS-1$
+			pythonVirtualEnvPath.append(File.separatorChar);
 			pythonVirtualEnvPath.append(File.pathSeparator);
 			
-			paths.insert(0, pythonVirtualEnvPath.toString());
+			paths.append(pythonVirtualEnvPath.toString());
 			replacePathVariable(paths);			
 		}
 
@@ -725,7 +731,7 @@ public class ToolsInstallationHandler extends Thread
 			{
 				separatorIndex = existingPath.length();
 				String path = existingPath.substring(prevIndex, separatorIndex);
-				if (!newPaths.contains(path))
+				if (!newPaths.contains(path) && !systemPath.contains(path))
 				{
 					pathsToAppend.add(path);
 				}

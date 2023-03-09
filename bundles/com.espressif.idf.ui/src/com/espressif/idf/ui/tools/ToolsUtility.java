@@ -23,11 +23,12 @@ import java.util.Optional;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
-import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.eclipse.core.runtime.Platform;
+import org.tukaani.xz.XZInputStream;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
@@ -156,6 +157,7 @@ public class ToolsUtility
 				}
 				else
 				{
+					Files.createDirectories(pathEntryOutput.getParent());
 					Files.copy(tararchiveinputstream, pathEntryOutput, StandardCopyOption.REPLACE_EXISTING);
 					Runtime.getRuntime().exec("/bin/chmod 755 ".concat(pathEntryOutput.toString()));
 				}
@@ -172,32 +174,75 @@ public class ToolsUtility
 	
 	public static void extractTarXz(String tarFile, String outputDir)
 	{
-		Path pathInput = Paths.get(tarFile);
 		Path pathOutput = Paths.get(outputDir);
+		Map<Path, Path> symLinks = new HashMap<>();
+		Map<Path, Path> hardLinks = new HashMap<>();
 		try
 		{
-			BufferedInputStream bufferedInputStream = new BufferedInputStream(Files.newInputStream(pathInput));
-			XZCompressorInputStream xzCompressorInputStream = new XZCompressorInputStream(bufferedInputStream);
-			
-			TarArchiveInputStream tararchiveinputstream = new TarArchiveInputStream(xzCompressorInputStream);
-			ArchiveEntry archiveentry = null;
-			while ((archiveentry = tararchiveinputstream.getNextEntry()) != null)
+			FileInputStream fileInputStream = new FileInputStream(tarFile);
+			BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
+			XZInputStream xzInputStream = new XZInputStream(bufferedInputStream);
+			TarArchiveInputStream tararchiveinputstream = new TarArchiveInputStream(xzInputStream);
+			TarArchiveEntry archiveentry = null;
+			while ((archiveentry = tararchiveinputstream.getNextTarEntry()) != null)
 			{
 				Path pathEntryOutput = pathOutput.resolve(archiveentry.getName());
-				if (archiveentry.isDirectory())
+				if (archiveentry.isSymbolicLink())
+				{
+					symLinks.put(pathEntryOutput,
+							pathOutput.resolve(archiveentry.getName()).getParent().resolve(archiveentry.getLinkName()));
+					continue;
+				}
+				else if (archiveentry.isLink())
+				{
+					hardLinks.put(pathEntryOutput,
+							pathOutput.resolve(archiveentry.getLinkName()));
+					continue;
+				}
+				else if (archiveentry.isDirectory())
 				{
 					if (!Files.exists(pathEntryOutput))
 						Files.createDirectories(pathEntryOutput);
 				}
 				else
 				{
+					System.out.println(pathEntryOutput.toString() + " " + archiveentry.getSize());
 					Files.copy(tararchiveinputstream, pathEntryOutput, StandardCopyOption.REPLACE_EXISTING);
 					Runtime.getRuntime().exec("/bin/chmod 755 ".concat(pathEntryOutput.toString()));
 				}
-					
 			}
-
 			tararchiveinputstream.close();
+			xzInputStream.close();
+			fileInputStream.close();
+			hardLinks.forEach(ToolsUtility::createHardLinks);
+			symLinks.forEach(ToolsUtility::createSymLinks);
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+		}
+	}
+	
+	
+	private static void createHardLinks(Path link, Path target)
+	{
+		try
+		{
+			Files.deleteIfExists(link);
+			Files.createLink(link, target);
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+		}
+	}
+
+	private static void createSymLinks(Path link, Path target)
+	{
+		try
+		{
+			Files.deleteIfExists(link);
+			Files.createSymbolicLink(link, target.toRealPath());
 		}
 		catch (Exception e)
 		{
