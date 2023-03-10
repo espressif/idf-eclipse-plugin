@@ -45,7 +45,8 @@ import com.espressif.idf.debug.gdbjtag.openocd.ConfigurationAttributes;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 
 @SuppressWarnings("restriction")
-public class Launch extends GnuMcuLaunch {
+public class Launch extends GnuMcuLaunch
+{
 
 	// ------------------------------------------------------------------------
 
@@ -56,11 +57,13 @@ public class Launch extends GnuMcuLaunch {
 
 	// ------------------------------------------------------------------------
 
-	public Launch(ILaunchConfiguration launchConfiguration, String mode, ISourceLocator locator) {
+	public Launch(ILaunchConfiguration launchConfiguration, String mode, ISourceLocator locator)
+	{
 
 		super(launchConfiguration, mode, locator);
 
-		if (Activator.getInstance().isDebugging()) {
+		if (Activator.getInstance().isDebugging())
+		{
 			System.out.println("openocd.Launch.launch(" + launchConfiguration.getName() + "," + mode + ") " + this);
 		}
 
@@ -72,17 +75,21 @@ public class Launch extends GnuMcuLaunch {
 	// ------------------------------------------------------------------------
 
 	@Override
-	public void initialize() {
+	public void initialize()
+	{
 
-		if (Activator.getInstance().isDebugging()) {
+		if (Activator.getInstance().isDebugging())
+		{
 			System.out.println("openocd.Launch.initialize() " + this);
 		}
 
 		super.initialize();
 
-		Runnable initRunnable = new DsfRunnable() {
+		Runnable initRunnable = new DsfRunnable()
+		{
 			@Override
-			public void run() {
+			public void run()
+			{
 				fTracker = new DsfServicesTracker(GdbPlugin.getBundleContext(), fSession.getId());
 				// fSession.addServiceEventListener(GdbLaunch.this, null);
 
@@ -92,36 +99,46 @@ public class Launch extends GnuMcuLaunch {
 		};
 
 		// Invoke the execution code and block waiting for the result.
-		try {
+		try
+		{
 			fExecutor.submit(initRunnable).get();
-		} catch (InterruptedException e) {
+		}
+		catch (InterruptedException e)
+		{
 			new Status(IStatus.ERROR, Activator.PLUGIN_ID, IDsfStatusConstants.INTERNAL_ERROR,
 					"Error initializing launch", e); //$NON-NLS-1$
-		} catch (ExecutionException e) {
+		}
+		catch (ExecutionException e)
+		{
 			new Status(IStatus.ERROR, Activator.PLUGIN_ID, IDsfStatusConstants.INTERNAL_ERROR,
 					"Error initializing launch", e); //$NON-NLS-1$
 		}
 	}
 
 	@Override
-	protected void provideDefaults(ILaunchConfigurationWorkingCopy config) throws CoreException {
+	protected void provideDefaults(ILaunchConfigurationWorkingCopy config) throws CoreException
+	{
 
 		super.provideDefaults(config);
 
-		if (!config.hasAttribute(IGDBJtagConstants.ATTR_IP_ADDRESS)) {
-			config.setAttribute(IGDBJtagConstants.ATTR_IP_ADDRESS, "localhost");
+		if (!config.hasAttribute(IGDBJtagConstants.ATTR_IP_ADDRESS))
+		{
+			config.setAttribute(IGDBJtagConstants.ATTR_IP_ADDRESS, "localhost"); //$NON-NLS-1$
 		}
 
-		if (!config.hasAttribute(IGDBJtagConstants.ATTR_JTAG_DEVICE_ID)) {
+		if (!config.hasAttribute(IGDBJtagConstants.ATTR_JTAG_DEVICE_ID))
+		{
 			config.setAttribute(IGDBJtagConstants.ATTR_JTAG_DEVICE_ID, ConfigurationAttributes.JTAG_DEVICE);
 		}
 
-		if (!config.hasAttribute(IGDBJtagConstants.ATTR_PORT_NUMBER)) {
+		if (!config.hasAttribute(IGDBJtagConstants.ATTR_PORT_NUMBER))
+		{
 			config.setAttribute(IGDBJtagConstants.ATTR_PORT_NUMBER,
 					DefaultPreferences.GDB_SERVER_GDB_PORT_NUMBER_DEFAULT);
 		}
 
-		if (!config.hasAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME)) {
+		if (!config.hasAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME))
+		{
 			DefaultPreferences fDefaultPreferences = Activator.getInstance().getDefaultPreferences();
 			config.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME,
 					fDefaultPreferences.getGdbClientExecutable());
@@ -130,16 +147,19 @@ public class Launch extends GnuMcuLaunch {
 
 	// ------------------------------------------------------------------------
 
-	public void initializeServerConsole(IProgressMonitor monitor) throws CoreException {
+	public void initializeServerConsole(IProgressMonitor monitor) throws CoreException
+	{
 
-		if (Activator.getInstance().isDebugging()) {
+		if (Activator.getInstance().isDebugging())
+		{
 			System.out.println("openocd.Launch.initializeServerConsole()");
 		}
 
 		IProcess newProcess;
 		boolean doAddServerConsole = Configuration.getDoAddServerConsole(fConfig);
 
-		if (doAddServerConsole) {
+		if (doAddServerConsole)
+		{
 
 			// Add the GDB server process to the launch tree
 			newProcess = addServerProcess(Configuration.getGdbServerCommandName(fConfig));
@@ -149,9 +169,11 @@ public class Launch extends GnuMcuLaunch {
 		}
 	}
 
-	public void initializeConsoles(IProgressMonitor monitor) throws CoreException {
+	public void initializeConsoles(IProgressMonitor monitor) throws CoreException
+	{
 
-		if (Activator.getInstance().isDebugging()) {
+		if (Activator.getInstance().isDebugging())
+		{
 			System.out.println("openocd.Launch.initializeConsoles()");
 		}
 
@@ -165,15 +187,20 @@ public class Launch extends GnuMcuLaunch {
 		}
 	}
 
-	public IProcess addServerProcess(String label) throws CoreException {
+	public IProcess addServerProcess(String label) throws CoreException
+	{
 		IProcess newProcess = null;
-		try {
+		try
+		{
 			// Add the server process object to the launch.
-			Process serverProc = getDsfExecutor().submit(new Callable<Process>() {
+			Process serverProc = getDsfExecutor().submit(new Callable<Process>()
+			{
 				@Override
-				public Process call() throws CoreException {
-					GdbServerBackend backend = (GdbServerBackend) fTracker.getService(GdbServerBackend.class);
-					if (backend != null) {
+				public Process call() throws CoreException
+				{
+					GdbServerBackend backend = fTracker.getService(GdbServerBackend.class);
+					if (backend != null)
+					{
 						return backend.getServerProcess();
 					}
 					return null;
@@ -185,15 +212,22 @@ public class Launch extends GnuMcuLaunch {
 			// First set attribute to specify we want to create the gdb process.
 			// Bug 210366
 			Map<String, String> attributes = new HashMap<String, String>();
-			if (serverProc != null) {
+			if (serverProc != null)
+			{
 				newProcess = DebugPlugin.newProcess(this, serverProc, label, attributes);
 			}
-		} catch (InterruptedException e) {
+		}
+		catch (InterruptedException e)
+		{
 			throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0,
 					"Interrupted while waiting for get process callable.", e)); //$NON-NLS-1$
-		} catch (ExecutionException e) {
+		}
+		catch (ExecutionException e)
+		{
 			throw (CoreException) e.getCause();
-		} catch (RejectedExecutionException e) {
+		}
+		catch (RejectedExecutionException e)
+		{
 			throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0,
 					"Debugger shut down before launch was completed.", e)); //$NON-NLS-1$
 		}

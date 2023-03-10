@@ -25,24 +25,27 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.ILaunchConfiguration;
-
-import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
-import com.espressif.idf.launch.serial.util.ESPFlashUtil;
-
 import org.eclipse.embedcdt.core.EclipseUtils;
 import org.eclipse.embedcdt.core.StringUtils;
 import org.eclipse.embedcdt.debug.gdbjtag.core.DebugUtils;
 
+import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
+import com.espressif.idf.launch.serial.util.ESPFlashUtil;
+
 @SuppressWarnings("restriction")
-public class Configuration {
+public class Configuration
+{
 
 	// ------------------------------------------------------------------------
 
-	public static String getGdbServerCommand(ILaunchConfiguration configuration, String executable) {
+	public static String getGdbServerCommand(ILaunchConfiguration configuration, String executable)
+	{
 
-		try {
+		try
+		{
 
-			if (executable == null) {
+			if (executable == null)
+			{
 				if (!configuration.getAttribute(ConfigurationAttributes.DO_START_GDB_SERVER,
 						DefaultPreferences.DO_START_GDB_SERVER_DEFAULT))
 					return null;
@@ -54,7 +57,9 @@ public class Configuration {
 
 			executable = resolveAll(executable, configuration);
 
-		} catch (CoreException e) {
+		}
+		catch (CoreException e)
+		{
 			Activator.log(e);
 			return null;
 		}
@@ -62,17 +67,20 @@ public class Configuration {
 		return executable;
 	}
 
-	public static String getGdbServerCommandLine(ILaunchConfiguration configuration) {
+	public static String getGdbServerCommandLine(ILaunchConfiguration configuration)
+	{
 
 		String cmdLineArray[] = getGdbServerCommandLineArray(configuration);
 		return StringUtils.join(cmdLineArray, " ");
 	}
 
-	public static String[] getGdbServerCommandLineArray(ILaunchConfiguration configuration) {
+	public static String[] getGdbServerCommandLineArray(ILaunchConfiguration configuration)
+	{
 
-		List<String> lst = new ArrayList<String>();
+		List<String> lst = new ArrayList<>();
 
-		try {
+		try
+		{
 			if (!configuration.getAttribute(ConfigurationAttributes.DO_START_GDB_SERVER,
 					DefaultPreferences.DO_START_GDB_SERVER_DEFAULT))
 				return null;
@@ -102,7 +110,8 @@ public class Configuration {
 					.trim();
 			other = resolveAll(other, configuration);
 
-			if (other != null && !other.isEmpty()) {
+			if (other != null && !other.isEmpty())
+			{
 				lst.addAll(StringUtils.splitCommandLineOptions(other));
 			}
 
@@ -110,12 +119,15 @@ public class Configuration {
 			{
 				lst.add(ESPFlashUtil.getEspJtagFlashCommand(configuration));
 			}
-			
-			if (isVerboseOutputEnabled(configuration)) {
+
+			if (isVerboseOutputEnabled(configuration))
+			{
 				lst.add("-d3"); //$NON-NLS-1$
 			}
 
-		} catch (CoreException e) {
+		}
+		catch (CoreException e)
+		{
 			Activator.log(e);
 			return null;
 		}
@@ -128,17 +140,20 @@ public class Configuration {
 		return lst.toArray(new String[0]);
 	}
 
-	private static boolean isVerboseOutputEnabled(ILaunchConfiguration configuration) throws CoreException {
+	private static boolean isVerboseOutputEnabled(ILaunchConfiguration configuration) throws CoreException
+	{
 		return configuration.getAttribute(ConfigurationAttributes.ENABLE_VERBOSE_OUTPUT, false);
 	}
 
-	public static String getGdbServerCommandName(ILaunchConfiguration config) {
+	public static String getGdbServerCommandName(ILaunchConfiguration config)
+	{
 
 		String fullCommand = getGdbServerCommand(config, null);
 		return StringUtils.extractNameFromPath(fullCommand);
 	}
 
-	public static String getGdbServerOtherConfig(ILaunchConfiguration config) throws CoreException {
+	public static String getGdbServerOtherConfig(ILaunchConfiguration config) throws CoreException
+	{
 
 		return config
 				.getAttribute(ConfigurationAttributes.GDB_SERVER_OTHER, DefaultPreferences.GDB_SERVER_OTHER_DEFAULT)
@@ -147,11 +162,14 @@ public class Configuration {
 
 	// ------------------------------------------------------------------------
 
-	public static String getGdbClientCommand(ILaunchConfiguration configuration, String executable) {
+	public static String getGdbClientCommand(ILaunchConfiguration configuration, String executable)
+	{
 
-		try {
+		try
+		{
 
-			if (executable == null) {
+			if (executable == null)
+			{
 				String defaultGdbCommand = Platform.getPreferencesService().getString(GdbPlugin.PLUGIN_ID,
 						IGdbDebugPreferenceConstants.PREF_DEFAULT_GDB_COMMAND,
 						IGDBLaunchConfigurationConstants.DEBUGGER_DEBUG_NAME_DEFAULT, null);
@@ -162,7 +180,9 @@ public class Configuration {
 
 			executable = resolveAll(executable, configuration);
 
-		} catch (CoreException e) {
+		}
+		catch (CoreException e)
+		{
 			Activator.log(e);
 			return null;
 		}
@@ -174,7 +194,9 @@ public class Configuration {
 	{
 		return configuration.getAttribute(ConfigurationAttributes.DO_FLASH_BEFORE_START, false);
 	}
-	public static String[] getGdbClientCommandLineArray(ILaunchConfiguration configuration) {
+
+	public static String[] getGdbClientCommandLineArray(ILaunchConfiguration configuration)
+	{
 
 		List<String> lst = new ArrayList<String>();
 
@@ -193,70 +215,84 @@ public class Configuration {
 		lst.add("--nx");
 
 		String other;
-		try {
+		try
+		{
 			other = configuration.getAttribute(ConfigurationAttributes.GDB_CLIENT_OTHER_OPTIONS,
 					DefaultPreferences.GDB_CLIENT_OTHER_OPTIONS_DEFAULT).trim();
 
 			other = DebugUtils.resolveAll(other, configuration.getAttributes());
 
-			if (!other.isEmpty()) {
+			if (!other.isEmpty())
+			{
 				lst.addAll(StringUtils.splitCommandLineOptions(other));
 			}
-		} catch (CoreException e) {
+		}
+		catch (CoreException e)
+		{
 			Activator.log(e);
 		}
 
 		return lst.toArray(new String[0]);
 	}
 
-	public static String getGdbClientCommandLine(ILaunchConfiguration configuration) {
+	public static String getGdbClientCommandLine(ILaunchConfiguration configuration)
+	{
 
 		String cmdLineArray[] = getGdbClientCommandLineArray(configuration);
 		return StringUtils.join(cmdLineArray, " ");
 	}
 
-	public static String getGdbClientCommandName(ILaunchConfiguration config) {
+	public static String getGdbClientCommandName(ILaunchConfiguration config)
+	{
 
 		String fullCommand = getGdbClientCommand(config, null);
 		return StringUtils.extractNameFromPath(fullCommand);
 	}
 
-	public static String resolveAll(String str, ILaunchConfiguration configuration) throws CoreException {
+	public static String resolveAll(String str, ILaunchConfiguration configuration) throws CoreException
+	{
 		String value = str;
 		value = value.trim();
 		if (value.length() == 0)
 			return null;
 
-		if (value.indexOf("${") >= 0) {
+		if (value.indexOf("${") >= 0)
+		{
 			IProject project = EclipseUtils.getProjectByLaunchConfiguration(configuration);
-			if (project != null) {
+			if (project != null)
+			{
 				value = DynamicVariableResolver.resolveAll(value, project);
 			}
 		}
 
-		if (value.indexOf("${") >= 0) {
+		if (value.indexOf("${") >= 0)
+		{
 			// If more macros to process.
 			value = DebugUtils.resolveAll(value, configuration.getAttributes());
 
 			ICConfigurationDescription buildConfig = EclipseUtils.getBuildConfigDescription(configuration);
-			if (buildConfig != null) {
+			if (buildConfig != null)
+			{
 				value = DebugUtils.resolveAll(value, buildConfig);
 			}
 		}
-		if (Activator.getInstance().isDebugging()) {
+		if (Activator.getInstance().isDebugging())
+		{
 			System.out.println("openocd.resolveAll(\"" + str + "\") = \"" + value + "\"");
 		}
 		return value;
 	}
 	// ------------------------------------------------------------------------
 
-	public static boolean getDoStartGdbServer(ILaunchConfiguration config) throws CoreException {
+	public static boolean getDoStartGdbServer(ILaunchConfiguration config) throws CoreException
+	{
 
 		return config.getAttribute(ConfigurationAttributes.DO_START_GDB_SERVER,
 				DefaultPreferences.DO_START_GDB_SERVER_DEFAULT);
 	}
 
-	public static boolean getDoAddServerConsole(ILaunchConfiguration config) throws CoreException {
+	public static boolean getDoAddServerConsole(ILaunchConfiguration config) throws CoreException
+	{
 
 		return getDoStartGdbServer(config)
 				&& config.getAttribute(ConfigurationAttributes.DO_GDB_SERVER_ALLOCATE_CONSOLE,
@@ -265,7 +301,8 @@ public class Configuration {
 
 	// ------------------------------------------------------------------------
 
-	public static boolean getDoStartGdbClient(ILaunchConfiguration config) throws CoreException {
+	public static boolean getDoStartGdbClient(ILaunchConfiguration config) throws CoreException
+	{
 
 		return config.getAttribute(ConfigurationAttributes.DO_START_GDB_CLIENT,
 				DefaultPreferences.DO_START_GDB_CLIENT_DEFAULT);
