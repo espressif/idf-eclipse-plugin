@@ -29,6 +29,7 @@ import org.eclipse.embedcdt.core.EclipseUtils;
 import org.eclipse.embedcdt.core.StringUtils;
 import org.eclipse.embedcdt.debug.gdbjtag.core.DebugUtils;
 
+import com.espressif.idf.core.util.PortChecker;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 
@@ -91,19 +92,26 @@ public class Configuration
 
 			lst.add(executable);
 
-			lst.add("-c");
-			lst.add("gdb_port "
-					+ Integer.toString(configuration.getAttribute(ConfigurationAttributes.GDB_SERVER_GDB_PORT_NUMBER,
-							DefaultPreferences.GDB_SERVER_GDB_PORT_NUMBER_DEFAULT)));
+			int port = PortChecker
+					.getAvailablePort(configuration.getAttribute(ConfigurationAttributes.GDB_SERVER_GDB_PORT_NUMBER,
+							DefaultPreferences.GDB_SERVER_GDB_PORT_NUMBER_DEFAULT));
 
-			lst.add("-c");
-			lst.add("telnet_port "
-					+ Integer.toString(configuration.getAttribute(ConfigurationAttributes.GDB_SERVER_TELNET_PORT_NUMBER,
-							DefaultPreferences.GDB_SERVER_TELNET_PORT_NUMBER_DEFAULT)));
+			lst.add("-c"); //$NON-NLS-1$
+			lst.add("gdb_port " + port); //$NON-NLS-1$
 
-			lst.add("-c");
-			lst.add("tcl_port " + configuration.getAttribute(ConfigurationAttributes.GDB_SERVER_TCL_PORT_NUMBER,
-					DefaultPreferences.GDB_SERVER_TCL_PORT_NUMBER_DEFAULT));
+			port = PortChecker
+					.getAvailablePort(configuration.getAttribute(ConfigurationAttributes.GDB_SERVER_TELNET_PORT_NUMBER,
+							DefaultPreferences.GDB_SERVER_TELNET_PORT_NUMBER_DEFAULT));
+
+			lst.add("-c"); //$NON-NLS-1$
+			lst.add("telnet_port " + port); //$NON-NLS-1$
+
+			port = PortChecker.getAvailablePort(
+					Integer.parseInt(configuration.getAttribute(ConfigurationAttributes.GDB_SERVER_TCL_PORT_NUMBER,
+							DefaultPreferences.GDB_SERVER_TCL_PORT_NUMBER_DEFAULT)));
+
+			lst.add("-c"); //$NON-NLS-1$
+			lst.add("tcl_port " + port); //$NON-NLS-1$
 
 			String other = configuration
 					.getAttribute(ConfigurationAttributes.GDB_SERVER_OTHER, DefaultPreferences.GDB_SERVER_OTHER_DEFAULT)
