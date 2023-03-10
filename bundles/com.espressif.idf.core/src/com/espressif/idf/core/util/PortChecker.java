@@ -16,6 +16,8 @@ import com.espressif.idf.core.logging.Logger;
  */
 public class PortChecker
 {
+	private static final int MAX_ATTEMPS = 20;
+
 	private PortChecker()
 	{
 	}
@@ -38,11 +40,20 @@ public class PortChecker
 	 */
 	public static int getAvailablePort(int port)
 	{
-		while (!isPortAvailable(port))
+		int attemptsCount = 0;
+		while (!isPortAvailable(port) && attemptsCount < MAX_ATTEMPS)
 		{
 			Logger.log(String.format(Messages.PortChecker_PortNotAvailable, port, port + 1));
 			port += 1;
+			attemptsCount += 1;
 		}
+
+		if (attemptsCount >= MAX_ATTEMPS)
+		{
+			Logger.log(Messages.PortChecker_AttemptLimitExceededMsg);
+			return port;
+		}
+
 		Logger.log(String.format(Messages.PortChecker_PortIsAvailable, port));
 		return port;
 	}

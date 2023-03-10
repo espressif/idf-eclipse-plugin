@@ -43,6 +43,7 @@ public class Messages extends NLS {
 	public static String NvsValidation_KeyValidationErr_1;
 	public static String NvsValidation_KeyValidationErr_2;
 	
+	public static String PortChecker_AttemptLimitExceededMsg;
 	public static String PortChecker_PortIsAvailable;
 	public static String PortChecker_PortNotAvailable;
 
