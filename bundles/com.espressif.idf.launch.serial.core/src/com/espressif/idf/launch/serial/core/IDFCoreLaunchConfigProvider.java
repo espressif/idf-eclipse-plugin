@@ -69,8 +69,7 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 		if (project != null && !project.isOpen()) {
 			return true;
 		}
-		if (ownsLaunchConfiguration(configuration)) {
-
+		if (configuration.exists()) {
 			Map<String, ILaunchConfiguration> projectConfigs = configs.get(project);
 			if (projectConfigs == null) {
 				projectConfigs = new HashMap<>();
@@ -78,9 +77,9 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 			}
 
 			projectConfigs.put(configuration.getName(), configuration);
-			return true;
 		}
-		return false;
+
+		return ownsLaunchConfiguration(configuration);
 	}
 
 	@Override
@@ -111,9 +110,14 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 	@Override
 	public void launchDescriptorRemoved(ILaunchDescriptor descriptor) throws CoreException {
 		IProject project = descriptor.getAdapter(IProject.class);
-		if (project != null) {
-			configs.remove(project);
+		if (project == null) {
+			return;
 		}
+		Map<String, ILaunchConfiguration> projectConfigs = configs.get(project);
+		if (projectConfigs != null) {
+			projectConfigs.remove(descriptor.getName());
+		}
+
 	}
 
 	@Override

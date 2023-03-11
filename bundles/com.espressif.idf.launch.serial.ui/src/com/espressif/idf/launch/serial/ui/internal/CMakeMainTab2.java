@@ -150,7 +150,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	private void chooseProject() {
-		ICProject projects[];
+		ICProject[] projects;
 		try {
 			projects = CoreModel.getDefault().getCModel().getCProjects();
 			ILabelProvider labelProvider = new CElementLabelProvider();
@@ -306,11 +306,15 @@ public class CMakeMainTab2 extends GenericMainTab {
 	@Override
 	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
 		super.performApply(configuration);
-		if (!isJtagFlashAvailable) {
-			return;
-		}
 		try {
 			ILaunchConfigurationWorkingCopy wc = configuration.getWorkingCopy();
+			if (selectedProject != null) {
+				initializeCProject(selectedProject, wc);
+			}
+			if (!isJtagFlashAvailable) {
+				wc.doSave();
+				return;
+			}
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, fProjText.getText());
 			wc.setAttribute(IDFLaunchConstants.JTAG_FLASH_VOLTAGE, fFlashVoltage.getText());
 			wc.setAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, fTarget.getText());
@@ -324,10 +328,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 			} else {
 				wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, argumentField.getText());
 				wc.setAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, argumentsForJtagFlash);
-			}
-
-			if (selectedProject != null) {
-				wc.setMappedResources(new IResource[] { selectedProject });
 			}
 
 			wc.doSave();
