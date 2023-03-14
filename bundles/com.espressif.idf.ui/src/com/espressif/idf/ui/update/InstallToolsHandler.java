@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.ui.console.MessageConsoleStream;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
@@ -70,7 +71,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 
 				monitor.worked(1);
 				monitor.setTaskName(Messages.InstallToolsHandler_InstallingPythonMsg);
-				status = handleToolsInstallPython();
+				status = handleToolsInstallPython(console);
 				if (status.getSeverity() == IStatus.ERROR)
 				{
 					return status;
@@ -203,16 +204,16 @@ public class InstallToolsHandler extends AbstractToolsHandler
 
 		console.println(Messages.InstallToolsHandler_InstallingToolsMsg);
 		console.println(Messages.InstallToolsHandler_ItWilltakeTimeMsg);
-		return runCommand(arguments);
+		return runCommand(arguments, console);
 	}
 
-	protected IStatus handleToolsInstallPython()
+	protected IStatus handleToolsInstallPython(MessageConsoleStream console)
 	{
 		List<String> arguments;
 		// idf_tools.py install-python-env
 		arguments = new ArrayList<String>();
 		arguments.add(IDFConstants.TOOLS_INSTALL_PYTHON_CMD);
-		return runCommand(arguments);
+		return runCommand(arguments, console);
 	}
 
 	public IStatus handleWebSocketClientInstall()

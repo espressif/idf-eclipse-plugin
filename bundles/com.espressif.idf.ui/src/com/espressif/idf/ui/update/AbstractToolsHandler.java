@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.ui.update;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.MessageConsoleStream;
@@ -30,6 +32,7 @@ import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.PyWinRegistryReader;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.IDFConsole;
+import com.espressif.idf.ui.InputStreamConsoleThread;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -142,7 +145,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 	 */
 	protected abstract void execute();
 
-	protected IStatus runCommand(List<String> arguments)
+	protected IStatus runCommand(List<String> arguments, MessageConsoleStream console)
 	{
 		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 
@@ -158,17 +161,14 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 
 			Map<String, String> environment = new HashMap<>(System.getenv());
 			Logger.log(environment.toString());
+			environment.put("PYTHONUNBUFFERED", "1");
 
 			if (gitExecutablePath != null)
 			{
 				addGitToEnvironment(environment, gitExecutablePath);
 			}
-			IStatus status = processRunner.runInBackground(arguments, Path.ROOT, environment);
-			if (status == null)
-			{
-				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
-				return IDFCorePlugin.errorStatus("Status can't be null", null); //$NON-NLS-1$
-			}
+			Process process = processRunner.run(arguments, Path.ROOT, environment);
+			IStatus status = processData(process);
 			if (status.getSeverity() == IStatus.ERROR)
 			{
 				errorConsoleStream.print(
@@ -183,6 +183,68 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 		{
 			Logger.log(IDFCorePlugin.getPlugin(), e1);
 			return IDFCorePlugin.errorStatus(e1.getMessage(), e1);
+		}
+	}
+
+	private IStatus processData(Process process)
+	{
+
+		InputStream inputStream = process.getInputStream();
+		InputStream errorStream = process.getErrorStream();
+
+		InputStreamConsoleThread readerThread = null;
+		InputStreamConsoleThread errorThread = null;
+		try
+		{
+
+			readerThread = new InputStreamConsoleThread(inputStream, console);
+			errorThread = new InputStreamConsoleThread(errorStream, console);
+
+			readerThread.start();
+			errorThread.start();
+
+			// This will wait till the process is done.
+			int exitValue = process.waitFor();
+
+			readerThread.interrupt();
+			errorThread.interrupt();
+			readerThread.join();
+			errorThread.join();
+
+			if (exitValue == 0)
+			{
+				return Status.OK_STATUS;
+			}
+
+			return new Status(IStatus.ERROR, IDFCorePlugin.PLUGIN_ID, "Error");
+
+		}
+		catch (InterruptedException e)
+		{
+			try
+			{
+				if (readerThread != null)
+				{
+					readerThread.interrupt();
+				}
+				if (errorThread != null)
+				{
+					errorThread.interrupt();
+				}
+				if (readerThread != null)
+				{
+					readerThread.join();
+				}
+				if (errorThread != null)
+				{
+					errorThread.join();
+				}
+			}
+			catch (InterruptedException e1)
+			{
+				// ignore
+			}
+			return new Status(IStatus.ERROR, IDFCorePlugin.PLUGIN_ID, e.getMessage(), e);
 		}
 	}
 
