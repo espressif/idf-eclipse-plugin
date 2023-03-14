@@ -186,3 +186,10 @@ This occurs basically because the directory `/etc/udev/` requires elevated permi
 - Select `WHO_PATH` from the preferences list and click on Edit and Click Ok without changing any value(There is a bug in CDT that is appending a null value before the path hence we need to click on edit and save it.)
 - Open `CMakeLists.txt` from the project root and change this from `set(EXTRA_COMPONENT_DIRS ../../../components)` to `set(EXTRA_COMPONENT_DIRS $ENV{WHO_PATH}/components)` in the line 5
 - Select the target and click on build. 
+
+# How to Enable the LaunchBar in Espressif-IDE
+By default, LaunchBar is enabled in Espressif-IDE and Eclipse CDT. However, in some of the Linux versions, this seems to be disabled. Please follow the below instructions to enable the LaunBar.
+- Go to `Preferences...`
+- Navigate to `Run/Debug > Launching > LaunchBar`
+- Check `Enable the LaunchBar`
+- Click `Apply and Close`
