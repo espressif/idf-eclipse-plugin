@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ * 
+ * Contributors:
+ *      QNX - Initial API and implementation
+ *      kondal.kolipaka@espressif.com - ESP-IDF specific build configuration
  *******************************************************************************/
 package com.espressif.idf.core.build;
 
@@ -124,6 +128,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	private ICMakeToolChainFile toolChainFile;
 	private String customBuildDir;
 	private IBuildConfiguration buildConfiguration;
+	private IProgressMonitor monitor;
+	public boolean isProgressSet;
 
 	public IDFBuildConfiguration(IBuildConfiguration config, String name) throws CoreException
 	{
@@ -271,6 +277,9 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	public IProject[] build(int kind, Map<String, String> args, IConsole console, IProgressMonitor monitor)
 			throws CoreException
 	{
+		this.monitor = monitor;
+		isProgressSet = false;
+		
 		IProject project = getProject();
 		toolChainFile = getToolChainFile();
 
@@ -379,7 +388,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 				throw new CmakeBuildException();
 			}
 
-			watchProcess(p, new IConsoleParser[] { epm });
+			watchProcess(p, new IConsoleParser[] { epm, new StatusParser()});
 
 			final String isSkip = System.getProperty("skip.idf.components"); //$NON-NLS-1$
 			if (!Boolean.parseBoolean(isSkip))
@@ -1058,6 +1067,48 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	public void setLaunchTarget(ILaunchTarget target)
 	{
 		this.launchtarget = target;
+	}
+	
+	/**
+	 * Process the CMake build output and figure out the percentage of work done.
+	 */
+	class StatusParser implements IConsoleParser
+	{
+		@Override
+		public boolean processLine(String line)
+		{
+			try
+			{
+				if (line.indexOf("[") != -1 && line.indexOf("]") != -1) //$NON-NLS-1$ //$NON-NLS-2$
+				{
+					String str = line.substring(line.indexOf("[") + 1, line.indexOf("]")); //$NON-NLS-1$ //$NON-NLS-2$
+					if (str.length() > 0)
+					{
+						String[] split = str.split("/"); //$NON-NLS-1$
+						int y = Integer.parseInt(split[1].strip());
+						if (!isProgressSet && monitor != null)
+						{
+							isProgressSet = true;
+							monitor.beginTask("Building", y); //$NON-NLS-1$
+						}
+
+						monitor.worked(1);
+					}
+				}
+			}
+			catch (NumberFormatException e)
+			{
+				Logger.log(e, true); //Silently report
+			}
+			return true;
+		}
+
+		@Override
+		public void shutdown()
+		{
+			//nothing
+		}
+		
 	}
 
 }
