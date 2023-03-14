@@ -92,6 +92,7 @@
       <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/" enabled="false" />
       <repository location="http://download.eclipse.org/releases/latest/" enabled="false" />
       <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/" enabled="true" />
+      <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/nightly/" enabled="false" />
    </repositories>
 
    <preferencesInfo>
