@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            id="com.espressif.idf.launch.serial.core.wokwiLaunchConfigurationType"
+            modes="run"
+            name="%launchConfigurationType.name">
+      </launchConfigurationType>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.launchDelegates">
+      <launchDelegate
+            delegate="com.espressif.idf.wokwi.WokwiLaunchDelegate"
+            id="com.espressif.idf.launch.serial.core.wokwidelegate"
+            modes="run"
+            type="com.espressif.idf.launch.serial.core.wokwiLaunchConfigurationType">
+      </launchDelegate>
+   </extension>
+	
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            class="com.espressif.idf.wokwi.ui.WokwiLaunchConfigGroup"
+            id="com.espressif.idf.launch.serial.ui.launchConfigurationTabGroup1"
+            type="com.espressif.idf.launch.serial.core.wokwiLaunchConfigurationType">
+      </launchConfigurationTabGroup>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            configTypeID="com.espressif.idf.launch.serial.core.wokwiLaunchConfigurationType"
+            icon="icons/wokwi.png"
+            id="com.espressif.idf.launch.serial.ui.launchConfigurationTypeImage1">
+      </launchConfigurationTypeImage>
+   </extension>
+	
+</plugin>

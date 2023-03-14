@@ -28,6 +28,7 @@
 		<module>com.espressif.idf.branding</module>
 		<module>com.espressif.idf.debug.gdbjtag.openocd</module>
 		<module>com.espressif.idf.serial.monitor</module>
+		<module>com.espressif.idf.wokwi</module>
 	</modules>
 
 	<build>
