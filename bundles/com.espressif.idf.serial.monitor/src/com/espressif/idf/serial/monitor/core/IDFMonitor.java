@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -58,7 +60,7 @@ public class IDFMonitor
 			args.add("--print_filter"); //$NON-NLS-1$
 			args.add(filterOptions);
 		}
-		if (isDebuggerRunning(project))
+		if (isDebuggerRunning(project) && isNoResetFlagSupported())
 		{
 			args.add("--no-reset"); //$NON-NLS-1$
 		}
@@ -119,6 +121,14 @@ public class IDFMonitor
 			Logger.log(e);
 		}
 		return false;
+	}
+
+	private boolean isNoResetFlagSupported()
+	{
+		String version = IDFUtil.getEspIdfVersion();
+		Pattern p = Pattern.compile("([0-9][.][0-9])"); //$NON-NLS-1$
+		Matcher m = p.matcher(version);
+		return m.find() && Double.parseDouble(m.group(0)) >= 5.0;
 	}
 
 	protected ILaunchManager getLaunchManager()
