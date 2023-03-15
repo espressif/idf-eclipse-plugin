@@ -16,6 +16,7 @@ package com.espressif.idf.launch.serial.ui.internal;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -47,7 +48,6 @@ import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -74,7 +74,7 @@ import com.espressif.idf.ui.EclipseUtil;
 @SuppressWarnings("restriction")
 public class CMakeMainTab2 extends GenericMainTab {
 	private static final String EMPTY_CONFIG_OPTIONS = "-s ${openocd_path}/share/openocd/scripts"; //$NON-NLS-1$
-	private Button flashOverJtagButton;
+	private Combo flashOverComboButton;
 	private Combo fFlashVoltage;
 	private Combo fTarget;
 	private Map<String, JSONArray> boardConfigsMap;
@@ -90,6 +90,15 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private Text fProjText;
 	private Button fProjButton;
 	private IProject selectedProject;
+
+	public enum FlashInterface {
+		UART, JTAG, DFU;
+
+		public static String[] getNames() {
+			return Arrays.stream(FlashInterface.values()).map(Enum::name).toArray(String[]::new);
+		}
+
+	}
 
 	@Override
 	public void createControl(Composite parent) {
@@ -179,35 +188,43 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private void createJtagFlashButton(Composite parent) {
 		Composite c = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
-		layout.numColumns = 2;
+		layout.numColumns = 3;
 		c.setLayout(layout);
-
-		flashOverJtagButton = new Button(c, SWT.CHECK);
-		flashOverJtagButton.setText(Messages.CMakeMainTab2_JtagComboLbl);
-		flashOverJtagButton.addSelectionListener(new SelectionListener() {
+		Label flashOverComboLabel = new Label(c, SWT.NONE);
+		flashOverComboLabel.setText(Messages.CMakeMainTab2_FlashComboLbl);
+		flashOverComboButton = new Combo(c, SWT.DROP_DOWN | SWT.READ_ONLY);
+		flashOverComboButton.setItems(FlashInterface.getNames());
+		flashOverComboButton.addSelectionListener(new SelectionAdapter() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				isFlashOverJtag = !isFlashOverJtag;
-				if (!isFlashOverJtag) {
+
+				FlashInterface flashInterface = FlashInterface.valueOf(((Combo) e.widget).getText());
+				switch (flashInterface) {
+				case UART:
+					isFlashOverJtag = false;
 					argumentField.setText(argumentsForSerialFlash);
-				} else {
+					break;
+				case JTAG:
+					isFlashOverJtag = true;
 					argumentField.setText(argumentsForJtagFlash);
 					fTarget.notifyListeners(SWT.Selection, null);
+					break;
+				case DFU:
+					break;
+				default:
+					break;
 				}
 				switchUI();
 			}
 
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
 		});
 
 		if (!isJtagFlashAvailable) {
 			Label lbl = new Label(c, SWT.NONE);
 			lbl.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_DARK_YELLOW));
 			lbl.setText(Messages.CMakeMainTab2_JtagFlashingNotSupportedMsg);
-			flashOverJtagButton.setEnabled(false);
+			flashOverComboButton.remove(FlashInterface.JTAG.ordinal());
 		}
 	}
 
@@ -308,6 +325,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 		super.performApply(configuration);
 		try {
 			ILaunchConfigurationWorkingCopy wc = configuration.getWorkingCopy();
+			wc.setAttribute(IDFLaunchConstants.DFU,
+					flashOverComboButton.getText().contentEquals(FlashInterface.DFU.name()));
 			if (selectedProject != null) {
 				initializeCProject(selectedProject, wc);
 			}
@@ -319,7 +338,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 			wc.setAttribute(IDFLaunchConstants.JTAG_FLASH_VOLTAGE, fFlashVoltage.getText());
 			wc.setAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, fTarget.getText());
 			wc.setAttribute(IDFLaunchConstants.JTAG_BOARD, fTargetName.getText());
-			wc.setAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, flashOverJtagButton.getSelection());
+			wc.setAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, isFlashOverJtag);
 			//For the case, when user wants to edit arguments line somehow and save changes
 			if (isFlashOverJtag) {
 				argumentsForJtagFlash = argumentField.getText();
@@ -341,7 +360,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 	public void initializeFrom(ILaunchConfiguration configuration) {
 		super.initializeFrom(configuration);
 		updateProjetFromConfig(configuration);
-		updateFlashOverJtagStatus(configuration);
+		updateFlashOverStatus(configuration);
 		updateArgumentsWithDefaultFlashCommand(configuration);
 		switchUI();
 	}
@@ -358,7 +377,18 @@ public class CMakeMainTab2 extends GenericMainTab {
 			fProjText.setText(projectName);
 	}
 
-	private void updateFlashOverJtagStatus(ILaunchConfiguration configuration) {
+	private void updateFlashOverStatus(ILaunchConfiguration configuration) {
+		boolean isDfu = false;
+		try {
+			isDfu = configuration.getAttribute(IDFLaunchConstants.DFU, false);
+			if (isDfu) {
+				flashOverComboButton.select(FlashInterface.DFU.ordinal());
+			} else {
+				flashOverComboButton.select(FlashInterface.UART.ordinal());
+			}
+		} catch (CoreException e) {
+			Logger.log(e);
+		}
 		if (!isJtagFlashAvailable) {
 			return;
 		}
@@ -368,7 +398,9 @@ public class CMakeMainTab2 extends GenericMainTab {
 		} catch (CoreException e) {
 			Logger.log(e);
 		}
-		flashOverJtagButton.setSelection(isFlashOverJtag);
+		if (isFlashOverJtag && !isDfu) {
+			flashOverComboButton.select(FlashInterface.JTAG.ordinal());
+		}
 	}
 
 	private void updateArgumentsWithDefaultFlashCommand(ILaunchConfiguration configuration) {
@@ -461,6 +493,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 			fTarget.setItems(parser.getTargets().toArray(new String[0]));
 			fTarget.setText(selectedTarget);
 			fTarget.addSelectionListener(new SelectionAdapter() {
+
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					String updatedSelectedTarget = getLaunchTarget();

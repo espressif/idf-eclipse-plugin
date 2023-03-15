@@ -22,29 +22,39 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.commands.ICommandService;
 
+import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 
 public class DfuCommandsUtil
 {
 
 	public static final String DFU_COMMAND = "com.espressif.idf.ui.command.dfu"; //$NON-NLS-1$
-	public static final String TOGGLE_STATUS = "org.eclipse.ui.commands.toggleState"; //$NON-NLS-1$
 	private static final String[] SUPPORTED_TARGETS = { "esp32s2", "esp32s3" }; //$NON-NLS-1$ //$NON-NLS-2$
 
 	public static boolean isDfu()
 	{
-		ICommandService commandService = PlatformUI.getWorkbench().getService(ICommandService.class);
-		boolean isDfu = (boolean) commandService.getCommand(DFU_COMMAND).getState(TOGGLE_STATUS).getValue();
-		return isDfu;
+		try
+		{
+			ILaunchConfiguration configuration = IDFCorePlugin.getService(ILaunchBarManager.class)
+					.getActiveLaunchConfiguration();
+			return configuration.getAttribute(IDFLaunchConstants.DFU, false);
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+		return false;
 	}
 
 	public static boolean isDfuSupported(ILaunchTarget launchTarget)

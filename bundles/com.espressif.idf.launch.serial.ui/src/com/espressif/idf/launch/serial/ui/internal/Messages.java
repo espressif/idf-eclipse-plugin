@@ -27,7 +27,7 @@ public class Messages extends NLS {
 	public static String NewSerialFlashTargetWizardPage_Name;
 	public static String NewSerialFlashTargetWizardPage_SerialPort;
 	public static String NewSerialFlashTargetWizardPage_Title;
-	public static String CMakeMainTab2_JtagComboLbl;
+	public static String CMakeMainTab2_FlashComboLbl;
 	public static String flashVoltageLabel;
 	public static String flashVoltageToolTip;
 	public static String configTargetLabel;

@@ -571,18 +571,6 @@
     </extension>
    <extension
          point="org.eclipse.ui.commands">
-      <command
-            defaultHandler="com.espressif.idf.ui.handlers.DfuCommandHandler"
-            id="com.espressif.idf.ui.command.dfu"
-            name="%command.name.13">
-         <state
-               class="org.eclipse.ui.handlers.RegistryToggleState"
-               id="org.eclipse.ui.commands.toggleState">
-         </state>
-      </command>
-   </extension>
-   <extension
-         point="org.eclipse.ui.commands">
       <category
             id="org.plugin.espressif.commands.category"
             name="%category.name.1">
