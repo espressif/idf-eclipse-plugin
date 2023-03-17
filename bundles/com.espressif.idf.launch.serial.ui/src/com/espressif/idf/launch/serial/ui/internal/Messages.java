@@ -28,6 +28,12 @@ public class Messages extends NLS {
 	public static String NewSerialFlashTargetWizardPage_SerialPort;
 	public static String NewSerialFlashTargetWizardPage_Title;
 	public static String CMakeMainTab2_FlashComboLbl;
+	public static String CMakeMainTab2_Arguments;
+	public static String CMakeMainTab2_NoDfuTargetSelectedError;
+	public static String CMakeMainTab2_Note;
+	public static String CMakeMainTab2_TargetsComboLbl;
+	public static String CMakeMainTab2_Variables;
+	public static String CMakeMainTab2_WarningDfuMsg;
 	public static String flashVoltageLabel;
 	public static String flashVoltageToolTip;
 	public static String configTargetLabel;
@@ -36,7 +42,6 @@ public class Messages extends NLS {
 	public static String configBoardTooTip;
 	public static String CMakeMainTab2_OpeonOcdSetupGroupTitle;
 	public static String CMakeMainTab2_JtagFlashingNotSupportedMsg;
-
 	public static String IDFLaunchTargetNotFoundMsg1;
 	public static String IDFLaunchTargetNotFoundMsg2;
 	public static String IDFLaunchTargetNotFoundIDFLaunchTargetNotFoundTitle;

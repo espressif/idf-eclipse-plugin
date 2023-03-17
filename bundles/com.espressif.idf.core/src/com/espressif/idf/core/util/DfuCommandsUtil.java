@@ -41,6 +41,7 @@ public class DfuCommandsUtil
 
 	public static final String DFU_COMMAND = "com.espressif.idf.ui.command.dfu"; //$NON-NLS-1$
 	private static final String[] SUPPORTED_TARGETS = { "esp32s2", "esp32s3" }; //$NON-NLS-1$ //$NON-NLS-2$
+	private static final String DFU_FLASH_COMMAND = "dfu-flash"; //$NON-NLS-1$
 
 	public static boolean isDfu()
 	{
@@ -59,8 +60,7 @@ public class DfuCommandsUtil
 
 	public static boolean isDfuSupported(ILaunchTarget launchTarget)
 	{
-		String targetName = launchTarget.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", ""); //$NON-NLS-1$
-		boolean isDfuSupported = Arrays.stream(SUPPORTED_TARGETS).anyMatch(target -> target.contentEquals(targetName));
+		boolean isDfuSupported = isTargetSupportDfu(launchTarget);
 		Display.getDefault().asyncExec(new Runnable()
 		{
 			@Override
@@ -74,6 +74,24 @@ public class DfuCommandsUtil
 			}
 		});
 		return isDfuSupported;
+	}
+
+	public static boolean isTargetSupportDfu(ILaunchTarget launchTarget)
+	{
+		String targetName = launchTarget.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
+				StringUtil.EMPTY);
+		boolean isDfuSupported = Arrays.stream(SUPPORTED_TARGETS).anyMatch(target -> target.contentEquals(targetName));
+		return isDfuSupported;
+	}
+
+	public static String getDfuFlashCommand()
+	{
+		List<String> commands = new ArrayList<>();
+		commands.add(IDFUtil.getIDFPythonEnvPath());
+		commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
+		commands.add(DFU_FLASH_COMMAND);
+
+		return String.join(" ", commands); //$NON-NLS-1$
 	}
 
 	public static Process dfuBuild(IProject project, ConsoleOutputStream infoStream, IBuildConfiguration config,
@@ -103,14 +121,21 @@ public class DfuCommandsUtil
 		return process;
 	}
 
-	public static void flashDfuBins(IProject project, ILaunch launch, IProgressMonitor monitor, String serialPort)
+	public static void flashDfuBins(ILaunchConfiguration configuration, IProject project, ILaunch launch,
+			IProgressMonitor monitor)
 	{
+		List<String> flashCommandList = new ArrayList<>();
+		try
+		{
+			flashCommandList = Arrays.asList(configuration
+					.getAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS, getDfuFlashCommand()).split(" ")); //$NON-NLS-1$
+		}
+		catch (CoreException e1)
+		{
+			Logger.log(e1);
+		}
 		List<String> commands = new ArrayList<>();
-		commands.add(IDFUtil.getIDFPythonEnvPath());
-		commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
-		commands.add("-p"); //$NON-NLS-1$
-		commands.add(serialPort);
-		commands.add("dfu-flash"); //$NON-NLS-1$
+		commands.addAll(flashCommandList);
 		File workingDir = null;
 		workingDir = new File(project.getLocationURI());
 		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
