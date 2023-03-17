@@ -264,14 +264,14 @@ public class NewEspressifIDFProjectTest
 
 		public static void turnOffDfu()
 		{
-			launchBarConfigSelector.click();
+			launchBarConfigSelector.clickEdit();
 			bot.comboBox().setSelection("UART");
 			bot.button("OK").click();
 		}
 
 		private static void turnOnDfu() throws IOException
 		{
-			launchBarConfigSelector.click();
+			launchBarConfigSelector.clickEdit();
 			bot.comboBox().setSelection("DFU");
 			bot.button("OK").click();
 		}
