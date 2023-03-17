@@ -202,6 +202,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 1;
 		defaultCompositeGridData = new GridData(GridData.FILL_HORIZONTAL);
+		defaultCompositeGridData.exclude = true;
 		switchGridDatas.put(FlashInterface.UART, defaultCompositeGridData);
 		defaultComposite.setLayout(layout);
 		defaultComposite.setLayoutData(defaultCompositeGridData);
@@ -227,6 +228,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 1;
 		jtagCompositeGridData = new GridData(GridData.FILL_HORIZONTAL);
+		jtagCompositeGridData.exclude = true;
 		switchGridDatas.put(FlashInterface.JTAG, jtagCompositeGridData);
 		jtagComposite.setLayout(layout);
 		jtagComposite.setLayoutData(jtagCompositeGridData);
@@ -247,6 +249,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 1;
 		GridData dfuCompositeGridData = new GridData(GridData.FILL_HORIZONTAL);
+		dfuCompositeGridData.exclude = true;
 		switchGridDatas.put(FlashInterface.DFU, dfuCompositeGridData);
 		dfuComposite.setLayout(layout);
 		dfuComposite.setLayoutData(dfuCompositeGridData);
