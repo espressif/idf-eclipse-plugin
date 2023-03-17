@@ -50,8 +50,6 @@ import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.TraverseEvent;
-import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -86,18 +84,10 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private Combo fTargetName;
 	private boolean isFlashOverJtag;
 	private boolean isJtagFlashAvailable;
-	private GridData openOcdGroupData;
-	private GridData locationAndWorkDirGroupData;
 	private ILaunchBarManager launchBarManager;
-	private Label fProjLabel;
 	private Text fProjText;
-	private Button fProjButton;
 	private IProject selectedProject;
-	private Composite defaultComposite;
-	private Composite jtagComposite;
 	private Composite mainComposite;
-	private GridData defaultCompositeGridData;
-	private GridData jtagCompositeGridData;
 	private EnumMap<FlashInterface, Composite> switchComposites = new EnumMap<>(FlashInterface.class);
 	private EnumMap<FlashInterface, GridData> switchGridDatas = new EnumMap<>(FlashInterface.class);
 	private Text uartAgrumentsField;
@@ -155,12 +145,9 @@ public class CMakeMainTab2 extends GenericMainTab {
 		group.setFont(parent.getFont());
 
 		argumentField.setParent(group);
-		argumentField.addTraverseListener(new TraverseListener() {
-			@Override
-			public void keyTraversed(TraverseEvent event) {
-				if (event.detail == SWT.TRAVERSE_RETURN && (event.stateMask & SWT.MODIFIER_MASK) != 0) {
-					event.doit = true;
-				}
+		argumentField.addTraverseListener(event -> {
+			if (event.detail == SWT.TRAVERSE_RETURN && (event.stateMask & SWT.MODIFIER_MASK) != 0) {
+				event.doit = true;
 			}
 		});
 
@@ -196,12 +183,12 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 	protected void createUartComposite(Composite parent) {
 
-		defaultComposite = new Composite(parent, SWT.NONE);
+		Composite defaultComposite = new Composite(parent, SWT.NONE);
 		switchComposites.put(FlashInterface.UART, defaultComposite);
 		defaultComposite.setFont(parent.getFont());
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 1;
-		defaultCompositeGridData = new GridData(GridData.FILL_HORIZONTAL);
+		GridData defaultCompositeGridData = new GridData(GridData.FILL_HORIZONTAL);
 		defaultCompositeGridData.exclude = true;
 		switchGridDatas.put(FlashInterface.UART, defaultCompositeGridData);
 		defaultComposite.setLayout(layout);
@@ -210,7 +197,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 		createLocationComponent(defaultComposite);
 		createWorkDirectoryComponent(defaultComposite);
 
-		locationAndWorkDirGroupData = new GridData(SWT.FILL, SWT.NONE, true, false);
+		GridData locationAndWorkDirGroupData = new GridData(SWT.FILL, SWT.NONE, true, false);
 		locationField.getParent().setLayoutData(locationAndWorkDirGroupData);
 		workDirectoryField.getParent().setLayoutData(locationAndWorkDirGroupData);
 
@@ -222,12 +209,12 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 	protected void createJtagflashComposite(Composite parent) {
 
-		jtagComposite = new Composite(parent, SWT.NONE);
+		Composite jtagComposite = new Composite(parent, SWT.NONE);
 		switchComposites.put(FlashInterface.JTAG, jtagComposite);
 		jtagComposite.setFont(parent.getFont());
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 1;
-		jtagCompositeGridData = new GridData(GridData.FILL_HORIZONTAL);
+		GridData jtagCompositeGridData = new GridData(GridData.FILL_HORIZONTAL);
 		jtagCompositeGridData.exclude = true;
 		switchGridDatas.put(FlashInterface.JTAG, jtagCompositeGridData);
 		jtagComposite.setLayout(layout);
@@ -269,8 +256,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 		ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
 		ILaunchTarget[] targets = launchTargetManager
 				.getLaunchTargetsOfType("com.espressif.idf.launch.serial.core.serialFlashTarget"); //$NON-NLS-1$
-		String[] targetsWithDfuSupport = Stream.of(targets).filter(target -> DfuCommandsUtil.isTargetSupportDfu(target))
-				.map(target -> target.getId()).toArray(String[]::new);
+		String[] targetsWithDfuSupport = Stream.of(targets).filter(DfuCommandsUtil::isTargetSupportDfu)
+				.map(ILaunchTarget::getId).toArray(String[]::new);
 		comboTargets.setItems(targetsWithDfuSupport);
 		comboTargets.addSelectionListener(new SelectionAdapter() {
 
@@ -325,7 +312,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan = colSpan;
 		projectGroup.setLayoutData(gd);
-		fProjLabel = new Label(projectGroup, SWT.NONE);
+		Label fProjLabel = new Label(projectGroup, SWT.NONE);
 		fProjLabel.setText(LaunchMessages.CMainTab_ProjectColon);
 		gd = new GridData();
 		gd.horizontalSpan = 2;
@@ -333,10 +320,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 		fProjText = new Text(projectGroup, SWT.SINGLE | SWT.BORDER);
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		fProjText.setLayoutData(gd);
-		fProjButton = createPushButton(projectGroup, LaunchMessages.Launch_common_Browse_1, null);
-		fProjText.addModifyListener(evt -> {
-			updateLaunchConfigurationDialog();
-		});
+		Button fProjButton = createPushButton(projectGroup, LaunchMessages.Launch_common_Browse_1, null);
+		fProjText.addModifyListener(evt -> updateLaunchConfigurationDialog());
 		fProjButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent evt) {
@@ -435,13 +420,11 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 	private IProject getSelectedProject() {
 		List<IProject> projectList = new ArrayList<>(1);
-		Display.getDefault().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				IProject project = EclipseUtil.getSelectedProjectInExplorer();
-				if (project != null)
-					projectList.add(project);
-			}
+		Display.getDefault().syncExec(() -> {
+			IProject project = EclipseUtil.getSelectedProjectInExplorer();
+			if (project != null)
+				projectList.add(project);
+
 		});
 		try {
 			ICProject[] projects = CoreModel.getDefault().getCModel().getCProjects();
@@ -486,8 +469,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 		boolean hasProject = false;
 		try {
 			hasProject = launchConfig.getMappedResources() != null
-					? launchConfig.getMappedResources()[0].getProject().exists()
-					: false;
+					&& launchConfig.getMappedResources()[0].getProject().exists();
 		} catch (CoreException e) {
 			Logger.log(e);
 		}
@@ -631,19 +613,16 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	private static void showNoTargetMessage(String selectedTarget) {
-		Display.getDefault().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				boolean isYes = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
-						Messages.IDFLaunchTargetNotFoundIDFLaunchTargetNotFoundTitle,
-						Messages.IDFLaunchTargetNotFoundMsg1 + selectedTarget + Messages.IDFLaunchTargetNotFoundMsg2
-								+ Messages.IDFLaunchTargetNotFoundMsg3);
-				if (isYes) {
-					NewSerialFlashTargetWizard wizard = new NewSerialFlashTargetWizard();
-					WizardDialog dialog = new WizardDialog(
-							PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
-					dialog.open();
-				}
+		Display.getDefault().asyncExec(() -> {
+			boolean isYes = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
+					Messages.IDFLaunchTargetNotFoundIDFLaunchTargetNotFoundTitle,
+					Messages.IDFLaunchTargetNotFoundMsg1 + selectedTarget + Messages.IDFLaunchTargetNotFoundMsg2
+							+ Messages.IDFLaunchTargetNotFoundMsg3);
+			if (isYes) {
+				NewSerialFlashTargetWizard wizard = new NewSerialFlashTargetWizard();
+				WizardDialog dialog = new WizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+						wizard);
+				dialog.open();
 			}
 		});
 	}
@@ -753,7 +732,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 				}
 			});
 		}
-		openOcdGroupData = new GridData(SWT.FILL, SWT.NONE, true, true);
+		GridData openOcdGroupData = new GridData(SWT.FILL, SWT.NONE, true, true);
 		group.setLayoutData(openOcdGroupData);
 	}
 
