@@ -269,7 +269,7 @@ public class NewEspressifIDFProjectTest
 			bot.button("OK").click();
 		}
 
-		private static void turnOnDfu() throws IOException
+		private static void turnOnDfu()
 		{
 			launchBarConfigSelector.clickEdit();
 			bot.comboBox().setSelection("DFU");
