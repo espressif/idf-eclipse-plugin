@@ -525,15 +525,11 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 	@Override
 	public void initializeFrom(ILaunchConfiguration configuration) {
-		this.fInitializing = true;
-		updateLocation(configuration);
-		updateWorkingDirectory(configuration);
+		super.initializeFrom(configuration);
 		updateProjetFromConfig(configuration);
 		updateFlashOverStatus(configuration);
 		updateArgumentsWithDefaultFlashCommand(configuration);
 		switchUI(FlashInterface.values()[flashOverComboButton.getSelectionIndex()]);
-		this.fInitializing = false;
-		setDirty(false);
 	}
 
 	private void updateProjetFromConfig(ILaunchConfiguration configuration) {
