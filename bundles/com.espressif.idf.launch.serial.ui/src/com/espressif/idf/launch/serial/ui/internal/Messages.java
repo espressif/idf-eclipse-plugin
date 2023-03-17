@@ -42,6 +42,11 @@ public class Messages extends NLS {
 	public static String IDFLaunchTargetNotFoundIDFLaunchTargetNotFoundTitle;
 	public static String IDFLaunchTargetNotFoundMsg3;
 
+	public static String TargetPortUpdatingMessage;
+	public static String TargetPortInformationMessage;
+	public static String TargetPortFoundMessage;
+	public static String TargetPortNotFoundMessage;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

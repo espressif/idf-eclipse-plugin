@@ -9,8 +9,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.cdt.serial.SerialPort;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -31,9 +29,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.EspToolCommands;
 
 /**
  * Erase Flash Dialog class to erase flash on selected com port device
@@ -238,74 +235,6 @@ public class EraseFlashDialog extends TitleAreaDialog
 			catch (Exception e)
 			{
 				Logger.log(e);
-			}
-		}
-	}
-
-	private class EspToolCommands
-	{
-		private Process chipInfoProcess;
-		private Process flashEraseProcess;
-
-		private Process chipInformation(String port) throws Exception
-		{
-			destroyAnyChipInfoProcess();
-			chipInfoProcess = new ProcessBuilder(getChipInfoCommand(port)).start();
-			return chipInfoProcess;
-		}
-
-		private Process eraseFlash(String port) throws Exception
-		{
-			destroyAnyChipInfoProcess();
-			flashEraseProcess = new ProcessBuilder(getFlashEraseCommand(port)).start();
-			return flashEraseProcess;
-		}
-
-		private List<String> getChipInfoCommand(String port)
-		{
-			List<String> command = new ArrayList<String>();
-			command.add(IDFUtil.getIDFPythonEnvPath());
-			command.add(IDFUtil.getEspToolScriptFile().getAbsolutePath());
-			command.add("-p"); //$NON-NLS-1$
-			command.add(port);
-			command.add(IDFConstants.ESP_TOOL_CHIP_ID_CMD);
-			return command;
-		}
-
-		private List<String> getFlashEraseCommand(String port)
-		{
-			List<String> command = new ArrayList<String>();
-			command.add(IDFUtil.getIDFPythonEnvPath());
-			command.add(IDFUtil.getEspToolScriptFile().getAbsolutePath());
-			command.add("-p"); //$NON-NLS-1$
-			command.add(port);
-			command.add(IDFConstants.ESP_TOOL_ERASE_FLASH_CMD);
-			return command;
-		}
-
-		private void destroyAnyChipInfoProcess()
-		{
-			if (chipInfoProcess != null && chipInfoProcess.isAlive())
-			{
-				chipInfoProcess.destroy();
-			}
-		}
-
-		private boolean checkActiveFlashEraseProcess()
-		{
-			if (flashEraseProcess != null)
-			{
-				return flashEraseProcess.isAlive();
-			}
-
-			return false;
-		}
-
-		private void killEraseFlashProcess()
-		{
-			if (flashEraseProcess != null)
-			{
-				flashEraseProcess.destroy();
 			}
 		}
 	}
