@@ -37,6 +37,7 @@ import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 import com.espressif.idf.ui.test.operations.EnvSetupOperations;
 import com.espressif.idf.ui.test.operations.ProjectTestOperations;
 import com.espressif.idf.ui.test.operations.SWTBotTreeOperations;
+import com.espressif.idf.ui.test.operations.selectors.LaunchBarConfigSelector;
 import com.espressif.idf.ui.test.operations.selectors.LaunchBarTargetSelector;
 
 /**
@@ -178,10 +179,10 @@ public class NewEspressifIDFProjectTest
 		Fixture.givenProjectNameIs("NewProjectTestDFU");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.thenLaunchTargetIsSelectedFromLaunchTargets("esp32s2");
-		Fixture.switchDfuStatus();
+		Fixture.turnOnDfu();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.thenProjectHasTheFile("dfu.bin", "/build");
-		Fixture.switchDfuStatus();
+		Fixture.turnOffDfu();
 	}
 
 	private static class Fixture
@@ -192,12 +193,14 @@ public class NewEspressifIDFProjectTest
 		private static String projectName;
 		private static String projectTemplate;
 		private static LaunchBarTargetSelector launchBarTargetSelector;
+		private static LaunchBarConfigSelector launchBarConfigSelector;
 
 		private static void loadEnv() throws Exception
 		{
 			bot = WorkBenchSWTBot.getBot();
 			EnvSetupOperations.setupEspressifEnv(bot);
 			bot.sleep(1000);
+			launchBarConfigSelector = new LaunchBarConfigSelector(bot);
 			try
 			{
 				launchBarTargetSelector = new LaunchBarTargetSelector(bot);
@@ -206,6 +209,7 @@ public class NewEspressifIDFProjectTest
 			{
 				launchBarTargetSelector = new LaunchBarTargetSelector(bot, false);
 			}
+
 		}
 
 		public static void thenLaunchTargetIsSelectedFromLaunchTargets(String launchTargetName)
@@ -258,9 +262,18 @@ public class NewEspressifIDFProjectTest
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 		}
 
-		private static void switchDfuStatus() throws IOException
+		public static void turnOffDfu()
 		{
-			bot.toolbarToggleButtonWithTooltip("DFU").click();
+			launchBarConfigSelector.click();
+			bot.comboBox().setSelection("UART");
+			bot.button("OK").click();
+		}
+
+		private static void turnOnDfu() throws IOException
+		{
+			launchBarConfigSelector.click();
+			bot.comboBox().setSelection("DFU");
+			bot.button("OK").click();
 		}
 
 		private static void whenProjectIsBuiltUsingContextMenu() throws IOException
