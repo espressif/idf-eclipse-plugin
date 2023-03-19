@@ -7,7 +7,8 @@ To do it, select your project in launch configuration bar and click on wheel to 
 
 Then select the `Flash Over JTAG` option and fill the `OpenOCD Setup` section.
 
-![](images/JtagFlash_2.png)
+<img width="986" alt="Screenshot 2023-03-19 at 16 41 24" src="https://user-images.githubusercontent.com/24419842/226183857-f9d8569b-05b0-4b52-b0b2-293aac493020.png">
+
 
 If the `Flash Over JTAG` option is not available and you see message like this: 
 
