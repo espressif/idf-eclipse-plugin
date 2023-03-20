@@ -149,7 +149,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 					Messages.NewSerialFlashTargetWizardPage_Fetching, e));
 		}
 
-		infoArea = new Text(comp, SWT.BORDER | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL | SWT.CANCEL | SWT.MULTI);
+		infoArea = new Text(comp, SWT.BORDER | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
 		infoArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 	}
 
@@ -259,7 +259,8 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 				String message = String.format(Messages.TargetPortUpdatingMessage, port);
 
 				display.asyncExec(() -> {
-					infoArea.setText(infoArea.getText() + System.lineSeparator() + message);
+					if (infoArea != null && !infoArea.isDisposed())
+						infoArea.setText(infoArea.getText() + System.lineSeparator() + message);
 				});
 
 				Process chipInfoProcess = espToolCommands.chipInformation(port);
@@ -274,8 +275,9 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 				String chipType = extractChipFromChipInfoOutput(chipInfo.toString());
 				if (StringUtil.isEmpty(chipType)) {
 					display.asyncExec(() -> {
-						infoArea.setText(infoArea.getText() + System.lineSeparator()
-								+ String.format(Messages.TargetPortNotFoundMessage, port));
+						if (infoArea != null && !infoArea.isDisposed())
+							infoArea.setText(infoArea.getText() + System.lineSeparator()
+									+ String.format(Messages.TargetPortNotFoundMessage, port));
 					});
 					continue;
 				}
