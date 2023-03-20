@@ -86,17 +86,17 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private Combo fTargetName;
 	private boolean isFlashOverJtag;
 	private boolean isJtagFlashAvailable;
-	private ILaunchBarManager launchBarManager;
 	private Text fProjText;
 	private IProject selectedProject;
 	private Composite mainComposite;
-	private EnumMap<FlashInterface, Composite> switchComposites = new EnumMap<>(FlashInterface.class);
-	private EnumMap<FlashInterface, GridData> switchGridDatas = new EnumMap<>(FlashInterface.class);
+	private EnumMap<FlashInterface, List<Composite>> switchComposites = new EnumMap<>(FlashInterface.class);
+	private EnumMap<FlashInterface, List<GridData>> switchGridDatas = new EnumMap<>(FlashInterface.class);
 	private Text uartAgrumentsField;
 	private Text jtagArgumentsField;
 	private Text dfuArgumentsField;
 	private Label dfuErrorLbl;
 	private Combo comboTargets;
+	private ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
 
 	public enum FlashInterface {
 		UART, JTAG, DFU;
@@ -126,10 +126,11 @@ public class CMakeMainTab2 extends GenericMainTab {
 		isJtagFlashAvailable = ESPFlashUtil.checkIfJtagIsAvailable();
 		setControl(mainComposite);
 		createJtagFlashButton(mainComposite);
+		createDfuTargetComposite(mainComposite);
 		createProjectGroup(mainComposite, 0);
 		createUartComposite(mainComposite);
 		createJtagflashComposite(mainComposite);
-		createDfuComposite(mainComposite);
+		createDfuArgumentField(mainComposite);
 
 	}
 
@@ -191,13 +192,15 @@ public class CMakeMainTab2 extends GenericMainTab {
 	protected void createUartComposite(Composite parent) {
 
 		Composite defaultComposite = new Composite(parent, SWT.NONE);
-		switchComposites.put(FlashInterface.UART, defaultComposite);
+		switchComposites.putIfAbsent(FlashInterface.UART, new ArrayList<>());
+		switchComposites.get(FlashInterface.UART).add(defaultComposite);
 		defaultComposite.setFont(parent.getFont());
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 1;
 		GridData defaultCompositeGridData = new GridData(GridData.FILL_HORIZONTAL);
 		defaultCompositeGridData.exclude = true;
-		switchGridDatas.put(FlashInterface.UART, defaultCompositeGridData);
+		switchGridDatas.putIfAbsent(FlashInterface.UART, new ArrayList<>());
+		switchGridDatas.get(FlashInterface.UART).add(defaultCompositeGridData);
 		defaultComposite.setLayout(layout);
 		defaultComposite.setLayoutData(defaultCompositeGridData);
 
@@ -217,13 +220,15 @@ public class CMakeMainTab2 extends GenericMainTab {
 	protected void createJtagflashComposite(Composite parent) {
 
 		Composite jtagComposite = new Composite(parent, SWT.NONE);
-		switchComposites.put(FlashInterface.JTAG, jtagComposite);
+		switchComposites.putIfAbsent(FlashInterface.JTAG, new ArrayList<>());
+		switchComposites.get(FlashInterface.JTAG).add(jtagComposite);
 		jtagComposite.setFont(parent.getFont());
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 1;
 		GridData jtagCompositeGridData = new GridData(GridData.FILL_HORIZONTAL);
 		jtagCompositeGridData.exclude = true;
-		switchGridDatas.put(FlashInterface.JTAG, jtagCompositeGridData);
+		switchGridDatas.putIfAbsent(FlashInterface.JTAG, new ArrayList<>());
+		switchGridDatas.get(FlashInterface.JTAG).add(jtagCompositeGridData);
 		jtagComposite.setLayout(layout);
 		jtagComposite.setLayoutData(jtagCompositeGridData);
 
@@ -236,20 +241,11 @@ public class CMakeMainTab2 extends GenericMainTab {
 		createVerticalSpacer(jtagComposite, 1);
 	}
 
-	protected void createDfuComposite(Composite parent) {
-		Composite dfuComposite = new Composite(parent, SWT.NONE);
-		switchComposites.put(FlashInterface.DFU, dfuComposite);
-		dfuComposite.setFont(parent.getFont());
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 1;
-		GridData dfuCompositeGridData = new GridData(GridData.FILL_HORIZONTAL);
-		dfuCompositeGridData.exclude = true;
-		switchGridDatas.put(FlashInterface.DFU, dfuCompositeGridData);
-		dfuComposite.setLayout(layout);
-		dfuComposite.setLayoutData(dfuCompositeGridData);
+	protected void createDfuTargetComposite(Composite parent) {
+		Composite dfuComposite = createDfuComposite(parent);
 
 		Composite targetComposite = new Composite(dfuComposite, SWT.NONE);
-		layout = new GridLayout();
+		GridLayout layout = new GridLayout();
 		layout.numColumns = 3;
 		GridData targetGridData = new GridData(GridData.FILL_HORIZONTAL);
 		targetComposite.setLayout(layout);
@@ -284,6 +280,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 					}
 				}
 				updateLaunchConfigurationDialog();
+
 			}
 		});
 
@@ -304,6 +301,27 @@ public class CMakeMainTab2 extends GenericMainTab {
 				});
 
 		comboTargets.notifyListeners(SWT.Selection, null);
+	}
+
+	private Composite createDfuComposite(Composite parent) {
+		Composite dfuComposite = new Composite(parent, SWT.NONE);
+		switchComposites.putIfAbsent(FlashInterface.DFU, new ArrayList<>());
+		switchComposites.get(FlashInterface.DFU).add(dfuComposite);
+		dfuComposite.setFont(parent.getFont());
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 1;
+		GridData dfuCompositeGridData = new GridData(GridData.FILL_HORIZONTAL);
+		dfuCompositeGridData.exclude = true;
+		switchGridDatas.putIfAbsent(FlashInterface.DFU, new ArrayList<>());
+		switchGridDatas.get(FlashInterface.DFU).add(dfuCompositeGridData);
+		dfuComposite.setLayout(layout);
+		dfuComposite.setLayoutData(dfuCompositeGridData);
+		return dfuComposite;
+	}
+
+	private void createDfuArgumentField(Composite parent) {
+		Composite dfuComposite = createDfuComposite(parent);
+
 		dfuArgumentsField = new Text(parent, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
 		createArgumentComponent(dfuComposite, dfuArgumentsField);
 		createVerticalSpacer(dfuComposite, 1);
@@ -461,11 +479,11 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 	private void switchUI(FlashInterface flashInterface) {
 
-		switchGridDatas.values().forEach(gridData -> gridData.exclude = true);
-		switchComposites.values().forEach(composite -> composite.setVisible(false));
+		switchGridDatas.values().forEach(list -> list.forEach(gridData -> gridData.exclude = true));
+		switchComposites.values().forEach(list -> list.forEach(composite -> composite.setVisible(false)));
 
-		switchGridDatas.get(flashInterface).exclude = false;
-		switchComposites.get(flashInterface).setVisible(true);
+		switchGridDatas.get(flashInterface).forEach(gridData -> gridData.exclude = false);
+		switchComposites.get(flashInterface).forEach(composite -> composite.setVisible(true));
 
 		mainComposite.requestLayout();
 	}
@@ -761,7 +779,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	private String getLaunchTarget() {
-		launchBarManager = Activator.getService(ILaunchBarManager.class);
 		String selectedTarget = StringUtil.EMPTY;
 		try {
 			selectedTarget = launchBarManager.getActiveLaunchTarget().getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET,
