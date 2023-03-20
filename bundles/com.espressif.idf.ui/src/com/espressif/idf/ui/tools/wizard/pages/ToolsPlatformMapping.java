@@ -25,10 +25,10 @@ public enum ToolsPlatformMapping
     MACOS("macos", Platform.OS_MACOSX, Platform.ARCH_X86_64),
     MACOSARM64("macos-arm64", Platform.OS_MACOSX, Platform.ARCH_AARCH64),
     LINUXAMD64("linux-amd64", Platform.OS_LINUX, Platform.ARCH_X86_64),
-    LINUXARM64("linux-arm64", Platform.OS_LINUX, Platform.ARCH_X86_64),
-    LINUXARMEL("linux-armel", Platform.OS_LINUX, Platform.ARCH_X86_64),
-    LINUXARMHF("linux-armhf", Platform.OS_LINUX, Platform.ARCH_X86_64),
-    LINUXI686("linux-i686", Platform.OS_LINUX, Platform.ARCH_X86_64);
+    LINUXARM64("linux-arm64", Platform.OS_LINUX, "arm64"),
+    LINUXARMEL("linux-armel", Platform.OS_LINUX, "armel"),
+    LINUXARMHF("linux-armhf", Platform.OS_LINUX, "armhf"),
+    LINUXI686("linux-i686", Platform.OS_LINUX, "i686");
 	
 	// @formatter:on
 

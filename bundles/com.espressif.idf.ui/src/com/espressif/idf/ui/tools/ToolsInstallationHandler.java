@@ -63,6 +63,7 @@ public class ToolsInstallationHandler extends Thread
 
 	private static final String PATH_SPLITOR = "/"; //$NON-NLS-1$
 	private static final String GZ_EXT = "gz"; //$NON-NLS-1$
+	private static final String XZ_EXT = "xz"; //$NON-NLS-1$
 	private static final String ZIP_EXT = "zip"; //$NON-NLS-1$
 	private static final String SHA256 = "SHA-256"; //$NON-NLS-1$
 	private Queue<String> logQueue;
@@ -395,7 +396,7 @@ public class ToolsInstallationHandler extends Thread
 				nameOfPresentDir = files[1].getName();
 			}
 			String pathToCheckFromExport = exportPaths.get(0);
-			if (!pathToCheckFromExport.contains(nameOfPresentDir))
+			if (!StringUtil.isEmpty(pathToCheckFromExport) && !pathToCheckFromExport.contains(nameOfPresentDir))
 			{
 				exportPathBuilder.append(nameOfPresentDir);
 				exportPathBuilder.append(PATH_SPLITOR);
@@ -405,8 +406,11 @@ public class ToolsInstallationHandler extends Thread
 		{
 			for (String exportPath : exportPaths)
 			{
-				exportPathBuilder.append(exportPath);
-				exportPathBuilder.append(PATH_SPLITOR);
+				if (!StringUtil.isEmpty(exportPath))
+				{
+					exportPathBuilder.append(exportPath);
+					exportPathBuilder.append(PATH_SPLITOR);					
+				}
 			}
 		}
 
@@ -467,6 +471,11 @@ public class ToolsInstallationHandler extends Thread
 		else if (extension.equals(GZ_EXT))
 		{
 			ToolsUtility.extractTarGz(ToolsUtility.ESPRESSIF_HOME_DIR.concat(PATH_SPLITOR).concat(downloadedName),
+					extractionName);
+		}
+		else if (extension.equals(XZ_EXT))
+		{
+			ToolsUtility.extractTarXz(ToolsUtility.ESPRESSIF_HOME_DIR.concat(PATH_SPLITOR).concat(downloadedName),
 					extractionName);
 		}
 
@@ -553,7 +562,6 @@ public class ToolsInstallationHandler extends Thread
 
 			runPythonEnvCommand();
 			runToolsExport(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.GIT_PATH));
-			handleWebSocketClientInstall();
 			ToolChainUtil.configureToolChain();
 			configEnv();
 			handleWebSocketClientInstall();
@@ -600,16 +608,6 @@ public class ToolsInstallationHandler extends Thread
 				paths.append(File.pathSeparator);
 			}
 			
-			if (environment.containsKey(IDFEnvironmentVariables.PATH))
-			{
-				paths.append(environment.get(IDFEnvironmentVariables.PATH));
-				environment.put(IDFEnvironmentVariables.PATH, paths.toString());
-			}
-			else
-			{
-				environment.put(IDFEnvironmentVariables.PATH, paths.toString());
-			}
-			
 			final ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 			
 			try
@@ -629,7 +627,7 @@ public class ToolsInstallationHandler extends Thread
 				Logger.log(exportCmdOp);
 				logQueue.add(exportCmdOp);
 				
-				processExportCmdOutput(exportCmdOp, gitExePath, paths.toString());
+				processExportCmdOutput(exportCmdOp, gitExePath, paths);
 			}
 			catch (IOException e1)
 			{
@@ -638,7 +636,7 @@ public class ToolsInstallationHandler extends Thread
 
 		}
 
-		private void processExportCmdOutput(final String exportCmdOp, final String gitExecutablePath, final String pathToAppend)
+		private void processExportCmdOutput(final String exportCmdOp, final String gitExecutablePath, final StringBuilder paths)
 		{
 			// process export command output
 			final String[] exportEntries = exportCmdOp.split("\n"); //$NON-NLS-1$
@@ -654,28 +652,101 @@ public class ToolsInstallationHandler extends Thread
 					
 					String key = keyValue[0];
 					String value = keyValue[1];
+					
 					if (key.equals(IDFEnvironmentVariables.PATH))
 					{
-						Logger.log("idf_tools.py export value: ".concat(value)); //$NON-NLS-1$
-						value = replacePathVariable(value, pathToAppend);
-						Logger.log("idf_tools.py export value after prepending the installed env value: " //$NON-NLS-1$
-								.concat(value));
+						Logger.log("idf_tools.py ignoring PATH value"); //$NON-NLS-1$
+						continue;
 					}
 
 					// add new or replace old entries
 					idfEnvironmentVariables.addEnvVariable(key, value);
 				}
 			}
+			
+
+			// Appending the virtual python env scripts manually to 
+			// path as the dependency on the python export script is removed slowly
+			StringBuilder pythonVirtualEnvPath = new StringBuilder();
+			pythonVirtualEnvPath.append(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH));
+			pythonVirtualEnvPath.append(File.separatorChar);
+			pythonVirtualEnvPath.append("Scripts"); //$NON-NLS-1$
+			pythonVirtualEnvPath.append(File.separatorChar);
+			pythonVirtualEnvPath.append(File.pathSeparator);
+			pythonVirtualEnvPath.append(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH));
+			pythonVirtualEnvPath.append(File.separatorChar);
+			pythonVirtualEnvPath.append("bin"); //$NON-NLS-1$
+			pythonVirtualEnvPath.append(File.separatorChar);
+			pythonVirtualEnvPath.append(File.pathSeparator);
+			pythonVirtualEnvPath.append(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH));
+			pythonVirtualEnvPath.append(File.separatorChar);
+			pythonVirtualEnvPath.append("tools"); //$NON-NLS-1$
+			pythonVirtualEnvPath.append(File.separatorChar);
+			pythonVirtualEnvPath.append(File.pathSeparator);
+			
+			paths.append(pythonVirtualEnvPath.toString());
+			replacePathVariable(paths);			
 		}
 
-		private String replacePathVariable(String value, String pathToAppend)
+		private void replacePathVariable(StringBuilder paths)
 		{
-			if (!StringUtil.isEmpty(pathToAppend))
+			String existingPath = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH);
+			
+			if (StringUtil.isEmpty(existingPath))
 			{
-				value = value.replace("$PATH", pathToAppend); // macOS //$NON-NLS-1$
-				value = value.replace("%PATH%", pathToAppend); // Windows //$NON-NLS-1$
+				idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, paths.toString());
+				return;
 			}
-			return value;
+			
+
+			Map<String, String> environment = System.getenv();
+			String systemPath = StringUtil.EMPTY;
+			
+			if (environment.containsKey(IDFEnvironmentVariables.PATH))
+			{
+				systemPath = environment.get(IDFEnvironmentVariables.PATH);
+			}
+			else if (environment.containsKey("Path"))
+			{
+				systemPath = environment.get("Path");
+			}
+			
+			List<String> pathsToAppend = new ArrayList<String>();
+			String newPaths = paths.toString();
+			int separatorIndex = existingPath.indexOf(File.pathSeparator);
+			int prevIndex = 0;
+			while (separatorIndex != -1)
+			{
+				String path = existingPath.substring(prevIndex, separatorIndex);
+				if (!newPaths.contains(path) && !systemPath.contains(path))
+				{
+					pathsToAppend.add(path);
+				}
+				
+				prevIndex = separatorIndex + 1;
+				separatorIndex = existingPath.indexOf(File.pathSeparator, separatorIndex + 1);
+			}
+			
+			if (separatorIndex == -1)
+			{
+				separatorIndex = existingPath.length();
+				String path = existingPath.substring(prevIndex, separatorIndex);
+				if (!newPaths.contains(path) && !systemPath.contains(path))
+				{
+					pathsToAppend.add(path);
+				}
+			}
+			
+			
+			for (String path : pathsToAppend)
+			{
+				paths.append(path);
+				paths.append(File.pathSeparator);
+			}
+			
+			paths.append(systemPath);
+			
+			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, paths.toString());
 		}
 		private void copyOpenOcdRules()
 		{
