@@ -571,18 +571,6 @@
     </extension>
    <extension
          point="org.eclipse.ui.commands">
-      <command
-            defaultHandler="com.espressif.idf.ui.handlers.DfuCommandHandler"
-            id="com.espressif.idf.ui.command.dfu"
-            name="%command.name.13">
-         <state
-               class="org.eclipse.ui.handlers.RegistryToggleState"
-               id="org.eclipse.ui.commands.toggleState">
-         </state>
-      </command>
-   </extension>
-   <extension
-         point="org.eclipse.ui.commands">
       <category
             id="org.plugin.espressif.commands.category"
             name="%category.name.1">
@@ -696,24 +684,6 @@
          </toolbar>
       </menuContribution>
    </extension>
-   <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            allPopups="false"
-            locationURI="toolbar:org.eclipse.ui.main.toolbar">
-         <toolbar
-               id="com.espressif.idf.ui.toolbar">
-            <command
-                  commandId="com.espressif.idf.ui.command.dfu"
-                  helpContextId="DFU"
-                  icon="icons/ESP-IDF_DFU.png"
-                  label="%command.label.11"
-                  style="toggle"
-                  tooltip="%command.tooltip.2">
-            </command>
-         </toolbar>
-      </menuContribution>
-      </extension>
       <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester

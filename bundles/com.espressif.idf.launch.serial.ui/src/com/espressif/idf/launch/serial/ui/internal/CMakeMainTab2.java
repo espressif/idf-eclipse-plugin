@@ -15,9 +15,13 @@
 package com.espressif.idf.launch.serial.ui.internal;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,7 +40,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
-import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.window.Window;
@@ -47,7 +51,6 @@ import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -63,6 +66,7 @@ import org.json.simple.JSONArray;
 
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.DfuCommandsUtil;
 import com.espressif.idf.core.util.EspConfigParser;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
@@ -70,34 +74,47 @@ import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 import com.espressif.idf.launch.serial.internal.SerialFlashLaunchConfigDelegate;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 import com.espressif.idf.ui.EclipseUtil;
+import com.espressif.idf.ui.LaunchBarListener;
 
 @SuppressWarnings("restriction")
 public class CMakeMainTab2 extends GenericMainTab {
 	private static final String EMPTY_CONFIG_OPTIONS = "-s ${openocd_path}/share/openocd/scripts"; //$NON-NLS-1$
-	private Button flashOverJtagButton;
+	private Combo flashOverComboButton;
 	private Combo fFlashVoltage;
 	private Combo fTarget;
 	private Map<String, JSONArray> boardConfigsMap;
 	private Combo fTargetName;
 	private boolean isFlashOverJtag;
-	private String argumentsForSerialFlash;
-	private String argumentsForJtagFlash;
 	private boolean isJtagFlashAvailable;
-	private GridData openOcdGroupData;
-	private GridData locationAndWorkDirGroupData;
-	private ILaunchBarManager launchBarManager;
-	private Label fProjLabel;
 	private Text fProjText;
-	private Button fProjButton;
 	private IProject selectedProject;
+	private Composite mainComposite;
+	private EnumMap<FlashInterface, List<Composite>> switchComposites = new EnumMap<>(FlashInterface.class);
+	private EnumMap<FlashInterface, List<GridData>> switchGridDatas = new EnumMap<>(FlashInterface.class);
+	private Text uartAgrumentsField;
+	private Text jtagArgumentsField;
+	private Text dfuArgumentsField;
+	private Label dfuErrorLbl;
+	private Combo comboTargets;
+	private ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
+
+	public enum FlashInterface {
+		UART, JTAG, DFU;
+
+		public static String[] getNames() {
+			return Arrays.stream(FlashInterface.values()).map(Enum::name).toArray(String[]::new);
+		}
+
+	}
 
 	@Override
 	public void createControl(Composite parent) {
-		launchBarManager = Activator.getService(ILaunchBarManager.class);
-		isJtagFlashAvailable = ESPFlashUtil.checkIfJtagIsAvailable();
+		LaunchBarListener.setIgnoreJtagTargetChange(true);
+		parent.addDisposeListener(e -> {
+			LaunchBarListener.setIgnoreJtagTargetChange(false);
+		});
 
-		Composite mainComposite = new Composite(parent, SWT.NONE);
-		setControl(mainComposite);
+		mainComposite = new Composite(parent, SWT.NONE);
 		mainComposite.setFont(parent.getFont());
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 1;
@@ -105,17 +122,215 @@ public class CMakeMainTab2 extends GenericMainTab {
 		mainComposite.setLayout(layout);
 		mainComposite.setLayoutData(gridData);
 
+		isJtagFlashAvailable = ESPFlashUtil.checkIfJtagIsAvailable();
+		setControl(mainComposite);
 		createJtagFlashButton(mainComposite);
-		createProjectGroup(mainComposite, 1);
-		createLocationComponent(mainComposite);
-		createWorkDirectoryComponent(mainComposite);
-		createArgumentComponent(mainComposite);
-		createVerticalSpacer(mainComposite, 1);
+		createDfuTargetComposite(mainComposite);
+		createProjectGroup(mainComposite, 0);
+		createUartComposite(mainComposite);
+		createJtagflashComposite(mainComposite);
+		createDfuArgumentField(mainComposite);
 
-		Dialog.applyDialogFont(parent);
-		locationAndWorkDirGroupData = new GridData(SWT.FILL, SWT.NONE, true, false);
+		argumentField = new Text(parent, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
+		argumentField.setVisible(false);
+	}
+
+	@Override
+	protected void updateArgument(ILaunchConfiguration configuration) {
+		//We don't need the default argument field so there is nothing to update
+	}
+
+	/**
+	 * Creates the controls needed to edit the argument and prompt for argument
+	 * attributes of an external tool
+	 *
+	 * @param parent
+	 *            the composite to create the controls in
+	 */
+	protected void createArgumentComponent(Composite parent, Text argumentField) {
+		Group group = new Group(parent, SWT.NONE);
+		String groupName = Messages.CMakeMainTab2_Arguments;
+		group.setText(groupName);
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 1;
+		GridData gridData = new GridData(GridData.FILL_BOTH);
+		group.setLayout(layout);
+		group.setLayoutData(gridData);
+		group.setFont(parent.getFont());
+
+		argumentField.setParent(group);
+		argumentField.addTraverseListener(event -> {
+			if (event.detail == SWT.TRAVERSE_RETURN && (event.stateMask & SWT.MODIFIER_MASK) != 0) {
+				event.doit = true;
+			}
+		});
+
+		gridData = new GridData(GridData.FILL_BOTH);
+		gridData.widthHint = IDialogConstants.ENTRY_FIELD_WIDTH;
+		gridData.heightHint = 100;
+		argumentField.setLayoutData(gridData);
+		argumentField.addModifyListener(fListener);
+		addControlAccessibleListener(argumentField, group.getText());
+
+		Composite composite = new Composite(group, SWT.NONE);
+		layout = new GridLayout();
+		layout.numColumns = 1;
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		gridData = new GridData(GridData.HORIZONTAL_ALIGN_END);
+		composite.setLayout(layout);
+		composite.setLayoutData(gridData);
+		composite.setFont(parent.getFont());
+
+		argumentVariablesButton = createPushButton(composite, Messages.CMakeMainTab2_Variables, null);
+		argumentVariablesButton.addSelectionListener(fListener);
+		addControlAccessibleListener(argumentVariablesButton, argumentVariablesButton.getText()); // need to strip the
+																									// mnemonic from
+																									// buttons
+
+		Label instruction = new Label(group, SWT.NONE);
+		instruction.setText(Messages.CMakeMainTab2_Note);
+		gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
+		gridData.horizontalSpan = 2;
+		instruction.setLayoutData(gridData);
+	}
+
+	protected void createUartComposite(Composite parent) {
+
+		Composite defaultComposite = new Composite(parent, SWT.NONE);
+		switchComposites.putIfAbsent(FlashInterface.UART, new ArrayList<>());
+		switchComposites.get(FlashInterface.UART).add(defaultComposite);
+		defaultComposite.setFont(parent.getFont());
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 1;
+		GridData defaultCompositeGridData = new GridData(GridData.FILL_HORIZONTAL);
+		defaultCompositeGridData.exclude = true;
+		switchGridDatas.putIfAbsent(FlashInterface.UART, new ArrayList<>());
+		switchGridDatas.get(FlashInterface.UART).add(defaultCompositeGridData);
+		defaultComposite.setLayout(layout);
+		defaultComposite.setLayoutData(defaultCompositeGridData);
+
+		createLocationComponent(defaultComposite);
+		createWorkDirectoryComponent(defaultComposite);
+
+		GridData locationAndWorkDirGroupData = new GridData(SWT.FILL, SWT.NONE, true, false);
 		locationField.getParent().setLayoutData(locationAndWorkDirGroupData);
 		workDirectoryField.getParent().setLayoutData(locationAndWorkDirGroupData);
+
+		uartAgrumentsField = new Text(parent, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
+
+		createArgumentComponent(defaultComposite, uartAgrumentsField);
+		createVerticalSpacer(defaultComposite, 1);
+	}
+
+	protected void createJtagflashComposite(Composite parent) {
+
+		Composite jtagComposite = new Composite(parent, SWT.NONE);
+		switchComposites.putIfAbsent(FlashInterface.JTAG, new ArrayList<>());
+		switchComposites.get(FlashInterface.JTAG).add(jtagComposite);
+		jtagComposite.setFont(parent.getFont());
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 1;
+		GridData jtagCompositeGridData = new GridData(GridData.FILL_HORIZONTAL);
+		jtagCompositeGridData.exclude = true;
+		switchGridDatas.putIfAbsent(FlashInterface.JTAG, new ArrayList<>());
+		switchGridDatas.get(FlashInterface.JTAG).add(jtagCompositeGridData);
+		jtagComposite.setLayout(layout);
+		jtagComposite.setLayoutData(jtagCompositeGridData);
+
+		String selectedTarget = getLaunchTarget();
+		EspConfigParser parser = new EspConfigParser();
+		createOpenOcdSetupComponent(jtagComposite, selectedTarget, parser);
+
+		jtagArgumentsField = new Text(parent, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
+		createArgumentComponent(jtagComposite, jtagArgumentsField);
+		createVerticalSpacer(jtagComposite, 1);
+	}
+
+	protected void createDfuTargetComposite(Composite parent) {
+		Composite dfuComposite = createDfuComposite(parent);
+
+		Composite targetComposite = new Composite(dfuComposite, SWT.NONE);
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 3;
+		GridData targetGridData = new GridData(GridData.FILL_HORIZONTAL);
+		targetComposite.setLayout(layout);
+		targetComposite.setData(targetGridData);
+
+		Label comboTargetLbl = new Label(targetComposite, SWT.NONE);
+		comboTargetLbl.setText(Messages.CMakeMainTab2_TargetsComboLbl);
+		comboTargets = new Combo(targetComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
+		comboTargets.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
+
+		ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
+		ILaunchTarget[] targets = launchTargetManager
+				.getLaunchTargetsOfType("com.espressif.idf.launch.serial.core.serialFlashTarget"); //$NON-NLS-1$
+		String[] targetsWithDfuSupport = Stream.of(targets).filter(DfuCommandsUtil::isTargetSupportDfu)
+				.map(ILaunchTarget::getId).toArray(String[]::new);
+		comboTargets.setItems(targetsWithDfuSupport);
+		comboTargets.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent evt) {
+				ILaunchTarget selectedTarget = Stream.of(launchTargetManager.getLaunchTargets())
+						.filter(target -> target.getId().contentEquals(((Combo) evt.widget).getText())).findFirst()
+						.orElseGet(() -> null);
+				if (selectedTarget != null && dfuErrorLbl != null) {
+					dfuErrorLbl.setText(StringUtil.EMPTY);
+				}
+				if (selectedTarget != null) {
+					try {
+						launchBarManager.setActiveLaunchTarget(selectedTarget);
+					} catch (CoreException e) {
+						Logger.log(e);
+					}
+				}
+				updateLaunchConfigurationDialog();
+
+			}
+		});
+
+		Optional<String> suitableTarget = Stream.of(targetsWithDfuSupport).filter(t -> {
+			try {
+				return t.contentEquals(launchBarManager.getActiveLaunchTarget().getId());
+			} catch (CoreException e) {
+				Logger.log(e);
+			}
+			return false;
+		}).findFirst();
+
+		suitableTarget.ifPresentOrElse(t -> comboTargets.select(Arrays.asList(comboTargets.getItems()).indexOf(t)),
+				() -> {
+					dfuErrorLbl = new Label(targetComposite, SWT.NONE);
+					dfuErrorLbl.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_DARK_YELLOW));
+					dfuErrorLbl.setText(Messages.CMakeMainTab2_WarningDfuMsg);
+				});
+
+		comboTargets.notifyListeners(SWT.Selection, null);
+	}
+
+	private Composite createDfuComposite(Composite parent) {
+		Composite dfuComposite = new Composite(parent, SWT.NONE);
+		switchComposites.putIfAbsent(FlashInterface.DFU, new ArrayList<>());
+		switchComposites.get(FlashInterface.DFU).add(dfuComposite);
+		dfuComposite.setFont(parent.getFont());
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 1;
+		GridData dfuCompositeGridData = new GridData(GridData.FILL_HORIZONTAL);
+		dfuCompositeGridData.exclude = true;
+		switchGridDatas.putIfAbsent(FlashInterface.DFU, new ArrayList<>());
+		switchGridDatas.get(FlashInterface.DFU).add(dfuCompositeGridData);
+		dfuComposite.setLayout(layout);
+		dfuComposite.setLayoutData(dfuCompositeGridData);
+		return dfuComposite;
+	}
+
+	private void createDfuArgumentField(Composite parent) {
+		Composite dfuComposite = createDfuComposite(parent);
+
+		dfuArgumentsField = new Text(parent, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
+		createArgumentComponent(dfuComposite, dfuArgumentsField);
+		createVerticalSpacer(dfuComposite, 1);
 	}
 
 	private void createProjectGroup(Composite parent, int colSpan) {
@@ -128,7 +343,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan = colSpan;
 		projectGroup.setLayoutData(gd);
-		fProjLabel = new Label(projectGroup, SWT.NONE);
+		Label fProjLabel = new Label(projectGroup, SWT.NONE);
 		fProjLabel.setText(LaunchMessages.CMainTab_ProjectColon);
 		gd = new GridData();
 		gd.horizontalSpan = 2;
@@ -136,10 +351,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 		fProjText = new Text(projectGroup, SWT.SINGLE | SWT.BORDER);
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		fProjText.setLayoutData(gd);
-		fProjButton = createPushButton(projectGroup, LaunchMessages.Launch_common_Browse_1, null);
-		fProjText.addModifyListener(evt -> {
-			updateLaunchConfigurationDialog();
-		});
+		Button fProjButton = createPushButton(projectGroup, LaunchMessages.Launch_common_Browse_1, null);
+		fProjText.addModifyListener(evt -> updateLaunchConfigurationDialog());
 		fProjButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent evt) {
@@ -179,35 +392,45 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private void createJtagFlashButton(Composite parent) {
 		Composite c = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
-		layout.numColumns = 2;
+		layout.numColumns = 3;
 		c.setLayout(layout);
-
-		flashOverJtagButton = new Button(c, SWT.CHECK);
-		flashOverJtagButton.setText(Messages.CMakeMainTab2_JtagComboLbl);
-		flashOverJtagButton.addSelectionListener(new SelectionListener() {
+		Label flashOverComboLabel = new Label(c, SWT.NONE);
+		flashOverComboLabel.setText(Messages.CMakeMainTab2_FlashComboLbl);
+		flashOverComboButton = new Combo(c, SWT.DROP_DOWN | SWT.READ_ONLY);
+		flashOverComboButton.setItems(FlashInterface.getNames());
+		flashOverComboButton.addSelectionListener(new SelectionAdapter() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				isFlashOverJtag = !isFlashOverJtag;
-				if (!isFlashOverJtag) {
-					argumentField.setText(argumentsForSerialFlash);
-				} else {
-					argumentField.setText(argumentsForJtagFlash);
+
+				FlashInterface flashInterface = FlashInterface.valueOf(((Combo) e.widget).getText());
+				switch (flashInterface) {
+				case UART:
+					isFlashOverJtag = false;
+					break;
+				case JTAG:
+					isFlashOverJtag = true;
 					fTarget.notifyListeners(SWT.Selection, null);
+					break;
+				case DFU:
+					isFlashOverJtag = false;
+					comboTargets.notifyListeners(SWT.Selection, null);
+					break;
+				default:
+					break;
 				}
-				switchUI();
+				switchUI(flashInterface);
+				updateLaunchConfigurationDialog();
 			}
 
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
 		});
 
 		if (!isJtagFlashAvailable) {
 			Label lbl = new Label(c, SWT.NONE);
 			lbl.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_DARK_YELLOW));
 			lbl.setText(Messages.CMakeMainTab2_JtagFlashingNotSupportedMsg);
-			flashOverJtagButton.setEnabled(false);
+			flashOverComboButton
+					.remove(Arrays.asList(flashOverComboButton.getItems()).indexOf(FlashInterface.JTAG.name()));
 		}
 	}
 
@@ -228,13 +451,11 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 	private IProject getSelectedProject() {
 		List<IProject> projectList = new ArrayList<>(1);
-		Display.getDefault().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				IProject project = EclipseUtil.getSelectedProjectInExplorer();
-				if (project != null)
-					projectList.add(project);
-			}
+		Display.getDefault().syncExec(() -> {
+			IProject project = EclipseUtil.getSelectedProjectInExplorer();
+			if (project != null)
+				projectList.add(project);
+
 		});
 		try {
 			ICProject[] projects = CoreModel.getDefault().getCModel().getCProjects();
@@ -262,16 +483,15 @@ public class CMakeMainTab2 extends GenericMainTab {
 		config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, name);
 	}
 
-	private void switchUI() {
-		if (!isJtagFlashAvailable) {
-			return;
-		}
-		locationField.getParent().setVisible(!isFlashOverJtag);
-		workDirectoryField.getParent().setVisible(!isFlashOverJtag);
-		fFlashVoltage.getParent().setVisible(isFlashOverJtag);
-		openOcdGroupData.exclude = !isFlashOverJtag;
-		locationAndWorkDirGroupData.exclude = isFlashOverJtag;
-		this.getShell().layout(true, true);
+	private void switchUI(FlashInterface flashInterface) {
+
+		switchGridDatas.values().forEach(list -> list.forEach(gridData -> gridData.exclude = true));
+		switchComposites.values().forEach(list -> list.forEach(composite -> composite.setVisible(false)));
+
+		switchGridDatas.get(flashInterface).forEach(gridData -> gridData.exclude = false);
+		switchComposites.get(flashInterface).forEach(composite -> composite.setVisible(true));
+
+		mainComposite.requestLayout();
 	}
 
 	@Override
@@ -280,8 +500,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 		boolean hasProject = false;
 		try {
 			hasProject = launchConfig.getMappedResources() != null
-					? launchConfig.getMappedResources()[0].getProject().exists()
-					: false;
+					&& launchConfig.getMappedResources()[0].getProject().exists();
 		} catch (CoreException e) {
 			Logger.log(e);
 		}
@@ -299,7 +518,16 @@ public class CMakeMainTab2 extends GenericMainTab {
 			setErrorMessage(LaunchMessages.CMainTab_Project_must_be_opened);
 			return false;
 		}
-
+		if (flashOverComboButton.getText().contentEquals(FlashInterface.DFU.name())
+				&& comboTargets.getSelectionIndex() == -1) {
+			try {
+				setErrorMessage(MessageFormat.format(Messages.CMakeMainTab2_NoDfuTargetSelectedError,
+						launchBarManager.getActiveLaunchTarget().getId()));
+			} catch (CoreException e) {
+				Logger.log(e);
+			}
+			return false;
+		}
 		return isConfigValid && hasProject;
 	}
 
@@ -308,30 +536,23 @@ public class CMakeMainTab2 extends GenericMainTab {
 		super.performApply(configuration);
 		try {
 			ILaunchConfigurationWorkingCopy wc = configuration.getWorkingCopy();
+			wc.setAttribute(IDFLaunchConstants.DFU,
+					flashOverComboButton.getText().contentEquals(FlashInterface.DFU.name()));
 			if (selectedProject != null) {
 				initializeCProject(selectedProject, wc);
-			}
-			if (!isJtagFlashAvailable) {
-				wc.doSave();
-				return;
 			}
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, fProjText.getText());
 			wc.setAttribute(IDFLaunchConstants.JTAG_FLASH_VOLTAGE, fFlashVoltage.getText());
 			wc.setAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, fTarget.getText());
 			wc.setAttribute(IDFLaunchConstants.JTAG_BOARD, fTargetName.getText());
-			wc.setAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, flashOverJtagButton.getSelection());
+			wc.setAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, isFlashOverJtag);
 			//For the case, when user wants to edit arguments line somehow and save changes
-			if (isFlashOverJtag) {
-				argumentsForJtagFlash = argumentField.getText();
-				wc.setAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, argumentsForJtagFlash);
-				wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, argumentsForSerialFlash);
-			} else {
-				wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, argumentField.getText());
-				wc.setAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, argumentsForJtagFlash);
-			}
+
+			wc.setAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, jtagArgumentsField.getText());
+			wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, uartAgrumentsField.getText());
+			wc.setAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS, dfuArgumentsField.getText());
 
 			wc.doSave();
-
 		} catch (CoreException e) {
 			Logger.log(e);
 		}
@@ -341,9 +562,9 @@ public class CMakeMainTab2 extends GenericMainTab {
 	public void initializeFrom(ILaunchConfiguration configuration) {
 		super.initializeFrom(configuration);
 		updateProjetFromConfig(configuration);
-		updateFlashOverJtagStatus(configuration);
+		updateFlashOverStatus(configuration);
 		updateArgumentsWithDefaultFlashCommand(configuration);
-		switchUI();
+		switchUI(FlashInterface.values()[flashOverComboButton.getSelectionIndex()]);
 	}
 
 	private void updateProjetFromConfig(ILaunchConfiguration configuration) {
@@ -358,37 +579,54 @@ public class CMakeMainTab2 extends GenericMainTab {
 			fProjText.setText(projectName);
 	}
 
-	private void updateFlashOverJtagStatus(ILaunchConfiguration configuration) {
+	private void updateFlashOverStatus(ILaunchConfiguration configuration) {
+		boolean isDfu = false;
+		try {
+			isDfu = configuration.getAttribute(IDFLaunchConstants.DFU, false);
+			if (isDfu) {
+				int dfuIndex = Arrays.asList(flashOverComboButton.getItems()).indexOf(FlashInterface.DFU.name());
+				flashOverComboButton.select(dfuIndex);
+			} else {
+				int uartIndex = Arrays.asList(flashOverComboButton.getItems()).indexOf(FlashInterface.UART.name());
+				flashOverComboButton.select(uartIndex);
+			}
+		} catch (CoreException e) {
+			Logger.log(e);
+		}
 		if (!isJtagFlashAvailable) {
 			return;
 		}
 		try {
 			isFlashOverJtag = configuration.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, isFlashOverJtag);
-			initializeJtagComboFields(configuration);
 		} catch (CoreException e) {
 			Logger.log(e);
 		}
-		flashOverJtagButton.setSelection(isFlashOverJtag);
+		if (isFlashOverJtag && !isDfu) {
+			try {
+				initializeJtagComboFields(configuration);
+			} catch (CoreException e) {
+				Logger.log(e);
+			}
+
+			flashOverComboButton
+					.select(Arrays.asList(flashOverComboButton.getItems()).indexOf(FlashInterface.JTAG.name()));
+		}
 	}
 
 	private void updateArgumentsWithDefaultFlashCommand(ILaunchConfiguration configuration) {
-		String espFlashCommand = ESPFlashUtil.getEspFlashCommand(ESPFlashUtil.SERIAL_PORT);
+
 		try {
-			argumentsForSerialFlash = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS,
-					espFlashCommand);
-			argumentsForSerialFlash = argumentsForSerialFlash.isEmpty() ? espFlashCommand : argumentsForSerialFlash;
-			argumentsForSerialFlash = argumentsForSerialFlash.contains(EMPTY_CONFIG_OPTIONS) ? espFlashCommand
-					: argumentsForSerialFlash;
-			argumentField.setText(argumentsForSerialFlash);
-			if (!isJtagFlashAvailable) {
-				return;
-			}
-			String savedArgumentsForJtagFlash = configuration.getAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS,
-					argumentsForJtagFlash);
-			argumentsForJtagFlash = savedArgumentsForJtagFlash;
-			if (isFlashOverJtag) {
-				argumentField.setText(argumentsForJtagFlash);
-			}
+			String uartFlashCommand = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS,
+					StringUtil.EMPTY);
+			uartAgrumentsField
+					.setText(uartFlashCommand.isBlank() ? ESPFlashUtil.getEspFlashCommand(ESPFlashUtil.SERIAL_PORT)
+							: uartFlashCommand);
+
+			jtagArgumentsField.setText(
+					configuration.getAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, StringUtil.EMPTY));
+
+			dfuArgumentsField.setText(configuration.getAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS,
+					DfuCommandsUtil.getDfuFlashCommand()));
 
 		} catch (CoreException e) {
 			Logger.log(e);
@@ -406,31 +644,18 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	private static void showNoTargetMessage(String selectedTarget) {
-		Display.getDefault().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				boolean isYes = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
-						Messages.IDFLaunchTargetNotFoundIDFLaunchTargetNotFoundTitle,
-						Messages.IDFLaunchTargetNotFoundMsg1 + selectedTarget + Messages.IDFLaunchTargetNotFoundMsg2
-								+ Messages.IDFLaunchTargetNotFoundMsg3);
-				if (isYes) {
-					NewSerialFlashTargetWizard wizard = new NewSerialFlashTargetWizard();
-					WizardDialog dialog = new WizardDialog(
-							PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
-					dialog.open();
-				}
+		Display.getDefault().asyncExec(() -> {
+			boolean isYes = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
+					Messages.IDFLaunchTargetNotFoundIDFLaunchTargetNotFoundTitle,
+					Messages.IDFLaunchTargetNotFoundMsg1 + selectedTarget + Messages.IDFLaunchTargetNotFoundMsg2
+							+ Messages.IDFLaunchTargetNotFoundMsg3);
+			if (isYes) {
+				NewSerialFlashTargetWizard wizard = new NewSerialFlashTargetWizard();
+				WizardDialog dialog = new WizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+						wizard);
+				dialog.open();
 			}
 		});
-	}
-
-	@Override
-	protected void createArgumentComponent(Composite parent) {
-		if (isJtagFlashAvailable) {
-			String selectedTarget = getLaunchTarget();
-			EspConfigParser parser = new EspConfigParser();
-			createOpenOcdSetupComponent(parent, selectedTarget, parser);
-		}
-		super.createArgumentComponent(parent);
 	}
 
 	private void createOpenOcdSetupComponent(Composite parent, String selectedTarget, EspConfigParser parser) {
@@ -461,6 +686,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 			fTarget.setItems(parser.getTargets().toArray(new String[0]));
 			fTarget.setText(selectedTarget);
 			fTarget.addSelectionListener(new SelectionAdapter() {
+
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					String updatedSelectedTarget = getLaunchTarget();
@@ -537,7 +763,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 				}
 			});
 		}
-		openOcdGroupData = new GridData(SWT.FILL, SWT.NONE, true, true);
+		GridData openOcdGroupData = new GridData(SWT.FILL, SWT.NONE, true, true);
 		group.setLayoutData(openOcdGroupData);
 	}
 
@@ -555,8 +781,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 				configOptiopns = configOptiopns + " -f " + config; //$NON-NLS-1$
 			}
 		}
-		argumentsForJtagFlash = configOptiopns;
-		argumentField.setText(argumentsForJtagFlash);
+		jtagArgumentsField.setText(configOptiopns);
 	}
 
 	private String getLaunchTarget() {

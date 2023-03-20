@@ -605,11 +605,13 @@ which there is no driver installed (probably it is Interface 2) and don't re-ins
 
 After meeting requirements you are free to build and flash via DFU. How to use DFU:
 
-- Activate the DFU toggle button on the toolbar.
-- Select the correct target and port through the target panel
-- Now, if you will use the build command an extra file will be created (dfu.bin), which will be later used for flashing.
+- Edit the active launch configuration.
+- In the main tab, select the 'Flash over DFU' option.
+- Select a suitable IDF target for DFU
+- Now, if you use the build command, an extra file (dfu.bin) will be created, which can be used later for flashing.
 
-![DFU actions](https://user-images.githubusercontent.com/24419842/175890153-42bd711e-a916-408e-a568-9b008f86a8b6.png)
+![DFU actions](https://user-images.githubusercontent.com/24419842/226182180-286099d3-9c1c-4394-abb0-212d43054529.png)
+
 
 Additional information, including common errors and known issues, is mentioned in this [guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/dfu.html#usb-drivers-windows-only).
 
