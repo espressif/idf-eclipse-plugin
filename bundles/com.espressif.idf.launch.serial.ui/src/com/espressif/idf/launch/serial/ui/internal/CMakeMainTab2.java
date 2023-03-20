@@ -15,6 +15,7 @@
 package com.espressif.idf.launch.serial.ui.internal;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -73,6 +74,7 @@ import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 import com.espressif.idf.launch.serial.internal.SerialFlashLaunchConfigDelegate;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 import com.espressif.idf.ui.EclipseUtil;
+import com.espressif.idf.ui.LaunchBarListener;
 
 @SuppressWarnings("restriction")
 public class CMakeMainTab2 extends GenericMainTab {
@@ -107,6 +109,11 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 	@Override
 	public void createControl(Composite parent) {
+		LaunchBarListener.setIgnoreJtagTargetChange(true);
+		parent.addDisposeListener(e -> {
+			LaunchBarListener.setIgnoreJtagTargetChange(false);
+		});
+
 		createArgumentComponent(parent); //create a dummy argumentField for super class, which is not present in mainComposite
 		mainComposite = new Composite(parent, SWT.NONE);
 		mainComposite.setFont(parent.getFont());
@@ -251,7 +258,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 		Label comboTargetLbl = new Label(targetComposite, SWT.NONE);
 		comboTargetLbl.setText(Messages.CMakeMainTab2_TargetsComboLbl);
 		comboTargets = new Combo(targetComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
-		comboTargets.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		comboTargets.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
 
 		ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
 		ILaunchTarget[] targets = launchTargetManager
@@ -266,17 +273,17 @@ public class CMakeMainTab2 extends GenericMainTab {
 				ILaunchTarget selectedTarget = Stream.of(launchTargetManager.getLaunchTargets())
 						.filter(target -> target.getId().contentEquals(((Combo) evt.widget).getText())).findFirst()
 						.orElseGet(() -> null);
-				try {
-					if (selectedTarget != null && dfuErrorLbl != null) {
-						dfuErrorLbl.setText(StringUtil.EMPTY);
-					}
-					if (selectedTarget != null) {
-						launchBarManager.setActiveLaunchTarget(selectedTarget);
-					}
-					updateLaunchConfigurationDialog();
-				} catch (CoreException e) {
-					Logger.log(e);
+				if (selectedTarget != null && dfuErrorLbl != null) {
+					dfuErrorLbl.setText(StringUtil.EMPTY);
 				}
+				if (selectedTarget != null) {
+					try {
+						launchBarManager.setActiveLaunchTarget(selectedTarget);
+					} catch (CoreException e) {
+						Logger.log(e);
+					}
+				}
+				updateLaunchConfigurationDialog();
 			}
 		});
 
@@ -489,7 +496,12 @@ public class CMakeMainTab2 extends GenericMainTab {
 		}
 		if (flashOverComboButton.getText().contentEquals(FlashInterface.DFU.name())
 				&& comboTargets.getSelectionIndex() == -1) {
-			setErrorMessage(Messages.CMakeMainTab2_NoDfuTargetSelectedError);
+			try {
+				setErrorMessage(MessageFormat.format(Messages.CMakeMainTab2_NoDfuTargetSelectedError,
+						launchBarManager.getActiveLaunchTarget().getId()));
+			} catch (CoreException e) {
+				Logger.log(e);
+			}
 			return false;
 		}
 		return isConfigValid && hasProject;
@@ -517,7 +529,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 			wc.setAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS, dfuArgumentsField.getText());
 
 			wc.doSave();
-
 		} catch (CoreException e) {
 			Logger.log(e);
 		}

@@ -35,6 +35,12 @@ import com.espressif.idf.core.util.StringUtil;
 
 public class LaunchBarListener implements ILaunchBarListener
 {
+	private static boolean jtagIgnored = false;
+
+	public static void setIgnoreJtagTargetChange(boolean status)
+	{
+		jtagIgnored = status;
+	}
 	@Override
 	public void activeLaunchTargetChanged(ILaunchTarget target)
 	{
@@ -87,13 +93,14 @@ public class LaunchBarListener implements ILaunchBarListener
 				// build folder exist?
 				if (project != null)
 				{
-					File buildLocation = new File(IDFUtil.getBuildDir((IProject) project)); //$NON-NLS-1$
+					File buildLocation = new File(IDFUtil.getBuildDir((IProject) project));
 					if (buildLocation.exists())
 					{
 						// get current target
 						String currentTarget = new SDKConfigJsonReader((IProject) project).getValue("IDF_TARGET"); //$NON-NLS-1$
 						final String jtag_device_id = activeConfig.getAttribute("org.eclipse.cdt.debug.gdbjtag.core.jtagDeviceId", ""); //$NON-NLS-1$ //$NON-NLS-2$
-						if(activeConfig.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, false) || jtag_device_id.contentEquals("ESP-IDF GDB OpenOCD")) //$NON-NLS-1$
+						if ((activeConfig.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, false) && !jtagIgnored)
+								|| jtag_device_id.contentEquals("ESP-IDF GDB OpenOCD")) //$NON-NLS-1$
 						{
 							String targetForJtagFlash = activeConfig.getWorkingCopy().getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, ""); //$NON-NLS-1$
 							if (!newTarget.equals(targetForJtagFlash)) 
