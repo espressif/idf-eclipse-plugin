@@ -114,7 +114,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 			LaunchBarListener.setIgnoreJtagTargetChange(false);
 		});
 
-		createArgumentComponent(parent); //create a dummy argumentField for super class, which is not present in mainComposite
 		mainComposite = new Composite(parent, SWT.NONE);
 		mainComposite.setFont(parent.getFont());
 		GridLayout layout = new GridLayout();
@@ -132,6 +131,13 @@ public class CMakeMainTab2 extends GenericMainTab {
 		createJtagflashComposite(mainComposite);
 		createDfuArgumentField(mainComposite);
 
+		argumentField = new Text(parent, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
+		argumentField.setVisible(false);
+	}
+
+	@Override
+	protected void updateArgument(ILaunchConfiguration configuration) {
+		//We don't need the default argument field so there is nothing to update
 	}
 
 	/**
