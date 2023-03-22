@@ -733,7 +733,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 			String cleanCommand = getProperty(CLEAN_COMMAND);
 			if (cleanCommand == null || cleanCommand.isBlank())
 			{
-				if (generator == null || generator.equals(NINJA)) // $NON-NLS-1$
+				if (generator == null || generator.isBlank() || generator.equals(NINJA)) // $NON-NLS-1$
 				{
 					command.add("ninja"); //$NON-NLS-1$
 					command.add("clean"); //$NON-NLS-1$
