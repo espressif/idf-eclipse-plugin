@@ -64,6 +64,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 	private Text infoArea;
 	private Map<String, List<String>> targetPortMap;
 	private TargetPortMapUpdateThread targetPortMapUpdateThread;
+	private SerialPortUpdateThread serialPortUpdateThread;
 	private Display display;
 
 	public NewSerialFlashTargetWizardPage(ILaunchTarget launchTarget) {
@@ -73,6 +74,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 		setTitle(Messages.NewSerialFlashTargetWizardPage_Title);
 		setDescription(Messages.NewSerialFlashTargetWizardPage_Description);
 		targetPortMapUpdateThread = new TargetPortMapUpdateThread();
+		serialPortUpdateThread = new SerialPortUpdateThread();
 	}
 
 	@Override
@@ -123,6 +125,21 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 		label.setText(Messages.NewSerialFlashTargetWizardPage_SerialPort);
 
 		serialPortCombo = new Combo(comp, SWT.NONE);
+		serialPortCombo.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (targetPortMapUpdateThread.isAlive()) {
+					targetPortMapUpdateThread.running = false;
+				}
+				com.fazecast.jSerialComm.SerialPort serialPort = com.fazecast.jSerialComm.SerialPort
+						.getCommPort(serialPortCombo.getText());
+				if (serialPort != null) {
+					infoArea.setText(serialPort.getDescriptivePortName());
+				}
+
+			}
+		});
 		try {
 			String[] ports = SerialPort.list();
 			for (String port : ports) {
@@ -151,6 +168,13 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 
 		infoArea = new Text(comp, SWT.BORDER | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
 		infoArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+		serialPortUpdateThread.start();
+	}
+
+	@Override
+	public void dispose() {
+		serialPortUpdateThread.running = targetPortMapUpdateThread.running = false;
+		super.dispose();
 	}
 
 	public String getTargetName() {
@@ -230,11 +254,66 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 				serialPortCombo.select(serialPortCombo.indexOf(comPortList.get(0)));
 				infoArea.setText(
 						String.format(Messages.TargetPortInformationMessage, selectedTarget, comPortList.toString()));
+				com.fazecast.jSerialComm.SerialPort serialPort = com.fazecast.jSerialComm.SerialPort
+						.getCommPort(comPortList.get(0));
+				if (serialPort != null) {
+					infoArea.setText(serialPort.getDescriptivePortName() + System.lineSeparator() + infoArea.getText());
+				}
 			}
+
+		}
+	}
+
+	private class SerialPortUpdateThread extends Thread {
+		private boolean running = true;
+
+		@Override
+		public void run() {
+			try {
+				while (running) {
+					Thread.sleep(1000);
+					String[] ports = getSerialPorts();
+					display.asyncExec(() -> {
+						if (serialPortCombo.isDisposed())
+							return;
+						String[] loadedPorts = serialPortCombo.getItems();
+						if (loadedPorts.length != ports.length) {
+
+							if (ports.length != 0) {
+								serialPortCombo.setItems(ports);
+								serialPortCombo.select(0);
+								infoArea.setText(Messages.SerialPortUpdateThreadInfoMessage);
+							}
+
+							String targetPort = launchTarget
+									.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, null);
+							if (targetPort != null) {
+								int i = 0;
+								for (String port : ports) {
+									if (port.equals(targetPort)) {
+										serialPortCombo.select(i);
+										break;
+									}
+									i++;
+								}
+							}
+						}
+					});
+
+				}
+			} catch (Exception e) {
+				Logger.log(e);
+			}
+		}
+
+		private String[] getSerialPorts() throws IOException {
+			return SerialPort.list();
 		}
 	}
 
 	private class TargetPortMapUpdateThread extends Thread {
+		private boolean running = true;
+
 		@Override
 		public void run() {
 			try {
@@ -268,10 +347,15 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(targetIn));
 				StringBuilder chipInfo = new StringBuilder();
 				String readLine;
-				while ((readLine = bufferedReader.readLine()) != null) {
+				while ((readLine = bufferedReader.readLine()) != null && running) {
 					chipInfo.append(readLine);
 					chipInfo.append(System.lineSeparator());
 				}
+				if (!running) {
+					bufferedReader.close();
+					return;
+				}
+
 				String chipType = extractChipFromChipInfoOutput(chipInfo.toString());
 				if (StringUtil.isEmpty(chipType)) {
 					display.asyncExec(() -> {

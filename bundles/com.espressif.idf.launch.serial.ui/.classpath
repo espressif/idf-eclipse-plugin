@@ -8,5 +8,6 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="libs/jSerialComm-2.9.3.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

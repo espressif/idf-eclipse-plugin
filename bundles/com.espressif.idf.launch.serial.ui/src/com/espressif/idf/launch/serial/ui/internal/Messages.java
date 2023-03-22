@@ -52,6 +52,8 @@ public class Messages extends NLS {
 	public static String TargetPortFoundMessage;
 	public static String TargetPortNotFoundMessage;
 
+	public static String SerialPortUpdateThreadInfoMessage;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
