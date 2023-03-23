@@ -25,3 +25,5 @@ Import-Package: com.espressif.idf.ui,
  org.eclipse.cdt.dsf.gdb,
  org.eclipse.cdt.ui
 Export-Package: com.espressif.idf.launch.serial.ui.internal
+Bundle-ClassPath: .,
+ libs/jSerialComm-2.9.3.jar
