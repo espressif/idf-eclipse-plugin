@@ -23,6 +23,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -105,7 +106,7 @@ public class DirectorySelectionDialog extends TitleAreaDialog
 			@Override
 			public void widgetSelected(SelectionEvent event)
 			{
-				DirectoryDialog dlg = new DirectoryDialog(shell);
+				DirectoryDialog dlg = new DirectoryDialog(Display.getDefault().getActiveShell());
 				dlg.setFilterPath(text.getText());
 				dlg.setText(Messages.DirectorySelectionDialog_IDFDirLabel);
 				dlg.setMessage(Messages.DirectorySelectionDialog_SelectIDFDirMessage);
@@ -141,7 +142,7 @@ public class DirectorySelectionDialog extends TitleAreaDialog
 			@Override
 			public void widgetSelected(SelectionEvent event)
 			{
-				FileDialog dlg = new FileDialog(shell);
+				FileDialog dlg = new FileDialog(Display.getDefault().getActiveShell());
 				dlg.setText(Messages.DirectorySelectionDialog_GitExecutableLocation);
 
 				String dir = dlg.open();
@@ -192,7 +193,7 @@ public class DirectorySelectionDialog extends TitleAreaDialog
 				@Override
 				public void widgetSelected(SelectionEvent event)
 				{
-					FileDialog dlg = new FileDialog(shell);
+					FileDialog dlg = new FileDialog(Display.getDefault().getActiveShell());
 					dlg.setText(Messages.DirectorySelectionDialog_PyExecutableLocation);
 
 					String dir = dlg.open();
