@@ -142,7 +142,7 @@ public class DirectorySelectionDialog extends TitleAreaDialog
 			@Override
 			public void widgetSelected(SelectionEvent event)
 			{
-				FileDialog dlg = new FileDialog(shell);
+				FileDialog dlg = new FileDialog(Display.getDefault().getActiveShell());
 				dlg.setText(Messages.DirectorySelectionDialog_GitExecutableLocation);
 
 				String dir = dlg.open();
@@ -193,7 +193,7 @@ public class DirectorySelectionDialog extends TitleAreaDialog
 				@Override
 				public void widgetSelected(SelectionEvent event)
 				{
-					FileDialog dlg = new FileDialog(shell);
+					FileDialog dlg = new FileDialog(Display.getDefault().getActiveShell());
 					dlg.setText(Messages.DirectorySelectionDialog_PyExecutableLocation);
 
 					String dir = dlg.open();
