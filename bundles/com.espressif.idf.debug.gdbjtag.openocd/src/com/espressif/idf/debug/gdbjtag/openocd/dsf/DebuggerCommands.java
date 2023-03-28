@@ -19,6 +19,8 @@ import java.util.List;
 import org.eclipse.cdt.debug.core.CDebugUtils;
 import org.eclipse.cdt.debug.gdbjtag.core.IGDBJtagConstants;
 import org.eclipse.cdt.dsf.service.DsfSession;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -26,8 +28,13 @@ import org.eclipse.embedcdt.core.EclipseUtils;
 import org.eclipse.embedcdt.core.StringUtils;
 import org.eclipse.embedcdt.debug.gdbjtag.core.DebugUtils;
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuDebuggerCommandsService;
+import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.osgi.framework.BundleContext;
 
+import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.SDKConfigJsonReader;
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.ConfigurationAttributes;
 import com.espressif.idf.debug.gdbjtag.openocd.IIDFGDBJtagConstants;
@@ -124,11 +131,14 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService {
 
 		String otherInits = CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.OTHER_INIT_COMMANDS,
 					DefaultPreferences.OTHER_INIT_COMMANDS_DEFAULT).trim();
-		
+
+		otherInits = otherInits.replace(DefaultPreferences.IDF_TARGET_CPU_WATCHPOINT_NUM,
+				String.valueOf(IdfHardwareWatchpoints.getWatchpointNumForTarget(getCurrentTatget())));
 		otherInits = DebugUtils.resolveAll(otherInits, fAttributes);
 		if (fDoDoubleBackslash && EclipseUtils.isWindows()) {
 			otherInits = StringUtils.duplicateBackslashes(otherInits);
 		}
+		Logger.log("Initialization Commanands::" + otherInits); //$NON-NLS-1$
 		DebugUtils.addMultiLine(otherInits, commandsList);
 
 		
@@ -139,6 +149,28 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService {
 		}
 
 		return Status.OK_STATUS;
+	}
+
+	private String getCurrentTatget()
+	{
+		IProject project = null;
+		try
+		{
+			ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
+			ILaunchConfiguration activeConfig = launchBarManager.getActiveLaunchConfiguration();
+			if (activeConfig == null || activeConfig.getMappedResources() == null)
+			{
+				Logger.log(Messages.DebuggerCommands_CantFindProjectMsg);
+				return StringUtil.EMPTY;
+			}
+			project = activeConfig.getMappedResources()[0].getProject();
+			Logger.log("Project:: " + project); //$NON-NLS-1$
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+		return new SDKConfigJsonReader(project).getValue("IDF_TARGET"); //$NON-NLS-1$
 	}
 
 	@Override
@@ -185,7 +217,7 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService {
 
 		addStopAtCommands(commandsList);
 
-		commandsList.add("monitor reg");
+		commandsList.add("monitor reg"); //$NON-NLS-1$
 
 		if (CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.DO_CONTINUE,
 				DefaultPreferences.DO_CONTINUE_DEFAULT)) {
