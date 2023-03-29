@@ -279,7 +279,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	{
 		this.monitor = monitor;
 		isProgressSet = false;
-		
+
 		IProject project = getProject();
 		toolChainFile = getToolChainFile();
 
@@ -388,7 +388,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 				throw new CmakeBuildException();
 			}
 
-			watchProcess(p, new IConsoleParser[] { epm, new StatusParser()});
+			watchProcess(p, new IConsoleParser[] { epm, new StatusParser() });
 
 			final String isSkip = System.getProperty("skip.idf.components"); //$NON-NLS-1$
 			if (!Boolean.parseBoolean(isSkip))
@@ -731,9 +731,9 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 
 			List<String> command = new ArrayList<>();
 			String cleanCommand = getProperty(CLEAN_COMMAND);
-			if (cleanCommand == null)
+			if (cleanCommand == null || cleanCommand.isBlank())
 			{
-				if (generator == null || generator.equals(NINJA)) // $NON-NLS-1$
+				if (generator == null || generator.isBlank() || generator.equals(NINJA)) // $NON-NLS-1$
 				{
 					command.add("ninja"); //$NON-NLS-1$
 					command.add("clean"); //$NON-NLS-1$
@@ -1068,7 +1068,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	{
 		this.launchtarget = target;
 	}
-	
+
 	/**
 	 * Process the CMake build output and figure out the percentage of work done.
 	 */
@@ -1098,7 +1098,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 			}
 			catch (NumberFormatException e)
 			{
-				Logger.log(e, true); //Silently report
+				Logger.log(e, true); // Silently report
 			}
 			return true;
 		}
@@ -1106,9 +1106,9 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		@Override
 		public void shutdown()
 		{
-			//nothing
+			// nothing
 		}
-		
+
 	}
 
 }
