@@ -14,6 +14,9 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd.ui.preferences;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.embedcdt.ui.XpackDirectoryNotStrictFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
@@ -23,22 +26,23 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
+import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.PersistentPreferences;
 import com.espressif.idf.debug.gdbjtag.openocd.ui.Messages;
 
-
 /**
- * This class represents a preference page that is contributed to the
- * Preferences dialog. By subclassing <samp>FieldEditorPreferencePage</samp>, we
- * can use the field support built into JFace that allows us to create a page
+ * This class represents a preference page that is contributed to the Preferences dialog. By subclassing
+ * <samp>FieldEditorPreferencePage</samp>, we can use the field support built into JFace that allows us to create a page
  * that is small and knows how to save, restore and apply itself.
  * <p>
- * This page uses special filed editors, that get the default values from the
- * preferences store, but the values are from the variables store.
+ * This page uses special filed editors, that get the default values from the preferences store, but the values are from
+ * the variables store.
  */
-public class GlobalMcuPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
+public class GlobalMcuPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage
+{
 
 	// ------------------------------------------------------------------------
 
@@ -51,10 +55,12 @@ public class GlobalMcuPage extends FieldEditorPreferencePage implements IWorkben
 
 	// ------------------------------------------------------------------------
 
-	public GlobalMcuPage() {
+	public GlobalMcuPage()
+	{
 		super(GRID);
 
-		if (Activator.getInstance().isDebugging()) {
+		if (Activator.getInstance().isDebugging())
+		{
 			System.out.println("openocd.GlobalMcuPage()");
 		}
 
@@ -71,20 +77,22 @@ public class GlobalMcuPage extends FieldEditorPreferencePage implements IWorkben
 
 	// Contributed by IWorkbenchPreferencePage
 	@Override
-	public void init(IWorkbench workbench) {
+	public void init(IWorkbench workbench)
+	{
 
-		if (Activator.getInstance().isDebugging()) {
+		if (Activator.getInstance().isDebugging())
+		{
 			System.out.println("openocd.GlobalMcuPage.init()");
 		}
 	}
 
 	/**
-	 * Creates the field editors. Field editors are abstractions of the common GUI
-	 * blocks needed to manipulate various types of preferences. Each field editor
-	 * knows how to save and restore itself.
+	 * Creates the field editors. Field editors are abstractions of the common GUI blocks needed to manipulate various
+	 * types of preferences. Each field editor knows how to save and restore itself.
 	 */
 	@Override
-	protected void createFieldEditors() {
+	protected void createFieldEditors()
+	{
 
 		FieldEditor executable = new StringFieldEditor(PersistentPreferences.EXECUTABLE_NAME,
 				Messages.McuPage_executable_label, getFieldEditorParent());
@@ -97,6 +105,21 @@ public class GlobalMcuPage extends FieldEditorPreferencePage implements IWorkben
 		FieldEditor folder = new XpackDirectoryNotStrictFieldEditor(xpackNames, PersistentPreferences.INSTALL_FOLDER,
 				Messages.McuPage_executable_folder, getFieldEditorParent(), isStrict);
 		addField(folder);
+	}
+
+	@Override
+	public boolean performOk()
+	{
+		boolean result = super.performOk();
+		Path updatedPath = Paths.get(fPersistentPreferences.getInstallFolder(StringUtil.EMPTY)).getParent();
+		if (updatedPath != null)
+		{
+			updatedPath = updatedPath.resolve("share").resolve("openocd").resolve("scripts"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			new IDFEnvironmentVariables().addEnvVariable(IDFEnvironmentVariables.OPENOCD_SCRIPTS,
+					updatedPath.toString());
+		}
+
+		return result;
 	}
 
 	// ------------------------------------------------------------------------
