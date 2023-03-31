@@ -19,8 +19,6 @@ import java.util.List;
 import org.eclipse.cdt.debug.core.CDebugUtils;
 import org.eclipse.cdt.debug.gdbjtag.core.IGDBJtagConstants;
 import org.eclipse.cdt.dsf.service.DsfSession;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -28,37 +26,38 @@ import org.eclipse.embedcdt.core.EclipseUtils;
 import org.eclipse.embedcdt.core.StringUtils;
 import org.eclipse.embedcdt.debug.gdbjtag.core.DebugUtils;
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuDebuggerCommandsService;
-import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.osgi.framework.BundleContext;
 
-import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.util.SDKConfigJsonReader;
-import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.ConfigurationAttributes;
 import com.espressif.idf.debug.gdbjtag.openocd.IIDFGDBJtagConstants;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 
-public class DebuggerCommands extends GnuMcuDebuggerCommandsService {
+public class DebuggerCommands extends GnuMcuDebuggerCommandsService
+{
 
 	// ------------------------------------------------------------------------
 
-	public DebuggerCommands(DsfSession session, ILaunchConfiguration lc, String mode) {
+	public DebuggerCommands(DsfSession session, ILaunchConfiguration lc, String mode)
+	{
 		super(session, lc, mode, true); // do double backslash
 	}
 
 	// ------------------------------------------------------------------------
 
 	@Override
-	protected BundleContext getBundleContext() {
+	protected BundleContext getBundleContext()
+	{
 		return Activator.getInstance().getBundle().getBundleContext();
 	}
 
 	// ------------------------------------------------------------------------
 
 	@Override
-	public IStatus addGdbInitCommandsCommands(List<String> commandsList) {
+	public IStatus addGdbInitCommandsCommands(List<String> commandsList)
+	{
 		String otherInits = CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.GDB_CLIENT_OTHER_COMMANDS,
 				DefaultPreferences.GDB_CLIENT_OTHER_COMMANDS_DEFAULT).trim();
 
@@ -71,27 +70,32 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService {
 	// ------------------------------------------------------------------------
 
 	@Override
-	public IStatus addGnuMcuResetCommands(List<String> commandsList) {
+	public IStatus addGnuMcuResetCommands(List<String> commandsList)
+	{
 
 		IStatus status = addFirstResetCommands(commandsList);
-		if (!status.isOK()) {
+		if (!status.isOK())
+		{
 			return status;
 		}
 
 		status = addLoadSymbolsCommands(commandsList);
 
-		if (!status.isOK()) {
+		if (!status.isOK())
+		{
 			return status;
 		}
 
 		if (CDebugUtils.getAttribute(fAttributes, IGDBJtagConstants.ATTR_LOAD_IMAGE,
 				IIDFGDBJtagConstants.DEFAULT_LOAD_IMAGE)
 				&& !CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.DO_DEBUG_IN_RAM,
-						DefaultPreferences.DO_DEBUG_IN_RAM_DEFAULT)) {
+						DefaultPreferences.DO_DEBUG_IN_RAM_DEFAULT))
+		{
 
 			status = addLoadImageCommands(commandsList);
 
-			if (!status.isOK()) {
+			if (!status.isOK())
+			{
 				return status;
 			}
 		}
@@ -100,11 +104,13 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService {
 	}
 
 	@Override
-	public IStatus addGnuMcuStartCommands(List<String> commandsList) {
+	public IStatus addGnuMcuStartCommands(List<String> commandsList)
+	{
 
 		IStatus status = addStartRestartCommands(true, commandsList);
 
-		if (!status.isOK()) {
+		if (!status.isOK())
+		{
 			return status;
 		}
 
@@ -114,9 +120,11 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService {
 	// ------------------------------------------------------------------------
 
 	@Override
-	public IStatus addFirstResetCommands(List<String> commandsList) {
+	public IStatus addFirstResetCommands(List<String> commandsList)
+	{
 		if (CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.DO_FIRST_RESET,
-				DefaultPreferences.DO_FIRST_RESET_DEFAULT)) {
+				DefaultPreferences.DO_FIRST_RESET_DEFAULT))
+		{
 
 			String commandStr = DefaultPreferences.DO_FIRST_RESET_COMMAND;
 			String resetType = CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.FIRST_RESET_TYPE,
@@ -130,20 +138,21 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService {
 		}
 
 		String otherInits = CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.OTHER_INIT_COMMANDS,
-					DefaultPreferences.OTHER_INIT_COMMANDS_DEFAULT).trim();
+				DefaultPreferences.OTHER_INIT_COMMANDS_DEFAULT).trim();
 
 		otherInits = otherInits.replace(DefaultPreferences.IDF_TARGET_CPU_WATCHPOINT_NUM,
-				String.valueOf(IdfHardwareWatchpoints.getWatchpointNumForTarget(getCurrentTatget())));
+				String.valueOf(IdfHardwareWatchpoints.getWatchpointNumForTarget(IDFUtil.getCurrentTarget())));
 		otherInits = DebugUtils.resolveAll(otherInits, fAttributes);
-		if (fDoDoubleBackslash && EclipseUtils.isWindows()) {
+		if (fDoDoubleBackslash && EclipseUtils.isWindows())
+		{
 			otherInits = StringUtils.duplicateBackslashes(otherInits);
 		}
-		Logger.log("Initialization Commanands::" + otherInits); //$NON-NLS-1$
+		Logger.log("Initialization Commands::" + otherInits); //$NON-NLS-1$
 		DebugUtils.addMultiLine(otherInits, commandsList);
 
-		
 		if (CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.ENABLE_SEMIHOSTING,
-				DefaultPreferences.ENABLE_SEMIHOSTING_DEFAULT)) {
+				DefaultPreferences.ENABLE_SEMIHOSTING_DEFAULT))
+		{
 			String commandStr = DefaultPreferences.ENABLE_SEMIHOSTING_COMMAND;
 			commandsList.add(commandStr);
 		}
@@ -151,33 +160,14 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService {
 		return Status.OK_STATUS;
 	}
 
-	private String getCurrentTatget()
-	{
-		IProject project = null;
-		try
-		{
-			ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
-			ILaunchConfiguration activeConfig = launchBarManager.getActiveLaunchConfiguration();
-			if (activeConfig == null || activeConfig.getMappedResources() == null)
-			{
-				Logger.log(Messages.DebuggerCommands_CantFindProjectMsg);
-				return StringUtil.EMPTY;
-			}
-			project = activeConfig.getMappedResources()[0].getProject();
-			Logger.log("Project:: " + project); //$NON-NLS-1$
-		}
-		catch (CoreException e)
-		{
-			Logger.log(e);
-		}
-		return new SDKConfigJsonReader(project).getValue("IDF_TARGET"); //$NON-NLS-1$
-	}
-
 	@Override
-	public IStatus addStartRestartCommands(boolean doReset, List<String> commandsList) {
-		if (doReset) {
+	public IStatus addStartRestartCommands(boolean doReset, List<String> commandsList)
+	{
+		if (doReset)
+		{
 			if (CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.DO_SECOND_RESET,
-					DefaultPreferences.DO_SECOND_RESET_DEFAULT)) {
+					DefaultPreferences.DO_SECOND_RESET_DEFAULT))
+			{
 				String commandStr = DefaultPreferences.DO_SECOND_RESET_COMMAND;
 				String resetType = CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.SECOND_RESET_TYPE,
 						DefaultPreferences.SECOND_RESET_TYPE_DEFAULT);
@@ -193,11 +183,13 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService {
 		if (CDebugUtils.getAttribute(fAttributes, IGDBJtagConstants.ATTR_LOAD_IMAGE,
 				IIDFGDBJtagConstants.DEFAULT_LOAD_IMAGE)
 				&& CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.DO_DEBUG_IN_RAM,
-						DefaultPreferences.DO_DEBUG_IN_RAM_DEFAULT)) {
+						DefaultPreferences.DO_DEBUG_IN_RAM_DEFAULT))
+		{
 
 			IStatus status = addLoadImageCommands(commandsList);
 
-			if (!status.isOK()) {
+			if (!status.isOK())
+			{
 				return status;
 			}
 		}
@@ -207,7 +199,8 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService {
 
 		userCmd = DebugUtils.resolveAll(userCmd, fAttributes);
 
-		if (fDoDoubleBackslash && EclipseUtils.isWindows()) {
+		if (fDoDoubleBackslash && EclipseUtils.isWindows())
+		{
 			userCmd = StringUtils.duplicateBackslashes(userCmd);
 		}
 
@@ -220,7 +213,8 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService {
 		commandsList.add("monitor reg"); //$NON-NLS-1$
 
 		if (CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.DO_CONTINUE,
-				DefaultPreferences.DO_CONTINUE_DEFAULT)) {
+				DefaultPreferences.DO_CONTINUE_DEFAULT))
+		{
 			commandsList.add(DefaultPreferences.DO_CONTINUE_COMMAND);
 		}
 
