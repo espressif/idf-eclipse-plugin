@@ -23,17 +23,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.cdt.core.CCorePlugin;
-import org.eclipse.cdt.core.build.ICBuildConfigurationManager;
 import org.eclipse.cdt.debug.core.CDebugCorePlugin;
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.debug.core.launch.CoreBuildGenericLaunchConfigDelegate;
 import org.eclipse.cdt.debug.core.launch.NullProcess;
 import org.eclipse.cdt.debug.internal.core.Messages;
 import org.eclipse.cdt.serial.SerialPort;
-import org.eclipse.core.resources.IBuildConfiguration;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -54,8 +50,6 @@ import org.eclipse.launchbar.ui.target.ILaunchTargetUIManager;
 import org.eclipse.swt.widgets.Display;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
-import com.espressif.idf.core.build.IDFBuildConfiguration;
-import com.espressif.idf.core.build.IDFBuildConfigurationProvider;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.DfuCommandsUtil;
@@ -238,21 +232,8 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 	public boolean buildForLaunch(ILaunchConfiguration configuration, String mode, ILaunchTarget target,
 			IProgressMonitor monitor) throws CoreException {
 
-		ICBuildConfigurationManager configManager = CCorePlugin.getService(ICBuildConfigurationManager.class);
 		IProject project = getProject(configuration);
-		IDFBuildConfigurationProvider configurationProvider = new IDFBuildConfigurationProvider();
-		if (!configManager.hasConfiguration(configurationProvider, project, configuration.getName())) {
-			configurationProvider.setNameBasedOnLaunchConfiguration(configuration);
-		}
-		IBuildConfiguration buildConfig = project.getActiveBuildConfig();
-
-		IProjectDescription desc = project.getDescription();
-		desc.setActiveBuildConfig(IDFBuildConfigurationProvider.ID + '/' + configuration.getName());
-		project.setDescription(desc, monitor);
-		((IDFBuildConfiguration) new IDFBuildConfigurationProvider().getCBuildConfiguration(buildConfig,
-				configuration.getName())).setLaunchTarget(target);
 		RecheckConfigsHelper.revalidateToolchain(project);
-
 		return superBuildForLaunch(configuration, mode, monitor);
 	}
 

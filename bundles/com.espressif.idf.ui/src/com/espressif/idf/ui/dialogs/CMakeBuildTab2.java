@@ -10,23 +10,15 @@
  *******************************************************************************/
 package com.espressif.idf.ui.dialogs;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.cdt.cmake.core.internal.CMakeBuildConfiguration;
-import org.eclipse.cdt.core.build.ICBuildConfigurationManager;
-import org.eclipse.cdt.core.build.ICBuildConfigurationProvider;
-import org.eclipse.cdt.core.build.IToolChain;
-import org.eclipse.cdt.core.build.IToolChainManager;
 import org.eclipse.cdt.debug.core.launch.CoreBuildLaunchConfigDelegate;
-import org.eclipse.cdt.launch.internal.ui.LaunchUIPlugin;
 import org.eclipse.cdt.launch.ui.corebuild.CommonBuildTab;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
-import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.swt.SWT;
@@ -58,9 +50,6 @@ public class CMakeBuildTab2 extends CommonBuildTab
 	private Text cmakeArgsText;
 	private Text buildCommandText;
 	private Text cleanCommandText;
-
-	private static IToolChainManager tcManager = LaunchUIPlugin.getService(IToolChainManager.class);
-	private static ICBuildConfigurationManager bcManager = LaunchUIPlugin.getService(ICBuildConfigurationManager.class);
 
 	@Override
 	protected String getBuildConfigProviderId()
@@ -186,32 +175,6 @@ public class CMakeBuildTab2 extends CommonBuildTab
 
 	}
 
-	private void createBuildConfiguration(ILaunchConfiguration configuration) throws CoreException
-	{
-		IProject project = CoreBuildLaunchConfigDelegate.getProject(configuration);
-		IDFBuildConfigurationProvider provider = new IDFBuildConfigurationProvider();
-		provider.setNameBasedOnLaunchConfiguration(configuration);
-		provider.createBuildConfiguration(project, getBuildConfiguration() == null ? getDefaultMatchingToolChain()
-				: getBuildConfiguration().getToolChain(), ILaunchManager.RUN_MODE, null);
-	}
-
-	private IToolChain getDefaultMatchingToolChain()
-	{
-		ICBuildConfigurationProvider bcProvider = bcManager.getProvider(getBuildConfigProviderId());
-		Collection<IToolChain> toolchainsCollection = Collections.emptyList();
-		try
-		{
-			toolchainsCollection = bcProvider
-					.getSupportedToolchains(tcManager.getToolChainsMatching(getLaunchTarget().getAttributes()));
-		}
-		catch (CoreException e)
-		{
-			Logger.log(e);
-		}
-
-		return toolchainsCollection.stream().findFirst().orElseThrow();
-	}
-
 	private void updateGeneratorButtons(String generator)
 	{
 		if (generator == null || generator.equals(NINJA) || generator.isBlank())
@@ -272,14 +235,6 @@ public class CMakeBuildTab2 extends CommonBuildTab
 			configuration.removeAttribute(CMakeBuildConfiguration.CLEAN_COMMAND);
 		}
 
-		try
-		{
-			createBuildConfiguration(configuration);
-		}
-		catch (CoreException e)
-		{
-			Logger.log(e);
-		}
 	}
 
 	@Override
