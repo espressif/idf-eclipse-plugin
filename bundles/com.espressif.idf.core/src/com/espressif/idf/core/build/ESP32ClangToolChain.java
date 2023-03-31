@@ -25,7 +25,7 @@ public class ESP32ClangToolChain extends ClangToolChain
 	// API after Changes in CDT 10.5.0
 	public List<String> getBinaryParserIds()
 	{
-		return List.<String>of("org.eclipse.cdt.core.ELF"); //$NON-NLS-1$
+		return List.<String>of(CCorePlugin.PLUGIN_ID + ".ELF"); //$NON-NLS-1$
 	}
 
 	// API before CDT 10.5.0
