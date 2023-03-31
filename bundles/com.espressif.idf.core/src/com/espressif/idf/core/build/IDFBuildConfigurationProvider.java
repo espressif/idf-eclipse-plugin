@@ -39,7 +39,6 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 
 	private ICMakeToolChainManager manager = CCorePlugin.getService(ICMakeToolChainManager.class);
 	private ICBuildConfigurationManager configManager = CCorePlugin.getService(ICBuildConfigurationManager.class);
-	private String configName;
 
 	@Override
 	public String getId()
@@ -119,8 +118,8 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 	}
 
 	@Override
-	public synchronized ICBuildConfiguration createBuildConfiguration(IProject project, IToolChain toolChain,
-			String launchMode, IProgressMonitor monitor) throws CoreException
+	public ICBuildConfiguration createBuildConfiguration(IProject project, IToolChain toolChain, String launchMode,
+			IProgressMonitor monitor) throws CoreException
 	{
 		// get matching toolchain file if any
 		Map<String, String> properties = new HashMap<>();
