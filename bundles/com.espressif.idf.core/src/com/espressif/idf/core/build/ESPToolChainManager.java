@@ -194,6 +194,7 @@ public class ESPToolChainManager
 							{
 								manager.addToolChain(new ESP32H2ToolChain(toolchainProvider, file.toPath()));
 								manager.addToolChain(new ESP32C2ToolChain(toolchainProvider, file.toPath()));
+								manager.addToolChain(new ESP32C6ToolChain(toolchainProvider, file.toPath()));
 							}
 							manager.addToolChain(gcc);
 						}
@@ -390,6 +391,13 @@ public class ESPToolChainManager
 		esp32h2.put(IToolChain.ATTR_ARCH, ESP32H2ToolChain.ARCH);
 		esp32h2.put(TOOLCHAIN_ATTR_ID, ESP32H2CMakeToolChainProvider.TOOLCHAIN_NAME);
 		propertiesList.add(esp32h2);
+
+		// esp32c6
+		Map<String, String> esp32c6 = new HashMap<>();
+		esp32c6.put(IToolChain.ATTR_OS, ESP32C6ToolChain.OS);
+		esp32c6.put(IToolChain.ATTR_ARCH, ESP32C6ToolChain.ARCH);
+		esp32c6.put(TOOLCHAIN_ATTR_ID, ESP32C6CMakeToolChainProvider.TOOLCHAIN_NAME);
+		propertiesList.add(esp32c6);
 
 		return propertiesList;
 	}
