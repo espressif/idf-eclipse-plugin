@@ -19,19 +19,21 @@ import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.RecheckConfigsHelper;
 
-public class ResourceChangeListener implements IResourceChangeListener 
+public class ResourceChangeListener implements IResourceChangeListener
 {
-	
+
 	@Override
 	public void resourceChanged(IResourceChangeEvent event)
 	{
-		if (event == null || event.getDelta() == null) {
+		if (event == null || event.getDelta() == null)
+		{
 			return;
 		}
-		
+
 		try
 		{
-			event.getDelta().accept(new IResourceDeltaVisitor() {
+			event.getDelta().accept(new IResourceDeltaVisitor()
+			{
 				@Override
 				public boolean visit(final IResourceDelta delta) throws CoreException
 				{
@@ -45,8 +47,8 @@ public class ResourceChangeListener implements IResourceChangeListener
 					{
 						cleanupBuildFolder(resource);
 					}
-					boolean isProjectRenamed = resource.getType() == IResource.PROJECT
-							&& kind == IResourceDelta.ADDED && ((flags & IResourceDelta.MOVED_FROM) != 0);
+					boolean isProjectRenamed = resource.getType() == IResource.PROJECT && kind == IResourceDelta.ADDED
+							&& ((flags & IResourceDelta.MOVED_FROM) != 0);
 
 					boolean isProjectOpenedOrCopied = resource.getType() == IResource.PROJECT
 							&& ((flags & IResourceDelta.OPEN) != 0);
@@ -54,7 +56,7 @@ public class ResourceChangeListener implements IResourceChangeListener
 					if (isProjectOpenedOrCopied || isProjectRenamed)
 					{
 						IProject project = (IProject) resource;
-						if (project.isOpen()) 
+						if (project.isOpen())
 						{
 							RecheckConfigsHelper.revalidateToolchain(project);
 						}
@@ -63,14 +65,15 @@ public class ResourceChangeListener implements IResourceChangeListener
 				}
 
 			});
-				
-		} catch (CoreException e)
+
+		}
+		catch (CoreException e)
 		{
 			Logger.log(e);
 		}
-		
+
 	}
-	
+
 	private void updateLaunchBar(IResource resource, int kind, int flags) throws CoreException
 	{
 		if (resource instanceof IProject)
@@ -113,10 +116,10 @@ public class ResourceChangeListener implements IResourceChangeListener
 	{
 
 		IProject project = (IProject) resource;
-		File buildLocation = new File(project.getLocation() + "/"+ IDFConstants.BUILD_FOLDER); //$NON-NLS-1$
+		File buildLocation = new File(project.getLocation() + "/" + IDFConstants.BUILD_FOLDER); //$NON-NLS-1$
 		deleteDirectory(buildLocation);
 	}
-	
+
 	private boolean deleteDirectory(File directoryToBeDeleted)
 	{
 		File[] allContents = directoryToBeDeleted.listFiles();
@@ -130,5 +133,3 @@ public class ResourceChangeListener implements IResourceChangeListener
 		return directoryToBeDeleted.delete();
 	}
 }
-
-

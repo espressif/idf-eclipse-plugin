@@ -22,7 +22,6 @@ import org.eclipse.core.resources.IBuildConfiguration;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 
@@ -40,7 +39,6 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 
 	private ICMakeToolChainManager manager = CCorePlugin.getService(ICMakeToolChainManager.class);
 	private ICBuildConfigurationManager configManager = CCorePlugin.getService(ICBuildConfigurationManager.class);
-	private String configName;
 
 	@Override
 	public String getId()
@@ -92,7 +90,6 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 
 			if (toolChain != null)
 			{
-				config = createBuildConfigBasedOnProjectName(config);
 				return new IDFBuildConfiguration(config, name, toolChain);
 			}
 			else
@@ -100,11 +97,6 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 				// No valid combinations
 				return null;
 			}
-		}
-		if (config.getName().equals(ID + '/' + ICBuildConfiguration.DEFAULT_NAME))
-		{
-			name = configName == null ? config.getProject().getName() : configName;
-			config = configManager.createBuildConfiguration(this, config.getProject(), name, null);
 		}
 		IDFBuildConfiguration cmakeConfig = new IDFBuildConfiguration(config, name);
 		ICMakeToolChainFile tcFile = cmakeConfig.getToolChainFile();
@@ -123,11 +115,6 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 		{
 			return cmakeConfig;
 		}
-	}
-
-	private IBuildConfiguration createBuildConfigBasedOnProjectName(IBuildConfiguration config) throws CoreException
-	{
-		return configManager.createBuildConfiguration(this, config.getProject(), config.getProject().getName(), null);
 	}
 
 	@Override
@@ -158,7 +145,7 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 		}
 
 		// Let's generate build artifacts directly under the build folder so that CLI and eclipse IDF will be in sync
-		String name = configName == null ? ICBuildConfiguration.DEFAULT_NAME : configName;
+		String name = ICBuildConfiguration.DEFAULT_NAME;
 		IBuildConfiguration buildConfig;
 		if (configManager.hasConfiguration(this, project, name))
 		{
@@ -173,11 +160,6 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 		CBuildConfiguration cmakeConfig = new IDFBuildConfiguration(buildConfig, name, toolChain, file, launchMode);
 		configManager.addBuildConfiguration(buildConfig, cmakeConfig);
 		return cmakeConfig;
-	}
-
-	public void setNameBasedOnLaunchConfiguration(ILaunchConfiguration configuration)
-	{
-		configName = configuration.getName();
 	}
 
 }
