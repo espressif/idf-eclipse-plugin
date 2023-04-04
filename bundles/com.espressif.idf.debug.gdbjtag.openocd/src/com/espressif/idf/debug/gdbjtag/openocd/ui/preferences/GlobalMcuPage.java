@@ -111,7 +111,7 @@ public class GlobalMcuPage extends FieldEditorPreferencePage implements IWorkben
 	public boolean performOk()
 	{
 		boolean result = super.performOk();
-		Path updatedPath = Paths.get(fPersistentPreferences.getInstallFolder(StringUtil.EMPTY)).getParent();
+		Path updatedPath = Paths.get(fPersistentPreferences.getInstallFolder()).getParent();
 		if (updatedPath != null)
 		{
 			updatedPath = updatedPath.resolve("share").resolve("openocd").resolve("scripts"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
