@@ -257,4 +257,13 @@ config-only component and an interface library is created instead."
            name="KCONFIG_PROJBUILD">
      </property>
   </extension>
+  <extension
+        id="org.eclipse.ui.ide.workbench"
+        point="org.eclipse.core.runtime.applications">
+     <application>
+        <run
+              class="com.espressif.idf.core.InitializeEclipseStartup">
+        </run>
+     </application>
+  </extension>
 </plugin>
