@@ -1085,10 +1085,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 					if (str.length() > 0)
 					{
 						String[] split = str.split("/"); //$NON-NLS-1$
-						int y = Integer.parseInt(split[1].strip());
-						if (!isProgressSet && monitor != null)
+						if (!isProgressSet && monitor != null && split.length > 1)
 						{
 							isProgressSet = true;
+							int y = Integer.parseInt(split[1].strip());
 							monitor.beginTask("Building", y); //$NON-NLS-1$
 						}
 
