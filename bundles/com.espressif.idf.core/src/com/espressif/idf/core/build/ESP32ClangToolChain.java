@@ -1,6 +1,7 @@
 package com.espressif.idf.core.build;
 
 import java.nio.file.Path;
+import java.util.List;
 
 import org.eclipse.cdt.build.gcc.core.ClangToolChain;
 import org.eclipse.cdt.core.CCorePlugin;
@@ -21,7 +22,13 @@ public class ESP32ClangToolChain extends ClangToolChain
 		setProperty("ATTR_ID", ESP32ClangCmakeToolChainProvider.TOOLCHAIN_NAME); //$NON-NLS-1$
 	}
 
-	@Override
+	// API after Changes in CDT 10.5.0
+	public List<String> getBinaryParserIds()
+	{
+		return List.<String>of(CCorePlugin.PLUGIN_ID + ".ELF"); //$NON-NLS-1$
+	}
+
+	// API before CDT 10.5.0
 	public String getBinaryParserId()
 	{
 		return CCorePlugin.PLUGIN_ID + ".ELF"; //$NON-NLS-1$

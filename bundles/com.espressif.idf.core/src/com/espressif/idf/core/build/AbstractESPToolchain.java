@@ -5,11 +5,11 @@
 package com.espressif.idf.core.build;
 
 import java.nio.file.Path;
+import java.util.List;
 
 import org.eclipse.cdt.build.gcc.core.GCCToolChain;
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.build.IToolChainProvider;
-
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -25,7 +25,13 @@ public abstract class AbstractESPToolchain extends GCCToolChain
 		setProperty(ATTR_ARCH, ARCH);
 	}
 
-	@Override
+	// API after changes in CDT 10.5.0
+	public List<String> getBinaryParserIds()
+	{
+		return List.<String>of(CCorePlugin.PLUGIN_ID + ".ELF"); //$NON-NLS-1$
+	}
+
+	// API before CDT 10.5.0
 	public String getBinaryParserId()
 	{
 		return CCorePlugin.PLUGIN_ID + ".ELF"; //$NON-NLS-1$
