@@ -54,6 +54,7 @@ import org.eclipse.cdt.core.IConsoleParser;
 import org.eclipse.cdt.core.IConsoleParser2;
 import org.eclipse.cdt.core.build.CBuildConfiguration;
 import org.eclipse.cdt.core.build.IToolChain;
+import org.eclipse.cdt.core.build.IToolChainManager;
 import org.eclipse.cdt.core.envvar.EnvironmentVariable;
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
 import org.eclipse.cdt.core.index.IIndexManager;
@@ -141,8 +142,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	{
 		super(config, name);
 		buildConfiguration = config;
-		ICMakeToolChainManager manager = IDFCorePlugin.getService(ICMakeToolChainManager.class);
-		this.toolChainFile = manager.getToolChainFileFor(getToolChain());
 	}
 
 	public IDFBuildConfiguration(IBuildConfiguration config, String name, IToolChain toolChain)
@@ -266,8 +265,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 				.toArray(IBinary[]::new);
 	}
 
-	public ICMakeToolChainFile getToolChainFile()
+	public ICMakeToolChainFile getToolChainFile() throws CoreException
 	{
+		ICMakeToolChainManager manager = IDFCorePlugin.getService(ICMakeToolChainManager.class);
+		this.toolChainFile = manager.getToolChainFileFor(getToolChain());
 		return toolChainFile;
 	}
 
@@ -799,6 +800,14 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		return folder;
 	}
 
+	@Override
+	public IToolChain getToolChain() throws CoreException
+	{
+		String typeId = getProperty(TOOLCHAIN_TYPE);
+		String id = getProperty(TOOLCHAIN_ID);
+		IToolChainManager toolChainManager = CCorePlugin.<IToolChainManager>getService(IToolChainManager.class);
+		return toolChainManager.getToolChain(typeId, id);
+	}
 	private static IPath getComponentsPath()
 	{
 		return new org.eclipse.core.runtime.Path(IDFConstants.BUILD_FOLDER).append("ide").append(ESP_IDF_COMPONENTS); //$NON-NLS-1$
