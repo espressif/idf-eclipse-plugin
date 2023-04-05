@@ -137,7 +137,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		if (checkIfPortIsEmpty(configuration)) {
 			return;
 		}
-		String arguments = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS,
+		String arguments = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS,
 				espFlashCommand);
 		arguments = arguments.replace(ESPFlashUtil.SERIAL_PORT, serialPort);
 		if (!arguments.isEmpty()) {
@@ -183,7 +183,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		openocdExe = openocdExe.replace(DEFAULT_PATH, tmp);
 		commands.add(openocdExe);
 
-		String arguments = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS, ""); //$NON-NLS-1$
+		String arguments = configuration.getAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, ""); //$NON-NLS-1$
 		arguments = arguments.replace(DEFAULT_PATH, tmp).trim();
 		commands.addAll(StringUtils.splitCommandLineOptions(arguments));
 
