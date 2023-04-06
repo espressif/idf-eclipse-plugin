@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.launchbar.core.ILaunchBarListener;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 
 import com.espressif.idf.core.IDFConstants;
@@ -21,7 +22,12 @@ import com.espressif.idf.core.util.RecheckConfigsHelper;
 
 public class ResourceChangeListener implements IResourceChangeListener
 {
+	ILaunchBarListener launchBarListener;
 
+	public ResourceChangeListener(ILaunchBarListener launchBarListener)
+	{
+		this.launchBarListener = launchBarListener;
+	}
 	@Override
 	public void resourceChanged(IResourceChangeEvent event)
 	{
@@ -85,6 +91,8 @@ public class ResourceChangeListener implements IResourceChangeListener
 			{
 				ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
 				ILaunchConfiguration[] configs = launchManager.getLaunchConfigurations();
+				// remove launch bar listener before updating launch bar
+				launchBarManager.removeListener(launchBarListener);
 				for (ILaunchConfiguration config : configs)
 				{
 					IResource[] mappedResource = config.getMappedResources();
@@ -100,6 +108,8 @@ public class ResourceChangeListener implements IResourceChangeListener
 						}
 					}
 				}
+				// adding launch bar listener only before adding last configuration
+				launchBarManager.addListener(launchBarListener);
 				if (project.isOpen())
 				{
 					launchBarManager.launchObjectAdded(project);
@@ -108,6 +118,7 @@ public class ResourceChangeListener implements IResourceChangeListener
 				{
 					launchBarManager.launchObjectRemoved(project);
 				}
+
 			}
 		}
 	}

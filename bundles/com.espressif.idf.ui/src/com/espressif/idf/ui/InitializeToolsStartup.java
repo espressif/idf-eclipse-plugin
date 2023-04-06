@@ -16,6 +16,7 @@ import org.eclipse.cdt.cmake.core.internal.Activator;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.launchbar.core.ILaunchBarListener;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.swt.SWT;
@@ -83,9 +84,10 @@ public class InitializeToolsStartup implements IStartup
 
 			}
 		});
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(new ResourceChangeListener());
+		ILaunchBarListener launchBarListener = new LaunchBarListener();
+		ResourcesPlugin.getWorkspace().addResourceChangeListener(new ResourceChangeListener(launchBarListener));
 		ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
-		launchBarManager.addListener(new LaunchBarListener());
+		launchBarManager.addListener(launchBarListener);
 
 		// Get the location of the eclipse root directory
 		Location installLocation = Platform.getInstallLocation();
