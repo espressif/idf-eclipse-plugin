@@ -60,6 +60,10 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 			try
 			{
 				ILaunchTarget target = barManager.getActiveLaunchTarget();
+				if (target == null)
+				{
+					return null;
+				}
 				for (IToolChain tc : toolChainManager.getToolChainsMatching(target.getAttributes()))
 				{
 					if (tc instanceof AbstractESPToolchain)

@@ -42,6 +42,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.embedcdt.core.EclipseUtils;
 import org.eclipse.embedcdt.core.StringUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.launchbar.core.target.launch.ITargetedLaunch;
@@ -49,6 +50,7 @@ import org.eclipse.launchbar.ui.internal.Activator;
 import org.eclipse.launchbar.ui.target.ILaunchTargetUIManager;
 import org.eclipse.swt.widgets.Display;
 
+import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
@@ -75,6 +77,10 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 	@Override
 	public ITargetedLaunch getLaunch(ILaunchConfiguration configuration, String mode, ILaunchTarget target)
 			throws CoreException {
+		if (target == null) {
+			ILaunchBarManager barManager = IDFCorePlugin.getService(ILaunchBarManager.class);
+			target = barManager.getActiveLaunchTarget();
+		}
 		return new SerialFlashLaunch(configuration, mode, null, target);
 	}
 
@@ -131,7 +137,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		if (checkIfPortIsEmpty(configuration)) {
 			return;
 		}
-		String arguments = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS,
+		String arguments = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS,
 				espFlashCommand);
 		arguments = arguments.replace(ESPFlashUtil.SERIAL_PORT, serialPort);
 		if (!arguments.isEmpty()) {
@@ -177,7 +183,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		openocdExe = openocdExe.replace(DEFAULT_PATH, tmp);
 		commands.add(openocdExe);
 
-		String arguments = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_TOOL_ARGUMENTS, ""); //$NON-NLS-1$
+		String arguments = configuration.getAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, ""); //$NON-NLS-1$
 		arguments = arguments.replace(DEFAULT_PATH, tmp).trim();
 		commands.addAll(StringUtils.splitCommandLineOptions(arguments));
 

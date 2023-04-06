@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.util.Optional;
 
 import org.eclipse.cdt.serial.SerialPort;
-import org.eclipse.core.resources.IBuildConfiguration;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -38,7 +37,7 @@ import org.eclipse.tm.terminal.view.ui.interfaces.IConfigurationPanel;
 import org.eclipse.tm.terminal.view.ui.interfaces.IConfigurationPanelContainer;
 import org.osgi.service.prefs.Preferences;
 
-import com.espressif.idf.core.build.IDFBuildConfigurationProvider;
+import com.espressif.idf.core.IDFProjectNature;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.terminal.connector.serial.activator.Activator;
@@ -105,9 +104,7 @@ public class SerialSettingsPage extends AbstractSettingsPage
 		{
 			try
 			{
-				IBuildConfiguration activeBuildConfig = project.getActiveBuildConfig();
-				if (activeBuildConfig != null
-						&& activeBuildConfig.getName().startsWith(IDFBuildConfigurationProvider.ID))
+				if (project.hasNature(IDFProjectNature.ID))
 				{
 					projectCombo.add(project.getName());
 				}

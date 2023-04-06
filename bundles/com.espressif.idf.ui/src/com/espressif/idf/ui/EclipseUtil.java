@@ -17,7 +17,7 @@ import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
-import com.espressif.idf.core.build.IDFBuildConfigurationProvider;
+import com.espressif.idf.core.IDFProjectNature;
 import com.espressif.idf.core.logging.Logger;
 
 /**
@@ -70,8 +70,7 @@ public class EclipseUtil
 		IProject project = getSelectedProject(IPageLayout.ID_PROJECT_EXPLORER);
 		try
 		{
-			if (project != null && project.getActiveBuildConfig() != null
-					&& project.getActiveBuildConfig().getName().startsWith(IDFBuildConfigurationProvider.ID))
+			if (project != null && project.hasNature(IDFProjectNature.ID))
 			{
 				return project;
 			}
@@ -94,10 +93,10 @@ public class EclipseUtil
 		IStructuredSelection structured = (IStructuredSelection) service.getSelection(viewID);
 		if (structured instanceof IStructuredSelection)
 		{
-			Object selectedObject = ((IStructuredSelection) structured).getFirstElement();
+			Object selectedObject = structured.getFirstElement();
 			if (selectedObject instanceof IAdaptable)
 			{
-				IResource resource = (IResource) ((IAdaptable) selectedObject).getAdapter(IResource.class);
+				IResource resource = ((IAdaptable) selectedObject).getAdapter(IResource.class);
 				if (resource != null)
 				{
 					return resource.getProject();
