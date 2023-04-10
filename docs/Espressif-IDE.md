@@ -31,19 +31,21 @@ Espressif-IDE is an Integrated Development Environment(IDE) based on Eclipse CDT
 - Host operating systems supported: Windows, macOS, and Linux 
 
 ## Downloads
-### Espressif-IDE v2.9.0 (Latest stable)
+### Espressif-IDE
+
+You can find the latest Espressif-IDE release notes from [here](https://github.com/espressif/idf-eclipse-plugin/releases). Provided below are the direct download links for various platforms.
 
 | OS  | Download |
 | ------------- | ------------- |
-| Windows  | <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-2.9.0-win32.win32.x86_64.zip">Espressif-IDE-2.9.0-win32.win32.x86_64.zip</a>  |
-| macosx | <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-x86_64-v2.9.0.dmg">Espressif-IDE-macosx-cocoa-x86_64-v2.9.0.dmg</a>  |
-| macosx aarch64| <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64-v2.9.0.dmg">Espressif-IDE-macosx-cocoa-aarch64-v2.9.0.dmg</a>  |
-| linux | <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-2.9.0-linux.gtk.x86_64.tar.gz">Espressif-IDE-2.9.0-linux.gtk.x86_64.tar.gz</a>  |
+| Windows  | <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-win32.win32.x86_64/latest">Espressif-IDE-win32.win32.x86_64</a>  |
+| macOS x86_64 | <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-x86_64/latest">Espressif-IDE-macosx-cocoa-x86_64</a>  |
+| macOS aarch64| <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64/latest">Espressif-IDE-macosx-cocoa-aarch64</a>  |
+| Linux | <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-linux.gtk.x86_64/latest">Espressif-IDE-linux.gtk.x86_64</a>  |
 
 ### Espressif-IDE Update site
 Please check the update site installation instructions from <a href="https://github.com/espressif/idf-eclipse-plugin#installing-idf-plugin-using-update-site-url">here</a>
 
-### macOS security notice
+### macOS security notice (Applicable for Nightly Builds)
 On macOS, if you download the archive with the browser, the strict security checks on recent macOS will prevent it to run, and complain that the program is damaged. That’s obviously not true, and the fix is simple, you need to remove the `com.apple.quarantine` extended attribute.
 ```
 $ xattr -d com.apple.quarantine ~/Downloads/Espressif-IDE-x.x.x-macosx.cocoa.x86_64.tar.gz
