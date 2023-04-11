@@ -90,7 +90,10 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationType;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.ILaunchMode;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
@@ -247,6 +250,12 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		{
 			ILaunchConfiguration configuration = IDFCorePlugin.getService(ILaunchBarManager.class)
 					.getActiveLaunchConfiguration();
+			ILaunchConfigurationType debugConfigurationType = DebugPlugin.getDefault().getLaunchManager()
+					.getLaunchConfigurationType(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE);
+			if (configuration.getType().equals(debugConfigurationType))
+			{
+				configuration = getBoundConfiguration(configuration);
+			}
 			String property = configuration.getAttribute(name, StringUtil.EMPTY);
 			property = property.isBlank() ? getSettings().get(name, StringUtil.EMPTY) : property;
 			return property;
@@ -257,6 +266,22 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		}
 
 		return super.getProperty(name);
+	}
+
+	/*
+	 * In case when the active configuration is debugging, we are using bound launch configuration to build the project
+	 */
+	private ILaunchConfiguration getBoundConfiguration(ILaunchConfiguration configuration) throws CoreException
+	{
+		String bindedLaunchConfigName = configuration.getAttribute(IDFLaunchConstants.ATTR_LAUNCH_CONFIGURATION_NAME,
+				StringUtil.EMPTY);
+		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+		ILaunchConfiguration[] launchConfigurations = launchManager.getLaunchConfigurations(DebugPlugin.getDefault()
+				.getLaunchManager().getLaunchConfigurationType(IDFLaunchConstants.RUN_LAUNCH_CONFIG_TYPE));
+		ILaunchConfiguration defaultConfiguration = launchConfigurations[0];
+		return Stream.of(launchConfigurations).filter(config -> config.getName().contentEquals(bindedLaunchConfigName))
+				.findFirst().orElse(defaultConfiguration);
+
 	}
 
 	private IBinary[] getBuildOutput(final IBinaryContainer binaries, final IPath outputPath) throws CoreException
@@ -808,6 +833,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		IToolChainManager toolChainManager = CCorePlugin.<IToolChainManager>getService(IToolChainManager.class);
 		return toolChainManager.getToolChain(typeId, id);
 	}
+
 	private static IPath getComponentsPath()
 	{
 		return new org.eclipse.core.runtime.Path(IDFConstants.BUILD_FOLDER).append("ide").append(ESP_IDF_COMPONENTS); //$NON-NLS-1$
