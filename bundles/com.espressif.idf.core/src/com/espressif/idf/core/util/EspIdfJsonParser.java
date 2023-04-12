@@ -62,9 +62,9 @@ public class EspIdfJsonParser
 		
 		
 		JSONParser parser = new JSONParser();
-		try
+		try (FileReader fr = new FileReader(idf_json_file))
 		{
-			JSONObject jsonObj = (JSONObject) parser.parse(new FileReader(idf_json_file));
+			JSONObject jsonObj = (JSONObject) parser.parse(fr);
 			gitExecutablePath = (String) jsonObj.get(GIT_PATH);
 			idfVersionId = (String) jsonObj.get(IDF_VERSIONS_ID);
 			defaultWorkspaceLocation = (String) jsonObj.get(DEFAULT_WORSPACE_PATH);
