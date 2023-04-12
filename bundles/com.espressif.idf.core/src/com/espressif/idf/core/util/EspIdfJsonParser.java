@@ -7,6 +7,7 @@ package com.espressif.idf.core.util;
 import java.io.File;
 import java.io.FileReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 
 import org.eclipse.core.runtime.Platform;
@@ -62,7 +63,7 @@ public class EspIdfJsonParser
 		
 		
 		JSONParser parser = new JSONParser();
-		try (FileReader fr = new FileReader(idf_json_file))
+		try (FileReader fr = new FileReader(idf_json_file, StandardCharsets.UTF_8))
 		{
 			JSONObject jsonObj = (JSONObject) parser.parse(fr);
 			gitExecutablePath = (String) jsonObj.get(GIT_PATH);
