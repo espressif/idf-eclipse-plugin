@@ -9,10 +9,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.ui.console.MessageConsoleStream;
 import org.json.simple.parser.ParseException;
@@ -44,6 +46,7 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 		configOutput = new JsonConfigOutput();
 	}
 
+	@Override
 	public void addListener(IMessageHandlerListener listener)
 	{
 		listeners.add(listener);
@@ -65,6 +68,7 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 		}
 	}
 
+	@Override
 	public void notifyHandler(String message, CommandType type)
 	{
 		for (IMessageHandlerListener listener : listeners)
@@ -73,6 +77,7 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 		}
 	}
 
+	@Override
 	public void removeListener(IMessageHandlerListener listener)
 	{
 		listeners.remove(listener);
@@ -93,8 +98,17 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 		}
 		
 		String pythonPath = IDFUtil.getIDFPythonEnvPath();
-		List<String> arguments = new ArrayList<String>(
-				Arrays.asList(pythonPath, idfPythonScriptFile.getAbsolutePath(), IDFConstants.CONF_SERVER_CMD));
+
+		List<String> arguments = Collections.emptyList();
+		try
+		{
+			arguments = new ArrayList<String>(Arrays.asList(pythonPath, idfPythonScriptFile.getAbsolutePath(), "-B", //$NON-NLS-1$
+					IDFUtil.getBuildDir(project), IDFConstants.CONF_SERVER_CMD));
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
 		Logger.log(arguments.toString());
 
 		ProcessBuilder processBuilder = new ProcessBuilder(arguments);
