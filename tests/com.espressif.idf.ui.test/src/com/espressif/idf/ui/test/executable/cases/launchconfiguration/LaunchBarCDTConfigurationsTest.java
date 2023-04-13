@@ -144,7 +144,7 @@ public class LaunchBarCDTConfigurationsTest
 
 		private static void thenLaunchTargetIsSelectedFromLaunchTargets(String launchTargetName)
 		{
-			launchBarTargetSelector.select(launchTargetName);
+			launchBarTargetSelector.selectTarget(launchTargetName);
 		}
 
 		private static void thenLaunchTargetContains(String launchTargetName)
