@@ -69,7 +69,7 @@ The minimum requirements for running the IDF Eclipse plug-ins are below.
 
 * **Java 17 and above** : Download and install Java SE from <a href= "https://www.oracle.com/technetwork/java/javase/downloads/index.html">here</a>
 * **Python 3.6 and above** : Download and install Python from <a href="https://www.python.org/downloads/">here</a>
-* **Eclipse IDE for C/C++ Developers 2022-09 (2021-06 to 2022-09 should work fine. 2022-12 is not yet supported)** : Download and install Eclipse CDT package from <a href= "https://www.eclipse.org/downloads/packages/release/2022-09/r/eclipse-ide-cc-developers">here </a>
+* **Eclipse IDE for C/C++ Developers 2022-09 (2022-09 and 2022-12 also should work)** : Download and install Eclipse CDT package from <a href= "https://www.eclipse.org/downloads/packages/release/2022-09/r/eclipse-ide-cc-developers">here </a>
 *  **Git** : Get the latest git from <a href ="https://git-scm.com/downloads">here</a>
 *  **ESP-IDF 4.0 and above** : Clone the ESP-IDF repo from <a href ="https://github.com/espressif/esp-idf/releases">here</a>
 
@@ -771,6 +771,7 @@ Note this configuration changes where all the project build artifacts will be ge
 
 | IEP | Eclipse | Java | Installer | Description |
 | ------ | ------ | ------ |------ | ------ |
+| IEP 2.9.1 | Eclipse 2022-09 and Eclipse  2022-12 |Java 17 and above | [espressif-ide-setup-2.9.0-with-esp-idf-5.0.1.exe](https://github.com/espressif/idf-installer/releases/download/espressif-ide-2.9.0-esp-idf-5.0.1/espressif-ide-setup-2.9.0-with-esp-idf-5.0.1.exe) | For Windows Users, it's recommended to use the Windows Offline Installer and upgrade to the latest IEP v2.9.1 plugin|
 | IEP 2.9.0 | Eclipse 2022-09 |Java 17 and above | [espressif-ide-setup-2.9.0-with-esp-idf-5.0.1.exe](https://github.com/espressif/idf-installer/releases/download/espressif-ide-2.9.0-esp-idf-5.0.1/espressif-ide-setup-2.9.0-with-esp-idf-5.0.1.exe) | For Windows, it's recommended to use the Windows Offline Installer|
 | IEP 2.2.0 | Eclipse 2021-06, 2021-03, 2020-12 |Java 11 and above | ESP-IDF Tools Windows Installer 2.10| |
 | IEP 2.3.0 | Eclipse 2021-09, 2021-06 |Java 11 and above | ESP-IDF Tools Windows Installer 2.11| ESP-IDF Tools Windows Installer 2.11 comes with IEP 2.2.0 and this need to be updated to 2.3.0|

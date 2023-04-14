@@ -31,6 +31,7 @@ Espressif-IDE is an Integrated Development Environment(IDE) based on Eclipse CDT
 - Host operating systems supported: Windows, macOS, and Linux 
 
 ## Downloads
+
 ### Espressif-IDE
 
 You can find the latest Espressif-IDE release notes from [here](https://github.com/espressif/idf-eclipse-plugin/releases). Provided below are the direct download links for various platforms.
