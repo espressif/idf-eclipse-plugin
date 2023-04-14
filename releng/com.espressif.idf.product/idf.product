@@ -14,8 +14,6 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-data @noDefault
-      </programArgs>
       <vmArgsLin>-Xms256m -Xmx2048m  -Dosgi.requiredJavaVersion=11 -Dosgi.instance.area.default=@user.home/espressif-workspace
       </vmArgsLin>
       <vmArgsMac>-Xms256m -Xmx2048m  -Xdock:icon=../Resources/espressif.icns -XstartOnFirstThread -Dosgi.requiredJavaVersion=11 -Dorg.eclipse.swt.internal.carbon.smallFonts -Dosgi.instance.area.default=@user.home/espressif-workspace
@@ -86,7 +84,7 @@
       <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
       <plugin id="org.eclipse.osgi" autoStart="true" startLevel="-1" />
-      <property name="osgi.instance.area.default" value="@user.home/espressif-workspace" />
+      <property name="osgi.instance.area.default" value="@user.home/workspace" />
    </configurations>
 
    <repositories>
