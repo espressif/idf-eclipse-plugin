@@ -28,6 +28,8 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.osgi.service.prefs.BackingStoreException;
 
 import com.espressif.idf.core.ExecutableFinder;
@@ -624,7 +626,7 @@ public class IDFUtil
 				.collect(Collectors.joining(String.valueOf(IPath.SEPARATOR)));
 
 	}
-	
+
 	/**
 	 * Update the openocd path in configurations
 	 */
@@ -640,5 +642,27 @@ public class IDFUtil
 		{
 			Logger.log(e);
 		}
+	}
+
+	public static String getCurrentTarget()
+	{
+		IProject project = null;
+		try
+		{
+			ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
+			ILaunchConfiguration activeConfig = launchBarManager.getActiveLaunchConfiguration();
+			if (activeConfig == null || activeConfig.getMappedResources() == null)
+			{
+				Logger.log(Messages.IDFUtil_CantFindProjectMsg);
+				return StringUtil.EMPTY;
+			}
+			project = activeConfig.getMappedResources()[0].getProject();
+			Logger.log("Project:: " + project); //$NON-NLS-1$
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+		return new SDKConfigJsonReader(project).getValue("IDF_TARGET"); //$NON-NLS-1$
 	}
 }

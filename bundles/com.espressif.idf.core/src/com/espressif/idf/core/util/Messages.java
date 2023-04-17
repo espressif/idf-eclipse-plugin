@@ -18,6 +18,7 @@ public class Messages extends NLS {
 	public static String FileUtil_SourceDirNotavailable;
 	public static String FileUtil_UnableToCopy;
 	public static String FileUtil_WritableProblemMsg;
+	public static String IDFUtil_CantFindProjectMsg;
 	public static String IDFUtil_CouldNotFindDir;
 	public static String MsgLinkDialog_DoNotShowMsg;
 	public static String DfuWarningDialog_Title;
