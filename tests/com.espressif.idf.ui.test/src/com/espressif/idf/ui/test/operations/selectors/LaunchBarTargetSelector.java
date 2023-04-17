@@ -20,6 +20,7 @@ import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory;
 import org.eclipse.swtbot.swt.finder.results.Result;
 import org.eclipse.swtbot.swt.finder.widgets.AbstractSWTBotControl;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 
 /**
  * Launchbar CDT helper class to select items from launch targets
@@ -41,10 +42,10 @@ public class LaunchBarTargetSelector extends AbstractSWTBotControl<CSelector>
 	{
 		this(bot.widget(WidgetMatcherFactory.withTooltip("Launch Target: OK")));
 	}
-	
+
 	public LaunchBarTargetSelector(SWTBot bot, boolean exec)
 	{
-		this(bot.widget(WidgetMatcherFactory.widgetOfType(TargetSelector.class)));	
+		this(bot.widget(WidgetMatcherFactory.widgetOfType(TargetSelector.class)));
 	}
 
 	public SWTBot bot()
@@ -87,6 +88,18 @@ public class LaunchBarTargetSelector extends AbstractSWTBotControl<CSelector>
 		click();
 		Label itemToSelect = bot().shellWithId(LaunchBarWidgetIds.POPUP).bot().widget(withText(text));
 		Point itemToSelectLocation = syncExec((Result<Point>) () -> itemToSelect.getLocation());
+		clickOnInternalWidget(itemToSelectLocation.x, itemToSelectLocation.y, itemToSelect);
+		return this;
+	}
+
+	public LaunchBarTargetSelector selectTarget(String text)
+	{
+		click();
+		SWTBotShell swtBotShell = bot().shellWithId(LaunchBarWidgetIds.POPUP);
+		// when the target list is too big, swtbot cannot select a target label, so we filter the list
+		swtBotShell.bot().text().setText(text);
+		Label itemToSelect = swtBotShell.bot().label(0).widget;
+		Point itemToSelectLocation = syncExec((Result<Point>) itemToSelect::getLocation);
 		clickOnInternalWidget(itemToSelectLocation.x, itemToSelectLocation.y, itemToSelect);
 		return this;
 	}
