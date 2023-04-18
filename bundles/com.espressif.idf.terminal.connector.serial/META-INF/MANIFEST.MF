@@ -20,7 +20,7 @@ Require-Bundle: org.eclipse.core.expressions;bundle-version="3.4.400",
  org.eclipse.cdt.core.native,
  org.eclipse.ui.console,
  org.slf4j.api
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Export-Package: com.espressif.idf.terminal.connector.serial.activator;x-internal:=true,
