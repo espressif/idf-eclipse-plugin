@@ -15,8 +15,6 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd.ui;
 
-import java.io.File;
-
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.model.IBinary;
 import org.eclipse.cdt.core.model.ICElement;
@@ -41,13 +39,11 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
 
-import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.util.GenericJsonReader;
 import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
+import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 
 public class TabMain extends CMainTab2
 {
@@ -109,9 +105,6 @@ public class TabMain extends CMainTab2
 
 		if (binary != null)
 		{
-			String path;
-			path = binary.getResource().getProjectRelativePath().toOSString();
-			config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, path);
 			if (!renamed)
 			{
 				String name = binary.getElementName();
@@ -141,33 +134,15 @@ public class TabMain extends CMainTab2
 			String programName = EMPTY_STRING;
 			try
 			{
-				programName = config.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, EMPTY_STRING);
+				programName = config.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME,
+						DefaultPreferences.PROGRAM_APP_DEFAULT);
+				programName = programName.isBlank() ? DefaultPreferences.PROGRAM_APP_DEFAULT : programName;
 			}
 			catch (CoreException ce)
 			{
 				Logger.log(ce);
 			}
 
-			if (StringUtil.isEmpty(programName) && getCProject() != null)
-			{
-				try
-				{
-					IProject project = getCProject().getProject();
-					// project description file
-					GenericJsonReader jsonReader = new GenericJsonReader(
-							IDFUtil.getBuildDir(project) + File.separator + IDFConstants.PROECT_DESCRIPTION_JSON);
-					String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
-					if (!StringUtil.isEmpty(value))
-					{
-						programName = IDFUtil.getBuildDir(project) + File.separator + value;
-					}
-				}
-				catch (CoreException e)
-				{
-					Logger.log(e);
-				}
-
-			}
 			fProgText.setText(programName);
 		}
 	}
@@ -300,5 +275,4 @@ public class TabMain extends CMainTab2
 			config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_POST_MORTEM_TYPE, getSelectedCoreType());
 		}
 	}
-
 }

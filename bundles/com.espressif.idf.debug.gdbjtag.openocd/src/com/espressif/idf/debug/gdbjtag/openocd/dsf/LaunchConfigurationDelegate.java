@@ -68,6 +68,7 @@ import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
+import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 import com.espressif.idf.debug.gdbjtag.openocd.ui.Messages;
 
 /**
@@ -298,7 +299,8 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		{
 			monitor = new NullProgressMonitor();
 		}
-		if (config.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, "").isEmpty()) //$NON-NLS-1$
+		if (config.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME,
+				DefaultPreferences.PROGRAM_APP_DEFAULT).contentEquals(DefaultPreferences.PROGRAM_APP_DEFAULT))
 		{
 			setProgramNameAtr(config);
 		}
@@ -318,7 +320,7 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
 		if (!StringUtil.isEmpty(value))
 		{
-			programName = IDFConstants.BUILD_FOLDER + File.separator + value;
+			programName = IDFUtil.getBuildDir(project) + File.separator + value;
 		}
 		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, programName);
 		wc.doSave();

@@ -14,12 +14,12 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd.preferences;
 
+import org.eclipse.embedcdt.core.EclipseUtils;
+import org.eclipse.embedcdt.core.preferences.Discoverer;
+
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
-
-import org.eclipse.embedcdt.core.EclipseUtils;
-import org.eclipse.embedcdt.core.preferences.Discoverer;
 
 public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.preferences.DefaultPreferences {
 
@@ -92,6 +92,12 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 
 	// ------------------------------------------------------------------------
 
+	// C/C++ project variables
+
+	public static final String PROGRAM_APP_DEFAULT = "${default_app}"; //$NON-NLS-1$
+
+	// ------------------------------------------------------------------------
+
 	// HKCU & HKLM LOCAL_MACHINE
 	private static final String REG_SUBKEY = "\\GNU ARM Eclipse\\OpenOCD";
 	// Standard Microsoft recommendation.
@@ -132,6 +138,7 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 
 	// ------------------------------------------------------------------------
 
+	@Override
 	public String getExecutableName() {
 
 		String key = PersistentPreferences.EXECUTABLE_NAME;
@@ -143,6 +150,7 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 		return value;
 	}
 
+	@Override
 	public String getExecutableNameOs() {
 
 		String key = EclipseUtils.getKeyOs(PersistentPreferences.EXECUTABLE_NAME_OS);
@@ -154,6 +162,7 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 		return value;
 	}
 
+	@Override
 	public void putExecutableName(String value) {
 
 		String key = PersistentPreferences.EXECUTABLE_NAME;
@@ -166,6 +175,7 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 
 	// ------------------------------------------------------------------------
 
+	@Override
 	public String getInstallFolder() {
 
 		String key = PersistentPreferences.INSTALL_FOLDER;
@@ -182,6 +192,7 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 		return value;
 	}
 
+	@Override
 	public void putInstallFolder(String value) {
 
 		String key = PersistentPreferences.INSTALL_FOLDER;
@@ -194,6 +205,7 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 
 	// ------------------------------------------------------------------------
 
+	@Override
 	public String getSearchPath() {
 
 		String key = PersistentPreferences.SEARCH_PATH;
@@ -205,6 +217,7 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 		return value;
 	}
 
+	@Override
 	public String getSearchPathOs() {
 
 		String key = EclipseUtils.getKeyOs(PersistentPreferences.SEARCH_PATH_OS);
@@ -216,6 +229,7 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 		return value;
 	}
 
+	@Override
 	public void putSearchPath(String value) {
 
 		String key = PersistentPreferences.SEARCH_PATH;
@@ -228,6 +242,7 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 
 	// ------------------------------------------------------------------------
 
+	@Override
 	protected String getRegistryInstallFolder(String subFolder, String executableName) {
 
 		String path = Discoverer.getRegistryInstallFolder(executableName, subFolder, REG_SUBKEY, REG_NAME);
