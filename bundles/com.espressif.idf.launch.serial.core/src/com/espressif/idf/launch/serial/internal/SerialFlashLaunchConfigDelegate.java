@@ -107,6 +107,8 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		serialPort = ((SerialFlashLaunch) launch).getLaunchTarget()
 				.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
 		if (DfuCommandsUtil.isDfu()) {
+			parseIdfEnvVarsInConfig(workingCopy, IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS);
+			workingCopy.doSave();
 			DfuCommandsUtil.flashDfuBins(configuration, getProject(configuration), launch, monitor);
 			return;
 		}
@@ -151,8 +153,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		if (checkIfPortIsEmpty(configuration)) {
 			return;
 		}
-		String arguments = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS,
-				espFlashCommand);
+		String arguments = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, espFlashCommand);
 		arguments = arguments.replace(ESPFlashUtil.SERIAL_PORT, serialPort);
 		if (!arguments.isEmpty()) {
 			commands.addAll(Arrays.asList(varManager.performStringSubstitution(arguments).split(" "))); //$NON-NLS-1$

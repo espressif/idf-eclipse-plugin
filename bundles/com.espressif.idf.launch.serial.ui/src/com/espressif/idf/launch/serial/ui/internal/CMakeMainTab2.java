@@ -632,7 +632,9 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 			wc.setAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, jtagArgumentsField.getText());
 			wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, uartAgrumentsField.getText());
+			wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS_VIEW, uartAgrumentsField.getText());
 			wc.setAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS, dfuArgumentsField.getText());
+			wc.setAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS_VIEW, dfuArgumentsField.getText());
 
 			wc.doSave();
 		} catch (CoreException e) {
@@ -698,7 +700,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private void updateArgumentsWithDefaultFlashCommand(ILaunchConfiguration configuration) {
 
 		try {
-			String uartFlashCommand = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS,
+			String uartFlashCommand = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS_VIEW,
 					StringUtil.EMPTY);
 			uartAgrumentsField.setText(
 					uartFlashCommand.isBlank() ? ESPFlashUtil.getParseableEspFlashCommand(ESPFlashUtil.SERIAL_PORT)
@@ -707,7 +709,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 			jtagArgumentsField.setText(
 					configuration.getAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, StringUtil.EMPTY));
 
-			dfuArgumentsField.setText(configuration.getAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS,
+			dfuArgumentsField.setText(configuration.getAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS_VIEW,
 					DfuCommandsUtil.getParseableDfuFlashCommand()));
 
 		} catch (CoreException e) {
