@@ -159,7 +159,7 @@ public class TabMain extends CMainTab2
 					String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
 					if (!StringUtil.isEmpty(value))
 					{
-						programName = IDFConstants.BUILD_FOLDER + File.separator + value;
+						programName = IDFUtil.getBuildDir(project) + File.separator + value;
 					}
 				}
 				catch (CoreException e)
