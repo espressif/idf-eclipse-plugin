@@ -46,6 +46,21 @@ public class ESPFlashUtil {
 		return String.join(" ", commands); //$NON-NLS-1$
 	}
 
+	/**
+	 * @param launch
+	 * @return command to flash the application
+	 */
+	public static String getParseableEspFlashCommand(String serialPort) {
+
+		List<String> commands = new ArrayList<>();
+		commands.add(IDFUtil.getIDFPythonScriptFileDynamicParseablePath());
+		commands.add("-p"); //$NON-NLS-1$
+		commands.add(serialPort);
+		commands.add(IDFConstants.FLASH_CMD);
+
+		return String.join(" ", commands); //$NON-NLS-1$
+	}
+
 	public static boolean checkIfJtagIsAvailable() {
 		EspConfigParser parser = new EspConfigParser();
 		String openOCDPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS);

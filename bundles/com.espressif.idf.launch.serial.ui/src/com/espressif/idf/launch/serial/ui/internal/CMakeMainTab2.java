@@ -38,6 +38,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.variables.IStringVariableManager;
+import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
@@ -65,6 +67,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.json.simple.JSONArray;
 
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.DfuCommandsUtil;
@@ -72,7 +75,6 @@ import com.espressif.idf.core.util.EspConfigParser;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
-import com.espressif.idf.launch.serial.internal.SerialFlashLaunchConfigDelegate;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 import com.espressif.idf.ui.EclipseUtil;
 import com.espressif.idf.ui.LaunchBarListener;
@@ -539,6 +541,78 @@ public class CMakeMainTab2 extends GenericMainTab {
 		return isConfigValid && hasProject;
 	}
 
+	/**
+	 * Validates the content of the location field.
+	 */
+	@Override
+	protected boolean validateLocation(boolean newConfig) {
+		String location = locationField.getText().trim();
+		if (location.length() < 1) {
+			setErrorMessage(null);
+			setMessage(org.eclipse.cdt.launch.internal.ui.Messages.GenericMainTab_SpecifyLocation);
+			return true;
+		}
+
+		String expandedLocation = null;
+		try {
+			expandedLocation = resolveValue(location);
+			if (expandedLocation == null) { // a variable that needs to be resolved at runtime
+				return true;
+			}
+		} catch (CoreException e) {
+			setErrorMessage(e.getStatus().getMessage());
+			return false;
+		}
+
+		File file = new File(expandedLocation);
+		if (!file.exists()) { // The file does not exist.
+			if (!newConfig) {
+				setErrorMessage(org.eclipse.cdt.launch.internal.ui.Messages.GenericMainTab_LocationNotExists);
+			}
+			return false;
+		}
+		if (!file.isFile()) {
+			if (!newConfig) {
+				setErrorMessage(org.eclipse.cdt.launch.internal.ui.Messages.GenericMainTab_LocationNotAFile);
+			}
+			return false;
+		}
+		return true;
+	}
+
+	private String resolveValue(String expression) throws CoreException {
+		String expanded = null;
+		try {
+			expanded = getValue(expression);
+		} catch (CoreException e) { // possibly just a variable that needs to be resolved at runtime
+			validateVaribles(expression);
+			return null;
+		}
+		return expanded;
+	}
+
+	private void validateVaribles(String expression) throws CoreException {
+		IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
+		manager.validateStringVariables(expression);
+	}
+
+	private String getValue(String expression) throws CoreException {
+		String idfPathReplaceableVarString = IDFUtil.getParseableVarValue(IDFEnvironmentVariables.IDF_PATH);
+		String idfPythonEnvReplaceableVarString = IDFUtil
+				.getParseableVarValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH);
+		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+		String idfPath = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH);
+		String pythonEnvPath = IDFUtil.getIDFPythonEnvPath();
+
+		if (expression.contains(idfPythonEnvReplaceableVarString) || expression.contains(idfPathReplaceableVarString)) {
+			expression = expression.replace(idfPathReplaceableVarString, idfPath);
+			expression = expression.replace(idfPythonEnvReplaceableVarString, pythonEnvPath);
+			return expression;
+		}
+		IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
+		return manager.performStringSubstitution(expression);
+	}
+
 	@Override
 	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
 		super.performApply(configuration);
@@ -626,15 +700,15 @@ public class CMakeMainTab2 extends GenericMainTab {
 		try {
 			String uartFlashCommand = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS,
 					StringUtil.EMPTY);
-			uartAgrumentsField
-					.setText(uartFlashCommand.isBlank() ? ESPFlashUtil.getEspFlashCommand(ESPFlashUtil.SERIAL_PORT)
+			uartAgrumentsField.setText(
+					uartFlashCommand.isBlank() ? ESPFlashUtil.getParseableEspFlashCommand(ESPFlashUtil.SERIAL_PORT)
 							: uartFlashCommand);
 
 			jtagArgumentsField.setText(
 					configuration.getAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, StringUtil.EMPTY));
 
 			dfuArgumentsField.setText(configuration.getAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS,
-					DfuCommandsUtil.getDfuFlashCommand()));
+					DfuCommandsUtil.getParseableDfuFlashCommand()));
 
 		} catch (CoreException e) {
 			Logger.log(e);
@@ -820,15 +894,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 	protected void updateLocation(ILaunchConfiguration configuration) {
 		super.updateLocation(configuration);
 		locationField.removeModifyListener(fListener);
-		String location = IDFUtil.getIDFPythonEnvPath();
-		if (StringUtil.isEmpty(location)) {
-			try {
-				location = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION,
-						SerialFlashLaunchConfigDelegate.getSystemPythonPath());
-			} catch (CoreException e) {
-				Logger.log(e);
-			}
-		}
+		String location = IDFUtil.getParseableVarValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH);
 		locationField.setText(location);
 	}
 

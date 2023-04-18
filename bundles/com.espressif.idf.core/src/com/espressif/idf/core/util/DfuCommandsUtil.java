@@ -93,6 +93,16 @@ public class DfuCommandsUtil
 
 		return String.join(" ", commands); //$NON-NLS-1$
 	}
+	
+	public static String getParseableDfuFlashCommand()
+	{
+		List<String> commands = new ArrayList<>();
+		commands.add(IDFUtil.getParseableVarValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH));
+		commands.add(IDFUtil.getIDFPythonScriptFileDynamicParseablePath());
+		commands.add(DFU_FLASH_COMMAND);
+
+		return String.join(" ", commands); //$NON-NLS-1$
+	}
 
 	public static Process dfuBuild(IProject project, ConsoleOutputStream infoStream, IBuildConfiguration config,
 			List<IEnvironmentVariable> envVars) throws IOException, CoreException

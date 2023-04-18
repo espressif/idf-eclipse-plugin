@@ -39,6 +39,7 @@ import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.embedcdt.core.EclipseUtils;
 import org.eclipse.embedcdt.core.StringUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -65,6 +66,7 @@ import com.espressif.idf.launch.serial.util.ESPFlashUtil;
  * Flashing into esp32 board
  *
  */
+@SuppressWarnings("restriction")
 public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfigDelegate {
 	private static final String SYSTEM_PATH_PYTHON = "${system_path:python}"; //$NON-NLS-1$
 	private static final String OPENOCD_PREFIX = "com.espressif.idf.debug.gdbjtag.openocd"; //$NON-NLS-1$
@@ -87,9 +89,21 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 	@Override
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor)
 			throws CoreException {
+		boolean isFlashOverJtag = configuration.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, false);
+		//parse the idf env values before anything else
+
+		ILaunchConfigurationWorkingCopy workingCopy = configuration.getWorkingCopy();
+		parseIdfEnvVarsInConfig(workingCopy, ICDTLaunchConfigurationConstants.ATTR_LOCATION);
+		parseIdfEnvVarsInConfig(workingCopy, IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS);
+		if (isFlashOverJtag) {
+			parseIdfEnvVarsInConfig(workingCopy, IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS);
+		}
+
+		workingCopy.doSave();
+
 		// Start the launch (pause the serial port)
 		((SerialFlashLaunch) launch).start();
-		boolean isFlashOverJtag = configuration.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, false);
+
 		serialPort = ((SerialFlashLaunch) launch).getLaunchTarget()
 				.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
 		if (DfuCommandsUtil.isDfu()) {
@@ -171,6 +185,31 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		String[] envArray = strings.toArray(new String[strings.size()]);
 		Process p = DebugPlugin.exec(commands.toArray(new String[0]), workingDir, envArray);
 		DebugPlugin.newProcess(launch, p, String.join(" ", commands)); //$NON-NLS-1$
+	}
+
+	private void parseIdfEnvVarsInConfig(ILaunchConfigurationWorkingCopy configuration, String attribute)
+			throws CoreException {
+		String value = configuration.getAttribute(attribute, StringUtil.EMPTY);
+		if (StringUtil.isEmpty(value)) {
+			StringBuilder errorStringBuilder = new StringBuilder();
+			errorStringBuilder.append(attribute);
+			errorStringBuilder.append(" "); //$NON-NLS-1$
+			errorStringBuilder.append("is Empty"); //$NON-NLS-1$
+			throw new CoreException(new Status(IStatus.ERROR,
+					com.espressif.idf.launch.serial.internal.Activator.PLUGIN_ID, errorStringBuilder.toString()));
+		}
+
+		String idfPathReplaceableVarString = IDFUtil.getParseableVarValue(IDFEnvironmentVariables.IDF_PATH);
+		String idfPythonEnvReplaceableVarString = IDFUtil
+				.getParseableVarValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH);
+		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+		String idfPath = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH);
+		String pythonEnvPath = IDFUtil.getIDFPythonEnvPath();
+
+		value = value.replace(idfPathReplaceableVarString, idfPath);
+		value = value.replace(idfPythonEnvReplaceableVarString, pythonEnvPath);
+
+		configuration.setAttribute(attribute, value);
 	}
 
 	protected void flashOverJtag(ILaunchConfiguration configuration, ILaunch launch) throws CoreException {
