@@ -17,10 +17,9 @@ package com.espressif.idf.debug.gdbjtag.openocd;
 import java.util.regex.Matcher;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.embedcdt.core.EclipseUtils;
 
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.PersistentPreferences;
-
-import org.eclipse.embedcdt.core.EclipseUtils;
 
 // Resolves variables from persistent preferences.
 

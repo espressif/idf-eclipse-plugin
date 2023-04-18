@@ -139,5 +139,13 @@
           class="com.espressif.idf.debug.gdbjtag.openocd.OpenOCDPluginStartup">
     </startup>
  </extension>
+ <extension
+       point="org.eclipse.core.variables.dynamicVariables">
+    <variable
+          description="%variable.description"
+          name="default_app"
+          resolver="com.espressif.idf.debug.gdbjtag.openocd.DefaultAppResolver">
+    </variable>
+ </extension>
 
 </plugin>

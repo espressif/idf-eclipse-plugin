@@ -268,7 +268,8 @@ public class TabMain extends CMainTab2
 		}
 
 		config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, fProjText.getText());
-		config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, fProgText.getText());
+		config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME,
+				fProgText.getText().isBlank() ? DefaultPreferences.PROGRAM_APP_DEFAULT : fProgText.getText());
 		if (fCoreText != null)
 		{
 			config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_COREFILE_PATH, fCoreText.getText());
