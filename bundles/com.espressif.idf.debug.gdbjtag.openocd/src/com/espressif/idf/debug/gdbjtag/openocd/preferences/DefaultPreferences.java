@@ -93,6 +93,12 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 
 	// ------------------------------------------------------------------------
 
+	// C/C++ project variables
+
+	public static final String PROGRAM_APP_DEFAULT = "${default_app}"; //$NON-NLS-1$
+
+	// ------------------------------------------------------------------------
+
 	// HKCU & HKLM LOCAL_MACHINE
 	private static final String REG_SUBKEY = "\\GNU ARM Eclipse\\OpenOCD";
 	// Standard Microsoft recommendation.

@@ -11,9 +11,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
 import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.EspConfigParser;
@@ -24,6 +27,9 @@ public class ESPFlashUtil {
 	private static final int OPENOCD_JTAG_FLASH_SUPPORT_V = 20201125;
 	public static final String VERSION_PATTERN = "(v.\\S+)"; //$NON-NLS-1$
 	public static final String SERIAL_PORT = "${serial_port}"; //$NON-NLS-1$
+
+	private ESPFlashUtil() {
+	}
 
 	/**
 	 * @param launch
@@ -60,8 +66,15 @@ public class ESPFlashUtil {
 	public static String getEspJtagFlashCommand(ILaunchConfiguration configuration) {
 		String espFlashCommand = "-c program_esp_bins <path-to-build-dir> flasher_args.json verify reset"; //$NON-NLS-1$
 		try {
-			String buildPath = configuration.getMappedResources()[0].getProject().getFolder(IDFConstants.BUILD_FOLDER)
-					.getLocationURI().getPath();
+
+			String buildPath = configuration.getMappedResources()[0].getProject()
+					.getPersistentProperty(new QualifiedName(IDFCorePlugin.PLUGIN_ID, IDFConstants.BUILD_DIR_PROPERTY));
+			// converting to UNIX path so openocd could read it
+			buildPath = new Path(buildPath).toString();
+
+			buildPath = buildPath.isBlank() ? configuration.getMappedResources()[0].getProject()
+					.getFolder(IDFConstants.BUILD_FOLDER).getLocationURI().getPath() : buildPath;
+
 			char a = buildPath.charAt(2);
 			if (a == ':') {
 				buildPath = buildPath.substring(1);
