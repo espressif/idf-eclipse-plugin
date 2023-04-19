@@ -25,7 +25,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.commands,
  org.eclipse.jface,
  org.apache.commons.logging;bundle-version="1.2.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: com.espressif.idf.core
 Bundle-ActivationPolicy: lazy
 Export-Package: com.espressif.idf.core,

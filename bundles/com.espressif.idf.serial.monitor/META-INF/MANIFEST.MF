@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
  org.eclipse.embedcdt.ui,
  org.eclipse.embedcdt.debug.gdbjtag.core
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: com.espressif.idf.serial.monitor
 Bundle-ActivationPolicy: lazy
 Export-Package: com.espressif.idf.serial.monitor,

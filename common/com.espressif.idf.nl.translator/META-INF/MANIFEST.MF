@@ -5,5 +5,5 @@ Bundle-SymbolicName: com.espressif.idf.util;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: ESPRESSIF
 Automatic-Module-Name: com.espressif.idf.util.nls
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: com.espressif.idf.core;bundle-version="1.0.1"
