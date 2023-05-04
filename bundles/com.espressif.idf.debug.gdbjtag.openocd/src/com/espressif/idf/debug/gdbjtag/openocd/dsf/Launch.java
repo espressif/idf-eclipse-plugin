@@ -37,12 +37,14 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.ISourceLocator;
+import org.eclipse.debug.internal.core.LaunchConfigurationWorkingCopy;
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuLaunch;
 
 import com.espressif.idf.core.util.PortChecker;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
 import com.espressif.idf.debug.gdbjtag.openocd.ConfigurationAttributes;
+import com.espressif.idf.debug.gdbjtag.openocd.dsf.process.CustomIdfProcessFactory;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 
 @SuppressWarnings("restriction")
@@ -217,6 +219,9 @@ public class Launch extends GnuMcuLaunch
 			// First set attribute to specify we want to create the gdb process.
 			// Bug 210366
 			Map<String, String> attributes = new HashMap<String, String>();
+			ILaunchConfigurationWorkingCopy workingCopy = this.getLaunchConfiguration().getWorkingCopy(); 
+			workingCopy.setAttribute(DebugPlugin.ATTR_PROCESS_FACTORY_ID, CustomIdfProcessFactory.ID);
+			workingCopy.doSave();
 			if (serverProc != null)
 			{
 				newProcess = DebugPlugin.newProcess(this, serverProc, label, attributes);
