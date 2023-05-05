@@ -32,11 +32,11 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.osgi.service.prefs.BackingStoreException;
 
-import com.espressif.idf.core.ExecutableFinder;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
+import com.espressif.idf.core.SystemExecutableFinder;
 import com.espressif.idf.core.build.ESP32C2ToolChain;
 import com.espressif.idf.core.build.ESP32C3ToolChain;
 import com.espressif.idf.core.build.ESP32C6ToolChain;
@@ -199,10 +199,10 @@ public class IDFUtil
 
 	public static String getPythonExecutable()
 	{
-		IPath pythonPath = ExecutableFinder.find(IDFConstants.PYTHON3_CMD, true); // look for python3
+		IPath pythonPath = new SystemExecutableFinder().find(IDFConstants.PYTHON3_CMD, true); // look for python3
 		if (pythonPath == null)
 		{
-			pythonPath = ExecutableFinder.find(IDFConstants.PYTHON_CMD, true); // look for python
+			pythonPath = new SystemExecutableFinder().find(IDFConstants.PYTHON_CMD, true); // look for python
 		}
 		if (pythonPath != null)
 		{
