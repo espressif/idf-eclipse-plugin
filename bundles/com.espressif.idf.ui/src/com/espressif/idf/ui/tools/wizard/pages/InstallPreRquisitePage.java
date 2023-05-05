@@ -33,10 +33,10 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.osgi.service.prefs.Preferences;
 
-import com.espressif.idf.core.ExecutableFinder;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
+import com.espressif.idf.core.SystemExecutableFinder;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.GitWinRegistryReader;
 import com.espressif.idf.core.util.IDFUtil;
@@ -161,7 +161,7 @@ public class InstallPreRquisitePage extends WizardPage implements IToolsWizardPa
 
 	private void loadGitExecutablePath()
 	{
-		IPath gitPath = ExecutableFinder.find("git", true); //$NON-NLS-1$
+		IPath gitPath = new SystemExecutableFinder().find("git", true); //$NON-NLS-1$
 		Logger.log("GIT path:" + gitPath); //$NON-NLS-1$
 		if (gitPath != null)
 		{

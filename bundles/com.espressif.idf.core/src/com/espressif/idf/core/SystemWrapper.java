@@ -4,10 +4,8 @@
  *******************************************************************************/
 package com.espressif.idf.core;
 
-import org.eclipse.core.runtime.IPath;
-
-public interface ExecutableFinder
+public interface SystemWrapper
 {
-	IPath find(String executableName, boolean appendExtension);
-	IPath findExecutable(IPath path, boolean appendExtension);
+	public String getPathEnv();
+	public String getEnvExecutables();
 }
