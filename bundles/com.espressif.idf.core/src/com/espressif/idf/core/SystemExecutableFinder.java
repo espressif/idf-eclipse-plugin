@@ -29,6 +29,7 @@ public class SystemExecutableFinder implements ExecutableFinder
 	{
 		this.systemWrapper = systemWrapper;
 	}
+
 	@Override
 	public IPath find(String executableName, boolean appendExtension)
 	{
@@ -59,7 +60,7 @@ public class SystemExecutableFinder implements ExecutableFinder
 	@Override
 	public IPath findExecutable(IPath path, boolean appendExtension)
 	{
-		if (Platform.OS_WIN32.equals(Platform.getOS()) && appendExtension)
+		if (isPlatformWindows() && appendExtension)
 		{
 			String pathExt = systemWrapper.getEnvExecutables();
 			if (StringUtil.isEmpty(pathExt))
@@ -88,6 +89,12 @@ public class SystemExecutableFinder implements ExecutableFinder
 		return null;
 	}
 
+	// seam for testing
+	protected boolean isPlatformWindows()
+	{
+		return Platform.OS_WIN32.equals(Platform.getOS());
+	}
+
 	private boolean isExecutable(IPath path)
 	{
 		if (path == null)
@@ -113,7 +120,7 @@ public class SystemExecutableFinder implements ExecutableFinder
 		{
 		}
 
-		if (Platform.OS_WIN32.equals(Platform.getOS()))
+		if (isPlatformWindows())
 		{
 			return true;
 		}
