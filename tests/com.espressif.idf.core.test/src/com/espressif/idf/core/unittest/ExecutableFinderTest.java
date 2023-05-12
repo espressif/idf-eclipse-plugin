@@ -42,7 +42,6 @@ class ExecutableFinderTest
 	private static final String FOUNDABLE_TEXT_FILE_STRING = "foundableTxt"; //$NON-NLS-1$
 	private static final String NON_FOUNDABLE_EXE_FILE_STRING = "non_foundableExe"; //$NON-NLS-1$
 	private static final String NON_FOUNDABLE_TEXT_FILE_STRING = "non_foundableTxt"; //$NON-NLS-1$
-	private static final String PATHEXT = "PATHEXT"; //$NON-NLS-1$
 
 	private static class TestableSystemExecutableFinderWindows extends SystemExecutableFinder
 	{
@@ -97,33 +96,37 @@ class ExecutableFinderTest
 			@Override
 			public String getEnvExecutables()
 			{
-				return System.getenv(PATHEXT);
+				return EXE_STRING;
 			}
 		};
 
 		emptyPathSystemWrapper = new SystemWrapper()
 		{
 
+			@Override
 			public String getPathEnv()
 			{
 				return null;
 			}
 
+			@Override
 			public String getEnvExecutables()
 			{
-				return System.getenv(PATHEXT);
+				return EXE_STRING;
 			}
 		};
 
 		emptyPathExtSystemWrapper = new SystemWrapper()
 		{
 
+			@Override
 			public String getPathEnv()
 			{
 
 				return foundableTempDir.toString();
 			}
 
+			@Override
 			public String getEnvExecutables()
 			{
 				return null;
