@@ -27,9 +27,9 @@ public class CustomOutputStreamMonitor extends OutputStreamMonitor
 	}
 	
 	@Override
-	protected void startMonitoring()
+	protected void startMonitoring(String processLabel)
 	{
-		super.startMonitoring();
+		super.startMonitoring(processLabel);
 	}
 	
 	@Override

@@ -28,10 +28,12 @@ import com.espressif.idf.debug.gdbjtag.openocd.dsf.process.monitors.StreamsProxy
 public class IdfRuntimeProcess extends RuntimeProcess
 {
 	private boolean fCaptureOutput = true;
+	private String fName;
 
 	public IdfRuntimeProcess(ILaunch launch, Process process, String name, Map<String, String> attributes)
 	{
 		super(launch, process, name, attributes);
+		fName = name;
 	}
 
 	@Override
@@ -58,7 +60,7 @@ public class IdfRuntimeProcess extends RuntimeProcess
 				DebugPlugin.log(e);
 			}
 		}
-		StreamsProxy streamsProxy = new StreamsProxy(this, getSystemProcess(), charset);
+		StreamsProxy streamsProxy = new StreamsProxy(this, getSystemProcess(), charset, fName);
 		return streamsProxy;
 	}
 }

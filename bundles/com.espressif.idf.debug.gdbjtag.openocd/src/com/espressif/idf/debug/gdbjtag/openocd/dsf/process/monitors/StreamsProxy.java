@@ -53,20 +53,20 @@ public class StreamsProxy implements IBinaryStreamsProxy {
 	 *
 	 * @param process system process to create a streams proxy on
 	 * @param charset the process's charset or <code>null</code> if default
+	 * @param processLabel The name for the process label
 	 */
-	public StreamsProxy(IProcess iProcess, Process process, Charset charset) {
+	public StreamsProxy(IProcess iProcess, Process process, Charset charset, String processLabel) {
 		if (process == null) {
 			return;
 		}
-		
 		fOutputMonitor = new CustomOutputStreamMonitor(process.getInputStream(), charset);
 		fErrorMonitor = new CustomOutputStreamMonitor(process.getErrorStream(), charset);
 		StreamListener streamListener = new StreamListener(iProcess, fErrorMonitor, fOutputMonitor, charset);
 		fOutputMonitor.addListener(streamListener);
 		fErrorMonitor.addListener(streamListener);
 		fInputMonitor = new InputStreamMonitor(process.getOutputStream(), charset);
-		fOutputMonitor.startMonitoring();
-		fErrorMonitor.startMonitoring();
+		fOutputMonitor.startMonitoring(processLabel);
+		fErrorMonitor.startMonitoring(processLabel);
 		fInputMonitor.startMonitoring();
 	}
 
