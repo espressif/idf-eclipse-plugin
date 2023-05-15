@@ -193,3 +193,18 @@ By default, LaunchBar is enabled in Espressif-IDE and Eclipse CDT. However, in s
 - Navigate to `Run/Debug > Launching > LaunchBar`
 - Check `Enable the LaunchBar`
 - Click `Apply and Close`
+
+# How to disable the Unresolved Symbol error markers
+When working with **ESP-IDF 5.0 and higher using the Espressif-IDE**, you may come across unresolved symbol issues with certain projects. This is because ESP-IDF 5.0 and higher use some of the **C/C++ 20 language features** that are not yet supported by the Eclipse CDT Indexer. These unresolved symbols will only appear in the indexer and should not cause any build failures.
+
+To resolve this issue, you can try disabling Unresolved Symbol error marker.
+
+- Go to `Preferences...`
+- Navigate to `C/C++ > Code Analysis`
+- Look for `Symbol is not resolved` from the problems list
+- Change the Severity from `Error` to `Warning`
+- Click `Apply and Close`
+
+When IDE parser add the support for C/C++ 20 language features, you can revert the above change.
+
+![](docs/images/code_analysis_disable_symbols.png)
