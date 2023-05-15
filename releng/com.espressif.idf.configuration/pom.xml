@@ -63,7 +63,7 @@
 				<version>${tycho-version}</version>
 				<dependencies>
 					<dependency>
-						<groupId>org.eclipse.tycho.extras</groupId>
+						<groupId>org.eclipse.tycho</groupId>
 						<artifactId>tycho-buildtimestamp-jgit</artifactId>
 						<version>${tycho-extras.version}</version>
 					</dependency>
