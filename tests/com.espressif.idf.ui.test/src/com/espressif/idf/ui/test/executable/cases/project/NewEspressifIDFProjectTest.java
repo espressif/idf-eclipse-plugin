@@ -21,6 +21,7 @@ import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -114,7 +115,7 @@ public class NewEspressifIDFProjectTest
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 		Fixture.givenProjectNameIs("NewProjectTest");
 		Fixture.whenNewProjectIsSelected();
-		Fixture.whenProjectIsBuiltUsingToolbarButton("NewProjectTest");
+		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.thenConsoleShowsBuildSuccessful();
 	}
 
@@ -125,7 +126,8 @@ public class NewEspressifIDFProjectTest
 		Fixture.givenProjectNameIs("NewProjectTest");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenProjectIsCopied("NewProjectTest", "NewProjectTest2");
-		Fixture.whenProjectIsBuiltUsingToolbarButton("NewProjectTest2");
+		Fixture.givenProjectNameIs("NewProjectTest2");
+		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.thenConsoleShowsBuildSuccessful();
 		Fixture.closeProject("NewProjectTest2");
 		Fixture.deleteProject("NewProjectTest2");
@@ -279,16 +281,6 @@ public class NewEspressifIDFProjectTest
 		private static void whenProjectIsBuiltUsingContextMenu() throws IOException
 		{
 			ProjectTestOperations.buildProjectUsingContextMenu(projectName, bot);
-			ProjectTestOperations.waitForProjectBuild(bot);
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
-		}
-
-		private static void whenProjectIsBuiltUsingToolbarButton(String projectName) throws IOException
-		{
-			SWTBotView projectExplorView = bot.viewByTitle("Project Explorer");
-			projectExplorView.show();
-			projectExplorView.bot().tree().getTreeItem(projectName).select();
-			bot.toolbarButtonWithTooltip("Build").click();
 			ProjectTestOperations.waitForProjectBuild(bot);
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 		}
