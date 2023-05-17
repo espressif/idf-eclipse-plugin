@@ -90,11 +90,8 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor)
 			throws CoreException {
 		boolean isFlashOverJtag = configuration.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, false);
-		//parse the idf env values before anything else
 
 		ILaunchConfigurationWorkingCopy workingCopy = configuration.getWorkingCopy();
-		parseIdfEnvVarsInConfig(workingCopy, ICDTLaunchConfigurationConstants.ATTR_LOCATION);
-		parseIdfEnvVarsInConfig(workingCopy, IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS);
 		if (isFlashOverJtag) {
 			parseIdfEnvVarsInConfig(workingCopy, IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS);
 		}
@@ -123,7 +120,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 			IProgressMonitor monitor) throws CoreException {
 		IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
 
-		String location = IDFUtil.getIDFPythonEnvPath();
+		String location = varManager.performStringSubstitution(IDFUtil.getIDFPythonEnvPath());
 		if (StringUtil.isEmpty(location)) {
 			location = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION, SYSTEM_PATH_PYTHON);
 		}
@@ -155,6 +152,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		}
 		String arguments = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, espFlashCommand);
 		arguments = arguments.replace(ESPFlashUtil.SERIAL_PORT, serialPort);
+		arguments = varManager.performStringSubstitution(arguments);
 		if (!arguments.isEmpty()) {
 			commands.addAll(Arrays.asList(varManager.performStringSubstitution(arguments).split(" "))); //$NON-NLS-1$
 		}
@@ -200,16 +198,8 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 					com.espressif.idf.launch.serial.internal.Activator.PLUGIN_ID, errorStringBuilder.toString()));
 		}
 
-		String idfPathReplaceableVarString = IDFUtil.getParseableVarValue(IDFEnvironmentVariables.IDF_PATH);
-		String idfPythonEnvReplaceableVarString = IDFUtil
-				.getParseableVarValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH);
-		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
-		String idfPath = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH);
-		String pythonEnvPath = IDFUtil.getIDFPythonEnvPath();
-
-		value = value.replace(idfPathReplaceableVarString, idfPath);
-		value = value.replace(idfPythonEnvReplaceableVarString, pythonEnvPath);
-
+		IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
+		value = varManager.performStringSubstitution(value);
 		configuration.setAttribute(attribute, value);
 	}
 

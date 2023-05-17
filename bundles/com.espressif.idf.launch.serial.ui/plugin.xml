@@ -42,5 +42,23 @@
             id="com.espressif.idf.launch.serial.ui.launchConfigurationTypeImage">
       </launchConfigurationTypeImage>
    </extension>
+   <extension
+         point="org.eclipse.core.variables.dynamicVariables">
+      <variable
+            description="Currently loaded IDF path"
+            name="IDF_PATH"
+            resolver="com.espressif.idf.launch.serial.ui.IDFDynamicVariableResolver">
+      </variable>
+      <variable
+            description="IDF virtual environment python path"
+            name="IDF_PYTHON_ENV_PATH"
+            resolver="com.espressif.idf.launch.serial.ui.IDFDynamicVariableResolver">
+      </variable>
+      <variable
+            description="idf.py location pointing to IDF_PATH/tools.py"
+            name="IDF_PY"
+            resolver="com.espressif.idf.launch.serial.ui.IDFDynamicVariableResolver">
+      </variable>
+   </extension>
 
 </plugin>

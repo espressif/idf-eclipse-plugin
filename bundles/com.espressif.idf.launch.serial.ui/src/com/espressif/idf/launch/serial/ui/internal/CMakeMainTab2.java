@@ -710,7 +710,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 					configuration.getAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, StringUtil.EMPTY));
 
 			dfuArgumentsField.setText(configuration.getAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS_VIEW,
-					DfuCommandsUtil.getParseableDfuFlashCommand()));
+					DfuCommandsUtil.getDfuFlashCommand()));
 
 		} catch (CoreException e) {
 			Logger.log(e);

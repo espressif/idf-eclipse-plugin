@@ -32,6 +32,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.IDFDynamicVariables;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
@@ -88,22 +89,13 @@ public class DfuCommandsUtil
 	{
 		List<String> commands = new ArrayList<>();
 		commands.add(IDFUtil.getIDFPythonEnvPath());
-		commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
+		commands.add(IDFUtil.getParseableVarValue(IDFDynamicVariables.IDF_PYTHON_ENV_PATH));
+		commands.add(IDFUtil.getParseableVarValue(IDFDynamicVariables.IDF_PY));
 		commands.add(DFU_FLASH_COMMAND);
 
 		return String.join(" ", commands); //$NON-NLS-1$
 	}
 	
-	public static String getParseableDfuFlashCommand()
-	{
-		List<String> commands = new ArrayList<>();
-		commands.add(IDFUtil.getParseableVarValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH));
-		commands.add(IDFUtil.getIDFPythonScriptFileDynamicParseablePath());
-		commands.add(DFU_FLASH_COMMAND);
-
-		return String.join(" ", commands); //$NON-NLS-1$
-	}
-
 	public static Process dfuBuild(IProject project, ConsoleOutputStream infoStream, IBuildConfiguration config,
 			List<IEnvironmentVariable> envVars) throws IOException, CoreException
 	{
@@ -118,7 +110,7 @@ public class DfuCommandsUtil
 	private static Process startProcess(List<String> commands, IProject project, ConsoleOutputStream infoStream,
 			IBuildConfiguration config, List<IEnvironmentVariable> envVars) throws IOException
 	{
-		infoStream.write(String.join(" ", commands) + '\n'); //$NON-NLS-1$ //$NON-NLS-2$
+		infoStream.write(String.join(" ", commands) + '\n'); //$NON-NLS-1$
 		Path workingDir = (Path) project.getLocation();
 		ProcessBuilder processBuilder = new ProcessBuilder(commands).directory(workingDir.toFile());
 		Map<String, String> environment = processBuilder.environment();

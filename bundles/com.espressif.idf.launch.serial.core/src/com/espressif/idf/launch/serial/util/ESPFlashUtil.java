@@ -17,6 +17,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.IDFDynamicVariables;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.EspConfigParser;
@@ -53,7 +54,7 @@ public class ESPFlashUtil {
 	public static String getParseableEspFlashCommand(String serialPort) {
 
 		List<String> commands = new ArrayList<>();
-		commands.add(IDFUtil.getIDFPythonScriptFileDynamicParseablePath());
+		commands.add(IDFUtil.getParseableVarValue(IDFDynamicVariables.IDF_PY));
 		commands.add("-p"); //$NON-NLS-1$
 		commands.add(serialPort);
 		commands.add(IDFConstants.FLASH_CMD);
