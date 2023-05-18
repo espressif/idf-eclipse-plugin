@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -88,11 +89,9 @@ public class DfuCommandsUtil
 	public static String getDfuFlashCommand()
 	{
 		List<String> commands = new ArrayList<>();
-		commands.add(IDFUtil.getIDFPythonEnvPath());
-		commands.add(IDFUtil.getParseableVarValue(IDFDynamicVariables.IDF_PYTHON_ENV_PATH));
-		commands.add(IDFUtil.getParseableVarValue(IDFDynamicVariables.IDF_PY));
+		commands.add(VariablesPlugin.getDefault().getStringVariableManager().generateVariableExpression(IDFDynamicVariables.IDF_PYTHON_ENV_PATH.name(), null));
+		commands.add(VariablesPlugin.getDefault().getStringVariableManager().generateVariableExpression(IDFDynamicVariables.IDF_PY.name(), null));
 		commands.add(DFU_FLASH_COMMAND);
-
 		return String.join(" ", commands); //$NON-NLS-1$
 	}
 	
@@ -129,8 +128,10 @@ public class DfuCommandsUtil
 		List<String> flashCommandList = new ArrayList<>();
 		try
 		{
-			flashCommandList = Arrays.asList(configuration
-					.getAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS, getDfuFlashCommand()).split(" ")); //$NON-NLS-1$
+			String flashCommand = configuration
+					.getAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS, getDfuFlashCommand());
+			flashCommand = IDFUtil.resolveExpressionFromVariableManager(flashCommand);
+			flashCommandList = Arrays.asList(flashCommand.split(" ")); //$NON-NLS-1$
 		}
 		catch (CoreException e1)
 		{

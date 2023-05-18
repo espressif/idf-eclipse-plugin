@@ -12,9 +12,7 @@ public final class IDFLaunchConstants
 	public static final String TARGET_FOR_JTAG = "com.espressif.idf.debug.gdbjtag.openocd.jtagTarget"; //$NON-NLS-1$
 	public static final String JTAG_BOARD = "com.espressif.idf.debug.gdbjtag.openocd.jtagBoard"; //$NON-NLS-1$
 	public static final String ATTR_SERIAL_FLASH_ARGUMENTS = "com.espressif.idf.launch.serial.core.serialFlashArguments"; //$NON-NLS-1$
-	public static final String ATTR_SERIAL_FLASH_ARGUMENTS_VIEW = "com.espressif.idf.launch.serial.core.serialFlashArgumentsView"; //$NON-NLS-1$
 	public static final String ATTR_DFU_FLASH_ARGUMENTS = "com.espressif.idf.launch.serial.core.dfuFlashArguments"; //$NON-NLS-1$
-	public static final String ATTR_DFU_FLASH_ARGUMENTS_VIEW = "com.espressif.idf.launch.serial.core.dfuFlashArgumentsView"; //$NON-NLS-1$
 	public static final String ATTR_JTAG_FLASH_ARGUMENTS = "com.espressif.idf.debug.gdbjtag.openocd.jtagFlashArguments"; //$NON-NLS-1$
 	public static final String ATTR_LAUNCH_CONFIGURATION_NAME = "com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationName"; //$NON-NLS-1$
 }

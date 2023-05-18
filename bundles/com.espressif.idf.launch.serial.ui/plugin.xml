@@ -45,17 +45,17 @@
    <extension
          point="org.eclipse.core.variables.dynamicVariables">
       <variable
-            description="%variable.description"
+            description="%IDF_PATH_VAR.description"
             name="IDF_PATH"
             resolver="com.espressif.idf.launch.serial.ui.IDFDynamicVariableResolver">
       </variable>
       <variable
-            description="%variable.description.0"
+            description="%IDF_PYTHON_ENV_PATH_VAR.description"
             name="IDF_PYTHON_ENV_PATH"
             resolver="com.espressif.idf.launch.serial.ui.IDFDynamicVariableResolver">
       </variable>
       <variable
-            description="%variable.description.1"
+            description="%IDF_PY_VAR.description"
             name="IDF_PY"
             resolver="com.espressif.idf.launch.serial.ui.IDFDynamicVariableResolver">
       </variable>

@@ -5,20 +5,20 @@ package com.espressif.idf.core;
  * @author Ali Azam Rana
  *
  */
-public interface IDFDynamicVariables
+public enum IDFDynamicVariables
 {
 	/**
 	 * idf.py resolver variable
 	 */
-	String IDF_PY = "IDF_PY"; //$NON-NLS-1$
+	IDF_PY,
 	
 	/**
 	 * idf path variable added here to avoid redundancy in case of change in name
 	 */
-	String IDF_PATH = IDFEnvironmentVariables.IDF_PATH;
+	IDF_PATH,
 	
 	/**
 	 * idf virtual python executable path variable based on the env
 	 */
-	String IDF_PYTHON_ENV_PATH = IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH;
+	IDF_PYTHON_ENV_PATH
 }

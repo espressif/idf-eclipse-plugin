@@ -22,15 +22,21 @@ public class IDFDynamicVariableResolver implements IDynamicVariableResolver {
 	@Override
 	public String resolveValue(IDynamicVariable variable, String argument) throws CoreException {
 		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
-		if (variable.getName().equals(IDFDynamicVariables.IDF_PATH)) {
-			return idfEnvironmentVariables.getEnvValue(IDFDynamicVariables.IDF_PATH);
-		} else if (variable.getName().equals(IDFDynamicVariables.IDF_PYTHON_ENV_PATH)) {
-			return idfEnvironmentVariables.getEnvValue(IDFDynamicVariables.IDF_PYTHON_ENV_PATH);
-		} else if (variable.getName().equals(IDFDynamicVariables.IDF_PY)) {
+
+		IDFDynamicVariables idfVariable = IDFDynamicVariables.valueOf(variable.getName());
+
+		switch (idfVariable) {
+		case IDF_PATH:
+			return idfEnvironmentVariables.getEnvValue(IDFDynamicVariables.IDF_PATH.name());
+
+		case IDF_PYTHON_ENV_PATH:
+			return IDFUtil.getIDFPythonEnvPath();
+
+		case IDF_PY:
 			return IDFUtil.getIDFPythonScriptFile().getAbsolutePath();
+
+		default:
+			return null;
 		}
-
-		return null;
 	}
-
 }

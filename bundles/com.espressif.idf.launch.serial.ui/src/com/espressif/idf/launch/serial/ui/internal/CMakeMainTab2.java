@@ -67,7 +67,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.json.simple.JSONArray;
 
-import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.IDFDynamicVariables;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.DfuCommandsUtil;
@@ -547,6 +547,11 @@ public class CMakeMainTab2 extends GenericMainTab {
 	@Override
 	protected boolean validateLocation(boolean newConfig) {
 		String location = locationField.getText().trim();
+		try {
+			location = IDFUtil.resolveExpressionFromVariableManager(location);
+		} catch (CoreException e) {
+			Logger.log(e);
+		}
 		if (location.length() < 1) {
 			setErrorMessage(null);
 			setMessage(org.eclipse.cdt.launch.internal.ui.Messages.GenericMainTab_SpecifyLocation);
@@ -583,7 +588,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private String resolveValue(String expression) throws CoreException {
 		String expanded = null;
 		try {
-			expanded = getValue(expression);
+			expanded = IDFUtil.resolveExpressionFromVariableManager(expression);
 		} catch (CoreException e) { // possibly just a variable that needs to be resolved at runtime
 			validateVaribles(expression);
 			return null;
@@ -594,23 +599,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private void validateVaribles(String expression) throws CoreException {
 		IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
 		manager.validateStringVariables(expression);
-	}
-
-	private String getValue(String expression) throws CoreException {
-		String idfPathReplaceableVarString = IDFUtil.getParseableVarValue(IDFEnvironmentVariables.IDF_PATH);
-		String idfPythonEnvReplaceableVarString = IDFUtil
-				.getParseableVarValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH);
-		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
-		String idfPath = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH);
-		String pythonEnvPath = IDFUtil.getIDFPythonEnvPath();
-
-		if (expression.contains(idfPythonEnvReplaceableVarString) || expression.contains(idfPathReplaceableVarString)) {
-			expression = expression.replace(idfPathReplaceableVarString, idfPath);
-			expression = expression.replace(idfPythonEnvReplaceableVarString, pythonEnvPath);
-			return expression;
-		}
-		IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
-		return manager.performStringSubstitution(expression);
 	}
 
 	@Override
@@ -632,9 +620,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 			wc.setAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, jtagArgumentsField.getText());
 			wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, uartAgrumentsField.getText());
-			wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS_VIEW, uartAgrumentsField.getText());
 			wc.setAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS, dfuArgumentsField.getText());
-			wc.setAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS_VIEW, dfuArgumentsField.getText());
 
 			wc.doSave();
 		} catch (CoreException e) {
@@ -700,7 +686,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private void updateArgumentsWithDefaultFlashCommand(ILaunchConfiguration configuration) {
 
 		try {
-			String uartFlashCommand = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS_VIEW,
+			String uartFlashCommand = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS,
 					StringUtil.EMPTY);
 			uartAgrumentsField.setText(
 					uartFlashCommand.isBlank() ? ESPFlashUtil.getParseableEspFlashCommand(ESPFlashUtil.SERIAL_PORT)
@@ -709,7 +695,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 			jtagArgumentsField.setText(
 					configuration.getAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, StringUtil.EMPTY));
 
-			dfuArgumentsField.setText(configuration.getAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS_VIEW,
+			dfuArgumentsField.setText(configuration.getAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS,
 					DfuCommandsUtil.getDfuFlashCommand()));
 
 		} catch (CoreException e) {
@@ -896,7 +882,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 	protected void updateLocation(ILaunchConfiguration configuration) {
 		super.updateLocation(configuration);
 		locationField.removeModifyListener(fListener);
-		String location = IDFUtil.getParseableVarValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH);
+		String location = VariablesPlugin.getDefault().getStringVariableManager()
+				.generateVariableExpression(IDFDynamicVariables.IDF_PYTHON_ENV_PATH.name(), null);
 		locationField.setText(location);
 	}
 
