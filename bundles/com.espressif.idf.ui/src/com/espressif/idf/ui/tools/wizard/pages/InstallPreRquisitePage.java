@@ -161,7 +161,7 @@ public class InstallPreRquisitePage extends WizardPage implements IToolsWizardPa
 
 	private void loadGitExecutablePath()
 	{
-		IPath gitPath = new SystemExecutableFinder().find("git", true); //$NON-NLS-1$
+		IPath gitPath = new SystemExecutableFinder().find("git"); //$NON-NLS-1$
 		Logger.log("GIT path:" + gitPath); //$NON-NLS-1$
 		if (gitPath != null)
 		{

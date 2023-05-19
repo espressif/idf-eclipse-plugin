@@ -5,10 +5,7 @@
 package com.espressif.idf.core;
 
 import java.io.File;
-import java.lang.reflect.Method;
 
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -31,7 +28,7 @@ public class SystemExecutableFinder implements ExecutableFinder
 	}
 
 	@Override
-	public IPath find(String executableName, boolean appendExtension)
+	public IPath find(String executableName)
 	{
 		if (executableName == null)
 		{
@@ -48,7 +45,7 @@ public class SystemExecutableFinder implements ExecutableFinder
 		for (String pathString : paths)
 		{
 			IPath path = Path.fromOSString(pathString).append(executableName);
-			IPath execPath = findExecutable(path, appendExtension);
+			IPath execPath = findExecutable(path);
 			if (execPath != null)
 			{
 				return execPath;
@@ -57,10 +54,9 @@ public class SystemExecutableFinder implements ExecutableFinder
 		return null;
 	}
 
-	@Override
-	public IPath findExecutable(IPath path, boolean appendExtension)
+	private IPath findExecutable(IPath path)
 	{
-		if (isPlatformWindows() && appendExtension)
+		if (isPlatformWindows())
 		{
 			String pathExt = systemWrapper.getEnvExecutables();
 			if (StringUtil.isEmpty(pathExt))
@@ -74,6 +70,7 @@ public class SystemExecutableFinder implements ExecutableFinder
 				{
 					ext = ext.substring(1);
 				}
+
 				IPath pathWithExt = path.addFileExtension(ext);
 				if (isExecutable(pathWithExt))
 				{
@@ -97,10 +94,6 @@ public class SystemExecutableFinder implements ExecutableFinder
 
 	private boolean isExecutable(IPath path)
 	{
-		if (path == null)
-		{
-			return false;
-		}
 		File file = path.toFile();
 
 		if (file == null || !file.exists() || file.isDirectory())
@@ -108,23 +101,6 @@ public class SystemExecutableFinder implements ExecutableFinder
 			return false;
 		}
 
-		try
-		{
-			Method m = File.class.getMethod("canExecute"); //$NON-NLS-1$
-			if (m != null)
-			{
-				return (Boolean) m.invoke(file);
-			}
-		}
-		catch (Exception e)
-		{
-		}
-
-		if (isPlatformWindows())
-		{
-			return true;
-		}
-		IFileStore fileStore = EFS.getLocalFileSystem().getStore(path);
-		return fileStore.fetchInfo().getAttribute(EFS.ATTRIBUTE_EXECUTABLE);
+		return file.canExecute();
 	}
 }

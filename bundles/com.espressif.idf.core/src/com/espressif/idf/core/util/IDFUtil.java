@@ -199,10 +199,10 @@ public class IDFUtil
 
 	public static String getPythonExecutable()
 	{
-		IPath pythonPath = new SystemExecutableFinder().find(IDFConstants.PYTHON3_CMD, true); // look for python3
+		IPath pythonPath = new SystemExecutableFinder().find(IDFConstants.PYTHON3_CMD); // look for python3
 		if (pythonPath == null)
 		{
-			pythonPath = new SystemExecutableFinder().find(IDFConstants.PYTHON_CMD, true); // look for python
+			pythonPath = new SystemExecutableFinder().find(IDFConstants.PYTHON_CMD); // look for python
 		}
 		if (pythonPath != null)
 		{

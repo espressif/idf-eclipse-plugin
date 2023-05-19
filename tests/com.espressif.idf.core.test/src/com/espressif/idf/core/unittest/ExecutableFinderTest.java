@@ -140,21 +140,21 @@ class ExecutableFinderTest
 	@Test
 	void testWindowsFindReturnsExpectedResultOnFoundableExecutable()
 	{
-		IPath foundExecutable = windowsExecutableFinder.find(FOUNDABLE_EXE_FILE_STRING, true);
+		IPath foundExecutable = windowsExecutableFinder.find(FOUNDABLE_EXE_FILE_STRING);
 		assertEquals(foundableExecutableFile.toString(), foundExecutable.toOSString());
 	}
 
 	@Test
 	void testWindowsFindReturnsNullOnNonFoundableExecutable()
 	{
-		IPath nonFoundableExecutable = windowsExecutableFinder.find(NON_FOUNDABLE_EXE_FILE_STRING, true);
+		IPath nonFoundableExecutable = windowsExecutableFinder.find(NON_FOUNDABLE_EXE_FILE_STRING);
 		assertNull(nonFoundableExecutable);
 	}
 
 	@Test
 	void testWindowsFindReturnsNullOnNull()
 	{
-		IPath nullPath = windowsExecutableFinder.find(null, true);
+		IPath nullPath = windowsExecutableFinder.find(null);
 		assertNull(nullPath);
 	}
 
@@ -162,7 +162,7 @@ class ExecutableFinderTest
 	void testWindowsFindReturnsNullWithEmpyPath()
 	{
 		ExecutableFinder executableFinder = new TestableSystemExecutableFinderWindows(emptyPathSystemWrapper);
-		IPath foundNonExecutable = executableFinder.find(FOUNDABLE_TEXT_FILE_STRING, true);
+		IPath foundNonExecutable = executableFinder.find(FOUNDABLE_TEXT_FILE_STRING);
 		assertNull(foundNonExecutable);
 	}
 
@@ -170,43 +170,68 @@ class ExecutableFinderTest
 	void testWindowsFindReturnsNullWithEmpyPathExt()
 	{
 		ExecutableFinder executableFinder = new TestableSystemExecutableFinderWindows(emptyPathExtSystemWrapper);
-		IPath foundNonExecutable = executableFinder.find(FOUNDABLE_TEXT_FILE_STRING, true);
+		IPath foundNonExecutable = executableFinder.find(FOUNDABLE_TEXT_FILE_STRING);
 		assertNull(foundNonExecutable);
 	}
 
 	@Test
 	void testWindowsFindReturnsNullOnFoundableNonExecutable()
 	{
-		IPath foundNonExecutable = windowsExecutableFinder.find(FOUNDABLE_TEXT_FILE_STRING, true);
+		IPath foundNonExecutable = windowsExecutableFinder.find(FOUNDABLE_TEXT_FILE_STRING);
 		assertNull(foundNonExecutable);
 	}
 
 	@Test
 	void testWindowsFindReturnsNullOnNonFoundableNonExecutable()
 	{
-		IPath nonFoudableNonExecutable = windowsExecutableFinder.find(NON_FOUNDABLE_TEXT_FILE_STRING, true);
+		IPath nonFoudableNonExecutable = windowsExecutableFinder.find(NON_FOUNDABLE_TEXT_FILE_STRING);
 		assertNull(nonFoudableNonExecutable);
+	}
+
+	@Test
+	void testWindowsReturnsNullWhenSystemReturnsIncorrectExecutable()
+	{
+		SystemWrapper incorrectSystemWrapper = new SystemWrapper()
+		{
+
+			@Override
+			public String getPathEnv()
+			{
+				return foundableTempDir.toString();
+			}
+
+			@Override
+			public String getEnvExecutables()
+			{
+				return "/EXE"; //$NON-NLS-1$
+			}
+		};
+		ExecutableFinder executableFinder = new TestableSystemExecutableFinderWindows(incorrectSystemWrapper);
+
+		IPath foundExecutable = executableFinder.find(FOUNDABLE_EXE_FILE_STRING);
+
+		assertNull(foundExecutable);
 	}
 
 	@Test
 	void testUnixFindReturnsExpectedResultOnFoundableExecutable()
 	{
 
-		IPath foundExecutable = unixExecutableFinder.find(FOUNDABLE_EXE_FILE_STRING, true);
+		IPath foundExecutable = unixExecutableFinder.find(FOUNDABLE_EXE_FILE_STRING);
 		assertEquals(unixFoundableExecutableFile.toString(), foundExecutable.toOSString());
 	}
 
 	@Test
 	void testUnixFindReturnsNullOnNonFoundableExecutable()
 	{
-		IPath nonFoundableExecutable = unixExecutableFinder.find(NON_FOUNDABLE_EXE_FILE_STRING, true);
+		IPath nonFoundableExecutable = unixExecutableFinder.find(NON_FOUNDABLE_EXE_FILE_STRING);
 		assertNull(nonFoundableExecutable);
 	}
 
 	@Test
 	void testUnixFindReturnsNullOnNull()
 	{
-		IPath nullPath = unixExecutableFinder.find(null, true);
+		IPath nullPath = unixExecutableFinder.find(null);
 		assertNull(nullPath);
 	}
 
@@ -214,7 +239,7 @@ class ExecutableFinderTest
 	void testUnixFindReturnsNullWithEmpyPath()
 	{
 		ExecutableFinder executableFinder = new TestableSystemExecutableFinderUnix(emptyPathSystemWrapper);
-		IPath foundNonExecutable = executableFinder.find(FOUNDABLE_TEXT_FILE_STRING, true);
+		IPath foundNonExecutable = executableFinder.find(FOUNDABLE_TEXT_FILE_STRING);
 		assertNull(foundNonExecutable);
 	}
 
@@ -222,21 +247,21 @@ class ExecutableFinderTest
 	void testUnixFindReturnsExpectedResultWithEmpyPathExt()
 	{
 		ExecutableFinder executableFinder = new TestableSystemExecutableFinderUnix(emptyPathExtSystemWrapper);
-		IPath foundNonExecutable = executableFinder.find(FOUNDABLE_EXE_FILE_STRING, true);
+		IPath foundNonExecutable = executableFinder.find(FOUNDABLE_EXE_FILE_STRING);
 		assertEquals(unixFoundableExecutableFile.toString(), foundNonExecutable.toOSString());
 	}
 
 	@Test
 	void testUnixFindReturnsNullOnFoundableNonExecutable()
 	{
-		IPath foundNonExecutable = unixExecutableFinder.find(FOUNDABLE_TEXT_FILE_STRING, true);
+		IPath foundNonExecutable = unixExecutableFinder.find(FOUNDABLE_TEXT_FILE_STRING);
 		assertNull(foundNonExecutable);
 	}
 
 	@Test
 	void testUnixFindReturnsNullOnNonFoundableNonExecutable()
 	{
-		IPath nonFoudableNonExecutable = unixExecutableFinder.find(NON_FOUNDABLE_TEXT_FILE_STRING, true);
+		IPath nonFoudableNonExecutable = unixExecutableFinder.find(NON_FOUNDABLE_TEXT_FILE_STRING);
 		assertNull(nonFoudableNonExecutable);
 	}
 
