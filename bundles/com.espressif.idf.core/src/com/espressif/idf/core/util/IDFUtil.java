@@ -28,8 +28,6 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.core.variables.IStringVariableManager;
-import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.osgi.service.prefs.BackingStoreException;
@@ -668,11 +666,5 @@ public class IDFUtil
 			Logger.log(e);
 		}
 		return new SDKConfigJsonReader(project).getValue("IDF_TARGET"); //$NON-NLS-1$
-	}
-	
-	public static String resolveExpressionFromVariableManager(String expression) throws CoreException 
-	{
-		IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
-		return manager.performStringSubstitution(expression);
 	}
 }

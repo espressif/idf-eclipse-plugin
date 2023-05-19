@@ -38,7 +38,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -72,7 +71,6 @@ import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.DfuCommandsUtil;
 import com.espressif.idf.core.util.EspConfigParser;
-import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
@@ -539,66 +537,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 			return false;
 		}
 		return isConfigValid && hasProject;
-	}
-
-	/**
-	 * Validates the content of the location field.
-	 */
-	@Override
-	protected boolean validateLocation(boolean newConfig) {
-		String location = locationField.getText().trim();
-		try {
-			location = IDFUtil.resolveExpressionFromVariableManager(location);
-		} catch (CoreException e) {
-			Logger.log(e);
-		}
-		if (location.length() < 1) {
-			setErrorMessage(null);
-			setMessage(org.eclipse.cdt.launch.internal.ui.Messages.GenericMainTab_SpecifyLocation);
-			return true;
-		}
-
-		String expandedLocation = null;
-		try {
-			expandedLocation = resolveValue(location);
-			if (expandedLocation == null) { // a variable that needs to be resolved at runtime
-				return true;
-			}
-		} catch (CoreException e) {
-			setErrorMessage(e.getStatus().getMessage());
-			return false;
-		}
-
-		File file = new File(expandedLocation);
-		if (!file.exists()) { // The file does not exist.
-			if (!newConfig) {
-				setErrorMessage(org.eclipse.cdt.launch.internal.ui.Messages.GenericMainTab_LocationNotExists);
-			}
-			return false;
-		}
-		if (!file.isFile()) {
-			if (!newConfig) {
-				setErrorMessage(org.eclipse.cdt.launch.internal.ui.Messages.GenericMainTab_LocationNotAFile);
-			}
-			return false;
-		}
-		return true;
-	}
-
-	private String resolveValue(String expression) throws CoreException {
-		String expanded = null;
-		try {
-			expanded = IDFUtil.resolveExpressionFromVariableManager(expression);
-		} catch (CoreException e) { // possibly just a variable that needs to be resolved at runtime
-			validateVaribles(expression);
-			return null;
-		}
-		return expanded;
-	}
-
-	private void validateVaribles(String expression) throws CoreException {
-		IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
-		manager.validateStringVariables(expression);
 	}
 
 	@Override

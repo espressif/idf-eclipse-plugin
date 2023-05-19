@@ -89,8 +89,8 @@ public class DfuCommandsUtil
 	public static String getDfuFlashCommand()
 	{
 		List<String> commands = new ArrayList<>();
-		commands.add(VariablesPlugin.getDefault().getStringVariableManager().generateVariableExpression(IDFDynamicVariables.IDF_PYTHON_ENV_PATH.name(), null));
-		commands.add(VariablesPlugin.getDefault().getStringVariableManager().generateVariableExpression(IDFDynamicVariables.IDF_PY.name(), null));
+		commands.add(generateVariableExpression(IDFDynamicVariables.IDF_PYTHON_ENV_PATH.name()));
+		commands.add(generateVariableExpression(IDFDynamicVariables.IDF_PY.name()));
 		commands.add(DFU_FLASH_COMMAND);
 		return String.join(" ", commands); //$NON-NLS-1$
 	}
@@ -104,6 +104,16 @@ public class DfuCommandsUtil
 		commands.add("dfu"); //$NON-NLS-1$
 		Process process = startProcess(commands, project, infoStream, config, envVars);
 		return process;
+	}
+	
+	private static String generateVariableExpression(String variableName)
+	{
+		return VariablesPlugin.getDefault().getStringVariableManager().generateVariableExpression(variableName, null);
+	}
+	
+	private static String resolveExpressionFromVariableManager(String expression) throws CoreException
+	{
+		return VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(expression);
 	}
 
 	private static Process startProcess(List<String> commands, IProject project, ConsoleOutputStream infoStream,
@@ -130,7 +140,7 @@ public class DfuCommandsUtil
 		{
 			String flashCommand = configuration
 					.getAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS, getDfuFlashCommand());
-			flashCommand = IDFUtil.resolveExpressionFromVariableManager(flashCommand);
+			flashCommand = resolveExpressionFromVariableManager(flashCommand);
 			flashCommandList = Arrays.asList(flashCommand.split(" ")); //$NON-NLS-1$
 		}
 		catch (CoreException e1)
