@@ -819,10 +819,17 @@ public class CMakeMainTab2 extends GenericMainTab {
 	@Override
 	protected void updateLocation(ILaunchConfiguration configuration) {
 		super.updateLocation(configuration);
-		locationField.removeModifyListener(fListener);
-		String location = VariablesPlugin.getDefault().getStringVariableManager()
-				.generateVariableExpression(IDFDynamicVariables.IDF_PYTHON_ENV_PATH.name(), null);
-		locationField.setText(location);
+		try {
+			String location = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION, ""); //$NON-NLS-1$
+			if (StringUtil.isEmpty(location)) {
+				location = VariablesPlugin.getDefault().getStringVariableManager()
+						.generateVariableExpression(IDFDynamicVariables.IDF_PYTHON_ENV_PATH.name(), null);
+			}
+			locationField.removeModifyListener(fListener);
+			locationField.setText(location);
+		} catch (Exception e) {
+			Logger.log(e);
+		}
 	}
 
 	@Override
