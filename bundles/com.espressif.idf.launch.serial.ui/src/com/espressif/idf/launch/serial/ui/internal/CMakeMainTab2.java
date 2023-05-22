@@ -40,6 +40,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -181,18 +182,25 @@ public class CMakeMainTab2 extends GenericMainTab {
 		composite.setLayout(layout);
 		composite.setLayoutData(gridData);
 		composite.setFont(parent.getFont());
-
-		argumentVariablesButton = createPushButton(composite, Messages.CMakeMainTab2_Variables, null);
-		argumentVariablesButton.addSelectionListener(fListener);
-		addControlAccessibleListener(argumentVariablesButton, argumentVariablesButton.getText()); // need to strip the
-																									// mnemonic from
-																									// buttons
-
+		Button argumentVariablesButton = createPushButton(composite, Messages.CMakeMainTab2_Variables, null);
+		argumentVariablesButton.addListener(SWT.Selection, e -> handleVariablesButtonSelected(argumentField));
 		Label instruction = new Label(group, SWT.NONE);
 		instruction.setText(Messages.CMakeMainTab2_Note);
 		gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
 		gridData.horizontalSpan = 2;
 		instruction.setLayoutData(gridData);
+	}
+
+	private void handleVariablesButtonSelected(Text textField) {
+		String variable = getVariable();
+		if (variable != null)
+			textField.insert(variable);
+	}
+
+	private String getVariable() {
+		StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(getShell());
+		dialog.open();
+		return dialog.getVariableExpression();
 	}
 
 	protected void createUartComposite(Composite parent) {
