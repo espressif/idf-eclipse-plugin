@@ -825,7 +825,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 				location = VariablesPlugin.getDefault().getStringVariableManager()
 						.generateVariableExpression(IDFDynamicVariables.IDF_PYTHON_ENV_PATH.name(), null);
 			}
-			locationField.removeModifyListener(fListener);
 			locationField.setText(location);
 		} catch (Exception e) {
 			Logger.log(e);
