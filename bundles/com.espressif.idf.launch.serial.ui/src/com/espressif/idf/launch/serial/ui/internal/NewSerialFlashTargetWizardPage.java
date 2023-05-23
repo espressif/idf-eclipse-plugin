@@ -230,7 +230,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 		Matcher matcher = pattern.matcher(chipInfoOutput);
 		if (matcher.find()) {
 			String chipType = matcher.group(1);
-			chipType = chipType.replace(PORT_NAME_DESCRIPTOR_SPLITOR, StringUtil.EMPTY).toLowerCase(); //$NON-NLS-1$
+			chipType = chipType.replace(PORT_NAME_DESCRIPTOR_SPLITOR, StringUtil.EMPTY).toLowerCase();
 			return chipType;
 		}
 
@@ -270,18 +270,18 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 					String port = serialPortCombo.getText().split(PORT_NAME_DESCRIPTOR_SPLITOR)[0];
 					String message = String.format(Messages.TargetPortUpdatingMessage, port);
 					if (infoArea != null && !infoArea.isDisposed())
-						infoArea.setText(infoArea.getText() + System.lineSeparator() + message);
+						infoArea.append(System.lineSeparator() + message);
 					Process chipInfoProcess = espToolCommands.chipInformation(port);
 					InputStream targetIn = chipInfoProcess.getInputStream();
 					BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(targetIn));
 					StringBuilder chipInfo = new StringBuilder();
 					String readLine;
-					while ((readLine = bufferedReader.readLine()) != null && this.getState() == Job.RUNNING) {
-						infoArea.append(System.lineSeparator());
-						infoArea.append(readLine);
+					while ((readLine = bufferedReader.readLine()) != null) {
+						infoArea.append("."); //$NON-NLS-1$
 						chipInfo.append(readLine);
 						chipInfo.append(System.lineSeparator());
 					}
+					infoArea.append(System.lineSeparator());
 					String chipType = extractChipFromChipInfoOutput(chipInfo.toString());
 					if (StringUtil.isEmpty(chipType)) {
 						if (infoArea != null && !infoArea.isDisposed())
@@ -289,7 +289,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 									+ String.format(Messages.TargetPortNotFoundMessage, port));
 					} else {
 						infoArea.append(System.lineSeparator());
-						infoArea.append(String.format(Messages.TargetPortFoundMessage, port, chipInfo));
+						infoArea.append(String.format(Messages.TargetPortFoundMessage, port, chipType));
 					}
 				} catch (Exception e) {
 					Logger.log(e);
