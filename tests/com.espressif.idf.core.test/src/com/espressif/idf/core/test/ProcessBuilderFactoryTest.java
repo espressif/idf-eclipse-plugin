@@ -21,7 +21,7 @@ import com.espressif.idf.core.ProcessBuilderFactory;
 class ProcessBuilderFactoryTest
 {
 	private final static List<String> cmd = Arrays.asList(new String[] { "cmd", "/c" });
-	private final static List<String> bash = Arrays.asList(new String[] { "bash", "-c" });
+	private final static List<String> bash = Arrays.asList(new String[] { "bash", "-c", "true" });
 	private static List<String> dummyCommand;
 
 	private static boolean isWindows()
