@@ -4,43 +4,41 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 import com.espressif.idf.core.ProcessBuilderFactory;
 
 class ProcessBuilderFactoryTest
 {
-	@TempDir
-	private static File tempDir;
-	private static File fakeExecutableFile;
+	private final static List<String> cmd = Arrays.asList(new String[] { "cmd", "/c" });
+	private final static List<String> bash = Arrays.asList(new String[] { "bash", "-c" });
+	private static List<String> dummyCommand;
+
+	private static boolean isWindows()
+	{
+		return System.getProperty("os.name").startsWith("Windows");
+	}
 
 	@BeforeAll
-	public static void setUp() throws IOException
+	static void setUp()
 	{
-		fakeExecutableFile = new File(tempDir, "fake");
-		fakeExecutableFile.createNewFile();
-		fakeExecutableFile.setExecutable(true);
+		dummyCommand = isWindows() ? cmd : bash;
 	}
 
 	@Test
 	void testRunInBackgroundShoudRetutnOkStatusWithOnlyFakeExecutable() throws IOException
 	{
-		List<String> command = new ArrayList<>();
-		command.add(fakeExecutableFile.getPath());
-
-		IStatus status = new ProcessBuilderFactory().runInBackground(command, null, null);
+		IStatus status = new ProcessBuilderFactory().runInBackground(dummyCommand, null, null);
 
 		assertEquals(IStatus.OK, status.getCode());
 	}
@@ -48,11 +46,7 @@ class ProcessBuilderFactoryTest
 	@Test
 	void testRunInBackgroundShouldReturnOkStatusWithAllCorrectArguments() throws IOException
 	{
-		List<String> command = new ArrayList<>();
-		command.add(fakeExecutableFile.getPath());
-		IPath workingDirPath = Path.fromOSString(tempDir.getAbsolutePath());
-
-		IStatus status = new ProcessBuilderFactory().runInBackground(command, workingDirPath, null);
+		IStatus status = new ProcessBuilderFactory().runInBackground(dummyCommand, Path.ROOT, null);
 
 		assertEquals(IStatus.OK, status.getCode());
 	}
@@ -60,24 +54,19 @@ class ProcessBuilderFactoryTest
 	@Test
 	void testRunShouldThrowExceptionWithIncorrectWorkingDir() throws IOException
 	{
-		List<String> command = new ArrayList<>();
-		command.add(fakeExecutableFile.getPath());
 		Map<String, String> emptyEnvironment = new HashMap<>();
 
 		assertThrows(IOException.class, () -> {
-			new ProcessBuilderFactory().run(command, Path.EMPTY, emptyEnvironment);
+			new ProcessBuilderFactory().run(dummyCommand, Path.EMPTY, emptyEnvironment);
 		});
 	}
 
 	@Test
 	void testRunShouldReturnEmptyResultWithFakeExecutableWithEmptyEnviromentMap() throws IOException
 	{
-		List<String> command = new ArrayList<>();
-		command.add(fakeExecutableFile.getPath());
-		IPath workingDirPath = Path.fromOSString(tempDir.getAbsolutePath());
 		Map<String, String> emptyEnvironment = new HashMap<>();
 
-		Process process = new ProcessBuilderFactory().run(command, workingDirPath, emptyEnvironment);
+		Process process = new ProcessBuilderFactory().run(dummyCommand, Path.ROOT, emptyEnvironment);
 
 		assertArrayEquals(new byte[0], process.getInputStream().readAllBytes());
 	}
@@ -85,11 +74,7 @@ class ProcessBuilderFactoryTest
 	@Test
 	void testRunShouldReturnEmptyResultWithFakeExecutableWithNullEnviromentMap() throws IOException
 	{
-		List<String> command = new ArrayList<>();
-		command.add(fakeExecutableFile.getPath());
-		IPath workingDirPath = Path.fromOSString(tempDir.getAbsolutePath());
-
-		Process process = new ProcessBuilderFactory().run(command, workingDirPath, null);
+		Process process = new ProcessBuilderFactory().run(dummyCommand, Path.ROOT, null);
 
 		assertArrayEquals(new byte[0], process.getInputStream().readAllBytes());
 	}
@@ -97,11 +82,9 @@ class ProcessBuilderFactoryTest
 	@Test
 	void testRunShouldReturnEmptyResultWithFakeExecutableWithNullWorkingDir() throws IOException
 	{
-		List<String> command = new ArrayList<>();
-		command.add(fakeExecutableFile.getPath());
 		Map<String, String> environment = new HashMap<>(System.getenv());
 
-		Process process = new ProcessBuilderFactory().run(command, null, environment);
+		Process process = new ProcessBuilderFactory().run(dummyCommand, null, environment);
 
 		assertArrayEquals(new byte[0], process.getInputStream().readAllBytes());
 	}
@@ -109,13 +92,9 @@ class ProcessBuilderFactoryTest
 	@Test
 	void testRunShouldReturnEmptyResultWithFakeExecutableAndWithAllArguments() throws IOException, InterruptedException
 	{
-		List<String> command = new ArrayList<>();
-		command.add(fakeExecutableFile.getPath());
 		Map<String, String> environment = new HashMap<>(System.getenv());
-		IPath workingDirPath = Path.fromOSString(tempDir.getAbsolutePath());
 
-
-		Process process = new ProcessBuilderFactory().run(command, workingDirPath, environment);
+		Process process = new ProcessBuilderFactory().run(dummyCommand, Path.ROOT, environment);
 
 		assertArrayEquals(new byte[0], process.getInputStream().readAllBytes());
 	}
