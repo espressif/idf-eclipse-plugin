@@ -54,6 +54,8 @@ public class Logger
 
 	public static void log(Plugin plugin, Exception e)
 	{
+		if (plugin == null)
+			return;
 		if (e instanceof CoreException)
 		{
 			plugin.getLog().log(((CoreException) e).getStatus());
