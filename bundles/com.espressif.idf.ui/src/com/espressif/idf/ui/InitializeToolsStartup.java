@@ -10,7 +10,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
+import java.text.DateFormat;
 import java.text.MessageFormat;
+import java.util.Date;
 
 import org.eclipse.cdt.cmake.core.internal.Activator;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -56,10 +58,8 @@ public class InitializeToolsStartup implements IStartup
 	private static final String IDF_INSTALLED_LIST_KEY = "idfInstalled"; //$NON-NLS-1$
 	private static final String PYTHON_PATH = "python"; //$NON-NLS-1$
 	private static final String IDF_PATH = "path"; //$NON-NLS-1$
-	private static final String IS_INSTALLER_CONFIG_SET = "isInstallerConfigSet"; //$NON-NLS-1$
 	private static final String DOC_URL = "\"https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/partition-tables.html?highlight=partitions%20csv#creating-custom-tables\""; //$NON-NLS-1$
-
-	private String newIdfPath;
+	private static final String LAST_MODIFIED_ESP_IDF_JSON_FILE = "lastModifed-esp_idf.json"; //$NON-NLS-1$
 
 	@Override
 	public void earlyStartup()
@@ -99,27 +99,19 @@ public class InitializeToolsStartup implements IStartup
 			Logger.log(MessageFormat.format("esp-idf.json file doesn't exist at this location: '{0}'", url.getPath()));
 			return;
 		}
-		else if (isInstallerConfigSet())
+		else if (isConfigFileUpdated(idf_json_file))
 		{
-			checkForUpdatedVersion(idf_json_file);
-			if (isInstallerConfigSet())
-			{
-				Logger.log("Ignoring esp_idf.json settings as it was configured earilier and idf_path is similar.");
-				return;
-			}
-
-			IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
 			Display.getDefault().syncExec(() -> {
 				Shell shell = new Shell(Display.getDefault());
 				MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO);
 				messageBox.setText(Messages.ToolsInitializationDifferentPathMessageBoxTitle);
 				messageBox.setMessage(MessageFormat.format(Messages.ToolsInitializationDifferentPathMessageBoxMessage,
-						newIdfPath, idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PATH)));
+						getFormattedDateAndTime(idf_json_file.lastModified())));
 				int response = messageBox.open();
 				if (response == SWT.NO)
 				{
 					Preferences prefs = getPreferences();
-					prefs.putBoolean(IS_INSTALLER_CONFIG_SET, true);
+					prefs.putLong(LAST_MODIFIED_ESP_IDF_JSON_FILE, idf_json_file.lastModified());
 					try
 					{
 						prefs.flush();
@@ -134,7 +126,11 @@ public class InitializeToolsStartup implements IStartup
 			});
 		}
 
-		// read esp-idf.json file
+		updateEnvUsingIdfJsonFile(idf_json_file);
+	}
+
+	private void updateEnvUsingIdfJsonFile(File idf_json_file)
+	{
 		JSONParser parser = new JSONParser();
 		try
 		{
@@ -163,6 +159,7 @@ public class InitializeToolsStartup implements IStartup
 
 					Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 					scopedPreferenceStore.putBoolean(InstallToolsHandler.INSTALL_TOOLS_FLAG, true);
+					scopedPreferenceStore.putLong(LAST_MODIFIED_ESP_IDF_JSON_FILE, idf_json_file.lastModified());
 					try
 					{
 						scopedPreferenceStore.flush();
@@ -173,19 +170,6 @@ public class InitializeToolsStartup implements IStartup
 					}
 				}
 			}
-
-			// save state
-			Preferences prefs = getPreferences();
-			prefs.putBoolean(IS_INSTALLER_CONFIG_SET, true);
-			try
-			{
-				prefs.flush();
-			}
-			catch (BackingStoreException e)
-			{
-				Logger.log(e);
-			}
-
 		}
 		catch (
 				IOException
@@ -195,44 +179,11 @@ public class InitializeToolsStartup implements IStartup
 		}
 	}
 
-	private void checkForUpdatedVersion(File idf_json_file)
+	private boolean isConfigFileUpdated(File idfJsonFile)
 	{
-		// read esp-idf.json file
-		JSONParser parser = new JSONParser();
-		try (FileReader reader = new FileReader(idf_json_file))
-		{
-			JSONObject jsonObj = (JSONObject) parser.parse(reader);
-			String idfVersionId = (String) jsonObj.get(IDF_VERSIONS_ID);
-			JSONObject list = (JSONObject) jsonObj.get(IDF_INSTALLED_LIST_KEY);
-			if (list == null)
-			{
-				return;
-			}
-			// selected esp-idf version information
-			JSONObject selectedIDFInfo = (JSONObject) list.get(idfVersionId);
-			String idfPath = (String) selectedIDFInfo.get(IDF_PATH);
-			IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
-			if (idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PATH).equals(idfPath))
-				return;
-			newIdfPath = idfPath;
-			Preferences prefs = getPreferences();
-			prefs.putBoolean(IS_INSTALLER_CONFIG_SET, false);
-			try
-			{
-				prefs.flush();
-			}
-			catch (BackingStoreException e)
-			{
-				Logger.log(e);
-			}
-		}
-		catch (
-				IOException
-				| ParseException e)
-		{
-			Logger.log(e);
-		}
-
+		long currentFileLastModified = idfJsonFile.lastModified();
+		long lastModifiedDateInPrefStore = getPreferences().getLong(LAST_MODIFIED_ESP_IDF_JSON_FILE, -1);
+		return currentFileLastModified > lastModifiedDateInPrefStore;
 	}
 
 	private Preferences getPreferences()
@@ -240,8 +191,10 @@ public class InitializeToolsStartup implements IStartup
 		return InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 	}
 
-	private boolean isInstallerConfigSet()
+	private String getFormattedDateAndTime(long timestamp)
 	{
-		return getPreferences().getBoolean(IS_INSTALLER_CONFIG_SET, false);
+		Date date = new Date(timestamp);
+		DateFormat dateFormat = DateFormat.getDateTimeInstance();
+		return dateFormat.format(date);
 	}
 }
