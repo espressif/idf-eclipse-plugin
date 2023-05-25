@@ -65,7 +65,9 @@ import com.espressif.idf.launch.serial.util.ESPFlashUtil;
  * Flashing into esp32 board
  *
  */
-public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfigDelegate {
+@SuppressWarnings("restriction")
+public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfigDelegate
+{
 	private static final String SYSTEM_PATH_PYTHON = "${system_path:python}"; //$NON-NLS-1$
 	private static final String OPENOCD_PREFIX = "com.espressif.idf.debug.gdbjtag.openocd"; //$NON-NLS-1$
 	private static final String INSTALL_FOLDER = "install.folder"; //$NON-NLS-1$
@@ -76,8 +78,10 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 
 	@Override
 	public ITargetedLaunch getLaunch(ILaunchConfiguration configuration, String mode, ILaunchTarget target)
-			throws CoreException {
-		if (target == null) {
+			throws CoreException
+	{
+		if (target == null)
+		{
 			ILaunchBarManager barManager = IDFCorePlugin.getService(ILaunchBarManager.class);
 			target = barManager.getActiveLaunchTarget();
 		}
@@ -86,17 +90,22 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 
 	@Override
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor)
-			throws CoreException {
+			throws CoreException
+	{
+		boolean isFlashOverJtag = configuration.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, false);
+
 		// Start the launch (pause the serial port)
 		((SerialFlashLaunch) launch).start();
-		boolean isFlashOverJtag = configuration.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, false);
+
 		serialPort = ((SerialFlashLaunch) launch).getLaunchTarget()
 				.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
-		if (DfuCommandsUtil.isDfu()) {
+		if (DfuCommandsUtil.isDfu())
+		{
 			DfuCommandsUtil.flashDfuBins(configuration, getProject(configuration), launch, monitor);
 			return;
 		}
-		if (isFlashOverJtag) {
+		if (isFlashOverJtag)
+		{
 			flashOverJtag(configuration, launch);
 			return;
 		}
@@ -104,26 +113,33 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 	}
 
 	protected void launchInternal(ILaunchConfiguration configuration, String mode, ILaunch launch,
-			IProgressMonitor monitor) throws CoreException {
+			IProgressMonitor monitor) throws CoreException
+	{
 		IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
 
-		String location = IDFUtil.getIDFPythonEnvPath();
-		if (StringUtil.isEmpty(location)) {
+		String location = varManager.performStringSubstitution(IDFUtil.getIDFPythonEnvPath());
+		if (StringUtil.isEmpty(location))
+		{
 			location = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION, SYSTEM_PATH_PYTHON);
 		}
-		if (StringUtil.isEmpty(location)) {
+		if (StringUtil.isEmpty(location))
+		{
 			launch.addProcess(new NullProcess(launch, Messages.CoreBuildGenericLaunchConfigDelegate_NoAction));
 			return;
-		} else {
+		}
+		else
+		{
 			String substLocation = varManager.performStringSubstitution(location);
-			if (substLocation.isEmpty()) {
+			if (substLocation.isEmpty())
+			{
 				throw new CoreException(new Status(IStatus.ERROR, CDebugCorePlugin.PLUGIN_ID,
 						String.format(Messages.CoreBuildGenericLaunchConfigDelegate_SubstitutionFailed, location)));
 			}
 			location = substLocation;
 		}
 
-		if (!new File(location).canExecute()) {
+		if (!new File(location).canExecute())
+		{
 			throw new CoreException(new Status(IStatus.ERROR, CDebugCorePlugin.PLUGIN_ID,
 					String.format(Messages.CoreBuildGenericLaunchConfigDelegate_CommandNotValid, location)));
 		}
@@ -131,38 +147,45 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		List<String> commands = new ArrayList<>();
 		commands.add(location);
 
-		//build the flash command
+		// build the flash command
 		String espFlashCommand = ESPFlashUtil.getEspFlashCommand(serialPort);
 		Logger.log(espFlashCommand);
-		if (checkIfPortIsEmpty(configuration)) {
+		if (checkIfPortIsEmpty(configuration))
+		{
 			return;
 		}
-		String arguments = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS,
-				espFlashCommand);
+		String arguments = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, espFlashCommand);
 		arguments = arguments.replace(ESPFlashUtil.SERIAL_PORT, serialPort);
-		if (!arguments.isEmpty()) {
+		arguments = varManager.performStringSubstitution(arguments);
+		if (!arguments.isEmpty())
+		{
 			commands.addAll(Arrays.asList(varManager.performStringSubstitution(arguments).split(" "))); //$NON-NLS-1$
 		}
 
 		String workingDirectory = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY,
-				""); //$NON-NLS-1$ˇ
+				""); //$NON-NLS-1$ ˇ
 		File workingDir;
-		if (workingDirectory.isEmpty()) {
+		if (workingDirectory.isEmpty())
+		{
 			workingDir = new File(getProject(configuration).getLocationURI());
-		} else {
+		}
+		else
+		{
 			workingDir = new File(varManager.performStringSubstitution(workingDirectory));
-			if (!workingDir.isDirectory()) {
+			if (!workingDir.isDirectory())
+			{
 				throw new CoreException(new Status(IStatus.ERROR, CDebugCorePlugin.PLUGIN_ID,
 						String.format(Messages.CoreBuildGenericLaunchConfigDelegate_WorkingDirNotExists, location)));
 			}
 		}
 
-		//Reading CDT build environment variables
+		// Reading CDT build environment variables
 		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
 
 		// Turn it into an envp format
 		List<String> strings = new ArrayList<>(envMap.size());
-		for (Entry<String, String> entry : envMap.entrySet()) {
+		for (Entry<String, String> entry : envMap.entrySet())
+		{
 			StringBuilder buffer = new StringBuilder(entry.getKey());
 			buffer.append('=').append(entry.getValue());
 			strings.add(buffer.toString());
@@ -173,7 +196,14 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		DebugPlugin.newProcess(launch, p, String.join(" ", commands)); //$NON-NLS-1$
 	}
 
-	protected void flashOverJtag(ILaunchConfiguration configuration, ILaunch launch) throws CoreException {
+	private String getVariablesValueFromExpression(String expression) throws CoreException
+	{
+		IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
+		return manager.performStringSubstitution(expression);
+	}
+
+	protected void flashOverJtag(ILaunchConfiguration configuration, ILaunch launch) throws CoreException
+	{
 		List<String> commands = new ArrayList<>();
 
 		String openocdExe = configuration.getAttribute(SERVER_EXECUTABLE, DEFAULT_PATH + DEFAULT_EXECUTABLE);
@@ -185,47 +215,62 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 
 		String arguments = configuration.getAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, ""); //$NON-NLS-1$
 		arguments = arguments.replace(DEFAULT_PATH, tmp).trim();
+		arguments = getVariablesValueFromExpression(arguments);
 		commands.addAll(StringUtils.splitCommandLineOptions(arguments));
 
 		String flashCommand = ESPFlashUtil.getEspJtagFlashCommand(configuration) + " exit"; //$NON-NLS-1$
 		commands.add(flashCommand);
 
-		try {
+		try
+		{
 			Process p = Runtime.getRuntime().exec(commands.toArray(new String[0]));
 			DebugPlugin.newProcess(launch, p, String.join(" ", commands)); //$NON-NLS-1$
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			Logger.log(e);
 		}
 	}
 
-	private boolean checkIfPortIsEmpty(ILaunchConfiguration configuration) {
+	private boolean checkIfPortIsEmpty(ILaunchConfiguration configuration)
+	{
 		boolean isMatch = false;
-		try {
+		try
+		{
 			String[] ports = SerialPort.list();
-			for (String port : ports) {
-				if (port.equals(serialPort)) {
+			for (String port : ports)
+			{
+				if (port.equals(serialPort))
+				{
 					isMatch = true;
 					break;
 				}
 			}
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			Logger.log(e);
 		}
-		if (!isMatch) {
+		if (!isMatch)
+		{
 			showMessage(configuration);
 			return true;
 		}
 		return false;
 	}
 
-	private static void showMessage(ILaunchConfiguration configuration) {
-		Display.getDefault().asyncExec(new Runnable() {
+	private static void showMessage(ILaunchConfiguration configuration)
+	{
+		Display.getDefault().asyncExec(new Runnable()
+		{
 			@Override
-			public void run() {
+			public void run()
+			{
 				boolean isYes = MessageDialog.openConfirm(Display.getDefault().getActiveShell(),
 						com.espressif.idf.launch.serial.internal.Messages.SerialPortNotFoundTitle,
 						com.espressif.idf.launch.serial.internal.Messages.SerialPortNotFoundMsg);
-				if (isYes) {
+				if (isYes)
+				{
 					ILaunchTargetUIManager targetUIManager = Activator.getService(ILaunchTargetUIManager.class);
 					ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
 					targetUIManager.editLaunchTarget(launchTargetManager.getDefaultLaunchTarget(configuration));
@@ -236,14 +281,16 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 
 	@Override
 	public boolean buildForLaunch(ILaunchConfiguration configuration, String mode, ILaunchTarget target,
-			IProgressMonitor monitor) throws CoreException {
+			IProgressMonitor monitor) throws CoreException
+	{
 
 		IProject project = getProject(configuration);
 		RecheckConfigsHelper.revalidateToolchain(project);
 		return superBuildForLaunch(configuration, mode, monitor);
 	}
 
-	public static String getSystemPythonPath() {
+	public static String getSystemPythonPath()
+	{
 		return SYSTEM_PATH_PYTHON;
 	}
 }

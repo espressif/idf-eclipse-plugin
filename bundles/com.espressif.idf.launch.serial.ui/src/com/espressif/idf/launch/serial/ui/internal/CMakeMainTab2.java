@@ -38,6 +38,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
@@ -65,14 +66,13 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.json.simple.JSONArray;
 
+import com.espressif.idf.core.IDFDynamicVariables;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.DfuCommandsUtil;
 import com.espressif.idf.core.util.EspConfigParser;
-import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
-import com.espressif.idf.launch.serial.internal.SerialFlashLaunchConfigDelegate;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 import com.espressif.idf.ui.EclipseUtil;
 import com.espressif.idf.ui.LaunchBarListener;
@@ -626,8 +626,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 		try {
 			String uartFlashCommand = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS,
 					StringUtil.EMPTY);
-			uartAgrumentsField
-					.setText(uartFlashCommand.isBlank() ? ESPFlashUtil.getEspFlashCommand(ESPFlashUtil.SERIAL_PORT)
+			uartAgrumentsField.setText(
+					uartFlashCommand.isBlank() ? ESPFlashUtil.getParseableEspFlashCommand(ESPFlashUtil.SERIAL_PORT)
 							: uartFlashCommand);
 
 			jtagArgumentsField.setText(
@@ -819,17 +819,16 @@ public class CMakeMainTab2 extends GenericMainTab {
 	@Override
 	protected void updateLocation(ILaunchConfiguration configuration) {
 		super.updateLocation(configuration);
-		locationField.removeModifyListener(fListener);
-		String location = IDFUtil.getIDFPythonEnvPath();
-		if (StringUtil.isEmpty(location)) {
-			try {
-				location = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION,
-						SerialFlashLaunchConfigDelegate.getSystemPythonPath());
-			} catch (CoreException e) {
-				Logger.log(e);
+		try {
+			String location = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION, ""); //$NON-NLS-1$
+			if (StringUtil.isEmpty(location)) {
+				location = VariablesPlugin.getDefault().getStringVariableManager()
+						.generateVariableExpression(IDFDynamicVariables.IDF_PYTHON_ENV_PATH.name(), null);
 			}
+			locationField.setText(location);
+		} catch (Exception e) {
+			Logger.log(e);
 		}
-		locationField.setText(location);
 	}
 
 	@Override
