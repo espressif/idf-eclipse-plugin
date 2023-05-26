@@ -1,7 +1,5 @@
 package com.espressif.idf.ui.preferences;
 
-import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.embedcdt.ui.preferences.ScopedPreferenceStoreWithoutDefaults;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -16,8 +14,8 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import com.espressif.idf.core.IDFCorePreferenceConstants;
-import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.ui.UIPlugin;
 
 public class EspresssifPreferencesPage extends PreferencePage implements IWorkbenchPreferencePage
 {
@@ -26,7 +24,7 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 	public static final String NUMBER_OF_CHARS_IN_A_LINE = "numberOfCharsInALine"; //$NON-NLS-1$
 	public static final int DEFAULT_SERIAL_MONITOR_NUBMER_OF_LINES = 1000;
 	public static final int DEFAULT_SERIAL_MONITOR_NUMBER_OF_CHARS_IN_LINE = 500;
-	
+
 	private static final String GDB_SERVER_LAUNCH_TIMEOUT = "fGdbServerLaunchTimeout"; //$NON-NLS-1$
 	private Text numberOfCharsInLineText;
 	private Text numberLineText;
@@ -36,20 +34,19 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 	public EspresssifPreferencesPage()
 	{
 		super();
-		setPreferenceStore(new ScopedPreferenceStoreWithoutDefaults(InstanceScope.INSTANCE, IDFCorePlugin.PLUGIN_ID));
+		setPreferenceStore(UIPlugin.getDefault().getPreferenceStore());
 		setDescription(Messages.EspresssifPreferencesPage_IDFSpecificPrefs);
 	}
 
 	@Override
 	public void init(IWorkbench workbench)
 	{
+		initializeDefaults();
 	}
 
 	@Override
 	protected Control createContents(Composite parent)
 	{
-		initializeDefaults();
-
 		Composite mainComposite = new Composite(parent, SWT.NONE);
 		GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 1;
@@ -62,7 +59,7 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		mainComposite.setLayoutData(data);
 
 		addccacheControl(mainComposite);
-		
+
 		addGdbSettings(mainComposite);
 
 		addSerialSettings(mainComposite);
@@ -133,7 +130,7 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 
 			int numberOfLines = Integer.parseInt(numberLineText.getText());
 			getPreferenceStore().setValue(NUMBER_OF_LINES, numberOfLines);
-			
+
 			getPreferenceStore().setValue(IDFCorePreferenceConstants.CMAKE_CCACHE_STATUS, ccacheBtn.getSelection());
 		}
 		catch (Exception e)
@@ -149,7 +146,8 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 	{
 		gdbSettingsText.setText(Integer.toString(getPreferenceStore().getDefaultInt(GDB_SERVER_LAUNCH_TIMEOUT)));
 		numberLineText.setText(Integer.toString(getPreferenceStore().getDefaultInt(NUMBER_OF_LINES)));
-		numberOfCharsInLineText.setText(Integer.toString(getPreferenceStore().getDefaultInt(NUMBER_OF_CHARS_IN_A_LINE)));
+		numberOfCharsInLineText
+				.setText(Integer.toString(getPreferenceStore().getDefaultInt(NUMBER_OF_CHARS_IN_A_LINE)));
 		ccacheBtn.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.CMAKE_CCACHE_STATUS));
 	}
 
@@ -158,6 +156,7 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		getPreferenceStore().setDefault(GDB_SERVER_LAUNCH_TIMEOUT, 25);
 		getPreferenceStore().setDefault(NUMBER_OF_CHARS_IN_A_LINE, DEFAULT_SERIAL_MONITOR_NUMBER_OF_CHARS_IN_LINE);
 		getPreferenceStore().setDefault(NUMBER_OF_LINES, DEFAULT_SERIAL_MONITOR_NUBMER_OF_LINES);
-		getPreferenceStore().setDefault(IDFCorePreferenceConstants.CMAKE_CCACHE_STATUS, IDFCorePreferenceConstants.CMAKE_CCACHE_DEFAULT_STATUS);
+		getPreferenceStore().setDefault(IDFCorePreferenceConstants.CMAKE_CCACHE_STATUS,
+				IDFCorePreferenceConstants.CMAKE_CCACHE_DEFAULT_STATUS);
 	}
 }
