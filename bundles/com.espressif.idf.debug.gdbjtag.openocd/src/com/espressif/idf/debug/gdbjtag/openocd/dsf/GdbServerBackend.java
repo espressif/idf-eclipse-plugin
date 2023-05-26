@@ -25,9 +25,9 @@ import org.eclipse.embedcdt.core.StringUtils;
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuGdbServerBackend;
 import org.osgi.framework.BundleContext;
 
+import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
-import com.espressif.idf.ui.UIPlugin;
 
 public class GdbServerBackend extends GnuMcuGdbServerBackend {
 
@@ -139,7 +139,8 @@ public class GdbServerBackend extends GnuMcuGdbServerBackend {
 
 	@Override
 	public int getServerLaunchTimeoutSeconds() {
-		return Platform.getPreferencesService().getInt(UIPlugin.PLUGIN_ID, Activator.GDB_SERVER_LAUNCH_TIMEOUT, fGdbServerLaunchDefaultTimeout, null);
+		return Platform.getPreferencesService().getInt(IDFCorePlugin.PLUGIN_ID, Activator.GDB_SERVER_LAUNCH_TIMEOUT,
+				fGdbServerLaunchDefaultTimeout, null);
 	}
 
 	public String getServerName() {
