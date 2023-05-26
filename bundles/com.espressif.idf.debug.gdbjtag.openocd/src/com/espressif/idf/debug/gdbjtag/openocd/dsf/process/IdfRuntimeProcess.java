@@ -9,6 +9,7 @@ import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Map;
 
+import org.eclipse.cdt.dsf.gdb.launching.GDBProcess;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IStreamsProxy;
@@ -25,15 +26,13 @@ import com.espressif.idf.debug.gdbjtag.openocd.dsf.process.monitors.StreamsProxy
  *
  */
 @SuppressWarnings("restriction")
-public class IdfRuntimeProcess extends RuntimeProcess
+public class IdfRuntimeProcess extends GDBProcess
 {
 	private boolean fCaptureOutput = true;
-	private String fName;
 
 	public IdfRuntimeProcess(ILaunch launch, Process process, String name, Map<String, String> attributes)
 	{
 		super(launch, process, name, attributes);
-		fName = name;
 	}
 
 	@Override
@@ -60,7 +59,7 @@ public class IdfRuntimeProcess extends RuntimeProcess
 				DebugPlugin.log(e);
 			}
 		}
-		StreamsProxy streamsProxy = new StreamsProxy(this, getSystemProcess(), charset, fName);
+		StreamsProxy streamsProxy = new StreamsProxy(this, getSystemProcess(), charset, getLabel());
 		return streamsProxy;
 	}
 }

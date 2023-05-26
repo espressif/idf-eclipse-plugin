@@ -26,6 +26,13 @@ import org.eclipse.debug.internal.core.InputStreamMonitor;
 
 import com.espressif.idf.debug.gdbjtag.openocd.dsf.process.StreamListener;
 
+/**
+ * This class is a derivation of original {@link org.eclipse.debug.internal.core.StreamsProxy}
+ * The reason is we want one stream listener for all 
+ * stream monitors as we are filtering out everything ourselves
+ * @author Ali Azam Rana
+ *
+ */
 @SuppressWarnings("restriction")
 public class StreamsProxy implements IBinaryStreamsProxy {
 	/**
@@ -61,6 +68,7 @@ public class StreamsProxy implements IBinaryStreamsProxy {
 		}
 		fOutputMonitor = new CustomOutputStreamMonitor(process.getInputStream(), charset);
 		fErrorMonitor = new CustomOutputStreamMonitor(process.getErrorStream(), charset);
+		// Our own addition to make sure that we utilize only one listener for all streams
 		StreamListener streamListener = new StreamListener(iProcess, fErrorMonitor, fOutputMonitor, charset);
 		fOutputMonitor.addListener(streamListener);
 		fErrorMonitor.addListener(streamListener);

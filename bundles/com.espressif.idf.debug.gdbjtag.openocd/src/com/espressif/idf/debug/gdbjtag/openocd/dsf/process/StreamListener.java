@@ -13,6 +13,7 @@ import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IFlushableStreamMonitor;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamMonitor;
+import org.eclipse.debug.internal.ui.views.console.ProcessConsole;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 
 import com.espressif.idf.core.logging.Logger;
@@ -22,9 +23,11 @@ import com.espressif.idf.debug.gdbjtag.openocd.dsf.console.IdfProcessConsoleFact
 /**
  * This class listens to a specified stream monitor to get notified on output from the process connected to console.
  * Its separated so that we can apply filters and pass the text onto the respected stream.
- * It is designed to handle both error and standard stream
+ * It is designed to handle both error and standard stream.
+ * This class is built using {@link ProcessConsole} StreamListner. The original class is private there.
  * @author Ali Azam Rana
  */
+@SuppressWarnings("restriction")
 public class StreamListener implements IStreamListener
 {
 

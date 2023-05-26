@@ -18,10 +18,16 @@ import org.eclipse.ui.console.IConsoleFactory;
  */
 public class IdfProcessConsoleFactory implements IConsoleFactory
 {
+	private static IdfProcessConsole idfProcessConsole;
+	
 	public static IdfProcessConsole showAndActivateConsole(Charset charset)
 	{
-		IdfProcessConsole idfProcessConsole = new IdfProcessConsole(charset);
-		ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[] { idfProcessConsole });
+		if (idfProcessConsole == null)
+		{
+			idfProcessConsole = new IdfProcessConsole(Charset.forName(WorkbenchEncoding.getWorkbenchDefaultEncoding()));
+			ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[] { idfProcessConsole });
+		}
+		
 		idfProcessConsole.activate();
 		
 		return idfProcessConsole;
@@ -30,8 +36,12 @@ public class IdfProcessConsoleFactory implements IConsoleFactory
 	@Override
 	public void openConsole()
 	{
-		IdfProcessConsole idfProcessConsole = new IdfProcessConsole(Charset.forName(WorkbenchEncoding.getWorkbenchDefaultEncoding()));
-		ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[] { idfProcessConsole });
+		if (idfProcessConsole == null)
+		{
+			idfProcessConsole = new IdfProcessConsole(Charset.forName(WorkbenchEncoding.getWorkbenchDefaultEncoding()));
+			ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[] { idfProcessConsole });
+		}
+		
 		idfProcessConsole.activate();
 	}
 }
