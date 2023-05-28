@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
@@ -17,14 +17,14 @@ class OutputStreamThreadTest
 	private static final String TEST_INPUT = "Test, Input";
 
 	@Test
-	public void testOutputStreamThreadShouldWriteContentToOutputStream() throws IOException, InterruptedException
+	public void testOutputStreamThreadShouldWriteContentToOutputStream()
 	{
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
 		OutputStreamThread thread = new OutputStreamThread(outputStream, TEST_INPUT, UTF_8);
 		thread.run();
 
-		String actualOutput = new String(outputStream.toByteArray(), UTF_8);
+		String actualOutput = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
 		assertEquals(TEST_INPUT, actualOutput);
 	}
 
@@ -43,9 +43,7 @@ class OutputStreamThreadTest
 	@Test
 	void testOutputStreamThreadWithNullOutputStreamShouldThrowException()
 	{
-		assertThrows(IllegalArgumentException.class, () -> {
-			new OutputStreamThread(null, TEST_INPUT, UTF_8);
-		});
+		assertThrows(IllegalArgumentException.class, () -> new OutputStreamThread(null, TEST_INPUT, UTF_8));
 	}
 
 	@Test
@@ -53,20 +51,18 @@ class OutputStreamThreadTest
 	{
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-		assertThrows(IllegalArgumentException.class, () -> {
-			new OutputStreamThread(outputStream, null, UTF_8);
-		});
+		assertThrows(IllegalArgumentException.class, () -> new OutputStreamThread(outputStream, null, UTF_8));
 	}
 
 	@Test
-	void testOutputStreamShouldBeEmptyIfIncorrectCharsetSent() throws IOException, InterruptedException
+	void testOutputStreamShouldBeEmptyIfIncorrectCharsetSent()
 	{
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		OutputStreamThread thread = new OutputStreamThread(outputStream, TEST_INPUT, "incorrectCharset");
 
 		thread.run();
 
-		String actualOutput = new String(outputStream.toByteArray(), UTF_8);
+		String actualOutput = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
 		assertEquals("", actualOutput);
 
 	}
