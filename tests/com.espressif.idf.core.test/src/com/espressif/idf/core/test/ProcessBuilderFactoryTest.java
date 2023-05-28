@@ -20,8 +20,8 @@ import com.espressif.idf.core.ProcessBuilderFactory;
 
 class ProcessBuilderFactoryTest
 {
-	private final static List<String> cmd = Arrays.asList(new String[] { "cmd", "/c" });
-	private final static List<String> bash = Arrays.asList(new String[] { "bash", "-c", "true" });
+	private static final List<String> cmd = Arrays.asList("cmd", "/c");
+	private static final List<String> bash = Arrays.asList("bash", "-c", "true");
 	private static List<String> dummyCommand;
 
 	private static boolean isWindows()
@@ -36,7 +36,7 @@ class ProcessBuilderFactoryTest
 	}
 
 	@Test
-	void testRunInBackgroundShoudRetutnOkStatusWithOnlyFakeExecutable() throws IOException
+	void testRunInBackgroundShouldReturnOkStatusWithOnlyDummyCommand() throws IOException
 	{
 		IStatus status = new ProcessBuilderFactory().runInBackground(dummyCommand, null, null);
 
@@ -52,17 +52,16 @@ class ProcessBuilderFactoryTest
 	}
 
 	@Test
-	void testRunShouldThrowExceptionWithIncorrectWorkingDir() throws IOException
+	void testRunShouldThrowExceptionWithIncorrectWorkingDir()
 	{
 		Map<String, String> emptyEnvironment = new HashMap<>();
 
-		assertThrows(IOException.class, () -> {
-			new ProcessBuilderFactory().run(dummyCommand, Path.EMPTY, emptyEnvironment);
-		});
+		assertThrows(IOException.class, () ->
+		new ProcessBuilderFactory().run(dummyCommand, Path.EMPTY, emptyEnvironment));
 	}
 
 	@Test
-	void testRunShouldReturnEmptyResultWithFakeExecutableWithEmptyEnviromentMap() throws IOException
+	void testRunShouldReturnEmptyResultWithDummyCommandAndEmptyEnviromentMap() throws IOException
 	{
 		Map<String, String> emptyEnvironment = new HashMap<>();
 
@@ -72,7 +71,7 @@ class ProcessBuilderFactoryTest
 	}
 
 	@Test
-	void testRunShouldReturnEmptyResultWithFakeExecutableWithNullEnviromentMap() throws IOException
+	void testRunShouldReturnEmptyResultWithDummyCommandWithNullEnviromentMap() throws IOException
 	{
 		Process process = new ProcessBuilderFactory().run(dummyCommand, Path.ROOT, null);
 
@@ -80,7 +79,7 @@ class ProcessBuilderFactoryTest
 	}
 
 	@Test
-	void testRunShouldReturnEmptyResultWithFakeExecutableWithNullWorkingDir() throws IOException
+	void testRunShouldReturnEmptyResultWithDummyCommandAndNullWorkingDir() throws IOException
 	{
 		Map<String, String> environment = new HashMap<>(System.getenv());
 
@@ -90,7 +89,7 @@ class ProcessBuilderFactoryTest
 	}
 
 	@Test
-	void testRunShouldReturnEmptyResultWithFakeExecutableAndWithAllArguments() throws IOException, InterruptedException
+	void testRunShouldReturnEmptyResultWithDummyCommandAndWithAllArguments() throws IOException
 	{
 		Map<String, String> environment = new HashMap<>(System.getenv());
 
@@ -100,15 +99,13 @@ class ProcessBuilderFactoryTest
 	}
 
 	@Test
-	void testRunShouldThrowExceptionWithNonExistingFileCommand() throws IOException, InterruptedException
+	void testRunShouldThrowExceptionWithNonExistingFileCommand()
 	{
 		List<String> command = new ArrayList<>();
 		command.add("NotExistingFile");
 		Map<String, String> environment = new HashMap<>(System.getenv());
 
-		assertThrows(IOException.class, () -> {
-			new ProcessBuilderFactory().run(command, Path.EMPTY, environment);
-		});
+		assertThrows(IOException.class, () -> new ProcessBuilderFactory().run(command, Path.EMPTY, environment));
 	}
 
 }
