@@ -38,9 +38,8 @@ class InputStreamThreadReaderTest
 	@Test
 	void testShouldThrowExceptionForNullInputStreamInConstructor()
 	{
-		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-			new InputStreamThread(null, NEW_LINE_SEPARATOR, UTF_8);
-		});
+		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+				() -> new InputStreamThread(null, NEW_LINE_SEPARATOR, UTF_8));
 
 		assertEquals("The InputStream and the newLineSeparator cannot be null!", thrown.getMessage());
 	}
