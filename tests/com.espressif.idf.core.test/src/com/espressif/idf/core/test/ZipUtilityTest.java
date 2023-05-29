@@ -76,11 +76,6 @@ public class ZipUtilityTest
 		assertTrue(result);
 	}
 
-	private String readContentFromFile(File file) throws IOException
-	{
-		return new String(Files.readAllBytes(file.toPath()));
-	}
-
 	@Test
 	void decompress_nested_directories_should_extract_nested_files(@TempDir Path tempDir)
 			throws IOException
@@ -154,5 +149,11 @@ public class ZipUtilityTest
 
 		return zipFile;
 	}
+
+	private String readContentFromFile(File file) throws IOException
+	{
+		return new String(Files.readAllBytes(file.toPath()));
+	}
+
 }
 
