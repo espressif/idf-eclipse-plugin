@@ -23,7 +23,7 @@ import com.espressif.idf.core.ZipUtility;
 public class ZipUtilityTest
 {
 	private static final String TEST_INPUT = "Test, Input!";
-	private static final String DIRECTORY = "directory" + File.separator;
+	private static final String DIRECTORY = "directory" + "//";
 	private static final String FILE_ENTRY = DIRECTORY + "file.txt";
 	private static final String NESTED_DIRECTORY = DIRECTORY + DIRECTORY;
 	private static final String NESTED_FILE_ENTRY = DIRECTORY + FILE_ENTRY;
@@ -77,8 +77,7 @@ public class ZipUtilityTest
 	}
 
 	@Test
-	void decompress_nested_directories_should_extract_nested_files(@TempDir Path tempDir)
-			throws IOException
+	void decompress_nested_directories_should_extract_nested_files(@TempDir Path tempDir) throws IOException
 	{
 		File zipFile = createNestedZipFile(tempDir);
 		File outputDirectory = new File(tempDir.toFile(), "output");
@@ -156,4 +155,3 @@ public class ZipUtilityTest
 	}
 
 }
-
