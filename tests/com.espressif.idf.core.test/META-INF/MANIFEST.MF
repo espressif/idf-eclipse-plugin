@@ -7,7 +7,9 @@ Bundle-Vendor: Espressif Systems
 Automatic-Module-Name: com.espressif.idf.core.test
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.junit,
- com.espressif.idf.core;bundle-version="1.0.1"
+ com.espressif.idf.core;bundle-version="1.0.1",
+ junit-jupiter-api,
+ junit-jupiter-params
 Bundle-ClassPath: .,
  lib/jmock-2.12.0.jar,
  lib/commons-collections4-4.4.jar,
