@@ -59,7 +59,7 @@ public class InitializeToolsStartup implements IStartup
 	private static final String PYTHON_PATH = "python"; //$NON-NLS-1$
 	private static final String IDF_PATH = "path"; //$NON-NLS-1$
 	private static final String DOC_URL = "\"https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/partition-tables.html?highlight=partitions%20csv#creating-custom-tables\""; //$NON-NLS-1$
-	private static final String LAST_MODIFIED_ESP_IDF_JSON_TIMESTAMP = "esp_idf_json_lastmodified_timestamp"; //$NON-NLS-1$
+	private static final String LAST_MODIFIED_ESP_IDF_JSON_FILE = "lastModifed-esp_idf.json"; //$NON-NLS-1$
 
 	@Override
 	public void earlyStartup()
@@ -111,7 +111,7 @@ public class InitializeToolsStartup implements IStartup
 				if (response == SWT.NO)
 				{
 					Preferences prefs = getPreferences();
-					prefs.putLong(LAST_MODIFIED_ESP_IDF_JSON_TIMESTAMP, idf_json_file.lastModified());
+					prefs.putLong(LAST_MODIFIED_ESP_IDF_JSON_FILE, idf_json_file.lastModified());
 					try
 					{
 						prefs.flush();
@@ -123,12 +123,10 @@ public class InitializeToolsStartup implements IStartup
 
 					return;
 				}
-				else 
-				{
-					updateEnvUsingIdfJsonFile(idf_json_file);
-				}
 			});
 		}
+
+		updateEnvUsingIdfJsonFile(idf_json_file);
 	}
 
 	private void updateEnvUsingIdfJsonFile(File idf_json_file)
@@ -161,7 +159,7 @@ public class InitializeToolsStartup implements IStartup
 
 					Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 					scopedPreferenceStore.putBoolean(InstallToolsHandler.INSTALL_TOOLS_FLAG, true);
-					scopedPreferenceStore.putLong(LAST_MODIFIED_ESP_IDF_JSON_TIMESTAMP, idf_json_file.lastModified());
+					scopedPreferenceStore.putLong(LAST_MODIFIED_ESP_IDF_JSON_FILE, idf_json_file.lastModified());
 					try
 					{
 						scopedPreferenceStore.flush();
@@ -184,7 +182,7 @@ public class InitializeToolsStartup implements IStartup
 	private boolean isConfigFileUpdated(File idfJsonFile)
 	{
 		long currentFileLastModified = idfJsonFile.lastModified();
-		long lastModifiedDateInPrefStore = getPreferences().getLong(LAST_MODIFIED_ESP_IDF_JSON_TIMESTAMP, -1);
+		long lastModifiedDateInPrefStore = getPreferences().getLong(LAST_MODIFIED_ESP_IDF_JSON_FILE, -1);
 		return currentFileLastModified > lastModifiedDateInPrefStore;
 	}
 
