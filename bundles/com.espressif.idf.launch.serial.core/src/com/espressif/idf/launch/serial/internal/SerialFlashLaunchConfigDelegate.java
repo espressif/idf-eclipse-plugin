@@ -192,7 +192,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 			buffer.append('=').append(entry.getValue());
 			strings.add(buffer.toString());
 		}
-
+		Logger.log(String.format("flash command: %s", String.join(" ", commands))); //$NON-NLS-1$ //$NON-NLS-2$
 		String[] envArray = strings.toArray(new String[strings.size()]);
 		Process p = DebugPlugin.exec(commands.toArray(new String[0]), workingDir, envArray);
 		DebugPlugin.newProcess(launch, p, String.join(" ", commands)); //$NON-NLS-1$
