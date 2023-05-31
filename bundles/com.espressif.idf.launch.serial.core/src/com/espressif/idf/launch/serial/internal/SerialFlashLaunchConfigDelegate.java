@@ -117,10 +117,12 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 	{
 		IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
 
-		String location = varManager.performStringSubstitution(IDFUtil.getIDFPythonEnvPath());
+		String location = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION,
+				SYSTEM_PATH_PYTHON);
+		location = varManager.performStringSubstitution(location);
 		if (StringUtil.isEmpty(location))
 		{
-			location = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION, SYSTEM_PATH_PYTHON);
+			location = varManager.performStringSubstitution(IDFUtil.getIDFPythonEnvPath());
 		}
 		if (StringUtil.isEmpty(location))
 		{
