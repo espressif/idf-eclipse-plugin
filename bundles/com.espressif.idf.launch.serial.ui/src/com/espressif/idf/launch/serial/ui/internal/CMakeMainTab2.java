@@ -72,6 +72,7 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.DfuCommandsUtil;
 import com.espressif.idf.core.util.EspConfigParser;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.core.variable.OpenocdDynamicVariable;
 import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 import com.espressif.idf.ui.EclipseUtil;
@@ -79,7 +80,7 @@ import com.espressif.idf.ui.LaunchBarListener;
 
 @SuppressWarnings("restriction")
 public class CMakeMainTab2 extends GenericMainTab {
-	private static final String EMPTY_CONFIG_OPTIONS = "-s ${openocd_path}/share/openocd/scripts"; //$NON-NLS-1$
+	private static final String EMPTY_CONFIG_OPTIONS = "%s" + File.separator + "%s -s %s"; //$NON-NLS-1$ //$NON-NLS-2$
 	private Combo flashOverComboButton;
 	private Combo fFlashVoltage;
 	private Combo fTarget;
@@ -111,9 +112,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 	@Override
 	public void createControl(Composite parent) {
 		LaunchBarListener.setIgnoreJtagTargetChange(true);
-		parent.addDisposeListener(e -> {
-			LaunchBarListener.setIgnoreJtagTargetChange(false);
-		});
+		parent.addDisposeListener(e -> LaunchBarListener.setIgnoreJtagTargetChange(false));
 
 		mainComposite = new Composite(parent, SWT.NONE);
 		mainComposite.setFont(parent.getFont());
@@ -779,7 +778,10 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private void updateArgumentsField() {
 		String selectedVoltage = fFlashVoltage.getText();
 		String selectedItem = fTargetName.getText();
-		String configOptiopns = EMPTY_CONFIG_OPTIONS;
+		String configOptiopns = String.format(EMPTY_CONFIG_OPTIONS,
+				newVariableExpression(OpenocdDynamicVariable.OPENOCD_PATH),
+				newVariableExpression(OpenocdDynamicVariable.OPENOCD_EXE),
+				newVariableExpression(OpenocdDynamicVariable.OPENOCD_SCRIPTS));
 		if (!selectedVoltage.equals("default"))//$NON-NLS-1$
 		{
 			configOptiopns = configOptiopns + " -c 'set ESP32_FLASH_VOLTAGE " + selectedVoltage + "'"; //$NON-NLS-1$//$NON-NLS-2$
@@ -790,6 +792,10 @@ public class CMakeMainTab2 extends GenericMainTab {
 			}
 		}
 		jtagArgumentsField.setText(configOptiopns);
+	}
+
+	private String newVariableExpression(OpenocdDynamicVariable dynamicVariable) {
+		return newVariableExpression(dynamicVariable.getValue(), null);
 	}
 
 	private String getLaunchTarget() {
