@@ -48,6 +48,7 @@ public class StreamListener implements IStreamListener
 		fOutputStreamMonitor = outputStreamMonitor;
 
 		idfProcessConsole = IdfProcessConsoleFactory.showAndActivateConsole(charset);
+		idfProcessConsole.clearConsole();
 		fConsoleErrorOutputStream = idfProcessConsole.getErrorStream();
 		fConsoleErrorOutputStream.setActivateOnWrite(true);
 		fConsoleOutputStream = idfProcessConsole.getOutputStream();
