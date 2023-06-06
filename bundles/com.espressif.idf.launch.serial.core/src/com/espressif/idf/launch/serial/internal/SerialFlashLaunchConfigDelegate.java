@@ -68,7 +68,6 @@ import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 @SuppressWarnings("restriction")
 public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfigDelegate
 {
-	private static final String SYSTEM_PATH_PYTHON = "${system_path:python}"; //$NON-NLS-1$
 	private static final String OPENOCD_PREFIX = "com.espressif.idf.debug.gdbjtag.openocd"; //$NON-NLS-1$
 	private static final String INSTALL_FOLDER = "install.folder"; //$NON-NLS-1$
 	private static final String SERVER_EXECUTABLE = OPENOCD_PREFIX + ".openocd.gdbServerExecutable"; //$NON-NLS-1$
@@ -118,12 +117,8 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
 
 		String location = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION,
-				SYSTEM_PATH_PYTHON);
+				IDFUtil.getIDFPythonEnvPath());
 		location = varManager.performStringSubstitution(location);
-		if (StringUtil.isEmpty(location))
-		{
-			location = varManager.performStringSubstitution(IDFUtil.getIDFPythonEnvPath());
-		}
 		if (StringUtil.isEmpty(location))
 		{
 			launch.addProcess(new NullProcess(launch, Messages.CoreBuildGenericLaunchConfigDelegate_NoAction));
@@ -291,8 +286,4 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		return superBuildForLaunch(configuration, mode, monitor);
 	}
 
-	public static String getSystemPythonPath()
-	{
-		return SYSTEM_PATH_PYTHON;
-	}
 }
