@@ -36,11 +36,16 @@ import com.espressif.idf.core.build.Messages;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.resources.OpenDialogListenerSupport;
 import com.espressif.idf.core.resources.ResourceChangeListener;
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.core.util.ToolChainUtil;
 import com.espressif.idf.ui.dialogs.MessageLinkDialog;
 import com.espressif.idf.ui.update.ExportIDFTools;
 import com.espressif.idf.ui.update.InstallToolsHandler;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 @SuppressWarnings("restriction")
 public class InitializeToolsStartup implements IStartup
@@ -57,10 +62,9 @@ public class InitializeToolsStartup implements IStartup
 	private static final String IDF_INSTALLED_LIST_KEY = "idfInstalled"; //$NON-NLS-1$
 	private static final String PYTHON_PATH = "python"; //$NON-NLS-1$
 	private static final String IDF_PATH = "path"; //$NON-NLS-1$
+	private static final String IDF_VERSION = "version"; //$NON-NLS-1$
 	private static final String IS_INSTALLER_CONFIG_SET = "isInstallerConfigSet"; //$NON-NLS-1$
 	private static final String DOC_URL = "\"https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/partition-tables.html?highlight=partitions%20csv#creating-custom-tables\""; //$NON-NLS-1$
-
-	private String newIdfPath;
 
 	@Override
 	public void earlyStartup()
@@ -102,25 +106,26 @@ public class InitializeToolsStartup implements IStartup
 		}
 		else if (isInstallerConfigSet())
 		{
-			checkForUpdatedVersion(idf_json_file);
-			if (isInstallerConfigSet())
+			isVersionDifferentInFile(idf_json_file);
+			if (!isVersionDifferentInFile(idf_json_file))
 			{
-				Logger.log("Ignoring esp_idf.json settings as it was configured earilier and idf_path is similar.");
 				return;
 			}
 
+			Logger.log("A different version for idf tool in ide env and esp_idf.json found");
 			IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
 			Display.getDefault().syncExec(() -> {
 				Shell shell = new Shell(Display.getDefault());
 				MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO);
 				messageBox.setText(Messages.ToolsInitializationDifferentPathMessageBoxTitle);
 				messageBox.setMessage(MessageFormat.format(Messages.ToolsInitializationDifferentPathMessageBoxMessage,
-						newIdfPath, idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PATH)));
+						idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PATH)));
 				int response = messageBox.open();
-				if (response == SWT.NO)
+				if (response == SWT.YES)
 				{
-					IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
-					updateEspIdfJsonFile(idf_json_file, idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH));
+					updateEspIdfJsonFile(idf_json_file, idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PATH),
+							idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH),
+							IDFUtil.getEspIdfVersion());
 					Preferences prefs = getPreferences();
 					prefs.putBoolean(IS_INSTALLER_CONFIG_SET, true);
 					try
@@ -131,8 +136,6 @@ public class InitializeToolsStartup implements IStartup
 					{
 						Logger.log(e);
 					}
-
-					return;
 				}
 			});
 		}
@@ -199,24 +202,46 @@ public class InitializeToolsStartup implements IStartup
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void updateEspIdfJsonFile(File idf_json_file, String newIdfPathToUpdate)
+	private void updateEspIdfJsonFile(File idf_json_file, String idfPath, String idfPythonPath, String idfVersion)
 	{
 		JSONParser parser = new JSONParser();
 		JSONObject jsonObj = null;
 		try (FileReader reader = new FileReader(idf_json_file))
 		{
 			jsonObj = (JSONObject) parser.parse(reader);
-			String idfVersionId = (String) jsonObj.get(IDF_VERSIONS_ID);
 			JSONObject list = (JSONObject) jsonObj.get(IDF_INSTALLED_LIST_KEY);
 			if (list == null)
 			{
 				return;
 			}
-			// selected esp-idf version information
-			JSONObject selectedIDFInfo = (JSONObject) list.get(idfVersionId);
-			selectedIDFInfo.put(IDF_PATH, newIdfPathToUpdate);
-			list.put(idfVersionId, selectedIDFInfo);
+			
+			// verifying if the paths are already in the file we just update the idfSelectedId to that version in esp_idf.json
+			for (Object key : list.keySet())
+			{
+				JSONObject idfInstalled = (JSONObject) list.get(key);
+				if (idfInstalled.get(IDF_PATH).equals(idfPath) && idfInstalled.get(PYTHON_PATH).equals(idfPythonPath)
+						&& idfInstalled.get(IDF_VERSION).equals(idfVersion))
+				{
+					jsonObj.put(IDF_VERSIONS_ID, key);
+					// write everything to the file here and return
+					Logger.log("Already existing paths and versions found in the file with key: " + key);
+					addJsonToFile(jsonObj, idf_json_file);
+					return;
+				}
+			}
+			
+			// since no version was found we create an object into idfInstalled and update the idfSelectedId
+			JSONObject idfVersionToAdd = new JSONObject();
+			idfVersionToAdd.put(IDF_PATH, idfPath);
+			idfVersionToAdd.put(PYTHON_PATH, idfPythonPath);
+			idfVersionToAdd.put(IDF_VERSION, idfVersion);
+			String idfVersionIdToAdd = "esp-idf-" + System.currentTimeMillis();
+			list.put(idfVersionIdToAdd, idfVersionToAdd);
 			jsonObj.put(IDF_INSTALLED_LIST_KEY, list);
+			jsonObj.put(IDF_VERSIONS_ID, idfVersionIdToAdd);
+			
+			Logger.log("Created new object for json with key: " + idfVersionIdToAdd + " This will be added to esp_idf.json");
+			addJsonToFile(jsonObj, idf_json_file);
 		}
 		catch (
 				IOException
@@ -224,24 +249,25 @@ public class InitializeToolsStartup implements IStartup
 		{
 			Logger.log(e);
 		}
-
-		if (jsonObj != null)
+	}
+	
+	private void addJsonToFile(JSONObject jsonObject, File idf_json_file) throws IOException
+	{
+		if (jsonObject != null)
 		{
+			// using gson for pretty printing
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+			JsonElement jsonElement = JsonParser.parseString(jsonObject.toJSONString());
 			try (FileWriter fileWriter = new FileWriter(idf_json_file))
 			{
-				fileWriter.write(jsonObj.toJSONString());
+				fileWriter.write(gson.toJson(jsonElement));
 				fileWriter.flush();
 
 			}
-			catch (IOException e)
-			{
-				Logger.log(e);
-			}
 		}
-
 	}
 
-	private void checkForUpdatedVersion(File idf_json_file)
+	private boolean isVersionDifferentInFile(File idf_json_file)
 	{
 		// read esp-idf.json file
 		JSONParser parser = new JSONParser();
@@ -250,26 +276,13 @@ public class InitializeToolsStartup implements IStartup
 			JSONObject jsonObj = (JSONObject) parser.parse(reader);
 			String idfVersionId = (String) jsonObj.get(IDF_VERSIONS_ID);
 			JSONObject list = (JSONObject) jsonObj.get(IDF_INSTALLED_LIST_KEY);
-			if (list == null)
+			if (list != null)
 			{
-				return;
-			}
-			// selected esp-idf version information
-			JSONObject selectedIDFInfo = (JSONObject) list.get(idfVersionId);
-			String idfPath = (String) selectedIDFInfo.get(IDF_PATH);
-			IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
-			if (idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PATH).equals(idfPath))
-				return;
-			newIdfPath = idfPath;
-			Preferences prefs = getPreferences();
-			prefs.putBoolean(IS_INSTALLER_CONFIG_SET, false);
-			try
-			{
-				prefs.flush();
-			}
-			catch (BackingStoreException e)
-			{
-				Logger.log(e);
+				// selected esp-idf version information
+				JSONObject selectedIDFInfo = (JSONObject) list.get(idfVersionId);
+				String idfPath = (String) selectedIDFInfo.get(IDF_PATH);
+				IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
+				return !idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PATH).equals(idfPath);
 			}
 		}
 		catch (
@@ -279,6 +292,7 @@ public class InitializeToolsStartup implements IStartup
 			Logger.log(e);
 		}
 
+		return false;
 	}
 
 	private Preferences getPreferences()
