@@ -208,3 +208,16 @@ To resolve this issue, you can try disabling Unresolved Symbol error marker.
 When IDE parser add the support for C/C++ 20 language features, you can revert the above change.
 
 ![](docs/images/code_analysis_disable_symbols.png)
+
+
+# What does the popup mean after I have updated the IDE via offline installer or installed new IDF Tools via IDE?
+![](docs/images/update_idf_popup.png)
+
+When you update your IDE via offline installer or you change to a different IDF toolchain version, the Espressif IDE on the old workspace already initialized with the installer will give a popup message as shown above.
+You can choose to press yes which will add an entry in the esp_idf.json file for the installed idf toolchain or you can press no which will revert to the last selected toolchain in the esp_idf.json file.
+The esp_idf.json file is found under the root directory for Espressif-IDE. This file is only present if the IDE was installed via installer.
+The file can contain multiple entries for the idf tool chains and you can select the one by simply replacing the idfSelectedId key value in this json file. An example of the file is shown below in the image.
+![](docs/images/esp_idf_json_file_sample.png)
+
+You can see that the idfInstalled object shows multiple esp-idf versions. You can simply replace the esp-idf you want in the idfSelectedId field.
+After you restart in the same workspace you will be notified with the same message again if you are in the same workspace. You can click No this time to load the idf env from the esp_idf.json file.
