@@ -106,7 +106,6 @@ public class InitializeToolsStartup implements IStartup
 		}
 		else if (isInstallerConfigSet())
 		{
-			isVersionDifferentInFile(idf_json_file);
 			if (!isVersionDifferentInFile(idf_json_file))
 			{
 				return;
@@ -123,9 +122,16 @@ public class InitializeToolsStartup implements IStartup
 				int response = messageBox.open();
 				if (response == SWT.YES)
 				{
+					String version = IDFUtil.getEspIdfVersion();
+					java.util.regex.Pattern p = java.util.regex.Pattern.compile("([0-9][.][0-9])"); //$NON-NLS-1$
+					java.util.regex.Matcher m = p.matcher(version);
+					if (m.find())
+					{
+						version = m.group(0);
+					}
 					updateEspIdfJsonFile(idf_json_file, idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PATH),
 							idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH),
-							IDFUtil.getEspIdfVersion());
+							version);
 					Preferences prefs = getPreferences();
 					prefs.putBoolean(IS_INSTALLER_CONFIG_SET, true);
 					try
