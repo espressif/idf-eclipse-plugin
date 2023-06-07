@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2023 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.core.variable;
 
 import java.io.File;
@@ -18,12 +22,17 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.StringUtil;
 
+/**
+ * Dynamic variable resolver for OpenOCD related variables. This resolver handles variables declared in the
+ * OpenocdDynamicVariable enum. If a variable is declared via an extension point but not added to the
+ * OpenocdDynamicVariable enum, this resolver will return the name of such variable.
+ */
 public class OpenocdVariableResolver implements IDynamicVariableResolver
 {
 	private static final String OPENOCD_PREFIX = "com.espressif.idf.debug.gdbjtag.openocd"; //$NON-NLS-1$
 	private static final String INSTALL_FOLDER = "install.folder"; //$NON-NLS-1$
 
-	public String resolveValue(IDynamicVariable variable, String argument) throws CoreException
+	public String resolveValue(IDynamicVariable variable, String argument)
 	{
 		return getAppropriateEnumVariable(variable).map(this::resolveForOpenocdDynamicEnum).orElse(variable.getName());
 	}
@@ -67,7 +76,10 @@ public class OpenocdVariableResolver implements IDynamicVariableResolver
 		}
 	}
 
-	private Path getOpenocdBinPath(ILaunchConfiguration configuration)
+	/*
+	 * seam for testing
+	 */
+	protected Path getOpenocdBinPath(ILaunchConfiguration configuration)
 	{
 		String installFolder = EclipseUtils.getPreferenceValueForId(OPENOCD_PREFIX, INSTALL_FOLDER, "", //$NON-NLS-1$
 				EclipseUtils.getProjectByLaunchConfiguration(configuration));
