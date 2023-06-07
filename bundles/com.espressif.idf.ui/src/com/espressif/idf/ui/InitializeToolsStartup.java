@@ -130,7 +130,7 @@ public class InitializeToolsStartup implements IStartup
 						version = m.group(0);
 					}
 					updateEspIdfJsonFile(idf_json_file, idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PATH),
-							idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH),
+							IDFUtil.getIDFPythonEnvPath(),
 							version);
 					Preferences prefs = getPreferences();
 					prefs.putBoolean(IS_INSTALLER_CONFIG_SET, true);
