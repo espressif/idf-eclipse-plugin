@@ -120,7 +120,7 @@ public class NvsBeanValidator
 		BigInteger bigIntegerValue = null;
 		try
 		{
-			bigIntegerValue = BigIntDecoder.decode(value);
+			bigIntegerValue = new BigInteger(value);
 		}
 		catch (NumberFormatException e)
 		{
