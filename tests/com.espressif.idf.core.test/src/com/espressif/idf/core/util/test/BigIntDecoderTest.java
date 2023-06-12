@@ -56,6 +56,15 @@ public class BigIntDecoderTest
 	}
 
 	@ParameterizedTest(name = "value ''{0}'' decoded to {1}")
+	@CsvSource({ "#A3F, 2623", "#A3F, 2623", "#AA, 170", "#FF, 255" })
+	void test_decode_positive_hexadecimal_hash_number(String stringToDecode, int expectedResult)
+	{
+		BigInteger decodedNumber = BigIntDecoder.decode(stringToDecode);
+
+		Assertions.assertEquals(expectedResult, decodedNumber.intValue());
+	}
+
+	@ParameterizedTest(name = "value ''{0}'' decoded to {1}")
 	@CsvSource({ "+0xA3F, 2623", "+0XA3F, 2623", "+0xAA, 170", "+0XFF, 255" })
 	void test_decode_positive_with_sign_hexadecimal_number(String stringToDecode, int expectedResult)
 	{
