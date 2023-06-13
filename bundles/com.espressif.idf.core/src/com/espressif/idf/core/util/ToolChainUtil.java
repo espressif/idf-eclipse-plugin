@@ -10,8 +10,8 @@ import org.eclipse.cdt.core.build.IToolChainManager;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 
 import com.espressif.idf.core.IDFCorePlugin;
-import com.espressif.idf.core.build.ESPToolChainManager;
-import com.espressif.idf.core.build.ESPToolChainProvider;
+import com.espressif.idf.core.toolchain.ESPToolChainManager;
+import com.espressif.idf.core.toolchain.ESPToolChainProvider;
 
 /**
  * The util class to configure the toolchains after tools installation

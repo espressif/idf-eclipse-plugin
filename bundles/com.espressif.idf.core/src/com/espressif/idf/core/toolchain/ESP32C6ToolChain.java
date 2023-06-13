@@ -1,15 +1,10 @@
-/*******************************************************************************
-
- * Copyright 2022-2023 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
- * Use is subject to license terms.
- *******************************************************************************/
-package com.espressif.idf.core.build;
+package com.espressif.idf.core.toolchain;
 
 import java.nio.file.Path;
 
 import org.eclipse.cdt.core.build.IToolChainProvider;
 
-public class ESP32H2ToolChain extends AbstractESPToolchain
+public class ESP32C6ToolChain extends AbstractESPToolchain
 {
 	/**
 	 * Toolchain target ID
@@ -19,7 +14,7 @@ public class ESP32H2ToolChain extends AbstractESPToolchain
 	/**
 	 * Property: The OS the toolchain builds for.
 	 */
-	public static final String OS = "esp32h2"; //$NON-NLS-1$
+	public static final String OS = "esp32c6"; //$NON-NLS-1$
 
 	/**
 	 * Property: The CPU architecture the toolchain supports.
@@ -30,7 +25,7 @@ public class ESP32H2ToolChain extends AbstractESPToolchain
 	 * @param provider
 	 * @param pathToToolChain
 	 */
-	public ESP32H2ToolChain(IToolChainProvider provider, Path pathToToolChain)
+	public ESP32C6ToolChain(IToolChainProvider provider, Path pathToToolChain)
 	{
 		super(provider, pathToToolChain, OS, ARCH);
 	}
@@ -41,5 +36,4 @@ public class ESP32H2ToolChain extends AbstractESPToolchain
 		// TODO Auto-generated method stub
 		return super.getId() + "-" + OS;
 	}
-
 }

@@ -2,7 +2,7 @@
  * Copyright 2018-2019 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.core.build;
+package com.espressif.idf.core.toolchain;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,6 +45,8 @@ import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
+import com.espressif.idf.core.build.IDFLaunchConstants;
+import com.espressif.idf.core.build.Messages;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;

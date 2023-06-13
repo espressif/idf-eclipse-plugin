@@ -3,7 +3,7 @@
  * Use is subject to license terms.
  *******************************************************************************/
 
-package com.espressif.idf.core.build;
+package com.espressif.idf.core.toolchain;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -27,6 +27,7 @@ import org.eclipse.launchbar.core.target.ILaunchTarget;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.toolchain.AbstractESPToolchain;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>

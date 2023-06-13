@@ -37,12 +37,12 @@ import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.SystemExecutableFinder;
-import com.espressif.idf.core.build.ESP32C2ToolChain;
-import com.espressif.idf.core.build.ESP32C3ToolChain;
-import com.espressif.idf.core.build.ESP32C6ToolChain;
-import com.espressif.idf.core.build.ESP32H2ToolChain;
-import com.espressif.idf.core.build.ESPToolChainProvider;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.toolchain.ESP32C2ToolChain;
+import com.espressif.idf.core.toolchain.ESP32C3ToolChain;
+import com.espressif.idf.core.toolchain.ESP32C6ToolChain;
+import com.espressif.idf.core.toolchain.ESP32H2ToolChain;
+import com.espressif.idf.core.toolchain.ESPToolChainProvider;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>

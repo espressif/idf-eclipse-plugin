@@ -17,8 +17,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.osgi.service.prefs.Preferences;
 
-import com.espressif.idf.core.build.AbstractESPToolchain;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.toolchain.AbstractESPToolchain;
 
 /**
  * A class for revalidating the build configuration and adding the correct toolchain to the settings. This helps to

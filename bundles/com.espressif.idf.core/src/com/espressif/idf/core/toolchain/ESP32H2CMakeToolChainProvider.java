@@ -1,4 +1,4 @@
-package com.espressif.idf.core.build;
+package com.espressif.idf.core.toolchain;
 
 import org.eclipse.cdt.core.build.IToolChain;
 import org.eclipse.core.runtime.CoreException;

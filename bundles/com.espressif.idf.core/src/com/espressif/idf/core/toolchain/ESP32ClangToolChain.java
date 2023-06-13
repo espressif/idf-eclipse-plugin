@@ -1,4 +1,4 @@
-package com.espressif.idf.core.build;
+package com.espressif.idf.core.toolchain;
 
 import java.nio.file.Path;
 import java.util.List;

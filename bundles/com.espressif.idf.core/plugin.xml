@@ -21,25 +21,25 @@
   <extension
         point="org.eclipse.cdt.cmake.core.toolChainProvider">
      <provider
-           class="com.espressif.idf.core.build.ESP32CMakeToolChainProvider">
+           class="com.espressif.idf.core.toolchain.ESP32CMakeToolChainProvider">
      </provider>
      <provider
-           class="com.espressif.idf.core.build.ESP32S2CMakeToolChainProvider">
+           class="com.espressif.idf.core.toolchain.ESP32S2CMakeToolChainProvider">
      </provider>
      <provider
-           class="com.espressif.idf.core.build.ESP32S3CMakeToolChainProvider">
+           class="com.espressif.idf.core.toolchain.ESP32S3CMakeToolChainProvider">
      </provider>
      <provider
-           class="com.espressif.idf.core.build.ESP32C3CMakeToolChainProvider">
+           class="com.espressif.idf.core.toolchain.ESP32C3CMakeToolChainProvider">
      </provider>
      <provider
-           class="com.espressif.idf.core.build.ESP32C2CMakeToolChainProvider">
+           class="com.espressif.idf.core.toolchain.ESP32C2CMakeToolChainProvider">
      </provider>
      <provider
-           class="com.espressif.idf.core.build.ESP32H2CMakeToolChainProvider">
+           class="com.espressif.idf.core.toolchain.ESP32H2CMakeToolChainProvider">
      </provider>
       <provider
-           class="com.espressif.idf.core.build.ESP32C6CMakeToolChainProvider">
+           class="com.espressif.idf.core.toolchain.ESP32C6CMakeToolChainProvider">
      </provider>
   </extension>
   <extension
