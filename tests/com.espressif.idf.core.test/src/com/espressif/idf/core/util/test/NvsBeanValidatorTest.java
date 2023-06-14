@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigInteger;
 
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -15,8 +17,15 @@ import com.espressif.idf.core.util.NvsBeanValidator;
 import com.espressif.idf.core.util.NvsTableDataService;
 import com.espressif.idf.core.util.StringUtil;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class NvsBeanValidatorTest
 {
+
+	private static final int NON_EXISTING_COLUMN = 4;
+	private static final int VALUE_COLUMN = 3;
+	private static final int ENCODING_COLUMN = 2;
+	private static final int TYPE_COLUMN = 1;
+	private static final int NAME_COLUMN = 0;
 
 	@Test
 	void validate_empty_key_returns_validation_error()
@@ -24,7 +33,7 @@ class NvsBeanValidatorTest
 		NvsTableBean testTableBean = new NvsTableBean();
 		testTableBean.setKey(StringUtil.EMPTY);
 
-		String actualResult = new NvsBeanValidator().validateBean(testTableBean, 0);
+		String actualResult = new NvsBeanValidator().validateBean(testTableBean, NAME_COLUMN);
 
 		assertEquals(Messages.NvsValidation_KeyValidationErr_1, actualResult);
 	}
@@ -35,7 +44,7 @@ class NvsBeanValidatorTest
 		NvsTableBean testTableBean = new NvsTableBean();
 		testTableBean.setKey("test key longer then 15");
 
-		String actualResult = new NvsBeanValidator().validateBean(testTableBean, 0);
+		String actualResult = new NvsBeanValidator().validateBean(testTableBean, NAME_COLUMN);
 
 		assertEquals(Messages.NvsValidation_KeyValidationErr_2, actualResult);
 	}
@@ -46,7 +55,7 @@ class NvsBeanValidatorTest
 		NvsTableBean tesTableBean = new NvsTableBean();
 		tesTableBean.setKey("valid key");
 
-		String actualResult = new NvsBeanValidator().validateBean(tesTableBean, 0);
+		String actualResult = new NvsBeanValidator().validateBean(tesTableBean, NAME_COLUMN);
 
 		assertEquals(StringUtil.EMPTY, actualResult);
 	}
@@ -56,7 +65,7 @@ class NvsBeanValidatorTest
 	{
 		NvsTableBean tesTableBean = new NvsTableBean();
 
-		String actualResult = new NvsBeanValidator().validateBean(tesTableBean, 1);
+		String actualResult = new NvsBeanValidator().validateBean(tesTableBean, TYPE_COLUMN);
 
 		assertEquals(StringUtil.EMPTY, actualResult);
 	}
@@ -72,7 +81,7 @@ class NvsBeanValidatorTest
 		testTableBean.setType(type);
 		testTableBean.setEncoding(encoding);
 
-		String actualResult = new NvsBeanValidator().validateBean(testTableBean, 2);
+		String actualResult = new NvsBeanValidator().validateBean(testTableBean, ENCODING_COLUMN);
 
 		assertEquals(expectedResult, actualResult);
 	}
@@ -87,7 +96,7 @@ class NvsBeanValidatorTest
 		testTableBean.setType(type);
 		testTableBean.setEncoding(encoding);
 
-		String actualResult = new NvsBeanValidator().validateBean(testTableBean, 2);
+		String actualResult = new NvsBeanValidator().validateBean(testTableBean, ENCODING_COLUMN);
 
 		assertEquals(StringUtil.EMPTY, actualResult);
 	}
@@ -99,7 +108,7 @@ class NvsBeanValidatorTest
 		testTableBean.setType("namespace");
 		testTableBean.setValue("test");
 
-		String actualResult = new NvsBeanValidator().validateBean(testTableBean, 3);
+		String actualResult = new NvsBeanValidator().validateBean(testTableBean, VALUE_COLUMN);
 
 		assertEquals(Messages.NvsValidation_ValueValidationErr_1, actualResult);
 	}
@@ -111,7 +120,7 @@ class NvsBeanValidatorTest
 		testTableBean.setType("namespace");
 		testTableBean.setValue(StringUtil.EMPTY);
 
-		String actualResult = new NvsBeanValidator().validateBean(testTableBean, 3);
+		String actualResult = new NvsBeanValidator().validateBean(testTableBean, VALUE_COLUMN);
 
 		assertEquals(StringUtil.EMPTY, actualResult);
 	}
@@ -124,7 +133,7 @@ class NvsBeanValidatorTest
 		testTableBean.setType("file");
 		testTableBean.setValue(StringUtil.EMPTY);
 
-		String actualResult = new NvsBeanValidator().validateBean(testTableBean, 3);
+		String actualResult = new NvsBeanValidator().validateBean(testTableBean, VALUE_COLUMN);
 
 		assertEquals(Messages.NvsValidation_ValueValidationErr_2, actualResult);
 	}
@@ -137,7 +146,7 @@ class NvsBeanValidatorTest
 		testTableBean.setType("file");
 		testTableBean.setValue(value);
 
-		String actualResult = new NvsBeanValidator().validateBean(testTableBean, 3);
+		String actualResult = new NvsBeanValidator().validateBean(testTableBean, VALUE_COLUMN);
 
 		assertEquals(StringUtil.EMPTY, actualResult);
 	}
@@ -155,7 +164,7 @@ class NvsBeanValidatorTest
 		}
 		testTableBean.setValue(valueOverLimit);
 
-		String actualResult = new NvsBeanValidator().validateBean(testTableBean, 3);
+		String actualResult = new NvsBeanValidator().validateBean(testTableBean, VALUE_COLUMN);
 
 		assertEquals(Messages.NvsValidation_ValueValidationErr_3, actualResult);
 
@@ -169,7 +178,7 @@ class NvsBeanValidatorTest
 		testTableBean.setEncoding("string");
 		testTableBean.setValue("test");
 
-		String actualResult = new NvsBeanValidator().validateBean(testTableBean, 3);
+		String actualResult = new NvsBeanValidator().validateBean(testTableBean, VALUE_COLUMN);
 
 		assertEquals(StringUtil.EMPTY, actualResult);
 	}
@@ -188,7 +197,7 @@ class NvsBeanValidatorTest
 		}
 		testTableBean.setValue(valueOverLimit);
 
-		String actualResult = new NvsBeanValidator().validateBean(testTableBean, 3);
+		String actualResult = new NvsBeanValidator().validateBean(testTableBean, VALUE_COLUMN);
 
 		assertEquals(Messages.NvsValidation_ValueValidationErr_3, actualResult);
 
@@ -202,7 +211,7 @@ class NvsBeanValidatorTest
 		testTableBean.setEncoding("binary");
 		testTableBean.setValue("test");
 
-		String actualResult = new NvsBeanValidator().validateBean(testTableBean, 3);
+		String actualResult = new NvsBeanValidator().validateBean(testTableBean, VALUE_COLUMN);
 
 		assertEquals(StringUtil.EMPTY, actualResult);
 	}
@@ -219,7 +228,7 @@ class NvsBeanValidatorTest
 		testTableBean.setEncoding(encoding);
 		testTableBean.setValue(value);
 
-		String actualResult = new NvsBeanValidator().validateBean(testTableBean, 3);
+		String actualResult = new NvsBeanValidator().validateBean(testTableBean, VALUE_COLUMN);
 
 		assertEquals(StringUtil.EMPTY, actualResult);
 	}
@@ -236,7 +245,7 @@ class NvsBeanValidatorTest
 		testTableBean.setEncoding(encoding);
 		testTableBean.setValue(value);
 
-		String actualResult = new NvsBeanValidator().validateBean(testTableBean, 3);
+		String actualResult = new NvsBeanValidator().validateBean(testTableBean, VALUE_COLUMN);
 
 		assertEquals(String.format(Messages.NvsValidation_NumberValueValidationErr_2, value, encoding), actualResult);
 	}
@@ -259,7 +268,7 @@ class NvsBeanValidatorTest
 			expectedResult = String.format(Messages.NvsValidation_NumberValueValidationErr_1, e.getLocalizedMessage());
 		}
 		
-		String actualResult = new NvsBeanValidator().validateBean(testTableBean, 3);
+		String actualResult = new NvsBeanValidator().validateBean(testTableBean, VALUE_COLUMN);
 
 		assertEquals(expectedResult, actualResult);
 	}
@@ -269,7 +278,7 @@ class NvsBeanValidatorTest
 	{
 		NvsTableBean testTableBean = new NvsTableBean();
 
-		String actualResult = new NvsBeanValidator().validateBean(testTableBean, 4);
+		String actualResult = new NvsBeanValidator().validateBean(testTableBean, NON_EXISTING_COLUMN);
 
 		assertEquals(StringUtil.EMPTY, actualResult);
 	}
@@ -304,7 +313,7 @@ class NvsBeanValidatorTest
 		testTableBean.setValue("test");
 		testTableBean.setEncoding("non-existing");
 
-		String actualResult = new NvsBeanValidator().validateBean(testTableBean, 3);
+		String actualResult = new NvsBeanValidator().validateBean(testTableBean, VALUE_COLUMN);
 
 		assertEquals(StringUtil.EMPTY, actualResult);
 	}
