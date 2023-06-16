@@ -15,14 +15,9 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Optional;
 
 import org.eclipse.cdt.core.CCorePlugin;
-import org.eclipse.cdt.core.model.CModelException;
-import org.eclipse.cdt.core.model.CoreModel;
 import org.eclipse.cdt.core.model.IBinary;
 import org.eclipse.cdt.core.model.ICElement;
 import org.eclipse.cdt.core.model.ICProject;
@@ -44,7 +39,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Link;
 
 import com.espressif.idf.core.build.IDFLaunchConstants;
@@ -249,43 +243,15 @@ public class TabMain extends CMainTab2
 	@Override
 	public void setDefaults(ILaunchConfigurationWorkingCopy configuration)
 	{
-		super.setDefaults(configuration);
-
-		IProject selectedProject = getSelectedProject();
-		if (selectedProject != null)
-		{
-			ICProject icProject = CCorePlugin.getDefault().getCoreModel().create(selectedProject);
-			initializeCProject(icProject, configuration);
-		}
-		try
-		{
-			configuration.doSave();
-		}
-		catch (CoreException e)
-		{
-			Logger.log(e);
-		}
+		Optional<IProject> selectedProject = EclipseUtil.getDefaultIDFProject();
+		selectedProject.ifPresent(project -> initializeDefaultProject(project, configuration));
 	}
 
-	private IProject getSelectedProject()
+	private void initializeDefaultProject(IProject project, ILaunchConfigurationWorkingCopy configuration)
 	{
-		List<IProject> projectList = new ArrayList<>(1);
-		Display.getDefault().syncExec(() -> {
-			IProject project = EclipseUtil.getSelectedProjectInExplorer();
-			if (project != null)
-				projectList.add(project);
-
-		});
-		try
-		{
-			ICProject[] projects = CoreModel.getDefault().getCModel().getCProjects();
-			projectList.addAll(Stream.of(projects).map(ICProject::getProject).collect(Collectors.toList()));
-		}
-		catch (CModelException e)
-		{
-			Logger.log(e);
-		}
-		return projectList.get(0);
+		ICProject icProject = CCorePlugin.getDefault().getCoreModel().create(project);
+		initializeCProject(icProject, configuration);
+		initializeProgramName(icProject, configuration);
 	}
 
 	@Override
