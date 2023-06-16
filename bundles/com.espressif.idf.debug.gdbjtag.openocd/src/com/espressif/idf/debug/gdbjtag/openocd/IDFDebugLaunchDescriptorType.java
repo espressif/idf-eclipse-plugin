@@ -6,6 +6,7 @@ package com.espressif.idf.debug.gdbjtag.openocd;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -77,8 +78,10 @@ public class IDFDebugLaunchDescriptorType implements ILaunchDescriptorType
 		{
 			Logger.log(e);
 		}
-		return Stream.of(resources).filter(resource -> resource.getType() == IResource.PROJECT)
-				.map(IResource::getProject).findFirst();
+		return resources == null ? Optional.empty()
+				: Stream.of(resources).filter(Objects::nonNull)
+						.filter(resource -> resource.getType() == IResource.PROJECT).map(IResource::getProject)
+						.findFirst();
 	}
 
 }
