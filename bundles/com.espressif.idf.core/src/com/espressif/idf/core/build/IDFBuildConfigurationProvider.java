@@ -27,7 +27,7 @@ import org.eclipse.launchbar.core.target.ILaunchTarget;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.toolchain.AbstractESPToolchain;
+import com.espressif.idf.core.toolchain.ESPToolchain;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -67,7 +67,7 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 				}
 				for (IToolChain tc : toolChainManager.getToolChainsMatching(target.getAttributes()))
 				{
-					if (tc instanceof AbstractESPToolchain)
+					if (tc instanceof ESPToolchain)
 					{
 						toolChain = tc;
 						break;
@@ -84,7 +84,7 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 			{
 				for (IToolChain tc : toolChainManager.getToolChainsMatching(new HashMap<>()))
 				{
-					if (tc instanceof AbstractESPToolchain)
+					if (tc instanceof ESPToolchain)
 					{
 						toolChain = tc;
 						break;

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="com.espressif.idf.core.toolchain" name="esptoolchain" schema="schema/com.espressif.idf.core.toolchain.exsd"/>
    <extension
          id="idfNature"
          point="org.eclipse.core.resources.natures">
@@ -21,31 +22,13 @@
   <extension
         point="org.eclipse.cdt.cmake.core.toolChainProvider">
      <provider
-           class="com.espressif.idf.core.toolchain.ESP32CMakeToolChainProvider">
-     </provider>
-     <provider
-           class="com.espressif.idf.core.toolchain.ESP32S2CMakeToolChainProvider">
-     </provider>
-     <provider
-           class="com.espressif.idf.core.toolchain.ESP32S3CMakeToolChainProvider">
-     </provider>
-     <provider
-           class="com.espressif.idf.core.toolchain.ESP32C3CMakeToolChainProvider">
-     </provider>
-     <provider
-           class="com.espressif.idf.core.toolchain.ESP32C2CMakeToolChainProvider">
-     </provider>
-     <provider
-           class="com.espressif.idf.core.toolchain.ESP32H2CMakeToolChainProvider">
-     </provider>
-      <provider
-           class="com.espressif.idf.core.toolchain.ESP32C6CMakeToolChainProvider">
+           class="com.espressif.idf.core.toolchain.ESPCMakeToolChainProvider">
      </provider>
   </extension>
   <extension
         point="org.eclipse.cdt.core.toolChainProvider">
      <provider
-           class="com.espressif.idf.core.build.ESPToolChainProvider"
+           class="com.espressif.idf.core.toolchain.ESPToolChainProvider"
            id="com.espressif.idf.core.esp.toolchainprovider">
      </provider>
    </extension> 
@@ -260,4 +243,72 @@ config-only component and an interface library is created instead."
            name="KCONFIG_PROJBUILD">
      </property>
   </extension>
+  <extension
+        point="com.espressif.idf.core.toolchain">
+     <ToolChain
+           arch="xtensa"
+           compilerPattern="xtensa-esp32-elf-gcc(\\.exe)?"
+           debuggerPattern="xtensa-esp32-elf-gdb(\\.exe)?"
+           fileName="toolchain-esp32.cmake"
+           id="xtensa-esp32-elf"
+           name="esp32">
+     </ToolChain>
+     <ToolChain
+           arch="xtensa"
+           compilerPattern="xtensa-esp32s2-elf-gcc(\\.exe)?"
+           debuggerPattern="xtensa-esp32s2-elf-gdb(\\.exe)?"
+           fileName="toolchain-esp32s2.cmake"
+           id="xtensa-esp32s2-elf"
+           name="esp32s2">
+     </ToolChain>
+     <ToolChain
+           arch="xtensa"
+           compilerPattern="xtensa-esp32s3-elf-gcc(\\.exe)?"
+           debuggerPattern="xtensa-esp32s3-elf-gdb(\\.exe)?"
+           fileName="toolchain-esp32s3.cmake"
+           id="xtensa-esp32s3-elf"
+           name="esp32s3">
+     </ToolChain>
+     <ToolChain
+           arch="riscv32"
+           compilerPattern="riscv32-esp-elf-gcc(\\.exe)?"
+           debuggerPattern="riscv32-esp-elf-gdb(\\.exe)?"
+           fileName="toolchain-esp32c2.cmake"
+           id="riscv32-esp-elf"
+           name="esp32c2">
+     </ToolChain>
+     <ToolChain
+           arch="riscv32"
+           compilerPattern="riscv32-esp-elf-gcc(\\.exe)?"
+           debuggerPattern="riscv32-esp-elf-gdb(\\.exe)?"
+           fileName="toolchain-esp32c3.cmake"
+           id="riscv32-esp-elf"
+           name="esp32c3">
+     </ToolChain>
+     <ToolChain
+           arch="riscv32"
+           compilerPattern="riscv32-esp-elf-gcc(\\.exe)?"
+           debuggerPattern="riscv32-esp-elf-gdb(\\.exe)?"
+           fileName="toolchain-esp32c6.cmake"
+           id="riscv32-esp-elf"
+           name="esp32c6">
+     </ToolChain>
+          <ToolChain
+           arch="riscv32"
+           compilerPattern="riscv32-esp-elf-gcc(\\.exe)?"
+           debuggerPattern="riscv32-esp-elf-gdb(\\.exe)?"
+           fileName="toolchain-esp32h2.cmake"
+           id="riscv32-esp-elf"
+           name="esp32h2">
+     </ToolChain>
+     <ToolChain
+           arch="xtensa-clang"
+           compilerPattern="xtensa-esp32-elf-clang(\\.exe)?"
+           debuggerPattern="xtensa-esp32-elf-clang(\\.exe)?"
+           fileName="toolchain-clang-esp32.cmake"
+           id="riscv32-esp-elf"
+           name="esp32">
+     </ToolChain>
+  </extension>
+
 </plugin>

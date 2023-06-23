@@ -5,6 +5,7 @@
 package com.espressif.idf.core.toolchain;
 
 import org.eclipse.cdt.cmake.core.CMakeToolChainEvent;
+import org.eclipse.cdt.cmake.core.ICMakeToolChainFile;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainListener;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainProvider;
@@ -19,7 +20,7 @@ import com.espressif.idf.core.IDFCorePlugin;
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
-public abstract class AbstractESPCMakeToolChainProvider implements ICMakeToolChainProvider, ICMakeToolChainListener
+public class ESPCMakeToolChainProvider implements ICMakeToolChainProvider, ICMakeToolChainListener
 {
 
 	protected IToolChainManager tcManager = CCorePlugin.getService(IToolChainManager.class);
@@ -42,7 +43,8 @@ public abstract class AbstractESPCMakeToolChainProvider implements ICMakeToolCha
 			try
 			{
 				// This will load up the toolchain
-				IToolChain toolChain = getToolchain();
+				ICMakeToolChainFile toolChainFile = event.getToolChainFile();
+				IToolChain toolChain = toolChainFile.getToolChain();
 				assert toolChain != null;
 			}
 			catch (CoreException e)
@@ -52,7 +54,5 @@ public abstract class AbstractESPCMakeToolChainProvider implements ICMakeToolCha
 			break;
 		}
 	}
-
-	protected abstract IToolChain getToolchain() throws CoreException;
 
 }
