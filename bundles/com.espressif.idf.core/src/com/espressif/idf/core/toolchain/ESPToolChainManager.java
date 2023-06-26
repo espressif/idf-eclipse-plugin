@@ -61,11 +61,11 @@ public class ESPToolChainManager
 	 */
 	private static final String TOOLCHAIN_ATTR_ID = "ATTR_ID"; //$NON-NLS-1$
 	private String envValue;
-	private Map<String, ESPToolChainElement> toolchainElements = new HashMap<>();
+	private static Map<String, ESPToolChainElement> toolchainElements = new HashMap<>();
 
 	public ESPToolChainManager()
 	{
-		this.toolchainElements = readESPToolchainRegistry();
+		toolchainElements = readESPToolchainRegistry();
 	}
 
 	public Map<String, ESPToolChainElement> getToolchainElements()
@@ -73,26 +73,27 @@ public class ESPToolChainManager
 		return toolchainElements;
 	}
 
-	public Map<String, ESPToolChainElement> readESPToolchainRegistry()
+	public static Map<String, ESPToolChainElement> readESPToolchainRegistry()
 	{
-		Map<String, ESPToolChainElement> toolchainElements = new HashMap<>();
-
-		IConfigurationElement[] configElements = Platform.getExtensionRegistry()
-				.getConfigurationElementsFor("com.espressif.idf.core.toolchain"); //$NON-NLS-1$
-		for (IConfigurationElement iConfigurationElement : configElements)
+		if (toolchainElements.isEmpty()) // load only once from the extension point
 		{
-			String name = iConfigurationElement.getAttribute("name"); //$NON-NLS-1$
-			String id = iConfigurationElement.getAttribute("id"); //$NON-NLS-1$
-			String arch = iConfigurationElement.getAttribute("arch"); //$NON-NLS-1$
-			String fileName = iConfigurationElement.getAttribute("fileName"); //$NON-NLS-1$
-			String compilerPattern = iConfigurationElement.getAttribute("compilerPattern"); //$NON-NLS-1$
-			String debuggerPatten = iConfigurationElement.getAttribute("debuggerPattern"); //$NON-NLS-1$
+			IConfigurationElement[] configElements = Platform.getExtensionRegistry()
+					.getConfigurationElementsFor("com.espressif.idf.core.toolchain"); //$NON-NLS-1$
+			for (IConfigurationElement iConfigurationElement : configElements)
+			{
+				String name = iConfigurationElement.getAttribute("name"); //$NON-NLS-1$
+				String id = iConfigurationElement.getAttribute("id"); //$NON-NLS-1$
+				String arch = iConfigurationElement.getAttribute("arch"); //$NON-NLS-1$
+				String fileName = iConfigurationElement.getAttribute("fileName"); //$NON-NLS-1$
+				String compilerPattern = iConfigurationElement.getAttribute("compilerPattern"); //$NON-NLS-1$
+				String debuggerPatten = iConfigurationElement.getAttribute("debuggerPattern"); //$NON-NLS-1$
 
-			String uniqueToolChainId = name.concat("/").concat(arch).concat("/").concat(fileName); //$NON-NLS-1$ //$NON-NLS-2$
+				String uniqueToolChainId = name.concat("/").concat(arch).concat("/").concat(fileName); //$NON-NLS-1$ //$NON-NLS-2$
 
-			toolchainElements.put(uniqueToolChainId,
-					new ESPToolChainElement(name, id, arch, fileName, compilerPattern, debuggerPatten));
+				toolchainElements.put(uniqueToolChainId,
+						new ESPToolChainElement(name, id, arch, fileName, compilerPattern, debuggerPatten));
 
+			}
 		}
 		return toolchainElements;
 	}
@@ -140,7 +141,7 @@ public class ESPToolChainManager
 		{
 			ESPToolChainElement toolChainElement = toolchainElements.get(toolchainTarget);
 
-			File toolchainCompilerFile = findToolChainCompiler(manager, toolchainProvider, paths, toolChainElement);
+			File toolchainCompilerFile = findToolChain(paths, toolChainElement.compilerPattern);
 			if (toolchainCompilerFile != null)
 			{
 				addToolChain(manager, toolchainProvider, toolchainCompilerFile, toolChainElement);
@@ -148,8 +149,7 @@ public class ESPToolChainManager
 		}
 	}
 
-	private File findToolChainCompiler(IToolChainManager manager, IToolChainProvider toolchainProvider,
-			List<String> paths, ESPToolChainElement toolChainElement)
+	private File findToolChain(List<String> paths, String filePattern)
 	{
 		for (String path : paths)
 		{
@@ -165,7 +165,7 @@ public class ESPToolChainManager
 							continue;
 						}
 
-						Pattern pattern = Pattern.compile(toolChainElement.compilerPattern);
+						Pattern pattern = Pattern.compile(filePattern);
 						Matcher matcher = pattern.matcher(file.getName());
 						if (matcher.matches())
 						{
@@ -192,14 +192,14 @@ public class ESPToolChainManager
 		}
 	}
 
-	private void addToolChain(IToolChainManager manager, IToolChainProvider toolchainProvider, File file,
+	private void addToolChain(IToolChainManager manager, IToolChainProvider toolchainProvider, File compilerFile,
 			ESPToolChainElement toolChainElement)
 	{
 		try
 		{
 			if (!isToolChainExist(manager, toolChainElement))
 			{
-				manager.addToolChain(new ESPToolchain(toolchainProvider, file.toPath(), toolChainElement));
+				manager.addToolChain(new ESPToolchain(toolchainProvider, compilerFile.toPath(), toolChainElement));
 			}
 		}
 		catch (CoreException e)
