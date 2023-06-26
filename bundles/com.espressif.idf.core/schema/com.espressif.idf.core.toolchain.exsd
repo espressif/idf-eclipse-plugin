@@ -6,7 +6,7 @@
          <meta.schema plugin="com.espressif.idf.core" id="com.espressif.idf.core.toolchain" name="esptoolchain"/>
       </appinfo>
       <documentation>
-         [Enter description of this extension point.]
+         An extension point for registering a new esp target with the toolchain information. That includes name, id, arch, toolchain file, toolchain compiler pattern and debugger patten.
       </documentation>
    </annotation>
 
@@ -42,21 +42,21 @@
          <attribute name="id" type="string" use="required">
             <annotation>
                <documentation>
-                  For example, riscv32-esp-elf
+                  For exmaple riscv32-esp-elf is the id for esp32c2
                </documentation>
             </annotation>
          </attribute>
          <attribute name="arch" type="string" use="required">
             <annotation>
                <documentation>
-                  For example riscv32
+                  For example riscv32 is the arch for esp32c2
                </documentation>
             </annotation>
          </attribute>
          <attribute name="fileName" type="string" use="required">
             <annotation>
                <documentation>
-                  For example toolchain-esp32c2.cmake
+                  For example toolchain-esp32c2.cmake is the toolchain name for esp32c2
                </documentation>
             </annotation>
          </attribute>
@@ -82,36 +82,12 @@
          <meta.section type="since"/>
       </appinfo>
       <documentation>
-         [Enter the first release in which this extension point appears.]
+         v2.11.0
       </documentation>
    </annotation>
 
-   <annotation>
-      <appinfo>
-         <meta.section type="examples"/>
-      </appinfo>
-      <documentation>
-         [Enter extension point usage example here.]
-      </documentation>
-   </annotation>
 
-   <annotation>
-      <appinfo>
-         <meta.section type="apiinfo"/>
-      </appinfo>
-      <documentation>
-         [Enter API information here.]
-      </documentation>
-   </annotation>
 
-   <annotation>
-      <appinfo>
-         <meta.section type="implementation"/>
-      </appinfo>
-      <documentation>
-         [Enter information about supplied implementation of this extension point.]
-      </documentation>
-   </annotation>
 
 
 </schema>

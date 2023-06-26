@@ -301,14 +301,6 @@ config-only component and an interface library is created instead."
            id="riscv32-esp-elf"
            name="esp32h2">
      </ToolChain>
-     <ToolChain
-           arch="xtensa-clang"
-           compilerPattern="xtensa-esp32-elf-clang(\\.exe)?"
-           debuggerPattern="xtensa-esp32-elf-clang(\\.exe)?"
-           fileName="toolchain-clang-esp32.cmake"
-           id="riscv32-esp-elf"
-           name="esp32">
-     </ToolChain>
   </extension>
 
 </plugin>
