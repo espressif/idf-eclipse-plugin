@@ -134,9 +134,6 @@ public class ESPToolChainManager
 		}
 		Logger.log(paths.toString());
 
-		// remove null paths if any
-		paths.removeIf(Objects::isNull);
-
 		for (String toolchainTarget : toolchainElements.keySet())
 		{
 			ESPToolChainElement toolChainElement = toolchainElements.get(toolchainTarget);
@@ -149,7 +146,22 @@ public class ESPToolChainManager
 		}
 	}
 
-	private File findToolChain(List<String> paths, String filePattern)
+	public File findDebugger(String target)
+	{
+		List<String> allPaths = getAllPaths();
+		for (String toolchainTarget : toolchainElements.keySet())
+		{
+			ESPToolChainElement espToolChainElement = toolchainElements.get(toolchainTarget);
+			if (espToolChainElement.name.equals(target)) // target matched
+			{
+				return findToolChain(allPaths, espToolChainElement.debuggerPattern);
+			}
+		}
+
+		return null;
+	}
+
+	public File findToolChain(List<String> paths, String filePattern)
 	{
 		for (String path : paths)
 		{
@@ -238,6 +250,9 @@ public class ESPToolChainManager
 		{
 			paths.add(path);
 		}
+
+		// remove null paths if any
+		paths.removeIf(Objects::isNull);
 
 		return paths;
 	}
