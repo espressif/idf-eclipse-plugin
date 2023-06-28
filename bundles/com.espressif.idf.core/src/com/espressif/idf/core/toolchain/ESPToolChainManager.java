@@ -65,15 +65,10 @@ public class ESPToolChainManager
 
 	public ESPToolChainManager()
 	{
-		toolchainElements = readESPToolchainRegistry();
+		readESPToolchainRegistry();
 	}
 
-	public Map<String, ESPToolChainElement> getToolchainElements()
-	{
-		return toolchainElements;
-	}
-
-	public static Map<String, ESPToolChainElement> readESPToolchainRegistry()
+	private static Map<String, ESPToolChainElement> readESPToolchainRegistry()
 	{
 		if (toolchainElements.isEmpty()) // load only once from the extension point
 		{
@@ -134,10 +129,8 @@ public class ESPToolChainManager
 		}
 		Logger.log(paths.toString());
 
-		for (String toolchainTarget : toolchainElements.keySet())
+		for (ESPToolChainElement toolChainElement : toolchainElements.values())
 		{
-			ESPToolChainElement toolChainElement = toolchainElements.get(toolchainTarget);
-
 			File toolchainCompilerFile = findToolChain(paths, toolChainElement.compilerPattern);
 			if (toolchainCompilerFile != null)
 			{
@@ -148,17 +141,13 @@ public class ESPToolChainManager
 
 	public File findDebugger(String target)
 	{
-		List<String> allPaths = getAllPaths();
-		for (String toolchainTarget : toolchainElements.keySet())
-		{
-			ESPToolChainElement espToolChainElement = toolchainElements.get(toolchainTarget);
-			if (espToolChainElement.name.equals(target)) // target matched
-			{
-				return findToolChain(allPaths, espToolChainElement.debuggerPattern);
-			}
-		}
-
-		return null;
+		return toolchainElements
+		.values()
+		.stream()
+		.filter(espToolChainElement -> espToolChainElement.name.equals(target))
+		.map(espToolChainElement -> findToolChain(getAllPaths(), espToolChainElement.debuggerPattern))
+		.findFirst()
+		.orElse(null);
 	}
 
 	public File findToolChain(List<String> paths, String filePattern)
@@ -338,7 +327,7 @@ public class ESPToolChainManager
 			idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, idfPath);
 		}
 
-		Collection<Map<String, String>> toolchains = getToolchainProperties(getToolchainElements());
+		Collection<Map<String, String>> toolchains = getToolchainProperties(toolchainElements);
 		for (Map<String, String> properties : toolchains)
 		{
 			try
@@ -371,9 +360,8 @@ public class ESPToolChainManager
 	public Collection<Map<String, String>> getToolchainProperties(Map<String, ESPToolChainElement> map)
 	{
 		Collection<Map<String, String>> propertiesList = new ArrayList<>();
-		for (String key : map.keySet())
+		for (ESPToolChainElement toolChainElement : map.values())
 		{
-			ESPToolChainElement toolChainElement = map.get(key);
 			Map<String, String> esp = new HashMap<>();
 			esp.put(IToolChain.ATTR_OS, toolChainElement.name);
 			esp.put(IToolChain.ATTR_ARCH, toolChainElement.arch);
