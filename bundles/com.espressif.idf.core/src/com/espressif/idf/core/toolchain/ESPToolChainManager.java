@@ -327,34 +327,19 @@ public class ESPToolChainManager
 			idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, idfPath);
 		}
 
-		Collection<Map<String, String>> toolchains = getToolchainProperties(toolchainElements);
-		for (Map<String, String> properties : toolchains)
-		{
-			try
+		toolchainElements.values().stream().forEach(value -> {
+			Path toolChainFile = Paths.get(getIdfCMakePath(idfPath)).resolve(value.fileName);
+			if (Files.exists(toolChainFile))
 			{
-				for (IToolChain tc : tcManager.getToolChainsMatching(properties))
-				{
+				ICMakeToolChainFile toolchainFile = manager.newToolChainFile(toolChainFile);
+				toolchainFile.setProperty(IToolChain.ATTR_OS, value.name);
+				toolchainFile.setProperty(IToolChain.ATTR_ARCH, value.arch);
+				toolchainFile.setProperty(ICBuildConfiguration.TOOLCHAIN_TYPE, ESPToolchain.TYPE_ID);
+				toolchainFile.setProperty(ICBuildConfiguration.TOOLCHAIN_ID, value.id);
 
-					Path toolChainFile = Paths.get(getIdfCMakePath(idfPath)).resolve(properties.get(TOOLCHAIN_ATTR_ID));
-					if (Files.exists(toolChainFile))
-					{
-						ICMakeToolChainFile toolchainFile = manager.newToolChainFile(toolChainFile);
-						toolchainFile.setProperty(IToolChain.ATTR_OS, properties.get(IToolChain.ATTR_OS));
-						toolchainFile.setProperty(IToolChain.ATTR_ARCH, properties.get(IToolChain.ATTR_ARCH));
-						toolchainFile.setProperty(ICBuildConfiguration.TOOLCHAIN_TYPE, tc.getTypeId());
-						toolchainFile.setProperty(ICBuildConfiguration.TOOLCHAIN_ID, tc.getId());
-
-						System.out.println(toolchainFile.getPath());
-
-						manager.addToolChainFile(toolchainFile);
-					}
-				}
+				manager.addToolChainFile(toolchainFile);
 			}
-			catch (CoreException e)
-			{
-				Logger.log(e);
-			}
-		}
+		});
 	}
 
 	public Collection<Map<String, String>> getToolchainProperties(Map<String, ESPToolChainElement> map)
