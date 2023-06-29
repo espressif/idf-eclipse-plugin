@@ -5,11 +5,14 @@
 package com.espressif.idf.core.toolchain;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -117,7 +120,7 @@ public class ESPToolChainManager
 	public void initToolChain(IToolChainManager manager, IToolChainProvider toolchainProvider)
 	{
 		Logger.log("Initializing toolchain..."); //$NON-NLS-1$
-		List<String> paths = new ArrayList<String>();
+		List<String> paths = new ArrayList<>();
 		String idfToolsExportPath = StringUtil.isEmpty(envValue) ? getIdfToolsExportPath() : envValue;
 		if (idfToolsExportPath != null)
 		{
@@ -129,10 +132,12 @@ public class ESPToolChainManager
 		}
 		Logger.log(paths.toString());
 
+		String idfPath = IDFUtil.getIDFPath();
 		for (ESPToolChainElement toolChainElement : toolchainElements.values())
 		{
 			File toolchainCompilerFile = findToolChain(paths, toolChainElement.compilerPattern);
-			if (toolchainCompilerFile != null)
+			Path toolChainCmakeFile = Paths.get(getIdfCMakePath(idfPath)).resolve(toolChainElement.fileName);
+			if (toolchainCompilerFile != null && Files.exists(toolChainCmakeFile))
 			{
 				addToolChain(manager, toolchainProvider, toolchainCompilerFile, toolChainElement);
 			}
@@ -154,38 +159,56 @@ public class ESPToolChainManager
 	{
 		for (String path : paths)
 		{
-			for (String dirStr : path.split(File.pathSeparator))
+			Path[] directories = getDirectories(path);
+			for (Path dir : directories)
 			{
-				File dir = new File(dirStr);
-				if (dir.isDirectory())
+				File file = findMatchingFile(dir, filePattern);
+				if (file != null)
 				{
-					for (File file : dir.listFiles())
-					{
-						if (file.isDirectory())
-						{
-							continue;
-						}
-
-						Pattern pattern = Pattern.compile(filePattern);
-						Matcher matcher = pattern.matcher(file.getName());
-						if (matcher.matches())
-						{
-							return file;
-						}
-					}
+					return file;
 				}
 			}
 		}
 		return null;
 	}
 
+	private Path[] getDirectories(String path)
+	{
+		return Arrays.stream(path.split(File.pathSeparator)).map(Paths::get).toArray(Path[]::new);
+	}
+
+	private File findMatchingFile(Path dir, String filePattern)
+	{
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir))
+		{
+			Pattern pattern = Pattern.compile(filePattern);
+			for (Path file : stream)
+			{
+				if (Files.isRegularFile(file))
+				{
+					Matcher matcher = pattern.matcher(file.getFileName().toString());
+					if (matcher.matches())
+					{
+						return file.toFile();
+					}
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			Logger.log(e);
+		}
+		return null;
+	}
+
+
 	public void removePrevInstalledToolchains(IToolChainManager manager)
 	{
 		try
 		{
 			Collection<IToolChain> toolchains = manager.getAllToolChains();
-			ArrayList<IToolChain> tcList = new ArrayList<IToolChain>(toolchains);
-			tcList.forEach(tc -> manager.removeToolChain(tc));
+			ArrayList<IToolChain> tcList = new ArrayList<>(toolchains);
+			tcList.forEach(manager::removeToolChain);
 		}
 		catch (CoreException e)
 		{
@@ -217,16 +240,12 @@ public class ESPToolChainManager
 		props.put(IToolChain.ATTR_ARCH, toolChainElement.arch);
 		props.put(TOOLCHAIN_ATTR_ID, toolChainElement.fileName);
 
-		if (!manager.getToolChainsMatching(props).isEmpty())
-		{
-			return true;
-		}
-		return false;
+		return !manager.getToolChainsMatching(props).isEmpty();
 	}
 
 	protected List<String> getAllPaths()
 	{
-		List<String> paths = new ArrayList<String>();
+		List<String> paths = new ArrayList<>();
 
 		String path = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.PATH);
 		if (!StringUtil.isEmpty(path))
@@ -248,12 +267,12 @@ public class ESPToolChainManager
 
 	protected String getIdfToolsExportPath()
 	{
-		String idf_path = IDFUtil.getIDFPath();
-		String tools_path = idf_path + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
+		String idfPath = IDFUtil.getIDFPath();
+		String toolsPathath = idfPath + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
 				+ IDFConstants.IDF_TOOLS_SCRIPT;
 
-		Logger.log("idf_tools.py path: " + tools_path); //$NON-NLS-1$
-		if (!new File(tools_path).exists())
+		Logger.log("idf_tools.py path: " + toolsPathath); //$NON-NLS-1$
+		if (!new File(toolsPathath).exists())
 		{
 			Logger.log("idf_tools.py path doesn't exist"); //$NON-NLS-1$
 			return null;
@@ -263,22 +282,22 @@ public class ESPToolChainManager
 
 		try
 		{
-			List<String> commands = new ArrayList<String>();
+			List<String> commands = new ArrayList<>();
 			if (!StringUtil.isEmpty(idfPythonEnvPath))
 			{
 				commands.add(idfPythonEnvPath);
 			}
-			commands.add(tools_path);
+			commands.add(toolsPathath);
 			commands.add(IDFConstants.TOOLS_EXPORT_CMD);
 			commands.add(IDFConstants.TOOLS_EXPORT_CMD_FORMAT_VAL);
 
 			Logger.log(commands.toString());
 
-			IStatus idf_tools_export_status = new ProcessBuilderFactory().runInBackground(commands,
+			IStatus idfToolsExportStatus = new ProcessBuilderFactory().runInBackground(commands,
 					org.eclipse.core.runtime.Path.ROOT, System.getenv());
-			if (idf_tools_export_status != null && idf_tools_export_status.isOK())
+			if (idfToolsExportStatus != null && idfToolsExportStatus.isOK())
 			{
-				String message = idf_tools_export_status.getMessage();
+				String message = idfToolsExportStatus.getMessage();
 				Logger.log("idf_tools.py export output: " + message); //$NON-NLS-1$
 				if (message != null)
 				{
@@ -303,7 +322,7 @@ public class ESPToolChainManager
 		return null;
 	}
 
-	public void initCMakeToolChain(IToolChainManager tcManager, ICMakeToolChainManager manager)
+	public void initCMakeToolChain(ICMakeToolChainManager manager)
 	{
 		String idfPath = IDFUtil.getIDFPath();
 		if (StringUtil.isEmpty(idfPath))
@@ -441,7 +460,7 @@ public class ESPToolChainManager
 		ICMakeToolChainManager cmakeTcManager = CCorePlugin.getService(ICMakeToolChainManager.class);
 
 		initToolChain(tcManager, ESPToolChainProvider.ID);
-		initCMakeToolChain(tcManager, cmakeTcManager);
+		initCMakeToolChain(cmakeTcManager);
 		addToolchainBasedTargets(IDFCorePlugin.getService(ILaunchTargetManager.class));
 	}
 
@@ -449,12 +468,12 @@ public class ESPToolChainManager
 
 class ESPToolChainElement
 {
-	public String name;
-	public String id;
-	public String arch;
-	public String fileName;
-	public String compilerPattern;
-	public String debuggerPattern;
+	public final String name;
+	public final String id;
+	public final String arch;
+	public final String fileName;
+	public final String compilerPattern;
+	public final String debuggerPattern;
 
 	public ESPToolChainElement(String name, String id, String arch, String fileName, String compilerPattern,
 			String debuggerPatten)

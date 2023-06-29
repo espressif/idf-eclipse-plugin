@@ -48,7 +48,7 @@ public class ESPToolchain extends GCCToolChain
 		idBuilder.append('-');
 		if (pathToToolChain != null)
 		{
-			idBuilder.append(pathToToolChain.toString().replaceAll("\\\\", "/")); //$NON-NLS-1$ //$NON-NLS-2$
+			idBuilder.append(pathToToolChain.replace('\\', '/'));
 		}
 		return idBuilder.toString();
 

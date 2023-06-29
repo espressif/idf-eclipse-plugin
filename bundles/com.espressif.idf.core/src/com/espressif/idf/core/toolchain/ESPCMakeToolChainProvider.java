@@ -31,7 +31,7 @@ public class ESPCMakeToolChainProvider implements ICMakeToolChainProvider, ICMak
 		manager.addListener(this);
 
 		ESPToolChainManager espToolChainManager = new ESPToolChainManager();
-		espToolChainManager.initCMakeToolChain(tcManager, manager);
+		espToolChainManager.initCMakeToolChain(manager);
 	}
 
 	@Override
