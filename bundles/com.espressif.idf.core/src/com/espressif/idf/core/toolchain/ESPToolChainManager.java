@@ -268,11 +268,11 @@ public class ESPToolChainManager
 	protected String getIdfToolsExportPath()
 	{
 		String idfPath = IDFUtil.getIDFPath();
-		String toolsPathath = idfPath + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
+		String toolsPath = idfPath + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
 				+ IDFConstants.IDF_TOOLS_SCRIPT;
 
-		Logger.log("idf_tools.py path: " + toolsPathath); //$NON-NLS-1$
-		if (!new File(toolsPathath).exists())
+		Logger.log("idf_tools.py path: " + toolsPath); //$NON-NLS-1$
+		if (!new File(toolsPath).exists())
 		{
 			Logger.log("idf_tools.py path doesn't exist"); //$NON-NLS-1$
 			return null;
@@ -287,7 +287,7 @@ public class ESPToolChainManager
 			{
 				commands.add(idfPythonEnvPath);
 			}
-			commands.add(toolsPathath);
+			commands.add(toolsPath);
 			commands.add(IDFConstants.TOOLS_EXPORT_CMD);
 			commands.add(IDFConstants.TOOLS_EXPORT_CMD_FORMAT_VAL);
 
