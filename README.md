@@ -771,7 +771,7 @@ Note this configuration changes where all the project build artifacts will be ge
 
 | IEP | Eclipse | Java | Installer | Description |
 | ------ | ------ | ------ |------ | ------ |
-| IEP 2.10.0 | Eclipse 2022-09,2022-12,2023-03 |Java 17 and above | |
+| IEP 2.10.0 | Eclipse 2022-09,2022-12,2023-03 |Java 17 and above | [espressif-ide-setup-2.10.0-with-esp-idf-5.0.1.exe](https://github.com/espressif/idf-installer/releases/download/untagged-52aeb689780472c126c1/espressif-ide-setup-2.10.0-with-esp-idf-5.0.1.exe)|
 | IEP 2.9.1 | Eclipse 2022-09 and Eclipse  2022-12 |Java 17 and above | [espressif-ide-setup-2.9.0-with-esp-idf-5.0.1.exe](https://github.com/espressif/idf-installer/releases/download/espressif-ide-2.9.0-esp-idf-5.0.1/espressif-ide-setup-2.9.0-with-esp-idf-5.0.1.exe) | For Windows Users, it's recommended to use the Windows Offline Installer and upgrade to the latest IEP v2.9.1 plugin|
 | IEP 2.9.0 | Eclipse 2022-09 |Java 17 and above | [espressif-ide-setup-2.9.0-with-esp-idf-5.0.1.exe](https://github.com/espressif/idf-installer/releases/download/espressif-ide-2.9.0-esp-idf-5.0.1/espressif-ide-setup-2.9.0-with-esp-idf-5.0.1.exe) | For Windows, it's recommended to use the Windows Offline Installer|
 | IEP 2.2.0 | Eclipse 2021-06, 2021-03, 2020-12 |Java 11 and above | ESP-IDF Tools Windows Installer 2.10| |
