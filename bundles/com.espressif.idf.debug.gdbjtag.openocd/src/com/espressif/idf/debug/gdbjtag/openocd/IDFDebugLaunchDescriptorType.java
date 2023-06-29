@@ -4,18 +4,19 @@
  *******************************************************************************/
 package com.espressif.idf.debug.gdbjtag.openocd;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.launchbar.core.ILaunchDescriptor;
 import org.eclipse.launchbar.core.ILaunchDescriptorType;
-import org.eclipse.swt.widgets.Display;
 
 import com.espressif.idf.core.IDFProjectNature;
 import com.espressif.idf.core.build.IDFLaunchConstants;
@@ -44,8 +45,8 @@ public class IDFDebugLaunchDescriptorType implements ILaunchDescriptorType
 			String identifier = type.getIdentifier();
 			if (identifier.equals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
 			{
-				IProject project = getProject();
-				project = project != null ? project : config.getMappedResources()[0].getProject();
+				IProject project = getMappedProject(config)
+						.orElseGet(() -> EclipseUtil.getDefaultIDFProject().orElseThrow());
 				if (IDFProjectNature.hasNature(project))
 				{
 					IDFProjectLaunchDescriptor descriptor = descriptors.get(config);
@@ -66,21 +67,21 @@ public class IDFDebugLaunchDescriptorType implements ILaunchDescriptorType
 		return null;
 	}
 
-	private IProject getProject()
+	private Optional<IProject> getMappedProject(ILaunchConfiguration config)
 	{
-		List<IProject> projectList = new ArrayList<>(1);
-		Display.getDefault().syncExec(new Runnable()
+		IResource[] resources = null;
+		try
 		{
-
-			@Override
-			public void run()
-			{
-				IProject project = EclipseUtil.getSelectedProjectInExplorer();
-				projectList.add(project);
-			}
-		});
-		IProject project = projectList.get(0);
-		return project;
+			resources = config.getMappedResources();
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+		return resources == null ? Optional.empty()
+				: Stream.of(resources).filter(Objects::nonNull)
+						.filter(resource -> resource.getType() == IResource.PROJECT).map(IResource::getProject)
+						.findFirst();
 	}
 
 }
