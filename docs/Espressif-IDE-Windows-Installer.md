@@ -38,6 +38,7 @@ Select language for the installer and click Ok.
 
 ### Step 2: Accept the product license agreement
 Read through the product license agreement, and then select `I accept the agreement`. You must accept the product license in order to continue with the installation. Continue by clicking Next.
+
 <img src="images/windows-installation/ide_windows_installer_2.png" alt="drawing" />
 
 ### Step 3: Pre-installation checks
