@@ -174,7 +174,10 @@ public class ESPToolChainManager
 
 	private Path[] getDirectories(String path)
 	{
-		return Arrays.stream(path.split(File.pathSeparator)).map(Paths::get).toArray(Path[]::new);
+		return Arrays.stream(path.split(File.pathSeparator))
+				.map(String::trim)
+				.map(Paths::get)
+				.toArray(Path[]::new);
 	}
 
 	private File findMatchingFile(Path dir, String filePattern)
