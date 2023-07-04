@@ -8,7 +8,8 @@ Automatic-Module-Name: com.espressif.idf.core.test
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.junit,
  com.espressif.idf.core;bundle-version="1.0.1",
- junit-jupiter-api
+ junit-jupiter-api,
+ junit-jupiter-params
 Bundle-ClassPath: .,
  lib/jmock-2.12.0.jar,
  lib/commons-collections4-4.4.jar,
@@ -66,4 +67,6 @@ Export-Package: com.espressif.idf.core.test,
  org.jmock.api,
  org.jmock.auto,
  org.jmock.lib
-Import-Package: org.eclipse.core.runtime
+Import-Package: org.eclipse.core.runtime,
+ org.junit.jupiter.params,
+ org.junit.jupiter.params.provider

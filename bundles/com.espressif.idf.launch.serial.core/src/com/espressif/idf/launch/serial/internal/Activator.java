@@ -19,19 +19,22 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
-public class Activator extends Plugin {
+public class Activator extends Plugin
+{
 
 	public static final String PLUGIN_ID = "com.espressif.idf.launch.serial.core"; //$NON-NLS-1$
 
 	private static Activator plugin;
 
 	@Override
-	public void start(BundleContext context) throws Exception {
+	public void start(BundleContext context) throws Exception
+	{
 		super.start(context);
 		plugin = this;
 	}
 
-	public static void log(IStatus status) {
+	public static void log(IStatus status)
+	{
 		plugin.getLog().log(status);
 	}
 

@@ -29,15 +29,18 @@ import org.eclipse.launchbar.core.target.launch.TargetedLaunch;
 import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 import com.espressif.idf.terminal.connector.serial.connector.SerialPortHandler;
 
-public class SerialFlashLaunch extends TargetedLaunch {
+public class SerialFlashLaunch extends TargetedLaunch
+{
 
 	private SerialPortHandler serialPort;
 	private boolean wasOpen;
 
 	public SerialFlashLaunch(ILaunchConfiguration launchConfiguration, String mode, ISourceLocator locator,
-			ILaunchTarget target) {
+			ILaunchTarget target)
+	{
 		super(launchConfiguration, mode, target, locator);
-		if (target != null) {
+		if (target != null)
+		{
 			String serialPortName = target.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
 			serialPort = !serialPortName.isEmpty() ? SerialPortHandler.get(serialPortName) : null;
 		}
@@ -45,28 +48,41 @@ public class SerialFlashLaunch extends TargetedLaunch {
 
 	}
 
-	public void start() {
-		if (serialPort != null) {
+	public void start()
+	{
+		if (serialPort != null)
+		{
 			wasOpen = serialPort.isOpen();
-			if (wasOpen) {
-				try {
+			if (wasOpen)
+			{
+				try
+				{
 					serialPort.pause();
-				} catch (IOException e) {
+				}
+				catch (IOException e)
+				{
 					Activator.log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, Messages.SerialFlashLaunch_Pause, e));
 				}
 			}
-		} else {
+		}
+		else
+		{
 			wasOpen = false;
 		}
 	}
 
 	@Override
-	public void handleDebugEvents(DebugEvent[] events) {
+	public void handleDebugEvents(DebugEvent[] events)
+	{
 		super.handleDebugEvents(events);
-		if (isTerminated() && wasOpen) {
-			try {
+		if (isTerminated() && wasOpen)
+		{
+			try
+			{
 				serialPort.resume();
-			} catch (IOException e) {
+			}
+			catch (IOException e)
+			{
 				Activator.log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, Messages.SerialFlashLaunch_Resume, e));
 			}
 			wasOpen = false;

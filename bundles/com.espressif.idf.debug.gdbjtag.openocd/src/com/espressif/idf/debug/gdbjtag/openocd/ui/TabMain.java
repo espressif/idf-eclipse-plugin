@@ -15,6 +15,8 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd.ui;
 
+import java.util.Optional;
+
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.model.IBinary;
 import org.eclipse.cdt.core.model.ICElement;
@@ -44,6 +46,7 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
+import com.espressif.idf.ui.EclipseUtil;
 
 public class TabMain extends CMainTab2
 {
@@ -235,6 +238,20 @@ public class TabMain extends CMainTab2
 			fBuildConfigCombo.select(0);
 		}
 
+	}
+
+	@Override
+	public void setDefaults(ILaunchConfigurationWorkingCopy configuration)
+	{
+		Optional<IProject> selectedProject = EclipseUtil.getDefaultIDFProject();
+		selectedProject.ifPresent(project -> initializeDefaultProject(project, configuration));
+	}
+
+	private void initializeDefaultProject(IProject project, ILaunchConfigurationWorkingCopy configuration)
+	{
+		ICProject icProject = CCorePlugin.getDefault().getCoreModel().create(project);
+		initializeCProject(icProject, configuration);
+		initializeProgramName(icProject, configuration);
 	}
 
 	@Override
