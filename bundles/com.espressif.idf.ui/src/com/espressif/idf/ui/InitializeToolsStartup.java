@@ -8,6 +8,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.text.MessageFormat;
@@ -48,7 +49,7 @@ public class InitializeToolsStartup implements IStartup
 	/**
 	 * esp-idf.json is file created by the installer
 	 */
-	private static final String ESP_IDF_JSON_FILE = "esp_idf.json"; //$NON-NLS-1$
+	public static final String ESP_IDF_JSON_FILE = "esp_idf.json"; //$NON-NLS-1$
 
 	// Variables defined in the esp-idf.json file
 	private static final String GIT_PATH = "gitPath"; //$NON-NLS-1$
@@ -118,6 +119,8 @@ public class InitializeToolsStartup implements IStartup
 				int response = messageBox.open();
 				if (response == SWT.NO)
 				{
+					IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+					updateEspIdfJsonFile(idf_json_file, idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH));
 					Preferences prefs = getPreferences();
 					prefs.putBoolean(IS_INSTALLER_CONFIG_SET, true);
 					try
@@ -193,6 +196,49 @@ public class InitializeToolsStartup implements IStartup
 		{
 			Logger.log(e);
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void updateEspIdfJsonFile(File idf_json_file, String newIdfPathToUpdate)
+	{
+		JSONParser parser = new JSONParser();
+		JSONObject jsonObj = null;
+		try (FileReader reader = new FileReader(idf_json_file))
+		{
+			jsonObj = (JSONObject) parser.parse(reader);
+			String idfVersionId = (String) jsonObj.get(IDF_VERSIONS_ID);
+			JSONObject list = (JSONObject) jsonObj.get(IDF_INSTALLED_LIST_KEY);
+			if (list == null)
+			{
+				return;
+			}
+			// selected esp-idf version information
+			JSONObject selectedIDFInfo = (JSONObject) list.get(idfVersionId);
+			selectedIDFInfo.put(IDF_PATH, newIdfPathToUpdate);
+			list.put(idfVersionId, selectedIDFInfo);
+			jsonObj.put(IDF_INSTALLED_LIST_KEY, list);
+		}
+		catch (
+				IOException
+				| ParseException e)
+		{
+			Logger.log(e);
+		}
+
+		if (jsonObj != null)
+		{
+			try (FileWriter fileWriter = new FileWriter(idf_json_file))
+			{
+				fileWriter.write(jsonObj.toJSONString());
+				fileWriter.flush();
+
+			}
+			catch (IOException e)
+			{
+				Logger.log(e);
+			}
+		}
+
 	}
 
 	private void checkForUpdatedVersion(File idf_json_file)

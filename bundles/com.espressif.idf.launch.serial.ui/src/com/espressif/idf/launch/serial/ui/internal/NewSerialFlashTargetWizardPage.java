@@ -53,7 +53,7 @@ import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 
 public class NewSerialFlashTargetWizardPage extends WizardPage {
 
-	private static final String PORT_NAME_DESCRIPTOR_SPLITOR = "-"; //$NON-NLS-1$
+	private static final String PORT_NAME_DESCRIPTOR_SPLITOR = " "; //$NON-NLS-1$
 	private static final String OS = "esp32"; //$NON-NLS-1$
 	private static final String ARCH = "xtensa"; //$NON-NLS-1$
 
@@ -66,6 +66,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 	private Map<String, List<String>> targetPortMap;
 	private TargetPortInfo targetPortInfo;
 	private Display display;
+	private String port;
 
 	public NewSerialFlashTargetWizardPage(ILaunchTarget launchTarget) {
 		super(NewSerialFlashTargetWizardPage.class.getName());
@@ -127,10 +128,13 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (targetPortInfo.getState() == Job.RUNNING) {
-					targetPortInfo.cancel();
-				}
-				targetPortInfo.schedule();
+				display.asyncExec(() -> {
+					if (targetPortInfo.getState() == Job.RUNNING) {
+						targetPortInfo.cancel();
+					}
+					port = serialPortCombo.getText().split(PORT_NAME_DESCRIPTOR_SPLITOR)[0];
+					targetPortInfo.schedule();
+				});
 			}
 		});
 		try {
@@ -154,7 +158,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 								.getCommPort(targetPort);
 						targetPort = targetPort + PORT_NAME_DESCRIPTOR_SPLITOR + serialPort.getDescriptivePortName();
 						int i = 0;
-						for (String port : ports) {
+						for (String port : serialPortCombo.getItems()) {
 							if (port.equals(targetPort)) {
 								serialPortCombo.select(i);
 								break;
@@ -265,24 +269,27 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
 			EspToolCommands espToolCommands = new EspToolCommands();
+
+			String message = String.format(Messages.TargetPortUpdatingMessage, port);
 			display.asyncExec(() -> {
-				try {
-					String port = serialPortCombo.getText().split(PORT_NAME_DESCRIPTOR_SPLITOR)[0];
-					String message = String.format(Messages.TargetPortUpdatingMessage, port);
-					if (infoArea != null && !infoArea.isDisposed())
-						infoArea.append(System.lineSeparator() + message);
-					Process chipInfoProcess = espToolCommands.chipInformation(port);
-					InputStream targetIn = chipInfoProcess.getInputStream();
-					BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(targetIn));
-					StringBuilder chipInfo = new StringBuilder();
-					String readLine;
-					while ((readLine = bufferedReader.readLine()) != null) {
+				if (infoArea != null && !infoArea.isDisposed())
+					infoArea.append(System.lineSeparator() + message);
+			});
+			try {
+				Process chipInfoProcess = espToolCommands.chipInformation(port);
+				InputStream targetIn = chipInfoProcess.getInputStream();
+				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(targetIn));
+				StringBuilder chipInfo = new StringBuilder();
+				String readLine;
+				while ((readLine = bufferedReader.readLine()) != null) {
+					display.asyncExec(() -> {
 						infoArea.append("."); //$NON-NLS-1$
-						chipInfo.append(readLine);
-						chipInfo.append(System.lineSeparator());
-					}
-					infoArea.append(System.lineSeparator());
-					String chipType = extractChipFromChipInfoOutput(chipInfo.toString());
+					});
+					chipInfo.append(readLine);
+					chipInfo.append(System.lineSeparator());
+				}
+				String chipType = extractChipFromChipInfoOutput(chipInfo.toString());
+				display.asyncExec(() -> {
 					if (StringUtil.isEmpty(chipType)) {
 						if (infoArea != null && !infoArea.isDisposed())
 							infoArea.setText(infoArea.getText() + System.lineSeparator()
@@ -291,11 +298,15 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 						infoArea.append(System.lineSeparator());
 						infoArea.append(String.format(Messages.TargetPortFoundMessage, port, chipType));
 					}
-				} catch (Exception e) {
-					Logger.log(e);
-				}
+				});
+			} catch (Exception e) {
+				Logger.log(e);
+			}
 
+			display.asyncExec(() -> {
+				infoArea.append(System.lineSeparator());
 			});
+
 			return Status.OK_STATUS;
 		}
 

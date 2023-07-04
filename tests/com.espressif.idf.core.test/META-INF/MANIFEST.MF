@@ -67,3 +67,5 @@ Export-Package: com.espressif.idf.core.test,
  org.jmock.api,
  org.jmock.auto,
  org.jmock.lib
+Import-Package: org.junit.jupiter.params,
+ org.junit.jupiter.params.provider
