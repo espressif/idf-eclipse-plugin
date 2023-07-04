@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
@@ -47,18 +46,8 @@ public class ProcessBuilderFactory
 			throws IOException
 	{
 		Process process = run(commands, workingDirectory, environment);
-		return processData(process, null);
-	}
-
-	/**
-	 * @param process
-	 * @param input
-	 * @return
-	 */
-	private IStatus processData(Process process, String input)
-	{
-		return processData(process.getInputStream(), process.getErrorStream(), process.getOutputStream(), input,
-				process, false, -1);
+		return processData(process.getInputStream(), process.getErrorStream(), process.getOutputStream(),
+				process);
 	}
 
 	/**
@@ -67,12 +56,10 @@ public class ProcessBuilderFactory
 	 * @param outputStream
 	 * @param input
 	 * @param process
-	 * @param earlyWait
-	 * @param timeOut
 	 * @return
 	 */
 	private IStatus processData(InputStream inputStream, InputStream errorStream, OutputStream outputStream,
-			String input, Process process, boolean earlyWait, long timeOut)
+			Process process)
 	{
 
 		String lineSeparator = IDFUtil.getLineSeparatorValue();
@@ -81,48 +68,17 @@ public class ProcessBuilderFactory
 		try
 		{
 			int exitValue = 0;
-			if (earlyWait)
-			{
-				exitValue = process.waitFor();
-			}
-			// Read and write in threads to avoid from choking the process streams
-			OutputStreamThread writerThread = null;
-			if (!StringUtil.isEmpty(input))
-			{
-				writerThread = new OutputStreamThread(outputStream, input, UTF_8);
-			}
+
 			readerGobbler = new InputStreamThread(inputStream, lineSeparator, UTF_8);
 			errorGobbler = new InputStreamThread(errorStream, lineSeparator, null);
 
 			// Start the threads
-			if (writerThread != null)
-			{
-				writerThread.start();
-			}
 			readerGobbler.start();
 			errorGobbler.start();
-			if (!earlyWait)
-			{
-				if (timeOut > 0)
-				{
-					boolean waitFor = process.waitFor(timeOut, TimeUnit.MILLISECONDS);
-					if (!waitFor)
-					{
-						exitValue = -1;
-						process.destroy();
-					}
-				}
-				else
-				{
-					// This will wait till the process is done.
-					exitValue = process.waitFor();
-				}
-			}
-			if (writerThread != null)
-			{
-				writerThread.interrupt();
-				writerThread.join();
-			}
+
+			// This will wait till the process is done.
+			exitValue = process.waitFor();
+
 			readerGobbler.interrupt();
 			errorGobbler.interrupt();
 			readerGobbler.join();
