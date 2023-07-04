@@ -19,19 +19,19 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.cdt.core.build.IToolChain;
 import org.eclipse.cdt.serial.SerialPort;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.swt.SWT;
@@ -53,6 +53,7 @@ import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 
 public class NewSerialFlashTargetWizardPage extends WizardPage {
 
+	private static final String PORT_NAME_DESCRIPTOR_SPLITOR = " "; //$NON-NLS-1$
 	private static final String OS = "esp32"; //$NON-NLS-1$
 	private static final String ARCH = "xtensa"; //$NON-NLS-1$
 
@@ -63,9 +64,9 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 	private Combo idfTargetCombo;
 	private Text infoArea;
 	private Map<String, List<String>> targetPortMap;
-	private TargetPortMapUpdateThread targetPortMapUpdateThread;
-	private SerialPortUpdateThread serialPortUpdateThread;
+	private TargetPortInfo targetPortInfo;
 	private Display display;
+	private String port;
 
 	public NewSerialFlashTargetWizardPage(ILaunchTarget launchTarget) {
 		super(NewSerialFlashTargetWizardPage.class.getName());
@@ -73,8 +74,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 		targetPortMap = new HashMap<>();
 		setTitle(Messages.NewSerialFlashTargetWizardPage_Title);
 		setDescription(Messages.NewSerialFlashTargetWizardPage_Description);
-		targetPortMapUpdateThread = new TargetPortMapUpdateThread();
-		serialPortUpdateThread = new SerialPortUpdateThread();
+		targetPortInfo = new TargetPortInfo("PORT_INFO"); //$NON-NLS-1$
 	}
 
 	@Override
@@ -83,7 +83,6 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 		comp.setLayout(new GridLayout(2, false));
 		setControl(comp);
 		display = comp.getDisplay();
-		targetPortMapUpdateThread.start();
 
 		Label label = new Label(comp, SWT.NONE);
 		label.setText(Messages.NewSerialFlashTargetWizardPage_Name);
@@ -124,34 +123,42 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 		label = new Label(comp, SWT.NONE);
 		label.setText(Messages.NewSerialFlashTargetWizardPage_SerialPort);
 
-		serialPortCombo = new Combo(comp, SWT.NONE);
+		serialPortCombo = new Combo(comp, SWT.READ_ONLY);
 		serialPortCombo.addSelectionListener(new SelectionAdapter() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (targetPortMapUpdateThread.isAlive()) {
-					targetPortMapUpdateThread.running = false;
-				}
-				com.fazecast.jSerialComm.SerialPort serialPort = com.fazecast.jSerialComm.SerialPort
-						.getCommPort(serialPortCombo.getText());
-				if (serialPort != null) {
-					infoArea.setText(serialPort.getDescriptivePortName());
-				}
-
+				display.asyncExec(() -> {
+					if (targetPortInfo.getState() == Job.RUNNING) {
+						targetPortInfo.cancel();
+					}
+					port = serialPortCombo.getText().split(PORT_NAME_DESCRIPTOR_SPLITOR)[0];
+					targetPortInfo.schedule();
+				});
 			}
 		});
 		try {
 			String[] ports = SerialPort.list();
 			for (String port : ports) {
-				serialPortCombo.add(port);
+				StringBuilder comboString = new StringBuilder();
+				comboString.append(port);
+				com.fazecast.jSerialComm.SerialPort serialPort = com.fazecast.jSerialComm.SerialPort.getCommPort(port);
+				if (serialPort != null) {
+					comboString.append(PORT_NAME_DESCRIPTOR_SPLITOR);
+					comboString.append(serialPort.getDescriptivePortName());
+				}
+				serialPortCombo.add(comboString.toString());
 			}
 			if (serialPortCombo.getItemCount() > 0) {
 				if (launchTarget != null) {
 					String targetPort = launchTarget.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT,
 							null);
 					if (targetPort != null) {
+						com.fazecast.jSerialComm.SerialPort serialPort = com.fazecast.jSerialComm.SerialPort
+								.getCommPort(targetPort);
+						targetPort = targetPort + PORT_NAME_DESCRIPTOR_SPLITOR + serialPort.getDescriptivePortName();
 						int i = 0;
-						for (String port : ports) {
+						for (String port : serialPortCombo.getItems()) {
 							if (port.equals(targetPort)) {
 								serialPortCombo.select(i);
 								break;
@@ -168,12 +175,13 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 
 		infoArea = new Text(comp, SWT.BORDER | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
 		infoArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
-		serialPortUpdateThread.start();
 	}
 
 	@Override
 	public void dispose() {
-		serialPortUpdateThread.running = targetPortMapUpdateThread.running = false;
+		if (targetPortInfo.getState() == Job.RUNNING) {
+			targetPortInfo.cancel();
+		}
 		super.dispose();
 	}
 
@@ -209,7 +217,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 	}
 
 	public String getSerialPortName() {
-		return serialPortCombo.getText();
+		return serialPortCombo.getText().split(PORT_NAME_DESCRIPTOR_SPLITOR)[0];
 	}
 
 	private List<String> getIDFTargetList() {
@@ -221,23 +229,12 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 		return new ESPToolChainManager().getAllEspToolchains();
 	}
 
-	private void putPortInMapForTarget(String target, String port) {
-		List<String> portsForTargetMatched = targetPortMap.get(target);
-		if (portsForTargetMatched != null) {
-			portsForTargetMatched.add(port);
-		} else {
-			portsForTargetMatched = new ArrayList<>();
-			portsForTargetMatched.add(port);
-			targetPortMap.put(target, portsForTargetMatched);
-		}
-	}
-
 	private String extractChipFromChipInfoOutput(String chipInfoOutput) {
 		Pattern pattern = Pattern.compile("Chip is (ESP32[^\\s]*)"); //$NON-NLS-1$
 		Matcher matcher = pattern.matcher(chipInfoOutput);
 		if (matcher.find()) {
 			String chipType = matcher.group(1);
-			chipType = chipType.replace("-", StringUtil.EMPTY).toLowerCase(); //$NON-NLS-1$
+			chipType = chipType.replace(PORT_NAME_DESCRIPTOR_SPLITOR, StringUtil.EMPTY).toLowerCase();
 			return chipType;
 		}
 
@@ -264,127 +261,55 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 		}
 	}
 
-	private class SerialPortUpdateThread extends Thread {
-		private boolean running = true;
+	private class TargetPortInfo extends Job {
+		public TargetPortInfo(String name) {
+			super(name);
+		}
 
 		@Override
-		public void run() {
-			try {
-				while (running) {
-					Thread.sleep(1000);
-					String[] ports = getSerialPorts();
-					display.asyncExec(() -> {
-						if (serialPortCombo.isDisposed())
-							return;
-						String[] loadedPorts = serialPortCombo.getItems();
-						if (loadedPorts.length != ports.length) {
-
-							if (ports.length != 0) {
-								serialPortCombo.setItems(ports);
-								serialPortCombo.select(0);
-								infoArea.setText(Messages.SerialPortUpdateThreadInfoMessage);
-							}
-
-							String targetPort = launchTarget
-									.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, null);
-							if (targetPort != null) {
-								int i = 0;
-								for (String port : ports) {
-									if (port.equals(targetPort)) {
-										serialPortCombo.select(i);
-										break;
-									}
-									i++;
-								}
-							}
-						}
-					});
-
-				}
-			} catch (Exception e) {
-				Logger.log(e);
-			}
-		}
-
-		private String[] getSerialPorts() throws IOException {
-			return SerialPort.list();
-		}
-	}
-
-	private class TargetPortMapUpdateThread extends Thread {
-		private boolean running = true;
-
-		@Override
-		public void run() {
-			try {
-				updateTargetHashMap();
-			} catch (Exception e) {
-				Logger.log(e);
-			}
-		}
-
-		private void updateTargetHashMap() throws Exception {
+		protected IStatus run(IProgressMonitor monitor) {
 			EspToolCommands espToolCommands = new EspToolCommands();
-			List<String> idfTargetList = getIDFTargetList();
-			for (String idfTarget : idfTargetList) {
-				targetPortMap.put(idfTarget, null);
-			}
 
-			String[] ports = SerialPort.list();
-			if (ports == null || ports.length == 0)
-				return;
-
-			for (String port : ports) {
-				String message = String.format(Messages.TargetPortUpdatingMessage, port);
-
-				display.asyncExec(() -> {
-					if (infoArea != null && !infoArea.isDisposed())
-						infoArea.setText(infoArea.getText() + System.lineSeparator() + message);
-				});
-
+			String message = String.format(Messages.TargetPortUpdatingMessage, port);
+			display.asyncExec(() -> {
+				if (infoArea != null && !infoArea.isDisposed())
+					infoArea.append(System.lineSeparator() + message);
+			});
+			try {
 				Process chipInfoProcess = espToolCommands.chipInformation(port);
 				InputStream targetIn = chipInfoProcess.getInputStream();
 				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(targetIn));
 				StringBuilder chipInfo = new StringBuilder();
 				String readLine;
-				while ((readLine = bufferedReader.readLine()) != null && running) {
+				while ((readLine = bufferedReader.readLine()) != null) {
+					display.asyncExec(() -> {
+						infoArea.append("."); //$NON-NLS-1$
+					});
 					chipInfo.append(readLine);
 					chipInfo.append(System.lineSeparator());
 				}
-				if (!running) {
-					bufferedReader.close();
-					return;
-				}
-
 				String chipType = extractChipFromChipInfoOutput(chipInfo.toString());
-				if (StringUtil.isEmpty(chipType)) {
-					display.asyncExec(() -> {
+				display.asyncExec(() -> {
+					if (StringUtil.isEmpty(chipType)) {
 						if (infoArea != null && !infoArea.isDisposed())
 							infoArea.setText(infoArea.getText() + System.lineSeparator()
 									+ String.format(Messages.TargetPortNotFoundMessage, port));
-					});
-					continue;
-				}
-
-				Optional<String> optTarget = idfTargetList.stream().filter(t -> t.equals(chipType)).findFirst();
-				if (optTarget.isPresent()) {
-					String targetMatched = optTarget.get();
-					putPortInMapForTarget(targetMatched, port);
-					display.asyncExec(() -> {
-						infoArea.setText(infoArea.getText() + System.lineSeparator()
-								+ String.format(Messages.TargetPortFoundMessage, port, targetMatched));
-					});
-				} else {
-					// if we dont find the board from chip type
-					// assuming esp32 as the chipinfo for that gives additional info
-					putPortInMapForTarget("esp32", port); //$NON-NLS-1$
-					display.asyncExec(() -> {
-						infoArea.setText(infoArea.getText() + System.lineSeparator()
-								+ String.format(Messages.TargetPortFoundMessage, port, "esp32")); //$NON-NLS-1$
-					});
-				}
+					} else {
+						infoArea.append(System.lineSeparator());
+						infoArea.append(String.format(Messages.TargetPortFoundMessage, port, chipType));
+					}
+				});
+			} catch (Exception e) {
+				Logger.log(e);
 			}
 
+			display.asyncExec(() -> {
+				infoArea.append(System.lineSeparator());
+			});
+
+			return Status.OK_STATUS;
 		}
+
 	}
+
 }

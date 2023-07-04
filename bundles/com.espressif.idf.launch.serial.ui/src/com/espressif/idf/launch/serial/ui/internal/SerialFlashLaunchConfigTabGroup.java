@@ -23,9 +23,9 @@ import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.launchbar.ui.internal.LaunchBarLaunchConfigDialog;
 
+@SuppressWarnings("restriction")
 public class SerialFlashLaunchConfigTabGroup extends AbstractLaunchConfigurationTabGroup {
 
-	@SuppressWarnings("restriction")
 	@Override
 	public void createTabs(ILaunchConfigurationDialog dialog, String mode) {
 		if (dialog instanceof LaunchBarLaunchConfigDialog) {

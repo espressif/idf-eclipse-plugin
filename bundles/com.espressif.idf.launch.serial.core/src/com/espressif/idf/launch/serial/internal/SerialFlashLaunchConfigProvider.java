@@ -24,16 +24,19 @@ import org.eclipse.launchbar.core.target.ILaunchTarget;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.launch.serial.core.IDFCoreLaunchConfigProvider;
 
-public class SerialFlashLaunchConfigProvider extends IDFCoreLaunchConfigProvider {
+public class SerialFlashLaunchConfigProvider extends IDFCoreLaunchConfigProvider
+{
 
 	@Override
-	public boolean supports(ILaunchDescriptor descriptor, ILaunchTarget target) throws CoreException {
+	public boolean supports(ILaunchDescriptor descriptor, ILaunchTarget target) throws CoreException
+	{
 		return target.getTypeId().equals(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE);
 	}
 
 	@Override
 	public ILaunchConfigurationType getLaunchConfigurationType(ILaunchDescriptor descriptor, ILaunchTarget target)
-			throws CoreException {
+			throws CoreException
+	{
 		return DebugPlugin.getDefault().getLaunchManager()
 				.getLaunchConfigurationType(IDFLaunchConstants.RUN_LAUNCH_CONFIG_TYPE);
 	}

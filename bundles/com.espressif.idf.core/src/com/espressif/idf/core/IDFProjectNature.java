@@ -43,7 +43,7 @@ public class IDFProjectNature implements IProjectNature
 
 	public static boolean hasNature(IProject project) throws CoreException
 	{
-		if (project == null)
+		if (project == null || !project.isOpen())
 		{
 			return false;
 		}

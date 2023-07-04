@@ -25,50 +25,66 @@ import com.espressif.idf.ui.EclipseUtil;
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
-public class IDFLaunchDescriptorType implements ILaunchDescriptorType {
+public class IDFLaunchDescriptorType implements ILaunchDescriptorType
+{
 
 	private Map<ILaunchConfiguration, ILaunchDescriptor> descriptors = new HashMap<>();
 
 	@Override
-	public ILaunchDescriptor getDescriptor(Object launchObject) throws CoreException {
-		if (launchObject instanceof IProject) {
+	public ILaunchDescriptor getDescriptor(Object launchObject) throws CoreException
+	{
+		if (launchObject instanceof IProject)
+		{
 			IProject project = (IProject) launchObject;
-			if (launchObject instanceof IProject && IDFProjectNature.hasNature((IProject) launchObject)) {
+			if (launchObject instanceof IProject && IDFProjectNature.hasNature((IProject) launchObject))
+			{
 				return new IDFProjectLaunchDescriptor(this, project, null);
 			}
-		} else if (launchObject instanceof ILaunchConfiguration) {
+		}
+		else if (launchObject instanceof ILaunchConfiguration)
+		{
 			ILaunchConfiguration config = (ILaunchConfiguration) launchObject;
 			String identifier = config.getType().getIdentifier();
-			if (identifier.equals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE)) {
+			if (identifier.equals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
+			{
 				return null;
 			}
 			IProject project = getProject();
-			if (project == null && config.getMappedResources() == null) {
+			if (project == null && config.getMappedResources() == null)
+			{
 				return null;
 			}
 			project = project != null ? project : config.getMappedResources()[0].getProject();
-			try {
-				if (IDFProjectNature.hasNature(project)) {
+			try
+			{
+				if (IDFProjectNature.hasNature(project))
+				{
 					ILaunchDescriptor descriptor = descriptors.get(config);
-					if (descriptor == null) {
+					if (descriptor == null)
+					{
 						descriptor = new IDFProjectLaunchDescriptor(this, project, (ILaunchConfiguration) launchObject);
 						descriptors.put(config, descriptor);
 					}
 					return descriptor;
 				}
-			} catch (CoreException ce) {
+			}
+			catch (CoreException ce)
+			{
 				Logger.log(ce);
 			}
 		}
 		return null;
 	}
 
-	protected IProject getProject() {
+	protected IProject getProject()
+	{
 		List<IProject> projectList = new ArrayList<>(1);
-		Display.getDefault().syncExec(new Runnable() {
+		Display.getDefault().syncExec(new Runnable()
+		{
 
 			@Override
-			public void run() {
+			public void run()
+			{
 				IProject project = EclipseUtil.getSelectedProjectInExplorer();
 				projectList.add(project);
 			}

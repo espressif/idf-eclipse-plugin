@@ -45,7 +45,7 @@ public class BigIntDecoder
 		}
 
 		return hasSign ? new BigInteger(firstChar + stringToDecode.substring(index), radix)
-				: new BigInteger(stringToDecode.substring(index));
+				: new BigInteger(stringToDecode.substring(index), radix);
 	}
 
 }
