@@ -315,7 +315,7 @@ config-only component and an interface library is created instead."
      <variable
            description="%openocd_scripts"
            name="OPENOCD_SCRIPTS"
-           resolver="com.espressif.idf.core.DynamicVariableResolver5">
+           resolver="com.espressif.idf.core.variable.OpenocdVariableResolver">
      </variable>
   </extension>
 </plugin>
