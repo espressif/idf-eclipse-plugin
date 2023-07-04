@@ -23,22 +23,24 @@ import org.eclipse.launchbar.core.target.TargetStatus;
 import com.espressif.idf.core.build.ESPToolChainManager;
 
 /**
- * Launch Target used to flash images to a device over a serial port, usually
- * USB serial.
+ * Launch Target used to flash images to a device over a serial port, usually USB serial.
  */
-public class SerialFlashLaunchTargetProvider implements ILaunchTargetProvider {
+public class SerialFlashLaunchTargetProvider implements ILaunchTargetProvider
+{
 
 	public static final String ATTR_SERIAL_PORT = "com.espressif.idf.launch.serial.core.serialPort"; //$NON-NLS-1$
 
 	public static final String ATTR_IDF_TARGET = "com.espressif.idf.launch.serial.core.idfTarget"; //$NON-NLS-1$
 
 	@Override
-	public void init(ILaunchTargetManager targetManager) {
+	public void init(ILaunchTargetManager targetManager)
+	{
 		new ESPToolChainManager().addToolchainBasedTargets(targetManager);
 	}
 
 	@Override
-	public TargetStatus getStatus(ILaunchTarget target) {
+	public TargetStatus getStatus(ILaunchTarget target)
+	{
 		// Always OK
 		return TargetStatus.OK_STATUS;
 	}

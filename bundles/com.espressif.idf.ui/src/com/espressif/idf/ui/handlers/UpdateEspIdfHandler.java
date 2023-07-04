@@ -17,7 +17,11 @@ import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.SubmoduleInitCommand;
+import org.eclipse.jgit.api.SubmoduleUpdateCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.submodule.SubmoduleWalk;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -40,14 +44,15 @@ public class UpdateEspIdfHandler extends AbstractHandler
 			{
 				GitProgressMonitor gitProgressMonitor = new GitProgressMonitor(monitor);
 
-				Git git = null;
-				try
+				try (Git git = Git.open(new File(IDFUtil.getIDFPath())))
 				{
-					git = Git.open(new File(IDFUtil.getIDFPath()));
 					git.pull().setProgressMonitor(gitProgressMonitor).call();
-					git.submoduleInit().call();
-					git.submoduleUpdate().setProgressMonitor(gitProgressMonitor).call();
-
+					SubmoduleInitCommand initCommand = git.submoduleInit();
+					SubmoduleUpdateCommand updateCommand = git.submoduleUpdate();
+					addRecursivePaths(git.getRepository(), initCommand, updateCommand);
+					initCommand.call();
+					updateCommand.setFetch(true);
+					updateCommand.setProgressMonitor(gitProgressMonitor).call();
 					return Status.OK_STATUS;
 				}
 				catch (
@@ -56,15 +61,33 @@ public class UpdateEspIdfHandler extends AbstractHandler
 				{
 					Logger.log(e);
 					return Status.error(e.getLocalizedMessage());
-				} finally
+				}
+			}
+
+			private void addRecursivePaths(Repository repo, SubmoduleInitCommand initCommand,
+					SubmoduleUpdateCommand updateCommand) throws IOException
+			{
+				if (repo == null)
+					return;
+				try (SubmoduleWalk generator = SubmoduleWalk.forIndex(repo))
 				{
-					if (git != null)
+					while (generator.next())
 					{
-						git.close();
+						// Add current submodule path
+						initCommand.addPath(generator.getPath());
+						updateCommand.addPath(generator.getPath());
+
+						// Recursively add paths for each submodule repository
+						addRecursivePaths(generator.getRepository(), initCommand, updateCommand);
 					}
+				}
+				finally
+				{
+					repo.close();
 				}
 			}
 		};
+
 
 		MutexRule rule = new MutexRule();
 		job.setUser(true);

@@ -14,6 +14,7 @@ import com.espressif.idf.core.build.NvsTableBean;
 
 public class NvsBeanValidator
 {
+	private static final int STRING_VALUE_LIMIT = 4000;
 	private static final String NAMESPACE = "namespace"; //$NON-NLS-1$
 	private static final Map<String, BigInteger> minValuesMap = initMinValuesMap();
 	private static final Map<String, BigInteger> maxValuesMap = initMaxValuesMap();
@@ -89,7 +90,7 @@ public class NvsBeanValidator
 
 		if (value.isBlank())
 		{
-			return Messages.NameValidationError_2;
+			return Messages.NvsValidation_ValueValidationErr_2;
 		}
 
 		if (type.contentEquals("file")) //$NON-NLS-1$
@@ -99,7 +100,7 @@ public class NvsBeanValidator
 
 		if (encoding.contentEquals("string") || encoding.contentEquals("binary")) //$NON-NLS-1$ //$NON-NLS-2$
 		{
-			if (value.length() > 4000)
+			if (value.getBytes().length > STRING_VALUE_LIMIT)
 			{
 				return Messages.NvsValidation_ValueValidationErr_3;
 			}
@@ -120,7 +121,7 @@ public class NvsBeanValidator
 		BigInteger bigIntegerValue = null;
 		try
 		{
-			bigIntegerValue = BigIntDecoder.decode(value);
+			bigIntegerValue = new BigInteger(value);
 		}
 		catch (NumberFormatException e)
 		{
@@ -144,7 +145,7 @@ public class NvsBeanValidator
 		if (!List.of(NvsTableDataService.getEncodings(type)).contains(encoding))
 		{
 			return String.format(Messages.NvsValidation_EncodingValidationErr_1, type,
-					NvsTableDataService.getEncodings(type), encoding);
+					String.join(",", NvsTableDataService.getEncodings(type)), encoding); //$NON-NLS-1$
 		}
 		return StringUtil.EMPTY;
 	}

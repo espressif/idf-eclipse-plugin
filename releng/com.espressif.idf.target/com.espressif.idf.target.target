@@ -3,7 +3,7 @@
 <target name="com.espressif.idf.target" sequenceNumber="25">
 	<locations>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<repository location="https://download.eclipse.org/eclipse/updates/4.25/" />
+			<repository location="https://download.eclipse.org/eclipse/updates/latest" />
 			<unit id="org.eclipse.equinox.sdk.feature.group" version="0.0.0" />
 			<unit id="org.eclipse.rcp.feature.group" version="0.0.0" />
 			<unit id="org.eclipse.rcp.source.feature.group" version="0.0.0" />
@@ -19,7 +19,7 @@
 
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<repository location="https://download.eclipse.org/releases/2022-09" />
+			<repository location="https://download.eclipse.org/releases/latest" />
 			<unit id="org.eclipse.cdt.autotools.feature.group" version="0.0.0" />
 			<unit id="org.eclipse.cdt.feature.group" version="0.0.0" />
 			<unit id="org.eclipse.cdt.sdk.feature.group" version="0.0.0" />
@@ -55,7 +55,7 @@
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<unit id="org.eclipse.lsp4e" version="0.0.0" />
 			<unit id="org.eclipse.lsp4e.debug" version="0.0.0" />
-			<repository location="https://download.eclipse.org/lsp4e/releases/0.20.7/" />
+			<repository location="https://download.eclipse.org/lsp4e/releases/latest/" />
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<unit id="com.cthing.cmakeed.feature.feature.group" version="1.17.0" />
@@ -64,7 +64,9 @@
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<unit id="org.eclipse.jgit.feature.group" version="0.0.0" />
 			<unit id="org.eclipse.egit.feature.group" version="0.0.0" />
-			<repository location="https://download.eclipse.org/egit/updates-5.13/" />
+			<unit id="slf4j.api" version="0.0.0"/>
+			<unit id="slf4j.simple" version="0.0.0"/>
+			<repository location="https://download.eclipse.org/egit/updates" />
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<unit id="org.eclipse.swtchart.feature.feature.group" version="0.0.0" />
@@ -88,10 +90,10 @@
 			<repository location="https://download.eclipse.org/tools/ptp/remote/releases/3.0/remote-3.0.1/" />
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<repository location="https://download.eclipse.org/modeling/emf/emf/builds/release/2.32/" />
+			<repository location="https://download.eclipse.org/modeling/emf/emf/builds/release/latest/" />
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<repository location="https://download.eclipse.org/mylyn/releases/3.10/" />
+			<repository location="https://download.eclipse.org/mylyn/releases/latest" />
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<unit id="org.eclipse.swtbot.eclipse.feature.group" version="0.0.0" />

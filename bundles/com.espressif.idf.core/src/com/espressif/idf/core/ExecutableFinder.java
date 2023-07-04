@@ -8,6 +8,5 @@ import org.eclipse.core.runtime.IPath;
 
 public interface ExecutableFinder
 {
-	IPath find(String executableName, boolean appendExtension);
-	IPath findExecutable(IPath path, boolean appendExtension);
+	IPath find(String executableName);
 }

@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -32,6 +33,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.IDFDynamicVariables;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
@@ -87,13 +89,12 @@ public class DfuCommandsUtil
 	public static String getDfuFlashCommand()
 	{
 		List<String> commands = new ArrayList<>();
-		commands.add(IDFUtil.getIDFPythonEnvPath());
-		commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
+		commands.add(generateVariableExpression(IDFDynamicVariables.IDF_PYTHON_ENV_PATH.name()));
+		commands.add(generateVariableExpression(IDFDynamicVariables.IDF_PY.name()));
 		commands.add(DFU_FLASH_COMMAND);
-
 		return String.join(" ", commands); //$NON-NLS-1$
 	}
-
+	
 	public static Process dfuBuild(IProject project, ConsoleOutputStream infoStream, IBuildConfiguration config,
 			List<IEnvironmentVariable> envVars) throws IOException, CoreException
 	{
@@ -104,11 +105,21 @@ public class DfuCommandsUtil
 		Process process = startProcess(commands, project, infoStream, config, envVars);
 		return process;
 	}
+	
+	private static String generateVariableExpression(String variableName)
+	{
+		return VariablesPlugin.getDefault().getStringVariableManager().generateVariableExpression(variableName, null);
+	}
+	
+	private static String resolveExpressionFromVariableManager(String expression) throws CoreException
+	{
+		return VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(expression);
+	}
 
 	private static Process startProcess(List<String> commands, IProject project, ConsoleOutputStream infoStream,
 			IBuildConfiguration config, List<IEnvironmentVariable> envVars) throws IOException
 	{
-		infoStream.write(String.join(" ", commands) + '\n'); //$NON-NLS-1$ //$NON-NLS-2$
+		infoStream.write(String.join(" ", commands) + '\n'); //$NON-NLS-1$
 		Path workingDir = (Path) project.getLocation();
 		ProcessBuilder processBuilder = new ProcessBuilder(commands).directory(workingDir.toFile());
 		Map<String, String> environment = processBuilder.environment();
@@ -127,8 +138,10 @@ public class DfuCommandsUtil
 		List<String> flashCommandList = new ArrayList<>();
 		try
 		{
-			flashCommandList = Arrays.asList(configuration
-					.getAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS, getDfuFlashCommand()).split(" ")); //$NON-NLS-1$
+			String flashCommand = configuration
+					.getAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS, getDfuFlashCommand());
+			flashCommand = resolveExpressionFromVariableManager(flashCommand);
+			flashCommandList = Arrays.asList(flashCommand.split(" ")); //$NON-NLS-1$
 		}
 		catch (CoreException e1)
 		{

@@ -5,6 +5,7 @@
 package com.espressif.idf.ui.tools;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.Queue;
 
 import org.eclipse.jgit.lib.BatchingProgressMonitor;
@@ -32,23 +33,40 @@ public class GitWizardRepProgressMonitor extends BatchingProgressMonitor
 		display = progressBar.getDisplay();
 	}
 
-	@Override
 	protected void onUpdate(String taskName, int workCurr)
+	{
+		onUpdate(taskName, workCurr, null);
+	}
+
+	protected void onEndTask(String taskName, int workCurr)
+	{
+		onEndTask(taskName, workCurr, null);
+	}
+
+	protected void onUpdate(String taskName, int workCurr, int workTotal, int percentDone)
+	{
+		onUpdate(taskName, workCurr, null);
+	}
+
+	protected void onEndTask(String taskName, int workCurr, int workTotal, int percentDone)
+	{
+		onEndTask(taskName, workCurr, workTotal, percentDone, null);
+	}
+
+	protected void onUpdate(String taskName, int workCurr, Duration duration)
 	{
 		updateProgressBar(workCurr);
 		setProgressBarVisibility(false);
 		logMessages.add(MessageFormat.format("{0}  {1}", taskName, workCurr)); //$NON-NLS-1$
 	}
 
-	@Override
-	protected void onEndTask(String taskName, int workCurr)
+	protected void onEndTask(String taskName, int workCurr, Duration duration)
 	{
 		updateProgressBar(workCurr);
 		logMessages.add(MessageFormat.format("Finished {0}  {1}", taskName, workCurr)); //$NON-NLS-1$
 	}
 
-	@Override
-	protected void onUpdate(String taskName, int workCurr, int workTotal, int percentDone)
+	protected void onUpdate(String taskName, int workCurr, int workTotal, int percentDone, Duration duration)
 	{
 		initializeMaxProgressbar(workTotal);
 		updateProgressBar(workCurr);
@@ -56,8 +74,7 @@ public class GitWizardRepProgressMonitor extends BatchingProgressMonitor
 				MessageFormat.format("{0} {1}, total {2} {3}% Completed", taskName, workCurr, workTotal, percentDone)); //$NON-NLS-1$
 	}
 
-	@Override
-	protected void onEndTask(String taskName, int workCurr, int workTotal, int percentDone)
+	protected void onEndTask(String taskName, int workCurr, int workTotal, int percentDone, Duration duration)
 	{
 		initializeMaxProgressbar(workTotal);
 		updateProgressBar(workCurr);
@@ -80,7 +97,7 @@ public class GitWizardRepProgressMonitor extends BatchingProgressMonitor
 	{
 		this.jobCancelled = jobCancelled;
 	}
-	
+
 	private void initializeMaxProgressbar(int max)
 	{
 		display.asyncExec(new Runnable()
@@ -105,7 +122,7 @@ public class GitWizardRepProgressMonitor extends BatchingProgressMonitor
 			}
 		});
 	}
-	
+
 	private void setProgressBarVisibility(boolean visible)
 	{
 		display.asyncExec(new Runnable()
@@ -116,6 +133,6 @@ public class GitWizardRepProgressMonitor extends BatchingProgressMonitor
 				progressBar.setVisible(visible);
 			}
 		});
-	}		
-	
+	}
+
 }

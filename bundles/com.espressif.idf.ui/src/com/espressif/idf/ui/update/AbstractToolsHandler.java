@@ -69,7 +69,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 		Logger.log("IDF_PATH :" + idfPath); //$NON-NLS-1$
 
 		// Look for git path
-		IPath gitPath = new SystemExecutableFinder().find("git", true); //$NON-NLS-1$
+		IPath gitPath = new SystemExecutableFinder().find("git"); //$NON-NLS-1$
 		Logger.log("GIT path:" + gitPath); //$NON-NLS-1$
 		if (gitPath != null)
 		{

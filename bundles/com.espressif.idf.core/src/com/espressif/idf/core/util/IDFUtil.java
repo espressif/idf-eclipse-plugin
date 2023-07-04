@@ -199,10 +199,10 @@ public class IDFUtil
 
 	public static String getPythonExecutable()
 	{
-		IPath pythonPath = new SystemExecutableFinder().find(IDFConstants.PYTHON3_CMD, true); // look for python3
+		IPath pythonPath = new SystemExecutableFinder().find(IDFConstants.PYTHON3_CMD); // look for python3
 		if (pythonPath == null)
 		{
-			pythonPath = new SystemExecutableFinder().find(IDFConstants.PYTHON_CMD, true); // look for python
+			pythonPath = new SystemExecutableFinder().find(IDFConstants.PYTHON_CMD); // look for python
 		}
 		if (pythonPath != null)
 		{
@@ -214,7 +214,7 @@ public class IDFUtil
 
 	/**
 	 * Search for a command from the given path string
-	 * 
+	 *
 	 * @param command to be searched
 	 * @param pathStr PATH string
 	 * @return
@@ -261,7 +261,7 @@ public class IDFUtil
 
 	/**
 	 * Search for a command in the CDT build PATH environment variables
-	 * 
+	 *
 	 * @param command name <i>ex: python</i>
 	 * @return command complete path
 	 */
@@ -310,7 +310,7 @@ public class IDFUtil
 
 	/**
 	 * OpenOCD Installation folder
-	 * 
+	 *
 	 * @return
 	 */
 	public static String getOpenOCDLocation()
@@ -328,7 +328,7 @@ public class IDFUtil
 
 	/**
 	 * Get Xtensa toolchain path based on the target configured for the project
-	 * 
+	 *
 	 * @return
 	 */
 	public static String getXtensaToolchainExecutablePath(IProject project)
@@ -394,7 +394,7 @@ public class IDFUtil
 
 	/**
 	 * Get Addr2Line path based on the target configured for the project with toolchain
-	 * 
+	 *
 	 * @return
 	 */
 	public static String getXtensaToolchainExecutableAddr2LinePath(IProject project)
@@ -520,7 +520,7 @@ public class IDFUtil
 
 	/**
 	 * Project build directory
-	 * 
+	 *
 	 * @param project
 	 * @return
 	 * @throws CoreException
@@ -539,7 +539,7 @@ public class IDFUtil
 
 	/**
 	 * Project .map file path
-	 * 
+	 *
 	 * @param project
 	 * @return
 	 */
@@ -569,7 +569,7 @@ public class IDFUtil
 
 	/**
 	 * Project .bin file path
-	 * 
+	 *
 	 * @param project
 	 * @return
 	 */
@@ -596,7 +596,7 @@ public class IDFUtil
 
 	/**
 	 * Project .elf file path
-	 * 
+	 *
 	 * @param project
 	 * @return
 	 */

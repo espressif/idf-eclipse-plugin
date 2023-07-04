@@ -48,7 +48,7 @@ import com.espressif.idf.ui.tools.wizard.IToolsInstallationWizardConstants;
 
 /**
  * Install initial tools page for git and python configs
- * 
+ *
  * @author Ali Azam Rana
  *
  */
@@ -152,7 +152,7 @@ public class InstallPreRquisitePage extends WizardPage implements IToolsWizardPa
 
 		setControl(container);
 	}
-	
+
 	@Override
 	public Composite getPageComposite()
 	{
@@ -161,7 +161,7 @@ public class InstallPreRquisitePage extends WizardPage implements IToolsWizardPa
 
 	private void loadGitExecutablePath()
 	{
-		IPath gitPath = new SystemExecutableFinder().find("git", true); //$NON-NLS-1$
+		IPath gitPath = new SystemExecutableFinder().find("git"); //$NON-NLS-1$
 		Logger.log("GIT path:" + gitPath); //$NON-NLS-1$
 		if (gitPath != null)
 		{
@@ -178,7 +178,7 @@ public class InstallPreRquisitePage extends WizardPage implements IToolsWizardPa
 					this.gitExecutablePath = gitInstallPath.concat(String.valueOf(Path.SEPARATOR)).concat("bin").concat(String.valueOf(Path.SEPARATOR)).concat("git.exe"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
-			else 
+			else
 			{
 				// MAC & LINUX have whereis git to see where the command is located
 				List<String> arguments = new ArrayList<String>();
