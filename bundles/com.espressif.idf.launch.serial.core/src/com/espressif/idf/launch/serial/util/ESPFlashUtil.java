@@ -38,7 +38,7 @@ public class ESPFlashUtil
 	public static final String VERSION_PATTERN = "(v.\\S+)"; //$NON-NLS-1$
 	public static final String SERIAL_PORT = "${serial_port}"; //$NON-NLS-1$
 	// prefix for backward compatibility with 2.9.1 where this prefix was not added in the argument in the UI
-	private static final String DEFAULT_ARGUMENT_PREFIX = "${openocd_path}/${openocd_executable} "; //$NON-NLS-1$
+	private static final String DEFAULT_ARGUMENT_PREFIX = "${openocd_path}/${openocd_exe} "; //$NON-NLS-1$
 
 	private ESPFlashUtil()
 	{
