@@ -17,8 +17,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.osgi.service.prefs.Preferences;
 
-import com.espressif.idf.core.build.AbstractESPToolchain;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.toolchain.ESPToolchain;
 
 /**
  * A class for revalidating the build configuration and adding the correct toolchain to the settings. This helps to
@@ -47,7 +47,7 @@ public class RecheckConfigsHelper
 			String typeId = settings.get(ICBuildConfiguration.TOOLCHAIN_TYPE, anyEspToolChain.getTypeId());
 			String toolchainId = settings.get(ICBuildConfiguration.TOOLCHAIN_ID, anyEspToolChain.getId());
 			IToolChain currentToolChain = toolChainManager.getToolChain(typeId, toolchainId);
-			if (!(currentToolChain instanceof AbstractESPToolchain))
+			if (!(currentToolChain instanceof ESPToolchain))
 			{
 				currentToolChain = anyEspToolChain;
 			}
@@ -74,7 +74,7 @@ public class RecheckConfigsHelper
 	private static IToolChain getESPToolChain(IToolChainManager toolChainManager) throws CoreException
 	{
 
-		return toolChainManager.getAllToolChains().stream().filter(AbstractESPToolchain.class::isInstance).findFirst()
+		return toolChainManager.getAllToolChains().stream().filter(ESPToolchain.class::isInstance).findFirst()
 				.orElseThrow();
 
 	}

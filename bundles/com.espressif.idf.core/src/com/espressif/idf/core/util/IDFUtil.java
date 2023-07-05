@@ -37,12 +37,8 @@ import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.SystemExecutableFinder;
-import com.espressif.idf.core.build.ESP32C2ToolChain;
-import com.espressif.idf.core.build.ESP32C3ToolChain;
-import com.espressif.idf.core.build.ESP32C6ToolChain;
-import com.espressif.idf.core.build.ESP32H2ToolChain;
-import com.espressif.idf.core.build.ESPToolChainProvider;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.toolchain.ESPToolChainManager;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -343,52 +339,12 @@ public class IDFUtil
 
 	public static String getXtensaToolchainExecutablePathByTarget(String projectEspTarget)
 	{
-		Pattern gdb_pattern = ESPToolChainProvider.GDB_PATTERN; // default
-		if (!StringUtil.isEmpty(projectEspTarget) && (projectEspTarget.equals(ESP32C3ToolChain.OS)
-				|| projectEspTarget.equals(ESP32C2ToolChain.OS) || projectEspTarget.equals(ESP32H2ToolChain.OS)
-				|| projectEspTarget.equals(ESP32C6ToolChain.OS)))
+		File file = new ESPToolChainManager().findDebugger(projectEspTarget);
+		if (file != null)
 		{
-			gdb_pattern = ESPToolChainProvider.GDB_PATTERN_ESP32C3;
-			projectEspTarget = ESP32C3ToolChain.ARCH;
+			return file.getAbsolutePath();
 		}
 
-		// Process PATH to find the toolchain path
-		IEnvironmentVariable cdtPath = new IDFEnvironmentVariables().getEnv("PATH"); //$NON-NLS-1$
-		if (cdtPath != null)
-		{
-			for (String dirStr : cdtPath.getValue().split(File.pathSeparator))
-			{
-				File dir = new File(dirStr);
-				if (dir.isDirectory())
-				{
-					for (File file : dir.listFiles())
-					{
-						if (file.isDirectory())
-						{
-							continue;
-						}
-
-						Matcher matcher = gdb_pattern.matcher(file.getName());
-						if (matcher.matches())
-						{
-							String path = file.getAbsolutePath();
-							Logger.log("GDB executable:" + path); //$NON-NLS-1$
-							String[] tuples = file.getName().split("-"); //$NON-NLS-1$
-							if (projectEspTarget == null) // If no IDF_TARGET
-							{
-								return null;
-							}
-							else if (tuples[1].equals(projectEspTarget) || tuples[0].equals(projectEspTarget))
-							{
-								return path;
-							}
-
-						}
-
-					}
-				}
-			}
-		}
 		return null;
 	}
 

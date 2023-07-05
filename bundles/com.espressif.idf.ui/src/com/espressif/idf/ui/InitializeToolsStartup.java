@@ -36,8 +36,8 @@ import com.espressif.idf.core.build.Messages;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.resources.OpenDialogListenerSupport;
 import com.espressif.idf.core.resources.ResourceChangeListener;
+import com.espressif.idf.core.toolchain.ESPToolChainManager;
 import com.espressif.idf.core.util.StringUtil;
-import com.espressif.idf.core.util.ToolChainUtil;
 import com.espressif.idf.ui.dialogs.MessageLinkDialog;
 import com.espressif.idf.ui.update.ExportIDFTools;
 import com.espressif.idf.ui.update.InstallToolsHandler;
@@ -162,7 +162,7 @@ public class InitializeToolsStartup implements IStartup
 					exportIDFTools.runToolsExport(pythonExecutablePath, gitExecutablePath, null, null);
 
 					// Configure toolchains
-					ToolChainUtil.configureToolChain();
+					new ESPToolChainManager().configureToolChain();
 
 					Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 					scopedPreferenceStore.putBoolean(InstallToolsHandler.INSTALL_TOOLS_FLAG, true);

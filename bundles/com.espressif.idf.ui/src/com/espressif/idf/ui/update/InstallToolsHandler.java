@@ -36,9 +36,9 @@ import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.toolchain.ESPToolChainManager;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
-import com.espressif.idf.core.util.ToolChainUtil;
 import com.espressif.idf.ui.UIPlugin;
 
 /**
@@ -91,7 +91,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				console.println(Messages.InstallToolsHandler_ConfiguredBuildEnvVarMsg);
 
 				monitor.setTaskName(Messages.InstallToolsHandler_AutoConfigureToolchain);
-				ToolChainUtil.configureToolChain();
+				new ESPToolChainManager().configureToolChain();
 				monitor.worked(1);
 
 				configEnv();
