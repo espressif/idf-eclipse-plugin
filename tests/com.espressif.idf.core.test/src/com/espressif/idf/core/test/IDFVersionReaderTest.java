@@ -4,16 +4,19 @@
  *******************************************************************************/
 package com.espressif.idf.core.test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import com.espressif.idf.core.IDFVersion;
 import com.espressif.idf.core.IDFVersionsReader;
@@ -22,18 +25,19 @@ import com.espressif.idf.core.IDFVersionsReader;
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
+@TestInstance(Lifecycle.PER_CLASS)
 public class IDFVersionReaderTest
 {
 
 	private IDFVersionsReader reader;
 
-	@Before
+	@BeforeAll
 	public void setup()
 	{
 		reader = new IDFVersionsReader();
 	}
 
-	@After
+	@AfterAll
 	public void teardown()
 	{
 		reader = null;

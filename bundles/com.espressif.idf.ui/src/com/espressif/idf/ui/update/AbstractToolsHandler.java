@@ -22,10 +22,10 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.MessageConsoleStream;
 
-import com.espressif.idf.core.ExecutableFinder;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
+import com.espressif.idf.core.SystemExecutableFinder;
 import com.espressif.idf.core.Version;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
@@ -69,7 +69,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 		Logger.log("IDF_PATH :" + idfPath); //$NON-NLS-1$
 
 		// Look for git path
-		IPath gitPath = ExecutableFinder.find("git", true); //$NON-NLS-1$
+		IPath gitPath = new SystemExecutableFinder().find("git"); //$NON-NLS-1$
 		Logger.log("GIT path:" + gitPath); //$NON-NLS-1$
 		if (gitPath != null)
 		{
