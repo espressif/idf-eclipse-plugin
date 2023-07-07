@@ -20,7 +20,7 @@ import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.launchbar.core.target.ILaunchTargetProvider;
 import org.eclipse.launchbar.core.target.TargetStatus;
 
-import com.espressif.idf.core.build.ESPToolChainManager;
+import com.espressif.idf.core.toolchain.ESPToolChainManager;
 
 /**
  * Launch Target used to flash images to a device over a serial port, usually USB serial.

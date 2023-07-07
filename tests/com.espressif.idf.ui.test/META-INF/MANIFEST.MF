@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.debug.core;bundle-version="3.11.0",
  org.eclipse.launchbar.core,
  com.espressif.idf.core.test;bundle-version="0.0.1",
- org.eclipse.jface
+ org.eclipse.jface,
+ slf4j.api
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.launchbar.ui,
  org.eclipse.launchbar.ui.controls.internal,

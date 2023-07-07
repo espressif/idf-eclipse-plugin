@@ -40,9 +40,9 @@ import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.toolchain.ESPToolChainManager;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
-import com.espressif.idf.core.util.ToolChainUtil;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.tools.vo.ToolsVO;
 import com.espressif.idf.ui.tools.vo.VersionsVO;
@@ -562,7 +562,7 @@ public class ToolsInstallationHandler extends Thread
 
 			runPythonEnvCommand();
 			runToolsExport(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.GIT_PATH));
-			ToolChainUtil.configureToolChain();
+			new ESPToolChainManager().configureToolChain();
 			configEnv();
 			handleWebSocketClientInstall();
 			copyOpenOcdRules();

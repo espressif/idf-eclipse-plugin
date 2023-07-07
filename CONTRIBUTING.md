@@ -13,6 +13,32 @@
 * Install `SWTBot` using the update site https://download.eclipse.org/technology/swtbot/releases/latest/
 * Install latest `nebula` plugins using the update site http://download.eclipse.org/nebula/releases/latest
 
+## Common errors during installation process
+* An API baseline has not been set for the current workspace.
+
+![image](https://github.com/espressif/idf-eclipse-plugin/assets/69584713/945eac3c-a0f1-4277-bba1-7ca2a1e86499)
+
+Fix: Window -> Preferences -> Plug-in Development -> API Baselines -> Missing API Baseline -> Change to "Warning"
+
+* The type org.slf4j.Logger cannot be resolved. It is indirectly referenced from required type org.eclipse.swtbot.swt.finder.widgets.AbstractSWTBot	
+
+![image](https://github.com/espressif/idf-eclipse-plugin/assets/69584713/0a879d4f-99e2-4d5a-98ca-a745a6683752)
+
+Fix: in "Project Explorer" -> com.espressif.idf.tests -> com.espressif.idf.ui.test -> META-INF -> doubleclick MANIFEST.MF -> Dependencies -> Add... -> Type "slf4j.api" -> Add&Save. 
+
+* After importing project Eclipse might prompt a wizard to install `Maven Plugin Connectors` to resolve the idf-eclipse-plugins maven errors, make sure you install all of them. But, depending on the version(Eclipse / Extentions), an error may occur:
+
+![image](https://github.com/espressif/idf-eclipse-plugin/assets/69584713/048196c9-8ac6-4f10-8095-596ab2ef05f2)
+
+Fix: check the error and delete one of the extention (usually Tycho) - Help -> Install New Software -> Already Installed -> select "Tycho" -> Uninstall. 
+
+* Run as -> SWTBot Test -> may lead to error: 
+
+![image](https://github.com/espressif/idf-eclipse-plugin/assets/69584713/3b563f57-d43e-4cce-a48b-5f9f9a490d7d)
+
+Fix: Uninstall SWTBot -> Install latest snapshot(04.04.2023): http://download.eclipse.org/technology/swtbot/snapshots
+
+
 ## How to contribute
 * Clone repo `git clone https://github.com/espressif/idf-eclipse-plugin.git`
 * Ensure you’ve installed Maven locally https://www.vogella.com/tutorials/ApacheMaven/article.html#maven_installation 

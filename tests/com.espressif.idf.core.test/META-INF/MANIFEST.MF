@@ -6,13 +6,19 @@ Bundle-Version: 0.0.1.qualifier
 Bundle-Vendor: Espressif Systems
 Automatic-Module-Name: com.espressif.idf.core.test
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Require-Bundle: org.junit,
- com.espressif.idf.core;bundle-version="1.0.1"
+Require-Bundle: com.espressif.idf.core;bundle-version="1.0.1",
+ junit-jupiter-api,
+ org.junit,
+ junit-jupiter-params
 Bundle-ClassPath: .,
  lib/jmock-2.12.0.jar,
  lib/commons-collections4-4.4.jar,
  lib/commons-io-2.9.0.jar,
- lib/commons-lang3-3.12.0.jar
+ lib/commons-lang3-3.12.0.jar,
+ lib/mockito-core-5.3.1.jar,
+ lib/objenesis-3.3.jar,
+ lib/byte-buddy-1.14.5.jar,
+ lib/byte-buddy-agent-1.14.5.jar
 Export-Package: com.espressif.idf.core.test,
  org.apache.commons.collections4,
  org.apache.commons.collections4.bag,
@@ -65,3 +71,7 @@ Export-Package: com.espressif.idf.core.test,
  org.jmock.api,
  org.jmock.auto,
  org.jmock.lib
+Import-Package: org.eclipse.core.runtime,
+ org.junit.jupiter.params,
+ org.junit.jupiter.params.provider,
+ org.eclipse.core.variables

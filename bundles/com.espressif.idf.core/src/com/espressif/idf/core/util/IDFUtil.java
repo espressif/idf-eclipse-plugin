@@ -32,17 +32,13 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.osgi.service.prefs.BackingStoreException;
 
-import com.espressif.idf.core.ExecutableFinder;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
-import com.espressif.idf.core.build.ESP32C2ToolChain;
-import com.espressif.idf.core.build.ESP32C3ToolChain;
-import com.espressif.idf.core.build.ESP32C6ToolChain;
-import com.espressif.idf.core.build.ESP32H2ToolChain;
-import com.espressif.idf.core.build.ESPToolChainProvider;
+import com.espressif.idf.core.SystemExecutableFinder;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.toolchain.ESPToolChainManager;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -78,7 +74,7 @@ public class IDFUtil
 				+ IDFConstants.IDF_PYTHON_SCRIPT;
 		return new File(idf_py_script);
 	}
-	
+
 	/**
 	 * @return idf_monitor.py file path based on the IDF_PATH defined in the environment variables
 	 */
@@ -199,10 +195,10 @@ public class IDFUtil
 
 	public static String getPythonExecutable()
 	{
-		IPath pythonPath = ExecutableFinder.find(IDFConstants.PYTHON3_CMD, true); // look for python3
+		IPath pythonPath = new SystemExecutableFinder().find(IDFConstants.PYTHON3_CMD); // look for python3
 		if (pythonPath == null)
 		{
-			pythonPath = ExecutableFinder.find(IDFConstants.PYTHON_CMD, true); // look for python
+			pythonPath = new SystemExecutableFinder().find(IDFConstants.PYTHON_CMD); // look for python
 		}
 		if (pythonPath != null)
 		{
@@ -214,7 +210,7 @@ public class IDFUtil
 
 	/**
 	 * Search for a command from the given path string
-	 * 
+	 *
 	 * @param command to be searched
 	 * @param pathStr PATH string
 	 * @return
@@ -261,7 +257,7 @@ public class IDFUtil
 
 	/**
 	 * Search for a command in the CDT build PATH environment variables
-	 * 
+	 *
 	 * @param command name <i>ex: python</i>
 	 * @return command complete path
 	 */
@@ -310,7 +306,7 @@ public class IDFUtil
 
 	/**
 	 * OpenOCD Installation folder
-	 * 
+	 *
 	 * @return
 	 */
 	public static String getOpenOCDLocation()
@@ -328,7 +324,7 @@ public class IDFUtil
 
 	/**
 	 * Get Xtensa toolchain path based on the target configured for the project
-	 * 
+	 *
 	 * @return
 	 */
 	public static String getXtensaToolchainExecutablePath(IProject project)
@@ -343,58 +339,18 @@ public class IDFUtil
 
 	public static String getXtensaToolchainExecutablePathByTarget(String projectEspTarget)
 	{
-		Pattern gdb_pattern = ESPToolChainProvider.GDB_PATTERN; // default
-		if (!StringUtil.isEmpty(projectEspTarget) && (projectEspTarget.equals(ESP32C3ToolChain.OS)
-				|| projectEspTarget.equals(ESP32C2ToolChain.OS) || projectEspTarget.equals(ESP32H2ToolChain.OS)
-				|| projectEspTarget.equals(ESP32C6ToolChain.OS)))
+		File file = new ESPToolChainManager().findDebugger(projectEspTarget);
+		if (file != null)
 		{
-			gdb_pattern = ESPToolChainProvider.GDB_PATTERN_ESP32C3;
-			projectEspTarget = ESP32C3ToolChain.ARCH;
+			return file.getAbsolutePath();
 		}
 
-		// Process PATH to find the toolchain path
-		IEnvironmentVariable cdtPath = new IDFEnvironmentVariables().getEnv("PATH"); //$NON-NLS-1$
-		if (cdtPath != null)
-		{
-			for (String dirStr : cdtPath.getValue().split(File.pathSeparator))
-			{
-				File dir = new File(dirStr);
-				if (dir.isDirectory())
-				{
-					for (File file : dir.listFiles())
-					{
-						if (file.isDirectory())
-						{
-							continue;
-						}
-
-						Matcher matcher = gdb_pattern.matcher(file.getName());
-						if (matcher.matches())
-						{
-							String path = file.getAbsolutePath();
-							Logger.log("GDB executable:" + path); //$NON-NLS-1$
-							String[] tuples = file.getName().split("-"); //$NON-NLS-1$
-							if (projectEspTarget == null) // If no IDF_TARGET
-							{
-								return null;
-							}
-							else if (tuples[1].equals(projectEspTarget) || tuples[0].equals(projectEspTarget))
-							{
-								return path;
-							}
-
-						}
-
-					}
-				}
-			}
-		}
 		return null;
 	}
 
 	/**
 	 * Get Addr2Line path based on the target configured for the project with toolchain
-	 * 
+	 *
 	 * @return
 	 */
 	public static String getXtensaToolchainExecutableAddr2LinePath(IProject project)
@@ -520,7 +476,7 @@ public class IDFUtil
 
 	/**
 	 * Project build directory
-	 * 
+	 *
 	 * @param project
 	 * @return
 	 * @throws CoreException
@@ -539,7 +495,7 @@ public class IDFUtil
 
 	/**
 	 * Project .map file path
-	 * 
+	 *
 	 * @param project
 	 * @return
 	 */
@@ -569,7 +525,7 @@ public class IDFUtil
 
 	/**
 	 * Project .bin file path
-	 * 
+	 *
 	 * @param project
 	 * @return
 	 */
@@ -596,7 +552,7 @@ public class IDFUtil
 
 	/**
 	 * Project .elf file path
-	 * 
+	 *
 	 * @param project
 	 * @return
 	 */
