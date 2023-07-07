@@ -23,11 +23,12 @@ import com.espressif.idf.core.logging.Logger;
 
 public class HintsUtil
 {
-
-	public static List<ReHintPair> getReHintsList()
+	private HintsUtil()
 	{
+	}
 
-		File hintsYmFile = new File(getHintsYmlPath());
+	public static List<ReHintPair> getReHintsList(File hintsYmFile)
+	{
 		List<ReHintPair> reHintsPairArray = new ArrayList<>();
 		InputStream inputStream = null;
 		try
@@ -58,10 +59,10 @@ public class HintsUtil
 	{
 		return IDFUtil.getIDFPath() + File.separator + "tools" + File.separator + "idf_py_actions" //$NON-NLS-1$ //$NON-NLS-2$
 				+ File.separator
-				+ "hints.yml"; // $NON-NLS-3$
+				+ "hints.yml"; //$NON-NLS-1$
 	}
 
-	private static List<ReHintPair> loadHintsYamlFis(InputStream inputStream) throws FileNotFoundException
+	private static List<ReHintPair> loadHintsYamlFis(InputStream inputStream)
 	{
 		Yaml yaml = new Yaml();
 		List<ReHintPair> reHintsPairArray = new ArrayList<>();
@@ -83,7 +84,7 @@ public class HintsUtil
 			if (reHintVarsMapList.isEmpty())
 			{
 				reHintsPairArray.add(new ReHintPair(String.valueOf(entry.get("re")), //$NON-NLS-1$
-						String.valueOf(entry.get("hint")))); // $NON-NLS-2$
+						String.valueOf(entry.get("hint")))); //$NON-NLS-1$
 			}
 		}
 		return reHintsPairArray;
@@ -92,10 +93,11 @@ public class HintsUtil
 	private static String formatEntry(List<String> vars, String entry)
 	{
 		int i = 0;
-		entry = entry.replaceAll("'", "''"); //$NON-NLS-1$ //$NON-NLS-2$
+		entry = entry.replace("'", "''"); //$NON-NLS-1$ //$NON-NLS-2$
 		while (entry.contains("{}")) //$NON-NLS-1$
 		{
-			entry = entry.replaceFirst(Pattern.quote("{}"), "{" + i++ + "}"); //$NON-NLS-1$ //$NON-NLS-2$ /$NON-NLS-3$
+			entry = entry.replaceFirst(Pattern.quote("{}"), "{" + i++ + "}"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+																				// /$NON-NLS-3$
 		}
 		return MessageFormat.format(entry, vars.toArray());
 	}

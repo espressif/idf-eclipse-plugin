@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.ui.dialogs;
 
+import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +56,7 @@ public class HintsView extends ViewPart
 		container.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		GridLayout layout = new GridLayout(1, true);
 		container.setLayout(layout);
-		reHintsList = HintsUtil.getReHintsList();
+		reHintsList = HintsUtil.getReHintsList(new File(HintsUtil.getHintsYmlPath()));
 		if (reHintsList.isEmpty())
 		{
 			CLabel errorField = new CLabel(container, SWT.H_SCROLL);
