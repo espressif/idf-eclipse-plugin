@@ -139,7 +139,6 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 
 	// ------------------------------------------------------------------------
 
-	@Override
 	public String getExecutableName() {
 
 		String key = PersistentPreferences.EXECUTABLE_NAME;
@@ -151,7 +150,6 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 		return value;
 	}
 
-	@Override
 	public String getExecutableNameOs() {
 
 		String key = EclipseUtils.getKeyOs(PersistentPreferences.EXECUTABLE_NAME_OS);
@@ -163,7 +161,6 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 		return value;
 	}
 
-	@Override
 	public void putExecutableName(String value) {
 
 		String key = PersistentPreferences.EXECUTABLE_NAME;
@@ -176,7 +173,6 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 
 	// ------------------------------------------------------------------------
 
-	@Override
 	public String getInstallFolder() {
 
 		String key = PersistentPreferences.INSTALL_FOLDER;
@@ -193,7 +189,6 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 		return value;
 	}
 
-	@Override
 	public void putInstallFolder(String value) {
 
 		String key = PersistentPreferences.INSTALL_FOLDER;

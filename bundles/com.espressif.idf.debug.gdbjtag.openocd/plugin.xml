@@ -147,5 +147,19 @@
           resolver="com.espressif.idf.debug.gdbjtag.openocd.DefaultAppResolver">
     </variable>
  </extension>
+ <extension
+       point="org.eclipse.debug.core.processFactories">
+    <processFactory
+          class="com.espressif.idf.debug.gdbjtag.openocd.dsf.process.CustomIdfProcessFactory"
+          id="com.espressif.idf.debug.gdbjtag.openocd.processFactory">
+    </processFactory>
+ </extension>
+ <extension
+       point="org.eclipse.ui.console.consoleFactories">
+    <consoleFactory
+          class="com.espressif.idf.debug.gdbjtag.openocd.dsf.console.IdfProcessConsoleFactory"
+          label="IDF Process Console">
+    </consoleFactory>
+ </extension>
 
 </plugin>

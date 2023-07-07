@@ -37,12 +37,14 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.ISourceLocator;
+import org.eclipse.debug.internal.core.LaunchConfigurationWorkingCopy;
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuLaunch;
 
 import com.espressif.idf.core.util.PortChecker;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
 import com.espressif.idf.debug.gdbjtag.openocd.ConfigurationAttributes;
+import com.espressif.idf.debug.gdbjtag.openocd.dsf.process.CustomIdfProcessFactory;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 
 @SuppressWarnings("restriction")
@@ -148,6 +150,8 @@ public class Launch extends GnuMcuLaunch
 		int availableRemotePort = PortChecker.getAvailablePort(config.getAttribute(IGDBJtagConstants.ATTR_PORT_NUMBER,
 				DefaultPreferences.GDB_SERVER_GDB_PORT_NUMBER_DEFAULT));
 		config.setAttribute(IGDBJtagConstants.ATTR_PORT_NUMBER, availableRemotePort);
+		
+		config.setAttribute(DebugPlugin.ATTR_PROCESS_FACTORY_ID, CustomIdfProcessFactory.ID);
 	}
 
 	// ------------------------------------------------------------------------

@@ -31,7 +31,8 @@ Require-Bundle: org.eclipse.cdt.core;bundle-version="6.2.0",
  org.eclipse.launchbar.ui,
  org.eclipse.embedcdt.core,
  org.eclipse.embedcdt.debug.gdbjtag.core,
- org.eclipse.embedcdt.ui
+ org.eclipse.embedcdt.ui,
+ org.eclipse.ui.console
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: %bundle.vendor
 Bundle-ActivationPolicy: lazy
