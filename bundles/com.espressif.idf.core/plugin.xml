@@ -243,8 +243,7 @@ config-only component and an interface library is created instead."
            name="KCONFIG_PROJBUILD">
      </property>
   </extension>
-  <extension
-        point="com.espressif.idf.core.toolchain">
+  <extension point="com.espressif.idf.core.toolchain">
      <ToolChain
            arch="xtensa"
            compilerPattern="xtensa-esp32-elf-gcc(\.exe)?"
@@ -302,5 +301,21 @@ config-only component and an interface library is created instead."
            name="esp32h2">
      </ToolChain>
   </extension>
-
+  <extension point="org.eclipse.core.variables.dynamicVariables">
+     <variable
+           description="%openocd_bin_path"
+           name="openocd_path"
+           resolver="com.espressif.idf.core.variable.OpenocdVariableResolver">
+     </variable>
+     <variable
+           description="%openocd_exe"
+           name="openocd_exe"
+           resolver="com.espressif.idf.core.variable.OpenocdVariableResolver">
+     </variable>
+     <variable
+           description="%openocd_scripts"
+           name="OPENOCD_SCRIPTS"
+           resolver="com.espressif.idf.core.variable.OpenocdVariableResolver">
+     </variable>
+  </extension>
 </plugin>

@@ -39,8 +39,6 @@ import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.embedcdt.core.EclipseUtils;
-import org.eclipse.embedcdt.core.StringUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
@@ -69,11 +67,6 @@ import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfigDelegate
 {
 	private static final String SYSTEM_PATH_PYTHON = "${system_path:python}"; //$NON-NLS-1$
-	private static final String OPENOCD_PREFIX = "com.espressif.idf.debug.gdbjtag.openocd"; //$NON-NLS-1$
-	private static final String INSTALL_FOLDER = "install.folder"; //$NON-NLS-1$
-	private static final String SERVER_EXECUTABLE = OPENOCD_PREFIX + ".openocd.gdbServerExecutable"; //$NON-NLS-1$
-	private static final String DEFAULT_PATH = "${openocd_path}/"; //$NON-NLS-1$
-	private static final String DEFAULT_EXECUTABLE = "bin/openocd"; //$NON-NLS-1$
 	private String serialPort;
 
 	@Override
@@ -92,8 +85,6 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor)
 			throws CoreException
 	{
-		boolean isFlashOverJtag = configuration.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, false);
-
 		// Start the launch (pause the serial port)
 		((SerialFlashLaunch) launch).start();
 
@@ -104,9 +95,9 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 			DfuCommandsUtil.flashDfuBins(configuration, getProject(configuration), launch, monitor);
 			return;
 		}
-		if (isFlashOverJtag)
+		if (ESPFlashUtil.isJtag())
 		{
-			flashOverJtag(configuration, launch);
+			ESPFlashUtil.flashOverJtag(configuration, launch);
 			return;
 		}
 		launchInternal(configuration, mode, launch, monitor);
@@ -196,42 +187,6 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		DebugPlugin.newProcess(launch, p, String.join(" ", commands)); //$NON-NLS-1$
 	}
 
-	private String getVariablesValueFromExpression(String expression) throws CoreException
-	{
-		IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
-		return manager.performStringSubstitution(expression);
-	}
-
-	protected void flashOverJtag(ILaunchConfiguration configuration, ILaunch launch) throws CoreException
-	{
-		List<String> commands = new ArrayList<>();
-
-		String openocdExe = configuration.getAttribute(SERVER_EXECUTABLE, DEFAULT_PATH + DEFAULT_EXECUTABLE);
-		String tmp = EclipseUtils.getPreferenceValueForId(OPENOCD_PREFIX, INSTALL_FOLDER, "", //$NON-NLS-1$
-				getProject(configuration));
-		tmp = tmp.replace("bin", ""); //$NON-NLS-1$ //$NON-NLS-2$
-		openocdExe = openocdExe.replace(DEFAULT_PATH, tmp);
-		commands.add(openocdExe);
-
-		String arguments = configuration.getAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, ""); //$NON-NLS-1$
-		arguments = arguments.replace(DEFAULT_PATH, tmp).trim();
-		arguments = getVariablesValueFromExpression(arguments);
-		commands.addAll(StringUtils.splitCommandLineOptions(arguments));
-
-		String flashCommand = ESPFlashUtil.getEspJtagFlashCommand(configuration) + " exit"; //$NON-NLS-1$
-		commands.add(flashCommand);
-
-		try
-		{
-			Process p = Runtime.getRuntime().exec(commands.toArray(new String[0]));
-			DebugPlugin.newProcess(launch, p, String.join(" ", commands)); //$NON-NLS-1$
-		}
-		catch (IOException e)
-		{
-			Logger.log(e);
-		}
-	}
-
 	private boolean checkIfPortIsEmpty(ILaunchConfiguration configuration)
 	{
 		boolean isMatch = false;
@@ -261,20 +216,15 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 
 	private static void showMessage(ILaunchConfiguration configuration)
 	{
-		Display.getDefault().asyncExec(new Runnable()
-		{
-			@Override
-			public void run()
+		Display.getDefault().asyncExec(() -> {
+			boolean isYes = MessageDialog.openConfirm(Display.getDefault().getActiveShell(),
+					com.espressif.idf.launch.serial.internal.Messages.SerialPortNotFoundTitle,
+					com.espressif.idf.launch.serial.internal.Messages.SerialPortNotFoundMsg);
+			if (isYes)
 			{
-				boolean isYes = MessageDialog.openConfirm(Display.getDefault().getActiveShell(),
-						com.espressif.idf.launch.serial.internal.Messages.SerialPortNotFoundTitle,
-						com.espressif.idf.launch.serial.internal.Messages.SerialPortNotFoundMsg);
-				if (isYes)
-				{
-					ILaunchTargetUIManager targetUIManager = Activator.getService(ILaunchTargetUIManager.class);
-					ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
-					targetUIManager.editLaunchTarget(launchTargetManager.getDefaultLaunchTarget(configuration));
-				}
+				ILaunchTargetUIManager targetUIManager = Activator.getService(ILaunchTargetUIManager.class);
+				ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
+				targetUIManager.editLaunchTarget(launchTargetManager.getDefaultLaunchTarget(configuration));
 			}
 		});
 	}

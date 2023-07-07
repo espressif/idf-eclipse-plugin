@@ -16,6 +16,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.espressif.idf</groupId>
+			<artifactId>com.espressif.idf.branding</artifactId>
+			<version>2.10.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.espressif.idf</groupId>
 			<artifactId>com.espressif.idf.core</artifactId>
 			<version>1.0.1-SNAPSHOT</version>
 		</dependency>
