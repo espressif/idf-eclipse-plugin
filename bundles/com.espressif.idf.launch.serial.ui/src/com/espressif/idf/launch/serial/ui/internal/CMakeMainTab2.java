@@ -66,6 +66,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.json.simple.JSONArray;
 
+import com.espressif.idf.core.DefaultBoardProvider;
 import com.espressif.idf.core.IDFDynamicVariables;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
@@ -716,7 +717,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 					}
 					boardConfigsMap = parser.getBoardsConfigs(selectedItem);
 					fTargetName.setItems(parser.getBoardsConfigs(selectedItem).keySet().toArray(new String[0]));
-					fTargetName.select(0);
+					fTargetName.select(
+							new DefaultBoardProvider().getIndexOfDefaultBoard(selectedItem, fTargetName.getItems()));
 					updateArgumentsField();
 				}
 
@@ -762,7 +764,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 			fTargetName = new Combo(group, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
 			fTargetName.setItems(parser.getBoardsConfigs(selectedTarget).keySet().toArray(new String[0]));
 			boardConfigsMap = parser.getBoardsConfigs(selectedTarget);
-			fTargetName.select(0);
+			fTargetName
+					.select(new DefaultBoardProvider().getIndexOfDefaultBoard(selectedTarget, fTargetName.getItems()));
 			fTargetName.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {

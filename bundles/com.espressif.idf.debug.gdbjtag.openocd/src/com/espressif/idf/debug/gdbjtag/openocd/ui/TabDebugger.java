@@ -68,6 +68,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.json.simple.JSONArray;
 
+import com.espressif.idf.core.DefaultBoardProvider;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
@@ -474,7 +475,8 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 						fGdbClientExecutable.setText(IDFUtil.getXtensaToolchainExecutablePathByTarget(selectedItem));
 						boardConfigsMap = parser.getBoardsConfigs(selectedItem);
 						fTargetName.setItems(parser.getBoardsConfigs(selectedItem).keySet().toArray(new String[0]));
-						fTargetName.select(0);
+						fTargetName.select(new DefaultBoardProvider().getIndexOfDefaultBoard(selectedItem,
+								fTargetName.getItems()));
 						fTargetName.notifyListeners(SWT.Selection, null);
 					}
 
@@ -539,7 +541,8 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 				fTargetName.setItems(parser.getBoardsConfigs(selectedTarget).keySet().toArray(new String[0]));
 				boardConfigsMap = parser.getBoardsConfigs(selectedTarget);
 
-				fTargetName.select(0);
+				fTargetName.select(
+						new DefaultBoardProvider().getIndexOfDefaultBoard(selectedTarget, fTargetName.getItems()));
 				fTargetName.addSelectionListener(new SelectionAdapter()
 				{
 					@SuppressWarnings("unchecked")
