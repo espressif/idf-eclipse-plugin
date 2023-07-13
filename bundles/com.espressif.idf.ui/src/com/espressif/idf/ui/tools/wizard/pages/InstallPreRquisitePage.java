@@ -123,6 +123,7 @@ public class InstallPreRquisitePage extends WizardPage implements IToolsWizardPa
 			String[] versions = pythonVersions.keySet().toArray(new String[pythonVersions.size()]);
 			pythonVersionCombo.setItems(versions);
 			pythonVersionCombo.select(0); // select the first one
+			pythonExecutablePath = pythonVersions.get(versions[0]);
 			pythonVersionCombo.addModifyListener(new ModifyListener()
 			{
 				@Override

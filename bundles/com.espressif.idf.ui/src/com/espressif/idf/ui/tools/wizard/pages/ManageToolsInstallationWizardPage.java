@@ -954,12 +954,10 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 				boolean alwaysInstall = toolsVO.getInstallType().equalsIgnoreCase(ALWAYS)
 						|| toolsVO.getInstallType().equalsIgnoreCase(RECOMMENDED);
 				mainItem.setChecked(alwaysInstall);
-
-				for (TreeItem subItem : mainItem.getItems())
-				{
-					subItem.setChecked(alwaysInstall);
-				}
-
+				Event swtCheckedTreeEvent = new Event();
+				swtCheckedTreeEvent.detail = SWT.CHECK;
+				swtCheckedTreeEvent.item = mainItem;
+				toolsTree.notifyListeners(SWT.Selection, swtCheckedTreeEvent);
 				mainItem.setExpanded(alwaysInstall);
 			}
 

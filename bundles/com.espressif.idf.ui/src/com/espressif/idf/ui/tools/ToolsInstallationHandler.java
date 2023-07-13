@@ -550,6 +550,12 @@ public class ToolsInstallationHandler extends Thread
 		@Override
 		public Boolean call() throws Exception
 		{
+			File espMainFolder = new File(ToolsUtility.ESPRESSIF_HOME_DIR);
+			if (!espMainFolder.exists())
+			{
+				espMainFolder.mkdirs();
+			}
+			
 			for (ToolsVO toolsVo : selectedItems.keySet())
 			{
 				if (Thread.interrupted())
