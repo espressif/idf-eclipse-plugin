@@ -7,6 +7,8 @@ package com.espressif.idf.ui.test.executable.cases.project;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -21,6 +23,7 @@ import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.junit.After;
@@ -186,6 +189,15 @@ public class NewEspressifIDFProjectTest
 		Fixture.thenProjectHasTheFile("dfu.bin", "/build");
 		Fixture.turnOffDfu();
 	}
+	
+	@Test
+	public void creatingNewDebugLaunchConfig() throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.selectNewDebugLaunchConfig();
+	}
 
 	private static class Fixture
 	{
@@ -276,6 +288,32 @@ public class NewEspressifIDFProjectTest
 			launchBarConfigSelector.clickEdit();
 			bot.comboBox().setSelection("DFU");
 			bot.button("OK").click();
+		}
+		
+		private static void givenESP32LaunchTargetIsSelected()
+		{
+			launchBarTargetSelector.select("esp32");
+		}
+		
+		private static void selectNewDebugLaunchConfig() {
+			givenESP32LaunchTargetIsSelected();
+			launchBarConfigSelector.select("New Launch Configuration...");
+			bot.table(0).select("Debug");
+			bot.table(1).select("ESP-IDF GDB OpenOCD Debugging");
+			bot.button("Next >").click();
+			SWTBotText textWidget = bot.textWithLabel("Project:");
+			assertTrue(textWidget.getText().equals(projectName));
+			bot.cTabItem("Debugger").activate();
+			SWTBotText textWidget1 = bot.textWithLabel("Actual Executable:");
+			String pathtoexe = System.getProperty("user.home");
+			Path p = Paths.get(pathtoexe
+					+ "\\.espressif\\tools\\xtensa-esp-elf-gdb\\12.1_20221002\\xtensa-esp-elf-gdb\\bin\\xtensa-esp32-elf-gdb.exe");
+			p.toAbsolutePath().toString();
+			assertTrue(textWidget1.getText().equals(p.toAbsolutePath().toString()));
+			bot.cTabItem("SVD Path").activate();
+			SWTBotText textWidget2 = bot.textWithLabel("File path:");
+			assertTrue(textWidget2.getText().contains("esp32.svd"));
+			bot.button("Finish").click();
 		}
 
 		private static void whenProjectIsBuiltUsingContextMenu() throws IOException
