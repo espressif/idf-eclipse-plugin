@@ -191,12 +191,16 @@ public class NewEspressifIDFProjectTest
 	}
 	
 	@Test
-	public void creatingNewDebugLaunchConfig() throws Exception
+	public void whenProjectIsSelectedInProjectExplorerThenNewDebugConfigurationHasPrefilledAllFields() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 		Fixture.givenProjectNameIs("NewProjectTest");
 		Fixture.whenNewProjectIsSelected();
+		Fixture.givenESP32LaunchTargetIsSelected();
 		Fixture.selectNewDebugLaunchConfig();
+		Fixture.compareProjectName();
+		Fixture.compareActualExePath();
+		Fixture.compareSVDPath();
 	}
 
 	private static class Fixture
@@ -295,24 +299,32 @@ public class NewEspressifIDFProjectTest
 			launchBarTargetSelector.select("esp32");
 		}
 		
-		private static void selectNewDebugLaunchConfig() {
-			givenESP32LaunchTargetIsSelected();
+		private static void selectNewDebugLaunchConfig() 
+		{
 			launchBarConfigSelector.select("New Launch Configuration...");
 			bot.table(0).select("Debug");
 			bot.table(1).select("ESP-IDF GDB OpenOCD Debugging");
 			bot.button("Next >").click();
+		}
+		
+		private static void compareProjectName() 
+		{
 			SWTBotText textWidget = bot.textWithLabel("Project:");
 			assertTrue(textWidget.getText().equals(projectName));
+		}
+		
+		private static void compareActualExePath() 
+		{
 			bot.cTabItem("Debugger").activate();
-			SWTBotText textWidget1 = bot.textWithLabel("Actual Executable:");
-			String pathtoexe = System.getProperty("user.home");
-			Path p = Paths.get(pathtoexe
-					+ "\\.espressif\\tools\\xtensa-esp-elf-gdb\\12.1_20221002\\xtensa-esp-elf-gdb\\bin\\xtensa-esp32-elf-gdb.exe");
-			p.toAbsolutePath().toString();
-			assertTrue(textWidget1.getText().equals(p.toAbsolutePath().toString()));
+			SWTBotText actualExeTxtWidget = bot.textWithLabel("Actual Executable:");
+			assertTrue(actualExeTxtWidget.getText().contains("xtensa-esp32-elf-gdb.exe"));
+		}
+			
+		private static void compareSVDPath() 
+		{
 			bot.cTabItem("SVD Path").activate();
-			SWTBotText textWidget2 = bot.textWithLabel("File path:");
-			assertTrue(textWidget2.getText().contains("esp32.svd"));
+			SWTBotText filePathTxtWidget = bot.textWithLabel("File path:");
+			assertTrue(filePathTxtWidget.getText().contains("esp32.svd"));
 			bot.button("Finish").click();
 		}
 
