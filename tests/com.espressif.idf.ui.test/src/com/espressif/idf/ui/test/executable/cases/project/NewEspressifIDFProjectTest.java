@@ -201,6 +201,7 @@ public class NewEspressifIDFProjectTest
 		Fixture.compareProjectName();
 		Fixture.compareActualExePath();
 		Fixture.compareSVDPath();
+		Fixture.finishDebugLaunchConfigCreation();
 	}
 
 	private static class Fixture
@@ -325,6 +326,10 @@ public class NewEspressifIDFProjectTest
 			bot.cTabItem("SVD Path").activate();
 			SWTBotText filePathTxtWidget = bot.textWithLabel("File path:");
 			assertTrue(filePathTxtWidget.getText().contains("esp32.svd"));
+		}
+		
+		private static void finishDebugLaunchConfigCreation()
+		{
 			bot.button("Finish").click();
 		}
 
