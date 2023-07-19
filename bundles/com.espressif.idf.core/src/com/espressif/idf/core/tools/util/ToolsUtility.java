@@ -159,7 +159,7 @@ public class ToolsUtility
 				{
 					Files.createDirectories(pathEntryOutput.getParent());
 					Files.copy(tararchiveinputstream, pathEntryOutput, StandardCopyOption.REPLACE_EXISTING);
-					Runtime.getRuntime().exec("/bin/chmod 755 ".concat(pathEntryOutput.toString()));
+					Runtime.getRuntime().exec("/bin/chmod 755 ".concat(pathEntryOutput.toString())); //$NON-NLS-1$
 				}
 					
 			}
@@ -206,9 +206,9 @@ public class ToolsUtility
 				}
 				else
 				{
-					System.out.println(pathEntryOutput.toString() + " " + archiveentry.getSize());
+					System.out.println(pathEntryOutput.toString() + " " + archiveentry.getSize()); //$NON-NLS-1$
 					Files.copy(tararchiveinputstream, pathEntryOutput, StandardCopyOption.REPLACE_EXISTING);
-					Runtime.getRuntime().exec("/bin/chmod 755 ".concat(pathEntryOutput.toString()));
+					Runtime.getRuntime().exec("/bin/chmod 755 ".concat(pathEntryOutput.toString())); //$NON-NLS-1$
 				}
 			}
 			tararchiveinputstream.close();
