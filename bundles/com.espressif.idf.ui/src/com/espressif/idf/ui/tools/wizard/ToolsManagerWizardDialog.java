@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Shell;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.tools.IToolsInstallationWizardConstants;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.tools.wizard.pages.IToolsWizardPage;
 import com.espressif.idf.ui.tools.wizard.pages.ManageToolsInstallationWizardPage;

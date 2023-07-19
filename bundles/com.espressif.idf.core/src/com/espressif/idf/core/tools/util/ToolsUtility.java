@@ -2,7 +2,7 @@
  * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.ui.tools;
+package com.espressif.idf.core.tools.util;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -32,8 +32,8 @@ import org.tukaani.xz.XZInputStream;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.tools.vo.ToolsVO;
 import com.espressif.idf.core.util.FileUtil;
-import com.espressif.idf.ui.tools.vo.ToolsVO;
 
 /**
  * Utility class for Tools Management operations

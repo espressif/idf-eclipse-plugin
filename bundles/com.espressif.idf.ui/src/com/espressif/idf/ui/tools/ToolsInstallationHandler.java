@@ -41,12 +41,13 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
+import com.espressif.idf.core.tools.IToolsInstallationWizardConstants;
+import com.espressif.idf.core.tools.util.ToolsUtility;
+import com.espressif.idf.core.tools.vo.ToolsVO;
+import com.espressif.idf.core.tools.vo.VersionsVO;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
-import com.espressif.idf.ui.tools.vo.ToolsVO;
-import com.espressif.idf.ui.tools.vo.VersionsVO;
-import com.espressif.idf.ui.tools.wizard.IToolsInstallationWizardConstants;
 import com.espressif.idf.ui.tools.wizard.pages.ManageToolsInstallationWizardPage;
 import com.espressif.idf.ui.update.InstallToolsHandler;
 

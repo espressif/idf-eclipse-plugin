@@ -2,7 +2,7 @@
  * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.ui.tools;
+package com.espressif.idf.core.tools;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -16,10 +16,10 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.Platform;
 
+import com.espressif.idf.core.tools.vo.ToolsVO;
+import com.espressif.idf.core.tools.vo.VersionDetailsVO;
+import com.espressif.idf.core.tools.vo.VersionsVO;
 import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.ui.tools.vo.ToolsVO;
-import com.espressif.idf.ui.tools.vo.VersionDetailsVO;
-import com.espressif.idf.ui.tools.vo.VersionsVO;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;

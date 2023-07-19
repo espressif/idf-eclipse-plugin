@@ -1,4 +1,4 @@
-package com.espressif.idf.ui.tools;
+package com.espressif.idf.core.tools;
 
 /**
  * Keys in the tools.json file mentioned here for the better usage

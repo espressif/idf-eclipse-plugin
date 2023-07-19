@@ -44,17 +44,18 @@ import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.tools.IToolsInstallationWizardConstants;
+import com.espressif.idf.core.tools.ToolsJsonParser;
+import com.espressif.idf.core.tools.ToolsPlatformMapping;
+import com.espressif.idf.core.tools.util.ToolsUtility;
+import com.espressif.idf.core.tools.vo.ToolsVO;
+import com.espressif.idf.core.tools.vo.VersionDetailsVO;
+import com.espressif.idf.core.tools.vo.VersionsVO;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.tools.LogMessagesThread;
 import com.espressif.idf.ui.tools.Messages;
 import com.espressif.idf.ui.tools.ToolsInstallationHandler;
-import com.espressif.idf.ui.tools.ToolsJsonParser;
-import com.espressif.idf.ui.tools.ToolsUtility;
-import com.espressif.idf.ui.tools.vo.ToolsVO;
-import com.espressif.idf.ui.tools.vo.VersionDetailsVO;
-import com.espressif.idf.ui.tools.vo.VersionsVO;
-import com.espressif.idf.ui.tools.wizard.IToolsInstallationWizardConstants;
 import com.espressif.idf.ui.tools.wizard.ToolsManagerWizardDialog;
 
 /**

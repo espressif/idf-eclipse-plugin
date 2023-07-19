@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.tools.IToolsInstallationWizardConstants;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.tools.Messages;
 import com.espressif.idf.ui.tools.wizard.pages.IToolsWizardPage;

@@ -2,7 +2,7 @@
  * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.ui.tools.vo;
+package com.espressif.idf.core.tools.vo;
 
 import java.util.Map;
 
