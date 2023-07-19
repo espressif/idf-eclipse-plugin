@@ -50,4 +50,8 @@ Bundle-ClassPath: .,
  lib/snakeyaml-1.30.jar,
  lib/opencsv-5.7.0.jar,
  lib/commons-beanutils-1.9.4.jar,
- lib/commons-text-1.10.0.jar
+ lib/commons-text-1.10.0.jar,
+ lib/commons-compress-1.21.jar,
+ lib/xz-1.9.jar,
+ lib/commonmark-0.16.1.jar
+Import-Package: org.eclipse.embedcdt.core
