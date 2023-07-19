@@ -22,6 +22,8 @@ public interface IToolsJsonKeys
 
 	String VERSION_CMD_KEY = "version_cmd"; //$NON-NLS-1$
 
+	String VERSION_REGEX = "version_regex"; //$NON-NLS-1$
+	
 	String SUPPORTED_TARGETS_KEY = "supported_targets"; //$NON-NLS-1$
 
 	String NAME_KEY = "name"; //$NON-NLS-1$

@@ -223,7 +223,6 @@ public class ToolsUtility
 		}
 	}
 	
-	
 	private static void createHardLinks(Path link, Path target)
 	{
 		try

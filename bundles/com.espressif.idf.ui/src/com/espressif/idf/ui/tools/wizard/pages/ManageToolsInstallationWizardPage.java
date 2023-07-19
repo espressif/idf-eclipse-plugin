@@ -111,12 +111,12 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 	private Button forceDownloadBtn;
 	private Listener[] listenersForFinish;
 
-	public ManageToolsInstallationWizardPage(WizardDialog parentWizardDialog)
+	public ManageToolsInstallationWizardPage(WizardDialog parentWizardDialog, ToolsJsonParser toolsJsonParser)
 	{
 		super(Messages.ManageToolsInstallation);
 		setTitle(Messages.ManageToolsInstallation);
 		setDescription(Messages.ManageToolsInstallationDescription);
-		toolsJsonParser = new ToolsJsonParser();
+		this.toolsJsonParser = toolsJsonParser;
 		this.parentWizardDialog = parentWizardDialog;
 		this.logQueue = new ConcurrentLinkedQueue<String>();
 		idfEnvironmentVariables = new IDFEnvironmentVariables();
@@ -914,7 +914,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 				Map<ToolsVO, List<VersionsVO>> selectedItems = getSelectedTools();
 				try
 				{
-					toolsInstallationHandler.operationToPerform(selectedItems, forceDownloadBtn.getSelection(),
+					toolsInstallationHandler.operationToPerform(toolsJsonParser.getRequiredToolsList(), selectedItems, forceDownloadBtn.getSelection(),
 							ToolsInstallationHandler.INSTALLING_TOOLS);
 				}
 				catch (Exception e1)

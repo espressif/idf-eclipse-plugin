@@ -10,8 +10,8 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.Platform;
 
-import com.espressif.idf.ui.tools.IToolsJsonKeys;
-import com.espressif.idf.ui.tools.JsonKey;
+import com.espressif.idf.core.tools.IToolsJsonKeys;
+import com.espressif.idf.core.tools.JsonKey;
 
 /**
  * Bean class for tools information from json
@@ -47,6 +47,9 @@ public class ToolsVO
 
 	@JsonKey(key_name = IToolsJsonKeys.VERSION_CMD_KEY)
 	private List<String> versionCmd;
+	
+	@JsonKey(key_name = IToolsJsonKeys.VERSION_REGEX)
+	private String versionRegex;
 
 	@JsonKey(key_name = IToolsJsonKeys.VERSIONS_VO_KEY)
 	private List<VersionsVO> versionVOs;
@@ -212,5 +215,15 @@ public class ToolsVO
 	public void setInstalled(boolean installed)
 	{
 		this.installed = installed;
+	}
+
+	public String getVersionRegex()
+	{
+		return versionRegex;
+	}
+
+	public void setVersionRegex(String versionRegex)
+	{
+		this.versionRegex = versionRegex;
 	}
 }
