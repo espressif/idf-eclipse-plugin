@@ -146,6 +146,11 @@
           name="default_app"
           resolver="com.espressif.idf.debug.gdbjtag.openocd.DefaultAppResolver">
     </variable>
+    <variable
+          description="%esp_svd_path_desc"
+          name="esp_svd_path"
+          resolver="com.espressif.idf.debug.gdbjtag.openocd.SvdPathResolver">
+    </variable>
  </extension>
  <extension
        point="org.eclipse.debug.core.processFactories">

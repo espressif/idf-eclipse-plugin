@@ -41,6 +41,7 @@ public class LaunchBarListener implements ILaunchBarListener
 	{
 		jtagIgnored = status;
 	}
+
 	@Override
 	public void activeLaunchTargetChanged(ILaunchTarget target)
 	{
@@ -70,10 +71,11 @@ public class LaunchBarListener implements ILaunchBarListener
 		{
 			ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
 			ILaunchConfiguration activeConfig = launchBarManager.getActiveLaunchConfiguration();
-			if (activeConfig == null) {
+			if (activeConfig == null)
+			{
 				return;
 			}
-			
+
 			String projectName = activeConfig.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
 			if (projectName.isEmpty())
 			{
@@ -98,25 +100,29 @@ public class LaunchBarListener implements ILaunchBarListener
 					{
 						// get current target
 						String currentTarget = new SDKConfigJsonReader((IProject) project).getValue("IDF_TARGET"); //$NON-NLS-1$
-						final String jtag_device_id = activeConfig.getAttribute("org.eclipse.cdt.debug.gdbjtag.core.jtagDeviceId", ""); //$NON-NLS-1$ //$NON-NLS-2$
-						if ((activeConfig.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, false) && !jtagIgnored)
+						final String jtag_device_id = activeConfig
+								.getAttribute("org.eclipse.cdt.debug.gdbjtag.core.jtagDeviceId", ""); //$NON-NLS-1$ //$NON-NLS-2$
+						if ((activeConfig.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, false)
 								|| jtag_device_id.contentEquals("ESP-IDF GDB OpenOCD")) //$NON-NLS-1$
+								&& !jtagIgnored)
 						{
-							String targetForJtagFlash = activeConfig.getWorkingCopy().getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, ""); //$NON-NLS-1$
-							if (!newTarget.equals(targetForJtagFlash)) 
+							String targetForJtagFlash = activeConfig.getWorkingCopy()
+									.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, ""); //$NON-NLS-1$
+							if (!newTarget.equals(targetForJtagFlash))
 							{
 								boolean isYes = MessageDialog.openQuestion(EclipseUtil.getShell(),
 										Messages.LaunchBarListener_TargetChanged_Title,
 										MessageFormat.format(Messages.LaunchBarListener_TargetDontMatch_Msg, newTarget,
 												targetForJtagFlash, activeConfig.getName()));
-								if (isYes) {
+								if (isYes)
+								{
 									ILaunchBarUIManager uiManager = UIPlugin.getService(ILaunchBarUIManager.class);
 									uiManager.openConfigurationEditor(launchBarManager.getActiveLaunchDescriptor());
 									return;
 								}
 							}
 						}
-						
+
 						// If both are not same
 						if (currentTarget != null && !newTarget.equals(currentTarget))
 						{

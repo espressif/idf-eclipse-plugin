@@ -705,14 +705,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 					}
 
 					if (!selectedItem.contentEquals(updatedSelectedTarget) && isFlashOverJtag) {
-						try {
-							ILaunchConfigurationWorkingCopy wc = launchBarManager.getActiveLaunchConfiguration()
-									.getWorkingCopy();
-							wc.setAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, selectedItem);
-							wc.doSave();
-						} catch (CoreException e2) {
-							Logger.log(e2);
-						}
 						updateLaunchBar(selectedItem);
 					}
 					boardConfigsMap = parser.getBoardsConfigs(selectedItem);

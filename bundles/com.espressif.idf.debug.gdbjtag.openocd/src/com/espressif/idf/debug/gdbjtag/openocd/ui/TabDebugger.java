@@ -85,6 +85,7 @@ import com.espressif.idf.debug.gdbjtag.openocd.ui.preferences.WorkspaceMcuPage;
 import com.espressif.idf.debug.gdbjtag.openocd.ui.properties.ProjectMcuPage;
 import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 import com.espressif.idf.launch.serial.ui.internal.NewSerialFlashTargetWizard;
+import com.espressif.idf.ui.LaunchBarListener;
 
 /**
  * @since 7.0
@@ -168,11 +169,13 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 	@Override
 	public void createControl(Composite parent)
 	{
-
 		if (Activator.getInstance().isDebugging())
 		{
 			System.out.println("openocd.TabDebugger.createControl() ");
 		}
+
+		LaunchBarListener.setIgnoreJtagTargetChange(true);
+		parent.addDisposeListener(e -> LaunchBarListener.setIgnoreJtagTargetChange(false));
 
 		if (!(parent instanceof ScrolledComposite))
 		{
@@ -458,18 +461,6 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 						String selectedItem = fTarget.getText();
 						if (!selectedItem.contentEquals(updatedSelectedTarget))
 						{
-							try
-							{
-								ILaunchConfigurationWorkingCopy wc = launchBarManager.getActiveLaunchConfiguration()
-										.getWorkingCopy();
-								wc.setAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, selectedItem);
-								TabSvdTarget.updateSvd(selectedItem, wc);
-								wc.doSave();
-							}
-							catch (CoreException e1)
-							{
-								Logger.log(e1);
-							}
 							updateLaunchBar(selectedItem);
 						}
 						fGdbClientExecutable.setText(IDFUtil.getXtensaToolchainExecutablePathByTarget(selectedItem));
@@ -1513,19 +1504,9 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 		// JTAG options
 		if (fFlashVoltage != null && fTarget != null && fTargetName != null)
 		{
-			try
-			{
-				ILaunchConfigurationWorkingCopy wc = configuration.getWorkingCopy();
-				wc.setAttribute(IDFLaunchConstants.JTAG_FLASH_VOLTAGE, fFlashVoltage.getText());
-				wc.setAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, fTarget.getText());
-				wc.setAttribute(IDFLaunchConstants.JTAG_BOARD, fTargetName.getText());
-				wc.doSave();
-			}
-			catch (CoreException e)
-			{
-				Logger.log(e);
-			}
-
+			configuration.setAttribute(IDFLaunchConstants.JTAG_FLASH_VOLTAGE, fFlashVoltage.getText());
+			configuration.setAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, fTarget.getText());
+			configuration.setAttribute(IDFLaunchConstants.JTAG_BOARD, fTargetName.getText());
 		}
 
 		// Force thread update
