@@ -609,7 +609,7 @@
             name="%editor.name.0">
       </editor>
       <editor
-            class="com.espressif.idf.ui.installcomponents.InstallComponentsEditor"
+            class="com.espressif.idf.ui.browser.ComponentsBrowserEditor"
             default="false"
             icon="icons/ESP-IDF_InstallComponents.png"
             id="com.espressif.idf.ui.installComponents"
