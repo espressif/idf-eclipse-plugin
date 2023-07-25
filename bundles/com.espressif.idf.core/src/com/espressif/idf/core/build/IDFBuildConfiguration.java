@@ -92,7 +92,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.ILaunchMode;
 import org.eclipse.launchbar.core.ILaunchBarManager;
@@ -248,15 +247,14 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	{
 		try
 		{
-			ILaunchConfiguration configuration = IDFCorePlugin.getService(ILaunchBarManager.class)
-					.getActiveLaunchConfiguration();
-			ILaunchConfigurationType debugConfigurationType = DebugPlugin.getDefault().getLaunchManager()
-					.getLaunchConfigurationType(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE);
-			if (configuration.getType().equals(debugConfigurationType))
+			ILaunchConfiguration configuration = new ActiveLaunchConfigurationProvider().getActiveLaunchConfiguration();
+			if (configuration != null
+					&& configuration.getType().getIdentifier().equals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
 			{
 				configuration = getBoundConfiguration(configuration);
 			}
-			String property = configuration.getAttribute(name, StringUtil.EMPTY);
+			String property = configuration == null ? StringUtil.EMPTY
+					: configuration.getAttribute(name, StringUtil.EMPTY);
 			property = property.isBlank() ? getSettings().get(name, StringUtil.EMPTY) : property;
 			return property;
 		}
