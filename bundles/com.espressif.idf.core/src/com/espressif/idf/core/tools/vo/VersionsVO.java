@@ -5,6 +5,7 @@
 package com.espressif.idf.core.tools.vo;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Versions class for versions information in tools json
@@ -73,4 +74,25 @@ public class VersionsVO
 	{
 		this.availablePath = availablePath;
 	}
+	
+	@Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        VersionsVO other = (VersionsVO) obj;
+        return isAvailable == other.isAvailable
+                && Objects.equals(name, other.name)
+                && Objects.equals(status, other.status)
+                && Objects.equals(versionOsMap, other.versionOsMap)
+                && Objects.equals(availablePath, other.availablePath);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(name, status, versionOsMap, isAvailable, availablePath);
+    }
 }

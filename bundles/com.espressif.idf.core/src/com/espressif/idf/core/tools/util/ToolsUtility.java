@@ -27,13 +27,17 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.utils.IOUtils;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.tukaani.xz.XZInputStream;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.SystemExecutableFinder;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.tools.ToolsSystemWrapper;
 import com.espressif.idf.core.tools.vo.ToolsVO;
 import com.espressif.idf.core.util.FileUtil;
+import com.espressif.idf.core.util.StringUtil;
 
 /**
  * Utility class for Tools Management operations
@@ -302,5 +306,26 @@ public class ToolsUtility
 			sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
 		}
 		return sb.toString();
+	}
+	
+	/**
+	 * Gets the absolute path for the tool from the given path
+	 * @param toolName tool to find absolute path
+	 * @param path the path to variable to look into, if null System.getenv() will be used
+	 * @return absolute path to the tool
+	 */
+	public static IPath findAbsoluteToolPath(String toolName, String path)
+	{
+		if (StringUtil.isEmpty(path))
+		{
+			Map<String, String> env = System.getenv();
+			if (env.containsKey(IDFEnvironmentVariables.PATH)) 
+				path = env.get(IDFEnvironmentVariables.PATH);
+			else
+				path = env.get("Path"); //$NON-NLS-1$
+		}
+		
+		SystemExecutableFinder systemExecutableFinder = new SystemExecutableFinder(new ToolsSystemWrapper(path));
+		return systemExecutableFinder.find(toolName);
 	}
 }

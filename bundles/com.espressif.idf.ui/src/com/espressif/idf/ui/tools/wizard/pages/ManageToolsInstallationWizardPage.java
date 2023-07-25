@@ -847,7 +847,6 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 			item.setChecked(checked);
 			if (item.getParentItem() != null)
 			{
-				String key = item.getText(0);
 				VersionsVO versionsVO = (VersionsVO) item.getData();
 				
 				for(String os : versionsVO.getVersionOsMap().keySet())
@@ -887,7 +886,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 						ManageToolsInstallationWizardPage.this, idfEnvironmentVariables);
 				try
 				{
-					toolsInstallationHandler.operationToPerform(selectedItems, forceDownloadBtn.getSelection(),
+					toolsInstallationHandler.operationToPerform(toolsJsonParser.getRequiredToolsList(), selectedItems, forceDownloadBtn.getSelection(),
 							ToolsInstallationHandler.DELETING_TOOLS);
 				}
 				catch (Exception e1)

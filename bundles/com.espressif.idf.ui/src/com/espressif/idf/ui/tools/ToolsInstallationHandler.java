@@ -26,9 +26,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -50,6 +49,7 @@ import com.espressif.idf.core.tools.vo.VersionsVO;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
+import com.espressif.idf.ui.dialogs.URLDialog;
 import com.espressif.idf.ui.tools.wizard.pages.ManageToolsInstallationWizardPage;
 import com.espressif.idf.ui.update.InstallToolsHandler;
 
@@ -585,9 +585,10 @@ public class ToolsInstallationHandler extends Thread
 
 		private void validateToolsInstall()
 		{
+			List<ToolsVO> missingToolsVOs = new ArrayList<>();
 			for (ToolsVO toolsVO : requireToolsVOs)
 			{
-				final List<String> arguments = new ArrayList();
+				final List<String> arguments = new ArrayList<String>();
 				arguments.addAll(toolsVO.getVersionCmd());
 				final String cmd = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments);
 				logQueue.add(cmd);
@@ -602,13 +603,22 @@ public class ToolsInstallationHandler extends Thread
 				{
 					environment.put("Path", idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH));
 				}
+
+				IPath absolutePathToTool = ToolsUtility.findAbsoluteToolPath(toolsVO.getName(),
+						idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH));
+				if (absolutePathToTool == null)
+				{
+					Logger.log("Required tool: " + toolsVO.getName() + " not found on the PATH");
+					missingToolsVOs.add(toolsVO);
+					continue;
+				}
+				arguments.add(0, absolutePathToTool.toOSString());
+				arguments.remove(1);
+				
 				final ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 				try
 				{
-					final IStatus status = processRunner.runInBackground(arguments,
-							org.eclipse.core.runtime.Path.fromOSString(
-									idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH)),
-							environment);
+					final IStatus status = processRunner.runInBackground(arguments, null, environment);
 					if (status == null)
 					{
 						Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
@@ -618,30 +628,31 @@ public class ToolsInstallationHandler extends Thread
 					final String cmdOutput = status.getMessage();
 					Logger.log(cmdOutput);
 					logQueue.add(cmdOutput);
-
-					Pattern pattern = Pattern.compile(toolsVO.getVersionRegex());
-					Matcher matcher = pattern.matcher(cmdOutput);
-					if (matcher.find())
-					{
-						String match = matcher.group();
-						if (!match.equals(toolsVO.getVersion()))
-						{
-							Logger.log("Version Mismatch for " + toolsVO.getName() + " IDF required: "
-									+ toolsVO.getVersion() + " Found: " + match);
-							logQueue.add("Version Mismatch for " + toolsVO.getName() + " IDF required: "
-									+ toolsVO.getVersion() + " Found: " + match);
-						}
-						else 
-						{
-							// TODO: Handle the case when the tool was not installed and is required
-						}
-					}
 				}
 				catch (IOException e1)
 				{
 					Logger.log(IDFCorePlugin.getPlugin(), e1);
+					missingToolsVOs.add(toolsVO);
 				}
 			}
+
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append(Messages.MissingToolsValidationMessage_A);
+			stringBuilder.append(System.lineSeparator());
+			for (ToolsVO toolsVO : missingToolsVOs)
+			{
+				stringBuilder.append(toolsVO.getName());
+				stringBuilder.append(System.lineSeparator());
+			}
+
+			stringBuilder.append(Messages.MissingToolsValidationMessage_B);
+			stringBuilder.append(Messages.MissingToolsValidationLink);
+
+			manageToolsInstallationWizardPage.getShell().getDisplay().asyncExec(() -> {
+				URLDialog urlDialog = new URLDialog(manageToolsInstallationWizardPage.getShell(), "Missing Tools",
+						stringBuilder.toString());
+				urlDialog.open();				
+			});
 		}
 
 		private void configEnv()
@@ -773,16 +784,45 @@ public class ToolsInstallationHandler extends Thread
 				return;
 			}
 
-			Map<String, String> environment = System.getenv();
 			String systemPath = StringUtil.EMPTY;
 
-			if (environment.containsKey(IDFEnvironmentVariables.PATH))
+			if (Platform.getOS().equals(Platform.OS_WIN32))
 			{
-				systemPath = environment.get(IDFEnvironmentVariables.PATH);
+				Map<String, String> environment = System.getenv();
+
+				if (environment.containsKey(IDFEnvironmentVariables.PATH))
+				{
+					systemPath = environment.get(IDFEnvironmentVariables.PATH);
+				}
+				else if (environment.containsKey("Path"))
+				{
+					systemPath = environment.get("Path");
+				}
 			}
-			else if (environment.containsKey("Path"))
+			else
 			{
-				systemPath = environment.get("Path");
+				try
+				{
+					ProcessBuilderFactory processBuilderFactory = new ProcessBuilderFactory();
+					List<String> arguments = new ArrayList<>();
+					arguments.add("bash");
+					arguments.add("-l");
+					arguments.add("-c");
+					arguments.add("echo $PATH");
+
+					IStatus status = processBuilderFactory.runInBackground(arguments, null, null);
+					if (status == null)
+					{
+						Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Stat us can't be null", null)); //$NON-NLS-1$
+						return;
+					}
+
+					systemPath = status.getMessage();
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
 			}
 
 			List<String> pathsToAppend = new ArrayList<String>();

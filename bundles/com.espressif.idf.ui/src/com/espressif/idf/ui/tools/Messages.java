@@ -105,6 +105,9 @@ public class Messages extends NLS
 	public static String FilterTargetBoxToolTip;
 	public static String ShowAvailableVersionsOnlyToolTip;
 	public static String DeleteToolsTextToolTip;
+	public static String MissingToolsValidationMessage_A;
+	public static String MissingToolsValidationMessage_B;
+	public static String MissingToolsValidationLink;
 	
 	static
 	{
