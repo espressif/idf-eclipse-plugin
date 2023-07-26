@@ -646,6 +646,7 @@ public class ToolsInstallationHandler extends Thread
 			}
 
 			stringBuilder.append(Messages.MissingToolsValidationMessage_B);
+			stringBuilder.append(System.lineSeparator());
 			stringBuilder.append(Messages.MissingToolsValidationLink);
 
 			manageToolsInstallationWizardPage.getShell().getDisplay().asyncExec(() -> {
