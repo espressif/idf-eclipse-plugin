@@ -17,7 +17,17 @@ import com.espressif.idf.core.logging.Logger;
 
 public class ActiveLaunchConfigurationProvider
 {
-	private static ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
+	private ILaunchBarManager launchBarManager;
+
+	public ActiveLaunchConfigurationProvider(ILaunchBarManager launchBarManager)
+	{
+		this.launchBarManager = launchBarManager;
+	}
+
+	public ActiveLaunchConfigurationProvider()
+	{
+		this(IDFCorePlugin.getService(ILaunchBarManager.class));
+	}
 
 	public ILaunchConfiguration getActiveLaunchConfiguration() throws CoreException
 	{

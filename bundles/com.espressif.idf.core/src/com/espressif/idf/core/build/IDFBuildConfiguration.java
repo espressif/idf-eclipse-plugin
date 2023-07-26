@@ -113,6 +113,7 @@ import com.google.gson.Gson;
 public class IDFBuildConfiguration extends CBuildConfiguration
 {
 
+	private static final ActiveLaunchConfigurationProvider LAUNCH_CONFIG_PROVIDER = new ActiveLaunchConfigurationProvider();
 	private static final String NINJA = "Ninja"; //$NON-NLS-1$
 	protected static final String COMPILE_COMMANDS_JSON = "compile_commands.json"; //$NON-NLS-1$
 	protected static final String COMPONENTS = "components"; //$NON-NLS-1$
@@ -247,7 +248,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	{
 		try
 		{
-			ILaunchConfiguration configuration = new ActiveLaunchConfigurationProvider().getActiveLaunchConfiguration();
+			ILaunchConfiguration configuration = LAUNCH_CONFIG_PROVIDER.getActiveLaunchConfiguration();
 			if (configuration != null
 					&& configuration.getType().getIdentifier().equals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
 			{
