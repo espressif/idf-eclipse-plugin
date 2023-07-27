@@ -28,11 +28,13 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.ProgressBar;
@@ -110,6 +112,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 	private Preferences scopedPreferenceStore;
 	private Button forceDownloadBtn;
 	private Listener[] listenersForFinish;
+	private Link linkForDoc;
 
 	public ManageToolsInstallationWizardPage(WizardDialog parentWizardDialog, ToolsJsonParser toolsJsonParser)
 	{
@@ -270,6 +273,10 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		progressBar.setVisible(false);
 
+		linkForDoc = new Link(logAreaComposite, SWT.WRAP | SWT.MULTI);
+		linkForDoc.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 3));
+		linkForDoc.addListener(SWT.Selection, e -> Program.launch(e.text));
+		linkForDoc.setVisible(false);
 		createButtonsBar(logAreaComposite);
 
 		setButtonsEnabled(itemChecked);
@@ -940,6 +947,16 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 			restoreFinishButton();
 			((ToolsManagerWizardDialog) parentWizardDialog).finishPressed();
 		}
+	}
+
+	public Link getLinkForDoc()
+	{
+		return linkForDoc;
+	}
+
+	public void setLinkForDoc(Link linkForDoc)
+	{
+		this.linkForDoc = linkForDoc;
 	}
 
 	private class SelectRecommendedButtonSelectionAdapter extends SelectionAdapter

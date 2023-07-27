@@ -49,7 +49,6 @@ import com.espressif.idf.core.tools.vo.VersionsVO;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
-import com.espressif.idf.ui.dialogs.URLDialog;
 import com.espressif.idf.ui.tools.wizard.pages.ManageToolsInstallationWizardPage;
 import com.espressif.idf.ui.update.InstallToolsHandler;
 
@@ -638,21 +637,22 @@ public class ToolsInstallationHandler extends Thread
 
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.append(Messages.MissingToolsValidationMessage_A);
-			stringBuilder.append(System.lineSeparator());
 			for (ToolsVO toolsVO : missingToolsVOs)
 			{
 				stringBuilder.append(toolsVO.getName());
-				stringBuilder.append(System.lineSeparator());
+				stringBuilder.append(" ");
 			}
 
 			stringBuilder.append(Messages.MissingToolsValidationMessage_B);
-			stringBuilder.append(System.lineSeparator());
+			stringBuilder.append("<a>");
 			stringBuilder.append(Messages.MissingToolsValidationLink);
+			stringBuilder.append("</a>");
+			
+			logQueue.add(stringBuilder.toString());
 
 			manageToolsInstallationWizardPage.getShell().getDisplay().asyncExec(() -> {
-				URLDialog urlDialog = new URLDialog(manageToolsInstallationWizardPage.getShell(), "Missing Tools",
-						stringBuilder.toString());
-				urlDialog.open();				
+				manageToolsInstallationWizardPage.getLinkForDoc().setText(stringBuilder.toString());
+				manageToolsInstallationWizardPage.getLinkForDoc().setVisible(true);
 			});
 		}
 
