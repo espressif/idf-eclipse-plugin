@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.core.ILaunchMode;
 import org.eclipse.launchbar.core.ILaunchBarListener;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 
@@ -28,6 +29,7 @@ public class ResourceChangeListener implements IResourceChangeListener
 	{
 		this.launchBarListener = launchBarListener;
 	}
+
 	@Override
 	public void resourceChanged(IResourceChangeEvent event)
 	{
@@ -69,7 +71,6 @@ public class ResourceChangeListener implements IResourceChangeListener
 					}
 					return true;
 				}
-
 			});
 
 		}
@@ -84,11 +85,10 @@ public class ResourceChangeListener implements IResourceChangeListener
 	{
 		if (resource instanceof IProject)
 		{
-			ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
-			IProject project = (IProject) resource;
-
-			if ((kind & IResourceDelta.CHANGED) != 0)
+			if ((flags & IResourceDelta.OPEN) != 0)
 			{
+				ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
+				IProject project = (IProject) resource;
 				ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
 				ILaunchConfiguration[] configs = launchManager.getLaunchConfigurations();
 				// remove launch bar listener before updating launch bar
@@ -98,7 +98,10 @@ public class ResourceChangeListener implements IResourceChangeListener
 					IResource[] mappedResource = config.getMappedResources();
 					if (mappedResource != null && mappedResource[0].getProject() == project)
 					{
-						if (project.isOpen())
+						ILaunchMode activeMode = launchBarManager.getActiveLaunchMode();
+						String activeIdentifier = activeMode == null ? ILaunchManager.RUN_MODE
+								: activeMode.getIdentifier();
+						if (project.isOpen() && config.getType().getIdentifier().equals(activeIdentifier))
 						{
 							launchBarManager.launchConfigurationAdded(config);
 						}
