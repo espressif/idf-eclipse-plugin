@@ -1,22 +1,13 @@
 package com.espressif.idf.debug.gdbjtag.openocd.ui.gcov;
 
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.expressions.IEvaluationContext;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.ui.IPageLayout;
-
-import com.espressif.idf.ui.handlers.EclipseHandler;
 
 public class GcovUtility
 {
-	public static IResource getProject(ExecutionEvent event)
+	private static final String INSTANT_DUMP_COMMAND = "esp gcov"; //$NON-NLS-1$
+	private static final String HARD_CODED_DUMP_COMMAND = "esp gcov dump"; //$NON-NLS-1$
+	
+	public static void runHardCodedDump()
 	{
-		IResource project = EclipseHandler.getSelectedProject(IPageLayout.ID_PROJECT_EXPLORER);
-		if (project == null)
-		{
-			project = EclipseHandler.getSelectedResource((IEvaluationContext) event.getApplicationContext());
-		}
 		
-		return project;
 	}
 }

@@ -428,75 +428,22 @@
                </iterate>
             </visibleWhen>
          </command>
-         <menu
-               icon="icons/esp.png"
-               id="gcovMenu"
-               label="ESP-IDF: GCOV">
-            <command
-                  commandId="com.espressif.idf.gcov.instantant"
-                  icon="icons/espressif_48x.png"
-                  label="Instant Runtime Dump"
-                  style="push">
-               <visibleWhen
-                     checkEnabled="false">
-                  <iterate
-                        ifEmpty="false"
-                        operator="or">
-                     <instanceof
-                           value="org.eclipse.core.resources.IResource">
-                     </instanceof>
-                  </iterate>
-               </visibleWhen>
-            </command>
-            <command
-                  commandId="com.espressif.idf.gcov.hardcoded"
-                  icon="icons/espressif_48x.png"
-                  label="Hard-coded Dump"
-                  style="push">
-               <visibleWhen
-                     checkEnabled="false">
-                  <iterate
-                        ifEmpty="false"
-                        operator="or">
-                     <instanceof
-                           value="org.eclipse.core.resources.IResource">
-                     </instanceof>
-                  </iterate>
-               </visibleWhen>
-            </command>
-            <command
-                  commandId="com.espressif.idf.gcov.coveragereport"
-                  icon="icons/espressif_48x.png"
-                  label="Generate Coverage Report"
-                  style="push">
-               <visibleWhen
-                     checkEnabled="false">
-                  <iterate
-                        ifEmpty="false"
-                        operator="or">
-                     <instanceof
-                           value="org.eclipse.core.resources.IResource">
-                     </instanceof>
-                  </iterate>
-               </visibleWhen>
-            </command>
-            <command
-                  commandId="com.espressif.idf.gcov.clean"
-                  icon="icons/espressif_48x.png"
-                  label="Clean Coverage Report"
-                  style="push">
-               <visibleWhen
-                     checkEnabled="false">
-                  <iterate
-                        ifEmpty="false"
-                        operator="or">
-                     <instanceof
-                           value="org.eclipse.core.resources.IResource">
-                     </instanceof>
-                  </iterate>
-               </visibleWhen>
-            </command>
-         </menu>
+         <command
+               commandId="com.espressif.idf.gcov"
+               icon="icons/espressif.png"
+               label="GCOV Dumps and Reports"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <iterate
+                     ifEmpty="false"
+                     operator="or">
+                  <instanceof
+                        value="org.eclipse.core.resources.IResource">
+                  </instanceof>
+               </iterate>
+            </visibleWhen>
+         </command>
       </menuContribution>
    </extension>
    <extension

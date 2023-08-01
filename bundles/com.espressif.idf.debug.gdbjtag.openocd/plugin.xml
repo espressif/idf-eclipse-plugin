@@ -133,25 +133,11 @@
           name="%command.name">
       </command>
       <command
-            defaultHandler="com.espressif.idf.debug.gdbjtag.openocd.ui.gcov.InstantRuntimeDumpHandler"
-            id="com.espressif.idf.gcov.instantant"
-            name="Instant Runtime Dump">
+            defaultHandler="com.espressif.idf.debug.gdbjtag.openocd.ui.gcov.GcovDumpHandler"
+            id="com.espressif.idf.gcov"
+            name="GCOV Dumps and Reports">
       </command>
-      <command
-            defaultHandler="com.espressif.idf.debug.gdbjtag.openocd.ui.gcov.HardCodedDumpHandler"
-            id="com.espressif.idf.gcov.hardcoded"
-            name="Hard-coded Dump">
-      </command>
-      <command
-            defaultHandler="com.espressif.idf.debug.gdbjtag.openocd.ui.gcov.GenerateCoverageReport"
-            id="com.espressif.idf.gcov.coveragereport"
-            name="Generate Coverage Report">
-      </command>
-      <command
-            defaultHandler="com.espressif.idf.debug.gdbjtag.openocd.ui.gcov.CleanCoverageReport"
-            id="com.espressif.idf.gcov.clean"
-            name="Clean Coverage Report">
-      </command>
+      
  </extension>
  <extension
        point="org.eclipse.ui.startup">

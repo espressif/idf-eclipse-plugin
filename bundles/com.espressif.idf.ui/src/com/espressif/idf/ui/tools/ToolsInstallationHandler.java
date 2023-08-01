@@ -574,7 +574,7 @@ public class ToolsInstallationHandler extends Thread
 			runToolsExport(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.GIT_PATH));
 			new ESPToolChainManager().configureToolChain();
 			configEnv();
-			handleWebSocketClientInstall();
+			handlePipDependenciesInstall();
 			copyOpenOcdRules();
 			IDFUtil.updateEspressifPrefPageOpenocdPath();
 			validateToolsInstall();
@@ -979,7 +979,7 @@ public class ToolsInstallationHandler extends Thread
 			}
 		}
 
-		private void handleWebSocketClientInstall()
+		private void handlePipDependenciesInstall()
 		{
 			List<String> arguments = new ArrayList<String>();
 			final String pythonEnvPath = IDFUtil.getIDFPythonEnvPath();
@@ -996,7 +996,8 @@ public class ToolsInstallationHandler extends Thread
 
 			arguments.add("install"); //$NON-NLS-1$
 			arguments.add("websocket-client"); //$NON-NLS-1$
-
+			arguments.add("gcovr"); //$NON-NLS-1$
+			
 			ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 
 			try

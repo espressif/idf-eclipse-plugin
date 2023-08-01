@@ -29,7 +29,7 @@ public class Messages extends NLS
 	public static String InstallToolsHandler_ConfiguredCMakeMsg;
 	public static String InstallToolsHandler_ExportingPathsMsg;
 	public static String InstallToolsHandler_InstallingPythonMsg;
-	public static String InstallToolsHandler_InstallingWebscoketMsg;
+	public static String InstallToolsHandler_InstallingPythonDepMsg;
 	public static String InstallToolsHandler_InstallingToolsMsg;
 	public static String InstallToolsHandler_ItWilltakeTimeMsg;
 	public static String InstallToolsHandler_ToolsCompleted;
