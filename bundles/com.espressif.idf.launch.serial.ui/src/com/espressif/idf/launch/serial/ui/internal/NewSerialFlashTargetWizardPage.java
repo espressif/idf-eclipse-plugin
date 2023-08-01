@@ -16,7 +16,6 @@
 package com.espressif.idf.launch.serial.ui.internal;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collection;
@@ -168,7 +167,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage {
 					}
 				}
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			Activator.log(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
 					Messages.NewSerialFlashTargetWizardPage_Fetching, e));
 		}
