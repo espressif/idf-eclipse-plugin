@@ -40,7 +40,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.tools.templates.freemarker,
  org.eclipse.embedcdt.ui,
  org.eclipse.ltk.ui.refactoring,
- org.eclipse.ltk.core.refactoring
+ org.eclipse.ltk.core.refactoring,
+ org.eclipse.epp.mpc.ui
 Automatic-Module-Name: com.espressif.idf.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11

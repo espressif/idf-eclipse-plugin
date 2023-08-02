@@ -28,6 +28,7 @@
 			<unit id="org.eclipse.tm.terminal.feature.feature.group" version="0.0.0" />
 			<unit id="org.eclipse.tm.terminal.view.feature.feature.group" version="0.0.0" />
 			<unit id="org.eclipse.launchbar.feature.group" version="0.0.0" />
+			<unit id="org.eclipse.epp.mpc.feature.group" version="0.0.0" />
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<unit id="com.google.gson" version="0.0.0" />
