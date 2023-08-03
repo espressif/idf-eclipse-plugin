@@ -28,6 +28,12 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.ui.TabSvdTarget;
 
+/**
+ * A resolver class for the esp_svd_path dynamic variable. Resolves SVD path by looking for appropriate files inside the
+ * plugin resources
+ * 
+ * @author Denys Almazov <denys.almazov@espressif.com>
+ */
 public class SvdPathResolver implements IDynamicVariableResolver
 {
 
