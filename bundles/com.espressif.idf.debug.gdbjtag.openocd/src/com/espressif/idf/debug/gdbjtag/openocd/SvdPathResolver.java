@@ -37,50 +37,19 @@ import com.espressif.idf.debug.gdbjtag.openocd.ui.TabSvdTarget;
 public class SvdPathResolver implements IDynamicVariableResolver
 {
 
+	private static final ILaunchBarManager LAUNCH_BAR_MANAGER = Activator.getService(ILaunchBarManager.class);
+
 	public String resolveValue(IDynamicVariable variable, String argument) throws CoreException
 	{
 		String selectedTarget = StringUtil.EMPTY;
 		String selectedTargetPath = StringUtil.EMPTY;
 		try
 		{
-			ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
-			selectedTarget = launchBarManager.getActiveLaunchTarget().getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET,
+			selectedTarget = LAUNCH_BAR_MANAGER.getActiveLaunchTarget().getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET,
 					StringUtil.EMPTY);
 			if (StringUtil.isEmpty(selectedTarget))
 				return StringUtil.EMPTY;
-			URL svdUrl = Platform.getBundle(Activator.PLUGIN_ID)
-					.getResource("svd/".concat(selectedTarget.concat(".svd"))); //$NON-NLS-1$ //$NON-NLS-2$
-			String jarPath = new File(TabSvdTarget.class.getProtectionDomain().getCodeSource().getLocation().toURI())
-					.getPath();
-			if (!jarPath.contains(".jar")) //$NON-NLS-1$
-			{
-				selectedTargetPath = new File(FileLocator.resolve(svdUrl).toURI()).getPath();
-			}
-			else
-			{
-				IProject project = EclipseUtils
-						.getProjectByLaunchConfiguration(launchBarManager.getActiveLaunchConfiguration());
-				IFolder svdFolder = project.getFolder(IDFConstants.BUILD_FOLDER).getFolder("svd"); //$NON-NLS-1$
-				if (!svdFolder.exists())
-				{
-					svdFolder.create(true, true, new NullProgressMonitor());
-				}
-				IFile svdFile = project.getFolder(IDFConstants.BUILD_FOLDER).getFile(svdUrl.getPath());
-				if (!svdFile.exists())
-				{
-					JarFile jarFile = new JarFile(jarPath);
-					JarEntry file = (JarEntry) jarFile.getEntry(svdUrl.getFile().substring(1));
-					if (file != null)
-					{
-						InputStream inputStream = jarFile.getInputStream(file);
-						svdFile.create(inputStream, true, new NullProgressMonitor());
-						inputStream.close();
-					}
-					jarFile.close();
-				}
-				project.refreshLocal(IProject.DEPTH_INFINITE, new NullProgressMonitor());
-				selectedTargetPath = svdFile.getRawLocation().toOSString();
-			}
+			selectedTargetPath = resolveSvdPath(selectedTarget);
 		}
 		catch (Exception e)
 		{
@@ -88,5 +57,46 @@ public class SvdPathResolver implements IDynamicVariableResolver
 		}
 		return selectedTargetPath;
 	}
+
+	private String resolveSvdPath(String target) throws Exception
+	{
+		URL svdUrl = Platform.getBundle(Activator.PLUGIN_ID).getResource("svd/".concat(target.concat(".svd"))); //$NON-NLS-1$ //$NON-NLS-2$
+		String jarPath = new File(TabSvdTarget.class.getProtectionDomain().getCodeSource().getLocation().toURI())
+				.getPath();
+		String selectedTargetPath;
+		if (!jarPath.contains(".jar")) //$NON-NLS-1$
+			selectedTargetPath = new File(FileLocator.resolve(svdUrl).toURI()).getPath();
+		else
+			selectedTargetPath = resolveSvdPathFromJar(svdUrl, jarPath);
+		return selectedTargetPath;
+	}
+
+	private String resolveSvdPathFromJar(URL svdUrl, String jarPath) throws Exception
+	{
+		IProject project = EclipseUtils
+				.getProjectByLaunchConfiguration(LAUNCH_BAR_MANAGER.getActiveLaunchConfiguration());
+		IFolder svdFolder = project.getFolder(IDFConstants.BUILD_FOLDER).getFolder("svd"); //$NON-NLS-1$
+		if (!svdFolder.exists())
+		{
+			svdFolder.create(true, true, new NullProgressMonitor());
+		}
+		IFile svdFile = project.getFolder(IDFConstants.BUILD_FOLDER).getFile(svdUrl.getPath());
+		if (!svdFile.exists())
+		{
+			try (JarFile jarFile = new JarFile(jarPath))
+			{
+				JarEntry file = (JarEntry) jarFile.getEntry(svdUrl.getFile().substring(1));
+				if (file != null)
+				{
+					InputStream inputStream = jarFile.getInputStream(file);
+					svdFile.create(inputStream, true, new NullProgressMonitor());
+					inputStream.close();
+				}
+			}
+		}
+		project.refreshLocal(IProject.DEPTH_INFINITE, new NullProgressMonitor());
+		return svdFile.getRawLocation().toOSString();
+	}
+
 
 }
