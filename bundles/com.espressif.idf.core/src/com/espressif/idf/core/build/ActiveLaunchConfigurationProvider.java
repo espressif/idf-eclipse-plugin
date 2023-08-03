@@ -15,6 +15,13 @@ import org.eclipse.launchbar.core.ILaunchBarManager;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.logging.Logger;
 
+/**
+ * This provider allows you getting the active launch configuration from the ILaunchBarManager, even if it is not yet
+ * initialized. In this case, we look for the initialization Job and join it.
+ * 
+ * @author Denys Almazov <denys.almazov@espressif.com>
+ *
+ */
 public class ActiveLaunchConfigurationProvider
 {
 	private ILaunchBarManager launchBarManager;
