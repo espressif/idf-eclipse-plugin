@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
+import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -55,6 +56,8 @@ public class GcovDialog extends TitleAreaDialog
 	private Button hardCodeDumpButton;
 	private Button instantRuntimeDumpButton;
 	private Text openOcdText;
+	private ListViewer listViewer;
+	
 	private LogMessagesThread logMessagesThread;
 	private Queue<String> logQueue;
 
@@ -121,6 +124,19 @@ public class GcovDialog extends TitleAreaDialog
 		GridData textGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 7);
 		textGridData.heightHint = 200;
 		openOcdText.setLayoutData(textGridData);
+		
+		Composite viewerComposite = new Composite(mainComposite, SWT.NONE);
+		viewerComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		viewerComposite.setLayout(new GridLayout(1, false));
+
+		listViewer = new ListViewer(viewerComposite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		GridData listViewerGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		listViewer.getControl().setLayoutData(listViewerGridData);
+
+		// Then add your items to the viewer
+		String[] items = {"Item 1", "Item 2", "Item 3"}; // replace with your items
+		listViewer.add(items);
+		
 		logMessagesThread = new LogMessagesThread(logQueue, openOcdText, parent.getDisplay());
 		logMessagesThread.start();
 		return mainComposite;

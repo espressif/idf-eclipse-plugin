@@ -22,6 +22,7 @@ import java.util.concurrent.RejectedExecutionException;
 
 import org.eclipse.cdt.debug.gdbjtag.core.IGDBJtagConstants;
 import org.eclipse.cdt.dsf.concurrent.DefaultDsfExecutor;
+import org.eclipse.cdt.dsf.concurrent.DsfExecutor;
 import org.eclipse.cdt.dsf.concurrent.DsfRunnable;
 import org.eclipse.cdt.dsf.concurrent.IDsfStatusConstants;
 import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
@@ -74,7 +75,21 @@ public class Launch extends GnuMcuLaunch
 		fExecutor = (DefaultDsfExecutor) getDsfExecutor();
 		fSession = getSession();
 	}
-
+	
+	public DsfSession getSession()
+	{
+		return super.getSession();
+	}
+	
+	public DsfServicesTracker getDsfServicesTracker()
+	{
+		return fTracker;
+	}
+	
+	public DsfExecutor getDsfExecutor()
+	{
+		return super.getDsfExecutor();
+	}
 	// ------------------------------------------------------------------------
 
 	@Override
