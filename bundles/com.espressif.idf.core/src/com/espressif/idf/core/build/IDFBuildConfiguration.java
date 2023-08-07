@@ -978,7 +978,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		CompileCommandsJsonParser parser = new CompileCommandsJsonParser(
 				new ParseRequest(file, new CMakeIndexerInfoConsumer(this::setScannerInformation, getProject()),
 						CommandLauncherManager.getInstance().getCommandLauncher(this), console));
-		parser.parse(monitor);
 		Job parseJob = new Job("Parse Compile Commands File")
 		{
 			protected IStatus run(IProgressMonitor monitor)
