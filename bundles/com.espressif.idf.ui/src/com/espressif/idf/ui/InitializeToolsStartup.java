@@ -5,7 +5,6 @@
 package com.espressif.idf.ui;
 
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -35,6 +34,7 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.Messages;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.resources.OpenDialogListenerSupport;
+import com.espressif.idf.core.resources.PopupDialog;
 import com.espressif.idf.core.resources.ResourceChangeListener;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
 import com.espressif.idf.core.util.StringUtil;
@@ -65,24 +65,18 @@ public class InitializeToolsStartup implements IStartup
 	@Override
 	public void earlyStartup()
 	{
-		OpenDialogListenerSupport.getSupport().addPropertyChangeListener(new PropertyChangeListener()
-		{
-
-			@Override
-			public void propertyChange(PropertyChangeEvent evt)
+		OpenDialogListenerSupport.getSupport().addPropertyChangeListener((evt) -> {
+			PopupDialog popupDialog = PopupDialog.valueOf(evt.getPropertyName());
+			switch (popupDialog)
 			{
-				Display.getDefault().asyncExec(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						MessageLinkDialog.openWarning(Display.getDefault().getActiveShell(),
-								Messages.IncreasePartitionSizeTitle,
-								MessageFormat.format(Messages.IncreasePartitionSizeMessage, evt.getNewValue(),
-										evt.getOldValue(), DOC_URL));
-					}
-				});
-
+			case LOW_PARTITION_SIZE:
+				openLowPartitionSizeDialog(evt);
+				break;
+			case AVAILABLE_HINTS:
+				openAvailableHintsDialog(evt);
+				break;
+			default:
+				break;
 			}
 		});
 		ILaunchBarListener launchBarListener = new LaunchBarListener();
@@ -196,6 +190,24 @@ public class InitializeToolsStartup implements IStartup
 		{
 			Logger.log(e);
 		}
+	}
+
+	private void openAvailableHintsDialog(PropertyChangeEvent evt)
+	{
+		Display.getDefault().asyncExec(() ->
+				MessageLinkDialog.openWarning(Display.getDefault().getActiveShell(), "Available Hints", MessageFormat
+						.format("Detected errors and hints for them: {0}", evt.getNewValue()))
+		);
+
+	}
+
+	private void openLowPartitionSizeDialog(PropertyChangeEvent evt)
+	{
+		Display.getDefault().asyncExec(() ->
+				MessageLinkDialog.openWarning(Display.getDefault().getActiveShell(),
+						Messages.IncreasePartitionSizeTitle, MessageFormat.format(Messages.IncreasePartitionSizeMessage,
+								evt.getNewValue(), evt.getOldValue(), DOC_URL))
+			);
 	}
 	
 	@SuppressWarnings("unchecked")

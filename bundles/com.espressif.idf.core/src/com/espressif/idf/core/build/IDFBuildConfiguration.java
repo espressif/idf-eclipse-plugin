@@ -140,6 +140,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	private IBuildConfiguration buildConfiguration;
 	private IProgressMonitor monitor;
 	public boolean isProgressSet;
+	public static List<String> errorLines = new ArrayList<>();
 
 	public IDFBuildConfiguration(IBuildConfiguration config, String name) throws CoreException
 	{
@@ -420,7 +421,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 				throw new CmakeBuildException();
 			}
 
-			watchProcess(p, new IConsoleParser[] { epm, new StatusParser() });
+			watchProcess(p, new IConsoleParser[] { epm, new StatusParser(), new EspIdfErrorParser() });
 
 			final String isSkip = System.getProperty("skip.idf.components"); //$NON-NLS-1$
 			if (!Boolean.parseBoolean(isSkip))
@@ -502,6 +503,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 			{
 				Thread.sleep(100);
 			}
+			Stream.of(consoleParsers).forEach(IConsoleParser::shutdown);
 			return rc;
 		}
 		catch (InterruptedException e)
@@ -557,7 +559,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 								}
 								else
 								{
-									consoleParser.processLine(line);
+									if (consoleParser.processLine(line) != true)
+										errorLines.add(line);
 								}
 							}
 						}

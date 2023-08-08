@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
 import com.espressif.idf.core.resources.OpenDialogListenerSupport;
+import com.espressif.idf.core.resources.PopupDialog;
 
 public class ParitionSizeHandler
 {
@@ -100,7 +101,8 @@ public class ParitionSizeHandler
 			double remainSize = (maxSize - imageSize) / (maxSize);
 			if (remainSize < 0.3)
 			{
-				OpenDialogListenerSupport.getSupport().firePropertyChange(null, maxSize, remainSize * maxSize);
+				OpenDialogListenerSupport.getSupport().firePropertyChange(PopupDialog.LOW_PARTITION_SIZE.name(),
+						maxSize, remainSize * maxSize);
 				break;
 			}
 		}
