@@ -11,6 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.List;
 
 import org.eclipse.cdt.cmake.core.internal.Activator;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -24,6 +25,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IStartup;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -32,12 +35,14 @@ import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.Messages;
+import com.espressif.idf.core.build.ReHintPair;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.resources.OpenDialogListenerSupport;
 import com.espressif.idf.core.resources.PopupDialog;
 import com.espressif.idf.core.resources.ResourceChangeListener;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.ui.dialogs.BuildView;
 import com.espressif.idf.ui.dialogs.MessageLinkDialog;
 import com.espressif.idf.ui.update.ExportIDFTools;
 import com.espressif.idf.ui.update.InstallToolsHandler;
@@ -45,6 +50,8 @@ import com.espressif.idf.ui.update.InstallToolsHandler;
 @SuppressWarnings("restriction")
 public class InitializeToolsStartup implements IStartup
 {
+
+	private static final String BUILDHINTS_ID = "com.espressif.idf.ui.views.buildhints";
 
 	/**
 	 * esp-idf.json is file created by the installer
@@ -65,7 +72,7 @@ public class InitializeToolsStartup implements IStartup
 	@Override
 	public void earlyStartup()
 	{
-		OpenDialogListenerSupport.getSupport().addPropertyChangeListener((evt) -> {
+		OpenDialogListenerSupport.getSupport().addPropertyChangeListener(evt -> {
 			PopupDialog popupDialog = PopupDialog.valueOf(evt.getPropertyName());
 			switch (popupDialog)
 			{
@@ -192,11 +199,24 @@ public class InitializeToolsStartup implements IStartup
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void openAvailableHintsDialog(PropertyChangeEvent evt)
 	{
 		Display.getDefault().asyncExec(() ->
-				MessageLinkDialog.openWarning(Display.getDefault().getActiveShell(), "Available Hints", MessageFormat
-						.format("Detected errors and hints for them: {0}", evt.getNewValue()))
+		{
+			try
+			{
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+						.showView(BUILDHINTS_ID);
+			}
+			catch (PartInitException e)
+			{
+				Logger.log(e);
+			}
+			BuildView view = ((BuildView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+					.findView(BUILDHINTS_ID));
+			view.setReHintsPairs((List<ReHintPair>) evt.getNewValue());
+		}
 		);
 
 	}

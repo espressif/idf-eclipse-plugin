@@ -420,8 +420,13 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 				console.getErrorStream().write(String.format(Messages.CMakeBuildConfiguration_Failure, "")); //$NON-NLS-1$
 				throw new CmakeBuildException();
 			}
-
-			watchProcess(p, new IConsoleParser[] { epm, new StatusParser(), new EspIdfErrorParser() });
+			boolean buildHintsStatus = Platform.getPreferencesService().getBoolean(IDFCorePlugin.PLUGIN_ID,
+					IDFCorePreferenceConstants.AUTOMATE_BUILD_HINTS_STATUS,
+					IDFCorePreferenceConstants.AUTOMATE_BUILD_HINTS_DEFAULT_STATUS, null);
+			IConsoleParser[] consoleParsers = buildHintsStatus
+					? new IConsoleParser[] { epm, new StatusParser(), new EspIdfErrorParser() }
+					: new IConsoleParser[] { epm, new StatusParser() };
+			watchProcess(p, consoleParsers);
 
 			final String isSkip = System.getProperty("skip.idf.components"); //$NON-NLS-1$
 			if (!Boolean.parseBoolean(isSkip))

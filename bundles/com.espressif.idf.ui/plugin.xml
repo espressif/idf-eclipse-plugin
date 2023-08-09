@@ -638,6 +638,15 @@
             id="com.espressif.idf.ui.category"
             name="%views_category.name">
       </category>
+      <view
+            allowMultiple="false"
+            category="com.espressif.idf.ui.category"
+            class="com.espressif.idf.ui.dialogs.BuildView"
+            icon="icons/Hints_View.png"
+            id="com.espressif.idf.ui.views.buildhints"
+            name="%build_hints.name"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.intro">
