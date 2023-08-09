@@ -34,10 +34,9 @@ import com.espressif.idf.core.util.StringUtil;
  * associated with the errors and added to the 'allMatchesList'.
  *
  * The shutdown method is used to trigger the completion of parsing. It notifies listeners registred in the UI plugin
- * that the list of available hints has changed, providing the accumulated error hint pairs to any interested parties.
- * The 'allMatchesList' is then cleared to prepare for the next parsing session.
+ * that the list of available hints has changed and providing the accumulated error hint pairs. The 'allMatchesList' is
+ * then cleared to prepare for the next parsing session.
  *
- * Note: This class assumes the availability of HintsUtil and ReHintPair classes.
  *
  * @author Denys Almazov (denys.almazov@espressif.com)
  *

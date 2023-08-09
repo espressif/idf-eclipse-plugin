@@ -204,6 +204,13 @@ public class InitializeToolsStartup implements IStartup
 	{
 		Display.getDefault().asyncExec(() ->
 		{
+			List<ReHintPair> erroHintPairs = (List<ReHintPair>) evt.getNewValue();
+			// if list is empty we don't want to change focus from the console output
+			if (erroHintPairs.isEmpty())
+			{
+				updateValuesInBuildView(erroHintPairs);
+				return;
+			}
 			try
 			{
 				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
@@ -213,12 +220,20 @@ public class InitializeToolsStartup implements IStartup
 			{
 				Logger.log(e);
 			}
-			BuildView view = ((BuildView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-					.findView(BUILDHINTS_ID));
-			view.setReHintsPairs((List<ReHintPair>) evt.getNewValue());
+			updateValuesInBuildView(erroHintPairs);
 		}
 		);
 
+	}
+
+	private void updateValuesInBuildView(List<ReHintPair> erroHintPairs)
+	{
+		BuildView view = ((BuildView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+				.findView(BUILDHINTS_ID));
+		if (view != null)
+		{
+			view.setReHintsPairs(erroHintPairs);
+		}
 	}
 
 	private void openLowPartitionSizeDialog(PropertyChangeEvent evt)
