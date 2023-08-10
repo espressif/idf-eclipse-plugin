@@ -232,7 +232,7 @@ public class InitializeToolsStartup implements IStartup
 				.findView(BUILDHINTS_ID));
 		if (view != null)
 		{
-			view.setReHintsPairs(erroHintPairs);
+			view.updateReHintsPairs(erroHintPairs);
 		}
 	}
 

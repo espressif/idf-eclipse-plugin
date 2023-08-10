@@ -1,5 +1,11 @@
+/*******************************************************************************
+ * Copyright 2022-2023 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.ui.dialogs;
 
+import java.io.File;
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 
@@ -10,6 +16,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -21,6 +28,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.espressif.idf.core.build.ReHintPair;
+import com.espressif.idf.core.util.HintsUtil;
 
 public class BuildView extends ViewPart
 {
@@ -35,7 +43,7 @@ public class BuildView extends ViewPart
 		reHintsPairs = Collections.emptyList();
 	}
 
-	public void setReHintsPairs(List<ReHintPair> reHintPairs)
+	public void updateReHintsPairs(List<ReHintPair> reHintPairs)
 	{
 		this.reHintsPairs = reHintPairs;
 		container.dispose();
@@ -51,7 +59,34 @@ public class BuildView extends ViewPart
 		container.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		GridLayout layout = new GridLayout(1, true);
 		container.setLayout(layout);
+		if (reHintsPairs.isEmpty())
+		{
+			if (!new File(HintsUtil.getHintsYmlPath()).exists())
+			{
+				createNoHintsYmlLabel();
+			}
+			else
+			{
+				createNoAvailableHintsLabel();
+			}
+			return;
+		}
 		createHintsViewer(container);
+	}
+
+	private void createNoAvailableHintsLabel()
+	{
+		CLabel infoField = new CLabel(container, SWT.H_SCROLL);
+		infoField.setImage(
+				PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_INFO_TSK));
+		infoField.setText(Messages.BuildView_NoAvailableHintsMsg);
+	}
+
+	private void createNoHintsYmlLabel()
+	{
+		CLabel errorField = new CLabel(container, SWT.H_SCROLL);
+		errorField.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK));
+		errorField.setText(MessageFormat.format(Messages.HintsYmlNotFoundErrMsg, HintsUtil.getHintsYmlPath()));
 	}
 
 	private void createHintsViewer(Composite container)
@@ -136,6 +171,7 @@ public class BuildView extends ViewPart
 
 	public void setFocus()
 	{
+		// Do nothing
 	}
 
 }
