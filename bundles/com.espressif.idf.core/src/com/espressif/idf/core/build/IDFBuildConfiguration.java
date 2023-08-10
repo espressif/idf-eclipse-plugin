@@ -140,7 +140,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	private IBuildConfiguration buildConfiguration;
 	private IProgressMonitor monitor;
 	public boolean isProgressSet;
-	public static List<String> errorLines = new ArrayList<>();
 
 	public IDFBuildConfiguration(IBuildConfiguration config, String name) throws CoreException
 	{
@@ -564,8 +563,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 								}
 								else
 								{
-									if (consoleParser.processLine(line) != true)
-										errorLines.add(line);
+									consoleParser.processLine(line);
 								}
 							}
 						}
