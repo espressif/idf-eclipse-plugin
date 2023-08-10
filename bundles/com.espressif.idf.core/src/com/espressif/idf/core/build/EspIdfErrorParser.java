@@ -55,16 +55,7 @@ public class EspIdfErrorParser implements IConsoleParser
 			if (isRegexMatchesWithField)
 			{
 				allMatchesList.add(new ReHintPair(paramString, reHintEntry.getHint()));
-			}
-		}
-		if (allMatchesList.isEmpty())
-		{
-			for (ReHintPair reHintEntry : reHintsList)
-			{
-				if (reHintEntry.getRe().contains(paramString))
-				{
-					allMatchesList.add(new ReHintPair(paramString, reHintEntry.getHint()));
-				}
+				return true;
 			}
 		}
 		return false;
