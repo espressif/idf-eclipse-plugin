@@ -51,7 +51,7 @@ import com.espressif.idf.ui.update.InstallToolsHandler;
 public class InitializeToolsStartup implements IStartup
 {
 
-	private static final String BUILDHINTS_ID = "com.espressif.idf.ui.views.buildhints";
+	private static final String BUILDHINTS_ID = "com.espressif.idf.ui.views.buildhints"; //$NON-NLS-1$
 
 	/**
 	 * esp-idf.json is file created by the installer
