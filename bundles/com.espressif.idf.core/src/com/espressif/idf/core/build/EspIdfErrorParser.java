@@ -29,10 +29,6 @@ import com.espressif.idf.core.util.StringUtil;
  * expression hint pairs. It uses regular expressions to determine if the line matches any error pattern. If a match is
  * found, the corresponding hint is associated with the error message and added to the 'allMatchesList'.
  *
- * If no matches are found using regular expressions, the processLine method performs a substring-based check against
- * the error patterns to capture potential matches. If any matches are identified, the corresponding hints are again
- * associated with the errors and added to the 'allMatchesList'.
- *
  * The shutdown method is used to trigger the completion of parsing. It notifies listeners registred in the UI plugin
  * that the list of available hints has changed and providing the accumulated error hint pairs. The 'allMatchesList' is
  * then cleared to prepare for the next parsing session.
