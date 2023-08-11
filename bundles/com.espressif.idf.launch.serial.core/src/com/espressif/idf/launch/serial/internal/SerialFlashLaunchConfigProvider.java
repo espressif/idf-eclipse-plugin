@@ -30,7 +30,7 @@ public class SerialFlashLaunchConfigProvider extends IDFCoreLaunchConfigProvider
 	@Override
 	public boolean supports(ILaunchDescriptor descriptor, ILaunchTarget target) throws CoreException
 	{
-		return target.getTypeId().equals(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE);
+		return target != null && target.getTypeId().equals(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE);
 	}
 
 	@Override
