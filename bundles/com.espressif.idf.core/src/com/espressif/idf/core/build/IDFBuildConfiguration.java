@@ -105,6 +105,7 @@ import com.espressif.idf.core.internal.CMakeConsoleWrapper;
 import com.espressif.idf.core.internal.CMakeErrorParser;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.DfuCommandsUtil;
+import com.espressif.idf.core.util.HintsUtil;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.ParitionSizeHandler;
 import com.espressif.idf.core.util.StringUtil;
@@ -423,7 +424,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 					IDFCorePreferenceConstants.AUTOMATE_BUILD_HINTS_STATUS,
 					IDFCorePreferenceConstants.AUTOMATE_BUILD_HINTS_DEFAULT_STATUS, null);
 			IConsoleParser[] consoleParsers = buildHintsStatus
-					? new IConsoleParser[] { epm, new StatusParser(), new EspIdfErrorParser() }
+					? new IConsoleParser[] { epm, new StatusParser(),
+							new EspIdfErrorParser(HintsUtil.getReHintsList(new File(HintsUtil.getHintsYmlPath()))) }
 					: new IConsoleParser[] { epm, new StatusParser() };
 			watchProcess(p, consoleParsers);
 

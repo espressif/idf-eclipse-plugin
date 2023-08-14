@@ -4,7 +4,6 @@
  *******************************************************************************/
 package com.espressif.idf.core.build;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -13,7 +12,6 @@ import org.eclipse.cdt.core.IConsoleParser;
 
 import com.espressif.idf.core.resources.OpenDialogListenerSupport;
 import com.espressif.idf.core.resources.PopupDialog;
-import com.espressif.idf.core.util.HintsUtil;
 import com.espressif.idf.core.util.StringUtil;
 
 /**
@@ -40,9 +38,14 @@ import com.espressif.idf.core.util.StringUtil;
 public class EspIdfErrorParser implements IConsoleParser
 {
 
-	private List<ReHintPair> reHintsList = HintsUtil.getReHintsList(new File(HintsUtil.getHintsYmlPath()));
-	private List<ReHintPair> allMatchesList = new ArrayList<>();
+	private List<ReHintPair> reHintsList;
+	private List<ReHintPair> allMatchesList;
 
+	public EspIdfErrorParser(List<ReHintPair> reHintPairs)
+	{
+		this.reHintsList = reHintPairs;
+		this.allMatchesList = new ArrayList<>();
+	}
 	public boolean processLine(String paramString)
 	{
 		for (ReHintPair reHintEntry : reHintsList)
