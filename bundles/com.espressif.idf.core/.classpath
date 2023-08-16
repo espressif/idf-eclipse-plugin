@@ -16,6 +16,7 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/com.espressif.idf.core/lib/commons-collections4-4.4-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.42.0.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11">
 		<attributes>

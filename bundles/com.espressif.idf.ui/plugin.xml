@@ -108,6 +108,11 @@
             id="com.espressif.idf.ui.command.managetoolsinstallation"
             name="%command.name.15">
       </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.handlers.NaturalLanguageSearchHandler"
+            id="com.espressif.idf.ui.nlsearch"
+            name="Natural Language Search">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -222,6 +227,12 @@
                icon="icons/Product Information.png"
                id="productinfo"
                label="%command.label.4 "
+               style="push">
+         </command>
+         <command
+               commandId="com.espressif.idf.ui.nlsearch"
+               icon="icons/Hints_View.png"
+               label="Natural Language Search"
                style="push">
          </command>
       </menuContribution>
@@ -704,4 +715,14 @@
          type="java.lang.Object">
    </propertyTester>
 </extension>
+   <extension
+         id="com.espressif.completionProposal.nls"
+         name="Natural Language Search Completion Proposal"
+         point="org.eclipse.cdt.ui.completionProposalComputer">
+      <completionProposalComputer
+            activate="true"
+            categoryId="org.eclipse.cdt.ui.defaultProposalCategory"
+            class="com.espressif.idf.ui.completion.NaturalLanguageSearch">
+      </completionProposalComputer>
+   </extension>
 </plugin>
