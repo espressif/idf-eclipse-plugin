@@ -127,7 +127,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	public static final String CMAKE_ENV = "cmake.environment"; //$NON-NLS-1$
 	public static final String BUILD_COMMAND = "cmake.command.build"; //$NON-NLS-1$
 	public static final String CLEAN_COMMAND = "cmake.command.clean"; //$NON-NLS-1$
-	private JobGroup jobGroup = new JobGroup("Job...", 1, 1);
+	private JobGroup jobGroup = new JobGroup("Parsing Job...", 1, 1); //$NON-NLS-1$
 	private ILaunchTarget launchtarget;
 	private Map<IResource, IScannerInfo> infoPerResource;
 	/**
@@ -974,11 +974,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	private void processCompileCommandsFile(IConsole console, IProgressMonitor monitor) throws CoreException
 	{
 		IFile file = getCompileCommandsJsonFile(monitor);
-
 		CompileCommandsJsonParser parser = new CompileCommandsJsonParser(
 				new ParseRequest(file, new CMakeIndexerInfoConsumer(this::setScannerInformation, getProject()),
 						CommandLauncherManager.getInstance().getCommandLauncher(this), console));
-		Job parseJob = new Job("Parse Compile Commands File")
+		Job parseJob = new Job("Parse Compile Commands File") //$NON-NLS-1$
 		{
 			protected IStatus run(IProgressMonitor monitor)
 			{
@@ -995,7 +994,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		};
 		parseJob.setJobGroup(jobGroup);
 		parseJob.schedule();
-
 	}
 
 	private IFile getCompileCommandsJsonFile(IProgressMonitor monitor) throws CoreException
