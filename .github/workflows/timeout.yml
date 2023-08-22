@@ -1,0 +1,22 @@
+name: Cancel Build on timeout
+
+on:
+    push:
+      branches: [ master ]
+    pull_request:
+      branches: [ master ]
+    workflow_dispatch:
+
+jobs:
+    timeout:
+        timeout-minutes: 2
+        runs-on:
+            - self-hosted
+            - eclipse
+        permissions:
+          actions: write
+        steps:
+            - name: Monitor Build for timeout and cancel if crossed the threshold
+              run: |
+                sleep 1m
+                gh -R espressif/idf-eclipse-plugin run list -w .github/workflows/ci.yml -s queued --json databaseId -q .[].databaseId | xargs gh -R espressif/idf-eclipse-plugin run cancel
