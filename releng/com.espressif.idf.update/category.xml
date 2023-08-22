@@ -19,7 +19,7 @@
       <category name="com.espressif.idf"/>
    </feature>
    <feature id="org.eclipse.cdt.lsp.feature">
-      <category name="Others"/>
+      <category name="Other Features"/>
    </feature>
    <bundle id="org.apache.batik.xml">
       <category name="com.espressif.idf"/>
@@ -31,7 +31,7 @@
       <category name="com.espressif.idf"/>
    </bundle>
    <category-def name="com.espressif.idf" label="Espressif IDF"/>
-   <category-def name="Others" label="Others">
+   <category-def name="Other Features" label="Other Features">
       <description>
          Additional features which can be used with the Espressif-IDE
       </description>
