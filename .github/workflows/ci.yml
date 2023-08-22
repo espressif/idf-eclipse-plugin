@@ -13,9 +13,8 @@ jobs:
   build:
 
     runs-on:
-      - self-hosted
-      - eclipse
-    
+      - windows-latest
+      
     steps:
     - uses: actions/checkout@v2
 
