@@ -57,6 +57,9 @@
    <bundle id="com.google.guava">
       <category name="Eclipse CDT-LSP Preview"/>
    </bundle>
+   <bundle id="com.google.guava.failureaccess">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
    <category-def name="com.espressif.idf" label="Espressif IDF"/>
    <category-def name="Eclipse CDT-LSP Preview" label="Eclipse CDT-LSP Preview">
       <description>
