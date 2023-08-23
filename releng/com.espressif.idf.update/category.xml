@@ -39,6 +39,9 @@
    <bundle id="org.eclipse.tm4e.ui">
       <category name="Preview Features"/>
    </bundle>
+   <bundle id="org.eclipse.tm4e.core">
+      <category name="Preview Features"/>
+   </bundle>
    <category-def name="com.espressif.idf" label="Espressif IDF"/>
    <category-def name="Preview Features" label="Preview Features">
       <description>
