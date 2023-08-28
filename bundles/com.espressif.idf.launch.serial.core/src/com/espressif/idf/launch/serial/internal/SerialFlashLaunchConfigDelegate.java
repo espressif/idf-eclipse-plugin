@@ -66,6 +66,11 @@ import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 @SuppressWarnings("restriction")
 public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfigDelegate
 {
+	private static final String OPENOCD_PREFIX = "com.espressif.idf.debug.gdbjtag.openocd"; //$NON-NLS-1$
+	private static final String INSTALL_FOLDER = "install.folder"; //$NON-NLS-1$
+	private static final String SERVER_EXECUTABLE = OPENOCD_PREFIX + ".openocd.gdbServerExecutable"; //$NON-NLS-1$
+	private static final String DEFAULT_PATH = "${openocd_path}/"; //$NON-NLS-1$
+	private static final String DEFAULT_EXECUTABLE = "bin/openocd"; //$NON-NLS-1$
 	private static final String SYSTEM_PATH_PYTHON = "${system_path:python}"; //$NON-NLS-1$
 	private String serialPort;
 
@@ -108,11 +113,9 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 	{
 		IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
 
-		String location = varManager.performStringSubstitution(IDFUtil.getIDFPythonEnvPath());
-		if (StringUtil.isEmpty(location))
-		{
-			location = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION, SYSTEM_PATH_PYTHON);
-		}
+		String location = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION,
+				IDFUtil.getIDFPythonEnvPath());
+		location = varManager.performStringSubstitution(location);
 		if (StringUtil.isEmpty(location))
 		{
 			launch.addProcess(new NullProcess(launch, Messages.CoreBuildGenericLaunchConfigDelegate_NoAction));
@@ -181,7 +184,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 			buffer.append('=').append(entry.getValue());
 			strings.add(buffer.toString());
 		}
-
+		Logger.log(String.format("flash command: %s", String.join(" ", commands))); //$NON-NLS-1$ //$NON-NLS-2$
 		String[] envArray = strings.toArray(new String[strings.size()]);
 		Process p = DebugPlugin.exec(commands.toArray(new String[0]), workingDir, envArray);
 		DebugPlugin.newProcess(launch, p, String.join(" ", commands)); //$NON-NLS-1$
@@ -239,8 +242,4 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		return superBuildForLaunch(configuration, mode, monitor);
 	}
 
-	public static String getSystemPythonPath()
-	{
-		return SYSTEM_PATH_PYTHON;
-	}
 }
