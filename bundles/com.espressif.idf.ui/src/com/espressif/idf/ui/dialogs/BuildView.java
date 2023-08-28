@@ -34,7 +34,7 @@ public class BuildView extends ViewPart
 {
 
 	private TableViewer hintsTableViewer;
-	private final String[] titles = { "Error Message", "Hint" }; //$NON-NLS-1$ //$NON-NLS-2$
+	private final String[] titles = { Messages.BuildView_ErrorMsgLbl, Messages.BuildView_HintMsgLbl };
 	private List<ReHintPair> reHintsPairs;
 	private Composite parent;
 	private Composite container;
