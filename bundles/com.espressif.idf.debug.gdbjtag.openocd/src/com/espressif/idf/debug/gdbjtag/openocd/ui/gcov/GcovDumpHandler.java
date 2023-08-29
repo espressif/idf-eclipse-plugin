@@ -24,11 +24,16 @@ import com.espressif.idf.debug.gdbjtag.openocd.dsf.Launch;
 
 public class GcovDumpHandler extends AbstractHandler
 {
+	private static final String INSTANT_ID = "com.espressif.idf.gcov.instant";
+	private static final String HARD_CODED_ID = "com.espressif.idf.gcov.hardcoded";
+	
 	private IExecutionDMContext executionDMContext;
+	private boolean isInstant = false;
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
+		isInstant = event.getCommand().getId().equals(INSTANT_ID);
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
 		ILaunch[] launches = launchManager.getLaunches();
 		ILaunch launchActive = null;
@@ -64,7 +69,7 @@ public class GcovDumpHandler extends AbstractHandler
 			protected void handleSuccess()
 			{
 				commandControlService.queueCommand(
-						new CLICommand<>(commandControlService.getContext(), "mon esp gcov dump"),
+						new CLICommand<>(commandControlService.getContext(), isInstant ? "mon esp gcov dump" : "mon esp gcov"),
 						new ImmediateDataRequestMonitor<>()
 						{
 							@Override
