@@ -1,4 +1,4 @@
-# Clang and Clangd Support in Espressif-IDE (Preview)
+# Clang and Clangd Configuration in Espressif-IDE
 
 Follow the below instructions to configure Clang and Clangd in Espressif-IDE.
 
