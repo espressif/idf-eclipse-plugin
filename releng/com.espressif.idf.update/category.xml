@@ -60,6 +60,24 @@
    <bundle id="com.google.guava.failureaccess">
       <category name="Eclipse CDT-LSP Preview"/>
    </bundle>
+   <bundle id="org.eclipse.lsp4j">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
+   <bundle id="org.eclipse.lsp4j.jsonrpc">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
+   <bundle id="org.eclipse.mylyn.wikitext">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
+   <bundle id="org.eclipse.mylyn.wikitext.markdown">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
+   <bundle id="org.jsoup">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
+   <bundle id="org.eclipse.tm4e.registry">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
    <category-def name="com.espressif.idf" label="Espressif IDF"/>
    <category-def name="Eclipse CDT-LSP Preview" label="Eclipse CDT-LSP Preview">
       <description>
