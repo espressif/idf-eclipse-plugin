@@ -718,10 +718,7 @@
          point="org.eclipse.ui.menus">
       <menuContribution
             allPopups="false"
-            locationURI="toolbar:org.eclipse.ui.main.toolbar">
-         <toolbar
-               id="com.espressif.idf.ui.espressof.debug.toolbar"
-               label="Espressif Debug Toolbar">
+            locationURI="toolbar:org.eclipse.ui.console.ConsoleView?after=additions">
             <command
                   commandId="com.espressif.idf.gcov.instant"
                   icon="icons/espressif.png"
@@ -754,7 +751,6 @@
                   </with>
                </visibleWhen>
             </command>
-         </toolbar>
       </menuContribution>
    </extension>
 </plugin>
