@@ -15,7 +15,7 @@ jobs:
     runs-on:
       - self-hosted
       - eclipse
-    
+
     steps:
     - uses: actions/checkout@v2
 
@@ -55,6 +55,21 @@ jobs:
       with:
            check_name: 'Linux Test Reports'
   
+  build_macos:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v2
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Build with Maven
+      run: mvn clean verify -Djarsigner.skip=true
+
     - name: Upload build artifacts
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v2
@@ -76,21 +91,6 @@ jobs:
         name: espressif-ide-linux
         path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
   
-  build_macos:
-    runs-on: macos-latest
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up JDK 17
-      uses: actions/setup-java@v2
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-
-    - name: Build with Maven
-      run: mvn clean verify -Djarsigner.skip=true
-
     - name: Codesign Espressif-IDE
       env: 
         MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}

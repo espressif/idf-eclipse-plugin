@@ -25,7 +25,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.commands,
  org.eclipse.jface,
  org.apache.commons.logging;bundle-version="1.2.0",
- org.eclipse.core.variables
+ org.eclipse.core.variables,
+ org.eclipse.embedcdt.core;visibility:=reexport
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: com.espressif.idf.core
 Bundle-ActivationPolicy: lazy
@@ -47,4 +48,3 @@ Bundle-ClassPath: .,
  lib/opencsv-5.7.0.jar,
  lib/commons-beanutils-1.9.4.jar,
  lib/commons-text-1.10.0.jar
-Import-Package: org.eclipse.embedcdt.core
