@@ -428,6 +428,22 @@
                </iterate>
             </visibleWhen>
          </command>
+         <command
+               commandId="com.espressif.idf.ui.gcovFileView"
+               icon="icons/espressif.png"
+               label="ESP-IDF: View GCOV Files"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <iterate
+                     ifEmpty="false"
+                     operator="or">
+                  <instanceof
+                        value="org.eclipse.core.resources.IResource">
+                  </instanceof>
+               </iterate>
+            </visibleWhen>
+         </command>
       </menuContribution>
    </extension>
    <extension
@@ -527,6 +543,11 @@
       <command
             id="com.espressif.idf.ui.nvsEditorCommand"
             name="%command.name.nvsTableEditor">
+      </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.gcov.GcovFileViewCommandHandler"
+            id="com.espressif.idf.ui.gcovFileView"
+            name="View GCOV Files">
       </command>
    </extension>
    <extension
@@ -752,5 +773,15 @@
                </visibleWhen>
             </command>
       </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="com.espressif.idf.ui.gcov.GcovFileView"
+            icon="icons/espressif.png"
+            id="com.espressif.idf.ui.gcov.reportsView"
+            name="Gcov Reports"
+            restorable="true">
+      </view>
    </extension>
 </plugin>

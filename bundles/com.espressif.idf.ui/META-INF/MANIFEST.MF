@@ -41,12 +41,16 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.embedcdt.ui,
  org.eclipse.ltk.ui.refactoring,
  org.eclipse.ltk.core.refactoring,
- org.eclipse.epp.mpc.ui
+ org.eclipse.epp.mpc.ui,
+ org.eclipse.core.variables;bundle-version="3.5.100",
+ org.eclipse.linuxtools.gcov.core;bundle-version="6.3.0",
+ org.eclipse.linuxtools.gcov.launch;bundle-version="1.2.0"
 Automatic-Module-Name: com.espressif.idf.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: com.espressif.idf.ui,
  com.espressif.idf.ui.dialogs,
+ com.espressif.idf.ui.gcov,
  com.espressif.idf.ui.handlers,
  com.espressif.idf.ui.preferences,
  com.espressif.idf.ui.tracing,
