@@ -42,9 +42,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ltk.ui.refactoring,
  org.eclipse.ltk.core.refactoring,
  org.eclipse.epp.mpc.ui,
- org.eclipse.core.variables;bundle-version="3.5.100",
- org.eclipse.linuxtools.gcov.core;bundle-version="6.3.0",
- org.eclipse.linuxtools.gcov.launch;bundle-version="1.2.0"
+ org.eclipse.core.variables;bundle-version="3.5.100"
 Automatic-Module-Name: com.espressif.idf.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11

@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2023 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.ui.gcov;
 
 import java.nio.file.Files;
@@ -23,7 +27,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
@@ -33,7 +36,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
@@ -47,12 +49,18 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.ViewPart;
-import org.osgi.framework.FrameworkUtil;
 
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.GcovUtility;
 import com.espressif.idf.core.util.IDFUtil;
 
+/**
+ * Gcov file view that can be opened by right clicking on the project.
+ * It is used to show the gcno/gcda files as one unit for the selected project
+ * User can launch the eclipse's default gcov viewer by double clicking on the entries
+ * @author Ali Azam Rana
+ *
+ */
 public class GcovFileView extends ViewPart implements ISelectionListener
 {
 
@@ -88,8 +96,6 @@ public class GcovFileView extends ViewPart implements ISelectionListener
 				
 				if (item != null && file != null)
 				{
-//					OpenGCDialog openGcDialog = new OpenGCDialog(Display.getDefault().getActiveShell(), IDFUtil.getELFFilePath(selectedProject).toOSString(), file.getLocation());
-//					openGcDialog.open();
 					try
 					{
 						GcovUtility.setUpDialog(file, IDFUtil.getELFFilePath(selectedProject).toOSString());

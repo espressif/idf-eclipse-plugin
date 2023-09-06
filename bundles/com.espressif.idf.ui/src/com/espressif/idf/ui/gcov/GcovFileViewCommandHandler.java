@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2023 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.ui.gcov;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -11,6 +15,11 @@ import org.eclipse.ui.PlatformUI;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.GcovUtility;
 
+/**
+ * Handler for the gcov view menu command
+ * @author Ali Azam Rana
+ *
+ */
 public class GcovFileViewCommandHandler extends AbstractHandler
 {
 

@@ -1,4 +1,8 @@
-package com.espressif.idf.debug.gdbjtag.openocd.ui.gcov;
+/*******************************************************************************
+ * Copyright 2023 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
+package com.espressif.idf.debug.gdbjtag.openocd.gcov;
 
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.dsf.concurrent.DataRequestMonitor;
@@ -36,6 +40,13 @@ import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.dsf.Launch;
 import com.espressif.idf.ui.gcov.GcovFileView;
 
+/**
+ * The gcov dump handler simply runs and suspends the debug session momentarily to send the dump commands based on which
+ * button was pressed
+ * 
+ * @author Ali Azam Rana
+ *
+ */
 public class GcovDumpHandler extends AbstractHandler
 {
 	private static final String INSTANT_ID = "com.espressif.idf.gcov.instant";

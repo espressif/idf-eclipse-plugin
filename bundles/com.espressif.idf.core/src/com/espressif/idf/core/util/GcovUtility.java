@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2023 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.core.util;
 
 import org.eclipse.core.internal.registry.osgi.OSGIUtils;
@@ -10,27 +14,32 @@ import org.osgi.framework.FrameworkUtil;
 
 import com.espressif.idf.core.logging.Logger;
 
+/**
+ * Gcov utility to handle and manage the selected project for view and also used to setup the dialog settings
+ * 
+ * @author Ali Azam Rana
+ *
+ */
 @SuppressWarnings("restriction")
 public class GcovUtility
 {
 	private static IProject selectedProject;
-	
-	
+
 	public static void setSelectedProject(IProject project)
 	{
 		selectedProject = project;
 	}
-	
+
 	public static IProject getSelectedProject()
 	{
 		return selectedProject;
 	}
-	
+
 	public static void clearSelectedProject()
 	{
 		selectedProject = null;
 	}
-	
+
 	public static void setUpDialog(IFile gcFile, String elfFile)
 	{
 		try
@@ -40,12 +49,13 @@ public class GcovUtility
 			Class<?> openGcDialog = bundle.loadClass("org.eclipse.linuxtools.internal.gcov.dialog.OpenGCDialog"); //$NON-NLS-1$
 			IDialogSettings ds = PlatformUI.getDialogSettingsProvider(FrameworkUtil.getBundle(openGcAction))
 					.getDialogSettings();
-	        IDialogSettings defaultMapping = ds.getSection(openGcDialog.getName());
-	        if (defaultMapping == null) {
-	            defaultMapping = ds.addNewSection(openGcDialog.getName());
-	        }
-	        
-	        ds.put(gcFile.getRawLocation().toOSString(), elfFile);
+			IDialogSettings defaultMapping = ds.getSection(openGcDialog.getName());
+			if (defaultMapping == null)
+			{
+				defaultMapping = ds.addNewSection(openGcDialog.getName());
+			}
+
+			ds.put(gcFile.getRawLocation().toOSString(), elfFile);
 		}
 		catch (Exception e)
 		{
