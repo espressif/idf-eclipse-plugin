@@ -80,7 +80,7 @@ class EspIdfErrorParserTest
 
 		assertTrue(actualResult);
 		assertEquals(expectedHint, actualReHintPair.get(0).getHint());
-		assertEquals(errorLine, actualReHintPair.get(0).getRe());
+		assertEquals(errorLine, actualReHintPair.get(0).getRe().get().pattern());
 	}
 
 }

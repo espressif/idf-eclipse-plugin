@@ -66,7 +66,7 @@ class HintsUtilTest
 		assertNotNull(reHintsList);
 		assertEquals(EXPECTED_SIZE, reHintsList.size());
 		assertEquals(expectedFirstHint, reHintsList.get(0).getHint());
-		assertEquals(expectedFirstRe, reHintsList.get(0).getRe());
+		assertEquals(expectedFirstRe, reHintsList.get(0).getRe().get().pattern());
 	}
 
 	@Test
@@ -82,9 +82,9 @@ class HintsUtilTest
 		assertNotNull(reHintsList);
 		assertEquals(EXPECTED_SIZE, reHintsList.size());
 		assertEquals(expectedFirstComplexHint, reHintsList.get(FIRST_SIMPLIFIED_ENTRY_INDEX).getHint());
-		assertEquals(expectedFirstComplexRe, reHintsList.get(FIRST_SIMPLIFIED_ENTRY_INDEX).getRe());
+		assertEquals(expectedFirstComplexRe, reHintsList.get(FIRST_SIMPLIFIED_ENTRY_INDEX).getRe().get().pattern());
 		assertEquals(expectedSecondComplexHint, reHintsList.get(SECOND_SIMPLIFIED_ENTRY_INDEX).getHint());
-		assertEquals(expectedSecondComplexRe, reHintsList.get(SECOND_SIMPLIFIED_ENTRY_INDEX).getRe());
+		assertEquals(expectedSecondComplexRe, reHintsList.get(SECOND_SIMPLIFIED_ENTRY_INDEX).getRe().get().pattern());
 	}
 
 

@@ -6,12 +6,9 @@ package com.espressif.idf.core.build;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.cdt.core.IConsoleParser;
 
-import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.resources.OpenDialogListenerSupport;
 import com.espressif.idf.core.resources.PopupDialog;
 import com.espressif.idf.core.util.StringUtil;
@@ -50,27 +47,13 @@ public class EspIdfErrorParser implements IConsoleParser
 	}
 	public boolean processLine(String paramString)
 	{
-		for (ReHintPair reHintEntry : reHintsList)
-		{
-			boolean isRegexMatchesWithProcessedString = false;
-			try
-			{
-				isRegexMatchesWithProcessedString = Pattern.compile(reHintEntry.getRe()).matcher(paramString).find();
-			}
-			catch (PatternSyntaxException e)
-			{
-				// catching incompatible Python regex
-				Logger.log(e);
-				continue;
-			}
+		int initialListSize = allMatchesList.size();
+		reHintsList.stream().filter(
+				reHintEntry -> reHintEntry.getRe().map(pattern -> pattern.matcher(paramString).find()).orElse(false))
+				.forEach(matchedReHintEntry -> allMatchesList
+						.add(new ReHintPair(paramString, matchedReHintEntry.getHint())));
 
-			if (isRegexMatchesWithProcessedString)
-			{
-				allMatchesList.add(new ReHintPair(paramString, reHintEntry.getHint()));
-				return true;
-			}
-		}
-		return false;
+		return allMatchesList.size() != initialListSize;
 	}
 
 	public void shutdown()

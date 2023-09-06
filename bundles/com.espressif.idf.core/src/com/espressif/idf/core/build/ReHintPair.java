@@ -4,6 +4,11 @@
  *******************************************************************************/
 package com.espressif.idf.core.build;
 
+import java.util.Optional;
+import java.util.regex.Pattern;
+
+import com.espressif.idf.core.logging.Logger;
+
 /**
  * Represents a parsed re and hint entries of a hints.yml file.
  * 
@@ -11,18 +16,25 @@ package com.espressif.idf.core.build;
  */
 public class ReHintPair
 {
-	private String re;
+	private Pattern re;
 	private String hint;
 
 	public ReHintPair(String re, String hint)
 	{
-		this.re = re;
+		try
+		{
+			this.re = Pattern.compile(re);
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+		}
 		this.hint = hint;
 	}
 
-	public String getRe()
+	public Optional<Pattern> getRe()
 	{
-		return re;
+		return Optional.ofNullable(re);
 	}
 
 	public String getHint()

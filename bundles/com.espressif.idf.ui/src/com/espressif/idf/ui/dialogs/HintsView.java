@@ -8,20 +8,17 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -35,6 +32,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import com.espressif.idf.core.build.ReHintPair;
 import com.espressif.idf.core.util.HintsUtil;
+import com.espressif.idf.core.util.StringUtil;
 
 public class HintsView extends ViewPart
 {
@@ -105,7 +103,9 @@ public class HintsView extends ViewPart
 			@Override
 			public String getText(Object element)
 			{
-				return ((ReHintPair) element).getRe();
+				Optional<Pattern> reOptionalPattern = ((ReHintPair) element).getRe();
+				return reOptionalPattern.isPresent() ? reOptionalPattern.get().pattern()
+						: StringUtil.EMPTY;
 			}
 		});
 		col = createTableViewerColumn(titles[1]);
@@ -123,18 +123,10 @@ public class HintsView extends ViewPart
 				return ((ReHintPair) element).getHint();
 			}
 		});
-		col.getViewer().addDoubleClickListener(new IDoubleClickListener()
-		{
-
-			@Override
-			public void doubleClick(DoubleClickEvent event)
-			{
-
+		col.getViewer().addDoubleClickListener(event -> {
 				StructuredSelection selection = (StructuredSelection) event.getViewer().getSelection();
 				MessageDialog.openInformation(container.getShell(), Messages.HintDetailsTitle,
 						((ReHintPair) selection.getFirstElement()).getHint());
-
-			}
 		});
 	}
 
@@ -156,37 +148,23 @@ public class HintsView extends ViewPart
 		searchField = new Text(container, SWT.SINGLE | SWT.BORDER | SWT.SEARCH | SWT.ICON_CANCEL | SWT.ICON_SEARCH);
 		searchField.setMessage(Messages.FilterMessage);
 		searchField.setLayoutData(dataName);
-		searchField.addModifyListener(new ModifyListener()
-		{
+		searchField.addModifyListener(e -> {
+			final List<ReHintPair> allMatchesList = new ArrayList<>();
+			reHintsList.stream()
+					.filter(reHintEntry -> reHintEntry.getRe()
+							.map(pattern -> pattern.matcher(searchField.getText()).find()).orElse(false))
+					.forEach(allMatchesList::add);
 
-			@Override
-			public void modifyText(ModifyEvent e)
+			if (allMatchesList.isEmpty())
 			{
-				List<ReHintPair> allMatchesList = new ArrayList<>();
-				for (ReHintPair reHintEntry : reHintsList)
-				{
-					boolean isRegexMatchesWithField = Pattern.compile(reHintEntry.getRe())
-							.matcher(searchField.getText()).find();
-					if (isRegexMatchesWithField)
-					{
-						allMatchesList.add(reHintEntry);
-					}
-				}
-				if (allMatchesList.isEmpty())
-				{
-					for (ReHintPair reHintEntry : reHintsList)
-					{
-						if (reHintEntry.getRe().contains(searchField.getText()))
-						{
-							allMatchesList.add(reHintEntry);
-						}
-					}
-				}
-
-				allMatchesList = allMatchesList.isEmpty() ? reHintsList : allMatchesList;
-				hintsTableViewer.setInput(allMatchesList);
-				hintsTableViewer.refresh();
+				reHintsList.stream()
+						.filter(reHintEntry -> reHintEntry.getRe()
+								.map(pattern -> pattern.pattern().contains(searchField.getText())).orElse(false))
+						.forEach(allMatchesList::add);
 			}
+
+			hintsTableViewer.setInput(allMatchesList.isEmpty() ? reHintsList : allMatchesList);
+			hintsTableViewer.refresh();
 		});
 
 	}

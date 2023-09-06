@@ -8,6 +8,8 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -29,12 +31,13 @@ import org.eclipse.ui.part.ViewPart;
 
 import com.espressif.idf.core.build.ReHintPair;
 import com.espressif.idf.core.util.HintsUtil;
+import com.espressif.idf.core.util.StringUtil;
 
 public class BuildView extends ViewPart
 {
 
 	private TableViewer hintsTableViewer;
-	private final String[] titles = { Messages.BuildView_ErrorMsgLbl, Messages.BuildView_HintMsgLbl };
+	private final String[] titles = { Messages.BuildView_ErrorMsgLbl, Messages.BuildView_HintMsgLbl }; 
 	private List<ReHintPair> reHintsPairs;
 	private Composite parent;
 	private Composite container;
@@ -132,7 +135,8 @@ public class BuildView extends ViewPart
 			@Override
 			public String getText(Object element)
 			{
-				return ((ReHintPair) element).getRe();
+				Optional<Pattern> reOptionalPattern = ((ReHintPair) element).getRe();
+				return reOptionalPattern.isPresent() ? reOptionalPattern.get().pattern() : StringUtil.EMPTY;
 			}
 		});
 		col = createTableViewerColumn(titles[1]);
