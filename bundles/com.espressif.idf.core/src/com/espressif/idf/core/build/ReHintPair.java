@@ -6,6 +6,7 @@ package com.espressif.idf.core.build;
 
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import com.espressif.idf.core.logging.Logger;
 
@@ -25,7 +26,7 @@ public class ReHintPair
 		{
 			this.re = Pattern.compile(re);
 		}
-		catch (Exception e)
+		catch (PatternSyntaxException e)
 		{
 			Logger.log(e);
 		}
