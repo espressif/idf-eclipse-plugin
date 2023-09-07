@@ -43,6 +43,14 @@ public class GcovFileViewCommandHandler extends AbstractHandler
 					Logger.log(UIPlugin.getDefault(), "Failed to initialize GcovFileView: " + e.getMessage(), e);
 				}
 			}
+			else
+			{
+				throw new ExecutionException("Active page cannot be retrieved");
+			}
+		}
+		else
+		{
+			throw new ExecutionException("Active workbench window cannot be retrieved");
 		}
 		return null;
 	}
