@@ -43,7 +43,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.linuxtools.docker.ui,
  org.eclipse.linuxtools.profiling.docs,
  org.eclipse.linuxtools.profiling.launch,
- org.eclipse.linuxtools.profiling.ui
+ org.eclipse.linuxtools.profiling.ui,
+ org.eclipse.core.variables
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: com.espressif.idf.core
 Bundle-ActivationPolicy: lazy
