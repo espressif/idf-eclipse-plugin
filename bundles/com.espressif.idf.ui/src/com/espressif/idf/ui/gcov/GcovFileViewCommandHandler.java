@@ -14,6 +14,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.GcovUtility;
+import com.espressif.idf.ui.UIPlugin;
 
 /**
  * Handler for the gcov view menu command
@@ -39,7 +40,7 @@ public class GcovFileViewCommandHandler extends AbstractHandler
 				}
 				catch (PartInitException e)
 				{
-					Logger.log(e);
+					Logger.log(UIPlugin.getDefault(), "Failed to initialize GcovFileView: " + e.getMessage(), e);
 				}
 			}
 		}
