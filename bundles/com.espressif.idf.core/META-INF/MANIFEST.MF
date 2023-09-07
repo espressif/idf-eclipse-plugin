@@ -25,8 +25,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.commands,
  org.eclipse.jface,
  org.apache.commons.logging;bundle-version="1.2.0",
- org.eclipse.embedcdt.core;visibility:=reexport
- org.eclipse.core.variables
+ org.eclipse.embedcdt.core;visibility:=reexport,
  org.eclipse.linuxtools.gcov.core,
  org.eclipse.linuxtools.gcov.docs,
  org.eclipse.linuxtools.gcov.launch,
