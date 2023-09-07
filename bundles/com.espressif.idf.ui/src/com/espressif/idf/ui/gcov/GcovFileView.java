@@ -7,7 +7,7 @@ package com.espressif.idf.ui.gcov;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.Collator;
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -55,9 +55,9 @@ import com.espressif.idf.core.util.GcovUtility;
 import com.espressif.idf.core.util.IDFUtil;
 
 /**
- * Gcov file view that can be opened by right clicking on the project.
- * It is used to show the gcno/gcda files as one unit for the selected project
- * User can launch the eclipse's default gcov viewer by double clicking on the entries
+ * Gcov file view that can be opened by right clicking on the project. It is used to show the gcno/gcda files as one
+ * unit for the selected project User can launch the eclipse's default gcov viewer by double clicking on the entries
+ * 
  * @author Ali Azam Rana
  *
  */
@@ -76,7 +76,8 @@ public class GcovFileView extends ViewPart implements ISelectionListener
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
 
-		String[] titles = { "File Name", "Path", "Last Modified GCNO", "Last Modified GCDA", "Size GCNO", "Size GCDA" };
+		String[] titles = { Messages.TableCol_FileName, Messages.TableCol_Path, Messages.TableCol_LastModifiedGCNO,
+				Messages.TableCol_LastModifiedGCDA, Messages.TableCol_SizeGCNO, Messages.TableCol_SizeGCDA };
 		for (int i = 0; i < titles.length; i++)
 		{
 			TableColumn column = new TableColumn(table, SWT.NONE);
@@ -93,7 +94,7 @@ public class GcovFileView extends ViewPart implements ISelectionListener
 				Point pt = new Point(event.x, event.y);
 				TableItem item = table.getItem(pt);
 				IFile file = (IFile) item.getData();
-				
+
 				if (item != null && file != null)
 				{
 					try
@@ -150,7 +151,7 @@ public class GcovFileView extends ViewPart implements ISelectionListener
 			ISelectionService selectionService = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
 					.getSelectionService();
 			IStructuredSelection structuredSelection = (IStructuredSelection) selectionService
-					.getSelection("org.eclipse.ui.navigator.ProjectExplorer");
+					.getSelection("org.eclipse.ui.navigator.ProjectExplorer"); //$NON-NLS-1$
 
 			if (structuredSelection != null && !structuredSelection.isEmpty())
 			{
@@ -166,7 +167,7 @@ public class GcovFileView extends ViewPart implements ISelectionListener
 			{
 				setSelectedProject(GcovUtility.getSelectedProject());
 			}
-			
+
 			// If no project is selected, ask the user to choose one
 			if (getSelectedProject() == null)
 			{
@@ -175,7 +176,7 @@ public class GcovFileView extends ViewPart implements ISelectionListener
 						PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
 						new org.eclipse.ui.model.WorkbenchLabelProvider());
 				dialog.setElements(root.getProjects());
-				dialog.setTitle("Select a Project");
+				dialog.setTitle(Messages.Dialog_SelectProject_Title);
 
 				// only continue if the user pressed "OK"
 				if (dialog.open() != Window.OK)
@@ -203,49 +204,48 @@ public class GcovFileView extends ViewPart implements ISelectionListener
 							if ("gcno".equals(file.getFileExtension()))
 							{
 								String parentDir = file.getParent().getRawLocation().toString();
-								String partnerFile = parentDir + "/"
-										+ file.getName().substring(0, file.getName().indexOf(".gcno")) + ".gcda";
+								String partnerFile = parentDir + "/" //$NON-NLS-1$
+										+ file.getName().substring(0, file.getName().indexOf(".gcno")) + ".gcda"; //$NON-NLS-1$ //$NON-NLS-2$
 								if (Files.exists(Paths.get(partnerFile)))
 								{
 									TableItem item = new TableItem(table, SWT.NONE);
 									Image image = PlatformUI.getWorkbench().getEditorRegistry()
 											.getImageDescriptor(file.getName()).createImage();
 									item.setImage(0, image);
-									item.setText(0, file.getName().substring(0, file.getName().indexOf(".gcno")));
+									item.setText(0, file.getName().substring(0, file.getName().indexOf(".gcno"))); //$NON-NLS-1$
 									item.setText(1, file.getParent().getFullPath().toString());
 
 									// gcno
 									IFileInfo fileInfo = EFS.getLocalFileSystem().getStore(file.getLocationURI())
 											.fetchInfo();
-									SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-									String date = sdf.format(new Date(fileInfo.getLastModified()));
+									String date = DateFormat.getDateTimeInstance().format(new Date(fileInfo.getLastModified()));
 									item.setText(2, date);
 
 									// gcda
 									fileInfo = EFS.getLocalFileSystem().getStore(Path.fromOSString(partnerFile))
 											.fetchInfo();
-									item.setText(3, sdf.format(new Date(fileInfo.getLastModified())));
+									item.setText(3, DateFormat.getDateTimeInstance().format(new Date(fileInfo.getLastModified())));
 
 									java.nio.file.Path path = Paths.get(file.getRawLocationURI());
 									try
 									{
 										long size = Files.size(path);
-										item.setText(4, String.valueOf(size) + " bytes");
+										item.setText(4, String.valueOf(size) + " bytes"); //$NON-NLS-1$
 									}
 									catch (Exception e)
 									{
-										item.setText(4, "Unknown");
+										item.setText(4, Messages.Table_Unknown);
 									}
 
 									path = Paths.get(partnerFile);
 									try
 									{
 										long size = Files.size(path);
-										item.setText(5, String.valueOf(size) + " bytes");
+										item.setText(5, String.valueOf(size) + " bytes"); //$NON-NLS-1$
 									}
 									catch (Exception e)
 									{
-										item.setText(5, "Unknown");
+										item.setText(5, Messages.Table_Unknown);
 									}
 
 									item.setData(file);
