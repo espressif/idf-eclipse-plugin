@@ -14,13 +14,13 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
    
-    - name: Set up JDK 11
-      uses: actions/setup-java@v2
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
       with:
-        java-version: '11'
-        distribution: 'adopt'
+        java-version: '17'
+        distribution: 'temurin'
    
     - name: Build with Maven
       run: |
@@ -150,3 +150,7 @@ jobs:
         aws s3 cp --acl=public-read "./releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64-${FOLDER_NAME}.dmg" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
         aws s3 cp --acl=public-read "./releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64-${FOLDER_NAME}.dmg" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
         aws cloudfront create-invalidation --distribution-id ${{ secrets.DL_DISTRIBUTION_ID }} --paths "/dl/idf-eclipse-plugin/updates/latest/*"
+        aws s3api put-object --acl=public-read  --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-win32.win32.x86_64/latest"  --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-${ARCHIVE_VERSION}-win32.win32.x86_64.zip"
+        aws s3api put-object --acl=public-read  --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-x86_64/latest"  --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-x86_64-v${ARCHIVE_VERSION}.dmg"
+        aws s3api put-object --acl=public-read  --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64/latest"  --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64-v${ARCHIVE_VERSION}.dmg"
+        aws s3api put-object --acl=public-read  --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-linux.gtk.x86_64/latest"  --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-${ARCHIVE_VERSION}-linux.gtk.x86_64.tar.gz"

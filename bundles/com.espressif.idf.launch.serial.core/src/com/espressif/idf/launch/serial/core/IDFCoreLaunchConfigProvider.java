@@ -17,29 +17,35 @@ import org.eclipse.launchbar.core.target.ILaunchTarget;
 
 import com.espressif.idf.core.IDFCorePlugin;
 
-public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigProvider {
+public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigProvider
+{
 
 	private Map<IProject, Map<String, ILaunchConfiguration>> configs = new HashMap<>();
 
 	@Override
 	public ILaunchConfiguration getLaunchConfiguration(ILaunchDescriptor descriptor, ILaunchTarget target)
-			throws CoreException {
+			throws CoreException
+	{
 
 		ILaunchConfiguration configuration = null;
 		IProject project = descriptor.getAdapter(IProject.class);
-		if (project != null) {
+		if (project != null)
+		{
 			Map<String, ILaunchConfiguration> projectConfigs = configs.get(project);
-			if (projectConfigs == null) {
+			if (projectConfigs == null)
+			{
 				projectConfigs = new HashMap<>();
 				configs.put(project, projectConfigs);
 			}
 
 			String targetConfig = descriptor.getName();
 			configuration = projectConfigs.get(targetConfig);
-			if (configuration == null) {
-				//do we already have one with the descriptor?
+			if (configuration == null)
+			{
+				// do we already have one with the descriptor?
 				configuration = descriptor.getAdapter(ILaunchConfiguration.class);
-				if (configuration == null) {
+				if (configuration == null)
+				{
 					configuration = createLaunchConfiguration(descriptor, target);
 				}
 				projectConfigs.put(configuration.getName(), configuration);
@@ -50,7 +56,8 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 
 	@Override
 	protected void populateLaunchConfiguration(ILaunchDescriptor descriptor, ILaunchTarget target,
-			ILaunchConfigurationWorkingCopy workingCopy) throws CoreException {
+			ILaunchConfigurationWorkingCopy workingCopy) throws CoreException
+	{
 		super.populateLaunchConfiguration(descriptor, target, workingCopy);
 
 		// Set the project
@@ -61,37 +68,46 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 	}
 
 	@Override
-	public boolean launchConfigurationAdded(ILaunchConfiguration configuration) throws CoreException {
-		if (configuration.getMappedResources() == null) {
+	public boolean launchConfigurationAdded(ILaunchConfiguration configuration) throws CoreException
+	{
+		if (configuration.getMappedResources() == null)
+		{
 			return false;
 		}
 		IProject project = configuration.getMappedResources()[0].getProject();
-		if (project != null && !project.isOpen()) {
+		if (project != null && !project.isOpen())
+		{
 			return true;
 		}
-		if (ownsLaunchConfiguration(configuration)) {
-
+		if (configuration.exists())
+		{
 			Map<String, ILaunchConfiguration> projectConfigs = configs.get(project);
-			if (projectConfigs == null) {
+			if (projectConfigs == null)
+			{
 				projectConfigs = new HashMap<>();
 				configs.put(project, projectConfigs);
 			}
 
 			projectConfigs.put(configuration.getName(), configuration);
-			return true;
 		}
-		return false;
+
+		return ownsLaunchConfiguration(configuration);
 	}
 
 	@Override
-	public boolean launchConfigurationRemoved(ILaunchConfiguration configuration) throws CoreException {
+	public boolean launchConfigurationRemoved(ILaunchConfiguration configuration) throws CoreException
+	{
 		ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
-		for (Entry<IProject, Map<String, ILaunchConfiguration>> projectEntry : configs.entrySet()) {
+		for (Entry<IProject, Map<String, ILaunchConfiguration>> projectEntry : configs.entrySet())
+		{
 			Map<String, ILaunchConfiguration> projectConfigs = projectEntry.getValue();
-			for (Entry<String, ILaunchConfiguration> entry : projectConfigs.entrySet()) {
-				if (configuration.equals(entry.getValue())) {
+			for (Entry<String, ILaunchConfiguration> entry : projectConfigs.entrySet())
+			{
+				if (configuration.equals(entry.getValue()))
+				{
 					projectConfigs.remove(entry.getKey());
-					if (projectConfigs.isEmpty()) {
+					if (projectConfigs.isEmpty())
+					{
 						configs.remove(projectEntry.getKey());
 						launchBarManager.launchObjectRemoved(projectEntry.getKey());
 					}
@@ -103,22 +119,32 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 	}
 
 	@Override
-	public boolean launchConfigurationChanged(ILaunchConfiguration configuration) throws CoreException {
+	public boolean launchConfigurationChanged(ILaunchConfiguration configuration) throws CoreException
+	{
 		// nothing to do
 		return false;
 	}
 
 	@Override
-	public void launchDescriptorRemoved(ILaunchDescriptor descriptor) throws CoreException {
+	public void launchDescriptorRemoved(ILaunchDescriptor descriptor) throws CoreException
+	{
 		IProject project = descriptor.getAdapter(IProject.class);
-		if (project != null) {
-			configs.remove(project);
+		if (project == null)
+		{
+			return;
 		}
+		Map<String, ILaunchConfiguration> projectConfigs = configs.get(project);
+		if (projectConfigs != null)
+		{
+			projectConfigs.remove(descriptor.getName());
+		}
+
 	}
 
 	@Override
-	public void launchTargetRemoved(ILaunchTarget target) throws CoreException {
-		//Nothing to do
+	public void launchTargetRemoved(ILaunchTarget target) throws CoreException
+	{
+		// Nothing to do
 	}
 
 }

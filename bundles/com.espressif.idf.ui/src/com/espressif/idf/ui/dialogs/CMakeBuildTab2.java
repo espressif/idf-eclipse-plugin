@@ -13,13 +13,14 @@ package com.espressif.idf.ui.dialogs;
 import java.util.Map;
 
 import org.eclipse.cdt.cmake.core.internal.CMakeBuildConfiguration;
-import org.eclipse.cdt.core.build.ICBuildConfiguration;
 import org.eclipse.cdt.debug.core.launch.CoreBuildLaunchConfigDelegate;
 import org.eclipse.cdt.launch.ui.corebuild.CommonBuildTab;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.launchbar.core.ILaunchBarManager;
+import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -32,12 +33,18 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.build.IDFBuildConfigurationProvider;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.RecheckConfigsHelper;
+import com.espressif.idf.core.util.StringUtil;
 
-public class CMakeBuildTab2 extends CommonBuildTab {
+@SuppressWarnings("restriction")
+public class CMakeBuildTab2 extends CommonBuildTab
+{
 
+	private static final String UNIX_MAKEFILES = "Unix Makefiles"; //$NON-NLS-1$
+	private static final String NINJA = "Ninja"; //$NON-NLS-1$
 	private Button unixGenButton;
 	private Button ninjaGenButton;
 	private Text cmakeArgsText;
@@ -45,12 +52,14 @@ public class CMakeBuildTab2 extends CommonBuildTab {
 	private Text cleanCommandText;
 
 	@Override
-	protected String getBuildConfigProviderId() {
+	protected String getBuildConfigProviderId()
+	{
 		return IDFBuildConfigurationProvider.ID;
 	}
 
 	@Override
-	public void createControl(Composite parent) {
+	public void createControl(Composite parent)
+	{
 		Composite comp = new Composite(parent, SWT.NONE);
 		comp.setLayout(new GridLayout());
 		setControl(comp);
@@ -71,18 +80,22 @@ public class CMakeBuildTab2 extends CommonBuildTab {
 
 		unixGenButton = new Button(genComp, SWT.RADIO);
 		unixGenButton.setText(Messages.CMakeBuildTab2_UnixMakeFiles);
-		unixGenButton.addSelectionListener(new SelectionAdapter() {
+		unixGenButton.addSelectionListener(new SelectionAdapter()
+		{
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(SelectionEvent e)
+			{
 				updateLaunchConfigurationDialog();
 			}
 		});
 
 		ninjaGenButton = new Button(genComp, SWT.RADIO);
 		ninjaGenButton.setText(Messages.CMakeBuildTab2_Ninja);
-		ninjaGenButton.addSelectionListener(new SelectionAdapter() {
+		ninjaGenButton.addSelectionListener(new SelectionAdapter()
+		{
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(SelectionEvent e)
+			{
 				updateLaunchConfigurationDialog();
 			}
 		});
@@ -110,12 +123,8 @@ public class CMakeBuildTab2 extends CommonBuildTab {
 	}
 
 	@Override
-	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
-		// TODO
-	}
-
-	@Override
-	public void initializeFrom(ILaunchConfiguration configuration) {
+	public void setDefaults(ILaunchConfigurationWorkingCopy configuration)
+	{
 		try
 		{
 			IProject project = CoreBuildLaunchConfigDelegate.getProject(configuration);
@@ -126,77 +135,113 @@ public class CMakeBuildTab2 extends CommonBuildTab {
 			Logger.log(e);
 		}
 
-		super.initializeFrom(configuration);
-		ICBuildConfiguration buildConfig = getBuildConfiguration();
-		String generator = buildConfig.getProperty(CMakeBuildConfiguration.CMAKE_GENERATOR);
-		updateGeneratorButtons(generator);
-
-		String cmakeArgs = buildConfig.getProperty(CMakeBuildConfiguration.CMAKE_ARGUMENTS);
-		if (cmakeArgs != null) {
-			cmakeArgsText.setText(cmakeArgs);
-		} else {
-			cmakeArgsText.setText(""); //$NON-NLS-1$
-		}
-
-		String buildCommand = buildConfig.getProperty(CMakeBuildConfiguration.BUILD_COMMAND);
-		if (buildCommand != null) {
-			buildCommandText.setText(buildCommand);
-		} else {
-			buildCommandText.setText(""); //$NON-NLS-1$
-		}
-
-		String cleanCommand = buildConfig.getProperty(CMakeBuildConfiguration.CLEAN_COMMAND);
-		if (cleanCommand != null) {
-			cleanCommandText.setText(buildCommand != null ? buildCommand : "");  //$NON-NLS-1$
-		} else {
-			cleanCommandText.setText(""); //$NON-NLS-1$
-		}
+		configuration.setAttribute(CMakeBuildConfiguration.CMAKE_GENERATOR, NINJA);
 	}
 
-	private void updateGeneratorButtons(String generator) {
-		if (generator == null || generator.equals("Ninja")) { //$NON-NLS-1$
+	@Override
+	public void initializeFrom(ILaunchConfiguration configuration)
+	{
+
+		super.initializeFrom(configuration);
+		try
+		{
+			IProject project = CoreBuildLaunchConfigDelegate.getProject(configuration);
+			RecheckConfigsHelper.revalidateToolchain(project);
+
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+		try
+		{
+			String generator = configuration.getAttribute(CMakeBuildConfiguration.CMAKE_GENERATOR, StringUtil.EMPTY);
+			updateGeneratorButtons(generator);
+
+			String cmakeArgs = configuration.getAttribute(CMakeBuildConfiguration.CMAKE_ARGUMENTS, StringUtil.EMPTY);
+			cmakeArgsText.setText(cmakeArgs);
+
+			String buildCommand = configuration.getAttribute(CMakeBuildConfiguration.BUILD_COMMAND, StringUtil.EMPTY);
+			buildCommandText.setText(buildCommand);
+
+			String cleanCommand = configuration.getAttribute(CMakeBuildConfiguration.CLEAN_COMMAND, StringUtil.EMPTY);
+			cleanCommandText.setText(cleanCommand);
+
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+
+	}
+
+	private void updateGeneratorButtons(String generator)
+	{
+		if (generator == null || generator.equals(NINJA) || generator.isBlank())
+		{
 			ninjaGenButton.setSelection(true);
-		} else {
+		}
+		else
+		{
 			unixGenButton.setSelection(true);
 		}
 	}
 
 	@Override
-	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
+	public void performApply(ILaunchConfigurationWorkingCopy configuration)
+	{
 		super.performApply(configuration);
 
-		ICBuildConfiguration buildConfig = getBuildConfiguration();
+		try
+		{
+			IProject project = CoreBuildLaunchConfigDelegate.getProject(configuration);
+			RecheckConfigsHelper.revalidateToolchain(project);
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
 
-		buildConfig.setProperty(CMakeBuildConfiguration.CMAKE_GENERATOR,
-				ninjaGenButton.getSelection() ? "Ninja" : "Unix Makefiles"); //$NON-NLS-1$ //$NON-NLS-2$
+		configuration.setAttribute(CMakeBuildConfiguration.CMAKE_GENERATOR,
+				ninjaGenButton.getSelection() ? NINJA : UNIX_MAKEFILES);
 
 		String cmakeArgs = cmakeArgsText.getText().trim();
-		if (!cmakeArgs.isEmpty()) {
-			buildConfig.setProperty(CMakeBuildConfiguration.CMAKE_ARGUMENTS, cmakeArgs);
-		} else {
-			buildConfig.removeProperty(CMakeBuildConfiguration.CMAKE_ARGUMENTS);
+		if (!cmakeArgs.isEmpty())
+		{
+			configuration.setAttribute(CMakeBuildConfiguration.CMAKE_ARGUMENTS, cmakeArgs);
+		}
+		else
+		{
+			configuration.removeAttribute(CMakeBuildConfiguration.CMAKE_ARGUMENTS);
 		}
 
 		String buildCommand = buildCommandText.getText().trim();
-		if (!buildCommand.isEmpty()) {
-			buildConfig.setProperty(CMakeBuildConfiguration.BUILD_COMMAND, buildCommand);
-		} else {
-			buildConfig.removeProperty(CMakeBuildConfiguration.BUILD_COMMAND);
+		if (!buildCommand.isEmpty())
+		{
+			configuration.setAttribute(CMakeBuildConfiguration.BUILD_COMMAND, buildCommand);
+		}
+		else
+		{
+			configuration.removeAttribute(CMakeBuildConfiguration.BUILD_COMMAND);
 		}
 
 		String cleanCommand = cleanCommandText.getText().trim();
-		if (!cleanCommand.isEmpty()) {
-			buildConfig.setProperty(CMakeBuildConfiguration.CLEAN_COMMAND, cleanCommand);
-		} else {
-			buildConfig.removeProperty(CMakeBuildConfiguration.CLEAN_COMMAND);
+		if (!cleanCommand.isEmpty())
+		{
+			configuration.setAttribute(CMakeBuildConfiguration.CLEAN_COMMAND, cleanCommand);
 		}
+		else
+		{
+			configuration.removeAttribute(CMakeBuildConfiguration.CLEAN_COMMAND);
+		}
+
 	}
 
 	@Override
-	protected void saveProperties(Map<String, String> properties) {
+	protected void saveProperties(Map<String, String> properties)
+	{
 		super.saveProperties(properties);
-		properties.put(CMakeBuildConfiguration.CMAKE_GENERATOR,
-				ninjaGenButton.getSelection() ? "Ninja" : "Unix Makefiles"); //$NON-NLS-1$ //$NON-NLS-2$
+		properties.put(CMakeBuildConfiguration.CMAKE_GENERATOR, ninjaGenButton.getSelection() ? NINJA : UNIX_MAKEFILES);
 
 		properties.put(CMakeBuildConfiguration.CMAKE_ARGUMENTS, cmakeArgsText.getText().trim());
 		properties.put(CMakeBuildConfiguration.BUILD_COMMAND, buildCommandText.getText().trim());
@@ -204,47 +249,75 @@ public class CMakeBuildTab2 extends CommonBuildTab {
 	}
 
 	@Override
-	protected void restoreProperties(Map<String, String> properties) {
+	protected void restoreProperties(Map<String, String> properties)
+	{
 		super.restoreProperties(properties);
 
 		String gen = properties.get(CMakeBuildConfiguration.CMAKE_GENERATOR);
-		if (gen != null) {
-			switch (gen) {
-			case "Ninja": //$NON-NLS-1$
-				ninjaGenButton.setSelection(true);
-				unixGenButton.setSelection(false);
-				break;
-			case "Unix Makefiles": //$NON-NLS-1$
+		if (gen != null)
+		{
+			switch (gen)
+			{
+			case UNIX_MAKEFILES:
 				ninjaGenButton.setSelection(false);
 				unixGenButton.setSelection(true);
+				break;
+			default:
+				ninjaGenButton.setSelection(true);
+				unixGenButton.setSelection(false);
 				break;
 			}
 		}
 
 		String cmakeArgs = properties.get(CMakeBuildConfiguration.CMAKE_ARGUMENTS);
-		if (cmakeArgs != null) {
+		if (cmakeArgs != null)
+		{
 			cmakeArgsText.setText(cmakeArgs);
-		} else {
-			cmakeArgsText.setText(""); //$NON-NLS-1$
+		}
+		else
+		{
+			cmakeArgsText.setText(StringUtil.EMPTY);
 		}
 
 		String buildCmd = properties.get(CMakeBuildConfiguration.BUILD_COMMAND);
-		if (buildCmd != null) {
+		if (buildCmd != null)
+		{
 			buildCommandText.setText(buildCmd);
-		} else {
-			buildCommandText.setText(""); //$NON-NLS-1$
+		}
+		else
+		{
+			buildCommandText.setText(StringUtil.EMPTY);
 		}
 
 		String cleanCmd = properties.get(CMakeBuildConfiguration.CLEAN_COMMAND);
-		if (cleanCmd != null) {
+		if (cleanCmd != null)
+		{
 			cleanCommandText.setText(cleanCmd);
-		} else {
-			cleanCommandText.setText(""); //$NON-NLS-1$
+		}
+		else
+		{
+			cleanCommandText.setText(StringUtil.EMPTY);
 		}
 	}
 
 	@Override
-	public String getName() {
+	public ILaunchTarget getLaunchTarget()
+	{
+		ILaunchBarManager barManager = IDFCorePlugin.getService(ILaunchBarManager.class);
+		try
+		{
+			return barManager.getActiveLaunchTarget();
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+		return super.getLaunchTarget();
+	}
+
+	@Override
+	public String getName()
+	{
 		return "CMake"; //$NON-NLS-1$
 	}
 

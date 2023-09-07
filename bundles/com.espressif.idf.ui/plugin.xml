@@ -395,6 +395,39 @@
                </with>
             </visibleWhen>
          </command>
+         <command
+               commandId="com.espressif.idf.ui.partitionTableEditorCommand"
+               icon="icons/ESP-IDF_Partition_Table_Editor.png"
+               label="%command.label.PartitionTableEditor"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <iterate
+                     ifEmpty="false"
+                     operator="or">
+                  <instanceof
+                        value="org.eclipse.core.resources.IResource">
+                  </instanceof>
+               </iterate>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="com.espressif.idf.ui.nvsEditorCommand"
+               icon="icons/ESP-IDF_NVS_Table_Editor.png"
+               label="%command.label.nsvTableEditor"
+               style="push"
+               tooltip="%command.tooltip.nvsTableEditor">
+            <visibleWhen
+                  checkEnabled="false">
+               <iterate
+                     ifEmpty="false"
+                     operator="or">
+                  <instanceof
+                        value="org.eclipse.core.resources.IResource">
+                  </instanceof>
+               </iterate>
+            </visibleWhen>
+         </command>
       </menuContribution>
    </extension>
    <extension
@@ -471,23 +504,28 @@
     <extension
          point="org.eclipse.ui.commands">
       <command
-            categoryId="com.espressif.commands.category"
             id="com.espressif.commands.cleanCommand"
             name="%command.name.5">
       </command>
       <command
-            categoryId="com.espressif.commands.category"
             id="com.espressif.commands.fullcleanCommand"
             name="%command.name.11">
       </command>
       <command
-            categoryId="com.espressif.commands.category"
             id="com.espressif.commands.pythoncleanCommand"
             name="%command.name.12">
       </command>
       <command
             id="org.eclipse.ltk.ui.refactoring.commands.deleteResources"
             name="%command.name.delete">
+      </command>
+      <command
+            id="com.espressif.idf.ui.partitionTableEditorCommand"
+            name="%command.name.PartitionTableEditor">
+      </command>
+      <command
+            id="com.espressif.idf.ui.nvsEditorCommand"
+            name="%command.name.nvsTableEditor">
       </command>
    </extension>
    <extension
@@ -522,19 +560,15 @@
 			</with>
 	</activeWhen>
       </handler>
+       <handler
+             class="com.espressif.idf.ui.partitiontable.handlers.PartitionTableEditorHandler"
+             commandId="com.espressif.idf.ui.partitionTableEditorCommand">
+       </handler>
+       <handler
+             class="com.espressif.idf.ui.nvs.handlers.NvsEditorHandler"
+             commandId="com.espressif.idf.ui.nvsEditorCommand">
+       </handler>
     </extension>
-   <extension
-         point="org.eclipse.ui.commands">
-      <command
-            defaultHandler="com.espressif.idf.ui.handlers.DfuCommandHandler"
-            id="com.espressif.idf.ui.command.dfu"
-            name="%command.name.13">
-         <state
-               class="org.eclipse.ui.handlers.RegistryToggleState"
-               id="org.eclipse.ui.commands.toggleState">
-         </state>
-      </command>
-   </extension>
    <extension
          point="org.eclipse.ui.commands">
       <category
@@ -650,24 +684,6 @@
          </toolbar>
       </menuContribution>
    </extension>
-   <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            allPopups="false"
-            locationURI="toolbar:org.eclipse.ui.main.toolbar">
-         <toolbar
-               id="com.espressif.idf.ui.toolbar">
-            <command
-                  commandId="com.espressif.idf.ui.command.dfu"
-                  helpContextId="DFU"
-                  icon="icons/ESP-IDF_DFU.png"
-                  label="%command.label.11"
-                  style="toggle"
-                  tooltip="%command.tooltip.2">
-            </command>
-         </toolbar>
-      </menuContribution>
-      </extension>
       <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester

@@ -2,7 +2,7 @@
 <feature
       id="com.espressif.idf.feature"
       label="Espressif IDF Plugins for Eclipse"
-      version="2.7.0.qualifier"
+      version="2.11.0.qualifier"
       provider-name="ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD"
       plugin="com.espressif.idf.branding">
 
@@ -184,6 +184,13 @@ You may add additional accurate notices of copyright ownership.
 
    <plugin
          id="com.espressif.idf.serial.monitor"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.espressif.idf.wokwi"
          download-size="0"
          install-size="0"
          version="0.0.0"

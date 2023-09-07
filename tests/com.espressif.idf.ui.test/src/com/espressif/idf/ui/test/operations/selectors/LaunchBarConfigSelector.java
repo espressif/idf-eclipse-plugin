@@ -66,7 +66,7 @@ public class LaunchBarConfigSelector extends AbstractSWTBotControl<CSelector>
 
 	public void clickEdit()
 	{
-		bot().buttonWithId(LaunchBarWidgetIds.EDIT).click(); // $NON-NLS-1$
+		bot().canvasWithId(LaunchBarWidgetIds.EDIT).click();
 	}
 
 	private void clickOnInternalWidget(int x, int y, Widget internalWidget)

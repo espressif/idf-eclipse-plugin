@@ -22,9 +22,12 @@ import org.eclipse.core.resources.IBuildConfiguration;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Platform;
+import org.eclipse.launchbar.core.ILaunchBarManager;
+import org.eclipse.launchbar.core.target.ILaunchTarget;
 
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.toolchain.ESPToolchain;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -52,25 +55,42 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 		{
 			IToolChain toolChain = null;
 
-			// try the toolchain for the local target
-			Map<String, String> properties = new HashMap<>();
-			properties.put(IToolChain.ATTR_OS, Platform.getOS());
-			properties.put(IToolChain.ATTR_ARCH, Platform.getOSArch());
+			// try the toolchain for the current target
 			IToolChainManager toolChainManager = IDFCorePlugin.getService(IToolChainManager.class);
-			for (IToolChain tc : toolChainManager.getToolChainsMatching(properties))
+			ILaunchBarManager barManager = IDFCorePlugin.getService(ILaunchBarManager.class);
+			try
 			{
-				toolChain = tc;
-				break;
+				ILaunchTarget target = barManager.getActiveLaunchTarget();
+				if (target == null)
+				{
+					return null;
+				}
+				for (IToolChain tc : toolChainManager.getToolChainsMatching(target.getAttributes()))
+				{
+					if (tc instanceof ESPToolchain)
+					{
+						toolChain = tc;
+						break;
+					}
+				}
+			}
+			catch (CoreException e)
+			{
+				Logger.log(e);
 			}
 
-			// local didn't work, try and find one that does
+			// current didn't work, try and find one that does
 			if (toolChain == null)
 			{
 				for (IToolChain tc : toolChainManager.getToolChainsMatching(new HashMap<>()))
 				{
-					toolChain = tc;
-					break;
+					if (tc instanceof ESPToolchain)
+					{
+						toolChain = tc;
+						break;
+					}
 				}
+
 			}
 
 			if (toolChain != null)
@@ -134,7 +154,7 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 		IBuildConfiguration buildConfig;
 		if (configManager.hasConfiguration(this, project, name))
 		{
-			buildConfig = project.getActiveBuildConfig();
+			buildConfig = project.getBuildConfig(ID + '/' + name);
 		}
 		else
 		{

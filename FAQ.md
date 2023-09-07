@@ -186,3 +186,25 @@ This occurs basically because the directory `/etc/udev/` requires elevated permi
 - Select `WHO_PATH` from the preferences list and click on Edit and Click Ok without changing any value(There is a bug in CDT that is appending a null value before the path hence we need to click on edit and save it.)
 - Open `CMakeLists.txt` from the project root and change this from `set(EXTRA_COMPONENT_DIRS ../../../components)` to `set(EXTRA_COMPONENT_DIRS $ENV{WHO_PATH}/components)` in the line 5
 - Select the target and click on build. 
+
+# How to Enable the LaunchBar in Espressif-IDE
+By default, LaunchBar is enabled in Espressif-IDE and Eclipse CDT. However, in some of the Linux versions, this seems to be disabled. Please follow the below instructions to enable the LaunBar.
+- Go to `Preferences...`
+- Navigate to `Run/Debug > Launching > LaunchBar`
+- Check `Enable the LaunchBar`
+- Click `Apply and Close`
+
+# How to disable the Unresolved Symbol error markers
+When working with **ESP-IDF 5.0 and higher using the Espressif-IDE**, you may come across unresolved symbol issues with certain projects. This is because ESP-IDF 5.0 and higher use some of the **C/C++ 20 language features** that are not yet supported by the Eclipse CDT Indexer. These unresolved symbols will only appear in the indexer and should not cause any build failures.
+
+To resolve this issue, you can try disabling Unresolved Symbol error marker.
+
+- Go to `Preferences...`
+- Navigate to `C/C++ > Code Analysis`
+- Look for `Symbol is not resolved` from the problems list
+- Change the Severity from `Error` to `Warning`
+- Click `Apply and Close`
+
+When IDE parser add the support for C/C++ 20 language features, you can revert the above change.
+
+![](docs/images/code_analysis_disable_symbols.png)

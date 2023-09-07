@@ -1,7 +1,5 @@
 package com.espressif.idf.serial.monitor.handlers;
 
-import java.io.IOException;
-
 import org.eclipse.core.resources.IProject;
 
 import com.espressif.idf.core.logging.Logger;
@@ -38,7 +36,7 @@ public class SerialMonitorHandler
 		{
 			return monitor.start();
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
 			Logger.log(e);
 		}

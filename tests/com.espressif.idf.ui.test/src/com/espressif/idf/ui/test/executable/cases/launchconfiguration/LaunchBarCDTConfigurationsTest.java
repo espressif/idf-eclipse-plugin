@@ -68,28 +68,6 @@ public class LaunchBarCDTConfigurationsTest
 		Fixture.selectProjectFromLaunchBar("TestProject");
 	}
 
-//	@Test
-//	public void givenTwoProjectsAreCreatedAndBuiltUsingToolbarButtonBySelectingOlderProjectFirstFromTheLaunchbarThenOlderProjectIsBuiltFirst()
-//			throws Exception
-//	{
-//		Fixture.givenProjectNameIs("TestProject");
-//		Fixture.whenProjectIsCreatedFromTemplate();
-//		Fixture.givenProjectNameIs("TestProject2");
-//		Fixture.whenProjectIsCreatedFromTemplate();
-//		Fixture.thenLaunchDescriptorContainsConfig("TestProject");
-//		Fixture.thenLaunchDescriptorContainsConfig("TestProject2");
-//		Fixture.selectProjectFromLaunchBar("TestProject");
-//		Fixture.whenProjectIsBuiltUsingToolbarButton();
-//
-//		Fixture.thenConsoleShowsBuildSuccessful();
-//		Fixture.thenConsoleShowsProjectNameInConsole("TestProject");
-//		Fixture.selectProjectFromLaunchBar("TestProject2");
-//		Fixture.whenProjectIsBuiltUsingToolbarButton();
-//
-//		Fixture.thenConsoleShowsBuildSuccessful();
-//		Fixture.thenConsoleShowsProjectNameInConsole("TestProject2");
-//	}
-
 	@Test
 	public void creatingNewEspLaunchTarget()
 	{
@@ -139,12 +117,16 @@ public class LaunchBarCDTConfigurationsTest
 
 		private static void givenNewLaunchTargetComPortIsSetTo(String comPort)
 		{
-			bot.comboBoxWithLabel("Serial Port:").setText(comPort);
+			
+			if (bot.comboBoxWithLabel("Serial Port:").itemCount() != 0)
+			{
+				bot.comboBoxWithLabel("Serial Port:").setSelection(0);
+			}
 		}
 
 		private static void thenLaunchTargetIsSelectedFromLaunchTargets(String launchTargetName)
 		{
-			launchBarTargetSelector.select(launchTargetName);
+			launchBarTargetSelector.selectTarget(launchTargetName);
 		}
 
 		private static void thenLaunchTargetContains(String launchTargetName)

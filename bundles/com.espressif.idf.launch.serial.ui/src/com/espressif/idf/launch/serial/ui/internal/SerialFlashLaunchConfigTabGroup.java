@@ -15,17 +15,26 @@
  *******************************************************************************/
 package com.espressif.idf.launch.serial.ui.internal;
 
+import org.eclipse.cdt.launch.ui.corebuild.CoreBuildTab;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
 import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.EnvironmentTab;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
+import org.eclipse.launchbar.ui.internal.LaunchBarLaunchConfigDialog;
 
+@SuppressWarnings("restriction")
 public class SerialFlashLaunchConfigTabGroup extends AbstractLaunchConfigurationTabGroup {
 
 	@Override
 	public void createTabs(ILaunchConfigurationDialog dialog, String mode) {
-		setTabs(new ILaunchConfigurationTab[] { new CMakeMainTab2(), new EnvironmentTab(), new CommonTab() });
+		if (dialog instanceof LaunchBarLaunchConfigDialog) {
+			setTabs(new ILaunchConfigurationTab[] { new CMakeMainTab2(), new EnvironmentTab(), new CommonTab() });
+		} else {
+			setTabs(new ILaunchConfigurationTab[] { new CoreBuildTab(), new CMakeMainTab2(), new EnvironmentTab(),
+					new CommonTab() });
+		}
+
 	}
 
 }

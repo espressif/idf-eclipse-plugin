@@ -16,7 +16,6 @@
 package com.espressif.idf.debug.gdbjtag.openocd.dsf;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -25,7 +24,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
-import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.dsf.concurrent.DataRequestMonitor;
 import org.eclipse.cdt.dsf.concurrent.ImmediateExecutor;
 import org.eclipse.cdt.dsf.concurrent.Query;
@@ -42,7 +40,6 @@ import org.eclipse.cdt.dsf.gdb.service.command.IGDBControl;
 import org.eclipse.cdt.dsf.service.DsfServicesTracker;
 import org.eclipse.cdt.dsf.service.DsfSession;
 import org.eclipse.cdt.utils.spawner.ProcessFactory;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -54,7 +51,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.ISourceLocator;
 import org.eclipse.embedcdt.core.StringUtils;
@@ -62,10 +58,6 @@ import org.eclipse.embedcdt.debug.gdbjtag.core.DebugUtils;
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.AbstractGnuMcuLaunchConfigurationDelegate;
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuServerServicesLaunchSequence;
 
-import com.espressif.idf.core.IDFConstants;
-import com.espressif.idf.core.util.GenericJsonReader;
-import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
 import com.espressif.idf.debug.gdbjtag.openocd.ui.Messages;
@@ -298,30 +290,11 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		{
 			monitor = new NullProgressMonitor();
 		}
-		if (config.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, "").isEmpty()) //$NON-NLS-1$
-		{
-			setProgramNameAtr(config);
-		}
+
 		if (mode.equals(ILaunchManager.DEBUG_MODE) || mode.equals(ILaunchManager.RUN_MODE))
 		{
 			launchDebugger(config, launch, monitor);
 		}
-	}
-
-	private void setProgramNameAtr(ILaunchConfiguration config) throws CoreException
-	{
-		ILaunchConfigurationWorkingCopy wc = config.getWorkingCopy();
-		IProject project = config.getMappedResources()[0].getProject();
-		String programName = ""; //$NON-NLS-1$
-		GenericJsonReader jsonReader = new GenericJsonReader(
-				IDFUtil.getBuildDir(project) + File.separator + IDFConstants.PROECT_DESCRIPTION_JSON);
-		String value = jsonReader.getValue("app_elf"); //$NON-NLS-1$
-		if (!StringUtil.isEmpty(value))
-		{
-			programName = IDFConstants.BUILD_FOLDER + File.separator + value;
-		}
-		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, programName);
-		wc.doSave();
 	}
 
 	private void launchDebugger(ILaunchConfiguration config, ILaunch launch, IProgressMonitor monitor)

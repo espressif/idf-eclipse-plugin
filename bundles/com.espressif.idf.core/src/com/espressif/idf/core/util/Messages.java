@@ -18,11 +18,36 @@ public class Messages extends NLS {
 	public static String FileUtil_SourceDirNotavailable;
 	public static String FileUtil_UnableToCopy;
 	public static String FileUtil_WritableProblemMsg;
+	public static String IDFUtil_CantFindProjectMsg;
 	public static String IDFUtil_CouldNotFindDir;
 	public static String MsgLinkDialog_DoNotShowMsg;
 	public static String DfuWarningDialog_Title;
 	public static String DfuWarningDialog_WrongTargterMsg;
+	public static String NameValidationError_1;
+	public static String NameValidationError_2;
+	public static String OffSetValidationError_1;
+	public static String SizeValidationError_1;
+	public static String SizeValidationError_2;
+	public static String SubTypeValidationError_1;
+	public static String SubTypeValidationError_2;
+	public static String SubTypeValidationError_3;
+	public static String SubTypeValidationError_4;
+	public static String TypeValidationError_1;
+	public static String TypeValidationError_2;
+	public static String NvsValidation_FirstBeanValidationErr;
+	public static String NvsValidation_ValueValidationErr_1;
+	public static String NvsValidation_ValueValidationErr_2;
+	public static String NvsValidation_ValueValidationErr_3;
+	public static String NvsValidation_NumberValueValidationErr_1;
+	public static String NvsValidation_NumberValueValidationErr_2;
+	public static String NvsValidation_EncodingValidationErr_1;
+	public static String NvsValidation_KeyValidationErr_1;
+	public static String NvsValidation_KeyValidationErr_2;
 	
+	public static String PortChecker_AttemptLimitExceededMsg;
+	public static String PortChecker_PortIsAvailable;
+	public static String PortChecker_PortNotAvailable;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

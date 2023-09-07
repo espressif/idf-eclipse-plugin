@@ -14,7 +14,9 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.13.0",
  org.eclipse.cdt.launch;bundle-version="9.2.0",
  org.eclipse.cdt.debug.core,
  com.espressif.idf.core,
- org.eclipse.cdt.core
+ org.eclipse.cdt.core,
+ org.eclipse.jface,
+ org.eclipse.core.variables
 Bundle-Activator: com.espressif.idf.launch.serial.ui.internal.Activator
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: org.eclipse.cdt.launch.serial.ui
@@ -24,3 +26,5 @@ Import-Package: com.espressif.idf.ui,
  org.eclipse.cdt.dsf.gdb,
  org.eclipse.cdt.ui
 Export-Package: com.espressif.idf.launch.serial.ui.internal
+Bundle-ClassPath: .,
+ libs/jSerialComm-2.9.3.jar

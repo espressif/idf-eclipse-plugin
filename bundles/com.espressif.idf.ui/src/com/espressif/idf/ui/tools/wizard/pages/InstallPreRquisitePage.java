@@ -33,10 +33,10 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.osgi.service.prefs.Preferences;
 
-import com.espressif.idf.core.ExecutableFinder;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
+import com.espressif.idf.core.SystemExecutableFinder;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.GitWinRegistryReader;
 import com.espressif.idf.core.util.IDFUtil;
@@ -48,7 +48,7 @@ import com.espressif.idf.ui.tools.wizard.IToolsInstallationWizardConstants;
 
 /**
  * Install initial tools page for git and python configs
- * 
+ *
  * @author Ali Azam Rana
  *
  */
@@ -123,6 +123,7 @@ public class InstallPreRquisitePage extends WizardPage implements IToolsWizardPa
 			String[] versions = pythonVersions.keySet().toArray(new String[pythonVersions.size()]);
 			pythonVersionCombo.setItems(versions);
 			pythonVersionCombo.select(0); // select the first one
+			pythonExecutablePath = pythonVersions.get(versions[0]);
 			pythonVersionCombo.addModifyListener(new ModifyListener()
 			{
 				@Override
@@ -152,7 +153,7 @@ public class InstallPreRquisitePage extends WizardPage implements IToolsWizardPa
 
 		setControl(container);
 	}
-	
+
 	@Override
 	public Composite getPageComposite()
 	{
@@ -161,7 +162,7 @@ public class InstallPreRquisitePage extends WizardPage implements IToolsWizardPa
 
 	private void loadGitExecutablePath()
 	{
-		IPath gitPath = ExecutableFinder.find("git", true); //$NON-NLS-1$
+		IPath gitPath = new SystemExecutableFinder().find("git"); //$NON-NLS-1$
 		Logger.log("GIT path:" + gitPath); //$NON-NLS-1$
 		if (gitPath != null)
 		{
@@ -178,7 +179,7 @@ public class InstallPreRquisitePage extends WizardPage implements IToolsWizardPa
 					this.gitExecutablePath = gitInstallPath.concat(String.valueOf(Path.SEPARATOR)).concat("bin").concat(String.valueOf(Path.SEPARATOR)).concat("git.exe"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
-			else 
+			else
 			{
 				// MAC & LINUX have whereis git to see where the command is located
 				List<String> arguments = new ArrayList<String>();

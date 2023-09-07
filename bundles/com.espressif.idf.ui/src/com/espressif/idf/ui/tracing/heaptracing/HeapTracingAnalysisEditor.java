@@ -21,6 +21,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
 
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.ProjectDescriptionReader;
 import com.espressif.idf.ui.tracing.Messages;
 import com.espressif.idf.ui.tracing.TracingJsonParser;
 
@@ -32,7 +33,7 @@ import com.espressif.idf.ui.tracing.TracingJsonParser;
  */
 public class HeapTracingAnalysisEditor extends MultiPageEditorPart
 {
-	public static String EDITOR_ID = "com.espressif.idf.ui.editor.heapTraceAnalysis"; //$NON-NLS-1$
+	public static final String EDITOR_ID = "com.espressif.idf.ui.editor.heapTraceAnalysis"; //$NON-NLS-1$
 	private IProject project;
 	private IFile memoryDumpFile;
 	private IFile elfSymbolsFile;
@@ -46,7 +47,7 @@ public class HeapTracingAnalysisEditor extends MultiPageEditorPart
 		memoryDumpFile = editorInput.getFile();
 		project = memoryDumpFile.getProject();
 		setPartName(project.getName());
-		elfSymbolsFile = project.getFolder("build").getFile(project.getName().replace(" ", "_").concat(".elf"));  //$NON-NLS-1$ //$NON-NLS-2$
+		elfSymbolsFile = new ProjectDescriptionReader(project).getAppElfFile();
 		try
 		{
 			tracingJsonParser = new TracingJsonParser(memoryDumpFile.getRawLocation().toOSString(),
@@ -73,7 +74,8 @@ public class HeapTracingAnalysisEditor extends MultiPageEditorPart
 	{
 		Composite parent = new Composite(getContainer(), SWT.NONE);
 		parent.setLayout(new FillLayout());
-		HeapTracingCallersViewComposite tracingCallersViewComposite = new HeapTracingCallersViewComposite(tracingJsonParser);
+		HeapTracingCallersViewComposite tracingCallersViewComposite = new HeapTracingCallersViewComposite(
+				tracingJsonParser);
 		tracingCallersViewComposite.createPartControl(parent);
 		int index = addPage(parent);
 		setPageText(index, Messages.TracingCallersConsolodiatedView_Tab);

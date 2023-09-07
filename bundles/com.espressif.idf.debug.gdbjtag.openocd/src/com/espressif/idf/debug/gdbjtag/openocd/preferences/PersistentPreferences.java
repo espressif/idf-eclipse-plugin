@@ -198,7 +198,7 @@ public class PersistentPreferences extends org.eclipse.embedcdt.debug.gdbjtag.co
 	// ----- OpenOCD init other -----------------------------------------------
 	public String getOpenOCDInitOther() {
 
-		return getString(GDB_OPENOCD_INIT_OTHER, DefaultPreferences.OTHER_INIT_COMMANDS_DEFAULT);
+		return DefaultPreferences.OTHER_INIT_COMMANDS_DEFAULT;
 	}
 
 	public void putOpenOCDInitOther(String value) {

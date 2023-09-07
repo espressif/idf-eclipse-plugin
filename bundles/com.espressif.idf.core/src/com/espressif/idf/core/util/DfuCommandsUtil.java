@@ -20,37 +20,49 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.commands.ICommandService;
 
+import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.IDFDynamicVariables;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 
 public class DfuCommandsUtil
 {
 
 	public static final String DFU_COMMAND = "com.espressif.idf.ui.command.dfu"; //$NON-NLS-1$
-	public static final String TOGGLE_STATUS = "org.eclipse.ui.commands.toggleState"; //$NON-NLS-1$
 	private static final String[] SUPPORTED_TARGETS = { "esp32s2", "esp32s3" }; //$NON-NLS-1$ //$NON-NLS-2$
+	private static final String DFU_FLASH_COMMAND = "dfu-flash"; //$NON-NLS-1$
 
 	public static boolean isDfu()
 	{
-		ICommandService commandService = PlatformUI.getWorkbench().getService(ICommandService.class);
-		boolean isDfu = (boolean) commandService.getCommand(DFU_COMMAND).getState(TOGGLE_STATUS).getValue();
-		return isDfu;
+		try
+		{
+			ILaunchConfiguration configuration = IDFCorePlugin.getService(ILaunchBarManager.class)
+					.getActiveLaunchConfiguration();
+			return configuration.getAttribute(IDFLaunchConstants.DFU, false);
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+		return false;
 	}
 
 	public static boolean isDfuSupported(ILaunchTarget launchTarget)
 	{
-		String targetName = launchTarget.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", ""); //$NON-NLS-1$
-		boolean isDfuSupported = Arrays.stream(SUPPORTED_TARGETS).anyMatch(target -> target.contentEquals(targetName));
+		boolean isDfuSupported = isTargetSupportDfu(launchTarget);
 		Display.getDefault().asyncExec(new Runnable()
 		{
 			@Override
@@ -66,6 +78,23 @@ public class DfuCommandsUtil
 		return isDfuSupported;
 	}
 
+	public static boolean isTargetSupportDfu(ILaunchTarget launchTarget)
+	{
+		String targetName = launchTarget.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
+				StringUtil.EMPTY);
+		boolean isDfuSupported = Arrays.stream(SUPPORTED_TARGETS).anyMatch(target -> target.contentEquals(targetName));
+		return isDfuSupported;
+	}
+
+	public static String getDfuFlashCommand()
+	{
+		List<String> commands = new ArrayList<>();
+		commands.add(generateVariableExpression(IDFDynamicVariables.IDF_PYTHON_ENV_PATH.name()));
+		commands.add(generateVariableExpression(IDFDynamicVariables.IDF_PY.name()));
+		commands.add(DFU_FLASH_COMMAND);
+		return String.join(" ", commands); //$NON-NLS-1$
+	}
+	
 	public static Process dfuBuild(IProject project, ConsoleOutputStream infoStream, IBuildConfiguration config,
 			List<IEnvironmentVariable> envVars) throws IOException, CoreException
 	{
@@ -76,11 +105,21 @@ public class DfuCommandsUtil
 		Process process = startProcess(commands, project, infoStream, config, envVars);
 		return process;
 	}
+	
+	private static String generateVariableExpression(String variableName)
+	{
+		return VariablesPlugin.getDefault().getStringVariableManager().generateVariableExpression(variableName, null);
+	}
+	
+	private static String resolveExpressionFromVariableManager(String expression) throws CoreException
+	{
+		return VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(expression);
+	}
 
 	private static Process startProcess(List<String> commands, IProject project, ConsoleOutputStream infoStream,
 			IBuildConfiguration config, List<IEnvironmentVariable> envVars) throws IOException
 	{
-		infoStream.write(String.join(" ", commands) + '\n'); //$NON-NLS-1$ //$NON-NLS-2$
+		infoStream.write(String.join(" ", commands) + '\n'); //$NON-NLS-1$
 		Path workingDir = (Path) project.getLocation();
 		ProcessBuilder processBuilder = new ProcessBuilder(commands).directory(workingDir.toFile());
 		Map<String, String> environment = processBuilder.environment();
@@ -93,14 +132,23 @@ public class DfuCommandsUtil
 		return process;
 	}
 
-	public static void flashDfuBins(IProject project, ILaunch launch, IProgressMonitor monitor, String serialPort)
+	public static void flashDfuBins(ILaunchConfiguration configuration, IProject project, ILaunch launch,
+			IProgressMonitor monitor)
 	{
+		List<String> flashCommandList = new ArrayList<>();
+		try
+		{
+			String flashCommand = configuration
+					.getAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS, getDfuFlashCommand());
+			flashCommand = resolveExpressionFromVariableManager(flashCommand);
+			flashCommandList = Arrays.asList(flashCommand.split(" ")); //$NON-NLS-1$
+		}
+		catch (CoreException e1)
+		{
+			Logger.log(e1);
+		}
 		List<String> commands = new ArrayList<>();
-		commands.add(IDFUtil.getIDFPythonEnvPath());
-		commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
-		commands.add("-p"); //$NON-NLS-1$
-		commands.add(serialPort);
-		commands.add("dfu-flash"); //$NON-NLS-1$
+		commands.addAll(flashCommandList);
 		File workingDir = null;
 		workingDir = new File(project.getLocationURI());
 		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();

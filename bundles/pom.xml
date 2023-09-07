@@ -28,6 +28,7 @@
 		<module>com.espressif.idf.branding</module>
 		<module>com.espressif.idf.debug.gdbjtag.openocd</module>
 		<module>com.espressif.idf.serial.monitor</module>
+		<module>com.espressif.idf.wokwi</module>
 	</modules>
 
 	<build>
@@ -35,7 +36,7 @@
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
-				<version>2.3.0</version>
+				<version>3.0.4</version>
 				<extensions>true</extensions>
 			</plugin>
 		</plugins>

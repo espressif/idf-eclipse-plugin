@@ -58,6 +58,7 @@ public class Messages
 	public static String AppLvlTracingJob;
 
 	public static String DllNotFound_ExceptionMessage;
+	public static String TabMain_Launch_Config;
 	// ------------------------------------------------------------------------
 
 	static

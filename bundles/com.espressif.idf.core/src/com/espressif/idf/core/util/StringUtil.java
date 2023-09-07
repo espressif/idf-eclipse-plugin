@@ -10,7 +10,13 @@ package com.espressif.idf.core.util;
  */
 public class StringUtil
 {
-	public static String EMPTY = ""; //$NON-NLS-1$
+	private StringUtil()
+	{
+	}
+
+	public static final String EMPTY = ""; //$NON-NLS-1$
+
+	public static final String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
 
 	public static boolean isEmpty(String text)
 	{

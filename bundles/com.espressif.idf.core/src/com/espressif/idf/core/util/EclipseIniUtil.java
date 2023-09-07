@@ -52,7 +52,7 @@ public class EclipseIniUtil
 	private void loadIniFilePath() throws Exception
 	{
 		URL url = new URL(
-				Platform.getInstallLocation().getURL() + System.getProperty("eclipse.launcher.name") + ".ini"); //$NON-NLS-1$ //$NON-NLS-2$
+				Platform.getInstallLocation().getURL() + System.getProperty("eclipse.launcher.name").toLowerCase() + ".ini"); //$NON-NLS-1$ //$NON-NLS-2$
 		ECLIPSE_INI_FILE = url.toString();
 	}
 
@@ -98,10 +98,13 @@ public class EclipseIniUtil
 		File file = new File(eclipseIniUri);
 		eclipseIniFileContents = FileUtils.readLines(file, Charset.defaultCharset());
 		int indexOfVmArgs = eclipseIniFileContents.indexOf(ECLIPSE_INI_VMARGS);
-		eclipseIniArgs = new ArrayList<String>();
-		for (int i = indexOfVmArgs + 1; i < eclipseIniFileContents.size(); i++)
+		if (indexOfVmArgs != -1)
 		{
-			eclipseIniArgs.add(eclipseIniFileContents.get(i));
+			eclipseIniArgs = new ArrayList<String>();
+			for (int i = indexOfVmArgs + 1; i < eclipseIniFileContents.size(); i++)
+			{
+				eclipseIniArgs.add(eclipseIniFileContents.get(i));
+			}			
 		}
 	}
 
@@ -118,20 +121,24 @@ public class EclipseIniUtil
 			}
 		}
 
-		contentsToWrite.add(ECLIPSE_INI_VMARGS);
-
-		for (Entry<String, String> entry : eclipseVmArgMap.entrySet())
+		if (eclipseIniFileContents.indexOf(ECLIPSE_INI_VMARGS) != -1)
 		{
-			if (!StringUtil.isEmpty(entry.getValue()))
+			contentsToWrite.add(ECLIPSE_INI_VMARGS);
+
+			for (Entry<String, String> entry : eclipseVmArgMap.entrySet())
 			{
-				String contentToWrite = entry.getKey() + "=" + entry.getValue(); //$NON-NLS-1$
-				contentsToWrite.add(contentToWrite);
-			}
-			else
-			{
-				contentsToWrite.add(entry.getKey());
-			}
+				if (!StringUtil.isEmpty(entry.getValue()))
+				{
+					String contentToWrite = entry.getKey() + "=" + entry.getValue(); //$NON-NLS-1$
+					contentsToWrite.add(contentToWrite);
+				}
+				else
+				{
+					contentsToWrite.add(entry.getKey());
+				}
+			}	
 		}
+		
 
 		FileUtils.writeLines(file, contentsToWrite);
 	}
@@ -140,6 +147,11 @@ public class EclipseIniUtil
 	{
 		eclipseIniSwitchMap = new HashMap<>();
 		int indexOfVmArgs = eclipseIniFileContents.indexOf(ECLIPSE_INI_VMARGS);
+		if (indexOfVmArgs == -1)
+		{
+			indexOfVmArgs = eclipseIniFileContents.size();
+		}
+		
 		for (int i = 0; i < indexOfVmArgs; i++)
 		{
 			String key = eclipseIniFileContents.get(i);
@@ -160,6 +172,11 @@ public class EclipseIniUtil
 	{
 		eclipseVmArgMap = new HashMap<>();
 		int indexOfVmArgs = eclipseIniFileContents.indexOf(ECLIPSE_INI_VMARGS);
+		if (indexOfVmArgs == -1)
+		{
+			return;
+		}
+		
 		for (int i = indexOfVmArgs + 1; i < eclipseIniFileContents.size(); i++)
 		{
 			String[] arg = eclipseIniFileContents.get(i).split("=");

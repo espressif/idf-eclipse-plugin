@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Espressif-IDE" uid="com.espressif.idf.product" id="com.espressif.idf.branding.idf" application="org.eclipse.ui.ide.workbench" version="2.7.0" useFeatures="true" includeLaunchers="true">
+<product name="Espressif-IDE" uid="com.espressif.idf.product" id="com.espressif.idf.branding.idf" application="org.eclipse.ui.ide.workbench" version="2.11.0" useFeatures="true" includeLaunchers="true" autoIncludeRequirements="true">
 
    <aboutInfo>
       <image path="/com.espressif.idf.branding/icons/alt_about.png"/>
@@ -14,13 +14,11 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-data @noDefault
-      </programArgs>
-      <vmArgsLin>-Xms256m -Xmx2048m  -Dosgi.requiredJavaVersion=11 -Dosgi.instance.area.default=@user.home/espressif-workspace
+      <vmArgsLin>-Xms256m -Xmx2048m  -Dosgi.requiredJavaVersion=17 -Dosgi.instance.area.default=@user.home/workspace
       </vmArgsLin>
-      <vmArgsMac>-Xms256m -Xmx2048m  -Xdock:icon=../com.espressif.idf.product/laucher/espressif.icns -XstartOnFirstThread -Dosgi.requiredJavaVersion=11 -Dorg.eclipse.swt.internal.carbon.smallFonts -Dosgi.instance.area.default=@user.home/espressif-workspace
+      <vmArgsMac>-Xms256m -Xmx2048m  -Xdock:icon=../Resources/espressif.icns -XstartOnFirstThread -Dosgi.requiredJavaVersion=17 -Dorg.eclipse.swt.internal.carbon.smallFonts -Dosgi.instance.area.default=@user.home/workspace
       </vmArgsMac>
-      <vmArgsWin>-Xms256m -Xmx2048m   -Dosgi.requiredJavaVersion=11 -Dosgi.instance.area.default=@user.home/espressif-workspace
+      <vmArgsWin>-Xms256m -Xmx2048m   -Dosgi.requiredJavaVersion=17 -Dosgi.instance.area.default=@user.home/workspace
       </vmArgsWin>
    </launcherArgs>
 
@@ -86,12 +84,14 @@
       <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
       <plugin id="org.eclipse.osgi" autoStart="true" startLevel="-1" />
+      <property name="osgi.instance.area.default" value="@user.home/workspace" />
    </configurations>
 
    <repositories>
       <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/" enabled="false" />
       <repository location="http://download.eclipse.org/releases/latest/" enabled="false" />
       <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/" enabled="true" />
+      <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/nightly/" enabled="false" />
    </repositories>
 
    <preferencesInfo>

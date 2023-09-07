@@ -488,7 +488,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 					{
 						if (ToolsPlatformMapping.isSupported(key))
 						{
-							alwaysInstall |= versionsVO.getStatus().equalsIgnoreCase(RECOMMENDED);
+							alwaysInstall = versionsVO.getStatus().equalsIgnoreCase(RECOMMENDED);
 							isInstalled = ToolsUtility.isToolInstalled(toolsVO.getName(), versionsVO.getName());
 							toolsVO.setInstalled(isInstalled);
 							versionsVO.getVersionOsMap().get(key).setSelected(alwaysInstall);
@@ -521,7 +521,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 			mainItem.setData(toolsVO);
 			Image installedImage = isInstalled ? UIPlugin.getImage(GREEN) : UIPlugin.getImage(WHITE);
 			mainItem.setImage(2, installedImage);
-			mainItem.setExpanded(alwaysInstall);
+			mainItem.setExpanded(true);
 
 			if (!platformAvailable)
 			{
@@ -848,11 +848,19 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 			{
 				String key = item.getText(0);
 				VersionsVO versionsVO = (VersionsVO) item.getData();
-				VersionDetailsVO versionDetailsVO = versionsVO.getVersionOsMap().get(key);
-				if (versionDetailsVO != null)
+				
+				for(String os : versionsVO.getVersionOsMap().keySet())
 				{
-					versionDetailsVO.setSelected(checked);	
+					if (ToolsPlatformMapping.isSupported(os))
+					{
+						VersionDetailsVO versionDetailsVO = versionsVO.getVersionOsMap().get(os);
+						if (versionDetailsVO != null)
+						{
+							versionDetailsVO.setSelected(checked);	
+						}
+					}	
 				}
+				
 			}
 			TreeItem[] items = item.getItems();
 			for (int i = 0; i < items.length; i++)
@@ -946,12 +954,10 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 				boolean alwaysInstall = toolsVO.getInstallType().equalsIgnoreCase(ALWAYS)
 						|| toolsVO.getInstallType().equalsIgnoreCase(RECOMMENDED);
 				mainItem.setChecked(alwaysInstall);
-
-				for (TreeItem subItem : mainItem.getItems())
-				{
-					subItem.setChecked(alwaysInstall);
-				}
-
+				Event swtCheckedTreeEvent = new Event();
+				swtCheckedTreeEvent.detail = SWT.CHECK;
+				swtCheckedTreeEvent.item = mainItem;
+				toolsTree.notifyListeners(SWT.Selection, swtCheckedTreeEvent);
 				mainItem.setExpanded(alwaysInstall);
 			}
 

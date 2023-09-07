@@ -44,10 +44,10 @@ public class TabSvdTarget extends TabSvd
 	@Override
 	public void initializeFrom(ILaunchConfiguration configuration)
 	{
-		ILaunchConfigurationWorkingCopy wc = ((ILaunchConfigurationWorkingCopy) configuration);
 		String selectedTarget = StringUtil.EMPTY;
 		try
 		{
+			ILaunchConfigurationWorkingCopy wc = configuration.getWorkingCopy();
 			selectedTarget = wc.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, StringUtil.EMPTY);
 			if (StringUtil.isEmpty(selectedTarget))
 			{
@@ -80,7 +80,7 @@ public class TabSvdTarget extends TabSvd
 			{
 				selectedTargetPath = new File(FileLocator.resolve(svdUrl).toURI()).getPath();
 			}
-			else 
+			else
 			{
 				IProject project = EclipseUtils.getProjectByLaunchConfiguration(wc);
 				IFolder svdFolder = project.getFolder(IDFConstants.BUILD_FOLDER).getFolder("svd"); //$NON-NLS-1$
@@ -104,7 +104,7 @@ public class TabSvdTarget extends TabSvd
 				project.refreshLocal(IProject.DEPTH_INFINITE, new NullProgressMonitor());
 				selectedTargetPath = svdFile.getRawLocation().toOSString();
 			}
-			
+
 			String currentSvdPath = wc.getAttribute(
 					org.eclipse.embedcdt.debug.gdbjtag.core.ConfigurationAttributes.SVD_PATH, StringUtil.EMPTY);
 			if (StringUtil.isEmpty(currentSvdPath) || !currentSvdPath.equals(selectedTargetPath))

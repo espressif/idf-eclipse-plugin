@@ -21,6 +21,7 @@ import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -37,6 +38,7 @@ import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 import com.espressif.idf.ui.test.operations.EnvSetupOperations;
 import com.espressif.idf.ui.test.operations.ProjectTestOperations;
 import com.espressif.idf.ui.test.operations.SWTBotTreeOperations;
+import com.espressif.idf.ui.test.operations.selectors.LaunchBarConfigSelector;
 import com.espressif.idf.ui.test.operations.selectors.LaunchBarTargetSelector;
 
 /**
@@ -113,7 +115,7 @@ public class NewEspressifIDFProjectTest
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 		Fixture.givenProjectNameIs("NewProjectTest");
 		Fixture.whenNewProjectIsSelected();
-		Fixture.whenProjectIsBuiltUsingToolbarButton("NewProjectTest");
+		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.thenConsoleShowsBuildSuccessful();
 	}
 
@@ -124,7 +126,8 @@ public class NewEspressifIDFProjectTest
 		Fixture.givenProjectNameIs("NewProjectTest");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenProjectIsCopied("NewProjectTest", "NewProjectTest2");
-		Fixture.whenProjectIsBuiltUsingToolbarButton("NewProjectTest2");
+		Fixture.givenProjectNameIs("NewProjectTest2");
+		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.thenConsoleShowsBuildSuccessful();
 		Fixture.closeProject("NewProjectTest2");
 		Fixture.deleteProject("NewProjectTest2");
@@ -178,10 +181,10 @@ public class NewEspressifIDFProjectTest
 		Fixture.givenProjectNameIs("NewProjectTestDFU");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.thenLaunchTargetIsSelectedFromLaunchTargets("esp32s2");
-		Fixture.switchDfuStatus();
+		Fixture.turnOnDfu();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.thenProjectHasTheFile("dfu.bin", "/build");
-		Fixture.switchDfuStatus();
+		Fixture.turnOffDfu();
 	}
 
 	private static class Fixture
@@ -192,12 +195,14 @@ public class NewEspressifIDFProjectTest
 		private static String projectName;
 		private static String projectTemplate;
 		private static LaunchBarTargetSelector launchBarTargetSelector;
+		private static LaunchBarConfigSelector launchBarConfigSelector;
 
 		private static void loadEnv() throws Exception
 		{
 			bot = WorkBenchSWTBot.getBot();
 			EnvSetupOperations.setupEspressifEnv(bot);
 			bot.sleep(1000);
+			launchBarConfigSelector = new LaunchBarConfigSelector(bot);
 			try
 			{
 				launchBarTargetSelector = new LaunchBarTargetSelector(bot);
@@ -206,6 +211,7 @@ public class NewEspressifIDFProjectTest
 			{
 				launchBarTargetSelector = new LaunchBarTargetSelector(bot, false);
 			}
+
 		}
 
 		public static void thenLaunchTargetIsSelectedFromLaunchTargets(String launchTargetName)
@@ -258,24 +264,23 @@ public class NewEspressifIDFProjectTest
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 		}
 
-		private static void switchDfuStatus() throws IOException
+		public static void turnOffDfu()
 		{
-			bot.toolbarToggleButtonWithTooltip("DFU").click();
+			launchBarConfigSelector.clickEdit();
+			bot.comboBox().setSelection("UART");
+			bot.button("OK").click();
+		}
+
+		private static void turnOnDfu()
+		{
+			launchBarConfigSelector.clickEdit();
+			bot.comboBox().setSelection("DFU");
+			bot.button("OK").click();
 		}
 
 		private static void whenProjectIsBuiltUsingContextMenu() throws IOException
 		{
 			ProjectTestOperations.buildProjectUsingContextMenu(projectName, bot);
-			ProjectTestOperations.waitForProjectBuild(bot);
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
-		}
-
-		private static void whenProjectIsBuiltUsingToolbarButton(String projectName) throws IOException
-		{
-			SWTBotView projectExplorView = bot.viewByTitle("Project Explorer");
-			projectExplorView.show();
-			projectExplorView.bot().tree().getTreeItem(projectName).select();
-			bot.toolbarButtonWithTooltip("Build").click();
 			ProjectTestOperations.waitForProjectBuild(bot);
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 		}

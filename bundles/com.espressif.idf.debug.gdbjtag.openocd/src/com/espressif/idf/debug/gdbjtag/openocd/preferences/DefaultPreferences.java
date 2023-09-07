@@ -14,12 +14,12 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd.preferences;
 
+import org.eclipse.embedcdt.core.EclipseUtils;
+import org.eclipse.embedcdt.core.preferences.Discoverer;
+
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
-
-import org.eclipse.embedcdt.core.EclipseUtils;
-import org.eclipse.embedcdt.core.preferences.Discoverer;
 
 public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.preferences.DefaultPreferences {
 
@@ -79,16 +79,23 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 	// ------------------------------------------------------------------------
 
 	// Debugger commands
-	public static final String GDB_CLIENT_OTHER_COMMANDS_DEFAULT = "set mem inaccessible-by-default off\n";
+	public static final String GDB_CLIENT_OTHER_COMMANDS_DEFAULT = "set mem inaccessible-by-default off\nset remotetimeout 20";
 	public static final String DO_FIRST_RESET_COMMAND = "monitor reset ";
 	public static final String HALT_COMMAND = "monitor halt";
 	public static final String ENABLE_SEMIHOSTING_COMMAND = "monitor arm semihosting enable";
 	public static final String DO_SECOND_RESET_COMMAND = "monitor reset ";
 	public static final String DO_CONTINUE_COMMAND = "continue";
+	public static final String IDF_TARGET_CPU_WATCHPOINT_NUM = "{IDF_TARGET_CPU_WATCHPOINT_NUM}";
 	public static final String OTHER_INIT_COMMANDS_DEFAULT = "mon reset halt\n" + 
 			"flushregs\n" + 
-			"set remote hardware-watchpoint-limit 2";
+			"set remote hardware-watchpoint-limit " + IDF_TARGET_CPU_WATCHPOINT_NUM;
 	public static final String OTHER_RUN_COMMANDS_DEFAULT = "";
+
+	// ------------------------------------------------------------------------
+
+	// C/C++ project variables
+
+	public static final String PROGRAM_APP_DEFAULT = "${default_app}"; //$NON-NLS-1$
 
 	// ------------------------------------------------------------------------
 
@@ -194,6 +201,7 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 
 	// ------------------------------------------------------------------------
 
+	@Override
 	public String getSearchPath() {
 
 		String key = PersistentPreferences.SEARCH_PATH;
@@ -205,6 +213,7 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 		return value;
 	}
 
+	@Override
 	public String getSearchPathOs() {
 
 		String key = EclipseUtils.getKeyOs(PersistentPreferences.SEARCH_PATH_OS);
@@ -216,6 +225,7 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 		return value;
 	}
 
+	@Override
 	public void putSearchPath(String value) {
 
 		String key = PersistentPreferences.SEARCH_PATH;
@@ -228,6 +238,7 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 
 	// ------------------------------------------------------------------------
 
+	@Override
 	protected String getRegistryInstallFolder(String subFolder, String executableName) {
 
 		String path = Discoverer.getRegistryInstallFolder(executableName, subFolder, REG_SUBKEY, REG_NAME);

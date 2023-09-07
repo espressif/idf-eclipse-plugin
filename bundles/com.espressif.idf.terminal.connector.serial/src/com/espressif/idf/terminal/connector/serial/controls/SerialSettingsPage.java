@@ -19,6 +19,7 @@ import java.util.Optional;
 import org.eclipse.cdt.serial.SerialPort;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.dialogs.DialogSettings;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -36,6 +37,8 @@ import org.eclipse.tm.terminal.view.ui.interfaces.IConfigurationPanel;
 import org.eclipse.tm.terminal.view.ui.interfaces.IConfigurationPanelContainer;
 import org.osgi.service.prefs.Preferences;
 
+import com.espressif.idf.core.IDFProjectNature;
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.terminal.connector.serial.activator.Activator;
 import com.espressif.idf.terminal.connector.serial.connector.SerialConnector;
@@ -43,7 +46,8 @@ import com.espressif.idf.terminal.connector.serial.connector.SerialSettings;
 import com.espressif.idf.terminal.connector.serial.nls.Messages;
 import com.espressif.idf.ui.EclipseUtil;
 
-public class SerialSettingsPage extends AbstractSettingsPage {
+public class SerialSettingsPage extends AbstractSettingsPage
+{
 
 	private final SerialSettings settings;
 	private final IConfigurationPanel panel;
@@ -57,7 +61,8 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 	private Text filterText;
 	private String filterConfig;
 
-	public SerialSettingsPage(SerialSettings settings, IConfigurationPanel panel) {
+	public SerialSettingsPage(SerialSettings settings, IConfigurationPanel panel)
+	{
 		this.settings = settings;
 		this.panel = panel;
 		setHasControlDecoration(true);
@@ -71,13 +76,15 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 
 	}
 
-	protected String getLastUsedSerialPort() {
+	protected String getLastUsedSerialPort()
+	{
 		Preferences preferences = InstanceScope.INSTANCE.getNode("com.espressif.idf.launch.serial.ui"); //$NON-NLS-1$
 		return preferences.get("com.espressif.idf.launch.serial.core.serialPort", ""); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
-	public void createControl(Composite parent) {
+	public void createControl(Composite parent)
+	{
 		Composite comp = new Composite(parent, SWT.NONE);
 		GridLayout gridLayout = new GridLayout(2, false);
 		gridLayout.marginWidth = gridLayout.marginHeight = 0;
@@ -90,11 +97,23 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 
 		projectCombo = new Combo(comp, SWT.NONE);
 		projectCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		Optional<IProject> optProject = Optional.ofNullable(EclipseUtil.getSelectedProjectInExplorer());
+		Optional<IProject> optProject = Optional.ofNullable(EclipseUtil.getSelectedIDFProjectInExplorer());
 		optProject.ifPresent(project -> projectCombo.setText(project.getName()));
 		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-		for (IProject project : projects) {
-			projectCombo.add(project.getName());
+		for (IProject project : projects)
+		{
+			try
+			{
+				if (project.hasNature(IDFProjectNature.ID))
+				{
+					projectCombo.add(project.getName());
+				}
+			}
+			catch (CoreException e1)
+			{
+				Logger.log(e1);
+			}
+
 		}
 
 		Label portLabel = new Label(comp, SWT.NONE);
@@ -103,19 +122,26 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 		portCombo = new Combo(comp, SWT.NONE);
 		portCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		String[] portNames = new String[0];
-		try {
+		try
+		{
 			portNames = SerialPort.list();
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			Activator.log(e);
 		}
-		for (String portName : portNames) {
-			if (!SerialConnector.isOpen(portName)) {
+		for (String portName : portNames)
+		{
+			if (!SerialConnector.isOpen(portName))
+			{
 				portCombo.add(portName);
 			}
 		}
-		portCombo.addSelectionListener(new SelectionAdapter() {
+		portCombo.addSelectionListener(new SelectionAdapter()
+		{
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(SelectionEvent e)
+			{
 				validate();
 			}
 		});
@@ -129,38 +155,48 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 		loadSettings();
 	}
 
-	void validate() {
+	void validate()
+	{
 		IConfigurationPanelContainer container = panel.getContainer();
 		container.validate();
 	}
 
 	@Override
-	public void loadSettings() {
+	public void loadSettings()
+	{
 		String portName = settings.getPortName();
-		if (portName == null || portName.isEmpty()) {
+		if (portName == null || portName.isEmpty())
+		{
 			portName = this.lastUsedSerialPort;
 		}
-		if (portName != null && !portName.isEmpty() && !SerialConnector.isOpen(portName)) {
+		if (portName != null && !portName.isEmpty() && !SerialConnector.isOpen(portName))
+		{
 			int i = 0;
-			for (String name : portCombo.getItems()) {
-				if (portName.equals(name)) {
+			for (String name : portCombo.getItems())
+			{
+				if (portName.equals(name))
+				{
 					portCombo.select(i);
 					break;
 				}
 				i++;
 			}
-		} else if (portCombo.getItemCount() > 0) {
+		}
+		else if (portCombo.getItemCount() > 0)
+		{
 			portCombo.select(0);
 		}
 
-		//IDF monitor filter
-		if (!StringUtil.isEmpty(filterConfig)) {
+		// IDF monitor filter
+		if (!StringUtil.isEmpty(filterConfig))
+		{
 			this.filterText.setText(filterConfig);
 		}
 	}
 
 	@Override
-	public void saveSettings() {
+	public void saveSettings()
+	{
 		settings.setPortName(portCombo.getText());
 		settings.setFilterText(filterText.getText().trim());
 		settings.setProject(projectCombo.getText());
@@ -171,8 +207,10 @@ public class SerialSettingsPage extends AbstractSettingsPage {
 	}
 
 	@Override
-	public boolean validateSettings() {
-		if (portCombo.getSelectionIndex() < 0 && portCombo.getText().isEmpty()) {
+	public boolean validateSettings()
+	{
+		if (portCombo.getSelectionIndex() < 0 && portCombo.getText().isEmpty())
+		{
 			return false;
 		}
 		return true;

@@ -7,9 +7,10 @@
 
 	<properties>
 		<required-maven-version>3.6.3</required-maven-version>
-		<tycho-version>2.3.0</tycho-version>
+		<tycho-version>3.0.4</tycho-version>
 		<tycho-extras.version>${tycho-version}</tycho-extras.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<espressif-ide-release-version>2.11.0</espressif-ide-release-version>
 	</properties>
 
 	<build>
@@ -63,7 +64,7 @@
 				<version>${tycho-version}</version>
 				<dependencies>
 					<dependency>
-						<groupId>org.eclipse.tycho.extras</groupId>
+						<groupId>org.eclipse.tycho</groupId>
 						<artifactId>tycho-buildtimestamp-jgit</artifactId>
 						<version>${tycho-extras.version}</version>
 					</dependency>
@@ -105,7 +106,7 @@
 			<plugin>
 				<groupId>com.github.spotbugs</groupId>
 				<artifactId>spotbugs-maven-plugin</artifactId>
-				<version>4.0.0</version>
+				<version>4.7.0.0</version>
 				<configuration>
 					<xmlOutput>true</xmlOutput>
 					<failOnError>false</failOnError>

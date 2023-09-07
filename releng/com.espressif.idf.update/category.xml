@@ -18,8 +18,70 @@
    <feature id="org.eclipse.embedcdt.debug.gdbjtag">
       <category name="com.espressif.idf"/>
    </feature>
+   <feature id="org.eclipse.cdt.lsp.feature">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </feature>
    <bundle id="org.apache.batik.xml">
       <category name="com.espressif.idf"/>
    </bundle>
+   <bundle id="org.eclipse.embedcdt.templates.core">
+      <category name="com.espressif.idf"/>
+   </bundle>
+   <bundle id="org.eclipse.embedcdt.packs.core">
+      <category name="com.espressif.idf"/>
+   </bundle>
+   <bundle id="org.eclipse.lsp4e">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
+   <bundle id="org.eclipse.tm4e.languageconfiguration">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
+   <bundle id="org.eclipse.tm4e.ui">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
+   <bundle id="org.eclipse.tm4e.core">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
+   <bundle id="org.jcodings">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
+   <bundle id="org.joni">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
+   <bundle id="org.yaml.snakeyaml">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
+   <bundle id="com.google.gson">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
+   <bundle id="com.google.guava">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
+   <bundle id="com.google.guava.failureaccess">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
+   <bundle id="org.eclipse.lsp4j">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
+   <bundle id="org.eclipse.lsp4j.jsonrpc">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
+   <bundle id="org.eclipse.mylyn.wikitext">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
+   <bundle id="org.eclipse.mylyn.wikitext.markdown">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
+   <bundle id="org.jsoup">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
+   <bundle id="org.eclipse.tm4e.registry">
+      <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
    <category-def name="com.espressif.idf" label="Espressif IDF"/>
+   <category-def name="Eclipse CDT-LSP Preview" label="Eclipse CDT-LSP Preview">
+      <description>
+         Additional features which can be used with the Espressif-IDE
+      </description>
+   </category-def>
 </site>

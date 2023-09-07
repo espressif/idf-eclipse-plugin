@@ -31,37 +31,28 @@ Espressif-IDE is an Integrated Development Environment(IDE) based on Eclipse CDT
 - Host operating systems supported: Windows, macOS, and Linux 
 
 ## Downloads
-### Espressif-IDE v2.4.2
+
+### Espressif-IDE
+
+You can find the latest Espressif-IDE release notes from [here](https://github.com/espressif/idf-eclipse-plugin/releases). Provided below are the direct download links for various platforms.
 
 | OS  | Download |
 | ------------- | ------------- |
-| Windows  | <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-2.4.2-win32.win32.x86_64.zip">Espressif-IDE-2.4.2-win32.win32.x86_64.zip</a>  |
-| macosx | <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-2.4.2-macosx.cocoa.x86_64.tar.gz">Espressif-IDE-2.4.2-macosx.cocoa.x86_64.tar.gz</a>  |
-| linux | <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-2.4.2-linux.gtk.x86_64.tar.gz">Espressif-IDE-2.4.2-linux.gtk.x86_64.tar.gz</a>  |
+| Windows  | <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-win32.win32.x86_64/latest">Espressif-IDE-win32.win32.x86_64</a>  |
+| macOS x86_64 | <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-x86_64/latest">Espressif-IDE-macosx-cocoa-x86_64</a>  |
+| macOS aarch64| <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64/latest">Espressif-IDE-macosx-cocoa-aarch64</a>  |
+| Linux | <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-linux.gtk.x86_64/latest">Espressif-IDE-linux.gtk.x86_64</a>  |
 
-### macOS security notice
+### macOS security notice (Applicable for Nightly Builds)
 On macOS, if you download the archive with the browser, the strict security checks on recent macOS will prevent it to run, and complain that the program is damaged. That’s obviously not true, and the fix is simple, you need to remove the `com.apple.quarantine` extended attribute.
 ```
-$ xattr -d com.apple.quarantine ~/Downloads/Espressif-IDE-2.4.2-macosx.cocoa.x86_64.tar.gz
+$ xattr -d com.apple.quarantine ~/Downloads/Espressif-IDE-x.x.x-macosx.cocoa.x86_64.tar.gz
 ```
 After un-archiving, if the application still complains, check/remove the attribute from the Espressif-IDE.app folder too:
 ```
 $ xattr -dr com.apple.quarantine ~/Downloads/Espressif-IDE.app
 ```
-### Espressif-IDE Installer for Windows
-Espressif-IDE Installer (All-in-one) is an offline installer and it comes with all the required components to work with the ESP-IDF Application development.
+### Other Topics
+- [Installing Espressif-IDE by Windows Offline Installer](https://github.com/espressif/idf-eclipse-plugin/blob/master/docs/Espressif-IDE-Windows-Installer.md)
+- [Updating Espressif-IDE with the Latest Version](https://github.com/espressif/idf-eclipse-plugin#installing-idf-plugin-using-update-site-url)
 
-The installer deploys the following components:
-- Embedded Python
-- Cross-compilers
-- OpenOCD
-- CMake and Ninja build tools
-- ESP-IDF
-- Espressif-IDE
-- Amazon Corretto OpenJDK
-
-As Installer bundles, all the required components and tools including stable esp-idf so people behind corporate firewalls can use the whole solution out-of-box. This also configures all the required build environment variables and tool paths as you launch the IDE. All you could do is to get started with your project direclty without manually configuring anything. This will give you a big boost to your productivity!
-
-Espressif-IDE Installer for Windows can be downloaded from <a href ="https://dl.espressif.com/dl/esp-idf/">here</a>
-
-> Note: Espressif-IDE Installer is available only for Windows.

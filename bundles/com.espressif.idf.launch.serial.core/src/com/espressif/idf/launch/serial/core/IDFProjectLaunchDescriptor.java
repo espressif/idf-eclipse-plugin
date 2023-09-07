@@ -14,57 +14,69 @@ import org.eclipse.launchbar.core.ILaunchDescriptorType;
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
-public class IDFProjectLaunchDescriptor extends PlatformObject implements ILaunchDescriptor {
+public class IDFProjectLaunchDescriptor extends PlatformObject implements ILaunchDescriptor
+{
 
 	private final ILaunchDescriptorType type;
 	private final IProject project;
 	private ILaunchConfiguration configuration;
 
-	public IDFProjectLaunchDescriptor(ILaunchDescriptorType type, IProject project,
-			ILaunchConfiguration configuration) {
+	public IDFProjectLaunchDescriptor(ILaunchDescriptorType type, IProject project, ILaunchConfiguration configuration)
+	{
 		this.type = type;
 		this.project = project;
 		this.configuration = configuration;
 	}
 
 	@Override
-	public <T> T getAdapter(Class<T> adapter) {
-		if (ILaunchConfiguration.class.equals(adapter)) {
+	public <T> T getAdapter(Class<T> adapter)
+	{
+		if (ILaunchConfiguration.class.equals(adapter))
+		{
 			return adapter.cast(configuration);
-		} else if (IProject.class.equals(adapter)) {
+		}
+		else if (IProject.class.equals(adapter))
+		{
 			return adapter.cast(project);
 		}
 		return super.getAdapter(adapter);
 	}
 
 	@Override
-	public String getName() {
-		if (configuration != null) {
+	public String getName()
+	{
+		if (configuration != null)
+		{
 			return configuration.getName();
 		}
 		return project.getName();
 	}
 
 	@Override
-	public ILaunchDescriptorType getType() {
+	public ILaunchDescriptorType getType()
+	{
 		return type;
 	}
 
-	public ILaunchConfiguration getConfiguration() {
+	public ILaunchConfiguration getConfiguration()
+	{
 		return configuration;
 	}
 
-	public IProject getProject() {
+	public IProject getProject()
+	{
 		return project;
 	}
 
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		return getName(); // for debugging purposes
 	}
 
 	@Override
-	public int hashCode() {
+	public int hashCode()
+	{
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((project == null) ? 0 : project.hashCode());
@@ -74,7 +86,8 @@ public class IDFProjectLaunchDescriptor extends PlatformObject implements ILaunc
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(Object obj)
+	{
 		if (this == obj)
 			return true;
 		if (obj == null)
@@ -82,22 +95,28 @@ public class IDFProjectLaunchDescriptor extends PlatformObject implements ILaunc
 		if (getClass() != obj.getClass())
 			return false;
 		IDFProjectLaunchDescriptor other = (IDFProjectLaunchDescriptor) obj;
-		if (configuration == null) {
+		if (configuration == null)
+		{
 			if (other.configuration != null)
 				return false;
-		} else if (!configuration.equals(other.configuration))
+		}
+		else if (!configuration.equals(other.configuration))
 			return false;
 
-		if (project == null) {
+		if (project == null)
+		{
 			if (other.project != null)
 				return false;
-		} else if (!project.equals(other.project))
+		}
+		else if (!project.equals(other.project))
 			return false;
 
-		if (type == null) {
+		if (type == null)
+		{
 			if (other.type != null)
 				return false;
-		} else if (!type.equals(other.type))
+		}
+		else if (!type.equals(other.type))
 			return false;
 		return true;
 	}

@@ -21,7 +21,6 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 # Table Of Contents
 <details open>
   <summary>Get Started</summary>
-
 * [ Installation](#Installation) <br>
 * [ Creating a new Project ](#NewProjectUsingDefault)<br>
 * [ Configuring Launch Target ](#ConfigureLaunchTarget)<br>
@@ -61,17 +60,15 @@ To get a quick understanding about ESP-IDF and Eclipse plugin features check our
 * [ NVS Table Editor](#nvsTableEditor)<br>
 * [ Changing Language ](#changeLanguage)<br>
 * [ Wokwi Simulator](#wokwisimulator)<br>
-
 </details>
 
 <a name="Installation"></a>
 # Installing Prerequisites
 
 The minimum requirements for running the IDF Eclipse plug-ins are below.
-
 * **Java 17 and above** : Download and install Java SE from <a href= "https://www.oracle.com/technetwork/java/javase/downloads/index.html">here</a>
 * **Python 3.6 and above** : Download and install Python from <a href="https://www.python.org/downloads/">here</a>
-* **Eclipse IDE for C/C++ Developers 2022-09 (2022-12 also should work)** : Download and install Eclipse CDT package from <a href= "https://www.eclipse.org/downloads/packages/release/2022-09/r/eclipse-ide-cc-developers">here </a>
+* **Eclipse IDE for C/C++ Developers 2023-03** : Download and install Eclipse CDT package from <a href= "https://www.eclipse.org/downloads/packages/release/2023-03/r/eclipse-ide-cc-developers">here </a>
 *  **Git** : Get the latest git from <a href ="https://git-scm.com/downloads">here</a>
 *  **ESP-IDF 4.0 and above** : Clone the ESP-IDF repo from <a href ="https://github.com/espressif/esp-idf/releases">here</a>
 
@@ -218,12 +215,13 @@ Please refer to <a href ="https://docs.espressif.com/projects/esp-idf/en/latest/
 ## GDB OpenOCD Debugging
 
 Please refer to this <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs/OpenOCD%20Debugging.md">GDB OpenOCD Debugging</a>
+* [Core Dump Debugging](#core-dump-debugging)
+* [GDB Stub Debugging](#gdbStubDebugging)
 
 # Other IDE Features
 
 <a name="NewProjectUsingTemplates"></a>
 ## Create a new project using ESP-IDF Templates
-
 1. Make sure you're in `C/C++ Perspective`
 1. Go to `File` > `New` > `Espressif IDF Project` (If you don't see this, please reset the perspective from `Window` > `Perspective` > `Reset Perspective..`)
 1. Provide the `Project name`
@@ -238,25 +236,26 @@ Please refer to this <a href="https://github.com/espressif/idf-eclipse-plugin/tr
 
 <a name="InstallToolsWizard"></a>
 # Tools Installation Wizard
+You can use the install tools wizard to manage the tools installation via a wizard. The advantage of this method over the exisitng installation is that you can easily manage the whole flow via wizard and install the tools in ESP-IDF framework that you only need.<br/>
 
-You can use the installation tools wizard to manage the tools installation via a wizard. The advantage of this method over the exisitng installation is that you can easily manage the whole flow via wizard and install the tools in ESP-IDF framework that you only need.<br/>
-
-To get started:
-
+For getting started:
 1. Navigate to `Espressif` > `ESP-IDF Tools Manager` > `Tools Installation Wizard (Preview)`
 ![](docs/images/ToolsManager/install_tools_manager.png)
 
-1. The wizard will start and you can select the location for the Git and Python, if they are already present on the system PATH or registry the tools will be populated. After selection you can click `Next`.
+
+2. The wizard will start and you can select the location for the Git and Python, if they are already present on the system PATH or registry the tools will be populated. After selection you can click `Next`.
 ![](docs/images/ToolsManager/git_python_selection.png)
 
-1. Next page will let you select the folder for existing ESP-IDF or you can also select from the drop down list to download the available versions. You can also select master from the list to clone the master for ESP-IDF from GitHub
+3. Next page will let you select the folder for existing ESP-IDF or you can also select from the drop down list to download the available versions. You can also select master from the list to clone the master for ESP-IDF from github
 ![](docs/images/ToolsManager/select_or_download_new_esp_idf.png)
+
 
 1. After you select `Next` you will see the list of all the available tools in the selected ESP-IDF version, this page lets you select only the recommended tools or you can select the tools you want to. You can also filter out the tools via the filter text box or based on the target. The wizard page is the last page and will Install and Download if necessary all the selected tools required. After you have installed all the tools you can finish the wizard and start creating projects.
 
 ![](docs/images/ToolsManager/manage_tools_installation.png)
 
 <a name="projectconfigure"></a>
+
 # SDK Configuration editor
 
 Project configuration is held in a single file called `sdkconfig` in the root directory of the project. This configuration file can be modified using `SDK Configuration Editor`
@@ -287,7 +286,6 @@ CMake editor preferences can be controlled using `Eclipse` > `Preferences` > `CM
 Application Size Analysis editor provides a way to analyze the static memory footprint of your application. It has two sections - Overview and Details. The **Overview** section provides a summary of the application memory usage and the **Details** section will have in-depth details about components and per-symbol level memory information.
 
 Details table viewer also provides you with searching and sorting capabilities on various columns.
-
 To launch the Application Size Analysis editor:
 
 1. Right-click on the project
@@ -729,26 +727,22 @@ If you are using the master version of ESP-IDF and want to update it, you can do
 > Note: This command is available in the idf-eclipse plugin 2.8.0 and higher
 
 Steps:
+1. Open any IDF Project in Project Explorer where you want to have custom partition table.
+2. To use a custom partition table, `Custom partition table CSV' must be set in the sdkconfig like this:
 
-1. Go to `Project Explorer`, open any IDF Project where you want to have a customized partition table.
+![partition_table_editor](https://user-images.githubusercontent.com/24419842/216104107-2844068b-8412-468b-931f-b4778af4417c.png)
 
-1. In `Project Explorer`, right-click on the project and click on `ESP-IDF: Partition Table Editor` command:
+3. Right click on project in the Project Explorer and click on `ESP-IDF: Partition Table Editor` command:
 
-	![partition_table_editor_3](https://user-images.githubusercontent.com/24419842/216105408-ca2e73ce-5df3-4bdd-ac61-b7265deb9b44.png)
+![partition_table_editor_3](https://user-images.githubusercontent.com/24419842/216105408-ca2e73ce-5df3-4bdd-ac61-b7265deb9b44.png)
 
-	When opening the partition table editor for the selected project, you will see the standard editable content. Errors (if any) will be highlighted. You can hover your mouse over it to get a hint of what it is about:
+4. When you first open the partition table editor for the selected project, you will see the standard editable content. If there is any error it will be highlighted, you can hover your mouse over it to read a hint what it is about:
+![partition_table_editor_4](https://user-images.githubusercontent.com/24419842/216106804-703b2eb4-b141-48de-8559-0599f072219f.png)
 
-	![partition_table_editor_4](https://user-images.githubusercontent.com/24419842/216106804-703b2eb4-b141-48de-8559-0599f072219f.png)
-
-1. Don't forget to click ``Save`` or ``Save and Quit`` to save your changes.
-
-To use a customized partition table：
-
-1. Go to `sdkconfig` and set `Custom partition table CSV` like below:
-
-	![partition_table_editor](https://user-images.githubusercontent.com/24419842/216104107-2844068b-8412-468b-931f-b4778af4417c.png)
+5. Don't forget to click "Save" or "Save and Quit" to save your changes.
 
 <a name ="nvsTableEditor"></a>
+
 # NVS Table Editor
 
 `NVS Table Editor` helps to create a binary file based on key-value pairs provided in a CSV file. The resulting binary file is compatible with NVS architecture defined in [ESP_IDF Non Volatile Storage](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/storage/nvs_flash.html). The expected CSV format is:
@@ -828,6 +822,7 @@ Note this configuration changes where all the project build artifacts will be ge
 ![](docs/images/custombuilddir.png)
 
 <a name ="wokwisimulator"></a>
+
 # Wokwi Simulator
 
 1. Install `wokwi-server` as mentioned [here](https://github.com/MabezDev/wokwi-server/)
@@ -838,10 +833,10 @@ Note this configuration changes where all the project build artifacts will be ge
 1. From the IDE Toolbar, click on the ``Launch`` button to launch the Wokwi simulator
 1. Wokwi Simulator will be launched in the external browser. The serial monitor output is also displayed in the Eclipse CDT build console
 1. To kill a Wokwi simulator, click on the ``Stop`` button from the toolbar
-
 # ESP-IDF Eclipse Plugin Compatibility Matrix
 
- IEP | Eclipse | Java | Installer | Description |
+| IEP | Eclipse | Java | Installer | Description |
+
 | ------ | ------ | ------ |------ | ------ |
 | IEP 2.10.0 | Eclipse 2022-09,2022-12,2023-03 |Java 17 and above | [espressif-ide-setup-2.10.0-with-esp-idf-5.0.1.exe](https://github.com/espressif/idf-installer/releases/download/untagged-52aeb689780472c126c1/espressif-ide-setup-2.10.0-with-esp-idf-5.0.1.exe)|
 | IEP 2.9.1 | Eclipse 2022-09 and Eclipse  2022-12 |Java 17 and above | [espressif-ide-setup-2.9.0-with-esp-idf-5.0.1.exe](https://github.com/espressif/idf-installer/releases/download/espressif-ide-2.9.0-esp-idf-5.0.1/espressif-ide-setup-2.9.0-with-esp-idf-5.0.1.exe) | For Windows Users, it's recommended to use the Windows Offline Installer and upgrade to the latest IEP v2.9.1 plugin|
@@ -852,4 +847,4 @@ Note this configuration changes where all the project build artifacts will be ge
 <a name="Support"></a>
 # How to raise bugs
 
-Please raise the issues here https://github.com/espressif/idf-eclipse-plugin/issues with the complete environment details and log.
+Please raise the issues here https://github.com/espressif/idf-eclipse-plugin/issues with the complete environment details and log

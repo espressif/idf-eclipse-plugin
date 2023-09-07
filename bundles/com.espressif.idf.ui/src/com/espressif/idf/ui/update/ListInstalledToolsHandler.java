@@ -13,6 +13,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 
 import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
@@ -77,8 +78,12 @@ public class ListInstalledToolsHandler extends AbstractToolsHandler
 	{
 		List<String> arguments = new ArrayList<String>();
 		arguments.add(IDFConstants.TOOLS_LIST_CMD);
-
-		runCommand(arguments);
+		if (StringUtil.isEmpty(gitExecutablePath))
+		{
+			gitExecutablePath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.GIT_PATH);
+		}
+		
+		runCommand(arguments, console);
 	}
 
 }

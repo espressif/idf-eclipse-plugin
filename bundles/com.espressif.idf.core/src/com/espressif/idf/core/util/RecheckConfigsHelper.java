@@ -4,8 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.core.util;
 
-import java.util.Iterator;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.build.ICBuildConfiguration;
@@ -18,9 +17,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.osgi.service.prefs.Preferences;
 
-import com.espressif.idf.core.build.ESP32S2ToolChain;
-import com.espressif.idf.core.build.ESP32ToolChain;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.toolchain.ESPToolchain;
 
 /**
  * A class for revalidating the build configuration and adding the correct toolchain to the settings. This helps to
@@ -33,22 +31,33 @@ import com.espressif.idf.core.logging.Logger;
 public class RecheckConfigsHelper
 {
 
+	private RecheckConfigsHelper()
+	{
+	}
+
 	public static void revalidateToolchain(IProject project)
 	{
 		Preferences settings;
 		try
 		{
-			settings = InstanceScope.INSTANCE.getNode(CCorePlugin.PLUGIN_ID).node("config").node(project.getName())
+			settings = InstanceScope.INSTANCE.getNode(CCorePlugin.PLUGIN_ID).node("config").node(project.getName()) //$NON-NLS-1$
 					.node(project.getActiveBuildConfig().getName());
 			IToolChainManager toolChainManager = CCorePlugin.getService(IToolChainManager.class);
-			IToolChain toolChain = getESPToolChain(toolChainManager);
-			settings.put(ICBuildConfiguration.TOOLCHAIN_TYPE,
-					Optional.ofNullable(toolChain).map(o -> o.getTypeId()).orElse("")); //$NON-NLS-1$
-			settings.put(ICBuildConfiguration.TOOLCHAIN_ID,
-					Optional.ofNullable(toolChain).map(o -> o.getId()).orElse("")); //$NON-NLS-1$
+			IToolChain anyEspToolChain = getESPToolChain(toolChainManager);
+			String typeId = settings.get(ICBuildConfiguration.TOOLCHAIN_TYPE, anyEspToolChain.getTypeId());
+			String toolchainId = settings.get(ICBuildConfiguration.TOOLCHAIN_ID, anyEspToolChain.getId());
+			IToolChain currentToolChain = toolChainManager.getToolChain(typeId, toolchainId);
+			if (!(currentToolChain instanceof ESPToolchain))
+			{
+				currentToolChain = anyEspToolChain;
+			}
+			settings.put(ICBuildConfiguration.TOOLCHAIN_TYPE, currentToolChain.getTypeId());
+			settings.put(ICBuildConfiguration.TOOLCHAIN_ID, currentToolChain.getId());
 			recheckConfigs();
 		}
-		catch (CoreException e)
+		catch (
+				CoreException
+				| NoSuchElementException e)
 		{
 			Logger.log(e);
 		}
@@ -64,17 +73,9 @@ public class RecheckConfigsHelper
 
 	private static IToolChain getESPToolChain(IToolChainManager toolChainManager) throws CoreException
 	{
-		Iterator<IToolChain> iter = toolChainManager.getAllToolChains().iterator();
-		IToolChain toolChain = null;
-		while (iter.hasNext())
-		{
-			toolChain = iter.next();
-			if (toolChain instanceof ESP32ToolChain || toolChain instanceof ESP32S2ToolChain) // TODO: remove specific
-																								// conditions
-			{
-				return toolChain;
-			}
-		}
-		return toolChain;
+
+		return toolChainManager.getAllToolChains().stream().filter(ESPToolchain.class::isInstance).findFirst()
+				.orElseThrow();
+
 	}
 }

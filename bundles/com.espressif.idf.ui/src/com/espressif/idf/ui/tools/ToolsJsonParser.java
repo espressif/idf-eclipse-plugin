@@ -4,7 +4,9 @@
  *******************************************************************************/
 package com.espressif.idf.ui.tools;
 
+import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -90,6 +92,24 @@ public class ToolsJsonParser
 			currentOS = "win"; //$NON-NLS-1$
 		}
 		
+		if (currentOS.contains(Platform.OS_MACOSX))
+		{
+			Process p = Runtime.getRuntime().exec("uname -m"); //$NON-NLS-1$
+			InputStreamReader inputStreamReader = new InputStreamReader(p.getInputStream());
+			BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+			String output = bufferedReader.readLine();
+			if (!output.contains("arm64")) //$NON-NLS-1$
+			{
+				currentOS = "macos"; //$NON-NLS-1$
+			}
+			else 
+			{
+				currentOS = "macos-".concat(output); //$NON-NLS-1$
+				inputStreamReader.close();
+				bufferedReader.close();				
+			}
+		}
+		
 		for (int i = 0; i < jsonArray.size(); i++)
 		{
 			JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
@@ -106,7 +126,7 @@ public class ToolsJsonParser
 						JsonElement element = jsonObject.get(key);
 						if (element.isJsonArray())
 						{
-							List<String> list = getStringsListFromJsonArray(element.getAsJsonArray());
+							List<String> list = getStringsListFromJsonArray(element.getAsJsonArray().get(0).getAsJsonArray());
 							injectOverride(toolsVO, key, list);
 						}
 						else

@@ -40,7 +40,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.tools.templates.freemarker,
  org.eclipse.embedcdt.ui,
  org.eclipse.ltk.ui.refactoring,
- org.eclipse.ltk.core.refactoring
+ org.eclipse.ltk.core.refactoring,
+ org.eclipse.epp.mpc.ui
 Automatic-Module-Name: com.espressif.idf.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11
@@ -48,9 +49,11 @@ Export-Package: com.espressif.idf.ui,
  com.espressif.idf.ui.dialogs,
  com.espressif.idf.ui.handlers,
  com.espressif.idf.ui.preferences,
- com.espressif.idf.ui.tracing
+ com.espressif.idf.ui.tracing,
+ com.espressif.idf.ui.update
 Bundle-ClassPath: .,
+ lib/commons-compress-1.21.jar,
+ lib/xz-1.9.jar,
  lib/commonmark-0.16.1.jar,
  lib/ini4j-0.5.4.jar,
- lib/gson-2.8.7.jar,
- lib/commons-compress-1.21.jar
+ lib/gson-2.8.7.jar
