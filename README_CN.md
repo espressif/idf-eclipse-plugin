@@ -21,8 +21,7 @@ ESP-IDF Eclipse 插件支持 `macOS`、`Window` 和 `Linux` 操作系统。
 # 目录
 <details open>
   <summary>入门指南</summary>
-
-* [安装依赖资源](#Prerequisites) <br>
+* [安装依赖资源](#Installation) <br>
 * [创建一个新项目](#NewProjectUsingDefault)<br>
 * [配置启动目标](#ConfigureLaunchTarget)<br>
 * [编译项目](#BuildApplication)<br>
@@ -61,7 +60,6 @@ ESP-IDF Eclipse 插件支持 `macOS`、`Window` 和 `Linux` 操作系统。
 * [NVS 表编辑器](#nvsTableEditor)<br>
 * [更改语言](#changeLanguage)<br>
 * [Wokwi 模拟器](#wokwisimulator)<br>
-
 </details>
 
 <a name="Installation"></a>
@@ -69,11 +67,11 @@ ESP-IDF Eclipse 插件支持 `macOS`、`Window` 和 `Linux` 操作系统。
 
 IDF Eclipse 插件的运行环境要求如下。
 
-* **Java 17 及以上**：点击<a href= "https://www.oracle.com/technetwork/java/javase/downloads/index.html">这里</a>下载并安装 Java SE
-* **Python 3.6 及以上**：点击<a href="https://www.python.org/downloads/">这里</a>下载并安装 Python
-* **Eclipse IDE C/C++ 开发工具 2022-09（或 2022-12）**：点击<a href= "https://www.eclipse.org/downloads/packages/release/2022-09/r/eclipse-ide-cc-developers">这里</a>下载并安装 Eclipse CDT 安装包
-* **Git**：点击<a href ="https://git-scm.com/downloads">这里</a>获得最新 Git
-* **ESP-IDF 4.0 及以上**：点击<a href ="https://github.com/espressif/esp-idf/releases">这里</a>克隆 ESP-IDF 仓库
+* **Java 17 及以上**：点击<a href= "https://www.oracle.com/technetwork/java/javase/downloads/index.html">这里</a>下载并安装 Java SE.。
+* **Python 3.6 及以上**：点击<a href="https://www.python.org/downloads/">这里</a>下载并安装 Python。
+* **Eclipse IDE C/C++ 开发工具 2023-03**：点击<a href= "https://www.eclipse.org/downloads/packages/release/2023-03/r/eclipse-ide-cc-developers">这里</a>下载并安装 Eclipse CDT 安装包。
+* **Git**：点击<a href ="https://git-scm.com/downloads">这里</a>获得最新 Git。
+* **ESP-IDF 4.0 及以上**：点击<a href ="https://github.com/espressif/esp-idf/releases">这里</a>克隆 ESP-IDF 仓库。
 
 > **Note:** 请确保系统环境 `PATH` 可以访问 Java、Python 和 Git。
 
@@ -87,7 +85,7 @@ IDF Eclipse 插件的运行环境要求如下。
 
 您可以使用`更新站点 URL` 将 ESP-IDF Eclipse 插件安装至您的 Eclipse CDT 环境中，具体步骤见下：
 
-1. 前往`帮助`>`安装新软件`
+1. 前往`帮助`>`安装新软件`。
 1. 点击`添加…`，并在弹出的对话窗中：
 	* 输入`名称`为 `乐鑫 ESP-IDF Eclipse 插件`。
 	* 输入`仓库位置`为：
@@ -144,12 +142,12 @@ ESP-IDF 目录选择对话框：
 <a name="NewProjectUsingDefault"></a>
 # 创建一个新项目
 
-1. 请首先确保您处于`C/C++ 视图`之下。
+1. 请首先确保您处于 `C/C++ 视图`之下。
 1. 前往`文件`>`新建`>`乐鑫 IDF 项目`（如果您未看到该选项，请前往`窗口`>`视图`>`重置视图...`）。
 1. 输入 `项目名称` （注意，ESP-IDF 构建系统路径中不允许空格）。
 1. 点击`完成`。
 
-如需使用现有 ESP-IDF 模版创建一个新项目，请见[这里](#NewProjectUsingTemplates)
+如需使用现有 ESP-IDF 模版创建一个新项目，请见[这里](#NewProjectUsingTemplates)。
 
 > **Note:** 完成以上操作后，您将在编辑器中看到许多未解决的 include 错误。这些错误仅在构建完成后才能解决。
 
@@ -162,7 +160,7 @@ ESP-IDF 目录选择对话框：
 
 1. 点击顶部工具栏中左起第三个下拉窗口`启动目标`。
 1. 选择`新的启动目标`。
-1. 选择`ESP 目标`。
+1. 选择 `ESP 目标`。
 1. 提供目标属性，即您希望启动应用程序的位置。输入目标`名称`，并选择您连接 ESP 设备的`串口`。
 
 ![](docs/images/zh/8_launch_target.png)
@@ -193,7 +191,7 @@ ESP-IDF 的 `idf.py` 工具可以打包 `make flash` 命令和常用指令。用
 为了查看 Eclipse 的串口输出，我们需要在`ESP-IDF 串口监视器`中配置需要监测的串口。本功能已经集成至`IDF 监视器`。更多详情，请见 <a href="https://docs.espressif.com/projects/esp-idf/zh_CN/latest/esp32/api-guides/tools/idf-monitor.html">这里</a>。
 
 1. 点击工具栏中的`打开终端`图标。
-1. 从终端下拉菜单中选择`ESP-IDF 串口监视器`。
+1. 从终端下拉菜单中选择 `ESP-IDF 串口监视器`。
 1. 手动选择开发板连接的`串口`（如未能自动检测）。
 1. 配置`串口监视器`过滤器，对串口输出进行过滤。
 1. 点击 `OK` 启动终端，开始监听 USB 端口。
@@ -239,7 +237,7 @@ ESP-IDF 的 `idf.py` 工具可以打包 `make flash` 命令和常用指令。用
 <a name="InstallToolsWizard"></a>
 # 工具安装助手
 
-您可以使用工具安装助手，安装相关工具，优势在于可以简化安装过程，且仅安装 ESP-IDF 框架下您需要的工具。<br/>
+您可以使用工具安装助手，安装相关工具，优势在于可以简化安装过程，且仅安装 ESP-IDF 框架下您需要的工具。
 
 具体步骤如下：
 
@@ -253,7 +251,6 @@ ESP-IDF 的 `idf.py` 工具可以打包 `make flash` 命令和常用指令。用
 ![](docs/images/ToolsManager/select_or_download_new_esp_idf.png)
 
 1. 点击 `下一步` 查看针对您的 ESP-IDF 版本的可用工具。此时，您可以选择安装所有推荐工具，或仅选择您需要的工具（可按照工具名称或目标进行筛选）。接着，安装助手将下载并安装所有所需的工具。安装完成后，您就可以创建项目了。
-
 ![](docs/images/ToolsManager/manage_tools_installation.png)
 
 <a name="projectconfigure"></a>
@@ -266,7 +263,7 @@ ESP-IDF Eclipse 插件允许用户直接在 Eclipse 环境中配置 `sdkconfig`�
 1. 前往 `sdkconfig` 文件。
 1. 双击文件，启动 SDK 配置编辑器。
 1. 完成更改后，可使用 `Ctrl+S` 或 `Command+S` 保存更改。也可以点击 Eclipse 工具栏中的`保存`按钮进行保存。
-1. 如需撤回对 sdkconfig 编辑器的更改，用户可选择不保存退出编辑器；也可右键 `sdkconfig` 文件并选择`加载 sdkconfig`菜单选项，恢复对编辑器的修改。
+1. 如需撤回对 sdkconfig 编辑器的更改，用户可选择不保存退出编辑器；也可右键 `sdkconfig` 文件并选择`加载 sdkconfig` 菜单选项，恢复对编辑器的修改。
 
 ![](docs/images/13_sdkconfig_editor.png)
 
@@ -284,14 +281,16 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 <a name="sizeanalysiseditor"></a>
 #  ESP-IDF 应用程序内存分析
 
-内存分析编辑器可分析应用程序的静态内存使用情况：概述和详情。`概述`选项卡可简要提供应用程序的内存使用情况；`详情`选项卡可详细介绍应用程序中各组件和各符号文件的内存使用情况。
+内存分析编辑器可分析应用程序的静态内存使用情况：概述和详情。
+- `概述`选项卡可简要提供应用程序的内存使用情况；
+- `详情`选项卡可详细介绍应用程序中各组件和各符号文件的内存使用情况。
 
 其中，`详情`选项卡还支持搜索和排序功能。
 
 启动`应用程序内存分析编辑器`：
 
-1. 右键点击项目
-1. 选择`ESP-IDF：应用程序内存分析`菜单，启动编辑器
+1. 右键点击项目。
+1. 选择 `ESP-IDF：应用程序内存分析`菜单，启动编辑器。
 
 **应用程序内存分析 - 概述**
 
@@ -342,9 +341,9 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 
 如上述环境变量未能自动正确配置，请按照以下步骤操作。
 
-1. 前往`C/C++ 构建`下的`环境`偏好设置页。
-1. 再次点击`添加...`，并输入`IDF_PATH`，即 ESP-IDF 的完整安装路径。
-1. 按照相同步骤，配置 OPENOCD_SCRIPTS、IDF_PYTHON_ENV_PATH 和 PATH 环境变量。
+1. 前往 `C/C++ 构建`下的`环境`偏好设置页。
+1. 再次点击`添加...`，并输入 `IDF_PATH`，即 ESP-IDF 的完整安装路径。
+1. 按照相同步骤，配置 `OPENOCD_SCRIPTS`、`IDF_PYTHON_ENV_PATH` 和 `PATH` 环境变量。
 
 以下均为示例：
 
@@ -389,7 +388,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 
 现在，我们需要告诉 CDT 在构建项目时需要使用哪种工具链。这可以在生成 Ninja 文件时将所需的参数传递给 CMake。
 
-1. 前往`C/C++`>`CMake`偏好设置页。
+1. 前往 `C/C++`>`CMake`偏好设置页。
 1. 点击`添加...`，启动新的 CMake 工具链配置对话框。
 1. 浏览 CMake 工具链 `Path`。示例：`/Users/user-name/esp/esp-idf/tools/cmake/toolchain-esp32.cmake`。
 1. 从下拉列表中选择 `GCC Xtensa 工具链`编译器。示例：`esp32 xtensa /Users/user-name/esp/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc`。
@@ -409,7 +408,7 @@ ESP-IDF Eclipse 插件 v2.7.0 及以上版本支持使用 Clang 工具链构建�
 1. 前往 `构建设置`，并选择 clang 工具链。
 ![image](https://user-images.githubusercontent.com/24419842/194882462-3c0fd660-b223-4caf-964d-58224d91b518.png)
 
-> **NOTE:** Clang 工具链目前仅供研发试用，可能会出现一些与 ESP-IDF 不兼容的构建错误。下方针对目前的 ESP-IDF master 分支 (ESP-IDF v5.1-dev-992-gaf28c1fa21-dirty)，罗列了一些与 Clang 工具链有关的常见问题及解决方法，详情请见[这里](https://github.com/espressif/idf-eclipse-plugin/blob/master/WORKAROUNDS.md).
+> **NOTE:** Clang 工具链目前仅供研发试用，可能会出现一些与 ESP-IDF 不兼容的构建错误。下方针对目前的 ESP-IDF master 分支 (ESP-IDF v5.1-dev-992-gaf28c1fa21-dirty)，罗列了一些与 Clang 工具链有关的常见问题及解决方法，详情请见[这里](https://github.com/espressif/idf-eclipse-plugin/blob/master/WORKAROUNDS__CN.md#clang-toolchain-buid-errors).
 
 <a name="customizeLaunchConfig"></a>
 # 启动配置
@@ -660,18 +659,19 @@ ESP-IDF 项目构建中的大多数常见错误均可从提示数据库 (`tools/
 
 完成上述步骤后，可通过 DFU 构建烧固件，具体步骤如下：
 
-1. 前往工具栏，并打开 DFU 开关。
-1. 前往目标面板，并选择正确的目标和端口。
+1. 编辑活跃启动配置。
+1. 前往主页面，选择 `Flash over DFU` 选项。
+1. 选择需要的 IDF 目标。
 1. 此时，使用 build 命令会生成一个新文件 (dfu.bin)，可用于后续的烧录。
 
 ![DFU actions](https://user-images.githubusercontent.com/24419842/226182180-286099d3-9c1c-4394-abb0-212d43054529.png)
 
-更多信息（包括常见错误和已知问题），请见[指南](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/dfu.html#usb-drivers-windows-only)。
+更多信息（包括常见错误和已知问题），请见[指南](https://docs.espressif.com/projects/esp-idf/zh_CN/latest/esp32s3/api-guides/dfu.html#usb-drivers-windows-only)。
 
 <a name="appLvlTracing"></a>
 # 应用层追踪
 
-ESP-IDF 的[应用层追踪](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c3/api-guides/app_trace.html?) 功能可用于分析程序行为。ESP-IDF Eclipse 插件也特别提供了用户界面，允许通过命令开始/停止追踪，并进行数据处理。具体参考可见 [app_trace_to_host](https://github.com/espressif/esp-idf/tree/master/examples/system/app_trace_to_host) 项目，创建方式如下：
+ESP-IDF 的[应用层追踪](https://docs.espressif.com/projects/esp-idf/zh_CN/latest/esp32c3/api-guides/app_trace.html) 功能可用于分析程序行为。ESP-IDF Eclipse 插件也特别提供了用户界面，允许通过命令开始/停止追踪，并进行数据处理。具体参考可见 [app_trace_to_host](https://github.com/espressif/esp-idf/tree/master/examples/system/app_trace_to_host) 项目，创建方式如下：
 
 ![](docs/images/AppLvlTracing_1.png)
 
@@ -696,7 +696,7 @@ ESP-IDF 的[应用层追踪](https://docs.espressif.com/projects/esp-idf/en/late
 	* `wait4halt`：配置为 0 立刻开始追踪，否则等待目标停止后开始追踪（复位后、出现断点等）。默认值 0（立刻开始追踪）。
 	* `skip_size`：开始追踪后跳过若干个字节。默认值 0（跳过 0 个字节）。
 
-更多信息，请见[这里](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c3/api-guides/app_trace.html?)。
+更多信息，请见[这里](https://docs.espressif.com/projects/esp-idf/zh_CN/latest/esp32c3/api-guides/app_trace.html?)。
 
 ![](docs/images/AppLvlTracing_4.png)
 
@@ -714,7 +714,7 @@ ESP-IDF 的[应用层追踪](https://docs.espressif.com/projects/esp-idf/en/late
 <a name ="updateEspIdfMaster"></a>
 # ESP-IDF Master 更新
 
-您如果在使用 ESP-IDF 的 master 分支，并希望进行升级：请打开 Eclipse 插件，前往 `乐鑫` -> `ESP-IDF 工具管理器`，并点击 `更新 ESP-IDF master`。
+您如果在使用 ESP-IDF 的 master 分支，并希望进行升级：请打开 Eclipse 插件，前往 `乐鑫` > `ESP-IDF 工具管理器`，并点击 `更新 ESP-IDF master`。
 
 ![image](https://user-images.githubusercontent.com/24419842/182107159-16723759-65e0-4c34-9440-ebe2f536e62a.png)
 
@@ -723,14 +723,13 @@ ESP-IDF 的[应用层追踪](https://docs.espressif.com/projects/esp-idf/en/late
 <a name ="partitionTableEditor"></a>
 # ESP-IDF 分区表编辑器界面
 
-`ESP-IDF: 分区表编辑器`命令允许您以更便捷的方式编辑您的[分区表](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/partition-tables.html)。在此界面中，您可以查看所有支持的类型和子类型，并监控输入数据。
+`ESP-IDF: 分区表编辑器`命令允许您以更便捷的方式编辑您的[分区表](https://docs.espressif.com/projects/esp-idf/zh_CN/latest/esp32/api-guides/partition-tables.html)。在此界面中，您可以查看所有支持的类型和子类型，并监控输入数据。
 
-> **Note:**此命令仅支持 idf-eclipse 2.8.0 及更高版本中。
+> **Note:**此命令仅支持 IDF-Eclipse 2.8.0 及更高版本中。
 
 具体操作步骤如下：
 
 1. 前往`项目资源管理器`，打开需要自定义分区表的 ESP-IDF 项目。
-
 1. 在`项目资源管理器`中右键单击项目，并选择 `ESP-IDF: 分区表编辑器`命令：
 
 	![partition_table_editor_3](https://user-images.githubusercontent.com/24419842/216105408-ca2e73ce-5df3-4bdd-ac61-b7265deb9b44.png)
@@ -767,7 +766,7 @@ ESP-IDF 的[应用层追踪](https://docs.espressif.com/projects/esp-idf/en/late
 
 	![NVS Table Editor](https://user-images.githubusercontent.com/24419842/216114697-9f231211-f5dd-431b-9432-93ecc656cfec.png)
 
-	> **Note:**此命令仅支持 idf-eclipse 2.8.0 及更高版本中。
+	> **Note:**此命令仅支持 IDF-Eclipse 2.8.0 及更高版本中。
 
 1. 根据需求，更改 CSV 数据
 1. 点击`保存`按钮保存更改。如果一切正常，您将在对话框顶部看到信息消息：
@@ -833,10 +832,10 @@ IDE 支持配置自定义构架目录：
 2. 在 Eclipse CDT 的构建环境变量中配置 `WOKWI_SERVER_PATH` 为 `wokwi-server` 可执行文件的路径（`Preferences` > `C/C++` > `Build` > `Environment`）。
 3. 创建一个新的`运行启动配置`，选择 `Wokwi 模拟器`。
 4. 选择一个项目，并添加 Wokwi 项目的`项目 ID`。该项目 ID 可在 URL 中找到。例如，ESP32 Rust Blinky 项目的 URL 为 [https://wokwi.com/projects/345932416223806035](https://wokwi.com/projects/345932416223806035)，项目 ID 则为 URL 中的 345932416223806035。
-5. 点击``完成``以保存更改。
-6. 前往 IDE 工具栏，点击``启动``按钮来启动 Wokwi 模拟器。
+5. 点击 `完成` 以保存更改。
+6. 前往 IDE 工具栏，点击 `启动` 按钮来启动 Wokwi 模拟器。
 7. Wokwi 模拟器将在外部浏览器中启动。串行监视器的输出也会显示在 Eclipse CDT 构建控制台中。
-8. 要终止 Wokwi 模拟器，前往工具栏并点击``停止``按钮。
+8. 要终止 Wokwi 模拟器，前往工具栏并点击 `停止` 按钮。
 
 # ESP-IDF Eclipse 插件兼容情况
 

@@ -2,9 +2,9 @@
 
 [中文](./WORKAROUNDS_CN.md)
 
-## Clang Toolchain buid errors
+## Clang Toolchain Build Errors
 
-1. ``error: `__cxa_guard_release(abort)` is missing exception specification `throw()``. Edit a file `esp-idf/components/cxx/cxx_guards.cpp`
+1. ``error: `__cxa_guard_release(abort)` is missing exception specification `throw()`. Edit a file `esp-idf/components/cxx/cxx_guards.cpp`
 
 ```diff
 -extern "C" void __cxa_guard_release(__guard* pg)
