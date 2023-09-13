@@ -18,6 +18,8 @@ public class Messages extends NLS
 	public static String TableCol_SizeGCDA;
 	public static String Dialog_SelectProject_Title;
 	public static String Table_Unknown;
+	public static String GcovFileView_Refresh_Button;
+	public static String GcovFileView_SelectProject_Button;
 	
 	static
 	{
