@@ -124,10 +124,11 @@
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="http://download.eclipse.org/linuxtools/update"/>
-			<unit id="org.eclipse.linuxtools.dataviewers.feature.feature.group" version="8.11.0.202306052033"/>
-			<unit id="org.eclipse.linuxtools.gprof.feature.feature.group" version="8.11.0.202306052033"/>
-			<unit id="org.eclipse.linuxtools.profiling.feature.group" version="8.11.0.202306052033"/>
-			<unit id="org.eclipse.linuxtools.profiling.remote.feature.group" version="8.11.0.202306052033"/>
+			<unit id="org.eclipse.linuxtools.dataviewers.feature.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.linuxtools.gprof.feature.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.linuxtools.gcov.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.linuxtools.profiling.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.linuxtools.profiling.remote.feature.group" version="0.0.0"/>
 		</location>
 	</locations>
 </target>
