@@ -93,9 +93,11 @@ public class GcovFileView extends ViewPart implements ISelectionListener
 			{
 				Point pt = new Point(event.x, event.y);
 				TableItem item = table.getItem(pt);
+				if (item == null)
+					return;
 				IFile file = (IFile) item.getData();
 
-				if (item != null && file != null)
+				if (file != null)
 				{
 					try
 					{
@@ -104,7 +106,7 @@ public class GcovFileView extends ViewPart implements ISelectionListener
 					}
 					catch (PartInitException e)
 					{
-						e.printStackTrace();
+						Logger.log(e);
 					}
 				}
 			}
