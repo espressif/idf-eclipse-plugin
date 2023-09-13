@@ -6,7 +6,7 @@ package com.espressif.idf.ui.dialogs;
 
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -25,7 +25,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -34,36 +33,63 @@ import com.espressif.idf.core.build.ReHintPair;
 import com.espressif.idf.core.util.HintsUtil;
 import com.espressif.idf.core.util.StringUtil;
 
-public class HintsView extends ViewPart
+public class BuildView extends ViewPart
 {
-	private TableViewer hintsTableViewer;
-	private Table hintsTable;
-	private final String[] titles = { "Error Type", "Hint" }; //$NON-NLS-1$ //$NON-NLS-2$
-	private Text searchField;
-	private List<ReHintPair> reHintsList;
 
-	public HintsView()
+	private TableViewer hintsTableViewer;
+	private final String[] titles = { Messages.BuildView_ErrorMsgLbl, Messages.BuildView_HintMsgLbl }; 
+	private List<ReHintPair> reHintsPairs;
+	private Composite parent;
+	private Composite container;
+	public BuildView()
 	{
-		super();
+		reHintsPairs = Collections.emptyList();
 	}
 
-	@Override
+	public void updateReHintsPairs(List<ReHintPair> reHintPairs)
+	{
+		this.reHintsPairs = reHintPairs;
+		container.dispose();
+		createPartControl(parent);
+		parent.pack();
+		parent.layout(true);
+	}
+
 	public void createPartControl(Composite parent)
 	{
-		Composite container = new Composite(parent, SWT.NONE);
+		this.parent = parent;
+		container = new Composite(this.parent, SWT.NONE);
 		container.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		GridLayout layout = new GridLayout(1, true);
 		container.setLayout(layout);
-		reHintsList = HintsUtil.getReHintsList(new File(HintsUtil.getHintsYmlPath()));
-		if (reHintsList.isEmpty())
+		if (reHintsPairs.isEmpty())
 		{
-			CLabel errorField = new CLabel(container, SWT.H_SCROLL);
-			errorField.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK));
-			errorField.setText(MessageFormat.format(Messages.HintsYmlNotFoundErrMsg, HintsUtil.getHintsYmlPath()));
+			if (!new File(HintsUtil.getHintsYmlPath()).exists())
+			{
+				createNoHintsYmlLabel();
+			}
+			else
+			{
+				createNoAvailableHintsLabel();
+			}
 			return;
 		}
-		createSearchField(container);
 		createHintsViewer(container);
+	}
+
+	private void createNoAvailableHintsLabel()
+	{
+		CLabel infoField = new CLabel(container, SWT.H_SCROLL);
+		infoField.setImage(
+				PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_INFO_TSK));
+		infoField.setText(Messages.BuildView_NoAvailableHintsMsg);
+	}
+
+	private void createNoHintsYmlLabel()
+	{
+		CLabel errorField = new CLabel(container, SWT.H_SCROLL);
+		errorField.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK));
+		errorField.setText(MessageFormat.format(Messages.HintsYmlNotFoundErrMsg, HintsUtil.getHintsYmlPath()));
 	}
 
 	private void createHintsViewer(Composite container)
@@ -71,11 +97,11 @@ public class HintsView extends ViewPart
 		hintsTableViewer = new TableViewer(container,
 				SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
 		createColumns(container);
-		hintsTable = hintsTableViewer.getTable();
+		Table hintsTable = hintsTableViewer.getTable();
 		hintsTable.setHeaderVisible(true);
 		hintsTable.setLinesVisible(true);
 		hintsTableViewer.setContentProvider(new ArrayContentProvider());
-		hintsTableViewer.setInput(reHintsList);
+		hintsTableViewer.setInput(reHintsPairs);
 		resizeAllColumns();
 		GridData gridData = new GridData();
 		gridData.verticalAlignment = GridData.FILL;
@@ -101,11 +127,16 @@ public class HintsView extends ViewPart
 		col.setLabelProvider(new ColumnLabelProvider()
 		{
 			@Override
+			public Image getImage(Object element)
+			{
+				return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK);
+			}
+
+			@Override
 			public String getText(Object element)
 			{
 				Optional<Pattern> reOptionalPattern = ((ReHintPair) element).getRe();
-				return reOptionalPattern.isPresent() ? reOptionalPattern.get().pattern()
-						: StringUtil.EMPTY;
+				return reOptionalPattern.isPresent() ? reOptionalPattern.get().pattern() : StringUtil.EMPTY;
 			}
 		});
 		col = createTableViewerColumn(titles[1]);
@@ -123,10 +154,12 @@ public class HintsView extends ViewPart
 				return ((ReHintPair) element).getHint();
 			}
 		});
-		col.getViewer().addDoubleClickListener(event -> {
+		col.getViewer().addDoubleClickListener(event ->
+		{
 				StructuredSelection selection = (StructuredSelection) event.getViewer().getSelection();
 				MessageDialog.openInformation(container.getShell(), Messages.HintDetailsTitle,
 						((ReHintPair) selection.getFirstElement()).getHint());
+
 		});
 	}
 
@@ -140,42 +173,9 @@ public class HintsView extends ViewPart
 		return viewerColumn;
 	}
 
-	private void createSearchField(Composite container)
-	{
-		GridData dataName = new GridData();
-		dataName.grabExcessHorizontalSpace = true;
-		dataName.horizontalAlignment = SWT.FILL;
-		searchField = new Text(container, SWT.SINGLE | SWT.BORDER | SWT.SEARCH | SWT.ICON_CANCEL | SWT.ICON_SEARCH);
-		searchField.setMessage(Messages.FilterMessage);
-		searchField.setLayoutData(dataName);
-		searchField.addModifyListener(e -> {
-			final List<ReHintPair> allMatchesList = new ArrayList<>();
-			reHintsList.stream()
-					.filter(reHintEntry -> reHintEntry.getRe()
-							.map(pattern -> pattern.matcher(searchField.getText()).find()).orElse(false))
-					.forEach(allMatchesList::add);
-
-			if (allMatchesList.isEmpty())
-			{
-				reHintsList.stream()
-						.filter(reHintEntry -> reHintEntry.getRe()
-								.map(pattern -> pattern.pattern().contains(searchField.getText())).orElse(false))
-						.forEach(allMatchesList::add);
-			}
-
-			hintsTableViewer.setInput(allMatchesList.isEmpty() ? reHintsList : allMatchesList);
-			hintsTableViewer.refresh();
-		});
-
-	}
-
-	@Override
 	public void setFocus()
 	{
-		if (searchField != null)
-		{
-			searchField.setFocus();
-		}
+		// Do nothing
 	}
 
 }

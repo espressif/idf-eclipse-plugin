@@ -5,6 +5,9 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS
 {
 	private static final String BUNDLE_NAME = "com.espressif.idf.ui.dialogs.messages"; //$NON-NLS-1$
+	public static String BuildView_ErrorMsgLbl;
+	public static String BuildView_HintMsgLbl;
+	public static String BuildView_NoAvailableHintsMsg;
 	public static String DeleteResourcesWizard_project_deleteConfigurations;
 	public static String CMakeBuildTab2_AdditionalCMakeArgs;
 	public static String CMakeBuildTab2_BuildCmd;

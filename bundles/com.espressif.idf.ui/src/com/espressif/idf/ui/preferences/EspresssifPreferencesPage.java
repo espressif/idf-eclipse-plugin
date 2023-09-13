@@ -32,6 +32,7 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 	private Text numberLineText;
 	private Text gdbSettingsText;
 	private Button ccacheBtn;
+	private Button automateHintsBtn;
 
 	public EspresssifPreferencesPage()
 	{
@@ -66,7 +67,23 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 
 		addSerialSettings(mainComposite);
 
+		addBuildSettings(mainComposite);
+
 		return mainComposite;
+	}
+
+	private void addBuildSettings(Composite mainComposite)
+	{
+		Group buildGroup = new Group(mainComposite, SWT.SHADOW_ETCHED_IN);
+		buildGroup.setText(Messages.EspresssifPreferencesPage_BuildGroupTxt);
+		buildGroup.setLayout(new GridLayout(1, false));
+
+		automateHintsBtn = new Button(buildGroup, SWT.CHECK);
+		automateHintsBtn.setText(Messages.EspresssifPreferencesPage_SearchHintsCheckBtn);
+		automateHintsBtn.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		automateHintsBtn.setToolTipText(Messages.EspresssifPreferencesPage_SearchHintsTooltip);
+		automateHintsBtn
+				.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.AUTOMATE_BUILD_HINTS_STATUS));
 	}
 
 	private void addccacheControl(Composite mainComposite)
@@ -134,6 +151,9 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 			getPreferenceStore().setValue(NUMBER_OF_LINES, numberOfLines);
 
 			getPreferenceStore().setValue(IDFCorePreferenceConstants.CMAKE_CCACHE_STATUS, ccacheBtn.getSelection());
+
+			getPreferenceStore().setValue(IDFCorePreferenceConstants.AUTOMATE_BUILD_HINTS_STATUS,
+					automateHintsBtn.getSelection());
 		}
 		catch (Exception e)
 		{
@@ -151,6 +171,8 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		numberOfCharsInLineText
 				.setText(Integer.toString(getPreferenceStore().getDefaultInt(NUMBER_OF_CHARS_IN_A_LINE)));
 		ccacheBtn.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.CMAKE_CCACHE_STATUS));
+		automateHintsBtn
+				.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.AUTOMATE_BUILD_HINTS_STATUS));
 	}
 
 	private void initializeDefaults()
@@ -160,5 +182,7 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		getPreferenceStore().setDefault(NUMBER_OF_LINES, DEFAULT_SERIAL_MONITOR_NUBMER_OF_LINES);
 		getPreferenceStore().setDefault(IDFCorePreferenceConstants.CMAKE_CCACHE_STATUS,
 				IDFCorePreferenceConstants.CMAKE_CCACHE_DEFAULT_STATUS);
+		getPreferenceStore().setDefault(IDFCorePreferenceConstants.AUTOMATE_BUILD_HINTS_STATUS,
+				IDFCorePreferenceConstants.AUTOMATE_BUILD_HINTS_DEFAULT_STATUS);
 	}
 }

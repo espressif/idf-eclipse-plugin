@@ -22,8 +22,9 @@ public class IDFCorePreferenceConstants
 {
 	// CMake CCache preferences
 	public static final String CMAKE_CCACHE_STATUS = "cmakeCCacheStatus"; //$NON-NLS-1$
+	public static final String AUTOMATE_BUILD_HINTS_STATUS = "automateHintsStatus"; //$NON-NLS-1$
 	public static final boolean CMAKE_CCACHE_DEFAULT_STATUS = true;
-
+	public static final boolean AUTOMATE_BUILD_HINTS_DEFAULT_STATUS = true;
 	/**
 	 * Returns the node in the preference in the given context.
 	 *

@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
 import com.espressif.idf.core.resources.OpenDialogListenerSupport;
+import com.espressif.idf.core.resources.PopupDialog;
 
 public class ParitionSizeHandler
 {
@@ -56,17 +57,15 @@ public class ParitionSizeHandler
 				+ "partition-table.bin"); //$NON-NLS-1$
 
 		Process process = startProcess(commands);
-		String partitionTableContent = new String(process.getInputStream().readAllBytes());
-		return partitionTableContent;
+		return new String(process.getInputStream().readAllBytes());
 	}
 
 	private Process startProcess(List<String> commands) throws IOException
 	{
-		infoStream.write(String.join(" ", commands) + '\n'); //$NON-NLS-1$ //$NON-NLS-2$
+		infoStream.write(String.join(" ", commands) + '\n'); //$NON-NLS-1$
 		Path workingDir = (Path) project.getLocation();
 		ProcessBuilder processBuilder = new ProcessBuilder(commands).directory(workingDir.toFile());
-		Process process = processBuilder.start();
-		return process;
+		return processBuilder.start();
 	}
 
 	private void startIdfSizeProcess() throws IOException, CoreException
@@ -100,7 +99,8 @@ public class ParitionSizeHandler
 			double remainSize = (maxSize - imageSize) / (maxSize);
 			if (remainSize < 0.3)
 			{
-				OpenDialogListenerSupport.getSupport().firePropertyChange(null, maxSize, remainSize * maxSize);
+				OpenDialogListenerSupport.getSupport().firePropertyChange(PopupDialog.LOW_PARTITION_SIZE.name(),
+						maxSize, remainSize * maxSize);
 				break;
 			}
 		}

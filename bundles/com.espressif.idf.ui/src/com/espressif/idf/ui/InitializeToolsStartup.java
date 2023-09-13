@@ -5,13 +5,13 @@
 package com.espressif.idf.ui;
 
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.List;
 
 import org.eclipse.cdt.cmake.core.internal.Activator;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -25,6 +25,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IStartup;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -33,11 +35,14 @@ import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.Messages;
+import com.espressif.idf.core.build.ReHintPair;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.resources.OpenDialogListenerSupport;
+import com.espressif.idf.core.resources.PopupDialog;
 import com.espressif.idf.core.resources.ResourceChangeListener;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.ui.dialogs.BuildView;
 import com.espressif.idf.ui.dialogs.MessageLinkDialog;
 import com.espressif.idf.ui.update.ExportIDFTools;
 import com.espressif.idf.ui.update.InstallToolsHandler;
@@ -45,6 +50,8 @@ import com.espressif.idf.ui.update.InstallToolsHandler;
 @SuppressWarnings("restriction")
 public class InitializeToolsStartup implements IStartup
 {
+
+	private static final String BUILDHINTS_ID = "com.espressif.idf.ui.views.buildhints"; //$NON-NLS-1$
 
 	/**
 	 * esp-idf.json is file created by the installer
@@ -65,24 +72,18 @@ public class InitializeToolsStartup implements IStartup
 	@Override
 	public void earlyStartup()
 	{
-		OpenDialogListenerSupport.getSupport().addPropertyChangeListener(new PropertyChangeListener()
-		{
-
-			@Override
-			public void propertyChange(PropertyChangeEvent evt)
+		OpenDialogListenerSupport.getSupport().addPropertyChangeListener(evt -> {
+			PopupDialog popupDialog = PopupDialog.valueOf(evt.getPropertyName());
+			switch (popupDialog)
 			{
-				Display.getDefault().asyncExec(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						MessageLinkDialog.openWarning(Display.getDefault().getActiveShell(),
-								Messages.IncreasePartitionSizeTitle,
-								MessageFormat.format(Messages.IncreasePartitionSizeMessage, evt.getNewValue(),
-										evt.getOldValue(), DOC_URL));
-					}
-				});
-
+			case LOW_PARTITION_SIZE:
+				openLowPartitionSizeDialog(evt);
+				break;
+			case AVAILABLE_HINTS:
+				openAvailableHintsDialog(evt);
+				break;
+			default:
+				break;
 			}
 		});
 		ILaunchBarListener launchBarListener = new LaunchBarListener();
@@ -196,6 +197,52 @@ public class InitializeToolsStartup implements IStartup
 		{
 			Logger.log(e);
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void openAvailableHintsDialog(PropertyChangeEvent evt)
+	{
+		Display.getDefault().asyncExec(() ->
+		{
+			List<ReHintPair> erroHintPairs = (List<ReHintPair>) evt.getNewValue();
+			// if list is empty we don't want to change focus from the console output
+			if (erroHintPairs.isEmpty())
+			{
+				updateValuesInBuildView(erroHintPairs);
+				return;
+			}
+			try
+			{
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+						.showView(BUILDHINTS_ID);
+			}
+			catch (PartInitException e)
+			{
+				Logger.log(e);
+			}
+			updateValuesInBuildView(erroHintPairs);
+		}
+		);
+
+	}
+
+	private void updateValuesInBuildView(List<ReHintPair> erroHintPairs)
+	{
+		BuildView view = ((BuildView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+				.findView(BUILDHINTS_ID));
+		if (view != null)
+		{
+			view.updateReHintsPairs(erroHintPairs);
+		}
+	}
+
+	private void openLowPartitionSizeDialog(PropertyChangeEvent evt)
+	{
+		Display.getDefault().asyncExec(() ->
+				MessageLinkDialog.openWarning(Display.getDefault().getActiveShell(),
+						Messages.IncreasePartitionSizeTitle, MessageFormat.format(Messages.IncreasePartitionSizeMessage,
+								evt.getNewValue(), evt.getOldValue(), DOC_URL))
+			);
 	}
 	
 	@SuppressWarnings("unchecked")
