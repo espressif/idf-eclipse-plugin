@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
@@ -53,6 +54,7 @@ import org.eclipse.ui.part.ViewPart;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.GcovUtility;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.StringUtil;
 
 /**
  * Gcov file view that can be opened by right clicking on the project. It is used to show the gcno/gcda files as one
@@ -121,6 +123,14 @@ public class GcovFileView extends ViewPart implements ISelectionListener
 				refreshList();
 			}
 		};
+		Action selectProjectAction = new Action("Select Project")
+		{
+			public void run()
+			{
+				openProjectSelectionDialog();
+				refreshList();
+			}
+		};
 		mgr.add(refreshAction);
 
 		// Initial population of the list
@@ -139,14 +149,55 @@ public class GcovFileView extends ViewPart implements ISelectionListener
 			setSelectedProject((IProject) obj);
 		}
 	}
-
-	private void refreshList()
+	
+	private void openProjectSelectionDialog()
 	{
-		for (TableItem item : table.getItems())
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		ElementListSelectionDialog dialog = new ElementListSelectionDialog(
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+				new org.eclipse.ui.model.WorkbenchLabelProvider());
+		dialog.setElements(root.getProjects());
+		dialog.setTitle(Messages.Dialog_SelectProject_Title);
+
+		// only continue if the user pressed "OK"
+		if (dialog.open() != Window.OK)
 		{
-			item.dispose();
+			return;
 		}
 
+		setSelectedProject((IProject) dialog.getFirstResult());
+	}
+
+	private void createTableItem(Image image, String fileName, String filePath, String gcnoDate, String gcdaDate, String gcnoSize, String gcdaSize, Object data)
+	{
+		int index = 0;
+		TableItem item = new TableItem(table, SWT.NONE);
+		item.setImage(index, image);
+		item.setText(index++, fileName);
+		item.setText(index++, filePath);
+		item.setText(index++, gcnoDate);
+		item.setText(index++, gcdaDate);
+		item.setText(index++, gcnoSize);
+		item.setText(index++, gcdaSize);
+		
+		item.setData(data);
+	}
+
+	private String getFileSize(java.nio.file.Path path)
+	{
+		try
+		{
+			long size = Files.size(path);
+			return String.valueOf(size) + " bytes"; //$NON-NLS-1$
+		}
+		catch (Exception e)
+		{
+			return Messages.Table_Unknown;
+		}
+	}
+	
+	private void verifyProjectSelection()
+	{
 		if (getSelectedProject() == null)
 		{
 			// Get the current selection
@@ -173,22 +224,19 @@ public class GcovFileView extends ViewPart implements ISelectionListener
 			// If no project is selected, ask the user to choose one
 			if (getSelectedProject() == null)
 			{
-				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-				ElementListSelectionDialog dialog = new ElementListSelectionDialog(
-						PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-						new org.eclipse.ui.model.WorkbenchLabelProvider());
-				dialog.setElements(root.getProjects());
-				dialog.setTitle(Messages.Dialog_SelectProject_Title);
-
-				// only continue if the user pressed "OK"
-				if (dialog.open() != Window.OK)
-				{
-					return;
-				}
-
-				setSelectedProject((IProject) dialog.getFirstResult());
+				openProjectSelectionDialog();
 			}
 		}
+	}
+	
+	private void refreshList()
+	{
+		for (TableItem item : table.getItems())
+		{
+			item.dispose();
+		}
+
+		verifyProjectSelection();
 
 		IProject project = getSelectedProject();
 
@@ -210,47 +258,23 @@ public class GcovFileView extends ViewPart implements ISelectionListener
 										+ file.getName().substring(0, file.getName().indexOf(".gcno")) + ".gcda"; //$NON-NLS-1$ //$NON-NLS-2$
 								if (Files.exists(Paths.get(partnerFile)))
 								{
-									TableItem item = new TableItem(table, SWT.NONE);
 									Image image = PlatformUI.getWorkbench().getEditorRegistry()
 											.getImageDescriptor(file.getName()).createImage();
-									item.setImage(0, image);
-									item.setText(0, file.getName().substring(0, file.getName().indexOf(".gcno"))); //$NON-NLS-1$
-									item.setText(1, file.getParent().getFullPath().toString());
-
 									// gcno
 									IFileInfo fileInfo = EFS.getLocalFileSystem().getStore(file.getLocationURI())
 											.fetchInfo();
-									String date = DateFormat.getDateTimeInstance().format(new Date(fileInfo.getLastModified()));
-									item.setText(2, date);
-
+									String dateGcno = DateFormat.getDateTimeInstance()
+											.format(new Date(fileInfo.getLastModified()));
 									// gcda
 									fileInfo = EFS.getLocalFileSystem().getStore(Path.fromOSString(partnerFile))
 											.fetchInfo();
-									item.setText(3, DateFormat.getDateTimeInstance().format(new Date(fileInfo.getLastModified())));
+									String dateGcda = DateFormat.getDateTimeInstance()
+											.format(new Date(fileInfo.getLastModified()));
+									
+									String gcnoSize = getFileSize(Paths.get(file.getRawLocationURI()));
+									String gcdaSize = getFileSize(Paths.get(partnerFile));
 
-									java.nio.file.Path path = Paths.get(file.getRawLocationURI());
-									try
-									{
-										long size = Files.size(path);
-										item.setText(4, String.valueOf(size) + " bytes"); //$NON-NLS-1$
-									}
-									catch (Exception e)
-									{
-										item.setText(4, Messages.Table_Unknown);
-									}
-
-									path = Paths.get(partnerFile);
-									try
-									{
-										long size = Files.size(path);
-										item.setText(5, String.valueOf(size) + " bytes"); //$NON-NLS-1$
-									}
-									catch (Exception e)
-									{
-										item.setText(5, Messages.Table_Unknown);
-									}
-
-									item.setData(file);
+									createTableItem(image, file.getName().substring(0, file.getName().indexOf(".gcno")), file.getParent().getFullPath().toString(), dateGcno, dateGcda, gcnoSize, gcdaSize, file);
 								}
 							}
 						}
@@ -347,6 +371,18 @@ public class GcovFileView extends ViewPart implements ISelectionListener
 			});
 
 			// Copy existing item data
+			List<TableRowData> copiedData = createTableDataCopy(items);
+
+			// Remove all items (dispose of TableItem objects)
+			table.removeAll();
+
+			// Repopulate the table
+			populateTable(copiedData);
+		}
+		
+		
+		private List<TableRowData> createTableDataCopy(TableItem[] items)
+		{
 			List<TableRowData> copiedData = new ArrayList<>();
 			for (TableItem item : items)
 			{
@@ -360,12 +396,13 @@ public class GcovFileView extends ViewPart implements ISelectionListener
 				rowData.itemData = item.getData();
 				copiedData.add(rowData);
 			}
-
-			// Remove all items (dispose of TableItem objects)
-			table.removeAll();
-
-			// Repopulate the table
-			for (TableRowData rowData : copiedData)
+			
+			return copiedData;
+		}
+		
+		private void populateTable(List<TableRowData> tableRowData)
+		{
+			for (TableRowData rowData : tableRowData)
 			{
 				TableItem newItem = new TableItem(table, SWT.NONE);
 				for (int j = 0; j < table.getColumnCount(); j++)
