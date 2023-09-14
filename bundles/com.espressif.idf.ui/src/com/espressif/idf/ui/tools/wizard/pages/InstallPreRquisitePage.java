@@ -38,13 +38,13 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.SystemExecutableFinder;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.tools.IToolsInstallationWizardConstants;
 import com.espressif.idf.core.util.GitWinRegistryReader;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.PyWinRegistryReader;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.tools.Messages;
-import com.espressif.idf.ui.tools.wizard.IToolsInstallationWizardConstants;
 
 /**
  * Install initial tools page for git and python configs

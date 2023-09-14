@@ -1,4 +1,4 @@
-package com.espressif.idf.ui.tools;
+package com.espressif.idf.core.tools;
 
 import static java.lang.annotation.ElementType.FIELD;
 

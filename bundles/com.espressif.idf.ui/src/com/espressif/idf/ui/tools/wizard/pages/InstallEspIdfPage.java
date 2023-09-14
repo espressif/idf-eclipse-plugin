@@ -33,13 +33,13 @@ import org.eclipse.swt.widgets.Text;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.IDFVersion;
 import com.espressif.idf.core.IDFVersionsReader;
+import com.espressif.idf.core.tools.IToolsInstallationWizardConstants;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.tools.GitDownloadAndCloneThread;
 import com.espressif.idf.ui.tools.LogMessagesThread;
 import com.espressif.idf.ui.tools.Messages;
-import com.espressif.idf.ui.tools.wizard.IToolsInstallationWizardConstants;
 import com.espressif.idf.ui.tools.wizard.ToolsManagerWizard;
 
 /**

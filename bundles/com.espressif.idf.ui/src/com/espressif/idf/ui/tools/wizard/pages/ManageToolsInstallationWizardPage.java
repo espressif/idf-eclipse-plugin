@@ -28,11 +28,13 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.ProgressBar;
@@ -44,17 +46,18 @@ import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.tools.IToolsInstallationWizardConstants;
+import com.espressif.idf.core.tools.ToolsJsonParser;
+import com.espressif.idf.core.tools.ToolsPlatformMapping;
+import com.espressif.idf.core.tools.util.ToolsUtility;
+import com.espressif.idf.core.tools.vo.ToolsVO;
+import com.espressif.idf.core.tools.vo.VersionDetailsVO;
+import com.espressif.idf.core.tools.vo.VersionsVO;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.tools.LogMessagesThread;
 import com.espressif.idf.ui.tools.Messages;
 import com.espressif.idf.ui.tools.ToolsInstallationHandler;
-import com.espressif.idf.ui.tools.ToolsJsonParser;
-import com.espressif.idf.ui.tools.ToolsUtility;
-import com.espressif.idf.ui.tools.vo.ToolsVO;
-import com.espressif.idf.ui.tools.vo.VersionDetailsVO;
-import com.espressif.idf.ui.tools.vo.VersionsVO;
-import com.espressif.idf.ui.tools.wizard.IToolsInstallationWizardConstants;
 import com.espressif.idf.ui.tools.wizard.ToolsManagerWizardDialog;
 
 /**
@@ -109,13 +112,14 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 	private Preferences scopedPreferenceStore;
 	private Button forceDownloadBtn;
 	private Listener[] listenersForFinish;
+	private Link linkForDoc;
 
-	public ManageToolsInstallationWizardPage(WizardDialog parentWizardDialog)
+	public ManageToolsInstallationWizardPage(WizardDialog parentWizardDialog, ToolsJsonParser toolsJsonParser)
 	{
 		super(Messages.ManageToolsInstallation);
 		setTitle(Messages.ManageToolsInstallation);
 		setDescription(Messages.ManageToolsInstallationDescription);
-		toolsJsonParser = new ToolsJsonParser();
+		this.toolsJsonParser = toolsJsonParser;
 		this.parentWizardDialog = parentWizardDialog;
 		this.logQueue = new ConcurrentLinkedQueue<String>();
 		idfEnvironmentVariables = new IDFEnvironmentVariables();
@@ -269,6 +273,10 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		progressBar.setVisible(false);
 
+		linkForDoc = new Link(logAreaComposite, SWT.WRAP | SWT.MULTI);
+		linkForDoc.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 3));
+		linkForDoc.addListener(SWT.Selection, e -> Program.launch(e.text));
+		linkForDoc.setVisible(false);
 		createButtonsBar(logAreaComposite);
 
 		setButtonsEnabled(itemChecked);
@@ -846,7 +854,6 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 			item.setChecked(checked);
 			if (item.getParentItem() != null)
 			{
-				String key = item.getText(0);
 				VersionsVO versionsVO = (VersionsVO) item.getData();
 				
 				for(String os : versionsVO.getVersionOsMap().keySet())
@@ -886,7 +893,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 						ManageToolsInstallationWizardPage.this, idfEnvironmentVariables);
 				try
 				{
-					toolsInstallationHandler.operationToPerform(selectedItems, forceDownloadBtn.getSelection(),
+					toolsInstallationHandler.operationToPerform(toolsJsonParser.getRequiredToolsList(), selectedItems, forceDownloadBtn.getSelection(),
 							ToolsInstallationHandler.DELETING_TOOLS);
 				}
 				catch (Exception e1)
@@ -913,7 +920,7 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 				Map<ToolsVO, List<VersionsVO>> selectedItems = getSelectedTools();
 				try
 				{
-					toolsInstallationHandler.operationToPerform(selectedItems, forceDownloadBtn.getSelection(),
+					toolsInstallationHandler.operationToPerform(toolsJsonParser.getRequiredToolsList(), selectedItems, forceDownloadBtn.getSelection(),
 							ToolsInstallationHandler.INSTALLING_TOOLS);
 				}
 				catch (Exception e1)
@@ -940,6 +947,16 @@ public class ManageToolsInstallationWizardPage extends WizardPage implements ITo
 			restoreFinishButton();
 			((ToolsManagerWizardDialog) parentWizardDialog).finishPressed();
 		}
+	}
+
+	public Link getLinkForDoc()
+	{
+		return linkForDoc;
+	}
+
+	public void setLinkForDoc(Link linkForDoc)
+	{
+		this.linkForDoc = linkForDoc;
 	}
 
 	private class SelectRecommendedButtonSelectionAdapter extends SelectionAdapter

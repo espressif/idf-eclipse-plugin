@@ -16,6 +16,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.tools.IToolsInstallationWizardConstants;
+import com.espressif.idf.core.tools.ToolsJsonParser;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.tools.Messages;
 import com.espressif.idf.ui.tools.wizard.pages.IToolsWizardPage;
@@ -38,6 +40,7 @@ public class ToolsManagerWizard extends Wizard
 	private Preferences scopedPreferenceStore;
 	private Map<String, String> existingVarMap;
 	private boolean exisitngInstallPreferencesStatus;
+	private ToolsJsonParser toolsJsonParser;
 
 	public ToolsManagerWizard(Map<String, String> existingVarMap, boolean exisitngInstallPreferencesStatus)
 	{
@@ -47,6 +50,7 @@ public class ToolsManagerWizard extends Wizard
 		scopedPreferenceStore.putBoolean(IToolsInstallationWizardConstants.INSTALL_TOOLS_FLAG, false);
 		this.existingVarMap = existingVarMap;
 		this.exisitngInstallPreferencesStatus = exisitngInstallPreferencesStatus;
+		toolsJsonParser = new ToolsJsonParser();
 	}
 
 	@Override
@@ -60,7 +64,7 @@ public class ToolsManagerWizard extends Wizard
 	{
 		installPreRquisitePage = new InstallPreRquisitePage();
 		installEspIdfPage = new InstallEspIdfPage();
-		manageToolsInstallationPage = new ManageToolsInstallationWizardPage(parentWizardDialog);
+		manageToolsInstallationPage = new ManageToolsInstallationWizardPage(parentWizardDialog, toolsJsonParser);
 		addPage(installPreRquisitePage);
 		addPage(installEspIdfPage);
 		addPage(manageToolsInstallationPage);

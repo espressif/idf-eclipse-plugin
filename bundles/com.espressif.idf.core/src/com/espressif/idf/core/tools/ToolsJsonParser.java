@@ -2,13 +2,14 @@
  * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.ui.tools;
+package com.espressif.idf.core.tools;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,10 +17,10 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.Platform;
 
+import com.espressif.idf.core.tools.vo.ToolsVO;
+import com.espressif.idf.core.tools.vo.VersionDetailsVO;
+import com.espressif.idf.core.tools.vo.VersionsVO;
 import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.ui.tools.vo.ToolsVO;
-import com.espressif.idf.ui.tools.vo.VersionDetailsVO;
-import com.espressif.idf.ui.tools.vo.VersionsVO;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -37,11 +38,14 @@ public class ToolsJsonParser
 {
 	private Gson gson;
 	private List<ToolsVO> toolsList;
+	private List<ToolsVO> requiredToolsList;
+	private static final String[] REQUIRED_TOOLS = new String[] {"cmake", "dfu-util", "ninja"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 	public ToolsJsonParser()
 	{
 		gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
 		toolsList = new ArrayList<>();
+		requiredToolsList = new ArrayList<>();
 	}
 
 	public void loadJson() throws Exception
@@ -50,6 +54,7 @@ public class ToolsJsonParser
 		JsonReader jsonReader = new JsonReader(new FileReader(IDFUtil.getIDFToolsJsonFileForInstallation()));
 		JsonObject jsonObject = gson.fromJson(jsonReader, JsonObject.class);
 		JsonArray jsonArray = jsonObject.get(IToolsJsonKeys.TOOLS_KEY).getAsJsonArray();
+		List<String> reqToolsNamesList = Arrays.asList(REQUIRED_TOOLS);
 		for (int i = 0; i < jsonArray.size(); i++)
 		{
 			JsonObject toolsJsonObject = jsonArray.get(i).getAsJsonObject();
@@ -72,6 +77,7 @@ public class ToolsJsonParser
 						getStringsListFromJsonArray(toolsJsonObject.get(IToolsJsonKeys.SUPPORTED_TARGETS_KEY).getAsJsonArray()));	
 			}
 			toolsVO.setVersionCmd(getStringsListFromJsonArray(toolsJsonObject.get(IToolsJsonKeys.VERSION_CMD_KEY).getAsJsonArray()));
+			toolsVO.setVersionRegex(toolsJsonObject.get(IToolsJsonKeys.VERSION_REGEX).getAsString());
 			toolsVO.setVersionVO(getVersions(toolsJsonObject.get(IToolsJsonKeys.VERSIONS_VO_KEY).getAsJsonArray()));
 			toolsVO.setVersion(jsonObject.get(IToolsJsonKeys.VERSION_KEY).getAsString());
 			JsonElement jsonElement = toolsJsonObject.get(IToolsJsonKeys.PLATFORM_OVERRIDES_KEY);
@@ -81,6 +87,10 @@ public class ToolsJsonParser
 			}
 			
 			toolsList.add(toolsVO);
+			if (reqToolsNamesList.contains(toolsVO.getName()))
+			{
+				requiredToolsList.add(toolsVO);
+			}
 		}
 	}
 	
@@ -218,5 +228,11 @@ public class ToolsJsonParser
 	public List<ToolsVO> getToolsList()
 	{
 		return toolsList;
+	}
+
+	public List<ToolsVO> getRequiredToolsList()
+	{
+		return requiredToolsList;
+		
 	}
 }

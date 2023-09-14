@@ -2,16 +2,17 @@
  * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.ui.tools.vo;
+package com.espressif.idf.core.tools.vo;
 
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.core.runtime.Platform;
 
-import com.espressif.idf.ui.tools.IToolsJsonKeys;
-import com.espressif.idf.ui.tools.JsonKey;
+import com.espressif.idf.core.tools.IToolsJsonKeys;
+import com.espressif.idf.core.tools.JsonKey;
 
 /**
  * Bean class for tools information from json
@@ -47,6 +48,9 @@ public class ToolsVO
 
 	@JsonKey(key_name = IToolsJsonKeys.VERSION_CMD_KEY)
 	private List<String> versionCmd;
+	
+	@JsonKey(key_name = IToolsJsonKeys.VERSION_REGEX)
+	private String versionRegex;
 
 	@JsonKey(key_name = IToolsJsonKeys.VERSIONS_VO_KEY)
 	private List<VersionsVO> versionVOs;
@@ -213,4 +217,43 @@ public class ToolsVO
 	{
 		this.installed = installed;
 	}
+
+	public String getVersionRegex()
+	{
+		return versionRegex;
+	}
+
+	public void setVersionRegex(String versionRegex)
+	{
+		this.versionRegex = versionRegex;
+	}
+	
+	@Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        ToolsVO other = (ToolsVO) obj;
+        return Objects.equals(description, other.description)
+                && Objects.equals(exportPaths, other.exportPaths)
+                && Objects.equals(exportVars, other.exportVars)
+                && Objects.equals(infoUrl, other.infoUrl)
+                && Objects.equals(installType, other.installType)
+                && Objects.equals(licesnse, other.licesnse)
+                && Objects.equals(name, other.name)
+                && Objects.equals(supportedTargets, other.supportedTargets)
+                && Objects.equals(versionCmd, other.versionCmd)
+                && Objects.equals(versionRegex, other.versionRegex)
+                && Objects.equals(versionVOs, other.versionVOs)
+                && Objects.equals(version, other.version)
+                && installed == other.installed;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(description, exportPaths, exportVars, infoUrl, installType, licesnse, name, supportedTargets, versionCmd, versionRegex, versionVOs, version, installed);
+    }
 }

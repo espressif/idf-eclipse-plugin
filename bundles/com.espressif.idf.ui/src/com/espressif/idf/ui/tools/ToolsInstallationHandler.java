@@ -27,6 +27,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -41,12 +42,13 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
+import com.espressif.idf.core.tools.IToolsInstallationWizardConstants;
+import com.espressif.idf.core.tools.util.ToolsUtility;
+import com.espressif.idf.core.tools.vo.ToolsVO;
+import com.espressif.idf.core.tools.vo.VersionsVO;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
-import com.espressif.idf.ui.tools.vo.ToolsVO;
-import com.espressif.idf.ui.tools.vo.VersionsVO;
-import com.espressif.idf.ui.tools.wizard.IToolsInstallationWizardConstants;
 import com.espressif.idf.ui.tools.wizard.pages.ManageToolsInstallationWizardPage;
 import com.espressif.idf.ui.update.InstallToolsHandler;
 
@@ -76,6 +78,7 @@ public class ToolsInstallationHandler extends Thread
 	private int currentOperation;
 	private List<String> exisitngPathsToRemoveWhenProcessingExportCommands;
 	private List<Path> listOfPathsToUpdate;
+	private List<ToolsVO> requireToolsVOs;
 
 	public ToolsInstallationHandler(Queue<String> logQueue,
 			ManageToolsInstallationWizardPage manageToolsInstallationWizardPage,
@@ -170,9 +173,10 @@ public class ToolsInstallationHandler extends Thread
 	 * @param operationToPerform operations to perfrom
 	 * @throws Exception
 	 */
-	public void operationToPerform(Map<ToolsVO, List<VersionsVO>> selectedItems, boolean forceDownload,
-			int operationToPerform) throws Exception
+	public void operationToPerform(List<ToolsVO> requiredToolsVOs, Map<ToolsVO, List<VersionsVO>> selectedItems,
+			boolean forceDownload, int operationToPerform) throws Exception
 	{
+		this.requireToolsVOs = requiredToolsVOs;
 		this.currentOperation = operationToPerform;
 		cancelled = false;
 		setControlsEnabled(false);
@@ -379,15 +383,15 @@ public class ToolsInstallationHandler extends Thread
 
 		Path path = Paths.get(toolPath);
 		exisitngPathsToRemoveWhenProcessingExportCommands.add(path.getParent().toString());
-		
+
 		logQueue.add(Messages.UpdatingPathMessage);
 		StringBuilder exportPathBuilder = new StringBuilder();
 		exportPathBuilder.append(toolPath);
 		removeExistingToolPath(toolName);
-		
+
 		// sometimes tar.gz archives can result in different types of outputs verify that the
 		// first directory in export paths is present the toolpath
-		File[] files =  new File(toolPath).listFiles();
+		File[] files = new File(toolPath).listFiles();
 		if (files.length >= 1 && exportPaths.size() > 0)
 		{
 			String nameOfPresentDir = files[0].getName();
@@ -409,7 +413,7 @@ public class ToolsInstallationHandler extends Thread
 				if (!StringUtil.isEmpty(exportPath))
 				{
 					exportPathBuilder.append(exportPath);
-					exportPathBuilder.append(PATH_SPLITOR);					
+					exportPathBuilder.append(PATH_SPLITOR);
 				}
 			}
 		}
@@ -555,7 +559,7 @@ public class ToolsInstallationHandler extends Thread
 			{
 				espMainFolder.mkdirs();
 			}
-			
+
 			for (ToolsVO toolsVo : selectedItems.keySet())
 			{
 				if (Thread.interrupted())
@@ -573,8 +577,86 @@ public class ToolsInstallationHandler extends Thread
 			handleWebSocketClientInstall();
 			copyOpenOcdRules();
 			IDFUtil.updateEspressifPrefPageOpenocdPath();
+			validateToolsInstall();
 			scopedPreferenceStore.putBoolean(InstallToolsHandler.INSTALL_TOOLS_FLAG, true);
 			return Boolean.TRUE;
+		}
+
+		private void validateToolsInstall()
+		{
+			List<ToolsVO> missingToolsVOs = new ArrayList<>();
+			for (ToolsVO toolsVO : requireToolsVOs)
+			{
+				final List<String> arguments = new ArrayList<String>();
+				arguments.addAll(toolsVO.getVersionCmd());
+				final String cmd = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments);
+				logQueue.add(cmd);
+				Logger.log(cmd);
+				final Map<String, String> environment = new HashMap<>(System.getenv());
+				if (environment.containsKey(IDFEnvironmentVariables.PATH))
+				{
+					environment.put(IDFEnvironmentVariables.PATH,
+							idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH));
+				}
+				else if (environment.containsKey("Path"))
+				{
+					environment.put("Path", idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH));
+				}
+
+				IPath absolutePathToTool = ToolsUtility.findAbsoluteToolPath(toolsVO.getName(),
+						idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH));
+				if (absolutePathToTool == null)
+				{
+					Logger.log("Required tool: " + toolsVO.getName() + " not found on the PATH");
+					missingToolsVOs.add(toolsVO);
+					continue;
+				}
+				arguments.add(0, absolutePathToTool.toOSString());
+				arguments.remove(1);
+				
+				final ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
+				try
+				{
+					final IStatus status = processRunner.runInBackground(arguments, null, environment);
+					if (status == null)
+					{
+						Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
+						return;
+					}
+
+					final String cmdOutput = status.getMessage();
+					Logger.log(cmdOutput);
+					logQueue.add(cmdOutput);
+				}
+				catch (IOException e1)
+				{
+					Logger.log(IDFCorePlugin.getPlugin(), e1);
+					missingToolsVOs.add(toolsVO);
+				}
+			}
+
+			if (missingToolsVOs.isEmpty())
+				return;
+			
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append(Messages.MissingToolsValidationMessage_A);
+			for (ToolsVO toolsVO : missingToolsVOs)
+			{
+				stringBuilder.append(toolsVO.getName());
+				stringBuilder.append(" ");
+			}
+
+			stringBuilder.append(Messages.MissingToolsValidationMessage_B);
+			stringBuilder.append("<a>");
+			stringBuilder.append(Messages.MissingToolsValidationLink);
+			stringBuilder.append("</a>");
+			
+			logQueue.add(stringBuilder.toString());
+
+			manageToolsInstallationWizardPage.getShell().getDisplay().asyncExec(() -> {
+				manageToolsInstallationWizardPage.getLinkForDoc().setText(stringBuilder.toString());
+				manageToolsInstallationWizardPage.getLinkForDoc().setVisible(true);
+			});
 		}
 
 		private void configEnv()
@@ -599,29 +681,30 @@ public class ToolsInstallationHandler extends Thread
 			Logger.log(cmd);
 
 			final Map<String, String> environment = new HashMap<>(System.getenv());
-			
+
 			StringBuilder paths = new StringBuilder();
-			
+
 			for (Path toolPath : listOfPathsToUpdate)
 			{
 				paths.append(toolPath.toAbsolutePath().toString());
 				paths.append(File.pathSeparatorChar);
 			}
-			
+
 			if (gitExePath != null)
 			{
 				paths.append(gitExePath);
 				paths.append(File.pathSeparator);
 			}
-			
+
 			final ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
-			
+
 			try
 			{
-				final IStatus status = processRunner.runInBackground(arguments, 
-						org.eclipse.core.runtime.Path.
-						fromOSString(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH)),
-						environment);
+				final IStatus status = processRunner
+						.runInBackground(arguments,
+								org.eclipse.core.runtime.Path.fromOSString(
+										idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH)),
+								environment);
 				if (status == null)
 				{
 					Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
@@ -632,7 +715,7 @@ public class ToolsInstallationHandler extends Thread
 				final String exportCmdOp = status.getMessage();
 				Logger.log(exportCmdOp);
 				logQueue.add(exportCmdOp);
-				
+
 				processExportCmdOutput(exportCmdOp, gitExePath, paths);
 			}
 			catch (IOException e1)
@@ -642,7 +725,8 @@ public class ToolsInstallationHandler extends Thread
 
 		}
 
-		private void processExportCmdOutput(final String exportCmdOp, final String gitExecutablePath, final StringBuilder paths)
+		private void processExportCmdOutput(final String exportCmdOp, final String gitExecutablePath,
+				final StringBuilder paths)
 		{
 			// process export command output
 			final String[] exportEntries = exportCmdOp.split("\n"); //$NON-NLS-1$
@@ -655,10 +739,9 @@ public class ToolsInstallationHandler extends Thread
 					final String msg = MessageFormat.format("Key: {0} Value: {1}", keyValue[0], keyValue[1]); //$NON-NLS-1$
 					Logger.log(msg);
 
-					
 					String key = keyValue[0];
 					String value = keyValue[1];
-					
+
 					if (key.equals(IDFEnvironmentVariables.PATH))
 					{
 						Logger.log("idf_tools.py ignoring PATH value"); //$NON-NLS-1$
@@ -669,17 +752,18 @@ public class ToolsInstallationHandler extends Thread
 					idfEnvironmentVariables.addEnvVariable(key, value);
 				}
 			}
-			
 
-			// Appending the virtual python env scripts manually to 
+			// Appending the virtual python env scripts manually to
 			// path as the dependency on the python export script is removed slowly
 			StringBuilder pythonVirtualEnvPath = new StringBuilder();
-			pythonVirtualEnvPath.append(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH));
+			pythonVirtualEnvPath
+					.append(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH));
 			pythonVirtualEnvPath.append(File.separatorChar);
 			pythonVirtualEnvPath.append("Scripts"); //$NON-NLS-1$
 			pythonVirtualEnvPath.append(File.separatorChar);
 			pythonVirtualEnvPath.append(File.pathSeparator);
-			pythonVirtualEnvPath.append(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH));
+			pythonVirtualEnvPath
+					.append(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH));
 			pythonVirtualEnvPath.append(File.separatorChar);
 			pythonVirtualEnvPath.append("bin"); //$NON-NLS-1$
 			pythonVirtualEnvPath.append(File.separatorChar);
@@ -689,34 +773,62 @@ public class ToolsInstallationHandler extends Thread
 			pythonVirtualEnvPath.append("tools"); //$NON-NLS-1$
 			pythonVirtualEnvPath.append(File.separatorChar);
 			pythonVirtualEnvPath.append(File.pathSeparator);
-			
+
 			paths.append(pythonVirtualEnvPath.toString());
-			replacePathVariable(paths);			
+			replacePathVariable(paths);
 		}
 
 		private void replacePathVariable(StringBuilder paths)
 		{
 			String existingPath = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH);
-			
+
 			if (StringUtil.isEmpty(existingPath))
 			{
 				idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, paths.toString());
 				return;
 			}
-			
 
-			Map<String, String> environment = System.getenv();
 			String systemPath = StringUtil.EMPTY;
-			
-			if (environment.containsKey(IDFEnvironmentVariables.PATH))
+
+			if (Platform.getOS().equals(Platform.OS_WIN32))
 			{
-				systemPath = environment.get(IDFEnvironmentVariables.PATH);
+				Map<String, String> environment = System.getenv();
+
+				if (environment.containsKey(IDFEnvironmentVariables.PATH))
+				{
+					systemPath = environment.get(IDFEnvironmentVariables.PATH);
+				}
+				else if (environment.containsKey("Path"))
+				{
+					systemPath = environment.get("Path");
+				}
 			}
-			else if (environment.containsKey("Path"))
+			else
 			{
-				systemPath = environment.get("Path");
+				try
+				{
+					ProcessBuilderFactory processBuilderFactory = new ProcessBuilderFactory();
+					List<String> arguments = new ArrayList<>();
+					arguments.add("bash");
+					arguments.add("-l");
+					arguments.add("-c");
+					arguments.add("echo $PATH");
+
+					IStatus status = processBuilderFactory.runInBackground(arguments, null, null);
+					if (status == null)
+					{
+						Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Stat us can't be null", null)); //$NON-NLS-1$
+						return;
+					}
+
+					systemPath = status.getMessage();
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
 			}
-			
+
 			List<String> pathsToAppend = new ArrayList<String>();
 			String newPaths = paths.toString();
 			int separatorIndex = existingPath.indexOf(File.pathSeparator);
@@ -728,11 +840,11 @@ public class ToolsInstallationHandler extends Thread
 				{
 					pathsToAppend.add(path);
 				}
-				
+
 				prevIndex = separatorIndex + 1;
 				separatorIndex = existingPath.indexOf(File.pathSeparator, separatorIndex + 1);
 			}
-			
+
 			if (separatorIndex == -1)
 			{
 				separatorIndex = existingPath.length();
@@ -742,18 +854,18 @@ public class ToolsInstallationHandler extends Thread
 					pathsToAppend.add(path);
 				}
 			}
-			
-			
+
 			for (String path : pathsToAppend)
 			{
 				paths.append(path);
 				paths.append(File.pathSeparator);
 			}
-			
+
 			paths.append(systemPath);
-			
+
 			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, paths.toString());
 		}
+
 		private void copyOpenOcdRules()
 		{
 			if (Platform.getOS().equals(Platform.OS_LINUX)

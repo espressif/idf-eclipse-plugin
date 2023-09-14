@@ -6,6 +6,9 @@ package com.espressif.idf.core;
 
 public interface SystemWrapper
 {
+	String PATH = "PATH"; //$NON-NLS-1$
+	String PATHEXT = "PATHEXT"; //$NON-NLS-1$
+	
 	public String getPathEnv();
 	public String getEnvExecutables();
 }

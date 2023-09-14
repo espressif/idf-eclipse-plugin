@@ -14,8 +14,8 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.ui.PlatformUI;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.tools.IToolsInstallationWizardConstants;
 import com.espressif.idf.ui.UIPlugin;
-import com.espressif.idf.ui.tools.wizard.IToolsInstallationWizardConstants;
 import com.espressif.idf.ui.tools.wizard.ToolsManagerWizard;
 import com.espressif.idf.ui.tools.wizard.ToolsManagerWizardDialog;
 

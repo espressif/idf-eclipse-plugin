@@ -2,7 +2,7 @@
  * Copyright 2022 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.ui.tools.wizard;
+package com.espressif.idf.core.tools;
 
 /**
  * Interface to store the constants related to tools management wizard
