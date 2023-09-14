@@ -635,6 +635,9 @@ public class ToolsInstallationHandler extends Thread
 				}
 			}
 
+			if (missingToolsVOs.isEmpty())
+				return;
+			
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.append(Messages.MissingToolsValidationMessage_A);
 			for (ToolsVO toolsVO : missingToolsVOs)
