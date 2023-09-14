@@ -5,11 +5,13 @@
 package com.espressif.idf.core;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.StringUtil;
 
 public class SystemExecutableFinder implements ExecutableFinder
@@ -79,9 +81,21 @@ public class SystemExecutableFinder implements ExecutableFinder
 			}
 
 		}
-		else if (isExecutable(path))
+		else 
 		{
-			return path;
+			try
+			{
+				Runtime.getRuntime().exec("/bin/chmod 755 ".concat(path.toOSString())); //$NON-NLS-1$
+			}
+			catch (IOException e)
+			{
+				Logger.log(e);
+			}
+			
+			if (isExecutable(path))
+			{
+				return path;
+			}
 		}
 		return null;
 	}
@@ -100,7 +114,7 @@ public class SystemExecutableFinder implements ExecutableFinder
 		{
 			return false;
 		}
-
+		
 		return file.canExecute();
 	}
 }
