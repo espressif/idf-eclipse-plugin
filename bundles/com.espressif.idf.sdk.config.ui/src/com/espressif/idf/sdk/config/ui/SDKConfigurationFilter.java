@@ -10,12 +10,12 @@ public class SDKConfigurationFilter extends PatternFilter
 	@Override
 	protected boolean isLeafMatch(Viewer viewer, Object element)
 	{
-
 		if (element instanceof KConfigMenuItem)
 		{
 			KConfigMenuItem highLevelElem = (KConfigMenuItem) element;
 
-			return wordMatches(highLevelElem.getTitle()) || recursiveMatch(highLevelElem);
+			return wordMatches(highLevelElem.getTitle()) || wordMatches(highLevelElem.getName())
+					|| recursiveMatch(highLevelElem);
 		}
 
 		return false;
@@ -25,12 +25,12 @@ public class SDKConfigurationFilter extends PatternFilter
 	{
 		if (parent.getChildren().isEmpty())
 		{
-			return wordMatches(parent.getName());
+			return wordMatches(parent.getName()) || wordMatches(parent.getTitle());
 		}
 
 		for (KConfigMenuItem child : parent.getChildren())
 		{
-			if (wordMatches(child.getName()) || recursiveMatch(child))
+			if (wordMatches(child.getName()) || wordMatches(child.getTitle()) || recursiveMatch(child))
 			{
 				return true;
 			}
