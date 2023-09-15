@@ -85,10 +85,13 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobGroup;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -124,7 +127,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	public static final String CMAKE_ENV = "cmake.environment"; //$NON-NLS-1$
 	public static final String BUILD_COMMAND = "cmake.command.build"; //$NON-NLS-1$
 	public static final String CLEAN_COMMAND = "cmake.command.clean"; //$NON-NLS-1$
-
+	private JobGroup jobGroup = new JobGroup("Parsing Job...", 1, 1); //$NON-NLS-1$
 	private ILaunchTarget launchtarget;
 	private Map<IResource, IScannerInfo> infoPerResource;
 	/**
@@ -971,11 +974,26 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	private void processCompileCommandsFile(IConsole console, IProgressMonitor monitor) throws CoreException
 	{
 		IFile file = getCompileCommandsJsonFile(monitor);
-
 		CompileCommandsJsonParser parser = new CompileCommandsJsonParser(
 				new ParseRequest(file, new CMakeIndexerInfoConsumer(this::setScannerInformation, getProject()),
 						CommandLauncherManager.getInstance().getCommandLauncher(this), console));
-		parser.parse(monitor);
+		Job parseJob = new Job(Messages.IDFBuildConfiguration_ParseCommand)
+		{
+			protected IStatus run(IProgressMonitor monitor)
+			{
+				try
+				{
+					parser.parse(monitor);
+				}
+				catch (CoreException e)
+				{
+					Logger.log(e);
+				}
+				return Status.OK_STATUS;
+			}
+		};
+		parseJob.setJobGroup(jobGroup);
+		parseJob.schedule();
 	}
 
 	private IFile getCompileCommandsJsonFile(IProgressMonitor monitor) throws CoreException
