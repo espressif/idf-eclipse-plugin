@@ -147,6 +147,7 @@ public class GcovDumpHandler extends AbstractHandler
 							@Override
 							protected void handleError()
 							{
+								Logger.log("Error Occurred while running dump comand resuming debug operation");
 								runControl.resume(executionDMContext, new RequestMonitor(dsfExecutor, null));
 							}
 						});

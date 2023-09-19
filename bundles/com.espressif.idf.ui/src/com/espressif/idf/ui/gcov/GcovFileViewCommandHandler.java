@@ -28,29 +28,25 @@ public class GcovFileViewCommandHandler extends AbstractHandler
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
 		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		if (window != null)
-		{
-			IWorkbenchPage page = window.getActivePage();
-			if (page != null)
-			{
-				try
-				{
-					GcovUtility.clearSelectedProject();
-					page.showView(GcovFileView.ID);
-				}
-				catch (PartInitException e)
-				{
-					Logger.log(UIPlugin.getDefault(), "Failed to initialize GcovFileView: " + e.getMessage(), e);
-				}
-			}
-			else
-			{
-				throw new ExecutionException("Active page cannot be retrieved");
-			}
-		}
-		else
+		if (window == null)
 		{
 			throw new ExecutionException("Active workbench window cannot be retrieved");
+		}
+		
+		IWorkbenchPage page = window.getActivePage();
+		if (page == null)
+		{
+			throw new ExecutionException("Active page cannot be retrieved");
+		}
+		
+		try
+		{
+			GcovUtility.clearSelectedProject();
+			page.showView(GcovFileView.ID);
+		}
+		catch (PartInitException e)
+		{
+			Logger.log(UIPlugin.getDefault(), "Failed to initialize GcovFileView: " + e.getMessage(), e);
 		}
 		return null;
 	}
