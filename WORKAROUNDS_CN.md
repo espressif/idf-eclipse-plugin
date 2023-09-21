@@ -1,10 +1,10 @@
-# Workarounds for build errors
+# 构建错误的临时解决方法
 
-[中文](./WORKAROUNDS_CN.md)
+[English](./WORKAROUNDS.md)
 
-## Clang Toolchain Build Errors
+## Clang 工具链构建错误
 
-1. `error: __cxa_guard_release(abort)` is missing exception specification `throw()`. Edit a file `esp-idf/components/cxx/cxx_guards.cpp`
+1. ``error: `__cxa_guard_release(abort)` is missing exception specification `throw()``。编辑文件 `esp-idf/components/cxx/cxx_guards.cpp`
 
 ```diff
 -extern "C" void __cxa_guard_release(__guard* pg)
@@ -22,7 +22,7 @@
      const auto scheduler_started = xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED;
 ```
 
-2. `error: variable 'usec' set but not used [-Werror,-Wunused-but-set-variable] int sec, usec`. Edit a file `esp-idf/CMakeLists.txt`.
+2. `error: variable 'usec' set but not used [-Werror,-Wunused-but-set-variable] int sec, usec`。编辑文件 `esp-idf/CMakeLists.txt`.
 
 ```diff
      list(APPEND compile_options "-Wno-atomic-alignment")
@@ -34,7 +34,7 @@
 +    list(APPEND compile_options "-Wno-unknown-warning-option")
 ```
 
-3. `error: equality comparison with extraneous parentheses [-Werror,-Wparentheses-equality]`. Edit a file `esp-idf/CMakeLists.txt`.
+3. `error: equality comparison with extraneous parentheses [-Werror,-Wparentheses-equality]`。编辑文件 `esp-idf/CMakeLists.txt`.
 
 ```diff
     list(APPEND compile_options "-Wno-unused-but-set-variable")
@@ -43,14 +43,14 @@
 +   list(APPEND compile_options "-Wno-parentheses-equality")
 endif()
 ```
-4. Windows specific issue saying clang++ file is missing from the toolchain folder:
+4. Windows 特殊问题：工具链文件夹中找不到 clang++ 文件：
 
 ```
  The CMAKE_CXX_COMPILER:
 clang++
   is not a full path and was not found in the PATH.
 ```
-To fix this you can use clang instead of clang++. Edit a file `esp-idf\tools\cmake\toolchain-clang-esp32.cmake`:
+可尝试使用 clang，而非 clang++。编辑文件 `esp-idf\tools\cmake\toolchain-clang-esp32.cmake`：
 
 ```diff
 set(CMAKE_C_COMPILER clang)
