@@ -84,6 +84,9 @@
    <bundle id="org.eclipse.tm4e.registry">
       <category name="Eclipse CDT-LSP Preview"/>
    </bundle>
+   <bundle id="org.apache.httpcomponents.httpclient">
+      <category name="com.espressif.idf"/>
+   </bundle>
    <category-def name="com.espressif.idf" label="Espressif IDF"/>
    <category-def name="Eclipse CDT-LSP Preview" label="Eclipse CDT-LSP Preview">
       <description>
