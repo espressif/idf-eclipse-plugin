@@ -21,6 +21,9 @@
    <feature id="org.eclipse.cdt.lsp.feature">
       <category name="Eclipse CDT-LSP Preview"/>
    </feature>
+   <feature id="org.eclipse.epp.mpc">
+      <category name="com.espressif.idf"/>
+   </feature>
    <bundle id="org.apache.batik.xml">
       <category name="com.espressif.idf"/>
    </bundle>
