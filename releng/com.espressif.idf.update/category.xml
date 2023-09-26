@@ -21,6 +21,12 @@
    <feature id="org.eclipse.cdt.lsp.feature">
       <category name="Eclipse CDT-LSP Preview"/>
    </feature>
+   <feature id="org.eclipse.epp.mpc">
+      <category name="com.espressif.idf"/>
+   </feature>
+   <feature id="org.eclipse.userstorage">
+      <category name="com.espressif.idf"/>
+   </feature>
    <bundle id="org.apache.batik.xml">
       <category name="com.espressif.idf"/>
    </bundle>
@@ -77,6 +83,9 @@
    </bundle>
    <bundle id="org.eclipse.tm4e.registry">
       <category name="Eclipse CDT-LSP Preview"/>
+   </bundle>
+   <bundle id="org.apache.httpcomponents.httpclient">
+      <category name="com.espressif.idf"/>
    </bundle>
    <category-def name="com.espressif.idf" label="Espressif IDF"/>
    <category-def name="Eclipse CDT-LSP Preview" label="Eclipse CDT-LSP Preview">
