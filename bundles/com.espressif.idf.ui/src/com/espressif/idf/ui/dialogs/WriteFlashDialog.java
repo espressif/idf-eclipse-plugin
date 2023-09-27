@@ -58,6 +58,7 @@ public class WriteFlashDialog extends TitleAreaDialog
 	public WriteFlashDialog(Shell parentShell)
 	{
 		super(parentShell);
+		ports = new String[] {};
 		try
 		{
 			ports = SerialPort.list();
