@@ -59,6 +59,8 @@ public class Messages
 
 	public static String DllNotFound_ExceptionMessage;
 	public static String TabMain_Launch_Config;
+
+	public static String TabDebugger_SettingTargetJob;
 	// ------------------------------------------------------------------------
 
 	static

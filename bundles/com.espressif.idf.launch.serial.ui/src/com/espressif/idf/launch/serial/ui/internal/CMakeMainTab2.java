@@ -38,6 +38,10 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -100,6 +104,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private Label dfuErrorLbl;
 	private Combo comboTargets;
 	private ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
+	private ILaunchConfigurationWorkingCopy lastAppliedConfiguration;
 
 	public enum FlashInterface {
 		UART, JTAG, DFU;
@@ -113,7 +118,29 @@ public class CMakeMainTab2 extends GenericMainTab {
 	@Override
 	public void createControl(Composite parent) {
 		LaunchBarListener.setIgnoreJtagTargetChange(true);
-		parent.addDisposeListener(e -> LaunchBarListener.setIgnoreJtagTargetChange(false));
+		parent.addDisposeListener(event -> {
+			String targetNameFromUI = fTargetName.getText();
+			Job revertTargetJob = new Job(Messages.CMakeMainTab2_SettingTargetJob) {
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					try {
+						String targetName = lastAppliedConfiguration.getOriginal()
+								.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, targetNameFromUI);
+						ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
+						ILaunchTarget selectedTarget = Stream.of(launchTargetManager.getLaunchTargets())
+								.filter(target -> target.getId().contentEquals((targetName))).findFirst()
+								.orElseGet(() -> null);
+						launchBarManager.setActiveLaunchTarget(selectedTarget);
+						return Status.OK_STATUS;
+					} catch (CoreException e) {
+						Logger.log(e);
+						return Status.CANCEL_STATUS;
+					}
+				}
+			};
+			revertTargetJob.schedule(100);
+			LaunchBarListener.setIgnoreJtagTargetChange(false);
+		});
 
 		mainComposite = new Composite(parent, SWT.NONE);
 		mainComposite.setFont(parent.getFont());
@@ -559,7 +586,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 			wc.setAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, jtagArgumentsField.getText());
 			wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, uartAgrumentsField.getText());
 			wc.setAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS, dfuArgumentsField.getText());
-
+			lastAppliedConfiguration = wc;
 			wc.doSave();
 		} catch (CoreException e) {
 			Logger.log(e);

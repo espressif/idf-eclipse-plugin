@@ -42,6 +42,7 @@ public class Messages extends NLS {
 	public static String configBoardTooTip;
 	public static String CMakeMainTab2_OpeonOcdSetupGroupTitle;
 	public static String CMakeMainTab2_JtagFlashingNotSupportedMsg;
+	public static String CMakeMainTab2_SettingTargetJob;
 	public static String IDFLaunchTargetNotFoundMsg1;
 	public static String IDFLaunchTargetNotFoundMsg2;
 	public static String IDFLaunchTargetNotFoundIDFLaunchTargetNotFoundTitle;

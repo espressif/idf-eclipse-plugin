@@ -26,12 +26,17 @@ package com.espressif.idf.debug.gdbjtag.openocd.ui;
 
 import java.io.File;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.eclipse.cdt.debug.gdbjtag.core.IGDBJtagConstants;
 import org.eclipse.cdt.debug.gdbjtag.ui.GDBJtagImages;
 import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
@@ -95,9 +100,9 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 	// ------------------------------------------------------------------------
 
-	private static final String TAB_NAME = "Debugger";
-	private static final String TAB_ID = Activator.PLUGIN_ID + ".ui.debuggertab";
-	private static final String EMPTY_CONFIG_OPTIONS = "-s ${openocd_path}/share/openocd/scripts";
+	private static final String TAB_NAME = "Debugger"; //$NON-NLS-1$
+	private static final String TAB_ID = Activator.PLUGIN_ID + ".ui.debuggertab"; //$NON-NLS-1$
+	private static final String EMPTY_CONFIG_OPTIONS = "-s ${openocd_path}/share/openocd/scripts"; //$NON-NLS-1$
 	// ------------------------------------------------------------------------
 
 	private ILaunchConfiguration fConfiguration;
@@ -140,6 +145,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 	private PersistentPreferences fPersistentPreferences;
 
 	private ILaunchBarManager launchBarManager;
+	private ILaunchConfigurationWorkingCopy lastAppliedConfiguration;
 
 	// ------------------------------------------------------------------------
 
@@ -171,11 +177,38 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 	{
 		if (Activator.getInstance().isDebugging())
 		{
-			System.out.println("openocd.TabDebugger.createControl() ");
+			System.out.println("openocd.TabDebugger.createControl() "); //$NON-NLS-1$
 		}
 
 		LaunchBarListener.setIgnoreJtagTargetChange(true);
-		parent.addDisposeListener(e -> LaunchBarListener.setIgnoreJtagTargetChange(false));
+		parent.addDisposeListener(event -> {
+			String targetNameFromUI = fTargetName.getText();
+			// TODO: find a better way to roll back target change in the launch bar when Cancel was pressed.
+			// We have to do like this because we don't have access to the cancel button
+			Job revertTargetJob = new Job(Messages.TabDebugger_SettingTargetJob)
+			{
+				protected IStatus run(IProgressMonitor monitor)
+				{
+					try
+					{
+						String targetName = lastAppliedConfiguration.getOriginal()
+								.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, targetNameFromUI);
+						ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
+						ILaunchTarget selectedTarget = Stream.of(launchTargetManager.getLaunchTargets())
+								.filter(target -> target.getId().contentEquals((targetName))).findFirst().orElseGet(() -> null);
+						launchBarManager.setActiveLaunchTarget(selectedTarget);
+						return Status.OK_STATUS;
+					}
+					catch (CoreException e)
+					{
+						Logger.log(e);
+						return Status.CANCEL_STATUS;
+					}
+				}
+			};
+			revertTargetJob.schedule(100);
+			LaunchBarListener.setIgnoreJtagTargetChange(false);
+		});
 
 		if (!(parent instanceof ScrolledComposite))
 		{
@@ -206,15 +239,15 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 		createRemoteControl(comp);
 		fUpdateThreadlistOnSuspend = new Button(comp, SWT.CHECK);
-		fUpdateThreadlistOnSuspend.setText(Messages.getString("DebuggerTab.update_thread_list_on_suspend_Text"));
+		fUpdateThreadlistOnSuspend.setText(Messages.getString("DebuggerTab.update_thread_list_on_suspend_Text")); //$NON-NLS-1$
 		fUpdateThreadlistOnSuspend
-				.setToolTipText(Messages.getString("DebuggerTab.update_thread_list_on_suspend_ToolTipText"));
+				.setToolTipText(Messages.getString("DebuggerTab.update_thread_list_on_suspend_ToolTipText")); //$NON-NLS-1$
 
 		Link restoreDefaults;
 		{
 			restoreDefaults = new Link(comp, SWT.NONE);
-			restoreDefaults.setText(Messages.getString("DebuggerTab.restoreDefaults_Link"));
-			restoreDefaults.setToolTipText(Messages.getString("DebuggerTab.restoreDefaults_ToolTipText"));
+			restoreDefaults.setText(Messages.getString("DebuggerTab.restoreDefaults_Link")); //$NON-NLS-1$
+			restoreDefaults.setToolTipText(Messages.getString("DebuggerTab.restoreDefaults_ToolTipText")); //$NON-NLS-1$
 
 			GridData gd = new GridData();
 			gd.grabExcessHorizontalSpace = true;
@@ -298,7 +331,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			group.setLayout(layout);
 			GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 			group.setLayoutData(gd);
-			group.setText(Messages.getString("DebuggerTab.gdbServerGroup_Text"));
+			group.setText(Messages.getString("DebuggerTab.gdbServerGroup_Text")); //$NON-NLS-1$
 		}
 
 		Composite comp = new Composite(group, SWT.NONE);
@@ -324,15 +357,15 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			local.setLayoutData(gd);
 
 			fDoStartGdbServer = new Button(local, SWT.CHECK);
-			fDoStartGdbServer.setText(Messages.getString("DebuggerTab.doStartGdbServer_Text"));
-			fDoStartGdbServer.setToolTipText(Messages.getString("DebuggerTab.doStartGdbServer_ToolTipText"));
+			fDoStartGdbServer.setText(Messages.getString("DebuggerTab.doStartGdbServer_Text")); //$NON-NLS-1$
+			fDoStartGdbServer.setToolTipText(Messages.getString("DebuggerTab.doStartGdbServer_ToolTipText")); //$NON-NLS-1$
 			gd = new GridData(GridData.FILL_HORIZONTAL);
 			fDoStartGdbServer.setLayoutData(gd);
 		}
 		{
 			Label label = new Label(comp, SWT.NONE);
-			label.setText(Messages.getString("DebuggerTab.gdbServerExecutable_Label"));
-			label.setToolTipText(Messages.getString("DebuggerTab.gdbServerExecutable_ToolTipText"));
+			label.setText(Messages.getString("DebuggerTab.gdbServerExecutable_Label")); //$NON-NLS-1$
+			label.setToolTipText(Messages.getString("DebuggerTab.gdbServerExecutable_ToolTipText")); //$NON-NLS-1$
 
 			Composite local = new Composite(comp, SWT.NONE);
 			GridLayout layout = new GridLayout();
@@ -349,16 +382,16 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 				fGdbServerExecutable.setLayoutData(gd);
 
 				fGdbServerBrowseButton = new Button(local, SWT.NONE);
-				fGdbServerBrowseButton.setText(Messages.getString("DebuggerTab.gdbServerExecutableBrowse"));
+				fGdbServerBrowseButton.setText(Messages.getString("DebuggerTab.gdbServerExecutableBrowse")); //$NON-NLS-1$
 
 				fGdbServerVariablesButton = new Button(local, SWT.NONE);
-				fGdbServerVariablesButton.setText(Messages.getString("DebuggerTab.gdbServerExecutableVariable"));
+				fGdbServerVariablesButton.setText(Messages.getString("DebuggerTab.gdbServerExecutableVariable")); //$NON-NLS-1$
 			}
 		}
 
 		{
 			Label label = new Label(comp, SWT.NONE);
-			label.setText(Messages.getString("DebuggerTab.gdbServerActualPath_Label"));
+			label.setText(Messages.getString("DebuggerTab.gdbServerActualPath_Label")); //$NON-NLS-1$
 
 			fGdbServerPathLabel = new Text(comp, SWT.SINGLE | SWT.BORDER);
 			GridData gd = new GridData(SWT.FILL, 0, true, false);
@@ -371,10 +404,10 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 		{
 			Label label = new Label(comp, SWT.NONE);
-			label.setText("");
+			label.setText(""); //$NON-NLS-1$
 
 			fLink = new Link(comp, SWT.NONE);
-			fLink.setText(Messages.getString("DebuggerTab.gdbServerActualPath_link"));
+			fLink.setText(Messages.getString("DebuggerTab.gdbServerActualPath_link")); //$NON-NLS-1$
 			GridData gd = new GridData();
 			gd.horizontalSpan = 4;
 			fLink.setLayoutData(gd);
@@ -382,8 +415,8 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 		{
 			Label label = new Label(comp, SWT.NONE);
-			label.setText(Messages.getString("DebuggerTab.gdbServerGdbPort_Label"));
-			label.setToolTipText(Messages.getString("DebuggerTab.gdbServerGdbPort_ToolTipText"));
+			label.setText(Messages.getString("DebuggerTab.gdbServerGdbPort_Label")); //$NON-NLS-1$
+			label.setToolTipText(Messages.getString("DebuggerTab.gdbServerGdbPort_ToolTipText")); //$NON-NLS-1$
 
 			fGdbServerGdbPort = new Text(comp, SWT.SINGLE | SWT.BORDER);
 			GridData gd = new GridData();
@@ -394,8 +427,8 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 		{
 			Label label = new Label(comp, SWT.NONE);
-			label.setText(Messages.getString("DebuggerTab.gdbServerTelnetPort_Label"));
-			label.setToolTipText(Messages.getString("DebuggerTab.gdbServerTelnetPort_ToolTipText"));
+			label.setText(Messages.getString("DebuggerTab.gdbServerTelnetPort_Label")); //$NON-NLS-1$
+			label.setToolTipText(Messages.getString("DebuggerTab.gdbServerTelnetPort_ToolTipText")); //$NON-NLS-1$
 
 			fGdbServerTelnetPort = new Text(comp, SWT.SINGLE | SWT.BORDER);
 			GridData gd = new GridData();
@@ -406,8 +439,8 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 		{
 			Label label = new Label(comp, SWT.NONE);
-			label.setText(Messages.getString("DebuggerTab.gdbServerTclPort_Label"));
-			label.setToolTipText(Messages.getString("DebuggerTab.gdbServerTclPort_ToolTipText"));
+			label.setText(Messages.getString("DebuggerTab.gdbServerTclPort_Label")); //$NON-NLS-1$
+			label.setToolTipText(Messages.getString("DebuggerTab.gdbServerTclPort_ToolTipText")); //$NON-NLS-1$
 
 			fGdbServerTclPort = new Text(comp, SWT.SINGLE | SWT.BORDER);
 			GridData gd = new GridData();
@@ -423,8 +456,8 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 		{
 			{
 				Label label = new Label(comp, SWT.NONE);
-				label.setText(Messages.getString("DebuggerTab.flashVoltageLabel"));
-				label.setToolTipText(Messages.getString("DebuggerTab.flashVoltageToolTip"));
+				label.setText(Messages.getString("DebuggerTab.flashVoltageLabel")); //$NON-NLS-1$
+				label.setToolTipText(Messages.getString("DebuggerTab.flashVoltageToolTip")); //$NON-NLS-1$
 				GridData gd = new GridData();
 				gd.widthHint = 80;
 				gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
@@ -444,8 +477,8 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			}
 			{
 				Label label = new Label(comp, SWT.NONE);
-				label.setText(Messages.getString("DebuggerTab.configTargetLabel"));
-				label.setToolTipText(Messages.getString("DebuggerTab.configTargetToolTip"));
+				label.setText(Messages.getString("DebuggerTab.configTargetLabel")); //$NON-NLS-1$
+				label.setToolTipText(Messages.getString("DebuggerTab.configTargetToolTip")); //$NON-NLS-1$
 				GridData gd = new GridData();
 				gd.widthHint = 80;
 				gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
@@ -522,8 +555,8 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			}
 			{
 				Label label = new Label(comp, SWT.NONE);
-				label.setText(Messages.getString("DebuggerTab.configBoardLabel"));
-				label.setToolTipText(Messages.getString("DebuggerTab.configBoardTooTip"));
+				label.setText(Messages.getString("DebuggerTab.configBoardLabel")); //$NON-NLS-1$
+				label.setToolTipText(Messages.getString("DebuggerTab.configBoardTooTip")); //$NON-NLS-1$
 
 				GridData gd = new GridData();
 				gd.widthHint = 250;
@@ -567,7 +600,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 		{
 			Label label = new Label(comp, SWT.NONE);
 			label.setText(Messages.getString("DebuggerTab.gdbServerOther_Label")); //$NON-NLS-1$
-			label.setToolTipText(Messages.getString("DebuggerTab.gdbServerOther_ToolTipText"));
+			label.setToolTipText(Messages.getString("DebuggerTab.gdbServerOther_ToolTipText")); //$NON-NLS-1$
 			GridData gd = new GridData();
 			gd.verticalAlignment = SWT.TOP;
 			label.setLayoutData(gd);
@@ -592,17 +625,17 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			local.setLayoutData(gd);
 
 			fDoGdbServerAllocateConsole = new Button(local, SWT.CHECK);
-			fDoGdbServerAllocateConsole.setText(Messages.getString("DebuggerTab.gdbServerAllocateConsole_Label"));
+			fDoGdbServerAllocateConsole.setText(Messages.getString("DebuggerTab.gdbServerAllocateConsole_Label")); //$NON-NLS-1$
 			fDoGdbServerAllocateConsole
-					.setToolTipText(Messages.getString("DebuggerTab.gdbServerAllocateConsole_ToolTipText"));
+					.setToolTipText(Messages.getString("DebuggerTab.gdbServerAllocateConsole_ToolTipText")); //$NON-NLS-1$
 			gd = new GridData(GridData.FILL_HORIZONTAL);
 			fDoGdbServerAllocateConsole.setLayoutData(gd);
 
 			fDoGdbServerAllocateTelnetConsole = new Button(local, SWT.CHECK);
 			fDoGdbServerAllocateTelnetConsole
-					.setText(Messages.getString("DebuggerTab.gdbServerAllocateTelnetConsole_Label"));
+					.setText(Messages.getString("DebuggerTab.gdbServerAllocateTelnetConsole_Label")); //$NON-NLS-1$
 			fDoGdbServerAllocateTelnetConsole
-					.setToolTipText(Messages.getString("DebuggerTab.gdbServerAllocateTelnetConsole_ToolTipText"));
+					.setToolTipText(Messages.getString("DebuggerTab.gdbServerAllocateTelnetConsole_ToolTipText")); //$NON-NLS-1$
 			gd = new GridData(GridData.FILL_HORIZONTAL);
 			fDoGdbServerAllocateTelnetConsole.setLayoutData(gd);
 
@@ -661,7 +694,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				browseButtonSelected(Messages.getString("DebuggerTab.gdbServerExecutableBrowse_Title"),
+				browseButtonSelected(Messages.getString("DebuggerTab.gdbServerExecutableBrowse_Title"), //$NON-NLS-1$
 						fGdbServerExecutable);
 			}
 		});
@@ -688,17 +721,17 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 				}
 
 				int ret = -1;
-				if ("global".equals(text))
+				if ("global".equals(text)) //$NON-NLS-1$
 				{
 					ret = PreferencesUtil.createPreferenceDialogOn(parent.getShell(), GlobalMcuPage.ID, null, null)
 							.open();
 				}
-				else if ("workspace".equals(text))
+				else if ("workspace".equals(text)) //$NON-NLS-1$
 				{
 					ret = PreferencesUtil.createPreferenceDialogOn(parent.getShell(), WorkspaceMcuPage.ID, null, null)
 							.open();
 				}
-				else if ("project".equals(text))
+				else if ("project".equals(text)) //$NON-NLS-1$
 				{
 					assert (fConfiguration != null);
 					IProject project = EclipseUtils.getProjectByLaunchConfiguration(fConfiguration);
@@ -760,7 +793,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			group.setLayout(layout);
 			GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 			group.setLayoutData(gd);
-			group.setText(Messages.getString("DebuggerTab.gdbSetupGroup_Text"));
+			group.setText(Messages.getString("DebuggerTab.gdbSetupGroup_Text")); //$NON-NLS-1$
 		}
 
 		Composite comp = new Composite(group, SWT.NONE);
@@ -775,8 +808,8 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 		{
 			fDoStartGdbClient = new Button(comp, SWT.CHECK);
-			fDoStartGdbClient.setText(Messages.getString("DebuggerTab.doStartGdbClient_Text"));
-			fDoStartGdbClient.setToolTipText(Messages.getString("DebuggerTab.doStartGdbClient_ToolTipText"));
+			fDoStartGdbClient.setText(Messages.getString("DebuggerTab.doStartGdbClient_Text")); //$NON-NLS-1$
+			fDoStartGdbClient.setToolTipText(Messages.getString("DebuggerTab.doStartGdbClient_ToolTipText")); //$NON-NLS-1$
 			GridData gd = new GridData();
 			gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns;
 			fDoStartGdbClient.setLayoutData(gd);
@@ -784,8 +817,8 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 		{
 			Label label = new Label(comp, SWT.NONE);
-			label.setText(Messages.getString("DebuggerTab.gdbCommand_Label"));
-			label.setToolTipText(Messages.getString("DebuggerTab.gdbCommand_ToolTipText"));
+			label.setText(Messages.getString("DebuggerTab.gdbCommand_Label")); //$NON-NLS-1$
+			label.setToolTipText(Messages.getString("DebuggerTab.gdbCommand_ToolTipText")); //$NON-NLS-1$
 
 			Composite local = new Composite(comp, SWT.NONE);
 			GridLayout layout = new GridLayout();
@@ -802,17 +835,17 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 				fGdbClientExecutable.setLayoutData(gd);
 
 				fGdbClientBrowseButton = new Button(local, SWT.NONE);
-				fGdbClientBrowseButton.setText(Messages.getString("DebuggerTab.gdbCommandBrowse"));
+				fGdbClientBrowseButton.setText(Messages.getString("DebuggerTab.gdbCommandBrowse")); //$NON-NLS-1$
 
 				fGdbClientVariablesButton = new Button(local, SWT.NONE);
-				fGdbClientVariablesButton.setText(Messages.getString("DebuggerTab.gdbCommandVariable"));
+				fGdbClientVariablesButton.setText(Messages.getString("DebuggerTab.gdbCommandVariable")); //$NON-NLS-1$
 			}
 		}
 
 		{
 			Label label = new Label(comp, SWT.NONE);
-			label.setText(Messages.getString("DebuggerTab.gdbOtherOptions_Label"));
-			label.setToolTipText(Messages.getString("DebuggerTab.gdbOtherOptions_ToolTipText"));
+			label.setText(Messages.getString("DebuggerTab.gdbOtherOptions_Label")); //$NON-NLS-1$
+			label.setToolTipText(Messages.getString("DebuggerTab.gdbOtherOptions_ToolTipText")); //$NON-NLS-1$
 			GridData gd = new GridData();
 			label.setLayoutData(gd);
 
@@ -824,8 +857,8 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 		{
 			Label label = new Label(comp, SWT.NONE);
-			label.setText(Messages.getString("DebuggerTab.gdbOtherCommands_Label"));
-			label.setToolTipText(Messages.getString("DebuggerTab.gdbOtherCommands_ToolTipText"));
+			label.setText(Messages.getString("DebuggerTab.gdbOtherCommands_Label")); //$NON-NLS-1$
+			label.setToolTipText(Messages.getString("DebuggerTab.gdbOtherCommands_ToolTipText")); //$NON-NLS-1$
 			GridData gd = new GridData();
 			gd.verticalAlignment = SWT.TOP;
 			label.setLayoutData(gd);
@@ -884,7 +917,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				browseButtonSelected(Messages.getString("DebuggerTab.gdbCommandBrowse_Title"), fGdbClientExecutable);
+				browseButtonSelected(Messages.getString("DebuggerTab.gdbCommandBrowse_Title"), fGdbClientExecutable); //$NON-NLS-1$
 			}
 		});
 
@@ -903,7 +936,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 		Group group = new Group(parent, SWT.NONE);
 		{
-			group.setText(Messages.getString("DebuggerTab.remoteGroup_Text"));
+			group.setText(Messages.getString("DebuggerTab.remoteGroup_Text")); //$NON-NLS-1$
 			GridLayout layout = new GridLayout();
 			group.setLayout(layout);
 			GridData gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -977,7 +1010,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 		String fullCommand = Configuration.getGdbServerCommand(fConfiguration, fGdbServerExecutable.getText());
 		if (Activator.getInstance().isDebugging())
 		{
-			System.out.println("openocd.TabDebugger.updateGdbServerActualPath() \"" + fullCommand + "\"");
+			System.out.println("openocd.TabDebugger.updateGdbServerActualPath() \"" + fullCommand + "\""); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		fGdbServerPathLabel.setText(fullCommand);
 	}
@@ -989,7 +1022,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 		String fullCommand = Configuration.getGdbClientCommand(fConfiguration, fGdbClientExecutable.getText());
 		if (Activator.getInstance().isDebugging())
 		{
-			System.out.println("openocd.TabDebugger.updateGdbClientActualPath() \"" + fullCommand + "\"");
+			System.out.println("openocd.TabDebugger.updateGdbClientActualPath() \"" + fullCommand + "\""); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		// fGdbClientPathLabel.setText(fullCommand);
 	}
@@ -1044,7 +1077,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 		if (Activator.getInstance().isDebugging())
 		{
-			System.out.println("openocd.TabDebugger.initializeFrom() " + configuration.getName());
+			System.out.println("openocd.TabDebugger.initializeFrom() " + configuration.getName()); //$NON-NLS-1$
 		}
 
 		fConfiguration = configuration;
@@ -1168,7 +1201,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 		if (Activator.getInstance().isDebugging())
 		{
-			System.out.println("openocd.TabDebugger.initializeFrom() completed " + configuration.getName());
+			System.out.println("openocd.TabDebugger.initializeFrom() completed " + configuration.getName()); //$NON-NLS-1$
 		}
 	}
 
@@ -1177,7 +1210,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 		if (Activator.getInstance().isDebugging())
 		{
-			System.out.println("openocd.TabDebugger.initializeFromDefaults()");
+			System.out.println("openocd.TabDebugger.initializeFromDefaults()"); //$NON-NLS-1$
 		}
 
 		String stringDefault;
@@ -1259,7 +1292,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 	{
 		if (Activator.getInstance().isDebugging())
 		{
-			System.out.println("openocd.TabDebugger.activated() " + workingCopy.getName());
+			System.out.println("openocd.TabDebugger.activated() " + workingCopy.getName()); //$NON-NLS-1$
 		}
 	}
 
@@ -1268,7 +1301,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 	{
 		if (Activator.getInstance().isDebugging())
 		{
-			System.out.println("openocd.TabDebugger.deactivated() " + workingCopy.getName());
+			System.out.println("openocd.TabDebugger.deactivated() " + workingCopy.getName()); //$NON-NLS-1$
 		}
 	}
 
@@ -1277,7 +1310,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 	{
 		if (Activator.getInstance().isDebugging())
 		{
-			System.out.println("openocd.TabDebugger.isValid() " + launchConfig.getName());
+			System.out.println("openocd.TabDebugger.isValid() " + launchConfig.getName()); //$NON-NLS-1$
 		}
 
 		setErrorMessage(null);
@@ -1292,25 +1325,25 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			hasContent = true;
 			if (fGdbServerExecutable != null && fGdbServerExecutable.getText().trim().isEmpty())
 			{
-				setErrorMessage("GDB server executable path?");
+				setErrorMessage("GDB server executable path?"); //$NON-NLS-1$
 				result = false;
 			}
 
 			if (fGdbServerGdbPort != null && fGdbServerGdbPort.getText().trim().isEmpty())
 			{
-				setErrorMessage("GDB port?");
+				setErrorMessage("GDB port?"); //$NON-NLS-1$
 				result = false;
 			}
 
 			if (fGdbServerTelnetPort != null && fGdbServerTelnetPort.getText().trim().isEmpty())
 			{
-				setErrorMessage("Telnet port?");
+				setErrorMessage("Telnet port?"); //$NON-NLS-1$
 				result = false;
 			}
 
 			if (fGdbServerTclPort != null && fGdbServerTclPort.getText().trim().isEmpty())
 			{
-				setErrorMessage("Tcl port?");
+				setErrorMessage("Tcl port?"); //$NON-NLS-1$
 				result = false;
 			}
 		}
@@ -1322,13 +1355,13 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			if (fGdbClientExecutable != null && fGdbClientExecutable.getText().trim().isEmpty())
 			{
 				result = false;
-				setErrorMessage("GDB client executable name?");
+				setErrorMessage("GDB client executable name?"); //$NON-NLS-1$
 			}
 		}
 
 		if (Activator.getInstance().isDebugging())
 		{
-			System.out.println("openocd.TabDebugger.isValid() " + launchConfig.getName() + " = " + result);
+			System.out.println("openocd.TabDebugger.isValid() " + launchConfig.getName() + " = " + result); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return hasContent && result;
 	}
@@ -1369,7 +1402,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 		if (Activator.getInstance().isDebugging())
 		{
 			System.out
-					.println("openocd.TabDebugger.performApply() " + configuration.getName() + ", dirty=" + isDirty());
+					.println("openocd.TabDebugger.performApply() " + configuration.getName() + ", dirty=" + isDirty()); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		{
@@ -1402,7 +1435,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			}
 			else
 			{
-				Activator.log("empty fGdbServerGdbPort");
+				Activator.log("empty fGdbServerGdbPort"); //$NON-NLS-1$
 			}
 			if (!fGdbServerTelnetPort.getText().trim().isEmpty())
 			{
@@ -1411,7 +1444,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			}
 			else
 			{
-				Activator.log("empty fGdbServerTelnetPort");
+				Activator.log("empty fGdbServerTelnetPort"); //$NON-NLS-1$
 			}
 			if (!fGdbServerTclPort.getText().trim().isEmpty())
 			{
@@ -1421,7 +1454,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			}
 			else
 			{
-				Activator.log("empty fGdbServerTclPort");
+				Activator.log("empty fGdbServerTclPort"); //$NON-NLS-1$
 			}
 
 			// Other options
@@ -1463,7 +1496,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 		{
 			if (fDoStartGdbServer.getSelection())
 			{
-				configuration.setAttribute(IGDBJtagConstants.ATTR_IP_ADDRESS, "localhost");
+				configuration.setAttribute(IGDBJtagConstants.ATTR_IP_ADDRESS, "localhost"); //$NON-NLS-1$
 
 				String str = fGdbServerGdbPort.getText().trim();
 				if (!str.isEmpty())
@@ -1518,8 +1551,9 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 		if (Activator.getInstance().isDebugging())
 		{
 			System.out.println(
-					"openocd.TabDebugger.performApply() completed " + configuration.getName() + ", dirty=" + isDirty());
+					"openocd.TabDebugger.performApply() completed " + configuration.getName() + ", dirty=" + isDirty()); //$NON-NLS-1$ //$NON-NLS-2$
 		}
+		lastAppliedConfiguration = configuration;
 	}
 
 	@Override
@@ -1528,7 +1562,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 		if (Activator.getInstance().isDebugging())
 		{
-			System.out.println("openocd.TabDebugger.setDefaults() " + configuration.getName());
+			System.out.println("openocd.TabDebugger.setDefaults() " + configuration.getName()); //$NON-NLS-1$
 		}
 
 		configuration.setAttribute(IGDBJtagConstants.ATTR_JTAG_DEVICE_ID, ConfigurationAttributes.JTAG_DEVICE);
