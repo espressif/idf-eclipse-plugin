@@ -428,6 +428,21 @@
                </iterate>
             </visibleWhen>
          </command>
+         <command
+               commandId="com.espressif.idf.ui.sbom"
+               label="%command.label.SbomCommandLabel"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <iterate
+                     ifEmpty="false"
+                     operator="or">
+                  <instanceof
+                        value="org.eclipse.core.resources.IResource">
+                  </instanceof>
+               </iterate>
+            </visibleWhen>
+         </command>
       </menuContribution>
    </extension>
    <extension
@@ -567,6 +582,10 @@
        <handler
              class="com.espressif.idf.ui.nvs.handlers.NvsEditorHandler"
              commandId="com.espressif.idf.ui.nvsEditorCommand">
+       </handler>
+       <handler
+             class="com.espressif.idf.ui.handlers.SbomCommandHandler"
+             commandId="com.espressif.idf.ui.sbom">
        </handler>
     </extension>
    <extension
