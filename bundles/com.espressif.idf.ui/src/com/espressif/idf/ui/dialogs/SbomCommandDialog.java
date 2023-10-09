@@ -124,7 +124,7 @@ public class SbomCommandDialog extends TitleAreaDialog
 
 				if (selectedFilePath != null && !selectedFilePath.isEmpty())
 				{
-					projectDescriptionBtn.setText(selectedFilePath);
+					projectDescriptionPathText.setText(selectedFilePath);
 				}
 				super.widgetSelected(e);
 			}
@@ -148,7 +148,7 @@ public class SbomCommandDialog extends TitleAreaDialog
 
 				if (selectedFilePath != null && !selectedFilePath.isEmpty())
 				{
-					projectDescriptionBtn.setText(selectedFilePath);
+					outputFileText.setText(selectedFilePath);
 				}
 				super.widgetSelected(e);
 			}
@@ -201,7 +201,7 @@ public class SbomCommandDialog extends TitleAreaDialog
 
 			protected IStatus run(IProgressMonitor monitor)
 			{
-				if (checkIfEspIfSbomInstalled())
+				if (!getIfEspIfSbomInstalledStatus())
 				{
 					installEspIdfSbom();
 				}
@@ -359,7 +359,7 @@ public class SbomCommandDialog extends TitleAreaDialog
 			setErrorMessage(Messages.SbomCommandDialog_ProjectDescDoesntExistsErrorMsg);
 		}
 
-		if (saveOutputToFileCheckBoxButton.getSelection() && Files.isWritable(Paths.get(outputFileText.getText())))
+		if (saveOutputToFileCheckBoxButton.getSelection() && checkIfFileIsWritable(Paths.get(outputFileText.getText())))
 		{
 			validateStatus = false;
 			setErrorMessage(Messages.SbomCommandDialog_OutputFileNotWritabbleErrorMsg);
@@ -370,6 +370,11 @@ public class SbomCommandDialog extends TitleAreaDialog
 			setErrorMessage(null);
 		}
 		return validateStatus;
+	}
+
+	private boolean checkIfFileIsWritable(java.nio.file.Path pathToFile)
+	{
+		return Files.exists(pathToFile) && !Files.isWritable(pathToFile);
 	}
 
 	private void installEspIdfSbom()
@@ -387,7 +392,7 @@ public class SbomCommandDialog extends TitleAreaDialog
 
 	}
 
-	private boolean checkIfEspIfSbomInstalled()
+	private boolean getIfEspIfSbomInstalledStatus()
 	{
 		Map<String, String> environment = new HashMap<>(System.getenv());
 		List<String> arguments = new ArrayList<>();
