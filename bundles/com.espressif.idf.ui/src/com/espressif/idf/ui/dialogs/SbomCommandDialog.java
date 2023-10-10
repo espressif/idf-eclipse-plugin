@@ -2,6 +2,7 @@ package com.espressif.idf.ui.dialogs;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -185,7 +186,7 @@ public class SbomCommandDialog extends TitleAreaDialog
 			exportCmdOp = status.getMessage();
 			Logger.log(exportCmdOp);
 		}
-		catch (Exception e)
+		catch (IOException e)
 		{
 			Logger.log(e);
 		}
