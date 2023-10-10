@@ -201,7 +201,7 @@ public class SbomCommandDialog extends TitleAreaDialog
 
 			protected IStatus run(IProgressMonitor monitor)
 			{
-				if (!getIfEspIfSbomInstalledStatus())
+				if (!getEspIdfSbomInstalledStatus())
 				{
 					installEspIdfSbom();
 				}
@@ -392,7 +392,7 @@ public class SbomCommandDialog extends TitleAreaDialog
 
 	}
 
-	private boolean getIfEspIfSbomInstalledStatus()
+	private boolean getEspIdfSbomInstalledStatus()
 	{
 		Map<String, String> environment = new HashMap<>(System.getenv());
 		List<String> arguments = new ArrayList<>();
