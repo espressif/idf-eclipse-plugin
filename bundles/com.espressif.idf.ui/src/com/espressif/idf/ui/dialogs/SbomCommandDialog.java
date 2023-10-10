@@ -78,17 +78,11 @@ public class SbomCommandDialog extends TitleAreaDialog
 	public void create()
 	{
 		super.create();
+		getShell().setText(Messages.SbomCommandDialog_SbomTitle);
 		setTitle(Messages.SbomCommandDialog_SbomTitle);
 		setMessage(
 				Messages.SbomCommandDialog_SbomInfoMsg);
 		setDefaults();
-	}
-
-	@Override
-	protected void configureShell(Shell newShell)
-	{
-		super.configureShell(newShell);
-		newShell.setText(Messages.SbomCommandDialog_SbomTitle);
 	}
 
 	@Override
