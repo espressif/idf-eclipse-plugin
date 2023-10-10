@@ -1,7 +1,6 @@
 package com.espressif.idf.ui.dialogs;
 
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -239,9 +238,8 @@ public class SbomCommandDialog extends TitleAreaDialog
 			setMessage(Messages.SbomCommandDialog_ProjectDescDoesntExistDefaultErrorMsg);
 			getButton(IDialogConstants.OK_ID).setEnabled(false);
 		}
-
-		outputFileText.setText(
-				selectedProject.getLocationURI().getPath().concat(File.separator).concat(DEFAULT_OUTPUT_FILE_NAME));
+		outputFileText.setText(String.join(FileSystems.getDefault().getSeparator(),
+				Paths.get(selectedProject.getLocationURI()).toString(), DEFAULT_OUTPUT_FILE_NAME));
 
 	}
 
