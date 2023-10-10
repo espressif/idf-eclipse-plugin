@@ -364,7 +364,8 @@ public class SbomCommandDialog extends TitleAreaDialog
 			setErrorMessage(Messages.SbomCommandDialog_ProjectDescDoesntExistsErrorMsg);
 		}
 
-		if (saveOutputToFileCheckBoxButton.getSelection() && checkIfFileIsWritable(Paths.get(outputFileText.getText())))
+		if (saveOutputToFileCheckBoxButton.getSelection()
+				&& checkIfFileIsNotWritable(Paths.get(outputFileText.getText())))
 		{
 			validateStatus = false;
 			setErrorMessage(Messages.SbomCommandDialog_OutputFileNotWritabbleErrorMsg);
@@ -377,7 +378,7 @@ public class SbomCommandDialog extends TitleAreaDialog
 		return validateStatus;
 	}
 
-	private boolean checkIfFileIsWritable(java.nio.file.Path pathToFile)
+	private boolean checkIfFileIsNotWritable(java.nio.file.Path pathToFile)
 	{
 		return Files.exists(pathToFile) && !Files.isWritable(pathToFile);
 	}
