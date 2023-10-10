@@ -274,7 +274,14 @@ public class SbomCommandDialog extends TitleAreaDialog
 		cmdOutput = cmdOutput.isEmpty() && saveOutputFileStatus
 				? String.format(Messages.SbomCommandDialog_ConsoleRedirectedOutputFormatString, outputFilePath)
 				: cmdOutput;
-		console.getConsole().addPatternMatchListener(new IPatternMatchListener()
+		console.getConsole().addPatternMatchListener(getPatternMatchListener());
+		console.println(cmdOutput);
+
+	}
+
+	private IPatternMatchListener getPatternMatchListener()
+	{
+		return new IPatternMatchListener()
 		{
 
 			public void matchFound(PatternMatchEvent event)
@@ -345,9 +352,7 @@ public class SbomCommandDialog extends TitleAreaDialog
 			{
 				return 0;
 			}
-		});
-		console.println(cmdOutput);
-
+		};
 	}
 
 	private boolean validateInput()
@@ -402,6 +407,6 @@ public class SbomCommandDialog extends TitleAreaDialog
 		arguments.add("pip"); //$NON-NLS-1$
 		arguments.add("list"); //$NON-NLS-1$
 		String cmdOutput = runCommand(arguments, null, environment);
-		return cmdOutput.contains(ESP_IDF_SBOM_COMMAND_NAME);
+		return cmdOutput.contains("esp-idf-sbom"); //$NON-NLS-1$
 	}
 }
