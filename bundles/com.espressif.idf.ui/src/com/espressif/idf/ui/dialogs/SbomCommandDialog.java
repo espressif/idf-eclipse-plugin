@@ -3,6 +3,7 @@ package com.espressif.idf.ui.dialogs;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -246,8 +247,9 @@ public class SbomCommandDialog extends TitleAreaDialog
 
 	private String buildProjectDescriptionPath()
 	{
-		return selectedProject.getLocationURI().getPath().concat(File.separator).concat("build") //$NON-NLS-1$
-				.concat(File.separator).concat("project_description.json"); //$NON-NLS-1$
+		return String.join(FileSystems.getDefault().getSeparator(),
+				Paths.get(selectedProject.getLocationURI()).toString(), "build", //$NON-NLS-1$
+				"project_description.json"); //$NON-NLS-1$
 	}
 
 	private void runEspIdfSbomCommand()
