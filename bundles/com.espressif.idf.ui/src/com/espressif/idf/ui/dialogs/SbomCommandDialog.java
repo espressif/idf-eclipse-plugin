@@ -1,9 +1,9 @@
 package com.espressif.idf.ui.dialogs;
 
-
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,9 +57,10 @@ import com.espressif.idf.ui.update.Messages;
 public class SbomCommandDialog extends TitleAreaDialog
 {
 
+	private static final String PATH_REGEX = "(\\S+)"; //$NON-NLS-1$
 	private static final String DEFAULT_OUTPUT_FILE_NAME = "sbom.txt"; //$NON-NLS-1$
 	private static final String ESP_IDF_SBOM_COMMAND_NAME = "esp_idf_sbom"; //$NON-NLS-1$
-	protected static final String[] EXTENSIONS = { ".json" }; //$NON-NLS-1$
+	protected static final String[] EXTENSIONS = { "*.json" }; //$NON-NLS-1$
 	private MessageConsoleStream console;
 	private Button saveOutputToFileCheckBoxButton;
 	private Text outputFileText;
@@ -80,8 +81,7 @@ public class SbomCommandDialog extends TitleAreaDialog
 		super.create();
 		getShell().setText(Messages.SbomCommandDialog_SbomTitle);
 		setTitle(Messages.SbomCommandDialog_SbomTitle);
-		setMessage(
-				Messages.SbomCommandDialog_SbomInfoMsg);
+		setMessage(Messages.SbomCommandDialog_SbomInfoMsg);
 		setDefaults();
 	}
 
@@ -94,12 +94,11 @@ public class SbomCommandDialog extends TitleAreaDialog
 		container.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		GridLayout layout = new GridLayout(3, false);
 		container.setLayout(layout);
-		
+
 		saveOutputToFileCheckBoxButton = new Button(container, SWT.CHECK);
 		saveOutputToFileCheckBoxButton.setText(Messages.SbomCommandDialog_RedirectOutputCheckBoxLbl);
 		saveOutputToFileCheckBoxButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
 
-		
 		Label projectDescriptionPathLbl = new Label(container, SWT.NONE);
 		projectDescriptionPathLbl.setText(Messages.SbomCommandDialog_ProjectDescriptionPathLbl);
 		projectDescriptionPathText = new Text(container, SWT.SINGLE | SWT.BORDER | SWT.H_SCROLL);
@@ -124,7 +123,6 @@ public class SbomCommandDialog extends TitleAreaDialog
 				super.widgetSelected(e);
 			}
 		});
-		
 
 		Label outputFileLbl = new Label(container, SWT.NONE);
 		outputFileLbl.setText(Messages.SbomCommandDialog_OutputFilePathLbl);
@@ -172,7 +170,8 @@ public class SbomCommandDialog extends TitleAreaDialog
 			IStatus status = processRunner.runInBackground(arguments, workDir, env);
 			if (status == null)
 			{
-				IStatus errorStatus = IDFCorePlugin.errorStatus(Messages.SbomCommandDialog_StatusCantBeNullErrorMsg, null);
+				IStatus errorStatus = IDFCorePlugin.errorStatus(Messages.SbomCommandDialog_StatusCantBeNullErrorMsg,
+						null);
 				Logger.log(IDFCorePlugin.getPlugin(), errorStatus);
 				return errorStatus.getMessage();
 			}
@@ -230,9 +229,8 @@ public class SbomCommandDialog extends TitleAreaDialog
 				selectedProject = ((IResource) element).getProject();
 			}
 		}
-		
-		projectDescriptionPathText
-				.setText(buildProjectDescriptionPath());
+
+		projectDescriptionPathText.setText(buildProjectDescriptionPath());
 		if (!Files.exists(Paths.get(projectDescriptionPathText.getText())))
 		{
 			setMessage(Messages.SbomCommandDialog_ProjectDescDoesntExistDefaultErrorMsg);
@@ -285,7 +283,12 @@ public class SbomCommandDialog extends TitleAreaDialog
 				try
 				{
 					IHyperlink hepHyperlink = createHyperlinkWhichOpensFileInEditor();
-					console.getConsole().addHyperlink(hepHyperlink, event.getOffset(), event.getLength());
+					// calculating the right offset and length to highlight only the output path
+					console.getConsole().addHyperlink(hepHyperlink,
+							event.getOffset() + Messages.SbomCommandDialog_ConsoleRedirectedOutputFormatString.length()
+									- PATH_REGEX.length(),
+							event.getLength() - Messages.SbomCommandDialog_ConsoleRedirectedOutputFormatString.length()
+									+ PATH_REGEX.length());
 				}
 				catch (BadLocationException e)
 				{
@@ -335,7 +338,7 @@ public class SbomCommandDialog extends TitleAreaDialog
 
 			public String getPattern()
 			{
-				return outputFilePath;
+				return String.format(Messages.SbomCommandDialog_ConsoleRedirectedOutputFormatString, PATH_REGEX);
 			}
 
 			public String getLineQualifier()
@@ -353,14 +356,34 @@ public class SbomCommandDialog extends TitleAreaDialog
 	private boolean validateInput()
 	{
 		boolean validateStatus = true;
-		if (!Files.exists(Paths.get(projectDescriptionPathText.getText())))
+		java.nio.file.Path projectDescriptionPath = null;
+		try
+		{
+			projectDescriptionPath = Paths.get(projectDescriptionPathText.getText());
+		}
+		catch (InvalidPathException e)
+		{
+			validateStatus = false;
+			setErrorMessage(Messages.SbomCommandDialog_InvalidProjectDescPathErrorMsg);
+		}
+		if (projectDescriptionPath != null && !Files.exists(projectDescriptionPath))
 		{
 			validateStatus = false;
 			setErrorMessage(Messages.SbomCommandDialog_ProjectDescDoesntExistsErrorMsg);
 		}
 
-		if (saveOutputToFileCheckBoxButton.getSelection()
-				&& checkIfFileIsNotWritable(Paths.get(outputFileText.getText())))
+		java.nio.file.Path outputFilePath = null;
+		try
+		{
+			outputFilePath = Paths.get(outputFileText.getText());
+		}
+		catch (InvalidPathException e)
+		{
+			validateStatus = false;
+			setErrorMessage(Messages.SbomCommandDialog_IvalidOutputFilePathErrorMsg);
+		}
+		if (outputFilePath != null && saveOutputToFileCheckBoxButton.getSelection()
+				&& checkIfFileIsNotWritable(outputFilePath))
 		{
 			validateStatus = false;
 			setErrorMessage(Messages.SbomCommandDialog_OutputFileNotWritabbleErrorMsg);
