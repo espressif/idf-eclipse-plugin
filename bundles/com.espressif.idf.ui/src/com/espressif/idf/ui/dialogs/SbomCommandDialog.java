@@ -284,11 +284,8 @@ public class SbomCommandDialog extends TitleAreaDialog
 				{
 					IHyperlink hepHyperlink = createHyperlinkWhichOpensFileInEditor();
 					// calculating the right offset and length to highlight only the output path
-					console.getConsole().addHyperlink(hepHyperlink,
-							event.getOffset() + Messages.SbomCommandDialog_ConsoleRedirectedOutputFormatString.length()
-									- PATH_REGEX.length(),
-							event.getLength() - Messages.SbomCommandDialog_ConsoleRedirectedOutputFormatString.length()
-									+ PATH_REGEX.length());
+					console.getConsole().addHyperlink(hepHyperlink, getPattern().length() - PATH_REGEX.length(),
+							event.getLength() - getPattern().length() + PATH_REGEX.length());
 				}
 				catch (BadLocationException e)
 				{
