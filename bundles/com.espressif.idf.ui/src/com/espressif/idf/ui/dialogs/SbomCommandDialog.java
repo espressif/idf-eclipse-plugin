@@ -14,6 +14,7 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
@@ -190,6 +191,22 @@ public class SbomCommandDialog extends TitleAreaDialog
 	protected void okPressed()
 	{
 		console = new IDFConsole().getConsoleStream(Messages.IDFToolsHandler_ToolsManagerConsole, null, false);
+		Job refreshJob = new Job(Messages.SbomCommandDialog_RefreshProjectJob)
+		{
+
+			protected IStatus run(IProgressMonitor monitor)
+			{
+				try
+				{
+					selectedProject.refreshLocal(IResource.DEPTH_INFINITE, null);
+				}
+				catch (CoreException e)
+				{
+					Logger.log(e);
+				}
+				return Status.OK_STATUS;
+			}
+		};
 		Job espIdfSbomJob = new Job(Messages.SbomCommandDialog_EspIdfSbomJobName)
 		{
 
@@ -200,13 +217,23 @@ public class SbomCommandDialog extends TitleAreaDialog
 					installEspIdfSbom();
 				}
 				runEspIdfSbomCommand();
+				try
+				{
+					refreshJob.join();
+				}
+				catch (InterruptedException e)
+				{
+					Logger.log(e);
+				}
 				return Status.OK_STATUS;
 			}
 		};
-		espIdfSbomJob.schedule();
+
 		projectDescription = projectDescriptionPathText.getText();
 		saveOutputFileStatus = saveOutputToFileCheckBoxButton.getSelection();
 		outputFilePath = outputFileText.getText();
+		espIdfSbomJob.schedule();
+
 		super.okPressed();
 	}
 

@@ -62,6 +62,7 @@ public class Messages extends NLS
 	public static String SbomCommandDialog_ProjectDescDoesntExistsErrorMsg;
 	public static String SbomCommandDialog_ProjectDescriptionPathLbl;
 	public static String SbomCommandDialog_RedirectOutputCheckBoxLbl;
+	public static String SbomCommandDialog_RefreshProjectJob;
 	public static String SbomCommandDialog_SbomInfoMsg;
 	public static String SbomCommandDialog_SbomTitle;
 	public static String SbomCommandDialog_StatusCantBeNullErrorMsg;
