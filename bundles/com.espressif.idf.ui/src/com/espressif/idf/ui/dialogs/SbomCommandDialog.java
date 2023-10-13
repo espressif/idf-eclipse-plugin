@@ -363,7 +363,7 @@ public class SbomCommandDialog extends TitleAreaDialog
 			validateStatus = false;
 			setErrorMessage(Messages.SbomCommandDialog_InvalidProjectDescPathErrorMsg);
 		}
-		if (projectDescriptionPath != null && !Files.exists(projectDescriptionPath))
+		if (projectDescriptionPath != null && !Files.isRegularFile(projectDescriptionPath))
 		{
 			validateStatus = false;
 			setErrorMessage(Messages.SbomCommandDialog_ProjectDescDoesntExistsErrorMsg);
