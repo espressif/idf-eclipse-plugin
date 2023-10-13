@@ -153,12 +153,7 @@ public class SbomCommandDialog extends TitleAreaDialog
 			outputFileBrowseBtn.setVisible(saveOutputToFileCheckBoxButton.getSelection());
 			container.requestLayout();
 		});
-		saveOutputToFileCheckBoxButton.setSelection(false);
-		saveOutputToFileCheckBoxButton.notifyListeners(SWT.Selection, null);
 
-		outputFileText.addListener(SWT.Modify, e -> getButton(IDialogConstants.OK_ID).setEnabled(validateInput()));
-		projectDescriptionPathText.addListener(SWT.Modify,
-				e -> getButton(IDialogConstants.OK_ID).setEnabled(validateInput()));
 		return super.createDialogArea(parent);
 	}
 
@@ -256,9 +251,8 @@ public class SbomCommandDialog extends TitleAreaDialog
 				selectedProject = ((IResource) element).getProject();
 			}
 		}
-
 		projectDescriptionPathText.setText(buildProjectDescriptionPath());
-		if (!Files.exists(Paths.get(projectDescriptionPathText.getText())))
+		if (!Files.isRegularFile(Paths.get(projectDescriptionPathText.getText())))
 		{
 			setMessage(Messages.SbomCommandDialog_ProjectDescDoesntExistDefaultErrorMsg);
 			getButton(IDialogConstants.OK_ID).setEnabled(false);
@@ -266,6 +260,12 @@ public class SbomCommandDialog extends TitleAreaDialog
 		outputFileText.setText(String.join(FileSystems.getDefault().getSeparator(),
 				Paths.get(selectedProject.getLocationURI()).toString(), DEFAULT_OUTPUT_FILE_NAME));
 
+		saveOutputToFileCheckBoxButton.setSelection(false);
+		saveOutputToFileCheckBoxButton.notifyListeners(SWT.Selection, null);
+
+		outputFileText.addListener(SWT.Modify, e -> getButton(IDialogConstants.OK_ID).setEnabled(validateInput()));
+		projectDescriptionPathText.addListener(SWT.Modify,
+				e -> getButton(IDialogConstants.OK_ID).setEnabled(validateInput()));
 	}
 
 	private String buildProjectDescriptionPath()
