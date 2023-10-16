@@ -59,6 +59,7 @@ To get a quick understanding of ESP-IDF and Eclipse plugin features, check our s
 * [ ESP-IDF master update](#updateEspIdfMaster)<br>
 * [ Partition Table Editor UI for ESP-IDF](#partitionTableEditor)<br>
 * [ NVS Table Editor](#nvsTableEditor)<br>
+* [ Write Binary Data to Flash](#writeFlashBinary)<br>
 * [ Changing Language ](#changeLanguage)<br>
 * [ Wokwi Simulator](#wokwisimulator)<br>
 </details>
@@ -784,6 +785,19 @@ Steps:
 	![NVS_Table_editor_5](https://user-images.githubusercontent.com/24419842/216118486-69f819fa-7a95-49ae-805e-473cd2c424e8.png)
 
 After all these steps, you should see `nvs.csv` and `nvs.bin` files in the project directory.
+
+<a name ="writeFlashBinary"></a> 
+# Write Binary to Flash
+
+Binary data can be written to the ESP’s flash chip via `ESP-IDF: Write Binary Data to Flash` command accessible by right click on the project in the project explorer:
+
+<img width="344" alt="Screenshot 2023-10-16 at 10 51 52" src="https://github.com/espressif/idf-eclipse-plugin/assets/24419842/186c8498-d779-4771-af53-e5bf09e29502">
+
+After clicking this command, the `Write Binary Data to Flash` dialog box will open. Editable default values ​​are provided for binary path and offset. The correct offset can be checked by looking at the partition table via `ESP-IDF: Partition Table Editor` or manually by opening the partitions.csv file
+
+<img width="591" alt="Screenshot 2023-10-16 at 10 51 27" src="https://github.com/espressif/idf-eclipse-plugin/assets/24419842/46e24e89-a1ed-4169-8c92-1ba0b0089ea7">
+
+After clicking on the `Flash` button the result of the flash command will be printed inside of this dialog.
 
 # How to build locally
 
