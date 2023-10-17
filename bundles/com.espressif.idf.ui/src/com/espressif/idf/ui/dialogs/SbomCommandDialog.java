@@ -58,7 +58,7 @@ import com.espressif.idf.ui.update.Messages;
 public class SbomCommandDialog extends TitleAreaDialog
 {
 
-	private static final String PATH_REGEX = "(\\S+)"; //$NON-NLS-1$
+	private static final String PATH_REGEX = "(.+)"; //$NON-NLS-1$
 	private static final String DEFAULT_OUTPUT_FILE_NAME = "sbom.txt"; //$NON-NLS-1$
 	private static final String ESP_IDF_SBOM_COMMAND_NAME = "esp_idf_sbom"; //$NON-NLS-1$
 	protected static final String[] EXTENSIONS = { "*.json" }; //$NON-NLS-1$
@@ -404,7 +404,7 @@ public class SbomCommandDialog extends TitleAreaDialog
 		catch (InvalidPathException e)
 		{
 			validateStatus = false;
-			setErrorMessage(Messages.SbomCommandDialog_IvalidOutputFilePathErrorMsg);
+			setErrorMessage(Messages.SbomCommandDialog_InvalidOutputFilePathErrorMsg);
 		}
 		if (outputFilePath != null && saveOutputToFileCheckBoxButton.getSelection()
 				&& checkIfFileIsNotWritable(outputFilePath))

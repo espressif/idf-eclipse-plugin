@@ -50,12 +50,12 @@ public class Messages extends NLS
 	public static String PythonIdfEnvMsg;
 	public static String MissingIdfPathMsg;
 	public static String NotFoundMsg;
-	
+
 	public static String SbomCommandDialog_BrowseBtnTxt;
 	public static String SbomCommandDialog_ConsoleRedirectedOutputFormatString;
 	public static String SbomCommandDialog_EspIdfSbomJobName;
 	public static String SbomCommandDialog_InvalidProjectDescPathErrorMsg;
-	public static String SbomCommandDialog_IvalidOutputFilePathErrorMsg;
+	public static String SbomCommandDialog_InvalidOutputFilePathErrorMsg;
 	public static String SbomCommandDialog_OutputFileNotWritabbleErrorMsg;
 	public static String SbomCommandDialog_OutputFilePathLbl;
 	public static String SbomCommandDialog_ProjectDescDoesntExistDefaultErrorMsg;
