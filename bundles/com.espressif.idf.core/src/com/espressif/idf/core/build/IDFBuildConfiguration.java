@@ -1245,6 +1245,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 				pathtolookfor = getIdfToolsPath();
 				startIndex = sourceFile.indexOf(pathtolookfor);
 			}
+			if (startIndex == -1) // source file still not found means it was part of another esp-idf
+			{
+				return null;
+			}
 			String relativePath = sourceFile.substring(startIndex + pathtolookfor.length() + 1);
 
 			IPath projectPath = getComponentsPath().append(relativePath);
