@@ -16,9 +16,12 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Queue;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
@@ -28,15 +31,23 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MessageBox;
 import org.tukaani.xz.XZInputStream;
 
+import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.SystemExecutableFinder;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.ToolsSystemWrapper;
 import com.espressif.idf.core.tools.vo.ToolsVO;
 import com.espressif.idf.core.util.FileUtil;
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 
 /**
@@ -79,7 +90,7 @@ public class ToolsUtility
 				}
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -149,7 +160,7 @@ public class ToolsUtility
 		{
 			TarArchiveInputStream tararchiveinputstream = new TarArchiveInputStream(
 					new GzipCompressorInputStream(new BufferedInputStream(Files.newInputStream(pathInput))));
-			
+
 			ArchiveEntry archiveentry = null;
 			while ((archiveentry = tararchiveinputstream.getNextEntry()) != null)
 			{
@@ -165,7 +176,7 @@ public class ToolsUtility
 					Files.copy(tararchiveinputstream, pathEntryOutput, StandardCopyOption.REPLACE_EXISTING);
 					Runtime.getRuntime().exec("/bin/chmod 755 ".concat(pathEntryOutput.toString())); //$NON-NLS-1$
 				}
-					
+
 			}
 
 			tararchiveinputstream.close();
@@ -175,7 +186,7 @@ public class ToolsUtility
 			Logger.log(e);
 		}
 	}
-	
+
 	public static void extractTarXz(String tarFile, String outputDir)
 	{
 		Path pathOutput = Paths.get(outputDir);
@@ -199,8 +210,7 @@ public class ToolsUtility
 				}
 				else if (archiveentry.isLink())
 				{
-					hardLinks.put(pathEntryOutput,
-							pathOutput.resolve(archiveentry.getLinkName()));
+					hardLinks.put(pathEntryOutput, pathOutput.resolve(archiveentry.getLinkName()));
 					continue;
 				}
 				else if (archiveentry.isDirectory())
@@ -226,7 +236,7 @@ public class ToolsUtility
 			Logger.log(e);
 		}
 	}
-	
+
 	private static void createHardLinks(Path link, Path target)
 	{
 		try
@@ -307,11 +317,12 @@ public class ToolsUtility
 		}
 		return sb.toString();
 	}
-	
+
 	/**
 	 * Gets the absolute path for the tool from the given path
+	 * 
 	 * @param toolName tool to find absolute path
-	 * @param path the path to variable to look into, if null System.getenv() will be used
+	 * @param path     the path to variable to look into, if null System.getenv() will be used
 	 * @return absolute path to the tool
 	 */
 	public static IPath findAbsoluteToolPath(String toolName, String path)
@@ -319,13 +330,248 @@ public class ToolsUtility
 		if (StringUtil.isEmpty(path))
 		{
 			Map<String, String> env = System.getenv();
-			if (env.containsKey(IDFEnvironmentVariables.PATH)) 
+			if (env.containsKey(IDFEnvironmentVariables.PATH))
 				path = env.get(IDFEnvironmentVariables.PATH);
 			else
 				path = env.get("Path"); //$NON-NLS-1$
 		}
-		
+
 		SystemExecutableFinder systemExecutableFinder = new SystemExecutableFinder(new ToolsSystemWrapper(path));
 		return systemExecutableFinder.find(toolName);
 	}
+
+	public static void installWebSocketClientPipPackage(Queue<String> logQueue)
+	{
+		String websocketclient = "websocket-client"; //$NON-NLS-1$
+		final String pythonEnvPath = IDFUtil.getIDFPythonEnvPath();
+		if (pythonEnvPath == null || !new File(pythonEnvPath).exists())
+		{
+			if (logQueue != null)
+			{
+				logQueue.add(
+						String.format("%s executable not found. Unable to run `%s -m pip install websocket-client`", //$NON-NLS-1$
+								IDFConstants.PYTHON_CMD, IDFConstants.PYTHON_CMD));
+			}
+
+			return;
+		}
+
+		List<String> arguments = getPipInstallCommand(pythonEnvPath);
+		arguments.add(websocketclient);
+
+		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
+
+		try
+		{
+			String cmdMsg = "Executing " + getCommandString(arguments); //$NON-NLS-1$
+			if (logQueue != null)
+			{
+				logQueue.add(cmdMsg);
+			}
+			Logger.log(cmdMsg);
+
+			Map<String, String> environment = new HashMap<>(System.getenv());
+			Logger.log(environment.toString());
+
+			IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT, environment);
+			if (status == null)
+			{
+				Logger.log(IDFCorePlugin.getPlugin(),
+						IDFCorePlugin.errorStatus("Unable to get the process status.", null)); //$NON-NLS-1$
+				if (logQueue != null)
+				{
+					logQueue.add("Unable to get the process status."); //$NON-NLS-1$
+				}
+				return;
+			}
+			if (logQueue != null)
+			{
+				logQueue.add(status.getMessage());
+			}
+
+		}
+		catch (Exception e1)
+		{
+			Logger.log(IDFCorePlugin.getPlugin(), e1);
+			if (logQueue != null)
+			{
+				logQueue.add(e1.getLocalizedMessage());
+			}
+
+		}
+	}
+
+	public static void installFreertosGdbPipPackage(Queue<String> logQueue)
+	{
+		String freeRtosGdb = "freertos-gdb"; //$NON-NLS-1$
+		final String pythonEnvPath = IDFUtil.getIDFPythonEnvPath();
+		if (pythonEnvPath == null || !new File(pythonEnvPath).exists())
+		{
+			if (logQueue != null)
+			{
+				logQueue.add(
+						String.format("%s executable not found. Unable to run `%s -m pip install websocket-client`", //$NON-NLS-1$
+								IDFConstants.PYTHON_CMD, IDFConstants.PYTHON_CMD));
+			}
+
+			return;
+		}
+
+		List<String> arguments = getPipInstallCommand(pythonEnvPath);
+		arguments.add(freeRtosGdb);
+
+		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
+
+		try
+		{
+			String cmdMsg = "Executing " + getCommandString(arguments); //$NON-NLS-1$
+			if (logQueue != null)
+			{
+				logQueue.add(cmdMsg);
+			}
+			Logger.log(cmdMsg);
+
+			Map<String, String> environment = new HashMap<>(System.getenv());
+			Logger.log(environment.toString());
+
+			IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT, environment);
+			if (status == null)
+			{
+				Logger.log(IDFCorePlugin.getPlugin(),
+						IDFCorePlugin.errorStatus("Unable to get the process status.", null)); //$NON-NLS-1$
+				if (logQueue != null)
+				{
+					logQueue.add("Unable to get the process status."); //$NON-NLS-1$
+				}
+				return;
+			}
+			if (logQueue != null)
+			{
+				logQueue.add(status.getMessage());
+			}
+
+		}
+		catch (Exception e1)
+		{
+			Logger.log(IDFCorePlugin.getPlugin(), e1);
+			if (logQueue != null)
+			{
+				logQueue.add(e1.getLocalizedMessage());
+			}
+
+		}
+	}
+	
+	private static List<String> getPipInstallCommand(String pythonPath)
+	{
+		List<String> arguments = new ArrayList<String>();
+		arguments.add(pythonPath);
+		arguments.add("-m"); //$NON-NLS-1$
+		arguments.add("pip"); //$NON-NLS-1$
+
+		arguments.add("install"); //$NON-NLS-1$
+		return arguments;
+	}
+
+	private static String getCommandString(List<String> arguments)
+	{
+		StringBuilder builder = new StringBuilder();
+		arguments.forEach(entry -> builder.append(entry + " ")); //$NON-NLS-1$
+
+		return builder.toString().trim();
+	}
+
+	public static void configureRequiredEnvVars(IDFEnvironmentVariables idfEnvironmentVariables)
+	{
+		if (idfEnvironmentVariables == null)
+		{
+			idfEnvironmentVariables = new IDFEnvironmentVariables();
+		}
+		// Enable IDF_COMPONENT_MANAGER by default
+		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER, "1"); //$NON-NLS-1$
+		// IDF_MAINTAINER=1 to be able to build with the clang toolchain
+		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_MAINTAINER, "1"); //$NON-NLS-1$
+	}
+
+	public static void copyOpenOcdRules(Queue<String> logQueue)
+	{
+		if (Platform.getOS().equals(Platform.OS_LINUX)
+				&& !IDFUtil.getOpenOCDLocation().equalsIgnoreCase(StringUtil.EMPTY))
+		{
+			Logger.log("Copying OpenOCD Rules"); //$NON-NLS-1$
+			if (logQueue != null)
+			{
+				logQueue.add(Messages.InstallToolsHandler_CopyingOpenOCDRules);
+			}
+			// Copy the rules to the idf
+			StringBuilder pathToRules = new StringBuilder();
+			pathToRules.append(IDFUtil.getOpenOCDLocation());
+			pathToRules.append("/../share/openocd/contrib/60-openocd.rules"); //$NON-NLS-1$
+			File rulesFile = new File(pathToRules.toString());
+			if (rulesFile.exists())
+			{
+				Path source = Paths.get(pathToRules.toString());
+				Path target = Paths.get("/etc/udev/rules.d/60-openocd.rules"); //$NON-NLS-1$
+				Logger.log(String.format("Copying File: %s to destination: %s", source.toString(), //$NON-NLS-1$
+						target.toString()));
+				if (logQueue != null)
+				{
+					logQueue.add(String.format(Messages.InstallToolsHandler_OpenOCDRulesCopyPaths, source.toString(),
+							target.toString()));
+				}
+
+				Display.getDefault().syncExec(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						try
+						{
+							if (target.toFile().exists())
+							{
+								MessageBox messageBox = new MessageBox(Display.getDefault().getActiveShell(),
+										SWT.ICON_WARNING | SWT.YES | SWT.NO);
+								messageBox.setText(Messages.InstallToolsHandler_OpenOCDRulesCopyWarning);
+								messageBox.setMessage(Messages.InstallToolsHandler_OpenOCDRulesCopyWarningMessage);
+								int response = messageBox.open();
+								if (response == SWT.YES)
+								{
+									Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+								}
+								else
+								{
+									Logger.log("Rules Not Copied to system"); //$NON-NLS-1$
+									if (logQueue != null)
+									{
+										logQueue.add(Messages.InstallToolsHandler_OpenOCDRulesNotCopied);
+									}
+									return;
+								}
+							}
+							else
+							{
+								Files.copy(source, target);
+							}
+
+							Logger.log("Rules Copied to system"); //$NON-NLS-1$
+							if (logQueue != null)
+							{
+								logQueue.add(Messages.InstallToolsHandler_OpenOCDRulesCopied);
+							}
+						}
+						catch (IOException e)
+						{
+							Logger.log(e);
+							Logger.log("Unable to copy rules for OpenOCD to system directory, try running the eclipse with sudo command"); //$NON-NLS-1$
+							if (logQueue != null)
+							{
+								logQueue.add(Messages.InstallToolsHandler_OpenOCDRulesCopyError);
+							}
+						}
+					}
+				});
+			}
+		}
+	}
+
 }

@@ -5,11 +5,6 @@
 package com.espressif.idf.ui.update;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,15 +13,11 @@ import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.console.MessageConsoleStream;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
@@ -37,8 +28,8 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
+import com.espressif.idf.core.tools.util.ToolsUtility;
 import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
 
 /**
@@ -94,13 +85,17 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				new ESPToolChainManager().configureToolChain();
 				monitor.worked(1);
 
-				configEnv();
+				ToolsUtility.configureRequiredEnvVars(null);
 
 				monitor.setTaskName(Messages.InstallToolsHandler_InstallingWebscoketMsg);
-				handleWebSocketClientInstall();
+				ToolsUtility.installWebSocketClientPipPackage(null);
 				monitor.worked(1);
 
-				copyOpenOcdRules();
+				monitor.setTaskName(Messages.InstallToolsHandler_InstallingFreeRtosGdbtMsg);
+				ToolsUtility.installFreertosGdbPipPackage(null);
+				monitor.worked(1);
+				
+				ToolsUtility.copyOpenOcdRules(null);
 				console.println(Messages.InstallToolsHandler_ConfiguredCMakeMsg);
 
 				console.println(Messages.InstallToolsHandler_ToolsCompleted);
@@ -121,79 +116,6 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		installToolsJob.schedule();
 	}
 
-	/**
-	 * Configure all the required environment variables here
-	 */
-	protected void configEnv()
-	{
-		IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
-
-		// Enable IDF_COMPONENT_MANAGER by default
-		idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER, "1");
-		// IDF_MAINTAINER=1 to be able to build with the clang toolchain
-		idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.IDF_MAINTAINER, "1");
-
-	}
-
-	private void copyOpenOcdRules()
-	{
-		if (Platform.getOS().equals(Platform.OS_LINUX)
-				&& !IDFUtil.getOpenOCDLocation().equalsIgnoreCase(StringUtil.EMPTY))
-		{
-			console.println(Messages.InstallToolsHandler_CopyingOpenOCDRules);
-			// Copy the rules to the idf
-			StringBuilder pathToRules = new StringBuilder();
-			pathToRules.append(IDFUtil.getOpenOCDLocation());
-			pathToRules.append("/../share/openocd/contrib/60-openocd.rules"); //$NON-NLS-1$
-			File rulesFile = new File(pathToRules.toString());
-			if (rulesFile.exists())
-			{
-				Path source = Paths.get(pathToRules.toString());
-				Path target = Paths.get("/etc/udev/rules.d/60-openocd.rules"); //$NON-NLS-1$
-				console.println(String.format(Messages.InstallToolsHandler_OpenOCDRulesCopyPaths, source.toString(),
-						target.toString()));
-
-				Display.getDefault().syncExec(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						try
-						{
-							if (target.toFile().exists())
-							{
-								MessageBox messageBox = new MessageBox(Display.getDefault().getActiveShell(),
-										SWT.ICON_WARNING | SWT.YES | SWT.NO);
-								messageBox.setText(Messages.InstallToolsHandler_OpenOCDRulesCopyWarning);
-								messageBox.setMessage(Messages.InstallToolsHandler_OpenOCDRulesCopyWarningMessage);
-								int response = messageBox.open();
-								if (response == SWT.YES)
-								{
-									Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-								}
-								else
-								{
-									console.println(Messages.InstallToolsHandler_OpenOCDRulesNotCopied);
-									return;
-								}
-							}
-							else
-							{
-								Files.copy(source, target);
-							}
-
-							console.println(Messages.InstallToolsHandler_OpenOCDRulesCopied);
-						}
-						catch (IOException e)
-						{
-							Logger.log(e);
-							errorConsoleStream.println(Messages.InstallToolsHandler_OpenOCDRulesCopyError);
-						}
-					}
-				});
-			}
-		}
-	}
 
 	protected IStatus handleToolsInstall()
 	{
