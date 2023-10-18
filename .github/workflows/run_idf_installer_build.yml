@@ -10,12 +10,36 @@ jobs:
   run-idf-installer-build:
     name: IDF Installer Build
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Get IDE version from release tag
+        run: |
+          TAG=${{ github.event.release.tag_name }}
+          IDE_VERSION=${TAG#v}
+          echo "IDE Version is $IDE_VERSION"
+          echo "IDE_VERSION=$IDE_VERSION" >> $GITHUB_ENV
+
+      - name: Get latest release from espressif/esp-idf
+        run: |
+            RESPONSE=$(curl -L \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              https://api.github.com/repos/espressif/esp-idf/releases/latest)
+  
+            TAG_NAME=$(echo "$RESPONSE" | jq -r '.tag_name')
+            IDF_VERSION=${TAG_NAME#v}
+            echo "Latest IDF Version is: $IDF_VERSION"
+            echo "IDF_VERSION=$IDF_VERSION" >> $GITHUB_ENV
+  
+
       - name: Trigger the Receiver Action
         run: |
-           curl -XPOST -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
-           -H "Accept: application/vnd.github.everest-preview+json" \
-           "https://api.github.com/repos/espressif/idf-installer/dispatches" \
-           -d '{"event_type": "trigger-action", "client_payload": {"input_name": "value_here"}}'
+          curl -XPOST -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
+          -H "Accept: application/vnd.github.everest-preview+json" \
+          "https://api.github.com/repos/espressif/idf-installer/dispatches" \
+          -d "{\"event_type\": \"trigger-action\", \"client_payload\": {\"ide_version\": \"$IDE_VERSION\", \"idf_version\" : \"$IDF_VERSION\"}}"
+
