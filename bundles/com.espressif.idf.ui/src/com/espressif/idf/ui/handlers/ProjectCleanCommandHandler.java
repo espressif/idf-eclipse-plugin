@@ -49,8 +49,8 @@ public class ProjectCleanCommandHandler extends AbstractToolsHandler
 
 		commands.add("clean"); //$NON-NLS-1$
 		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
-		console.println(commands.toString());
-		console.print((runCommand(commands, pathToProject, envMap)));
+		runCommandInNewJob(Messages.ProjectCleanCommandHandler_RunningProjectCleanJobName, commands, pathToProject,
+				envMap);
 		return event;
 	}
 

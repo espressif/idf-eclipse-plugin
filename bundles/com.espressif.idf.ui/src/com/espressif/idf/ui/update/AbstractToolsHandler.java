@@ -14,10 +14,12 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.MessageConsoleStream;
@@ -161,7 +163,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 
 			Map<String, String> environment = new HashMap<>(System.getenv());
 			Logger.log(environment.toString());
-			environment.put("PYTHONUNBUFFERED", "1");
+			environment.put("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
 
 			if (gitExecutablePath != null)
 			{
@@ -216,7 +218,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 				return Status.OK_STATUS;
 			}
 
-			return new Status(IStatus.ERROR, IDFCorePlugin.PLUGIN_ID, "Error");
+			return new Status(IStatus.ERROR, IDFCorePlugin.PLUGIN_ID, "Error"); //$NON-NLS-1$
 
 		}
 		catch (InterruptedException e)
@@ -292,6 +294,23 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 				environment.put("Path", path2); //$NON-NLS-1$
 			}
 		}
+	}
+
+	protected void runCommandInNewJob(String jobName, List<String> commandArgs, Path pathToProject,
+			Map<String, String> envMap)
+	{
+		Job job = new Job(jobName)
+		{
+
+			protected IStatus run(IProgressMonitor monitor)
+			{
+				console.println(String.format(Messages.AbstractToolsHandler_RunningCommandFormatString,
+						String.join(" ", commandArgs))); //$NON-NLS-1$
+				console.println((runCommand(commandArgs, pathToProject, envMap)));
+				return Status.OK_STATUS;
+			}
+		};
+		job.schedule();
 	}
 
 	protected String getCommandString(List<String> arguments)

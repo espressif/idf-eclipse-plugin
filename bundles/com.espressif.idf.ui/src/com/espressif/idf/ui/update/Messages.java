@@ -10,6 +10,7 @@ public class Messages extends NLS
 {
 	private static final String BUNDLE_NAME = "com.espressif.idf.ui.update.messages"; //$NON-NLS-1$
 	public static String AbstractToolsHandler_ExecutingMsg;
+	public static String AbstractToolsHandler_RunningCommandFormatString;
 	public static String DirectorySelectionDialog_Browse;
 	public static String DirectorySelectionDialog_CantbeEmpty;
 	public static String DirectorySelectionDialog_CheckTools;
