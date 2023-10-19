@@ -186,6 +186,17 @@ public class NewEspressifIDFProjectTest
 		Fixture.thenProjectHasTheFile("dfu.bin", "/build");
 		Fixture.turnOffDfu();
 	}
+	
+	@Test
+	public void givenNewProjectCreatedThenInstallNewComponent() throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.whenInstallNewComponentUsingContextMenu();
+		Fixture.checkIfNewComponentIsInstalledUsingContextMenu();
+	}
 
 	private static class Fixture
 	{
@@ -283,6 +294,22 @@ public class NewEspressifIDFProjectTest
 			ProjectTestOperations.buildProjectUsingContextMenu(projectName, bot);
 			ProjectTestOperations.waitForProjectBuild(bot);
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+		}
+		
+		private static void whenInstallNewComponentUsingContextMenu() throws IOException
+		{
+			ProjectTestOperations.openProjectNewComponentUsingContextMenu(projectName, bot);
+			bot.editorByTitle(projectName).show();
+			bot.button("Install").click();
+			ProjectTestOperations.waitForProjectNewComponentInstalled(bot);
+			bot.editorByTitle(projectName).close();
+		    ProjectTestOperations.refreshProjectUsingContextMenu(projectName, bot);
+		}
+
+		private static void checkIfNewComponentIsInstalledUsingContextMenu() throws IOException
+		{
+			ProjectTestOperations.openProjectComponentYMLFileInTextEditorUsingContextMenu(projectName, bot);
+			ProjectTestOperations.checkTextEditorContentForPhrase("espressif/mdns", bot);
 		}
 
 		private static void thenAllConfigurationsAreDeleted()

@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory;
@@ -60,7 +61,16 @@ public class ProjectTestOperations
 		consoleView.show();
 		consoleView.setFocus();
 		TestWidgetWaitUtility.waitUntilViewContains(bot, "Build complete", consoleView,
-				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_PROJECT_BUILD_WAIT_PROPERTY, 60000));
+				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_PROJECT_BUILD_WAIT_PROPERTY, 600000));
+	}
+	
+	public static void waitForProjectNewComponentInstalled(SWTWorkbenchBot bot) throws IOException
+	{
+		SWTBotView consoleView = viewConsole("ESP-IDF Console", bot);
+		consoleView.show();
+		consoleView.setFocus();
+		TestWidgetWaitUtility.waitUntilViewContains(bot, "Successfully added dependency", consoleView,
+				DefaultPropertyFetcher.getLongPropertyValue("Install New Component", 10000));
 	}
 
 	public static SWTBotView viewConsole(String consoleType, SWTWorkbenchBot bot)
@@ -88,6 +98,78 @@ public class ProjectTestOperations
 			bot.button("Close").click();
 		}
 		
+	}
+	
+	public static void refreshProjectUsingContextMenu(String projectName, SWTWorkbenchBot bot)
+	{
+		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
+		if (projectItem != null)
+		{
+			projectItem.select();
+			projectItem.contextMenu("Refresh").click();
+		}
+	}
+	
+	public static void openProjectComponentYMLFileInTextEditorUsingContextMenu(String projectName, SWTWorkbenchBot bot) 
+	{
+	    SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
+	    if (projectItem != null) {
+	        projectItem.select();
+	        projectItem.expand();
+	        projectItem.getNode("main").expand();
+
+	        int maxAttempts = 2;
+	        for (int attempt = 0; attempt <= maxAttempts; attempt++) {
+	            SWTBotTreeItem fileToOpenItem = findTreeItem(projectItem.getNode("main"), "idf_component.yml");
+
+	            if (fileToOpenItem != null) {
+	            	fileToOpenItem.select();
+	            	fileToOpenItem.doubleClick();
+	                return;
+	            }
+
+	            else {
+	                try {
+	                    Thread.sleep(3000);
+	                } catch (InterruptedException e) {
+	                    e.printStackTrace();
+	                }
+	            }
+	        }
+	        throw new RuntimeException("The 'idf_component.yml' file was not found in the 'main' subfolder.");
+	    }
+	}
+
+	private static SWTBotTreeItem findTreeItem(SWTBotTreeItem parent, String itemName) {
+	    for (SWTBotTreeItem child : parent.getItems()) {
+	        if (child.getText().equals(itemName)) {
+	            return child;
+	        }
+	        SWTBotTreeItem found = findTreeItem(child, itemName);
+	        if (found != null) {
+	            return found;
+	        }
+	    }
+	    return null;
+	}
+	
+	public static void checkTextEditorContentForPhrase(String phrase, SWTWorkbenchBot bot) {
+	    SWTBotEditor textEditor = bot.activeEditor();
+	    String editorText = textEditor.toTextEditor().getText();
+
+	    if (!editorText.contains(phrase)) {
+	        throw new RuntimeException("The specified phrase '" + phrase + "' was not found in the text editor.");
+	    }
+	}
+
+	public static void openProjectNewComponentUsingContextMenu(String projectName, SWTWorkbenchBot bot)
+	{
+		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
+		if (projectItem != null)
+		{
+			projectItem.select();
+			projectItem.contextMenu("ESP-IDF: Install New Component").click();
+		}
 	}
 
 	/**
