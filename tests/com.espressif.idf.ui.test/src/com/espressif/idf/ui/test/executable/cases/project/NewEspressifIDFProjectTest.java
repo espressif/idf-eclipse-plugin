@@ -7,6 +7,8 @@ package com.espressif.idf.ui.test.executable.cases.project;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -21,6 +23,7 @@ import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.junit.After;
@@ -186,6 +189,20 @@ public class NewEspressifIDFProjectTest
 		Fixture.thenProjectHasTheFile("dfu.bin", "/build");
 		Fixture.turnOffDfu();
 	}
+	
+	@Test
+	public void whenProjectIsSelectedInProjectExplorerThenNewDebugConfigurationHasPrefilledAllFields() throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.givenESP32LaunchTargetIsSelected();
+		Fixture.selectNewDebugLaunchConfig();
+		Fixture.compareProjectName();
+		Fixture.compareActualExePath();
+		Fixture.compareSVDPath();
+		Fixture.finishDebugLaunchConfigCreation();
+	}
 
 	private static class Fixture
 	{
@@ -276,6 +293,44 @@ public class NewEspressifIDFProjectTest
 			launchBarConfigSelector.clickEdit();
 			bot.comboBox().setSelection("DFU");
 			bot.button("OK").click();
+		}
+		
+		private static void givenESP32LaunchTargetIsSelected()
+		{
+			launchBarTargetSelector.select("esp32");
+		}
+		
+		private static void selectNewDebugLaunchConfig() 
+		{
+			launchBarConfigSelector.select("New Launch Configuration...");
+			bot.table(0).select("Debug");
+			bot.table(1).select("ESP-IDF GDB OpenOCD Debugging");
+			bot.button("Next >").click();
+		}
+		
+		private static void compareProjectName() 
+		{
+			SWTBotText textWidget = bot.textWithLabel("Project:");
+			assertTrue(textWidget.getText().equals(projectName));
+		}
+		
+		private static void compareActualExePath() 
+		{
+			bot.cTabItem("Debugger").activate();
+			SWTBotText actualExeTxtWidget = bot.textWithLabel("Actual Executable:");
+			assertTrue(actualExeTxtWidget.getText().contains("xtensa-esp32-elf-gdb.exe"));
+		}
+			
+		private static void compareSVDPath() 
+		{
+			bot.cTabItem("SVD Path").activate();
+			SWTBotText filePathTxtWidget = bot.textWithLabel("File path:");
+			assertTrue(filePathTxtWidget.getText().contains("esp32.svd"));
+		}
+		
+		private static void finishDebugLaunchConfigCreation()
+		{
+			bot.button("Finish").click();
 		}
 
 		private static void whenProjectIsBuiltUsingContextMenu() throws IOException
