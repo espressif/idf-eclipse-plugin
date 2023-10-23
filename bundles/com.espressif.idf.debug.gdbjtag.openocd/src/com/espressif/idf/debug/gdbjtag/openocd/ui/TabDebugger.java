@@ -100,6 +100,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 	// ------------------------------------------------------------------------
 
+	private static final int JOB_DELAY_MS = 100;
 	private static final String TAB_NAME = "Debugger"; //$NON-NLS-1$
 	private static final String TAB_ID = Activator.PLUGIN_ID + ".ui.debuggertab"; //$NON-NLS-1$
 	private static final String EMPTY_CONFIG_OPTIONS = "-s ${openocd_path}/share/openocd/scripts"; //$NON-NLS-1$
@@ -145,7 +146,6 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 	private PersistentPreferences fPersistentPreferences;
 
 	private ILaunchBarManager launchBarManager;
-	private ILaunchConfigurationWorkingCopy lastAppliedConfiguration;
 
 	// ------------------------------------------------------------------------
 
@@ -185,28 +185,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			String targetNameFromUI = fTargetName.getText();
 			// TODO: find a better way to roll back target change in the launch bar when Cancel was pressed.
 			// We have to do like this because we don't have access to the cancel button
-			Job revertTargetJob = new Job(Messages.TabDebugger_SettingTargetJob)
-			{
-				protected IStatus run(IProgressMonitor monitor)
-				{
-					try
-					{
-						String targetName = lastAppliedConfiguration.getOriginal()
-								.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, targetNameFromUI);
-						ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
-						ILaunchTarget selectedTarget = Stream.of(launchTargetManager.getLaunchTargets())
-								.filter(target -> target.getId().contentEquals((targetName))).findFirst().orElseGet(() -> null);
-						launchBarManager.setActiveLaunchTarget(selectedTarget);
-						return Status.OK_STATUS;
-					}
-					catch (CoreException e)
-					{
-						Logger.log(e);
-						return Status.CANCEL_STATUS;
-					}
-				}
-			};
-			revertTargetJob.schedule(100);
+			scheduleRevertTargetJob(targetNameFromUI);
 			LaunchBarListener.setIgnoreJtagTargetChange(false);
 		});
 
@@ -276,6 +255,37 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 				scheduleUpdateJob();
 			}
 		});
+	}
+
+	private void scheduleRevertTargetJob(String targetNameFromUI)
+	{
+		Job revertTargetJob = new Job(Messages.TabDebugger_SettingTargetJob)
+		{
+			protected IStatus run(IProgressMonitor monitor)
+			{
+				try
+				{
+					if (launchBarManager.getActiveLaunchConfiguration() == null)
+					{
+						return Status.CANCEL_STATUS;
+					}
+					String targetName = launchBarManager.getActiveLaunchConfiguration()
+							.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, targetNameFromUI);
+					ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
+					ILaunchTarget selectedTarget = Stream.of(launchTargetManager.getLaunchTargets())
+							.filter(target -> target.getId().contentEquals((targetName))).findFirst()
+							.orElseGet(() -> null);
+					launchBarManager.setActiveLaunchTarget(selectedTarget);
+					return Status.OK_STATUS;
+				}
+				catch (CoreException e)
+				{
+					Logger.log(e);
+					return Status.CANCEL_STATUS;
+				}
+			}
+		};
+		revertTargetJob.schedule(JOB_DELAY_MS);
 	}
 
 	private void browseButtonSelected(String title, Text text)
@@ -1553,7 +1563,6 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			System.out.println(
 					"openocd.TabDebugger.performApply() completed " + configuration.getName() + ", dirty=" + isDirty()); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		lastAppliedConfiguration = configuration;
 	}
 
 	@Override
@@ -1654,4 +1663,5 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 	}
 
 	// ------------------------------------------------------------------------
+
 }

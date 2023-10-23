@@ -85,6 +85,7 @@ import com.espressif.idf.ui.LaunchBarListener;
 
 @SuppressWarnings("restriction")
 public class CMakeMainTab2 extends GenericMainTab {
+	private static final int JOB_DELAY_MS = 100;
 	private static final String EMPTY_CONFIG_OPTIONS = "%s" + File.separator + "%s -s %s"; //$NON-NLS-1$ //$NON-NLS-2$
 	private Combo flashOverComboButton;
 	private Combo fFlashVoltage;
@@ -104,7 +105,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private Label dfuErrorLbl;
 	private Combo comboTargets;
 	private ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
-	private ILaunchConfigurationWorkingCopy lastAppliedConfiguration;
 
 	public enum FlashInterface {
 		UART, JTAG, DFU;
@@ -120,25 +120,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 		LaunchBarListener.setIgnoreJtagTargetChange(true);
 		parent.addDisposeListener(event -> {
 			String targetNameFromUI = fTargetName.getText();
-			Job revertTargetJob = new Job(Messages.CMakeMainTab2_SettingTargetJob) {
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					try {
-						String targetName = lastAppliedConfiguration.getOriginal()
-								.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, targetNameFromUI);
-						ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
-						ILaunchTarget selectedTarget = Stream.of(launchTargetManager.getLaunchTargets())
-								.filter(target -> target.getId().contentEquals((targetName))).findFirst()
-								.orElseGet(() -> null);
-						launchBarManager.setActiveLaunchTarget(selectedTarget);
-						return Status.OK_STATUS;
-					} catch (CoreException e) {
-						Logger.log(e);
-						return Status.CANCEL_STATUS;
-					}
-				}
-			};
-			revertTargetJob.schedule(100);
+			scheduleRevertTargetJob(targetNameFromUI);
 			LaunchBarListener.setIgnoreJtagTargetChange(false);
 		});
 
@@ -586,7 +568,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 			wc.setAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, jtagArgumentsField.getText());
 			wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, uartAgrumentsField.getText());
 			wc.setAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS, dfuArgumentsField.getText());
-			lastAppliedConfiguration = wc;
 			wc.doSave();
 		} catch (CoreException e) {
 			Logger.log(e);
@@ -874,5 +855,31 @@ public class CMakeMainTab2 extends GenericMainTab {
 				Logger.log(e);
 			}
 		}
+	}
+
+	private void scheduleRevertTargetJob(String targetNameFromUI) {
+		Job revertTargetJob = new Job(Messages.CMakeMainTab2_SettingTargetJob) {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				try {
+					if (launchBarManager.getActiveLaunchConfiguration() == null) {
+						return Status.CANCEL_STATUS;
+					}
+
+					String targetName = launchBarManager.getActiveLaunchConfiguration()
+							.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, targetNameFromUI);
+					ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
+					ILaunchTarget selectedTarget = Stream.of(launchTargetManager.getLaunchTargets())
+							.filter(target -> target.getId().contentEquals((targetName))).findFirst()
+							.orElseGet(() -> null);
+					launchBarManager.setActiveLaunchTarget(selectedTarget);
+					return Status.OK_STATUS;
+				} catch (CoreException e) {
+					Logger.log(e);
+					return Status.CANCEL_STATUS;
+				}
+			}
+		};
+		revertTargetJob.schedule(JOB_DELAY_MS);
 	}
 }
