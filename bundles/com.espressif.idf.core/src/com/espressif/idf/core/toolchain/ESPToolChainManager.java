@@ -146,13 +146,10 @@ public class ESPToolChainManager
 
 	public File findDebugger(String target)
 	{
-		return toolchainElements
-		.values()
-		.stream()
-		.filter(espToolChainElement -> espToolChainElement.name.equals(target))
-		.map(espToolChainElement -> findToolChain(getAllPaths(), espToolChainElement.debuggerPattern))
-		.findFirst()
-		.orElse(null);
+		return toolchainElements.values().stream()
+				.filter(espToolChainElement -> espToolChainElement.name.equals(target))
+				.map(espToolChainElement -> findToolChain(getAllPaths(), espToolChainElement.debuggerPattern))
+				.findFirst().orElse(null);
 	}
 
 	public File findToolChain(List<String> paths, String filePattern)
@@ -174,10 +171,7 @@ public class ESPToolChainManager
 
 	private Path[] getDirectories(String path)
 	{
-		return Arrays.stream(path.split(File.pathSeparator))
-				.map(String::trim)
-				.map(Paths::get)
-				.toArray(Path[]::new);
+		return Arrays.stream(path.split(File.pathSeparator)).map(String::trim).map(Paths::get).toArray(Path[]::new);
 	}
 
 	private File findMatchingFile(Path dir, String filePattern)
@@ -204,7 +198,6 @@ public class ESPToolChainManager
 		return null;
 	}
 
-
 	public void removePrevInstalledToolchains(IToolChainManager manager)
 	{
 		try
@@ -224,15 +217,34 @@ public class ESPToolChainManager
 	{
 		try
 		{
-			if (!isToolChainExist(manager, toolChainElement))
+			if (isToolChainExist(manager, toolChainElement))
 			{
-				manager.addToolChain(new ESPToolchain(toolchainProvider, compilerFile.toPath(), toolChainElement));
+				removeMatchedToolChain(manager, toolChainElement);
 			}
+
+			manager.addToolChain(new ESPToolchain(toolchainProvider, compilerFile.toPath(), toolChainElement));
 		}
 		catch (CoreException e)
 		{
 			CCorePlugin.log(e.getStatus());
 		}
+	}
+
+	private void removeMatchedToolChain(IToolChainManager manager, ESPToolChainElement toolChainElement)
+	{
+		Map<String, String> props = new HashMap<>();
+		props.put(IToolChain.ATTR_OS, toolChainElement.name);
+		props.put(IToolChain.ATTR_ARCH, toolChainElement.arch);
+		props.put(TOOLCHAIN_ATTR_ID, toolChainElement.fileName);
+		try
+		{
+			manager.getToolChainsMatching(props).forEach(toolchain -> manager.removeToolChain(toolchain));
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+
 	}
 
 	private boolean isToolChainExist(IToolChainManager manager, ESPToolChainElement toolChainElement)
