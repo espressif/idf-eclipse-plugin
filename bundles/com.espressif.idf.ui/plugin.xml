@@ -446,7 +446,7 @@
          </command>
          <command
                commandId="com.espressif.idf.ui.writeFlashCommand"
-               icon="icons/ESP-IDF_NVS_Table_Editor.png"
+               icon="icons/Write_Binary_Data_to_Flash.png"
                label="%command.label.writeFlashCmdLbl"
                style="push">
             <visibleWhen
