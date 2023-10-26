@@ -430,6 +430,7 @@
          </command>
          <command
                commandId="com.espressif.idf.ui.sbom"
+               icon="icons/Software_bill_of_materials_(SBOM).png"
                label="%command.label.SbomCommandLabel"
                style="push">
             <visibleWhen
