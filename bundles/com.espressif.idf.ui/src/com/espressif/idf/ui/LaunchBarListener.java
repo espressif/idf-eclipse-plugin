@@ -6,6 +6,10 @@ package com.espressif.idf.ui;
 
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.core.resources.IProject;
@@ -16,7 +20,10 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.core.ILaunchMode;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.launchbar.core.ILaunchBarListener;
 import org.eclipse.launchbar.core.ILaunchBarManager;
@@ -36,11 +43,32 @@ import com.espressif.idf.core.util.StringUtil;
 public class LaunchBarListener implements ILaunchBarListener
 {
 	private static boolean jtagIgnored = false;
+	private static ILaunchMode mode;
 
 	public static void setIgnoreJtagTargetChange(boolean status)
 	{
 		jtagIgnored = status;
 	}
+
+	@Override
+	public void activeLaunchModeChanged(ILaunchMode mode)
+	{
+		try
+		{
+			if (LaunchBarListener.mode != null && !LaunchBarListener.mode.equals(mode))
+			{
+				filterConfigurationsBySelectedMode(mode);
+			}
+			LaunchBarListener.mode = mode;
+			ILaunchBarListener.super.activeLaunchModeChanged(mode);
+
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+	}
+
 	@Override
 	public void activeLaunchTargetChanged(ILaunchTarget target)
 	{
@@ -52,7 +80,8 @@ public class LaunchBarListener implements ILaunchBarListener
 			{
 				if (target != null)
 				{
-					String targetName = target.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", ""); //$NON-NLS-1$
+					String targetName = target.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
+							StringUtil.EMPTY);
 					if (!StringUtil.isEmpty(targetName))
 					{
 						update(targetName);
@@ -63,6 +92,74 @@ public class LaunchBarListener implements ILaunchBarListener
 
 	}
 
+	private void filterConfigurationsBySelectedMode(ILaunchMode mode) throws CoreException
+	{
+		ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
+		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+		ILaunchConfiguration[] configs = launchManager.getLaunchConfigurations();
+		launchBarManager.removeListener(this);
+		List<ILaunchConfiguration> debugConfigs = new ArrayList<>();
+		List<ILaunchConfiguration> launchConfigs = new ArrayList<>();
+		Set<IProject> projectsToRemove = new HashSet<>();
+		Set<IProject> projectsToAdd = new HashSet<>();
+		for (ILaunchConfiguration config : configs)
+		{
+			IResource[] mappedResource = config.getMappedResources();
+			if (mappedResource == null)
+				continue;
+
+			IProject project = mappedResource[0].getProject();
+			if (project.isOpen())
+			{
+				(config.getType().getIdentifier().contentEquals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE)
+						? debugConfigs
+						: launchConfigs).add(config);
+				if (launchBarManager.getActiveLaunchMode().getIdentifier().equals(ILaunchManager.DEBUG_MODE))
+				{
+					projectsToRemove.add(project);
+				}
+				else
+				{
+					projectsToAdd.add(project);
+				}
+			}
+			else
+			{
+				projectsToRemove.add(project);
+			}
+
+		}
+		ILaunchMode activeMode = launchBarManager.getActiveLaunchMode();
+		String activeIdentifier = activeMode == null ? ILaunchManager.RUN_MODE : activeMode.getIdentifier();
+		if (activeIdentifier.equals(ILaunchManager.RUN_MODE))
+			updateConfigurationList(launchConfigs, debugConfigs, launchBarManager);
+		else
+			updateConfigurationList(debugConfigs, launchConfigs, launchBarManager);
+
+		for (IProject project : projectsToAdd)
+		{
+			launchBarManager.launchObjectAdded(project);
+		}
+		for (IProject project : projectsToRemove)
+		{
+			launchBarManager.launchObjectRemoved(project);
+		}
+		launchBarManager.addListener(this);
+	}
+
+	private void updateConfigurationList(List<ILaunchConfiguration> configurationsToAdd,
+			List<ILaunchConfiguration> configurationsToRemove, ILaunchBarManager launchBarManager) throws CoreException
+	{
+		for (ILaunchConfiguration config : configurationsToRemove)
+		{
+			launchBarManager.launchObjectRemoved(config);
+		}
+		for (ILaunchConfiguration config : configurationsToAdd)
+		{
+			launchBarManager.launchObjectAdded(config);
+		}
+	}
+
 	private void update(String newTarget)
 	{
 		// Get old IDF target for the project
@@ -70,10 +167,11 @@ public class LaunchBarListener implements ILaunchBarListener
 		{
 			ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
 			ILaunchConfiguration activeConfig = launchBarManager.getActiveLaunchConfiguration();
-			if (activeConfig == null) {
+			if (activeConfig == null)
+			{
 				return;
 			}
-			
+
 			String projectName = activeConfig.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
 			if (projectName.isEmpty())
 			{
@@ -98,25 +196,28 @@ public class LaunchBarListener implements ILaunchBarListener
 					{
 						// get current target
 						String currentTarget = new SDKConfigJsonReader((IProject) project).getValue("IDF_TARGET"); //$NON-NLS-1$
-						final String jtag_device_id = activeConfig.getAttribute("org.eclipse.cdt.debug.gdbjtag.core.jtagDeviceId", ""); //$NON-NLS-1$ //$NON-NLS-2$
+						final String jtag_device_id = activeConfig
+								.getAttribute("org.eclipse.cdt.debug.gdbjtag.core.jtagDeviceId", ""); //$NON-NLS-1$ //$NON-NLS-2$
 						if ((activeConfig.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, false) && !jtagIgnored)
 								|| jtag_device_id.contentEquals("ESP-IDF GDB OpenOCD")) //$NON-NLS-1$
 						{
-							String targetForJtagFlash = activeConfig.getWorkingCopy().getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, ""); //$NON-NLS-1$
-							if (!newTarget.equals(targetForJtagFlash)) 
+							String targetForJtagFlash = activeConfig.getWorkingCopy()
+									.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, ""); //$NON-NLS-1$
+							if (!newTarget.equals(targetForJtagFlash))
 							{
 								boolean isYes = MessageDialog.openQuestion(EclipseUtil.getShell(),
 										Messages.LaunchBarListener_TargetChanged_Title,
 										MessageFormat.format(Messages.LaunchBarListener_TargetDontMatch_Msg, newTarget,
 												targetForJtagFlash, activeConfig.getName()));
-								if (isYes) {
+								if (isYes)
+								{
 									ILaunchBarUIManager uiManager = UIPlugin.getService(ILaunchBarUIManager.class);
 									uiManager.openConfigurationEditor(launchBarManager.getActiveLaunchDescriptor());
 									return;
 								}
 							}
 						}
-						
+
 						// If both are not same
 						if (currentTarget != null && !newTarget.equals(currentTarget))
 						{
