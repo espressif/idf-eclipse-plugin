@@ -119,7 +119,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 	public void createControl(Composite parent) {
 		LaunchBarListener.setIgnoreJtagTargetChange(true);
 		parent.addDisposeListener(event -> {
-			String targetNameFromUI = fTargetName.getText();
+			String targetNameFromUI = fTarget.getText();
 			scheduleRevertTargetJob(targetNameFromUI);
 			LaunchBarListener.setIgnoreJtagTargetChange(false);
 		});

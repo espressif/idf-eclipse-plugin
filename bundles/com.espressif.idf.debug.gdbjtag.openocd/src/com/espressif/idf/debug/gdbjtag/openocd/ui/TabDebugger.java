@@ -182,7 +182,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 		LaunchBarListener.setIgnoreJtagTargetChange(true);
 		parent.addDisposeListener(event -> {
-			String targetNameFromUI = fTargetName.getText();
+			String targetNameFromUI = fTarget.getText();
 			// TODO: find a better way to roll back target change in the launch bar when Cancel was pressed.
 			// We have to do like this because we don't have access to the cancel button
 			scheduleRevertTargetJob(targetNameFromUI);
