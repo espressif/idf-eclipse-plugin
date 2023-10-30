@@ -116,6 +116,7 @@ public class ExportIDFTools
 				Logger.log(msg);
 
 				final IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
+				// TODO: Here for initial task just keep a record of all the variables. Later we can think about removing this and just returning
 				String key = keyValue[0];
 				String value = keyValue[1];
 				if (key.equals(IDFEnvironmentVariables.PATH))

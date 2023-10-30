@@ -85,7 +85,8 @@ public class ESPToolChainManager
 				String fileName = iConfigurationElement.getAttribute("fileName"); //$NON-NLS-1$
 				String compilerPattern = iConfigurationElement.getAttribute("compilerPattern"); //$NON-NLS-1$
 				String debuggerPatten = iConfigurationElement.getAttribute("debuggerPattern"); //$NON-NLS-1$
-
+				// TODO: We also need to set the IDF version in the toolchain 
+				// element and get it here also the line below needs to create a unique id and should use the idf version as well
 				String uniqueToolChainId = name.concat("/").concat(arch).concat("/").concat(fileName); //$NON-NLS-1$ //$NON-NLS-2$
 
 				toolchainElements.put(uniqueToolChainId,
@@ -146,11 +147,12 @@ public class ESPToolChainManager
 
 	public File findDebugger(String target)
 	{
+		// TODO: More investigation maybe required but we need to return the default toolchain based on default IDF version
 		return toolchainElements
 		.values()
 		.stream()
 		.filter(espToolChainElement -> espToolChainElement.name.equals(target))
-		.map(espToolChainElement -> findToolChain(getAllPaths(), espToolChainElement.debuggerPattern))
+		.map(espToolChainElement -> findToolChain(getAllPaths(), espToolChainElement.debuggerPattern)) // TODO: This needs to breakdown to properly handle the multiple env paths we can now have
 		.findFirst()
 		.orElse(null);
 	}
@@ -477,6 +479,7 @@ class ESPToolChainElement
 	public final String fileName;
 	public final String compilerPattern;
 	public final String debuggerPattern;
+	// TODO: A new string variable to store the idf version
 
 	public ESPToolChainElement(String name, String id, String arch, String fileName, String compilerPattern,
 			String debuggerPatten)

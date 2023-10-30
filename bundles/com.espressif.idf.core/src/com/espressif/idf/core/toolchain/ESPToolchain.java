@@ -25,12 +25,13 @@ public class ESPToolchain extends GCCToolChain
 		setProperty(ATTR_OS, element.name);
 		setProperty(ATTR_ARCH, element.arch);
 		setProperty("ATTR_ID", element.fileName); //$NON-NLS-1$
+		// TODO: Set a property here for the idf version
 	}
 
 	@Override
 	public String getId()
 	{
-
+		// TODO: get the idf version property to create a name
 		String os = getProperty(ATTR_OS);
 		String arch = getProperty(ATTR_ARCH);
 		String pathToToolChain = getProperty("ATTR_ID"); //$NON-NLS-1$

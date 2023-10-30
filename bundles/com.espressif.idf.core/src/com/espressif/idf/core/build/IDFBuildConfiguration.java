@@ -716,6 +716,13 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		}
 		return true;
 	}
+	
+	@Override
+	public void setBuildEnvironment(Map<String, String> env)
+	{
+		super.setBuildEnvironment(env);
+		// TODO: Based on the selected toolchain figure out the idf version and select the respective tools.
+	}
 
 	private boolean checkLaunchTarget(IConsole console)
 	{
