@@ -119,8 +119,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 	public void createControl(Composite parent) {
 		LaunchBarListener.setIgnoreJtagTargetChange(true);
 		parent.addDisposeListener(event -> {
-			String targetNameFromUI = fTarget.getText();
-			scheduleRevertTargetJob(targetNameFromUI);
+			scheduleRevertTargetJob();
 			LaunchBarListener.setIgnoreJtagTargetChange(false);
 		});
 
@@ -857,7 +856,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 		}
 	}
 
-	private void scheduleRevertTargetJob(String targetNameFromUI) {
+	private void scheduleRevertTargetJob() {
 		Job revertTargetJob = new Job(Messages.CMakeMainTab2_SettingTargetJob) {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
@@ -867,12 +866,15 @@ public class CMakeMainTab2 extends GenericMainTab {
 					}
 
 					String targetName = launchBarManager.getActiveLaunchConfiguration()
-							.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, targetNameFromUI);
-					ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
-					ILaunchTarget selectedTarget = Stream.of(launchTargetManager.getLaunchTargets())
-							.filter(target -> target.getId().contentEquals((targetName))).findFirst()
-							.orElseGet(() -> null);
-					launchBarManager.setActiveLaunchTarget(selectedTarget);
+							.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, StringUtil.EMPTY);
+					if (!targetName.isEmpty()) {
+						ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
+						ILaunchTarget selectedTarget = Stream.of(launchTargetManager.getLaunchTargets())
+								.filter(target -> target.getId().contentEquals((targetName))).findFirst()
+								.orElseGet(() -> null);
+						launchBarManager.setActiveLaunchTarget(selectedTarget);
+					}
+
 					return Status.OK_STATUS;
 				} catch (CoreException e) {
 					Logger.log(e);

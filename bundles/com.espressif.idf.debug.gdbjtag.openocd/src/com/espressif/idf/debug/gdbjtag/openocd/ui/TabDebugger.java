@@ -182,10 +182,9 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 		LaunchBarListener.setIgnoreJtagTargetChange(true);
 		parent.addDisposeListener(event -> {
-			String targetNameFromUI = fTarget.getText();
 			// TODO: find a better way to roll back target change in the launch bar when Cancel was pressed.
 			// We have to do like this because we don't have access to the cancel button
-			scheduleRevertTargetJob(targetNameFromUI);
+			scheduleRevertTargetJob();
 			LaunchBarListener.setIgnoreJtagTargetChange(false);
 		});
 
@@ -257,7 +256,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 		});
 	}
 
-	private void scheduleRevertTargetJob(String targetNameFromUI)
+	private void scheduleRevertTargetJob()
 	{
 		Job revertTargetJob = new Job(Messages.TabDebugger_SettingTargetJob)
 		{
@@ -270,12 +269,15 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 						return Status.CANCEL_STATUS;
 					}
 					String targetName = launchBarManager.getActiveLaunchConfiguration()
-							.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, targetNameFromUI);
-					ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
-					ILaunchTarget selectedTarget = Stream.of(launchTargetManager.getLaunchTargets())
-							.filter(target -> target.getId().contentEquals((targetName))).findFirst()
-							.orElseGet(() -> null);
-					launchBarManager.setActiveLaunchTarget(selectedTarget);
+							.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, StringUtil.EMPTY);
+					if (!targetName.isEmpty())
+					{
+						ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
+						ILaunchTarget selectedTarget = Stream.of(launchTargetManager.getLaunchTargets())
+								.filter(target -> target.getId().contentEquals((targetName))).findFirst()
+								.orElseGet(() -> null);
+						launchBarManager.setActiveLaunchTarget(selectedTarget);
+					}
 					return Status.OK_STATUS;
 				}
 				catch (CoreException e)
