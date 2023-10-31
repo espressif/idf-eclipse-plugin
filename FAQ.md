@@ -3,17 +3,22 @@
 ## Which version of Java should I use? 
 Java 11 and above. We suggest to use the latest LTS version. Check the plugin [Prerequisites](https://github.com/espressif/idf-eclipse-plugin#Prerequisites). 
 Also check [why we recommend Java 11](https://github.com/espressif/idf-eclipse-plugin/blob/master/FAQ.md#why-java-11-recommended-for-idf-eclipse-plugin) while using the IDF Eclipse plugin 
-## Which version of Eclipse should I use?
-Eclipse 2021-06 CDT and above (Eclipse IDE for C/C++ Developers). Check the plugin [Prerequisites](https://github.com/espressif/idf-eclipse-plugin#Prerequisites)
+## Which version of Eclipse CDT should I use?
+Eclipse 2023-06 CDT and above (Eclipse IDE for C/C++ Developers). Check the plugin [Prerequisites](https://github.com/espressif/idf-eclipse-plugin#Prerequisites)
 ## How do I know the installed version of Java in my system?
 You can check using `java -version` command from the terminal
 ##  How to check the Java version used by Eclipse?
 - `Help > About Eclipse > Installation Details > Configuration`  
 - Look for `-vm` argument
+##  How to increase the heap memory for Java while working Eclipse IDE?
+- Locate the eclipse.ini or espressif-ide.ini  
+- Increase the Xmx value under the `-vmargs` args section. For example, you can set to `-Xmx2048m`
 ## What are the operating systems the plugin supports?
 - Windows
 - macOSX
 - Linux
+
+For downloads please check this [here](https://github.com/espressif/idf-eclipse-plugin/blob/master/docs/Espressif-IDE.md#espressif-ide-1)  
 ## How do I provide Eclipse envrionment and plugins information?
 `Help > About Eclipse > Installation Details > Configuration > Copy to Clipboard` 
 ## How do I know the installed IDF Eclipse Plugins version?
@@ -172,6 +177,8 @@ This occurs basically because the directory `/etc/udev/` requires elevated permi
 
 ![](docs/images/buildconfiguration_clang.png)
 
+More details on using clang and clangd, please check [this](https://github.com/espressif/idf-eclipse-plugin/blob/master/docs/clangd_cdt_support.md)
+
   # How to configure esp-who in Espressif-IDE
 - Clone esp-who: `git clone https://github.com/espressif/esp-who.git`
 - `cd esp-who`
@@ -208,3 +215,8 @@ To resolve this issue, you can try disabling Unresolved Symbol error marker.
 When IDE parser add the support for C/C++ 20 language features, you can revert the above change.
 
 ![](docs/images/code_analysis_disable_symbols.png)
+
+# How to manage two environment setup (different skconfig and partition.csv) during compilation?
+Create two `sdkconfig.defaults` files for the two build configurations (e.g. sdkconfig.develop and sdkconfig.prod). Refer to the readme of [this](https://github.com/espressif/esp-idf/tree/master/examples/build_system/cmake/multi_config) example for details. 
+
+In Eclipse, create two launch configurations. In the "Build settings" tab of the "Edit Launch Configuration" dialog, enter the "Additional CMake arguments" for each configuration, same as it is done in the related IDF example.
