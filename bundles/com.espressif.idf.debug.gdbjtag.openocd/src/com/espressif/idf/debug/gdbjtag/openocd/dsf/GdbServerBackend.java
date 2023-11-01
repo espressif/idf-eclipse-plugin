@@ -139,8 +139,13 @@ public class GdbServerBackend extends GnuMcuGdbServerBackend {
 
 	@Override
 	public int getServerLaunchTimeoutSeconds() {
-		return Platform.getPreferencesService().getInt(IDFCorePlugin.PLUGIN_ID, Activator.GDB_SERVER_LAUNCH_TIMEOUT,
+		 int timeout = Platform.getPreferencesService().getInt(IDFCorePlugin.PLUGIN_ID, Activator.GDB_SERVER_LAUNCH_TIMEOUT,
 				fGdbServerLaunchDefaultTimeout, null);
+		 
+		 if (Activator.getInstance().isDebugging()) {
+				System.out.println("Gdb Server Timeout:" + timeout);
+			}
+		 return timeout;
 	}
 
 	public String getServerName() {
