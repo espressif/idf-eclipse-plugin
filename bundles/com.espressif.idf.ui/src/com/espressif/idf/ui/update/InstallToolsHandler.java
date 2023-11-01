@@ -96,8 +96,8 @@ public class InstallToolsHandler extends AbstractToolsHandler
 
 				configEnv();
 
-				monitor.setTaskName(Messages.InstallToolsHandler_InstallingWebscoketMsg);
-				handleWebSocketClientInstall();
+				monitor.setTaskName(Messages.InstallToolsHandler_InstallingPythonDepMsg);
+				handlePythonDependenciesInstall();
 				monitor.worked(1);
 
 				copyOpenOcdRules();
@@ -216,9 +216,10 @@ public class InstallToolsHandler extends AbstractToolsHandler
 		return runCommand(arguments, console);
 	}
 
-	public IStatus handleWebSocketClientInstall()
+	public IStatus handlePythonDependenciesInstall()
 	{
 		String websocketClient = "websocket-client"; //$NON-NLS-1$
+		String gcovr = "gcovr"; //$NON-NLS-1$
 		// pip install websocket-client
 		List<String> arguments = new ArrayList<String>();
 		final String pythonEnvPath = IDFUtil.getIDFPythonEnvPath();
@@ -263,15 +264,16 @@ public class InstallToolsHandler extends AbstractToolsHandler
 			}
 
 			String cmdOutput = status.getMessage();
-			if (cmdOutput.contains(websocketClient))
+			if (cmdOutput.contains(websocketClient) && cmdOutput.contains(gcovr))
 			{
-				return IDFCorePlugin.okStatus("websocket-client already installed", null); //$NON-NLS-1$
+				return IDFCorePlugin.okStatus("dependencies in pip already installed", null); //$NON-NLS-1$
 			}
 
 			// websocket client not installed so installing it now.
 			arguments.remove(arguments.size() - 1);
 			arguments.add("install"); //$NON-NLS-1$
 			arguments.add(websocketClient);
+			arguments.add(gcovr);
 
 			status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT, environment);
 			if (status == null)

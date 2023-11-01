@@ -2,7 +2,7 @@
  * Copyright 2022 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.ui.tools;
+package com.espressif.idf.ui;
 
 import java.util.Queue;
 

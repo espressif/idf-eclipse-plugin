@@ -22,6 +22,7 @@ import java.util.concurrent.RejectedExecutionException;
 
 import org.eclipse.cdt.debug.gdbjtag.core.IGDBJtagConstants;
 import org.eclipse.cdt.dsf.concurrent.DefaultDsfExecutor;
+import org.eclipse.cdt.dsf.concurrent.DsfExecutor;
 import org.eclipse.cdt.dsf.concurrent.DsfRunnable;
 import org.eclipse.cdt.dsf.concurrent.IDsfStatusConstants;
 import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
@@ -37,7 +38,6 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.ISourceLocator;
-import org.eclipse.debug.internal.core.LaunchConfigurationWorkingCopy;
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuLaunch;
 
 import com.espressif.idf.core.util.PortChecker;
@@ -74,7 +74,21 @@ public class Launch extends GnuMcuLaunch
 		fExecutor = (DefaultDsfExecutor) getDsfExecutor();
 		fSession = getSession();
 	}
-
+	
+	public DsfSession getSession()
+	{
+		return super.getSession();
+	}
+	
+	public DsfServicesTracker getDsfServicesTracker()
+	{
+		return fTracker;
+	}
+	
+	public DsfExecutor getDsfExecutor()
+	{
+		return super.getDsfExecutor();
+	}
 	// ------------------------------------------------------------------------
 
 	@Override

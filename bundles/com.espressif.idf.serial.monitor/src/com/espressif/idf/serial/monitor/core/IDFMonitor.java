@@ -190,7 +190,7 @@ public class IDFMonitor
 	public boolean dependenciesAreInstalled()
 	{
 		InstallToolsHandler installToolsHandler = new InstallToolsHandler();
-		IStatus status = installToolsHandler.handleWebSocketClientInstall();
+		IStatus status = installToolsHandler.handlePythonDependenciesInstall();
 		if (status == null || status.getSeverity() == IStatus.ERROR)
 		{
 			Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Unable to get the process status.", null)); //$NON-NLS-1$
