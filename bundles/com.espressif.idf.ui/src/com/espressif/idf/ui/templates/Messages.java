@@ -16,9 +16,11 @@ public class Messages extends NLS
 	public static String BaseWizardSelectionPage_No_Desc;
 	public static String TemplateListSelectionPage_SelectTemplate_Desc;
 	public static String TemplateListSelectionPage_Template_Wizard_Desc;
-	public static String TemplateListSelectionPage_Templates;
-	public static String TemplateListSelectionPage_Templates_Desc;
+	public static String NewProjectWizardPage_Header;
+	public static String NewProjectWizardPage_DescriptionString;
 	public static String TemplateSelectionToolTip;
+	public static String NewProjectWizardPage_NoTemplateFoundMessage;
+	
 	static
 	{
 		// initialize resource bundle

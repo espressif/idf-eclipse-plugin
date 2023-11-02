@@ -8,11 +8,9 @@ import java.io.File;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.tools.templates.core.IGenerator;
 import org.eclipse.tools.templates.ui.TemplateWizard;
 import org.eclipse.ui.IViewPart;
@@ -24,7 +22,7 @@ import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.handlers.NewProjectHandlerUtil;
 import com.espressif.idf.ui.templates.IDFProjectGenerator;
 import com.espressif.idf.ui.templates.ITemplateNode;
-import com.espressif.idf.ui.templates.TemplateListSelectionPage;
+import com.espressif.idf.ui.templates.NewProjectCreationWizardPage;
 import com.espressif.idf.ui.templates.TemplatesManager;
 
 /**
@@ -36,8 +34,8 @@ import com.espressif.idf.ui.templates.TemplatesManager;
 public class NewIDFProjectWizard extends TemplateWizard
 {
 
-	private WizardNewProjectCreationPage mainPage;
-	private TemplateListSelectionPage templatesPage;
+//	private WizardNewProjectCreationPage mainPage;
+	private NewProjectCreationWizardPage projectCreationWizardPage;
 
 	public NewIDFProjectWizard()
 	{
@@ -59,41 +57,18 @@ public class NewIDFProjectWizard extends TemplateWizard
 		}
 		super.addPages();
 
-		mainPage = new WizardNewProjectCreationPage("basicNewProjectPage") //$NON-NLS-1$
-		{
-			@Override
-			public void createControl(Composite parent)
-			{
-				super.createControl(parent);
-				Dialog.applyDialogFont(getControl());
-			}
-		};
-		mainPage.setTitle(Messages.NewIDFProjectWizard_Project_Title);
-		mainPage.setDescription(Messages.NewIDFProjectWizard_ProjectDesc);
 		this.setWindowTitle(Messages.NewIDFProjectWizard_NewIDFProject);
-
+	
 		TemplatesManager templatesManager = new TemplatesManager();
 		ITemplateNode templateRoot = templatesManager.getTemplates();
-
-		boolean hasTemplates = templateRoot.getChildren().isEmpty();
-		if (!hasTemplates)
+		projectCreationWizardPage = new NewProjectCreationWizardPage(templateRoot, Messages.NewIDFProjectWizard_TemplatesHeader);
+		ITemplateNode templateNode = templatesManager.getTemplateNode(IDFConstants.DEFAULT_TEMPLATE_ID);
+		if (templateNode != null)
 		{
-			templatesPage = new TemplateListSelectionPage(templateRoot, Messages.NewIDFProjectWizard_TemplatesHeader);
-			ITemplateNode templateNode = templatesManager.getTemplateNode(IDFConstants.DEFAULT_TEMPLATE_ID);
-			if (templateNode != null)
-			{
-				templatesPage.setInitialTemplateId(templateNode);
-			}
+			projectCreationWizardPage.setInitialTemplateId(templateNode);
 		}
-
-		this.addPage(mainPage);
-
-		// Add templates page only if templates are available
-		if (!hasTemplates)
-		{
-			this.addPage(templatesPage);
-		}
-
+		
+		this.addPage(projectCreationWizardPage);
 	}
 
 	@Override
@@ -107,7 +82,7 @@ public class NewIDFProjectWizard extends TemplateWizard
 			if (viewPart != null)
 			{
 				ISelectionProvider selProvider = viewPart.getSite().getSelectionProvider();
-				String projectName = mainPage.getProjectName();
+				String projectName = projectCreationWizardPage.getProjectName();
 				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 				selProvider.setSelection(new StructuredSelection(project));
 			}
@@ -121,17 +96,17 @@ public class NewIDFProjectWizard extends TemplateWizard
 
 		String manifest = IDFConstants.IDF_TEMPLATE_MANIFEST_PATH;
 		File selectedTemplate = null;
-		if (templatesPage != null && templatesPage.getSelection() != null)
+		if (projectCreationWizardPage != null && projectCreationWizardPage.getSelection() != null)
 		{
-			selectedTemplate = templatesPage.getSelection().getFilePath();
+			selectedTemplate = projectCreationWizardPage.getSelection().getFilePath();
 			manifest = null;
 		}
 
 		IDFProjectGenerator generator = new IDFProjectGenerator(manifest, selectedTemplate, true);
-		generator.setProjectName(mainPage.getProjectName());
-		if (!mainPage.useDefaults())
+		generator.setProjectName(projectCreationWizardPage.getProjectName());
+		if (!projectCreationWizardPage.useDefaults())
 		{
-			generator.setLocationURI(mainPage.getLocationURI());
+			generator.setLocationURI(projectCreationWizardPage.getLocationURI());
 		}
 		return generator;
 	}

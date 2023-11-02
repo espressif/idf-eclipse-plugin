@@ -85,6 +85,13 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 		container.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		createAbove(container, 1);
+		if (templateElements == null || templateElements.getChildren().isEmpty())
+		{
+			Dialog.applyDialogFont(container);
+			setControl(container);
+			return;
+		}
+		
 		Label label = new Label(container, SWT.NONE);
 		label.setText(getLabel());
 		GridData gd = new GridData();
@@ -107,7 +114,10 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 		templateViewer.addDoubleClickListener(event -> doubleClickAction.run());
 		createDescriptionIn(sashForm);
 		createBelow(container, 1);
-		templateViewer.setInput(templateElements);
+		if (templateElements != null && !templateElements.getChildren().isEmpty())
+		{
+			templateViewer.setInput(templateElements);
+		}
 		initializeViewer();
 		templateViewer.addSelectionChangedListener(this);
 
