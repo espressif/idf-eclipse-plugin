@@ -758,4 +758,12 @@
          type="java.lang.Object">
    </propertyTester>
 </extension>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <file-association
+            content-type="org.eclipse.mylyn.wikitext.markdown"
+            file-extensions="md"
+            file-names="README.md">
+      </file-association>
+   </extension>
 </plugin>
