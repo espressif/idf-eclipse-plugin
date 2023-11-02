@@ -41,24 +41,21 @@ public class LaunchBarListener implements ILaunchBarListener
 	{
 		jtagIgnored = status;
 	}
+
 	@Override
 	public void activeLaunchTargetChanged(ILaunchTarget target)
 	{
-		Display.getDefault().asyncExec(new Runnable()
+		Display.getDefault().asyncExec(() ->
 		{
-
-			@Override
-			public void run()
-			{
 				if (target != null)
 				{
-					String targetName = target.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", ""); //$NON-NLS-1$
+				String targetName = target.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
+						StringUtil.EMPTY);
 					if (!StringUtil.isEmpty(targetName))
 					{
 						update(targetName);
 					}
 				}
-			}
 		});
 
 	}
@@ -70,11 +67,13 @@ public class LaunchBarListener implements ILaunchBarListener
 		{
 			ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
 			ILaunchConfiguration activeConfig = launchBarManager.getActiveLaunchConfiguration();
-			if (activeConfig == null) {
+			if (activeConfig == null)
+			{
 				return;
 			}
-			
-			String projectName = activeConfig.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
+
+			String projectName = activeConfig.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME,
+					StringUtil.EMPTY);
 			if (projectName.isEmpty())
 			{
 				ILaunchDescriptor activeLaunchDescriptor = launchBarManager.getActiveLaunchDescriptor();
@@ -98,25 +97,29 @@ public class LaunchBarListener implements ILaunchBarListener
 					{
 						// get current target
 						String currentTarget = new SDKConfigJsonReader((IProject) project).getValue("IDF_TARGET"); //$NON-NLS-1$
-						final String jtag_device_id = activeConfig.getAttribute("org.eclipse.cdt.debug.gdbjtag.core.jtagDeviceId", ""); //$NON-NLS-1$ //$NON-NLS-2$
-						if ((activeConfig.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, false) && !jtagIgnored)
-								|| jtag_device_id.contentEquals("ESP-IDF GDB OpenOCD")) //$NON-NLS-1$
+
+						if ((activeConfig.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, false)
+								|| activeConfig.getType().getIdentifier()
+										.contentEquals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
+								&& !jtagIgnored)
 						{
-							String targetForJtagFlash = activeConfig.getWorkingCopy().getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, ""); //$NON-NLS-1$
-							if (!newTarget.equals(targetForJtagFlash)) 
+							String targetForJtagFlash = activeConfig.getWorkingCopy()
+									.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, StringUtil.EMPTY);
+							if (!newTarget.equals(targetForJtagFlash))
 							{
 								boolean isYes = MessageDialog.openQuestion(EclipseUtil.getShell(),
 										Messages.LaunchBarListener_TargetChanged_Title,
 										MessageFormat.format(Messages.LaunchBarListener_TargetDontMatch_Msg, newTarget,
 												targetForJtagFlash, activeConfig.getName()));
-								if (isYes) {
+								if (isYes)
+								{
 									ILaunchBarUIManager uiManager = UIPlugin.getService(ILaunchBarUIManager.class);
 									uiManager.openConfigurationEditor(launchBarManager.getActiveLaunchDescriptor());
 									return;
 								}
 							}
 						}
-						
+
 						// If both are not same
 						if (currentTarget != null && !newTarget.equals(currentTarget))
 						{
@@ -177,7 +180,7 @@ public class LaunchBarListener implements ILaunchBarListener
 				deleteDirectory(file);
 			}
 		}
-		return directoryToBeDeleted.getName().equals("build") ? true : directoryToBeDeleted.delete(); //$NON-NLS-1$
+		return directoryToBeDeleted.getName().equals("build") || directoryToBeDeleted.delete(); //$NON-NLS-1$
 	}
 
 	private void cleanSdkConfig(IResource project)

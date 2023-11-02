@@ -38,6 +38,10 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -81,6 +85,7 @@ import com.espressif.idf.ui.LaunchBarListener;
 
 @SuppressWarnings("restriction")
 public class CMakeMainTab2 extends GenericMainTab {
+	private static final int JOB_DELAY_MS = 100;
 	private static final String EMPTY_CONFIG_OPTIONS = "%s" + File.separator + "%s -s %s"; //$NON-NLS-1$ //$NON-NLS-2$
 	private Combo flashOverComboButton;
 	private Combo fFlashVoltage;
@@ -113,7 +118,10 @@ public class CMakeMainTab2 extends GenericMainTab {
 	@Override
 	public void createControl(Composite parent) {
 		LaunchBarListener.setIgnoreJtagTargetChange(true);
-		parent.addDisposeListener(e -> LaunchBarListener.setIgnoreJtagTargetChange(false));
+		parent.addDisposeListener(event -> {
+			scheduleRevertTargetJob();
+			LaunchBarListener.setIgnoreJtagTargetChange(false);
+		});
 
 		mainComposite = new Composite(parent, SWT.NONE);
 		mainComposite.setFont(parent.getFont());
@@ -559,7 +567,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 			wc.setAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, jtagArgumentsField.getText());
 			wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, uartAgrumentsField.getText());
 			wc.setAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS, dfuArgumentsField.getText());
-
 			wc.doSave();
 		} catch (CoreException e) {
 			Logger.log(e);
@@ -705,14 +712,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 					}
 
 					if (!selectedItem.contentEquals(updatedSelectedTarget) && isFlashOverJtag) {
-						try {
-							ILaunchConfigurationWorkingCopy wc = launchBarManager.getActiveLaunchConfiguration()
-									.getWorkingCopy();
-							wc.setAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, selectedItem);
-							wc.doSave();
-						} catch (CoreException e2) {
-							Logger.log(e2);
-						}
 						updateLaunchBar(selectedItem);
 					}
 					boardConfigsMap = parser.getBoardsConfigs(selectedItem);
@@ -855,5 +854,34 @@ public class CMakeMainTab2 extends GenericMainTab {
 				Logger.log(e);
 			}
 		}
+	}
+
+	private void scheduleRevertTargetJob() {
+		Job revertTargetJob = new Job(Messages.CMakeMainTab2_SettingTargetJob) {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				try {
+					if (launchBarManager.getActiveLaunchConfiguration() == null) {
+						return Status.CANCEL_STATUS;
+					}
+
+					String targetName = launchBarManager.getActiveLaunchConfiguration()
+							.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, StringUtil.EMPTY);
+					if (!targetName.isEmpty()) {
+						ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
+						ILaunchTarget selectedTarget = Stream.of(launchTargetManager.getLaunchTargets())
+								.filter(target -> target.getId().contentEquals((targetName))).findFirst()
+								.orElseGet(() -> null);
+						launchBarManager.setActiveLaunchTarget(selectedTarget);
+					}
+
+					return Status.OK_STATUS;
+				} catch (CoreException e) {
+					Logger.log(e);
+					return Status.CANCEL_STATUS;
+				}
+			}
+		};
+		revertTargetJob.schedule(JOB_DELAY_MS);
 	}
 }
