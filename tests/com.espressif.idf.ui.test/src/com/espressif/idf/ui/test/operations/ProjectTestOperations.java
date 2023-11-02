@@ -187,9 +187,9 @@ public class ProjectTestOperations
 		bot.shell().activate().bot().menu("File").menu("New").menu("Project...").click();
 		SWTBotShell shell = bot.shell("New Project");
 		shell.activate();
-
 		bot.tree().expandNode(category).select(subCategory);
-		bot.button("Finish").click();
+		bot.button("Finish").click(); // Finish for the project wizard from eclipse
+		
 		bot.textWithLabel("Project name:").setText(projectName);
 		bot.checkBox("Create a project using one of the templates").click();
 		SWTBotTreeItem templateItem = SWTBotTreeOperations.getTreeItem(bot.tree(), templatePath);
