@@ -191,7 +191,6 @@ public class ProjectTestOperations
 		bot.tree().expandNode(category).select(subCategory);
 		bot.button("Finish").click();
 		bot.textWithLabel("Project name:").setText(projectName);
-		bot.button("Next >").click();
 		bot.checkBox("Create a project using one of the templates").click();
 		SWTBotTreeItem templateItem = SWTBotTreeOperations.getTreeItem(bot.tree(), templatePath);
 		templateItem.select();
