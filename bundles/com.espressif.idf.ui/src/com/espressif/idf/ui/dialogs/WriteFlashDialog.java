@@ -45,7 +45,7 @@ public class WriteFlashDialog extends TitleAreaDialog
 	private static final String ATTR_SERIAL_PORT = "com.espressif.idf.launch.serial.core.serialPort"; //$NON-NLS-1$
 	private static final String DEFAULT_BIN_NAME = "nvs.bin"; //$NON-NLS-1$
 	private static final String DEFAULT_OFFSET = "0x8000"; //$NON-NLS-1$
-	private static final String[] EXTENSIONS = new String[] { ".bin" }; //$NON-NLS-1$
+	private static final String[] EXTENSIONS = new String[] { "*.bin" }; //$NON-NLS-1$
 	private Combo comPortsCombo;
 	private Text deviceInformationText;
 	private String[] ports;
