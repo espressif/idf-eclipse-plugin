@@ -159,9 +159,10 @@ public class WriteFlashDialog extends TitleAreaDialog
 				project = ((IResource) element).getProject();
 			}
 		}
-		String defaultPathToBin = project.getLocationURI().getPath().concat(File.separator).concat(DEFAULT_BIN_NAME);
+		String defaultPathToBin = project.getFile(DEFAULT_BIN_NAME).getLocation().toOSString();
 		if (new File(defaultPathToBin).exists())
 		{
+
 			binPathText.setText(defaultPathToBin);
 		}
 		else
@@ -199,7 +200,7 @@ public class WriteFlashDialog extends TitleAreaDialog
 	{
 		createButton(parent, IDialogConstants.OK_ID, Messages.WriteFlashDialog_Flash_Btn_Lbl, true);
 		getButton(IDialogConstants.OK_ID).setEnabled(false);
-		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
+		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CLOSE_LABEL, false);
 	}
 
 	@Override
@@ -225,21 +226,23 @@ public class WriteFlashDialog extends TitleAreaDialog
 	{
 		setReturnCode(OK);
 		getButton(IDialogConstants.OK_ID).setEnabled(false);
-		deviceInformationText.setText("Writing Binaries to Flash...."); //$NON-NLS-1$
+		deviceInformationText.setText(Messages.WriteFlashDialog_WritingBinsToFlashMsg0);
 		String selectedPort = comPortsCombo.getText();
 		comPortsCombo.setEnabled(false);
 		deviceInformationText.setText(StringUtil.EMPTY);
 		String binsPathString = binPathText.getText();
 		String offString = offsetText.getText();
-		Thread writeFlashThread = new Thread(() ->
-		{
+		Thread writeFlashThread = new Thread(() -> {
 			try
 			{
-				Process writeFlashProcess = espToolCommands.writeFlash(selectedPort, binsPathString,
-						offString);
+				Process writeFlashProcess = espToolCommands.writeFlash(selectedPort, binsPathString, offString);
 				InputStream targetIn = writeFlashProcess.getInputStream();
+				InputStream targetErr = writeFlashProcess.getErrorStream();
 				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(targetIn));
-				String line = StringUtil.EMPTY;
+				BufferedReader errorReader = new BufferedReader(new InputStreamReader(targetErr));
+
+				String line;
+				StringBuilder errorMessage = new StringBuilder();
 				while ((line = bufferedReader.readLine()) != null)
 				{
 					final String toWrite = line;
@@ -250,6 +253,35 @@ public class WriteFlashDialog extends TitleAreaDialog
 						}
 					});
 				}
+				while ((line = errorReader.readLine()) != null)
+				{
+					errorMessage.append(line).append(System.lineSeparator());
+				}
+				int exitCode = writeFlashProcess.waitFor();
+				if (exitCode != 0 || errorMessage.length() > 0)
+				{
+					final String errorMsg = errorMessage.toString();
+					Display.getDefault().asyncExec(() -> {
+						if (!deviceInformationText.isDisposed())
+						{
+							deviceInformationText.append(
+									Messages.WriteFlashDialog_ErrorExitCodeMsg + exitCode + StringUtil.LINE_SEPARATOR);
+							if (!errorMsg.isEmpty())
+							{
+								deviceInformationText.append(Messages.WriteFlashDialog_ErrorOutputMsg + errorMsg
+										+ StringUtil.LINE_SEPARATOR);
+							}
+						}
+					});
+				}
+			}
+			catch (IOException e)
+			{
+				Logger.log(e);
+			}
+			catch (InterruptedException e)
+			{
+				Logger.log(e);
 			}
 			catch (Exception e)
 			{
@@ -263,6 +295,7 @@ public class WriteFlashDialog extends TitleAreaDialog
 				}
 			});
 		});
+
 		writeFlashThread.start();
 
 	}
@@ -310,6 +343,7 @@ public class WriteFlashDialog extends TitleAreaDialog
 			super.setErrorMessage(newErrorMessage);
 		}
 	}
+
 	private class ComPortSelectionListener extends SelectionAdapter implements Runnable
 	{
 		private String selectedPort;
