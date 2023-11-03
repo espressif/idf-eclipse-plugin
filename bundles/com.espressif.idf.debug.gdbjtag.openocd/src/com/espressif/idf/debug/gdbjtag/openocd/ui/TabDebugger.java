@@ -100,6 +100,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 	// ------------------------------------------------------------------------
 
+	private static final String LAUNCH_TARGET_NAME_ATTR = "com.espressif.idf.launch.serial.core.idfTarget"; //$NON-NLS-1$
 	private static final int JOB_DELAY_MS = 100;
 	private static final String TAB_NAME = "Debugger"; //$NON-NLS-1$
 	private static final String TAB_ID = Activator.PLUGIN_ID + ".ui.debuggertab"; //$NON-NLS-1$
@@ -274,7 +275,9 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 					{
 						ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
 						ILaunchTarget selectedTarget = Stream.of(launchTargetManager.getLaunchTargets())
-								.filter(target -> target.getId().contentEquals((targetName))).findFirst()
+								.filter(target -> target.getAttribute(LAUNCH_TARGET_NAME_ATTR,
+										StringUtil.EMPTY).equals(targetName))
+								.findFirst()
 								.orElseGet(() -> null);
 						launchBarManager.setActiveLaunchTarget(selectedTarget);
 					}
@@ -547,7 +550,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 						for (ILaunchTarget target : targets)
 						{
-							String idfTarget = target.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
+							String idfTarget = target.getAttribute(LAUNCH_TARGET_NAME_ATTR,
 									null);
 							String targetSerialPort = target
 									.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
