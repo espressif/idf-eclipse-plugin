@@ -25,6 +25,7 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -33,6 +34,7 @@ import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import org.eclipse.ui.internal.ide.dialogs.ProjectContentsLocationArea;
 import org.eclipse.ui.internal.ide.dialogs.ProjectContentsLocationArea.IErrorMessageReporter;
 
+import com.espressif.idf.core.util.EspConfigParser;
 import com.espressif.idf.core.util.IDFUtil;
 
 /**
@@ -45,6 +47,7 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 	private Button fUseTemplate;
 	private ITemplateNode fInitialTemplateId;
 	private ProjectContentsLocationArea locationArea;
+	private Combo targetCombo;
 	// initial value stores
 	private String initialProjectFieldValue;
 
@@ -65,6 +68,7 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 	public void createAbove(Composite container, int span)
 	{
 		createProjectNameGroup(container);
+		createProjectTargetSelection(container);
 		if (this.templateElements == null || this.templateElements.getChildren().isEmpty())
 		{
 			Label label = new Label(container, SWT.NONE);
@@ -92,6 +96,20 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 		fUseTemplate.setSelection(false);
 	}
 
+	private void createProjectTargetSelection(Composite container)
+	{
+		Composite mainComposite = new Composite(container, SWT.NONE);
+		mainComposite.setLayout(new GridLayout(2, false));
+		mainComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		Label label = new Label(mainComposite, SWT.NONE);
+		label.setText("Select Project Target: ");
+		EspConfigParser parser = new EspConfigParser();
+		targetCombo = new Combo(mainComposite, SWT.READ_ONLY);
+		targetCombo.setItems(parser.getTargets().toArray(new String[0]));
+		targetCombo.select(0);
+		targetCombo.setToolTipText("Select a project target from the list. This setting is not final and can be changed later in the Launchbar target configuration, where you'll also configure the serial port.");
+	}
+	
 	private void createProjectNameGroup(Composite container)
 	{
 		Composite mainComposite = new Composite(container, SWT.NONE);
@@ -416,4 +434,8 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 		super.setVisible(visible);
 	}
 
+	public String getSelectedTarget()
+	{
+		return targetCombo.getText();
+	}
 }

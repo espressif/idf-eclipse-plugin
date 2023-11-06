@@ -19,6 +19,10 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.launchbar.core.ILaunchBarManager;
+import org.eclipse.launchbar.core.target.ILaunchTarget;
+import org.eclipse.launchbar.core.target.ILaunchTargetManager;
+import org.eclipse.ui.console.MessageConsoleStream;
 import org.osgi.framework.Bundle;
 
 import com.espressif.idf.core.IDFConstants;
@@ -37,12 +41,17 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 
 	private File sourceTemplatePath;
 	private boolean copyIntoWorkspace;
+	private String target;
+	protected MessageConsoleStream console;
+	private ILaunchBarManager launchBarManager;
 
-	public IDFProjectGenerator(String manifestFile, File source, boolean copyIntoWorkspace)
+	public IDFProjectGenerator(String manifestFile, File source, boolean copyIntoWorkspace, String target)
 	{
 		super(manifestFile);
 		this.sourceTemplatePath = source;
 		this.copyIntoWorkspace = copyIntoWorkspace;
+		this.target = target;
+		launchBarManager = UIPlugin.getService(ILaunchBarManager.class);
 	}
 
 	@Override
@@ -66,6 +75,9 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 		Logger.log("Source Template path:" + sourceTemplatePath); //$NON-NLS-1$
 		if (sourceTemplatePath == null)
 		{
+			setTarget();
+			// refresh to see the copied resources in the project explorer
+			getProject().refreshLocal(IResource.DEPTH_INFINITE, monitor);
 			return; // let's go with the default generate
 		}
 
@@ -85,8 +97,37 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 			}
 		}
 
+		setTarget();
+		
 		// refresh to see the copied resources in the project explorer
 		project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+		
+	}
+	
+	private void setTarget() throws CoreException
+	{
+		ILaunchTarget launchTarget = findSuitableTargetForSelectedTargetString();
+		launchBarManager.setActiveLaunchTarget(launchTarget);
+		Logger.log("");
+	}
+	
+	private ILaunchTarget findSuitableTargetForSelectedTargetString()
+	{
+		ILaunchTargetManager launchTargetManager = UIPlugin.getService(ILaunchTargetManager.class);
+		ILaunchTarget[] targets = launchTargetManager
+				.getLaunchTargetsOfType("com.espressif.idf.launch.serial.core.serialFlashTarget"); //$NON-NLS-1$
+
+		for (ILaunchTarget iLaunchTarget : targets)
+		{
+			String idfTarget = iLaunchTarget.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
+					null);			
+			if (idfTarget.contentEquals(target))
+			{
+				return iLaunchTarget;
+			}
+		}
+		
+		return null;
 	}
 
 	@Override
@@ -130,4 +171,5 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 			}
 		}
 	}
+	
 }

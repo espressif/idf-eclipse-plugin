@@ -34,7 +34,6 @@ import com.espressif.idf.ui.templates.TemplatesManager;
 public class NewIDFProjectWizard extends TemplateWizard
 {
 
-//	private WizardNewProjectCreationPage mainPage;
 	private NewProjectCreationWizardPage projectCreationWizardPage;
 
 	public NewIDFProjectWizard()
@@ -102,7 +101,7 @@ public class NewIDFProjectWizard extends TemplateWizard
 			manifest = null;
 		}
 
-		IDFProjectGenerator generator = new IDFProjectGenerator(manifest, selectedTemplate, true);
+		IDFProjectGenerator generator = new IDFProjectGenerator(manifest, selectedTemplate, true, projectCreationWizardPage.getSelectedTarget());
 		generator.setProjectName(projectCreationWizardPage.getProjectName());
 		if (!projectCreationWizardPage.useDefaults())
 		{

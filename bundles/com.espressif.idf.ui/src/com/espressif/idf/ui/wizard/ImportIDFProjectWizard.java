@@ -48,7 +48,7 @@ public class ImportIDFProjectWizard extends TemplateWizard implements IImportWiz
 		locationStr = page.getLocation();
 		boolean canCopyIntoWorkspace = page.canCopyIntoWorkspace();
 
-		IDFProjectGenerator generator = new IDFProjectGenerator(null, new File(locationStr), canCopyIntoWorkspace);
+		IDFProjectGenerator generator = new IDFProjectGenerator(null, new File(locationStr), canCopyIntoWorkspace, "esp32");
 		generator.setProjectName(projectName);
 		return generator;
 	}
