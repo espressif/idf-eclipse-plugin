@@ -118,7 +118,6 @@ import com.google.gson.Gson;
 public class IDFBuildConfiguration extends CBuildConfiguration
 {
 
-	private static final String LAUNCH_TARGET_NAME_ATTR = "com.espressif.idf.launch.serial.core.idfTarget"; //$NON-NLS-1$
 	private static final ActiveLaunchConfigurationProvider LAUNCH_CONFIG_PROVIDER = new ActiveLaunchConfigurationProvider();
 	private static final String NINJA = "Ninja"; //$NON-NLS-1$
 	protected static final String COMPILE_COMMANDS_JSON = "compile_commands.json"; //$NON-NLS-1$
@@ -631,8 +630,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 
 		if (launchtarget != null)
 		{
-			String idfTargetName = launchtarget.getAttribute(LAUNCH_TARGET_NAME_ATTR, //$NON-NLS-1$
-					StringUtil.EMPTY);
+			String idfTargetName = launchtarget.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY);
 			if (!idfTargetName.isEmpty())
 			{
 				command.add("-DIDF_TARGET=" + idfTargetName); //$NON-NLS-1$
@@ -844,9 +842,9 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		String id = getProperty(TOOLCHAIN_ID);
 		IToolChainManager toolChainManager = CCorePlugin.<IToolChainManager>getService(IToolChainManager.class);
 		ILaunchBarManager launchBarManager = CCorePlugin.getService(ILaunchBarManager.class);
-		Collection<IToolChain> matchedToolChains = toolChainManager.getToolChainsMatching(
-				Map.of(IToolChain.ATTR_OS, launchBarManager.getActiveLaunchTarget().getAttribute(
-						LAUNCH_TARGET_NAME_ATTR, StringUtil.EMPTY), TOOLCHAIN_TYPE, typeId));
+		Collection<IToolChain> matchedToolChains = toolChainManager
+				.getToolChainsMatching(Map.of(IToolChain.ATTR_OS, launchBarManager.getActiveLaunchTarget()
+						.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY), TOOLCHAIN_TYPE, typeId));
 		return matchedToolChains.stream().findAny().orElse(toolChainManager.getToolChain(typeId, id));
 	}
 
