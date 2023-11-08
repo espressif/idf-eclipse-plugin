@@ -492,7 +492,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 			config.setMappedResources(new IResource[] { project });
 
 			ICProjectDescription projDes = CCorePlugin.getDefault().getProjectDescription(project);
-			if (projDes != null) {
+			if (projDes != null && projDes.getActiveConfiguration() != null) {
 				String buildConfigID = projDes.getActiveConfiguration().getId();
 				config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_BUILD_CONFIG_ID, buildConfigID);
 			}
