@@ -4,8 +4,6 @@
  *******************************************************************************/
 package com.espressif.idf.ui.templates;
 
-import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
-
 import java.io.IOException;
 import java.net.URI;
 
@@ -24,7 +22,6 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -44,7 +41,6 @@ import com.espressif.idf.core.util.IDFUtil;
 public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 {
 	private Text projectNameField;
-	private Button fUseTemplate;
 	private ITemplateNode fInitialTemplateId;
 	private ProjectContentsLocationArea locationArea;
 	private Combo targetCombo;
@@ -69,31 +65,6 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 	{
 		createProjectNameGroup(container);
 		createProjectTargetSelection(container);
-		if (this.templateElements == null || this.templateElements.getChildren().isEmpty())
-		{
-			Label label = new Label(container, SWT.NONE);
-			label.setText(Messages.NewProjectWizardPage_NoTemplateFoundMessage);
-			return;
-		}
-		
-		fUseTemplate = new Button(container, SWT.CHECK);
-		
-		fUseTemplate.setText(Messages.TemplateListSelectionPage_SelectTemplate_Desc);
-		GridData gd = new GridData();
-		gd.horizontalSpan = span;
-		fUseTemplate.setLayoutData(gd);
-		fUseTemplate.addSelectionListener(widgetSelectedAdapter(e -> {
-			templateViewer.getControl().setEnabled(fUseTemplate.getSelection());
-			filteredTree.setEnabled(fUseTemplate.getSelection());
-			if (!fUseTemplate.getSelection())
-				setDescription(""); //$NON-NLS-1$
-			else
-				setDescription(Messages.TemplateListSelectionPage_Template_Wizard_Desc);
-
-			setDescriptionEnabled(fUseTemplate.getSelection());
-			getContainer().updateButtons();
-		}));
-		fUseTemplate.setSelection(false);
 	}
 
 	private void createProjectTargetSelection(Composite container)
@@ -102,12 +73,12 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 		mainComposite.setLayout(new GridLayout(2, false));
 		mainComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		Label label = new Label(mainComposite, SWT.NONE);
-		label.setText("Select Project Target: ");
+		label.setText(Messages.NewProjectTargetSelection_Label);
 		EspConfigParser parser = new EspConfigParser();
 		targetCombo = new Combo(mainComposite, SWT.READ_ONLY);
 		targetCombo.setItems(parser.getTargets().toArray(new String[0]));
 		targetCombo.select(0);
-		targetCombo.setToolTipText("Select a project target from the list. This setting is not final and can be changed later in the Launchbar target configuration, where you'll also configure the serial port.");
+		targetCombo.setToolTipText(Messages.NewProjectTargetSelection_Tooltip);
 	}
 	
 	private void createProjectNameGroup(Composite container)
@@ -393,7 +364,7 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 	public ITemplateNode getSelection()
 	{
 		IStructuredSelection ssel = templateViewer.getStructuredSelection();
-		if (fUseTemplate.getSelection() && ssel != null && !ssel.isEmpty())
+		if (getfUseTemplate().getSelection() && ssel != null && !ssel.isEmpty())
 		{
 			ITemplateNode firstElement = (ITemplateNode) ssel.getFirstElement();
 			if (firstElement.getType() == IResource.PROJECT)
@@ -424,11 +395,11 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 	@Override
 	public void setVisible(boolean visible)
 	{
-		if (visible && fUseTemplate != null )
+		if (visible && getfUseTemplate() != null )
 		{
-			if (fUseTemplate.getSelection() == false)
+			if (getfUseTemplate().getSelection() == false)
 				templateViewer.getControl().setEnabled(false);
-			fUseTemplate.setEnabled(true);
+			getfUseTemplate().setEnabled(true);
 			templateViewer.refresh();
 		}
 		super.setVisible(visible);

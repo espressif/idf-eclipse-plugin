@@ -20,6 +20,9 @@ public class Messages extends NLS
 	public static String NewProjectWizardPage_DescriptionString;
 	public static String TemplateSelectionToolTip;
 	public static String NewProjectWizardPage_NoTemplateFoundMessage;
+	public static String TemplateGroupHeader;
+	public static String NewProjectTargetSelection_Tooltip;
+	public static String NewProjectTargetSelection_Label;
 	
 	static
 	{
