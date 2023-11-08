@@ -308,7 +308,9 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 		Optional<String> suitableTarget = Stream.of(targetsWithDfuSupport).filter(t -> {
 			try {
-				return t.contentEquals(launchBarManager.getActiveLaunchTarget().getId());
+				if (launchBarManager.getActiveLaunchConfiguration() != null) {
+					return t.contentEquals(launchBarManager.getActiveLaunchTarget().getId());
+				}
 			} catch (CoreException e) {
 				Logger.log(e);
 			}
@@ -803,8 +805,10 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private String getLaunchTarget() {
 		String selectedTarget = StringUtil.EMPTY;
 		try {
-			selectedTarget = launchBarManager.getActiveLaunchTarget().getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET,
-					StringUtil.EMPTY);
+			if (launchBarManager.getActiveLaunchConfiguration() != null) {
+				selectedTarget = launchBarManager.getActiveLaunchTarget()
+						.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY);
+			}
 		} catch (CoreException e) {
 			Logger.log(e);
 		}

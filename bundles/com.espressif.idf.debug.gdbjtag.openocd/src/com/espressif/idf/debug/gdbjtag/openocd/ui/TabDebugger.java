@@ -783,11 +783,15 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 	private String getLaunchTarget()
 	{
 		launchBarManager = Activator.getService(ILaunchBarManager.class);
-		String selectedTarget = ""; //$NON-NLS-1$
+		String selectedTarget = StringUtil.EMPTY;
 		try
 		{
-			selectedTarget = launchBarManager.getActiveLaunchTarget().getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET,
-					""); //$NON-NLS-1$
+			if (launchBarManager.getActiveLaunchConfiguration() != null)
+			{
+				selectedTarget = launchBarManager.getActiveLaunchTarget()
+						.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY);
+			}
+
 		}
 		catch (CoreException e)
 		{
