@@ -71,7 +71,10 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 	{
 		Composite mainComposite = new Composite(container, SWT.NONE);
 		mainComposite.setLayout(new GridLayout(2, false));
-		mainComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		GridData gridData = new GridData(GridData.FILL_BOTH);
+		gridData.horizontalSpan = 20;
+		gridData.verticalSpan = 5;
+		mainComposite.setLayoutData(gridData);
 		Label label = new Label(mainComposite, SWT.NONE);
 		label.setText(Messages.NewProjectTargetSelection_Label);
 		EspConfigParser parser = new EspConfigParser();
@@ -85,7 +88,11 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 	{
 		Composite mainComposite = new Composite(container, SWT.NONE);
 		mainComposite.setLayout(new GridLayout());
-		mainComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		GridData gridData = new GridData(GridData.FILL_BOTH);
+		gridData.horizontalSpan = 20;
+		gridData.verticalSpan = 5;
+		
+		mainComposite.setLayoutData(gridData);
 		
 		Composite projectNameGroup = new Composite(mainComposite, SWT.NONE);
 		GridLayout layout = new GridLayout();
