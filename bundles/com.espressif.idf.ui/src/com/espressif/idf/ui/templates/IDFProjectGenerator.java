@@ -27,6 +27,7 @@ import org.osgi.framework.Bundle;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFProjectNature;
+import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.FileUtil;
 import com.espressif.idf.ui.UIPlugin;
@@ -108,18 +109,17 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 	{
 		ILaunchTarget launchTarget = findSuitableTargetForSelectedTargetString();
 		launchBarManager.setActiveLaunchTarget(launchTarget);
-		Logger.log("");
 	}
 	
 	private ILaunchTarget findSuitableTargetForSelectedTargetString()
 	{
 		ILaunchTargetManager launchTargetManager = UIPlugin.getService(ILaunchTargetManager.class);
 		ILaunchTarget[] targets = launchTargetManager
-				.getLaunchTargetsOfType("com.espressif.idf.launch.serial.core.serialFlashTarget"); //$NON-NLS-1$
+				.getLaunchTargetsOfType(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE);
 
 		for (ILaunchTarget iLaunchTarget : targets)
 		{
-			String idfTarget = iLaunchTarget.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
+			String idfTarget = iLaunchTarget.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET,
 					null);			
 			if (idfTarget.contentEquals(target))
 			{

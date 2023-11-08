@@ -27,6 +27,7 @@ public class ImportIDFProjectWizard extends TemplateWizard implements IImportWiz
 	private ImportIDFProjectWizardPage page;
 	private String projectName;
 	private String locationStr;
+	private static final String DEFAULT_TARGET = "esp32"; //$NON-NLS-1$
 
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection)
@@ -48,7 +49,7 @@ public class ImportIDFProjectWizard extends TemplateWizard implements IImportWiz
 		locationStr = page.getLocation();
 		boolean canCopyIntoWorkspace = page.canCopyIntoWorkspace();
 
-		IDFProjectGenerator generator = new IDFProjectGenerator(null, new File(locationStr), canCopyIntoWorkspace, "esp32");
+		IDFProjectGenerator generator = new IDFProjectGenerator(null, new File(locationStr), canCopyIntoWorkspace, DEFAULT_TARGET);
 		generator.setProjectName(projectName);
 		return generator;
 	}
