@@ -118,6 +118,9 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 				{
 					setPageComplete(false);
 				}
+				
+				boolean valid = validatePage();
+				setPageComplete(valid);
 			}
 		});
 		
@@ -225,6 +228,7 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 		return projectNameField.getText().trim();
 	}
 	
+	@Override
 	protected boolean validatePage()
 	{
 		IWorkspace workspace = IDEWorkbenchPlugin.getPluginWorkspace();
@@ -314,12 +318,6 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 		return getProjectNameFieldValue();
 	}
 	
-	@Override
-	public boolean isPageComplete()
-	{
-		return true; // will always to finish the page without template selection also
-	}
-
 	@Override
 	protected void initializeViewer()
 	{

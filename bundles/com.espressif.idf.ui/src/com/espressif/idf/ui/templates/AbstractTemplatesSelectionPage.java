@@ -152,6 +152,9 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 		initializeViewer();
 		templateViewer.addSelectionChangedListener(this);
 
+		setPageComplete(validatePage());
+		setErrorMessage(null);
+		setMessage(null);
 		Dialog.applyDialogFont(container);
 		setControl(container);
 	}
@@ -208,6 +211,11 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 
 	protected void initializeViewer()
 	{
+	}
+	
+	protected boolean validatePage()
+	{
+		return true;
 	}
 
 	@Override
