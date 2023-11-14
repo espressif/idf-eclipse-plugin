@@ -166,11 +166,11 @@ public class NewIDFProjectWizard extends TemplateWizard
 		protected IStatus run(IProgressMonitor monitor)
 		{
 			Job job = findInternalJob();
-			while (job != null && job.getState() == Job.RUNNING)
+			if (job != null)
 			{
 				try
 				{
-					Thread.sleep(100);
+					job.join();
 				}
 				catch (InterruptedException e1)
 				{
