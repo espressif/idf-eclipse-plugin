@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="com.espressif.idf.feature"
-      label="Espressif IDF Plugins for Eclipse"
+      label="ESP-IDF Plugins for Eclipse"
       version="2.11.1.qualifier"
       provider-name="ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD"
       plugin="com.espressif.idf.branding">
@@ -98,7 +98,7 @@ You may add additional accurate notices of copyright ownership.
    </license>
 
    <url>
-      <update label="Espressif IDF Plugins Update Site" url="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/"/>
+      <update label="ESP-IDF Eclipse Plugin Update Site" url="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/"/>
    </url>
 
    <requires>
