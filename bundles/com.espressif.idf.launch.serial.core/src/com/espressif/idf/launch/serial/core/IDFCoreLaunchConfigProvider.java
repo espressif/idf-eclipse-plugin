@@ -2,7 +2,6 @@ package com.espressif.idf.launch.serial.core;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.debug.core.launch.CoreBuildGenericLaunchConfigProvider;
@@ -11,11 +10,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
-import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.ILaunchDescriptor;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
-
-import com.espressif.idf.core.IDFCorePlugin;
 
 public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigProvider
 {
@@ -31,15 +27,9 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 		IProject project = descriptor.getAdapter(IProject.class);
 		if (project != null)
 		{
-			Map<String, ILaunchConfiguration> projectConfigs = configs.get(project);
-			if (projectConfigs == null)
-			{
-				projectConfigs = new HashMap<>();
-				configs.put(project, projectConfigs);
-			}
 
 			String targetConfig = descriptor.getName();
-			configuration = projectConfigs.get(targetConfig);
+			configuration = configs.computeIfAbsent(project, key -> new HashMap<>()).get(targetConfig);
 			if (configuration == null)
 			{
 				// do we already have one with the descriptor?
@@ -48,7 +38,7 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 				{
 					configuration = createLaunchConfiguration(descriptor, target);
 				}
-				projectConfigs.put(configuration.getName(), configuration);
+				configs.get(project).put(configuration.getName(), configuration);
 			}
 		}
 		return configuration;
@@ -81,41 +71,10 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 		}
 		if (configuration.exists())
 		{
-			Map<String, ILaunchConfiguration> projectConfigs = configs.get(project);
-			if (projectConfigs == null)
-			{
-				projectConfigs = new HashMap<>();
-				configs.put(project, projectConfigs);
-			}
-
-			projectConfigs.put(configuration.getName(), configuration);
+			configs.computeIfAbsent(project, key -> new HashMap<>()).put(configuration.getName(), configuration);
 		}
 
 		return ownsLaunchConfiguration(configuration);
-	}
-
-	@Override
-	public boolean launchConfigurationRemoved(ILaunchConfiguration configuration) throws CoreException
-	{
-		ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
-		for (Entry<IProject, Map<String, ILaunchConfiguration>> projectEntry : configs.entrySet())
-		{
-			Map<String, ILaunchConfiguration> projectConfigs = projectEntry.getValue();
-			for (Entry<String, ILaunchConfiguration> entry : projectConfigs.entrySet())
-			{
-				if (configuration.equals(entry.getValue()))
-				{
-					projectConfigs.remove(entry.getKey());
-					if (projectConfigs.isEmpty())
-					{
-						configs.remove(projectEntry.getKey());
-						launchBarManager.launchObjectRemoved(projectEntry.getKey());
-					}
-					return true;
-				}
-			}
-		}
-		return false;
 	}
 
 	@Override
