@@ -309,7 +309,9 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 		Optional<String> suitableTarget = Stream.of(targetsWithDfuSupport).filter(t -> {
 			try {
-				return t.contentEquals(launchBarManager.getActiveLaunchTarget().getId());
+				if (launchBarManager.getActiveLaunchConfiguration() != null) {
+					return t.contentEquals(launchBarManager.getActiveLaunchTarget().getId());
+				}
 			} catch (CoreException e) {
 				Logger.log(e);
 			}
@@ -491,7 +493,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 			config.setMappedResources(new IResource[] { project });
 
 			ICProjectDescription projDes = CCorePlugin.getDefault().getProjectDescription(project);
-			if (projDes != null) {
+			if (projDes != null && projDes.getActiveConfiguration() != null) {
 				String buildConfigID = projDes.getActiveConfiguration().getId();
 				config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_BUILD_CONFIG_ID, buildConfigID);
 			}
@@ -804,8 +806,10 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private String getLaunchTarget() {
 		String selectedTarget = StringUtil.EMPTY;
 		try {
-			selectedTarget = launchBarManager.getActiveLaunchTarget().getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET,
-					StringUtil.EMPTY);
+			if (launchBarManager.getActiveLaunchConfiguration() != null) {
+				selectedTarget = launchBarManager.getActiveLaunchTarget()
+						.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY);
+			}
 		} catch (CoreException e) {
 			Logger.log(e);
 		}

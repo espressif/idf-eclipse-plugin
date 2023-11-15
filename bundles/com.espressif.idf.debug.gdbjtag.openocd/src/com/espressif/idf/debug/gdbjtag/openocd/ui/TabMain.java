@@ -78,7 +78,7 @@ public class TabMain extends CMainTab2
 			IProject project = cElement.getCProject().getProject();
 			String name = project.getName();
 			ICProjectDescription projDes = CCorePlugin.getDefault().getProjectDescription(project);
-			if (projDes != null)
+			if (projDes != null && projDes.getActiveConfiguration() != null)
 			{
 				String buildConfigName = projDes.getActiveConfiguration().getName();
 				name = name + " " + buildConfigName; //$NON-NLS-1$
