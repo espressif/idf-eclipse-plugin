@@ -31,6 +31,7 @@ import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import org.eclipse.ui.internal.ide.dialogs.ProjectContentsLocationArea;
 import org.eclipse.ui.internal.ide.dialogs.ProjectContentsLocationArea.IErrorMessageReporter;
 
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.EspConfigParser;
 import com.espressif.idf.core.util.IDFUtil;
 
@@ -328,7 +329,7 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 			}
 			catch (IOException e)
 			{
-				e.printStackTrace(); // TODO log the exception
+				Logger.log(e);
 			}
 	}
 

@@ -68,7 +68,7 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 		Logger.log("Source Template path:" + sourceTemplatePath); //$NON-NLS-1$
 		if (sourceTemplatePath == null)
 		{
-			// refresh to see the copied resources in the project explorer
+			// Refresh to update the project explorer view, necessary even when sourceTemplatePath is null
 			getProject().refreshLocal(IResource.DEPTH_INFINITE, monitor);
 			return; // let's go with the default generate
 		}

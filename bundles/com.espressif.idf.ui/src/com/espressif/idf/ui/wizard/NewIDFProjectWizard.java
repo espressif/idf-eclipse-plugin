@@ -107,7 +107,7 @@ public class NewIDFProjectWizard extends TemplateWizard
 			@Override
 			public void widgetDisposed(DisposeEvent e)
 			{
-				TargetSwtichJob targetSwtichJob = new TargetSwtichJob(target);
+				TargetSwitchJob targetSwtichJob = new TargetSwitchJob(target);
 				targetSwtichJob.schedule();
 			}
 		});
@@ -136,11 +136,11 @@ public class NewIDFProjectWizard extends TemplateWizard
 	}
 
 	
-	private class TargetSwtichJob extends Job
+	private class TargetSwitchJob extends Job
 	{
 		private ILaunchBarManager launchBarManager;
 		private String target;
-		public TargetSwtichJob(String target)
+		public TargetSwitchJob(String target)
 		{
 			super(TARGET_SWITCH_JOB);
 			this.target = target;
