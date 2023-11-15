@@ -85,6 +85,7 @@ import com.espressif.idf.ui.LaunchBarListener;
 
 @SuppressWarnings("restriction")
 public class CMakeMainTab2 extends GenericMainTab {
+	private static final String LAUNCH_TARGET_NAME_ATTR = "com.espressif.idf.launch.serial.core.idfTarget"; //$NON-NLS-1$
 	private static final int JOB_DELAY_MS = 100;
 	private static final String EMPTY_CONFIG_OPTIONS = "%s" + File.separator + "%s -s %s"; //$NON-NLS-1$ //$NON-NLS-2$
 	private Combo flashOverComboButton;
@@ -742,7 +743,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 					ILaunchTarget suitableTarget = null;
 
 					for (ILaunchTarget target : targets) {
-						String idfTarget = target.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", null); //$NON-NLS-1$
+						String idfTarget = target.getAttribute(LAUNCH_TARGET_NAME_ATTR, null);
 						String targetSerialPort = target.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT,
 								StringUtil.EMPTY);
 						if (idfTarget.contentEquals(selectedItem)) {
@@ -869,9 +870,10 @@ public class CMakeMainTab2 extends GenericMainTab {
 							.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, StringUtil.EMPTY);
 					if (!targetName.isEmpty()) {
 						ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
-						ILaunchTarget selectedTarget = Stream.of(launchTargetManager.getLaunchTargets())
-								.filter(target -> target.getId().contentEquals((targetName))).findFirst()
-								.orElseGet(() -> null);
+						ILaunchTarget selectedTarget = Stream
+								.of(launchTargetManager.getLaunchTargets()).filter(target -> target
+										.getAttribute(LAUNCH_TARGET_NAME_ATTR, StringUtil.EMPTY).equals(targetName))
+								.findFirst().orElseGet(() -> null);
 						launchBarManager.setActiveLaunchTarget(selectedTarget);
 					}
 
