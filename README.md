@@ -210,10 +210,6 @@ ESP-IDF Serial Monitor will allow you to configure the default settings of the s
 <a name="debugging"></a>
 # Debugging the Project
 
-## GDB Hardware Debugging
-
-Please refer to <a href ="https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/jtag-debugging/index.html" > GDB Hardware Debugging guide</a>.
-
 ## GDB OpenOCD Debugging
 
 Please refer to <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs/OpenOCD%20Debugging.md">GDB OpenOCD Debugging</a>.
