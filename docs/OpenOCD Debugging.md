@@ -1,6 +1,6 @@
-## ESP-IDF GDB OpenOCD Debugging
+# ESP-IDF GDB OpenOCD Debugging
 
-# Create a new debug configuration
+## Create a new debug configuration
 Please follow the below steps to create a new debug configuration.
 * Right-click on the project
 * `Debug As > Debug Configurations...` This will launch a debug configuration window
