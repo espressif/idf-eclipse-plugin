@@ -183,8 +183,8 @@ public class ESPToolChainManager
 			{
 				if (Files.isRegularFile(file))
 				{
-					Matcher matcher = pattern.matcher(file.getFileName().toString());
-					if (matcher.matches())
+					Matcher matcher = pattern.matcher(file.toAbsolutePath().toString());
+					if (matcher.find())
 					{
 						return file.toFile();
 					}
