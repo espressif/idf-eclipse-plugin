@@ -1,12 +1,6 @@
-## ESP-IDF GDB OpenOCD Debugging
+# ESP-IDF GDB OpenOCD Debugging
 
-Before you get started with the GDB OpenOCD Debugging, please make sure you've already installed `Embedded C/C++ OpenOCD Debugging` plugin while updating the IDF Eclipse Plugin and your [JTAG interface is configured and connected](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/jtag-debugging/index.html#configure-and-connect-jtag-interface).
-
-To get the latest changes of the idf eclipse plugin, please check this [here](https://github.com/espressif/idf-eclipse-plugin#GettingStarted)
-
-![](images/OpenOCDDebug_1.png)
-
-# Create a new debug configuration
+## Create a new debug configuration
 Please follow the below steps to create a new debug configuration.
 * Right-click on the project
 * `Debug As > Debug Configurations...` This will launch a debug configuration window
