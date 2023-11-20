@@ -35,6 +35,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -629,8 +630,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 
 		if (launchtarget != null)
 		{
-			String idfTargetName = launchtarget.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
-					StringUtil.EMPTY);
+			String idfTargetName = launchtarget.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY);
 			if (!idfTargetName.isEmpty())
 			{
 				command.add("-DIDF_TARGET=" + idfTargetName); //$NON-NLS-1$
@@ -841,7 +841,11 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		String typeId = getProperty(TOOLCHAIN_TYPE);
 		String id = getProperty(TOOLCHAIN_ID);
 		IToolChainManager toolChainManager = CCorePlugin.<IToolChainManager>getService(IToolChainManager.class);
-		return toolChainManager.getToolChain(typeId, id);
+		ILaunchBarManager launchBarManager = CCorePlugin.getService(ILaunchBarManager.class);
+		Collection<IToolChain> matchedToolChains = toolChainManager
+				.getToolChainsMatching(Map.of(IToolChain.ATTR_OS, launchBarManager.getActiveLaunchTarget()
+						.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY), TOOLCHAIN_TYPE, typeId));
+		return matchedToolChains.stream().findAny().orElse(toolChainManager.getToolChain(typeId, id));
 	}
 
 	private static IPath getComponentsPath()

@@ -44,10 +44,10 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard {
 	@Override
 	public boolean performFinish() {
 		ILaunchTargetManager manager = Activator.getService(ILaunchTargetManager.class);
+
 		String typeId = IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE;
 		String id = page.getTargetName();
-		ILaunchTarget target = getLaunchTarget();
-		target = manager.addLaunchTarget(typeId, id);
+		ILaunchTarget target = manager.addLaunchTarget(typeId, id);
 		ILaunchTargetWorkingCopy wc = target.getWorkingCopy();
 		wc.setId(id);
 		wc.setAttribute(ILaunchTarget.ATTR_OS, page.getOS());
@@ -55,7 +55,6 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard {
 		wc.setAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, page.getSerialPortName());
 		wc.setAttribute(SerialFlashLaunchTargetProvider.ATTR_IDF_TARGET, page.getIDFTarget());
 		wc.save();
-
 		storeLastUsedSerialPort();
 		return true;
 	}
