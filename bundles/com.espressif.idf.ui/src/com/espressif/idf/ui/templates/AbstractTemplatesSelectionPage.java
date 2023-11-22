@@ -4,6 +4,8 @@
  *******************************************************************************/
 package com.espressif.idf.ui.templates;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -24,8 +26,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 
@@ -43,6 +46,8 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 	protected ITemplateNode templateElements;
 	protected FilteredTree filteredTree;
 	private WizardSelectedAction doubleClickAction = new WizardSelectedAction();
+	private Group templateGroup;
+	private Button fUseTemplate;
 
 	private class WizardSelectedAction extends Action
 	{
@@ -85,12 +90,18 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 		container.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		createAbove(container, 1);
-		Label label = new Label(container, SWT.NONE);
-		label.setText(getLabel());
-		GridData gd = new GridData();
-		label.setLayoutData(gd);
+		if (templateElements == null || templateElements.getChildren().isEmpty())
+		{
+			Dialog.applyDialogFont(container);
+			setControl(container);
+			return;
+		}
 
-		SashForm sashForm = new SashForm(container, SWT.HORIZONTAL);
+		GridData gd = new GridData();
+		
+		templateGroup = new Group(container, SWT.NONE);
+		fUseTemplate = new Button(templateGroup, SWT.CHECK);
+		SashForm sashForm = new SashForm(templateGroup, SWT.HORIZONTAL);
 		gd = new GridData(GridData.FILL_BOTH);
 		// limit the width of the sash form to avoid the wizard
 		// opening very wide. This is just preferred size -
@@ -99,6 +110,33 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 		gd.widthHint = 400;
 		gd.heightHint = 350;
 		sashForm.setLayoutData(gd);
+		
+		templateGroup.setText(Messages.TemplateGroupHeader);
+		GridLayout groupLayout = new GridLayout();
+		templateGroup.setLayout(groupLayout);
+		GridData gridDataGp = new GridData(GridData.FILL_BOTH);
+		gridDataGp.widthHint = 400;
+		gridDataGp.heightHint = 350;
+		templateGroup.setLayoutData(gridDataGp);
+		
+		
+
+		fUseTemplate.setText(Messages.TemplateListSelectionPage_SelectTemplate_Desc);
+		GridData gridData = new GridData();
+		gridData.horizontalSpan = 1;
+		fUseTemplate.setLayoutData(gridData);
+		fUseTemplate.addSelectionListener(widgetSelectedAdapter(e -> {
+			templateViewer.getControl().setEnabled(fUseTemplate.getSelection());
+			filteredTree.setEnabled(fUseTemplate.getSelection());
+			if (!fUseTemplate.getSelection())
+				setDescription(""); //$NON-NLS-1$
+			else
+				setDescription(Messages.TemplateListSelectionPage_Template_Wizard_Desc);
+
+			setDescriptionEnabled(fUseTemplate.getSelection());
+			getContainer().updateButtons();
+		}));
+		fUseTemplate.setSelection(false);
 
 		templateViewer = createTreeViewer(sashForm);
 		templateViewer.setContentProvider(new TemplatesContentProvider());
@@ -107,10 +145,16 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 		templateViewer.addDoubleClickListener(event -> doubleClickAction.run());
 		createDescriptionIn(sashForm);
 		createBelow(container, 1);
-		templateViewer.setInput(templateElements);
+		if (templateElements != null && !templateElements.getChildren().isEmpty())
+		{
+			templateViewer.setInput(templateElements);
+		}
 		initializeViewer();
 		templateViewer.addSelectionChangedListener(this);
 
+		setPageComplete(validatePage());
+		setErrorMessage(null);
+		setMessage(null);
 		Dialog.applyDialogFont(container);
 		setControl(container);
 	}
@@ -167,6 +211,11 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 
 	protected void initializeViewer()
 	{
+	}
+	
+	protected boolean validatePage()
+	{
+		return true;
 	}
 
 	@Override
@@ -229,5 +278,15 @@ public abstract class AbstractTemplatesSelectionPage extends BaseWizardSelection
 	{
 		IStructuredSelection ssel = templateViewer.getStructuredSelection();
 		return ssel != null && !ssel.isEmpty();
+	}
+
+	public Button getfUseTemplate()
+	{
+		return fUseTemplate;
+	}
+
+	public void setfUseTemplate(Button fUseTemplate)
+	{
+		this.fUseTemplate = fUseTemplate;
 	}
 }

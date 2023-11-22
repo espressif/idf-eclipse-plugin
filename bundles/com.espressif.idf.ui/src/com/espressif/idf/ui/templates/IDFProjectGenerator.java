@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.ui.console.MessageConsoleStream;
 import org.osgi.framework.Bundle;
 
 import com.espressif.idf.core.IDFConstants;
@@ -37,8 +38,9 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 
 	private File sourceTemplatePath;
 	private boolean copyIntoWorkspace;
+	protected MessageConsoleStream console;
 
-	public IDFProjectGenerator(String manifestFile, File source, boolean copyIntoWorkspace)
+	public IDFProjectGenerator(String manifestFile, File source, boolean copyIntoWorkspace, String target)
 	{
 		super(manifestFile);
 		this.sourceTemplatePath = source;
@@ -66,6 +68,8 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 		Logger.log("Source Template path:" + sourceTemplatePath); //$NON-NLS-1$
 		if (sourceTemplatePath == null)
 		{
+			// Refresh to update the project explorer view, necessary even when sourceTemplatePath is null
+			getProject().refreshLocal(IResource.DEPTH_INFINITE, monitor);
 			return; // let's go with the default generate
 		}
 
@@ -88,7 +92,7 @@ public class IDFProjectGenerator extends CMakeProjectGenerator
 		// refresh to see the copied resources in the project explorer
 		project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 	}
-
+	
 	@Override
 	public Bundle getSourceBundle()
 	{

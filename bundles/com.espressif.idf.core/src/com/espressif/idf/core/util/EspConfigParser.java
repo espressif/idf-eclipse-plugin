@@ -10,8 +10,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -32,10 +34,9 @@ public class EspConfigParser
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<String> getTargets()
+	public Set<String> getTargets()
 	{
-
-		List<String> targets = new ArrayList<String>();
+		Set<String> targets = new LinkedHashSet<String>();
 		JSONParser jsonParser = new JSONParser();
 		try (FileReader reader = new FileReader(espConfigPath))
 		{
