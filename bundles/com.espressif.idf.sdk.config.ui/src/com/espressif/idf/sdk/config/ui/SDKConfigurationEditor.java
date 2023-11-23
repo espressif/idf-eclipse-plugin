@@ -626,7 +626,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			else if (isVisible && type.equals(IJsonServerConfig.HEX_TYPE))
 			{
 				Label labelName = new Label(updateUIComposite, SWT.NONE);
-				labelName.setText(kConfigMenuItem.getTitle());
+				labelName.setText(kConfigMenuItem.getTitle().concat(" (hex)"));
 
 				Text textControl = new Text(updateUIComposite, SWT.SINGLE | SWT.BORDER);
 				GridData gridData = new GridData();
