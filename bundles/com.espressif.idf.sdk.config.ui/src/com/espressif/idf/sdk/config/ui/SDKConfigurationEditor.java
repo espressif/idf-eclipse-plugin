@@ -635,8 +635,10 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				textControl.setToolTipText(helpInfo);
 				if (configValue != null)
 				{
-					textControl.setText(newConfigValue != null ? Long.toString((long) newConfigValue)
-							: Long.toString((long) configValue));
+					String hexText = newConfigValue != null ? Long.toHexString((long) newConfigValue)
+							: Long.toHexString((long) configValue);
+					textControl.setText("0x" + hexText.toUpperCase());
+
 				}
 				textControl.addModifyListener(addModifyListener(configKey, textControl));
 				addTooltipImage(kConfigMenuItem);
@@ -851,9 +853,11 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			@Override
 			public void modifyText(ModifyEvent e)
 			{
+				String text = textControl.getText().toLowerCase();
+				boolean isHex = text.startsWith("0x");
 				isDirty = true;
 				editorDirtyStateChanged();
-				modifiedJsonMap.put(configKey, textControl.getText().trim());
+				modifiedJsonMap.put(configKey, isHex ? Long.parseLong(text.substring(2), 16) : textControl.getText().trim());
 			}
 		};
 	}
