@@ -4,6 +4,8 @@
  *******************************************************************************/
 package com.espressif.idf.ui.update;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.Map;
 
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
@@ -296,8 +298,10 @@ public class DirectorySelectionDialog extends TitleAreaDialog
 		try
 		{
 			Process process = new ProcessBuilder(path, "--version").start();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+	        String output = reader.readLine();
 			int exitCode = process.waitFor();
-			return exitCode == 0;
+			return exitCode == 0 && output.startsWith("Python");
 		}
 		catch (Exception e)
 		{
