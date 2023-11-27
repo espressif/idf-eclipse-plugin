@@ -199,8 +199,15 @@ public class DirectorySelectionDialog extends TitleAreaDialog
 		pythonExecutablePath = pythonLocationtext.getText();
 
 		gitPath = gitLocationtext.getText();
-
-		if (StringUtil.isEmpty(pythonExecutablePath) || StringUtil.isEmpty(gitPath) || StringUtil.isEmpty(idfDirPath))
+		
+		boolean isValidPythonPath = validatePythonExecutable(pythonExecutablePath);
+		
+		if (!isValidPythonPath)
+		{
+			setErrorMessage(Messages.DirectorySelectionDialog_InvalidPythonPath);
+			getButton(IDialogConstants.OK_ID).setEnabled(false);
+		}
+		else if (StringUtil.isEmpty(pythonExecutablePath) || StringUtil.isEmpty(gitPath) || StringUtil.isEmpty(idfDirPath))
 		{
 			setErrorMessage(Messages.DirectorySelectionDialog_CantbeEmpty);
 			getButton(IDialogConstants.OK_ID).setEnabled(false);
@@ -282,5 +289,19 @@ public class DirectorySelectionDialog extends TitleAreaDialog
 	private Preferences getPreferences()
 	{
 		return ConfigurationScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID).node("preference"); //$NON-NLS-1$
+	}
+	
+	private boolean validatePythonExecutable(String path)
+	{
+		try
+		{
+			Process process = new ProcessBuilder(path, "--version").start();
+			int exitCode = process.waitFor();
+			return exitCode == 0;
+		}
+		catch (Exception e)
+		{
+			return false;
+		}
 	}
 }
