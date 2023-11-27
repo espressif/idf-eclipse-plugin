@@ -168,6 +168,8 @@ public interface IDFConstants
 
 	String ESP_TOOL_ERASE_FLASH_CMD = "erase_flash"; //$NON-NLS-1$
 	
+	String ESP_WRITE_FLASH_CMD = "write_flash"; //$NON-NLS-1$
+
 	/**
 	 * Property to store project custom build directory
 	 */

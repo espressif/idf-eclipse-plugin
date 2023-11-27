@@ -5,6 +5,7 @@
 
 package com.espressif.idf.core.util;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class EspToolCommands
 {
 	private Process chipInfoProcess;
 	private Process flashEraseProcess;
+	private Process writeFlashProcess;
 
 	public Process chipInformation(String port) throws Exception
 	{
@@ -34,9 +36,29 @@ public class EspToolCommands
 		return flashEraseProcess;
 	}
 
+	public Process writeFlash(String port, String path, String offset) throws IOException
+	{
+		destroyAnyChipInfoProcess();
+		writeFlashProcess = new ProcessBuilder(getWriteFlashCommand(port, path, offset)).start();
+		return writeFlashProcess;
+	}
+
+	private List<String> getWriteFlashCommand(String port, String path, String offset)
+	{
+		List<String> command = new ArrayList<>();
+		command.add(IDFUtil.getIDFPythonEnvPath());
+		command.add(IDFUtil.getEspToolScriptFile().getAbsolutePath());
+		command.add("-p"); //$NON-NLS-1$
+		command.add(port);
+		command.add(IDFConstants.ESP_WRITE_FLASH_CMD);
+		command.add(offset);
+		command.add(path);
+		return command;
+	}
+
 	private List<String> getChipInfoCommand(String port)
 	{
-		List<String> command = new ArrayList<String>();
+		List<String> command = new ArrayList<>();
 		command.add(IDFUtil.getIDFPythonEnvPath());
 		command.add(IDFUtil.getEspToolScriptFile().getAbsolutePath());
 		command.add("-p"); //$NON-NLS-1$
@@ -47,7 +69,7 @@ public class EspToolCommands
 
 	private List<String> getFlashEraseCommand(String port)
 	{
-		List<String> command = new ArrayList<String>();
+		List<String> command = new ArrayList<>();
 		command.add(IDFUtil.getIDFPythonEnvPath());
 		command.add(IDFUtil.getEspToolScriptFile().getAbsolutePath());
 		command.add("-p"); //$NON-NLS-1$
@@ -79,6 +101,24 @@ public class EspToolCommands
 		if (flashEraseProcess != null)
 		{
 			flashEraseProcess.destroy();
+		}
+	}
+
+	public boolean checkActiveWriteFlashProcess()
+	{
+		if (writeFlashProcess != null)
+		{
+			return writeFlashProcess.isAlive();
+		}
+
+		return false;
+	}
+
+	public void killWriteFlashProcess()
+	{
+		if (writeFlashProcess != null)
+		{
+			writeFlashProcess.destroy();
 		}
 	}
 }

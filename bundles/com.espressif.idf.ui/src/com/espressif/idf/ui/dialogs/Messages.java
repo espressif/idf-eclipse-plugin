@@ -28,6 +28,18 @@ public class Messages extends NLS
 	public static String HintDetailsTitle;
 	public static String FilterMessage;
 	public static String HintsYmlNotFoundErrMsg;
+	public static String WriteFlashDialog_Bin_Path_Lbl;
+	public static String WriteFlashDialog_BinFileErrFormatErrMsg;
+	public static String WriteFlashDialog_Browse_Btn;
+	public static String WriteFlashDialog_ErrorExitCodeMsg;
+	public static String WriteFlashDialog_ErrorOutputMsg;
+	public static String WriteFlashDialog_Flash_Btn_Lbl;
+	public static String WriteFlashDialog_Offset_Lbl;
+	public static String WriteFlashDialog_OffsetErrMsg;
+	public static String WriteFlashDialog_Information_Msg;
+	public static String WriteFlashDialog_SerialPortErrMsg;
+	public static String WriteFlashDialog_Title;
+	public static String WriteFlashDialog_WritingBinsToFlashMsg0;
 
 	static
 	{

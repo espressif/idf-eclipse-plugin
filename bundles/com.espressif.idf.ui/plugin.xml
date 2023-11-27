@@ -444,6 +444,23 @@
                </iterate>
             </visibleWhen>
          </command>
+         <command
+               commandId="com.espressif.idf.ui.writeFlashCommand"
+               icon="icons/Write_Binary_Data_to_Flash.png"
+               label="%command.label.writeFlashCmdLbl"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <iterate
+                     ifEmpty="false"
+                     operator="or">
+                  <instanceof
+                        value="org.eclipse.core.resources.IResource">
+                  </instanceof>
+               </iterate>
+            </visibleWhen>
+         </command>
+
       </menuContribution>
    </extension>
    <extension
@@ -543,6 +560,10 @@
             id="com.espressif.idf.ui.nvsEditorCommand"
             name="%command.name.nvsTableEditor">
       </command>
+      <command
+            id="com.espressif.idf.ui.writeFlashCommand"
+            name="%command.name.writeFlashCmdName">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -587,6 +608,10 @@
        <handler
              class="com.espressif.idf.ui.handlers.SbomCommandHandler"
              commandId="com.espressif.idf.ui.sbom">
+       </handler>
+       <handler
+             class="com.espressif.idf.ui.handlers.WriteFlashCommandHandler"
+             commandId="com.espressif.idf.ui.writeFlashCommand">
        </handler>
     </extension>
    <extension
