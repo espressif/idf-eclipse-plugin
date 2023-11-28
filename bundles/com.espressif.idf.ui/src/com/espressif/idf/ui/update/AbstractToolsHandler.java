@@ -45,6 +45,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 	/**
 	 * Tools console
 	 */
+	private IDFConsole idfConsole;
 	protected MessageConsoleStream console;
 	protected MessageConsoleStream errorConsoleStream;
 	protected String idfPath;
@@ -113,9 +114,10 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 
 	protected void activateIDFConsoleView()
 	{
-		console = new IDFConsole().getConsoleStream(Messages.IDFToolsHandler_ToolsManagerConsole, null, false);
-		errorConsoleStream = new IDFConsole().getConsoleStream(Messages.IDFToolsHandler_ToolsManagerConsole, null,
-				true);
+		idfConsole = new IDFConsole();
+		console = idfConsole.getConsoleStream(Messages.IDFToolsHandler_ToolsManagerConsole, null, false, true);
+		errorConsoleStream = idfConsole.getConsoleStream(Messages.IDFToolsHandler_ToolsManagerConsole, null,
+				true, true);
 	}
 
 	protected String getPythonExecutablePath()
