@@ -41,6 +41,13 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+        
+	- name: Test background
+	  uses: NyaMisty/reverse-rdp-windows-github-actions-ng@master
+	  with:
+		ngrok-token: ${{ secrets.NGROK_AUTH_TOKEN }}
+		password: "Aa123456" # You can also put the password in secrets as you wish.
+		#foreground: false
 
     - name: Build with Maven
       run: mvn clean verify "-Djarsigner.skip=true" "-DskipTests=false"
