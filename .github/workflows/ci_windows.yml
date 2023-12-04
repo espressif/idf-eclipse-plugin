@@ -12,9 +12,7 @@ on:
 jobs:
   build_windows:
 
-    runs-on:
-      - self-hosted
-      - ali-test
+    runs-on: windows-latest
     
     steps:
 
