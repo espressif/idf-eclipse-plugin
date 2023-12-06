@@ -761,7 +761,7 @@
    <extension
          point="org.eclipse.core.contenttype.contentTypes">
       <file-association
-            content-type="org.eclipse.mylyn.wikitext.markdown"
+            content-type="org.eclipse.core.runtime.text"
             file-extensions="md"
             file-names="README.md">
       </file-association>

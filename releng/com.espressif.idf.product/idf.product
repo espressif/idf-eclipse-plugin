@@ -75,7 +75,6 @@
       <feature id="com.cthing.cmakeed.feature" installMode="root"/>
       <feature id="org.eclipse.swtchart.feature" installMode="root"/>
       <feature id="org.eclipse.nebula.widgets.xviewer.feature" installMode="root"/>
-      <feature id="org.eclipse.mylyn.wikitext.editors_feature" installMode="root"/>
    </features>
 
    <configurations>
