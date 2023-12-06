@@ -3,7 +3,7 @@
 <target name="com.espressif.idf.target" sequenceNumber="25">
 	<locations>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<repository location="https://download.eclipse.org/eclipse/updates/latest"/>
+			<repository location="https://download.eclipse.org/eclipse/updates/4.28"/>
 			<unit id="org.eclipse.equinox.sdk.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.rcp.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.rcp.source.feature.group" version="0.0.0"/>
@@ -19,7 +19,7 @@
 
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<repository location="https://download.eclipse.org/releases/latest"/>
+			<repository location="https://download.eclipse.org/releases/2023-09"/>
 			<unit id="org.eclipse.cdt.autotools.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.cdt.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.cdt.sdk.feature.group" version="0.0.0"/>
