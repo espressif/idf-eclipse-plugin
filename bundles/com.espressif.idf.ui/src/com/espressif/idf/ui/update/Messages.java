@@ -24,6 +24,7 @@ public class Messages extends NLS
 	public static String DirectorySelectionDialog_PyExecutableLocation;
 	public static String DirectorySelectionDialog_PyExeLocation;
 	public static String DirectorySelectionDialog_SelectIDFDirMessage;
+	public static String DirectorySelectionDialog_InvalidPythonPath;
 	public static String IDFToolsHandler_ToolsManagerConsole;
 	public static String InstallToolsHandler_AutoConfigureToolchain;
 	public static String InstallToolsHandler_ConfiguredBuildEnvVarMsg;
