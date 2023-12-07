@@ -43,7 +43,14 @@ public class InputStreamConsoleThread extends Thread
 			String line = null;
 			while ((line = br.readLine()) != null)
 			{
-				console.println(line);
+				if (line.matches("^\\d+%$"))
+				{
+					updateProgressBar(line);
+				}
+				else
+				{
+					console.println(line);
+				}
 			}
 		}
 		catch (IOException e)
@@ -63,4 +70,34 @@ public class InputStreamConsoleThread extends Thread
 			}
 		}
 	}
+
+	private void updateProgressBar(String progressLine)
+	{
+		// Extract the numeric value of the progress
+		int progress = Integer.parseInt(progressLine.replace("%", ""));
+		StringBuilder progressBar = new StringBuilder("[");
+
+		// Assuming a 50-char wide progress bar for illustration
+		int totalBars = 50;
+		int filledBars = (progress * totalBars) / 100;
+
+		for (int i = 0; i < totalBars; i++)
+		{
+			if (i < filledBars)
+			{
+				progressBar.append("=");
+			}
+			else if (i == filledBars)
+			{
+				progressBar.append(">");
+			}
+			else
+			{
+				progressBar.append(" ");
+			}
+		}
+		progressBar.append("] ").append(progress).append("%");
+		console.print("\r" + progressBar.toString());
+	}
+
 }

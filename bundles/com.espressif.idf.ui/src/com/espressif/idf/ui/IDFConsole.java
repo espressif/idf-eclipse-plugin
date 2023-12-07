@@ -32,11 +32,13 @@ public class IDFConsole
 	{
 		return getConsoleStream("ESP-IDF Console", null, false); //$NON-NLS-1$
 	}
-	
-	public MessageConsoleStream getConsoleStream(String consoleName, URL imageUrl, boolean errorStream)
+
+	public MessageConsoleStream getConsoleStream(String consoleName, URL imageUrl, boolean errorStream, boolean handleControlChars)
 	{
 		// Create Tools console
 		MessageConsole msgConsole = findConsole(consoleName, imageUrl);
+		msgConsole.setHandleControlCharacters(handleControlChars);
+		msgConsole.setCarriageReturnAsControlCharacter(handleControlChars);
 		msgConsole.clearConsole();
 		MessageConsoleStream console = msgConsole.newMessageStream();
 		msgConsole.activate();
@@ -53,6 +55,12 @@ public class IDFConsole
 		});
 		
 		return console;
+	}
+
+	
+	public MessageConsoleStream getConsoleStream(String consoleName, URL imageUrl, boolean errorStream)
+	{
+		return getConsoleStream(consoleName, imageUrl, errorStream, false);
 	}
 
 	/**
