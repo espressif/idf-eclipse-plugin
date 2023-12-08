@@ -10,6 +10,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -20,10 +21,12 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 
 /**
- * File Open Listener for the idf_components to remove the error markers 
+ * File Open Listener for the idf_components to remove the error markers
+ * 
  * @author Ali Azam Rana
  *
  */
@@ -64,11 +67,13 @@ public class FileOpenListener implements IResourceChangeListener
 	private class MarkerCleanupJob extends Job
 	{
 		private IFile file;
+		private final String IDF_PATH;
 
 		private MarkerCleanupJob(IFile file)
 		{
 			super("Marker Cleanup for " + file.getName()); //$NON-NLS-1$
 			this.file = file;
+			IDF_PATH = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PATH);
 		}
 
 		@Override
@@ -78,9 +83,16 @@ public class FileOpenListener implements IResourceChangeListener
 			{
 				if (file.exists())
 				{
-					// Clear markers for this specific file
-					Logger.log("Cleaning markers for " + file.getName()); //$NON-NLS-1$
-					file.deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ZERO);					
+					if (file.isLinked(IResource.CHECK_ANCESTORS))
+					{
+						IPath originalPath = file.getRawLocation();
+						if (originalPath != null && originalPath.toOSString().startsWith(IDF_PATH))
+						{
+							// Clear markers for this specific file
+							Logger.log("Cleaning markers for " + file.getName()); //$NON-NLS-1$
+							file.deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ZERO);
+						}
+					}
 				}
 			}
 			catch (CoreException e)
