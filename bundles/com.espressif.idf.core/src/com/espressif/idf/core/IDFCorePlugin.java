@@ -4,16 +4,17 @@
  *******************************************************************************/
 package com.espressif.idf.core;
 
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.IResourceChangeListener;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.ui.IPartListener2;
+import org.eclipse.ui.IPartService;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-import com.espressif.idf.core.build.FileOpenListener;
+import com.espressif.idf.core.build.EditorOpenListener;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -25,7 +26,7 @@ public class IDFCorePlugin extends Plugin {
 	public static final String PLUGIN_ID = "com.espressif.idf.core"; //$NON-NLS-1$
 
 	private static Plugin plugin;
-	private IResourceChangeListener listener;
+	private IPartListener2 editorListener;
 
 	public static Plugin getPlugin() {
 		return plugin;
@@ -38,16 +39,29 @@ public class IDFCorePlugin extends Plugin {
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		plugin = this;
-		listener = new FileOpenListener();
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(listener, IResourceChangeEvent.POST_CHANGE);
+		IWorkbench workbench = PlatformUI.getWorkbench();
+		workbench.getDisplay().asyncExec(() -> {
+            IPartService partService = workbench.getActiveWorkbenchWindow().getPartService();
+            if (partService != null) {
+                editorListener = new EditorOpenListener();
+                partService.addPartListener(editorListener);
+            }
+        });
+
 	}
 
 	@Override
 	public void stop(BundleContext bundleContext) throws Exception {
 		plugin = null;
-		if (listener != null)
+		if (editorListener != null)
 		{
-			ResourcesPlugin.getWorkspace().removeResourceChangeListener(listener);
+			IWorkbench workbench = PlatformUI.getWorkbench();
+			workbench.getDisplay().asyncExec(() -> {
+	            IPartService partService = workbench.getActiveWorkbenchWindow().getPartService();
+	            if (partService != null) {
+	                partService.removePartListener(editorListener);
+	            }
+	        });
 		}
 	}
 
