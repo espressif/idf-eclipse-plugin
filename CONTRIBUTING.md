@@ -1,10 +1,15 @@
 # Contribution Guide (Developers)
 
-## Setting up an Eclipse Development Environment
-* Install `Java SE`(Java 11 and above). Here is the download link https://www.oracle.com/technetwork/java/javase/downloads/index.html
-* Install `Eclipse for RCP and RAP Developers` package (Eclipse 2020-09 and above) which you can find here https://www.eclipse.org/downloads/packages/
+## Setting up an Eclipse Development Environment using IDF Target (Recommended approach)
+* Navigate to `com.espressif.idf.target` plugin
+* Click on `com.espressif.idf.target.target` file
+* Click on `Set as Active Target Platform` and wait for a couple of mins to download and configure your environment with the idf required plugins
+  
+## Setting up an Eclipse Development Manually
+* Install `Java SE`(Java 17 and above) from https://www.oracle.com/technetwork/java/javase/downloads/index.html
+* Install `Eclipse for RCP and RAP Developers` package (Eclipse 2023-03 and above) from https://www.eclipse.org/downloads/packages/
 * Install `Eclipse CDT` plugins in the eclipse https://download.eclipse.org/tools/cdt/releases/latest/ (Choose compatible CDT version based on the Eclipse Release)
-* Install `Eclipse Embedded CDT` package for OpenOCD https://projects.eclipse.org/projects/iot.embed-cdt/downloads
+* Install `Eclipse C/C++ OpenOCD Debugging` package from https://download.eclipse.org/embed-cdt/updates/v6/
 * Install `m2eclipse` plugins in the eclipse using update site https://download.eclipse.org/technology/m2e/releases/latest/
 * Install `cmakeed` plugins in the eclipse https://raw.githubusercontent.com/15knots/cmakeed/master/cmakeed-update/ to get the CMake editor features
 * Install latest `Eclipse SWTChart` using the update site https://projects.eclipse.org/projects/science.swtchart/downloads
