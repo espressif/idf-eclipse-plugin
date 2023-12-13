@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Espressif-IDE" uid="com.espressif.idf.product" id="com.espressif.idf.branding.idf" application="org.eclipse.ui.ide.workbench" version="2.11.1" useFeatures="true" includeLaunchers="true" autoIncludeRequirements="true">
+<product name="Espressif-IDE" uid="com.espressif.idf.product" id="com.espressif.idf.branding.idf" application="org.eclipse.ui.ide.workbench" version="2.12.0" type="features" includeLaunchers="true" autoIncludeRequirements="true">
 
    <aboutInfo>
       <image path="/com.espressif.idf.branding/icons/alt_about.png"/>
@@ -88,10 +88,10 @@
    </configurations>
 
    <repositories>
-      <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/" enabled="false" />
-      <repository location="http://download.eclipse.org/releases/latest/" enabled="false" />
-      <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/" enabled="true" />
-      <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/nightly/" enabled="false" />
+      <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/" name="" enabled="false" />
+      <repository location="http://download.eclipse.org/releases/latest/" name="" enabled="false" />
+      <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/" name="" enabled="true" />
+      <repository location="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/nightly/" name="" enabled="false" />
    </repositories>
 
    <preferencesInfo>
