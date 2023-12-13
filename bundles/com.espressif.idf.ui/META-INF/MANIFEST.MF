@@ -11,7 +11,6 @@ Require-Bundle: org.eclipse.core.runtime,
  com.espressif.idf.core;visibility:=reexport,
  org.eclipse.cdt.cmake.core,
  org.eclipse.cdt.cmake.ui,
- org.eclipse.tools.templates.ui,
  org.eclipse.swt;visibility:=reexport,
  org.eclipse.ui;visibility:=reexport,
  org.eclipse.jface,
@@ -37,11 +36,14 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.cdt.native.serial,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.intro,
- org.eclipse.tools.templates.freemarker,
  org.eclipse.embedcdt.ui,
  org.eclipse.ltk.ui.refactoring,
  org.eclipse.ltk.core.refactoring,
- org.eclipse.epp.mpc.ui
+ org.eclipse.epp.mpc.ui,
+ org.eclipse.tools.templates.core,
+ org.eclipse.tools.templates.ui,
+ org.freemarker.freemarker,
+ org.eclipse.tools.templates.freemarker
 Automatic-Module-Name: com.espressif.idf.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11
