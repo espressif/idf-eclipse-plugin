@@ -47,7 +47,7 @@ public class RenameIdfProjectParticipant extends RenameParticipant
 					LaunchBarListener.setIgnoreTargetChange(false);
 					launchBarManager.setActiveLaunchTarget(activeLaunchTarget);
 				}
-				catch (Exception e)
+				catch (CoreException e)
 				{
 					Logger.log(e);
 				}
