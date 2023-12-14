@@ -103,8 +103,8 @@
 			<repository location="https://download.eclipse.org/technology/swtbot/releases/3.0.0/"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<unit id="org.eclipse.tm4e.feature.feature.group" version="0.0.0" />
-			<unit id="org.eclipse.tm4e.language_pack.feature.feature.group" version="0.0.0" />
+			<unit id="org.eclipse.tm4e.feature.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.tm4e.language_pack.feature.feature.group" version="0.0.0"/>
 			<repository location="https://download.eclipse.org/tm4e/releases/latest/"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
@@ -121,6 +121,16 @@
 			<unit id="org.eclipse.embedcdt.debug.gdbjtag.openocd.feature.group" version="6.4.0.202307251916"/>
 			<unit id="org.eclipse.embedcdt.feature.group" version="6.4.0.202307251916"/>
 			<unit id="org.eclipse.embedcdt.packs.feature.group" version="6.4.0.202307251916"/>
+		</location>
+		<location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="ASM" missingManifest="error" type="Maven">
+			<dependencies>
+				<dependency>
+					<groupId>org.freemarker</groupId>
+					<artifactId>freemarker</artifactId>
+					<version>2.3.32</version>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
 		</location>
 	</locations>
 </target>
