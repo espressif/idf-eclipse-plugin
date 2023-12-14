@@ -4,7 +4,10 @@
  *******************************************************************************/
 package com.espressif.idf.debug.gdbjtag.openocd.dsf.console;
 
+import java.awt.Desktop;
+import java.net.URI;
 import java.nio.charset.Charset;
+import java.util.regex.Pattern;
 
 import org.eclipse.debug.internal.ui.DebugUIPlugin;
 import org.eclipse.debug.internal.ui.preferences.IDebugPreferenceConstants;
@@ -13,9 +16,15 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.IOConsole;
 import org.eclipse.ui.console.IOConsoleInputStream;
 import org.eclipse.ui.console.IOConsoleOutputStream;
+import org.eclipse.ui.console.IPatternMatchListener;
+import org.eclipse.ui.console.PatternMatchEvent;
+import org.eclipse.ui.console.TextConsole;
+
+import com.espressif.idf.core.logging.Logger;
 
 /**
  * Idf process console created for customization of the process output to filter and color code
@@ -33,6 +42,8 @@ public class IdfProcessConsole extends IOConsole implements IPropertyChangeListe
 	private IOConsoleOutputStream errorStream;
 	private IOConsoleOutputStream warnStream;
 	private IOConsoleInputStream inputStream;
+	
+	private URLPatternMatchListener urlPatternMatchListener;
 
 	public IdfProcessConsole(Charset charset)
 	{
@@ -41,8 +52,9 @@ public class IdfProcessConsole extends IOConsole implements IPropertyChangeListe
 		outputStream = newOutputStream();
 		errorStream = newOutputStream();
 		warnStream = newOutputStream();
+		urlPatternMatchListener = new URLPatternMatchListener(this);
 	}
-	
+
 	@Override
 	public void init()
 	{
@@ -51,26 +63,31 @@ public class IdfProcessConsole extends IOConsole implements IPropertyChangeListe
 		JFaceResources.getFontRegistry().addListener(this);
 		outputStream.setColor(DebugUIPlugin.getPreferenceColor(IDebugPreferenceConstants.CONSOLE_SYS_OUT_COLOR));
 		errorStream.setColor(DebugUIPlugin.getPreferenceColor(IDebugPreferenceConstants.CONSOLE_SYS_ERR_COLOR));
-		if (store.getBoolean(IDebugPreferenceConstants.CONSOLE_WRAP)) {
+		if (store.getBoolean(IDebugPreferenceConstants.CONSOLE_WRAP))
+		{
 			setConsoleWidth(store.getInt(IDebugPreferenceConstants.CONSOLE_WIDTH));
 		}
 		setTabWidth(store.getInt(IDebugPreferenceConstants.CONSOLE_TAB_WIDTH));
 
-		if (store.getBoolean(IDebugPreferenceConstants.CONSOLE_LIMIT_CONSOLE_OUTPUT)) {
+		if (store.getBoolean(IDebugPreferenceConstants.CONSOLE_LIMIT_CONSOLE_OUTPUT))
+		{
 			int highWater = store.getInt(IDebugPreferenceConstants.CONSOLE_HIGH_WATER_MARK);
 			int lowWater = store.getInt(IDebugPreferenceConstants.CONSOLE_LOW_WATER_MARK);
 			setWaterMarks(lowWater, highWater);
 		}
 
 		setHandleControlCharacters(store.getBoolean(IDebugPreferenceConstants.CONSOLE_INTERPRET_CONTROL_CHARACTERS));
-		setCarriageReturnAsControlCharacter(store.getBoolean(IDebugPreferenceConstants.CONSOLE_INTERPRET_CR_AS_CONTROL_CHARACTER));
+		setCarriageReturnAsControlCharacter(
+				store.getBoolean(IDebugPreferenceConstants.CONSOLE_INTERPRET_CR_AS_CONTROL_CHARACTER));
 
 		DebugUIPlugin.getStandardDisplay().asyncExec(() -> {
 			setFont(JFaceResources.getFont(IDebugUIConstants.PREF_CONSOLE_FONT));
 			setBackground(DebugUIPlugin.getPreferenceColor(IDebugPreferenceConstants.CONSOLE_BAKGROUND_COLOR));
 		});
+		
+		addPatternMatchListener(urlPatternMatchListener);
 	}
-	
+
 	@Override
 	public void propertyChange(PropertyChangeEvent evt)
 	{
@@ -171,7 +188,7 @@ public class IdfProcessConsole extends IOConsole implements IPropertyChangeListe
 					store.getBoolean(IDebugPreferenceConstants.CONSOLE_INTERPRET_CR_AS_CONTROL_CHARACTER));
 		}
 	}
-	
+
 	public IOConsoleOutputStream getOutputStream()
 	{
 		return outputStream;
@@ -185,5 +202,89 @@ public class IdfProcessConsole extends IOConsole implements IPropertyChangeListe
 	public IOConsoleOutputStream getWarnStream()
 	{
 		return warnStream;
+	}
+
+	private class URLPatternMatchListener implements IPatternMatchListener
+	{
+		private IdfProcessConsole idfProcessConsole;
+		private Pattern urlPattern;
+
+		public URLPatternMatchListener(IdfProcessConsole idfProcessConsole)
+		{
+			this.idfProcessConsole = idfProcessConsole;
+			urlPattern = Pattern.compile("http[s]?://\\S+");
+		}
+
+		@Override
+		public String getPattern()
+		{
+			return urlPattern.pattern();
+		}
+
+		@Override
+		public void matchFound(PatternMatchEvent event)
+		{
+			try
+			{
+				int offset = event.getOffset();
+				int length = event.getLength();
+				String detectedUrl = idfProcessConsole.getDocument().get(offset, length);
+				IHyperlink link = new IHyperlink()
+				{
+					@Override
+					public void linkActivated()
+					{
+						try
+						{
+							Desktop.getDesktop().browse(new URI(detectedUrl));
+						}
+						catch (Exception e)
+						{
+							Logger.log(e);
+						}
+					}
+
+					@Override
+					public void linkExited()
+					{
+					}
+
+					@Override
+					public void linkEntered()
+					{
+					}
+				};
+				idfProcessConsole.addHyperlink(link, offset, length);
+			}
+			catch (Exception e)
+			{
+				Logger.log(e);
+			}
+
+		}
+
+		@Override
+		public void connect(TextConsole console)
+		{
+			
+		}
+
+		@Override
+		public void disconnect()
+		{
+			
+		}
+
+		@Override
+		public int getCompilerFlags()
+		{
+			return 0;
+		}
+
+		@Override
+		public String getLineQualifier()
+		{
+			return null;
+		}
 	}
 }
