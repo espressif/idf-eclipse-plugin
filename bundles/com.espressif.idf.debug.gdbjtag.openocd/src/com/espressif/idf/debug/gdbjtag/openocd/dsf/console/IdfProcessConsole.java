@@ -4,8 +4,6 @@
  *******************************************************************************/
 package com.espressif.idf.debug.gdbjtag.openocd.dsf.console;
 
-import java.awt.Desktop;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.regex.Pattern;
 
@@ -16,6 +14,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.program.Program;
 import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.IOConsole;
 import org.eclipse.ui.console.IOConsoleInputStream;
@@ -35,8 +34,8 @@ import com.espressif.idf.core.logging.Logger;
 @SuppressWarnings("restriction")
 public class IdfProcessConsole extends IOConsole implements IPropertyChangeListener
 {
-	public static final String CONSOLE_NAME = "IDF Process Console";
-	public static final String CONSOLE_TYPE = "com.espressif.idf.debug.gdbjtag.openocd.dsf.console.IdfProcessConsole";
+	public static final String CONSOLE_NAME = "IDF Process Console"; //$NON-NLS-1$
+	public static final String CONSOLE_TYPE = "com.espressif.idf.debug.gdbjtag.openocd.dsf.console.IdfProcessConsole"; //$NON-NLS-1$
 
 	private IOConsoleOutputStream outputStream;
 	private IOConsoleOutputStream errorStream;
@@ -236,7 +235,7 @@ public class IdfProcessConsole extends IOConsole implements IPropertyChangeListe
 					{
 						try
 						{
-							Desktop.getDesktop().browse(new URI(detectedUrl));
+							Program.launch(detectedUrl);
 						}
 						catch (Exception e)
 						{

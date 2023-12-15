@@ -32,7 +32,7 @@ import com.espressif.idf.debug.gdbjtag.openocd.ui.Messages;
 @SuppressWarnings("restriction")
 public class StreamListener implements IStreamListener
 {
-	private static final String OPENOCD_FAQ_LINK = "https://github.com/espressif/openocd-esp32/wiki/Troubleshooting-FAQ";
+	private static final String OPENOCD_FAQ_LINK = "https://github.com/espressif/openocd-esp32/wiki/Troubleshooting-FAQ"; //$NON-NLS-1$
 	private IOConsoleOutputStream fConsoleErrorOutputStream;
 	private IOConsoleOutputStream fConsoleOutputStream;
 
