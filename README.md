@@ -185,14 +185,14 @@ However, if you would like to add a target that is not available in the launch t
 1. Select `Run` from the first drop-down, which is called `Launch Mode`.
 1. Select your application from the second drop-down, which is called `Launch Configuration`(Auto-detected).
 1. Select a target from the third drop-down, which is called `Launch Target`.
-1. Now click on the `Build` button widget which you see on the far left of the toolbar.
+1. Now click on the `Build` ![](docs/images/icons/build.png) button to start with a build process.
 
 ![](docs/images/9_cmake_build.png)
 
 <a name="FlashApplication"></a>
 # Flashing the Project
 
-Flash operation can be initiated with just a click of a launch button (second button from the left on the top bar) and it's auto-configured to flash the application with the default flash command i.e, `idf.py -p PORT flash`.
+Flash operation can be initiated with just a click of a launch button ![](docs/images/icons/run.png) and it's auto-configured to flash the application with the default flash command i.e, `idf.py -p PORT flash`.
 
 <img width="767" alt="flash" src="https://github.com/espressif/idf-eclipse-plugin/assets/8463287/3249c01b-af23-4863-811f-c3959008f257">
 
