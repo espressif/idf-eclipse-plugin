@@ -65,31 +65,33 @@ To get a quick understanding of ESP-IDF and Eclipse plugin features, check our s
 </details>
 
 <a name="Installation"></a>
-# Installing Prerequisites
 
-The minimum requirements for running the IDF Eclipse plug-ins are below.
+# Installation
+We recommend using the Espressif-IDE instead of the Eclipse CDT + IEP Plugin update approach to avoid the hassles of updating.
 
-* **Java 17 and above** : Download and install Java SE from <a href= "https://www.oracle.com/technetwork/java/javase/downloads/index.html">here</a>.
-* **Python 3.6 and above** : Download and install Python from <a href="https://www.python.org/downloads/">here</a>.
-* **Eclipse IDE for C/C++ Developers 2023-12** : Download and install Eclipse CDT package from <a href= "https://www.eclipse.org/downloads/packages/release/2023-12/r/eclipse-ide-cc-developers">here </a>.
-*  **Git** : Get the latest git from <a href ="https://git-scm.com/downloads">here</a>.
-*  **ESP-IDF 4.0 and above** : Clone the ESP-IDF repo from <a href ="https://github.com/espressif/esp-idf/releases">here</a>.
-
-> **Note:** Make sure Java, Python and Git are available on the system environment PATH.
-
-## Recommened approach
-Instead of installing Eclipse CDT and adding the IEP Update site, we recommend installing the IDE through the mechanism below.
-### Windows OS
+## Espressif-IDE for Windows
 * Download the [Espressif-IDE with ESP-IDF Offline Windows Installer](https://dl.espressif.com/dl/esp-idf/) and follow the instructions provided [here](https://github.com/espressif/idf-eclipse-plugin/blob/master/docs/Espressif-IDE-Windows-Installer.md). This guide will walk you through the installation process for Java, Git, CMake, ESP-IDF, IDF Tools, Device Drivers, and Espressif-IDE to help you get started.
 
-### macOS and Linux
-* To begin, download the [Espressif-IDE](https://github.com/espressif/idf-eclipse-plugin/blob/master/docs/Espressif-IDE.md#downloads) for your respective operating system. Following this, launch the IDE and proceed to install the necessary ESP-IDF and related tools. Please note that prior to launching the IDE, you must ensure that Java, Python, and Git are installed as prerequisites and available in the system path.
+## Espressif-IDE for macOS and Linux
+* To begin, download the [Espressif-IDE](https://github.com/espressif/idf-eclipse-plugin/blob/master/docs/Espressif-IDE.md#downloads) for your respective operating system. Following this, launch the IDE and proceed to install the necessary ESP-IDF and related tools. Please note that prior to launching the IDE, you must ensure that Java, Python, and Git are installed as [prerequisites](#Prerequisites). and available in the system path.
+
+If you plan to use Eclipse CDT and update it through the IDF Eclipse plugin, please ensure that you download the supported version for your operating system from <a href= "https://www.eclipse.org/downloads/packages/release/2023-12/r/eclipse-ide-cc-developers">here </a>.
+
+<a name="Prerequisites"></a>
+## Prerequisites
+
+The minimum requirements for running the Espressif-IDE are below.
+* **Java 17 and above** : Download and install Java SE from <a href= "https://www.oracle.com/technetwork/java/javase/downloads/index.html">here</a>.
+* **Python 3.6 and above** : Download and install Python from <a href="https://www.python.org/downloads/">here</a>.
+* **Git** : Get the latest git from <a href ="https://git-scm.com/downloads">here</a>.
+
+> **Note:** Make sure Java, Python and Git are available on the system environment PATH.
 
 <a name="GettingStarted"></a>
 
 # Installing IDF Plugin using update site URL
 
-You can install the IDF Eclipse plugin into an existing Eclipse CDT/Espressif-IDE using the update site URL. First, add the release repository URL as follows:
+You can install the IDF Eclipse plugin into an existing IDE using the update site URL. First, add the release repository URL as follows:
 
 1. Go to `Help` > `Install New Software`.
 1. Click `Add…`, and in the pop-up window:
