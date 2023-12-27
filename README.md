@@ -95,11 +95,13 @@ You can install the IDF Eclipse plugin into an existing Eclipse CDT/Espressif-ID
 1. Click `Add…`, and in the pop-up window:
 	* Enter `Name` as `Espressif IDF Plugin for Eclipse`
 	* Enter `Location` of the repository:
-		* Stable release(recommended): https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/
-		* Beta version: https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/
-		* Nightly build: https://dl.espressif.com/dl/idf-eclipse-plugin/updates/nightly/
+		* Stable release: https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/
 	* Click `Add`.
 1. Select `Espressif IDF` from the list and proceed with the installation.
+
+For adding beta and nightly builds, you can use the following update site urls.
+   * Beta version: https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/
+   * Nightly build: https://dl.espressif.com/dl/idf-eclipse-plugin/updates/nightly/
 
 > **Note:** While the screenshots are captured on macOS, the installation instructions are applicable to Windows, Linux, and macOS.
 
@@ -177,8 +179,7 @@ However, if you would like to add a target that is not available in the launch t
 <a name="BuildApplication"></a>
 # Compiling the Project
 
-1. Select a project from the `Project Explorer`.![Uploading Screenshot 2023-12-27 at 1.42.45 PM.png…]()
-
+1. Select a project from the `Project Explorer`.
 1. Select `Run` from the first drop-down, which is called `Launch Mode`.
 1. Select your application from the second drop-down, which is called `Launch Configuration`(Auto-detected).
 1. Select a target from the third drop-down, which is called `Launch Target`.
@@ -189,7 +190,9 @@ However, if you would like to add a target that is not available in the launch t
 <a name="FlashApplication"></a>
 # Flashing the Project
 
-ESP-IDF has a tool called `idf.py` which is a wrapper around `make flash` command with some handy operations. Flash operation can be initiated with just a click of a launch button (second button from the left on the top bar) and it's auto-configured to flash the application with the default flash command i.e, `idf.py -p PORT flash`.
+Flash operation can be initiated with just a click of a launch button (second button from the left on the top bar) and it's auto-configured to flash the application with the default flash command i.e, `idf.py -p PORT flash`.
+
+<img width="767" alt="flash" src="https://github.com/espressif/idf-eclipse-plugin/assets/8463287/3249c01b-af23-4863-811f-c3959008f257">
 
 To provide the customized flash arguments, please follow [this](#customizeLaunchConfig) link for further instructions.
 
@@ -199,6 +202,8 @@ To configure flashing via JTAG, please refer to this <a href="https://github.com
 # Viewing Serial Output
 
 To see the serial output in Eclipse, we need to configure the `ESP-IDF Serial Monitor` to connect to the serial port. This is integrated with the `IDF Monitor`. Please check more details <a href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/tools/idf-monitor.html#idf-monitor">here</a>.
+
+<img width="279" alt="monitor" src="https://github.com/espressif/idf-eclipse-plugin/assets/8463287/993a1fa2-9c6e-4b0e-a245-713df30331e7">
 
 1. Click on the `Open a Terminal` icon from the toolbar.
 1. Choose `ESP-IDF Serial Monitor` from the terminal drop-down.
@@ -218,8 +223,6 @@ ESP-IDF Serial Monitor will allow you to configure the default settings of the s
 
 <a name="debugging"></a>
 # Debugging the Project
-
-## GDB OpenOCD Debugging
 
 Please refer to <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs/OpenOCD%20Debugging.md">GDB OpenOCD Debugging</a>.
 
