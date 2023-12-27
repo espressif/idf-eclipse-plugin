@@ -95,8 +95,8 @@ You can install the IDF Eclipse plugin into an existing Eclipse CDT/Espressif-ID
 1. Click `Add…`, and in the pop-up window:
 	* Enter `Name` as `Espressif IDF Plugin for Eclipse`
 	* Enter `Location` of the repository:
-		* Stable releases(recommended): https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/
-		* Beta versions: https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/
+		* Stable release(recommended): https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/
+		* Beta version: https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/
 		* Nightly build: https://dl.espressif.com/dl/idf-eclipse-plugin/updates/nightly/
 	* Click `Add`.
 1. Select `Espressif IDF` from the list and proceed with the installation.
@@ -149,22 +149,25 @@ ESP-IDF Directory selection dialog:
 # Create a new Project
 
 1. Make sure you are in `C/C++ Perspective`.
-1. Go to `File` > `New` > `Espressif IDF Project` (If you don't see this, please reset the perspective from `Window` > `Perspective` > `Reset Perspective...`).
+1. Go to `File` > `New` > `Espressif IDF Project`
 1. Provide the `Project name` (The ESP-IDF build system does not support spaces in the project path).
 1. Click `Finish`.
 
 To create a project using existing ESP-IDF templates, please refer to [this](#NewProjectUsingTemplates).
 
-> **Note:** You will see a lot of unresolved inclusion errors in the editor and those will be resolved only after the build.
+> **Note:** You may see numerous unresolved headers and symbols errors in the editor, and these will only be resolved after the build process.
 
 ![](docs/images/3_new_project_default.png)
 
 <a name="ConfigureLaunchTarget"></a>
 # Configuring build target
 
-Next, we need to tell CDT to use the toolchain for our project so that all the headers will be indexed and resolved. This is accomplished through the Launch Bar, the new widget set you see on the far left of the toolbar. This will be shown only when you have a project in the `Project Explorer`.
+Next, you should select the ESP target for your project. By default, the launch target drop-down will display all the supported targets by the plugin.
 
-1. Click on the third dropdown window from the top bar.
+<img width="769" alt="target" src="https://github.com/espressif/idf-eclipse-plugin/assets/8463287/8d85c547-5cd3-4c10-8ca2-9bb5d69b4bce">
+
+However, if you would like to add a target that is not available in the launch target drop-down, please follow the instructions below.
+1. Click on the launch target dropdown.
 1. Select `New Launch Target`.
 1. Select `ESP Target`.
 1. Provide properties for the target where you would like to launch the application. Enter a `Name` for the target and select the `Serial Port` your ESP device is connected to on your machine.
@@ -174,7 +177,8 @@ Next, we need to tell CDT to use the toolchain for our project so that all the h
 <a name="BuildApplication"></a>
 # Compiling the Project
 
-1. Select a project from the `Project Explorer`.
+1. Select a project from the `Project Explorer`.![Uploading Screenshot 2023-12-27 at 1.42.45 PM.png…]()
+
 1. Select `Run` from the first drop-down, which is called `Launch Mode`.
 1. Select your application from the second drop-down, which is called `Launch Configuration`(Auto-detected).
 1. Select a target from the third drop-down, which is called `Launch Target`.
