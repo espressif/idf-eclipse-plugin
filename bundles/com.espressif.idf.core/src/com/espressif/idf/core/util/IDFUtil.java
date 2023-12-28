@@ -337,6 +337,21 @@ public class IDFUtil
 		}
 		return getXtensaToolchainExecutablePathByTarget(projectEspTarget);
 	}
+	
+	public static String getXtensaToolchainExePathForActiveTarget()
+	{
+		String target = IDFUtil.getCurrentTarget();
+		if (target != null)
+		{
+			File file = new ESPToolChainManager().findCompiler(target);
+			if (file != null)
+			{
+				return file.getAbsolutePath();
+			}
+			
+		}
+		return null;
+	}
 
 	public static String getXtensaToolchainExecutablePathByTarget(String projectEspTarget)
 	{

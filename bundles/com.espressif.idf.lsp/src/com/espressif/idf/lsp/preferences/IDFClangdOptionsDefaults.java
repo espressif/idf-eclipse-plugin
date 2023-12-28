@@ -20,7 +20,10 @@ public class IDFClangdOptionsDefaults extends BuiltinClangdOptionsDefaults {
 
 	@Override
 	public String queryDriver() {
-		return super.queryDriver(); // TODO:esp xtensa-gcc path
+
+		return Optional.ofNullable(IDFUtil.getXtensaToolchainExePathForActiveTarget())
+				.orElse(super.queryDriver());
+
 	}
 
 }
