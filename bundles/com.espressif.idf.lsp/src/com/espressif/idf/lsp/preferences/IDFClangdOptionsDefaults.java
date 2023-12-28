@@ -22,7 +22,7 @@ public class IDFClangdOptionsDefaults extends BuiltinClangdOptionsDefaults {
 	public String queryDriver() {
 
 		return Optional.ofNullable(IDFUtil.getXtensaToolchainExePathForActiveTarget())
-				.orElse(super.queryDriver());
+				.orElse("");
 
 	}
 
