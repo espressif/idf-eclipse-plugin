@@ -37,7 +37,7 @@ public class EditorOpenListener implements IPartListener2
 					{
 						// Start the job
 						MarkerCleanupJob job = new MarkerCleanupJob(file);
-						job.schedule();
+						job.schedule(1000);
 					}
 				}
 			}
