@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %Bundle-Name
+Bundle-SymbolicName: com.espressif.idf.lsp.preferences;singleton:=true
+Bundle-Vendor: %Bundle-Vendor
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.cdt.lsp.clangd,
+ org.eclipse.core.resources,
+ org.eclipse.cdt.lsp,
+ com.espressif.idf.core
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: com.espressif.idf.lsp.preferences
+Bundle-ActivationPolicy: lazy
+Service-Component: OSGI-INF/com.espressif.idf.lsp.preferences.IDFClangdEnable.xml,
+ OSGI-INF/com.espressif.idf.lsp.preferences.IDFClangdOptionsDefaults.xml

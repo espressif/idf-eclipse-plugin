@@ -43,7 +43,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.tools.templates.core,
  org.eclipse.tools.templates.ui,
  org.freemarker.freemarker,
- org.eclipse.tools.templates.freemarker
+ org.eclipse.tools.templates.freemarker,
+ org.eclipse.cdt.lsp;bundle-version="1.0.0",
+ org.eclipse.cdt.lsp.clangd;bundle-version="1.0.0"
 Automatic-Module-Name: com.espressif.idf.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11
