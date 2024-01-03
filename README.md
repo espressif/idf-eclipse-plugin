@@ -14,7 +14,7 @@ The plug-in runs on `macOS`, `Windows` and `Linux` platforms.
 ![](docs/images/linux-logo.png)
 
 
-> **Note:** It supports ESP-IDF CMake based projects (4.x and above) with `esp32`,`esp32s2`, `esp32s3` and `esp32c3` boards.
+> **Note:** It supports ESP-IDF CMake based projects (4.x and above).
 
 To get a quick understanding of ESP-IDF and Eclipse plugin features, check our session which was presented in <a href= "https://youtu.be/CbPX3q7LeBc">EclipseCon 2020</a>.
 
@@ -65,39 +65,47 @@ To get a quick understanding of ESP-IDF and Eclipse plugin features, check our s
 </details>
 
 <a name="Installation"></a>
-# Installing Prerequisites
 
-The minimum requirements for running the IDF Eclipse plug-ins are below.
+# Installation
+We recommend using the Espressif-IDE instead of the Eclipse CDT + IEP Plugin update approach to avoid the hassles of updating.
 
+## Espressif-IDE for Windows
+* Download the [Espressif-IDE with ESP-IDF Offline Windows Installer](https://dl.espressif.com/dl/esp-idf/) and follow the instructions provided [here](https://github.com/espressif/idf-eclipse-plugin/blob/master/docs/Espressif-IDE-Windows-Installer.md). This guide will walk you through the installation process for Java, Git, CMake, ESP-IDF, IDF Tools, Device Drivers, and Espressif-IDE to help you get started.
+
+## Espressif-IDE for macOS and Linux
+* To begin, download the [Espressif-IDE](https://github.com/espressif/idf-eclipse-plugin/blob/master/docs/Espressif-IDE.md#downloads) for your respective operating system. Following this, launch the IDE and proceed to install the necessary ESP-IDF and related tools. Please note that prior to launching the IDE, you must ensure that Java, Python, and Git are installed as [prerequisites](#Prerequisites). and available in the system path.
+
+If you plan to use Eclipse CDT and update it through the IDF Eclipse plugin, please ensure that you download the supported version for your operating system from <a href= "https://www.eclipse.org/downloads/packages/release/2023-12/r/eclipse-ide-cc-developers">here </a>.
+
+<a name="Prerequisites"></a>
+## Prerequisites
+
+The minimum requirements for running the Espressif-IDE are below.
 * **Java 17 and above** : Download and install Java SE from <a href= "https://www.oracle.com/technetwork/java/javase/downloads/index.html">here</a>.
 * **Python 3.6 and above** : Download and install Python from <a href="https://www.python.org/downloads/">here</a>.
-* **Eclipse IDE for C/C++ Developers 2023-03** : Download and install Eclipse CDT package from <a href= "https://www.eclipse.org/downloads/packages/release/2023-03/r/eclipse-ide-cc-developers">here </a>.
-*  **Git** : Get the latest git from <a href ="https://git-scm.com/downloads">here</a>.
-*  **ESP-IDF 4.0 and above** : Clone the ESP-IDF repo from <a href ="https://github.com/espressif/esp-idf/releases">here</a>.
+* **Git** : Get the latest git from <a href ="https://git-scm.com/downloads">here</a>.
 
 > **Note:** Make sure Java, Python and Git are available on the system environment PATH.
-
-We also offer `Espressif-IDE Offline Installer` for Windows which comes with OpenJDK, Python, CMake, Git, ESP-IDF, Eclipse IDE, IDF Eclipse plugins and required build tools. Please check our <a href="https://github.com/espressif/idf-installer#espressif-ide-offline-installer"> Espressif-IDE Offline Installer </a> page.
-
-More details on the Espressif-IDE can be found <a href="https://github.com/espressif/idf-eclipse-plugin/blob/master/docs/Espressif-IDE.md"> here</a>.
 
 <a name="GettingStarted"></a>
 
 # Installing IDF Plugin using update site URL
 
-You can install the IDF Eclipse plugin into an existing Eclipse CDT installation using the update site URL. You first need to add the release repository URL as follows:
+You can install the IDF Eclipse plugin into an existing IDE using the update site URL. First, add the release repository URL as follows:
 
 1. Go to `Help` > `Install New Software`.
 1. Click `Add…`, and in the pop-up window:
 	* Enter `Name` as `Espressif IDF Plugin for Eclipse`
 	* Enter `Location` of the repository:
-		* Stable releases: https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/
-		* Beta versions: https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/
-		* Nightly build: https://dl.espressif.com/dl/idf-eclipse-plugin/updates/nightly/
+		* Stable release: https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/
 	* Click `Add`.
 1. Select `Espressif IDF` from the list and proceed with the installation.
 
-> **Note:** Though screenshots are captured from `macOS`, installation instructions are applicable for `Windows`, `Linux` and `macOS`.
+For adding beta and nightly builds, you can use the following update site urls.
+   * Beta version: https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/
+   * Nightly build: https://dl.espressif.com/dl/idf-eclipse-plugin/updates/nightly/
+
+> **Note:** While the screenshots are captured on macOS, the installation instructions are applicable to Windows, Linux, and macOS.
 
 ![](docs/images/idf_update_site_install.png)
 
@@ -123,9 +131,9 @@ This will download a specified ESP-IDF version and configure `IDF_PATH` in the E
 
 # Installing ESP-IDF Tools
 
-ESP-IDF requires some prerequisite tools to be installed so you can build firmware for the ESP32. The prerequisite tools include Python, Git, cross-compilers, menuconfig tool, CMake and Ninja build tools.
+ESP-IDF requires the installation of several prerequisite tools to build firmware for the ESP32. These tools include Python, Git, cross-compilers, the menuconfig tool, CMake, and Ninja build tools.
 
-For this getting started guide, follow the instructions below.
+Follow the below instructions to get started.
 
 1. Navigate to `Espressif` > `ESP-IDF Tools Manager` > `Install Tools`.
 1. Provide the `ESP-IDF Directory` path.
@@ -133,7 +141,7 @@ For this getting started guide, follow the instructions below.
 1. Click on `Install Tools` to proceed with the installation process. Check the Console for the installation details.
 1. Installation might take a while if you're doing it for the first time since it has to download and install `xtensa-esp32-elf`, `esp32ulp-elf`, Cmake, `openocd-esp32` and Ninja tools.
 
-> **Note:** Make sure you run this step even if you've already installed the required tools, since it sets the `IDF_PATH`, `PATH`, `OPENOCD_SCRIPTS` and `IDF_PYTHON_ENV_PATH` to the Eclipse CDT build environment based on the `idf_tools.py export` command.
+> **Note:** Ensure that you perform this step even if you have already installed the necessary tools. This step sets the IDF_PATH, PATH, OPENOCD_SCRIPTS, and IDF_PYTHON_ENV_PATH in the Eclipse CDT build environment based on the idf_tools.py export command.
 
 ![](docs/images/install_tools.png)
 
@@ -145,22 +153,25 @@ ESP-IDF Directory selection dialog:
 # Create a new Project
 
 1. Make sure you are in `C/C++ Perspective`.
-1. Go to `File` > `New` > `Espressif IDF Project` (If you don't see this, please reset the perspective from `Window` > `Perspective` > `Reset Perspective...`).
+1. Go to `File` > `New` > `Espressif IDF Project`
 1. Provide the `Project name` (The ESP-IDF build system does not support spaces in the project path).
 1. Click `Finish`.
 
 To create a project using existing ESP-IDF templates, please refer to [this](#NewProjectUsingTemplates).
 
-> **Note:** You will see a lot of unresolved inclusion errors in the editor and those will be resolved only after the build.
+> **Note:** You may see numerous unresolved headers and symbols errors in the editor, and these will only be resolved after the build process.
 
 ![](docs/images/3_new_project_default.png)
 
 <a name="ConfigureLaunchTarget"></a>
-# Configuring Launch target
+# Configuring build target
 
-Next, we need to tell CDT to use the toolchain for our project so that all the headers will be indexed and resolved. This is accomplished through the Launch Bar, the new widget set you see on the far left of the toolbar. This will be shown only when you have a project in the `Project Explorer`.
+Next, you should select the ESP target for your project. By default, the launch target drop-down will display all the supported targets by the plugin.
 
-1. Click on the third dropdown window from the top bar.
+<img width="769" alt="target" src="https://github.com/espressif/idf-eclipse-plugin/assets/8463287/8d85c547-5cd3-4c10-8ca2-9bb5d69b4bce">
+
+However, if you would like to add a target that is not available in the launch target drop-down, please follow the instructions below.
+1. Click on the launch target dropdown.
 1. Select `New Launch Target`.
 1. Select `ESP Target`.
 1. Provide properties for the target where you would like to launch the application. Enter a `Name` for the target and select the `Serial Port` your ESP device is connected to on your machine.
@@ -174,14 +185,16 @@ Next, we need to tell CDT to use the toolchain for our project so that all the h
 1. Select `Run` from the first drop-down, which is called `Launch Mode`.
 1. Select your application from the second drop-down, which is called `Launch Configuration`(Auto-detected).
 1. Select a target from the third drop-down, which is called `Launch Target`.
-1. Now click on the `Build` button widget which you see on the far left of the toolbar.
+1. Now click on the `Build` ![](docs/images/icons/build.png) button to start with a build process.
 
 ![](docs/images/9_cmake_build.png)
 
 <a name="FlashApplication"></a>
 # Flashing the Project
 
-ESP-IDF has a tool called `idf.py` which is a wrapper around `make flash` command with some handy operations. Flash operation can be initiated with just a click of a launch button (second button from the left on the top bar) and it's auto-configured to flash the application with the default flash command i.e, `idf.py -p PORT flash`.
+Flash operation can be initiated with just a click of a launch button ![](docs/images/icons/run.png) and it's auto-configured to flash the application with the default flash command i.e, `idf.py -p PORT flash`.
+
+<img width="767" alt="flash" src="https://github.com/espressif/idf-eclipse-plugin/assets/8463287/3249c01b-af23-4863-811f-c3959008f257">
 
 To provide the customized flash arguments, please follow [this](#customizeLaunchConfig) link for further instructions.
 
@@ -191,6 +204,8 @@ To configure flashing via JTAG, please refer to this <a href="https://github.com
 # Viewing Serial Output
 
 To see the serial output in Eclipse, we need to configure the `ESP-IDF Serial Monitor` to connect to the serial port. This is integrated with the `IDF Monitor`. Please check more details <a href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/tools/idf-monitor.html#idf-monitor">here</a>.
+
+<img width="279" alt="monitor" src="https://github.com/espressif/idf-eclipse-plugin/assets/8463287/993a1fa2-9c6e-4b0e-a245-713df30331e7">
 
 1. Click on the `Open a Terminal` icon from the toolbar.
 1. Choose `ESP-IDF Serial Monitor` from the terminal drop-down.
@@ -210,8 +225,6 @@ ESP-IDF Serial Monitor will allow you to configure the default settings of the s
 
 <a name="debugging"></a>
 # Debugging the Project
-
-## GDB OpenOCD Debugging
 
 Please refer to <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs/OpenOCD%20Debugging.md">GDB OpenOCD Debugging</a>.
 
