@@ -70,6 +70,9 @@ public class ESPFlashUtil
 		List<String> commands = new ArrayList<>();
 		commands.add(VariablesPlugin.getDefault().getStringVariableManager()
 				.generateVariableExpression(IDFDynamicVariables.IDF_PY.name(), null));
+		commands.add("-B"); //$NON-NLS-1$
+		commands.add(VariablesPlugin.getDefault().getStringVariableManager()
+				.generateVariableExpression(IDFDynamicVariables.BUILD_DIR.name(), null));
 		commands.add("-p"); //$NON-NLS-1$
 		commands.add(serialPort);
 		commands.add(IDFConstants.FLASH_CMD);
