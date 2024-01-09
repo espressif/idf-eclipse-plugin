@@ -13,9 +13,13 @@ import java.util.Optional;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
@@ -32,41 +36,75 @@ public class ProductInformationHandler extends ListInstalledToolsHandler
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
 
+		Job job = new Job(Messages.ProductInformationHandler_ProductInformationLogJobName)
+		{
+
+			protected IStatus run(IProgressMonitor monitor)
+			{
+				try
+				{
+					printingProductInformationLog(event);
+				}
+				catch (
+						ExecutionException
+						| InterruptedException e)
+				{
+					Logger.log(e);
+					return new Status(Status.ERROR, "unknown", Status.ERROR, e.getMessage(), e); //$NON-NLS-1$
+				}
+				catch (OperationCanceledException e)
+				{
+					Logger.log(e);
+					return Status.CANCEL_STATUS;
+				}
+
+				return Status.OK_STATUS;
+			}
+
+		};
+		job.schedule();
+		return null;
+	}
+
+	protected void printingProductInformationLog(ExecutionEvent event)
+			throws ExecutionException, OperationCanceledException, InterruptedException
+	{
+
 		if (!StringUtil.isEmpty(getPythonExecutablePath()) && !StringUtil.isEmpty(IDFUtil.getIDFPath()))
 		{
 			super.execute(event);
+			Job.getJobManager().join(Messages.ListInstalledToolsHandler_InstalledToolsListJobName, null);
 		}
 		else
 		{
 			activateIDFConsoleView();
 		}
+
 		showIDFEnvVars();
 		console.println();
 		console.println(Messages.OperatingSystemMsg + System.getProperty("os.name").toLowerCase()); //$NON-NLS-1$
 		console.println(Messages.JavaRuntimeVersionMsg
 				+ (Optional.ofNullable(System.getProperty("java.runtime.version")).orElse(Messages.NotFoundMsg))); //$NON-NLS-1$
-		console.println(Messages.EclipseMsg + (Optional.ofNullable(Platform.getBundle("org.eclipse.platform"))
+		console.println(Messages.EclipseMsg + (Optional.ofNullable(Platform.getBundle("org.eclipse.platform")) //$NON-NLS-1$
 				.map(o -> o.getVersion().toString()).orElse(Messages.NotFoundMsg))); // $NON-NLS-1$
-		console.println(Messages.EclipseCDTMsg + (Optional.ofNullable(Platform.getBundle("org.eclipse.cdt"))
+		console.println(Messages.EclipseCDTMsg + (Optional.ofNullable(Platform.getBundle("org.eclipse.cdt")) //$NON-NLS-1$
 				.map(o -> o.getVersion().toString()).orElse(Messages.NotFoundMsg))); // $NON-NLS-1$
-		console.println(Messages.IdfEclipseMsg + (Optional.ofNullable(Platform.getBundle("com.espressif.idf.branding"))
+		console.println(Messages.IdfEclipseMsg + (Optional.ofNullable(Platform.getBundle("com.espressif.idf.branding")) //$NON-NLS-1$
 				.map(o -> o.getVersion().toString()).orElse(Messages.NotFoundMsg))); // $NON-NLS-1$
 		showEspIdfVersion();
 		console.println(Messages.PythonIdfEnvMsg + (Optional
 				.ofNullable(getPythonExeVersion(IDFUtil.getIDFPythonEnvPath())).orElse(Messages.NotFoundMsg)));
-
-		return null;
 	}
 
 	private void showIDFEnvVars()
 	{
-		console.println("CDT Build environment variables");
+		console.println(Messages.ProductInformationHandler_CDTBuildEnvVariables);
 		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
-		for(Entry<String, String> entry : envMap.entrySet())
+		for (Entry<String, String> entry : envMap.entrySet())
 		{
 			String IDFEnvVarValue = entry.getValue();
 			IDFEnvVarValue = IDFEnvVarValue.isEmpty() ? Messages.NotFoundMsg : IDFEnvVarValue;
-			console.println(entry.getKey() + ": " + IDFEnvVarValue); // $NON-NLS-1$	
+			console.println(entry.getKey() + ": " + IDFEnvVarValue); //$NON-NLS-1$
 		}
 	}
 
