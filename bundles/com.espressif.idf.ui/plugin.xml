@@ -765,5 +765,18 @@
             file-extensions="md"
             file-names="README.md">
       </file-association>
+    </extension>
+    <extension
+         point="org.eclipse.ltk.core.refactoring.renameParticipants">
+      <renameParticipant
+            class="com.espressif.idf.ui.handlers.RenameIdfProjectParticipant"
+            id="com.espressif.idf.ui.renameIdfProjectParticipant"
+            name="renameIdfProject">
+         <enablement>
+            <instanceof
+                  value="org.eclipse.core.resources.IProject">
+            </instanceof>
+         </enablement>
+      </renameParticipant>
    </extension>
 </plugin>

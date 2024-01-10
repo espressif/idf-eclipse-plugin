@@ -36,10 +36,16 @@ import com.espressif.idf.core.util.StringUtil;
 public class LaunchBarListener implements ILaunchBarListener
 {
 	private static boolean jtagIgnored = false;
+	private static boolean targetChangeIgnored = false;
 
 	public static void setIgnoreJtagTargetChange(boolean status)
 	{
 		jtagIgnored = status;
+	}
+
+	public static void setIgnoreTargetChange(boolean status)
+	{
+		targetChangeIgnored = status;
 	}
 
 	@Override
@@ -51,7 +57,7 @@ public class LaunchBarListener implements ILaunchBarListener
 				{
 				String targetName = target.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
 						StringUtil.EMPTY);
-					if (!StringUtil.isEmpty(targetName))
+				if (!StringUtil.isEmpty(targetName) && (!targetChangeIgnored))
 					{
 						update(targetName);
 					}
