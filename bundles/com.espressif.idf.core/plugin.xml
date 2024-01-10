@@ -246,7 +246,7 @@ config-only component and an interface library is created instead."
   <extension point="com.espressif.idf.core.toolchain">
      <ToolChain
            arch="xtensa"
-           compilerPattern="xtensa-esp32-elf[\\/]+bin[\\/]+xtensa-esp32-elf-gcc(?:\.exe)?$"
+           compilerPattern="(?:xtensa-esp-elf|xtensa-esp32-elf)[\\/]+bin[\\/]+xtensa-esp32-elf-gcc(?:\.exe)?$"
            debuggerPattern="xtensa-esp32-elf-gdb(\.exe)?$"
            fileName="toolchain-esp32.cmake"
            id="xtensa-esp32-elf"
@@ -254,7 +254,7 @@ config-only component and an interface library is created instead."
      </ToolChain>
      <ToolChain
            arch="xtensa"
-           compilerPattern="xtensa-esp32s2-elf[\\/]+bin[\\/]+xtensa-esp32s2-elf-gcc(?:\.exe)?$"
+           compilerPattern="(?:xtensa-esp-elf|xtensa-esp32s2-elf)[\\/]+bin[\\/]+xtensa-esp32s2-elf-gcc(?:\.exe)?$"
            debuggerPattern="xtensa-esp32s2-elf-gdb(\.exe)?$"
            fileName="toolchain-esp32s2.cmake"
            id="xtensa-esp32s2-elf"
@@ -262,7 +262,7 @@ config-only component and an interface library is created instead."
      </ToolChain>
      <ToolChain
            arch="xtensa"
-           compilerPattern="xtensa-esp32s3-elf[\\/]+bin[\\/]+xtensa-esp32s3-elf-gcc(?:\.exe)?$"
+           compilerPattern="(?:xtensa-esp-elf|xtensa-esp32s3-elf)[\\/]+bin[\\/]+xtensa-esp32s3-elf-gcc(?:\.exe)?$"
            debuggerPattern="xtensa-esp32s3-elf-gdb(\.exe)?$"
            fileName="toolchain-esp32s3.cmake"
            id="xtensa-esp32s3-elf"
