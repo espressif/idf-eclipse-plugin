@@ -7,16 +7,14 @@ package com.espressif.idf.launch.serial.ui;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.variables.IDynamicVariable;
 import org.eclipse.core.variables.IDynamicVariableResolver;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 
-import com.espressif.idf.core.IDFConstants;
-import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFDynamicVariables;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.launch.serial.ui.internal.Activator;
 
@@ -48,8 +46,7 @@ public class BuildFolderVariableResolver implements IDynamicVariableResolver
 		if (mappedResources != null && mappedResources[0].getProject() != null)
 		{
 			IProject project = mappedResources[0].getProject();
-			String projectBuildFolder = project
-					.getPersistentProperty(new QualifiedName(IDFCorePlugin.PLUGIN_ID, IDFConstants.BUILD_DIR_PROPERTY));
+			String projectBuildFolder = IDFUtil.getBuildDir(project);
 			if (!StringUtil.isEmpty(projectBuildFolder))
 				buildFolder = projectBuildFolder;
 		}
