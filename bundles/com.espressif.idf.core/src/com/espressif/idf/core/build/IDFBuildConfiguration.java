@@ -145,6 +145,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	private IBuildConfiguration buildConfiguration;
 	private IProgressMonitor monitor;
 	public boolean isProgressSet;
+	private QualifiedName TIMESTAMP_COMPILE_COMMANDS_PROPERTY = new QualifiedName(null,
+			"timestamp:compile_commands.json"); //$NON-NLS-1$
 
 	public IDFBuildConfiguration(IBuildConfiguration config, String name) throws CoreException
 	{
@@ -900,7 +902,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	protected int getUpdateOptions()
 	{
 		return IIndexManager.UPDATE_CHECK_TIMESTAMPS | IIndexManager.UPDATE_UNRESOLVED_INCLUDES
-				| IIndexManager.UPDATE_EXTERNAL_FILES_FOR_PROJECT;
+				| IIndexManager.UPDATE_EXTERNAL_FILES_FOR_PROJECT | IIndexManager.FORCE_INDEX_INCLUSION;
 	}
 
 	@Override
@@ -1073,6 +1075,13 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 			// no build was run yet, nothing detected
 			try
 			{
+
+				// It is crucial to set this property to 0. Otherwise, the infoPerResource will persist as null for this
+				// configuration. This occurs when the property has been modified in another configuration within the
+				// same project.
+				getCompileCommandsJsonFile(new NullProgressMonitor()).getParent()
+						.setSessionProperty(TIMESTAMP_COMPILE_COMMANDS_PROPERTY, Long.valueOf(0));
+
 				processCompileCommandsFile(null, new NullProgressMonitor());
 			}
 			catch (CoreException e)
