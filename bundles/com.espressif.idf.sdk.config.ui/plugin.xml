@@ -68,7 +68,6 @@
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type
             base-type="org.eclipse.core.runtime.text"
-            describer="com.espressif.idf.sdk.config.core.SDKConfigContentDescriber"
             file-patterns="sdkconfig*"
             id="com.espressif.idf.sdk.config.ui.contenType"
             name="SDKConfig Files"
