@@ -74,15 +74,7 @@ public class JsonConfigServerRunnable implements Runnable
 
 	public boolean isAlive(Process p)
 	{
-		try
-		{
-			p.exitValue();
-			return false;
-		}
-		catch (IllegalThreadStateException e)
-		{
-			return true;
-		}
+		return p.isAlive();
 	}
 
 	public void run()

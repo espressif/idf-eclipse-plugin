@@ -8,6 +8,7 @@ import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.core.resources.IFile;
 
 import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.core.util.StringUtil;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -19,7 +20,9 @@ public class SDKConfigPropertyTester extends PropertyTester
 	@Override
 	public boolean test(Object receiver, String property, Object[] args, Object expectedValue)
 	{
-		if (receiver instanceof IFile && ((IFile) receiver).getName().equals(IDFConstants.SDKCONFIG_FILE_NAME))
+		boolean isIFile = receiver instanceof IFile;
+		String fileName = isIFile ? ((IFile) receiver).getName() : StringUtil.EMPTY;
+		if (fileName.startsWith(IDFConstants.SDKCONFIG_FILE_NAME))
 		{
 			return true;
 		}

@@ -57,6 +57,7 @@ import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
 import org.eclipse.ui.progress.IProgressService;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
@@ -249,7 +250,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		treeViewer = transfersTree.getViewer();
 
 		// Create the tree viewer as a child of the composite parent
-		treeViewer.setContentProvider(new ConfigContentProvider(project));
+		treeViewer.setContentProvider(new ConfigContentProvider(project, getFile()));
 		treeViewer.setLabelProvider(new ConfigLabelProvider());
 
 		treeViewer.setUseHashlookup(true);
@@ -335,6 +336,11 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		setPageText(index, Messages.SDKConfigurationEditor_Design);
 
 	}
+	
+	private IFile getFile()
+	{
+		return ((FileEditorInput) getEditorInput()).getFile();
+	}
 
 	/**
 	 * @return current project
@@ -362,7 +368,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		MessageConsoleStream console = new IDFConsole().getConsoleStream("JSON Configuration Server Console", null, false); //$NON-NLS-1$
 
 
-		configServer = ConfigServerManager.INSTANCE.getServer(project);
+		configServer = ConfigServerManager.INSTANCE.getServer(project, getFile());
 
 		// register the editor with the server to notify about the events
 		configServer.addListener(this);
@@ -444,7 +450,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		{
 			configServer.destroy();
 		}
-		ConfigServerManager.INSTANCE.deleteServer(project);
+		ConfigServerManager.INSTANCE.deleteServer(project, getFile());
 		super.dispose();
 	}
 

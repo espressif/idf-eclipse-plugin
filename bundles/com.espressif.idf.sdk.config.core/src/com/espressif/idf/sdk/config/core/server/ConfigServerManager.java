@@ -7,7 +7,9 @@ package com.espressif.idf.sdk.config.core.server;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 
 /**
@@ -17,16 +19,17 @@ import org.eclipse.core.resources.IProject;
 public class ConfigServerManager
 {
 	public static ConfigServerManager INSTANCE = new ConfigServerManager();
-	private Map<IProject, JsonConfigServer> jsonServermap = new HashMap<IProject, JsonConfigServer>();
+	private Map<ProjectFileMapKey, JsonConfigServer> jsonServermap = new HashMap<ProjectFileMapKey, JsonConfigServer>();
 
 	public void clearAll()
 	{
 		jsonServermap.clear();
 	}
 
-	public void deleteServer(IProject project)
+	public void deleteServer(IProject project, IFile file)
 	{
-		jsonServermap.remove(project);
+		ProjectFileMapKey projectFileMapKey = new ProjectFileMapKey(project, file);
+		jsonServermap.remove(projectFileMapKey);
 	}
 
 	/**
@@ -34,16 +37,48 @@ public class ConfigServerManager
 	 * @return
 	 * @throws IOException 
 	 */
-	public synchronized JsonConfigServer getServer(IProject project) throws IOException
-	{
-		JsonConfigServer jsonConfigServer = jsonServermap.get(project);
+	public synchronized JsonConfigServer getServer(final IProject project, final IFile file) throws IOException
+	{ 
+		ProjectFileMapKey projectFileMapKey = new ProjectFileMapKey(project, file);
+		
+		JsonConfigServer jsonConfigServer = jsonServermap.get(projectFileMapKey);
 		if (jsonConfigServer == null)
 		{
-			jsonConfigServer = new JsonConfigServer(project);
-			jsonServermap.put(project, jsonConfigServer);
+			jsonConfigServer = new JsonConfigServer(project, file);
+			jsonServermap.put(projectFileMapKey, jsonConfigServer);
 			jsonConfigServer.start();
+			return jsonConfigServer;
 		}
-
+		
 		return jsonConfigServer;
+	}
+	
+	
+	private class ProjectFileMapKey
+	{
+		private IProject project;
+		private IFile file;
+		
+		private ProjectFileMapKey(IProject project, IFile file)
+		{
+			this.file = file;
+			this.project = project;
+		}
+		
+		@Override
+	    public boolean equals(Object o) 
+		{
+	        if (this == o) return true;
+	        if (o == null || getClass() != o.getClass()) return false;
+	        ProjectFileMapKey that = (ProjectFileMapKey) o;
+	        
+	        return project.getName().equals(that.project.getName()) && file.getName().equals(that.file.getName());
+	    }
+		
+		@Override
+		public int hashCode()
+		{
+			return Objects.hash(project.getName(), file.getName());
+		}
 	}
 }

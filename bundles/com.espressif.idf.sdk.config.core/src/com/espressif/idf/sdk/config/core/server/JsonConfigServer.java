@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -38,12 +39,15 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 	private IProject project;
 	private JsonConfigServerRunnable runnable;
 	private JsonConfigOutput configOutput;
+	private Process process;
+	private IFile file;
 
-	public JsonConfigServer(IProject project)
+	public JsonConfigServer(IProject project, IFile file)
 	{
 		this.project = project;
 		listeners = new ArrayList<IMessageHandlerListener>();
 		configOutput = new JsonConfigOutput();
+		this.file = file;
 	}
 
 	@Override
@@ -103,7 +107,7 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 		try
 		{
 			arguments = new ArrayList<String>(Arrays.asList(pythonPath, idfPythonScriptFile.getAbsolutePath(), "-B", //$NON-NLS-1$
-					IDFUtil.getBuildDir(project), IDFConstants.CONF_SERVER_CMD));
+					IDFUtil.getBuildDir(project), "-DSDKCONFIG=".concat(file.getName()), IDFConstants.CONF_SERVER_CMD)); //$NON-NLS-1$
 		}
 		catch (CoreException e)
 		{
@@ -135,10 +139,11 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 		// redirect error stream to input stream
 		processBuilder.redirectErrorStream(true);
 
-		Process process = processBuilder.start();
+		process = processBuilder.start();
 		runnable = new JsonConfigServerRunnable(process, this);
 		Thread t = new Thread(runnable);
 		t.start();
+
 	}
 
 	public IJsonConfigOutput getOutput(String response, boolean isUpdate)
@@ -165,4 +170,8 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 		this.console = console;
 	}
 
+	public boolean isAlive()
+	{
+		return runnable.isAlive(process);
+	}
 }
