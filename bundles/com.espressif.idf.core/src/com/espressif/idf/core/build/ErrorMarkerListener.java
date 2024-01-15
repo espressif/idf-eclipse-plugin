@@ -29,16 +29,11 @@ import com.espressif.idf.core.logging.Logger;
  */
 public class ErrorMarkerListener implements IResourceChangeListener
 {
-	private static String IDF_PATH;
-
-	public ErrorMarkerListener()
-	{
-		IDF_PATH = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PATH);
-	}
 
 	@Override
 	public void resourceChanged(IResourceChangeEvent event)
 	{
+		String idfPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PATH);
 		boolean checkForMarkers = Platform.getPreferencesService().getBoolean(IDFCorePlugin.PLUGIN_ID,
 				IDFCorePreferenceConstants.HIDE_ERRORS_IDF_COMPONENTS,
 				IDFCorePreferenceConstants.HIDE_ERRORS_IDF_COMPONENTS_DEFAULT_STATUS, null);
@@ -57,13 +52,13 @@ public class ErrorMarkerListener implements IResourceChangeListener
 
 				IFile file = (IFile) delta.getMarker().getResource();
 				if (file.exists() && delta.getKind() == IResourceChangeEvent.POST_CHANGE
-						&& delta.getMarker().isSubtypeOf(IMarker.PROBLEM) && Integer.valueOf(
+						&& delta.getMarker().isSubtypeOf(IMarker.PROBLEM) && Integer.parseInt(
 								delta.getMarker().getAttribute(IMarker.SEVERITY).toString()) == IMarker.SEVERITY_ERROR)
 				{
 					if (file.isLinked(IResource.CHECK_ANCESTORS))
 					{
 						IPath originalPath = file.getRawLocation();
-						if (originalPath != null && originalPath.toOSString().startsWith(IDF_PATH))
+						if (originalPath != null && originalPath.toOSString().startsWith(idfPath))
 						{
 							// Scheduling marker cleanup job for the file
 							MarkerCleanupJob markerCleanupJob = new MarkerCleanupJob(file, delta.getMarker());
@@ -81,6 +76,7 @@ public class ErrorMarkerListener implements IResourceChangeListener
 
 	public void initialMarkerCleanup() throws CoreException
 	{
+		String idfPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PATH);
 		IMarker[] markers = ResourcesPlugin.getWorkspace().getRoot().findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
 		for (IMarker marker : markers)
 		{
@@ -91,7 +87,7 @@ public class ErrorMarkerListener implements IResourceChangeListener
 			if (file.isLinked(IResource.CHECK_ANCESTORS))
 			{
 				IPath originalPath = file.getRawLocation();
-				if (originalPath != null && originalPath.toOSString().startsWith(IDF_PATH))
+				if (originalPath != null && originalPath.toOSString().startsWith(idfPath))
 				{
 					// Scheduling marker cleanup job for the file
 					MarkerCleanupJob markerCleanupJob = new MarkerCleanupJob(file, marker);
