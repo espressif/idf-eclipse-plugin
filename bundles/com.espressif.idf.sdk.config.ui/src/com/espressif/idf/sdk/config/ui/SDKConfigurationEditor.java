@@ -190,6 +190,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			createErrorPage(errorMsg);
 			return;
 		}
+		
+		setPartName(getPartName() + " (" + getFile().getName() + ")"); //$NON-NLS-1$ //$NON-NLS-2$s
 
 		// 3. Build the UI
 		createDesignPage();
