@@ -31,6 +31,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: com.espressif.idf.core
 Bundle-ActivationPolicy: lazy
 Export-Package: com.espressif.idf.core,
+ com.espressif.idf.core.actions,
  com.espressif.idf.core.build,
  com.espressif.idf.core.logging,
  com.espressif.idf.core.resources,
@@ -53,4 +54,5 @@ Bundle-ClassPath: .,
  lib/commons-text-1.10.0.jar,
  lib/commons-compress-1.21.jar,
  lib/xz-1.9.jar
-Import-Package: org.eclipse.embedcdt.core
+Import-Package: org.eclipse.embedcdt.core,
+ org.eclipse.launchbar.ui.target

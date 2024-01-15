@@ -30,9 +30,7 @@ public class LaunchTargetNameUtil
 		ILaunchTarget[] targets = launchTargetManager
 				.getLaunchTargetsOfType("com.espressif.idf.launch.serial.core.serialFlashTarget"); //$NON-NLS-1$
 
-		return Stream.of(targets).filter(
-				target -> targetName.equals(target.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY)))
-				.findFirst().orElse(null);
+		return streamTargetsByName(targetName, targets).findFirst().orElse(null);
 	}
 
 	public static Optional<ILaunchTarget> findSuitableTargetForSelectedItem(ILaunchTargetManager launchTargetManager,
@@ -43,12 +41,17 @@ public class LaunchTargetNameUtil
 
 		String suitableSerialPort = getSerialPort(launchBarManager);
 
-		Stream<ILaunchTarget> launchTargetStream = Stream.of(targets).filter(target -> selectedItem
-				.equals(target.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY)));
+		Stream<ILaunchTarget> launchTargetStream = streamTargetsByName(selectedItem, targets);
 		return launchTargetStream
 				.filter(target -> suitableSerialPort
 						.equals(target.getAttribute(IDFLaunchConstants.ATTR_SERIAL_PORT, StringUtil.EMPTY)))
-				.findFirst().or(() -> launchTargetStream.findFirst());
+				.findFirst().or(() -> streamTargetsByName(selectedItem, targets).findFirst());
+	}
+
+	private static Stream<ILaunchTarget> streamTargetsByName(String selectedItem, ILaunchTarget[] targets)
+	{
+		return Stream.of(targets).filter(target -> selectedItem
+				.equals(target.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY)));
 	}
 
 	private static String getSerialPort(ILaunchBarManager launchBarManager)

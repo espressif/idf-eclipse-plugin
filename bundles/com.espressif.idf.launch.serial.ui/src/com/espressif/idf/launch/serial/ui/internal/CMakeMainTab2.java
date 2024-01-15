@@ -38,19 +38,14 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.window.Window;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
@@ -66,12 +61,12 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.json.simple.JSONArray;
 
 import com.espressif.idf.core.DefaultBoardProvider;
 import com.espressif.idf.core.IDFDynamicVariables;
+import com.espressif.idf.core.actions.ApplyTargetJob;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.DfuCommandsUtil;
@@ -84,7 +79,7 @@ import com.espressif.idf.ui.EclipseUtil;
 
 @SuppressWarnings("restriction")
 public class CMakeMainTab2 extends GenericMainTab {
-	private static final String LAUNCH_TARGET_NAME_ATTR = "com.espressif.idf.launch.serial.core.idfTarget"; //$NON-NLS-1$
+	private static final String LAUNCH_TARGET_ATTR = "LAUNCH_TARGET"; //$NON-NLS-1$
 	private static final int JOB_DELAY_MS = 100;
 	private static final String EMPTY_CONFIG_OPTIONS = "%s" + File.separator + "%s -s %s"; //$NON-NLS-1$ //$NON-NLS-2$
 	private Combo flashOverComboButton;
@@ -105,6 +100,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private Label dfuErrorLbl;
 	private Combo comboTargets;
 	private ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
+	private ILaunchTargetManager targetManager = Activator.getService(ILaunchTargetManager.class);
 
 	public enum FlashInterface {
 		UART, JTAG, DFU;
@@ -118,7 +114,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 	@Override
 	public void createControl(Composite parent) {
 		parent.addDisposeListener(event -> {
-			scheduleRevertTargetJob();
+			scheduleApplyTargetJob();
 		});
 
 		mainComposite = new Composite(parent, SWT.NONE);
@@ -276,8 +272,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 		comboTargets = new Combo(targetComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
 		comboTargets.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
 
-		ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
-		ILaunchTarget[] targets = launchTargetManager
+		ILaunchTarget[] targets = targetManager
 				.getLaunchTargetsOfType("com.espressif.idf.launch.serial.core.serialFlashTarget"); //$NON-NLS-1$
 		String[] targetsWithDfuSupport = Stream.of(targets).filter(DfuCommandsUtil::isTargetSupportDfu)
 				.map(ILaunchTarget::getId).toArray(String[]::new);
@@ -286,7 +281,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 			@Override
 			public void widgetSelected(SelectionEvent evt) {
-				ILaunchTarget selectedTarget = Stream.of(launchTargetManager.getLaunchTargets())
+				ILaunchTarget selectedTarget = Stream.of(targetManager.getLaunchTargets())
 						.filter(target -> target.getId().contentEquals(((Combo) evt.widget).getText())).findFirst()
 						.orElseGet(() -> null);
 				if (selectedTarget != null && dfuErrorLbl != null) {
@@ -574,7 +569,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	private void saveLaunchTargetName(ILaunchConfigurationWorkingCopy wc, String targetName) {
-		wc.setAttribute("LAUNCH_TARGET", targetName);
+		wc.setAttribute(LAUNCH_TARGET_ATTR, targetName);
 		LaunchTargetNameUtil.saveTargetName(targetName);
 	}
 
@@ -652,21 +647,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 			Logger.log(e);
 		}
 
-	}
-
-	private static void showNoTargetMessage(String selectedTarget) {
-		Display.getDefault().asyncExec(() -> {
-			boolean isYes = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
-					Messages.IDFLaunchTargetNotFoundIDFLaunchTargetNotFoundTitle,
-					Messages.IDFLaunchTargetNotFoundMsg1 + selectedTarget + Messages.IDFLaunchTargetNotFoundMsg2
-							+ Messages.IDFLaunchTargetNotFoundMsg3);
-			if (isYes) {
-				NewSerialFlashTargetWizard wizard = new NewSerialFlashTargetWizard();
-				WizardDialog dialog = new WizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-						wizard);
-				dialog.open();
-			}
-		});
 	}
 
 	private void initializeJtagComboFields(ILaunchConfiguration configuration) throws CoreException {
@@ -812,35 +792,9 @@ public class CMakeMainTab2 extends GenericMainTab {
 		}
 	}
 
-	private void scheduleRevertTargetJob() {
-		Job revertTargetJob = new Job(Messages.CMakeMainTab2_SettingTargetJob) {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				try {
-					if (launchBarManager.getActiveLaunchConfiguration() == null) {
-						return Status.CANCEL_STATUS;
-					}
-					//ADD this to util class and add comparing with active launch target by port
-					String targetName = launchBarManager.getActiveLaunchConfiguration().getAttribute("LAUNCH_TARGET",
-							StringUtil.EMPTY);
-					if (!targetName.isEmpty()) {
-						ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
-						Optional<ILaunchTarget> optSuitableTarget = LaunchTargetNameUtil
-								.findSuitableTargetForSelectedItem(launchTargetManager, launchBarManager, targetName);
-
-						if (optSuitableTarget.isPresent()) {
-							launchBarManager.setActiveLaunchTarget(optSuitableTarget.get());
-						} else {
-							showNoTargetMessage(targetName);
-						}
-					}
-					return Status.OK_STATUS;
-				} catch (CoreException e) {
-					Logger.log(e);
-					return Status.CANCEL_STATUS;
-				}
-			}
-		};
-		revertTargetJob.schedule(JOB_DELAY_MS);
+	private void scheduleApplyTargetJob() {
+		Job applyTargetJob = new ApplyTargetJob(launchBarManager, targetManager, LAUNCH_TARGET_ATTR,
+				new NewSerialFlashTargetWizard());
+		applyTargetJob.schedule(JOB_DELAY_MS);
 	}
 }
