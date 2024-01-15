@@ -40,6 +40,14 @@ Yes, you can create IDF CMake project using `File > New > Espressif IDF Project`
 Yes, you can import using Import Menu. `Import... > Espressif > Existing IDF Project`
 ## Where can I find the IDF installed tools in my system?
 Default directory is `$HOME/.espressif` for Linux/MacOS users or `%USER_PROFILE%.espressif` for Windows users
+## Why am I getting timeout errors when Installing tools?
+If you are getting errors when downloading or installing tools this can be due to some issue with the mirrors. You can try to set the mirrors in Eclipse `Preferences > Espressif` you will see two settings for Git and Pip Py Wheels please set these to proper mirror according to your region. Currently these two mirrors are available.
+### Mirror for GIT (IDF_GITHUB_ASSETS)
+- https://dl.espressif.com/github_assets (default)
+- https://dl.espressif.cn/github_assets
+### Mirror for python wheels (PIP_EXTRA_INDEX_URL)
+- https://dl.espressif.com/pypi (default)
+- https://dl.espressif.cn/pypi
 ## Deleted C/C++ build envrionment variables still appearing?
 - You need to uncheck the preference recorder. This can be performed by following. Eclipse `Preferences > Oomph > Setup Tasks > Preference Recorder`  
 - Uncheck `Record into`
