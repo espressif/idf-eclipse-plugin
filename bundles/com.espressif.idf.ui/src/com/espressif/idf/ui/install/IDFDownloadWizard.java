@@ -50,12 +50,8 @@ public class IDFDownloadWizard extends Wizard
 		{
 			String newIDFLocation = downloadPage.getExistingIDFLocation();
 			Logger.log("Setting IDF_PATH to :" + newIDFLocation); //$NON-NLS-1$
-			IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
-			String oldIdfPath = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH);
-			// Configure IDF_PATH
-			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, newIDFLocation);
-
-			showMessage(MessageFormat.format(Messages.IDFDownloadWizard_ConfigMessage, newIDFLocation), oldIdfPath);
+			showMessage(MessageFormat.format(Messages.IDFDownloadWizard_ConfigMessage, newIDFLocation),
+					new MessageResultCallback(newIDFLocation));
 
 		}
 		else
@@ -128,9 +124,8 @@ public class IDFDownloadWizard extends Wizard
 
 				// extracts file name from URL
 				String folderName = new File(url).getName().replace(".zip", ""); //$NON-NLS-1$ //$NON-NLS-2$
-				String existingIdfPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PATH);
-				configurePath(destinationLocation, folderName);
-				showMessage(MessageFormat.format(Messages.IDFDownloadWizard_DownloadCompleteMsg, folderName), existingIdfPath);
+				String newIdfPath = new File(destinationLocation, folderName).getAbsolutePath();
+				showMessage(MessageFormat.format(Messages.IDFDownloadWizard_DownloadCompleteMsg, folderName), new MessageResultCallback(newIdfPath));
 			}
 		}
 		catch (IOException e)
@@ -151,9 +146,8 @@ public class IDFDownloadWizard extends Wizard
 		try
 		{
 			gitBuilder.repositoryClone();
-			String existingIdfPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PATH);
-			configurePath(destinationLocation, "esp-idf"); //$NON-NLS-1$
-			showMessage(MessageFormat.format(Messages.IDFDownloadWizard_CloningCompletedMsg, version), existingIdfPath);
+			String newIdfPath = new File(destinationLocation, "esp-idf").getAbsolutePath(); //$NON-NLS-1$
+			showMessage(MessageFormat.format(Messages.IDFDownloadWizard_CloningCompletedMsg, version), new MessageResultCallback(newIdfPath));
 
 		}
 		catch (Exception e)
@@ -163,45 +157,21 @@ public class IDFDownloadWizard extends Wizard
 		}
 	}
 
-	private void configurePath(String destinationDir, String folderName)
-	{
-		String idf_path = new File(destinationDir, folderName).getAbsolutePath();
-		Logger.log("Setting IDF_PATH to:" + idf_path); //$NON-NLS-1$
-
-		// Configure IDF_PATH
-		new IDFEnvironmentVariables().addEnvVariable(IDFEnvironmentVariables.IDF_PATH,
-				new File(destinationDir, folderName).getAbsolutePath());
-	}
-
 	private void unZipFile(String downloadFile, String destinationLocation)
 	{
 		new ZipUtility().decompress(new File(downloadFile), new File(destinationLocation));
 	}
 
-	private void showMessage(final String message, String oldIdfPath)
+	private void showMessage(final String message, MessageResultCallback messageResultCallback)
 	{
 		Display.getDefault().asyncExec(new Runnable()
 		{
 			public void run()
 			{
-				boolean isYes = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
-						Messages.IDFDownloadWizard_MessageTitle, message);
-				if (isYes)
+				if (messageResultCallback != null)
 				{
-					InstallToolsHandler installToolsHandler = new InstallToolsHandler();
-					try
-					{
-						installToolsHandler.setCommandId("com.espressif.idf.ui.command.install"); //$NON-NLS-1$
-						installToolsHandler.execute(null);
-					}
-					catch (ExecutionException e)
-					{
-						Logger.log(e);
-					}
-				}
-				else 
-				{
-					new IDFEnvironmentVariables().addEnvVariable(IDFEnvironmentVariables.IDF_PATH, oldIdfPath);
+					messageResultCallback.handleResult(MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
+							Messages.IDFDownloadWizard_MessageTitle, message));
 				}
 			}
 		});
@@ -322,4 +292,33 @@ public class IDFDownloadWizard extends Wizard
 		return String.format("%.2f", (value / (1024 * 1024))) + " MB"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	
+	private class MessageResultCallback
+	{
+		private String newIdfPath;
+		
+		private MessageResultCallback(String newIdfPath)
+		{
+			this.newIdfPath = newIdfPath;
+		}
+		
+		void handleResult(boolean isYes)
+		{
+			IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+			if (isYes)
+			{
+				idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, newIdfPath);
+				InstallToolsHandler installToolsHandler = new InstallToolsHandler();
+				try
+				{
+					installToolsHandler.setCommandId("com.espressif.idf.ui.command.install"); //$NON-NLS-1$
+					installToolsHandler.execute(null);
+				}
+				catch (ExecutionException e)
+				{
+					Logger.log(e);
+				}
+			}
+		}
+	}
 }
