@@ -48,13 +48,14 @@ public class IDFDownloadWizard extends Wizard
 		boolean configureExistingEnabled = downloadPage.isConfigureExistingEnabled();
 		if (configureExistingEnabled)
 		{
-			String existingIDFLocation = downloadPage.getExistingIDFLocation();
-			Logger.log("Setting IDF_PATH to :" + existingIDFLocation); //$NON-NLS-1$
-
+			String newIDFLocation = downloadPage.getExistingIDFLocation();
+			Logger.log("Setting IDF_PATH to :" + newIDFLocation); //$NON-NLS-1$
+			IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+			String oldIdfPath = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH);
 			// Configure IDF_PATH
-			new IDFEnvironmentVariables().addEnvVariable("IDF_PATH", existingIDFLocation); //$NON-NLS-1$
+			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, newIDFLocation);
 
-			showMessage(MessageFormat.format(Messages.IDFDownloadWizard_ConfigMessage, existingIDFLocation));
+			showMessage(MessageFormat.format(Messages.IDFDownloadWizard_ConfigMessage, newIDFLocation), oldIdfPath);
 
 		}
 		else
@@ -127,9 +128,9 @@ public class IDFDownloadWizard extends Wizard
 
 				// extracts file name from URL
 				String folderName = new File(url).getName().replace(".zip", ""); //$NON-NLS-1$ //$NON-NLS-2$
-
+				String existingIdfPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PATH);
 				configurePath(destinationLocation, folderName);
-				showMessage(MessageFormat.format(Messages.IDFDownloadWizard_DownloadCompleteMsg, folderName));
+				showMessage(MessageFormat.format(Messages.IDFDownloadWizard_DownloadCompleteMsg, folderName), existingIdfPath);
 			}
 		}
 		catch (IOException e)
@@ -150,8 +151,9 @@ public class IDFDownloadWizard extends Wizard
 		try
 		{
 			gitBuilder.repositoryClone();
+			String existingIdfPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PATH);
 			configurePath(destinationLocation, "esp-idf"); //$NON-NLS-1$
-			showMessage(MessageFormat.format(Messages.IDFDownloadWizard_CloningCompletedMsg, version));
+			showMessage(MessageFormat.format(Messages.IDFDownloadWizard_CloningCompletedMsg, version), existingIdfPath);
 
 		}
 		catch (Exception e)
@@ -167,7 +169,7 @@ public class IDFDownloadWizard extends Wizard
 		Logger.log("Setting IDF_PATH to:" + idf_path); //$NON-NLS-1$
 
 		// Configure IDF_PATH
-		new IDFEnvironmentVariables().addEnvVariable("IDF_PATH", //$NON-NLS-1$
+		new IDFEnvironmentVariables().addEnvVariable(IDFEnvironmentVariables.IDF_PATH,
 				new File(destinationDir, folderName).getAbsolutePath());
 	}
 
@@ -176,7 +178,7 @@ public class IDFDownloadWizard extends Wizard
 		new ZipUtility().decompress(new File(downloadFile), new File(destinationLocation));
 	}
 
-	private void showMessage(final String message)
+	private void showMessage(final String message, String oldIdfPath)
 	{
 		Display.getDefault().asyncExec(new Runnable()
 		{
@@ -196,6 +198,10 @@ public class IDFDownloadWizard extends Wizard
 					{
 						Logger.log(e);
 					}
+				}
+				else 
+				{
+					new IDFEnvironmentVariables().addEnvVariable(IDFEnvironmentVariables.IDF_PATH, oldIdfPath);
 				}
 			}
 		});
