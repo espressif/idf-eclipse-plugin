@@ -235,8 +235,8 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 				.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.AUTOMATE_BUILD_HINTS_STATUS));
 		hideErrorsOnIdfComponentsBtn
 				.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.HIDE_ERRORS_IDF_COMPONENTS));
-		gitAssetsText.setText(getPreferenceStore().getString(IDFCorePreferenceConstants.IDF_GITHUB_ASSETS));
-		pythonWheelText.setText(getPreferenceStore().getString(IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL));
+		gitAssetsText.setText(getPreferenceStore().getDefaultString(IDFCorePreferenceConstants.IDF_GITHUB_ASSETS));
+		pythonWheelText.setText(getPreferenceStore().getDefaultString(IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL));
 	}
 
 	private void initializeDefaults()

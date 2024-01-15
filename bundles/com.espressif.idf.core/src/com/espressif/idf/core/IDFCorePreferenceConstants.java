@@ -28,7 +28,7 @@ public class IDFCorePreferenceConstants
 	public static final boolean AUTOMATE_BUILD_HINTS_DEFAULT_STATUS = true;
 	public static final boolean HIDE_ERRORS_IDF_COMPONENTS_DEFAULT_STATUS = true;
 	public static final String IDF_GITHUB_ASSETS = "IDF_GITHUB_ASSETS"; //$NON-NLS-1$
-	public static final String IDF_GITHUB_ASSETS_DEFAULT = "dl.espressif.com/github_assets"; //$NON-NLS-1$
+	public static final String IDF_GITHUB_ASSETS_DEFAULT = "https://dl.espressif.com/github_assets"; //$NON-NLS-1$
 	public static final String PIP_EXTRA_INDEX_URL = "PIP_EXTRA_INDEX_URL"; //$NON-NLS-1$
 	public static final String PIP_EXTRA_INDEX_URL_DEFAULT = "https://dl.espressif.com/pypi"; //$NON-NLS-1$
 	/**

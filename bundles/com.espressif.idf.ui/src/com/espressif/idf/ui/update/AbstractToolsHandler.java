@@ -36,7 +36,6 @@ import com.espressif.idf.core.util.PyWinRegistryReader;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.InputStreamConsoleThread;
-import com.espressif.idf.ui.UIPlugin;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -170,12 +169,12 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 			environment.put("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
 			
 			environment.put("IDF_GITHUB_ASSETS", //$NON-NLS-1$
-					Platform.getPreferencesService().getString(UIPlugin.PLUGIN_ID,
+					Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
 							IDFCorePreferenceConstants.IDF_GITHUB_ASSETS,
 							IDFCorePreferenceConstants.IDF_GITHUB_ASSETS_DEFAULT, null));
 			
 			environment.put("PIP_EXTRA_INDEX_URL", //$NON-NLS-1$
-					Platform.getPreferencesService().getString(UIPlugin.PLUGIN_ID,
+					Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
 							IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL,
 							IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL_DEFAULT, null));
 			
