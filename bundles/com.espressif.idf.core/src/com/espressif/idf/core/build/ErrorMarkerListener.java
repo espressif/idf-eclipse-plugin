@@ -4,16 +4,25 @@
  *******************************************************************************/
 package com.espressif.idf.core.build;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IMarkerDelta;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFCorePreferenceConstants;
@@ -39,6 +48,7 @@ public class ErrorMarkerListener implements IResourceChangeListener
 				IDFCorePreferenceConstants.HIDE_ERRORS_IDF_COMPONENTS_DEFAULT_STATUS, null);
 		if (!checkForMarkers)
 			return;
+		Set<IProject> projects = new HashSet<IProject>();
 
 		IMarkerDelta[] markerDeltas = event.findMarkerDeltas(IMarker.MARKER, true);
 		for (IMarkerDelta delta : markerDeltas)
@@ -51,6 +61,7 @@ public class ErrorMarkerListener implements IResourceChangeListener
 				}
 
 				IFile file = (IFile) delta.getMarker().getResource();
+				projects.add(file.getProject());
 				if (file.exists() && delta.getKind() == IResourceChangeEvent.POST_CHANGE
 						&& delta.getMarker().isSubtypeOf(IMarker.PROBLEM) && Integer.parseInt(
 								delta.getMarker().getAttribute(IMarker.SEVERITY).toString()) == IMarker.SEVERITY_ERROR)
@@ -72,18 +83,22 @@ public class ErrorMarkerListener implements IResourceChangeListener
 				Logger.log(e);
 			}
 		}
+		ProjectRefreshJob projectRefreshJob = new ProjectRefreshJob(projects);
+		projectRefreshJob.schedule();
 	}
 
 	public void initialMarkerCleanup() throws CoreException
 	{
 		String idfPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PATH);
 		IMarker[] markers = ResourcesPlugin.getWorkspace().getRoot().findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
+		Set<IProject> projects = new HashSet<IProject>();
 		for (IMarker marker : markers)
 		{
 			if (!(marker.getResource() instanceof IFile))
 				continue;
 			
 			IFile file = (IFile) marker.getResource();
+			projects.add(file.getProject());
 			if (file.isLinked(IResource.CHECK_ANCESTORS))
 			{
 				IPath originalPath = file.getRawLocation();
@@ -94,6 +109,35 @@ public class ErrorMarkerListener implements IResourceChangeListener
 					markerCleanupJob.schedule();
 				}
 			}
+		}
+		ProjectRefreshJob projectRefreshJob = new ProjectRefreshJob(projects);
+		projectRefreshJob.schedule();
+	}
+	
+	private class ProjectRefreshJob extends Job
+	{
+		private Set<IProject> projects;
+		private ProjectRefreshJob(Set<IProject> projects)
+		{
+			super(Messages.RefreshingProjects_JobName);
+			this.projects = projects;
+		}
+
+		@Override
+		protected IStatus run(IProgressMonitor monitor)
+		{
+			for(IProject project : projects)
+			{
+				try
+				{
+					project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+				}
+				catch (CoreException e)
+				{
+					Logger.log(e);
+				}
+			}
+			return Status.OK_STATUS;
 		}
 		
 	}
