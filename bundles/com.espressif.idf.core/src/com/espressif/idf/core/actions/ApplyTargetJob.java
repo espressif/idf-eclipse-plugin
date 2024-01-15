@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.util.LaunchTargetNameUtil;
+import com.espressif.idf.core.util.LaunchTargetHelper;
 import com.espressif.idf.core.util.StringUtil;
 
 public class ApplyTargetJob extends Job
@@ -50,7 +50,7 @@ public class ApplyTargetJob extends Job
 					StringUtil.EMPTY);
 			if (!targetName.isEmpty())
 			{
-				Optional<ILaunchTarget> optSuitableTarget = LaunchTargetNameUtil
+				Optional<ILaunchTarget> optSuitableTarget = LaunchTargetHelper
 						.findSuitableTargetForSelectedItem(targetManager, launchBarManager, targetName);
 
 				if (optSuitableTarget.isPresent())

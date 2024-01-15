@@ -71,7 +71,7 @@ import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.DfuCommandsUtil;
 import com.espressif.idf.core.util.EspConfigParser;
-import com.espressif.idf.core.util.LaunchTargetNameUtil;
+import com.espressif.idf.core.util.LaunchTargetHelper;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.core.variable.OpenocdDynamicVariable;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
@@ -570,7 +570,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 	private void saveLaunchTargetName(ILaunchConfigurationWorkingCopy wc, String targetName) {
 		wc.setAttribute(LAUNCH_TARGET_ATTR, targetName);
-		LaunchTargetNameUtil.saveTargetName(targetName);
+		LaunchTargetHelper.saveTargetName(targetName);
 	}
 
 	@Override

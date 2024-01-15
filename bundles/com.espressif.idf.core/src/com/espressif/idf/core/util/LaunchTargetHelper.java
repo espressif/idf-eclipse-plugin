@@ -11,7 +11,7 @@ import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 
-public class LaunchTargetNameUtil
+public class LaunchTargetHelper
 {
 	private static String lastSavedTargetName;
 

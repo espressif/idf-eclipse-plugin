@@ -37,7 +37,7 @@ import org.eclipse.swt.widgets.Text;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.build.IDFBuildConfigurationProvider;
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.util.LaunchTargetNameUtil;
+import com.espressif.idf.core.util.LaunchTargetHelper;
 import com.espressif.idf.core.util.RecheckConfigsHelper;
 import com.espressif.idf.core.util.StringUtil;
 
@@ -308,12 +308,12 @@ public class CMakeBuildTab2 extends CommonBuildTab
 		ILaunchTarget defaultTarget = super.getLaunchTarget();
 		ILaunchTargetManager launchTargetManager = IDFCorePlugin.getService(ILaunchTargetManager.class);
 
-		String targetName = LaunchTargetNameUtil.getLastTargetName()
+		String targetName = LaunchTargetHelper.getLastTargetName()
 				.orElseGet(() -> defaultTarget != null ? defaultTarget.getId() : StringUtil.EMPTY);
 
 		if (!targetName.isEmpty())
 		{
-			ILaunchTarget selectedTarget = LaunchTargetNameUtil.findLaunchTargetByName(launchTargetManager, targetName);
+			ILaunchTarget selectedTarget = LaunchTargetHelper.findLaunchTargetByName(launchTargetManager, targetName);
 			if (selectedTarget != null)
 			{
 				return selectedTarget;
