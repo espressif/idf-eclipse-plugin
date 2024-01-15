@@ -76,12 +76,11 @@ import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.DfuCommandsUtil;
 import com.espressif.idf.core.util.EspConfigParser;
+import com.espressif.idf.core.util.LaunchTargetNameUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.core.variable.OpenocdDynamicVariable;
-import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 import com.espressif.idf.ui.EclipseUtil;
-import com.espressif.idf.ui.LaunchBarListener;
 
 @SuppressWarnings("restriction")
 public class CMakeMainTab2 extends GenericMainTab {
@@ -118,10 +117,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 	@Override
 	public void createControl(Composite parent) {
-		LaunchBarListener.setIgnoreJtagTargetChange(true);
 		parent.addDisposeListener(event -> {
 			scheduleRevertTargetJob();
-			LaunchBarListener.setIgnoreJtagTargetChange(false);
 		});
 
 		mainComposite = new Composite(parent, SWT.NONE);
@@ -295,15 +292,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 				if (selectedTarget != null && dfuErrorLbl != null) {
 					dfuErrorLbl.setText(StringUtil.EMPTY);
 				}
-				if (selectedTarget != null) {
-					try {
-						launchBarManager.setActiveLaunchTarget(selectedTarget);
-					} catch (CoreException e) {
-						Logger.log(e);
-					}
-				}
 				updateLaunchConfigurationDialog();
-
 			}
 		});
 
@@ -560,6 +549,14 @@ public class CMakeMainTab2 extends GenericMainTab {
 			if (selectedProject != null) {
 				initializeCProject(selectedProject, wc);
 			}
+			if (!isFlashOverJtag && comboTargets.getSelectionIndex() != -1) {
+				saveLaunchTargetName(wc, comboTargets.getItem(comboTargets.getSelectionIndex()));
+			} else if (isFlashOverJtag) {
+				saveLaunchTargetName(wc, fTarget.getText());
+			} else {
+				saveLaunchTargetName(wc, getLaunchTarget());
+			}
+
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, fProjText.getText());
 			wc.setAttribute(IDFLaunchConstants.JTAG_FLASH_VOLTAGE, fFlashVoltage.getText());
 			wc.setAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, fTarget.getText());
@@ -574,6 +571,11 @@ public class CMakeMainTab2 extends GenericMainTab {
 		} catch (CoreException e) {
 			Logger.log(e);
 		}
+	}
+
+	private void saveLaunchTargetName(ILaunchConfigurationWorkingCopy wc, String targetName) {
+		wc.setAttribute("LAUNCH_TARGET", targetName);
+		LaunchTargetNameUtil.saveTargetName(targetName);
 	}
 
 	@Override
@@ -652,15 +654,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 	}
 
-	private void initializeJtagComboFields(ILaunchConfiguration configuration) throws CoreException {
-		fFlashVoltage
-				.setText(configuration.getAttribute(IDFLaunchConstants.JTAG_FLASH_VOLTAGE, fFlashVoltage.getText()));
-		fTarget.setText(configuration.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, fTarget.getText()));
-		fTarget.notifyListeners(SWT.Selection, null);
-		fTargetName.setText(configuration.getAttribute(IDFLaunchConstants.JTAG_BOARD, fTargetName.getText()));
-		fTargetName.notifyListeners(SWT.Selection, null);
-	}
-
 	private static void showNoTargetMessage(String selectedTarget) {
 		Display.getDefault().asyncExec(() -> {
 			boolean isYes = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
@@ -674,6 +667,15 @@ public class CMakeMainTab2 extends GenericMainTab {
 				dialog.open();
 			}
 		});
+	}
+
+	private void initializeJtagComboFields(ILaunchConfiguration configuration) throws CoreException {
+		fFlashVoltage
+				.setText(configuration.getAttribute(IDFLaunchConstants.JTAG_FLASH_VOLTAGE, fFlashVoltage.getText()));
+		fTarget.setText(configuration.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, fTarget.getText()));
+		fTarget.notifyListeners(SWT.Selection, null);
+		fTargetName.setText(configuration.getAttribute(IDFLaunchConstants.JTAG_BOARD, fTargetName.getText()));
+		fTargetName.notifyListeners(SWT.Selection, null);
 	}
 
 	private void createOpenOcdSetupComponent(Composite parent, String selectedTarget, EspConfigParser parser) {
@@ -707,55 +709,17 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					String updatedSelectedTarget = getLaunchTarget();
 					int selectedIndex = fTarget.getSelectionIndex();
 					String selectedItem = StringUtil.EMPTY;
 					if (selectedIndex != -1) {
 						selectedItem = fTarget.getItem(fTarget.getSelectionIndex());
 					}
 
-					if (!selectedItem.contentEquals(updatedSelectedTarget) && isFlashOverJtag) {
-						updateLaunchBar(selectedItem);
-					}
 					boardConfigsMap = parser.getBoardsConfigs(selectedItem);
 					fTargetName.setItems(parser.getBoardsConfigs(selectedItem).keySet().toArray(new String[0]));
 					fTargetName.select(
 							new DefaultBoardProvider().getIndexOfDefaultBoard(selectedItem, fTargetName.getItems()));
 					updateArgumentsField();
-				}
-
-				private void updateLaunchBar(String selectedItem) {
-					ILaunchTarget target = findSuitableTargetForSelectedItem(selectedItem);
-					try {
-						if (target != null) {
-							launchBarManager.setActiveLaunchTarget(target);
-						} else {
-							showNoTargetMessage(selectedItem);
-						}
-
-					} catch (CoreException e1) {
-						Logger.log(e1);
-					}
-				}
-
-				private ILaunchTarget findSuitableTargetForSelectedItem(String selectedItem) {
-					ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
-					ILaunchTarget[] targets = launchTargetManager
-							.getLaunchTargetsOfType("com.espressif.idf.launch.serial.core.serialFlashTarget"); //$NON-NLS-1$
-					ILaunchTarget suitableTarget = null;
-
-					for (ILaunchTarget target : targets) {
-						String idfTarget = target.getAttribute(LAUNCH_TARGET_NAME_ATTR, null);
-						String targetSerialPort = target.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT,
-								StringUtil.EMPTY);
-						if (idfTarget.contentEquals(selectedItem)) {
-							if (targetSerialPort.contentEquals(getSerialPort())) {
-								return target;
-							}
-							suitableTarget = target;
-						}
-					}
-					return suitableTarget;
 				}
 			});
 		}
@@ -816,19 +780,6 @@ public class CMakeMainTab2 extends GenericMainTab {
 		return selectedTarget;
 	}
 
-	private String getSerialPort() {
-
-		String serialPort = StringUtil.EMPTY;
-		try {
-			serialPort = launchBarManager.getActiveLaunchTarget()
-					.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, StringUtil.EMPTY);
-
-		} catch (CoreException e) {
-			Logger.log(e);
-		}
-		return serialPort;
-	}
-
 	@Override
 	protected void updateLocation(ILaunchConfiguration configuration) {
 		super.updateLocation(configuration);
@@ -869,18 +820,20 @@ public class CMakeMainTab2 extends GenericMainTab {
 					if (launchBarManager.getActiveLaunchConfiguration() == null) {
 						return Status.CANCEL_STATUS;
 					}
-
-					String targetName = launchBarManager.getActiveLaunchConfiguration()
-							.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, StringUtil.EMPTY);
+					//ADD this to util class and add comparing with active launch target by port
+					String targetName = launchBarManager.getActiveLaunchConfiguration().getAttribute("LAUNCH_TARGET",
+							StringUtil.EMPTY);
 					if (!targetName.isEmpty()) {
 						ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
-						ILaunchTarget selectedTarget = Stream
-								.of(launchTargetManager.getLaunchTargets()).filter(target -> target
-										.getAttribute(LAUNCH_TARGET_NAME_ATTR, StringUtil.EMPTY).equals(targetName))
-								.findFirst().orElseGet(() -> null);
-						launchBarManager.setActiveLaunchTarget(selectedTarget);
-					}
+						Optional<ILaunchTarget> optSuitableTarget = LaunchTargetNameUtil
+								.findSuitableTargetForSelectedItem(launchTargetManager, launchBarManager, targetName);
 
+						if (optSuitableTarget.isPresent()) {
+							launchBarManager.setActiveLaunchTarget(optSuitableTarget.get());
+						} else {
+							showNoTargetMessage(targetName);
+						}
+					}
 					return Status.OK_STATUS;
 				} catch (CoreException e) {
 					Logger.log(e);

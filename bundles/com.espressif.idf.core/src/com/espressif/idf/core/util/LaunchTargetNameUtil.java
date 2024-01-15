@@ -1,0 +1,71 @@
+package com.espressif.idf.core.util;
+
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.launchbar.core.ILaunchBarManager;
+import org.eclipse.launchbar.core.target.ILaunchTarget;
+import org.eclipse.launchbar.core.target.ILaunchTargetManager;
+
+import com.espressif.idf.core.build.IDFLaunchConstants;
+import com.espressif.idf.core.logging.Logger;
+
+public class LaunchTargetNameUtil
+{
+	private static String lastSavedTargetName;
+
+	public static void saveTargetName(String targetName)
+	{
+		lastSavedTargetName = targetName;
+	}
+
+	public static Optional<String> getLastTargetName()
+	{
+		return Optional.ofNullable(lastSavedTargetName);
+	}
+
+	public static ILaunchTarget findLaunchTargetByName(ILaunchTargetManager launchTargetManager, String targetName)
+	{
+		ILaunchTarget[] targets = launchTargetManager
+				.getLaunchTargetsOfType("com.espressif.idf.launch.serial.core.serialFlashTarget"); //$NON-NLS-1$
+
+		return Stream.of(targets).filter(
+				target -> targetName.equals(target.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY)))
+				.findFirst().orElse(null);
+	}
+
+	public static Optional<ILaunchTarget> findSuitableTargetForSelectedItem(ILaunchTargetManager launchTargetManager,
+			ILaunchBarManager launchBarManager, String selectedItem)
+	{
+		ILaunchTarget[] targets = launchTargetManager
+				.getLaunchTargetsOfType("com.espressif.idf.launch.serial.core.serialFlashTarget"); //$NON-NLS-1$
+
+		String suitableSerialPort = getSerialPort(launchBarManager);
+
+		Stream<ILaunchTarget> launchTargetStream = Stream.of(targets).filter(target -> selectedItem
+				.equals(target.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY)));
+		return launchTargetStream
+				.filter(target -> suitableSerialPort
+						.equals(target.getAttribute(IDFLaunchConstants.ATTR_SERIAL_PORT, StringUtil.EMPTY)))
+				.findFirst().or(() -> launchTargetStream.findFirst());
+	}
+
+	private static String getSerialPort(ILaunchBarManager launchBarManager)
+	{
+
+		String serialPort = StringUtil.EMPTY;
+		try
+		{
+			serialPort = launchBarManager.getActiveLaunchTarget().getAttribute(IDFLaunchConstants.ATTR_SERIAL_PORT,
+					StringUtil.EMPTY);
+
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+		return serialPort;
+	}
+
+}

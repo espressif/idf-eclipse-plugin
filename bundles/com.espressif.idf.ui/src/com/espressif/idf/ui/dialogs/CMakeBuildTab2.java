@@ -21,6 +21,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
+import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -36,6 +37,7 @@ import org.eclipse.swt.widgets.Text;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.build.IDFBuildConfigurationProvider;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.LaunchTargetNameUtil;
 import com.espressif.idf.core.util.RecheckConfigsHelper;
 import com.espressif.idf.core.util.StringUtil;
 
@@ -303,16 +305,33 @@ public class CMakeBuildTab2 extends CommonBuildTab
 	@Override
 	public ILaunchTarget getLaunchTarget()
 	{
-		ILaunchBarManager barManager = IDFCorePlugin.getService(ILaunchBarManager.class);
+		ILaunchTarget defaultTarget = super.getLaunchTarget();
+		ILaunchTargetManager launchTargetManager = IDFCorePlugin.getService(ILaunchTargetManager.class);
+
+		String targetName = LaunchTargetNameUtil.getLastTargetName()
+				.orElseGet(() -> defaultTarget != null ? defaultTarget.getId() : StringUtil.EMPTY);
+
+		if (!targetName.isEmpty())
+		{
+			ILaunchTarget selectedTarget = LaunchTargetNameUtil.findLaunchTargetByName(launchTargetManager, targetName);
+			if (selectedTarget != null)
+			{
+				return selectedTarget;
+			}
+		}
+
 		try
 		{
-			return barManager.getActiveLaunchTarget();
+			ILaunchTarget activeILaunchTarget = IDFCorePlugin.getService(ILaunchBarManager.class)
+					.getActiveLaunchTarget();
+			return (activeILaunchTarget != null) ? activeILaunchTarget : defaultTarget;
 		}
 		catch (CoreException e)
 		{
 			Logger.log(e);
 		}
-		return super.getLaunchTarget();
+
+		return defaultTarget;
 	}
 
 	@Override
