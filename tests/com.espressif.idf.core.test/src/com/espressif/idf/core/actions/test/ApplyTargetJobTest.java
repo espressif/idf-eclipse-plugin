@@ -125,7 +125,7 @@ class ApplyTargetJobTest
 	}
 
 	@Test
-	void run_whenCoreExceptionThrown_shouldReturnCancelStatusAndLogException() throws CoreException
+	void run_whenCoreExceptionThrown_shouldReturnCancelStatus() throws CoreException
 	{
 		IProgressMonitor monitor = mock(IProgressMonitor.class);
 		when(launchBarManager.getActiveLaunchConfiguration()).thenThrow(new CoreException(Status.CANCEL_STATUS));
