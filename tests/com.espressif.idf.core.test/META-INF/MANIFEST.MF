@@ -10,7 +10,8 @@ Require-Bundle: com.espressif.idf.core;bundle-version="1.0.1",
  junit-jupiter-api,
  org.junit,
  junit-jupiter-params,
- org.eclipse.launchbar.core
+ org.eclipse.launchbar.core,
+ org.eclipse.jface
 Bundle-ClassPath: .,
  lib/jmock-2.12.0.jar,
  lib/commons-collections4-4.4.jar,
@@ -75,6 +76,5 @@ Export-Package: com.espressif.idf.core.test,
 Import-Package: org.eclipse.core.runtime,
  org.eclipse.core.runtime.jobs,
  org.eclipse.core.variables,
- org.eclipse.jface.wizard,
  org.junit.jupiter.params,
  org.junit.jupiter.params.provider

@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2024-2025 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.core.actions;
 
 import org.eclipse.osgi.util.NLS;
