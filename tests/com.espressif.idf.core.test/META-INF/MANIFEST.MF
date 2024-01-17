@@ -75,5 +75,6 @@ Export-Package: com.espressif.idf.core.test,
 Import-Package: org.eclipse.core.runtime,
  org.eclipse.core.runtime.jobs,
  org.eclipse.core.variables,
+ org.eclipse.jface.wizard,
  org.junit.jupiter.params,
  org.junit.jupiter.params.provider

@@ -71,8 +71,9 @@ public class ApplyTargetJob extends Job
 		}
 	}
 
-	private void showNoTargetMessage(String selectedTarget)
+	protected void showNoTargetMessage(String selectedTarget)
 	{
+
 		Display.getDefault().asyncExec(() -> {
 			boolean isYes = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
 					Messages.IDFLaunchTargetNotFoundIDFLaunchTargetNotFoundTitle,
