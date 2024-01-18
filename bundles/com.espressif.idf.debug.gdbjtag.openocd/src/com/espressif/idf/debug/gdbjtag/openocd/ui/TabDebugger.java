@@ -26,27 +26,20 @@ package com.espressif.idf.debug.gdbjtag.openocd.ui;
 
 import java.io.File;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import org.eclipse.cdt.debug.gdbjtag.core.IGDBJtagConstants;
 import org.eclipse.cdt.debug.gdbjtag.ui.GDBJtagImages;
 import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.embedcdt.core.EclipseUtils;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.window.Window;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.launchbar.core.ILaunchBarManager;
-import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -63,18 +56,17 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.json.simple.JSONArray;
 
 import com.espressif.idf.core.DefaultBoardProvider;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.actions.ApplyTargetJob;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.EspConfigParser;
@@ -88,9 +80,7 @@ import com.espressif.idf.debug.gdbjtag.openocd.preferences.PersistentPreferences
 import com.espressif.idf.debug.gdbjtag.openocd.ui.preferences.GlobalMcuPage;
 import com.espressif.idf.debug.gdbjtag.openocd.ui.preferences.WorkspaceMcuPage;
 import com.espressif.idf.debug.gdbjtag.openocd.ui.properties.ProjectMcuPage;
-import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 import com.espressif.idf.launch.serial.ui.internal.NewSerialFlashTargetWizard;
-import com.espressif.idf.ui.LaunchBarListener;
 
 /**
  * @since 7.0
@@ -99,8 +89,6 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 {
 
 	// ------------------------------------------------------------------------
-
-	private static final String LAUNCH_TARGET_NAME_ATTR = "com.espressif.idf.launch.serial.core.idfTarget"; //$NON-NLS-1$
 	private static final int JOB_DELAY_MS = 100;
 	private static final String TAB_NAME = "Debugger"; //$NON-NLS-1$
 	private static final String TAB_ID = Activator.PLUGIN_ID + ".ui.debuggertab"; //$NON-NLS-1$
@@ -147,6 +135,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 	private PersistentPreferences fPersistentPreferences;
 
 	private ILaunchBarManager launchBarManager;
+	private final ILaunchTargetManager targetManager = Activator.getService(ILaunchTargetManager.class);
 
 	// ------------------------------------------------------------------------
 
@@ -181,12 +170,8 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			System.out.println("openocd.TabDebugger.createControl() "); //$NON-NLS-1$
 		}
 
-		LaunchBarListener.setIgnoreJtagTargetChange(true);
 		parent.addDisposeListener(event -> {
-			// TODO: find a better way to roll back target change in the launch bar when Cancel was pressed.
-			// We have to do like this because we don't have access to the cancel button
-			scheduleRevertTargetJob();
-			LaunchBarListener.setIgnoreJtagTargetChange(false);
+			scheduleApplyTargetJob();
 		});
 
 		if (!(parent instanceof ScrolledComposite))
@@ -257,39 +242,12 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 		});
 	}
 
-	private void scheduleRevertTargetJob()
+	private void scheduleApplyTargetJob()
 	{
-		Job revertTargetJob = new Job(Messages.TabDebugger_SettingTargetJob)
-		{
-			protected IStatus run(IProgressMonitor monitor)
-			{
-				try
-				{
-					if (launchBarManager.getActiveLaunchConfiguration() == null)
-					{
-						return Status.CANCEL_STATUS;
-					}
-					String targetName = launchBarManager.getActiveLaunchConfiguration()
-							.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, StringUtil.EMPTY);
-					if (!targetName.isEmpty())
-					{
-						ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
-						ILaunchTarget selectedTarget = Stream
-								.of(launchTargetManager.getLaunchTargets()).filter(target -> target
-										.getAttribute(LAUNCH_TARGET_NAME_ATTR, StringUtil.EMPTY).equals(targetName))
-								.findFirst().orElseGet(() -> null);
-						launchBarManager.setActiveLaunchTarget(selectedTarget);
-					}
-					return Status.OK_STATUS;
-				}
-				catch (CoreException e)
-				{
-					Logger.log(e);
-					return Status.CANCEL_STATUS;
-				}
-			}
-		};
-		revertTargetJob.schedule(JOB_DELAY_MS);
+		Job applyTargetJob = new ApplyTargetJob(launchBarManager, targetManager, IDFLaunchConstants.TARGET_FOR_JTAG,
+				new NewSerialFlashTargetWizard());
+
+		applyTargetJob.schedule(JOB_DELAY_MS);
 	}
 
 	private void browseButtonSelected(String title, Text text)
@@ -312,28 +270,6 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 		{
 			text.insert(dialog.getVariableExpression());
 		}
-	}
-
-	private static void showNoTargetMessage(String selectedTarget)
-	{
-		Display.getDefault().asyncExec(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				boolean isYes = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
-						Messages.IDFLaunchTargetNotFoundIDFLaunchTargetNotFoundTitle,
-						Messages.IDFLaunchTargetNotFoundMsg1 + selectedTarget + Messages.IDFLaunchTargetNotFoundMsg2
-								+ Messages.IDFLaunchTargetNotFoundMsg3);
-				if (isYes)
-				{
-					NewSerialFlashTargetWizard wizard = new NewSerialFlashTargetWizard();
-					WizardDialog dialog = new WizardDialog(
-							PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
-					dialog.open();
-				}
-			}
-		});
 	}
 
 	private void createGdbServerGroup(Composite parent)
@@ -504,64 +440,13 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 					@Override
 					public void widgetSelected(SelectionEvent e)
 					{
-						String updatedSelectedTarget = getLaunchTarget();
 						String selectedItem = fTarget.getText();
-						if (!selectedItem.contentEquals(updatedSelectedTarget))
-						{
-							updateLaunchBar(selectedItem);
-						}
 						fGdbClientExecutable.setText(IDFUtil.getXtensaToolchainExecutablePathByTarget(selectedItem));
 						boardConfigsMap = parser.getBoardsConfigs(selectedItem);
 						fTargetName.setItems(parser.getBoardsConfigs(selectedItem).keySet().toArray(new String[0]));
 						fTargetName.select(new DefaultBoardProvider().getIndexOfDefaultBoard(selectedItem,
 								fTargetName.getItems()));
 						fTargetName.notifyListeners(SWT.Selection, null);
-					}
-
-					private void updateLaunchBar(String selectedItem)
-					{
-						ILaunchTarget target = findSuitableTargetForSelectedItem(selectedItem);
-						try
-						{
-							if (target != null)
-							{
-								launchBarManager.setActiveLaunchTarget(target);
-							}
-							else
-							{
-								showNoTargetMessage(selectedItem);
-							}
-							IDFUtil.getXtensaToolchainExecutablePathByTarget(selectedItem);
-
-						}
-						catch (CoreException e1)
-						{
-							Logger.log(e1);
-						}
-					}
-
-					private ILaunchTarget findSuitableTargetForSelectedItem(String selectedItem)
-					{
-						ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
-						ILaunchTarget[] targets = launchTargetManager
-								.getLaunchTargetsOfType("com.espressif.idf.launch.serial.core.serialFlashTarget"); //$NON-NLS-1$
-						ILaunchTarget suitableTarget = null;
-
-						for (ILaunchTarget target : targets)
-						{
-							String idfTarget = target.getAttribute(LAUNCH_TARGET_NAME_ATTR, null);
-							String targetSerialPort = target
-									.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
-							if (idfTarget.contentEquals(selectedItem))
-							{
-								if (targetSerialPort.contentEquals(getSerialPort()))
-								{
-									return target;
-								}
-								suitableTarget = target;
-							}
-						}
-						return suitableTarget;
 					}
 				});
 				fTarget.setLayoutData(gd);
@@ -1643,36 +1528,6 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 		// Force thread update
 		configuration.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUGGER_UPDATE_THREADLIST_ON_SUSPEND,
 				DefaultPreferences.UPDATE_THREAD_LIST_DEFAULT);
-	}
-
-	private String getSerialPort()
-	{
-
-		String serialPort = ""; //$NON-NLS-1$
-		try
-		{
-			serialPort = launchBarManager.getActiveLaunchTarget()
-					.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
-
-		}
-		catch (CoreException e)
-		{
-			Logger.log(e);
-		}
-		return serialPort;
-	}
-
-	// Get Xtensa toolchain path based on the target configured for the project
-	private String getGdbClientExecutable(ILaunchConfiguration configuration)
-	{
-		// Find the project and current launch target configured
-		IProject project = null;
-		if (configuration != null)
-		{
-			project = EclipseUtils.getProjectByLaunchConfiguration(configuration);
-		}
-		String exePath = IDFUtil.getXtensaToolchainExecutablePath(project);
-		return StringUtil.isEmpty(exePath) ? StringUtil.EMPTY : exePath;
 	}
 
 	// ------------------------------------------------------------------------
