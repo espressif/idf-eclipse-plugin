@@ -31,8 +31,7 @@ public class LaunchTargetHelper
 
 	public static ILaunchTarget findLaunchTargetByName(ILaunchTargetManager launchTargetManager, String targetName)
 	{
-		ILaunchTarget[] targets = launchTargetManager
-				.getLaunchTargetsOfType("com.espressif.idf.launch.serial.core.serialFlashTarget"); //$NON-NLS-1$
+		ILaunchTarget[] targets = launchTargetManager.getLaunchTargetsOfType(IDFLaunchConstants.IDF_TARGET_TYPE);
 
 		return streamTargetsByName(targetName, targets).findFirst().orElse(null);
 	}
@@ -40,8 +39,7 @@ public class LaunchTargetHelper
 	public static Optional<ILaunchTarget> findSuitableTargetForSelectedItem(ILaunchTargetManager launchTargetManager,
 			ILaunchBarManager launchBarManager, String selectedItem)
 	{
-		ILaunchTarget[] targets = launchTargetManager
-				.getLaunchTargetsOfType("com.espressif.idf.launch.serial.core.serialFlashTarget"); //$NON-NLS-1$
+		ILaunchTarget[] targets = launchTargetManager.getLaunchTargetsOfType(IDFLaunchConstants.IDF_TARGET_TYPE);
 
 		String suitableSerialPort = getSerialPort(launchBarManager);
 

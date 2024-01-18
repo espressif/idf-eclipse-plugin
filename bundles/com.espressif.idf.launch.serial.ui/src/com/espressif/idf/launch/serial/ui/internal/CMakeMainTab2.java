@@ -272,8 +272,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 		comboTargets = new Combo(targetComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
 		comboTargets.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
 
-		ILaunchTarget[] targets = targetManager
-				.getLaunchTargetsOfType("com.espressif.idf.launch.serial.core.serialFlashTarget"); //$NON-NLS-1$
+		ILaunchTarget[] targets = targetManager.getLaunchTargetsOfType(IDFLaunchConstants.IDF_TARGET_TYPE);
 		String[] targetsWithDfuSupport = Stream.of(targets).filter(DfuCommandsUtil::isTargetSupportDfu)
 				.map(ILaunchTarget::getId).toArray(String[]::new);
 		comboTargets.setItems(targetsWithDfuSupport);
