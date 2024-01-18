@@ -432,7 +432,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 			watchProcess(consoleParsers, monitor);
 
 			final String isSkip = System.getProperty("skip.idf.components"); //$NON-NLS-1$
-			if (!Boolean.parseBoolean(isSkip))
+			if (!Boolean.parseBoolean(isSkip) && !monitor.isCanceled())
 			{ // no property defined
 				linkBuildComponents();
 			}
