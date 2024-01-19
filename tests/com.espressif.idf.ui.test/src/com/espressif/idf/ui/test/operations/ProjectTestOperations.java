@@ -504,7 +504,7 @@ public class ProjectTestOperations
 		SWTBotView consoleView = viewConsole("Espressif IDF Tools Console", bot);
 		consoleView.show();
 		consoleView.setFocus();
-		TestWidgetWaitUtility.waitUntilViewContains(bot, "Done", consoleView, 0);
+		TestWidgetWaitUtility.waitUntilViewContains(bot, "Done", consoleView, 5000);
 	}
 
 	public static void joinJobByName(String jobName)
