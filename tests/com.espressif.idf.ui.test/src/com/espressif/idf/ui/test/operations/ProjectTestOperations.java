@@ -21,8 +21,9 @@ import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarDropDownButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 
@@ -37,6 +38,8 @@ public class ProjectTestOperations
 {
 
 	private static final String DEFAULT_PROJECT_BUILD_WAIT_PROPERTY = "default.project.build.wait";
+
+	private static final Logger logger = LoggerFactory.getLogger(ProjectTestOperations.class);
 
 	/**
 	 * Build a project using the context menu by right clicking on the project
@@ -136,7 +139,7 @@ public class ProjectTestOperations
 					}
 					catch (InterruptedException e)
 					{
-						Logger.log(e);
+						logger.error(e.getMessage(), e);
 					}
 				}
 			}
@@ -261,7 +264,7 @@ public class ProjectTestOperations
 		shell.activate();
 		bot.tree().expandNode(category).select(subCategory);
 		bot.button("Finish").click(); // Finish for the project wizard from eclipse
-		
+
 		bot.textWithLabel("Project name:").setText(projectName);
 		bot.checkBox("Create a project using one of the templates").click();
 		SWTBotTreeItem templateItem = SWTBotTreeOperations.getTreeItem(bot.tree(), templatePath);
@@ -518,7 +521,7 @@ public class ProjectTestOperations
 			}
 			catch (InterruptedException e)
 			{
-				Logger.log(e);
+				logger.error(e.getMessage(), e);
 			}
 		}
 	}
