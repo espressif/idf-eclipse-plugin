@@ -152,7 +152,6 @@ public class ProjectTestOperations
 		if (projectItem != null)
 		{
 			projectItem.select();
-			projectItem.expand();
 			projectItem.getNode("build").expand();
 
 			boolean fileToBeAbsentItem = isFileAbsent(projectItem.getNode("build"), ".elf");
@@ -172,7 +171,6 @@ public class ProjectTestOperations
 		if (projectItem != null)
 		{
 			projectItem.select();
-			projectItem.expand();
 			projectItem.getNode("build").expand();
 
 			boolean fileToBeAbsentItem = isFileAbsent(projectItem.getNode("build"), ".elf");
@@ -504,7 +502,7 @@ public class ProjectTestOperations
 		SWTBotView consoleView = viewConsole("Espressif IDF Tools Console", bot);
 		consoleView.show();
 		consoleView.setFocus();
-		TestWidgetWaitUtility.waitUntilViewContains(bot, "Done", consoleView, 5000);
+		TestWidgetWaitUtility.waitUntilViewContains(bot, "Done", consoleView, 0);
 	}
 
 	public static void joinJobByName(String jobName)
