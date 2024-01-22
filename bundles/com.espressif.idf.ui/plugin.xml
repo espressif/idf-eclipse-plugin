@@ -507,6 +507,21 @@
       <handler
             commandId="com.espressif.idf.ui.appLvlTracing">
       </handler>
+      <handler
+            class="com.espressif.idf.ui.handlers.StopLaunchBuildHandler"
+            commandId="org.eclipse.launchbar.ui.command.stop">
+         <activeWhen>
+            <with
+                  variable="activeContexts">
+               <iterate
+                     operator="or">
+                  <equals
+                        value="com.espressif.idf.ui.espLaunchScope">
+                  </equals>
+               </iterate>
+            </with>
+         </activeWhen>
+      </handler>
    </extension>
    	<extension point="org.eclipse.ui.preferencePages">
   	<page
@@ -779,4 +794,11 @@
          </enablement>
       </renameParticipant>
    </extension>
+    <extension
+          point="org.eclipse.ui.contexts">
+       <context
+             id="com.espressif.idf.ui.espLaunchScope"
+             name="Espressif Launch Scope">
+       </context>
+    </extension>
 </plugin>
