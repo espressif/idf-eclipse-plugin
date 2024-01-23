@@ -274,11 +274,10 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 					if (!targetName.isEmpty())
 					{
 						ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
-						ILaunchTarget selectedTarget = Stream.of(launchTargetManager.getLaunchTargets())
-								.filter(target -> target.getAttribute(LAUNCH_TARGET_NAME_ATTR,
-										StringUtil.EMPTY).equals(targetName))
-								.findFirst()
-								.orElseGet(() -> null);
+						ILaunchTarget selectedTarget = Stream
+								.of(launchTargetManager.getLaunchTargets()).filter(target -> target
+										.getAttribute(LAUNCH_TARGET_NAME_ATTR, StringUtil.EMPTY).equals(targetName))
+								.findFirst().orElseGet(() -> null);
 						launchBarManager.setActiveLaunchTarget(selectedTarget);
 					}
 					return Status.OK_STATUS;
@@ -476,7 +475,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 				GridData gd = new GridData();
 				gd.widthHint = 80;
 				gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
-				fFlashVoltage = new Combo(comp, SWT.SINGLE | SWT.BORDER);
+				fFlashVoltage = new Combo(comp, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
 				fFlashVoltage.setItems(parser.getEspFlashVoltages().toArray(new String[0]));
 				fFlashVoltage.setText("default"); //$NON-NLS-1$
 
@@ -497,7 +496,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 				GridData gd = new GridData();
 				gd.widthHint = 80;
 				gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
-				fTarget = new Combo(comp, SWT.SINGLE | SWT.BORDER);
+				fTarget = new Combo(comp, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
 				fTarget.setItems(parser.getTargets().toArray(new String[0]));
 				fTarget.setText(selectedTarget);
 				fTarget.addSelectionListener(new SelectionAdapter()
@@ -550,8 +549,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 						for (ILaunchTarget target : targets)
 						{
-							String idfTarget = target.getAttribute(LAUNCH_TARGET_NAME_ATTR,
-									null);
+							String idfTarget = target.getAttribute(LAUNCH_TARGET_NAME_ATTR, null);
 							String targetSerialPort = target
 									.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
 							if (idfTarget.contentEquals(selectedItem))
@@ -576,7 +574,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 				GridData gd = new GridData();
 				gd.widthHint = 250;
 				gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
-				fTargetName = new Combo(comp, SWT.SINGLE | SWT.BORDER);
+				fTargetName = new Combo(comp, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
 				fTargetName.setItems(parser.getBoardsConfigs(selectedTarget).keySet().toArray(new String[0]));
 				boardConfigsMap = parser.getBoardsConfigs(selectedTarget);
 
@@ -1344,25 +1342,25 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			hasContent = true;
 			if (fGdbServerExecutable != null && fGdbServerExecutable.getText().trim().isEmpty())
 			{
-				setErrorMessage("GDB server executable path?"); //$NON-NLS-1$
+				setErrorMessage(Messages.TabDebugger_noGdbServerExe);
 				result = false;
 			}
 
 			if (fGdbServerGdbPort != null && fGdbServerGdbPort.getText().trim().isEmpty())
 			{
-				setErrorMessage("GDB port?"); //$NON-NLS-1$
+				setErrorMessage(Messages.TabDebugger_noGdbPort);
 				result = false;
 			}
 
 			if (fGdbServerTelnetPort != null && fGdbServerTelnetPort.getText().trim().isEmpty())
 			{
-				setErrorMessage("Telnet port?"); //$NON-NLS-1$
+				setErrorMessage(Messages.TabDebugger_noTelnetPort);
 				result = false;
 			}
 
 			if (fGdbServerTclPort != null && fGdbServerTclPort.getText().trim().isEmpty())
 			{
-				setErrorMessage("Tcl port?"); //$NON-NLS-1$
+				setErrorMessage(Messages.TabDebugger_noTclPort);
 				result = false;
 			}
 		}
@@ -1374,8 +1372,14 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			if (fGdbClientExecutable != null && fGdbClientExecutable.getText().trim().isEmpty())
 			{
 				result = false;
-				setErrorMessage("GDB client executable name?"); //$NON-NLS-1$
+				setErrorMessage(Messages.TabDebugger_noGdbClientExe);
 			}
+		}
+
+		if (fGdbServerOtherOptions != null && fGdbServerOtherOptions.getText().trim().isEmpty())
+		{
+			result = false;
+			setErrorMessage(Messages.TabDebugger_noConfigOptions);
 		}
 
 		if (Activator.getInstance().isDebugging())
