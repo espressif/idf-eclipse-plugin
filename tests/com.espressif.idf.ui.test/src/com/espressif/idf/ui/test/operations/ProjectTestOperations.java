@@ -495,6 +495,15 @@ public class ProjectTestOperations
 			projectItem.select();
 			projectItem.contextMenu(contextMenuLabel).click();
 		}
+		try
+		{
+			Thread.sleep(2000);
+		}
+		catch (InterruptedException e)
+		{
+			logger.error(e.getMessage(), e);
+		}
+
 	}
 
 	public static void waitForProjectClean(SWTWorkbenchBot bot) throws IOException
