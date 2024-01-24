@@ -16,6 +16,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
@@ -32,6 +33,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
+import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.handlers.Messages;
 import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
 import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
@@ -330,9 +333,10 @@ public class NewEspressifIDFProjectTest
 
 		private static void checkPythonCLeanCommandDeleteFolder() throws IOException
 		{
-			String pathtoexe = System.getProperty("user.home");
-			Path p = Paths.get(pathtoexe + "\\esp-idf\\tools\\__pycache__");
-			String folderPATH = p.toAbsolutePath().toString();
+			String pychache = IDFUtil.getIDFPath() + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
+					+ "__pychache__";
+			Path pycachePath = Paths.get(pychache);
+			String folderPATH = pycachePath.toAbsolutePath().toString();
 			File folder = new File(folderPATH);
 			assertTrue(ProjectTestOperations.checkFolderExistanceAfterPythonClean(folder));
 		}
@@ -469,8 +473,6 @@ public class NewEspressifIDFProjectTest
 		{
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "ESP-IDF: Python Clean");
 			ProjectTestOperations.joinJobByName(Messages.PythonCleanCommandHandler_RunningPythonCleanJobName);
-			ProjectTestOperations.waitForProjectClean(bot);
-			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
 		}
 
 		private static void checkIfProjectCleanedFilesInBuildFolder() throws IOException
