@@ -108,6 +108,12 @@
             id="com.espressif.idf.ui.command.managetoolsinstallation"
             name="%command.name.15">
       </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.tools.ManageEspIdfVersionsHandler"
+            description="Manage ESP-IDF Versions"
+            id="com.espressif.idf.ui.espidfmanager"
+            name="ESP-IDF Manager">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -160,6 +166,11 @@
             </command>
             <command
                   commandId="com.espressif.idf.ui.command.managetoolsinstallation"
+                  icon="icons/ESP-IDFManageToolsInstallation.png"
+                  style="push">
+            </command>
+            <command
+                  commandId="com.espressif.idf.ui.espidfmanager"
                   icon="icons/ESP-IDFManageToolsInstallation.png"
                   style="push">
             </command>
@@ -710,6 +721,13 @@
             icon="icons/ESP-IDF_InstallComponents.png"
             id="com.espressif.idf.ui.installComponents"
             name="%editor.name.1">
+      </editor>
+      <editor
+            class="com.espressif.idf.ui.tools.manager.ESPIDFManagerEditor"
+            default="false"
+            icon="icons/ESP-IDFManageToolsInstallation.png"
+            id="com.espressif.idf.ui.manageespidf"
+            name="ESP-IDF: Manager">
       </editor>
    </extension>
    <extension
