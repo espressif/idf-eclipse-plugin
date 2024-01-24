@@ -39,13 +39,9 @@ public class ExportIDFTools
 	 * @param console       Console stream to write messages
 	 * @param errorConsoleStream
 	 */
-	public IStatus runToolsExport(final String pythonExePath, final String gitExePath, final MessageConsoleStream console, MessageConsoleStream errorConsoleStream)
+	public IStatus runToolsExportAndProcessOutput(final String pythonExePath, final String gitExePath, final MessageConsoleStream console, MessageConsoleStream errorConsoleStream)
 	{
-		final List<String> arguments = new ArrayList<>();
-		arguments.add(pythonExePath);
-		arguments.add(IDFUtil.getIDFToolsScriptFile().getAbsolutePath());
-		arguments.add(IDFConstants.TOOLS_EXPORT_CMD);
-		arguments.add(IDFConstants.TOOLS_EXPORT_CMD_FORMAT_VAL);
+		final List<String> arguments = getExportCommand(pythonExePath);
 
 		final String cmd = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments); //$NON-NLS-1$
 		log(cmd, console);
@@ -84,7 +80,56 @@ public class ExportIDFTools
 			return IDFCorePlugin.errorStatus(e1.getMessage(), e1);
 		}
 	}
+	
+	public IStatus getToolsExportOutput(final String pythonExePath, final String gitExePath, final MessageConsoleStream console, MessageConsoleStream errorConsoleStream)
+	{
+		final List<String> arguments = getExportCommand(pythonExePath);
 
+		final String cmd = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments); //$NON-NLS-1$
+		log(cmd, console);
+
+		final Map<String, String> environment = new HashMap<>(System.getenv());
+		if (gitExePath != null)
+		{
+			addGitToEnvironment(environment, gitExePath);
+		}
+		final ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
+		try
+		{
+			final IStatus status = processRunner.runInBackground(arguments, Path.ROOT, environment);
+			if (status == null)
+			{
+				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
+				return IDFCorePlugin.errorStatus("Status can't be null", null); //$NON-NLS-1$
+			}
+			
+			if (status.getSeverity() == IStatus.ERROR)
+			{
+				log(status.getException() != null ? status.getException().getMessage() : status.getMessage(), errorConsoleStream);
+				return status;				
+			}
+			
+			final String exportCmdOp = status.getMessage();
+			log(exportCmdOp, console);
+			return status;
+		}
+		catch (IOException e)
+		{
+			Logger.log(IDFCorePlugin.getPlugin(), e);
+			return IDFCorePlugin.errorStatus(e.getMessage(), e);
+		}
+	}
+
+	private List<String> getExportCommand(String pythonExePath)
+	{
+		final List<String> arguments = new ArrayList<>();
+		arguments.add(pythonExePath);
+		arguments.add(IDFUtil.getIDFToolsScriptFile().getAbsolutePath());
+		arguments.add(IDFConstants.TOOLS_EXPORT_CMD);
+		arguments.add(IDFConstants.TOOLS_EXPORT_CMD_FORMAT_VAL);
+		return arguments;
+	}
+	
 	private void log(final String cmd, final MessageConsoleStream console)
 	{
 		Logger.log(cmd);

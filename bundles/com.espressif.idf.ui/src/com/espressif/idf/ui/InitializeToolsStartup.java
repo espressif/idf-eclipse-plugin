@@ -165,7 +165,7 @@ public class InitializeToolsStartup implements IStartup
 				if (!StringUtil.isEmpty(pythonExecutablePath) && !StringUtil.isEmpty(gitExecutablePath))
 				{
 					ExportIDFTools exportIDFTools = new ExportIDFTools();
-					exportIDFTools.runToolsExport(pythonExecutablePath, gitExecutablePath, null, null);
+					exportIDFTools.runToolsExportAndProcessOutput(pythonExecutablePath, gitExecutablePath, null, null);
 
 					// Configure toolchains
 					new ESPToolChainManager().configureToolChain();
