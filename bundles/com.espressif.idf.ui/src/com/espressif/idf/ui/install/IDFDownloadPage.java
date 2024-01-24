@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.WizardPage;
@@ -28,6 +29,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
@@ -35,8 +37,10 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.IDFVersion;
 import com.espressif.idf.core.IDFVersionsReader;
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
 
@@ -46,18 +50,27 @@ import com.espressif.idf.ui.UIPlugin;
  */
 public class IDFDownloadPage extends WizardPage
 {
-
+	private static final int GIT_TOOL = 0;
+	private static final int PYTHON_TOOL = 1;
+	
 	private Combo versionCombo;
 	private Map<String, IDFVersion> versionsMap;
 	private Text directoryTxt;
 	private Button fileSystemBtn;
 	private Text existingIdfDirTxt;
 	private Button browseBtn;
+	
+	private Text gitText;
+	private Text pythonText;
+	
+	private String pythonExecutablePath;
+	private String gitExecutablePath;
 
 	protected IDFDownloadPage(String pageName)
 	{
 		super(pageName);
 		setImageDescriptor(UIPlugin.getImageDescriptor(Messages.IDFDownloadPage_0));
+		getPythonExecutablePath();
 	}
 
 	@Override
@@ -71,6 +84,8 @@ public class IDFDownloadPage extends WizardPage
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		createExistingComposite(composite);
+		
+		createGitPythonComposite(composite);
 
 		// esp-idf version selection group
 		Group versionGrp = new Group(composite, SWT.NONE);
@@ -109,6 +124,44 @@ public class IDFDownloadPage extends WizardPage
 
 		setControl(composite);
 		setPageComplete(false);
+	}
+
+	private void createGitPythonComposite(Composite parent)
+	{
+		Group gitPyGroup = new Group(parent, SWT.SHADOW_ETCHED_IN);
+
+		final int numColumns = 3;
+		GridLayout gridLayout = new GridLayout(numColumns, false);
+		gitPyGroup.setLayout(gridLayout);
+
+		Label gitLabel = new Label(gitPyGroup, SWT.NONE);
+		gitLabel.setText(Messages.GitLabel);
+
+		gitText = new Text(gitPyGroup, SWT.SINGLE | SWT.BORDER);
+		gitText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		gitExecutablePath = IDFUtil.getGitExecutablePathFromSystem();
+
+		gitText.setText(gitExecutablePath);
+		gitText.addModifyListener(new ModifyTextValidationListener(GIT_TOOL));
+
+		Button gitBrowseButton = new Button(gitPyGroup, SWT.PUSH);
+		gitBrowseButton.setText(Messages.BrowseButton);
+		gitBrowseButton.addSelectionListener(new BrowseButtonSelectionAdapter(gitText, GIT_TOOL));
+
+		if (StringUtil.isEmpty(pythonExecutablePath))
+		{
+			pythonExecutablePath = getPythonExecutablePath();
+		}
+
+		Label pythonLabel = new Label(gitPyGroup, SWT.NONE);
+		pythonLabel.setText(Messages.PythonLabel);
+		pythonText = new Text(gitPyGroup, SWT.SINGLE | SWT.BORDER);
+		pythonText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		pythonText.setText(pythonExecutablePath);
+		pythonText.addModifyListener(new ModifyTextValidationListener(PYTHON_TOOL));
+		Button pythonBrowseButton = new Button(gitPyGroup, SWT.PUSH);
+		pythonBrowseButton.setText(Messages.BrowseButton);
+		pythonBrowseButton.addSelectionListener(new BrowseButtonSelectionAdapter(pythonText, PYTHON_TOOL));
 	}
 
 	private void createExistingComposite(Composite parent)
@@ -237,6 +290,11 @@ public class IDFDownloadPage extends WizardPage
 
 	}
 
+	private String getPythonExecutablePath()
+	{
+		return IDFUtil.getPythonExecutable();
+	}
+	
 	private void createLinkArea(Composite parent)
 	{
 		Link link = new Link(parent, SWT.NONE);
@@ -270,6 +328,31 @@ public class IDFDownloadPage extends WizardPage
 		});
 	}
 
+	private boolean validateGitAndPython()
+	{
+		if (StringUtil.isEmpty(pythonExecutablePath) || StringUtil.isEmpty(gitExecutablePath))
+		{
+			setErrorMessage("Python & Git are Required");
+			return false;
+		}
+
+		File file = new File(gitExecutablePath);
+		if (!file.exists())
+		{
+			setErrorMessage("Git executable not found");
+			return false;
+		}
+
+		file = new File(pythonExecutablePath);
+		if (!file.exists())
+		{
+			setErrorMessage("Python executable not found");
+			return false;
+		}
+		
+		return true;
+	}
+	
 	private void validate()
 	{
 		if (fileSystemBtn.getSelection())
@@ -278,6 +361,7 @@ public class IDFDownloadPage extends WizardPage
 			if (StringUtil.isEmpty(idfPath))
 			{
 				setPageComplete(false);
+				setErrorMessage("IDF Directory is Required");
 				return;
 			}
 			
@@ -302,13 +386,21 @@ public class IDFDownloadPage extends WizardPage
 				setPageComplete(false);
 				return;
 			}
-			
-			setPageComplete(true);
-			setErrorMessage(null);
-			setMessage(Messages.IDFDownloadPage_ClickOnFinish + idfPath);
+			if (validateGitAndPython())
+			{
+				setPageComplete(true);
+				setErrorMessage(null);
+				setMessage(Messages.IDFDownloadPage_ClickOnFinish + idfPath);
+			}
+			else
+			{
+				setPageComplete(false);
+			}
 		}
 		else
 		{
+			setMessage(StringUtil.EMPTY);
+			setErrorMessage(null);
 			boolean supportSpaces = false;
 			if (versionCombo.getText().contentEquals("master")) //$NON-NLS-1$
 			{
@@ -333,11 +425,17 @@ public class IDFDownloadPage extends WizardPage
 				return;
 			}
 
-			setPageComplete(true);
-			setErrorMessage(null);
-			setMessage(Messages.IDFDownloadPage_ClickFinishToDownload);
+			if (validateGitAndPython())
+			{
+				setPageComplete(true);
+				setErrorMessage(null);
+				setMessage(Messages.IDFDownloadPage_ClickFinishToDownload);
+			}
+			else 
+			{
+				setPageComplete(false);
+			}
 		}
-		
 	}
 
 	protected IDFVersion Version()
@@ -380,4 +478,109 @@ public class IDFDownloadPage extends WizardPage
 		});
 	}
 
+	public String getPythonExePath()
+	{
+		return pythonExecutablePath;
+	}
+
+	public String getGitExecutablePath()
+	{
+		return gitExecutablePath;
+	}
+
+	private class BrowseButtonSelectionAdapter extends SelectionAdapter
+	{
+		private Text linkedText;
+		private int dialog;
+		private static final String GIT_FILE = "git"; //$NON-NLS-1$
+		private static final String PYTHON_FILE = "python"; //$NON-NLS-1$
+		private static final String WINDOWS_EXTENSION = ".exe"; //$NON-NLS-1$
+
+		private BrowseButtonSelectionAdapter(Text text, int dialog)
+		{
+			this.linkedText = text;
+			this.dialog = dialog;
+		}
+
+		@Override
+		public void widgetSelected(SelectionEvent selectionEvent)
+		{
+			FileDialog dlg = null;
+			if (dialog == GIT_TOOL)
+			{
+				dlg = gitDialog();
+			}
+			else
+			{
+				dlg = pythonDialog();
+			}
+
+			dlg.setText(Messages.FileSelectionDialogTitle);
+			String dir = dlg.open();
+			if (!StringUtil.isEmpty(dir))
+			{
+				linkedText.setText(dir);
+			}
+		}
+
+		private FileDialog pythonDialog()
+		{
+			FileDialog dialog = new FileDialog(PlatformUI.getWorkbench().getDisplay().getActiveShell());
+			if (Platform.getOS().equals(Platform.OS_WIN32))
+			{
+				dialog.setFilterNames(new String[] { PYTHON_FILE.concat(WINDOWS_EXTENSION) });
+				dialog.setFilterExtensions(new String[] { PYTHON_FILE.concat(WINDOWS_EXTENSION) });
+			}
+			else
+			{
+				dialog.setFilterNames(new String[] { PYTHON_FILE });
+				dialog.setFilterExtensions(new String[] { PYTHON_FILE });
+			}
+			return dialog;
+		}
+
+		private FileDialog gitDialog()
+		{
+			FileDialog dialog = new FileDialog(PlatformUI.getWorkbench().getDisplay().getActiveShell());
+			if (Platform.getOS().equals(Platform.OS_WIN32))
+			{
+				dialog.setFilterNames(new String[] { GIT_FILE.concat(WINDOWS_EXTENSION) });
+				dialog.setFilterExtensions(new String[] { GIT_FILE.concat(WINDOWS_EXTENSION) });
+			}
+			else
+			{
+				dialog.setFilterNames(new String[] { GIT_FILE });
+				dialog.setFilterExtensions(new String[] { GIT_FILE });
+			}
+
+			return dialog;
+		}
+	}
+	
+	private class ModifyTextValidationListener implements ModifyListener
+	{
+		private int tool;
+
+		private ModifyTextValidationListener(int tool)
+		{
+			this.tool = tool;
+		}
+
+		@Override
+		public void modifyText(ModifyEvent e)
+		{
+			switch (tool)
+			{
+			case GIT_TOOL:
+				gitExecutablePath = gitText.getText();
+				break;
+			case PYTHON_TOOL:
+				pythonExecutablePath = pythonText.getText();
+			default:
+				break;
+			}
+			
+			validate();
+		}
+	}
 }
