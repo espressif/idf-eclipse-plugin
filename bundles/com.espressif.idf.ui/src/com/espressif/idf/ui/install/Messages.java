@@ -39,6 +39,11 @@ public class Messages extends NLS
 	public static String IDFDownloadWizard_MessageTitle;
 	public static String IDFDownloadWizard_AllowSpacesTitle;
 	public static String IDFDownloadWizard_AllowSpacesMsg;
+	
+	public static String BrowseButton;
+	public static String GitLabel;
+	public static String PythonLabel;
+	public static String FileSelectionDialogTitle;
 	static
 	{
 		// initialize resource bundle

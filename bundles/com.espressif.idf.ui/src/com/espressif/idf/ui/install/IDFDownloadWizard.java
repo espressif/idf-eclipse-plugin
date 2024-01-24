@@ -46,15 +46,21 @@ public class IDFDownloadWizard extends Wizard
 		IDFVersion version = downloadPage.Version();
 		String destinationLocation = downloadPage.getDestinationLocation();
 		boolean configureExistingEnabled = downloadPage.isConfigureExistingEnabled();
+		//TODO: Run install and export get all env vars, toolchains and respective targets
+		
+		String pythonPath = downloadPage.getPythonExePath();
+		String gitPath = downloadPage.getGitExecutablePath();
+		
 		if (configureExistingEnabled)
 		{
-			String existingIDFLocation = downloadPage.getExistingIDFLocation();
-			Logger.log("Setting IDF_PATH to :" + existingIDFLocation); //$NON-NLS-1$
-
+			String localIdfLocation = downloadPage.getExistingIDFLocation();
+			
+			Logger.log("Setting IDF_PATH to :" + localIdfLocation); //$NON-NLS-1$
+			
 			// Configure IDF_PATH
-			new IDFEnvironmentVariables().addEnvVariable("IDF_PATH", existingIDFLocation); //$NON-NLS-1$
+			new IDFEnvironmentVariables().addEnvVariable("IDF_PATH", localIdfLocation); //$NON-NLS-1$
 
-			showMessage(MessageFormat.format(Messages.IDFDownloadWizard_ConfigMessage, existingIDFLocation));
+			showMessage(MessageFormat.format(Messages.IDFDownloadWizard_ConfigMessage, localIdfLocation));
 
 		}
 		else
