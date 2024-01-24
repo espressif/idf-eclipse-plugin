@@ -4,10 +4,13 @@
  *******************************************************************************/
 package com.espressif.idf.ui.test.operations;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Stream;
 
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
@@ -18,9 +21,12 @@ import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarDropDownButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
+
 /**
  * Class to contain the common operations related to project setup. The class can be used in different test classes to
  * setup the required projects
@@ -30,8 +36,10 @@ import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
  */
 public class ProjectTestOperations
 {
-	
+
 	private static final String DEFAULT_PROJECT_BUILD_WAIT_PROPERTY = "default.project.build.wait";
+
+	private static final Logger logger = LoggerFactory.getLogger(ProjectTestOperations.class);
 
 	/**
 	 * Build a project using the context menu by right clicking on the project
@@ -46,6 +54,8 @@ public class ProjectTestOperations
 		{
 			projectItem.select();
 			projectItem.contextMenu("Build Project").click();
+			projectItem.expand();
+			projectItem.select("build");
 		}
 	}
 
@@ -57,13 +67,13 @@ public class ProjectTestOperations
 	 */
 	public static void waitForProjectBuild(SWTWorkbenchBot bot) throws IOException
 	{
-		SWTBotView consoleView = viewConsole("CDT Build Console", bot); //bot.viewById("org.eclipse.ui.console.ConsoleView");
+		SWTBotView consoleView = viewConsole("CDT Build Console", bot);
 		consoleView.show();
 		consoleView.setFocus();
 		TestWidgetWaitUtility.waitUntilViewContains(bot, "Build complete", consoleView,
 				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_PROJECT_BUILD_WAIT_PROPERTY, 600000));
 	}
-	
+
 	public static void waitForProjectNewComponentInstalled(SWTWorkbenchBot bot) throws IOException
 	{
 		SWTBotView consoleView = viewConsole("ESP-IDF Console", bot);
@@ -83,7 +93,7 @@ public class ProjectTestOperations
 		view.setFocus();
 		return view;
 	}
-	
+
 	public static void createDebugConfiguration(String projectName, SWTWorkbenchBot bot)
 	{
 		SWTBotView projectExplorerBotView = bot.viewByTitle("Project Explorer");
@@ -97,69 +107,132 @@ public class ProjectTestOperations
 			bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").doubleClick();
 			bot.button("Close").click();
 		}
-		
+
 	}
-	
-	public static void refreshProjectUsingContextMenu(String projectName, SWTWorkbenchBot bot)
+
+	public static void openProjectComponentYMLFileInTextEditorUsingContextMenu(String projectName, SWTWorkbenchBot bot)
 	{
 		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
 		if (projectItem != null)
 		{
 			projectItem.select();
-			projectItem.contextMenu("Refresh").click();
+			projectItem.expand();
+			projectItem.getNode("main").expand();
+
+			int maxAttempts = 2;
+			for (int attempt = 0; attempt <= maxAttempts; attempt++)
+			{
+				SWTBotTreeItem fileToOpenItem = findTreeItem(projectItem.getNode("main"), "idf_component.yml");
+
+				if (fileToOpenItem != null)
+				{
+					fileToOpenItem.select();
+					fileToOpenItem.doubleClick();
+					return;
+				}
+
+				else
+				{
+					try
+					{
+						Thread.sleep(3000);
+					}
+					catch (InterruptedException e)
+					{
+						logger.error(e.getMessage(), e);
+					}
+				}
+			}
 		}
 	}
-	
-	public static void openProjectComponentYMLFileInTextEditorUsingContextMenu(String projectName, SWTWorkbenchBot bot) 
+
+	public static boolean findProjectCleanedFilesInBuildFolder(String projectName, SWTWorkbenchBot bot)
 	{
-	    SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
-	    if (projectItem != null) {
-	        projectItem.select();
-	        projectItem.expand();
-	        projectItem.getNode("main").expand();
+		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
+		if (projectItem != null)
+		{
+			projectItem.select();
+			projectItem.getNode("build").expand();
 
-	        int maxAttempts = 2;
-	        for (int attempt = 0; attempt <= maxAttempts; attempt++) {
-	            SWTBotTreeItem fileToOpenItem = findTreeItem(projectItem.getNode("main"), "idf_component.yml");
-
-	            if (fileToOpenItem != null) {
-	            	fileToOpenItem.select();
-	            	fileToOpenItem.doubleClick();
-	                return;
-	            }
-
-	            else {
-	                try {
-	                    Thread.sleep(3000);
-	                } catch (InterruptedException e) {
-	                    e.printStackTrace();
-	                }
-	            }
-	        }
-	        throw new RuntimeException("The 'idf_component.yml' file was not found in the 'main' subfolder.");
-	    }
+			boolean fileToBeAbsentItem = isFileAbsent(projectItem.getNode("build"), ".elf");
+			SWTBotTreeItem fileToFindItem = findTreeItem(projectItem.getNode("build"), "bootloader");
+			if (fileToFindItem != null && fileToBeAbsentItem)
+			{
+				return true;
+			}
+			return false;
+		}
+		return false;
 	}
 
-	private static SWTBotTreeItem findTreeItem(SWTBotTreeItem parent, String itemName) {
-	    for (SWTBotTreeItem child : parent.getItems()) {
-	        if (child.getText().equals(itemName)) {
-	            return child;
-	        }
-	        SWTBotTreeItem found = findTreeItem(child, itemName);
-	        if (found != null) {
-	            return found;
-	        }
-	    }
-	    return null;
-	}
-	
-	public static void checkTextEditorContentForPhrase(String phrase, SWTWorkbenchBot bot) {
-	    SWTBotEditor textEditor = bot.activeEditor();
-	    String editorText = textEditor.toTextEditor().getText();
+	public static boolean findProjectFullCleanedFilesInBuildFolder(String projectName, SWTWorkbenchBot bot)
+	{
+		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
+		if (projectItem != null)
+		{
+			projectItem.select();
+			projectItem.getNode("build").expand();
 
-	    if (!editorText.contains(phrase)) {
-	        throw new RuntimeException("The specified phrase '" + phrase + "' was not found in the text editor.");
-	    }
+			boolean fileToBeAbsentItem = isFileAbsent(projectItem.getNode("build"), ".elf");
+			boolean fileToBeAbsentItem1 = isFileAbsent(projectItem.getNode("build"), "bootloader");
+			if (fileToBeAbsentItem && fileToBeAbsentItem1)
+			{
+				return true;
+			}
+			return false;
+		}
+		return false;
+	}
+
+	private static SWTBotTreeItem findTreeItem(SWTBotTreeItem parent, String itemName)
+	{
+		for (SWTBotTreeItem child : parent.getItems())
+		{
+			if (child.getText().equals(itemName))
+			{
+				return child;
+			}
+			SWTBotTreeItem found = findTreeItem(child, itemName);
+			if (found != null)
+			{
+				return found;
+			}
+		}
+		return null;
+	}
+
+	private static boolean isFileAbsent(SWTBotTreeItem parent, String itemName)
+	{
+		for (SWTBotTreeItem child : parent.getItems())
+		{
+			if (child.getText().contains(itemName))
+			{
+				return false; // File found, return false
+			}
+			if (!isFileAbsent(child, itemName))
+			{
+				return false; // File found in a child, return false
+			}
+		}
+		return true; // File not found, return true
+	}
+
+	public static boolean checkFolderExistanceAfterPythonClean(File folderExists)
+	{
+		boolean folder = folderExists.exists();
+		if (folder == false)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	public static boolean checkTextEditorContentForPhrase(String phrase, SWTWorkbenchBot bot)
+	{
+		SWTBotEditor textEditor = bot.activeEditor();
+		String editorText = textEditor.toTextEditor().getText();
+
+		return editorText.contains(phrase);
 	}
 
 	public static void openProjectNewComponentUsingContextMenu(String projectName, SWTWorkbenchBot bot)
@@ -189,7 +262,7 @@ public class ProjectTestOperations
 		shell.activate();
 		bot.tree().expandNode(category).select(subCategory);
 		bot.button("Finish").click(); // Finish for the project wizard from eclipse
-		
+
 		bot.textWithLabel("Project name:").setText(projectName);
 		bot.checkBox("Create a project using one of the templates").click();
 		SWTBotTreeItem templateItem = SWTBotTreeOperations.getTreeItem(bot.tree(), templatePath);
@@ -245,7 +318,8 @@ public class ProjectTestOperations
 	 * @param bot            current SWT bot reference
 	 * @param deleteFromDisk delete from disk or only delete from workspace
 	 */
-	public static void deleteProject(String projectName, SWTWorkbenchBot bot, boolean deleteFromDisk, boolean deleteRelatedConfigurations)
+	public static void deleteProject(String projectName, SWTWorkbenchBot bot, boolean deleteFromDisk,
+			boolean deleteRelatedConfigurations)
 	{
 		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
 		if (projectItem != null)
@@ -255,8 +329,8 @@ public class ProjectTestOperations
 			{
 				bot.checkBox("Delete project contents on disk (cannot be undone)").click();
 			}
-			
-			if (deleteRelatedConfigurations) 
+
+			if (deleteRelatedConfigurations)
 			{
 				bot.checkBox("Delete all related configurations").click();
 			}
@@ -292,7 +366,7 @@ public class ProjectTestOperations
 	{
 		ProjectTestOperations.deleteProject(projectName, bot, true, false);
 	}
-	
+
 	public static void deleteProjectAndAllRelatedConfigs(String projectName, SWTWorkbenchBot bot)
 	{
 		ProjectTestOperations.deleteProject(projectName, bot, true, true);
@@ -410,6 +484,52 @@ public class ProjectTestOperations
 		catch (WidgetNotFoundException widgetNotFoundException)
 		{
 			// logging will be added to show no projects were found
+		}
+	}
+
+	public static void launchCommandUsingContextMenu(String projectName, SWTWorkbenchBot bot, String contextMenuLabel)
+	{
+		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
+		if (projectItem != null)
+		{
+			projectItem.select();
+			projectItem.contextMenu(contextMenuLabel).click();
+		}
+		try
+		{
+			Thread.sleep(2000);
+		}
+		catch (InterruptedException e)
+		{
+			logger.error(e.getMessage(), e);
+		}
+
+	}
+
+	public static void waitForProjectClean(SWTWorkbenchBot bot) throws IOException
+	{
+		SWTBotView consoleView = viewConsole("Espressif IDF Tools Console", bot);
+		consoleView.show();
+		consoleView.setFocus();
+		TestWidgetWaitUtility.waitUntilViewContains(bot, "Done", consoleView, 0);
+	}
+
+	public static void joinJobByName(String jobName)
+	{
+		Job[] jobs = Job.getJobManager().find(null);
+		@SuppressWarnings("restriction")
+		Optional<Job> lookingJob = Stream.of(jobs).filter(job -> job.getName().equals(jobName)).findAny();
+
+		if (lookingJob.isPresent())
+		{
+			try
+			{
+				lookingJob.get().join();
+			}
+			catch (InterruptedException e)
+			{
+				logger.error(e.getMessage(), e);
+			}
 		}
 	}
 }
