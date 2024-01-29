@@ -424,7 +424,7 @@ public class ProjectTestOperations
 		if (projectItem != null)
 		{
 			projectItem.contextMenu("Rename...").click();
-			bot.textWithLabel("New na&me:").setText(newProjectName);
+			bot.textWithLabel("New name:").setText(newProjectName);
 			bot.button("OK").click();
 			TestWidgetWaitUtility.waitUntilViewContainsTheTreeItemWithName(newProjectName, projectExplorerBotView,
 					600000);
@@ -506,12 +506,23 @@ public class ProjectTestOperations
 
 	}
 
-	public static void waitForProjectClean(SWTWorkbenchBot bot) throws IOException
+	public static void findInConsole(SWTWorkbenchBot bot, String consoleName, String findText) throws IOException
 	{
-		SWTBotView consoleView = viewConsole("Espressif IDF Tools Console", bot);
+		SWTBotView consoleView = viewConsole(consoleName, bot);
 		consoleView.show();
 		consoleView.setFocus();
-		TestWidgetWaitUtility.waitUntilViewContains(bot, "Done", consoleView, 0);
+		TestWidgetWaitUtility.waitUntilViewContains(bot, findText, consoleView, 100);
+	}
+
+	public static boolean checkButtonIsDisabled(SWTWorkbenchBot bot, String buttonLabel) throws IOException
+	{
+		bot.button(buttonLabel);
+		return !bot.button(buttonLabel).isEnabled(); // return false if active
+	}
+
+	public static void setTextFieldInShell(SWTWorkbenchBot bot, String shellName, String textWithLabel, String setText)
+	{
+		bot.shell(shellName).bot().textWithLabel(textWithLabel + ":").setText(setText);
 	}
 
 	public static void joinJobByName(String jobName)
