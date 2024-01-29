@@ -676,7 +676,7 @@ After meeting the above requirements:
 
 1. The chip needs to be in bootloader mode for the detection as a DFU device and flashing. This can be achieved by pulling GPIO0 down (e.g. pressing the BOOT button), pulsing RESET down for a moment and releasing GPIO0.
 <a name="driversInstallation"></a> 
-1. Install USB drivers (Windows only). The drivers can be installed by the [Zadig tool](https://zadig.akeo.ie/>).
+1. Install USB drivers (Windows only). The drivers can be installed by the [Zadig tool](https://zadig.akeo.ie/).
 	- Please make sure that the device is in download mode before running the tool and that it detects the device before installing the drivers.
 	- The Zadig tool might detect several USB interfaces of the target. Please install the WinUSB driver for only that interface for which there is no driver installed (probably it is Interface 2) and don't re-install the driver for the other interface.
 	- The manual installation of the driver in Device Manager of Windows is not recommended because the flashing might not work properly.
