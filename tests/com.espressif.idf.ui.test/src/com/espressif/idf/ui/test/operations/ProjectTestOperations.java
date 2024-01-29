@@ -573,23 +573,25 @@ public class ProjectTestOperations
 			projectItem.select();
 			projectItem.contextMenu(contextMenuLabel).click();
 		}
-		try
-		{
-			Thread.sleep(2000);
-		}
-		catch (InterruptedException e)
-		{
-			logger.error(e.getMessage(), e);
-		}
-
 	}
 
-	public static void waitForProjectClean(SWTWorkbenchBot bot) throws IOException
+	public static void findInConsole(SWTWorkbenchBot bot, String consoleName, String findText) throws IOException
 	{
-		SWTBotView consoleView = viewConsole("Espressif IDF Tools Console", bot);
+		SWTBotView consoleView = viewConsole(consoleName, bot);
 		consoleView.show();
 		consoleView.setFocus();
-		TestWidgetWaitUtility.waitUntilViewContains(bot, "Done", consoleView, 0);
+		TestWidgetWaitUtility.waitUntilViewContains(bot, findText, consoleView, 3000);
+	}
+
+	public static boolean checkButtonIsDisabled(SWTWorkbenchBot bot, String buttonLabel) throws IOException
+	{
+		bot.button(buttonLabel);
+		return !bot.button(buttonLabel).isEnabled(); // return false if active
+	}
+
+	public static void setTextFieldInShell(SWTWorkbenchBot bot, String shellName, String textWithLabel, String setText)
+	{
+		bot.shell(shellName).bot().textWithLabel(textWithLabel + ":").setText(setText);
 	}
 
 	public static void joinJobByName(String jobName)

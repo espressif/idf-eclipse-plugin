@@ -362,7 +362,7 @@ public class NewEspressifIDFProjectTest
 		{
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Project Clean");
 			ProjectTestOperations.joinJobByName(Messages.ProjectCleanCommandHandler_RunningProjectCleanJobName);
-			ProjectTestOperations.waitForProjectClean(bot);
+			ProjectTestOperations.findInConsole(bot, "Espressif IDF Tools Console", "Done");
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
 			bot.sleep(2000);
 		}
@@ -371,7 +371,7 @@ public class NewEspressifIDFProjectTest
 		{
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Project Full Clean");
 			ProjectTestOperations.joinJobByName(Messages.ProjectFullCleanCommandHandler_RunningFullcleanJobName);
-			ProjectTestOperations.waitForProjectClean(bot);
+			ProjectTestOperations.findInConsole(bot, "Espressif IDF Tools Console", "Done");
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
 			bot.sleep(2000);
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
