@@ -1,23 +1,37 @@
-package com.espressif.idf.core.tools;
+package com.espressif.idf.core.tools.vo;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.cdt.cmake.core.ICMakeToolChainFile;
-import org.eclipse.launchbar.core.target.ILaunchTarget;
 
 import com.espressif.idf.core.toolchain.ESPToolchain;
+import com.google.gson.annotations.Expose;
 
-public class IDFToolSet
+public class IDFToolSet implements Serializable 
 {
+	private static final long serialVersionUID = -4899224940094139736L;
+	
+	@Expose
 	private String id;
+	
+	@Expose
 	private String idfLocation;
+	
+	@Expose
 	private String idfVersion;
+	
+	@Expose
 	private boolean active;
+	
+	@Expose
 	private Map<String, String> envVars;
+	
+	
 	private List<ESPToolchain> espStdToolChains;
 	private List<ICMakeToolChainFile> espCmakeToolChainFiles;
-	private List<ILaunchTarget> launchTargets;
+	private List<String> launchTargets;
 	
 	public String getIdfLocation()
 	{
@@ -67,11 +81,11 @@ public class IDFToolSet
 	{
 		this.espCmakeToolChainFiles = espCmakeToolChainFiles;
 	}
-	public List<ILaunchTarget> getLaunchTargets()
+	public List<String> getLaunchTargets()
 	{
 		return launchTargets;
 	}
-	public void setLaunchTargets(List<ILaunchTarget> launchTargets)
+	public void setLaunchTargets(List<String> launchTargets)
 	{
 		this.launchTargets = launchTargets;
 	}
@@ -83,6 +97,4 @@ public class IDFToolSet
 	{
 		this.id = id;
 	}
-	
-	
 }
