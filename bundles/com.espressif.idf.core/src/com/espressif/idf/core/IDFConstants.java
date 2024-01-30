@@ -41,6 +41,11 @@ public interface IDFConstants
 	String IDF_PYTHON_SCRIPT = "idf.py"; //$NON-NLS-1$
 	
 	/**
+	 * idf.py list targets
+	 */
+	String IDF_LIST_TARGETS_CMD = "--list-targets";  //$NON-NLS-1$
+	
+	/**
 	 * idf_monitor python file
 	 */
 	String IDF_MONITOR_PYTHON_SCRIPT = "idf_monitor.py"; //$NON-NLS-1$
