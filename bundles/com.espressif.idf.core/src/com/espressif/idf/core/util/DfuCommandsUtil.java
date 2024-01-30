@@ -39,6 +39,11 @@ public class DfuCommandsUtil
 	private static final String[] SUPPORTED_TARGETS = { "esp32s2", "esp32s3" }; //$NON-NLS-1$ //$NON-NLS-2$
 	private static final String DFU_FLASH_COMMAND = "dfu-flash"; //$NON-NLS-1$
 
+	public static String[] getSupportedTargets()
+	{
+		return SUPPORTED_TARGETS;
+	}
+
 	public static boolean isDfu()
 	{
 		try
@@ -74,10 +79,9 @@ public class DfuCommandsUtil
 
 	public static boolean isTargetSupportDfu(ILaunchTarget launchTarget)
 	{
-		String targetName = launchTarget.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
+		String targetName = launchTarget.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET,
 				StringUtil.EMPTY);
-		boolean isDfuSupported = Arrays.stream(SUPPORTED_TARGETS).anyMatch(target -> target.contentEquals(targetName));
-		return isDfuSupported;
+		return Arrays.stream(SUPPORTED_TARGETS).anyMatch(target -> target.contentEquals(targetName));
 	}
 
 	public static String getDfuFlashCommand()

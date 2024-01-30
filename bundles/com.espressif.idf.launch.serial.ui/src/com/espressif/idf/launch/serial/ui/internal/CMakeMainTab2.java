@@ -47,7 +47,6 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.launchbar.core.ILaunchBarManager;
-import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -113,9 +112,7 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 	@Override
 	public void createControl(Composite parent) {
-		parent.addDisposeListener(event -> {
-			scheduleApplyTargetJob();
-		});
+		parent.addDisposeListener(event -> scheduleApplyTargetJob());
 
 		mainComposite = new Composite(parent, SWT.NONE);
 		mainComposite.setFont(parent.getFont());
@@ -272,18 +269,13 @@ public class CMakeMainTab2 extends GenericMainTab {
 		comboTargets = new Combo(targetComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
 		comboTargets.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
 
-		ILaunchTarget[] targets = targetManager.getLaunchTargetsOfType(IDFLaunchConstants.IDF_TARGET_TYPE);
-		String[] targetsWithDfuSupport = Stream.of(targets).filter(DfuCommandsUtil::isTargetSupportDfu)
-				.map(ILaunchTarget::getId).toArray(String[]::new);
+		String[] targetsWithDfuSupport = DfuCommandsUtil.getSupportedTargets();
 		comboTargets.setItems(targetsWithDfuSupport);
 		comboTargets.addSelectionListener(new SelectionAdapter() {
 
 			@Override
 			public void widgetSelected(SelectionEvent evt) {
-				ILaunchTarget selectedTarget = Stream.of(targetManager.getLaunchTargets())
-						.filter(target -> target.getId().contentEquals(((Combo) evt.widget).getText())).findFirst()
-						.orElseGet(() -> null);
-				if (selectedTarget != null && dfuErrorLbl != null) {
+				if (!((Combo) evt.widget).getText().isEmpty() && dfuErrorLbl != null) {
 					dfuErrorLbl.setText(StringUtil.EMPTY);
 				}
 				updateLaunchConfigurationDialog();
@@ -293,7 +285,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 		Optional<String> suitableTarget = Stream.of(targetsWithDfuSupport).filter(t -> {
 			try {
 				if (launchBarManager.getActiveLaunchConfiguration() != null) {
-					return t.contentEquals(launchBarManager.getActiveLaunchTarget().getId());
+					return t.contentEquals(launchBarManager.getActiveLaunchTarget()
+							.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY));
 				}
 			} catch (CoreException e) {
 				Logger.log(e);

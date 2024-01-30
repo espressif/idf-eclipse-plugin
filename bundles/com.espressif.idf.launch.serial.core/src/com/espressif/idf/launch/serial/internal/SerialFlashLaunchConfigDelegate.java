@@ -97,7 +97,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 				.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
 		if (DfuCommandsUtil.isDfu())
 		{
-			DfuCommandsUtil.flashDfuBins(configuration, getProject(configuration), launch, monitor);
+			DfuCommandsUtil.flashDfuBins(configuration, getProject(configuration), launch);
 			return;
 		}
 		if (ESPFlashUtil.isJtag())
