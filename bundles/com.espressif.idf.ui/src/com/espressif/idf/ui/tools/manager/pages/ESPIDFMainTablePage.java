@@ -1,10 +1,5 @@
 package com.espressif.idf.ui.tools.manager.pages;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -25,11 +20,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.ui.ISelectionListener;
-import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.handlers.HandlerUtil;
 
+import com.espressif.idf.core.tools.ToolSetConfigurationImporter;
+import com.espressif.idf.core.tools.vo.IDFToolSet;
 import com.espressif.idf.ui.install.IDFDownloadWizard;
 import com.espressif.idf.ui.install.Messages;
 
@@ -37,7 +30,6 @@ public class ESPIDFMainTablePage
 {
 	private Composite container;
 	private TableViewer tableViewer;
-	private String[] columnDataKeys = { "Version", "Location", "State" };
 
 	public Composite createPage(Composite composite)
 	{
@@ -90,17 +82,8 @@ public class ESPIDFMainTablePage
 		actionsColumn.setLabelProvider(new IdfManagerTableColumnLabelProvider());
 		tableColumnLayout.setColumnData(actionsColumn.getColumn(), new ColumnWeightData(1, 50, true));
 
-		// example data
-		List<Map<String, Object>> data = new ArrayList<>();
-		// Populate your example data here
-		Map<String, Object> rowData = new HashMap<>();
-		rowData.put("Version", "v1.0");
-		rowData.put("Location", "/path/to/v1.0");
-		rowData.put("State", true);
-		data.add(rowData);
-
-		// Input sample data into the table viewer
-		tableViewer.setInput(data);
+		ToolSetConfigurationImporter toolSetConfigurationImporter = new ToolSetConfigurationImporter();
+		tableViewer.setInput(toolSetConfigurationImporter.getIdfToolSets(true));
 		table.layout();
 
 		Composite buttonComposite = new Composite(idfToolsGroup, SWT.NONE);
@@ -155,25 +138,34 @@ public class ESPIDFMainTablePage
 			}
 			else 
 			{
-				String key = columnDataKeys[cell.getColumnIndex()];
-				@SuppressWarnings("unchecked")
-				Map<String, Object> row = (Map<String, Object>) cell.getElement();
-				if (row.get(key) instanceof String)
-				{
-					cell.setText(row.get(key).toString());
-				}
-				else if (row.get(key) instanceof Boolean)
-				{
-					boolean value = Boolean.valueOf(row.get(key).toString());
-					cell.setText(value ? "Yes" : "No");
-				}
+				updateDataIntoCells(cell);
+			}
+		}
+		
+		private void updateDataIntoCells(ViewerCell cell)
+		{
+			if ((!(cell.getElement() instanceof IDFToolSet)) && cell.getElement() == null)
+				return;
+
+			IDFToolSet idfToolSet = (IDFToolSet) cell.getElement();
+			switch (cell.getColumnIndex())
+			{
+			case 0:
+				cell.setText(idfToolSet.getIdfVersion());
+				break;
+			case 1:
+				cell.setText(idfToolSet.getIdfLocation());
+				break;
+			case 2:
+				cell.setText(idfToolSet.isActive() ? "Active" : "Inactive");
+				break;
 			}
 		}
 
 		private void createButtonsForLastCol(ViewerCell cell)
 		{
 			TableItem item = (TableItem) cell.getItem();
-			// We use a unique key to store the editor to avoid creating multiple editors for the same cell
+			// using a unique key to store the editor to avoid creating multiple editors for the same cell
 			String EDITOR_KEY = "action_editor";
 			if (item.getData(EDITOR_KEY) != null)
 			{
