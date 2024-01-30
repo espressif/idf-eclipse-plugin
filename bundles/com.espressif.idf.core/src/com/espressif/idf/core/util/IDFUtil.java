@@ -78,6 +78,16 @@ public class IDFUtil
 				+ IDFConstants.IDF_PYTHON_SCRIPT;
 		return new File(idf_py_script);
 	}
+	
+	/**
+	 * @return idf.py file path based on the IDF_PATH given in the argument
+	 */
+	public static File getIDFPythonScriptFile(String idf_path)
+	{
+		String idf_py_script = idf_path + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
+				+ IDFConstants.IDF_PYTHON_SCRIPT;
+		return new File(idf_py_script);
+	}
 
 	/**
 	 * @return idf_monitor.py file path based on the IDF_PATH defined in the environment variables
@@ -96,6 +106,16 @@ public class IDFUtil
 	public static File getIDFToolsScriptFile()
 	{
 		String idf_path = getIDFPath();
+		String idf_py_script = idf_path + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
+				+ IDFConstants.IDF_TOOLS_SCRIPT;
+		return new File(idf_py_script);
+	}
+	
+	/**
+	 * @return idf_tools.py file path based on the IDF_PATH given in the argument
+	 */
+	public static File getIDFToolsScriptFile(String idf_path)
+	{
 		String idf_py_script = idf_path + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
 				+ IDFConstants.IDF_TOOLS_SCRIPT;
 		return new File(idf_py_script);
