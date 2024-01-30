@@ -109,8 +109,6 @@ public class ExportIDFTools
 				return status;				
 			}
 			
-			final String exportCmdOp = status.getMessage();
-			log(exportCmdOp, console);
 			return status;
 		}
 		catch (IOException e)
@@ -118,6 +116,53 @@ public class ExportIDFTools
 			Logger.log(IDFCorePlugin.getPlugin(), e);
 			return IDFCorePlugin.errorStatus(e.getMessage(), e);
 		}
+	}
+	
+	public IStatus getToolsExportOutputFromGivenIdfPath(final String pythonExePath, final String gitExePath, final MessageConsoleStream console, MessageConsoleStream errorConsoleStream, final String idfPath)
+	{
+		final List<String> arguments = getExportCommandUsingGivenIdfPath(pythonExePath, idfPath);
+
+		final String cmd = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments); //$NON-NLS-1$
+		log(cmd, console);
+
+		final Map<String, String> environment = new HashMap<>(System.getenv());
+		if (gitExePath != null)
+		{
+			addGitToEnvironment(environment, gitExePath);
+		}
+		final ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
+		try
+		{
+			final IStatus status = processRunner.runInBackground(arguments, Path.ROOT, environment);
+			if (status == null)
+			{
+				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
+				return IDFCorePlugin.errorStatus("Status can't be null", null); //$NON-NLS-1$
+			}
+			
+			if (status.getSeverity() == IStatus.ERROR)
+			{
+				log(status.getException() != null ? status.getException().getMessage() : status.getMessage(), errorConsoleStream);
+				return status;				
+			}
+			
+			return status;
+		}
+		catch (IOException e)
+		{
+			Logger.log(IDFCorePlugin.getPlugin(), e);
+			return IDFCorePlugin.errorStatus(e.getMessage(), e);
+		}
+	}
+
+	private List<String> getExportCommandUsingGivenIdfPath(String pythonExePath, String idfPath)
+	{
+		final List<String> arguments = new ArrayList<>();
+		arguments.add(pythonExePath);
+		arguments.add(IDFUtil.getIDFToolsScriptFile(idfPath).getAbsolutePath());
+		arguments.add(IDFConstants.TOOLS_EXPORT_CMD);
+		arguments.add(IDFConstants.TOOLS_EXPORT_CMD_FORMAT_VAL);
+		return arguments;
 	}
 
 	private List<String> getExportCommand(String pythonExePath)
