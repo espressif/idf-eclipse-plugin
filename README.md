@@ -232,7 +232,7 @@ In most cases, only two things are required to start debugging an esp-idf projec
 
 The fastest way to create a debug configuration is to expand the configuration list in the launch bar and click `New Launch Configuration...`. Then select `ESP-IDF GDB OpenOCD Debugging` -> Double Click or `Next`. After that, the preview for the new debug configuration will open where it's necessary to check the board.
 
-After creating the debug configuration, you can go ahead and debug the project. Select the configuration you just created, select debug mode, and click on the "Debug" icon to start debugging:
+After creating the debug configuration, you can go ahead and debug the project. Select the configuration you just created, select debug mode, and click on the "Debug" icon ![](docs/images/icons/debug.png) to start debugging:
 
 ![Debugging_process](https://github.com/espressif/idf-eclipse-plugin/assets/24419842/1fb0fb9b-a02a-4ed1-bdba-b4b4d36d100f)
 
