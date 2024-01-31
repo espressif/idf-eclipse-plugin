@@ -16,6 +16,8 @@ public class Messages extends NLS
 	public static String SerialMonitorPage_Field_NumberOfCharsInLine;
 	public static String GDBServerTimeoutGroup_Heading;
 	public static String SerialMonitorPage_GroupHeading;
+	public static String EspresssifPreferencesPage_HideErrprOnIdfComponentsBtn;
+	public static String EspresssifPreferencesPage_HideErrprOnIdfComponentsToolTip;
 	
 	static
 	{
