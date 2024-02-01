@@ -22,6 +22,7 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.launchbar.core.ILaunchBarManager;
+import org.eclipse.launchbar.core.ILaunchDescriptor;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.launchbar.ui.NewLaunchConfigWizard;
@@ -116,11 +117,22 @@ public class NewIDFProjectWizard extends TemplateWizard
 		this.getShell().addDisposeListener(new DisposeListener()
 		{
 			@Override
-			public void widgetDisposed(DisposeEvent e)
+			public void widgetDisposed(DisposeEvent event)
 			{
+				ILaunchBarManager launchBarManager = UIPlugin.getService(ILaunchBarManager.class);
 				TargetSwitchJob targetSwtichJob = new TargetSwitchJob(target);
 				targetSwtichJob.schedule();
-				createDefaultDebugConfig();
+				try
+				{
+					ILaunchDescriptor desc = launchBarManager.getActiveLaunchDescriptor();
+					createDefaultDebugConfig();
+					launchBarManager.setActiveLaunchDescriptor(desc);
+				}
+				catch (CoreException e)
+				{
+					Logger.log(e);
+				}
+
 			}
 		});
 		return performFinish;
