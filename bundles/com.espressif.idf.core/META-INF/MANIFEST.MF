@@ -8,7 +8,7 @@ Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.filesystem;visibility:=reexport,
  org.eclipse.core.resources;visibility:=reexport,
- org.eclipse.cdt.core,
+ org.eclipse.cdt.core;bundle-version="8.0.0",
  org.eclipse.cdt.cmake.core;visibility:=reexport,
  org.eclipse.core.expressions;visibility:=reexport,
  org.eclipse.cdt.managedbuilder.core;visibility:=reexport,

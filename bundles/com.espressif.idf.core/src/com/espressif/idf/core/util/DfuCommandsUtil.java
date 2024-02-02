@@ -5,21 +5,15 @@
 package com.espressif.idf.core.util;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.cdt.core.CCorePlugin;
-import org.eclipse.cdt.core.ConsoleOutputStream;
-import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
-import org.eclipse.core.resources.IBuildConfiguration;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
@@ -94,42 +88,24 @@ public class DfuCommandsUtil
 		commands.add(DFU_FLASH_COMMAND);
 		return String.join(" ", commands); //$NON-NLS-1$
 	}
-	
-	public static Process dfuBuild(IProject project, ConsoleOutputStream infoStream, IBuildConfiguration config,
-			List<IEnvironmentVariable> envVars) throws IOException, CoreException
+
+	public static List<String> getDfuBuildCommand()
 	{
 		List<String> commands = new ArrayList<>();
 		commands.add(IDFUtil.getIDFPythonEnvPath());
 		commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
 		commands.add("dfu"); //$NON-NLS-1$
-		Process process = startProcess(commands, project, infoStream, config, envVars);
-		return process;
+		return commands;
 	}
-	
+
 	private static String generateVariableExpression(String variableName)
 	{
 		return VariablesPlugin.getDefault().getStringVariableManager().generateVariableExpression(variableName, null);
 	}
-	
+
 	private static String resolveExpressionFromVariableManager(String expression) throws CoreException
 	{
 		return VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(expression);
-	}
-
-	private static Process startProcess(List<String> commands, IProject project, ConsoleOutputStream infoStream,
-			IBuildConfiguration config, List<IEnvironmentVariable> envVars) throws IOException
-	{
-		infoStream.write(String.join(" ", commands) + '\n'); //$NON-NLS-1$
-		Path workingDir = (Path) project.getLocation();
-		ProcessBuilder processBuilder = new ProcessBuilder(commands).directory(workingDir.toFile());
-		Map<String, String> environment = processBuilder.environment();
-		for (IEnvironmentVariable envVar : envVars)
-		{
-			environment.put(envVar.getName(), envVar.getValue());
-		}
-		CCorePlugin.getDefault().getBuildEnvironmentManager().setEnvironment(environment, config, true);
-		Process process = processBuilder.start();
-		return process;
 	}
 
 	public static void flashDfuBins(ILaunchConfiguration configuration, IProject project, ILaunch launch,
@@ -138,8 +114,8 @@ public class DfuCommandsUtil
 		List<String> flashCommandList = new ArrayList<>();
 		try
 		{
-			String flashCommand = configuration
-					.getAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS, getDfuFlashCommand());
+			String flashCommand = configuration.getAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS,
+					getDfuFlashCommand());
 			flashCommand = resolveExpressionFromVariableManager(flashCommand);
 			flashCommandList = Arrays.asList(flashCommand.split(" ")); //$NON-NLS-1$
 		}
