@@ -228,7 +228,7 @@ ESP-IDF Serial Monitor will allow you to configure the default settings of the s
 In most cases, only two things are required to start debugging an esp-idf project:
 1) Create a debug configuration
 2) Check whether the board in the created configuration corresponds to the board in use.
-> **Note:** If you're using Windows, you may need to install drivers using Zadig to run a debug session successfully. For detailed instructions, please refer to this [guide](#driversInstallation).
+> **Note:** If you're using Windows, you may need to install drivers using Zadig to run a debug session successfully. For detailed instructions, please refer to this [guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/jtag-debugging/configure-ft2232h-jtag.html#configure-usb-drivers).
 
 The fastest way to create a debug configuration is to expand the configuration list in the launch bar and click `New Launch Configuration...`. Then select `ESP-IDF GDB OpenOCD Debugging` -> Double Click or `Next`. After that, the preview for the new debug configuration will open where it's necessary to check the board.
 
