@@ -13,7 +13,6 @@ import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
@@ -112,8 +111,7 @@ public class DfuCommandsUtil
 		return VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(expression);
 	}
 
-	public static void flashDfuBins(ILaunchConfiguration configuration, IProject project, ILaunch launch,
-			IProgressMonitor monitor)
+	public static void flashDfuBins(ILaunchConfiguration configuration, IProject project, ILaunch launch)
 	{
 		List<String> flashCommandList = new ArrayList<>();
 		try
