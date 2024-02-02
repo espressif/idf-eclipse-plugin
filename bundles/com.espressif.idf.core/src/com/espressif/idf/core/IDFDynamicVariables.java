@@ -20,5 +20,10 @@ public enum IDFDynamicVariables
 	/**
 	 * idf virtual python executable path variable based on the env
 	 */
-	IDF_PYTHON_ENV_PATH
+	IDF_PYTHON_ENV_PATH,
+	
+	/**
+	 * Build directory
+	 */
+	BUILD_DIR
 }
