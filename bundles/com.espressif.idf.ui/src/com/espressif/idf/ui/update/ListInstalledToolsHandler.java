@@ -9,6 +9,10 @@ import java.util.List;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 
@@ -26,7 +30,6 @@ import com.espressif.idf.core.util.StringUtil;
  */
 public class ListInstalledToolsHandler extends AbstractToolsHandler
 {
-
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
@@ -41,9 +44,27 @@ public class ListInstalledToolsHandler extends AbstractToolsHandler
 			showMessage(Messages.ListInstalledTools_MissingIdfPathMsg);
 			throw new ExecutionException("Paths can't be empty. Please check IDF_PATH and Python"); //$NON-NLS-1$
 		}
+
 		activateIDFConsoleView();
-		execute();
-		
+
+		String listInstalledToolsJobName = Messages.ListInstalledToolsHandler_InstalledToolsListJobName;
+		Job job = new Job(listInstalledToolsJobName)
+		{
+
+			protected IStatus run(IProgressMonitor monitor)
+			{
+				execute();
+				return Status.OK_STATUS;
+			}
+
+			@Override
+			public boolean belongsTo(Object family)
+			{
+				return listInstalledToolsJobName.equals(family);
+			}
+
+		};
+		job.schedule();
 		return null;
 	}
 
@@ -82,7 +103,7 @@ public class ListInstalledToolsHandler extends AbstractToolsHandler
 		{
 			gitExecutablePath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.GIT_PATH);
 		}
-		
+
 		runCommand(arguments, console);
 	}
 
