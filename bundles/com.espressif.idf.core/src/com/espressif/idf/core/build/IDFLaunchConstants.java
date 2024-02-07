@@ -15,4 +15,6 @@ public final class IDFLaunchConstants
 	public static final String ATTR_DFU_FLASH_ARGUMENTS = "com.espressif.idf.launch.serial.core.dfuFlashArguments"; //$NON-NLS-1$
 	public static final String ATTR_JTAG_FLASH_ARGUMENTS = "com.espressif.idf.debug.gdbjtag.openocd.jtagFlashArguments"; //$NON-NLS-1$
 	public static final String ATTR_LAUNCH_CONFIGURATION_NAME = "com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationName"; //$NON-NLS-1$
+	public static final String ATTR_SERIAL_PORT = "com.espressif.idf.launch.serial.core.serialPort"; //$NON-NLS-1$
+	public static final String IDF_TARGET_TYPE = "com.espressif.idf.launch.serial.core.serialFlashTarget"; //$NON-NLS-1$
 }

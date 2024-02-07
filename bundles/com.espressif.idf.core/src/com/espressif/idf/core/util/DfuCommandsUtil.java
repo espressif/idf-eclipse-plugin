@@ -13,7 +13,6 @@ import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
@@ -38,6 +37,11 @@ public class DfuCommandsUtil
 	public static final String DFU_COMMAND = "com.espressif.idf.ui.command.dfu"; //$NON-NLS-1$
 	private static final String[] SUPPORTED_TARGETS = { "esp32s2", "esp32s3" }; //$NON-NLS-1$ //$NON-NLS-2$
 	private static final String DFU_FLASH_COMMAND = "dfu-flash"; //$NON-NLS-1$
+
+	public static String[] getSupportedTargets()
+	{
+		return SUPPORTED_TARGETS;
+	}
 
 	public static boolean isDfu()
 	{
@@ -74,10 +78,9 @@ public class DfuCommandsUtil
 
 	public static boolean isTargetSupportDfu(ILaunchTarget launchTarget)
 	{
-		String targetName = launchTarget.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
+		String targetName = launchTarget.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET,
 				StringUtil.EMPTY);
-		boolean isDfuSupported = Arrays.stream(SUPPORTED_TARGETS).anyMatch(target -> target.contentEquals(targetName));
-		return isDfuSupported;
+		return Arrays.stream(SUPPORTED_TARGETS).anyMatch(target -> target.contentEquals(targetName));
 	}
 
 	public static String getDfuFlashCommand()
@@ -108,8 +111,7 @@ public class DfuCommandsUtil
 		return VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(expression);
 	}
 
-	public static void flashDfuBins(ILaunchConfiguration configuration, IProject project, ILaunch launch,
-			IProgressMonitor monitor)
+	public static void flashDfuBins(ILaunchConfiguration configuration, IProject project, ILaunch launch)
 	{
 		List<String> flashCommandList = new ArrayList<>();
 		try
