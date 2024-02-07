@@ -225,8 +225,19 @@ ESP-IDF Serial Monitor will allow you to configure the default settings of the s
 
 <a name="debugging"></a>
 # Debugging the Project
+In most cases, only two things are required to start debugging an esp-idf project:
+1) Create a debug configuration
+2) Check whether the board in the created configuration corresponds to the board in use.
+> **Note:** If you're using Windows, you may need to install drivers using Zadig to run a debug session successfully. For detailed instructions, please refer to this [guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/jtag-debugging/configure-ft2232h-jtag.html#configure-usb-drivers).
 
-Please refer to <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs/OpenOCD%20Debugging.md">GDB OpenOCD Debugging</a>.
+The fastest way to create a debug configuration is to expand the configuration list in the launch bar and click `New Launch Configuration...`. Then select `ESP-IDF GDB OpenOCD Debugging` -> Double Click or `Next`. After that, the preview for the new debug configuration will open where it's necessary to check the board.
+
+After creating the debug configuration, you can go ahead and debug the project. Select the configuration you just created, select debug mode, and click on the "Debug" icon ![](docs/images/icons/debug.png) to start debugging:
+
+![Debugging_process](https://github.com/espressif/idf-eclipse-plugin/assets/24419842/1fb0fb9b-a02a-4ed1-bdba-b4b4d36d100f)
+
+
+To learn more about the debug configuration, please refer to <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs/OpenOCD%20Debugging.md">GDB OpenOCD Debugging</a>.
 
 # Other IDE Features
 
@@ -664,7 +675,8 @@ Device Firmware Upgrade (DFU) is a mechanism for upgrading the firmware of devic
 After meeting the above requirements:
 
 1. The chip needs to be in bootloader mode for the detection as a DFU device and flashing. This can be achieved by pulling GPIO0 down (e.g. pressing the BOOT button), pulsing RESET down for a moment and releasing GPIO0.
-1. Install USB drivers (Windows only). The drivers can be installed by the [Zadig tool](https://zadig.akeo.ie/>).
+<a name="driversInstallation"></a> 
+1. Install USB drivers (Windows only). The drivers can be installed by the [Zadig tool](https://zadig.akeo.ie/).
 	- Please make sure that the device is in download mode before running the tool and that it detects the device before installing the drivers.
 	- The Zadig tool might detect several USB interfaces of the target. Please install the WinUSB driver for only that interface for which there is no driver installed (probably it is Interface 2) and don't re-install the driver for the other interface.
 	- The manual installation of the driver in Device Manager of Windows is not recommended because the flashing might not work properly.
