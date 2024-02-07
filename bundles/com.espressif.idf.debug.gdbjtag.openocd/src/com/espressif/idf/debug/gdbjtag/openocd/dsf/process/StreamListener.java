@@ -19,30 +19,33 @@ import org.eclipse.ui.console.IOConsoleOutputStream;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.debug.gdbjtag.openocd.dsf.console.IdfProcessConsole;
 import com.espressif.idf.debug.gdbjtag.openocd.dsf.console.IdfProcessConsoleFactory;
+import com.espressif.idf.debug.gdbjtag.openocd.ui.Messages;
 
 /**
- * This class listens to a specified stream monitor to get notified on output from the process connected to console.
- * Its separated so that we can apply filters and pass the text onto the respected stream.
- * It is designed to handle both error and standard stream.
- * This class is built using {@link ProcessConsole} StreamListner. The original class is private there.
+ * This class listens to a specified stream monitor to get notified on output from the process connected to console. Its
+ * separated so that we can apply filters and pass the text onto the respected stream. It is designed to handle both
+ * error and standard stream. This class is built using {@link ProcessConsole} StreamListner. The original class is
+ * private there.
+ * 
  * @author Ali Azam Rana
  */
 @SuppressWarnings("restriction")
 public class StreamListener implements IStreamListener
 {
-
+	private static final String OPENOCD_FAQ_LINK = "https://github.com/espressif/openocd-esp32/wiki/Troubleshooting-FAQ"; //$NON-NLS-1$
 	private IOConsoleOutputStream fConsoleErrorOutputStream;
 	private IOConsoleOutputStream fConsoleOutputStream;
-	
+
 	private IStreamMonitor fErrorStreamMonitor;
 	private IStreamMonitor fOutputStreamMonitor;
-	
+
 	private IdfProcessConsole idfProcessConsole;
-	
+
 	/** Flag to remember if stream was already closed. */
 	private boolean fStreamClosed = false;
 
-	public StreamListener(IProcess iProcess, IStreamMonitor errorStreamMonitor, IStreamMonitor outputStreamMonitor, Charset charset)
+	public StreamListener(IProcess iProcess, IStreamMonitor errorStreamMonitor, IStreamMonitor outputStreamMonitor,
+			Charset charset)
 	{
 		fErrorStreamMonitor = errorStreamMonitor;
 		fOutputStreamMonitor = outputStreamMonitor;
@@ -53,7 +56,7 @@ public class StreamListener implements IStreamListener
 		fConsoleErrorOutputStream.setActivateOnWrite(true);
 		fConsoleOutputStream = idfProcessConsole.getOutputStream();
 		fConsoleOutputStream.setActivateOnWrite(true);
-		
+
 		flushAndDisableBuffer();
 	}
 
@@ -96,18 +99,22 @@ public class StreamListener implements IStreamListener
 		String line;
 		try (BufferedReader bufferedReader = new BufferedReader(new StringReader(text)))
 		{
-			while((line = bufferedReader.readLine()) != null)
+			while ((line = bufferedReader.readLine()) != null)
 			{
 				if (line.startsWith("Error:") && fConsoleErrorOutputStream != null)
-	            {
-	                fConsoleErrorOutputStream.write((line + System.lineSeparator()).getBytes());
-	                fConsoleErrorOutputStream.flush();
-	            }
-	            else if (fConsoleOutputStream != null)
-	            {
-	                fConsoleOutputStream.write((line + System.lineSeparator()).getBytes());
-	                fConsoleOutputStream.flush();
-	            }
+				{
+					fConsoleErrorOutputStream.write((line + System.lineSeparator()).getBytes());
+					fConsoleErrorOutputStream.flush();
+
+					fConsoleOutputStream.write((Messages.OpenOCDConsole_ErrorGuideMessage + System.lineSeparator()
+							+ OPENOCD_FAQ_LINK + System.lineSeparator()).getBytes());
+					fConsoleOutputStream.flush();
+				}
+				else if (fConsoleOutputStream != null)
+				{
+					fConsoleOutputStream.write((line + System.lineSeparator()).getBytes());
+					fConsoleOutputStream.flush();
+				}
 			}
 		}
 		catch (IOException e)
@@ -127,7 +134,7 @@ public class StreamListener implements IStreamListener
 		{
 			fOutputStreamMonitor.removeListener(this);
 		}
-		
+
 		fStreamClosed = true;
 	}
 
