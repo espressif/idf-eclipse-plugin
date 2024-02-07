@@ -71,6 +71,7 @@ public class GitRepositoryBuilder
 				  .setDirectory(this.repositoryDirectory)
 				  .setBranchesToClone(branchesToClone)
 				  .setBranch(getBranchPath(this.activeBranch))
+				  .setTimeout(300)
 				  .call();
 		
 		// @formatter:on

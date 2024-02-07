@@ -98,7 +98,7 @@ public class IDFVersionsReader
 		for (String version : versions)
 		{
 			Logger.log("Version: " + version); //$NON-NLS-1$
-			if (version.startsWith("master")) //$NON-NLS-1$
+			if (version.startsWith("master") || version.startsWith("release/")) //$NON-NLS-1$ //$NON-NLS-2$
 			{
 				String gitHubVersionUrl = MASTER_URL;
 				String espressifVersionUrl = MASTER_URL;
@@ -108,13 +108,6 @@ public class IDFVersionsReader
 			{
 				String gitHubVersionUrl = GITHUB_VERSION_URL.replace(versionRegEx, version);
 				String espressifVersionUrl = ESPRESSIF_VERSION_URL.replace(versionRegEx, version);
-				versionsMap.put(version, new IDFVersion(version, gitHubVersionUrl, espressifVersionUrl));
-			}
-			else if (version.startsWith("release/")) //$NON-NLS-1$
-			{
-				String newVersion = version.replace("release/", ""); //$NON-NLS-1$ //$NON-NLS-2$
-				String gitHubVersionUrl = GITHUB_VERSION_URL.replace(versionRegEx, newVersion);
-				String espressifVersionUrl = ESPRESSIF_VERSION_URL.replace(versionRegEx, newVersion);
 				versionsMap.put(version, new IDFVersion(version, gitHubVersionUrl, espressifVersionUrl));
 			}
 		}

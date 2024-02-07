@@ -507,6 +507,21 @@
       <handler
             commandId="com.espressif.idf.ui.appLvlTracing">
       </handler>
+      <handler
+            class="com.espressif.idf.ui.handlers.StopLaunchBuildHandler"
+            commandId="org.eclipse.launchbar.ui.command.stop">
+         <activeWhen>
+            <with
+                  variable="activeContexts">
+               <iterate
+                     operator="or">
+                  <equals
+                        value="com.espressif.idf.ui.espLaunchScope">
+                  </equals>
+               </iterate>
+            </with>
+         </activeWhen>
+      </handler>
    </extension>
    	<extension point="org.eclipse.ui.preferencePages">
   	<page
@@ -758,4 +773,32 @@
          type="java.lang.Object">
    </propertyTester>
 </extension>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <file-association
+            content-type="org.eclipse.core.runtime.text"
+            file-extensions="md"
+            file-names="README.md">
+      </file-association>
+    </extension>
+    <extension
+         point="org.eclipse.ltk.core.refactoring.renameParticipants">
+      <renameParticipant
+            class="com.espressif.idf.ui.handlers.RenameIdfProjectParticipant"
+            id="com.espressif.idf.ui.renameIdfProjectParticipant"
+            name="renameIdfProject">
+         <enablement>
+            <instanceof
+                  value="org.eclipse.core.resources.IProject">
+            </instanceof>
+         </enablement>
+      </renameParticipant>
+   </extension>
+    <extension
+          point="org.eclipse.ui.contexts">
+       <context
+             id="com.espressif.idf.ui.espLaunchScope"
+             name="Espressif Launch Scope">
+       </context>
+    </extension>
 </plugin>

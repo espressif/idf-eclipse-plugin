@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
@@ -622,5 +623,18 @@ public class IDFUtil
 			Logger.log(e);
 		}
 		return new SDKConfigJsonReader(project).getValue("IDF_TARGET"); //$NON-NLS-1$
+	}
+	
+	public static IProject getProjectFromActiveLaunchConfig() throws CoreException
+	{
+		final ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
+		ILaunchConfiguration launchConfiguration = launchBarManager.getActiveLaunchConfiguration();
+		IResource[] mappedResources = launchConfiguration.getMappedResources();
+		if (mappedResources != null && mappedResources[0].getProject() != null)
+		{
+			return mappedResources[0].getProject();
+		}
+		
+		return null;
 	}
 }

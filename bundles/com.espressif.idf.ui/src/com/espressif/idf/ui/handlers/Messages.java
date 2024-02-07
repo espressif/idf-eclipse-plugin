@@ -16,6 +16,7 @@ public class Messages extends NLS
 	public static String ProjectCleanCommandHandler_RunningProjectCleanJobName;
 	public static String ProjectFullCleanCommandHandler_RunningFullcleanJobName;
 	public static String PythonCleanCommandHandler_RunningPythonCleanJobName;
+	public static String StopLaunchBuildHandler_0;
 	public static String UpdateEspIdfCommand_JobMsg;
 	public static String UpdateEspIdfCommand_InstallToolsJobMsg;
 	public static String UpdateEspIdfCommand_SuggestToOpenInstallToolsWizard;

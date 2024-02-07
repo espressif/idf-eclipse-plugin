@@ -33,6 +33,7 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 	private Text gdbSettingsText;
 	private Button ccacheBtn;
 	private Button automateHintsBtn;
+	private Button hideErrorsOnIdfComponentsBtn;
 
 	public EspresssifPreferencesPage()
 	{
@@ -84,6 +85,13 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		automateHintsBtn.setToolTipText(Messages.EspresssifPreferencesPage_SearchHintsTooltip);
 		automateHintsBtn
 				.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.AUTOMATE_BUILD_HINTS_STATUS));
+
+		hideErrorsOnIdfComponentsBtn = new Button(buildGroup, SWT.CHECK);
+		hideErrorsOnIdfComponentsBtn.setText(Messages.EspresssifPreferencesPage_HideErrprOnIdfComponentsBtn);
+		hideErrorsOnIdfComponentsBtn.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		hideErrorsOnIdfComponentsBtn.setToolTipText(Messages.EspresssifPreferencesPage_HideErrprOnIdfComponentsToolTip);
+		hideErrorsOnIdfComponentsBtn
+				.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.HIDE_ERRORS_IDF_COMPONENTS));
 	}
 
 	private void addccacheControl(Composite mainComposite)
@@ -154,6 +162,15 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 
 			getPreferenceStore().setValue(IDFCorePreferenceConstants.AUTOMATE_BUILD_HINTS_STATUS,
 					automateHintsBtn.getSelection());
+
+			boolean prevMarkerValue = getPreferenceStore().getBoolean(IDFCorePreferenceConstants.HIDE_ERRORS_IDF_COMPONENTS);
+			getPreferenceStore().setValue(IDFCorePreferenceConstants.HIDE_ERRORS_IDF_COMPONENTS,
+					hideErrorsOnIdfComponentsBtn.getSelection());
+			// need to initiate a cleanup for initial clean of markers after they are enabled
+			if (!prevMarkerValue && hideErrorsOnIdfComponentsBtn.getSelection())
+			{
+				IDFCorePlugin.ERROR_MARKER_LISTENER.initialMarkerCleanup();
+			}
 		}
 		catch (Exception e)
 		{
@@ -173,6 +190,8 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		ccacheBtn.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.CMAKE_CCACHE_STATUS));
 		automateHintsBtn
 				.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.AUTOMATE_BUILD_HINTS_STATUS));
+		hideErrorsOnIdfComponentsBtn
+				.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.HIDE_ERRORS_IDF_COMPONENTS));
 	}
 
 	private void initializeDefaults()
@@ -184,5 +203,7 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 				IDFCorePreferenceConstants.CMAKE_CCACHE_DEFAULT_STATUS);
 		getPreferenceStore().setDefault(IDFCorePreferenceConstants.AUTOMATE_BUILD_HINTS_STATUS,
 				IDFCorePreferenceConstants.AUTOMATE_BUILD_HINTS_DEFAULT_STATUS);
+		getPreferenceStore().setDefault(IDFCorePreferenceConstants.HIDE_ERRORS_IDF_COMPONENTS,
+				IDFCorePreferenceConstants.HIDE_ERRORS_IDF_COMPONENTS_DEFAULT_STATUS);
 	}
 }

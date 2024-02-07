@@ -62,7 +62,7 @@ public class IDFDownloadWizard extends Wizard
 			new File(destinationLocation).mkdirs();
 			String url = version.getUrl();
 
-			if (version.getName().equals("master")) //$NON-NLS-1$
+			if (version.getName().equals("master") || version.getName().startsWith("release/")) //$NON-NLS-1$ //$NON-NLS-2$
 			{
 				Job job = new Job(MessageFormat.format(Messages.IDFDownloadWizard_CloningJobMsg, version.getName()))
 				{
@@ -142,15 +142,27 @@ public class IDFDownloadWizard extends Wizard
 	protected void repositoryClone(String version, String url, String destinationLocation, IProgressMonitor monitor)
 	{
 		GitRepositoryBuilder gitBuilder = new GitRepositoryBuilder(false, null);
+		StringBuilder destinationLocationPath = new StringBuilder();
+		destinationLocationPath.append(destinationLocation);
+		destinationLocationPath.append("/esp-idf-"); //$NON-NLS-1$
+		if (version.startsWith("release/")) //$NON-NLS-1$
+		{
+			destinationLocationPath.append(version.substring("release/".length())); //$NON-NLS-1$
+		}
+		else 
+		{
+			destinationLocationPath.append(version);
+		}
+		
 		gitBuilder.repositoryURI(url);
-		gitBuilder.repositoryDirectory(new File(destinationLocation + "/" + "esp-idf")); //$NON-NLS-1$ //$NON-NLS-2$
+		gitBuilder.repositoryDirectory(new File(destinationLocationPath.toString()));
 		gitBuilder.activeBranch(version);
 		gitBuilder.setProgressMonitor(monitor);
 
 		try
 		{
 			gitBuilder.repositoryClone();
-			configurePath(destinationLocation, "esp-idf"); //$NON-NLS-1$
+			configurePath(destinationLocationPath.toString());
 			showMessage(MessageFormat.format(Messages.IDFDownloadWizard_CloningCompletedMsg, version));
 
 		}
@@ -169,6 +181,16 @@ public class IDFDownloadWizard extends Wizard
 		// Configure IDF_PATH
 		new IDFEnvironmentVariables().addEnvVariable("IDF_PATH", //$NON-NLS-1$
 				new File(destinationDir, folderName).getAbsolutePath());
+	}
+	
+	private void configurePath(String destinationDir)
+	{
+		String idf_path = new File(destinationDir).getAbsolutePath();
+		Logger.log("Setting IDF_PATH to:" + idf_path); //$NON-NLS-1$
+
+		// Configure IDF_PATH
+		new IDFEnvironmentVariables().addEnvVariable("IDF_PATH", //$NON-NLS-1$
+				new File(destinationDir).getAbsolutePath());
 	}
 
 	private void unZipFile(String downloadFile, String destinationLocation)

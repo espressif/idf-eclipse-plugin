@@ -14,14 +14,9 @@
  *******************************************************************************/
 package com.espressif.idf.core.build;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.io.Reader;
 import java.net.URI;
 import java.nio.file.FileVisitResult;
@@ -52,7 +47,6 @@ import org.eclipse.cdt.core.CommandLauncherManager;
 import org.eclipse.cdt.core.ConsoleOutputStream;
 import org.eclipse.cdt.core.ErrorParserManager;
 import org.eclipse.cdt.core.IConsoleParser;
-import org.eclipse.cdt.core.IConsoleParser2;
 import org.eclipse.cdt.core.build.CBuildConfiguration;
 import org.eclipse.cdt.core.build.IToolChain;
 import org.eclipse.cdt.core.build.IToolChainManager;
@@ -142,14 +136,14 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	private boolean cmakeListsModified;
 	private ICMakeToolChainFile toolChainFile;
 	private String customBuildDir;
-	private IBuildConfiguration buildConfiguration;
 	private IProgressMonitor monitor;
 	public boolean isProgressSet;
+	private QualifiedName TIMESTAMP_COMPILE_COMMANDS_PROPERTY = new QualifiedName(null,
+			"timestamp:compile_commands.json"); //$NON-NLS-1$
 
 	public IDFBuildConfiguration(IBuildConfiguration config, String name) throws CoreException
 	{
 		super(config, name);
-		buildConfiguration = config;
 	}
 
 	public IDFBuildConfiguration(IBuildConfiguration config, String name, IToolChain toolChain)
@@ -412,12 +406,17 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 				command.addAll(Arrays.asList(buildCommand.split(" "))); //$NON-NLS-1$
 			}
 
-			infoStream.write(String.join(" ", command) + '\n'); //$NON-NLS-1$
+			IPath workingDir = new org.eclipse.core.runtime.Path(getBuildDirectory().toString());
+			Process p = null;
+			if (DfuCommandsUtil.isDfu() && DfuCommandsUtil.isDfuSupported(launchtarget))
+			{
+				command = DfuCommandsUtil.getDfuBuildCommand();
+				workingDir = project.getLocation();
+			}
 
-			org.eclipse.core.runtime.Path workingDir = new org.eclipse.core.runtime.Path(
-					getBuildDirectory().toString());
-			Process p = startBuildProcess(command, envVars.toArray(new IEnvironmentVariable[0]), workingDir, console,
-					monitor);
+			infoStream.write(String.join(" ", command) + '\n'); //$NON-NLS-1$
+			p = startBuildProcess(command, envVars.toArray(new IEnvironmentVariable[0]), workingDir, console, monitor);
+
 			if (p == null)
 			{
 				console.getErrorStream().write(String.format(Messages.CMakeBuildConfiguration_Failure, "")); //$NON-NLS-1$
@@ -430,174 +429,31 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 					? new IConsoleParser[] { epm, new StatusParser(),
 							new EspIdfErrorParser(HintsUtil.getReHintsList(new File(HintsUtil.getHintsYmlPath()))) }
 					: new IConsoleParser[] { epm, new StatusParser() };
-			watchProcess(p, consoleParsers);
+			watchProcess(consoleParsers, monitor);
 
 			final String isSkip = System.getProperty("skip.idf.components"); //$NON-NLS-1$
-			if (!Boolean.parseBoolean(isSkip))
+			if (!Boolean.parseBoolean(isSkip) && !monitor.isCanceled())
 			{ // no property defined
 				linkBuildComponents();
-				project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 			}
-
-			// parse compile_commands.json file
-			// built-ins detection output goes to the build console, if the user requested
-			// output
-
-			processCompileCommandsFile(console, monitor);
-			if (DfuCommandsUtil.isDfu() && DfuCommandsUtil.isDfuSupported(launchtarget))
-			{
-				watchProcess(DfuCommandsUtil.dfuBuild(project, infoStream, buildConfiguration, envVars), console);
-			}
-			project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 
 			infoStream.write(String.format(Messages.CMakeBuildConfiguration_BuildingComplete, epm.getErrorCount(),
 					epm.getWarningCount(), buildDir.toString()));
 
 			Instant finish = Instant.now();
 			long timeElapsed = Duration.between(start, finish).toMillis();
-			ParitionSizeHandler paritionSizeHandler = new ParitionSizeHandler(project, infoStream, console);
-			paritionSizeHandler.startCheckingSize();
+			if (!monitor.isCanceled())
+			{
+				project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+				ParitionSizeHandler paritionSizeHandler = new ParitionSizeHandler(project, infoStream, console);
+				paritionSizeHandler.startCheckingSize();
+				// parse compile_commands.json file
+				// built-ins detection output goes to the build console, if the user requested
+				// output
+				processCompileCommandsFile(console, monitor);
+			}
+
 			infoStream.write(MessageFormat.format("Total time taken to build the project: {0} ms", timeElapsed)); //$NON-NLS-1$
-		}
-	}
-
-	/**
-	 * //API after changes in CDT 10.5.0
-	 */
-	protected int watchProcess(Process process, IConsole console) throws CoreException
-	{
-		Thread t1 = new ReaderThread(process.getInputStream(), console.getOutputStream());
-		t1.start();
-		Thread t2 = new ReaderThread(process.getErrorStream(), console.getErrorStream());
-		t2.start();
-		try
-		{
-			int rc = process.waitFor();
-			// Allow reader threads the chance to process all output to console
-			while (t1.isAlive())
-			{
-				Thread.sleep(100);
-			}
-			while (t2.isAlive())
-			{
-				Thread.sleep(100);
-			}
-			return rc;
-		}
-		catch (InterruptedException e)
-		{
-			CCorePlugin.log(e);
-			return -1;
-		}
-	}
-
-	/**
-	 * @since 6.4
-	 */
-	protected int watchProcess(Process process, IConsoleParser[] consoleParsers) throws CoreException
-	{
-		Thread t1 = new ReaderThread(this, process.getInputStream(), consoleParsers);
-		t1.start();
-		Thread t2 = new ReaderThread(this, process.getErrorStream(), consoleParsers);
-		t2.start();
-		try
-		{
-			int rc = process.waitFor();
-			// Allow reader threads the chance to process all output to console
-			while (t1.isAlive())
-			{
-				Thread.sleep(100);
-			}
-			while (t2.isAlive())
-			{
-				Thread.sleep(100);
-			}
-			Stream.of(consoleParsers).forEach(IConsoleParser::shutdown);
-			return rc;
-		}
-		catch (InterruptedException e)
-		{
-			CCorePlugin.log(e);
-			return -1;
-		}
-	}
-
-	private static class ReaderThread extends Thread
-	{
-		CBuildConfiguration config;
-		private final BufferedReader in;
-		private final IConsoleParser[] consoleParsers;
-		private final PrintStream out;
-
-		public ReaderThread(CBuildConfiguration config, InputStream in, IConsoleParser[] consoleParsers)
-		{
-			this.config = config;
-			this.in = new BufferedReader(new InputStreamReader(in));
-			this.out = null;
-			this.consoleParsers = consoleParsers;
-		}
-
-		public ReaderThread(InputStream in, OutputStream out)
-		{
-			this.in = new BufferedReader(new InputStreamReader(in));
-			this.out = new PrintStream(out);
-			this.consoleParsers = null;
-			this.config = null;
-		}
-
-		@Override
-		public void run()
-		{
-			List<Job> jobList = new ArrayList<>();
-			try
-			{
-				for (String line = in.readLine(); line != null; line = in.readLine())
-				{
-					if (consoleParsers != null)
-					{
-						for (IConsoleParser consoleParser : consoleParsers)
-						{
-							// Synchronize to avoid interleaving of lines
-							synchronized (consoleParser)
-							{
-								// if we have an IConsoleParser2, use the processLine method that
-								// takes a job list (Container Build support)
-								if (consoleParser instanceof IConsoleParser2)
-								{
-									((IConsoleParser2) consoleParser).processLine(line, jobList);
-								}
-								else
-								{
-									consoleParser.processLine(line);
-								}
-							}
-						}
-					}
-					if (out != null)
-					{
-						out.println(line);
-					}
-				}
-				for (Job j : jobList)
-				{
-					try
-					{
-						j.join();
-					}
-					catch (InterruptedException e)
-					{
-						// ignore
-					}
-				}
-				if (config != null)
-				{
-					config.shutdown();
-				}
-			}
-			catch (IOException e)
-			{
-				CCorePlugin.log(e);
-			}
 		}
 	}
 
@@ -668,7 +524,13 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 			throw new CmakeBuildException();
 		}
 
-		watchProcess(p, errConsole);
+		try (ErrorParserManager epm = new ErrorParserManager(project, getBuildDirectoryURI(), this,
+				getToolChain().getErrorParserIds()))
+		{
+			epm.setOutputStream(console.getOutputStream());
+			watchProcess(new IConsoleParser[] { epm }, monitor);
+		}
+
 		cmakeListsModified = false;
 	}
 
@@ -900,7 +762,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	protected int getUpdateOptions()
 	{
 		return IIndexManager.UPDATE_CHECK_TIMESTAMPS | IIndexManager.UPDATE_UNRESOLVED_INCLUDES
-				| IIndexManager.UPDATE_EXTERNAL_FILES_FOR_PROJECT;
+				| IIndexManager.UPDATE_EXTERNAL_FILES_FOR_PROJECT | IIndexManager.FORCE_INDEX_INCLUSION;
 	}
 
 	@Override
@@ -956,7 +818,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 				return;
 			}
 
-			watchProcess(p, console);
+			watchProcess(console, monitor);
 
 			outStream.write(Messages.CMakeBuildConfiguration_BuildComplete);
 
@@ -1073,6 +935,13 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 			// no build was run yet, nothing detected
 			try
 			{
+
+				// It is crucial to set this property to 0. Otherwise, the infoPerResource will persist as null for this
+				// configuration. This occurs when the property has been modified in another configuration within the
+				// same project.
+				getCompileCommandsJsonFile(new NullProgressMonitor()).getParent()
+						.setSessionProperty(TIMESTAMP_COMPILE_COMMANDS_PROPERTY, Long.valueOf(0));
+
 				processCompileCommandsFile(null, new NullProgressMonitor());
 			}
 			catch (CoreException e)

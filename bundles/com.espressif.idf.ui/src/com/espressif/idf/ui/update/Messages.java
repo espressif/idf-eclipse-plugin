@@ -44,11 +44,14 @@ public class Messages extends NLS
 	public static String InstallToolsHandler_OpenOCDRulesNotCopied;
 	public static String ListInstalledTools_MessageTitle;
 	public static String ListInstalledTools_MissingIdfPathMsg;
+	public static String ListInstalledToolsHandler_InstalledToolsListJobName;
 	public static String JavaRuntimeVersionMsg;
 	public static String OperatingSystemMsg;
 	public static String EclipseCDTMsg;
 	public static String IdfEclipseMsg;
 	public static String EclipseMsg;
+	public static String ProductInformationHandler_CDTBuildEnvVariables;
+	public static String ProductInformationHandler_ProductInformationLogJobName;
 	public static String PythonIdfEnvMsg;
 	public static String MissingIdfPathMsg;
 	public static String NotFoundMsg;

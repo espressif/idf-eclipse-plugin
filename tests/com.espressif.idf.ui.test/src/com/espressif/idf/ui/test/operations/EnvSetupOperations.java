@@ -6,6 +6,7 @@ import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 
@@ -15,14 +16,14 @@ public class EnvSetupOperations
 	private static final String GIT_PATH_PROPERTY = "default.env.esp.git.path";
 	private static final String PYTHON_PATH_PROPERTY = "default.env.esp.python.path";
 	private static final String PYTHON_VERSION_PROPERTY = "default.env.esp.python.version";
-	
+
 	private static boolean SETUP = false;
 
 	public static void setupEspressifEnv(SWTWorkbenchBot bot) throws Exception
 	{
 		if (SETUP)
 			return;
-		
+
 		for (SWTBotView view : bot.views(withPartName("Welcome")))
 		{
 			view.close();
@@ -60,18 +61,19 @@ public class EnvSetupOperations
 		bot.menu("Espressif").menu("ESP-IDF Tools Manager").click().menu("Install Tools").click();
 		bot.activeShell().activate();
 		bot.shell("Install Tools").bot().textWithLabel("ESP-IDF Directory:")
-		.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
-		
+				.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
+
 		bot.shell("Install Tools").bot().textWithLabel("Git Executable Location:")
 				.setText(DefaultPropertyFetcher.getStringPropertyValue(GIT_PATH_PROPERTY, ""));
 		try
 		{
-			bot.shell("Install Tools").bot().comboBox().setSelection(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_VERSION_PROPERTY, ""));
+			bot.shell("Install Tools").bot().comboBox()
+					.setSelection(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_VERSION_PROPERTY, ""));
 		}
 		catch (WidgetNotFoundException e)
 		{
 			bot.shell("Install Tools").bot().textWithLabel("Python Executable Location:")
-					.setText(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_PATH_PROPERTY, ""));
+					.setText(IDFUtil.getPythonExecutable());
 		}
 		bot.shell("Install Tools").bot().button("Install Tools").click();
 		SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");

@@ -246,24 +246,24 @@ config-only component and an interface library is created instead."
   <extension point="com.espressif.idf.core.toolchain">
      <ToolChain
            arch="xtensa"
-           compilerPattern="xtensa-esp32-elf[\\/]+bin[\\/]+xtensa-esp32-elf-gcc(?:\.exe)?$"
-           debuggerPattern="xtensa-esp32-elf-gdb(\.exe)?"
+           compilerPattern="(?:xtensa-esp-elf|xtensa-esp32-elf)[\\/]+bin[\\/]+xtensa-esp32-elf-gcc(?:\.exe)?$"
+           debuggerPattern="xtensa-esp32-elf-gdb(\.exe)?$"
            fileName="toolchain-esp32.cmake"
            id="xtensa-esp32-elf"
            name="esp32">
      </ToolChain>
      <ToolChain
            arch="xtensa"
-           compilerPattern="xtensa-esp32s2-elf[\\/]+bin[\\/]+xtensa-esp32s2-elf-gcc(?:\.exe)?$"
-           debuggerPattern="xtensa-esp32s2-elf-gdb(\.exe)?"
+           compilerPattern="(?:xtensa-esp-elf|xtensa-esp32s2-elf)[\\/]+bin[\\/]+xtensa-esp32s2-elf-gcc(?:\.exe)?$"
+           debuggerPattern="xtensa-esp32s2-elf-gdb(\.exe)?$"
            fileName="toolchain-esp32s2.cmake"
            id="xtensa-esp32s2-elf"
            name="esp32s2">
      </ToolChain>
      <ToolChain
            arch="xtensa"
-           compilerPattern="xtensa-esp32s3-elf[\\/]+bin[\\/]+xtensa-esp32s3-elf-gcc(?:\.exe)?$"
-           debuggerPattern="xtensa-esp32s3-elf-gdb(\.exe)?"
+           compilerPattern="(?:xtensa-esp-elf|xtensa-esp32s3-elf)[\\/]+bin[\\/]+xtensa-esp32s3-elf-gcc(?:\.exe)?$"
+           debuggerPattern="xtensa-esp32s3-elf-gdb(\.exe)?$"
            fileName="toolchain-esp32s3.cmake"
            id="xtensa-esp32s3-elf"
            name="esp32s3">
@@ -271,7 +271,7 @@ config-only component and an interface library is created instead."
      <ToolChain
            arch="riscv32"
            compilerPattern="riscv32-esp-elf[\\/]+bin[\\/]+riscv32-esp-elf-gcc(?:\.exe)?$"
-           debuggerPattern="riscv32-esp-elf-gdb(\.exe)?"
+           debuggerPattern="riscv32-esp-elf-gdb(\.exe)?$"
            fileName="toolchain-esp32c2.cmake"
            id="riscv32-esp-elf"
            name="esp32c2">
@@ -279,7 +279,7 @@ config-only component and an interface library is created instead."
      <ToolChain
            arch="riscv32"
            compilerPattern="riscv32-esp-elf[\\/]+bin[\\/]+riscv32-esp-elf-gcc(?:\.exe)?$"
-           debuggerPattern="riscv32-esp-elf-gdb(\.exe)?"
+           debuggerPattern="riscv32-esp-elf-gdb(\.exe)?$"
            fileName="toolchain-esp32c3.cmake"
            id="riscv32-esp-elf"
            name="esp32c3">
@@ -287,7 +287,7 @@ config-only component and an interface library is created instead."
      <ToolChain
            arch="riscv32"
            compilerPattern="riscv32-esp-elf[\\/]+bin[\\/]+riscv32-esp-elf-gcc(?:\.exe)?$"
-           debuggerPattern="riscv32-esp-elf-gdb(\.exe)?"
+           debuggerPattern="riscv32-esp-elf-gdb(\.exe)?$"
            fileName="toolchain-esp32c6.cmake"
            id="riscv32-esp-elf"
            name="esp32c6">
@@ -295,7 +295,7 @@ config-only component and an interface library is created instead."
           <ToolChain
            arch="riscv32"
            compilerPattern="riscv32-esp-elf[\\/]+bin[\\/]+riscv32-esp-elf-gcc(?:\.exe)?$"
-           debuggerPattern="riscv32-esp-elf-gdb(\.exe)?"
+           debuggerPattern="riscv32-esp-elf-gdb(\.exe)?$"
            fileName="toolchain-esp32h2.cmake"
            id="riscv32-esp-elf"
            name="esp32h2">

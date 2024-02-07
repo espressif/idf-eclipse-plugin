@@ -63,6 +63,14 @@ public class Messages
 	public static String TabDebugger_SettingTargetJob;
 	
 	public static String OpenOCDConsole_ErrorGuideMessage;
+
+	public static String TabDebugger_noConfigOptions;
+	public static String TabDebugger_noGdbClientExe;
+	public static String TabDebugger_noGdbPort;
+	public static String TabDebugger_noGdbServerExe;
+	public static String TabDebugger_noTclPort;
+	public static String TabDebugger_noTelnetPort;
+
 	// ------------------------------------------------------------------------
 
 	static

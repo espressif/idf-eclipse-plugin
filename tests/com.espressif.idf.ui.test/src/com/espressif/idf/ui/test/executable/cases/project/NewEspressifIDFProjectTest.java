@@ -6,13 +6,17 @@ package com.espressif.idf.ui.test.executable.cases.project;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
@@ -21,7 +25,6 @@ import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -30,6 +33,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
+import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.ui.handlers.Messages;
 import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
 import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
 import com.espressif.idf.ui.test.common.resources.DefaultFileContentsReader;
@@ -172,7 +178,7 @@ public class NewEspressifIDFProjectTest
 		Fixture.thenProjectHasTheFile("dfu.bin", "/build");
 		Fixture.turnOffDfu();
 	}
-	
+
 	@Test
 	public void givenNewProjectCreatedThenInstallNewComponent() throws Exception
 	{
@@ -182,6 +188,39 @@ public class NewEspressifIDFProjectTest
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.whenInstallNewComponentUsingContextMenu();
 		Fixture.checkIfNewComponentIsInstalledUsingContextMenu();
+	}
+
+	@Test
+	public void givenNewProjectCreatedBuiltAndThenProjectCleanUsingContextMenu() throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectCleanTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.whenProjectCleanUsingContextMenu();
+		Fixture.checkIfProjectCleanedFilesInBuildFolder();
+	}
+
+	@Test
+	public void givenNewProjectCreatedBuiltAndThenProjectFullCleanUsingContextMenu() throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectFullCleanTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.whenProjectFullCleanUsingContextMenu();
+		Fixture.checkIfProjectFullCleanedFilesInBuildFolder();
+	}
+
+	@Test
+	public void givenNewProjectCreatedBuiltAndThenProjectPythonCleanUsingContextMenu() throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectPythonCleanTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.whenProjectPythonCleanUsingContextMenu();
+		Fixture.checkPythonCLeanCommandDeleteFolder();
 	}
 
 	private static class Fixture
@@ -281,7 +320,7 @@ public class NewEspressifIDFProjectTest
 			ProjectTestOperations.waitForProjectBuild(bot);
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 		}
-		
+
 		private static void whenInstallNewComponentUsingContextMenu() throws IOException
 		{
 			ProjectTestOperations.openProjectNewComponentUsingContextMenu(projectName, bot);
@@ -289,13 +328,23 @@ public class NewEspressifIDFProjectTest
 			bot.button("Install").click();
 			ProjectTestOperations.waitForProjectNewComponentInstalled(bot);
 			bot.editorByTitle(projectName).close();
-		    ProjectTestOperations.refreshProjectUsingContextMenu(projectName, bot);
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
+		}
+
+		private static void checkPythonCLeanCommandDeleteFolder() throws IOException
+		{
+			String pychache = IDFUtil.getIDFPath() + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
+					+ "__pychache__";
+			Path pycachePath = Paths.get(pychache);
+			String folderPATH = pycachePath.toAbsolutePath().toString();
+			File folder = new File(folderPATH);
+			assertTrue(ProjectTestOperations.checkFolderExistanceAfterPythonClean(folder));
 		}
 
 		private static void checkIfNewComponentIsInstalledUsingContextMenu() throws IOException
 		{
 			ProjectTestOperations.openProjectComponentYMLFileInTextEditorUsingContextMenu(projectName, bot);
-			ProjectTestOperations.checkTextEditorContentForPhrase("espressif/mdns", bot);
+			assertTrue(ProjectTestOperations.checkTextEditorContentForPhrase("espressif/mdns", bot));
 		}
 
 		private static void thenAllConfigurationsAreDeleted()
@@ -402,6 +451,38 @@ public class NewEspressifIDFProjectTest
 				// do nothing
 			}
 
+		}
+
+		private static void whenProjectCleanUsingContextMenu() throws IOException
+		{
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "ESP-IDF: Project Clean");
+			ProjectTestOperations.joinJobByName(Messages.ProjectCleanCommandHandler_RunningProjectCleanJobName);
+			ProjectTestOperations.waitForProjectClean(bot);
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
+		}
+
+		private static void whenProjectFullCleanUsingContextMenu() throws IOException
+		{
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "ESP-IDF: Project Full Clean");
+			ProjectTestOperations.joinJobByName(Messages.ProjectFullCleanCommandHandler_RunningFullcleanJobName);
+			ProjectTestOperations.waitForProjectClean(bot);
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
+		}
+
+		private static void whenProjectPythonCleanUsingContextMenu() throws IOException
+		{
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "ESP-IDF: Python Clean");
+			ProjectTestOperations.joinJobByName(Messages.PythonCleanCommandHandler_RunningPythonCleanJobName);
+		}
+
+		private static void checkIfProjectCleanedFilesInBuildFolder() throws IOException
+		{
+			assertTrue(ProjectTestOperations.findProjectCleanedFilesInBuildFolder(projectName, bot));
+		}
+
+		private static void checkIfProjectFullCleanedFilesInBuildFolder() throws IOException
+		{
+			assertTrue(ProjectTestOperations.findProjectFullCleanedFilesInBuildFolder(projectName, bot));
 		}
 	}
 }
