@@ -145,7 +145,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	public IDFBuildConfiguration(IBuildConfiguration config, String name) throws CoreException
 	{
 		super(config, name);
-		buildConfiguration = config;
 		this.configuration = LAUNCH_CONFIG_PROVIDER.getActiveLaunchConfiguration();
 	}
 
