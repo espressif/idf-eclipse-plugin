@@ -7,6 +7,7 @@ package com.espressif.idf.core;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.envvar.IContributedEnvironment;
@@ -66,6 +67,15 @@ public class IDFEnvironmentVariables
 		IContributedEnvironment contributedEnvironment = getEnvironment();
 		contributedEnvironment.removeVariable(variableName, null);
 	}
+	
+	public void removeAllEnvVariables()
+	{
+		Map<String, String> currentVarMap = getEnvMap();
+		for(Entry<String, String> varEntry : currentVarMap.entrySet())
+		{
+			removeEnvVariable(varEntry.getKey());
+		}
+	}
 
 	protected IContributedEnvironment getEnvironment()
 	{
@@ -89,7 +99,7 @@ public class IDFEnvironmentVariables
 
 		return envValue;
 	}
-
+	
 	public void addEnvVariable(String name, String value)
 	{
 		Logger.log(MessageFormat.format("Updating environment variables with key:{0} value:{1}", name, value)); //$NON-NLS-1$

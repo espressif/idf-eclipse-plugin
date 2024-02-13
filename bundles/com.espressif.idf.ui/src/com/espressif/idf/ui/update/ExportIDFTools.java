@@ -118,7 +118,8 @@ public class ExportIDFTools
 		}
 	}
 	
-	public IStatus getToolsExportOutputFromGivenIdfPath(final String pythonExePath, final String gitExePath, final MessageConsoleStream console, MessageConsoleStream errorConsoleStream, final String idfPath)
+	public IStatus getToolsExportOutputFromGivenIdfPath(final String pythonExePath, final String gitExePath,
+			final MessageConsoleStream console, MessageConsoleStream errorConsoleStream, final String idfPath)
 	{
 		final List<String> arguments = getExportCommandUsingGivenIdfPath(pythonExePath, idfPath);
 
