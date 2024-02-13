@@ -28,6 +28,12 @@ public class Messages extends NLS
 	public static String HintDetailsTitle;
 	public static String FilterMessage;
 	public static String HintsYmlNotFoundErrMsg;
+	public static String SelectDebugConfigDialog_LableText;
+	public static String SelectDebugConfigDialog_Text;
+	public static String SelectDebugConfigDialog_Title;
+	public static String SelectLaunchConfigDialog_LableText;
+	public static String SelectLaunchConfigDialog_Text;
+	public static String SelectLaunchConfigDialog_Title;
 	public static String WriteFlashDialog_Bin_Path_Lbl;
 	public static String WriteFlashDialog_BinFileErrFormatErrMsg;
 	public static String WriteFlashDialog_Browse_Btn;

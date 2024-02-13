@@ -51,17 +51,16 @@ public class LaunchBarListener implements ILaunchBarListener
 	@Override
 	public void activeLaunchTargetChanged(ILaunchTarget target)
 	{
-		Display.getDefault().asyncExec(() ->
-		{
-				if (target != null)
-				{
+		Display.getDefault().syncExec(() -> {
+			if (target != null)
+			{
 				String targetName = target.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
 						StringUtil.EMPTY);
 				if (!StringUtil.isEmpty(targetName) && (!targetChangeIgnored))
-					{
-						update(targetName);
-					}
+				{
+					update(targetName);
 				}
+			}
 		});
 
 	}
@@ -104,9 +103,8 @@ public class LaunchBarListener implements ILaunchBarListener
 						// get current target
 						String currentTarget = new SDKConfigJsonReader((IProject) project).getValue("IDF_TARGET"); //$NON-NLS-1$
 
-						if ((activeConfig.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, false)
-								|| activeConfig.getType().getIdentifier()
-										.contentEquals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
+						if ((activeConfig.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, false) || activeConfig
+								.getType().getIdentifier().contentEquals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
 								&& !jtagIgnored)
 						{
 							String targetForJtagFlash = activeConfig.getWorkingCopy()
