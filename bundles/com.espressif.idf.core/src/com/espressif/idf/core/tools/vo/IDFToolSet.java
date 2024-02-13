@@ -14,7 +14,7 @@ public class IDFToolSet implements Serializable
 	private static final long serialVersionUID = -4899224940094139736L;
 	
 	@Expose
-	private String id;
+	private int id;
 	
 	@Expose
 	private String idfLocation;
@@ -26,12 +26,19 @@ public class IDFToolSet implements Serializable
 	private boolean active;
 	
 	@Expose
-	private Map<String, String> envVars;
+	private String systemGitExecutablePath;
 	
+	@Expose
+	private String systemPythonExecutablePath;
+	
+	@Expose
+	private Map<String, String> envVars;
 	
 	private List<ESPToolchain> espStdToolChains;
 	private List<ICMakeToolChainFile> espCmakeToolChainFiles;
 	private List<String> launchTargets;
+
+	
 	
 	public String getIdfLocation()
 	{
@@ -89,12 +96,34 @@ public class IDFToolSet implements Serializable
 	{
 		this.launchTargets = launchTargets;
 	}
-	public String getId()
+	public int getId()
 	{
 		return id;
 	}
-	public void setId(String id)
+	public void setId(int id)
 	{
 		this.id = id;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return idfLocation.hashCode();
+	}
+	public String getSystemGitExecutablePath()
+	{
+		return systemGitExecutablePath;
+	}
+	public void setSystemGitExecutablePath(String systemGitExecutablePath)
+	{
+		this.systemGitExecutablePath = systemGitExecutablePath;
+	}
+	public String getSystemPythonExecutablePath()
+	{
+		return systemPythonExecutablePath;
+	}
+	public void setSystemPythonExecutablePath(String systemPythonExecutablePath)
+	{
+		this.systemPythonExecutablePath = systemPythonExecutablePath;
 	}
 }

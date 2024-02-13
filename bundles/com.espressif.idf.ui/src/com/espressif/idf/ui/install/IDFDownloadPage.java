@@ -37,7 +37,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
-import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.IDFVersion;
 import com.espressif.idf.core.IDFVersionsReader;
 import com.espressif.idf.core.util.IDFUtil;

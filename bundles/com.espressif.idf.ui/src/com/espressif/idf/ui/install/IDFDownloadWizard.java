@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
@@ -29,6 +30,7 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.IDFVersion;
 import com.espressif.idf.core.ZipUtility;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.ui.tools.ToolsInstallationJob;
 import com.espressif.idf.ui.update.InstallToolsHandler;
 
 /**
@@ -39,6 +41,16 @@ public class IDFDownloadWizard extends Wizard
 {
 	private static final int BUFFER_SIZE = 4096; // $NON-NLS-1$
 	private IDFDownloadPage downloadPage;
+	private TableViewer tableViewer;
+	
+	public IDFDownloadWizard()
+	{
+	}
+	
+	public IDFDownloadWizard(TableViewer tableViewer)
+	{
+		this.tableViewer = tableViewer;
+	}
 
 	@Override
 	public boolean performFinish()
@@ -55,13 +67,17 @@ public class IDFDownloadWizard extends Wizard
 		{
 			String localIdfLocation = downloadPage.getExistingIDFLocation();
 			
-			Logger.log("Setting IDF_PATH to :" + localIdfLocation); //$NON-NLS-1$
+//			Logger.log("Setting IDF_PATH to :" + localIdfLocation); //$NON-NLS-1$
 			
 			// Configure IDF_PATH
-			new IDFEnvironmentVariables().addEnvVariable("IDF_PATH", localIdfLocation); //$NON-NLS-1$
-
-			showMessage(MessageFormat.format(Messages.IDFDownloadWizard_ConfigMessage, localIdfLocation));
-
+//			new IDFEnvironmentVariables().addEnvVariable("IDF_PATH", localIdfLocation); //$NON-NLS-1$
+//
+//			showMessage(MessageFormat.format(Messages.IDFDownloadWizard_ConfigMessage, localIdfLocation));
+			
+			ToolsInstallationJob toolsInstallationJob = new ToolsInstallationJob(pythonPath, gitPath, localIdfLocation,
+					tableViewer);
+			toolsInstallationJob.schedule();
+			
 		}
 		else
 		{

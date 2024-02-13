@@ -73,25 +73,46 @@ public class ESPToolChainManager
 
 	private static Map<String, ESPToolChainElement> readESPToolchainRegistry()
 	{
-		if (toolchainElements.isEmpty()) // load only once from the extension point
+		IConfigurationElement[] configElements = Platform.getExtensionRegistry()
+				.getConfigurationElementsFor("com.espressif.idf.core.toolchain"); //$NON-NLS-1$
+		for (IConfigurationElement iConfigurationElement : configElements)
 		{
-			IConfigurationElement[] configElements = Platform.getExtensionRegistry()
-					.getConfigurationElementsFor("com.espressif.idf.core.toolchain"); //$NON-NLS-1$
-			for (IConfigurationElement iConfigurationElement : configElements)
-			{
-				String name = iConfigurationElement.getAttribute("name"); //$NON-NLS-1$
-				String id = iConfigurationElement.getAttribute("id"); //$NON-NLS-1$
-				String arch = iConfigurationElement.getAttribute("arch"); //$NON-NLS-1$
-				String fileName = iConfigurationElement.getAttribute("fileName"); //$NON-NLS-1$
-				String compilerPattern = iConfigurationElement.getAttribute("compilerPattern"); //$NON-NLS-1$
-				String debuggerPatten = iConfigurationElement.getAttribute("debuggerPattern"); //$NON-NLS-1$
+			String name = iConfigurationElement.getAttribute("name"); //$NON-NLS-1$
+			String id = iConfigurationElement.getAttribute("id"); //$NON-NLS-1$
+			String arch = iConfigurationElement.getAttribute("arch"); //$NON-NLS-1$
+			String fileName = iConfigurationElement.getAttribute("fileName"); //$NON-NLS-1$
+			String compilerPattern = iConfigurationElement.getAttribute("compilerPattern"); //$NON-NLS-1$
+			String debuggerPatten = iConfigurationElement.getAttribute("debuggerPattern"); //$NON-NLS-1$
 
-				String uniqueToolChainId = name.concat("/").concat(arch).concat("/").concat(fileName); //$NON-NLS-1$ //$NON-NLS-2$
+			String uniqueToolChainId = name.concat("/").concat(arch).concat("/").concat(fileName); //$NON-NLS-1$ //$NON-NLS-2$
 
-				toolchainElements.put(uniqueToolChainId,
-						new ESPToolChainElement(name, id, arch, fileName, compilerPattern, debuggerPatten));
+			toolchainElements.put(uniqueToolChainId,
+					new ESPToolChainElement(name, id, arch, fileName, compilerPattern, debuggerPatten));
 
-			}
+		}
+		return toolchainElements;
+	}
+	
+	private static Map<String, ESPToolChainElement> readESPToolchainRegistryWithGivenTargets(List<String> targets)
+	{
+		IConfigurationElement[] configElements = Platform.getExtensionRegistry()
+				.getConfigurationElementsFor("com.espressif.idf.core.toolchain"); //$NON-NLS-1$
+		for (IConfigurationElement iConfigurationElement : configElements)
+		{
+			String name = iConfigurationElement.getAttribute("name"); //$NON-NLS-1$
+			if (!targets.contains(name))
+				continue;
+			String id = iConfigurationElement.getAttribute("id"); //$NON-NLS-1$
+			String arch = iConfigurationElement.getAttribute("arch"); //$NON-NLS-1$
+			String fileName = iConfigurationElement.getAttribute("fileName"); //$NON-NLS-1$
+			String compilerPattern = iConfigurationElement.getAttribute("compilerPattern"); //$NON-NLS-1$
+			String debuggerPatten = iConfigurationElement.getAttribute("debuggerPattern"); //$NON-NLS-1$
+
+			String uniqueToolChainId = name.concat("/").concat(arch).concat("/").concat(fileName); //$NON-NLS-1$ //$NON-NLS-2$
+
+			toolchainElements.put(uniqueToolChainId,
+					new ESPToolChainElement(name, id, arch, fileName, compilerPattern, debuggerPatten));
+
 		}
 		return toolchainElements;
 	}
@@ -489,20 +510,67 @@ public class ESPToolChainManager
 	}
 	
 	/**
+	 * Adds the given esp/std/gcc toolchains in the current environment
+	 * @param espToolchains
+	 */
+	public void addStdToolChains(List<ESPToolchain> espToolchains)
+	{
+		IToolChainManager tcManager = CCorePlugin.getService(IToolChainManager.class);
+		espToolchains.stream().forEach(espToolchain -> tcManager.addToolChain(espToolchain));
+	}
+	
+	/**
+	 * Adds the given cmake toolchains in the current environment
+	 * @param cMakeToolChainFiles
+	 */
+	public void addCmakeToolchains(List<ICMakeToolChainFile> cMakeToolChainFiles)
+	{
+		ICMakeToolChainManager cmakeTcManager = CCorePlugin.getService(ICMakeToolChainManager.class);
+		cMakeToolChainFiles.stream().forEach(cMakeToolChainFile -> cmakeTcManager.addToolChainFile(cMakeToolChainFile));
+	}
+	
+	/**
+	 * Removes all the cmake toolchains in the current environment
+	 */
+	public void removeCmakeToolChains()
+	{
+		ICMakeToolChainManager cmakeTcManager = CCorePlugin.getService(ICMakeToolChainManager.class);
+		
+		List<ICMakeToolChainFile> cIcMakeToolChainFiles = new ArrayList<ICMakeToolChainFile>(cmakeTcManager.getToolChainFiles());
+		cIcMakeToolChainFiles.stream().forEach(cmakeToolchain -> cmakeTcManager.removeToolChainFile(cmakeToolchain));
+	}
+	
+	/**
+	 * Removes all the gcc/std toolchains for ESP in current environment 
+	 */
+	public void removeStdToolChains()
+	{
+		IToolChainManager tcManager = CCorePlugin.getService(IToolChainManager.class);
+		try
+		{
+			List<IToolChain> espToolchains = new ArrayList<IToolChain>(tcManager.getAllToolChains());
+			espToolchains.stream().forEach(tc -> tcManager.removeToolChain(tc));
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+	}
+	
+	/**
 	 * Gets all the standard toolchains in the given path
 	 * @param path Path to look into for toolchains
 	 * @return
 	 * @throws CoreException 
 	 */
-	public List<ESPToolchain> getStdToolChains(List<String> paths) throws CoreException
+	public List<ESPToolchain> getStdToolChains(List<String> paths, String idfPath) throws CoreException
 	{
 		List<ESPToolchain> espToolchains = new ArrayList<ESPToolchain>();
+		
 		IToolChainManager manager = CCorePlugin.getService(IToolChainManager.class);
 
 		IToolChainProvider toolchainProvider = manager.getProvider(ESPToolChainProvider.ID);
 		
-
-		String idfPath = IDFUtil.getIDFPath();
 		for (ESPToolChainElement toolChainElement : toolchainElements.values())
 		{
 			File toolchainCompilerFile = findToolChain(paths, toolChainElement.compilerPattern);
@@ -563,6 +631,11 @@ public class ESPToolChainManager
 		}
 		
 		return launchTargets;
+	}
+
+	public void updateToolChainElementesWithSelectedTargets(List<String> targets)
+	{
+		readESPToolchainRegistryWithGivenTargets(targets);
 	}
 
 }
