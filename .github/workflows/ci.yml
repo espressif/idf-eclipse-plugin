@@ -51,9 +51,12 @@ jobs:
 
     - name: Publish Test Reports
       if: ${{ always() }}
-      uses: scacap/action-surefire-report@v1
+      uses: phoenix-actions/test-reporting@v12
       with:
-           check_name: 'Linux Test Reports'
+        name: Linux Test Reports
+        path:
+          tests/*/*/*/TEST-*.xml
+        reporter: java-junit
   
   build_macos:
     runs-on: macos-latest
