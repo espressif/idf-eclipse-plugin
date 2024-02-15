@@ -18,6 +18,9 @@ public class Messages extends NLS
 	public static String SerialMonitorPage_GroupHeading;
 	public static String EspresssifPreferencesPage_HideErrprOnIdfComponentsBtn;
 	public static String EspresssifPreferencesPage_HideErrprOnIdfComponentsToolTip;
+	public static String EspressifPreferencesPage_ToolsInstallationGrpTxt;
+	public static String EspressifPreferencesPage_ToolsInstallationGitAssetUrlLabel;
+	public static String EspressifPreferencesPage_ToolsInstallationPythonPyWheelUrlLabel;
 	
 	static
 	{
