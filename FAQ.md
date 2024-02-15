@@ -43,8 +43,8 @@ Default directory is `$HOME/.espressif` for Linux/MacOS users or `%USER_PROFILE%
 ## Why am I getting timeout errors when Installing tools?
 If you are getting errors when downloading or installing tools this can be due to some issue with the mirrors. You can try to set the mirrors in Eclipse `Preferences > Espressif` you will see two settings for Git and Pip Py Wheels please set these to proper mirror according to your region. Currently these two mirrors are available.
 ### Mirror for GIT (IDF_GITHUB_ASSETS)
-- https://dl.espressif.com/github_assets (default)
-- https://dl.espressif.cn/github_assets
+- dl.espressif.com/github_assets (default)
+- dl.espressif.cn/github_assets
 ### Mirror for python wheels (PIP_EXTRA_INDEX_URL)
 - https://dl.espressif.com/pypi (default)
 - https://dl.espressif.cn/pypi
