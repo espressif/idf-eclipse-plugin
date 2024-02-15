@@ -5,6 +5,10 @@
 
 package com.espressif.idf.sdk.config.core.server;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -13,11 +17,14 @@ import java.text.MessageFormat;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.sdk.config.core.IJsonServerConfig;
 import com.espressif.idf.sdk.config.core.SDKConfigCorePlugin;
@@ -34,12 +41,15 @@ public class JsonConfigServerRunnable implements Runnable
 	private InputStream out;
 	private CommandType type;
 	private Process process;
-
-	public JsonConfigServerRunnable(Process process, JsonConfigServer configServer)
+	private IProject project;
+	private String oldSdkconfigValue;
+	
+	public JsonConfigServerRunnable(Process process, JsonConfigServer configServer, IProject project, String oldSdkconfigValue)
 	{
 		this.process = process;
 		this.configServer = configServer;
-
+		this.project = project;
+		this.oldSdkconfigValue = oldSdkconfigValue;
 	}
 
 	public void destory()
@@ -74,15 +84,7 @@ public class JsonConfigServerRunnable implements Runnable
 
 	public boolean isAlive(Process p)
 	{
-		try
-		{
-			p.exitValue();
-			return false;
-		}
-		catch (IllegalThreadStateException e)
-		{
-			return true;
-		}
+		return p.isAlive();
 	}
 
 	public void run()
@@ -116,6 +118,17 @@ public class JsonConfigServerRunnable implements Runnable
 					configServer.console.print(string);
 					configServer.console.flush();
 					builder.append(string);
+					if (string.contains("Server running")) //$NON-NLS-1$
+					{
+						try
+						{
+							replaceOldCmakeCache();
+						}
+						catch (CoreException e)
+						{
+							Logger.log(e);
+						}
+					}
 				}
 
 				process.waitFor(100, TimeUnit.MILLISECONDS);
@@ -136,7 +149,53 @@ public class JsonConfigServerRunnable implements Runnable
 		}
 
 	}
+	
+	private void replaceOldCmakeCache() throws CoreException
+	{
+		// SDKCONFIG:UNINITIALIZED=
 
+		File cmakeCacheFile = new File(IDFUtil.getBuildDir(project).concat("/CMakeCache.txt")); //$NON-NLS-1$
+		if (cmakeCacheFile.exists() && !StringUtil.isEmpty(oldSdkconfigValue))
+		{
+			StringBuilder contentBuilder = new StringBuilder();
+			String lineSeparator = System.lineSeparator();
+
+			try (BufferedReader reader = new BufferedReader(new FileReader(cmakeCacheFile)))
+			{
+				String line;
+				while ((line = reader.readLine()) != null)
+				{
+					// Check if the line starts with the specific prefix for sdkconfig
+					if (line.startsWith("SDKCONFIG:UNINITIALIZED=")) //$NON-NLS-1$
+					{
+						// Replace the line
+						contentBuilder.append(oldSdkconfigValue).append(lineSeparator);
+					}
+					else
+					{
+						// Keep the line unchanged
+						contentBuilder.append(line).append(lineSeparator);
+					}
+				}
+			}
+			catch (IOException e)
+			{
+				Logger.log(e); 
+			}
+
+			// Write the modified content back to the file
+			try (PrintWriter writer = new PrintWriter(new FileWriter(cmakeCacheFile)))
+			{
+				writer.print(contentBuilder.toString());
+			}
+			catch (IOException e)
+			{
+				Logger.log(e);
+			}
+		}
+
+	}
+	
 	protected boolean isValidJson(String output)
 	{
 		String jsonOutput = new JsonConfigProcessor().getInitialOutput(output);

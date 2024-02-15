@@ -147,7 +147,7 @@ public interface IDFConstants
 	
 	String ESP_CORE_DUMP_FOLDER = "espcoredump"; //$NON-NLS-1$
 	
-	String ESP_CORE_DUMP_SCRIPT = "espcoredump.py";
+	String ESP_CORE_DUMP_SCRIPT = "espcoredump.py"; //$NON-NLS-1$
 
 	/**
 	 * COMPONENT_FOLDER/esptool_py

@@ -6,10 +6,12 @@
       <editor
             class="com.espressif.idf.sdk.config.ui.SDKConfigurationEditor"
             default="false"
-            filenames="sdkconfig"
             icon="icons/sdkconfig.png"
             id="com.espressif.idf.sdk.config.ui.editor"
             name="%editor.name">
+         <contentTypeBinding
+               contentTypeId="com.espressif.idf.sdk.config.ui.contenType">
+         </contentTypeBinding>
       </editor>
    </extension>
    <extension
@@ -61,6 +63,16 @@
             </iterate>
          </with>
       </definition>
+   </extension>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-patterns="sdkconfig*"
+            id="com.espressif.idf.sdk.config.ui.contenType"
+            name="SDKConfig Files"
+            priority="normal">
+      </content-type>
    </extension>
 
 </plugin>

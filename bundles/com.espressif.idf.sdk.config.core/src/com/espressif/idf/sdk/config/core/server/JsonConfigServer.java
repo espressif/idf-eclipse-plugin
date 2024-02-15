@@ -4,8 +4,10 @@
  *******************************************************************************/
 package com.espressif.idf.sdk.config.core.server;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -38,12 +41,15 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 	private IProject project;
 	private JsonConfigServerRunnable runnable;
 	private JsonConfigOutput configOutput;
+	private Process process;
+	private IFile file;
 
-	public JsonConfigServer(IProject project)
+	public JsonConfigServer(IProject project, IFile file)
 	{
 		this.project = project;
 		listeners = new ArrayList<IMessageHandlerListener>();
 		configOutput = new JsonConfigOutput();
+		this.file = file;
 	}
 
 	@Override
@@ -103,7 +109,7 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 		try
 		{
 			arguments = new ArrayList<String>(Arrays.asList(pythonPath, idfPythonScriptFile.getAbsolutePath(), "-B", //$NON-NLS-1$
-					IDFUtil.getBuildDir(project), IDFConstants.CONF_SERVER_CMD));
+					IDFUtil.getBuildDir(project), "-DSDKCONFIG=".concat(file.getName()), IDFConstants.CONF_SERVER_CMD)); //$NON-NLS-1$
 		}
 		catch (CoreException e)
 		{
@@ -118,6 +124,7 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 		}
 		Map<String, String> environment = processBuilder.environment();
 		environment.putAll(idfEnvMap);
+		environment.put("IDF_CCACHE_ENABLE", "false");
 
 		Logger.log(environment.toString());
 
@@ -134,11 +141,47 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 
 		// redirect error stream to input stream
 		processBuilder.redirectErrorStream(true);
-
-		Process process = processBuilder.start();
-		runnable = new JsonConfigServerRunnable(process, this);
+		String oldSdkconfigValue = StringUtil.EMPTY;
+		try
+		{
+			oldSdkconfigValue = getCmakeCacheSdkconfigValue();
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+		process = processBuilder.start();
+		runnable = new JsonConfigServerRunnable(process, this, project, oldSdkconfigValue);
 		Thread t = new Thread(runnable);
 		t.start();
+
+	}
+
+	private String getCmakeCacheSdkconfigValue() throws CoreException
+	{
+		File cmakeCacheFile = new File(IDFUtil.getBuildDir(project).concat("/CMakeCache.txt"));
+		if (cmakeCacheFile.exists())
+		{
+			try (BufferedReader reader = new BufferedReader(new FileReader(cmakeCacheFile)))
+			{
+				String line;
+				while ((line = reader.readLine()) != null)
+				{
+					// Check if the line starts with the specific prefix
+					if (line.startsWith("SDKCONFIG:UNINITIALIZED=")) //$NON-NLS-1$
+					{
+						// Replace the line
+						return line;
+					}
+				}
+			}
+			catch (IOException e)
+			{
+				Logger.log(e);
+			}
+		}
+
+		return StringUtil.EMPTY;
 	}
 
 	public IJsonConfigOutput getOutput(String response, boolean isUpdate)
@@ -165,4 +208,8 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 		this.console = console;
 	}
 
+	public boolean isAlive()
+	{
+		return runnable.isAlive(process);
+	}
 }
