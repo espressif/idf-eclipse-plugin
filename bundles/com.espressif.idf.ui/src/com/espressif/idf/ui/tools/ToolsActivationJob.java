@@ -194,5 +194,10 @@ public class ToolsActivationJob extends ToolsJob
 		
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, path);
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PYTHON_EXE_PATH, idfToolSet.getSystemPythonExecutablePath());
+		
+		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER, "1");
+		// IDF_MAINTAINER=1 to be able to build with the clang toolchain
+		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_MAINTAINER, "1");
+		IDFUtil.updateEspressifPrefPageOpenocdPath();
 	}
 }
