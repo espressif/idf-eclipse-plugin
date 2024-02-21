@@ -12,26 +12,24 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.MessageFormat;
 
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
-import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.IDFVersion;
 import com.espressif.idf.core.ZipUtility;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.tools.ToolsInstallationJob;
-import com.espressif.idf.ui.update.InstallToolsHandler;
+import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -41,15 +39,15 @@ public class IDFDownloadWizard extends Wizard
 {
 	private static final int BUFFER_SIZE = 4096; // $NON-NLS-1$
 	private IDFDownloadPage downloadPage;
-	private TableViewer tableViewer;
+	private ESPIDFMainTablePage espidfMainTablePage;
 	
 	public IDFDownloadWizard()
 	{
 	}
 	
-	public IDFDownloadWizard(TableViewer tableViewer)
+	public IDFDownloadWizard(ESPIDFMainTablePage espidfMainTablePage)
 	{
-		this.tableViewer = tableViewer;
+		this.espidfMainTablePage = espidfMainTablePage;
 	}
 
 	@Override
@@ -67,15 +65,8 @@ public class IDFDownloadWizard extends Wizard
 		{
 			String localIdfLocation = downloadPage.getExistingIDFLocation();
 			
-//			Logger.log("Setting IDF_PATH to :" + localIdfLocation); //$NON-NLS-1$
-			
-			// Configure IDF_PATH
-//			new IDFEnvironmentVariables().addEnvVariable("IDF_PATH", localIdfLocation); //$NON-NLS-1$
-//
-//			showMessage(MessageFormat.format(Messages.IDFDownloadWizard_ConfigMessage, localIdfLocation));
-			
 			ToolsInstallationJob toolsInstallationJob = new ToolsInstallationJob(pythonPath, gitPath, localIdfLocation,
-					tableViewer);
+					espidfMainTablePage);
 			toolsInstallationJob.schedule();
 			
 		}
@@ -83,7 +74,6 @@ public class IDFDownloadWizard extends Wizard
 		{
 			new File(destinationLocation).mkdirs();
 			String url = version.getUrl();
-
 			if (version.getName().equals("master") || version.getName().startsWith("release/")) //$NON-NLS-1$ //$NON-NLS-2$
 			{
 				Job job = new Job(MessageFormat.format(Messages.IDFDownloadWizard_CloningJobMsg, version.getName()))
@@ -91,7 +81,10 @@ public class IDFDownloadWizard extends Wizard
 					@Override
 					protected IStatus run(IProgressMonitor monitor)
 					{
-						repositoryClone(version.getName(), url, destinationLocation, monitor);
+						String localIdfLocation = repositoryClone(version.getName(), url, destinationLocation, monitor);
+						ToolsInstallationJob toolsInstallationJob = new ToolsInstallationJob(pythonPath, gitPath, localIdfLocation,
+								espidfMainTablePage);
+						toolsInstallationJob.schedule();
 						return Status.OK_STATUS;
 					}
 				};
@@ -106,7 +99,10 @@ public class IDFDownloadWizard extends Wizard
 					@Override
 					protected IStatus run(IProgressMonitor monitor)
 					{
-						download(monitor, url, destinationLocation);
+						String localIdfLocation = download(monitor, url, destinationLocation);
+						ToolsInstallationJob toolsInstallationJob = new ToolsInstallationJob(pythonPath, gitPath, localIdfLocation,
+								espidfMainTablePage);
+						toolsInstallationJob.schedule();
 						return Status.OK_STATUS;
 					}
 				};
@@ -137,7 +133,7 @@ public class IDFDownloadWizard extends Wizard
 
 	}
 
-	protected void download(IProgressMonitor monitor, String url, String destinationLocation)
+	protected String download(IProgressMonitor monitor, String url, String destinationLocation)
 	{
 		try
 		{
@@ -150,8 +146,7 @@ public class IDFDownloadWizard extends Wizard
 				// extracts file name from URL
 				String folderName = new File(url).getName().replace(".zip", ""); //$NON-NLS-1$ //$NON-NLS-2$
 
-				configurePath(destinationLocation, folderName);
-				showMessage(MessageFormat.format(Messages.IDFDownloadWizard_DownloadCompleteMsg, folderName));
+				return new File(destinationLocation, folderName).getAbsolutePath();
 			}
 		}
 		catch (IOException e)
@@ -159,9 +154,11 @@ public class IDFDownloadWizard extends Wizard
 			Logger.log(e);
 			showErrorMessage(e.getLocalizedMessage());
 		}
+		
+		return StringUtil.EMPTY;
 	}
 
-	protected void repositoryClone(String version, String url, String destinationLocation, IProgressMonitor monitor)
+	protected String repositoryClone(String version, String url, String destinationLocation, IProgressMonitor monitor)
 	{
 		GitRepositoryBuilder gitBuilder = new GitRepositoryBuilder(false, null);
 		StringBuilder destinationLocationPath = new StringBuilder();
@@ -184,8 +181,7 @@ public class IDFDownloadWizard extends Wizard
 		try
 		{
 			gitBuilder.repositoryClone();
-			configurePath(destinationLocationPath.toString());
-			showMessage(MessageFormat.format(Messages.IDFDownloadWizard_CloningCompletedMsg, version));
+			return destinationLocationPath.toString();
 
 		}
 		catch (Exception e)
@@ -193,56 +189,13 @@ public class IDFDownloadWizard extends Wizard
 			Logger.log(e);
 			showErrorMessage(e.getLocalizedMessage());
 		}
-	}
-
-	private void configurePath(String destinationDir, String folderName)
-	{
-		String idf_path = new File(destinationDir, folderName).getAbsolutePath();
-		Logger.log("Setting IDF_PATH to:" + idf_path); //$NON-NLS-1$
-
-		// Configure IDF_PATH
-		new IDFEnvironmentVariables().addEnvVariable("IDF_PATH", //$NON-NLS-1$
-				new File(destinationDir, folderName).getAbsolutePath());
-	}
-	
-	private void configurePath(String destinationDir)
-	{
-		String idf_path = new File(destinationDir).getAbsolutePath();
-		Logger.log("Setting IDF_PATH to:" + idf_path); //$NON-NLS-1$
-
-		// Configure IDF_PATH
-		new IDFEnvironmentVariables().addEnvVariable("IDF_PATH", //$NON-NLS-1$
-				new File(destinationDir).getAbsolutePath());
+		
+		return StringUtil.EMPTY;
 	}
 
 	private void unZipFile(String downloadFile, String destinationLocation)
 	{
 		new ZipUtility().decompress(new File(downloadFile), new File(destinationLocation));
-	}
-
-	private void showMessage(final String message)
-	{
-		Display.getDefault().asyncExec(new Runnable()
-		{
-			public void run()
-			{
-				boolean isYes = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
-						Messages.IDFDownloadWizard_MessageTitle, message);
-				if (isYes)
-				{
-					InstallToolsHandler installToolsHandler = new InstallToolsHandler();
-					try
-					{
-						installToolsHandler.setCommandId("com.espressif.idf.ui.command.install"); //$NON-NLS-1$
-						installToolsHandler.execute(null);
-					}
-					catch (ExecutionException e)
-					{
-						Logger.log(e);
-					}
-				}
-			}
-		});
 	}
 
 	private void showErrorMessage(String errorMessage)

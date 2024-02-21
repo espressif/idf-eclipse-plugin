@@ -4,6 +4,7 @@ import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
@@ -23,6 +24,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.ToolSetConfigurationManager;
 import com.espressif.idf.core.tools.vo.IDFToolSet;
 import com.espressif.idf.ui.install.IDFDownloadWizard;
@@ -35,6 +37,12 @@ public class ESPIDFMainTablePage
 	private TableViewer tableViewer;
 	private ToolSetConfigurationManager toolSetConfigurationManager;
 	private ColumnViewerComparator comparator;
+	private TableViewerColumn versionColumn;
+	private TableViewerColumn locationColumn;
+	private TableViewerColumn stateColumn;
+	private TableViewerColumn actionsColumn;
+	private TableColumnLayout tableColumnLayout;
+	private Composite tableComposite;
 
 	public Composite createPage(Composite composite)
 	{
@@ -49,6 +57,32 @@ public class ESPIDFMainTablePage
 		return container;
 	}
 
+	public void refreshTable()
+	{
+		for (TableItem item : tableViewer.getTable().getItems()) {
+		    String EDITOR_KEY = "action_editor";
+		    TableEditor editor = (TableEditor) item.getData(EDITOR_KEY);
+		    if (editor != null) {
+		        if (editor.getEditor() != null && !editor.getEditor().isDisposed()) {
+		            editor.getEditor().dispose(); // Dispose the button composite
+		        }
+		        editor.dispose(); // Dispose the editor itself
+		        item.setData(EDITOR_KEY, null); // Clear the stored editor reference
+		    }
+		}
+		toolSetConfigurationManager.setReload(true);
+		actionsColumn.getColumn().dispose();
+		actionsColumn = new TableViewerColumn(tableViewer, SWT.NONE);
+		actionsColumn.getColumn().setText("Actions");
+		actionsColumn.setLabelProvider(new IdfManagerTableColumnLabelProvider());
+		tableColumnLayout.setColumnData(actionsColumn.getColumn(), new ColumnWeightData(1, 50, true));
+		tableViewer.setInput(toolSetConfigurationManager.getIdfToolSets(true));
+		tableViewer.getControl().requestLayout();
+		tableViewer.refresh();
+		container.redraw();
+		toolSetConfigurationManager.setReload(false);
+	}
+
 	private Composite createIdfTable(Composite parent)
 	{
 		Group idfToolsGroup = new Group(parent, SWT.SHADOW_ETCHED_IN);
@@ -57,9 +91,9 @@ public class ESPIDFMainTablePage
 		idfToolsGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
 
 		// Composite for the TableViewer, with TableColumnLayout
-		Composite tableComposite = new Composite(idfToolsGroup, SWT.NONE);
+		tableComposite = new Composite(idfToolsGroup, SWT.NONE);
 		tableComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
-		TableColumnLayout tableColumnLayout = new TableColumnLayout();
+		tableColumnLayout = new TableColumnLayout();
 		tableComposite.setLayout(tableColumnLayout);
 
 		tableViewer = new TableViewer(tableComposite, SWT.BORDER | SWT.FULL_SELECTION);
@@ -69,36 +103,40 @@ public class ESPIDFMainTablePage
 		table.setLinesVisible(true);
 		comparator = new ColumnViewerComparator();
 		tableViewer.setComparator(comparator);
-		int colIndex = 0;
-		
-		TableViewerColumn versionColumn = new TableViewerColumn(tableViewer, SWT.NONE);
-		versionColumn.getColumn().setText("ESP-IDF Version");
-		versionColumn.setLabelProvider(new IdfManagerTableColumnLabelProvider());
-		setComparatorForCols(versionColumn, colIndex++);
-		tableColumnLayout.setColumnData(versionColumn.getColumn(), new ColumnWeightData(1, 50, true));
-
-		TableViewerColumn locationColumn = new TableViewerColumn(tableViewer, SWT.NONE);
-		locationColumn.getColumn().setText("Location");
-		locationColumn.setLabelProvider(new IdfManagerTableColumnLabelProvider());
-		setComparatorForCols(locationColumn, colIndex++);
-		tableColumnLayout.setColumnData(locationColumn.getColumn(), new ColumnWeightData(2, 100, true));
-
-		TableViewerColumn stateColumn = new TableViewerColumn(tableViewer, SWT.NONE);
-		stateColumn.getColumn().setText("State");
-		stateColumn.setLabelProvider(new IdfManagerTableColumnLabelProvider());
-		setComparatorForCols(stateColumn, colIndex++);
-		tableColumnLayout.setColumnData(stateColumn.getColumn(), new ColumnWeightData(1, 50, true));
-
-		TableViewerColumn actionsColumn = new TableViewerColumn(tableViewer, SWT.NONE);
-		actionsColumn.getColumn().setText("Actions");
-		actionsColumn.setLabelProvider(new IdfManagerTableColumnLabelProvider());
-		tableColumnLayout.setColumnData(actionsColumn.getColumn(), new ColumnWeightData(1, 50, true));
+		setupColumns();
 
 		tableViewer.setInput(toolSetConfigurationManager.getIdfToolSets(true));
 		table.layout();
 		return idfToolsGroup;
 	}
-	
+
+	private void setupColumns()
+	{
+		int colIndex = 0;
+		versionColumn = new TableViewerColumn(tableViewer, SWT.NONE);
+		versionColumn.getColumn().setText("ESP-IDF Version");
+		versionColumn.setLabelProvider(new IdfManagerTableColumnLabelProvider());
+		setComparatorForCols(versionColumn, colIndex++);
+		tableColumnLayout.setColumnData(versionColumn.getColumn(), new ColumnWeightData(1, 50, true));
+
+		locationColumn = new TableViewerColumn(tableViewer, SWT.NONE);
+		locationColumn.getColumn().setText("Location");
+		locationColumn.setLabelProvider(new IdfManagerTableColumnLabelProvider());
+		setComparatorForCols(locationColumn, colIndex++);
+		tableColumnLayout.setColumnData(locationColumn.getColumn(), new ColumnWeightData(2, 100, true));
+
+		stateColumn = new TableViewerColumn(tableViewer, SWT.NONE);
+		stateColumn.getColumn().setText("State");
+		stateColumn.setLabelProvider(new IdfManagerTableColumnLabelProvider());
+		setComparatorForCols(stateColumn, colIndex++);
+		tableColumnLayout.setColumnData(stateColumn.getColumn(), new ColumnWeightData(1, 50, true));
+
+		actionsColumn = new TableViewerColumn(tableViewer, SWT.NONE);
+		actionsColumn.getColumn().setText("Actions");
+		actionsColumn.setLabelProvider(new IdfManagerTableColumnLabelProvider());
+		tableColumnLayout.setColumnData(actionsColumn.getColumn(), new ColumnWeightData(1, 50, true));
+	}
+
 	private void setComparatorForCols(TableViewerColumn column, int colIndex)
 	{
 		column.getColumn().addSelectionListener(new SelectionAdapter()
@@ -112,17 +150,17 @@ public class ESPIDFMainTablePage
 				{
 					direction = direction == SWT.UP ? SWT.DOWN : SWT.UP;
 				}
-				else 
+				else
 				{
 					direction = SWT.DOWN;
 				}
-				
+
 				tableViewer.getTable().setSortDirection(direction);
 				tableViewer.getTable().setSortColumn(column.getColumn());
 				tableViewer.refresh();
 			}
 		});
-		
+
 	}
 
 	private void createButtons(Composite composite)
@@ -140,7 +178,7 @@ public class ESPIDFMainTablePage
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				IDFDownloadWizard wizard = new IDFDownloadWizard(tableViewer);
+				IDFDownloadWizard wizard = new IDFDownloadWizard(ESPIDFMainTablePage.this);
 				wizard.setWindowTitle(Messages.IDFDownloadHandler_ESPIDFConfiguration);
 				WizardDialog wizDialog = new WizardDialog(container.getShell(), wizard);
 				wizDialog.create();
@@ -155,6 +193,26 @@ public class ESPIDFMainTablePage
 		newButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		Button deleteButton = new Button(buttonComposite, SWT.PUSH);
 		deleteButton.setText("Delete");
+		deleteButton.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				// Get the selected item
+				IStructuredSelection selection = tableViewer.getStructuredSelection();
+				if (!selection.isEmpty())
+				{
+					IDFToolSet selectedToolSet = (IDFToolSet) selection.getFirstElement();
+					performDeleteOperation(selectedToolSet);
+					refreshTable();
+				}
+			}
+
+			private void performDeleteOperation(IDFToolSet toolSet)
+			{
+				toolSetConfigurationManager.delete(toolSet);
+			}
+		});
 		deleteButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 	}
 
@@ -209,12 +267,6 @@ public class ESPIDFMainTablePage
 			Composite buttonComposite = new Composite(tableViewer.getTable(), SWT.NONE);
 			buttonComposite.setLayout(new FillLayout());
 			item.setData(EDITOR_KEY, editor);
-
-			Button editButton = new Button(buttonComposite, SWT.NONE);
-			editButton.setText("Edit");
-			editButton.addListener(SWT.Selection, e -> {
-				// handle edit
-			});
 			IDFToolSet idfToolSet = (IDFToolSet) cell.getElement();
 			Button setActiveButton = new Button(buttonComposite, SWT.NONE);
 			setActiveButton.setData("IDFToolSet", idfToolSet);
@@ -222,7 +274,7 @@ public class ESPIDFMainTablePage
 			setActiveButton.addListener(SWT.Selection, e -> {
 				Button btn = (Button) e.widget;
 				ToolsActivationJob toolsActivationJob = new ToolsActivationJob((IDFToolSet) btn.getData("IDFToolSet"),
-						null, null, tableViewer);
+						null, null, ESPIDFMainTablePage.this);
 				toolsActivationJob.schedule();
 			});
 

@@ -37,6 +37,34 @@ public class ToolSetConfigurationManager
 				.create();
 	}
 	
+	
+	public void delete(IDFToolSet idfToolSet)
+	{
+		reload = true;
+		getIdfToolSets(false);
+		List<IDFToolSet> idfToolSetsToExport = new ArrayList<IDFToolSet>();
+		for (IDFToolSet idfTool : idfToolSets)
+		{
+			if (idfTool.getIdfLocation().equals(idfToolSet.getIdfLocation()))
+			{
+				continue;
+			}
+			
+			idfToolSetsToExport.add(idfTool);
+		}
+		
+		try (FileWriter fileWriter = new FileWriter(toolSetConfigFilePath()))
+		{
+			gson.toJson(idfToolSetsToExport, fileWriter);
+		}
+		catch (IOException e)
+		{
+			Logger.log(e);
+		}
+		getIdfToolSets(false);
+		reload = false;
+	}
+	
 	public boolean isToolSetAlreadyPresent(String idfPath)
 	{
 		List<IDFToolSet> idfToolSets = getIdfToolSets(false);
@@ -74,7 +102,19 @@ public class ToolSetConfigurationManager
 		{
 		}.getType();
 		List<IDFToolSet> idfToolSets = new ArrayList<>();
-
+		File toolSetFile = new File(toolSetConfigFilePath());
+		if (!toolSetFile.exists())
+		{
+			try
+			{
+				toolSetFile.createNewFile();
+			}
+			catch (IOException e)
+			{
+				Logger.log(e);
+			}
+		}
+		
 		try (FileReader fileReader = new FileReader(toolSetConfigFilePath()))
 		{
 			idfToolSets = gson.fromJson(fileReader, listType);
@@ -133,6 +173,15 @@ public class ToolSetConfigurationManager
 			idfToolSets = new ArrayList<>();
 		}
 		
+		// If the toolSet to be exported is active, set all others to inactive
+		if (idfToolSet.isActive())
+		{
+			for (IDFToolSet toolSet : idfToolSets)
+			{
+				toolSet.setActive(false); // Set all to inactive
+			}
+		}
+
 		boolean found = false;
 		for (int i = 0; i < idfToolSets.size(); i++)
 		{
