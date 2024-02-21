@@ -24,7 +24,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
-import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.ToolSetConfigurationManager;
 import com.espressif.idf.core.tools.vo.IDFToolSet;
 import com.espressif.idf.ui.install.IDFDownloadWizard;
