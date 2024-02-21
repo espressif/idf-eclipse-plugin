@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -27,15 +26,18 @@ import com.espressif.idf.core.tools.vo.IDFToolSet;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
+import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
 import com.espressif.idf.ui.update.ExportIDFTools;
 import com.espressif.idf.ui.update.Messages;
 
 public class ToolsActivationJob extends ToolsJob
 {
 	public static final String INSTALL_TOOLS_FLAG = "INSTALL_TOOLS_FLAG"; //$NON-NLS-1$
-	public ToolsActivationJob(IDFToolSet idfToolSet, String pythonExecutablePath, String gitExecutablePath, TableViewer tableViewer)
+
+	public ToolsActivationJob(IDFToolSet idfToolSet, String pythonExecutablePath, String gitExecutablePath,
+			ESPIDFMainTablePage espidfMainTablePage)
 	{
-		super("Tools Activation Job", null, null, tableViewer);
+		super("Tools Activation Job", null, null, espidfMainTablePage);
 		this.idfToolSet = idfToolSet;
 	}
 
@@ -169,14 +171,8 @@ public class ToolsActivationJob extends ToolsJob
 		}
 		
 		List<String> targets = extractTargets(status.getMessage());
-		
-		
 		ESPToolChainManager espToolChainManager = new ESPToolChainManager();
-		espToolChainManager.removeStdToolChains();
-//		espToolChainManager.removeCmakeToolChains();
-		espToolChainManager.updateToolChainElementesWithSelectedTargets(targets);
-		espToolChainManager.addStdToolChains(idfToolSet.getEspStdToolChains());
-		espToolChainManager.addCmakeToolchains(idfToolSet.getEspCmakeToolChainFiles());
+		espToolChainManager.configureToolChain(targets);
 	}
 
 	private void setEnvVarsInEclipse()

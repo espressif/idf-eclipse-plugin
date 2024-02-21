@@ -11,7 +11,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.espressif.idf.core.IDFConstants;
@@ -20,15 +19,17 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
 import com.espressif.idf.core.toolchain.ESPToolchain;
+import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
 import com.espressif.idf.ui.update.ExportIDFTools;
 import com.espressif.idf.ui.update.Messages;
 
 public class ToolsInstallationJob extends ToolsJob
 {
-	public ToolsInstallationJob(String pythonExecutablePath, String gitExecutablePath, String idfPath, TableViewer tableViewer)
+	public ToolsInstallationJob(String pythonExecutablePath, String gitExecutablePath, String idfPath, ESPIDFMainTablePage espidfMainTablePage)
 	{
-		super(Messages.InstallToolsHandler_InstallingToolsMsg, pythonExecutablePath, gitExecutablePath, tableViewer);
+		super(Messages.InstallToolsHandler_InstallingToolsMsg, pythonExecutablePath, gitExecutablePath, espidfMainTablePage);
 		this.idfPath = idfPath;
+		this.idfToolSet.setIdfLocation(idfPath);
 		this.idfToolSet.setSystemGitExecutablePath(gitExecutablePath);
 		this.idfToolSet.setSystemPythonExecutablePath(pythonExecutablePath);
 	}
@@ -38,7 +39,8 @@ public class ToolsInstallationJob extends ToolsJob
 	{
 		monitor.beginTask(Messages.InstallToolsHandler_ItWilltakeTimeMsg, 5);
 		monitor.worked(1);
-
+		Logger.log(""
+				);
 		IStatus status = handleToolsInstall();
 		if (status.getSeverity() == IStatus.ERROR)
 		{
@@ -59,7 +61,6 @@ public class ToolsInstallationJob extends ToolsJob
 		ExportIDFTools exportIDFTools = new ExportIDFTools();
 		status = exportIDFTools.getToolsExportOutputFromGivenIdfPath(pythonExecutablePath, gitExecutablePath, console,
 				errorConsoleStream, idfPath);
-
 		if (status.getSeverity() == IStatus.ERROR)
 		{
 			return status;

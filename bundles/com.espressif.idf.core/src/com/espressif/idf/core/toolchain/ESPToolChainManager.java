@@ -463,6 +463,21 @@ public class ESPToolChainManager
 			Logger.log(e);
 		}
 	}
+	
+	public void addToolchainBasedTargets(ILaunchTargetManager targetManager, List<String> targets)
+	{
+		Collection<IToolChain> toolchainsWithoutDuplicateTargets = getAllEspToolchains().stream()
+				.filter(distinctByOs(tc -> tc.getProperty(IToolChain.ATTR_OS))).collect(Collectors.toList());
+
+		try
+		{
+			addLaunchTargets(targetManager, toolchainsWithoutDuplicateTargets, targets);
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+		}
+	}
 
 	private <T> Predicate<T> distinctByOs(Function<? super T, Object> extractor)
 	{
@@ -479,6 +494,36 @@ public class ESPToolChainManager
 			String os = toolchain.getProperty(IToolChain.ATTR_OS);
 			String arch = toolchain.getProperty(IToolChain.ATTR_ARCH);
 
+			if (targetManager.getLaunchTarget(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE, os) == null)
+			{
+				ILaunchTarget target = targetManager.addLaunchTarget(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE, os);
+				ILaunchTargetWorkingCopy wc = target.getWorkingCopy();
+				wc.setAttribute(ILaunchTarget.ATTR_OS, os);
+				wc.setAttribute(ILaunchTarget.ATTR_ARCH, arch);
+				wc.setAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, os);
+				wc.save();
+			}
+		}
+	}
+	
+	private void addLaunchTargets(ILaunchTargetManager targetManager,
+			Collection<IToolChain> toolchainsWithoutDuplicateTargets, List<String> targets) throws SecurityException, IllegalArgumentException
+	{
+
+		for (IToolChain toolchain : toolchainsWithoutDuplicateTargets)
+		{
+			String os = toolchain.getProperty(IToolChain.ATTR_OS);
+			if (!targets.contains(os))
+			{
+				ILaunchTarget target = targetManager.getLaunchTarget(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE, os);
+				if (target != null)
+				{
+					targetManager.removeLaunchTarget(target);
+				}
+				continue;
+			}
+			
+			String arch = toolchain.getProperty(IToolChain.ATTR_ARCH);
 			if (targetManager.getLaunchTarget(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE, os) == null)
 			{
 				ILaunchTarget target = targetManager.addLaunchTarget(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE, os);
@@ -507,6 +552,20 @@ public class ESPToolChainManager
 		initToolChain(tcManager, ESPToolChainProvider.ID);
 		initCMakeToolChain(cmakeTcManager);
 		addToolchainBasedTargets(IDFCorePlugin.getService(ILaunchTargetManager.class));
+	}
+	
+	/**
+	 * Configure the file in the preferences and initialize the launch bar with available targets
+	 * @param targets The targets to filter from the given idf version
+	 */
+	public void configureToolChain(List<String> targets)
+	{
+		IToolChainManager tcManager = CCorePlugin.getService(IToolChainManager.class);
+		ICMakeToolChainManager cmakeTcManager = CCorePlugin.getService(ICMakeToolChainManager.class);
+
+		initToolChain(tcManager, ESPToolChainProvider.ID);
+		initCMakeToolChain(cmakeTcManager);
+		addToolchainBasedTargets(IDFCorePlugin.getService(ILaunchTargetManager.class), targets);
 	}
 	
 	/**
