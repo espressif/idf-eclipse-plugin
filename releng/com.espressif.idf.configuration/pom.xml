@@ -10,7 +10,7 @@
 		<tycho-version>3.0.4</tycho-version>
 		<tycho-extras.version>${tycho-version}</tycho-extras.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<espressif-ide-release-version>2.12.0</espressif-ide-release-version>
+		<espressif-ide-release-version>2.12.1</espressif-ide-release-version>
 	</properties>
 
 	<build>
