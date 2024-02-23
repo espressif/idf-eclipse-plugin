@@ -51,17 +51,16 @@ public class LaunchBarListener implements ILaunchBarListener
 	@Override
 	public void activeLaunchTargetChanged(ILaunchTarget target)
 	{
-		Display.getDefault().asyncExec(() ->
-		{
-				if (target != null)
-				{
+		Display.getDefault().asyncExec(() -> {
+			if (target != null)
+			{
 				String targetName = target.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
 						StringUtil.EMPTY);
 				if (!StringUtil.isEmpty(targetName) && (!targetChangeIgnored))
-					{
-						update(targetName);
-					}
+				{
+					update(targetName);
 				}
+			}
 		});
 
 	}
@@ -104,9 +103,8 @@ public class LaunchBarListener implements ILaunchBarListener
 						// get current target
 						String currentTarget = new SDKConfigJsonReader((IProject) project).getValue("IDF_TARGET"); //$NON-NLS-1$
 
-						if ((activeConfig.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, false)
-								|| activeConfig.getType().getIdentifier()
-										.contentEquals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
+						if ((activeConfig.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, false) || activeConfig
+								.getType().getIdentifier().contentEquals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
 								&& !jtagIgnored)
 						{
 							String targetForJtagFlash = activeConfig.getWorkingCopy()
@@ -121,6 +119,7 @@ public class LaunchBarListener implements ILaunchBarListener
 								{
 									ILaunchBarUIManager uiManager = UIPlugin.getService(ILaunchBarUIManager.class);
 									uiManager.openConfigurationEditor(launchBarManager.getActiveLaunchDescriptor());
+									deleteBuildFolder(project, buildLocation);
 									return;
 								}
 							}
@@ -136,32 +135,7 @@ public class LaunchBarListener implements ILaunchBarListener
 											project.getName(), currentTarget, newTarget));
 							if (isDelete)
 							{
-								IWorkspaceRunnable runnable = new IWorkspaceRunnable()
-								{
-
-									@Override
-									public void run(IProgressMonitor monitor) throws CoreException
-									{
-
-										monitor.beginTask("Deleting build folder...", 1); //$NON-NLS-1$
-										Logger.log("Deleting build folder " + buildLocation.getAbsolutePath()); //$NON-NLS-1$
-										deleteDirectory(buildLocation);
-										cleanSdkConfig(project);
-										project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
-									}
-
-								};
-
-								// run workspace job
-								try
-								{
-									ResourcesPlugin.getWorkspace().run(runnable, new NullProgressMonitor());
-								}
-								catch (Exception e1)
-								{
-									Logger.log(IDFCorePlugin.getPlugin(), "Unable to delete the build folder", //$NON-NLS-1$
-											e1);
-								}
+								deleteBuildFolder(project, buildLocation);
 							}
 						}
 					}
@@ -173,6 +147,36 @@ public class LaunchBarListener implements ILaunchBarListener
 		catch (CoreException e1)
 		{
 			Logger.log(e1);
+		}
+	}
+
+	private void deleteBuildFolder(IResource project, File buildLocation)
+	{
+		IWorkspaceRunnable runnable = new IWorkspaceRunnable()
+		{
+
+			@Override
+			public void run(IProgressMonitor monitor) throws CoreException
+			{
+
+				monitor.beginTask("Deleting build folder...", 1); //$NON-NLS-1$
+				Logger.log("Deleting build folder " + buildLocation.getAbsolutePath()); //$NON-NLS-1$
+				deleteDirectory(buildLocation);
+				cleanSdkConfig(project);
+				project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+			}
+
+		};
+
+		// run workspace job
+		try
+		{
+			ResourcesPlugin.getWorkspace().run(runnable, new NullProgressMonitor());
+		}
+		catch (Exception e1)
+		{
+			Logger.log(IDFCorePlugin.getPlugin(), "Unable to delete the build folder", //$NON-NLS-1$
+					e1);
 		}
 	}
 
