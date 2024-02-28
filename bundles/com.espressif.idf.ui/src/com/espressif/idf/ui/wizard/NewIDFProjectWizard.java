@@ -14,15 +14,24 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.PageChangingEvent;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.launchbar.core.ILaunchBarManager;
+import org.eclipse.launchbar.core.ILaunchDescriptor;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
+import org.eclipse.launchbar.ui.NewLaunchConfigWizard;
+import org.eclipse.launchbar.ui.NewLaunchConfigWizardDialog;
+import org.eclipse.launchbar.ui.internal.dialogs.NewLaunchConfigEditPage;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.tools.templates.core.IGenerator;
 import org.eclipse.tools.templates.ui.TemplateWizard;
 import org.eclipse.ui.IViewPart;
@@ -48,6 +57,7 @@ import com.espressif.idf.ui.templates.TemplatesManager;
 @SuppressWarnings("restriction")
 public class NewIDFProjectWizard extends TemplateWizard
 {
+	private static final String NEW_LAUNCH_CONFIG_EDIT_PAGE = "NewLaunchConfigEditPage"; //$NON-NLS-1$
 	public static final String TARGET_SWITCH_JOB = "TARGET SWITCH JOB"; //$NON-NLS-1$
 	private NewProjectCreationWizardPage projectCreationWizardPage;
 
@@ -72,16 +82,17 @@ public class NewIDFProjectWizard extends TemplateWizard
 		super.addPages();
 
 		this.setWindowTitle(Messages.NewIDFProjectWizard_NewIDFProject);
-	
+
 		TemplatesManager templatesManager = new TemplatesManager();
 		ITemplateNode templateRoot = templatesManager.getTemplates();
-		projectCreationWizardPage = new NewProjectCreationWizardPage(templateRoot, Messages.NewIDFProjectWizard_TemplatesHeader);
+		projectCreationWizardPage = new NewProjectCreationWizardPage(templateRoot,
+				Messages.NewIDFProjectWizard_TemplatesHeader);
 		ITemplateNode templateNode = templatesManager.getTemplateNode(IDFConstants.DEFAULT_TEMPLATE_ID);
 		if (templateNode != null)
 		{
 			projectCreationWizardPage.setInitialTemplateId(templateNode);
 		}
-		
+
 		this.addPage(projectCreationWizardPage);
 	}
 
@@ -101,19 +112,61 @@ public class NewIDFProjectWizard extends TemplateWizard
 				selProvider.setSelection(new StructuredSelection(project));
 			}
 		}
+
 		final String target = projectCreationWizardPage.getSelectedTarget();
 		this.getShell().addDisposeListener(new DisposeListener()
 		{
 			@Override
-			public void widgetDisposed(DisposeEvent e)
+			public void widgetDisposed(DisposeEvent event)
 			{
+				ILaunchBarManager launchBarManager = UIPlugin.getService(ILaunchBarManager.class);
 				TargetSwitchJob targetSwtichJob = new TargetSwitchJob(target);
 				targetSwtichJob.schedule();
+				try
+				{
+					ILaunchDescriptor desc = launchBarManager.getActiveLaunchDescriptor();
+					createDefaultDebugConfig();
+					launchBarManager.setActiveLaunchDescriptor(desc);
+				}
+				catch (CoreException e)
+				{
+					Logger.log(e);
+				}
+
 			}
 		});
 		return performFinish;
 	}
-	
+
+	private void createDefaultDebugConfig()
+	{
+		Shell activeShell = Display.getDefault().getActiveShell();
+
+		NewLaunchConfigWizard wizard = new NewLaunchConfigWizard();
+		WizardDialog dialog = new NewLaunchConfigWizardDialog(activeShell, wizard);
+		dialog.create();
+
+		NewLaunchConfigEditPage editPage = (NewLaunchConfigEditPage) wizard.getPage(NEW_LAUNCH_CONFIG_EDIT_PAGE);
+		ILaunchConfigurationType debugLaunchConfigType = DebugPlugin.getDefault().getLaunchManager()
+				.getLaunchConfigurationType(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE);
+		editPage.setLaunchConfigType(debugLaunchConfigType);
+
+		PageChangingEvent pageChangingEvent = new PageChangingEvent(wizard, wizard.getStartingPage(), editPage);
+		editPage.handlePageChanging(pageChangingEvent);
+
+		wizard.performFinish();
+
+		try
+		{
+			wizard.getWorkingCopy().doSave();
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+		wizard.dispose();
+	}
+
 	@Override
 	protected IGenerator getGenerator()
 	{
@@ -126,7 +179,8 @@ public class NewIDFProjectWizard extends TemplateWizard
 			manifest = null;
 		}
 
-		IDFProjectGenerator generator = new IDFProjectGenerator(manifest, selectedTemplate, true, projectCreationWizardPage.getSelectedTarget());
+		IDFProjectGenerator generator = new IDFProjectGenerator(manifest, selectedTemplate, true,
+				projectCreationWizardPage.getSelectedTarget());
 		generator.setProjectName(projectCreationWizardPage.getProjectName());
 		if (!projectCreationWizardPage.useDefaults())
 		{
@@ -135,18 +189,17 @@ public class NewIDFProjectWizard extends TemplateWizard
 		return generator;
 	}
 
-	
 	private class TargetSwitchJob extends Job
 	{
 		private ILaunchBarManager launchBarManager;
 		private String target;
+
 		public TargetSwitchJob(String target)
 		{
 			super(TARGET_SWITCH_JOB);
 			this.target = target;
 			launchBarManager = UIPlugin.getService(ILaunchBarManager.class);
 		}
-
 
 		private Job findInternalJob()
 		{
@@ -157,10 +210,9 @@ public class NewIDFProjectWizard extends TemplateWizard
 					return job;
 				}
 			}
-			
+
 			return null;
 		}
-		
 
 		@Override
 		protected IStatus run(IProgressMonitor monitor)
@@ -177,7 +229,7 @@ public class NewIDFProjectWizard extends TemplateWizard
 					Logger.log(e1);
 				}
 			}
-			
+
 			Display.getDefault().syncExec(() -> {
 				ILaunchTarget launchTarget = findSuitableTargetForSelectedTargetString();
 				try
@@ -187,13 +239,13 @@ public class NewIDFProjectWizard extends TemplateWizard
 				catch (CoreException e)
 				{
 					Logger.log(e);
-				}	
+				}
 			});
-			
+
 			return Status.OK_STATUS;
-			
+
 		}
-		
+
 		private ILaunchTarget findSuitableTargetForSelectedTargetString()
 		{
 			ILaunchTargetManager launchTargetManager = UIPlugin.getService(ILaunchTargetManager.class);
@@ -202,14 +254,13 @@ public class NewIDFProjectWizard extends TemplateWizard
 
 			for (ILaunchTarget iLaunchTarget : targets)
 			{
-				String idfTarget = iLaunchTarget.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET,
-						null);			
+				String idfTarget = iLaunchTarget.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, null);
 				if (idfTarget.contentEquals(target))
 				{
 					return iLaunchTarget;
 				}
 			}
-			
+
 			return null;
 		}
 	}

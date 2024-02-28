@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *      QNX - Initial API and implementation
  *      kondal.kolipaka@espressif.com - ESP-IDF specific build configuration
@@ -140,10 +140,12 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	public boolean isProgressSet;
 	private QualifiedName TIMESTAMP_COMPILE_COMMANDS_PROPERTY = new QualifiedName(null,
 			"timestamp:compile_commands.json"); //$NON-NLS-1$
+	private ILaunchConfiguration configuration;
 
 	public IDFBuildConfiguration(IBuildConfiguration config, String name) throws CoreException
 	{
 		super(config, name);
+		this.configuration = LAUNCH_CONFIG_PROVIDER.getActiveLaunchConfiguration();
 	}
 
 	public IDFBuildConfiguration(IBuildConfiguration config, String name, IToolChain toolChain)
@@ -156,6 +158,14 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	{
 		super(config, name, toolChain, launchMode);
 		this.toolChainFile = toolChainFile;
+		try
+		{
+			this.configuration = LAUNCH_CONFIG_PROVIDER.getActiveLaunchConfiguration();
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
 	}
 
 	@Override
@@ -247,7 +257,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	{
 		try
 		{
-			ILaunchConfiguration configuration = LAUNCH_CONFIG_PROVIDER.getActiveLaunchConfiguration();
 			if (configuration != null
 					&& configuration.getType().getIdentifier().equals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
 			{
@@ -639,7 +648,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 
 	/**
 	 * Link build components(build_component_paths) from project_description.json to the project.
-	 * 
+	 *
 	 * @param project
 	 * @throws Exception
 	 */
@@ -976,7 +985,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	/**
 	 * Processes the delta in order to detect whether one of the CMakeLists.txt files in the project has been modified
 	 * and saved by the user since the last build.
-	 * 
+	 *
 	 * @return <code>true</code> to continue with delta processing, otherwise <code>false</code>
 	 */
 	private boolean processElementDelta(ICElementDelta delta)
