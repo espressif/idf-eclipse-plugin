@@ -7,7 +7,9 @@ package com.espressif.idf.ui.wizard;
 import java.io.File;
 
 import org.eclipse.cdt.debug.internal.core.InternalDebugCoreMessages;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -110,6 +112,7 @@ public class NewIDFProjectWizard extends TemplateWizard
 				String projectName = projectCreationWizardPage.getProjectName();
 				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 				selProvider.setSelection(new StructuredSelection(project));
+				createClangdFile(project);
 			}
 		}
 
@@ -136,6 +139,24 @@ public class NewIDFProjectWizard extends TemplateWizard
 			}
 		});
 		return performFinish;
+	}
+
+	private void createClangdFile(IProject project) 
+	{
+		String fileContent = "CompileFlags:\n" //$NON-NLS-1$
+				+ "  Remove: [-fno-tree-switch-conversion, -fstrict-volatile-bitfields]\n" //$NON-NLS-1$
+				+ ""; //$NON-NLS-1$
+		
+		try {
+			IFile file = project.getFile(".clangd"); //$NON-NLS-1$
+			file.create(
+	                new java.io.ByteArrayInputStream(fileContent.getBytes()),
+	                IResource.FORCE | IResource.KEEP_HISTORY,
+	                null
+	            );
+		} catch (Exception e) {
+			Logger.log(e);
+		}
 	}
 
 	private void createDefaultDebugConfig()
