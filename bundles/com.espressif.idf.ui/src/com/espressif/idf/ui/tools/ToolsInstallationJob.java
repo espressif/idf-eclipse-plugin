@@ -106,7 +106,7 @@ public class ToolsInstallationJob extends ToolsJob
 
 		console.println(Messages.InstallToolsHandler_ToolsCompleted);
 		
-		console.print("Writing to the configuration file");
+		console.println("Writing to the configuration file");
 		idfToolSet.setId(idfToolSet.hashCode());
 		
 		toolSetConfigurationManager.export(idfToolSet);
