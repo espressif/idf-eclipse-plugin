@@ -600,6 +600,20 @@ public class ESPToolChainManager
 		ICMakeToolChainManager cmakeTcManager = CCorePlugin.getService(ICMakeToolChainManager.class);
 		cMakeToolChainFiles.stream().forEach(cMakeToolChainFile -> cmakeTcManager.addToolChainFile(cMakeToolChainFile));
 	}
+
+	
+	/**
+	 * Removes all the launch targets
+	 */
+	public void removeAllLaunchTargets()
+	{
+		ILaunchTargetManager targetManager = IDFCorePlugin.getService(ILaunchTargetManager.class);
+		ILaunchTarget [] launchTargets = targetManager.getLaunchTargets();
+		for (ILaunchTarget launchTarget : launchTargets)
+		{
+			targetManager.removeLaunchTarget(launchTarget);
+		}
+	}
 	
 	/**
 	 * Removes all the cmake toolchains in the current environment
