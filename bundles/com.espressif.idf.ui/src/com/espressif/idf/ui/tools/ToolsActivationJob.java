@@ -85,6 +85,7 @@ public class ToolsActivationJob extends ToolsJob
 		
 		toolSetConfigurationManager.export(idfToolSet);
 		refreshTable();
+		console.println("Tools Activated");
 		
 		Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 		scopedPreferenceStore.putBoolean(INSTALL_TOOLS_FLAG, true);
@@ -172,6 +173,7 @@ public class ToolsActivationJob extends ToolsJob
 		
 		List<String> targets = extractTargets(status.getMessage());
 		ESPToolChainManager espToolChainManager = new ESPToolChainManager();
+		espToolChainManager.removeAllLaunchTargets();
 		espToolChainManager.removeCmakeToolChains();
 		espToolChainManager.removeStdToolChains();
 		espToolChainManager.configureToolChain(targets);
