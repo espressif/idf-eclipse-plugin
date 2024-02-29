@@ -1,5 +1,7 @@
 package com.espressif.idf.ui.tools.manager.pages;
 
+import java.util.List;
+
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;

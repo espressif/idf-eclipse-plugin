@@ -11,11 +11,14 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
@@ -27,7 +30,10 @@ import org.eclipse.ui.PlatformUI;
 import com.espressif.idf.core.IDFVersion;
 import com.espressif.idf.core.ZipUtility;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.tools.ToolSetConfigurationManager;
+import com.espressif.idf.core.tools.vo.IDFToolSet;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.ui.tools.ToolsActivationJob;
 import com.espressif.idf.ui.tools.ToolsInstallationJob;
 import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
 
@@ -40,14 +46,19 @@ public class IDFDownloadWizard extends Wizard
 	private static final int BUFFER_SIZE = 4096; // $NON-NLS-1$
 	private IDFDownloadPage downloadPage;
 	private ESPIDFMainTablePage espidfMainTablePage;
-	
+	private ToolSetConfigurationManager toolSetConfigurationManager;
+	private ToolsInstallationJob toolsInstallationJob;
+	private String pythonPath;
+	private String gitPath;
+
 	public IDFDownloadWizard()
 	{
 	}
-	
+
 	public IDFDownloadWizard(ESPIDFMainTablePage espidfMainTablePage)
 	{
 		this.espidfMainTablePage = espidfMainTablePage;
+		toolSetConfigurationManager = new ToolSetConfigurationManager();
 	}
 
 	@Override
@@ -56,17 +67,15 @@ public class IDFDownloadWizard extends Wizard
 		IDFVersion version = downloadPage.Version();
 		String destinationLocation = downloadPage.getDestinationLocation();
 		boolean configureExistingEnabled = downloadPage.isConfigureExistingEnabled();
-		//TODO: Run install and export get all env vars, toolchains and respective targets
-		
-		String pythonPath = downloadPage.getPythonExePath();
-		String gitPath = downloadPage.getGitExecutablePath();
-		
+		pythonPath = downloadPage.getPythonExePath();
+		gitPath = downloadPage.getGitExecutablePath();
+
 		if (configureExistingEnabled)
 		{
 			String localIdfLocation = downloadPage.getExistingIDFLocation();
-			
-			ToolsInstallationJob toolsInstallationJob = new ToolsInstallationJob(pythonPath, gitPath, localIdfLocation,
-					espidfMainTablePage);
+
+			toolsInstallationJob = new ToolsInstallationJob(pythonPath, gitPath, localIdfLocation, espidfMainTablePage);
+			toolsInstallationJob.addJobChangeListener(new ToolsInstallationJobChangeListener());
 			toolsInstallationJob.schedule();
 			
 		}
@@ -82,8 +91,9 @@ public class IDFDownloadWizard extends Wizard
 					protected IStatus run(IProgressMonitor monitor)
 					{
 						String localIdfLocation = repositoryClone(version.getName(), url, destinationLocation, monitor);
-						ToolsInstallationJob toolsInstallationJob = new ToolsInstallationJob(pythonPath, gitPath, localIdfLocation,
+						toolsInstallationJob = new ToolsInstallationJob(pythonPath, gitPath, localIdfLocation,
 								espidfMainTablePage);
+						toolsInstallationJob.addJobChangeListener(new ToolsInstallationJobChangeListener());
 						toolsInstallationJob.schedule();
 						return Status.OK_STATUS;
 					}
@@ -100,8 +110,9 @@ public class IDFDownloadWizard extends Wizard
 					protected IStatus run(IProgressMonitor monitor)
 					{
 						String localIdfLocation = download(monitor, url, destinationLocation);
-						ToolsInstallationJob toolsInstallationJob = new ToolsInstallationJob(pythonPath, gitPath, localIdfLocation,
+						toolsInstallationJob = new ToolsInstallationJob(pythonPath, gitPath, localIdfLocation,
 								espidfMainTablePage);
+						toolsInstallationJob.addJobChangeListener(new ToolsInstallationJobChangeListener());
 						toolsInstallationJob.schedule();
 						return Status.OK_STATUS;
 					}
@@ -154,7 +165,7 @@ public class IDFDownloadWizard extends Wizard
 			Logger.log(e);
 			showErrorMessage(e.getLocalizedMessage());
 		}
-		
+
 		return StringUtil.EMPTY;
 	}
 
@@ -168,11 +179,11 @@ public class IDFDownloadWizard extends Wizard
 		{
 			destinationLocationPath.append(version.substring("release/".length())); //$NON-NLS-1$
 		}
-		else 
+		else
 		{
 			destinationLocationPath.append(version);
 		}
-		
+
 		gitBuilder.repositoryURI(url);
 		gitBuilder.repositoryDirectory(new File(destinationLocationPath.toString()));
 		gitBuilder.activeBranch(version);
@@ -189,7 +200,7 @@ public class IDFDownloadWizard extends Wizard
 			Logger.log(e);
 			showErrorMessage(e.getLocalizedMessage());
 		}
-		
+
 		return StringUtil.EMPTY;
 	}
 
@@ -313,4 +324,20 @@ public class IDFDownloadWizard extends Wizard
 		return String.format("%.2f", (value / (1024 * 1024))) + " MB"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	
+	private class ToolsInstallationJobChangeListener extends JobChangeAdapter
+	{
+		@Override
+		public void done(IJobChangeEvent event)
+		{
+			List<IDFToolSet> idfToolSets = toolSetConfigurationManager.getIdfToolSets(false);
+			if (idfToolSets.size() == 1)
+			{
+				ToolsActivationJob toolsActivationJob = new ToolsActivationJob(idfToolSets.get(0), pythonPath, gitPath,
+						espidfMainTablePage);
+				toolsActivationJob.schedule();
+			}
+			
+		}
+	}
 }
