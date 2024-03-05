@@ -104,11 +104,6 @@
             name="%command.name.updateEspIdfMaster">
       </command>
       <command
-            defaultHandler="com.espressif.idf.ui.tools.ManageToolsInstallationHandler"
-            id="com.espressif.idf.ui.command.managetoolsinstallation"
-            name="%command.name.15">
-      </command>
-      <command
             defaultHandler="com.espressif.idf.ui.tools.ManageEspIdfVersionsHandler"
             description="Manage ESP-IDF Versions"
             id="com.espressif.idf.ui.espidfmanager"
@@ -527,10 +522,6 @@
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
-      <handler
-            class="com.espressif.idf.ui.install.IDFDownloadHandler"
-            commandId="com.espressif.idf.ui.commands.installespidf">
-      </handler>
       <handler
             commandId="com.espressif.idf.ui.appLvlTracing">
       </handler>
