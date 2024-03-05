@@ -122,6 +122,17 @@
       </menuContribution>
       <menuContribution
             allPopups="false"
+            locationURI="menu:espressifMenu">
+         <command
+               commandId="com.espressif.idf.ui.commands.installespidf"
+               icon="icons/Download and configure ESP-IDF.png"
+               id="installespidf"
+               label="%command.label.0"
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
             locationURI="menu:espressifMenu?after=installespidf">
          <menu
                icon="icons/ESP-IDF Tools Manager.png"
