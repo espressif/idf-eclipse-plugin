@@ -685,4 +685,54 @@ public class IDFUtil
 		
 		return null;
 	}
+	
+	public static String getGitExecutablePathFromSystem()
+	{
+		IPath gitPath = new SystemExecutableFinder().find("git"); //$NON-NLS-1$
+		Logger.log("GIT path:" + gitPath); //$NON-NLS-1$
+		if (gitPath != null)
+		{
+			return gitPath.toOSString();
+		}
+		else
+		{
+			if (Platform.OS_WIN32.equals(Platform.getOS()))
+			{
+				GitWinRegistryReader gitWinRegistryReader = new GitWinRegistryReader();
+				String gitInstallPath = gitWinRegistryReader.getGitInstallPath();
+				if (!StringUtil.isEmpty(gitInstallPath))
+				{
+					return gitInstallPath.concat(String.valueOf(Path.SEPARATOR)).concat("bin").concat(String.valueOf(Path.SEPARATOR)).concat("git.exe"); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+			}
+			else
+			{
+				// MAC & LINUX have whereis git to see where the command is located
+				List<String> arguments = new ArrayList<String>();
+				ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
+				try
+				{
+					arguments.add("whereis"); //$NON-NLS-1$
+					arguments.add("git"); //$NON-NLS-1$
+
+					Map<String, String> environment = new HashMap<>(System.getenv());
+
+					IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT, environment);
+					if (status == null)
+					{
+						Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
+						return StringUtil.EMPTY;
+					}
+					String gitLocation = status.getMessage().split(" ").length > 1 ? status.getMessage().split(" ")[1] : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					gitLocation = gitLocation.strip();
+					return gitLocation;
+				}
+				catch (Exception e1)
+				{
+					Logger.log(e1);
+				}
+			}
+		}
+		return StringUtil.EMPTY;
+	}
 }
