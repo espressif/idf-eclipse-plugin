@@ -109,6 +109,15 @@ public class Messages extends NLS
 	public static String MissingToolsValidationMessage_B;
 	public static String MissingToolsValidationLink;
 	
+	
+	public static String EspIdfEditorTitle;
+	public static String EspIdfManagerVersionCol;
+	public static String EspIdfManagerLocationCol;
+	public static String EspIdfManagerStateCol;
+	public static String EspIdfManagerActionsCol;
+	public static String IDFDownloadHandler_ESPIDFConfiguration;
+	public static String IDFDownloadHandler_DownloadPage_Title;
+	public static String IDFDownloadHandler_DownloadPageMsg;
 	static
 	{
 		// initialize resource bundle

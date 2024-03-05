@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2024 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.ui.tools;
 
 import java.io.File;
@@ -19,9 +23,16 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
 import com.espressif.idf.core.toolchain.ESPToolchain;
+import com.espressif.idf.core.tools.vo.IDFToolSet;
 import com.espressif.idf.ui.update.ExportIDFTools;
 import com.espressif.idf.ui.update.Messages;
 
+/**
+ * Class to install the dependencies and any 
+ * given tools for an idf with given {@link IDFToolSet}
+ * @author Ali Azam Rana
+ *
+ */
 public class ToolsInstallationJob extends ToolsJob
 {
 	public ToolsInstallationJob(String pythonExecutablePath, String gitExecutablePath, String idfPath)

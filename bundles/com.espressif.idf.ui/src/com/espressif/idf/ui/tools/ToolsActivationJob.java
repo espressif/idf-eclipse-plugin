@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2024 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.ui.tools;
 
 import java.io.File;
@@ -29,6 +33,12 @@ import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.update.ExportIDFTools;
 import com.espressif.idf.ui.update.Messages;
 
+/**
+ * Job to activate the provide 
+ * {@link IDFToolSet} in the given ide environment
+ * @author Ali Azam Rana
+ *
+ */
 public class ToolsActivationJob extends ToolsJob
 {
 	public static final String INSTALL_TOOLS_FLAG = "INSTALL_TOOLS_FLAG"; //$NON-NLS-1$
