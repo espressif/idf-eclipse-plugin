@@ -39,7 +39,7 @@ import com.espressif.idf.ui.tools.ToolsInstallationJob;
 import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
 
 /**
- * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>, Ali Azam Rana <ali.azamrana@espressif.com>
  *
  */
 public class IDFNewToolsWizard extends Wizard

@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2024 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.ui.tools;
 
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
@@ -14,6 +18,11 @@ import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
 import com.espressif.idf.ui.update.InstallToolsHandler;
 
+/**
+ * Listener for {@link ToolsActivationJob}
+ * @author Ali Azam Rana
+ *
+ */
 public class ToolsActivationJobListener extends JobChangeAdapter
 {
 	private ESPIDFMainTablePage espidfMainTablePage;

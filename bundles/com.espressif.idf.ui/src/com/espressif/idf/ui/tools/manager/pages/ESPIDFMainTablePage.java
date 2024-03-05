@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2024 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.ui.tools.manager.pages;
 
 import org.eclipse.jface.layout.TableColumnLayout;
@@ -27,10 +31,15 @@ import org.eclipse.swt.widgets.TableItem;
 import com.espressif.idf.core.tools.ToolSetConfigurationManager;
 import com.espressif.idf.core.tools.vo.IDFToolSet;
 import com.espressif.idf.ui.install.IDFNewToolsWizard;
-import com.espressif.idf.ui.install.Messages;
+import com.espressif.idf.ui.tools.Messages;
 import com.espressif.idf.ui.tools.ToolsActivationJob;
 import com.espressif.idf.ui.tools.ToolsActivationJobListener;
 
+/**
+ * Main UI class for all listing and interacting with the tools
+ * @author Ali Azam Rana
+ *
+ */
 public class ESPIDFMainTablePage
 {
 	private Composite container;
@@ -117,25 +126,25 @@ public class ESPIDFMainTablePage
 	{
 		int colIndex = 0;
 		versionColumn = new TableViewerColumn(tableViewer, SWT.NONE);
-		versionColumn.getColumn().setText("ESP-IDF Version");
+		versionColumn.getColumn().setText(Messages.EspIdfManagerVersionCol);
 		versionColumn.setLabelProvider(new IdfManagerTableColumnLabelProvider());
 		setComparatorForCols(versionColumn, colIndex++);
 		tableColumnLayout.setColumnData(versionColumn.getColumn(), new ColumnWeightData(1, 50, true));
 
 		locationColumn = new TableViewerColumn(tableViewer, SWT.NONE);
-		locationColumn.getColumn().setText("Location");
+		locationColumn.getColumn().setText(Messages.EspIdfManagerLocationCol);
 		locationColumn.setLabelProvider(new IdfManagerTableColumnLabelProvider());
 		setComparatorForCols(locationColumn, colIndex++);
 		tableColumnLayout.setColumnData(locationColumn.getColumn(), new ColumnWeightData(2, 100, true));
 
 		stateColumn = new TableViewerColumn(tableViewer, SWT.NONE);
-		stateColumn.getColumn().setText("State");
+		stateColumn.getColumn().setText(Messages.EspIdfManagerStateCol);
 		stateColumn.setLabelProvider(new IdfManagerTableColumnLabelProvider());
 		setComparatorForCols(stateColumn, colIndex++);
 		tableColumnLayout.setColumnData(stateColumn.getColumn(), new ColumnWeightData(1, 50, true));
 
 		actionsColumn = new TableViewerColumn(tableViewer, SWT.NONE);
-		actionsColumn.getColumn().setText("Actions");
+		actionsColumn.getColumn().setText(Messages.EspIdfManagerActionsCol);
 		actionsColumn.setLabelProvider(new IdfManagerTableColumnLabelProvider());
 		tableColumnLayout.setColumnData(actionsColumn.getColumn(), new ColumnWeightData(1, 50, true));
 	}

@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2024 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.core.tools;
 
 import java.io.File;
@@ -23,21 +27,25 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+/**
+ * The class is responsible for managing the idf tool sets 
+ * export and import configuration params from json in workspace
+ * 
+ * @author Ali Azam Rana
+ *
+ */
 public class ToolSetConfigurationManager
 {
 	private List<IDFToolSet> idfToolSets;
 	private Gson gson;
 	private boolean reload;
-	
+
 	public ToolSetConfigurationManager()
 	{
-		gson = new GsonBuilder().setPrettyPrinting()
-				.enableComplexMapKeySerialization()
-				.excludeFieldsWithoutExposeAnnotation()
-				.create();
+		gson = new GsonBuilder().setPrettyPrinting().enableComplexMapKeySerialization()
+				.excludeFieldsWithoutExposeAnnotation().create();
 	}
-	
-	
+
 	public void delete(IDFToolSet idfToolSet)
 	{
 		reload = true;
@@ -49,10 +57,10 @@ public class ToolSetConfigurationManager
 			{
 				continue;
 			}
-			
+
 			idfToolSetsToExport.add(idfTool);
 		}
-		
+
 		try (FileWriter fileWriter = new FileWriter(toolSetConfigFilePath()))
 		{
 			gson.toJson(idfToolSetsToExport, fileWriter);
@@ -64,11 +72,11 @@ public class ToolSetConfigurationManager
 		getIdfToolSets(false);
 		reload = false;
 	}
-	
+
 	public boolean isToolSetAlreadyPresent(String idfPath)
 	{
 		List<IDFToolSet> idfToolSets = getIdfToolSets(false);
-		if (idfToolSets == null) 
+		if (idfToolSets == null)
 		{
 			return false;
 		}
@@ -95,7 +103,7 @@ public class ToolSetConfigurationManager
 		}
 		return idfToolSets;
 	}
-	
+
 	private List<IDFToolSet> importToolSets()
 	{
 		Type listType = new TypeToken<ArrayList<IDFToolSet>>()
@@ -114,7 +122,7 @@ public class ToolSetConfigurationManager
 				Logger.log(e);
 			}
 		}
-		
+
 		try (FileReader fileReader = new FileReader(toolSetConfigFilePath()))
 		{
 			idfToolSets = gson.fromJson(fileReader, listType);
@@ -126,7 +134,7 @@ public class ToolSetConfigurationManager
 
 		return idfToolSets;
 	}
-	
+
 	private void loadToolChainsInImportedToolSets() throws CoreException
 	{
 		ESPToolChainManager espToolChainManager = new ESPToolChainManager();
@@ -134,7 +142,7 @@ public class ToolSetConfigurationManager
 		{
 			String pathToLookForToolChains = idfToolSet.getEnvVars().get(IDFEnvironmentVariables.PATH);
 			String idfPath = idfToolSet.getEnvVars().get(IDFEnvironmentVariables.IDF_PATH);
-			Logger.log("Using: " + idfPath + " to find toolchains" );  //$NON-NLS-1$//$NON-NLS-2$
+			Logger.log("Using: " + idfPath + " to find toolchains"); //$NON-NLS-1$//$NON-NLS-2$
 			Logger.log("Env used: " + idfToolSet.getEnvVars()); //$NON-NLS-1$
 			List<ESPToolchain> espToolChains = espToolChainManager
 					.getStdToolChains(Arrays.asList(pathToLookForToolChains.split(File.pathSeparator)), idfPath);
@@ -143,9 +151,10 @@ public class ToolSetConfigurationManager
 			idfToolSet.setEspCmakeToolChainFiles(cMakeToolChainFiles);
 		}
 	}
-	
+
 	/**
 	 * Looks for the existing idf tools from the given location if they are found it replaces the previous one
+	 * 
 	 * @param idfToolSet IDFToolSet to add {@link IDFToolSet}@
 	 */
 	public void export(IDFToolSet idfToolSet)
@@ -172,7 +181,7 @@ public class ToolSetConfigurationManager
 		{
 			idfToolSets = new ArrayList<>();
 		}
-		
+
 		// If the toolSet to be exported is active, set all others to inactive
 		if (idfToolSet.isActive())
 		{
@@ -199,7 +208,7 @@ public class ToolSetConfigurationManager
 		{
 			idfToolSets.add(idfToolSet);
 		}
-		
+
 		try (FileWriter fileWriter = new FileWriter(toolSetConfigFile))
 		{
 			gson.toJson(idfToolSets, fileWriter);
@@ -210,7 +219,7 @@ public class ToolSetConfigurationManager
 		}
 
 	}
-	
+
 	public void updateToolSetConfiguration(IDFToolSet idfToolSet)
 	{
 		reload = true;
@@ -222,12 +231,12 @@ public class ToolSetConfigurationManager
 			{
 				idfToolSetsToExport.add(idfToolSet);
 			}
-			else 
+			else
 			{
 				idfToolSetsToExport.add(existingIdfToolSet);
 			}
 		}
-		
+
 		try (FileWriter fileWriter = new FileWriter(toolSetConfigFilePath()))
 		{
 			gson.toJson(idfToolSets, fileWriter);

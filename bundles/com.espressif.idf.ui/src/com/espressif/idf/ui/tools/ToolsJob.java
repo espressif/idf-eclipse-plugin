@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2024 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.ui.tools;
 
 import java.io.BufferedReader;
@@ -38,6 +42,14 @@ import com.espressif.idf.ui.InputStreamConsoleThread;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.update.Messages;
 
+/**
+ * Parent class for all tools related activity
+ * any common methods must be added here
+ * The class was created to save 
+ * code and split the operation of installation and activation in two
+ * @author Ali Azam Rana
+ *
+ */
 public abstract class ToolsJob extends Job
 {
 

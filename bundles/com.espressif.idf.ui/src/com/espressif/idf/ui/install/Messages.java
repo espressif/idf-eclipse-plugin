@@ -6,9 +6,6 @@ public class Messages extends NLS
 {
 	private static final String BUNDLE_NAME = "com.espressif.idf.ui.install.messages"; //$NON-NLS-1$
 	public static String GitRepositoryBuilder_gitClone;
-	public static String IDFDownloadHandler_DownloadPage_Title;
-	public static String IDFDownloadHandler_DownloadPageMsg;
-	public static String IDFDownloadHandler_ESPIDFConfiguration;
 	public static String IDFDownloadPage_0;
 	public static String IDFDownloadPage_BrowseBtn;
 	public static String IDFDownloadPage_BrowseBtnTxt;
