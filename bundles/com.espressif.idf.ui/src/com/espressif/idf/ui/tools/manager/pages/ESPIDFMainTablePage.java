@@ -1,7 +1,5 @@
 package com.espressif.idf.ui.tools.manager.pages;
 
-import java.util.List;
-
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -31,6 +29,7 @@ import com.espressif.idf.core.tools.vo.IDFToolSet;
 import com.espressif.idf.ui.install.IDFDownloadWizard;
 import com.espressif.idf.ui.install.Messages;
 import com.espressif.idf.ui.tools.ToolsActivationJob;
+import com.espressif.idf.ui.tools.ToolsActivationJobListener;
 
 public class ESPIDFMainTablePage
 {
@@ -60,16 +59,19 @@ public class ESPIDFMainTablePage
 
 	public void refreshTable()
 	{
-		for (TableItem item : tableViewer.getTable().getItems()) {
-		    String EDITOR_KEY = "action_editor";
-		    TableEditor editor = (TableEditor) item.getData(EDITOR_KEY);
-		    if (editor != null) {
-		        if (editor.getEditor() != null && !editor.getEditor().isDisposed()) {
-		            editor.getEditor().dispose(); // Dispose the button composite
-		        }
-		        editor.dispose(); // Dispose the editor itself
-		        item.setData(EDITOR_KEY, null); // Clear the stored editor reference
-		    }
+		for (TableItem item : tableViewer.getTable().getItems())
+		{
+			String EDITOR_KEY = "action_editor";
+			TableEditor editor = (TableEditor) item.getData(EDITOR_KEY);
+			if (editor != null)
+			{
+				if (editor.getEditor() != null && !editor.getEditor().isDisposed())
+				{
+					editor.getEditor().dispose(); // Dispose the button composite
+				}
+				editor.dispose(); // Dispose the editor itself
+				item.setData(EDITOR_KEY, null); // Clear the stored editor reference
+			}
 		}
 		toolSetConfigurationManager.setReload(true);
 		actionsColumn.getColumn().dispose();
@@ -275,7 +277,10 @@ public class ESPIDFMainTablePage
 			setActiveButton.addListener(SWT.Selection, e -> {
 				Button btn = (Button) e.widget;
 				ToolsActivationJob toolsActivationJob = new ToolsActivationJob((IDFToolSet) btn.getData("IDFToolSet"),
-						null, null, ESPIDFMainTablePage.this);
+						null, null);
+				ToolsActivationJobListener toolsActivationJobListener = new ToolsActivationJobListener(
+						ESPIDFMainTablePage.this);
+				toolsActivationJob.addJobChangeListener(toolsActivationJobListener);
 				toolsActivationJob.schedule();
 			});
 

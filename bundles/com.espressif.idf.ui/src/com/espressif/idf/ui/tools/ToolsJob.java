@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.espressif.idf.core.IDFConstants;
@@ -36,7 +35,6 @@ import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.InputStreamConsoleThread;
 import com.espressif.idf.ui.UIPlugin;
-import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
 import com.espressif.idf.ui.update.Messages;
 
 public abstract class ToolsJob extends Job
@@ -50,17 +48,14 @@ public abstract class ToolsJob extends Job
 	protected IDFToolSet idfToolSet;
 	protected ToolSetConfigurationManager toolSetConfigurationManager;
 	protected String idfPath;
-	private ESPIDFMainTablePage espidfMainTablePage;
 	
-	public ToolsJob(String name, String pythonExecutablePath, String gitExecutablePath,
-			ESPIDFMainTablePage espidfMainTablePage)
+	public ToolsJob(String name, String pythonExecutablePath, String gitExecutablePath)
 	{
 		super(name);
 		this.pythonExecutablePath = pythonExecutablePath;
 		this.gitExecutablePath = gitExecutablePath;
 		idfToolSet = new IDFToolSet();
 		toolSetConfigurationManager = new ToolSetConfigurationManager();
-		this.espidfMainTablePage = espidfMainTablePage;
 		activateIDFConsoleView();
 	}
 
@@ -427,13 +422,6 @@ public abstract class ToolsJob extends Job
 		}
 	}
 	
-	protected void refreshTable()
-	{
-		Display.getDefault().asyncExec(() -> {
-			espidfMainTablePage.refreshTable();
-		});
-	}
-
 	protected IStatus runCommand(List<String> arguments, MessageConsoleStream console)
 	{
 		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();

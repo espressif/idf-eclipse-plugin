@@ -19,15 +19,14 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
 import com.espressif.idf.core.toolchain.ESPToolchain;
-import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
 import com.espressif.idf.ui.update.ExportIDFTools;
 import com.espressif.idf.ui.update.Messages;
 
 public class ToolsInstallationJob extends ToolsJob
 {
-	public ToolsInstallationJob(String pythonExecutablePath, String gitExecutablePath, String idfPath, ESPIDFMainTablePage espidfMainTablePage)
+	public ToolsInstallationJob(String pythonExecutablePath, String gitExecutablePath, String idfPath)
 	{
-		super(Messages.InstallToolsHandler_InstallingToolsMsg, pythonExecutablePath, gitExecutablePath, espidfMainTablePage);
+		super(Messages.InstallToolsHandler_InstallingToolsMsg, pythonExecutablePath, gitExecutablePath);
 		this.idfPath = idfPath;
 		this.idfToolSet.setIdfLocation(idfPath);
 		this.idfToolSet.setSystemGitExecutablePath(gitExecutablePath);
@@ -112,7 +111,6 @@ public class ToolsInstallationJob extends ToolsJob
 		toolSetConfigurationManager.export(idfToolSet);
 		
 		console.println("You Need to set the tools active");
-		refreshTable();
 		return Status.OK_STATUS;
 	}
 

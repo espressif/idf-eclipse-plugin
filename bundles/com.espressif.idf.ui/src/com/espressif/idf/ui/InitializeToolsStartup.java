@@ -17,8 +17,9 @@ import java.util.Map;
 import org.eclipse.cdt.cmake.core.internal.Activator;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.launchbar.core.ILaunchBarListener;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.swt.SWT;
@@ -41,13 +42,13 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.resources.OpenDialogListenerSupport;
 import com.espressif.idf.core.resources.PopupDialog;
 import com.espressif.idf.core.resources.ResourceChangeListener;
-import com.espressif.idf.core.toolchain.ESPToolChainManager;
-import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.core.tools.ToolSetConfigurationManager;
+import com.espressif.idf.core.tools.vo.IDFToolSet;
 import com.espressif.idf.ui.dialogs.BuildView;
 import com.espressif.idf.ui.dialogs.MessageLinkDialog;
-import com.espressif.idf.ui.update.ExportIDFTools;
-import com.espressif.idf.ui.update.InstallToolsHandler;
+import com.espressif.idf.ui.tools.ToolsActivationJob;
+import com.espressif.idf.ui.tools.ToolsActivationJobListener;
+import com.espressif.idf.ui.tools.ToolsInstallationJob;
 
 @SuppressWarnings("restriction")
 public class InitializeToolsStartup implements IStartup
@@ -70,7 +71,7 @@ public class InitializeToolsStartup implements IStartup
 	private static final String DOC_URL = "\"https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/partition-tables.html?highlight=partitions%20csv#creating-custom-tables\""; //$NON-NLS-1$
 
 	private String newIdfPath;
-
+	private LaunchBarListener launchBarListener;
 	@Override
 	public void earlyStartup()
 	{
@@ -84,11 +85,17 @@ public class InitializeToolsStartup implements IStartup
 			case AVAILABLE_HINTS:
 				openAvailableHintsDialog(evt);
 				break;
+			case DISABLE_LAUNCHABAR_EVENTS:
+				disableLaunchBarEvents(evt);
+				break;
+			case ENABLE_LAUNCHBAR_EVENTS:
+				enableLaunchBarEvents(evt);
+				break;
 			default:
 				break;
 			}
 		});
-		ILaunchBarListener launchBarListener = new LaunchBarListener();
+		launchBarListener = new LaunchBarListener();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(new ResourceChangeListener(launchBarListener));
 		ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
 		launchBarManager.addListener(launchBarListener);
@@ -157,30 +164,12 @@ public class InitializeToolsStartup implements IStartup
 				JSONObject selectedIDFInfo = (JSONObject) list.get(idfVersionId);
 				String idfPath = (String) selectedIDFInfo.get(IDF_PATH);
 				String pythonExecutablePath = (String) selectedIDFInfo.get(PYTHON_PATH);
-
-				// Add IDF_PATH to the eclipse CDT build environment variables
-				IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
-				idfEnvMgr.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, idfPath);
-
-				if (!StringUtil.isEmpty(pythonExecutablePath) && !StringUtil.isEmpty(gitExecutablePath))
-				{
-					ExportIDFTools exportIDFTools = new ExportIDFTools();
-					exportIDFTools.runToolsExportAndProcessOutput(pythonExecutablePath, gitExecutablePath, null, null);
-
-					// Configure toolchains
-					new ESPToolChainManager().configureToolChain();
-
-					Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
-					scopedPreferenceStore.putBoolean(InstallToolsHandler.INSTALL_TOOLS_FLAG, true);
-					try
-					{
-						scopedPreferenceStore.flush();
-					}
-					catch (BackingStoreException e)
-					{
-						Logger.log(e);
-					}
-				}
+				ToolsInstallationJob toolsInstallationJob = new ToolsInstallationJob(pythonExecutablePath,
+						gitExecutablePath, idfPath);
+				ToolsInstallationJobChangeListener toolsInstallationJobChangeListener = new ToolsInstallationJobChangeListener(
+						gitExecutablePath, pythonExecutablePath);
+				toolsInstallationJob.addJobChangeListener(toolsInstallationJobChangeListener);
+				toolsInstallationJob.schedule();
 			}
 
 			// save state
@@ -203,6 +192,18 @@ public class InitializeToolsStartup implements IStartup
 		{
 			Logger.log(e);
 		}
+	}
+
+	@SuppressWarnings("static-access")
+	private void disableLaunchBarEvents(PropertyChangeEvent evt)
+	{
+		launchBarListener.setIgnoreTargetChange(true);
+	}
+	
+	@SuppressWarnings("static-access")
+	private void enableLaunchBarEvents(PropertyChangeEvent evt)
+	{
+		launchBarListener.setIgnoreTargetChange(false);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -338,5 +339,32 @@ public class InitializeToolsStartup implements IStartup
 	private boolean isInstallerConfigSet()
 	{
 		return getPreferences().getBoolean(IS_INSTALLER_CONFIG_SET, false);
+	}
+	
+	private class ToolsInstallationJobChangeListener extends JobChangeAdapter
+	{
+		private String gitExecutablePath;
+		private String pythonExecutablePath;
+		
+		private ToolsInstallationJobChangeListener(String gitExecutablePath, String pythonExecutablePath)
+		{
+			this.gitExecutablePath = gitExecutablePath;
+			this.pythonExecutablePath = pythonExecutablePath;
+		}
+		
+		@Override
+		public void done(IJobChangeEvent event)
+		{
+			ToolSetConfigurationManager toolSetConfigurationManager = new ToolSetConfigurationManager();
+			List<IDFToolSet> idfToolSets = toolSetConfigurationManager.getIdfToolSets(false);
+			if (idfToolSets.size() == 1)
+			{
+				ToolsActivationJob toolsActivationJob = new ToolsActivationJob(idfToolSets.get(0), pythonExecutablePath, gitExecutablePath);
+				ToolsActivationJobListener toolsActivationJobListener = new ToolsActivationJobListener();
+				toolsActivationJob.addJobChangeListener(toolsActivationJobListener);
+				toolsActivationJob.schedule();
+			}
+			
+		}
 	}
 }

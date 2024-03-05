@@ -605,13 +605,16 @@ public class ESPToolChainManager
 	/**
 	 * Removes all the launch targets
 	 */
-	public void removeAllLaunchTargets()
+	public void removeLaunchTargetsNotPresent(List<String> targetsToKeep)
 	{
 		ILaunchTargetManager targetManager = IDFCorePlugin.getService(ILaunchTargetManager.class);
 		ILaunchTarget [] launchTargets = targetManager.getLaunchTargets();
 		for (ILaunchTarget launchTarget : launchTargets)
 		{
-			targetManager.removeLaunchTarget(launchTarget);
+			if (!targetsToKeep.contains(launchTarget.getId()))
+			{
+				targetManager.removeLaunchTarget(launchTarget);
+			}
 		}
 	}
 	
