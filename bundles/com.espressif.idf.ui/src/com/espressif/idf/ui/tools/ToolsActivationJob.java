@@ -32,7 +32,6 @@ import com.espressif.idf.ui.update.Messages;
 public class ToolsActivationJob extends ToolsJob
 {
 	public static final String INSTALL_TOOLS_FLAG = "INSTALL_TOOLS_FLAG"; //$NON-NLS-1$
-	
 	public ToolsActivationJob(IDFToolSet idfToolSet, String pythonExecutablePath, String gitExecutablePath)
 	{
 		super("Tools Activation Job", null, null);

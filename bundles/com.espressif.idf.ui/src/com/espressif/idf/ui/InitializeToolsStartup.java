@@ -167,7 +167,7 @@ public class InitializeToolsStartup implements IStartup
 				ToolsInstallationJob toolsInstallationJob = new ToolsInstallationJob(pythonExecutablePath,
 						gitExecutablePath, idfPath);
 				ToolsInstallationJobChangeListener toolsInstallationJobChangeListener = new ToolsInstallationJobChangeListener(
-						gitExecutablePath, pythonExecutablePath);
+						gitExecutablePath, pythonExecutablePath, idfPath);
 				toolsInstallationJob.addJobChangeListener(toolsInstallationJobChangeListener);
 				toolsInstallationJob.schedule();
 			}
@@ -345,11 +345,12 @@ public class InitializeToolsStartup implements IStartup
 	{
 		private String gitExecutablePath;
 		private String pythonExecutablePath;
-		
-		private ToolsInstallationJobChangeListener(String gitExecutablePath, String pythonExecutablePath)
+		private String idfPath;
+		private ToolsInstallationJobChangeListener(String gitExecutablePath, String pythonExecutablePath, String idfPath)
 		{
 			this.gitExecutablePath = gitExecutablePath;
 			this.pythonExecutablePath = pythonExecutablePath;
+			this.idfPath = idfPath;
 		}
 		
 		@Override
@@ -357,14 +358,20 @@ public class InitializeToolsStartup implements IStartup
 		{
 			ToolSetConfigurationManager toolSetConfigurationManager = new ToolSetConfigurationManager();
 			List<IDFToolSet> idfToolSets = toolSetConfigurationManager.getIdfToolSets(false);
-			if (idfToolSets.size() == 1)
+			IDFToolSet idfToolSetToUse = null;
+			for (IDFToolSet idfToolSet : idfToolSets)
 			{
-				ToolsActivationJob toolsActivationJob = new ToolsActivationJob(idfToolSets.get(0), pythonExecutablePath, gitExecutablePath);
-				ToolsActivationJobListener toolsActivationJobListener = new ToolsActivationJobListener();
-				toolsActivationJob.addJobChangeListener(toolsActivationJobListener);
-				toolsActivationJob.schedule();
+				if (idfToolSet.getIdfLocation().equals(idfPath))
+				{
+					idfToolSetToUse = idfToolSet;
+					break;
+				}
 			}
 			
+			ToolsActivationJob toolsActivationJob = new ToolsActivationJob(idfToolSetToUse, pythonExecutablePath, gitExecutablePath);
+			ToolsActivationJobListener toolsActivationJobListener = new ToolsActivationJobListener();
+			toolsActivationJob.addJobChangeListener(toolsActivationJobListener);
+			toolsActivationJob.schedule();
 		}
 	}
 }
