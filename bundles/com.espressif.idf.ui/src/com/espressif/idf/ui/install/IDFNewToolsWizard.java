@@ -42,7 +42,7 @@ import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
-public class IDFDownloadWizard extends Wizard
+public class IDFNewToolsWizard extends Wizard
 {
 	private static final int BUFFER_SIZE = 4096; // $NON-NLS-1$
 	private IDFDownloadPage downloadPage;
@@ -52,11 +52,11 @@ public class IDFDownloadWizard extends Wizard
 	private String pythonPath;
 	private String gitPath;
 
-	public IDFDownloadWizard()
+	public IDFNewToolsWizard()
 	{
 	}
 
-	public IDFDownloadWizard(ESPIDFMainTablePage espidfMainTablePage)
+	public IDFNewToolsWizard(ESPIDFMainTablePage espidfMainTablePage)
 	{
 		this.espidfMainTablePage = espidfMainTablePage;
 		toolSetConfigurationManager = new ToolSetConfigurationManager();

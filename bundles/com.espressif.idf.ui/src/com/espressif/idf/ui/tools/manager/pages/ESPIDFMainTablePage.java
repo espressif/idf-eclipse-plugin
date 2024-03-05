@@ -26,7 +26,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 import com.espressif.idf.core.tools.ToolSetConfigurationManager;
 import com.espressif.idf.core.tools.vo.IDFToolSet;
-import com.espressif.idf.ui.install.IDFDownloadWizard;
+import com.espressif.idf.ui.install.IDFNewToolsWizard;
 import com.espressif.idf.ui.install.Messages;
 import com.espressif.idf.ui.tools.ToolsActivationJob;
 import com.espressif.idf.ui.tools.ToolsActivationJobListener;
@@ -181,7 +181,7 @@ public class ESPIDFMainTablePage
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				IDFDownloadWizard wizard = new IDFDownloadWizard(ESPIDFMainTablePage.this);
+				IDFNewToolsWizard wizard = new IDFNewToolsWizard(ESPIDFMainTablePage.this);
 				wizard.setWindowTitle(Messages.IDFDownloadHandler_ESPIDFConfiguration);
 				WizardDialog wizDialog = new WizardDialog(container.getShell(), wizard);
 				wizDialog.create();
