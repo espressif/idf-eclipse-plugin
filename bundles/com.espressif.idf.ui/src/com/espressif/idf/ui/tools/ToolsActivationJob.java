@@ -26,18 +26,16 @@ import com.espressif.idf.core.tools.vo.IDFToolSet;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
-import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
 import com.espressif.idf.ui.update.ExportIDFTools;
 import com.espressif.idf.ui.update.Messages;
 
 public class ToolsActivationJob extends ToolsJob
 {
 	public static final String INSTALL_TOOLS_FLAG = "INSTALL_TOOLS_FLAG"; //$NON-NLS-1$
-
-	public ToolsActivationJob(IDFToolSet idfToolSet, String pythonExecutablePath, String gitExecutablePath,
-			ESPIDFMainTablePage espidfMainTablePage)
+	
+	public ToolsActivationJob(IDFToolSet idfToolSet, String pythonExecutablePath, String gitExecutablePath)
 	{
-		super("Tools Activation Job", null, null, espidfMainTablePage);
+		super("Tools Activation Job", null, null);
 		this.idfToolSet = idfToolSet;
 	}
 
@@ -84,7 +82,6 @@ public class ToolsActivationJob extends ToolsJob
 		idfToolSet.setActive(true);
 		
 		toolSetConfigurationManager.export(idfToolSet);
-		refreshTable();
 		console.println("Tools Activated");
 		
 		Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
@@ -173,7 +170,7 @@ public class ToolsActivationJob extends ToolsJob
 		
 		List<String> targets = extractTargets(status.getMessage());
 		ESPToolChainManager espToolChainManager = new ESPToolChainManager();
-		espToolChainManager.removeAllLaunchTargets();
+		espToolChainManager.removeLaunchTargetsNotPresent(targets);
 		espToolChainManager.removeCmakeToolChains();
 		espToolChainManager.removeStdToolChains();
 		espToolChainManager.configureToolChain(targets);

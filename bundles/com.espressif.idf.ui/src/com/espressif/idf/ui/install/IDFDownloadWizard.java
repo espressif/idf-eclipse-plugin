@@ -34,6 +34,7 @@ import com.espressif.idf.core.tools.ToolSetConfigurationManager;
 import com.espressif.idf.core.tools.vo.IDFToolSet;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.tools.ToolsActivationJob;
+import com.espressif.idf.ui.tools.ToolsActivationJobListener;
 import com.espressif.idf.ui.tools.ToolsInstallationJob;
 import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
 
@@ -74,7 +75,7 @@ public class IDFDownloadWizard extends Wizard
 		{
 			String localIdfLocation = downloadPage.getExistingIDFLocation();
 
-			toolsInstallationJob = new ToolsInstallationJob(pythonPath, gitPath, localIdfLocation, espidfMainTablePage);
+			toolsInstallationJob = new ToolsInstallationJob(pythonPath, gitPath, localIdfLocation);
 			toolsInstallationJob.addJobChangeListener(new ToolsInstallationJobChangeListener());
 			toolsInstallationJob.schedule();
 			
@@ -91,8 +92,7 @@ public class IDFDownloadWizard extends Wizard
 					protected IStatus run(IProgressMonitor monitor)
 					{
 						String localIdfLocation = repositoryClone(version.getName(), url, destinationLocation, monitor);
-						toolsInstallationJob = new ToolsInstallationJob(pythonPath, gitPath, localIdfLocation,
-								espidfMainTablePage);
+						toolsInstallationJob = new ToolsInstallationJob(pythonPath, gitPath, localIdfLocation);
 						toolsInstallationJob.addJobChangeListener(new ToolsInstallationJobChangeListener());
 						toolsInstallationJob.schedule();
 						return Status.OK_STATUS;
@@ -110,8 +110,7 @@ public class IDFDownloadWizard extends Wizard
 					protected IStatus run(IProgressMonitor monitor)
 					{
 						String localIdfLocation = download(monitor, url, destinationLocation);
-						toolsInstallationJob = new ToolsInstallationJob(pythonPath, gitPath, localIdfLocation,
-								espidfMainTablePage);
+						toolsInstallationJob = new ToolsInstallationJob(pythonPath, gitPath, localIdfLocation);
 						toolsInstallationJob.addJobChangeListener(new ToolsInstallationJobChangeListener());
 						toolsInstallationJob.schedule();
 						return Status.OK_STATUS;
@@ -331,10 +330,18 @@ public class IDFDownloadWizard extends Wizard
 		public void done(IJobChangeEvent event)
 		{
 			List<IDFToolSet> idfToolSets = toolSetConfigurationManager.getIdfToolSets(false);
+			Display.getDefault().asyncExec(() -> {
+				if (espidfMainTablePage != null)
+				{
+					espidfMainTablePage.refreshTable();
+				}
+			});
+			
 			if (idfToolSets.size() == 1)
 			{
-				ToolsActivationJob toolsActivationJob = new ToolsActivationJob(idfToolSets.get(0), pythonPath, gitPath,
-						espidfMainTablePage);
+				ToolsActivationJob toolsActivationJob = new ToolsActivationJob(idfToolSets.get(0), pythonPath, gitPath);
+				ToolsActivationJobListener toolsActivationJobListener = new ToolsActivationJobListener(espidfMainTablePage);
+				toolsActivationJob.addJobChangeListener(toolsActivationJobListener);
 				toolsActivationJob.schedule();
 			}
 			
