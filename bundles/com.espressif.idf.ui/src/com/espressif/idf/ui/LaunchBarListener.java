@@ -119,6 +119,7 @@ public class LaunchBarListener implements ILaunchBarListener
 								{
 									ILaunchBarUIManager uiManager = UIPlugin.getService(ILaunchBarUIManager.class);
 									uiManager.openConfigurationEditor(launchBarManager.getActiveLaunchDescriptor());
+									deleteBuildFolder(project, buildLocation);
 									return;
 								}
 							}
@@ -134,32 +135,7 @@ public class LaunchBarListener implements ILaunchBarListener
 											project.getName(), currentTarget, newTarget));
 							if (isDelete)
 							{
-								IWorkspaceRunnable runnable = new IWorkspaceRunnable()
-								{
-
-									@Override
-									public void run(IProgressMonitor monitor) throws CoreException
-									{
-
-										monitor.beginTask("Deleting build folder...", 1); //$NON-NLS-1$
-										Logger.log("Deleting build folder " + buildLocation.getAbsolutePath()); //$NON-NLS-1$
-										deleteDirectory(buildLocation);
-										cleanSdkConfig(project);
-										project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
-									}
-
-								};
-
-								// run workspace job
-								try
-								{
-									ResourcesPlugin.getWorkspace().run(runnable, new NullProgressMonitor());
-								}
-								catch (Exception e1)
-								{
-									Logger.log(IDFCorePlugin.getPlugin(), "Unable to delete the build folder", //$NON-NLS-1$
-											e1);
-								}
+								deleteBuildFolder(project, buildLocation);
 							}
 						}
 					}
@@ -171,6 +147,36 @@ public class LaunchBarListener implements ILaunchBarListener
 		catch (CoreException e1)
 		{
 			Logger.log(e1);
+		}
+	}
+
+	private void deleteBuildFolder(IResource project, File buildLocation)
+	{
+		IWorkspaceRunnable runnable = new IWorkspaceRunnable()
+		{
+
+			@Override
+			public void run(IProgressMonitor monitor) throws CoreException
+			{
+
+				monitor.beginTask("Deleting build folder...", 1); //$NON-NLS-1$
+				Logger.log("Deleting build folder " + buildLocation.getAbsolutePath()); //$NON-NLS-1$
+				deleteDirectory(buildLocation);
+				cleanSdkConfig(project);
+				project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+			}
+
+		};
+
+		// run workspace job
+		try
+		{
+			ResourcesPlugin.getWorkspace().run(runnable, new NullProgressMonitor());
+		}
+		catch (Exception e1)
+		{
+			Logger.log(IDFCorePlugin.getPlugin(), "Unable to delete the build folder", //$NON-NLS-1$
+					e1);
 		}
 	}
 

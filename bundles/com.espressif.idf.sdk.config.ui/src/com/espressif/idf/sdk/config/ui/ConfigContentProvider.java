@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.TreeNodeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -29,10 +30,12 @@ public class ConfigContentProvider extends TreeNodeContentProvider
 	private static Object[] EMPTY_ARRAY = new Object[0];
 	protected TreeViewer viewer;
 	private IProject project;
-
-	public ConfigContentProvider(IProject project)
+	private IFile file;
+	
+	public ConfigContentProvider(IProject project, IFile file)
 	{
 		this.project = project;
+		this.file = file;
 	}
 
 	/*
@@ -90,7 +93,7 @@ public class ConfigContentProvider extends TreeNodeContentProvider
 	private List<KConfigMenuItem> getMenuItems(List<KConfigMenuItem> children) throws IOException
 	{
 		
-		JsonConfigServer configServer = ConfigServerManager.INSTANCE.getServer(project);
+		JsonConfigServer configServer = ConfigServerManager.INSTANCE.getServer(project, file);
 		List<KConfigMenuItem> menuList = new ArrayList<KConfigMenuItem>();
 		for (KConfigMenuItem kConfigMenuItem : children)
 		{

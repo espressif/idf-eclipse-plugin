@@ -877,7 +877,9 @@ Note this configuration changes where all the project build artifacts will be ge
 
 | IEP | Eclipse | Java | Installer | Description |
 | ------ | ------ | ------ |------ | ------ |
-| IEP 2.11.0 | Eclipse 2023-03, Eclipse 2023-06, Eclipse 2023-09 |Java 17 and above | |
+| IEP 2.12.1 | Eclipse 2023-03 to Eclipse 2023-12 |Java 17 and above |[espressif-ide-setup-2.12.1-with-esp-idf-5.2.exe](https://github.com/espressif/idf-installer/releases/download/espressif-ide-2.12.1-esp-idf-5.2/espressif-ide-setup-2.12.1-with-esp-idf-5.2.exe) |
+| IEP 2.12.0 | Eclipse 2023-03, Eclipse 2023-06, Eclipse 2023-09 |Java 17 and above | [espressif-ide-setup-2.12.0-with-esp-idf-5.1.2](https://github.com/espressif/idf-installer/releases/download/espressif-ide-2.12.0-esp-idf-5.1.2/espressif-ide-setup-2.12.0-with-esp-idf-5.1.2.exe) |
+| IEP 2.11.0 | Eclipse 2023-03, Eclipse 2023-06, Eclipse 2023-09 |Java 17 and above |[espressif-ide-setup-2.11.0-with-esp-idf-5.1.1.exe](https://github.com/espressif/idf-installer/releases/download/espressif-ide-2.11.0-esp-idf-5.1.1/espressif-ide-setup-2.11.0-with-esp-idf-5.1.1.exe) |
 | IEP 2.10.0 | Eclipse 2022-09,2022-12,2023-03 |Java 17 and above | [espressif-ide-setup-2.10.0-with-esp-idf-5.0.1.exe](https://github.com/espressif/idf-installer/releases/download/untagged-52aeb689780472c126c1/espressif-ide-setup-2.10.0-with-esp-idf-5.0.1.exe)|
 | IEP 2.9.1 | Eclipse 2022-09 and Eclipse  2022-12 |Java 17 and above | [espressif-ide-setup-2.9.0-with-esp-idf-5.0.1.exe](https://github.com/espressif/idf-installer/releases/download/espressif-ide-2.9.0-esp-idf-5.0.1/espressif-ide-setup-2.9.0-with-esp-idf-5.0.1.exe) | For Windows Users, it's recommended to use the Windows Offline Installer and upgrade to the latest IEP v2.9.1 plugin|
 | IEP 2.9.0 | Eclipse 2022-09 |Java 17 and above | [espressif-ide-setup-2.9.0-with-esp-idf-5.0.1.exe](https://github.com/espressif/idf-installer/releases/download/espressif-ide-2.9.0-esp-idf-5.0.1/espressif-ide-setup-2.9.0-with-esp-idf-5.0.1.exe) | For Windows, it's recommended to use the Windows Offline Installer|

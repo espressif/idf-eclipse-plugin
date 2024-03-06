@@ -4,12 +4,11 @@
  *******************************************************************************/
 package com.espressif.idf.sdk.config.ui;
 
-import java.io.IOException;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.expressions.IEvaluationContext;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
@@ -17,8 +16,6 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
-import org.eclipse.ui.IPageLayout;
-import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.ISources;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -41,40 +38,38 @@ public class LoadSdkConfigHandler extends AbstractHandler
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
 
-		// get the selected project
-		IResource project = getSelectedProject(IPageLayout.ID_PROJECT_EXPLORER);
-		if (project == null)
+		// get the selected resource
+		IResource resource = getSelectedResource((IEvaluationContext) event.getApplicationContext());
+		if (resource == null)
 		{
-			project = getSelectedResource((IEvaluationContext) event.getApplicationContext());
+			return resource;
 		}
-
-		if (project == null)
+		
+		if (!(resource instanceof IFile))
 		{
-			return project;
+			return resource;
 		}
-
-		// get the active server instance for the project
-		if (project instanceof IProject)
+		
+		IProject project = resource.getProject();
+		IFile file = (IFile) resource;
+		
+		try
 		{
-			try
-			{
-				JsonConfigServer server = ConfigServerManager.INSTANCE.getServer((IProject) project);
-				// load changes
-				JSONObject jsonObject = new JSONObject();
-				jsonObject.put(IJsonServerConfig.VERSION, 2);
-				jsonObject.put(IJsonServerConfig.LOAD, null);
-				String command = jsonObject.toJSONString();
+			JsonConfigServer server = ConfigServerManager.INSTANCE.getServer(project, file);
+			// load changes
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put(IJsonServerConfig.VERSION, 2);
+			jsonObject.put(IJsonServerConfig.LOAD, null);
+			String command = jsonObject.toJSONString();
 
-				// execute load command
-				server.execute(command, CommandType.LOAD);
-			}
-			catch (IOException e)
-			{
-				throw new ExecutionException(Messages.LoadSdkConfigHandler_ErrorLoadingJsonConfigServer, e);
-			}
-
+			// execute load command
+			server.execute(command, CommandType.LOAD);
 		}
-
+		catch (Exception e)
+		{
+			throw new ExecutionException(Messages.LoadSdkConfigHandler_ErrorLoadingJsonConfigServer, e);
+		}
+		
 		return null;
 	}
 
@@ -108,25 +103,6 @@ public class LoadSdkConfigHandler extends AbstractHandler
 				if (editorInput instanceof IFileEditorInput)
 				{
 					return ((IFileEditorInput) editorInput).getFile();
-				}
-			}
-		}
-		return null;
-	}
-
-	private static IProject getSelectedProject(String viewID)
-	{
-		ISelectionService service = getActiveWorkbenchWindow().getSelectionService();
-		IStructuredSelection structured = (IStructuredSelection) service.getSelection(viewID);
-		if (structured instanceof IStructuredSelection)
-		{
-			Object selectedObject = structured.getFirstElement();
-			if (selectedObject instanceof IAdaptable)
-			{
-				IResource resource = ((IAdaptable) selectedObject).getAdapter(IResource.class);
-				if (resource != null)
-				{
-					return resource.getProject();
 				}
 			}
 		}

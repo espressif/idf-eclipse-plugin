@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -25,13 +24,12 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.IDFCorePreferenceConstants;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.SystemExecutableFinder;
-import com.espressif.idf.core.Version;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.core.util.PyWinRegistryReader;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.InputStreamConsoleThread;
@@ -122,25 +120,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 
 	protected String getPythonExecutablePath()
 	{
-		// Get Python
-		if (Platform.OS_WIN32.equals(Platform.getOS()))
-		{
-			PyWinRegistryReader pyWinRegistryReader = new PyWinRegistryReader();
-			pythonVersions = pyWinRegistryReader.getPythonVersions();
-			if (pythonVersions.isEmpty())
-			{
-				Logger.log("No Python installations found in the system."); //$NON-NLS-1$
-			}
-
-			pythonExecutablenPath = pythonVersions.entrySet().stream().filter(
-					e -> new Version(e.getKey().replaceAll("-.+", StringUtil.EMPTY)).compareTo(new Version("3.6")) >= 0) //$NON-NLS-1$ //$NON-NLS-2$
-					.map(Entry::getValue).findAny().orElseGet(IDFUtil::getPythonExecutable);
-
-		}
-		else
-		{
-			pythonExecutablenPath = IDFUtil.getPythonExecutable();
-		}
+		pythonExecutablenPath = IDFUtil.getPythonExecutable();
 		return pythonExecutablenPath;
 	}
 
@@ -166,7 +146,17 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 			Map<String, String> environment = new HashMap<>(System.getenv());
 			Logger.log(environment.toString());
 			environment.put("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
-
+			
+			environment.put("IDF_GITHUB_ASSETS", //$NON-NLS-1$
+					Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
+							IDFCorePreferenceConstants.IDF_GITHUB_ASSETS,
+							IDFCorePreferenceConstants.IDF_GITHUB_ASSETS_DEFAULT, null));
+			
+			environment.put("PIP_EXTRA_INDEX_URL", //$NON-NLS-1$
+					Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
+							IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL,
+							IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL_DEFAULT, null));
+			
 			if (gitExecutablePath != null)
 			{
 				addGitToEnvironment(environment, gitExecutablePath);
