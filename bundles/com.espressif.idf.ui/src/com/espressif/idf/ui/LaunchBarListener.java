@@ -51,7 +51,7 @@ public class LaunchBarListener implements ILaunchBarListener
 	@Override
 	public void activeLaunchTargetChanged(ILaunchTarget target)
 	{
-		Display.getDefault().asyncExec(() -> {
+		Display.getDefault().syncExec(() -> {
 			if (target != null)
 			{
 				String targetName = target.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
