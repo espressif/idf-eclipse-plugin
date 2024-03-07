@@ -12,7 +12,10 @@ on:
 jobs:
   build_windows:
 
-    runs-on: windows-latest
+    runs-on:
+      - self-hosted
+      - eclipse
+      - BrnoWIN0007
     
     steps:
 
