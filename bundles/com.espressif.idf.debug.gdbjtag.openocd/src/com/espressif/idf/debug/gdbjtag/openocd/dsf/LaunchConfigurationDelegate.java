@@ -448,7 +448,7 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		}
 		catch (ExecutionException e1)
 		{
-			if (e1.getMessage().contains("Starting OpenOCD timed out."))
+			if (e1.getMessage().contains("Starting OpenOCD timed out.")) //$NON-NLS-1$
 			{
 				Display.getDefault().asyncExec(() -> {
 					ServerTimeoutErrorDialog.openError(Display.getDefault().getActiveShell());

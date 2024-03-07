@@ -28,25 +28,23 @@ public class ServerTimeoutErrorDialog extends MessageDialog
 				dialogButtonLabels);
 	}
 
-	public static boolean open(int kind, Shell parent, String title, String message, int style)
+	public static boolean open(int kind, Shell parent, String title, String message)
 	{
 		ServerTimeoutErrorDialog dialog = new ServerTimeoutErrorDialog(parent, title, null, message, kind, 0,
 				new String[] { IDialogConstants.OK_LABEL });
-		style &= SWT.SHEET;
 		return dialog.open() == 0;
 	}
 
 	public static void openError(Shell parent)
 	{
-		open(ERROR, parent, Messages.getString("ServerTimeoutErrorDialog.title"), //$NON-NLS-1$
-				Messages.getString("ServerTimeoutErrorDialog.message"), SWT.NONE); //$NON-NLS-1$
+		open(ERROR, parent, Messages.ServerTimeoutErrorDialog_title, Messages.ServerTimeoutErrorDialog_message);
 	}
 
 	@Override
 	protected Control createCustomArea(Composite parent)
 	{
 		Link link = new Link(parent, SWT.WRAP);
-		link.setText(Messages.getString("ServerTimeoutErrorDialog.customAreaMessage")); //$NON-NLS-1$
+		link.setText(Messages.ServerTimeoutErrorDialog_customAreaMessage);
 		link.addSelectionListener(new SelectionAdapter()
 		{
 			@Override
