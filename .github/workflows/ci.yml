@@ -15,6 +15,7 @@ jobs:
     runs-on:
       - self-hosted
       - eclipse
+      - BrnoUBU0004
 
     steps:
     - uses: actions/checkout@v2
