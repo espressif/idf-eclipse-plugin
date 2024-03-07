@@ -13,7 +13,6 @@ jobs:
   build_windows:
 
     runs-on:
-      - self-hosted
       - eclipse
       - BrnoWIN0007
     
