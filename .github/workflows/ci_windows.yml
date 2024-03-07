@@ -21,7 +21,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Clone IDF Release From Github
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: espressif/esp-idf
         path: dependencies/idf-tools
