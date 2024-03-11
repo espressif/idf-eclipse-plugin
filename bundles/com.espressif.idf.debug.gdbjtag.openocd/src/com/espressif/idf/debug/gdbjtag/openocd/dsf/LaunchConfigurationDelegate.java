@@ -49,6 +49,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
@@ -57,12 +58,10 @@ import org.eclipse.embedcdt.core.StringUtils;
 import org.eclipse.embedcdt.debug.gdbjtag.core.DebugUtils;
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.AbstractGnuMcuLaunchConfigurationDelegate;
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuServerServicesLaunchSequence;
-import org.eclipse.swt.widgets.Display;
 
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
 import com.espressif.idf.debug.gdbjtag.openocd.ui.Messages;
-import com.espressif.idf.debug.gdbjtag.openocd.ui.ServerTimeoutErrorDialog;
 
 /**
  * This class is referred in the plugin.xml as an "org.eclipse.debug.core.launchDelegates" extension point.
@@ -450,13 +449,10 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		{
 			if (e1.getMessage().contains("Starting OpenOCD timed out.")) //$NON-NLS-1$
 			{
-				Display.getDefault().asyncExec(() -> {
-					ServerTimeoutErrorDialog.openError(Display.getDefault().getActiveShell());
-
-				});
-				// Throwing exception with OK status to terminate launch sequence
-				throw new DebugException(new Status(IStatus.OK, GdbPlugin.PLUGIN_ID, DebugException.REQUEST_FAILED,
-						"Error in services launch sequence", e1.getCause())); //$NON-NLS-1$
+				IStatus status = new Status(IStatus.OK, Activator.PLUGIN_ID, DebugException.REQUEST_FAILED,
+						"Error in services launch sequence", e1.getCause()); //$NON-NLS-1$
+				DebugPlugin.getDefault().getStatusHandler(status).handleStatus(status, null);
+				throw new DebugException(Status.OK_STATUS);
 			}
 			else
 			{
