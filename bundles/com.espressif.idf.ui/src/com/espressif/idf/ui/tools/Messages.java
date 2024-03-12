@@ -115,6 +115,9 @@ public class Messages extends NLS
 	public static String EspIdfManagerLocationCol;
 	public static String EspIdfManagerStateCol;
 	public static String EspIdfManagerActionsCol;
+	public static String EspIdfManagerAddToolsBtn;
+	public static String EspIdfManagerDeleteBtn;
+	
 	public static String IDFDownloadHandler_ESPIDFConfiguration;
 	public static String IDFDownloadHandler_DownloadPage_Title;
 	public static String IDFDownloadHandler_DownloadPageMsg;

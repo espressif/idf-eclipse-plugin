@@ -121,7 +121,7 @@ public class ToolsInstallationJob extends ToolsJob
 		
 		toolSetConfigurationManager.export(idfToolSet);
 		
-		console.println("You Need to set the tools active");
+		console.println(Messages.ToolsInstallationJobCompletedMessage);
 		return Status.OK_STATUS;
 	}
 
