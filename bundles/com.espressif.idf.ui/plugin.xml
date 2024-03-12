@@ -123,32 +123,27 @@
       <menuContribution
             allPopups="false"
             locationURI="menu:espressifMenu">
-         <menu
-               icon="icons/ESP-IDF Tools Manager.png"
+         <command
+               commandId="com.espressif.idf.ui.espidfmanager"
+               icon="icons/ESP-IDFManageToolsInstallation.png"
                id="espidftoolsInstall"
-               label="%menu.label">
-            <command
-                  commandId="com.espressif.idf.ui.espidfmanager"
-                  icon="icons/ESP-IDFManageToolsInstallation.png"
-                  style="push">
-            </command>
-            <command
-                  commandId="com.espressif.idf.ui.command.list"
-                  icon="icons/ESP-IDF List Tools.png"
-                  style="push">
-            </command>
-            <command
-                  commandId="com.espressif.idf.ui.command.update"
-                  icon="icons/Update_ESP-IDF.png"
-                  style="push">
-               <visibleWhen
-                     checkEnabled="false">
-                  <test
-                        property="com.espressif.idf.ui.propertyTester.testProperty">
-                  </test>
-               </visibleWhen>
-            </command>
-         </menu>
+               style="push">
+         </command>
+         <command
+               commandId="com.espressif.idf.ui.command.update"
+               icon="icons/Update_ESP-IDF.png"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <test
+                     property="com.espressif.idf.ui.propertyTester.testProperty">
+               </test>
+            </visibleWhen>
+         </command>
+         <separator
+               name="com.espressif.idf.ui.separator1"
+               visible="true">
+         </separator>
       </menuContribution>
       <menuContribution
             allPopups="false"

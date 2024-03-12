@@ -19,11 +19,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
@@ -179,12 +181,16 @@ public class ESPIDFMainTablePage
 	{
 		Composite buttonComposite = new Composite(composite, SWT.NONE);
 		buttonComposite.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 3, 1));
-		buttonComposite.setLayout(new FillLayout());
+		
+		GridLayout gridLayout = new GridLayout(2, true);
+		gridLayout.horizontalSpacing = 10;
+		
+		buttonComposite.setLayout(gridLayout);
 
-		// Add button on top of the table
-		Button newButton = new Button(buttonComposite, SWT.PUSH);
-		newButton.setText("New Tools");
-		newButton.addSelectionListener(new SelectionAdapter()
+		// Add button at bottom of the table
+		Button addButton = new Button(buttonComposite, SWT.PUSH);
+		addButton.setText(Messages.EspIdfManagerAddToolsBtn);
+		addButton.addSelectionListener(new SelectionAdapter()
 		{
 
 			@Override
@@ -197,14 +203,15 @@ public class ESPIDFMainTablePage
 
 				wizDialog.setTitle(Messages.IDFDownloadHandler_DownloadPage_Title);
 				wizDialog.setMessage(Messages.IDFDownloadHandler_DownloadPageMsg);
-				wizDialog.getShell().setSize(Math.max(850, wizDialog.getShell().getSize().x), 500);
+				wizDialog.getShell().setSize(Math.max(850, wizDialog.getShell().getSize().x), 550);
 
 				wizDialog.open();
 			}
 		});
-		newButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		addButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+
 		Button deleteButton = new Button(buttonComposite, SWT.PUSH);
-		deleteButton.setText("Delete");
+		deleteButton.setText(Messages.EspIdfManagerDeleteBtn);
 		deleteButton.addSelectionListener(new SelectionAdapter()
 		{
 			@Override
@@ -230,10 +237,33 @@ public class ESPIDFMainTablePage
 
 	private class IdfManagerTableColumnLabelProvider extends ColumnLabelProvider
 	{
+		private Color activeBackgroundColor;
+		
+		private IdfManagerTableColumnLabelProvider()
+		{
+			super();
+			this.activeBackgroundColor = new Color(Display.getCurrent(), 144, 238, 144);
+		}
+		
+		@Override
+		public Color getBackground(Object element)
+		{
+			if (element instanceof IDFToolSet)
+			{
+				IDFToolSet idfToolSet = (IDFToolSet) element;
+				if (idfToolSet.isActive())
+				{
+					// Return the green color for active rows
+					return activeBackgroundColor;
+				}
+			}
+			return null;
+		}
 
 		@Override
 		public void update(ViewerCell cell)
 		{
+			super.update(cell);
 			int totalCols = tableViewer.getTable().getColumnCount();
 			boolean isLastCol = cell.getColumnIndex() == (totalCols - 1);
 			if (isLastCol)
@@ -295,6 +325,16 @@ public class ESPIDFMainTablePage
 
 			editor.grabHorizontal = true;
 			editor.setEditor(buttonComposite, item, cell.getColumnIndex());
+		}
+		
+		@Override
+		public void dispose()
+		{
+			if (this.activeBackgroundColor != null && !this.activeBackgroundColor.isDisposed())
+			{
+				this.activeBackgroundColor.dispose();
+			}
+			super.dispose();
 		}
 	}
 
