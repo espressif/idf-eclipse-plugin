@@ -21,6 +21,7 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.ui.tools.ManageEspIdfVersionsHandler;
 
 /**
  * List installed tools and versions command handler
@@ -79,11 +80,11 @@ public class ListInstalledToolsHandler extends AbstractToolsHandler
 						Messages.ListInstalledTools_MessageTitle, message);
 				if (isYes)
 				{
-					InstallToolsHandler installToolsHandler = new InstallToolsHandler();
+					ManageEspIdfVersionsHandler manageEspIdfVersionsHandler = new ManageEspIdfVersionsHandler();
 					try
 					{
-						installToolsHandler.setCommandId("com.espressif.idf.ui.command.install"); //$NON-NLS-1$
-						installToolsHandler.execute(null);
+						
+						manageEspIdfVersionsHandler.execute(null);
 					}
 					catch (ExecutionException e)
 					{

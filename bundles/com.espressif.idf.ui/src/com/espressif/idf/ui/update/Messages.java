@@ -72,6 +72,8 @@ public class Messages extends NLS
 	public static String SbomCommandDialog_SbomTitle;
 	public static String SbomCommandDialog_StatusCantBeNullErrorMsg;
 
+	public static String ToolsInstallationJobCompletedMessage;
+	
 	static
 	{
 		// initialize resource bundle
