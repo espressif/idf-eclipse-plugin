@@ -41,6 +41,7 @@ import com.espressif.idf.core.resources.OpenDialogListenerSupport;
 import com.espressif.idf.core.resources.PopupDialog;
 import com.espressif.idf.core.resources.ResourceChangeListener;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.dialogs.BuildView;
 import com.espressif.idf.ui.dialogs.MessageLinkDialog;
@@ -189,6 +190,7 @@ public class InitializeToolsStartup implements IStartup
 			{
 				Logger.log(e);
 			}
+			IDFUtil.updateEspressifPrefPageOpenocdPath();
 
 		}
 		catch (
