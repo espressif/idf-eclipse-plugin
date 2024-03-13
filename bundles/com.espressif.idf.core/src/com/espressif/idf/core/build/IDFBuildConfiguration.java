@@ -451,7 +451,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 
 			Instant finish = Instant.now();
 			long timeElapsed = Duration.between(start, finish).toMillis();
-			if (!monitor.isCanceled())
+			if (!monitor.isCanceled() && epm.getErrorCount() == 0)
 			{
 				project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 				ParitionSizeHandler paritionSizeHandler = new ParitionSizeHandler(project, infoStream, console);
