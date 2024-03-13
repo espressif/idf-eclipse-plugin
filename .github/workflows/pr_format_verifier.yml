@@ -1,0 +1,22 @@
+name: Pull Request Lint
+
+on:
+  pull_request:
+    types: ['opened', 'edited', 'reopened', 'synchronize']
+
+jobs:
+  title:
+    name: ticket check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check for ticket
+        uses: neofinancial/ticket-check-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ticketLink: 'https://jira.espressif.com:8443/browse/IEP-%ticketNumber%'
+          ticketPrefix: 'IEP-'
+          titleRegex: '^IEP-(?<ticketNumber>\d+)'
+          branchRegex: '^IEP-(?<ticketNumber>\d+)'
+          bodyRegex: 'IEP-(?<ticketNumber>\d+)'
+          bodyURLRegex: 'http(s?):\/\/(jira.espressif.com:8443)(\/browse)\/(IEP\-)(?<ticketNumber>\d+)'
