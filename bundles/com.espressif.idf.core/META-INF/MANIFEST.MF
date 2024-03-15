@@ -42,7 +42,10 @@ Export-Package: com.espressif.idf.core,
  com.espressif.idf.core.util,
  com.espressif.idf.core.variable,
  org.json.simple,
- org.json.simple.parser
+ org.json.simple.parser,
+ org.yaml.snakeyaml,
+ org.yaml.snakeyaml.parser,
+ org.yaml.snakeyaml.util
 Bundle-ClassPath: .,
  lib/json-simple-1.1.1.jar,
  lib/commons-collections4-4.4.jar,

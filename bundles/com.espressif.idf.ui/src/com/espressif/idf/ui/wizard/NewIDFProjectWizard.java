@@ -5,11 +5,10 @@
 package com.espressif.idf.ui.wizard;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import org.eclipse.cdt.debug.internal.core.InternalDebugCoreMessages;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -43,6 +42,7 @@ import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.lsp.ClangdConfigFileHandler;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.handlers.NewProjectHandlerUtil;
@@ -112,7 +112,7 @@ public class NewIDFProjectWizard extends TemplateWizard
 				String projectName = projectCreationWizardPage.getProjectName();
 				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 				selProvider.setSelection(new StructuredSelection(project));
-				createClangdFile(project);
+				updateClangdFile(project);
 			}
 		}
 
@@ -141,20 +141,11 @@ public class NewIDFProjectWizard extends TemplateWizard
 		return performFinish;
 	}
 
-	private void createClangdFile(IProject project) 
+	private void updateClangdFile(IProject project) 
 	{
-		String fileContent = "CompileFlags:\n" //$NON-NLS-1$
-				+ "  Remove: [-fno-tree-switch-conversion, -fstrict-volatile-bitfields]\n" //$NON-NLS-1$
-				+ ""; //$NON-NLS-1$
-		
 		try {
-			IFile file = project.getFile(".clangd"); //$NON-NLS-1$
-			file.create(
-	                new java.io.ByteArrayInputStream(fileContent.getBytes()),
-	                IResource.FORCE | IResource.KEEP_HISTORY,
-	                null
-	            );
-		} catch (Exception e) {
+			new ClangdConfigFileHandler().update(project);
+		} catch (FileNotFoundException e) {
 			Logger.log(e);
 		}
 	}
