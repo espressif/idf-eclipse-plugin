@@ -76,7 +76,11 @@
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<unit id="org.apache.batik.xml" version="0.0.0"/>
 			<unit id="org.apache.batik.dom" version="0.0.0"/>
-			<repository location="https://download.eclipse.org/tools/orbit/downloads/drops/R20220830213456/repository"/>
+			<unit id="org.apache.batik.css" version="0.0.0"/>
+			<unit id="org.apache.batik.util" version="0.0.0"/>
+			<unit id="org.apache.batik.i18n" version="0.0.0"/>
+			<unit id="org.apache.batik.constants" version="0.0.0"/>
+			<repository location="https://download.eclipse.org/tools/orbit/downloads/drops/R20230531010532/repository"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<unit id="org.eclipse.remote.console.feature.group" version="0.0.0"/>

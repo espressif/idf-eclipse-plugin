@@ -93,6 +93,9 @@
    <bundle id="org.snakeyaml.engine">
       <category name="com.espressif.idf"/>
    </bundle>
+   <bundle id="org.apache.batik.css">
+      <category name="com.espressif.idf"/>
+   </bundle>
    <category-def name="com.espressif.idf" label="ESP-IDF Eclipse Plugin">
       <description>
          ESP-IDF Eclipse Plugin for developing ESP32 based IoT applications
