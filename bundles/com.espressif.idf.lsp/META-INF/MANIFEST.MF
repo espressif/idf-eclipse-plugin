@@ -10,7 +10,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.resources,
  org.eclipse.cdt.lsp,
  com.espressif.idf.core,
- org.eclipse.cdt.core
+ org.eclipse.cdt.core,
+ org.apache.batik.css;bundle-version="1.16.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: com.espressif.idf.lsp
 Bundle-ActivationPolicy: lazy
