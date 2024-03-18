@@ -128,7 +128,7 @@ public class IDFDownloadPage extends WizardPage
 	private void createGitPythonComposite(Composite parent)
 	{
 		Group gitPyGroup = new Group(parent, SWT.SHADOW_ETCHED_IN);
-
+		gitPyGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		final int numColumns = 3;
 		GridLayout gridLayout = new GridLayout(numColumns, false);
 		gitPyGroup.setLayout(gridLayout);
