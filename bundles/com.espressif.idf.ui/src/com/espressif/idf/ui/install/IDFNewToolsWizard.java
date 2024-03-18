@@ -337,7 +337,7 @@ public class IDFNewToolsWizard extends Wizard
 				}
 			});
 			
-			if (idfToolSets.size() == 1)
+			if (idfToolSets != null && idfToolSets.size() == 1)
 			{
 				ToolsActivationJob toolsActivationJob = new ToolsActivationJob(idfToolSets.get(0), pythonPath, gitPath);
 				ToolsActivationJobListener toolsActivationJobListener = new ToolsActivationJobListener(espidfMainTablePage);

@@ -5,10 +5,11 @@
 package com.espressif.idf.ui.tools.manager;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.part.MultiPageEditorPart;
+import org.eclipse.ui.part.EditorPart;
 
 import com.espressif.idf.ui.tools.Messages;
 import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
@@ -18,14 +19,16 @@ import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
  * @author Ali Azam Rana
  *
  */
-public class ESPIDFManagerEditor extends MultiPageEditorPart
+public class ESPIDFManagerEditor extends EditorPart
 {
 	public static final String EDITOR_ID = "com.espressif.idf.ui.manageespidf";
 	
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException
 	{
-		super.init(site, input);
+		setSite(site);
+		setInput(input);
+		setPartName(Messages.EspIdfEditorTitle);
 	}
 	
 	
@@ -48,10 +51,23 @@ public class ESPIDFManagerEditor extends MultiPageEditorPart
 	}
 	
 	@Override
-	protected void createPages()
+	public void createPartControl(Composite parent)
 	{
 		ESPIDFMainTablePage espidfMainTablePage = new ESPIDFMainTablePage();
-		int index = addPage(espidfMainTablePage.createPage(getContainer()));
-		setPageText(index, Messages.EspIdfEditorTitle);
+		espidfMainTablePage.createPage(parent);
+	}
+
+
+	@Override
+	public boolean isDirty()
+	{
+		return false;
+	}
+
+
+	@Override
+	public void setFocus()
+	{
+		
 	}
 }
