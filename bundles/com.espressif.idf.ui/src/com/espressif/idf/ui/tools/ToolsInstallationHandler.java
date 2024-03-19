@@ -11,10 +11,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -31,9 +29,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.MessageBox;
 import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFConstants;
@@ -573,9 +568,10 @@ public class ToolsInstallationHandler extends Thread
 			runPythonEnvCommand();
 			runToolsExport(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.GIT_PATH));
 			new ESPToolChainManager().configureToolChain();
-			configEnv();
-			handleWebSocketClientInstall();
-			copyOpenOcdRules();
+			ToolsUtility.configureRequiredEnvVars(idfEnvironmentVariables);
+			ToolsUtility.installWebSocketClientPipPackage(logQueue);
+			ToolsUtility.installFreertosGdbPipPackage(logQueue);
+			ToolsUtility.copyOpenOcdRules(logQueue);
 			IDFUtil.updateEspressifPrefPageOpenocdPath();
 			validateToolsInstall();
 			scopedPreferenceStore.putBoolean(InstallToolsHandler.INSTALL_TOOLS_FLAG, true);
@@ -657,14 +653,6 @@ public class ToolsInstallationHandler extends Thread
 				manageToolsInstallationWizardPage.getLinkForDoc().setText(stringBuilder.toString());
 				manageToolsInstallationWizardPage.getLinkForDoc().setVisible(true);
 			});
-		}
-
-		private void configEnv()
-		{
-			// Enable IDF_COMPONENT_MANAGER by default
-			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER, "1");
-			// IDF_MAINTAINER=1 to be able to build with the clang toolchain
-			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_MAINTAINER, "1");
 		}
 
 		private void runToolsExport(final String gitExePath)
@@ -866,72 +854,6 @@ public class ToolsInstallationHandler extends Thread
 			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, paths.toString());
 		}
 
-		private void copyOpenOcdRules()
-		{
-			if (Platform.getOS().equals(Platform.OS_LINUX)
-					&& !IDFUtil.getOpenOCDLocation().equalsIgnoreCase(StringUtil.EMPTY))
-			{
-				Logger.log(Messages.InstallToolsHandler_CopyingOpenOCDRules);
-				logQueue.add(Messages.InstallToolsHandler_CopyingOpenOCDRules);
-				// Copy the rules to the idf
-				StringBuilder pathToRules = new StringBuilder();
-				pathToRules.append(IDFUtil.getOpenOCDLocation());
-				pathToRules.append("/../share/openocd/contrib/60-openocd.rules"); //$NON-NLS-1$
-				File rulesFile = new File(pathToRules.toString());
-				if (rulesFile.exists())
-				{
-					Path source = Paths.get(pathToRules.toString());
-					Path target = Paths.get("/etc/udev/rules.d/60-openocd.rules"); //$NON-NLS-1$
-					Logger.log(String.format(Messages.InstallToolsHandler_OpenOCDRulesCopyPaths, source.toString(),
-							target.toString()));
-					logQueue.add(String.format(Messages.InstallToolsHandler_OpenOCDRulesCopyPaths, source.toString(),
-							target.toString()));
-
-					Display.getDefault().syncExec(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							try
-							{
-								if (target.toFile().exists())
-								{
-									MessageBox messageBox = new MessageBox(Display.getDefault().getActiveShell(),
-											SWT.ICON_WARNING | SWT.YES | SWT.NO);
-									messageBox.setText(Messages.InstallToolsHandler_OpenOCDRulesCopyWarning);
-									messageBox.setMessage(Messages.InstallToolsHandler_OpenOCDRulesCopyWarningMessage);
-									int response = messageBox.open();
-									if (response == SWT.YES)
-									{
-										Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-									}
-									else
-									{
-										Logger.log(Messages.InstallToolsHandler_OpenOCDRulesNotCopied);
-										logQueue.add(Messages.InstallToolsHandler_OpenOCDRulesNotCopied);
-										return;
-									}
-								}
-								else
-								{
-									Files.copy(source, target);
-								}
-
-								Logger.log(Messages.InstallToolsHandler_OpenOCDRulesCopied);
-								logQueue.add(Messages.InstallToolsHandler_OpenOCDRulesCopied);
-							}
-							catch (IOException e)
-							{
-								Logger.log(e);
-								Logger.log(Messages.InstallToolsHandler_OpenOCDRulesCopyError);
-								logQueue.add(Messages.InstallToolsHandler_OpenOCDRulesCopyError);
-							}
-						}
-					});
-				}
-			}
-		}
-
 		private String getCommandString(List<String> arguments)
 		{
 			StringBuilder builder = new StringBuilder();
@@ -979,55 +901,6 @@ public class ToolsInstallationHandler extends Thread
 			}
 		}
 
-		private void handleWebSocketClientInstall()
-		{
-			List<String> arguments = new ArrayList<String>();
-			final String pythonEnvPath = IDFUtil.getIDFPythonEnvPath();
-			if (pythonEnvPath == null || !new File(pythonEnvPath).exists())
-			{
-				logQueue.add(
-						String.format("%s executable not found. Unable to run `%s -m pip install websocket-client`", //$NON-NLS-1$
-								IDFConstants.PYTHON_CMD, IDFConstants.PYTHON_CMD));
-				return;
-			}
-			arguments.add(pythonEnvPath);
-			arguments.add("-m"); //$NON-NLS-1$
-			arguments.add("pip"); //$NON-NLS-1$
-
-			arguments.add("install"); //$NON-NLS-1$
-			arguments.add("websocket-client"); //$NON-NLS-1$
-
-			ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
-
-			try
-			{
-				String cmdMsg = "Executing " + getCommandString(arguments); //$NON-NLS-1$
-				logQueue.add(cmdMsg);
-				Logger.log(cmdMsg);
-
-				Map<String, String> environment = new HashMap<>(System.getenv());
-				Logger.log(environment.toString());
-
-				IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT,
-						environment);
-				if (status == null)
-				{
-					Logger.log(IDFCorePlugin.getPlugin(),
-							IDFCorePlugin.errorStatus("Unable to get the process status.", null)); //$NON-NLS-1$
-					logQueue.add("Unable to get the process status.");
-					return;
-				}
-
-				logQueue.add(status.getMessage());
-
-			}
-			catch (Exception e1)
-			{
-				Logger.log(IDFCorePlugin.getPlugin(), e1);
-				logQueue.add(e1.getLocalizedMessage());
-
-			}
-		}
 	}
 
 	private class DeleteToolsThread implements Callable<Boolean>
