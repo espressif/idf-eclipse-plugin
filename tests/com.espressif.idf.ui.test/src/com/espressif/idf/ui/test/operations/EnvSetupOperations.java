@@ -67,28 +67,19 @@ public class EnvSetupOperations
 		TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 		bot.activeShell();
 
-		bot.menu("Espressif").menu("ESP-IDF Tools Manager").click().menu("Install Tools").click();
+		bot.menu("Espressif").menu("ESP-IDF Manager").click();
 		bot.activeShell().activate();
-		bot.shell("Install Tools").bot().textWithLabel("ESP-IDF Directory:")
-				.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
+		bot.button("Add Tools").click();
+		bot.shell("ESP-IDF Configuration").bot().checkBox("Use an existing ESP-IDF directory from file system").click();
+		bot.shell("ESP-IDF Configuration").bot().textWithLabel("Choose existing ESP-IDF directory:").setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
+		bot.shell("ESP-IDF Configuration").bot().textWithLabel("Git:").setText(DefaultPropertyFetcher.getStringPropertyValue(GIT_PATH_PROPERTY, ""));
+		bot.shell("ESP-IDF Configuration").bot().textWithLabel("Python:").setText(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_PATH_PROPERTY, ""));
+		bot.button("Finish").click();
 
-		bot.shell("Install Tools").bot().textWithLabel("Git Executable Location:")
-				.setText(DefaultPropertyFetcher.getStringPropertyValue(GIT_PATH_PROPERTY, ""));
-		try
-		{
-			bot.shell("Install Tools").bot().comboBox()
-					.setSelection(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_VERSION_PROPERTY, ""));
-		}
-		catch (WidgetNotFoundException e)
-		{
-			bot.shell("Install Tools").bot().textWithLabel("Python Executable Location:")
-					.setText(IDFUtil.getPythonExecutable());
-		}
-		bot.shell("Install Tools").bot().button("Install Tools").click();
 		SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
 		consoleView.show();
 		consoleView.setFocus();
-		TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 99000000);
+		TestWidgetWaitUtility.waitUntilViewContains(bot, "Tools Activated", consoleView, 99000000);
 		SETUP = true;
 	}
 
