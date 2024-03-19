@@ -568,26 +568,6 @@ public class ESPToolChainManager
 		addToolchainBasedTargets(IDFCorePlugin.getService(ILaunchTargetManager.class), targets);
 	}
 	
-	/**
-	 * Adds the given esp/std/gcc toolchains in the current environment
-	 * @param espToolchains
-	 */
-	public void addStdToolChains(List<ESPToolchain> espToolchains)
-	{
-		IToolChainManager tcManager = CCorePlugin.getService(IToolChainManager.class);
-		espToolchains.stream().forEach(espToolchain -> tcManager.addToolChain(espToolchain));
-	}
-	
-	/**
-	 * Adds the given cmake toolchains in the current environment
-	 * @param cMakeToolChainFiles
-	 */
-	public void addCmakeToolchains(List<ICMakeToolChainFile> cMakeToolChainFiles)
-	{
-		ICMakeToolChainManager cmakeTcManager = CCorePlugin.getService(ICMakeToolChainManager.class);
-		cMakeToolChainFiles.stream().forEach(cMakeToolChainFile -> cmakeTcManager.addToolChainFile(cMakeToolChainFile));
-	}
-
 	
 	/**
 	 * Removes all the launch targets
