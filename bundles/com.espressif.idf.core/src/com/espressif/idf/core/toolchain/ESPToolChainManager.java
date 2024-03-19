@@ -489,25 +489,40 @@ public class ESPToolChainManager
 				wc.save();
 			}
 		}
+		
+		addLaunchTargets(targetManager, toolchainsWithoutDuplicateTargets, null);
 	}
 	
 	private void addLaunchTargets(ILaunchTargetManager targetManager,
 			Collection<IToolChain> toolchainsWithoutDuplicateTargets, List<String> targets) throws SecurityException, IllegalArgumentException
 	{
-
-		for (IToolChain toolchain : toolchainsWithoutDuplicateTargets)
+		List<IToolChain> toolChainsToRemove = null;
+		List<IToolChain> toolChainsToUse = null;
+		if (targets != null)
 		{
-			String os = toolchain.getProperty(IToolChain.ATTR_OS);
-			if (!targets.contains(os))
+			toolChainsToRemove = toolchainsWithoutDuplicateTargets.stream()
+					.filter(tc -> !targets.contains(tc.getProperty(IToolChain.ATTR_OS))).collect(Collectors.toList());
+			toolChainsToUse = toolchainsWithoutDuplicateTargets.stream()
+					.filter(tc -> targets.contains(tc.getProperty(IToolChain.ATTR_OS))).collect(Collectors.toList());
+			for(IToolChain toolChain : toolChainsToRemove)
 			{
+				String os = toolChain.getProperty(IToolChain.ATTR_OS);
 				ILaunchTarget target = targetManager.getLaunchTarget(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE, os);
 				if (target != null)
 				{
 					targetManager.removeLaunchTarget(target);
 				}
-				continue;
 			}
-			
+		}
+		else 
+		{
+			toolChainsToUse = toolchainsWithoutDuplicateTargets.stream().collect(Collectors.toList());
+		}
+		
+
+		for (IToolChain toolchain : toolChainsToUse)
+		{
+			String os = toolchain.getProperty(IToolChain.ATTR_OS);
 			String arch = toolchain.getProperty(IToolChain.ATTR_ARCH);
 			if (targetManager.getLaunchTarget(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE, os) == null)
 			{
