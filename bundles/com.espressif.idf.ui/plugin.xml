@@ -107,7 +107,7 @@
             defaultHandler="com.espressif.idf.ui.tools.ManageEspIdfVersionsHandler"
             description="Manage ESP-IDF Versions"
             id="com.espressif.idf.ui.espidfmanager"
-            name="ESP-IDF Manager">
+            name="%command.espidf.manager">
       </command>
    </extension>
    <extension
@@ -692,7 +692,7 @@
             default="false"
             icon="icons/ESP-IDFManageToolsInstallation.png"
             id="com.espressif.idf.ui.manageespidf"
-            name="ESP-IDF: Manager">
+            name="%editor.espidf.manager.name">
       </editor>
    </extension>
    <extension
