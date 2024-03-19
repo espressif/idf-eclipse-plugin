@@ -382,10 +382,6 @@ public class ESPToolChainManager
 					{
 						manager.addToolChainFile(toolchainFile);
 					}
-					else 
-					{
-						toolChainFile.getFileName();
-					}
 				}
 				catch (CoreException e)
 				{
