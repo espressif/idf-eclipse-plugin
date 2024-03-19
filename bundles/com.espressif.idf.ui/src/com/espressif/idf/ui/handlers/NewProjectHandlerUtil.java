@@ -19,6 +19,7 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
+import com.espressif.idf.ui.tools.ManageEspIdfVersionsHandler;
 import com.espressif.idf.ui.update.InstallToolsHandler;
 
 public class NewProjectHandlerUtil
@@ -67,11 +68,10 @@ public class NewProjectHandlerUtil
 								+ Messages.NewProjectHandler_MandatoryMsg);
 				if (isYes)
 				{
-					InstallToolsHandler installToolsHandler = new InstallToolsHandler();
+					ManageEspIdfVersionsHandler manageEspIdfVersionsHandler = new ManageEspIdfVersionsHandler();
 					try
 					{
-						installToolsHandler.setCommandId("com.espressif.idf.ui.command.install"); //$NON-NLS-1$
-						installToolsHandler.execute(null);
+						manageEspIdfVersionsHandler.execute(null);
 					}
 					catch (ExecutionException e)
 					{
