@@ -92,30 +92,6 @@ public class ESPToolChainManager
 		}
 		return toolchainElements;
 	}
-	
-	private static Map<String, ESPToolChainElement> readESPToolchainRegistryWithGivenTargets(List<String> targets)
-	{
-		IConfigurationElement[] configElements = Platform.getExtensionRegistry()
-				.getConfigurationElementsFor("com.espressif.idf.core.toolchain"); //$NON-NLS-1$
-		for (IConfigurationElement iConfigurationElement : configElements)
-		{
-			String name = iConfigurationElement.getAttribute("name"); //$NON-NLS-1$
-			if (!targets.contains(name))
-				continue;
-			String id = iConfigurationElement.getAttribute("id"); //$NON-NLS-1$
-			String arch = iConfigurationElement.getAttribute("arch"); //$NON-NLS-1$
-			String fileName = iConfigurationElement.getAttribute("fileName"); //$NON-NLS-1$
-			String compilerPattern = iConfigurationElement.getAttribute("compilerPattern"); //$NON-NLS-1$
-			String debuggerPatten = iConfigurationElement.getAttribute("debuggerPattern"); //$NON-NLS-1$
-
-			String uniqueToolChainId = name.concat("/").concat(arch).concat("/").concat(fileName); //$NON-NLS-1$ //$NON-NLS-2$
-
-			toolchainElements.put(uniqueToolChainId,
-					new ESPToolChainElement(name, id, arch, fileName, compilerPattern, debuggerPatten));
-
-		}
-		return toolchainElements;
-	}
 
 	/**
 	 * @param manager
@@ -730,12 +706,6 @@ public class ESPToolChainManager
 		
 		return launchTargets;
 	}
-
-	public void updateToolChainElementesWithSelectedTargets(List<String> targets)
-	{
-		readESPToolchainRegistryWithGivenTargets(targets);
-	}
-
 }
 
 class ESPToolChainElement
