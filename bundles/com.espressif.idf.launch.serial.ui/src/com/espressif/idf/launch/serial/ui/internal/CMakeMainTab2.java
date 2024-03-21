@@ -15,6 +15,7 @@
 package com.espressif.idf.launch.serial.ui.internal;
 
 import java.io.File;
+import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -896,8 +897,13 @@ public class CMakeMainTab2 extends GenericMainTab
 				{
 					return;
 				}
-				workingDir = new File(configuration.getMappedResources()[0].getProject().getLocationURI());
-				workDirectoryField.setText(newVariableExpression("workspace_loc", workingDir.getName())); //$NON-NLS-1$
+				URI locationUri = configuration.getMappedResources()[0].getProject().getLocationURI();
+				if (locationUri != null)
+				{
+					workingDir = new File(configuration.getMappedResources()[0].getProject().getLocationURI());
+					workDirectoryField.setText(newVariableExpression("workspace_loc", workingDir.getName())); //$NON-NLS-1$
+				}
+
 			}
 			catch (CoreException e)
 			{
