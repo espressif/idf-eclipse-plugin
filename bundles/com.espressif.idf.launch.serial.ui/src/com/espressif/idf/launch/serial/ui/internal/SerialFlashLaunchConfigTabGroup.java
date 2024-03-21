@@ -16,6 +16,9 @@
 package com.espressif.idf.launch.serial.ui.internal;
 
 import org.eclipse.cdt.launch.ui.corebuild.CoreBuildTab;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
 import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.EnvironmentTab;
@@ -23,18 +26,42 @@ import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.launchbar.ui.internal.LaunchBarLaunchConfigDialog;
 
+import com.espressif.idf.core.logging.Logger;
+
 @SuppressWarnings("restriction")
-public class SerialFlashLaunchConfigTabGroup extends AbstractLaunchConfigurationTabGroup {
+public class SerialFlashLaunchConfigTabGroup extends AbstractLaunchConfigurationTabGroup
+{
 
 	@Override
-	public void createTabs(ILaunchConfigurationDialog dialog, String mode) {
-		if (dialog instanceof LaunchBarLaunchConfigDialog) {
+	public void createTabs(ILaunchConfigurationDialog dialog, String mode)
+	{
+		if (dialog instanceof LaunchBarLaunchConfigDialog)
+		{
 			setTabs(new ILaunchConfigurationTab[] { new CMakeMainTab2(), new EnvironmentTab(), new CommonTab() });
-		} else {
+		}
+		else
+		{
 			setTabs(new ILaunchConfigurationTab[] { new CoreBuildTab(), new CMakeMainTab2(), new EnvironmentTab(),
 					new CommonTab() });
 		}
 
+	}
+
+	@Override
+	public void initializeFrom(ILaunchConfiguration configuration)
+	{
+		try
+		{
+			IResource[] resources = configuration.getMappedResources();
+			if (resources != null)
+			{
+				super.initializeFrom(configuration);
+			}
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
 	}
 
 }
