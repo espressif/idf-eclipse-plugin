@@ -8,8 +8,10 @@ import org.eclipse.cdt.debug.core.launch.CoreBuildGenericLaunchConfigProvider;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.launchbar.core.ILaunchDescriptor;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 
@@ -22,25 +24,16 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 	public ILaunchConfiguration getLaunchConfiguration(ILaunchDescriptor descriptor, ILaunchTarget target)
 			throws CoreException
 	{
-
-		ILaunchConfiguration configuration = null;
 		IProject project = descriptor.getAdapter(IProject.class);
-		if (project != null)
-		{
+		if (project == null)
+			return null;
 
-			String targetConfig = descriptor.getName();
-			configuration = configs.computeIfAbsent(project, key -> new HashMap<>()).get(targetConfig);
-			if (configuration == null)
-			{
-				// do we already have one with the descriptor?
-				configuration = descriptor.getAdapter(ILaunchConfiguration.class);
-				if (configuration == null)
-				{
-					configuration = createLaunchConfiguration(descriptor, target);
-				}
-				configs.get(project).put(configuration.getName(), configuration);
-			}
-		}
+		String targetConfig = descriptor.getName();
+		Map<String, ILaunchConfiguration> projectConfigs = configs.computeIfAbsent(project, key -> new HashMap<>());
+		ILaunchConfiguration configuration = projectConfigs.get(targetConfig);
+		configuration = configuration == null ? findExistingLaunchConfiguration(project, descriptor) : configuration;
+		configuration = configuration == null ? createLaunchConfiguration(descriptor, target) : configuration;
+		projectConfigs.put(configuration.getName(), configuration);
 		return configuration;
 	}
 
@@ -104,6 +97,22 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 	public void launchTargetRemoved(ILaunchTarget target) throws CoreException
 	{
 		// Nothing to do
+	}
+
+	private ILaunchConfiguration findExistingLaunchConfiguration(IProject project, ILaunchDescriptor descriptor)
+			throws CoreException
+	{
+		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+		for (ILaunchConfiguration config : launchManager.getLaunchConfigurations())
+		{
+			IResource[] mappedResource = config.getMappedResources();
+			if (mappedResource != null && mappedResource.length > 0 && mappedResource[0].getProject().equals(project)
+					&& config.getName().equals(descriptor.getName()))
+			{
+				return config;
+			}
+		}
+		return null;
 	}
 
 }

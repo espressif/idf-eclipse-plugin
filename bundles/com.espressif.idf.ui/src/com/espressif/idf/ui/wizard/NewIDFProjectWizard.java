@@ -8,6 +8,7 @@ import java.io.File;
 
 import org.eclipse.cdt.debug.internal.core.InternalDebugCoreMessages;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -15,7 +16,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.PageChangingEvent;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -28,8 +31,6 @@ import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.launchbar.ui.NewLaunchConfigWizard;
 import org.eclipse.launchbar.ui.NewLaunchConfigWizardDialog;
 import org.eclipse.launchbar.ui.internal.dialogs.NewLaunchConfigEditPage;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.tools.templates.core.IGenerator;
@@ -114,28 +115,42 @@ public class NewIDFProjectWizard extends TemplateWizard
 		}
 
 		final String target = projectCreationWizardPage.getSelectedTarget();
-		this.getShell().addDisposeListener(new DisposeListener()
-		{
-			@Override
-			public void widgetDisposed(DisposeEvent event)
+		this.getShell().addDisposeListener(event -> {
+			ILaunchBarManager launchBarManager = UIPlugin.getService(ILaunchBarManager.class);
+			TargetSwitchJob targetSwtichJob = new TargetSwitchJob(target);
+			targetSwtichJob.schedule();
+			try
 			{
-				ILaunchBarManager launchBarManager = UIPlugin.getService(ILaunchBarManager.class);
-				TargetSwitchJob targetSwtichJob = new TargetSwitchJob(target);
-				targetSwtichJob.schedule();
-				try
+				ILaunchDescriptor desc = launchBarManager.getActiveLaunchDescriptor();
+				if (findAppropriateDebugConfig(desc) == null)
 				{
-					ILaunchDescriptor desc = launchBarManager.getActiveLaunchDescriptor();
 					createDefaultDebugConfig();
 					launchBarManager.setActiveLaunchDescriptor(desc);
 				}
-				catch (CoreException e)
-				{
-					Logger.log(e);
-				}
-
+			}
+			catch (CoreException e)
+			{
+				Logger.log(e);
 			}
 		});
 		return performFinish;
+	}
+
+	private ILaunchConfiguration findAppropriateDebugConfig(ILaunchDescriptor descriptor) throws CoreException
+	{
+		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+		IProject project = descriptor.getAdapter(IProject.class);
+		for (ILaunchConfiguration config : launchManager.getLaunchConfigurations())
+		{
+			IResource[] mappedResource = config.getMappedResources();
+			if (mappedResource != null && mappedResource.length > 0 && mappedResource[0].getProject().equals(project)
+					&& config.getType().getIdentifier().contentEquals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
+			{
+				return config;
+			}
+		}
+		return null;
+
 	}
 
 	private void createDefaultDebugConfig()
