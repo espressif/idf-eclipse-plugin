@@ -38,7 +38,7 @@ public class ClangdConfigFileHandler
 
 			// Add new attribute to CompileFlags
 			Map<String, Object> compileFlags = (Map<String, Object>) data.get("CompileFlags"); //$NON-NLS-1$
-			compileFlags.put("Remove", new String[] { "-fno-tree-switch-conversion", "-fstrict-volatile-bitfields" }); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			compileFlags.put("Remove", new String[] { "-m*", "-f*" }); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 			// Write updated clangd back to file
 			try (Writer writer = new FileWriter(file))
