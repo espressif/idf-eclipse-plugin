@@ -8,7 +8,6 @@ import java.io.File;
 
 import org.eclipse.cdt.debug.internal.core.InternalDebugCoreMessages;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -16,9 +15,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
-import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.PageChangingEvent;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -42,6 +39,7 @@ import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.LaunchConfigFinder;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.handlers.NewProjectHandlerUtil;
@@ -122,7 +120,8 @@ public class NewIDFProjectWizard extends TemplateWizard
 			try
 			{
 				ILaunchDescriptor desc = launchBarManager.getActiveLaunchDescriptor();
-				if (findAppropriateDebugConfig(desc) == null)
+				if (new LaunchConfigFinder().findAppropriateLaunchConfig(desc,
+						IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE) == null)
 				{
 					createDefaultDebugConfig();
 					launchBarManager.setActiveLaunchDescriptor(desc);
@@ -134,23 +133,6 @@ public class NewIDFProjectWizard extends TemplateWizard
 			}
 		});
 		return performFinish;
-	}
-
-	private ILaunchConfiguration findAppropriateDebugConfig(ILaunchDescriptor descriptor) throws CoreException
-	{
-		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-		IProject project = descriptor.getAdapter(IProject.class);
-		for (ILaunchConfiguration config : launchManager.getLaunchConfigurations())
-		{
-			IResource[] mappedResource = config.getMappedResources();
-			if (mappedResource != null && mappedResource.length > 0 && mappedResource[0].getProject().equals(project)
-					&& config.getType().getIdentifier().contentEquals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
-			{
-				return config;
-			}
-		}
-		return null;
-
 	}
 
 	private void createDefaultDebugConfig()
