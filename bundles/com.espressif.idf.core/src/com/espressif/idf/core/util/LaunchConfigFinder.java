@@ -14,7 +14,7 @@ import org.eclipse.launchbar.core.ILaunchDescriptor;
 
 public class LaunchConfigFinder
 {
-	private ILaunchManager launchManager;
+	private final ILaunchManager launchManager;
 
 	public LaunchConfigFinder()
 	{
@@ -32,7 +32,6 @@ public class LaunchConfigFinder
 		IProject project = descriptor.getAdapter(IProject.class);
 		for (ILaunchConfiguration config : launchManager.getLaunchConfigurations())
 		{
-			launchManager.getLaunchConfigurations();
 			IResource[] mappedResource = config.getMappedResources();
 			if (mappedResource != null && mappedResource.length > 0 && mappedResource[0].getProject().equals(project)
 					&& config.getType().getIdentifier().contentEquals(configIndentifier))
