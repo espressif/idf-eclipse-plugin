@@ -61,7 +61,7 @@ public class Messages
 	public static String TabMain_Launch_Config;
 
 	public static String TabDebugger_SettingTargetJob;
-	
+
 	public static String OpenOCDConsole_ErrorGuideMessage;
 
 	public static String TabDebugger_noConfigOptions;
@@ -70,6 +70,10 @@ public class Messages
 	public static String TabDebugger_noGdbServerExe;
 	public static String TabDebugger_noTclPort;
 	public static String TabDebugger_noTelnetPort;
+
+	public static String ServerTimeoutErrorDialog_title;
+	public static String ServerTimeoutErrorDialog_message;
+	public static String ServerTimeoutErrorDialog_customAreaMessage;
 
 	// ------------------------------------------------------------------------
 
