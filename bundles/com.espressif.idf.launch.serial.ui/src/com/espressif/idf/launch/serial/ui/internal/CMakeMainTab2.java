@@ -15,6 +15,7 @@
 package com.espressif.idf.launch.serial.ui.internal;
 
 import java.io.File;
+import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,7 +78,8 @@ import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 import com.espressif.idf.ui.EclipseUtil;
 
 @SuppressWarnings("restriction")
-public class CMakeMainTab2 extends GenericMainTab {
+public class CMakeMainTab2 extends GenericMainTab
+{
 	private static final String LAUNCH_TARGET_ATTR = "LAUNCH_TARGET"; //$NON-NLS-1$
 	private static final int JOB_DELAY_MS = 100;
 	private static final String EMPTY_CONFIG_OPTIONS = "%s" + File.separator + "%s -s %s"; //$NON-NLS-1$ //$NON-NLS-2$
@@ -101,17 +103,20 @@ public class CMakeMainTab2 extends GenericMainTab {
 	private ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
 	private ILaunchTargetManager targetManager = Activator.getService(ILaunchTargetManager.class);
 
-	public enum FlashInterface {
+	public enum FlashInterface
+	{
 		UART, JTAG, DFU;
 
-		public static String[] getNames() {
+		public static String[] getNames()
+		{
 			return Arrays.stream(FlashInterface.values()).map(Enum::name).toArray(String[]::new);
 		}
 
 	}
 
 	@Override
-	public void createControl(Composite parent) {
+	public void createControl(Composite parent)
+	{
 		parent.addDisposeListener(event -> scheduleApplyTargetJob());
 
 		mainComposite = new Composite(parent, SWT.NONE);
@@ -136,18 +141,18 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	@Override
-	protected void updateArgument(ILaunchConfiguration configuration) {
-		//We don't need the default argument field so there is nothing to update
+	protected void updateArgument(ILaunchConfiguration configuration)
+	{
+		// We don't need the default argument field so there is nothing to update
 	}
 
 	/**
-	 * Creates the controls needed to edit the argument and prompt for argument
-	 * attributes of an external tool
+	 * Creates the controls needed to edit the argument and prompt for argument attributes of an external tool
 	 *
-	 * @param parent
-	 *            the composite to create the controls in
+	 * @param parent the composite to create the controls in
 	 */
-	protected void createArgumentComponent(Composite parent, Text argumentField) {
+	protected void createArgumentComponent(Composite parent, Text argumentField)
+	{
 		Group group = new Group(parent, SWT.NONE);
 		String groupName = Messages.CMakeMainTab2_Arguments;
 		group.setText(groupName);
@@ -160,7 +165,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 		argumentField.setParent(group);
 		argumentField.addTraverseListener(event -> {
-			if (event.detail == SWT.TRAVERSE_RETURN && (event.stateMask & SWT.MODIFIER_MASK) != 0) {
+			if (event.detail == SWT.TRAVERSE_RETURN && (event.stateMask & SWT.MODIFIER_MASK) != 0)
+			{
 				event.doit = true;
 			}
 		});
@@ -190,19 +196,22 @@ public class CMakeMainTab2 extends GenericMainTab {
 		instruction.setLayoutData(gridData);
 	}
 
-	private void handleVariablesButtonSelected(Text textField) {
+	private void handleVariablesButtonSelected(Text textField)
+	{
 		String variable = getVariable();
 		if (variable != null)
 			textField.insert(variable);
 	}
 
-	private String getVariable() {
+	private String getVariable()
+	{
 		StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(getShell());
 		dialog.open();
 		return dialog.getVariableExpression();
 	}
 
-	protected void createUartComposite(Composite parent) {
+	protected void createUartComposite(Composite parent)
+	{
 
 		Composite defaultComposite = new Composite(parent, SWT.NONE);
 		switchComposites.putIfAbsent(FlashInterface.UART, new ArrayList<>());
@@ -230,7 +239,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 		createVerticalSpacer(defaultComposite, 1);
 	}
 
-	protected void createJtagflashComposite(Composite parent) {
+	protected void createJtagflashComposite(Composite parent)
+	{
 
 		Composite jtagComposite = new Composite(parent, SWT.NONE);
 		switchComposites.putIfAbsent(FlashInterface.JTAG, new ArrayList<>());
@@ -254,7 +264,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 		createVerticalSpacer(jtagComposite, 1);
 	}
 
-	protected void createDfuTargetComposite(Composite parent) {
+	protected void createDfuTargetComposite(Composite parent)
+	{
 		Composite dfuComposite = createDfuComposite(parent);
 
 		Composite targetComposite = new Composite(dfuComposite, SWT.NONE);
@@ -271,11 +282,14 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 		String[] targetsWithDfuSupport = DfuCommandsUtil.getSupportedTargets();
 		comboTargets.setItems(targetsWithDfuSupport);
-		comboTargets.addSelectionListener(new SelectionAdapter() {
+		comboTargets.addSelectionListener(new SelectionAdapter()
+		{
 
 			@Override
-			public void widgetSelected(SelectionEvent evt) {
-				if (!((Combo) evt.widget).getText().isEmpty() && dfuErrorLbl != null) {
+			public void widgetSelected(SelectionEvent evt)
+			{
+				if (!((Combo) evt.widget).getText().isEmpty() && dfuErrorLbl != null)
+				{
 					dfuErrorLbl.setText(StringUtil.EMPTY);
 				}
 				updateLaunchConfigurationDialog();
@@ -283,12 +297,16 @@ public class CMakeMainTab2 extends GenericMainTab {
 		});
 
 		Optional<String> suitableTarget = Stream.of(targetsWithDfuSupport).filter(t -> {
-			try {
-				if (launchBarManager.getActiveLaunchConfiguration() != null) {
+			try
+			{
+				if (launchBarManager.getActiveLaunchConfiguration() != null)
+				{
 					return t.contentEquals(launchBarManager.getActiveLaunchTarget()
 							.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY));
 				}
-			} catch (CoreException e) {
+			}
+			catch (CoreException e)
+			{
 				Logger.log(e);
 			}
 			return false;
@@ -304,7 +322,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 		comboTargets.notifyListeners(SWT.Selection, null);
 	}
 
-	private Composite createDfuComposite(Composite parent) {
+	private Composite createDfuComposite(Composite parent)
+	{
 		Composite dfuComposite = new Composite(parent, SWT.NONE);
 		switchComposites.putIfAbsent(FlashInterface.DFU, new ArrayList<>());
 		switchComposites.get(FlashInterface.DFU).add(dfuComposite);
@@ -320,7 +339,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 		return dfuComposite;
 	}
 
-	private void createDfuArgumentField(Composite parent) {
+	private void createDfuArgumentField(Composite parent)
+	{
 		Composite dfuComposite = createDfuComposite(parent);
 
 		dfuArgumentsField = new Text(parent, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
@@ -328,7 +348,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 		createVerticalSpacer(dfuComposite, 1);
 	}
 
-	private void createProjectGroup(Composite parent, int colSpan) {
+	private void createProjectGroup(Composite parent, int colSpan)
+	{
 		Group projectGroup = new Group(parent, SWT.NONE);
 		GridLayout projLayout = new GridLayout();
 		projLayout.numColumns = 2;
@@ -348,18 +369,22 @@ public class CMakeMainTab2 extends GenericMainTab {
 		fProjText.setLayoutData(gd);
 		Button fProjButton = createPushButton(projectGroup, LaunchMessages.Launch_common_Browse_1, null);
 		fProjText.addModifyListener(evt -> updateLaunchConfigurationDialog());
-		fProjButton.addSelectionListener(new SelectionAdapter() {
+		fProjButton.addSelectionListener(new SelectionAdapter()
+		{
 			@Override
-			public void widgetSelected(SelectionEvent evt) {
+			public void widgetSelected(SelectionEvent evt)
+			{
 				chooseProject();
 				updateLaunchConfigurationDialog();
 			}
 		});
 	}
 
-	private void chooseProject() {
+	private void chooseProject()
+	{
 		ICProject[] projects;
-		try {
+		try
+		{
 			projects = CoreModel.getDefault().getCModel().getCProjects();
 			ILabelProvider labelProvider = new CElementLabelProvider();
 			ElementListSelectionDialog dialog = new ElementListSelectionDialog(getShell(), labelProvider);
@@ -370,21 +395,27 @@ public class CMakeMainTab2 extends GenericMainTab {
 			String initialProjectName = fProjText != null ? fProjText.getText().trim() : StringUtil.EMPTY;
 			ICProject cProject = initialProjectName.isEmpty() ? null
 					: CoreModel.getDefault().getCModel().getCProject(fProjText.getText());
-			if (cProject != null) {
+			if (cProject != null)
+			{
 				dialog.setInitialSelections(new Object[] { cProject });
 			}
-			if (dialog.open() == Window.OK) {
+			if (dialog.open() == Window.OK)
+			{
 				selectedProject = ((ICProject) dialog.getFirstResult()).getProject();
 			}
-			if (fProjText != null && selectedProject != null) {
+			if (fProjText != null && selectedProject != null)
+			{
 				fProjText.setText(selectedProject.getName());
 			}
-		} catch (CModelException e) {
+		}
+		catch (CModelException e)
+		{
 			Logger.log(e);
 		}
 	}
 
-	private void createJtagFlashButton(Composite parent) {
+	private void createJtagFlashButton(Composite parent)
+	{
 		Composite c = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 3;
@@ -393,13 +424,16 @@ public class CMakeMainTab2 extends GenericMainTab {
 		flashOverComboLabel.setText(Messages.CMakeMainTab2_FlashComboLbl);
 		flashOverComboButton = new Combo(c, SWT.DROP_DOWN | SWT.READ_ONLY);
 		flashOverComboButton.setItems(FlashInterface.getNames());
-		flashOverComboButton.addSelectionListener(new SelectionAdapter() {
+		flashOverComboButton.addSelectionListener(new SelectionAdapter()
+		{
 
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(SelectionEvent e)
+			{
 
 				FlashInterface flashInterface = FlashInterface.valueOf(((Combo) e.widget).getText());
-				switch (flashInterface) {
+				switch (flashInterface)
+				{
 				case UART:
 					isFlashOverJtag = false;
 					break;
@@ -420,7 +454,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 
 		});
 
-		if (!isJtagFlashAvailable) {
+		if (!isJtagFlashAvailable)
+		{
 			Label lbl = new Label(c, SWT.NONE);
 			lbl.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_DARK_YELLOW));
 			lbl.setText(Messages.CMakeMainTab2_JtagFlashingNotSupportedMsg);
@@ -430,21 +465,27 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	@Override
-	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
+	public void setDefaults(ILaunchConfigurationWorkingCopy configuration)
+	{
 		super.setDefaults(configuration);
 
 		selectedProject = getSelectedProject();
-		if (selectedProject != null) {
+		if (selectedProject != null)
+		{
 			initializeCProject(selectedProject, configuration);
 		}
-		try {
+		try
+		{
 			configuration.doSave();
-		} catch (CoreException e) {
+		}
+		catch (CoreException e)
+		{
 			Logger.log(e);
 		}
 	}
 
-	private IProject getSelectedProject() {
+	private IProject getSelectedProject()
+	{
 		List<IProject> projectList = new ArrayList<>(1);
 		Display.getDefault().syncExec(() -> {
 			IProject project = EclipseUtil.getSelectedProjectInExplorer();
@@ -452,24 +493,30 @@ public class CMakeMainTab2 extends GenericMainTab {
 				projectList.add(project);
 
 		});
-		try {
+		try
+		{
 			ICProject[] projects = CoreModel.getDefault().getCModel().getCProjects();
 			projectList.addAll(Stream.of(projects).map(ICProject::getProject).collect(Collectors.toList()));
-		} catch (CModelException e) {
+		}
+		catch (CModelException e)
+		{
 			Logger.log(e);
 		}
 
-		return projectList.get(0);
+		return !projectList.isEmpty() ? projectList.get(0) : null;
 	}
 
-	protected void initializeCProject(IProject project, ILaunchConfigurationWorkingCopy config) {
+	protected void initializeCProject(IProject project, ILaunchConfigurationWorkingCopy config)
+	{
 		String name = null;
-		if (project != null && project.exists()) {
+		if (project != null && project.exists())
+		{
 			name = project.getName();
 			config.setMappedResources(new IResource[] { project });
 
 			ICProjectDescription projDes = CCorePlugin.getDefault().getProjectDescription(project);
-			if (projDes != null && projDes.getActiveConfiguration() != null) {
+			if (projDes != null && projDes.getActiveConfiguration() != null)
+			{
 				String buildConfigID = projDes.getActiveConfiguration().getId();
 				config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_BUILD_CONFIG_ID, buildConfigID);
 			}
@@ -478,7 +525,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 		config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, name);
 	}
 
-	private void switchUI(FlashInterface flashInterface) {
+	private void switchUI(FlashInterface flashInterface)
+	{
 
 		switchGridDatas.values().forEach(list -> list.forEach(gridData -> gridData.exclude = true));
 		switchComposites.values().forEach(list -> list.forEach(composite -> composite.setVisible(false)));
@@ -490,35 +538,46 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	@Override
-	public boolean isValid(ILaunchConfiguration launchConfig) {
+	public boolean isValid(ILaunchConfiguration launchConfig)
+	{
 		boolean isConfigValid = super.isValid(launchConfig);
 		boolean hasProject = false;
-		try {
+		try
+		{
 			hasProject = launchConfig.getMappedResources() != null
 					&& launchConfig.getMappedResources()[0].getProject().exists();
-		} catch (CoreException e) {
+		}
+		catch (CoreException e)
+		{
 			Logger.log(e);
 		}
 		String projectName = fProjText.getText().trim();
-		if (projectName.length() == 0) {
+		if (projectName.length() == 0)
+		{
 			setErrorMessage(LaunchMessages.CMainTab_Project_not_specified);
 			return false;
 		}
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-		if (!project.exists()) {
+		if (!project.exists())
+		{
 			setErrorMessage(LaunchMessages.Launch_common_Project_does_not_exist);
 			return false;
 		}
-		if (!project.isOpen()) {
+		if (!project.isOpen())
+		{
 			setErrorMessage(LaunchMessages.CMainTab_Project_must_be_opened);
 			return false;
 		}
 		if (flashOverComboButton.getText().contentEquals(FlashInterface.DFU.name())
-				&& comboTargets.getSelectionIndex() == -1) {
-			try {
+				&& comboTargets.getSelectionIndex() == -1)
+		{
+			try
+			{
 				setErrorMessage(MessageFormat.format(Messages.CMakeMainTab2_NoDfuTargetSelectedError,
 						launchBarManager.getActiveLaunchTarget().getId()));
-			} catch (CoreException e) {
+			}
+			catch (CoreException e)
+			{
 				Logger.log(e);
 			}
 			return false;
@@ -527,20 +586,28 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	@Override
-	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
+	public void performApply(ILaunchConfigurationWorkingCopy configuration)
+	{
 		super.performApply(configuration);
-		try {
+		try
+		{
 			ILaunchConfigurationWorkingCopy wc = configuration.getWorkingCopy();
 			wc.setAttribute(IDFLaunchConstants.DFU,
 					flashOverComboButton.getText().contentEquals(FlashInterface.DFU.name()));
-			if (selectedProject != null) {
+			if (selectedProject != null)
+			{
 				initializeCProject(selectedProject, wc);
 			}
-			if (!isFlashOverJtag && comboTargets.getSelectionIndex() != -1) {
+			if (!isFlashOverJtag && comboTargets.getSelectionIndex() != -1)
+			{
 				saveLaunchTargetName(wc, comboTargets.getItem(comboTargets.getSelectionIndex()));
-			} else if (isFlashOverJtag) {
+			}
+			else if (isFlashOverJtag)
+			{
 				saveLaunchTargetName(wc, fTarget.getText());
-			} else {
+			}
+			else
+			{
 				saveLaunchTargetName(wc, getLaunchTarget());
 			}
 
@@ -549,24 +616,28 @@ public class CMakeMainTab2 extends GenericMainTab {
 			wc.setAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, fTarget.getText());
 			wc.setAttribute(IDFLaunchConstants.JTAG_BOARD, fTargetName.getText());
 			wc.setAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, isFlashOverJtag);
-			//For the case, when user wants to edit arguments line somehow and save changes
+			// For the case, when user wants to edit arguments line somehow and save changes
 
 			wc.setAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, jtagArgumentsField.getText());
 			wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, uartAgrumentsField.getText());
 			wc.setAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS, dfuArgumentsField.getText());
 			wc.doSave();
-		} catch (CoreException e) {
+		}
+		catch (CoreException e)
+		{
 			Logger.log(e);
 		}
 	}
 
-	private void saveLaunchTargetName(ILaunchConfigurationWorkingCopy wc, String targetName) {
+	private void saveLaunchTargetName(ILaunchConfigurationWorkingCopy wc, String targetName)
+	{
 		wc.setAttribute(LAUNCH_TARGET_ATTR, targetName);
 		LaunchTargetHelper.saveTargetName(targetName);
 	}
 
 	@Override
-	public void initializeFrom(ILaunchConfiguration configuration) {
+	public void initializeFrom(ILaunchConfiguration configuration)
+	{
 		super.initializeFrom(configuration);
 		updateProjetFromConfig(configuration);
 		updateFlashOverStatus(configuration);
@@ -574,44 +645,63 @@ public class CMakeMainTab2 extends GenericMainTab {
 		switchUI(FlashInterface.values()[flashOverComboButton.getSelectionIndex()]);
 	}
 
-	private void updateProjetFromConfig(ILaunchConfiguration configuration) {
+	private void updateProjetFromConfig(ILaunchConfiguration configuration)
+	{
 		String projectName = StringUtil.EMPTY;
-		try {
+		try
+		{
 			projectName = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME,
 					StringUtil.EMPTY);
-		} catch (CoreException ce) {
+		}
+		catch (CoreException ce)
+		{
 			Logger.log(ce);
 		}
 		if (!fProjText.getText().equals(projectName))
 			fProjText.setText(projectName);
 	}
 
-	private void updateFlashOverStatus(ILaunchConfiguration configuration) {
+	private void updateFlashOverStatus(ILaunchConfiguration configuration)
+	{
 		boolean isDfu = false;
-		try {
+		try
+		{
 			isDfu = configuration.getAttribute(IDFLaunchConstants.DFU, false);
-			if (isDfu) {
+			if (isDfu)
+			{
 				int dfuIndex = Arrays.asList(flashOverComboButton.getItems()).indexOf(FlashInterface.DFU.name());
 				flashOverComboButton.select(dfuIndex);
-			} else {
+			}
+			else
+			{
 				int uartIndex = Arrays.asList(flashOverComboButton.getItems()).indexOf(FlashInterface.UART.name());
 				flashOverComboButton.select(uartIndex);
 			}
-		} catch (CoreException e) {
+		}
+		catch (CoreException e)
+		{
 			Logger.log(e);
 		}
-		if (!isJtagFlashAvailable) {
+		if (!isJtagFlashAvailable)
+		{
 			return;
 		}
-		try {
+		try
+		{
 			isFlashOverJtag = configuration.getAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, isFlashOverJtag);
-		} catch (CoreException e) {
+		}
+		catch (CoreException e)
+		{
 			Logger.log(e);
 		}
-		if (isFlashOverJtag && !isDfu) {
-			try {
+		if (isFlashOverJtag && !isDfu)
+		{
+			try
+			{
 				initializeJtagComboFields(configuration);
-			} catch (CoreException e) {
+			}
+			catch (CoreException e)
+			{
 				Logger.log(e);
 			}
 
@@ -620,9 +710,11 @@ public class CMakeMainTab2 extends GenericMainTab {
 		}
 	}
 
-	private void updateArgumentsWithDefaultFlashCommand(ILaunchConfiguration configuration) {
+	private void updateArgumentsWithDefaultFlashCommand(ILaunchConfiguration configuration)
+	{
 
-		try {
+		try
+		{
 			String uartFlashCommand = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS,
 					StringUtil.EMPTY);
 			uartAgrumentsField.setText(
@@ -635,13 +727,16 @@ public class CMakeMainTab2 extends GenericMainTab {
 			dfuArgumentsField.setText(configuration.getAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS,
 					DfuCommandsUtil.getDfuFlashCommand()));
 
-		} catch (CoreException e) {
+		}
+		catch (CoreException e)
+		{
 			Logger.log(e);
 		}
 
 	}
 
-	private void initializeJtagComboFields(ILaunchConfiguration configuration) throws CoreException {
+	private void initializeJtagComboFields(ILaunchConfiguration configuration) throws CoreException
+	{
 		fFlashVoltage
 				.setText(configuration.getAttribute(IDFLaunchConstants.JTAG_FLASH_VOLTAGE, fFlashVoltage.getText()));
 		fTarget.setText(configuration.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, fTarget.getText()));
@@ -650,7 +745,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 		fTargetName.notifyListeners(SWT.Selection, null);
 	}
 
-	private void createOpenOcdSetupComponent(Composite parent, String selectedTarget, EspConfigParser parser) {
+	private void createOpenOcdSetupComponent(Composite parent, String selectedTarget, EspConfigParser parser)
+	{
 		Group group = new Group(parent, SWT.NONE);
 		GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 6;
@@ -663,9 +759,11 @@ public class CMakeMainTab2 extends GenericMainTab {
 			fFlashVoltage = new Combo(group, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
 			fFlashVoltage.setItems(parser.getEspFlashVoltages().toArray(new String[0]));
 			fFlashVoltage.setText("default"); //$NON-NLS-1$
-			fFlashVoltage.addSelectionListener(new SelectionAdapter() {
+			fFlashVoltage.addSelectionListener(new SelectionAdapter()
+			{
 				@Override
-				public void widgetSelected(SelectionEvent e) {
+				public void widgetSelected(SelectionEvent e)
+				{
 					fTargetName.notifyListeners(SWT.Selection, null);
 				}
 			});
@@ -677,13 +775,16 @@ public class CMakeMainTab2 extends GenericMainTab {
 			fTarget = new Combo(group, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
 			fTarget.setItems(parser.getTargets().toArray(new String[0]));
 			fTarget.setText(selectedTarget);
-			fTarget.addSelectionListener(new SelectionAdapter() {
+			fTarget.addSelectionListener(new SelectionAdapter()
+			{
 
 				@Override
-				public void widgetSelected(SelectionEvent e) {
+				public void widgetSelected(SelectionEvent e)
+				{
 					int selectedIndex = fTarget.getSelectionIndex();
 					String selectedItem = StringUtil.EMPTY;
-					if (selectedIndex != -1) {
+					if (selectedIndex != -1)
+					{
 						selectedItem = fTarget.getItem(fTarget.getSelectionIndex());
 					}
 
@@ -704,9 +805,11 @@ public class CMakeMainTab2 extends GenericMainTab {
 			boardConfigsMap = parser.getBoardsConfigs(selectedTarget);
 			fTargetName
 					.select(new DefaultBoardProvider().getIndexOfDefaultBoard(selectedTarget, fTargetName.getItems()));
-			fTargetName.addSelectionListener(new SelectionAdapter() {
+			fTargetName.addSelectionListener(new SelectionAdapter()
+			{
 				@Override
-				public void widgetSelected(SelectionEvent e) {
+				public void widgetSelected(SelectionEvent e)
+				{
 					updateArgumentsField();
 				}
 			});
@@ -716,7 +819,8 @@ public class CMakeMainTab2 extends GenericMainTab {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void updateArgumentsField() {
+	private void updateArgumentsField()
+	{
 		String selectedVoltage = fFlashVoltage.getText();
 		String selectedItem = fTargetName.getText();
 		String configOptiopns = String.format(EMPTY_CONFIG_OPTIONS,
@@ -727,64 +831,89 @@ public class CMakeMainTab2 extends GenericMainTab {
 		{
 			configOptiopns = configOptiopns + " -c 'set ESP32_FLASH_VOLTAGE " + selectedVoltage + "'"; //$NON-NLS-1$//$NON-NLS-2$
 		}
-		if (!selectedItem.isEmpty()) {
-			for (String config : (String[]) boardConfigsMap.get(selectedItem).toArray(new String[0])) {
+		if (!selectedItem.isEmpty())
+		{
+			for (String config : (String[]) boardConfigsMap.get(selectedItem).toArray(new String[0]))
+			{
 				configOptiopns = configOptiopns + " -f " + config; //$NON-NLS-1$
 			}
 		}
 		jtagArgumentsField.setText(configOptiopns);
 	}
 
-	private String newVariableExpression(OpenocdDynamicVariable dynamicVariable) {
+	private String newVariableExpression(OpenocdDynamicVariable dynamicVariable)
+	{
 		return newVariableExpression(dynamicVariable.getValue(), null);
 	}
 
-	private String getLaunchTarget() {
+	private String getLaunchTarget()
+	{
 		String selectedTarget = StringUtil.EMPTY;
-		try {
-			if (launchBarManager.getActiveLaunchConfiguration() != null) {
+		try
+		{
+			if (launchBarManager.getActiveLaunchConfiguration() != null)
+			{
 				selectedTarget = launchBarManager.getActiveLaunchTarget()
 						.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY);
 			}
-		} catch (CoreException e) {
+		}
+		catch (CoreException e)
+		{
 			Logger.log(e);
 		}
 		return selectedTarget;
 	}
 
 	@Override
-	protected void updateLocation(ILaunchConfiguration configuration) {
+	protected void updateLocation(ILaunchConfiguration configuration)
+	{
 		super.updateLocation(configuration);
-		try {
+		try
+		{
 			String location = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION, ""); //$NON-NLS-1$
-			if (StringUtil.isEmpty(location)) {
+			if (StringUtil.isEmpty(location))
+			{
 				location = VariablesPlugin.getDefault().getStringVariableManager()
 						.generateVariableExpression(IDFDynamicVariables.IDF_PYTHON_ENV_PATH.name(), null);
 			}
 			locationField.setText(location);
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			Logger.log(e);
 		}
 	}
 
 	@Override
-	protected void updateWorkingDirectory(ILaunchConfiguration configuration) {
+	protected void updateWorkingDirectory(ILaunchConfiguration configuration)
+	{
 		super.updateWorkingDirectory(configuration);
 		File workingDir;
-		if (workDirectoryField.getText().isEmpty()) {
-			try {
-				if (configuration.getMappedResources() == null) {
+		if (workDirectoryField.getText().isEmpty())
+		{
+			try
+			{
+				if (configuration.getMappedResources() == null)
+				{
 					return;
 				}
-				workingDir = new File(configuration.getMappedResources()[0].getProject().getLocationURI());
-				workDirectoryField.setText(newVariableExpression("workspace_loc", workingDir.getName())); //$NON-NLS-1$
-			} catch (CoreException e) {
+				URI locationUri = configuration.getMappedResources()[0].getProject().getLocationURI();
+				if (locationUri != null)
+				{
+					workingDir = new File(configuration.getMappedResources()[0].getProject().getLocationURI());
+					workDirectoryField.setText(newVariableExpression("workspace_loc", workingDir.getName())); //$NON-NLS-1$
+				}
+
+			}
+			catch (CoreException e)
+			{
 				Logger.log(e);
 			}
 		}
 	}
 
-	private void scheduleApplyTargetJob() {
+	private void scheduleApplyTargetJob()
+	{
 		Job applyTargetJob = new ApplyTargetJob(launchBarManager, targetManager, LAUNCH_TARGET_ATTR,
 				new NewSerialFlashTargetWizard());
 		applyTargetJob.schedule(JOB_DELAY_MS);
