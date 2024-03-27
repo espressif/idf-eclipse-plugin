@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.launchbar.core.ILaunchBarManager;
+import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.osgi.service.prefs.BackingStoreException;
 
 import com.espressif.idf.core.IDFConstants;
@@ -38,6 +39,7 @@ import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.SystemExecutableFinder;
+import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
 
@@ -340,16 +342,26 @@ public class IDFUtil
 	
 	public static String getXtensaToolchainExePathForActiveTarget()
 	{
-		String target = IDFUtil.getCurrentTarget();
-		if (target != null)
+		ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
+		try
 		{
-			File file = new ESPToolChainManager().findCompiler(target);
-			if (file != null)
+			ILaunchTarget launchTarget = launchBarManager.getActiveLaunchTarget();
+			if (launchTarget != null)
 			{
-				return file.getAbsolutePath();
+				File file = new ESPToolChainManager()
+						.findCompiler(launchTarget.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY));
+				if (file != null)
+				{
+					return file.getAbsolutePath();
+				}
+
 			}
-			
 		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+
 		return null;
 	}
 

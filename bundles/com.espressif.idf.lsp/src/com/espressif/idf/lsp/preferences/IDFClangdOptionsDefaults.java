@@ -31,14 +31,4 @@ public class IDFClangdOptionsDefaults extends BuiltinClangdOptionsDefaults
 		return Optional.ofNullable(clandPath).orElse(ILSPConstants.CLANGD_EXECUTABLE);
 	}
 
-	@Override
-	public String queryDriver()
-	{
-
-		String driverpath = IDFUtil.getXtensaToolchainExePathForActiveTarget();
-		Logger.log("queryDriver: " + driverpath); //$NON-NLS-1$
-		return Optional.ofNullable(driverpath).orElse(""); //$NON-NLS-1$
-
-	}
-
 }
