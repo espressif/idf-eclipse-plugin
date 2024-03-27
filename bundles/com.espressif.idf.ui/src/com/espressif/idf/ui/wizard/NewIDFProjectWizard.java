@@ -5,6 +5,7 @@
 package com.espressif.idf.ui.wizard;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import org.eclipse.cdt.debug.internal.core.InternalDebugCoreMessages;
 import org.eclipse.core.resources.IProject;
@@ -41,6 +42,7 @@ import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.lsp.ClangdConfigFileHandler;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.handlers.NewProjectHandlerUtil;
@@ -110,6 +112,7 @@ public class NewIDFProjectWizard extends TemplateWizard
 				String projectName = projectCreationWizardPage.getProjectName();
 				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 				selProvider.setSelection(new StructuredSelection(project));
+				updateClangdFile(project);
 			}
 		}
 
@@ -138,6 +141,15 @@ public class NewIDFProjectWizard extends TemplateWizard
 			}
 		});
 		return performFinish;
+	}
+
+	private void updateClangdFile(IProject project) 
+	{
+		try {
+			new ClangdConfigFileHandler().update(project);
+		} catch (FileNotFoundException e) {
+			Logger.log(e);
+		}
 	}
 
 	private void createDefaultDebugConfig()

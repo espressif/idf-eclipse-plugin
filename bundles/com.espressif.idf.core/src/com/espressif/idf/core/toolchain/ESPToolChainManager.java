@@ -151,6 +151,14 @@ public class ESPToolChainManager
 				.map(espToolChainElement -> findToolChain(getAllPaths(), espToolChainElement.debuggerPattern))
 				.findFirst().orElse(null);
 	}
+	
+	public File findCompiler(String target)
+	{
+		return toolchainElements.values().stream()
+				.filter(espToolChainElement -> espToolChainElement.name.equals(target))
+				.map(espToolChainElement -> findToolChain(getAllPaths(), espToolChainElement.compilerPattern))
+				.findFirst().orElse(null);
+	}
 
 	public File findToolChain(List<String> paths, String filePattern)
 	{
