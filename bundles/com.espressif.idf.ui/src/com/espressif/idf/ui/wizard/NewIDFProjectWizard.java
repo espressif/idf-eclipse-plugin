@@ -125,6 +125,8 @@ public class NewIDFProjectWizard extends TemplateWizard
 				try
 				{
 					ILaunchDescriptor desc = launchBarManager.getActiveLaunchDescriptor();
+					// this ensures that the configuration exists
+					launchBarManager.getActiveLaunchConfiguration();
 					createDefaultDebugConfig();
 					launchBarManager.setActiveLaunchDescriptor(desc);
 				}
