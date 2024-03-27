@@ -37,7 +37,7 @@
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
-				<version>3.0.4</version>
+				<version>${tycho-version}</version>
 				<extensions>true</extensions>
 			</plugin>
 		</plugins>
