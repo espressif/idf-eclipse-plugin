@@ -19,7 +19,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.espressif.idf.core.build.IDFLaunchConstants;
-import com.espressif.idf.core.util.LaunchConfigFinder;
+import com.espressif.idf.core.util.LaunchUtil;
 
 public class LaunchConfigFinderTest
 {
@@ -35,7 +35,7 @@ public class LaunchConfigFinderTest
 	@Mock
 	private ILaunchConfigurationType launchConfigType;
 
-	private LaunchConfigFinder launchConfigFinder;
+	private LaunchUtil launchConfigFinder;
 
 	@Before
 	public void setUp()
@@ -45,7 +45,7 @@ public class LaunchConfigFinderTest
 		this.launchConfigType = Mockito.mock(ILaunchConfigurationType.class);
 		this.launchDescriptor = Mockito.mock(ILaunchDescriptor.class);
 		this.project = Mockito.mock(IProject.class);
-		launchConfigFinder = new LaunchConfigFinder(launchManager);
+		launchConfigFinder = new LaunchUtil(launchManager);
 	}
 
 	@Test

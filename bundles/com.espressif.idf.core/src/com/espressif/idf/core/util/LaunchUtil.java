@@ -7,21 +7,15 @@ package com.espressif.idf.core.util;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.launchbar.core.ILaunchDescriptor;
 
-public class LaunchConfigFinder
+public class LaunchUtil
 {
 	private final ILaunchManager launchManager;
 
-	public LaunchConfigFinder()
-	{
-		launchManager = DebugPlugin.getDefault().getLaunchManager();
-	}
-
-	public LaunchConfigFinder(ILaunchManager launchManager)
+	public LaunchUtil(ILaunchManager launchManager)
 	{
 		this.launchManager = launchManager;
 	}

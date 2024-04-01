@@ -39,7 +39,7 @@ import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.util.LaunchConfigFinder;
+import com.espressif.idf.core.util.LaunchUtil;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.handlers.NewProjectHandlerUtil;
@@ -120,7 +120,7 @@ public class NewIDFProjectWizard extends TemplateWizard
 			try
 			{
 				ILaunchDescriptor desc = launchBarManager.getActiveLaunchDescriptor();
-				if (new LaunchConfigFinder().findAppropriateLaunchConfig(desc,
+				if (new LaunchUtil(DebugPlugin.getDefault().getLaunchManager()).findAppropriateLaunchConfig(desc,
 						IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE) == null)
 				{
 					createDefaultDebugConfig();
