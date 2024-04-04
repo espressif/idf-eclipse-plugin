@@ -21,8 +21,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.yaml.snakeyaml.Yaml;
 
-import com.espressif.idf.core.logging.Logger;
-
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  */
@@ -39,15 +37,7 @@ public class ClangdConfigFileHandler
 		Object obj = yaml.load(inputStream);
 
 		// Create new YAML structure if file is empty
-		Map<String, Object> data;
-		if (obj instanceof Map)
-		{
-			data = (Map<String, Object>) obj;
-		}
-		else
-		{
-			data = new LinkedHashMap<>();
-		}
+		Map<String, Object> data = createOrGetExistingYamlStructure(obj);
 
 		// Add or update CompileFlags section
 		Map<String, Object> compileFlags = (Map<String, Object>) data.get("CompileFlags");
@@ -56,8 +46,7 @@ public class ClangdConfigFileHandler
 			compileFlags = new LinkedHashMap<>();
 			data.put("CompileFlags", compileFlags); //$NON-NLS-1$
 		}
-		compileFlags.put("CompilationDatabase", "build"); //$NON-NLS-1$ //$NON-NLS-2$
-		compileFlags.put("Remove", Arrays.asList("-m*", "-f*")); //$NON-NLS-1$ //$NON-NLS-2$
+		updateCompileFlagsSection(compileFlags);
 
 		// Write updated clangd back to file
 		try (Writer writer = new FileWriter(file))
@@ -66,8 +55,24 @@ public class ClangdConfigFileHandler
 		}
 		catch (IOException e)
 		{
-			Logger.log("Error writing .clangd file: " + e.getMessage()); //$NON-NLS-1$
+			throw new IOException("Error writing .clangd file: " + e.getMessage(), e); //$NON-NLS-1$
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private Map<String, Object> createOrGetExistingYamlStructure(Object obj)
+	{
+		if (obj instanceof Map)
+		{
+			return (Map<String, Object>) obj;
+		}
+		return new LinkedHashMap<>();
+	}
+
+	private void updateCompileFlagsSection(Map<String, Object> compileFlags)
+	{
+		compileFlags.put("CompilationDatabase", "build"); //$NON-NLS-1$ //$NON-NLS-2$
+		compileFlags.put("Remove", Arrays.asList("-m*", "-f*")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	private File getClangdConfigFile(IProject project) throws IOException, CoreException
