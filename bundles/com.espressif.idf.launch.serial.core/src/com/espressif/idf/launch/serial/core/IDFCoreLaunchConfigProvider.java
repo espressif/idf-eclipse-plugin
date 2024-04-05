@@ -8,10 +8,14 @@ import org.eclipse.cdt.debug.core.launch.CoreBuildGenericLaunchConfigProvider;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.launchbar.core.ILaunchDescriptor;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
+
+import com.espressif.idf.core.build.IDFLaunchConstants;
+import com.espressif.idf.core.util.LaunchUtil;
 
 public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigProvider
 {
@@ -22,25 +26,17 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 	public ILaunchConfiguration getLaunchConfiguration(ILaunchDescriptor descriptor, ILaunchTarget target)
 			throws CoreException
 	{
-
-		ILaunchConfiguration configuration = null;
 		IProject project = descriptor.getAdapter(IProject.class);
-		if (project != null)
-		{
+		if (project == null)
+			return null;
 
-			String targetConfig = descriptor.getName();
-			configuration = configs.computeIfAbsent(project, key -> new HashMap<>()).get(targetConfig);
-			if (configuration == null)
-			{
-				// do we already have one with the descriptor?
-				configuration = descriptor.getAdapter(ILaunchConfiguration.class);
-				if (configuration == null)
-				{
-					configuration = createLaunchConfiguration(descriptor, target);
-				}
-				configs.get(project).put(configuration.getName(), configuration);
-			}
-		}
+		String targetConfig = descriptor.getName();
+		Map<String, ILaunchConfiguration> projectConfigs = configs.computeIfAbsent(project, key -> new HashMap<>());
+		ILaunchConfiguration configuration = projectConfigs.get(targetConfig);
+		configuration = configuration == null ? new LaunchUtil(DebugPlugin.getDefault().getLaunchManager())
+				.findAppropriateLaunchConfig(descriptor, IDFLaunchConstants.RUN_LAUNCH_CONFIG_TYPE) : configuration;
+		configuration = configuration == null ? createLaunchConfiguration(descriptor, target) : configuration;
+		projectConfigs.put(configuration.getName(), configuration);
 		return configuration;
 	}
 
@@ -105,5 +101,4 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 	{
 		// Nothing to do
 	}
-
 }

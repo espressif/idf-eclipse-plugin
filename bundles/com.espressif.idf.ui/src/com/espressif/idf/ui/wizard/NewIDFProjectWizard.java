@@ -28,8 +28,6 @@ import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.launchbar.ui.NewLaunchConfigWizard;
 import org.eclipse.launchbar.ui.NewLaunchConfigWizardDialog;
 import org.eclipse.launchbar.ui.internal.dialogs.NewLaunchConfigEditPage;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.tools.templates.core.IGenerator;
@@ -41,6 +39,7 @@ import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.LaunchUtil;
 import com.espressif.idf.lsp.ClangdConfigFileHandler;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.handlers.EclipseHandler;
@@ -116,27 +115,28 @@ public class NewIDFProjectWizard extends TemplateWizard
 		}
 
 		final String target = projectCreationWizardPage.getSelectedTarget();
-		this.getShell().addDisposeListener(new DisposeListener()
-		{
-			@Override
-			public void widgetDisposed(DisposeEvent event)
+		this.getShell().addDisposeListener(event -> {
+			ILaunchBarManager launchBarManager = UIPlugin.getService(ILaunchBarManager.class);
+			TargetSwitchJob targetSwtichJob = new TargetSwitchJob(target);
+			targetSwtichJob.schedule();
+			try
 			{
-				ILaunchBarManager launchBarManager = UIPlugin.getService(ILaunchBarManager.class);
-				TargetSwitchJob targetSwtichJob = new TargetSwitchJob(target);
-				targetSwtichJob.schedule();
-				try
+				ILaunchDescriptor desc = launchBarManager.getActiveLaunchDescriptor();
+				if (new LaunchUtil(DebugPlugin.getDefault().getLaunchManager()).findAppropriateLaunchConfig(desc,
+						IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE) == null)
 				{
+
 					ILaunchDescriptor desc = launchBarManager.getActiveLaunchDescriptor();
 					// this ensures that the configuration exists
 					launchBarManager.getActiveLaunchConfiguration();
+
 					createDefaultDebugConfig();
 					launchBarManager.setActiveLaunchDescriptor(desc);
 				}
-				catch (CoreException e)
-				{
-					Logger.log(e);
-				}
-
+			}
+			catch (CoreException e)
+			{
+				Logger.log(e);
 			}
 		});
 		return performFinish;
