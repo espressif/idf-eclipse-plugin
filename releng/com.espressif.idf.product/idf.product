@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Espressif-IDE" uid="com.espressif.idf.product" id="com.espressif.idf.branding.idf" application="org.eclipse.ui.ide.workbench" version="2.13.0" type="features" includeLaunchers="true" autoIncludeRequirements="true">
+<product name="Espressif-IDE" uid="com.espressif.idf.product" id="com.espressif.idf.branding.idf" application="org.eclipse.ui.ide.workbench" version="2.13.0" type="mixed" includeLaunchers="true" autoIncludeRequirements="true">
 
    <aboutInfo>
       <image path="/com.espressif.idf.branding/icons/alt_about.png"/>
@@ -76,6 +76,7 @@
       <feature id="org.eclipse.swtchart.feature" installMode="root"/>
       <feature id="org.eclipse.nebula.widgets.xviewer.feature" installMode="root"/>
       <feature id="org.eclipse.cdt.lsp.feature" installMode="root"/>
+      <feature id="org.eclipse.tm4e.feature" installMode="root"/>
    </features>
 
    <configurations>

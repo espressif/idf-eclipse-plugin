@@ -14,7 +14,21 @@ Require-Bundle: org.eclipse.ui,
  org.apache.batik.i18n;bundle-version="1.16.0",
  org.apache.batik.css;bundle-version="1.16.0",
  org.apache.batik.util;bundle-version="1.16.0",
- org.apache.batik.constants;bundle-version="1.16.0"
+ org.apache.batik.constants;bundle-version="1.16.0",
+ org.apache.batik.anim;bundle-version="1.16.0",
+ org.apache.batik.awt.util;bundle-version="1.16.0",
+ org.apache.batik.bridge;bundle-version="1.16.0",
+ org.apache.batik.dom;bundle-version="1.16.0",
+ org.apache.batik.codec;bundle-version="1.16.0",
+ org.apache.batik.dom.svg;bundle-version="1.16.0",
+ org.apache.batik.ext;bundle-version="1.16.0",
+ org.apache.batik.gvt;bundle-version="1.16.0",
+ org.apache.batik.script;bundle-version="1.16.0",
+ org.apache.batik.parser;bundle-version="1.16.0",
+ org.apache.batik.svggen;bundle-version="1.16.0",
+ org.apache.batik.shared.resources;bundle-version="1.16.0",
+ org.apache.batik.xml;bundle-version="1.16.0",
+ org.apache.batik.transcoder;bundle-version="1.16.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: com.espressif.idf.lsp
 Bundle-ActivationPolicy: lazy
