@@ -5,7 +5,6 @@
 package com.espressif.idf.ui.wizard;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
 import org.eclipse.cdt.debug.internal.core.InternalDebugCoreMessages;
 import org.eclipse.core.resources.IProject;
@@ -147,7 +146,7 @@ public class NewIDFProjectWizard extends TemplateWizard
 	{
 		try {
 			new ClangdConfigFileHandler().update(project);
-		} catch (FileNotFoundException e) {
+		} catch (Exception e) {
 			Logger.log(e);
 		}
 	}

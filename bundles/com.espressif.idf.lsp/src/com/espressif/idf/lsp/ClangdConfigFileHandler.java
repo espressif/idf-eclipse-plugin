@@ -6,17 +6,20 @@ package com.espressif.idf.lsp;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.yaml.snakeyaml.Yaml;
-
-import com.espressif.idf.core.logging.Logger;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -24,7 +27,7 @@ import com.espressif.idf.core.logging.Logger;
 public class ClangdConfigFileHandler
 {
 	@SuppressWarnings("unchecked")
-	public void update(IProject project) throws FileNotFoundException
+	public void update(IProject project) throws CoreException, IOException
 	{
 		File file = getClangdConfigFile(project);
 
@@ -32,34 +35,63 @@ public class ClangdConfigFileHandler
 		FileInputStream inputStream = new FileInputStream(file);
 		Yaml yaml = new Yaml();
 		Object obj = yaml.load(inputStream);
+
+		// Create new YAML structure if file is empty
+		Map<String, Object> data = createOrGetExistingYamlStructure(obj);
+
+		// Add or update CompileFlags section
+		Map<String, Object> compileFlags = (Map<String, Object>) data.get("CompileFlags");
+		if (compileFlags == null)
+		{
+			compileFlags = new LinkedHashMap<>();
+			data.put("CompileFlags", compileFlags); //$NON-NLS-1$
+		}
+		updateCompileFlagsSection(compileFlags);
+
+		// Write updated clangd back to file
+		try (Writer writer = new FileWriter(file))
+		{
+			yaml.dump(data, writer);
+		}
+		catch (IOException e)
+		{
+			throw new IOException("Error writing .clangd file: " + e.getMessage(), e); //$NON-NLS-1$
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private Map<String, Object> createOrGetExistingYamlStructure(Object obj)
+	{
 		if (obj instanceof Map)
 		{
-			Map<String, Object> data = (Map<String, Object>) obj;
+			return (Map<String, Object>) obj;
+		}
+		return new LinkedHashMap<>();
+	}
 
-			// Add new attribute to CompileFlags
-			Map<String, Object> compileFlags = (Map<String, Object>) data.get("CompileFlags"); //$NON-NLS-1$
-			compileFlags.put("Remove", new String[] { "-m*", "-f*" }); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	private void updateCompileFlagsSection(Map<String, Object> compileFlags)
+	{
+		compileFlags.put("CompilationDatabase", "build"); //$NON-NLS-1$ //$NON-NLS-2$
+		compileFlags.put("Remove", Arrays.asList("-m*", "-f*")); //$NON-NLS-1$ //$NON-NLS-2$
+	}
 
-			// Write updated clangd back to file
-			try (Writer writer = new FileWriter(file))
+	private File getClangdConfigFile(IProject project) throws IOException, CoreException
+	{
+		// Resolve the path of the clangd config file within the project directory
+		Path clangdPath = project.getLocation().toPath().resolve(ILSPConstants.CLANGD_CONFIG_FILE);
+		if (!Files.exists(clangdPath))
+		{
+			try
 			{
-				yaml.dump(data, writer);
+				Files.createFile(clangdPath);
 			}
 			catch (IOException e)
 			{
-				Logger.log("Error writing .clangd file: " + e.getMessage()); //$NON-NLS-1$
+				throw new IOException("Failed to create clangd config file: " + e.getMessage(), e); //$NON-NLS-1$
 			}
+			project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 		}
-		else
-		{
-			Logger.log("Invalid .clangd file format."); //$NON-NLS-1$
-		}
+		return clangdPath.toFile();
 	}
 
-	private File getClangdConfigFile(IProject project)
-	{
-		// Path to the existing clangd file
-		IFile file = project.getFile(ILSPConstants.CLANGD_CONFIG_FILE);
-		return file.getLocation().toFile();
-	}
 }
