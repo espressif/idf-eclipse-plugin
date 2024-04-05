@@ -152,6 +152,14 @@ public class ESPToolChainManager
 				.findFirst().orElse(null);
 	}
 
+	public File findCompiler(String target)
+	{
+		return toolchainElements.values().stream()
+				.filter(espToolChainElement -> espToolChainElement.name.equals(target))
+				.map(espToolChainElement -> findToolChain(getAllPaths(), espToolChainElement.compilerPattern))
+				.findFirst().orElse(null);
+	}
+
 	public File findToolChain(List<String> paths, String filePattern)
 	{
 		for (String path : paths)
@@ -171,7 +179,8 @@ public class ESPToolChainManager
 
 	private Path[] getDirectories(String path)
 	{
-		return Arrays.stream(path.split(File.pathSeparator)).map(String::trim).map(Paths::get).toArray(Path[]::new);
+		return Arrays.stream(path.split(File.pathSeparator)).map(String::trim).map(Paths::get).filter(Files::exists)
+				.toArray(Path[]::new);
 	}
 
 	private File findMatchingFile(Path dir, String filePattern)

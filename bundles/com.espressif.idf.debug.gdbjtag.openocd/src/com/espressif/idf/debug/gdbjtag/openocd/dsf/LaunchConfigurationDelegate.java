@@ -49,6 +49,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
@@ -446,8 +447,19 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		}
 		catch (ExecutionException e1)
 		{
-			throw new DebugException(new Status(IStatus.ERROR, GdbPlugin.PLUGIN_ID, DebugException.REQUEST_FAILED,
-					"Error in services launch sequence", e1.getCause())); //$NON-NLS-1$
+			if (e1.getMessage().contains("Starting OpenOCD timed out.")) //$NON-NLS-1$
+			{
+				IStatus status = new Status(IStatus.OK, Activator.PLUGIN_ID, DebugException.REQUEST_FAILED,
+						"Error in services launch sequence", e1.getCause()); //$NON-NLS-1$
+				DebugPlugin.getDefault().getStatusHandler(status).handleStatus(status, null);
+				throw new DebugException(Status.OK_STATUS);
+			}
+			else
+			{
+				throw new DebugException(new Status(IStatus.ERROR, GdbPlugin.PLUGIN_ID, DebugException.REQUEST_FAILED,
+						"Error in services launch sequence", e1.getCause())); //$NON-NLS-1$
+			}
+
 		}
 		catch (CancellationException e1)
 		{

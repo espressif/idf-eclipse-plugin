@@ -40,6 +40,7 @@ import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.LaunchUtil;
+import com.espressif.idf.lsp.ClangdConfigFileHandler;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.handlers.NewProjectHandlerUtil;
@@ -109,6 +110,7 @@ public class NewIDFProjectWizard extends TemplateWizard
 				String projectName = projectCreationWizardPage.getProjectName();
 				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 				selProvider.setSelection(new StructuredSelection(project));
+				updateClangdFile(project);
 			}
 		}
 
@@ -123,6 +125,11 @@ public class NewIDFProjectWizard extends TemplateWizard
 				if (new LaunchUtil(DebugPlugin.getDefault().getLaunchManager()).findAppropriateLaunchConfig(desc,
 						IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE) == null)
 				{
+
+					ILaunchDescriptor desc = launchBarManager.getActiveLaunchDescriptor();
+					// this ensures that the configuration exists
+					launchBarManager.getActiveLaunchConfiguration();
+
 					createDefaultDebugConfig();
 					launchBarManager.setActiveLaunchDescriptor(desc);
 				}
@@ -133,6 +140,15 @@ public class NewIDFProjectWizard extends TemplateWizard
 			}
 		});
 		return performFinish;
+	}
+
+	private void updateClangdFile(IProject project) 
+	{
+		try {
+			new ClangdConfigFileHandler().update(project);
+		} catch (Exception e) {
+			Logger.log(e);
+		}
 	}
 
 	private void createDefaultDebugConfig()

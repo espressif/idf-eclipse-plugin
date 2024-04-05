@@ -19,7 +19,7 @@
       <category name="com.espressif.idf"/>
    </feature>
    <feature id="org.eclipse.cdt.lsp.feature">
-      <category name="Eclipse CDT-LSP Preview"/>
+      <category name="com.espressif.idf"/>
    </feature>
    <feature id="org.eclipse.epp.mpc">
       <category name="com.espressif.idf"/>
@@ -28,7 +28,7 @@
       <category name="com.espressif.idf"/>
    </feature>
    <bundle id="org.apache.batik.xml">
-      <category name="com.espressif.idf"/>
+      <category name="com.espressif.idf.dependencies"/>
    </bundle>
    <bundle id="org.eclipse.embedcdt.templates.core">
       <category name="com.espressif.idf"/>
@@ -37,70 +37,120 @@
       <category name="com.espressif.idf"/>
    </bundle>
    <bundle id="org.eclipse.lsp4e">
-      <category name="Eclipse CDT-LSP Preview"/>
+      <category name="com.espressif.idf"/>
    </bundle>
    <bundle id="org.eclipse.tm4e.languageconfiguration">
-      <category name="Eclipse CDT-LSP Preview"/>
+      <category name="com.espressif.idf"/>
    </bundle>
    <bundle id="org.eclipse.tm4e.ui">
-      <category name="Eclipse CDT-LSP Preview"/>
+      <category name="com.espressif.idf"/>
    </bundle>
    <bundle id="org.eclipse.tm4e.core">
-      <category name="Eclipse CDT-LSP Preview"/>
+      <category name="com.espressif.idf"/>
    </bundle>
    <bundle id="org.jcodings">
-      <category name="Eclipse CDT-LSP Preview"/>
+      <category name="com.espressif.idf.dependencies"/>
    </bundle>
    <bundle id="org.joni">
-      <category name="Eclipse CDT-LSP Preview"/>
+      <category name="com.espressif.idf.dependencies"/>
    </bundle>
    <bundle id="org.yaml.snakeyaml">
-      <category name="Eclipse CDT-LSP Preview"/>
+      <category name="com.espressif.idf.dependencies"/>
    </bundle>
    <bundle id="com.google.gson">
-      <category name="Eclipse CDT-LSP Preview"/>
+      <category name="com.espressif.idf.dependencies"/>
    </bundle>
    <bundle id="com.google.guava">
-      <category name="Eclipse CDT-LSP Preview"/>
+      <category name="com.espressif.idf.dependencies"/>
    </bundle>
    <bundle id="com.google.guava.failureaccess">
-      <category name="Eclipse CDT-LSP Preview"/>
+      <category name="com.espressif.idf.dependencies"/>
    </bundle>
    <bundle id="org.eclipse.lsp4j">
-      <category name="Eclipse CDT-LSP Preview"/>
+      <category name="com.espressif.idf"/>
    </bundle>
    <bundle id="org.eclipse.lsp4j.jsonrpc">
-      <category name="Eclipse CDT-LSP Preview"/>
+      <category name="com.espressif.idf"/>
    </bundle>
    <bundle id="org.eclipse.mylyn.wikitext">
-      <category name="Eclipse CDT-LSP Preview"/>
+      <category name="com.espressif.idf"/>
    </bundle>
    <bundle id="org.eclipse.mylyn.wikitext.markdown">
-      <category name="Eclipse CDT-LSP Preview"/>
+      <category name="com.espressif.idf"/>
    </bundle>
    <bundle id="org.jsoup">
-      <category name="Eclipse CDT-LSP Preview"/>
+      <category name="com.espressif.idf.dependencies"/>
    </bundle>
    <bundle id="org.eclipse.tm4e.registry">
-      <category name="Eclipse CDT-LSP Preview"/>
+      <category name="com.espressif.idf"/>
    </bundle>
    <bundle id="org.apache.httpcomponents.httpclient">
-      <category name="com.espressif.idf"/>
+      <category name="com.espressif.idf.dependencies"/>
    </bundle>
    <bundle id="org.freemarker.freemarker">
-      <category name="com.espressif.idf"/>
+      <category name="com.espressif.idf.dependencies"/>
    </bundle>
    <bundle id="org.snakeyaml.engine">
-      <category name="com.espressif.idf"/>
+      <category name="com.espressif.idf.dependencies"/>
+   </bundle>
+   <bundle id="org.apache.batik.css">
+      <category name="com.espressif.idf.dependencies"/>
+   </bundle>
+   <bundle id="org.apache.batik.util">
+      <category name="com.espressif.idf.dependencies"/>
+   </bundle>
+   <bundle id="org.apache.batik.constants">
+      <category name="com.espressif.idf.dependencies"/>
+   </bundle>
+   <bundle id="org.apache.batik.i18n">
+      <category name="com.espressif.idf.dependencies"/>
+   </bundle>
+   <bundle id="org.apache.batik.anim">
+      <category name="com.espressif.idf.dependencies"/>
+   </bundle>
+   <bundle id="org.apache.batik.awt.util">
+      <category name="com.espressif.idf.dependencies"/>
+   </bundle>
+   <bundle id="org.apache.batik.bridge">
+      <category name="com.espressif.idf.dependencies"/>
+   </bundle>
+   <bundle id="org.apache.batik.codec">
+      <category name="com.espressif.idf.dependencies"/>
+   </bundle>
+   <bundle id="org.apache.batik.dom">
+      <category name="com.espressif.idf.dependencies"/>
+   </bundle>
+   <bundle id="org.apache.batik.dom.svg">
+      <category name="com.espressif.idf.dependencies"/>
+   </bundle>
+   <bundle id="org.apache.batik.ext">
+      <category name="com.espressif.idf.dependencies"/>
+   </bundle>
+   <bundle id="org.apache.batik.gvt">
+      <category name="com.espressif.idf.dependencies"/>
+   </bundle>
+   <bundle id="org.apache.batik.parser">
+      <category name="com.espressif.idf.dependencies"/>
+   </bundle>
+   <bundle id="org.apache.batik.script">
+      <category name="com.espressif.idf.dependencies"/>
+   </bundle>
+   <bundle id="org.apache.batik.svggen">
+      <category name="com.espressif.idf.dependencies"/>
+   </bundle>
+   <bundle id="org.apache.batik.transcoder">
+      <category name="com.espressif.idf.dependencies"/>
+   </bundle>
+   <bundle id="org.apache.batik.ext.awt">
+      <category name="com.espressif.idf.dependencies"/>
+   </bundle>
+   <bundle id="org.apache.batik.shared.resources">
+      <category name="com.espressif.idf.dependencies"/>
    </bundle>
    <category-def name="com.espressif.idf" label="ESP-IDF Eclipse Plugin">
       <description>
          ESP-IDF Eclipse Plugin for developing ESP32 based IoT applications
       </description>
    </category-def>
-   <category-def name="Eclipse CDT-LSP Preview" label="Eclipse CDT-LSP Preview">
-      <description>
-         Additional features which can be used with the Espressif-IDE
-      </description>
-   </category-def>
+   <category-def name="com.espressif.idf.dependencies" label="ESP-IDF Eclipse Plugin - Dependencies"/>
 </site>

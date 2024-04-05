@@ -44,7 +44,7 @@ jobs:
         distribution: 'temurin'
 
     - name: Build with Maven
-      run: export NO_AT_BRIDGE=1 && mvn clean verify -Djarsigner.skip=true spotbugs:spotbugs -DskipTests=false
+      run: export NO_AT_BRIDGE=1 ; mvn clean verify -Djarsigner.skip=true spotbugs:spotbugs -DskipTests=false
     - uses: jwgmeligmeyling/spotbugs-github-action@master
       with:
         path: '**/spotbugsXml.xml'
