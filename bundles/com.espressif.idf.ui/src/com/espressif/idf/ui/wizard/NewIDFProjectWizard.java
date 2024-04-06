@@ -126,7 +126,6 @@ public class NewIDFProjectWizard extends TemplateWizard
 						IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE) == null)
 				{
 
-					ILaunchDescriptor desc = launchBarManager.getActiveLaunchDescriptor();
 					// this ensures that the configuration exists
 					launchBarManager.getActiveLaunchConfiguration();
 
