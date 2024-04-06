@@ -340,7 +340,7 @@ public class IDFUtil
 		return getXtensaToolchainExecutablePathByTarget(projectEspTarget);
 	}
 	
-	public static String getXtensaToolchainExePathForActiveTarget()
+	public static String getToolchainExePathForActiveTarget()
 	{
 		ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
 		try
