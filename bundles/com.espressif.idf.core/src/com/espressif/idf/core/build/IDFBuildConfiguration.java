@@ -47,12 +47,10 @@ import org.eclipse.cdt.core.build.IToolChain;
 import org.eclipse.cdt.core.build.IToolChainManager;
 import org.eclipse.cdt.core.envvar.EnvironmentVariable;
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
-import org.eclipse.cdt.core.index.IIndexManager;
 import org.eclipse.cdt.core.model.CoreModel;
 import org.eclipse.cdt.core.model.ElementChangedEvent;
 import org.eclipse.cdt.core.model.IBinary;
 import org.eclipse.cdt.core.model.IBinaryContainer;
-import org.eclipse.cdt.core.model.ICElement;
 import org.eclipse.cdt.core.model.ICElementDelta;
 import org.eclipse.cdt.core.model.ICModelMarker;
 import org.eclipse.cdt.core.model.ICProject;
@@ -171,7 +169,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 
 	public IPath getBuildContainerPath() throws CoreException
 	{
-
 		if (hasCustomBuild())
 		{
 			org.eclipse.core.runtime.Path path = new org.eclipse.core.runtime.Path(customBuildDir);
