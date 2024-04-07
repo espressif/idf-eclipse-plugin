@@ -5,6 +5,8 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS
 {
 	private static final String BUNDLE_NAME = "com.espressif.idf.ui.handlers.messages"; //$NON-NLS-1$
+	public static String ClangdConfigCreateHandler_Error;
+	public static String ClangdConfigCreateHandler_FailedToCreate;
 	public static String ClangdConfigCreateHandler_FileCreationMsg;
 	public static String ClangdConfigCreateHandler_MsgTitle;
 	public static String ClangdConfigCreateHandler_NoProjectFound;

@@ -55,6 +55,8 @@ public class ClangdConfigCreateHandler extends AbstractHandler
 		}
 		catch (Exception e)
 		{
+			MessageDialog.openError(Display.getDefault().getActiveShell(),
+			        Messages.ClangdConfigCreateHandler_Error, Messages.ClangdConfigCreateHandler_FailedToCreate + e.getMessage());
 			Logger.log(e);
 		}
 	}
