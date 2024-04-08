@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.cdt.cmake.core.internal.Activator;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -115,6 +116,8 @@ public class InitializeToolsStartup implements IStartup
 			Display.getDefault().syncExec(() -> {
 				Shell shell = new Shell(Display.getDefault());
 				MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO);
+				messageBox.setButtonLabels(Map.of(SWT.YES, Messages.ToolsInitializationDifferentPathMessageBoxOptionYes,
+						SWT.NO, Messages.ToolsInitializationDifferentPathMessageBoxOptionNo));
 				messageBox.setText(Messages.ToolsInitializationDifferentPathMessageBoxTitle);
 				messageBox.setMessage(MessageFormat.format(Messages.ToolsInitializationDifferentPathMessageBoxMessage,
 						newIdfPath, idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PATH)));
@@ -122,7 +125,8 @@ public class InitializeToolsStartup implements IStartup
 				if (response == SWT.NO)
 				{
 					IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
-					updateEspIdfJsonFile(idf_json_file, idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH));
+					updateEspIdfJsonFile(idf_json_file,
+							idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH));
 					Preferences prefs = getPreferences();
 					prefs.putBoolean(IS_INSTALLER_CONFIG_SET, true);
 					try
@@ -204,8 +208,7 @@ public class InitializeToolsStartup implements IStartup
 	@SuppressWarnings("unchecked")
 	private void openAvailableHintsDialog(PropertyChangeEvent evt)
 	{
-		Display.getDefault().asyncExec(() ->
-		{
+		Display.getDefault().asyncExec(() -> {
 			List<ReHintPair> erroHintPairs = (List<ReHintPair>) evt.getNewValue();
 			// if list is empty we don't want to change focus from the console output
 			if (erroHintPairs.isEmpty())
@@ -215,16 +218,14 @@ public class InitializeToolsStartup implements IStartup
 			}
 			try
 			{
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-						.showView(BUILDHINTS_ID);
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(BUILDHINTS_ID);
 			}
 			catch (PartInitException e)
 			{
 				Logger.log(e);
 			}
 			updateValuesInBuildView(erroHintPairs);
-		}
-		);
+		});
 
 	}
 
@@ -240,13 +241,12 @@ public class InitializeToolsStartup implements IStartup
 
 	private void openLowPartitionSizeDialog(PropertyChangeEvent evt)
 	{
-		Display.getDefault().asyncExec(() ->
-				MessageLinkDialog.openWarning(Display.getDefault().getActiveShell(),
+		Display.getDefault()
+				.asyncExec(() -> MessageLinkDialog.openWarning(Display.getDefault().getActiveShell(),
 						Messages.IncreasePartitionSizeTitle, MessageFormat.format(Messages.IncreasePartitionSizeMessage,
-								evt.getNewValue(), evt.getOldValue(), DOC_URL))
-			);
+								evt.getNewValue(), evt.getOldValue(), DOC_URL)));
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private void updateEspIdfJsonFile(File idf_json_file, String newIdfPathToUpdate)
 	{
