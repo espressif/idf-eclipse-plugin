@@ -460,6 +460,22 @@
                </iterate>
             </visibleWhen>
          </command>
+         <command
+               commandId="com.espressif.idf.ui.createclangdconfig"
+               icon="icons/clangd.png"
+               label="%command.name.14"
+               style="push">
+             <visibleWhen
+                  checkEnabled="false">
+               <iterate
+                     ifEmpty="false"
+                     operator="or">
+                  <instanceof
+                        value="org.eclipse.core.resources.IProject">
+                  </instanceof>
+               </iterate>
+            </visibleWhen>
+         </command>
 
       </menuContribution>
    </extension>
@@ -593,6 +609,11 @@
       <command
             id="com.espressif.idf.ui.writeFlashCommand"
             name="%command.name.writeFlashCmdName">
+      </command>
+      <command
+            defaultHandler="com.espressif.idf.ui.handlers.ClangdConfigCreateHandler"
+            id="com.espressif.idf.ui.createclangdconfig"
+            name="%command.name.14">
       </command>
    </extension>
    <extension
