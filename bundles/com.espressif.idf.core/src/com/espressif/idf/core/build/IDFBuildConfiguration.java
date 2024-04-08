@@ -423,10 +423,27 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 				project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 				ParitionSizeHandler paritionSizeHandler = new ParitionSizeHandler(project, infoStream, console);
 				paritionSizeHandler.startCheckingSize();
+				
+				writeConsoleNotes(infoStream);
 			}
 
 			infoStream.write(MessageFormat.format("Total time taken to build the project: {0} ms", timeElapsed)); //$NON-NLS-1$
 		}
+	}
+	
+	private void writeConsoleNotes(ConsoleOutputStream infoStream) throws IOException
+	{
+		infoStream.write("clangd Troubleshooting Notes:"); //$NON-NLS-1$
+		infoStream.write("\n");//$NON-NLS-1$
+		infoStream.write(
+				"1. If there are any unresolved header issues, please check the query driver configured in Preferences > C/C++ > Build > Editor(LSP) > clangd and" //$NON-NLS-1$
+				+ "\n set the correct Drivers path. This should always point to the current target toolchain you're using." //$NON-NLS-1$
+				+ "\n For example, if you are building for esp32, it should point to /user/path/.espressif/tools/xtensa-esp32-elf/esp-12.2.0_20230208/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc."); //$NON-NLS-1$
+		infoStream.write("\n");//$NON-NLS-1$
+		infoStream.write("\n");//$NON-NLS-1$
+		infoStream.write(
+				"2. To enable source code navigation (i.e., navigation to .c files), you need to set compile_commands-cmd argument to clangd with the build folder." //$NON-NLS-1$
+				+ "\n To do this, navigate to Preferences > C/C++ > Build > Editor(LSP) > clangd and set --compile_commands-cmd=/user/path/workspace/project/build in the additional arguments text area."); //$NON-NLS-1$
 	}
 
 	private void runCmakeCommand(IConsole console, IProgressMonitor monitor, IProject project, String generator,
