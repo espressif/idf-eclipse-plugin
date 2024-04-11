@@ -5,7 +5,7 @@ Bundle-SymbolicName: com.espressif.idf.core.test
 Bundle-Version: 0.0.1.qualifier
 Bundle-Vendor: Espressif Systems
 Automatic-Module-Name: com.espressif.idf.core.test
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.espressif.idf.core;bundle-version="1.0.1",
  junit-jupiter-api,
  org.junit,

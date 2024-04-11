@@ -49,7 +49,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.espressif.idf.lsp
 Automatic-Module-Name: com.espressif.idf.ui
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: com.espressif.idf.ui,
  com.espressif.idf.ui.dialogs,
  com.espressif.idf.ui.handlers,
