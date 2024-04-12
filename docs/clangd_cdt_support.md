@@ -9,8 +9,8 @@ The LSP powered C/C++ editor greatly benefits ESP-IDF developers by aligning wit
 You can find more details on the LSP based C/C++ Editor features [here](https://github.com/eclipse-cdt/cdt-lsp/).
 
 ## Prerequisites
-- You need to have Espressif-IDE 3.0.0 (and higher) to have access to the LSP powered C/C++ editor. 
-- If you are updating Eclipse CDT or Espressif-IDE via the update site, you need to select the ESP-IDF Eclipse Plugin and its dependencies, as shown below:
+* You need to have Espressif-IDE 3.0.0 (and higher) to have access to the LSP powered C/C++ editor. 
+* If you are updating Eclipse CDT or Espressif-IDE via the update site, you need to select the ESP-IDF Eclipse Plugin and its dependencies, as shown below:
 
  	![](images/clangd/cdtlsp_updatesite.png)
 
@@ -28,13 +28,13 @@ Please follow the below steps to configure them:
 4. Set `--compile-commands-dir=/project/build`in the additional argument section.
 5. Click on `Apply and Close`.
 
- 	![](images/clangd/clangd_config.png)
+ ![Configuration settings for clangd in Espressif-IDE](images/clangd/clangd_config.png)
 
 By default, when you create a new project, a `.clangd` configuration file is created with the following arguments.
 
 However, if you are dealing with an existing project, please create a `.clangd` file at the root of the project and add the following content.
 
-```
+```yaml
 CompileFlags:
   CompilationDatabase: build
   Remove: [-m*, -f*]
