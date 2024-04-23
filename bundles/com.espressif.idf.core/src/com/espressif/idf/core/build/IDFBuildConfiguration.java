@@ -433,7 +433,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	
 	private void writeConsoleNotes(ConsoleOutputStream infoStream) throws IOException
 	{
-		infoStream.write("clangd Troubleshooting Notes:"); //$NON-NLS-1$
+		infoStream.write("clangd Troubleshooting:"); //$NON-NLS-1$
 		infoStream.write("\n");//$NON-NLS-1$
 		infoStream.write(
 				"1. If there are any unresolved header issues, please check the query driver configured in Preferences > C/C++ > Build > Editor(LSP) > clangd and" //$NON-NLS-1$
@@ -442,8 +442,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		infoStream.write("\n");//$NON-NLS-1$
 		infoStream.write("\n");//$NON-NLS-1$
 		infoStream.write(
-				"2. To enable source code navigation (i.e., navigation to .c files), you need to set compile_commands-cmd argument to clangd with the build folder." //$NON-NLS-1$
-				+ "\n To do this, navigate to Preferences > C/C++ > Build > Editor(LSP) > clangd and set --compile_commands-cmd=/user/path/workspace/project/build in the additional arguments text area."); //$NON-NLS-1$
+				"2. To enable source code navigation (i.e., navigation to .c files), you need to set compile-commands-cmd argument to clangd with the build folder." //$NON-NLS-1$
+				+ "\n To do this, navigate to Preferences > C/C++ > Build > Editor(LSP) > clangd and set --compile-commands-cmd=/user/path/workspace/project/build in the additional arguments text area."); //$NON-NLS-1$
 	}
 
 	private void runCmakeCommand(IConsole console, IProgressMonitor monitor, IProject project, String generator,
