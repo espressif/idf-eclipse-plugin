@@ -447,6 +447,8 @@ public class ProjectTestOperations
 		{
 			for (SWTBotTreeItem project : projectExplorerBotView.bot().tree().getAllItems())
 			{
+				project.contextMenu("Refresh").click();
+				bot.sleep(2000);
 				project.contextMenu("Close Project").click();
 				bot.sleep(2000);
 			}
