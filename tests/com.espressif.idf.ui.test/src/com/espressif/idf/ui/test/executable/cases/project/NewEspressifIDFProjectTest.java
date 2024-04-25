@@ -406,7 +406,7 @@ public class NewEspressifIDFProjectTest
 		private static void cleanTestEnv()
 		{
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
-			ProjectTestOperations.closeAllProjects(bot);
+//			ProjectTestOperations.closeAllProjects(bot);
 			ProjectTestOperations.deleteAllProjects(bot);
 		}
 
