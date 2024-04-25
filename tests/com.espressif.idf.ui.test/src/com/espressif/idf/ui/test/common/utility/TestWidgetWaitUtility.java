@@ -11,6 +11,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
+import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable;
+import org.eclipse.swtbot.swt.finder.results.BoolResult;
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
@@ -29,7 +31,7 @@ import org.eclipse.ui.internal.progress.ProgressView;
 @SuppressWarnings("restriction")
 public class TestWidgetWaitUtility
 {
-	public static void waitForOperationsInProgressToFinish(SWTWorkbenchBot bot)
+	public static void waitForOperationsInProgressToFinishAsync(SWTWorkbenchBot bot)
 	{
 		bot.viewById(IPageLayout.ID_PROGRESS_VIEW).show();
 		ProgressView progressView = (ProgressView) bot.viewById(IPageLayout.ID_PROGRESS_VIEW).getViewReference()
@@ -52,6 +54,37 @@ public class TestWidgetWaitUtility
 				});
 
 				return operationResponse.itemStillPending;
+			}
+
+			@Override
+			public String getFailureMessage()
+			{
+
+				return "Operations taking longer to finish";
+			}
+		}, 99000000, 3000);
+	}
+	
+	public static void waitForOperationsInProgressToFinishSync(SWTWorkbenchBot bot)
+	{
+		bot.viewById(IPageLayout.ID_PROGRESS_VIEW).show();
+		ProgressView progressView = (ProgressView) bot.viewById(IPageLayout.ID_PROGRESS_VIEW).getViewReference()
+				.getView(true);
+		bot.waitWhile(new DefaultCondition()
+		{
+			@Override
+			public boolean test() throws Exception
+			{
+				return UIThreadRunnable.syncExec(new BoolResult()
+				{
+					@Override
+					public Boolean run()
+					{
+						progressView.setFocus();
+						ProgressInfoItem[] progressInfoItems = progressView.getViewer().getProgressInfoItems();
+						return progressInfoItems.length > 0;
+					}
+				});
 			}
 
 			@Override
