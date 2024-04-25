@@ -70,10 +70,10 @@ public class EnvSetupOperations
 		bot.menu("Espressif").menu("ESP-IDF Tools Manager").click().menu("Install Tools").click();
 		bot.activeShell().activate();
 		bot.shell("Install Tools").bot().textWithLabel("ESP-IDF Directory:")
-				.setText("C:\\esp-tools\\esp-idf-v5.1.2");
+				.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
 
 		bot.shell("Install Tools").bot().textWithLabel("Git Executable Location:")
-				.setText("C:\\Program Files\\Git\\cmd\\git.EXE");
+				.setText(DefaultPropertyFetcher.getStringPropertyValue(GIT_PATH_PROPERTY, ""));
 		try
 		{
 			bot.shell("Install Tools").bot().comboBox()
@@ -82,7 +82,8 @@ public class EnvSetupOperations
 		catch (WidgetNotFoundException e)
 		{
 			bot.shell("Install Tools").bot().textWithLabel("Python Executable Location:")
-					.setText("C:\\Users\\aliaz\\AppData\\Local\\Programs\\Python\\Python311\\python.EXE");
+					.setText(IDFUtil.getPythonExecutable());
+
 		}
 		bot.shell("Install Tools").bot().button("Install Tools").click();
 		SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
