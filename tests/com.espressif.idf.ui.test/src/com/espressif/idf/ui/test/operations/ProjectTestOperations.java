@@ -470,8 +470,8 @@ public class ProjectTestOperations
 			for (SWTBotTreeItem project : projectsBotTreeItems)
 			{
 				project.contextMenu("Delete").click();
-				bot.checkBox("Delete project contents on disk (cannot be undone)").click();
-				bot.button("OK").click();
+				bot.shell("Delete Resources").bot().checkBox("Delete project contents on disk (cannot be undone)").click();
+				bot.shell("Delete Resources").bot().button("OK").click();
 				bot.sleep(2000);
 				projectExplorerBotView.show();
 			}
