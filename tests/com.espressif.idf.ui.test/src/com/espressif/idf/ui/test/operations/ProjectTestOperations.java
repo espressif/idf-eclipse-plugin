@@ -456,29 +456,13 @@ public class ProjectTestOperations
 		projectExplorerBotView.setFocus();
 		try
 		{
-			for (SWTBotTreeItem project : projectExplorerBotView.bot().tree().getAllItems())
+			SWTBotTreeItem[] projectsBotTreeItems = projectExplorerBotView.bot().tree().getAllItems();
+			for (SWTBotTreeItem project : projectsBotTreeItems)
 			{
-				String projectName = project.getText();
 				project.contextMenu("Delete").click();
 				bot.checkBox("Delete project contents on disk (cannot be undone)").click();
 				bot.button("OK").click();
 				projectExplorerBotView.show();
-				SWTBotTreeItem[] projects = projectExplorerBotView.bot().tree().getAllItems();
-				projectExplorerBotView.bot().waitUntil(new DefaultCondition()
-				{
-					@Override
-					public boolean test() throws Exception
-					{
-						return Arrays.asList(projects).stream().filter(project -> project.getText().equals(projectName))
-								.count() == 0;
-					}
-
-					@Override
-					public String getFailureMessage()
-					{
-						return "Project Explorer contains the project: " + projectName;
-					}
-				});
 			}
 		}
 		catch (WidgetNotFoundException widgetNotFoundException)
