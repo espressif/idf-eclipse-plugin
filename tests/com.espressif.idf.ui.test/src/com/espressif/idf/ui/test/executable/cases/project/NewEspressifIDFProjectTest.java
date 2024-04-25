@@ -24,8 +24,12 @@ import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
+import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.results.BoolResult;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+import org.eclipse.ui.internal.progress.JobInfo;
+import org.eclipse.ui.internal.progress.ProgressInfoItem;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -67,7 +71,15 @@ public class NewEspressifIDFProjectTest
 	@After
 	public void afterEachTest()
 	{
-		Fixture.cleanTestEnv();
+		UIThreadRunnable.syncExec(new BoolResult()
+		{
+			@Override
+			public Boolean run()
+			{
+				Fixture.cleanTestEnv();
+				return true;
+			}
+		});
 	}
 	
 	@Test
