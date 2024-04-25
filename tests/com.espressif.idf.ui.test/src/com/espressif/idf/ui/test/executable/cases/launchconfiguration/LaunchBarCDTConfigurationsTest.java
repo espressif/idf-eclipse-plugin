@@ -19,7 +19,9 @@ import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
+import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.results.BoolResult;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -55,7 +57,16 @@ public class LaunchBarCDTConfigurationsTest
 	@After
 	public void afterEachTest()
 	{
-		Fixture.cleanTestEnv();
+		UIThreadRunnable.syncExec(new BoolResult()
+		{
+			
+			@Override
+			public Boolean run()
+			{
+				Fixture.cleanTestEnv();
+				return true;
+			}
+		});
 	}
 
 	@Test
@@ -208,7 +219,7 @@ public class LaunchBarCDTConfigurationsTest
 
 		private static void cleanTestEnv()
 		{
-//			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 			ProjectTestOperations.closeAllProjects(bot);
 			ProjectTestOperations.deleteAllProjects(bot);
 		}
