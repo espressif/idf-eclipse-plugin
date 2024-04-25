@@ -6,6 +6,7 @@ package com.espressif.idf.ui.test.operations;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.Thread.State;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -16,11 +17,17 @@ import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
+import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable;
 import org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory;
+import org.eclipse.swtbot.swt.finder.results.BoolResult;
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarDropDownButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+import org.eclipse.ui.IPageLayout;
+import org.eclipse.ui.internal.progress.JobInfo;
+import org.eclipse.ui.internal.progress.ProgressInfoItem;
+import org.eclipse.ui.internal.progress.ProgressView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -441,6 +448,7 @@ public class ProjectTestOperations
 			for (SWTBotTreeItem project : projectExplorerBotView.bot().tree().getAllItems())
 			{
 				project.contextMenu("Close Project").click();
+				bot.sleep(2000);
 			}
 		}
 		catch (WidgetNotFoundException widgetNotFoundException)
@@ -462,6 +470,7 @@ public class ProjectTestOperations
 				project.contextMenu("Delete").click();
 				bot.checkBox("Delete project contents on disk (cannot be undone)").click();
 				bot.button("OK").click();
+				bot.sleep(2000);
 				projectExplorerBotView.show();
 			}
 		}

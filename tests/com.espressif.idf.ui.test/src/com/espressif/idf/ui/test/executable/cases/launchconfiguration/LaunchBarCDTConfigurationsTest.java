@@ -19,10 +19,9 @@ import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
-import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
-import org.eclipse.swtbot.swt.finder.results.BoolResult;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -54,19 +53,10 @@ public class LaunchBarCDTConfigurationsTest
 		Fixture.loadEnv();
 	}
 
-	@After
-	public void afterEachTest()
+	@AfterClass
+	public static void afterClassTest()
 	{
-		UIThreadRunnable.syncExec(new BoolResult()
-		{
-			
-			@Override
-			public Boolean run()
-			{
-				Fixture.cleanTestEnv();
-				return true;
-			}
-		});
+		Fixture.cleanTestEnv();
 	}
 
 	@Test

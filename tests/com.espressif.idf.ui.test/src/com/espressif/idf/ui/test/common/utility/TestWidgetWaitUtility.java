@@ -18,6 +18,7 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.eclipse.ui.IPageLayout;
+import org.eclipse.ui.internal.progress.JobInfo;
 import org.eclipse.ui.internal.progress.ProgressInfoItem;
 import org.eclipse.ui.internal.progress.ProgressView;
 
@@ -82,7 +83,22 @@ public class TestWidgetWaitUtility
 					{
 						progressView.setFocus();
 						ProgressInfoItem[] progressInfoItems = progressView.getViewer().getProgressInfoItems();
-						return progressInfoItems.length > 0;
+						for (ProgressInfoItem progressInfoItem : progressInfoItems)
+						{
+							JobInfo[] jobInfos = progressInfoItem.getJobInfos();
+							for (JobInfo jobInfo : jobInfos)
+							{
+								boolean onlyRefresh = progressInfoItem.getJobNameAndStatus(jobInfo)
+										.contains("Refreshing Projects")
+										|| progressInfoItem.getJobNameAndStatus(jobInfo).toLowerCase()
+												.contains("refresh");
+								if (!onlyRefresh)
+								{
+									return true;
+								}
+							}
+						}
+						return false;
 					}
 				});
 			}
@@ -93,7 +109,7 @@ public class TestWidgetWaitUtility
 
 				return "Operations taking longer to finish";
 			}
-		}, 99000000, 3000);
+		}, 99000000, 500);
 	}
 	
 	/**

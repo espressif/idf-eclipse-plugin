@@ -40,10 +40,19 @@ public class EnvSetupOperations
 		bot.tree().getTreeItem("General").getNode("Editors").getNode("File Associations").select();
 		bot.comboBox().setSelection("Text Editor");
 		bot.tree().getTreeItem("General").getNode("Workspace").select();
-		if (!bot.checkBox("Refresh using native hooks or polling").isChecked())
+		if (bot.checkBox("Refresh using native hooks or polling").isChecked())
 		{
 			bot.checkBox("Refresh using native hooks or polling").click();
 		}
+		
+		bot.tree().getTreeItem("C/C++").select();
+		bot.tree().getTreeItem("C/C++").expand();
+		bot.tree().getTreeItem("C/C++").getNode("Indexer").select();
+		if (bot.checkBox("Enable indexer").isChecked())
+		{
+			bot.checkBox("Enable indexer").click();	
+		}
+		
 		bot.button("Apply and Close").click();
 
 		bot.toolbarButtonWithTooltip("Select and deselect filters to apply to the content in the tree").click();
@@ -61,10 +70,10 @@ public class EnvSetupOperations
 		bot.menu("Espressif").menu("ESP-IDF Tools Manager").click().menu("Install Tools").click();
 		bot.activeShell().activate();
 		bot.shell("Install Tools").bot().textWithLabel("ESP-IDF Directory:")
-				.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
+				.setText("C:\\esp-tools\\esp-idf-v5.1.2");
 
 		bot.shell("Install Tools").bot().textWithLabel("Git Executable Location:")
-				.setText(DefaultPropertyFetcher.getStringPropertyValue(GIT_PATH_PROPERTY, ""));
+				.setText("C:\\Program Files\\Git\\cmd\\git.EXE");
 		try
 		{
 			bot.shell("Install Tools").bot().comboBox()
@@ -73,7 +82,7 @@ public class EnvSetupOperations
 		catch (WidgetNotFoundException e)
 		{
 			bot.shell("Install Tools").bot().textWithLabel("Python Executable Location:")
-					.setText(IDFUtil.getPythonExecutable());
+					.setText("C:\\Users\\aliaz\\AppData\\Local\\Programs\\Python\\Python311\\python.EXE");
 		}
 		bot.shell("Install Tools").bot().button("Install Tools").click();
 		SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");

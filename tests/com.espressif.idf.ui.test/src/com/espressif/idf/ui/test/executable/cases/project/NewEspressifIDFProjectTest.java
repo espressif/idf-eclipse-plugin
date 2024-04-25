@@ -24,11 +24,10 @@ import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
-import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
-import org.eclipse.swtbot.swt.finder.results.BoolResult;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -68,18 +67,9 @@ public class NewEspressifIDFProjectTest
 	@After
 	public void afterEachTest()
 	{
-		UIThreadRunnable.syncExec(new BoolResult()
-		{
-			
-			@Override
-			public Boolean run()
-			{
-				Fixture.cleanTestEnv();
-				return true;
-			}
-		});
+		Fixture.cleanTestEnv();
 	}
-
+	
 	@Test
 	public void givenNewIDFProjectIsSelectedThenProjectIsCreatedAndAddedToProjectExplorer() throws Exception
 	{
@@ -87,6 +77,7 @@ public class NewEspressifIDFProjectTest
 		Fixture.givenProjectNameIs("NewProjectTest");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.thenProjectIsAddedToProjectExplorer();
+		
 	}
 
 	@Test
@@ -272,6 +263,7 @@ public class NewEspressifIDFProjectTest
 		private static void whenNewProjectIsSelected() throws Exception
 		{
 			ProjectTestOperations.setupProject(projectName, category, subCategory, bot);
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 		}
 
 		private static void whenProjectIsCopied(String projectName, String projectCopyName) throws IOException
@@ -286,6 +278,7 @@ public class NewEspressifIDFProjectTest
 			launchBarConfigSelector.clickEdit();
 			bot.comboBox().setSelection("UART");
 			bot.button("OK").click();
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 		}
 
 		private static void turnOnDfu()
@@ -293,13 +286,13 @@ public class NewEspressifIDFProjectTest
 			launchBarConfigSelector.clickEdit();
 			bot.comboBox().setSelection("DFU");
 			bot.button("OK").click();
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 		}
 
 		private static void whenProjectIsBuiltUsingContextMenu() throws IOException
 		{
 			ProjectTestOperations.buildProjectUsingContextMenu(projectName, bot);
 			ProjectTestOperations.waitForProjectBuild(bot);
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 		}
 
 		private static void whenInstallNewComponentUsingContextMenu() throws IOException
@@ -310,6 +303,7 @@ public class NewEspressifIDFProjectTest
 			ProjectTestOperations.waitForProjectNewComponentInstalled(bot);
 			bot.editorByTitle(projectName).close();
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
+			bot.sleep(2000);
 		}
 
 		private static void checkPythonCLeanCommandDeleteFolder() throws IOException
@@ -398,7 +392,7 @@ public class NewEspressifIDFProjectTest
 
 		private static void closeProject(String projectName)
 		{
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
+//			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 			ProjectTestOperations.closeProject(projectName, bot);
 		}
 
@@ -440,6 +434,7 @@ public class NewEspressifIDFProjectTest
 			ProjectTestOperations.joinJobByName(Messages.ProjectCleanCommandHandler_RunningProjectCleanJobName);
 			ProjectTestOperations.waitForProjectClean(bot);
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
+			bot.sleep(2000);
 		}
 
 		private static void whenProjectFullCleanUsingContextMenu() throws IOException
@@ -448,6 +443,8 @@ public class NewEspressifIDFProjectTest
 			ProjectTestOperations.joinJobByName(Messages.ProjectFullCleanCommandHandler_RunningFullcleanJobName);
 			ProjectTestOperations.waitForProjectClean(bot);
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
+			bot.sleep(2000);
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 		}
 
 		private static void whenProjectPythonCleanUsingContextMenu() throws IOException
