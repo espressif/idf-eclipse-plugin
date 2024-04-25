@@ -178,7 +178,7 @@ public class LaunchBarCDTConfigurationsTest
 		{
 			bot.toolbarButtonWithTooltip("Build").click();
 			ProjectTestOperations.waitForProjectBuild(bot);
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+//			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 		}
 
 		public static void givenProjectNameIs(String projectName)
@@ -188,7 +188,7 @@ public class LaunchBarCDTConfigurationsTest
 
 		private static void thenConsoleShowsBuildSuccessful()
 		{
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+//			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 			SWTBotView consoleView = ProjectTestOperations.viewConsole("CDT Build Console", bot);
 			consoleView.show();
 			consoleView.setFocus();
@@ -208,7 +208,7 @@ public class LaunchBarCDTConfigurationsTest
 
 		private static void cleanTestEnv()
 		{
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+//			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 			ProjectTestOperations.closeAllProjects(bot);
 			ProjectTestOperations.deleteAllProjects(bot);
 		}

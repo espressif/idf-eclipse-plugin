@@ -284,7 +284,7 @@ public class NewEspressifIDFProjectTest
 		{
 			ProjectTestOperations.copyProjectToExistingWorkspace(projectName, projectCopyName, bot,
 					DefaultPropertyFetcher.getLongPropertyValue("default.project.copy.wait", 60000));
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+//			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 		}
 
 		public static void turnOffDfu()
@@ -305,7 +305,7 @@ public class NewEspressifIDFProjectTest
 		{
 			ProjectTestOperations.buildProjectUsingContextMenu(projectName, bot);
 			ProjectTestOperations.waitForProjectBuild(bot);
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+//			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 		}
 
 		private static void whenInstallNewComponentUsingContextMenu() throws IOException
@@ -404,25 +404,25 @@ public class NewEspressifIDFProjectTest
 
 		private static void closeProject(String projectName)
 		{
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+//			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 			ProjectTestOperations.closeProject(projectName, bot);
 		}
 
 		private static void deleteProject(String projectName)
 		{
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+//			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 			ProjectTestOperations.deleteProject(projectName, bot);
 		}
 
 		private static void deleteProjectAndConfigs(String projectName)
 		{
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+//			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 			ProjectTestOperations.deleteProjectAndAllRelatedConfigs(projectName, bot);
 		}
 
 		private static void cleanTestEnv()
 		{
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+//			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 			ProjectTestOperations.closeAllProjects(bot);
 			ProjectTestOperations.deleteAllProjects(bot);
 		}
