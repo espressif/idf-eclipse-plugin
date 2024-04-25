@@ -96,7 +96,7 @@ public class NewEspressifIDFProjectTest
 	public void givenNewProjectIsSelectedTheProjectHasTheRequiredFiles() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectTest");
+		Fixture.givenProjectNameIs("NewProjectForRequiredFilesTest");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.thenProjectHasTheFile("CMakeLists.txt", "/main");
 		Fixture.thenFileContentsMatchDefaultFile("/main", "CMakeLists.txt");
@@ -109,7 +109,7 @@ public class NewEspressifIDFProjectTest
 			throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectTest");
+		Fixture.givenProjectNameIs("NewProjectForContextMenuBuildTest");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.thenConsoleShowsBuildSuccessful();
@@ -119,7 +119,7 @@ public class NewEspressifIDFProjectTest
 	public void givenNewIDFProjectIsCreatedAndBuiltUsingToolbarButtonThenProjectIsBuilt() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectTest");
+		Fixture.givenProjectNameIs("NewProjectToolbarBuildButtonTest");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.thenConsoleShowsBuildSuccessful();
@@ -129,9 +129,9 @@ public class NewEspressifIDFProjectTest
 	public void givenNewProjectCreatedAndRenamedAfterThenProjectIsBuildSuccessfully() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectTest");
+		Fixture.givenProjectNameIs("NewProjectForRenameTest");
 		Fixture.whenNewProjectIsSelected();
-		Fixture.whenProjectIsRenamed("NewProjectTest2");
+		Fixture.whenProjectIsRenamed("NewProjectForRenameTest2");
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.thenConsoleShowsBuildSuccessful();
 	}
@@ -153,7 +153,7 @@ public class NewEspressifIDFProjectTest
 	public void givenNewProjectCreatedThenInstallNewComponent() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectTest");
+		Fixture.givenProjectNameIs("NewProjectForInstallNewComponentTest");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.whenInstallNewComponentUsingContextMenu();
@@ -267,7 +267,7 @@ public class NewEspressifIDFProjectTest
 		{
 			ProjectTestOperations.copyProjectToExistingWorkspace(projectName, projectCopyName, bot,
 					DefaultPropertyFetcher.getLongPropertyValue("default.project.copy.wait", 60000));
-//			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 		}
 
 		public static void turnOffDfu()
@@ -288,7 +288,7 @@ public class NewEspressifIDFProjectTest
 		{
 			ProjectTestOperations.buildProjectUsingContextMenu(projectName, bot);
 			ProjectTestOperations.waitForProjectBuild(bot);
-//			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 		}
 
 		private static void whenInstallNewComponentUsingContextMenu() throws IOException
@@ -387,25 +387,25 @@ public class NewEspressifIDFProjectTest
 
 		private static void closeProject(String projectName)
 		{
-//			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 			ProjectTestOperations.closeProject(projectName, bot);
 		}
 
 		private static void deleteProject(String projectName)
 		{
-//			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 			ProjectTestOperations.deleteProject(projectName, bot);
 		}
 
 		private static void deleteProjectAndConfigs(String projectName)
 		{
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 			ProjectTestOperations.deleteProjectAndAllRelatedConfigs(projectName, bot);
 		}
 
 		private static void cleanTestEnv()
 		{
-//			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 			ProjectTestOperations.closeAllProjects(bot);
 			ProjectTestOperations.deleteAllProjects(bot);
 		}
