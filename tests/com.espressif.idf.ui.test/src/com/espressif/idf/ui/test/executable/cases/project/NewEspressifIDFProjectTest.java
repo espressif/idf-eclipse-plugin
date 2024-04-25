@@ -20,18 +20,14 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
-import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
-import org.eclipse.swtbot.swt.finder.results.BoolResult;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
-import org.eclipse.ui.internal.progress.JobInfo;
-import org.eclipse.ui.internal.progress.ProgressInfoItem;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -71,13 +67,12 @@ public class NewEspressifIDFProjectTest
 	@After
 	public void afterEachTest()
 	{
-		UIThreadRunnable.syncExec(new BoolResult()
+		Display.getDefault().syncExec(new Runnable()
 		{
 			@Override
-			public Boolean run()
+			public void run()
 			{
-				Fixture.cleanTestEnv();
-				return true;
+				Fixture.cleanTestEnv();				
 			}
 		});
 	}
