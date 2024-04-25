@@ -416,7 +416,7 @@ public class NewEspressifIDFProjectTest
 
 		private static void deleteProjectAndConfigs(String projectName)
 		{
-//			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 			ProjectTestOperations.deleteProjectAndAllRelatedConfigs(projectName, bot);
 		}
 
