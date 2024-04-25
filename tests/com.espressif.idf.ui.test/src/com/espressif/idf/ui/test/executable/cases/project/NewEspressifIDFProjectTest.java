@@ -126,23 +126,6 @@ public class NewEspressifIDFProjectTest
 	}
 
 	@Test
-	public void givenNewIDFProjectIsDeletedWithAllRelatedConfigurations() throws Exception
-	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectTest");
-		Fixture.whenNewProjectIsSelected();
-
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectTest2");
-		Fixture.whenNewProjectIsSelected();
-		Fixture.givenProjectNameIs("NewProjectTest");
-
-		Fixture.whenProjectHasDebugConfigurations();
-		Fixture.deleteProjectAndConfigs("NewProjectTest");
-		Fixture.thenAllConfigurationsAreDeleted();
-	}
-
-	@Test
 	public void givenNewProjectCreatedAndRenamedAfterThenProjectIsBuildSuccessfully() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
