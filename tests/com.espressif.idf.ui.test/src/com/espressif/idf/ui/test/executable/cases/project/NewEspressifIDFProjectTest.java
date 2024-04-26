@@ -14,13 +14,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
@@ -54,6 +48,7 @@ import com.espressif.idf.ui.test.operations.selectors.LaunchBarTargetSelector;
  * @author Ali Azam Rana
  *
  */
+@SuppressWarnings("restriction")
 @RunWith(SWTBotJunit4ClassRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class NewEspressifIDFProjectTest
@@ -67,14 +62,7 @@ public class NewEspressifIDFProjectTest
 	@After
 	public void afterEachTest()
 	{
-		Display.getDefault().syncExec(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				Fixture.cleanTestEnv();				
-			}
-		});
+		Fixture.cleanTestEnv();
 	}
 	
 	@Test
@@ -261,22 +249,9 @@ public class NewEspressifIDFProjectTest
 			ProjectTestOperations.setupProjectFromTemplate(projectName, category, subCategory, projectTemplate, bot);
 		}
 
-		private static void whenProjectHasDebugConfigurations()
-		{
-			ProjectTestOperations.createDebugConfiguration(projectName, bot);
-			ProjectTestOperations.createDebugConfiguration(projectName, bot);
-		}
-
 		private static void whenNewProjectIsSelected() throws Exception
 		{
 			ProjectTestOperations.setupProject(projectName, category, subCategory, bot);
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
-		}
-
-		private static void whenProjectIsCopied(String projectName, String projectCopyName) throws IOException
-		{
-			ProjectTestOperations.copyProjectToExistingWorkspace(projectName, projectCopyName, bot,
-					DefaultPropertyFetcher.getLongPropertyValue("default.project.copy.wait", 60000));
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 		}
 
@@ -329,28 +304,6 @@ public class NewEspressifIDFProjectTest
 			assertTrue(ProjectTestOperations.checkTextEditorContentForPhrase("espressif/mdns", bot));
 		}
 
-		private static void thenAllConfigurationsAreDeleted()
-		{
-			ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
-			try
-			{
-				ILaunchConfiguration[] configs = manager.getLaunchConfigurations();
-				for (ILaunchConfiguration config : configs)
-				{
-					IResource[] mappedResource = config.getMappedResources();
-					if (mappedResource != null && mappedResource[0].getProject().getName() == projectName)
-					{
-						assertTrue(false);
-					}
-				}
-				assertTrue(true);
-			}
-			catch (CoreException e)
-			{
-				e.printStackTrace();
-			}
-		}
-
 		private static void thenProjectIsAddedToProjectExplorer()
 		{
 			bot.viewByTitle("Project Explorer").show();
@@ -397,23 +350,23 @@ public class NewEspressifIDFProjectTest
 			assertTrue(consoleTextString.contains("Build complete (0 errors"));
 		}
 
-		private static void closeProject(String projectName)
-		{
+//		private static void closeProject(String projectName)
+//		{
+////			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
+//			ProjectTestOperations.closeProject(projectName, bot);
+//		}
+//
+//		private static void deleteProject(String projectName)
+//		{
 //			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
-			ProjectTestOperations.closeProject(projectName, bot);
-		}
-
-		private static void deleteProject(String projectName)
-		{
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
-			ProjectTestOperations.deleteProject(projectName, bot);
-		}
-
-		private static void deleteProjectAndConfigs(String projectName)
-		{
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
-			ProjectTestOperations.deleteProjectAndAllRelatedConfigs(projectName, bot);
-		}
+//			ProjectTestOperations.deleteProject(projectName, bot);
+//		}
+//
+//		private static void deleteProjectAndConfigs(String projectName)
+//		{
+//			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
+//			ProjectTestOperations.deleteProjectAndAllRelatedConfigs(projectName, bot);
+//		}
 
 		private static void cleanTestEnv()
 		{

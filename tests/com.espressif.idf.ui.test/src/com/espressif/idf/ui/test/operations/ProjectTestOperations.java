@@ -6,33 +6,36 @@ package com.espressif.idf.ui.test.operations;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.Thread.State;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
-import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable;
 import org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory;
-import org.eclipse.swtbot.swt.finder.results.BoolResult;
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarDropDownButton;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.eclipse.ui.IPageLayout;
-import org.eclipse.ui.internal.progress.JobInfo;
-import org.eclipse.ui.internal.progress.ProgressInfoItem;
-import org.eclipse.ui.internal.progress.ProgressView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
+import com.espressif.idf.ui.test.common.utility.WaitUtils;
 
 /**
  * Class to contain the common operations related to project setup. The class can be used in different test classes to
@@ -47,6 +50,8 @@ public class ProjectTestOperations
 	private static final String DEFAULT_PROJECT_BUILD_WAIT_PROPERTY = "default.project.build.wait";
 
 	private static final Logger logger = LoggerFactory.getLogger(ProjectTestOperations.class);
+
+	private static final int DELETE_PROJECT_TIMEOUT = 240000;
 
 	/**
 	 * Build a project using the context menu by right clicking on the project
@@ -319,13 +324,154 @@ public class ProjectTestOperations
 	}
 
 	/**
+	 * Deletes a project
+	 *
+	 * @param projectName     the name of the tracing project
+	 * @param deleteResources whether or not to deleted resources under the project
+	 * @param bot             the workbench bot
+	 */
+	public static void deleteProject(final String projectName, boolean deleteResources, SWTWorkbenchBot bot)
+	{
+		// Wait for any analysis to complete because it might create
+		// supplementary files
+		WaitUtils.waitForJobs();
+		try
+		{
+			ResourcesPlugin.getWorkspace().getRoot().getProject(projectName).refreshLocal(IResource.DEPTH_INFINITE,
+					null);
+		}
+		catch (CoreException e)
+		{
+		}
+
+		WaitUtils.waitForJobs();
+
+		closeSecondaryShells(bot);
+		WaitUtils.waitForJobs();
+
+		if (!ResourcesPlugin.getWorkspace().getRoot().getProject(projectName).exists())
+		{
+			return;
+		}
+
+		focusMainWindow(bot.shells());
+
+		final SWTBotView projectViewBot = bot.viewById(IPageLayout.ID_PROJECT_EXPLORER);
+		projectViewBot.setFocus();
+
+		SWTBotTree treeBot = projectViewBot.bot().tree();
+		SWTBotTreeItem treeItem = treeBot.getTreeItem(projectName);
+		SWTBotMenu contextMenu = treeItem.contextMenu("Delete");
+		contextMenu.click();
+
+		handleDeleteDialog(deleteResources, bot);
+		WaitUtils.waitForJobs();
+	}
+
+	/**
+	 * Close all non-main shells that are visible.
+	 *
+	 * @param bot the workbench bot
+	 */
+	public static void closeSecondaryShells(SWTWorkbenchBot bot)
+	{
+		SWTBotShell[] shells = bot.shells();
+		SWTBotShell mainShell = getMainShell(shells);
+		if (mainShell == null)
+		{
+			return;
+		}
+
+		// Close all non-main shell but make sure we don't close an invisible
+		// shell such the special "limbo shell" that Eclipse needs to work
+		Arrays.stream(shells).filter(shell -> shell != mainShell).filter(s -> !s.widget.isDisposed())
+				.filter(SWTBotShell::isVisible)
+				.peek(shell -> logger
+						.info(MessageFormat.format("Closing lingering shell with title {0}", shell.getText())))
+				.forEach(SWTBotShell::close);
+	}
+
+	private static void handleDeleteDialog(boolean deleteResources, SWTWorkbenchBot bot)
+	{
+		SWTBotShell parentShell = bot.shell("Delete Resources");
+		if (deleteResources)
+		{
+			parentShell.setFocus();
+			final SWTBotCheckBox checkBox = parentShell.bot().checkBox();
+			checkBox.click();
+		}
+
+		final SWTBotButton okButton = parentShell.bot().button("OK");
+		okButton.click();
+
+		// If the out of sync shell appears, press continue to delete the project
+		bot.waitWhile(new DefaultCondition()
+		{
+			@Override
+			public boolean test() throws Exception
+			{
+				// If no delete resources shells are found, we can assume that the project has been deleted
+				boolean deleteShellFound = false;
+				for (SWTBotShell shell : bot.shells())
+				{
+					if (shell.getText().equals("Delete Resources"))
+					{
+						deleteShellFound = true;
+						if (shell.widget != parentShell.widget)
+						{
+							shell.bot().button("Continue").click();
+						}
+					}
+				}
+				return deleteShellFound;
+			}
+
+			@Override
+			public String getFailureMessage()
+			{
+				return "Delete Resources shell did not close";
+			}
+		}, DELETE_PROJECT_TIMEOUT);
+	}
+
+	/**
+	 * Focus on the main window
+	 *
+	 * @param shellBots SWTBotShell for all the shells
+	 * @return the main shell
+	 */
+	public static SWTBotShell focusMainWindow(SWTBotShell[] shellBots)
+	{
+		SWTBotShell mainShell = getMainShell(shellBots);
+		if (mainShell != null)
+		{
+			mainShell.activate();
+		}
+		return mainShell;
+	}
+
+	private static SWTBotShell getMainShell(SWTBotShell[] shellBots)
+	{
+		SWTBotShell mainShell = null;
+		for (SWTBotShell shellBot : shellBots)
+		{
+			if (shellBot.getText().toLowerCase().contains("eclipse")
+					|| shellBot.getText().toLowerCase().contains("data"))
+			{
+				mainShell = shellBot;
+			}
+		}
+		return mainShell;
+	}
+
+	/**
 	 * Deletes the project
 	 * 
 	 * @param projectName    name of the project
 	 * @param bot            current SWT bot reference
 	 * @param deleteFromDisk delete from disk or only delete from workspace
 	 */
-	public static void deleteProject(String projectName, SWTWorkbenchBot bot, boolean deleteFromDisk,
+	public static void deleteProjectOld(String projectName, SWTWorkbenchBot bot, boolean deleteFromDisk,
 			boolean deleteRelatedConfigurations)
 	{
 		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
@@ -371,12 +517,12 @@ public class ProjectTestOperations
 	 */
 	public static void deleteProject(String projectName, SWTWorkbenchBot bot)
 	{
-		ProjectTestOperations.deleteProject(projectName, bot, true, false);
+		ProjectTestOperations.deleteProjectOld(projectName, bot, true, false);
 	}
 
 	public static void deleteProjectAndAllRelatedConfigs(String projectName, SWTWorkbenchBot bot)
 	{
-		ProjectTestOperations.deleteProject(projectName, bot, true, true);
+		ProjectTestOperations.deleteProjectOld(projectName, bot, true, true);
 	}
 
 	private static SWTBotTreeItem fetchProjectFromProjectExplorer(String projectName, SWTWorkbenchBot bot)
@@ -469,9 +615,7 @@ public class ProjectTestOperations
 			SWTBotTreeItem[] projectsBotTreeItems = projectExplorerBotView.bot().tree().getAllItems();
 			for (SWTBotTreeItem project : projectsBotTreeItems)
 			{
-				project.contextMenu("Delete").click();
-				bot.shell("Delete Resources").bot().checkBox("Delete project contents on disk (cannot be undone)").click();
-				bot.shell("Delete Resources").bot().button("OK").click();
+				deleteProject(project.getText(), true, bot);
 				bot.sleep(2000);
 				projectExplorerBotView.show();
 			}
