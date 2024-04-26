@@ -30,7 +30,7 @@
 					<useUIThread>false</useUIThread>
 					<application>org.eclipse.ui.ide.workbench</application>
 					<!-- Debugging helper arguments   -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=0.0.0.0:8989 -->
-					<argLine>-Xms2048m -Xmx4096m</argLine>  
+					<argLine>-Xms2048m -Xmx4096m -data C:/actions-runner/_work/workspace</argLine>  
 					<skipTests>${skipTests}</skipTests>
 					<showEclipseLog>true</showEclipseLog>
 				</configuration>
