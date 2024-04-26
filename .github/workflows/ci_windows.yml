@@ -17,7 +17,6 @@ jobs:
       - BrnoWIN0007
     
     steps:
-
     - uses: actions/checkout@v4
 
     - name: Clone IDF Release From Github
@@ -45,6 +44,8 @@ jobs:
         distribution: 'temurin'
 
     - name: Build with Maven
+      env:
+        CMAKE_OBJECT_PATH_MAX: 700
       run: mvn clean verify "-Djarsigner.skip=true" "-DskipTests=false"
 
     - name: Publish Test Reports
