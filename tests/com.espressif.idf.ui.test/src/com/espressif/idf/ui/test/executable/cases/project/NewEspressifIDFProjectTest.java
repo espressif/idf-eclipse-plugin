@@ -204,6 +204,7 @@ public class NewEspressifIDFProjectTest
 			bot = WorkBenchSWTBot.getBot();
 			EnvSetupOperations.setupEspressifEnv(bot);
 			bot.sleep(1000);
+			ProjectTestOperations.deleteAllProjects(bot);
 			launchBarConfigSelector = new LaunchBarConfigSelector(bot);
 			try
 			{
