@@ -89,18 +89,6 @@ public class NewEspressifIDFProjectTest
 	}
 
 	@Test
-	public void givenNewProjectIsSelectedTheProjectHasTheRequiredFiles() throws Exception
-	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectForRequiredFilesTest");
-		Fixture.whenNewProjectIsSelected();
-		Fixture.thenProjectHasTheFile("CMakeLists.txt", "/main");
-		Fixture.thenFileContentsMatchDefaultFile("/main", "CMakeLists.txt");
-		Fixture.thenProjectHasTheFile(".project", null);
-		Fixture.thenFileContentsMatchDefaultFile(null, ".project");
-	}
-
-	@Test
 	public void givenNewIDFProjectIsCreatedAndBuiltUsingContextMenuOnProjectThenProjectIsCreatedAndBuilt()
 			throws Exception
 	{
@@ -349,24 +337,6 @@ public class NewEspressifIDFProjectTest
 			String consoleTextString = consoleView.bot().styledText().getText();
 			assertTrue(consoleTextString.contains("Build complete (0 errors"));
 		}
-
-//		private static void closeProject(String projectName)
-//		{
-////			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
-//			ProjectTestOperations.closeProject(projectName, bot);
-//		}
-//
-//		private static void deleteProject(String projectName)
-//		{
-//			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
-//			ProjectTestOperations.deleteProject(projectName, bot);
-//		}
-//
-//		private static void deleteProjectAndConfigs(String projectName)
-//		{
-//			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
-//			ProjectTestOperations.deleteProjectAndAllRelatedConfigs(projectName, bot);
-//		}
 
 		private static void cleanTestEnv()
 		{

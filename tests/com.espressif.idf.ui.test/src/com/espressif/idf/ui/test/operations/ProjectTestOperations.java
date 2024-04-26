@@ -464,67 +464,6 @@ public class ProjectTestOperations
 		return mainShell;
 	}
 
-	/**
-	 * Deletes the project
-	 * 
-	 * @param projectName    name of the project
-	 * @param bot            current SWT bot reference
-	 * @param deleteFromDisk delete from disk or only delete from workspace
-	 */
-	public static void deleteProjectOld(String projectName, SWTWorkbenchBot bot, boolean deleteFromDisk,
-			boolean deleteRelatedConfigurations)
-	{
-		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
-		if (projectItem != null)
-		{
-			projectItem.contextMenu("Delete").click();
-			if (deleteFromDisk)
-			{
-				bot.checkBox("Delete project contents on disk (cannot be undone)").click();
-			}
-
-			if (deleteRelatedConfigurations)
-			{
-				bot.checkBox("Delete all related configurations").click();
-			}
-			bot.button("OK").click();
-			SWTBotView projectExplorView = bot.viewByTitle("Project Explorer");
-			projectExplorView.show();
-			SWTBotTreeItem[] projects = projectExplorView.bot().tree().getAllItems();
-			projectExplorView.bot().waitUntil(new DefaultCondition()
-			{
-				@Override
-				public boolean test() throws Exception
-				{
-					return Arrays.asList(projects).stream().filter(project -> project.getText().equals(projectName))
-							.count() == 0;
-				}
-
-				@Override
-				public String getFailureMessage()
-				{
-					return "Project Explorer contains the project: " + projectName;
-				}
-			}, 60000);
-		}
-	}
-
-	/**
-	 * Deletes the project from disk and workspace
-	 * 
-	 * @param projectName name of the project to delete
-	 * @param bot         current SWT bot reference
-	 */
-	public static void deleteProject(String projectName, SWTWorkbenchBot bot)
-	{
-		ProjectTestOperations.deleteProjectOld(projectName, bot, true, false);
-	}
-
-	public static void deleteProjectAndAllRelatedConfigs(String projectName, SWTWorkbenchBot bot)
-	{
-		ProjectTestOperations.deleteProjectOld(projectName, bot, true, true);
-	}
-
 	private static SWTBotTreeItem fetchProjectFromProjectExplorer(String projectName, SWTWorkbenchBot bot)
 	{
 		SWTBotView projectExplorView = bot.viewByTitle("Project Explorer");
