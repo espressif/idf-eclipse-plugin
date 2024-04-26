@@ -46,7 +46,7 @@ jobs:
     - name: Build with Maven
       env:
         CMAKE_OBJECT_PATH_MAX: 700
-      run: mvn clean verify "-Djarsigner.skip=true" "-DskipTests=false" "-DworkspacePath=C:/actions-runner/_work/workspace"
+      run: mvn clean verify "-Djarsigner.skip=true" "-DskipTests=false" "-DosgiDataDirectory=C:/actions-runner/_work/workspace"
 
     - name: Publish Test Reports
       if: ${{ always() }}

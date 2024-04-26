@@ -33,7 +33,7 @@
 					<argLine>-Xms2048m -Xmx4096m</argLine>  
 					<skipTests>${skipTests}</skipTests>
 					<showEclipseLog>true</showEclipseLog>
-					<osgiDataDirectory>{$workspacePath}</osgiDataDirectory>
+					<osgiDataDirectory>{$osgiDataDirectory}</osgiDataDirectory>
 				</configuration>
 			</plugin>
 			<plugin>
