@@ -24,5 +24,6 @@
 		<!--  skipTests is set to 'true' here to avoid duplicate runs of all test cases. 
 		It's set to false in test project. -->
 		<skipTests>true</skipTests>
+		<workspacePath></workspacePath>
 	</properties>
 </project>

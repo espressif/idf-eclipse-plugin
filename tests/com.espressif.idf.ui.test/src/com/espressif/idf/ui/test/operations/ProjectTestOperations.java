@@ -456,7 +456,7 @@ public class ProjectTestOperations
 		for (SWTBotShell shellBot : shellBots)
 		{
 			if (shellBot.getText().toLowerCase().contains("eclipse")
-					|| shellBot.getText().toLowerCase().contains("data"))
+					|| shellBot.getText().toLowerCase().contains("workspace"))
 			{
 				mainShell = shellBot;
 			}

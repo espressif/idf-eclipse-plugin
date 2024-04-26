@@ -33,7 +33,7 @@
 					<argLine>-Xms2048m -Xmx4096m</argLine>  
 					<skipTests>${skipTests}</skipTests>
 					<showEclipseLog>true</showEclipseLog>
-					<osgiDataDirectory>C:/actions-runner/_work/workspace</osgiDataDirectory>
+					<osgiDataDirectory>{$workspacePath}</osgiDataDirectory>
 				</configuration>
 			</plugin>
 			<plugin>
