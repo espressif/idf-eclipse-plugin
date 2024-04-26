@@ -32,7 +32,6 @@ import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.handlers.Messages;
 import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
-import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
 import com.espressif.idf.ui.test.common.resources.DefaultFileContentsReader;
 import com.espressif.idf.ui.test.common.utility.TestAssertUtility;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
