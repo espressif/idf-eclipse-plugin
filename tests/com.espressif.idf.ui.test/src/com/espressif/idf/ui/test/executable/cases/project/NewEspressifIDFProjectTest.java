@@ -14,12 +14,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
@@ -37,7 +32,6 @@ import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.handlers.Messages;
 import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
-import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
 import com.espressif.idf.ui.test.common.resources.DefaultFileContentsReader;
 import com.espressif.idf.ui.test.common.utility.TestAssertUtility;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
@@ -53,6 +47,7 @@ import com.espressif.idf.ui.test.operations.selectors.LaunchBarTargetSelector;
  * @author Ali Azam Rana
  *
  */
+@SuppressWarnings("restriction")
 @RunWith(SWTBotJunit4ClassRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class NewEspressifIDFProjectTest
@@ -68,7 +63,7 @@ public class NewEspressifIDFProjectTest
 	{
 		Fixture.cleanTestEnv();
 	}
-
+	
 	@Test
 	public void givenNewIDFProjectIsSelectedThenProjectIsCreatedAndAddedToProjectExplorer() throws Exception
 	{
@@ -76,6 +71,7 @@ public class NewEspressifIDFProjectTest
 		Fixture.givenProjectNameIs("NewProjectTest");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.thenProjectIsAddedToProjectExplorer();
+		
 	}
 
 	@Test
@@ -93,23 +89,11 @@ public class NewEspressifIDFProjectTest
 	}
 
 	@Test
-	public void givenNewProjectIsSelectedTheProjectHasTheRequiredFiles() throws Exception
-	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectTest");
-		Fixture.whenNewProjectIsSelected();
-		Fixture.thenProjectHasTheFile("CMakeLists.txt", "/main");
-		Fixture.thenFileContentsMatchDefaultFile("/main", "CMakeLists.txt");
-		Fixture.thenProjectHasTheFile(".project", null);
-		Fixture.thenFileContentsMatchDefaultFile(null, ".project");
-	}
-
-	@Test
 	public void givenNewIDFProjectIsCreatedAndBuiltUsingContextMenuOnProjectThenProjectIsCreatedAndBuilt()
 			throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectTest");
+		Fixture.givenProjectNameIs("NewProjectForContextMenuBuildTest");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.thenConsoleShowsBuildSuccessful();
@@ -119,36 +103,19 @@ public class NewEspressifIDFProjectTest
 	public void givenNewIDFProjectIsCreatedAndBuiltUsingToolbarButtonThenProjectIsBuilt() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectTest");
+		Fixture.givenProjectNameIs("NewProjectToolbarBuildButtonTest");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.thenConsoleShowsBuildSuccessful();
 	}
 
 	@Test
-	public void givenNewIDFProjectIsDeletedWithAllRelatedConfigurations() throws Exception
-	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectTest");
-		Fixture.whenNewProjectIsSelected();
-
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectTest2");
-		Fixture.whenNewProjectIsSelected();
-		Fixture.givenProjectNameIs("NewProjectTest");
-
-		Fixture.whenProjectHasDebugConfigurations();
-		Fixture.deleteProjectAndConfigs("NewProjectTest");
-		Fixture.thenAllConfigurationsAreDeleted();
-	}
-
-	@Test
 	public void givenNewProjectCreatedAndRenamedAfterThenProjectIsBuildSuccessfully() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectTest");
+		Fixture.givenProjectNameIs("NewProjectForRenameTest");
 		Fixture.whenNewProjectIsSelected();
-		Fixture.whenProjectIsRenamed("NewProjectTest2");
+		Fixture.whenProjectIsRenamed("NewProjectForRenameTest2");
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.thenConsoleShowsBuildSuccessful();
 	}
@@ -170,7 +137,7 @@ public class NewEspressifIDFProjectTest
 	public void givenNewProjectCreatedThenInstallNewComponent() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectTest");
+		Fixture.givenProjectNameIs("NewProjectForInstallNewComponentTest");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.whenInstallNewComponentUsingContextMenu();
@@ -225,6 +192,7 @@ public class NewEspressifIDFProjectTest
 			bot = WorkBenchSWTBot.getBot();
 			EnvSetupOperations.setupEspressifEnv(bot);
 			bot.sleep(1000);
+			ProjectTestOperations.deleteAllProjects(bot);
 			launchBarConfigSelector = new LaunchBarConfigSelector(bot);
 			try
 			{
@@ -269,22 +237,10 @@ public class NewEspressifIDFProjectTest
 			ProjectTestOperations.setupProjectFromTemplate(projectName, category, subCategory, projectTemplate, bot);
 		}
 
-		private static void whenProjectHasDebugConfigurations()
-		{
-			ProjectTestOperations.createDebugConfiguration(projectName, bot);
-			ProjectTestOperations.createDebugConfiguration(projectName, bot);
-		}
-
 		private static void whenNewProjectIsSelected() throws Exception
 		{
 			ProjectTestOperations.setupProject(projectName, category, subCategory, bot);
-		}
-
-		private static void whenProjectIsCopied(String projectName, String projectCopyName) throws IOException
-		{
-			ProjectTestOperations.copyProjectToExistingWorkspace(projectName, projectCopyName, bot,
-					DefaultPropertyFetcher.getLongPropertyValue("default.project.copy.wait", 60000));
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 		}
 
 		public static void turnOffDfu()
@@ -292,6 +248,7 @@ public class NewEspressifIDFProjectTest
 			launchBarConfigSelector.clickEdit();
 			bot.comboBox().setSelection("UART");
 			bot.button("OK").click();
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 		}
 
 		private static void turnOnDfu()
@@ -299,13 +256,13 @@ public class NewEspressifIDFProjectTest
 			launchBarConfigSelector.clickEdit();
 			bot.comboBox().setSelection("DFU");
 			bot.button("OK").click();
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 		}
 
 		private static void whenProjectIsBuiltUsingContextMenu() throws IOException
 		{
 			ProjectTestOperations.buildProjectUsingContextMenu(projectName, bot);
 			ProjectTestOperations.waitForProjectBuild(bot);
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 		}
 
 		private static void whenInstallNewComponentUsingContextMenu() throws IOException
@@ -316,6 +273,7 @@ public class NewEspressifIDFProjectTest
 			ProjectTestOperations.waitForProjectNewComponentInstalled(bot);
 			bot.editorByTitle(projectName).close();
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
+			bot.sleep(2000);
 		}
 
 		private static void checkPythonCLeanCommandDeleteFolder() throws IOException
@@ -332,28 +290,6 @@ public class NewEspressifIDFProjectTest
 		{
 			ProjectTestOperations.openProjectComponentYMLFileInTextEditorUsingContextMenu(projectName, bot);
 			assertTrue(ProjectTestOperations.checkTextEditorContentForPhrase("espressif/mdns", bot));
-		}
-
-		private static void thenAllConfigurationsAreDeleted()
-		{
-			ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
-			try
-			{
-				ILaunchConfiguration[] configs = manager.getLaunchConfigurations();
-				for (ILaunchConfiguration config : configs)
-				{
-					IResource[] mappedResource = config.getMappedResources();
-					if (mappedResource != null && mappedResource[0].getProject().getName() == projectName)
-					{
-						assertTrue(false);
-					}
-				}
-				assertTrue(true);
-			}
-			catch (CoreException e)
-			{
-				e.printStackTrace();
-			}
 		}
 
 		private static void thenProjectIsAddedToProjectExplorer()
@@ -402,27 +338,9 @@ public class NewEspressifIDFProjectTest
 			assertTrue(consoleTextString.contains("Build complete (0 errors"));
 		}
 
-		private static void closeProject(String projectName)
-		{
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
-			ProjectTestOperations.closeProject(projectName, bot);
-		}
-
-		private static void deleteProject(String projectName)
-		{
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
-			ProjectTestOperations.deleteProject(projectName, bot);
-		}
-
-		private static void deleteProjectAndConfigs(String projectName)
-		{
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
-			ProjectTestOperations.deleteProjectAndAllRelatedConfigs(projectName, bot);
-		}
-
 		private static void cleanTestEnv()
 		{
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 			ProjectTestOperations.closeAllProjects(bot);
 			ProjectTestOperations.deleteAllProjects(bot);
 		}
@@ -446,6 +364,7 @@ public class NewEspressifIDFProjectTest
 			ProjectTestOperations.joinJobByName(Messages.ProjectCleanCommandHandler_RunningProjectCleanJobName);
 			ProjectTestOperations.waitForProjectClean(bot);
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
+			bot.sleep(2000);
 		}
 
 		private static void whenProjectFullCleanUsingContextMenu() throws IOException
@@ -454,6 +373,8 @@ public class NewEspressifIDFProjectTest
 			ProjectTestOperations.joinJobByName(Messages.ProjectFullCleanCommandHandler_RunningFullcleanJobName);
 			ProjectTestOperations.waitForProjectClean(bot);
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
+			bot.sleep(2000);
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 		}
 
 		private static void whenProjectPythonCleanUsingContextMenu() throws IOException

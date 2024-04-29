@@ -21,6 +21,7 @@ import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -52,8 +53,8 @@ public class LaunchBarCDTConfigurationsTest
 		Fixture.loadEnv();
 	}
 
-	@After
-	public void afterEachTest()
+	@AfterClass
+	public static void afterClassTest()
 	{
 		Fixture.cleanTestEnv();
 	}
@@ -98,6 +99,7 @@ public class LaunchBarCDTConfigurationsTest
 			bot = WorkBenchSWTBot.getBot();
 			EnvSetupOperations.setupEspressifEnv(bot);
 			bot.sleep(1000);
+			ProjectTestOperations.deleteAllProjects(bot);
 			launchBarConfigSelector = new LaunchBarConfigSelector(bot);
 			try
 			{
@@ -178,7 +180,7 @@ public class LaunchBarCDTConfigurationsTest
 		{
 			bot.toolbarButtonWithTooltip("Build").click();
 			ProjectTestOperations.waitForProjectBuild(bot);
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+//			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 		}
 
 		public static void givenProjectNameIs(String projectName)
@@ -188,7 +190,7 @@ public class LaunchBarCDTConfigurationsTest
 
 		private static void thenConsoleShowsBuildSuccessful()
 		{
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+//			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
 			SWTBotView consoleView = ProjectTestOperations.viewConsole("CDT Build Console", bot);
 			consoleView.show();
 			consoleView.setFocus();
@@ -208,7 +210,7 @@ public class LaunchBarCDTConfigurationsTest
 
 		private static void cleanTestEnv()
 		{
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 			ProjectTestOperations.closeAllProjects(bot);
 			ProjectTestOperations.deleteAllProjects(bot);
 		}

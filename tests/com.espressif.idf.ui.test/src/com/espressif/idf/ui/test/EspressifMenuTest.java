@@ -16,6 +16,7 @@ import org.junit.runner.RunWith;
 
 import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
 import com.espressif.idf.ui.test.operations.EnvSetupOperations;
+import com.espressif.idf.ui.test.operations.ProjectTestOperations;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -41,6 +42,7 @@ public class EspressifMenuTest
 		});
 		bot = WorkBenchSWTBot.getBot();
 		bot.shell().activate();
+		ProjectTestOperations.deleteAllProjects(bot);
 	}
 
 	@Test

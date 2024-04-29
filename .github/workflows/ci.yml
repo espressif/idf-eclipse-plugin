@@ -15,6 +15,7 @@ jobs:
     runs-on:
       - self-hosted
       - eclipse
+      - BrnoUBU0004
 
     steps:
     - uses: actions/checkout@v2
@@ -33,9 +34,9 @@ jobs:
           python-version: '3.9'
 
     - name: Set up Maven
-      uses: stCarolas/setup-maven@v4.3
+      uses: stCarolas/setup-maven@v5
       with:
-        maven-version: 3.8.4
+        maven-version: 3.9.6
    
     - name: Set up JDK 17
       uses: actions/setup-java@v3
@@ -44,7 +45,7 @@ jobs:
         distribution: 'temurin'
 
     - name: Build with Maven
-      run: export NO_AT_BRIDGE=1 ; mvn clean verify -Djarsigner.skip=true spotbugs:spotbugs -DskipTests=false
+      run: export NO_AT_BRIDGE=1 && mvn clean verify -Djarsigner.skip=true spotbugs:spotbugs -DskipTests=false -DtestWorkspace=/opt/actions-runner/_work/workspace
     - uses: jwgmeligmeyling/spotbugs-github-action@master
       with:
         path: '**/spotbugsXml.xml'

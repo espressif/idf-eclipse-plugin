@@ -33,11 +33,13 @@
 					<argLine>-Xms2048m -Xmx4096m</argLine>  
 					<skipTests>${skipTests}</skipTests>
 					<showEclipseLog>true</showEclipseLog>
+					<osgiDataDirectory>${testWorkspace}</osgiDataDirectory>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
 				<configuration>
 					<dependency-resolution>
 						<extraRequirements>

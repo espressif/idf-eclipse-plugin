@@ -44,6 +44,15 @@ public class EnvSetupOperations
 		{
 			bot.checkBox("Refresh using native hooks or polling").click();
 		}
+		
+		bot.tree().getTreeItem("C/C++").select();
+		bot.tree().getTreeItem("C/C++").expand();
+		bot.tree().getTreeItem("C/C++").getNode("Indexer").select();
+		if (bot.checkBox("Enable indexer").isChecked())
+		{
+			bot.checkBox("Enable indexer").click();	
+		}
+		
 		bot.button("Apply and Close").click();
 
 		bot.toolbarButtonWithTooltip("Select and deselect filters to apply to the content in the tree").click();
@@ -55,7 +64,7 @@ public class EnvSetupOperations
 		bot.button("Open").click();
 		bot.viewByTitle("Progress").show();
 
-		TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+		TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 		bot.activeShell();
 
 		bot.menu("Espressif").menu("ESP-IDF Tools Manager").click().menu("Install Tools").click();
