@@ -71,9 +71,9 @@ public class EnvSetupOperations
 		bot.activeShell().activate();
 		bot.button("Add ESP-IDF").click();
 		bot.shell("ESP-IDF Configuration").bot().checkBox("Use an existing ESP-IDF directory from file system").click();
-		bot.shell("ESP-IDF Configuration").bot().textWithLabel("Choose existing ESP-IDF directory:").setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
-		bot.shell("ESP-IDF Configuration").bot().textWithLabel("Git:").setText(DefaultPropertyFetcher.getStringPropertyValue(GIT_PATH_PROPERTY, ""));
-		bot.shell("ESP-IDF Configuration").bot().textWithLabel("Python:").setText(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_PATH_PROPERTY, ""));
+		bot.shell("ESP-IDF Configuration").bot().textWithLabel("Choose existing ESP-IDF directory:").setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, "C:\\esp-tools\\esp-idf-v5.1.2"));
+		bot.shell("ESP-IDF Configuration").bot().textWithLabel("Git: ").setText(DefaultPropertyFetcher.getStringPropertyValue(GIT_PATH_PROPERTY, ""));
+		bot.shell("ESP-IDF Configuration").bot().textWithLabel("Python: ").setText(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_PATH_PROPERTY, ""));
 		bot.button("Finish").click();
 
 		SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
