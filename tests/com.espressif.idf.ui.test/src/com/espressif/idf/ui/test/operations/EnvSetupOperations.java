@@ -5,6 +5,7 @@ import static org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory.wi
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
@@ -70,11 +71,13 @@ public class EnvSetupOperations
 		bot.menu("Espressif").menu("ESP-IDF Manager").click();
 		bot.activeShell().activate();
 		bot.button("Add ESP-IDF").click();
-		bot.shell("ESP-IDF Configuration").bot().checkBox("Use an existing ESP-IDF directory from file system").click();
-		bot.shell("ESP-IDF Configuration").bot().textWithLabel("Choose existing ESP-IDF directory:").setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, "C:\\esp-tools\\esp-idf-v5.1.2"));
-		bot.shell("ESP-IDF Configuration").bot().textWithLabel("Git: ").setText(DefaultPropertyFetcher.getStringPropertyValue(GIT_PATH_PROPERTY, ""));
-		bot.shell("ESP-IDF Configuration").bot().textWithLabel("Python: ").setText(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_PATH_PROPERTY, ""));
-		bot.button("Finish").click();
+		SWTBotShell espIdfConfigShell = bot.shell("ESP-IDF Configuration");
+		espIdfConfigShell.setFocus();
+		espIdfConfigShell.bot().checkBox("Use an existing ESP-IDF directory from file system").click();
+		espIdfConfigShell.bot().textWithLabel("Choose existing ESP-IDF directory:").setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, "C:\\esp-tools\\esp-idf-v5.1.2"));
+		espIdfConfigShell.bot().textWithLabel("Git: ").setText(DefaultPropertyFetcher.getStringPropertyValue(GIT_PATH_PROPERTY, ""));
+		espIdfConfigShell.bot().textWithLabel("Python: ").setText(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_PATH_PROPERTY, ""));
+		espIdfConfigShell.bot().button("Finish").click();
 
 		SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
 		consoleView.show();
