@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -342,15 +343,25 @@ public class IDFDownloadPage extends WizardPage
 			return false;
 		}
 
+		
+		IPath pathGit = systemExecutableFinder.find(gitExecutablePath);
+		if (pathGit != null)
+			gitExecutablePath = pathGit.toOSString();
+		
 		File file = new File(gitExecutablePath);
-		if (!file.exists() && (systemExecutableFinder.find(gitExecutablePath) == null))
+		if (!file.exists())
 		{
 			setErrorMessage("Git executable not found");
 			return false;
 		}
 
+		IPath pythonPath = systemExecutableFinder.find(pythonExecutablePath);
+		if (pythonPath != null)
+		{
+			pythonExecutablePath = pythonPath.toOSString();
+		}
 		file = new File(pythonExecutablePath);
-		if (!file.exists() && (systemExecutableFinder.find(pythonExecutablePath) == null))
+		if (!file.exists())
 		{
 			setErrorMessage("Python executable not found");
 			return false;
