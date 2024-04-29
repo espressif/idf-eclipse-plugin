@@ -39,6 +39,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.espressif.idf.core.IDFVersion;
 import com.espressif.idf.core.IDFVersionsReader;
+import com.espressif.idf.core.SystemExecutableFinder;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
@@ -64,6 +65,7 @@ public class IDFDownloadPage extends WizardPage
 	
 	private String pythonExecutablePath;
 	private String gitExecutablePath;
+	private SystemExecutableFinder systemExecutableFinder;
 
 	protected IDFDownloadPage(String pageName)
 	{
@@ -329,6 +331,11 @@ public class IDFDownloadPage extends WizardPage
 
 	private boolean validateGitAndPython()
 	{
+		if (systemExecutableFinder == null)
+		{
+			systemExecutableFinder = new SystemExecutableFinder();
+		}
+		
 		if (StringUtil.isEmpty(pythonExecutablePath) || StringUtil.isEmpty(gitExecutablePath))
 		{
 			setErrorMessage("Python & Git are Required");
@@ -336,14 +343,14 @@ public class IDFDownloadPage extends WizardPage
 		}
 
 		File file = new File(gitExecutablePath);
-		if (!file.exists())
+		if (!file.exists() || (systemExecutableFinder.find(gitExecutablePath) == null))
 		{
 			setErrorMessage("Git executable not found");
 			return false;
 		}
 
 		file = new File(pythonExecutablePath);
-		if (!file.exists())
+		if (!file.exists() || (systemExecutableFinder.find(pythonExecutablePath) == null))
 		{
 			setErrorMessage("Python executable not found");
 			return false;
