@@ -44,6 +44,7 @@ import com.espressif.idf.core.resources.PopupDialog;
 import com.espressif.idf.core.resources.ResourceChangeListener;
 import com.espressif.idf.core.tools.ToolSetConfigurationManager;
 import com.espressif.idf.core.tools.vo.IDFToolSet;
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.dialogs.BuildView;
 import com.espressif.idf.ui.dialogs.MessageLinkDialog;
 import com.espressif.idf.ui.tools.ToolsActivationJob;
