@@ -69,7 +69,7 @@ public class EnvSetupOperations
 
 		bot.menu("Espressif").menu("ESP-IDF Manager").click();
 		bot.activeShell().activate();
-		bot.button("Add Tools").click();
+		bot.button("Add ESP-IDF").click();
 		bot.shell("ESP-IDF Configuration").bot().checkBox("Use an existing ESP-IDF directory from file system").click();
 		bot.shell("ESP-IDF Configuration").bot().textWithLabel("Choose existing ESP-IDF directory:").setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
 		bot.shell("ESP-IDF Configuration").bot().textWithLabel("Git:").setText(DefaultPropertyFetcher.getStringPropertyValue(GIT_PATH_PROPERTY, ""));
