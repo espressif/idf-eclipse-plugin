@@ -343,14 +343,14 @@ public class IDFDownloadPage extends WizardPage
 		}
 
 		File file = new File(gitExecutablePath);
-		if (!file.exists() || (systemExecutableFinder.find(gitExecutablePath) == null))
+		if (!file.exists() && (systemExecutableFinder.find(gitExecutablePath) == null))
 		{
 			setErrorMessage("Git executable not found");
 			return false;
 		}
 
 		file = new File(pythonExecutablePath);
-		if (!file.exists() || (systemExecutableFinder.find(pythonExecutablePath) == null))
+		if (!file.exists() && (systemExecutableFinder.find(pythonExecutablePath) == null))
 		{
 			setErrorMessage("Python executable not found");
 			return false;
