@@ -28,6 +28,7 @@ import com.espressif.idf.ui.test.operations.ProjectTestOperations;
  * @author Andrii Filippov
  *
  */
+@SuppressWarnings("restriction")
 @RunWith(SWTBotJunit4ClassRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class NewEspressifIDFProjectSBOMTest
@@ -48,7 +49,7 @@ public class NewEspressifIDFProjectSBOMTest
 	public void givenNewProjectCreatedRunSBOMtoolUsingContextMenu() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectSBOMtoolTest1");
+		Fixture.givenProjectNameIs("NewSbomProjectFirstTest");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.runSBOMtoolBeforeProjectBuild();
 	}
@@ -57,7 +58,7 @@ public class NewEspressifIDFProjectSBOMTest
 	public void givenNewProjectCreatedBuilProjectThenRunSBOMtoolUsingContextMenu() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectSBOMtoolTest2");
+		Fixture.givenProjectNameIs("NewSbomProjectSecondTest");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.runSBOMtoolUsingContextMenu();
@@ -67,7 +68,7 @@ public class NewEspressifIDFProjectSBOMTest
 	public void runSBOMtoolRedirectOutputToFile() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectSBOMtoolTest3");
+		Fixture.givenProjectNameIs("NewSbomProjectThirdTest");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.runSBOMtoolUsingContextMenuRedirectOutputToFile();
@@ -77,7 +78,7 @@ public class NewEspressifIDFProjectSBOMTest
 	public void givenNewProjectCreatedBuilProjectThenRunSBOMtoolUsingContextMenuCheckingPath() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectSBOMtoolTest4");
+		Fixture.givenProjectNameIs("NewSbomProjectFourthTest");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.runSBOMtoolCheckingPathValidation();
@@ -117,12 +118,12 @@ public class NewEspressifIDFProjectSBOMTest
 		{
 			ProjectTestOperations.buildProjectUsingContextMenu(projectName, bot);
 			ProjectTestOperations.waitForProjectBuild(bot);
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
 		}
 
 		private static void cleanTestEnv()
 		{
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
 			ProjectTestOperations.closeAllProjects(bot);
 			ProjectTestOperations.deleteAllProjects(bot);
 		}

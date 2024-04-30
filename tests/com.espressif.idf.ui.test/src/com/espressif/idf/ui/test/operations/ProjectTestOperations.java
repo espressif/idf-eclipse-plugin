@@ -302,6 +302,8 @@ public class ProjectTestOperations
 
 		bot.tree().expandNode(category).select(subCategory);
 		bot.button("Finish").click();
+		SWTBotShell shell1 = bot.shell("New IDF Project");
+		shell1.activate();
 		bot.textWithLabel("Project name:").setText(projectName);
 		bot.button("Finish").click();
 		TestWidgetWaitUtility.waitUntilViewContainsTheTreeItemWithName(projectName, bot.viewByTitle("Project Explorer"),
