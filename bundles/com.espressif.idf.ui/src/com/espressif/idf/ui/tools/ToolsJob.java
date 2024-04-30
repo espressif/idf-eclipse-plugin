@@ -338,7 +338,7 @@ public abstract class ToolsJob extends Job
 	{
 		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 		StringBuilder output = new StringBuilder();
-
+		int waitCount = 10;
 		try
 		{
 			arguments.add(0, pythonVirtualExecutablePath(idfToolSet));
@@ -364,7 +364,27 @@ public abstract class ToolsJob extends Job
 				output.append(line).append(System.lineSeparator());
 				console.println(line);
 			}
-
+			
+			while (process.isAlive() && waitCount > 0)
+			{
+				try
+				{
+					Thread.sleep(300);					
+				}
+				catch (InterruptedException e)
+				{
+					Logger.log(e);
+				}
+				waitCount--;
+			}
+			
+			if (waitCount == 0)
+			{
+				console.println("Process possibly stuck");
+				Logger.log("Process possibly stuck");
+				return Status.CANCEL_STATUS;
+			}
+			
 			IStatus status = new Status(process.exitValue() == 0 ? IStatus.OK : IStatus.ERROR, UIPlugin.PLUGIN_ID,
 					process.exitValue(), output.toString(), null);
 			if (status.getSeverity() == IStatus.ERROR)
