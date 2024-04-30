@@ -34,27 +34,29 @@ public class EnvSetupOperations
 		bot.button("Open").click();
 
 		bot.menu("Window").menu("Preferences").click();
-		bot.tree().getTreeItem("General").select();
-		bot.tree().getTreeItem("General").expand();
-		bot.tree().getTreeItem("General").getNode("Editors").select();
-		bot.tree().getTreeItem("General").getNode("Editors").expand();
-		bot.tree().getTreeItem("General").getNode("Editors").getNode("File Associations").select();
-		bot.comboBox().setSelection("Text Editor");
-		bot.tree().getTreeItem("General").getNode("Workspace").select();
-		if (!bot.checkBox("Refresh using native hooks or polling").isChecked())
+		SWTBotShell prefrencesShell = bot.shell("Preferences");
+
+		prefrencesShell.bot().tree().getTreeItem("General").select();
+		prefrencesShell.bot().tree().getTreeItem("General").expand();
+		prefrencesShell.bot().tree().getTreeItem("General").getNode("Editors").select();
+		prefrencesShell.bot().tree().getTreeItem("General").getNode("Editors").expand();
+		prefrencesShell.bot().tree().getTreeItem("General").getNode("Editors").getNode("File Associations").select();
+		prefrencesShell.bot().comboBox().setSelection("Text Editor");
+		prefrencesShell.bot().tree().getTreeItem("General").getNode("Workspace").select();
+		if (!prefrencesShell.bot().checkBox("Refresh using native hooks or polling").isChecked())
 		{
-			bot.checkBox("Refresh using native hooks or polling").click();
+			prefrencesShell.bot().checkBox("Refresh using native hooks or polling").click();
 		}
-		
-		bot.tree().getTreeItem("C/C++").select();
-		bot.tree().getTreeItem("C/C++").expand();
-		bot.tree().getTreeItem("C/C++").getNode("Indexer").select();
-		if (bot.checkBox("Enable indexer").isChecked())
+
+		prefrencesShell.bot().tree().getTreeItem("C/C++").select();
+		prefrencesShell.bot().tree().getTreeItem("C/C++").expand();
+		prefrencesShell.bot().tree().getTreeItem("C/C++").getNode("Indexer").select();
+		if (prefrencesShell.bot().checkBox("Enable indexer").isChecked())
 		{
-			bot.checkBox("Enable indexer").click();	
+			prefrencesShell.bot().checkBox("Enable indexer").click();
 		}
-		
-		bot.button("Apply and Close").click();
+
+		prefrencesShell.bot().button("Apply and Close").click();
 
 		bot.toolbarButtonWithTooltip("Select and deselect filters to apply to the content in the tree").click();
 		bot.table().getTableItem(".* resources").uncheck();
@@ -74,9 +76,12 @@ public class EnvSetupOperations
 		SWTBotShell espIdfConfigShell = bot.shell("ESP-IDF Configuration");
 		espIdfConfigShell.setFocus();
 		espIdfConfigShell.bot().checkBox("Use an existing ESP-IDF directory from file system").click();
-		espIdfConfigShell.bot().textWithLabel("Choose existing ESP-IDF directory:").setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, "C:\\esp-tools\\esp-idf-v5.1.2"));
-		espIdfConfigShell.bot().textWithLabel("Git: ").setText(DefaultPropertyFetcher.getStringPropertyValue(GIT_PATH_PROPERTY, ""));
-		espIdfConfigShell.bot().textWithLabel("Python: ").setText(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_PATH_PROPERTY, ""));
+		espIdfConfigShell.bot().textWithLabel("Choose existing ESP-IDF directory:")
+				.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
+		espIdfConfigShell.bot().textWithLabel("Git: ")
+				.setText(DefaultPropertyFetcher.getStringPropertyValue(GIT_PATH_PROPERTY, ""));
+		espIdfConfigShell.bot().textWithLabel("Python: ")
+				.setText(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_PATH_PROPERTY, ""));
 		espIdfConfigShell.bot().button("Finish").click();
 
 		SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
