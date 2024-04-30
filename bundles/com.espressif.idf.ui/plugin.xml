@@ -104,9 +104,10 @@
             name="%command.name.updateEspIdfMaster">
       </command>
       <command
-            defaultHandler="com.espressif.idf.ui.tools.ManageToolsInstallationHandler"
-            id="com.espressif.idf.ui.command.managetoolsinstallation"
-            name="%command.name.15">
+            defaultHandler="com.espressif.idf.ui.tools.ManageEspIdfVersionsHandler"
+            description="Manage ESP-IDF Versions"
+            id="com.espressif.idf.ui.espidfmanager"
+            name="%command.espidf.manager">
       </command>
    </extension>
    <extension
@@ -123,47 +124,26 @@
             allPopups="false"
             locationURI="menu:espressifMenu">
          <command
-               commandId="com.espressif.idf.ui.commands.installespidf"
-               icon="icons/Download and configure ESP-IDF.png"
-               id="installespidf"
-               label="%command.label.0"
+               commandId="com.espressif.idf.ui.espidfmanager"
+               icon="icons/ESP-IDFManageToolsInstallation.png"
+               id="espidftoolsInstall"
                style="push">
          </command>
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="menu:espressifMenu?after=installespidf">
-         <menu
-               icon="icons/ESP-IDF Tools Manager.png"
-               id="espidftoolsInstall"
-               label="%menu.label">
-            <command
-                  commandId="com.espressif.idf.ui.command.install"
-                  icon="icons/ESP-IDF Install Tools.png"
-                  style="push">
-            </command>
-            <command
-                  commandId="com.espressif.idf.ui.command.list"
-                  icon="icons/ESP-IDF List Tools.png"
-                  style="push">
-            </command>
-            <command
-                  commandId="com.espressif.idf.ui.command.update"
-                  icon="icons/Update_ESP-IDF.png"
-                  style="push">
-               <visibleWhen
-                     checkEnabled="false">
-                  <test
-                        property="com.espressif.idf.ui.propertyTester.testProperty">
-                  </test>
-               </visibleWhen>
-            </command>
-            <command
-                  commandId="com.espressif.idf.ui.command.managetoolsinstallation"
-                  icon="icons/ESP-IDFManageToolsInstallation.png"
-                  style="push">
-            </command>
-         </menu>
+         <command
+               commandId="com.espressif.idf.ui.command.update"
+               icon="icons/Update_ESP-IDF.png"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <test
+                     property="com.espressif.idf.ui.propertyTester.testProperty">
+               </test>
+            </visibleWhen>
+         </command>
+         <separator
+               name="com.espressif.idf.ui.separator1"
+               visible="true">
+         </separator>
       </menuContribution>
       <menuContribution
             allPopups="false"
@@ -517,10 +497,6 @@
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-            class="com.espressif.idf.ui.install.IDFDownloadHandler"
-            commandId="com.espressif.idf.ui.commands.installespidf">
-      </handler>
-      <handler
             commandId="com.espressif.idf.ui.appLvlTracing">
       </handler>
       <handler
@@ -710,6 +686,13 @@
             icon="icons/ESP-IDF_InstallComponents.png"
             id="com.espressif.idf.ui.installComponents"
             name="%editor.name.1">
+      </editor>
+      <editor
+            class="com.espressif.idf.ui.tools.manager.ESPIDFManagerEditor"
+            default="false"
+            icon="icons/ESP-IDFManageToolsInstallation.png"
+            id="com.espressif.idf.ui.manageespidf"
+            name="%editor.espidf.manager.name">
       </editor>
    </extension>
    <extension

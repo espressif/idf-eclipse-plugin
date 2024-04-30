@@ -19,4 +19,6 @@ public interface IToolsInstallationWizardConstants
 	String ESPRESSIF_LOGO = "icons/tools/espressif-logo.png"; //$NON-NLS-1$ 
 	
 	String INSTALL_TOOLS_FLAG = "INSTALL_TOOLS_FLAG"; //$NON-NLS-1$
+	
+	String TOOL_SET_CONFIG_FILE = "tool_set_config.json"; //$NON-NLS-1$
 }

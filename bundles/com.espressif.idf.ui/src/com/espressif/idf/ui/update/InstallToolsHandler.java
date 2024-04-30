@@ -39,6 +39,7 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.UIPlugin;
 
 /**
@@ -49,7 +50,6 @@ import com.espressif.idf.ui.UIPlugin;
  */
 public class InstallToolsHandler extends AbstractToolsHandler
 {
-
 	public static final String INSTALL_TOOLS_FLAG = "INSTALL_TOOLS_FLAG"; //$NON-NLS-1$
 
 	@Override
@@ -80,7 +80,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 				monitor.worked(1);
 
 				monitor.setTaskName(Messages.InstallToolsHandler_ExportingPathsMsg);
-				status = new ExportIDFTools().runToolsExport(pythonExecutablenPath, gitExecutablePath, console,
+				status = new ExportIDFTools().runToolsExportAndProcessOutput(pythonExecutablenPath, gitExecutablePath, console,
 						errorConsoleStream);
 				if (status.getSeverity() == IStatus.ERROR)
 				{

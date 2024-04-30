@@ -5,6 +5,7 @@ import static org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory.wi
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
@@ -33,27 +34,29 @@ public class EnvSetupOperations
 		bot.button("Open").click();
 
 		bot.menu("Window").menu("Preferences").click();
-		bot.tree().getTreeItem("General").select();
-		bot.tree().getTreeItem("General").expand();
-		bot.tree().getTreeItem("General").getNode("Editors").select();
-		bot.tree().getTreeItem("General").getNode("Editors").expand();
-		bot.tree().getTreeItem("General").getNode("Editors").getNode("File Associations").select();
-		bot.comboBox().setSelection("Text Editor");
-		bot.tree().getTreeItem("General").getNode("Workspace").select();
-		if (!bot.checkBox("Refresh using native hooks or polling").isChecked())
+		SWTBotShell prefrencesShell = bot.shell("Preferences");
+
+		prefrencesShell.bot().tree().getTreeItem("General").select();
+		prefrencesShell.bot().tree().getTreeItem("General").expand();
+		prefrencesShell.bot().tree().getTreeItem("General").getNode("Editors").select();
+		prefrencesShell.bot().tree().getTreeItem("General").getNode("Editors").expand();
+		prefrencesShell.bot().tree().getTreeItem("General").getNode("Editors").getNode("File Associations").select();
+		prefrencesShell.bot().comboBox().setSelection("Text Editor");
+		prefrencesShell.bot().tree().getTreeItem("General").getNode("Workspace").select();
+		if (!prefrencesShell.bot().checkBox("Refresh using native hooks or polling").isChecked())
 		{
-			bot.checkBox("Refresh using native hooks or polling").click();
+			prefrencesShell.bot().checkBox("Refresh using native hooks or polling").click();
 		}
-		
-		bot.tree().getTreeItem("C/C++").select();
-		bot.tree().getTreeItem("C/C++").expand();
-		bot.tree().getTreeItem("C/C++").getNode("Indexer").select();
-		if (bot.checkBox("Enable indexer").isChecked())
+
+		prefrencesShell.bot().tree().getTreeItem("C/C++").select();
+		prefrencesShell.bot().tree().getTreeItem("C/C++").expand();
+		prefrencesShell.bot().tree().getTreeItem("C/C++").getNode("Indexer").select();
+		if (prefrencesShell.bot().checkBox("Enable indexer").isChecked())
 		{
-			bot.checkBox("Enable indexer").click();	
+			prefrencesShell.bot().checkBox("Enable indexer").click();
 		}
-		
-		bot.button("Apply and Close").click();
+
+		prefrencesShell.bot().button("Apply and Close").click();
 
 		bot.toolbarButtonWithTooltip("Select and deselect filters to apply to the content in the tree").click();
 		bot.table().getTableItem(".* resources").uncheck();
@@ -67,28 +70,24 @@ public class EnvSetupOperations
 		TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 		bot.activeShell();
 
-		bot.menu("Espressif").menu("ESP-IDF Tools Manager").click().menu("Install Tools").click();
+		bot.menu("Espressif").menu("ESP-IDF Manager").click();
 		bot.activeShell().activate();
-		bot.shell("Install Tools").bot().textWithLabel("ESP-IDF Directory:")
+		bot.button("Add ESP-IDF").click();
+		SWTBotShell espIdfConfigShell = bot.shell("ESP-IDF Configuration");
+		espIdfConfigShell.setFocus();
+		espIdfConfigShell.bot().checkBox("Use an existing ESP-IDF directory from file system").click();
+		espIdfConfigShell.bot().textWithLabel("Choose existing ESP-IDF directory:")
 				.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
-
-		bot.shell("Install Tools").bot().textWithLabel("Git Executable Location:")
+		espIdfConfigShell.bot().textWithLabel("Git: ")
 				.setText(DefaultPropertyFetcher.getStringPropertyValue(GIT_PATH_PROPERTY, ""));
-		try
-		{
-			bot.shell("Install Tools").bot().comboBox()
-					.setSelection(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_VERSION_PROPERTY, ""));
-		}
-		catch (WidgetNotFoundException e)
-		{
-			bot.shell("Install Tools").bot().textWithLabel("Python Executable Location:")
-					.setText(IDFUtil.getPythonExecutable());
-		}
-		bot.shell("Install Tools").bot().button("Install Tools").click();
+		espIdfConfigShell.bot().textWithLabel("Python: ")
+				.setText(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_PATH_PROPERTY, ""));
+		espIdfConfigShell.bot().button("Finish").click();
+
 		SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
 		consoleView.show();
 		consoleView.setFocus();
-		TestWidgetWaitUtility.waitUntilViewContains(bot, "Install tools completed", consoleView, 99000000);
+		TestWidgetWaitUtility.waitUntilViewContains(bot, "Tools Activated", consoleView, 99000000);
 		SETUP = true;
 	}
 

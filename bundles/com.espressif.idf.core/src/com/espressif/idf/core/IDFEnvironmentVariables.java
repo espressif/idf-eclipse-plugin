@@ -7,6 +7,7 @@ package com.espressif.idf.core;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.envvar.IContributedEnvironment;
@@ -30,23 +31,23 @@ public class IDFEnvironmentVariables
 	 * ESPRESSIF IDF_PATH environment variable identifier
 	 * 
 	 */
-	public static String IDF_PATH = "IDF_PATH"; //$NON-NLS-1$
+	public static final String IDF_PATH = "IDF_PATH"; //$NON-NLS-1$
 
-	public static String IDF_PYTHON_ENV_PATH = "IDF_PYTHON_ENV_PATH"; //$NON-NLS-1$
+	public static final String IDF_PYTHON_ENV_PATH = "IDF_PYTHON_ENV_PATH"; //$NON-NLS-1$
 
-	public static String PATH = "PATH"; //$NON-NLS-1$
+	public static final String PATH = "PATH"; //$NON-NLS-1$
 
-	public static String OPENOCD_SCRIPTS = "OPENOCD_SCRIPTS"; //$NON-NLS-1$
+	public static final String OPENOCD_SCRIPTS = "OPENOCD_SCRIPTS"; //$NON-NLS-1$
 
-	public static String IDF_COMPONENT_MANAGER = "IDF_COMPONENT_MANAGER"; //$NON-NLS-1$
+	public static final String IDF_COMPONENT_MANAGER = "IDF_COMPONENT_MANAGER"; //$NON-NLS-1$
 
 	public static final String ESP_IDF_VERSION = "ESP_IDF_VERSION"; //$NON-NLS-1$
 
-	public static String GIT_PATH ="GIT_PATH"; //$NON-NLS-1$
+	public static final String GIT_PATH ="GIT_PATH"; //$NON-NLS-1$
 	
-	public static String PYTHON_EXE_PATH ="PYTHON_EXE_PATH"; //$NON-NLS-1$
+	public static final String PYTHON_EXE_PATH ="PYTHON_EXE_PATH"; //$NON-NLS-1$
 	
-	public static String IDF_MAINTAINER = "IDF_MAINTAINER"; //$NON-NLS-1$
+	public static final String IDF_MAINTAINER = "IDF_MAINTAINER"; //$NON-NLS-1$
 
 
 	/**
@@ -65,6 +66,15 @@ public class IDFEnvironmentVariables
 	{
 		IContributedEnvironment contributedEnvironment = getEnvironment();
 		contributedEnvironment.removeVariable(variableName, null);
+	}
+	
+	public void removeAllEnvVariables()
+	{
+		Map<String, String> currentVarMap = getEnvMap();
+		for(Entry<String, String> varEntry : currentVarMap.entrySet())
+		{
+			removeEnvVariable(varEntry.getKey());
+		}
 	}
 
 	protected IContributedEnvironment getEnvironment()
@@ -89,7 +99,7 @@ public class IDFEnvironmentVariables
 
 		return envValue;
 	}
-
+	
 	public void addEnvVariable(String name, String value)
 	{
 		Logger.log(MessageFormat.format("Updating environment variables with key:{0} value:{1}", name, value)); //$NON-NLS-1$

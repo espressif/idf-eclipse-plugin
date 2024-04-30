@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -77,6 +78,16 @@ public class IDFUtil
 				+ IDFConstants.IDF_PYTHON_SCRIPT;
 		return new File(idf_py_script);
 	}
+	
+	/**
+	 * @return idf.py file path based on the IDF_PATH given in the argument
+	 */
+	public static File getIDFPythonScriptFile(String idf_path)
+	{
+		String idf_py_script = idf_path + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
+				+ IDFConstants.IDF_PYTHON_SCRIPT;
+		return new File(idf_py_script);
+	}
 
 	/**
 	 * @return idf_monitor.py file path based on the IDF_PATH defined in the environment variables
@@ -95,6 +106,16 @@ public class IDFUtil
 	public static File getIDFToolsScriptFile()
 	{
 		String idf_path = getIDFPath();
+		String idf_py_script = idf_path + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
+				+ IDFConstants.IDF_TOOLS_SCRIPT;
+		return new File(idf_py_script);
+	}
+	
+	/**
+	 * @return idf_tools.py file path based on the IDF_PATH given in the argument
+	 */
+	public static File getIDFToolsScriptFile(String idf_path)
+	{
 		String idf_py_script = idf_path + IPath.SEPARATOR + IDFConstants.TOOLS_FOLDER + IPath.SEPARATOR
 				+ IDFConstants.IDF_TOOLS_SCRIPT;
 		return new File(idf_py_script);
@@ -663,5 +684,55 @@ public class IDFUtil
 		}
 		
 		return null;
+	}
+	
+	public static String getGitExecutablePathFromSystem()
+	{
+		IPath gitPath = new SystemExecutableFinder().find("git"); //$NON-NLS-1$
+		Logger.log("GIT path:" + gitPath); //$NON-NLS-1$
+		if (gitPath != null)
+		{
+			return gitPath.toOSString();
+		}
+		
+		if (Platform.OS_WIN32.equals(Platform.getOS()))
+		{
+			GitWinRegistryReader gitWinRegistryReader = new GitWinRegistryReader();
+			String gitInstallPath = gitWinRegistryReader.getGitInstallPath();
+			if (!StringUtil.isEmpty(gitInstallPath))
+			{
+				return gitInstallPath.concat(String.valueOf(Path.SEPARATOR)).concat("bin") //$NON-NLS-1$
+						.concat(String.valueOf(Path.SEPARATOR)).concat("git.exe"); //$NON-NLS-1$
+			}
+		}
+		else
+		{
+			// MAC & LINUX have whereis git to see where the command is located
+			List<String> arguments = new ArrayList<String>();
+			ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
+			try
+			{
+				arguments.add("whereis"); //$NON-NLS-1$
+				arguments.add("git"); //$NON-NLS-1$
+
+				Map<String, String> environment = new HashMap<>(System.getenv());
+
+				IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT,
+						environment);
+				if (status == null)
+				{
+					Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
+					return StringUtil.EMPTY;
+				}
+				String gitLocation = status.getMessage().split(" ").length > 1 ? status.getMessage().split(" ")[1] : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				gitLocation = gitLocation.strip();
+				return gitLocation;
+			}
+			catch (Exception e1)
+			{
+				Logger.log(e1);
+			}
+		}
+		return StringUtil.EMPTY;
 	}
 }
