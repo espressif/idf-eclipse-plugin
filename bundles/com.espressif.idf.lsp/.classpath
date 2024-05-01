@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="lib/batik-anim-1.17.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/batik-bridge-1.17.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/batik-constants-1.17.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/batik-css-1.17.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/batik-i18n-1.17.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/batik-util-1.17.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
