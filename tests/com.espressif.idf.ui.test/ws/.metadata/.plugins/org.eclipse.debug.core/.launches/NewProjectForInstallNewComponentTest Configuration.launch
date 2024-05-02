@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationType">
+    <booleanAttribute key="com.espressif.idf.debug.gdbjtag.openocd.doContinue" value="true"/>
+    <booleanAttribute key="com.espressif.idf.debug.gdbjtag.openocd.doDebugInRam" value="false"/>
+    <booleanAttribute key="com.espressif.idf.debug.gdbjtag.openocd.doFirstReset" value="true"/>
+    <booleanAttribute key="com.espressif.idf.debug.gdbjtag.openocd.doFlashBeforeStart" value="true"/>
+    <booleanAttribute key="com.espressif.idf.debug.gdbjtag.openocd.doGdbServerAllocateConsole" value="true"/>
+    <booleanAttribute key="com.espressif.idf.debug.gdbjtag.openocd.doGdbServerAllocateTelnetConsole" value="false"/>
+    <booleanAttribute key="com.espressif.idf.debug.gdbjtag.openocd.doSecondReset" value="true"/>
+    <booleanAttribute key="com.espressif.idf.debug.gdbjtag.openocd.doStartGdbCLient" value="true"/>
+    <booleanAttribute key="com.espressif.idf.debug.gdbjtag.openocd.doStartGdbServer" value="true"/>
+    <booleanAttribute key="com.espressif.idf.debug.gdbjtag.openocd.enableSemihosting" value="true"/>
+    <stringAttribute key="com.espressif.idf.debug.gdbjtag.openocd.firstResetType" value="init"/>
+    <stringAttribute key="com.espressif.idf.debug.gdbjtag.openocd.gdbClientOtherCommands" value="set mem inaccessible-by-default off&#13;&#10;set remotetimeout 20"/>
+    <stringAttribute key="com.espressif.idf.debug.gdbjtag.openocd.gdbClientOtherOptions" value=""/>
+    <stringAttribute key="com.espressif.idf.debug.gdbjtag.openocd.gdbServerConnectionAddress" value=""/>
+    <stringAttribute key="com.espressif.idf.debug.gdbjtag.openocd.gdbServerExecutable" value="${openocd_path}/${openocd_executable}"/>
+    <intAttribute key="com.espressif.idf.debug.gdbjtag.openocd.gdbServerGdbPortNumber" value="3333"/>
+    <stringAttribute key="com.espressif.idf.debug.gdbjtag.openocd.gdbServerLog" value=""/>
+    <stringAttribute key="com.espressif.idf.debug.gdbjtag.openocd.gdbServerOther" value="-s ${openocd_path}/share/openocd/scripts -f board/esp32-wrover-kit-1.8v.cfg"/>
+    <stringAttribute key="com.espressif.idf.debug.gdbjtag.openocd.gdbServerTclPortNumber" value="6666"/>
+    <intAttribute key="com.espressif.idf.debug.gdbjtag.openocd.gdbServerTelnetPortNumber" value="4444"/>
+    <stringAttribute key="com.espressif.idf.debug.gdbjtag.openocd.jtagBoard" value="ESP-WROVER-KIT 1.8V"/>
+    <stringAttribute key="com.espressif.idf.debug.gdbjtag.openocd.jtagFlashVoltage" value="default"/>
+    <stringAttribute key="com.espressif.idf.debug.gdbjtag.openocd.jtagTarget" value="esp32"/>
+    <stringAttribute key="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationName" value="NewProjectForInstallNewComponentTest"/>
+    <stringAttribute key="com.espressif.idf.debug.gdbjtag.openocd.otherInitCommands" value="mon reset halt&#13;&#10;flushregs&#13;&#10;set remote hardware-watchpoint-limit {IDF_TARGET_CPU_WATCHPOINT_NUM}"/>
+    <stringAttribute key="com.espressif.idf.debug.gdbjtag.openocd.otherRunCommands" value=""/>
+    <stringAttribute key="com.espressif.idf.debug.gdbjtag.openocd.secondResetType" value="halt"/>
+    <booleanAttribute key="com.espressif.idf.debug.gdbjtag.openocdenableVerboseOutput" value="false"/>
+    <stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.svdPath" value="${esp_svd_path}"/>
+    <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.imageFileName" value=""/>
+    <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.imageOffset" value=""/>
+    <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.ipAddress" value="localhost"/>
+    <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.jtagDeviceId" value="ESP-IDF GDB OpenOCD"/>
+    <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.loadImage" value="false"/>
+    <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.loadSymbols" value="true"/>
+    <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.pcRegister" value=""/>
+    <intAttribute key="org.eclipse.cdt.debug.gdbjtag.core.portNumber" value="3333"/>
+    <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.setPcRegister" value="false"/>
+    <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.setResume" value="false"/>
+    <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.setStopAt" value="true"/>
+    <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.stopAt" value="app_main"/>
+    <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.symbolsFileName" value=""/>
+    <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.symbolsOffset" value=""/>
+    <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.useFileForImage" value="false"/>
+    <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.useFileForSymbols" value="false"/>
+    <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.useProjBinaryForImage" value="true"/>
+    <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.useProjBinaryForSymbols" value="true"/>
+    <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.useRemoteTarget" value="true"/>
+    <stringAttribute key="org.eclipse.cdt.dsf.gdb.DEBUG_NAME" value="C:\Users\Denys\.espressif\tools\xtensa-esp-elf-gdb\12.1_20221002\xtensa-esp-elf-gdb\bin\xtensa-esp32-elf-gdb.exe"/>
+    <booleanAttribute key="org.eclipse.cdt.dsf.gdb.UPDATE_THREADLIST_ON_SUSPEND" value="false"/>
+    <intAttribute key="org.eclipse.cdt.launch.ATTR_BUILD_BEFORE_LAUNCH_ATTR" value="2"/>
+    <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="${default_app}"/>
+    <stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="NewProjectForInstallNewComponentTest"/>
+    <booleanAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_AUTO_ATTR" value="true"/>
+    <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value="AUTO"/>
+    <booleanAttribute key="org.eclipse.debug.core.ATTR_FORCE_SYSTEM_CONSOLE_ENCODING" value="false"/>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+        <listEntry value="/NewProjectForInstallNewComponentTest"/>
+    </listAttribute>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+        <listEntry value="4"/>
+    </listAttribute>
+</launchConfiguration>

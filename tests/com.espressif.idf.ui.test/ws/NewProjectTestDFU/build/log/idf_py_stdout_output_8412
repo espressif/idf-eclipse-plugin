@@ -1,0 +1,9 @@
+[1/4] Performing build step for 'bootloader'
+[1/1] cmd.exe /C "cd /D D:\ECLIPSE-IED-4-09\idf-eclipse-plugin\tests\com.espressif.idf.ui.test\ws\NewProjectTestDFU\build\bootloader\esp-idf\esptool_py && C:\Users\Denys\.espressif\python_env\idf5.1_py3.11_env\Scripts\python.exe D:/work/esp-idf-v5.1.1/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x1000 D:/ECLIPSE-IED-4-09/idf-eclipse-plugin/tests/com.espressif.idf.ui.test/ws/NewProjectTestDFU/build/bootloader/bootloader.bin"
+Bootloader binary size 0x5440 bytes. 0x1bc0 bytes (25%) free.
+[1/2] cmd.exe /C "cd /D D:\ECLIPSE-IED-4-09\idf-eclipse-plugin\tests\com.espressif.idf.ui.test\ws\NewProjectTestDFU\build && C:\Users\Denys\.espressif\python_env\idf5.1_py3.11_env\Scripts\python.exe D:/work/esp-idf-v5.1.1/tools/mkdfu.py write -o D:/ECLIPSE-IED-4-09/idf-eclipse-plugin/tests/com.espressif.idf.ui.test/ws/NewProjectTestDFU/build/dfu.bin --json D:/ECLIPSE-IED-4-09/idf-eclipse-plugin/tests/com.espressif.idf.ui.test/ws/NewProjectTestDFU/build/flasher_args.json --pid 2 --flash-size 2MB"
+Adding flash chip parameters file with flash_size = 2MB
+Adding bootloader\bootloader.bin at 0x1000
+Adding partition_table\partition-table.bin at 0x8000
+Adding app-template.bin at 0x10000
+"D:/ECLIPSE-IED-4-09/idf-eclipse-plugin/tests/com.espressif.idf.ui.test/ws/NewProjectTestDFU/build/dfu.bin" has been written. You may proceed with DFU flashing.
