@@ -27,9 +27,6 @@
    <feature id="org.eclipse.userstorage">
       <category name="com.espressif.idf"/>
    </feature>
-   <bundle id="org.apache.batik.xml">
-      <category name="com.espressif.idf.dependencies"/>
-   </bundle>
    <bundle id="org.eclipse.embedcdt.templates.core">
       <category name="com.espressif.idf"/>
    </bundle>
@@ -91,60 +88,6 @@
       <category name="com.espressif.idf.dependencies"/>
    </bundle>
    <bundle id="org.snakeyaml.engine">
-      <category name="com.espressif.idf.dependencies"/>
-   </bundle>
-   <bundle id="org.apache.batik.css">
-      <category name="com.espressif.idf.dependencies"/>
-   </bundle>
-   <bundle id="org.apache.batik.util">
-      <category name="com.espressif.idf.dependencies"/>
-   </bundle>
-   <bundle id="org.apache.batik.constants">
-      <category name="com.espressif.idf.dependencies"/>
-   </bundle>
-   <bundle id="org.apache.batik.i18n">
-      <category name="com.espressif.idf.dependencies"/>
-   </bundle>
-   <bundle id="org.apache.batik.anim">
-      <category name="com.espressif.idf.dependencies"/>
-   </bundle>
-   <bundle id="org.apache.batik.awt.util">
-      <category name="com.espressif.idf.dependencies"/>
-   </bundle>
-   <bundle id="org.apache.batik.bridge">
-      <category name="com.espressif.idf.dependencies"/>
-   </bundle>
-   <bundle id="org.apache.batik.codec">
-      <category name="com.espressif.idf.dependencies"/>
-   </bundle>
-   <bundle id="org.apache.batik.dom">
-      <category name="com.espressif.idf.dependencies"/>
-   </bundle>
-   <bundle id="org.apache.batik.dom.svg">
-      <category name="com.espressif.idf.dependencies"/>
-   </bundle>
-   <bundle id="org.apache.batik.ext">
-      <category name="com.espressif.idf.dependencies"/>
-   </bundle>
-   <bundle id="org.apache.batik.gvt">
-      <category name="com.espressif.idf.dependencies"/>
-   </bundle>
-   <bundle id="org.apache.batik.parser">
-      <category name="com.espressif.idf.dependencies"/>
-   </bundle>
-   <bundle id="org.apache.batik.script">
-      <category name="com.espressif.idf.dependencies"/>
-   </bundle>
-   <bundle id="org.apache.batik.svggen">
-      <category name="com.espressif.idf.dependencies"/>
-   </bundle>
-   <bundle id="org.apache.batik.transcoder">
-      <category name="com.espressif.idf.dependencies"/>
-   </bundle>
-   <bundle id="org.apache.batik.ext.awt">
-      <category name="com.espressif.idf.dependencies"/>
-   </bundle>
-   <bundle id="org.apache.batik.shared.resources">
       <category name="com.espressif.idf.dependencies"/>
    </bundle>
    <category-def name="com.espressif.idf" label="ESP-IDF Eclipse Plugin">
