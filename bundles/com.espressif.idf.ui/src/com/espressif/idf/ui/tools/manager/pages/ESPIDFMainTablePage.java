@@ -295,7 +295,6 @@ public class ESPIDFMainTablePage
 		@Override
 		public void update(ViewerCell cell)
 		{
-			super.update(cell);
 			int totalCols = tableViewer.getTable().getColumnCount();
 			boolean isLastCol = cell.getColumnIndex() == (totalCols - 1);
 			boolean isFirstCol = cell.getColumnIndex() == 0;
