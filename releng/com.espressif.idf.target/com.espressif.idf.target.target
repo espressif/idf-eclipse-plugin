@@ -139,6 +139,10 @@
 			<repository location="https://download.eclipse.org/swtchart/releases/0.14.0/repository"/>
 			<unit id="org.eclipse.swtchart.feature.feature.group" version="0.14.0.202301260747"/>
 		</location>
+		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<repository location="https://download.eclipse.org/justj/jres/17/updates/release/latest"/>
+			<unit id="org.eclipse.justj.openjdk.hotspot.jre.full.feature.group" version="17.0.11.v20240426-1830"/>
+		</location>
 		<location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="ASM" missingManifest="error" type="Maven">
 			<dependencies>
 				<dependency>
