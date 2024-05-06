@@ -310,6 +310,12 @@ public class ESPIDFMainTablePage
 			{
 				updateDataIntoCells(cell);
 			}
+			
+			Color color = getBackground(cell.getElement());
+			if (color != null)
+			{
+				cell.setBackground(color);
+			}
 		}
 
 		private void updateDataIntoCells(ViewerCell cell)
@@ -378,6 +384,7 @@ public class ESPIDFMainTablePage
 			Composite buttonComposite = new Composite(tableViewer.getTable(), SWT.NONE);
 			GridLayout gridLayout = new GridLayout(2, true);
 			gridLayout.marginWidth = 0;
+			gridLayout.horizontalSpacing = 10;
 			gridLayout.marginHeight = 0;
 			buttonComposite.setLayout(gridLayout);
 			
