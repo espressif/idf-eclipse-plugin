@@ -117,12 +117,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	private String customBuildDir;
 	private IProgressMonitor monitor;
 	public boolean isProgressSet;
-	private ILaunchConfiguration configuration;
 
 	public IDFBuildConfiguration(IBuildConfiguration config, String name) throws CoreException
 	{
 		super(config, name);
-		this.configuration = LAUNCH_CONFIG_PROVIDER.getActiveLaunchConfiguration();
 	}
 
 	public IDFBuildConfiguration(IBuildConfiguration config, String name, IToolChain toolChain)
@@ -135,14 +133,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	{
 		super(config, name, toolChain, launchMode);
 		this.toolChainFile = toolChainFile;
-		try
-		{
-			this.configuration = LAUNCH_CONFIG_PROVIDER.getActiveLaunchConfiguration();
-		}
-		catch (CoreException e)
-		{
-			Logger.log(e);
-		}
 	}
 
 	@Override
@@ -233,6 +223,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	{
 		try
 		{
+			ILaunchConfiguration configuration = LAUNCH_CONFIG_PROVIDER.getActiveLaunchConfiguration();
 			if (configuration != null
 					&& configuration.getType().getIdentifier().equals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
 			{
