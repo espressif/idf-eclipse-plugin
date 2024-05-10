@@ -102,7 +102,6 @@ public class ESPIDFMainTablePage
 				editorLast.dispose();
 				item.setData(EDITOR_KEY_LAST, null);
 			}
-			
 		}
 		toolSetConfigurationManager.setReload(true);
 		setupColumns();
@@ -125,12 +124,14 @@ public class ESPIDFMainTablePage
 		tableComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		tableColumnLayout = new TableColumnLayout();
 		tableComposite.setLayout(tableColumnLayout);
-
 		tableViewer = new TableViewer(tableComposite, SWT.BORDER | SWT.H_SCROLL);
 		tableViewer.setContentProvider(ArrayContentProvider.getInstance());
 		Table table = tableViewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
+		table.addListener(SWT.MeasureItem, event -> {
+				event.height = 25;
+			});
 		comparator = new ColumnViewerComparator();
 		tableViewer.setComparator(comparator);
 		setupColumns();
@@ -310,6 +311,12 @@ public class ESPIDFMainTablePage
 			{
 				updateDataIntoCells(cell);
 			}
+			
+			Color color = getBackground(cell.getElement());
+			if (color != null)
+			{
+				cell.setBackground(color);
+			}
 		}
 
 		private void updateDataIntoCells(ViewerCell cell)
@@ -336,6 +343,7 @@ public class ESPIDFMainTablePage
 		private void createButtonsForFirstCol(ViewerCell cell)
 		{
 			TableItem item = (TableItem) cell.getItem();
+			
 			// using a unique key to store the editor to avoid creating multiple editors for the same cell
 			String EDITOR_KEY = "action_editor";
 			if (item.getData(EDITOR_KEY) != null)
@@ -376,21 +384,19 @@ public class ESPIDFMainTablePage
 			}
 			TableEditor editor = new TableEditor(tableViewer.getTable());
 			Composite buttonComposite = new Composite(tableViewer.getTable(), SWT.NONE);
-			GridLayout gridLayout = new GridLayout(2, true);
-			gridLayout.marginWidth = 0;
-			gridLayout.marginHeight = 0;
-			buttonComposite.setLayout(gridLayout);
+			FillLayout fillLayout = new FillLayout(SWT.HORIZONTAL);
+			fillLayout.marginWidth = 2;
+			fillLayout.spacing = 5;
+			
+			buttonComposite.setLayout(fillLayout);
 			
 			item.setData(EDITOR_KEY, editor);
 			IDFToolSet idfToolSet = (IDFToolSet) cell.getElement();
 			Button removeButton = new Button(buttonComposite, SWT.PUSH | SWT.FLAT);
-			GridData gridData = new GridData();
-			gridData.widthHint = 20;  // Explicitly setting the width
-			gridData.heightHint = 20; // Explicitly setting the height
-			removeButton.setLayoutData(gridData);
 			removeButton.pack(); 
 			removeButton.setData(IDF_TOOL_SET_BTN_KEY, idfToolSet);
 			removeButton.setImage(UIPlugin.getImage(REMOVE_ICON));
+			removeButton.setToolTipText(Messages.EspIdfManagerDeleteBtnToolTip);
 			removeButton.addListener(SWT.Selection, e -> {
 				Button btn = (Button) e.widget;
 				IDFToolSet selectedToolSet = (IDFToolSet) btn.getData(IDF_TOOL_SET_BTN_KEY);
@@ -401,13 +407,10 @@ public class ESPIDFMainTablePage
 			if (idfToolSet.isActive())
 			{
 				Button reloadButton = new Button(buttonComposite, SWT.PUSH | SWT.FLAT);
-				GridData gridDataReloadButton = new GridData();
-				gridDataReloadButton.widthHint = 20;  // Explicitly setting the width
-				gridDataReloadButton.heightHint = 20; // Explicitly setting the height
-				reloadButton.setLayoutData(gridDataReloadButton);
 				reloadButton.pack();
 				reloadButton.setData(IDF_TOOL_SET_BTN_KEY, idfToolSet);
 				reloadButton.setImage(UIPlugin.getImage(RELOAD_ICON));
+				reloadButton.setToolTipText(Messages.EspIdfManagerReloadBtnToolTip);
 				reloadButton.addListener(SWT.Selection, e -> {
 					Button btn = (Button) e.widget;
 					IDFToolSet selectedToolSet = (IDFToolSet) btn.getData(IDF_TOOL_SET_BTN_KEY);
@@ -420,6 +423,10 @@ public class ESPIDFMainTablePage
 
 			editor.grabHorizontal = true;
 			editor.setEditor(buttonComposite, item, cell.getColumnIndex());
+			editor.horizontalAlignment = SWT.CENTER;
+			editor.verticalAlignment = SWT.CENTER;
+			editor.minimumWidth = buttonComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+		    editor.minimumHeight = buttonComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
 		}
 		
 		@Override
