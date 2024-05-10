@@ -29,7 +29,7 @@ jobs:
         export JARSIGNER_ALIAS=${{secrets.JARSIGNER_REL_ALIAS}}
         KEYSTORE_FILE="${PWD}/{{secrets.JARSIGNER_KEYSTORE}}"
         echo "${KEYSTORE_FILE}"
-        printf "%s" "${JARSIGNER_KEYSTORE_B64}" | base64 -d - > "${KEYSTORE_FILE}"
+        printf "%s" "${JARSIGNER_KEYSTORE_B64}" | base64 -d > "${KEYSTORE_FILE}"
         mvn -e -X clean install -Djarsigner.keystore="${KEYSTORE_FILE}" -Djarsigner.alias="${JARSIGNER_ALIAS}" -Djarsigner.storepass="${JARSIGNER_STOREPASS}" -DskipTests=true
         rm -v "${KEYSTORE_FILE}"
     
