@@ -511,6 +511,7 @@ public class IDFDownloadPage extends WizardPage
 		private int dialog;
 		private static final String GIT_FILE = "git"; //$NON-NLS-1$
 		private static final String PYTHON_FILE = "python"; //$NON-NLS-1$
+		private static final String PYTHON3_FILE = "python3"; //$NON-NLS-1$
 		private static final String WINDOWS_EXTENSION = ".exe"; //$NON-NLS-1$
 
 		private BrowseButtonSelectionAdapter(Text text, int dialog)
@@ -545,13 +546,13 @@ public class IDFDownloadPage extends WizardPage
 			FileDialog dialog = new FileDialog(PlatformUI.getWorkbench().getDisplay().getActiveShell());
 			if (Platform.getOS().equals(Platform.OS_WIN32))
 			{
-				dialog.setFilterNames(new String[] { PYTHON_FILE.concat(WINDOWS_EXTENSION) });
-				dialog.setFilterExtensions(new String[] { PYTHON_FILE.concat(WINDOWS_EXTENSION) });
+				dialog.setFilterNames(new String[] { PYTHON_FILE.concat(WINDOWS_EXTENSION), PYTHON3_FILE.concat(WINDOWS_EXTENSION) });
+				dialog.setFilterExtensions(new String[] { PYTHON_FILE.concat(WINDOWS_EXTENSION), PYTHON3_FILE.concat(WINDOWS_EXTENSION) });
 			}
 			else
 			{
-				dialog.setFilterNames(new String[] { PYTHON_FILE });
-				dialog.setFilterExtensions(new String[] { PYTHON_FILE });
+				dialog.setFilterNames(new String[] { PYTHON_FILE, PYTHON3_FILE });
+				dialog.setFilterExtensions(new String[] { PYTHON_FILE, PYTHON3_FILE });
 			}
 			return dialog;
 		}
