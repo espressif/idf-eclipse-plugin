@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -40,6 +41,9 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.console.ConsolePlugin;
+import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.IPatternMatchListener;
 import org.eclipse.ui.console.MessageConsoleStream;
@@ -185,7 +189,13 @@ public class SbomCommandDialog extends TitleAreaDialog
 	@Override
 	protected void okPressed()
 	{
+		IConsoleManager conMan = ConsolePlugin.getDefault().getConsoleManager();
+		// removing the ESP-IDF tools console and create a new one to refresh attached pattern match listener
+		conMan.removeConsoles(Stream.of(conMan.getConsoles())
+				.filter(c -> c.getName().equals(Messages.IDFToolsHandler_ToolsManagerConsole))
+				.toArray(IConsole[]::new));
 		console = new IDFConsole().getConsoleStream(Messages.IDFToolsHandler_ToolsManagerConsole, null, false);
+
 		Job refreshJob = new Job(Messages.SbomCommandDialog_RefreshProjectJob)
 		{
 
@@ -242,14 +252,10 @@ public class SbomCommandDialog extends TitleAreaDialog
 	{
 		ISelection selection = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService()
 				.getSelection();
-		if (selection instanceof IStructuredSelection)
+		if (selection instanceof IStructuredSelection element
+				&& element.getFirstElement() instanceof IResource resource)
 		{
-			Object element = ((IStructuredSelection) selection).getFirstElement();
-
-			if (element instanceof IResource)
-			{
-				selectedProject = ((IResource) element).getProject();
-			}
+			selectedProject = resource.getProject();
 		}
 		projectDescriptionPathText.setText(buildProjectDescriptionPath());
 		if (!Files.isRegularFile(Paths.get(projectDescriptionPathText.getText())))
@@ -294,6 +300,7 @@ public class SbomCommandDialog extends TitleAreaDialog
 		cmdOutput = cmdOutput.isEmpty() && saveOutputFileStatus
 				? String.format(Messages.SbomCommandDialog_ConsoleRedirectedOutputFormatString, outputFilePath)
 				: cmdOutput;
+
 		console.getConsole().addPatternMatchListener(getPatternMatchListener());
 		console.println(cmdOutput);
 
@@ -374,6 +381,7 @@ public class SbomCommandDialog extends TitleAreaDialog
 			{
 				return 0;
 			}
+
 		};
 	}
 
