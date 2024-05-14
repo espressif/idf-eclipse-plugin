@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Beta builds 
+name: Beta builds
 
 on:
   push:
@@ -63,21 +63,22 @@ jobs:
         /usr/bin/codesign --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg -v
         /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
     
-    - name: Notarize Espressif-IDE-macosx-cocoa-x86_64.dmg
+    - name: Notarize macOS dmg files
       env: 
         NOTARIZATION_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
         NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
+        NOTARIZATION_TEAM_ID: ${{ secrets.NOTARIZATION_TEAM_ID }}
       run: |
+        echo "Create keychain profile"
+        xcrun notarytool store-credentials "ide-notarytool-profile" --apple-id $NOTARIZATION_USERNAME --team-id $NOTARIZATION_TEAM_ID --password $NOTARIZATION_PASSWORD
         echo "Notarization of Espressif-IDE-macosx-cocoa-x86_64.dmg"
-        xcrun altool --notarize-app -f $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg -u $NOTARIZATION_USERNAME -p $NOTARIZATION_PASSWORD --primary-bundle-id Espressif-ide.app
-
-    - name: Notarize Espressif-IDE-macosx-cocoa-aarch64.dmg
-      env: 
-        NOTARIZATION_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
-        NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
-      run: |
+        xcrun notarytool submit $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg --keychain-profile "ide-notarytool-profile" --wait
+        echo "Attach staple for x86_64.dmg"
+        xcrun stapler staple $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
         echo "Notarization of Espressif-IDE-macosx-cocoa-aarch64.dmg"
-        xcrun altool --notarize-app -f $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg -u $NOTARIZATION_USERNAME -p $NOTARIZATION_PASSWORD --primary-bundle-id Espressif-ide.app
+        xcrun notarytool submit $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg --keychain-profile "ide-notarytool-profile" --wait
+        echo "Attach staple for aarch64.dmg"
+        xcrun stapler staple $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
 
     - name: Upload Espressif-IDE-macosx-cocoa-x86_64.dmg
       if: ${{ !cancelled() }}
