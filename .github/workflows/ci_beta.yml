@@ -1,13 +1,18 @@
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Beta builds 
+name: Beta builds
+
+# on:
+#   push:
+#     tags:
+#       - "v[0-9]+.[0-9]+.[0-9]+-beta"
 
 on:
   push:
-    tags:
-      - "v[0-9]+.[0-9]+.[0-9]+-beta"
-
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 jobs:
   build:
 
@@ -63,94 +68,106 @@ jobs:
         /usr/bin/codesign --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg -v
         /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
     
+    # - name: Notarize Espressif-IDE-macosx-cocoa-x86_64.dmg
+    #   env: 
+    #     NOTARIZATION_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
+    #     NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
+    #   run: |
+    #     echo "Notarization of Espressif-IDE-macosx-cocoa-x86_64.dmg"
+    #     xcrun altool --notarize-app -f $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg -u $NOTARIZATION_USERNAME -p $NOTARIZATION_PASSWORD --primary-bundle-id Espressif-IDE.app
+    
     - name: Notarize Espressif-IDE-macosx-cocoa-x86_64.dmg
       env: 
         NOTARIZATION_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
         NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
       run: |
+        echo "Create keychain profile"
+        xcrun notarytool store-credentials "ide-notarytool-profile" --apple-id "$NOTARIZATION_USERNAME" --team-id "$NOTARIZATION_TEAM_ID" --password "$NOTARIZATION_PASSWORD"
         echo "Notarization of Espressif-IDE-macosx-cocoa-x86_64.dmg"
-        xcrun altool --notarize-app -f $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg -u $NOTARIZATION_USERNAME -p $NOTARIZATION_PASSWORD --primary-bundle-id Espressif-ide.app
+        xcrun notarytool submit $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg --keychain-profile "ide-notarytool-profile" --wait
+        echo "Attach staple"
+        xcrun stapler staple $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
 
-    - name: Notarize Espressif-IDE-macosx-cocoa-aarch64.dmg
-      env: 
-        NOTARIZATION_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
-        NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
-      run: |
-        echo "Notarization of Espressif-IDE-macosx-cocoa-aarch64.dmg"
-        xcrun altool --notarize-app -f $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg -u $NOTARIZATION_USERNAME -p $NOTARIZATION_PASSWORD --primary-bundle-id Espressif-ide.app
+    # - name: Notarize Espressif-IDE-macosx-cocoa-aarch64.dmg
+    #   env: 
+    #     NOTARIZATION_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
+    #     NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
+    #   run: |
+    #     echo "Notarization of Espressif-IDE-macosx-cocoa-aarch64.dmg"
+    #     xcrun altool --notarize-app -f $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg -u $NOTARIZATION_USERNAME -p $NOTARIZATION_PASSWORD --primary-bundle-id Espressif-IDE.app
 
-    - name: Upload Espressif-IDE-macosx-cocoa-x86_64.dmg
-      if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v2
-      with:
-        name: espressif-ide-macosx-cocoa-x86_64
-        path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
+    # - name: Upload Espressif-IDE-macosx-cocoa-x86_64.dmg
+    #   if: ${{ !cancelled() }}
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: espressif-ide-macosx-cocoa-x86_64
+    #     path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
 
-    - name: Upload Espressif-IDE-macosx-cocoa-aarch64.dmg
-      if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v2
-      with:
-        name: espressif-ide-macosx.cocoa.aarch64
-        path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
+    # - name: Upload Espressif-IDE-macosx-cocoa-aarch64.dmg
+    #   if: ${{ !cancelled() }}
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: espressif-ide-macosx.cocoa.aarch64
+    #     path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
 
-    - name: Upload build artifacts
-      if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v2
-      with:
-        name: com.espressif.idf.update
-        path: releng/com.espressif.idf.update/target/repository
+    # - name: Upload build artifacts
+    #   if: ${{ !cancelled() }}
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: com.espressif.idf.update
+    #     path: releng/com.espressif.idf.update/target/repository
         
-    - name: Upload windows rcp
-      if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v2
-      with:
-        name: espressif-ide-win32
-        path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-win32.win32.x86_64.zip
+    # - name: Upload windows rcp
+    #   if: ${{ !cancelled() }}
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: espressif-ide-win32
+    #     path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-win32.win32.x86_64.zip
 
-    - name: Upload linux rcp
-      if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v2
-      with:
-        name: espressif-ide-linux
-        path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
+    # - name: Upload linux rcp
+    #   if: ${{ !cancelled() }}
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: espressif-ide-linux
+    #     path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
 
 
-    - name: Upload build assets to dl.espressif.com
-      id: upload-release-asset-espressif
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-      run: |
-        ARCHIVE_DIR="/releng/com.espressif.idf.update/target/"
-        ARCHIVE_NAME="com.espressif.idf.update*.zip"
-        echo "${ARCHIVE_DIR}"
-        echo ${PWD}${ARCHIVE_DIR}
-        ARCHIVE_FILE_NAME="$(find ${PWD}${ARCHIVE_DIR}${ARCHIVE_NAME})"
-        echo "${ARCHIVE_FILE_NAME}"
-        ARCHIVE_PREFIX="com.espressif.idf.update-"
-        ARCHIVE_SUFFIX="-SNAPSHOT.zip";
-        tmp=${ARCHIVE_FILE_NAME#*${ARCHIVE_PREFIX}}   # remove prefix
-        ARCHIVE_VERSION=${tmp%${ARCHIVE_SUFFIX}*}   # remove suffix
-        echo "${ARCHIVE_VERSION}"
-        FOLDER_NAME="v${ARCHIVE_VERSION}-beta"
-        mkdir "${FOLDER_NAME}" && cd "${FOLDER_NAME}" && unzip -q ${ARCHIVE_FILE_NAME} && cd ..
-        echo ${PWD}
-        ARCHIVE_VERSION_NEW="${ARCHIVE_PREFIX}${ARCHIVE_VERSION}.zip"
-        echo ${ARCHIVE_VERSION_NEW}
-        mv ${ARCHIVE_FILE_NAME} ${ARCHIVE_VERSION_NEW}
-        mv releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg "releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64-${FOLDER_NAME}.dmg"
-        mv releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg "releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64-${FOLDER_NAME}.dmg"
-        aws s3 rm s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/beta --recursive
-        aws s3 cp --acl=public-read --recursive "./${FOLDER_NAME}/" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/beta
-        aws s3 cp --acl=public-read "./releng/index.html" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/beta/
-        aws s3 cp --acl=public-read --recursive "./${FOLDER_NAME}/" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/${FOLDER_NAME}
-        aws s3 cp --acl=public-read --recursive --exclude "*" --include "Espressif-IDE-*" ./releng/com.espressif.idf.product/target/products/ s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
-        aws s3 cp --acl=public-read "${ARCHIVE_VERSION_NEW}" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/
-        aws s3 cp --acl=public-read "./releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64-${FOLDER_NAME}.dmg" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
-        aws s3 cp --acl=public-read "./releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64-${FOLDER_NAME}.dmg" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
-        aws cloudfront create-invalidation --distribution-id ${{ secrets.DL_DISTRIBUTION_ID }} --paths "/dl/idf-eclipse-plugin/updates/beta/*"
-        aws s3api put-object --acl=public-read  --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-win32.win32.x86_64/beta"  --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-${ARCHIVE_VERSION}-win32.win32.x86_64.zip"
-        aws s3api put-object --acl=public-read  --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-x86_64/beta"  --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-x86_64-v${ARCHIVE_VERSION}.dmg"
-        aws s3api put-object --acl=public-read  --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64/beta"  --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64-v${ARCHIVE_VERSION}.dmg"
-        aws s3api put-object --acl=public-read  --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-linux.gtk.x86_64/beta"  --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-${ARCHIVE_VERSION}-linux.gtk.x86_64.tar.gz"
+    # - name: Upload build assets to dl.espressif.com
+    #   id: upload-release-asset-espressif
+    #   env:
+    #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    #     AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+    #   run: |
+    #     ARCHIVE_DIR="/releng/com.espressif.idf.update/target/"
+    #     ARCHIVE_NAME="com.espressif.idf.update*.zip"
+    #     echo "${ARCHIVE_DIR}"
+    #     echo ${PWD}${ARCHIVE_DIR}
+    #     ARCHIVE_FILE_NAME="$(find ${PWD}${ARCHIVE_DIR}${ARCHIVE_NAME})"
+    #     echo "${ARCHIVE_FILE_NAME}"
+    #     ARCHIVE_PREFIX="com.espressif.idf.update-"
+    #     ARCHIVE_SUFFIX="-SNAPSHOT.zip";
+    #     tmp=${ARCHIVE_FILE_NAME#*${ARCHIVE_PREFIX}}   # remove prefix
+    #     ARCHIVE_VERSION=${tmp%${ARCHIVE_SUFFIX}*}   # remove suffix
+    #     echo "${ARCHIVE_VERSION}"
+    #     FOLDER_NAME="v${ARCHIVE_VERSION}-beta"
+    #     mkdir "${FOLDER_NAME}" && cd "${FOLDER_NAME}" && unzip -q ${ARCHIVE_FILE_NAME} && cd ..
+    #     echo ${PWD}
+    #     ARCHIVE_VERSION_NEW="${ARCHIVE_PREFIX}${ARCHIVE_VERSION}.zip"
+    #     echo ${ARCHIVE_VERSION_NEW}
+    #     mv ${ARCHIVE_FILE_NAME} ${ARCHIVE_VERSION_NEW}
+    #     mv releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg "releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64-${FOLDER_NAME}.dmg"
+    #     mv releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg "releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64-${FOLDER_NAME}.dmg"
+    #     aws s3 rm s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/beta --recursive
+    #     aws s3 cp --acl=public-read --recursive "./${FOLDER_NAME}/" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/beta
+    #     aws s3 cp --acl=public-read "./releng/index.html" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/beta/
+    #     aws s3 cp --acl=public-read --recursive "./${FOLDER_NAME}/" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/${FOLDER_NAME}
+    #     aws s3 cp --acl=public-read --recursive --exclude "*" --include "Espressif-IDE-*" ./releng/com.espressif.idf.product/target/products/ s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
+    #     aws s3 cp --acl=public-read "${ARCHIVE_VERSION_NEW}" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/
+    #     aws s3 cp --acl=public-read "./releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64-${FOLDER_NAME}.dmg" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
+    #     aws s3 cp --acl=public-read "./releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64-${FOLDER_NAME}.dmg" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
+    #     aws cloudfront create-invalidation --distribution-id ${{ secrets.DL_DISTRIBUTION_ID }} --paths "/dl/idf-eclipse-plugin/updates/beta/*"
+    #     aws s3api put-object --acl=public-read  --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-win32.win32.x86_64/beta"  --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-${ARCHIVE_VERSION}-win32.win32.x86_64.zip"
+    #     aws s3api put-object --acl=public-read  --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-x86_64/beta"  --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-x86_64-v${ARCHIVE_VERSION}.dmg"
+    #     aws s3api put-object --acl=public-read  --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64/beta"  --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64-v${ARCHIVE_VERSION}.dmg"
+    #     aws s3api put-object --acl=public-read  --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-linux.gtk.x86_64/beta"  --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-${ARCHIVE_VERSION}-linux.gtk.x86_64.tar.gz"
