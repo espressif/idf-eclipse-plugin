@@ -80,6 +80,7 @@ jobs:
       env: 
         NOTARIZATION_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
         NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
+        NOTARIZATION_TEAM_ID: ${{ secrets.NOTARIZATION_TEAM_ID }}
       run: |
         echo "Create keychain profile"
         xcrun notarytool store-credentials "ide-notarytool-profile" --apple-id $NOTARIZATION_USERNAME --team-id $NOTARIZATION_TEAM_ID --password $NOTARIZATION_PASSWORD
@@ -96,12 +97,12 @@ jobs:
     #     echo "Notarization of Espressif-IDE-macosx-cocoa-aarch64.dmg"
     #     xcrun altool --notarize-app -f $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg -u $NOTARIZATION_USERNAME -p $NOTARIZATION_PASSWORD --primary-bundle-id Espressif-IDE.app
 
-    # - name: Upload Espressif-IDE-macosx-cocoa-x86_64.dmg
-    #   if: ${{ !cancelled() }}
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: espressif-ide-macosx-cocoa-x86_64
-    #     path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
+    - name: Upload Espressif-IDE-macosx-cocoa-x86_64.dmg
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: espressif-ide-macosx-cocoa-x86_64
+        path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
 
     # - name: Upload Espressif-IDE-macosx-cocoa-aarch64.dmg
     #   if: ${{ !cancelled() }}
