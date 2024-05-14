@@ -349,7 +349,7 @@ public class IDFDownloadPage extends WizardPage
 			gitExecutablePath = pathGit.toOSString();
 		
 		File file = new File(gitExecutablePath);
-		if (!file.exists())
+		if (!file.exists() && !IDFUtil.isReparseTag(file))
 		{
 			setErrorMessage("Git executable not found");
 			return false;
@@ -361,7 +361,7 @@ public class IDFDownloadPage extends WizardPage
 			pythonExecutablePath = pythonPath.toOSString();
 		}
 		file = new File(pythonExecutablePath);
-		if (!file.exists())
+		if (!file.exists() && !IDFUtil.isReparseTag(file))
 		{
 			setErrorMessage("Python executable not found");
 			return false;

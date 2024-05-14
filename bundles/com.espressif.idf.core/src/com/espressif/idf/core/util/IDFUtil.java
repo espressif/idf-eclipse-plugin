@@ -735,4 +735,16 @@ public class IDFUtil
 		}
 		return StringUtil.EMPTY;
 	}
+	
+	public static boolean isReparseTag(File file)
+	{
+		if (!Platform.getOS().equals(Platform.OS_WIN32))
+			return false;
+		int reparseTag = FileParseTag.getReparseTag(file.getAbsolutePath());
+		if (reparseTag != -1)
+		{
+			return FileParseTag.isReparseTagMicrosoft(reparseTag);
+		}
+		return false;
+	}
 }
