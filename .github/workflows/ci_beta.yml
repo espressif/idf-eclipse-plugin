@@ -68,14 +68,6 @@ jobs:
         /usr/bin/codesign --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg -v
         /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
     
-    # - name: Notarize Espressif-IDE-macosx-cocoa-x86_64.dmg
-    #   env: 
-    #     NOTARIZATION_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
-    #     NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
-    #   run: |
-    #     echo "Notarization of Espressif-IDE-macosx-cocoa-x86_64.dmg"
-    #     xcrun altool --notarize-app -f $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg -u $NOTARIZATION_USERNAME -p $NOTARIZATION_PASSWORD --primary-bundle-id Espressif-IDE.app
-    
     - name: Notarize Espressif-IDE-macosx-cocoa-x86_64.dmg
       env: 
         NOTARIZATION_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
@@ -86,16 +78,12 @@ jobs:
         xcrun notarytool store-credentials "ide-notarytool-profile" --apple-id $NOTARIZATION_USERNAME --team-id $NOTARIZATION_TEAM_ID --password $NOTARIZATION_PASSWORD
         echo "Notarization of Espressif-IDE-macosx-cocoa-x86_64.dmg"
         xcrun notarytool submit $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg --keychain-profile "ide-notarytool-profile" --wait
-        echo "Attach staple"
+        echo "Attach staple for x86_64.dmg"
         xcrun stapler staple $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
-
-    # - name: Notarize Espressif-IDE-macosx-cocoa-aarch64.dmg
-    #   env: 
-    #     NOTARIZATION_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
-    #     NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
-    #   run: |
-    #     echo "Notarization of Espressif-IDE-macosx-cocoa-aarch64.dmg"
-    #     xcrun altool --notarize-app -f $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg -u $NOTARIZATION_USERNAME -p $NOTARIZATION_PASSWORD --primary-bundle-id Espressif-IDE.app
+        echo "Notarization of Espressif-IDE-macosx-cocoa-aarch64.dmg"
+        xcrun notarytool submit $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg --keychain-profile "ide-notarytool-profile" --wait
+        echo "Attach staple for aarch64.dmg"
+        xcrun stapler staple $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
 
     - name: Upload Espressif-IDE-macosx-cocoa-x86_64.dmg
       if: ${{ !cancelled() }}
@@ -104,33 +92,33 @@ jobs:
         name: espressif-ide-macosx-cocoa-x86_64
         path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
 
-    # - name: Upload Espressif-IDE-macosx-cocoa-aarch64.dmg
-    #   if: ${{ !cancelled() }}
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: espressif-ide-macosx.cocoa.aarch64
-    #     path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
+    - name: Upload Espressif-IDE-macosx-cocoa-aarch64.dmg
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: espressif-ide-macosx.cocoa.aarch64
+        path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
 
-    # - name: Upload build artifacts
-    #   if: ${{ !cancelled() }}
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: com.espressif.idf.update
-    #     path: releng/com.espressif.idf.update/target/repository
+    - name: Upload build artifacts
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: com.espressif.idf.update
+        path: releng/com.espressif.idf.update/target/repository
         
-    # - name: Upload windows rcp
-    #   if: ${{ !cancelled() }}
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: espressif-ide-win32
-    #     path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-win32.win32.x86_64.zip
+    - name: Upload windows rcp
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: espressif-ide-win32
+        path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-win32.win32.x86_64.zip
 
-    # - name: Upload linux rcp
-    #   if: ${{ !cancelled() }}
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: espressif-ide-linux
-    #     path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
+    - name: Upload linux rcp
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: espressif-ide-linux
+        path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
 
 
     # - name: Upload build assets to dl.espressif.com
