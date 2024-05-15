@@ -740,10 +740,10 @@ public class IDFUtil
 	{
 		if (!Platform.getOS().equals(Platform.OS_WIN32))
 			return false;
-		int reparseTag = FileParseTag.getReparseTag(file.getAbsolutePath());
+		int reparseTag = WinNativeFileTagOperations.getReparseTag(file.getAbsolutePath());
 		if (reparseTag != -1)
 		{
-			return FileParseTag.isReparseTagMicrosoft(reparseTag);
+			return WinNativeFileTagOperations.isReparseTagMicrosoft(reparseTag);
 		}
 		return false;
 	}
