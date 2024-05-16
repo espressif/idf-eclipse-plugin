@@ -26,7 +26,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jface,
  org.apache.commons.logging;bundle-version="1.2.0",
  org.eclipse.core.variables,
- org.eclipse.embedcdt.core;visibility:=reexport
+ org.eclipse.embedcdt.core;visibility:=reexport,
+ com.sun.jna,
+ com.sun.jna.platform
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: com.espressif.idf.core
 Bundle-ActivationPolicy: lazy

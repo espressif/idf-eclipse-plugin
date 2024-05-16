@@ -349,7 +349,7 @@ public class IDFDownloadPage extends WizardPage
 			gitExecutablePath = pathGit.toOSString();
 		
 		File file = new File(gitExecutablePath);
-		if (!file.exists())
+		if (!file.exists() && !IDFUtil.isReparseTag(file))
 		{
 			setErrorMessage("Git executable not found");
 			return false;
@@ -361,7 +361,7 @@ public class IDFDownloadPage extends WizardPage
 			pythonExecutablePath = pythonPath.toOSString();
 		}
 		file = new File(pythonExecutablePath);
-		if (!file.exists())
+		if (!file.exists() && !IDFUtil.isReparseTag(file))
 		{
 			setErrorMessage("Python executable not found");
 			return false;
@@ -510,7 +510,8 @@ public class IDFDownloadPage extends WizardPage
 		private Text linkedText;
 		private int dialog;
 		private static final String GIT_FILE = "git"; //$NON-NLS-1$
-		private static final String PYTHON_FILE = "python"; //$NON-NLS-1$
+		private static final String PYTHON_FILE = "python*"; //$NON-NLS-1$
+		private static final String PYTHON_FILTERS = "Python Executables"; //$NON-NLS-1$
 		private static final String WINDOWS_EXTENSION = ".exe"; //$NON-NLS-1$
 
 		private BrowseButtonSelectionAdapter(Text text, int dialog)
@@ -545,12 +546,12 @@ public class IDFDownloadPage extends WizardPage
 			FileDialog dialog = new FileDialog(PlatformUI.getWorkbench().getDisplay().getActiveShell());
 			if (Platform.getOS().equals(Platform.OS_WIN32))
 			{
-				dialog.setFilterNames(new String[] { PYTHON_FILE.concat(WINDOWS_EXTENSION) });
+				dialog.setFilterNames(new String[] { PYTHON_FILTERS });
 				dialog.setFilterExtensions(new String[] { PYTHON_FILE.concat(WINDOWS_EXTENSION) });
 			}
 			else
 			{
-				dialog.setFilterNames(new String[] { PYTHON_FILE });
+				dialog.setFilterNames(new String[] { PYTHON_FILTERS });
 				dialog.setFilterExtensions(new String[] { PYTHON_FILE });
 			}
 			return dialog;

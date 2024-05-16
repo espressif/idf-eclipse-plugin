@@ -12,7 +12,9 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.core.util.WinNativeFileTagOperations;
 
 public class SystemExecutableFinder implements ExecutableFinder
 {
@@ -109,8 +111,17 @@ public class SystemExecutableFinder implements ExecutableFinder
 	private boolean isExecutable(IPath path)
 	{
 		File file = path.toFile();
-
-		if (file == null || !file.exists() || file.isDirectory())
+		
+		if (isPlatformWindows() && !file.exists())
+		{
+			if (WinNativeFileTagOperations.fileExists(file))
+			{
+				return IDFUtil.isReparseTag(file);
+			}
+		}
+		
+		
+		if (!file.exists() || file.isDirectory())
 		{
 			return false;
 		}
