@@ -75,13 +75,21 @@ jobs:
         NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
         NOTARIZATION_TEAM_ID: ${{ secrets.NOTARIZATION_TEAM_ID }}
       run: |
+        echo "Create notary keychain"
+        /usr/bin/security create-keychain -p espressif notary.keychain
+        /usr/bin/security default-keychain -s notary.keychain
+        /usr/bin/security unlock-keychain -p espressif notary.keychain
+
         echo "Create keychain profile"
         xcrun notarytool store-credentials "ide-notarytool-profile" --apple-id $NOTARIZATION_USERNAME --team-id $NOTARIZATION_TEAM_ID --password $NOTARIZATION_PASSWORD
         xcrun notarytool submit $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg --keychain-profile "ide-notarytool-profile" --wait
+        
         echo "Attach staple for x86_64.dmg"
         xcrun stapler staple $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
-        echo "Sleeping for 30 seconds..."
-        sleep 30  # Introduce a delay
+        
+        echo "Unlock the notary keychain"
+        /usr/bin/security unlock-keychain -p espressif notary.keychain
+
         xcrun notarytool submit $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg --keychain-profile "ide-notarytool-profile" --wait
         echo "Attach staple for aarch64.dmg"
         xcrun stapler staple $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
