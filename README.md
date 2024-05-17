@@ -36,7 +36,6 @@ To get a quick understanding of ESP-IDF and Eclipse plugin features, check our s
 <details open>
   <summary>Other IDE Features</summary>
 
-* [ Installing ESP-IDF and Tools via Tools Installation Wizard ](#InstallToolsWizard) <br>
 * [ Configuring the Project using sdkconfig Editor](#projectconfigure)<br>
 * [ CMake Editor](#cmakeproject)<br>
 * [ ESP-IDF Application Size Analysis Editor](#sizeanalysiseditor)<br>
@@ -112,42 +111,35 @@ For adding beta and nightly builds, you can use the following update site urls.
 <a name="InstallTools"></a>
 # Installing ESP-IDF
 
-To install ESP-IDF directly from the Eclipse:
+>With release of the beata 3.0 all the old installation flows for the ESP-IDF are now closed. We will be moving forward with this approach from next stable release.
 
-1. Go to `Espressif` > `Download and Configure ESP-IDF`.
-1. From the `Download ESP-IDF` section, choose ESP-IDF version and directory to download.
-1. Click on `Finish`.
+Please follow the instructions bleow for installing ESP-IDF in the Espressif IDE.
 
+1. Go to `Espressif` > `ESP-IDF Manager`. The following editor will open
+![](docs/images/ToolsManager/ESP-IDF_Manager_Editor_Screen.png)
+
+1. Click on `Add ESP-IDF` button.
+![](docs/images/ToolsManager/ESP-IDF_Configuration_Download_or_Use_ESP-IDF.png)
+From the screen shown above you can choose an already downloaded ESP-IDF Directory or you can select and download directly from the given dialog. The `Git` and `Python` must be installed and if it is configured in system PATH it will be preloaded in the given view. If not you can Browse to the directory and select the proper executables.
+
+1. Click on `Finish` which will be enabled after all the paths and executables are properly configured.
+
+> **Note** Please note that the python executable is not the one from the virtual environment created from the installation of the ESP-IDF via other means like from CLI. If you are selecting an already installed ESP-IDF directory IDE will automatically pick up the python once you have installed the tools.
 To configure an existing ESP-IDF:
 
-1. Go to `Espressif` > `Download and Configure ESP-IDF`.
-1. Check `Use an existing ESP-IDF directory from the file system`.
-1. Choose an existing ESP-IDF directory from the file system.
-1. Click on `Finish`.
+After you have clicked `Finish` you will see the progress on console for the tools getting installed. Once the installation is done and this is the very first set of ESP-IDF installed in the IDE it will be activated as well and you will see a similar entry in the editor for ESP-IDF Manager
+![](docs/images/ToolsManager/Tool_installed_and_activated.png)
 
-This will download a specified ESP-IDF version and configure `IDF_PATH` in the Eclipse CDT build environment variables.
+You can add as many version of ESP-IDF as you want but only one of the version can be set active and that will be used to compile and index projects in your workspace. This new feature can help you in swithcing between versions in the workspace easily.
 
-![](docs/images/espidf_download.png)
+Lets take a look at how the multiple versions will look like. You have to follow the same steps as done previously to add another ESP-IDF version to the IDE.
+![](docs/images/ToolsManager/ESP-IDF_Manager_Multiple_versions.png)
 
-# Installing ESP-IDF Tools
+To activate any specific version simply click on the radio button next to it in the `Active` column.
 
-ESP-IDF requires the installation of several prerequisite tools to build firmware for the ESP32. These tools include Python, Git, cross-compilers, the menuconfig tool, CMake, and Ninja build tools.
+The refresh button in last column for the active ESP-IDF version can be used to reload any changes in the directory you made. 
 
-Follow the below instructions to get started.
-
-1. Navigate to `Espressif` > `ESP-IDF Tools Manager` > `Install Tools`.
-1. Provide the `ESP-IDF Directory` path.
-1. Provide `Git` and `Python` executable locations if they are not auto-detected.
-1. Click on `Install Tools` to proceed with the installation process. Check the Console for the installation details.
-1. Installation might take a while if you're doing it for the first time since it has to download and install `xtensa-esp32-elf`, `esp32ulp-elf`, Cmake, `openocd-esp32` and Ninja tools.
-
-> **Note:** Ensure that you perform this step even if you have already installed the necessary tools. This step sets the IDF_PATH, PATH, OPENOCD_SCRIPTS, and IDF_PYTHON_ENV_PATH in the Eclipse CDT build environment based on the idf_tools.py export command.
-
-![](docs/images/install_tools.png)
-
-ESP-IDF Directory selection dialog:
-
-![](docs/images/esp_idf_dir.png)
+> **Note** Please note that you can not delete an active ESP-IDF Version you need to activate another version before deleting that.
 
 <a name="NewProjectUsingDefault"></a>
 # Create a new Project
@@ -256,24 +248,6 @@ To learn more about the debug configuration, please refer to <a href="https://gi
 
 ![](docs/images/4_new_project_templates.png)
 
-<a name="InstallToolsWizard"></a>
-# Tools Installation Wizard
-
-You can use the Tools Installation Wizard to manage the tools installation via a wizard. The advantage of this method over the existing installation is that you can easily manage the whole flow via the wizard and install the tools in ESP-IDF framework that you only need.<br/>
-
-To get started:
-
-1. Navigate to `Espressif` > `ESP-IDF Tools Manager` > `Tools Installation Wizard (Preview)`.
-![](docs/images/ToolsManager/install_tools_manager.png)
-
-1. The wizard will start and you can select the location for the Git and Python, if they are already present on the system PATH or registry the tools will be populated. After selection, you can click `Next`.
-![](docs/images/ToolsManager/git_python_selection.png)
-
-1. Next page will let you select the folder for existing ESP-IDF or you can also select from the drop down list to download the available versions. You can also select master from the list to clone the master for ESP-IDF from GitHub.
-![](docs/images/ToolsManager/select_or_download_new_esp_idf.png)
-
-1. After you select `Next` you will see the list of all the available tools in the selected ESP-IDF version, this page lets you select only the recommended tools or you can select the tools you want to. You can also filter out the tools via the filter text box or based on the target. The wizard page is the last page and will Install and Download if necessary all the selected tools required. After you have installed all the tools you can finish the wizard and start creating projects.
-![](docs/images/ToolsManager/manage_tools_installation.png)
 
 <a name="projectconfigure"></a>
 # SDK Configuration editor
