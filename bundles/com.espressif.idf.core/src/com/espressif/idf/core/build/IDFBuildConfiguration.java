@@ -35,6 +35,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.eclipse.cdt.build.gcc.core.ClangToolChain;
+import org.eclipse.cdt.build.gcc.core.GCCToolChain;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainFile;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
 import org.eclipse.cdt.cmake.core.internal.CMakeUtils;
@@ -84,6 +85,7 @@ import com.espressif.idf.core.IDFCorePreferenceConstants;
 import com.espressif.idf.core.internal.CMakeConsoleWrapper;
 import com.espressif.idf.core.internal.CMakeErrorParser;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.ClangdConfigFileHandler;
 import com.espressif.idf.core.util.DfuCommandsUtil;
 import com.espressif.idf.core.util.HintsUtil;
 import com.espressif.idf.core.util.IDFUtil;
@@ -322,7 +324,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 				runCmakeCommand(console, monitor, project, generator, infoStream, buildDir);
 			}
 			runCmakeBuildCommand(console, monitor, project, start, generator, infoStream, buildDir);
-
+			new ClangdConfigFileHandler().update(project);
 			return new IProject[] { project };
 		}
 		catch (Exception e)
@@ -414,27 +416,35 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 				project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 				ParitionSizeHandler paritionSizeHandler = new ParitionSizeHandler(project, infoStream, console);
 				paritionSizeHandler.startCheckingSize();
-				
-				writeConsoleNotes(infoStream);
+
+				if (getToolChain() instanceof GCCToolChain toolchain)
+					writeConsoleNotes(infoStream, workingDir.toOSString(), toolchain.getPath().toString());
+
 			}
 
 			infoStream.write(MessageFormat.format("Total time taken to build the project: {0} ms", timeElapsed)); //$NON-NLS-1$
 		}
 	}
-	
-	private void writeConsoleNotes(ConsoleOutputStream infoStream) throws IOException
+
+	private void writeConsoleNotes(ConsoleOutputStream infoStream, String workingDir, String toolchainPath)
+			throws IOException
 	{
 		infoStream.write("clangd Troubleshooting:"); //$NON-NLS-1$
 		infoStream.write("\n");//$NON-NLS-1$
-		infoStream.write(
-				"1. If there are any unresolved header issues, please check the query driver configured in Preferences > C/C++ > Build > Editor(LSP) > clangd and" //$NON-NLS-1$
-				+ "\n set the correct Drivers path. This should always point to the current target toolchain you're using." //$NON-NLS-1$
-				+ "\n For example, if you are building for esp32, it should point to /user/path/.espressif/tools/xtensa-esp32-elf/esp-12.2.0_20230208/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc."); //$NON-NLS-1$
+		infoStream.write(String.format(
+				"""
+						1. If there are any unresolved header issues, please check the query driver configured in Preferences > C/C++ > Build > Editor(LSP) > clangd and
+						set the correct Drivers path. This should always point to the current target toolchain you're using.
+						. For example, if you are building for the current target, it should point to %s""", //$NON-NLS-1$
+				toolchainPath));
 		infoStream.write("\n");//$NON-NLS-1$
 		infoStream.write("\n");//$NON-NLS-1$
 		infoStream.write(
 				"2. To enable source code navigation (i.e., navigation to .c files), you need to set compile-commands-cmd argument to clangd with the build folder." //$NON-NLS-1$
-				+ "\n To do this, navigate to Preferences > C/C++ > Build > Editor(LSP) > clangd and set --compile-commands-cmd=/user/path/workspace/project/build in the additional arguments text area."); //$NON-NLS-1$
+						+ String.format(
+								"%nTo do this, navigate to Preferences > C/C++ > Build > Editor(LSP) > clangd and set --compile-commands-cmd=%s in the additional arguments text area.", //$NON-NLS-1$
+								workingDir));
+		infoStream.write("\n");//$NON-NLS-1$
 	}
 
 	private void runCmakeCommand(IConsole console, IProgressMonitor monitor, IProject project, String generator,
@@ -605,7 +615,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		return matchedToolChains.stream().findAny().orElse(toolChainManager.getToolChain(typeId, id));
 	}
 
-
 	@Override
 	public void clean(IConsole console, IProgressMonitor monitor) throws CoreException
 	{
@@ -671,7 +680,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 					.errorStatus(String.format(Messages.CMakeBuildConfiguration_Cleaning, project.getName()), e));
 		}
 	}
-
 
 	/**
 	 * Recursively removes any files and directories found below the specified Path.
