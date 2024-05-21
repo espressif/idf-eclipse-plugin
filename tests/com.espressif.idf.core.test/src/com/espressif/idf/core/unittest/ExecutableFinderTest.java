@@ -13,6 +13,8 @@ import java.io.IOException;
 import org.eclipse.core.runtime.IPath;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 import com.espressif.idf.core.ExecutableFinder;
@@ -138,6 +140,7 @@ class ExecutableFinderTest
 	}
 
 	@Test
+	@EnabledOnOs(OS.WINDOWS)
 	void testWindowsFindReturnsExpectedResultOnFoundableExecutable()
 	{
 		IPath foundExecutable = windowsExecutableFinder.find(FOUNDABLE_EXE_FILE_STRING);
@@ -145,6 +148,7 @@ class ExecutableFinderTest
 	}
 
 	@Test
+	@EnabledOnOs(OS.WINDOWS)
 	void testWindowsFindReturnsNullOnNonFoundableExecutable()
 	{
 		IPath nonFoundableExecutable = windowsExecutableFinder.find(NON_FOUNDABLE_EXE_FILE_STRING);
@@ -152,6 +156,7 @@ class ExecutableFinderTest
 	}
 
 	@Test
+	@EnabledOnOs(OS.WINDOWS)
 	void testWindowsFindReturnsNullOnNull()
 	{
 		IPath nullPath = windowsExecutableFinder.find(null);
@@ -159,6 +164,7 @@ class ExecutableFinderTest
 	}
 
 	@Test
+	@EnabledOnOs(OS.WINDOWS)
 	void testWindowsFindReturnsNullWithEmpyPath()
 	{
 		ExecutableFinder executableFinder = new TestableSystemExecutableFinderWindows(emptyPathSystemWrapper);
@@ -167,6 +173,7 @@ class ExecutableFinderTest
 	}
 
 	@Test
+	@EnabledOnOs(OS.WINDOWS)
 	void testWindowsFindReturnsNullWithEmpyPathExt()
 	{
 		ExecutableFinder executableFinder = new TestableSystemExecutableFinderWindows(emptyPathExtSystemWrapper);
@@ -175,6 +182,7 @@ class ExecutableFinderTest
 	}
 
 	@Test
+	@EnabledOnOs(OS.WINDOWS)
 	void testWindowsFindReturnsNullOnFoundableNonExecutable()
 	{
 		IPath foundNonExecutable = windowsExecutableFinder.find(FOUNDABLE_TEXT_FILE_STRING);
@@ -182,6 +190,7 @@ class ExecutableFinderTest
 	}
 
 	@Test
+	@EnabledOnOs(OS.WINDOWS)
 	void testWindowsFindReturnsNullOnNonFoundableNonExecutable()
 	{
 		IPath nonFoudableNonExecutable = windowsExecutableFinder.find(NON_FOUNDABLE_TEXT_FILE_STRING);
@@ -189,6 +198,7 @@ class ExecutableFinderTest
 	}
 
 	@Test
+	@EnabledOnOs(OS.WINDOWS)
 	void testWindowsReturnsNullWhenSystemReturnsIncorrectExecutable()
 	{
 		SystemWrapper incorrectSystemWrapper = new SystemWrapper()
