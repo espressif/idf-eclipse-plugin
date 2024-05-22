@@ -5,9 +5,14 @@
 package com.espressif.idf.ui;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
+import org.eclipse.cdt.lsp.LspUtils;
+import org.eclipse.cdt.lsp.clangd.ClangdConfiguration;
+import org.eclipse.cdt.lsp.clangd.ClangdMetadata;
+import org.eclipse.cdt.lsp.editor.Configuration;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
@@ -16,6 +21,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.launchbar.core.ILaunchBarListener;
@@ -25,6 +31,7 @@ import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.ui.ILaunchBarUIManager;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.build.IDFLaunchConstants;
@@ -59,10 +66,37 @@ public class LaunchBarListener implements ILaunchBarListener
 				if (!StringUtil.isEmpty(targetName) && (!targetChangeIgnored))
 				{
 					update(targetName);
+					updateLspQueryDrivers();
+					restartLspServers();
 				}
 			}
 		});
 
+	}
+
+	@SuppressWarnings("restriction")
+	private void restartLspServers()
+	{
+		LspUtils.getLanguageServers().forEach(w -> {
+			try
+			{
+				w.restart();
+			}
+			catch (IOException e)
+			{
+				Logger.log(e);
+			}
+		});
+	}
+
+	@SuppressWarnings("restriction")
+	private void updateLspQueryDrivers()
+	{
+		Configuration configuration = PlatformUI.getWorkbench().getService(ClangdConfiguration.class);
+		ClangdMetadata metadata = (ClangdMetadata) configuration.metadata();
+		String qualifier = configuration.qualifier();
+		InstanceScope.INSTANCE.getNode(qualifier).put(metadata.queryDriver().identifer(),
+				metadata.queryDriver().defaultValue());
 	}
 
 	private void update(String newTarget)
