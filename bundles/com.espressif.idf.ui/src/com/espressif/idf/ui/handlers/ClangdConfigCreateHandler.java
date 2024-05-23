@@ -15,7 +15,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IPageLayout;
 
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.lsp.ClangdConfigFileHandler;
+import com.espressif.idf.core.util.ClangdConfigFileHandler;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>

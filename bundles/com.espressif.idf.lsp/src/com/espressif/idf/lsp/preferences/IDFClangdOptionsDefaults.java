@@ -10,9 +10,9 @@ import org.eclipse.cdt.lsp.clangd.BuiltinClangdOptionsDefaults;
 import org.eclipse.cdt.lsp.clangd.ClangdOptionsDefaults;
 import org.osgi.service.component.annotations.Component;
 
+import com.espressif.idf.core.ILSPConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.lsp.ILSPConstants;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>

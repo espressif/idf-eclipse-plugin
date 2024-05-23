@@ -2,7 +2,7 @@
  * Copyright 2024 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.lsp;
+package com.espressif.idf.core.util;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,7 +19,12 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.QualifiedName;
 import org.yaml.snakeyaml.Yaml;
+
+import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.ILSPConstants;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -40,13 +45,14 @@ public class ClangdConfigFileHandler
 		Map<String, Object> data = createOrGetExistingYamlStructure(obj);
 
 		// Add or update CompileFlags section
-		Map<String, Object> compileFlags = (Map<String, Object>) data.get("CompileFlags");
+		Map<String, Object> compileFlags = (Map<String, Object>) data.get("CompileFlags"); //$NON-NLS-1$
 		if (compileFlags == null)
 		{
 			compileFlags = new LinkedHashMap<>();
 			data.put("CompileFlags", compileFlags); //$NON-NLS-1$
 		}
-		updateCompileFlagsSection(compileFlags);
+		updateCompileFlagsSection(compileFlags, project
+				.getPersistentProperty(new QualifiedName(IDFCorePlugin.PLUGIN_ID, IDFConstants.BUILD_DIR_PROPERTY)));
 
 		// Write updated clangd back to file
 		try (Writer writer = new FileWriter(file))
@@ -69,10 +75,10 @@ public class ClangdConfigFileHandler
 		return new LinkedHashMap<>();
 	}
 
-	private void updateCompileFlagsSection(Map<String, Object> compileFlags)
+	private void updateCompileFlagsSection(Map<String, Object> compileFlags, String buildFolderName)
 	{
-		compileFlags.put("CompilationDatabase", "build"); //$NON-NLS-1$ //$NON-NLS-2$
-		compileFlags.put("Remove", Arrays.asList("-m*", "-f*")); //$NON-NLS-1$ //$NON-NLS-2$
+		compileFlags.put("CompilationDatabase", buildFolderName.isEmpty() ? "build" : buildFolderName); //$NON-NLS-1$ //$NON-NLS-2$
+		compileFlags.put("Remove", Arrays.asList("-m*", "-f*")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	private File getClangdConfigFile(IProject project) throws IOException, CoreException
