@@ -30,11 +30,11 @@ public class IDFClangdOptionsDefaults extends BuiltinClangdOptionsDefaults
 		Logger.log("clangd: " + clandPath); //$NON-NLS-1$
 		return Optional.ofNullable(clandPath).orElse(ILSPConstants.CLANGD_EXECUTABLE);
 	}
-	
+
 	@Override
 	public String queryDriver()
 	{
-		//By passing --query-driver argument to clangd helps to resolve the cross-compiler toolchain headers.
+		// By passing --query-driver argument to clangd helps to resolve the cross-compiler toolchain headers.
 		String toolchainPath = IDFUtil.getToolchainExePathForActiveTarget();
 		Logger.log("toolchain path: " + toolchainPath); //$NON-NLS-1$
 		return Optional.ofNullable(toolchainPath).orElse(super.queryDriver());
