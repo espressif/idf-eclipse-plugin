@@ -362,7 +362,6 @@ public abstract class ToolsJob extends Job
 			while ((line = reader.readLine()) != null)
 			{
 				output.append(line).append(System.lineSeparator());
-				console.println(line);
 			}
 			
 			while (process.isAlive() && waitCount > 0)

@@ -24,6 +24,7 @@ public class Messages extends NLS
 	public static String CMakeErrorParser_NotAWorkspaceResource;
 	public static String IDFBuildConfiguration_CMakeBuildConfiguration_NoToolchainFile;
 	public static String IDFBuildConfiguration_ParseCommand;
+	public static String IDFBuildConfiguration_PreCheck_DifferentIdfPath;
 	public static String IncreasePartitionSizeTitle;
 	public static String IncreasePartitionSizeMessage;
 

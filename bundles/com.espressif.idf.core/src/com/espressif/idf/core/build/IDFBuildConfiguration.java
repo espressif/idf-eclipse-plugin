@@ -81,6 +81,7 @@ import org.eclipse.launchbar.core.target.ILaunchTarget;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFCorePreferenceConstants;
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.internal.CMakeConsoleWrapper;
 import com.espressif.idf.core.internal.CMakeErrorParser;
 import com.espressif.idf.core.logging.Logger;
@@ -88,6 +89,7 @@ import com.espressif.idf.core.util.DfuCommandsUtil;
 import com.espressif.idf.core.util.HintsUtil;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.ParitionSizeHandler;
+import com.espressif.idf.core.util.ProjectDescriptionReader;
 import com.espressif.idf.core.util.StringUtil;
 
 @SuppressWarnings(value = { "restriction" })
@@ -283,6 +285,18 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	public IProject[] build(int kind, Map<String, String> args, IConsole console, IProgressMonitor monitor)
 			throws CoreException
 	{
+		try
+		{
+			if (!buildPrechecks(console))
+			{
+				return new IProject[] { getProject() };
+			}
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+		}
+		
 		this.monitor = monitor;
 		isProgressSet = false;
 
@@ -330,6 +344,37 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 			throw new CoreException(IDFCorePlugin
 					.errorStatus(String.format(Messages.CMakeBuildConfiguration_Building, project.getName()), e));
 		}
+	}
+
+	private boolean buildPrechecks(IConsole console) throws Exception
+	{
+		ProjectDescriptionReader projectDescriptionReader = new ProjectDescriptionReader(getProject());
+		String projectDescriptionIdfPath = projectDescriptionReader.getIdfPath();
+		if (StringUtil.isEmpty(projectDescriptionIdfPath))
+		{
+			return true;
+		}
+		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+		String envIdfPath = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH);
+		boolean samePaths = false;
+		if (Platform.getOS().equals(Platform.OS_WIN32))
+		{
+			samePaths = projectDescriptionIdfPath.equalsIgnoreCase(envIdfPath);
+		}
+		else 
+		{
+			samePaths = projectDescriptionIdfPath.equals(envIdfPath);
+		}
+		
+		if (!samePaths)
+		{
+			String outputMessage = MessageFormat.format(Messages.IDFBuildConfiguration_PreCheck_DifferentIdfPath, projectDescriptionIdfPath, envIdfPath);
+			console.getInfoStream().write(outputMessage);
+			
+			return false;
+		}
+		
+		return true;
 	}
 
 	private void runCmakeBuildCommand(IConsole console, IProgressMonitor monitor, IProject project, Instant start,
