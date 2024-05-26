@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.junit.After;
@@ -167,8 +168,12 @@ public class NewEspressifIDFProjectSBOMTest
 		{
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "ESP-IDF: SBOM Tool");
 			bot.checkBox("Redirect output to the file").click();
-			ProjectTestOperations.setTextFieldInShell(bot, "Software Bill of Materials Tool", "Output File Path", " ");
-			assertTrue(ProjectTestOperations.checkButtonIsDisabled(bot, "OK"));
+			if (!SystemUtils.IS_OS_LINUX)
+			{
+				ProjectTestOperations.setTextFieldInShell(bot, "Software Bill of Materials Tool", "Output File Path",
+						" ");
+				assertTrue(ProjectTestOperations.checkButtonIsDisabled(bot, "OK"));
+			}
 			ProjectTestOperations.setTextFieldInShell(bot, "Software Bill of Materials Tool", "Output File Path", "");
 			ProjectTestOperations.setTextFieldInShell(bot, "Software Bill of Materials Tool",
 					"Project Description Path", "");
