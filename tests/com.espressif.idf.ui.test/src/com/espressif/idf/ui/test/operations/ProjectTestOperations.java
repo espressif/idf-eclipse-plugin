@@ -575,7 +575,7 @@ public class ProjectTestOperations
 			projectItem.select();
 			projectItem.contextMenu(contextMenuLabel).click();
 		}
-		bot.sleep(3000);
+		WaitUtils.waitForJobs();
 	}
 
 	public static void findInConsole(SWTWorkbenchBot bot, String consoleName, String findText) throws IOException
