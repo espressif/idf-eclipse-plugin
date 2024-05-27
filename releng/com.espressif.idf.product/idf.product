@@ -42,10 +42,10 @@
    <intro introId="com.espressif.idf.ui.intro"/>
 
    <vm>
-      <linux include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11</linux>
-      <macos include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11</macos>
+      <linux include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17</linux>
+      <macos include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17</macos>
       <solaris include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11</solaris>
-      <windows include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11</windows>
+      <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17</windows>
    </vm>
 
    <plugins>
@@ -55,6 +55,7 @@
       <feature id="com.espressif.idf.feature" installMode="root"/>
       <feature id="org.eclipse.cdt" installMode="root"/>
       <feature id="org.eclipse.cdt.gdb" installMode="root"/>
+      <feature id="org.eclipse.justj.openjdk.hotspot.jre.full" installMode="root"/>
       <feature id="org.eclipse.cdt.gnu.build" installMode="root"/>
       <feature id="org.eclipse.cdt.gnu.debug" installMode="root"/>
       <feature id="org.eclipse.cdt.gnu.dsf" installMode="root"/>

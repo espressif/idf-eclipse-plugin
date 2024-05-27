@@ -38,6 +38,7 @@
 					</target>
 					<resolver>p2</resolver>
 					<pomDependencies>consider</pomDependencies>
+					<executionEnvironment>org.eclipse.justj.openjdk.hotspot.jre.full-17</executionEnvironment>
 					<environments>
 						<environment>
 							<os>linux</os>
