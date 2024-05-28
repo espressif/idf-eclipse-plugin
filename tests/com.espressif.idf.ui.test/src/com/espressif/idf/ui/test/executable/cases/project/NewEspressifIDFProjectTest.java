@@ -360,7 +360,7 @@ public class NewEspressifIDFProjectTest
 
 		private static void whenProjectCleanUsingContextMenu() throws IOException
 		{
-			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "ESP-IDF: Project Clean");
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Project Clean");
 			ProjectTestOperations.joinJobByName(Messages.ProjectCleanCommandHandler_RunningProjectCleanJobName);
 			ProjectTestOperations.waitForProjectClean(bot);
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
@@ -369,7 +369,7 @@ public class NewEspressifIDFProjectTest
 
 		private static void whenProjectFullCleanUsingContextMenu() throws IOException
 		{
-			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "ESP-IDF: Project Full Clean");
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Project Full Clean");
 			ProjectTestOperations.joinJobByName(Messages.ProjectFullCleanCommandHandler_RunningFullcleanJobName);
 			ProjectTestOperations.waitForProjectClean(bot);
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
@@ -379,7 +379,7 @@ public class NewEspressifIDFProjectTest
 
 		private static void whenProjectPythonCleanUsingContextMenu() throws IOException
 		{
-			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "ESP-IDF: Python Clean");
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Python Clean");
 			ProjectTestOperations.joinJobByName(Messages.PythonCleanCommandHandler_RunningPythonCleanJobName);
 		}
 
