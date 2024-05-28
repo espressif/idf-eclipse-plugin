@@ -350,20 +350,24 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	{
 		ProjectDescriptionReader projectDescriptionReader = new ProjectDescriptionReader(getProject());
 		String projectDescriptionIdfPath = projectDescriptionReader.getIdfPath();
+		Path pathPdIdfPath = Paths.get(projectDescriptionIdfPath);
+		
 		if (StringUtil.isEmpty(projectDescriptionIdfPath))
 		{
 			return true;
 		}
 		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
 		String envIdfPath = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH);
+		Path pathEnvIdf = Paths.get(envIdfPath);
+		
 		boolean samePaths = false;
 		if (Platform.getOS().equals(Platform.OS_WIN32))
 		{
-			samePaths = projectDescriptionIdfPath.equalsIgnoreCase(envIdfPath);
+			samePaths = pathEnvIdf.toString().equalsIgnoreCase(pathPdIdfPath.toString());
 		}
 		else 
 		{
-			samePaths = projectDescriptionIdfPath.equals(envIdfPath);
+			samePaths = pathEnvIdf.toString().equals(pathPdIdfPath.toString());
 		}
 		
 		if (!samePaths)
