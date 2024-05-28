@@ -77,7 +77,8 @@ public class ClangdConfigFileHandler
 
 	private void updateCompileFlagsSection(Map<String, Object> compileFlags, String buildFolderName)
 	{
-		compileFlags.put("CompilationDatabase", buildFolderName.isEmpty() ? "build" : buildFolderName); //$NON-NLS-1$ //$NON-NLS-2$
+		compileFlags.put("CompilationDatabase", //$NON-NLS-1$
+				buildFolderName == null || buildFolderName.isEmpty() ? "build" : buildFolderName); //$NON-NLS-1$
 		compileFlags.put("Remove", Arrays.asList("-m*", "-f*")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
