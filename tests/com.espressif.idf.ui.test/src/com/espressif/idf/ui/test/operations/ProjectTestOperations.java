@@ -253,7 +253,7 @@ public class ProjectTestOperations
 		if (projectItem != null)
 		{
 			projectItem.select();
-			projectItem.contextMenu("ESP-IDF: Install New Component").click();
+			projectItem.contextMenu("Install New Component").click();
 		}
 	}
 
