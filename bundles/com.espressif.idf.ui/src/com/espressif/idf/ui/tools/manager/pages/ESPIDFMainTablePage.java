@@ -392,17 +392,6 @@ public class ESPIDFMainTablePage
 			
 			item.setData(EDITOR_KEY, editor);
 			IDFToolSet idfToolSet = (IDFToolSet) cell.getElement();
-			Button removeButton = new Button(buttonComposite, SWT.PUSH | SWT.FLAT);
-			removeButton.pack(); 
-			removeButton.setData(IDF_TOOL_SET_BTN_KEY, idfToolSet);
-			removeButton.setImage(UIPlugin.getImage(REMOVE_ICON));
-			removeButton.setToolTipText(Messages.EspIdfManagerDeleteBtnToolTip);
-			removeButton.addListener(SWT.Selection, e -> {
-				Button btn = (Button) e.widget;
-				IDFToolSet selectedToolSet = (IDFToolSet) btn.getData(IDF_TOOL_SET_BTN_KEY);
-				performDeleteOperation(selectedToolSet);
-				refreshTable();
-			});
 			
 			if (idfToolSet.isActive())
 			{
@@ -418,6 +407,20 @@ public class ESPIDFMainTablePage
 					ToolsActivationJobListener toolsActivationJobListener = new ToolsActivationJobListener(ESPIDFMainTablePage.this);
 					toolsActivationJob.addJobChangeListener(toolsActivationJobListener);
 					toolsActivationJob.schedule();
+				});
+			}
+			else 
+			{
+				Button removeButton = new Button(buttonComposite, SWT.PUSH | SWT.FLAT);
+				removeButton.pack(); 
+				removeButton.setData(IDF_TOOL_SET_BTN_KEY, idfToolSet);
+				removeButton.setImage(UIPlugin.getImage(REMOVE_ICON));
+				removeButton.setToolTipText(Messages.EspIdfManagerDeleteBtnToolTip);
+				removeButton.addListener(SWT.Selection, e -> {
+					Button btn = (Button) e.widget;
+					IDFToolSet selectedToolSet = (IDFToolSet) btn.getData(IDF_TOOL_SET_BTN_KEY);
+					performDeleteOperation(selectedToolSet);
+					refreshTable();
 				});
 			}
 
