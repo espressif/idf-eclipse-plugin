@@ -131,7 +131,7 @@ public class NewEspressifIDFProjectSBOMTest
 
 		private static void runSBOMtoolBeforeProjectBuild() throws IOException
 		{
-			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "ESP-IDF: SBOM Tool");
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "SBOM Tool");
 			assertTrue(ProjectTestOperations.checkButtonIsDisabled(bot, "OK"));
 			bot.checkBox("Redirect output to the file").click();
 			assertTrue(ProjectTestOperations.checkButtonIsDisabled(bot, "OK"));
@@ -142,7 +142,7 @@ public class NewEspressifIDFProjectSBOMTest
 
 		private static void runSBOMtoolUsingContextMenu() throws IOException
 		{
-			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "ESP-IDF: SBOM Tool");
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "SBOM Tool");
 			bot.button("OK").click();
 			ProjectTestOperations
 					.joinJobByName(com.espressif.idf.ui.update.Messages.SbomCommandDialog_EspIdfSbomJobName);
@@ -151,7 +151,7 @@ public class NewEspressifIDFProjectSBOMTest
 
 		private static void runSBOMtoolUsingContextMenuRedirectOutputToFile() throws IOException
 		{
-			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "ESP-IDF: SBOM Tool");
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "SBOM Tool");
 			bot.checkBox("Redirect output to the file").click();
 			bot.button("OK").click();
 			ProjectTestOperations
@@ -166,7 +166,7 @@ public class NewEspressifIDFProjectSBOMTest
 
 		private static void runSBOMtoolCheckingPathValidation() throws IOException
 		{
-			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "ESP-IDF: SBOM Tool");
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "SBOM Tool");
 			bot.checkBox("Redirect output to the file").click();
 			if (!SystemUtils.IS_OS_LINUX)
 			{
