@@ -586,10 +586,9 @@ public class ProjectTestOperations
 		TestWidgetWaitUtility.waitUntilViewContains(bot, findText, consoleView, 3000);
 	}
 
-	public static boolean checkButtonIsDisabled(SWTWorkbenchBot bot, String buttonLabel) throws IOException
+	public static boolean checkButtonIsDisabled(SWTBotButton button)
 	{
-		bot.button(buttonLabel);
-		return !bot.button(buttonLabel).isEnabled(); // return false if active
+		return !button.isEnabled();
 	}
 
 	public static void setTextFieldInShell(SWTWorkbenchBot bot, String shellName, String textWithLabel, String setText)

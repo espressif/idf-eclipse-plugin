@@ -11,6 +11,7 @@ import java.io.IOException;
 import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -132,11 +133,12 @@ public class NewEspressifIDFProjectSBOMTest
 		private static void runSBOMtoolBeforeProjectBuild() throws IOException
 		{
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "SBOM Tool");
-			assertTrue(ProjectTestOperations.checkButtonIsDisabled(bot, "OK"));
+			SWTBotButton okButton = bot.button("OK");
+			assertTrue(ProjectTestOperations.checkButtonIsDisabled(okButton));
 			bot.checkBox("Redirect output to the file").click();
-			assertTrue(ProjectTestOperations.checkButtonIsDisabled(bot, "OK"));
+			assertTrue(ProjectTestOperations.checkButtonIsDisabled(okButton));
 			bot.checkBox("Redirect output to the file").click();
-			assertTrue(ProjectTestOperations.checkButtonIsDisabled(bot, "OK"));
+			assertTrue(ProjectTestOperations.checkButtonIsDisabled(okButton));
 			bot.button("Cancel").click();
 		}
 
@@ -168,22 +170,23 @@ public class NewEspressifIDFProjectSBOMTest
 		{
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "SBOM Tool");
 			bot.checkBox("Redirect output to the file").click();
+			SWTBotButton okButton = bot.button("OK");
 			if (!SystemUtils.IS_OS_LINUX)
 			{
 				ProjectTestOperations.setTextFieldInShell(bot, "Software Bill of Materials Tool", "Output File Path",
 						" ");
-				assertTrue(ProjectTestOperations.checkButtonIsDisabled(bot, "OK"));
+				assertTrue(ProjectTestOperations.checkButtonIsDisabled(okButton));
 			}
 			ProjectTestOperations.setTextFieldInShell(bot, "Software Bill of Materials Tool", "Output File Path", "");
 			ProjectTestOperations.setTextFieldInShell(bot, "Software Bill of Materials Tool",
 					"Project Description Path", "");
-			assertTrue(ProjectTestOperations.checkButtonIsDisabled(bot, "OK"));
+			assertTrue(ProjectTestOperations.checkButtonIsDisabled(okButton));
 			ProjectTestOperations.setTextFieldInShell(bot, "Software Bill of Materials Tool",
 					"Project Description Path", " ");
-			assertTrue(ProjectTestOperations.checkButtonIsDisabled(bot, "OK"));
+			assertTrue(ProjectTestOperations.checkButtonIsDisabled(okButton));
 			ProjectTestOperations.setTextFieldInShell(bot, "Software Bill of Materials Tool",
 					"Project Description Path", "\\");
-			assertTrue(ProjectTestOperations.checkButtonIsDisabled(bot, "OK"));
+			assertTrue(ProjectTestOperations.checkButtonIsDisabled(okButton));
 			bot.button("Cancel").click();
 		}
 	}
