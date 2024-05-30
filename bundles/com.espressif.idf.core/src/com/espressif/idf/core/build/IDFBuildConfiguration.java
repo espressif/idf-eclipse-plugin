@@ -298,7 +298,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		{
 			Logger.log(e);
 		}
-		
+
 		this.monitor = monitor;
 		isProgressSet = false;
 
@@ -353,7 +353,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		ProjectDescriptionReader projectDescriptionReader = new ProjectDescriptionReader(getProject());
 		String projectDescriptionIdfPath = projectDescriptionReader.getIdfPath();
 		Path pathPdIdfPath = Paths.get(projectDescriptionIdfPath);
-		
+
 		if (StringUtil.isEmpty(projectDescriptionIdfPath))
 		{
 			return true;
@@ -361,25 +361,26 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
 		String envIdfPath = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH);
 		Path pathEnvIdf = Paths.get(envIdfPath);
-		
+
 		boolean samePaths = false;
 		if (Platform.getOS().equals(Platform.OS_WIN32))
 		{
 			samePaths = pathEnvIdf.toString().equalsIgnoreCase(pathPdIdfPath.toString());
 		}
-		else 
+		else
 		{
 			samePaths = pathEnvIdf.toString().equals(pathPdIdfPath.toString());
 		}
-		
+
 		if (!samePaths)
 		{
-			String outputMessage = MessageFormat.format(Messages.IDFBuildConfiguration_PreCheck_DifferentIdfPath, projectDescriptionIdfPath, envIdfPath);
+			String outputMessage = MessageFormat.format(Messages.IDFBuildConfiguration_PreCheck_DifferentIdfPath,
+					projectDescriptionIdfPath, envIdfPath);
 			console.getInfoStream().write(outputMessage);
-			
+
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -489,9 +490,9 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		infoStream.write("\n");//$NON-NLS-1$
 		infoStream.write("\n");//$NON-NLS-1$
 		infoStream.write(
-				"2. To enable source code navigation (i.e., navigation to .c files), you need to set compile-commands-cmd argument to clangd with the build folder." //$NON-NLS-1$
+				"2. To enable source code navigation (i.e., navigation to .c files), you need to set compile-commands-dir argument to clangd with the build folder." //$NON-NLS-1$
 						+ String.format(
-								"%nTo do this, navigate to Preferences > C/C++ > Build > Editor(LSP) > clangd and set --compile-commands-cmd=%s in the additional arguments text area.", //$NON-NLS-1$
+								"%nTo do this, navigate to Preferences > C/C++ > Build > Editor(LSP) > clangd and set --compile-commands-dir=%s in the additional arguments text area.", //$NON-NLS-1$
 								workingDir));
 		infoStream.write("\n");//$NON-NLS-1$
 	}
