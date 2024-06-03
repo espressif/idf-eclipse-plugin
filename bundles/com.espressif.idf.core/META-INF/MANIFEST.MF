@@ -28,7 +28,10 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.variables,
  org.eclipse.embedcdt.core;visibility:=reexport,
  com.sun.jna,
- com.sun.jna.platform
+ com.sun.jna.platform,
+ org.eclipse.cdt.lsp.clangd,
+ org.eclipse.cdt.lsp,
+ org.eclipse.lsp4e
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: com.espressif.idf.core
 Bundle-ActivationPolicy: lazy

@@ -90,6 +90,7 @@ import com.espressif.idf.core.util.ClangdConfigFileHandler;
 import com.espressif.idf.core.util.DfuCommandsUtil;
 import com.espressif.idf.core.util.HintsUtil;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.LspService;
 import com.espressif.idf.core.util.ParitionSizeHandler;
 import com.espressif.idf.core.util.ProjectDescriptionReader;
 import com.espressif.idf.core.util.StringUtil;
@@ -469,7 +470,9 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 
 				if (getToolChain() instanceof GCCToolChain toolchain)
 					writeConsoleNotes(infoStream, workingDir.toOSString(), toolchain.getPath().toString());
-
+				LspService lspService = new LspService();
+				lspService.updateAdditionalOptions(String.format("--compile-commands-dir=%s", buildDir)); //$NON-NLS-1$
+				lspService.restartLspServers();
 			}
 
 			infoStream.write(MessageFormat.format("Total time taken to build the project: {0} ms", timeElapsed)); //$NON-NLS-1$
