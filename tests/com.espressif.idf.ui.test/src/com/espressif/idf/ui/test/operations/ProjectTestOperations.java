@@ -586,11 +586,6 @@ public class ProjectTestOperations
 		TestWidgetWaitUtility.waitUntilViewContains(bot, findText, consoleView, 3000);
 	}
 
-	public static void setTextFieldInShell(SWTWorkbenchBot bot, String shellName, String textWithLabel, String setText)
-	{
-		bot.shell(shellName).bot().textWithLabel(textWithLabel + ":").setText(setText);
-	}
-
 	public static void joinJobByName(String jobName)
 	{
 		Job[] jobs = Job.getJobManager().find(null);

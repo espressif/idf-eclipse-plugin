@@ -48,48 +48,98 @@ public class NewEspressifIDFProjectSBOMTest
 	}
 
 	@Test
-	public void givenNewProjectCreatedNotBuiltWhenOpenSBOMtoolThenSBOMtoolNotWorking() throws Exception
+	public void givenNewProjectCreatedNotBuiltWhenOpenSbomThenSbomIsDisabled() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewSbomProjectFirstTest");
+		Fixture.givenProjectNameIs("NewProjectSbomFirstTest");
 		Fixture.whenNewProjectIsSelected();
-		Fixture.whenOpenSBOMtool();
-		Fixture.thenRunOkbuttonDisabled(Fixture.bot);
+		Fixture.whenOpenSbomTool();
+		Fixture.thenRunOKbuttonDisabled(Fixture.bot);
+		Fixture.whenRedirectOutputToTheFileClicked();
+		Fixture.thenRunOKbuttonDisabled(Fixture.bot);
+		Fixture.whenRedirectOutputToTheFileClicked();
+		Fixture.thenRunOKbuttonDisabled(Fixture.bot);
 	}
 
 	@Test
-	public void givenNewProjectCreatedBuiltWhenRunSBOMtoolThenCheckResultInConsole() throws Exception
+	public void givenNewProjectCreatedBuiltWhenRunSbomThenSbomIsGeneratedInConsole() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewSbomProjectSecondTest");
+		Fixture.givenProjectNameIs("NewProjectSbomSecondTest");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
-		Fixture.whenRunSBOMtool();
+		Fixture.whenOpenSbomTool();
+		Fixture.whenRunSbomTool();
 		Fixture.thenCheckResultInConsole();
 	}
 
 	@Test
-	public void givenNewProjectCreatedBuiltWhenRunSBOMtoolRedirectOutputToFileThenVerifyConsoleAndCheckResultInFile()
+	public void givenNewProjectCreatedBuiltWhenRunSBOMtoolRedirectOutputToFileThenCheckConsoleAndSbomFile()
 			throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewSbomProjectThirdTest");
+		Fixture.givenProjectNameIs("NewProjectSbomThirdTest");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
-		Fixture.whenRunSBOMtoolUsingContextMenuRedirectOutputToFile();
-		Fixture.thenVerifyConsole();
-		Fixture.thenCheckResultInFile();
+		Fixture.whenOpenSbomTool();
+		Fixture.whenRedirectOutputToTheFileClicked();
+		Fixture.whenRunSbomTool();
+		Fixture.thenCheckInConsole();
+		Fixture.whenRefreshProject();
+		Fixture.thenOpenSbomFile();
+		Fixture.thenCheckSbomFile();
 	}
 
 	@Test
-	public void givenNewProjectCreatedBuiltWhenOpenSBOMtoolThenCheckPathValidation() throws Exception
+	public void givenNewProjectCreatedBuiltWhenOpenSbomAndCleanProjectDescriptionPathThenCheckPathValidation()
+			throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewSbomProjectFourthTest");
+		Fixture.givenProjectNameIs("NewProjectSbomFourthTest");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
-		Fixture.whenOpenSBOMtool();
-		Fixture.thenCheckPathValidation(Fixture.bot);
+		Fixture.whenOpenSbomTool();
+		Fixture.whenCleanProjectDescriptionPath();
+		Fixture.thenRunOKbuttonDisabled(Fixture.bot);
+	}
+
+	@Test
+	public void givenNewProjectCreatedBuiltWhenOpenSbomAndAddSpaceToProjectDescriptionPathThenCheckPathValidation()
+			throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectSbomFifthTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.whenOpenSbomTool();
+		Fixture.whenAddSpaceToProjectDescriptionPath();
+		Fixture.thenRunOKbuttonDisabled(Fixture.bot);
+	}
+
+	@Test
+	public void givenNewProjectCreatedBuiltWhenOpenSbomAndAddBackSlashToProjectDescriptionPathThenCheckPathValidation()
+			throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectSbomSixthTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.whenOpenSbomTool();
+		Fixture.whenAddBackSlashToProjectDescriptionPath();
+		Fixture.thenRunOKbuttonDisabled(Fixture.bot);
+	}
+
+	@Test
+	public void givenNewProjectCreatedBuiltWhenOpenSbomAndAddSpaceToOutputFilePathThenCheckPathValidation()
+			throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectSbomSeventhTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.whenOpenSbomTool();
+		Fixture.whenRedirectOutputToTheFileClicked();
+		Fixture.thenAddSpaceToOutputFilePathAndCheckValidation(Fixture.bot);
 	}
 
 	private static class Fixture
@@ -136,25 +186,24 @@ public class NewEspressifIDFProjectSBOMTest
 			ProjectTestOperations.deleteAllProjects(bot);
 		}
 
-		private static void whenOpenSBOMtool() throws IOException
+		private static void whenOpenSbomTool() throws IOException
 		{
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "SBOM Tool");
 		}
 
-		private static void thenRunOkbuttonDisabled(SWTWorkbenchBot bot) throws IOException
+		private static void thenRunOKbuttonDisabled(SWTWorkbenchBot bot) throws IOException
 		{
 			SWTBotButton okButton = bot.button("OK");
 			assertTrue(!okButton.isEnabled());
-			bot.checkBox("Redirect output to the file").click();
-			assertTrue(!okButton.isEnabled());
-			bot.checkBox("Redirect output to the file").click();
-			assertTrue(!okButton.isEnabled());
-			bot.button("Cancel").click();
 		}
 
-		private static void whenRunSBOMtool() throws IOException
+		private static void whenRedirectOutputToTheFileClicked() throws IOException
 		{
-			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "SBOM Tool");
+			bot.checkBox("Redirect output to the file").click();
+		}
+
+		private static void whenRunSbomTool() throws IOException
+		{
 			bot.button("OK").click();
 			ProjectTestOperations
 					.joinJobByName(com.espressif.idf.ui.update.Messages.SbomCommandDialog_EspIdfSbomJobName);
@@ -165,52 +214,51 @@ public class NewEspressifIDFProjectSBOMTest
 			ProjectTestOperations.findInConsole(bot, "Espressif IDF Tools Console", "SPDXVersion");
 		}
 
-		private static void thenVerifyConsole() throws IOException
+		private static void thenCheckInConsole() throws IOException
 		{
 			ProjectTestOperations.findInConsole(bot, "Espressif IDF Tools Console",
 					"The output was redirected to the file:");
 		}
 
-		private static void whenRunSBOMtoolUsingContextMenuRedirectOutputToFile() throws IOException
+		private static void whenRefreshProject() throws IOException
 		{
-			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "SBOM Tool");
-			bot.checkBox("Redirect output to the file").click();
-			bot.button("OK").click();
-			ProjectTestOperations
-					.joinJobByName(com.espressif.idf.ui.update.Messages.SbomCommandDialog_EspIdfSbomJobName);
-		}
-
-		private static void thenCheckResultInFile() throws IOException
-		{
-			ProjectTestOperations.findInConsole(bot, "Espressif IDF Tools Console",
-					"The output was redirected to the file:");
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
+		}
+
+		private static void thenOpenSbomFile() throws IOException
+		{
 			bot.tree().getTreeItem(projectName).getNode("sbom.txt").select();
 			bot.tree().getTreeItem(projectName).getNode("sbom.txt").doubleClick();
+		}
+
+		private static void thenCheckSbomFile() throws IOException
+		{
 			assertTrue(ProjectTestOperations.checkTextEditorContentForPhrase("SPDXVersion", bot));
 		}
 
-		private static void thenCheckPathValidation(SWTWorkbenchBot bot) throws IOException
+		private static void thenAddSpaceToOutputFilePathAndCheckValidation(SWTWorkbenchBot bot) throws IOException
 		{
 			SWTBotButton okButton = bot.button("OK");
-			bot.checkBox("Redirect output to the file").click();
 			if (!SystemUtils.IS_OS_LINUX)
 			{
-				ProjectTestOperations.setTextFieldInShell(bot, "Software Bill of Materials Tool", "Output File Path",
-						" ");
+				bot.shell("Software Bill of Materials Tool").bot().textWithLabel("Output File Path:").setText(" ");
 				assertTrue(!okButton.isEnabled());
 			}
-			ProjectTestOperations.setTextFieldInShell(bot, "Software Bill of Materials Tool", "Output File Path", "");
-			ProjectTestOperations.setTextFieldInShell(bot, "Software Bill of Materials Tool",
-					"Project Description Path", "");
-			assertTrue(!okButton.isEnabled());
-			ProjectTestOperations.setTextFieldInShell(bot, "Software Bill of Materials Tool",
-					"Project Description Path", " ");
-			assertTrue(!okButton.isEnabled());
-			ProjectTestOperations.setTextFieldInShell(bot, "Software Bill of Materials Tool",
-					"Project Description Path", "\\");
-			assertTrue(!okButton.isEnabled());
-			bot.button("Cancel").click();
+		}
+
+		private static void whenCleanProjectDescriptionPath() throws IOException
+		{
+			bot.shell("Software Bill of Materials Tool").bot().textWithLabel("Project Description Path:").setText("");
+		}
+
+		private static void whenAddSpaceToProjectDescriptionPath() throws IOException
+		{
+			bot.shell("Software Bill of Materials Tool").bot().textWithLabel("Project Description Path:").setText(" ");
+		}
+
+		private static void whenAddBackSlashToProjectDescriptionPath() throws IOException
+		{
+			bot.shell("Software Bill of Materials Tool").bot().textWithLabel("Project Description Path:").setText("\\");
 		}
 	}
 }
