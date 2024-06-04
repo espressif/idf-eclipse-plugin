@@ -35,7 +35,6 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.eclipse.cdt.build.gcc.core.ClangToolChain;
-import org.eclipse.cdt.build.gcc.core.GCCToolChain;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainFile;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
 import org.eclipse.cdt.cmake.core.internal.CMakeUtils;
@@ -468,8 +467,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 				ParitionSizeHandler paritionSizeHandler = new ParitionSizeHandler(project, infoStream, console);
 				paritionSizeHandler.startCheckingSize();
 
-				if (getToolChain() instanceof GCCToolChain toolchain)
-					writeConsoleNotes(infoStream, workingDir.toOSString(), toolchain.getPath().toString());
 				LspService lspService = new LspService();
 				lspService.updateAdditionalOptions(String.format("--compile-commands-dir=%s", buildDir)); //$NON-NLS-1$
 				lspService.restartLspServers();
@@ -477,27 +474,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 
 			infoStream.write(MessageFormat.format("Total time taken to build the project: {0} ms", timeElapsed)); //$NON-NLS-1$
 		}
-	}
-
-	private void writeConsoleNotes(ConsoleOutputStream infoStream, String workingDir, String toolchainPath)
-			throws IOException
-	{
-		infoStream.write("clangd Troubleshooting:"); //$NON-NLS-1$
-		infoStream.write("\n");//$NON-NLS-1$
-		infoStream.write(String.format(
-				"""
-						1. If there are any unresolved header issues, please check the query driver configured in Preferences > C/C++ > Build > Editor(LSP) > clangd and
-						set the correct Drivers path. This should always point to the current target toolchain you're using.
-						. For example, if you are building for the current target, it should point to %s""", //$NON-NLS-1$
-				toolchainPath));
-		infoStream.write("\n");//$NON-NLS-1$
-		infoStream.write("\n");//$NON-NLS-1$
-		infoStream.write(
-				"2. To enable source code navigation (i.e., navigation to .c files), you need to set compile-commands-dir argument to clangd with the build folder." //$NON-NLS-1$
-						+ String.format(
-								"%nTo do this, navigate to Preferences > C/C++ > Build > Editor(LSP) > clangd and set --compile-commands-dir=%s in the additional arguments text area.", //$NON-NLS-1$
-								workingDir));
-		infoStream.write("\n");//$NON-NLS-1$
 	}
 
 	private void runCmakeCommand(IConsole console, IProgressMonitor monitor, IProject project, String generator,
