@@ -63,7 +63,7 @@ public class NewEspressifIDFProjectTest
 	{
 		Fixture.cleanTestEnv();
 	}
-	
+
 	@Test
 	public void givenNewIDFProjectIsSelectedThenProjectIsCreatedAndAddedToProjectExplorer() throws Exception
 	{
@@ -71,7 +71,7 @@ public class NewEspressifIDFProjectTest
 		Fixture.givenProjectNameIs("NewProjectTest");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.thenProjectIsAddedToProjectExplorer();
-		
+
 	}
 
 	@Test
@@ -141,6 +141,7 @@ public class NewEspressifIDFProjectTest
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.whenInstallNewComponentUsingContextMenu();
+		Fixture.whenRefreshProject();
 		Fixture.checkIfNewComponentIsInstalledUsingContextMenu();
 	}
 
@@ -152,6 +153,7 @@ public class NewEspressifIDFProjectTest
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.whenProjectCleanUsingContextMenu();
+		Fixture.whenRefreshProject();
 		Fixture.checkIfProjectCleanedFilesInBuildFolder();
 	}
 
@@ -163,6 +165,7 @@ public class NewEspressifIDFProjectTest
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.whenProjectFullCleanUsingContextMenu();
+		Fixture.whenRefreshProject();
 		Fixture.checkIfProjectFullCleanedFilesInBuildFolder();
 	}
 
@@ -272,8 +275,11 @@ public class NewEspressifIDFProjectTest
 			bot.button("Install").click();
 			ProjectTestOperations.waitForProjectNewComponentInstalled(bot);
 			bot.editorByTitle(projectName).close();
+		}
+
+		private static void whenRefreshProject() throws IOException
+		{
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
-			bot.sleep(2000);
 		}
 
 		private static void checkPythonCLeanCommandDeleteFolder() throws IOException
@@ -363,8 +369,6 @@ public class NewEspressifIDFProjectTest
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Project Clean");
 			ProjectTestOperations.joinJobByName(Messages.ProjectCleanCommandHandler_RunningProjectCleanJobName);
 			ProjectTestOperations.findInConsole(bot, "Espressif IDF Tools Console", "Done");
-			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
-			bot.sleep(2000);
 		}
 
 		private static void whenProjectFullCleanUsingContextMenu() throws IOException
@@ -372,8 +376,6 @@ public class NewEspressifIDFProjectTest
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Project Full Clean");
 			ProjectTestOperations.joinJobByName(Messages.ProjectFullCleanCommandHandler_RunningFullcleanJobName);
 			ProjectTestOperations.findInConsole(bot, "Espressif IDF Tools Console", "Done");
-			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
-			bot.sleep(2000);
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 		}
 
