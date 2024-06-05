@@ -68,7 +68,7 @@ jobs:
           NOTARIZATION_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
           NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
           NOTARIZATION_TEAM_ID: ${{ secrets.NOTARIZATION_TEAM_ID }}
-        run: |
+      run: |
           echo "Create notary keychain"
           /usr/bin/security create-keychain -p espressif notary.keychain
           /usr/bin/security default-keychain -s notary.keychain
