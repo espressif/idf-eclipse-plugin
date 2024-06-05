@@ -81,7 +81,7 @@ If you plan to use Eclipse CDT and update it through the IDF Eclipse plugin, ple
 
 The minimum requirements for running the Espressif-IDE are below.
 * **Java 17 and above** : Download and install Java SE from <a href= "https://www.oracle.com/technetwork/java/javase/downloads/index.html">here</a>.
-* **Python 3.6 and above** : Download and install Python from <a href="https://www.python.org/downloads/">here</a>.
+* **Python 3.8 and above** : Download and install Python from <a href="https://www.python.org/downloads/">here</a>.
 * **Git** : Get the latest git from <a href ="https://git-scm.com/downloads">here</a>.
 
 > **Note:** Make sure Java, Python and Git are available on the system environment PATH.
@@ -111,9 +111,7 @@ For adding beta and nightly builds, you can use the following update site urls.
 <a name="InstallTools"></a>
 # Installing ESP-IDF
 
->With release of the beata 3.0 all the old installation flows for the ESP-IDF are now closed. We will be moving forward with this approach from next stable release.
-
-Please follow the instructions bleow for installing ESP-IDF in the Espressif IDE.
+Please follow the instructions below for installing ESP-IDF in the Espressif IDE.
 
 1. Go to `Espressif` > `ESP-IDF Manager`. The following editor will open
 ![](docs/images/ToolsManager/ESP-IDF_Manager_Editor_Screen.png)
