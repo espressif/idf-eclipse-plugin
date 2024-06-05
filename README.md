@@ -54,8 +54,7 @@ To get a quick understanding of ESP-IDF and Eclipse plugin features, check our s
 * [ Device Firmware Upgrade (DFU) through USB ](#deviceFirmwareUpgrade)<br>
 * [ GDBStub Debugging ](#gdbStubDebugging)<br>
 * [ Core Dump Debugging ](#coreDumpDebugging)<br>
-* [ Application Level Tracing ](#appLvlTracing)<br>
-* [ ESP-IDF master update](#updateEspIdfMaster)<br>
+* [ Application Level Tracing ](#appLvlTracing)<br
 * [ Partition Table Editor UI for ESP-IDF](#partitionTableEditor)<br>
 * [ NVS Table Editor](#nvsTableEditor)<br>
 * [ Write Binary Data to Flash](#writeFlashBinary)<br>
@@ -81,7 +80,7 @@ If you plan to use Eclipse CDT and update it through the IDF Eclipse plugin, ple
 
 The minimum requirements for running the Espressif-IDE are below.
 * **Java 17 and above** : Download and install Java SE from <a href= "https://www.oracle.com/technetwork/java/javase/downloads/index.html">here</a>.
-* **Python 3.6 and above** : Download and install Python from <a href="https://www.python.org/downloads/">here</a>.
+* **Python 3.8 and above** : Download and install Python from <a href="https://www.python.org/downloads/">here</a>.
 * **Git** : Get the latest git from <a href ="https://git-scm.com/downloads">here</a>.
 
 > **Note:** Make sure Java, Python and Git are available on the system environment PATH.
@@ -111,9 +110,7 @@ For adding beta and nightly builds, you can use the following update site urls.
 <a name="InstallTools"></a>
 # Installing ESP-IDF
 
->With release of the beata 3.0 all the old installation flows for the ESP-IDF are now closed. We will be moving forward with this approach from next stable release.
-
-Please follow the instructions bleow for installing ESP-IDF in the Espressif IDE.
+Please follow the instructions below for installing ESP-IDF in the Espressif-IDE.
 
 1. Go to `Espressif` > `ESP-IDF Manager`. The following editor will open
 ![](docs/images/ToolsManager/ESP-IDF_Manager_Editor_Screen.png)
@@ -286,7 +283,7 @@ The Application Size Analysis editor provides a way to analyze the static memory
 To launch the Application Size Analysis editor:
 
 1. Right-click on the project.
-1. Select `ESP-IDF: Application Size Analysis` menu option to launch the editor.
+1. Select `ESP-IDF` > `Application Size Analysis` menu option to launch the editor.
 
 **Application Size Analysis - Overview**
 
@@ -329,38 +326,13 @@ Already added components are also shown but the `Install` button changes text to
 <a name="configureEnvironmentVariables"></a>
 # Configuring Environment Variables
 
-Eclipse configures automatically the required environment variables in the `Preferences` > `C/C++ Build` > `Environment` section if IDF Tools are installed using `Espressif` > `ESP-IDF Tools Manager` > `Install Tools` menu option. Required environment variables:
-
-* `IDF_PATH`
-* `PATH`
-* `OPENOCD_SCRIPTS`
-* `IDF_PYTHON_ENV_PATH`
-
-If the required environment variables are not configured for any reason, please follow the step-by-step instructions below.
-
-1. Click on the `Environment` preference page under `C/C++ Build`.
-1. Click `Add…` again, and enter name `IDF_PATH`. The value should be the full path where ESP-IDF is installed.
-1. Similarly, we should configure `OPENOCD_SCRIPTS`, `IDF_PYTHON_ENV_PATH` and `PATH` environment variables.
-
-This is how they should look:
-
-##### IDF_PATH #####
-`/Users/user-name/esp/esp-idf`
-
-##### OPENOCD_SCRIPTS #####
-`/Users/user-name/.espressif/tools/openocd-esp32/v0.10.0-esp32-20190313/openocd-esp32/share/openocd/scripts`
-
-##### IDF_PYTHON_ENV_PATH #####
-`/Users/user-name/.espressif/python_env/idf4.0_py3.7_env`
-
-##### PATH #####
-`/Users/user-name/.espressif/tools/xtensa-esp32-elf/esp32-2019r1-8.2.0/xtensa-esp32-elf/bin:/Users/user-name/.espressif/tools/esp32ulp-elf/2.28.51.20170517/esp32ulp-elf-binutils/bin:/Users/user-name/.espressif/tools/cmake/3.13.4/CMake.app/Contents/bin:/Users/user-name/.espressif/tools/openocd-esp32/v0.10.0-esp32-20190313/openocd-esp32/bin:/Users/user-name/.espressif/tools/ninja/1.9.0/:/Users/user-name/.espressif/python_env/idf4.0_py3.7_env/bin:/Users/user-name/esp/esp-idf/tools:$PATH`
+All the required environment variables are automatically configured by the IDE during the ESP-IDF and Tools installation process (Espressif > ESP-IDF Manager > Add ESP-IDF). You can verify them in the Preferences page under `C/C++` > `Build` > `Environment`.
 
 ![](docs/images/2_environment_pref.png)
 
 # Configuring Toolchains
 
-We need to tell Eclipse CDT what core build toolchain and CMake toolchain to use to build the project. However, this will be auto-detected if you've installed the tools using the `Espressif` > `ESP-IDF Tools Manager` > `Install Tools` option from Eclipse.
+We need to tell Eclipse CDT what core build toolchain and CMake toolchain to use to build the project. However, this will be auto-detected if you've installed the tools using the `Espressif` > `ESP-IDF Manager` > `Add ESP-IDF` option from IDE.
 
 If these toolchains are not detected for any reason, please follow the step-by-step instructions below to add a new toolchain.
 
@@ -397,12 +369,9 @@ We now need to tell CDT which toolchain to use when building the project. This w
 <a name="SelectDifferentToolchain"></a>
 # Selecting Clang Toolchain
 
-With ESP-IDF Eclipse Plugin v2.7.0 and higher you can build your project with the Clang toolchain
-
-1. After updating/installing the ESP-IDF Eclipse plugin to v2.7.0 or higher, you need to run `Espressif` > `ESP-IDF Tools Manager` > `Install Tools` to update the toolchain list and environment variables, that are necessary for Clang toolchain.
 1. After creating a new project, edit the project configuration
 ![image](https://user-images.githubusercontent.com/24419842/194882285-9faadb5d-0fe2-4012-bb6e-bc23dedbdbd2.png)
-1. Go to `Build Settings` tab and select clang toolchain there:
+1. Go to the `Build Settings` tab and select clang toolchain there:
 ![image](https://user-images.githubusercontent.com/24419842/194882462-3c0fd660-b223-4caf-964d-58224d91b518.png)
 
 > **Note:** Clang toolchain now is an experimental feature and you may face some build issues due to the incompatibility of esp-idf. Below is a description of how to fix the most common build issue on the current ESP-IDF master (ESP-IDF v5.1-dev-992-gaf28c1fa21-dirty). To work around clang build errors please refer to [this](https://github.com/espressif/idf-eclipse-plugin/blob/master/WORKAROUNDS.md#clang-toolchain-buid-errors).
@@ -414,8 +383,8 @@ To provide the customized launch configuration and flash arguments, please follo
 
 1. Click on the `Launch Configuration` edit button.
 1. Switch to the `Main` tab.
-1. Specify the `Location` where this application has to run. Since `idf.py` is a python file, will configure the python system path. Example:`${system_path:python}`.
-1. Specify `Working directory` of the application. Example: `${workspace_loc:/hello_world}`.
+1. Specify the `Location` where this application has to run. Since `idf.py` is a Python file, will configure the Python system path. Example:`${system_path:python}`.
+1. Specify the `Working directory` of the application. Example: `${workspace_loc:/hello_world}`.
 1. In additional arguments, provide a flashing command which will run in the specified working directory.
 1. Flash command looks like this: `/Users/user-name/esp/esp-idf/tools/idf.py -p /dev/cu.SLAB_USBtoUART flash`.
 1. Click OK to save the settings.
@@ -433,7 +402,7 @@ To change the plugin language a menu is provided to show the list of available l
 1. Click on the `Espressif` menu from the menu bar.
 1. Select the `Change Language` from the drop-down menu.
 1. From the sub menu select the language you want.
-1. Eclipse will restart with selected language.
+1. IDE will restart with the selected language.
 
 ![](docs/images/change_language.png)
 
@@ -676,7 +645,7 @@ Before you start using application-level tracing, it is important to create a de
 
 ![](docs/images/AppLvlTracing_3.png)
 
-After debug configuration is created, right-click on the project in the `Project Explorer` and click on `ESP-IDF:Application Level Tracing`:
+After the debug configuration is created, right-click on the project in the Project Explorer and click on `ESP-IDF` > `Application Level Tracing`:
 
 ![](docs/images/AppLvlTracing_2.png)
 
@@ -708,26 +677,15 @@ When the output file is generated, you can click on `Start parse` button, and yo
 
 ![](docs/images/AppLvlTracing_5.png)
 
-<a name ="updateEspIdfMaster"></a>
-# ESP-IDF Master Update
-
-If you are using the master version of ESP-IDF and want to update it, you can do so in the plugin by going to `Espressif -> ESP-IDF Tool Manager` and clicking the `Update ESP-IDF master` command there.
-
-![image](https://user-images.githubusercontent.com/24419842/182107159-16723759-65e0-4c34-9440-ebe2f536e62a.png)
-
-> **Note:** This command is visible only if you are on the master branch in ESP-IDF.
-
 <a name ="partitionTableEditor"></a>
 # Partition Table Editor UI for ESP-IDF
 
-`ESP-IDF: Partition Table Editor` command allows to edit your [partition table](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/partition-tables.html) in a more convenient way, where you can see the supported types and subtypes and monitor the correctness of the entered data.
-
-> Note: This command is available in the IDF-Eclipse plugin 2.8.0 and higher.
+The Partition Table Editor command allows you to edit your [partition table](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/partition-tables.html) in a more convenient way, where you can see the supported types and subtypes and monitor the correctness of the entered data.
 
 Steps:
 
 1. Go to `Project Explorer`, open any IDF Project where you want to have a customized partition table.
-1. In `Project Explorer`, right-click on the project and click on `ESP-IDF: Partition Table Editor` command:
+2. In `Project Explorer`, right-click on the project and click on `ESP-IDF` > `Partition Table Editor` menu:
 
 	![partition_table_editor_3](https://user-images.githubusercontent.com/24419842/216105408-ca2e73ce-5df3-4bdd-ac61-b7265deb9b44.png)
 
@@ -735,7 +693,7 @@ Steps:
 
 	![partition_table_editor_4](https://user-images.githubusercontent.com/24419842/216106804-703b2eb4-b141-48de-8559-0599f072219f.png)
 
-1. Click "Save" or "Save and Quit" to save your changes.
+3. Click "Save" or "Save and Quit" to save your changes.
 
 To use a customized partition table:
 
@@ -746,7 +704,7 @@ To use a customized partition table:
 <a name ="nvsTableEditor"></a>
 # NVS Table Editor
 
-`NVS Table Editor` helps to create a binary file based on key-value pairs provided in a CSV file. The resulting binary file is compatible with NVS architecture defined in [ESP_IDF Non Volatile Storage](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/storage/nvs_flash.html). The expected CSV format is:
+The NVS Table Editor helps to create a binary file based on key-value pairs provided in a CSV file. The resulting binary file is compatible with NVS architecture defined in [ESP_IDF Non Volatile Storage](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/storage/nvs_flash.html). The expected CSV format is:
 
 ```
 	key,type,encoding,value     <-- column header (must be the first line)
@@ -758,19 +716,17 @@ To use a customized partition table:
 
 Steps:
 
-1. Right-click on project in the `Project Explorer`
-1. Select the `ESP-IDF: NVS Table Editor` command:
+1. Right-click on a project in the `Project Explorer`
+2. Click on the `ESP-IDF` > `NVS Table Editor` menu option:
 
 	![NVS Table Editor](https://user-images.githubusercontent.com/24419842/216114697-9f231211-f5dd-431b-9432-93ecc656cfec.png)
 
-	> Note: This command is available in the IDF-Eclipse plugin 2.8.0 and higher
-
-1. Make desired changes to CSV data
-1. Save changes by clicking the `Save` button. If everything is ok, you will see an information message at the top of the dialog:
+3. Make desired changes to CSV data
+4. Save changes by clicking the `Save` button. If everything is ok, you will see an information message at the top of the dialog:
 
 	![NVS_TABLE_EDITOR_2png](https://user-images.githubusercontent.com/24419842/216115906-9bb4fe55-293b-4c6b-8d22-0aa3520581ab.png)
 
-1. Generate the partition binary (Choose `encrypt` to encrypt the binary and disable the generate key option to use your own key if desired). You will see an information message at the top of the dialog about the result of generated binaries. You can hover your mouse over it to read the whole message if it's too long:
+5. Generate the partition binary (Choose `encrypt` to encrypt the binary and disable the generate key option to use your own key if desired). You will see an information message at the top of the dialog about the result of generated binaries. You can hover your mouse over it to read the whole message if it's too long:
 
 	![NVS_Table_Editor_4](https://user-images.githubusercontent.com/24419842/216117261-9bee798a-3a9e-4be5-9466-fc9d3847834b.png)
 
@@ -783,11 +739,11 @@ After all these steps, you should see `nvs.csv` and `nvs.bin` files in the proje
 <a name ="writeFlashBinary"></a> 
 # Write Binary to Flash
 
-Binary data can be written to the ESP’s flash chip via `ESP-IDF: Write Binary Data to Flash` command accessible by right click on the project in the project explorer:
+Binary data can be written to the ESP’s flash chip via `ESP-IDF` > `Write Binary Data to Flash` command accessible by right click on the project in the project explorer:
 
 <img width="344" alt="Screenshot 2023-10-16 at 10 51 52" src="https://github.com/espressif/idf-eclipse-plugin/assets/24419842/186c8498-d779-4771-af53-e5bf09e29502">
 
-After clicking this command, the `Write Binary Data to Flash` dialog box will open. Editable default values ​​are provided for binary path and offset. The correct offset can be checked by looking at the partition table via `ESP-IDF: Partition Table Editor` or manually by opening the partitions.csv file
+After clicking this command, the `Write Binary Data to Flash` dialog box will open. Editable default values ​​are provided for binary path and offset. The correct offset can be checked by looking at the partition table via `ESP-IDF` > `Partition Table Editor` or manually by opening the partitions.csv file
 
 <img width="591" alt="Screenshot 2023-10-16 at 10 51 27" src="https://github.com/espressif/idf-eclipse-plugin/assets/24419842/46e24e89-a1ed-4169-8c92-1ba0b0089ea7">
 
