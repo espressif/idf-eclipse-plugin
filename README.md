@@ -54,8 +54,7 @@ To get a quick understanding of ESP-IDF and Eclipse plugin features, check our s
 * [ Device Firmware Upgrade (DFU) through USB ](#deviceFirmwareUpgrade)<br>
 * [ GDBStub Debugging ](#gdbStubDebugging)<br>
 * [ Core Dump Debugging ](#coreDumpDebugging)<br>
-* [ Application Level Tracing ](#appLvlTracing)<br>
-* [ ESP-IDF master update](#updateEspIdfMaster)<br>
+* [ Application Level Tracing ](#appLvlTracing)<br
 * [ Partition Table Editor UI for ESP-IDF](#partitionTableEditor)<br>
 * [ NVS Table Editor](#nvsTableEditor)<br>
 * [ Write Binary Data to Flash](#writeFlashBinary)<br>
@@ -111,7 +110,7 @@ For adding beta and nightly builds, you can use the following update site urls.
 <a name="InstallTools"></a>
 # Installing ESP-IDF
 
-Please follow the instructions below for installing ESP-IDF in the Espressif IDE.
+Please follow the instructions below for installing ESP-IDF in the Espressif-IDE.
 
 1. Go to `Espressif` > `ESP-IDF Manager`. The following editor will open
 ![](docs/images/ToolsManager/ESP-IDF_Manager_Editor_Screen.png)
@@ -327,38 +326,13 @@ Already added components are also shown but the `Install` button changes text to
 <a name="configureEnvironmentVariables"></a>
 # Configuring Environment Variables
 
-Eclipse configures automatically the required environment variables in the `Preferences` > `C/C++ Build` > `Environment` section if IDF Tools are installed using `Espressif` > `ESP-IDF Tools Manager` > `Install Tools` menu option. Required environment variables:
-
-* `IDF_PATH`
-* `PATH`
-* `OPENOCD_SCRIPTS`
-* `IDF_PYTHON_ENV_PATH`
-
-If the required environment variables are not configured for any reason, please follow the step-by-step instructions below.
-
-1. Click on the `Environment` preference page under `C/C++ Build`.
-1. Click `Add…` again, and enter name `IDF_PATH`. The value should be the full path where ESP-IDF is installed.
-1. Similarly, we should configure `OPENOCD_SCRIPTS`, `IDF_PYTHON_ENV_PATH` and `PATH` environment variables.
-
-This is how they should look:
-
-##### IDF_PATH #####
-`/Users/user-name/esp/esp-idf`
-
-##### OPENOCD_SCRIPTS #####
-`/Users/user-name/.espressif/tools/openocd-esp32/v0.10.0-esp32-20190313/openocd-esp32/share/openocd/scripts`
-
-##### IDF_PYTHON_ENV_PATH #####
-`/Users/user-name/.espressif/python_env/idf4.0_py3.7_env`
-
-##### PATH #####
-`/Users/user-name/.espressif/tools/xtensa-esp32-elf/esp32-2019r1-8.2.0/xtensa-esp32-elf/bin:/Users/user-name/.espressif/tools/esp32ulp-elf/2.28.51.20170517/esp32ulp-elf-binutils/bin:/Users/user-name/.espressif/tools/cmake/3.13.4/CMake.app/Contents/bin:/Users/user-name/.espressif/tools/openocd-esp32/v0.10.0-esp32-20190313/openocd-esp32/bin:/Users/user-name/.espressif/tools/ninja/1.9.0/:/Users/user-name/.espressif/python_env/idf4.0_py3.7_env/bin:/Users/user-name/esp/esp-idf/tools:$PATH`
+All the required environment variables are automatically configured by the IDE during the ESP-IDF and Tools installation process (Espressif > ESP-IDF Manager > Add ESP-IDF). You can verify them in the Preferences page under `C/C++` > `Build` > `Environment`.
 
 ![](docs/images/2_environment_pref.png)
 
 # Configuring Toolchains
 
-We need to tell Eclipse CDT what core build toolchain and CMake toolchain to use to build the project. However, this will be auto-detected if you've installed the tools using the `Espressif` > `ESP-IDF Tools Manager` > `Install Tools` option from Eclipse.
+We need to tell Eclipse CDT what core build toolchain and CMake toolchain to use to build the project. However, this will be auto-detected if you've installed the tools using the `Espressif` > `ESP-IDF Manager` > `Add ESP-IDF` option from IDE.
 
 If these toolchains are not detected for any reason, please follow the step-by-step instructions below to add a new toolchain.
 
@@ -395,12 +369,9 @@ We now need to tell CDT which toolchain to use when building the project. This w
 <a name="SelectDifferentToolchain"></a>
 # Selecting Clang Toolchain
 
-With ESP-IDF Eclipse Plugin v2.7.0 and higher you can build your project with the Clang toolchain
-
-1. After updating/installing the ESP-IDF Eclipse plugin to v2.7.0 or higher, you need to run `Espressif` > `ESP-IDF Tools Manager` > `Install Tools` to update the toolchain list and environment variables, that are necessary for Clang toolchain.
 1. After creating a new project, edit the project configuration
 ![image](https://user-images.githubusercontent.com/24419842/194882285-9faadb5d-0fe2-4012-bb6e-bc23dedbdbd2.png)
-1. Go to `Build Settings` tab and select clang toolchain there:
+1. Go to the `Build Settings` tab and select clang toolchain there:
 ![image](https://user-images.githubusercontent.com/24419842/194882462-3c0fd660-b223-4caf-964d-58224d91b518.png)
 
 > **Note:** Clang toolchain now is an experimental feature and you may face some build issues due to the incompatibility of esp-idf. Below is a description of how to fix the most common build issue on the current ESP-IDF master (ESP-IDF v5.1-dev-992-gaf28c1fa21-dirty). To work around clang build errors please refer to [this](https://github.com/espressif/idf-eclipse-plugin/blob/master/WORKAROUNDS.md#clang-toolchain-buid-errors).
@@ -412,8 +383,8 @@ To provide the customized launch configuration and flash arguments, please follo
 
 1. Click on the `Launch Configuration` edit button.
 1. Switch to the `Main` tab.
-1. Specify the `Location` where this application has to run. Since `idf.py` is a python file, will configure the python system path. Example:`${system_path:python}`.
-1. Specify `Working directory` of the application. Example: `${workspace_loc:/hello_world}`.
+1. Specify the `Location` where this application has to run. Since `idf.py` is a Python file, will configure the Python system path. Example:`${system_path:python}`.
+1. Specify the `Working directory` of the application. Example: `${workspace_loc:/hello_world}`.
 1. In additional arguments, provide a flashing command which will run in the specified working directory.
 1. Flash command looks like this: `/Users/user-name/esp/esp-idf/tools/idf.py -p /dev/cu.SLAB_USBtoUART flash`.
 1. Click OK to save the settings.
@@ -431,7 +402,7 @@ To change the plugin language a menu is provided to show the list of available l
 1. Click on the `Espressif` menu from the menu bar.
 1. Select the `Change Language` from the drop-down menu.
 1. From the sub menu select the language you want.
-1. Eclipse will restart with selected language.
+1. IDE will restart with the selected language.
 
 ![](docs/images/change_language.png)
 
