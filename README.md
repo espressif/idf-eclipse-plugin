@@ -284,7 +284,7 @@ The Application Size Analysis editor provides a way to analyze the static memory
 To launch the Application Size Analysis editor:
 
 1. Right-click on the project.
-1. Select `ESP-IDF: Application Size Analysis` menu option to launch the editor.
+1. Select `ESP-IDF` > `Application Size Analysis` menu option to launch the editor.
 
 **Application Size Analysis - Overview**
 
@@ -674,7 +674,7 @@ Before you start using application-level tracing, it is important to create a de
 
 ![](docs/images/AppLvlTracing_3.png)
 
-After debug configuration is created, right-click on the project in the `Project Explorer` and click on `ESP-IDF:Application Level Tracing`:
+After the debug configuration is created, right-click on the project in the Project Explorer and click on `ESP-IDF` > `Application Level Tracing`:
 
 ![](docs/images/AppLvlTracing_2.png)
 
@@ -706,26 +706,15 @@ When the output file is generated, you can click on `Start parse` button, and yo
 
 ![](docs/images/AppLvlTracing_5.png)
 
-<a name ="updateEspIdfMaster"></a>
-# ESP-IDF Master Update
-
-If you are using the master version of ESP-IDF and want to update it, you can do so in the plugin by going to `Espressif -> ESP-IDF Tool Manager` and clicking the `Update ESP-IDF master` command there.
-
-![image](https://user-images.githubusercontent.com/24419842/182107159-16723759-65e0-4c34-9440-ebe2f536e62a.png)
-
-> **Note:** This command is visible only if you are on the master branch in ESP-IDF.
-
 <a name ="partitionTableEditor"></a>
 # Partition Table Editor UI for ESP-IDF
 
-`ESP-IDF: Partition Table Editor` command allows to edit your [partition table](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/partition-tables.html) in a more convenient way, where you can see the supported types and subtypes and monitor the correctness of the entered data.
-
-> Note: This command is available in the IDF-Eclipse plugin 2.8.0 and higher.
+The Partition Table Editor command allows you to edit your [partition table](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/partition-tables.html) in a more convenient way, where you can see the supported types and subtypes and monitor the correctness of the entered data.
 
 Steps:
 
 1. Go to `Project Explorer`, open any IDF Project where you want to have a customized partition table.
-1. In `Project Explorer`, right-click on the project and click on `ESP-IDF: Partition Table Editor` command:
+2. In `Project Explorer`, right-click on the project and click on `ESP-IDF` > `Partition Table Editor` menu:
 
 	![partition_table_editor_3](https://user-images.githubusercontent.com/24419842/216105408-ca2e73ce-5df3-4bdd-ac61-b7265deb9b44.png)
 
@@ -733,7 +722,7 @@ Steps:
 
 	![partition_table_editor_4](https://user-images.githubusercontent.com/24419842/216106804-703b2eb4-b141-48de-8559-0599f072219f.png)
 
-1. Click "Save" or "Save and Quit" to save your changes.
+3. Click "Save" or "Save and Quit" to save your changes.
 
 To use a customized partition table:
 
@@ -744,7 +733,7 @@ To use a customized partition table:
 <a name ="nvsTableEditor"></a>
 # NVS Table Editor
 
-`NVS Table Editor` helps to create a binary file based on key-value pairs provided in a CSV file. The resulting binary file is compatible with NVS architecture defined in [ESP_IDF Non Volatile Storage](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/storage/nvs_flash.html). The expected CSV format is:
+The NVS Table Editor helps to create a binary file based on key-value pairs provided in a CSV file. The resulting binary file is compatible with NVS architecture defined in [ESP_IDF Non Volatile Storage](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/storage/nvs_flash.html). The expected CSV format is:
 
 ```
 	key,type,encoding,value     <-- column header (must be the first line)
@@ -756,19 +745,17 @@ To use a customized partition table:
 
 Steps:
 
-1. Right-click on project in the `Project Explorer`
-1. Select the `ESP-IDF: NVS Table Editor` command:
+1. Right-click on a project in the `Project Explorer`
+2. Click on the `ESP-IDF` > `NVS Table Editor` menu option:
 
 	![NVS Table Editor](https://user-images.githubusercontent.com/24419842/216114697-9f231211-f5dd-431b-9432-93ecc656cfec.png)
 
-	> Note: This command is available in the IDF-Eclipse plugin 2.8.0 and higher
-
-1. Make desired changes to CSV data
-1. Save changes by clicking the `Save` button. If everything is ok, you will see an information message at the top of the dialog:
+3. Make desired changes to CSV data
+4. Save changes by clicking the `Save` button. If everything is ok, you will see an information message at the top of the dialog:
 
 	![NVS_TABLE_EDITOR_2png](https://user-images.githubusercontent.com/24419842/216115906-9bb4fe55-293b-4c6b-8d22-0aa3520581ab.png)
 
-1. Generate the partition binary (Choose `encrypt` to encrypt the binary and disable the generate key option to use your own key if desired). You will see an information message at the top of the dialog about the result of generated binaries. You can hover your mouse over it to read the whole message if it's too long:
+5. Generate the partition binary (Choose `encrypt` to encrypt the binary and disable the generate key option to use your own key if desired). You will see an information message at the top of the dialog about the result of generated binaries. You can hover your mouse over it to read the whole message if it's too long:
 
 	![NVS_Table_Editor_4](https://user-images.githubusercontent.com/24419842/216117261-9bee798a-3a9e-4be5-9466-fc9d3847834b.png)
 
@@ -781,11 +768,11 @@ After all these steps, you should see `nvs.csv` and `nvs.bin` files in the proje
 <a name ="writeFlashBinary"></a> 
 # Write Binary to Flash
 
-Binary data can be written to the ESP’s flash chip via `ESP-IDF: Write Binary Data to Flash` command accessible by right click on the project in the project explorer:
+Binary data can be written to the ESP’s flash chip via `ESP-IDF` > `Write Binary Data to Flash` command accessible by right click on the project in the project explorer:
 
 <img width="344" alt="Screenshot 2023-10-16 at 10 51 52" src="https://github.com/espressif/idf-eclipse-plugin/assets/24419842/186c8498-d779-4771-af53-e5bf09e29502">
 
-After clicking this command, the `Write Binary Data to Flash` dialog box will open. Editable default values ​​are provided for binary path and offset. The correct offset can be checked by looking at the partition table via `ESP-IDF: Partition Table Editor` or manually by opening the partitions.csv file
+After clicking this command, the `Write Binary Data to Flash` dialog box will open. Editable default values ​​are provided for binary path and offset. The correct offset can be checked by looking at the partition table via `ESP-IDF` > `Partition Table Editor` or manually by opening the partitions.csv file
 
 <img width="591" alt="Screenshot 2023-10-16 at 10 51 27" src="https://github.com/espressif/idf-eclipse-plugin/assets/24419842/46e24e89-a1ed-4169-8c92-1ba0b0089ea7">
 
