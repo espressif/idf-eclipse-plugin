@@ -382,7 +382,7 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 				String idfExtraPaths = IDFUtil.getIDFExtraPaths();
 				if(!StringUtil.isEmpty(idfExtraPaths))
 				{
-					envValue = envValue + ":" + idfExtraPaths; //$NON-NLS-1$
+					envValue = idfExtraPaths + ":" + envValue; //$NON-NLS-1$
 				}
 			}
 			envpList.add(envKey + "=" + envValue); //$NON-NLS-1$
