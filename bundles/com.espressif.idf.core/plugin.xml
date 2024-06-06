@@ -4,6 +4,7 @@
    <extension-point id="com.espressif.idf.core.toolchain" name="esptoolchain" schema="schema/com.espressif.idf.core.toolchain.exsd"/>
    <extension
          id="idfNature"
+         name="IDF Nature"
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
