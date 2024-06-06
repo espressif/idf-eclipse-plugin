@@ -16,11 +16,12 @@ You can find more details on the LSP based C/C++ Editor features [here](https://
 
 ## Clangd Configuration
 
-By default, the esp-clang toolchain is installed as a part of the ESP-IDF tools installation process, and clangd is configured in the preferences.
+By default, the esp-clang toolchain is installed as a part of the ESP-IDF tools installation process, and clangd **Path** is configured in the preferences.
 
-Additionally, the user has to set the query **Drivers** path and **--compile-commands-dir** path in the **Additional** argument section.
+The **Drivers** path and **--compile-commands-dir** path will be configured based on the selected target(esp32, esp32c6 etc) and project you're building.
 
-Please follow the below steps to configure them:
+However, if there are any issues in configuration, this can be configured in the following way.
+
 
 1. Go to `Window` > `Preferences` > `C/C++` > `Editor(LSP)`
 2. Navigate to `clangd` node
