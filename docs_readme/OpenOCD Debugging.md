@@ -100,5 +100,5 @@ You can customize the `Debug perspective` in your own way, for example, move som
 * Please [check](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/jtag-debugging/index.html#selecting-jtag-adapter) if the board is having JTAG enabled.
 * If there is any OpenOCD timeout issue, please [increase the GDB server timeout value](https://www.esp32.com/viewtopic.php?f=40&t=36164#p122701) from the preferences. Usually this happens while working with big size applications.
 * If you see any error while debugging, please check this [OpenOCD troubleshooting FAQ guide](https://github.com/espressif/openocd-esp32/wiki/Troubleshooting-FAQ) and see if that helps to resolve the issue.
-* If you have any issue and want to enable OpenOCD debugging verbose, please check [Enable verbose output](https://github.com/espressif/idf-eclipse-plugin/blob/master/docs/OpenOCD%20Debugging.md#startup-tab) option from the startup tab. 
+* If you have any issue and want to enable OpenOCD debugging verbose, please check [Enable verbose output](https://github.com/espressif/idf-eclipse-plugin/blob/master/docs_readme/OpenOCD%20Debugging.md#startup-tab) option from the startup tab. 
 
