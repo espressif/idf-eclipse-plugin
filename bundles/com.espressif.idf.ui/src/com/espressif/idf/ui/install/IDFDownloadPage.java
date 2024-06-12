@@ -397,9 +397,10 @@ public class IDFDownloadPage extends WizardPage
 			}
 			
 			String idfPyPath = idfPath + File.separator + "tools" + File.separator + "idf.py"; //$NON-NLS-1$ //$NON-NLS-2$
-			if (!new File (idfPyPath).exists())
+			String idfToolsPyPth = idfPath + File.separator + "tools" + File.separator + "idf_tools.py"; //$NON-NLS-1$ //$NON-NLS-2$
+			if (!new File (idfPyPath).exists() && !new File (idfToolsPyPth).exists())
 			{
-				setErrorMessage(MessageFormat.format(Messages.IDFDownloadPage_CantfindIDFpy, idfPath));
+				setErrorMessage(MessageFormat.format(Messages.IDFDownloadPage_CantfindProperEspIDFDirectory, idfPath));
 				setPageComplete(false);
 				return;
 			}
