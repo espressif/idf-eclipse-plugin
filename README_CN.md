@@ -9,9 +9,9 @@ ESP-IDF Eclipse 插件可便利开发人员在 Eclipse 开发环境中开发基�
 
 ESP-IDF Eclipse 插件支持 `macOS`、`Windows` 和 `Linux` 操作系统。
 
-![](docs/images/macos-logo.png)
-![](docs/images/windows-logo.png)
-![](docs/images/linux-logo.png)
+![](docs_readme/images/macos-logo.png)
+![](docs_readme/images/windows-logo.png)
+![](docs_readme/images/linux-logo.png)
 
 
 > **Note:** 本插件支持基于 `esp32`、`esp32s2`、`esp32s3` 和 `esp32c3` 开发的 ESP-IDF CMake 项目（4.x 及以上）。
@@ -78,7 +78,7 @@ IDF Eclipse 插件的运行环境要求如下。
 
 此外，我们还为 Windows 用户提供 `Espressif-IDE 离线安装器`，集成了 OpenJDK、Python、CMake、Git、ESP-IDF、Eclipse IDE、IDF Eclipse 插件及相关构建工具，请见 <a href="https://github.com/espressif/idf-installer#espressif-ide-offline-installer"> Espressif-IDE 离线安装器 </a>。
 
-更多有关 Espressif-IDE 的信息，请见<a href="https://github.com/espressif/idf-eclipse-plugin/blob/master/docs/Espressif-IDE.md"> 这里</a>。
+更多有关 Espressif-IDE 的信息，请见<a href="https://github.com/espressif/idf-eclipse-plugin/blob/master/docs_readme/Espressif-IDE.md"> 这里</a>。
 
 <a name="GettingStarted"></a>
 
@@ -98,7 +98,7 @@ IDF Eclipse 插件的运行环境要求如下。
 
 > **Note:** 本文档中的所有截图均来自 `macOS` 操作系统，但安装步骤同时适用于 `Windows`、`Linux` 和 `macOS` 操作系统。
 
-![](docs/images/zh/idf_update_site_install.png)
+![](docs_readme/images/zh/idf_update_site_install.png)
 
 <a name="InstallTools"></a>
 # 安装 ESP-IDF
@@ -118,7 +118,7 @@ IDF Eclipse 插件的运行环境要求如下。
 
 本操作将下载指定的 ESP-IDF 版本，并配置 Eclipse CDT 构建环境变量中的 `IDF_PATH`。
 
-![](docs/images/zh/espidf_download.png)
+![](docs_readme/images/zh/espidf_download.png)
 
 # 安装 ESP-IDF 工具集
 
@@ -134,11 +134,11 @@ ESP-IDF 在构建固件时需要一些工具，包括 Python、Git、交叉编�
 
 > **Note:** 本步骤将按照 `idf_tools.py export` 命令，将 `IDF_PATH`、`PATH`、`OPENOCD_SCRIPTS` 和 `IDF_PYTHON_ENV_PATH` 设置为 Eclipse CDT 构建环境。因此，即使您以前已安装过上述工具，也不可跳过该步骤。
 
-![](docs/images/install_tools.png)
+![](docs_readme/images/install_tools.png)
 
 ESP-IDF 目录选择对话框：
 
-![](docs/images/zh/esp_idf_dir.png)
+![](docs_readme/images/zh/esp_idf_dir.png)
 
 <a name="NewProjectUsingDefault"></a>
 # 创建一个新项目
@@ -152,7 +152,7 @@ ESP-IDF 目录选择对话框：
 
 > **Note:** 完成以上操作后，您将在编辑器中看到许多未解决的 include 错误。这些错误仅在构建完成后才能解决。
 
-![](docs/images/zh/3_new_project_default.png)
+![](docs_readme/images/zh/3_new_project_default.png)
 
 <a name="ConfigureLaunchTarget"></a>
 # 配置启动目标
@@ -164,7 +164,7 @@ ESP-IDF 目录选择对话框：
 1. 选择 `ESP 目标`。
 1. 提供目标属性，即您希望启动应用程序的位置。输入目标`名称`，并选择您连接 ESP 设备的`串口`。
 
-![](docs/images/zh/8_launch_target.png)
+![](docs_readme/images/zh/8_launch_target.png)
 
 <a name="BuildApplication"></a>
 # 编译项目
@@ -175,7 +175,7 @@ ESP-IDF 目录选择对话框：
 1. 点击顶部工具栏中左起第三个下拉窗口`启动目标`，选择您需要启动的目标。
 1. 现在，点击顶部工具栏左上角的`构建`按钮。
 
-![](docs/images/9_cmake_build.png)
+![](docs_readme/images/9_cmake_build.png)
 
 <a name="FlashApplication"></a>
 # 烧录项目
@@ -184,7 +184,7 @@ ESP-IDF 的 `idf.py` 工具可以打包 `make flash` 命令和常用指令。用
 
 如需使用自定义烧录参数，请前往[这里](#customizeLaunchConfig) 获取详细步骤。
 
-如需通过 JTAG 进行烧录，请见 <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs/JTAG%20Flashing.md"> JTAG 烧录指南</a>。
+如需通过 JTAG 进行烧录，请见 <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs_readme/JTAG%20Flashing.md"> JTAG 烧录指南</a>。
 
 <a name="ConfigureLaunchTerminal"></a>
 # 查看串口输出
@@ -197,7 +197,7 @@ ESP-IDF 的 `idf.py` 工具可以打包 `make flash` 命令和常用指令。用
 1. 配置`串口监视器`过滤器，对串口输出进行过滤。
 1. 点击 `OK` 启动终端，开始监听 USB 端口。
 
-![](docs/images/zh/10_serial_terminal.png)
+![](docs_readme/images/zh/10_serial_terminal.png)
 
 ### ESP-IDF 串口监视器设置
 
@@ -216,7 +216,7 @@ ESP-IDF 的 `idf.py` 工具可以打包 `make flash` 命令和常用指令。用
 
 ## GDB OpenOCD 调试
 
-请见 <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs/OpenOCD%20Debugging.md">GDB OpenOCD 调试</a>。
+请见 <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs_readme/OpenOCD%20Debugging.md">GDB OpenOCD 调试</a>。
 
 # 其他 IDE 功能
 
@@ -233,7 +233,7 @@ ESP-IDF 的 `idf.py` 工具可以打包 `make flash` 命令和常用指令。用
 
 > **Note:** 完成以上操作后，您将在编辑器中看到许多未解决的 include 错误。这些错误仅在构建完成后才能解决。
 
-![](docs/images/4_new_project_templates.png)
+![](docs_readme/images/4_new_project_templates.png)
 
 <a name="InstallToolsWizard"></a>
 # 工具安装助手
@@ -243,16 +243,16 @@ ESP-IDF 的 `idf.py` 工具可以打包 `make flash` 命令和常用指令。用
 具体步骤如下：
 
 1. 前往 `乐鑫` > `ESP-IDF 工具管理器` > `工具安装助手（预览版）`。
-![](docs/images/ToolsManager/install_tools_manager.png)
+![](docs_readme/images/ToolsManager/install_tools_manager.png)
 
 1. 等待安装助手启动，选择 Git 和 Python 的安装路径（如您已添加系统 PATH，则路径可自动填充）。然后，点击 `下一步`。
-![](docs/images/ToolsManager/git_python_selection.png)
+![](docs_readme/images/ToolsManager/git_python_selection.png)
 
 1. 选择本地已安装 ESP-IDF 文件夹，或从下拉菜单中选择不同版本安装 ESP-IDF，比如选择列表中的 master 可以帮您从 GitHub 中克隆 ESP-IDF 的 master 分支。
-![](docs/images/ToolsManager/select_or_download_new_esp_idf.png)
+![](docs_readme/images/ToolsManager/select_or_download_new_esp_idf.png)
 
 1. 点击 `下一步` 查看针对您的 ESP-IDF 版本的可用工具。此时，您可以选择安装所有推荐工具，或仅选择您需要的工具（可按照工具名称或目标进行筛选）。接着，安装助手将下载并安装所有所需的工具。安装完成后，您就可以创建项目了。
-![](docs/images/ToolsManager/manage_tools_installation.png)
+![](docs_readme/images/ToolsManager/manage_tools_installation.png)
 
 <a name="projectconfigure"></a>
 # SDK 配置编辑器
@@ -266,18 +266,18 @@ ESP-IDF Eclipse 插件允许用户直接在 Eclipse 环境中配置 `sdkconfig`�
 1. 完成更改后，可使用 `Ctrl+S` 或 `Command+S` 保存更改。也可以点击 Eclipse 工具栏中的`保存`按钮进行保存。
 1. 如需撤回对 sdkconfig 编辑器的更改，用户可选择不保存退出编辑器；也可右键 `sdkconfig` 文件并选择`加载 sdkconfig` 菜单选项，恢复对编辑器的修改。
 
-![](docs/images/13_sdkconfig_editor.png)
+![](docs_readme/images/13_sdkconfig_editor.png)
 
 <a name="cmakeproject"></a>
 # CMake 编辑器
 
 ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑 CMakeList.txt 等 CMake 文件，支持语法高亮、CMake 命令助手、代码模板等功能。
 
-![](docs/images/cmake_editor_ca.png)
+![](docs_readme/images/cmake_editor_ca.png)
 
 如需配置 CMake 编辑器，请前往 Eclipse 的 `偏好设置` > `CMakeEd`。
 
-![](docs/images/zh/cmake_editor_preferences.png)
+![](docs_readme/images/zh/cmake_editor_preferences.png)
 
 <a name="sizeanalysiseditor"></a>
 #  ESP-IDF 应用程序内存分析
@@ -295,11 +295,11 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 
 **应用程序内存分析 - 概述**
 
-![](docs/images/zh/sizeanalysis_overview.png)
+![](docs_readme/images/zh/sizeanalysis_overview.png)
 
 **应用程序内存分析 - 详情**
 
-![](docs/images/zh/sizeanalysis_details.png)
+![](docs_readme/images/zh/sizeanalysis_details.png)
 
 <a name="idfterminal"></a>
 # ESP-IDF 终端
@@ -313,7 +313,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 1. 点击工具栏中的`打开终端`图标。
 1. 从终端下拉菜单中选择`ESP-IDF 终端`，并点击`OK`启动终端。
 
-![](docs/images/zh/idf_terminal.png)
+![](docs_readme/images/zh/idf_terminal.png)
 
 <a name="espidfcomponents"></a>
 # 安装 ESP-IDF 组件
@@ -322,12 +322,12 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 
 * 从`项目浏览器`中选择需要安装组件的项目，并选择 `安装 ESP-IDF 组件`。
 
-  ![](docs/images/ESP-IDF_Components/install_components.png)
+  ![](docs_readme/images/ESP-IDF_Components/install_components.png)
 
   查看所有可安装的组件。
 
 * 选中需要安装的组件，并点击 `安装`。此外，您还可以点击 `更多信息`，查看具体组件的更多信息。
-  ![](docs/images/ESP-IDF_Components/components_window.png)
+  ![](docs_readme/images/ESP-IDF_Components/components_window.png)
 
 注意，已经安装的组件也会出现的列表中，但 `安装` 选项（`已安装`选项旁边）将禁用。
 
@@ -361,7 +361,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 ##### PATH #####
 `/Users/user-name/.espressif/tools/xtensa-esp32-elf/esp32-2019r1-8.2.0/xtensa-esp32-elf/bin:/Users/user-name/.espressif/tools/esp32ulp-elf/2.28.51.20170517/esp32ulp-elf-binutils/bin:/Users/user-name/.espressif/tools/cmake/3.13.4/CMake.app/Contents/bin:/Users/user-name/.espressif/tools/openocd-esp32/v0.10.0-esp32-20190313/openocd-esp32/bin:/Users/user-name/.espressif/tools/ninja/1.9.0/:/Users/user-name/.espressif/python_env/idf4.0_py3.7_env/bin:/Users/user-name/esp/esp-idf/tools:$PATH`
 
-![](docs/images/zh/2_environment_pref.png)
+![](docs_readme/images/zh/2_environment_pref.png)
 
 # 配置工具链
 
@@ -383,7 +383,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 	* **操作系统：** esp32,
 	* **CPU 架构：** xtensa
 
-![](docs/images/6_core_build_toolchains.png)
+![](docs_readme/images/6_core_build_toolchains.png)
 
 <a name="ConfigureCMakeToolchain"></a>
 #  配置 CMake 工具链
@@ -397,7 +397,7 @@ ESP-IDF Eclipse 插件中还集成了一个 CMake 编辑器，允许用户编辑
 
 > **Note:** Eclipse CDT 在保存工具链偏好设置时有一个已知 bug。因此，我们建议在进行后续操作前，重新启动 Eclipse。
 
-![](docs/images/7_cmake_toolchain.png)
+![](docs_readme/images/7_cmake_toolchain.png)
 
 <a name="SelectDifferentToolchain"></a>
 # 选择 Clang 工具链
@@ -426,9 +426,9 @@ ESP-IDF Eclipse 插件 v2.7.0 及以上版本支持使用 Clang 工具链构建�
 1. 点击 `OK`，保存设置。
 1. 点击`启动`图标，将应用程序烧录到选定的开发板中。
 
-![](docs/images/zh/11_launch_configuration.png)
+![](docs_readme/images/zh/11_launch_configuration.png)
 
-![](docs/images/12_flashing.png)
+![](docs_readme/images/12_flashing.png)
 
 <a name="changeLanguage"></a>
 # 更改语言
@@ -440,7 +440,7 @@ IDF Eclipse 插件可支持不同语言。如需更改，请按照以下步骤�
 1. 在子下拉菜单中选择所需的语言。
 1. 此后，Eclipse 重启后将切换至所选择的语言。
 
-![](docs/images/change_language.png)
+![](docs_readme/images/change_language.png)
 
 注意，上述操作仅提供针对插件界面的汉化。如需全部汉化，则请另外安装 Eclipse 汉化包。
 
@@ -474,7 +474,7 @@ ESP-IDF 项目构建中的大多数常见错误均可从提示数据库 (`tools/
 
 注意，在提交问题时一定要提供错误日志。
 
-![](docs/images/zh/export_log.png)
+![](docs_readme/images/zh/export_log.png)
 
 ## 控制台视图日志
 
@@ -482,7 +482,7 @@ ESP-IDF 项目构建中的大多数常见错误均可从提示数据库 (`tools/
 
 打开`控制台`视图，请前往`窗口`>`显示视图`>`控制台`。
 
-![](docs/images/CDT_Build_Console.png)
+![](docs_readme/images/CDT_Build_Console.png)
 
 ## CDT 全局构建日志
 
@@ -496,11 +496,11 @@ ESP-IDF 项目构建中的大多数常见错误均可从提示数据库 (`tools/
 
 如本控制台未自动启动，请前往`中控台`视图，点击`显示选中的中控台`按钮。
 
-![](docs/images/zh/IDF_tools_console.png)
+![](docs_readme/images/zh/IDF_tools_console.png)
 
 ## 堆栈追踪
 
-详见<a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs/HeapTracing.md">这里</a>。
+详见<a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs_readme/HeapTracing.md">这里</a>。
 
 <a name="installPluginsFromMarketPlace"></a>
 # 从 Eclipse 市场安装 IDF Eclipse 插件
@@ -512,7 +512,7 @@ ESP-IDF 项目构建中的大多数常见错误均可从提示数据库 (`tools/
 1. 点击`安装`，并按照提示完成所有安装步骤。
 1. 重启 Eclipse。
 
-![](docs/images/market_place.png)
+![](docs_readme/images/market_place.png)
 
 <a name="installPluginsUsingLocalFile"></a>
 #  从本地文件安装 IDF Eclipse 插件
@@ -525,7 +525,7 @@ ESP-IDF 项目构建中的大多数常见错误均可从提示数据库 (`tools/
 1. 从列表中选择 `Espressif IDF`，并按照提示完成所有安装步骤。
 1. 重启 Eclipse。
 
-![](docs/images/zh/1_idffeature_install.png)
+![](docs_readme/images/zh/1_idffeature_install.png)
 
 <a name="upgradePlugins"></a>
 #  如何升级我的 IDF Eclipse 插件？
@@ -543,7 +543,7 @@ ESP-IDF 项目构建中的大多数常见错误均可从提示数据库 (`tools/
 1. 如有新的更新，请选择`乐鑫 IDF 插件`，并取消勾选所有其他项目。
 1. 点击`下一步`，并按照提示完成所有安装步骤。
 
-![](docs/images/Update_plugins.png)
+![](docs_readme/images/Update_plugins.png)
 
 <a name="ImportProject"></a>
 #  导入一个现有的 IDF 项目
@@ -557,7 +557,7 @@ ESP-IDF 项目构建中的大多数常见错误均可从提示数据库 (`tools/
 1. 更改 `项目名称`（否则将使用默认名称）。
 1. 点击`完成`，将选定项目作为一个 CMake 项目导入 Eclipse 工作空间。
 
-![](docs/images/zh/5_import_project.png)
+![](docs_readme/images/zh/5_import_project.png)
 
 <a name="importDebugLaunchConfig"></a>
 #  导入一个现有的 Debug 启动配置
@@ -581,10 +581,10 @@ ESP-IDF 项目构建中的大多数常见错误均可从提示数据库 (`tools/
 使能 GDBStub 调试功能：
 
 1. 前往 `sdkconfig` 打开配置编辑器。
-![](docs/images/GDBStubDebugging/sdkconfig_editor.png)
+![](docs_readme/images/GDBStubDebugging/sdkconfig_editor.png)
 
 1. 展开 `Component Config` 部分，并选择 `ESP System Settings`；窗口右侧在 `Panic handler behaviour` 中选择 `GDBStub on Panic`。
-![](docs/images/GDBStubDebugging/sdkconfig_editor_panic_behavior.png)
+![](docs_readme/images/GDBStubDebugging/sdkconfig_editor_panic_behavior.png)
 
 至此，实例一旦发生 panic，则串口监视器将自动进入 GDBStub 调试页面。
 
@@ -605,13 +605,13 @@ ESP-IDF 项目构建中的大多数常见错误均可从提示数据库 (`tools/
 	```
 
 最终文件实例：
-![](docs/images/GDBStubDebugging/code_example.png)
+![](docs_readme/images/GDBStubDebugging/code_example.png)
 
 构建烧录项目，并启动串口监视器。我们在第 45 行发送一个失败信号，这会使芯片进入 panic 模式。之后会跳出调试模式界面，此时芯片将停止工作。
 
 注意，芯片进入 panic 模式后无法再从断点继续执行，您必须停止运行并重新启动芯片（使用 idf 命令或重新启动串口监视器）。
 
-![](docs/images/GDBStubDebugging/debug_panic_mode.png)
+![](docs_readme/images/GDBStubDebugging/debug_panic_mode.png)
 
 您可以在此界面查看寄存器堆栈踪迹，甚至堆栈框架中变量的值。
 
@@ -628,7 +628,7 @@ ESP-IDF 项目构建中的大多数常见错误均可从提示数据库 (`tools/
 1. 在项目的根目录中打开 `sdkconfig` 文件。此时，你会看到配置编辑器窗口。
 
 1. 在左侧列表中选择 `Core Dump`，并将 `Data Destination` 配置为 `UART`。
-![](docs/images/CoreDumpDebugging/sdkconfig_editor.png)
+![](docs_readme/images/CoreDumpDebugging/sdkconfig_editor.png)
 
 至此，core dump 功能已经打开。此后，一旦项目发生任何崩溃，仅需打开串口监控器即可查看 core dump 信息，还可在 eclipse 中打开调试视图，方便用户的诊断。
 
@@ -675,15 +675,15 @@ ESP-IDF 项目构建中的大多数常见错误均可从提示数据库 (`tools/
 
 ESP-IDF 的[应用层追踪](https://docs.espressif.com/projects/esp-idf/zh_CN/latest/esp32c3/api-guides/app_trace.html) 功能可用于分析程序行为。ESP-IDF Eclipse 插件也特别提供了用户界面，允许通过命令开始/停止追踪，并进行数据处理。具体参考可见 [app_trace_to_host](https://github.com/espressif/esp-idf/tree/master/examples/system/app_trace_to_host) 项目，创建方式如下：
 
-![](docs/images/AppLvlTracing_1.png)
+![](docs_readme/images/AppLvlTracing_1.png)
 
 启动应用层追踪功能之前，请首先完成项目的调试配置，包括指定使用的开发板名称。否则无法正常启动 OpenOCD 服务器。
 
-![](docs/images/AppLvlTracing_3.png)
+![](docs_readme/images/AppLvlTracing_3.png)
 
 配置完成后，从 `项目浏览器` 中选择您的项目，并点击 `ESP-IDF:Application Level Tracing`：
 
-![](docs/images/AppLvlTracing_2.png)
+![](docs_readme/images/AppLvlTracing_2.png)
 
 注意，本功能需要调用 OpenOCD 服务器，因此启动需要一定时间，请耐心等待。另外，调用自动完成，无需从外部特别打开 OpenOCD 服务器。应用层追踪启动后会自动填充一些配置，您也可以根据个人需要修改。
 
@@ -700,7 +700,7 @@ ESP-IDF 的[应用层追踪](https://docs.espressif.com/projects/esp-idf/zh_CN/l
 
 更多信息，请见[这里](https://docs.espressif.com/projects/esp-idf/zh_CN/latest/esp32c3/api-guides/app_trace.html?)。
 
-![](docs/images/AppLvlTracing_4.png)
+![](docs_readme/images/AppLvlTracing_4.png)
 
 另外两个参数 `Trace Processing Script` 和 `Start Parsing Command` 用于解析输出文件。
 
@@ -711,7 +711,7 @@ ESP-IDF 的[应用层追踪](https://docs.espressif.com/projects/esp-idf/zh_CN/l
 
 此后，点击 `Start parse` 按钮，从 Eclipse 控制台查看解析脚本的输出：
 
-![](docs/images/AppLvlTracing_5.png)
+![](docs_readme/images/AppLvlTracing_5.png)
 
 <a name ="updateEspIdfMaster"></a>
 # ESP-IDF Master 更新
@@ -825,7 +825,7 @@ IDE 支持配置自定义构架目录：
 
 注意，此配置将改变所有项目构建 artifact 的保存路径。
 
-![](docs/images/custombuilddir.png)
+![](docs_readme/images/custombuilddir.png)
 
 <a name ="wokwisimulator"></a>
 # Wokwi 模拟器

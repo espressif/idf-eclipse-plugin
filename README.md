@@ -9,9 +9,9 @@ It provides better tooling capabilities, which simplifies and enhances standard 
 
 The plug-in runs on `macOS`, `Windows` and `Linux` platforms.
 
-![](docs/images/macos-logo.png)
-![](docs/images/windows-logo.png)
-![](docs/images/linux-logo.png)
+![](docs_readme/images/macos-logo.png)
+![](docs_readme/images/windows-logo.png)
+![](docs_readme/images/linux-logo.png)
 
 
 > **Note:** It supports ESP-IDF CMake based projects (4.x and above).
@@ -68,10 +68,10 @@ To get a quick understanding of ESP-IDF and Eclipse plugin features, check our s
 We recommend using the Espressif-IDE instead of the Eclipse CDT + IEP Plugin update approach to avoid the hassles of updating.
 
 ## Espressif-IDE for Windows
-* Download the [Espressif-IDE with ESP-IDF Offline Windows Installer](https://dl.espressif.com/dl/esp-idf/) and follow the instructions provided [here](https://github.com/espressif/idf-eclipse-plugin/blob/master/docs/Espressif-IDE-Windows-Installer.md). This guide will walk you through the installation process for Java, Git, CMake, ESP-IDF, IDF Tools, Device Drivers, and Espressif-IDE to help you get started.
+* Download the [Espressif-IDE with ESP-IDF Offline Windows Installer](https://dl.espressif.com/dl/esp-idf/) and follow the instructions provided [here](https://github.com/espressif/idf-eclipse-plugin/blob/master/docs_readme/Espressif-IDE-Windows-Installer.md). This guide will walk you through the installation process for Java, Git, CMake, ESP-IDF, IDF Tools, Device Drivers, and Espressif-IDE to help you get started.
 
 ## Espressif-IDE for macOS and Linux
-* To begin, download the [Espressif-IDE](https://github.com/espressif/idf-eclipse-plugin/blob/master/docs/Espressif-IDE.md#downloads) for your respective operating system. Following this, launch the IDE and proceed to install the necessary ESP-IDF and related tools. Please note that prior to launching the IDE, you must ensure that Java, Python, and Git are installed as [prerequisites](#Prerequisites). and available in the system path.
+* To begin, download the [Espressif-IDE](https://github.com/espressif/idf-eclipse-plugin/blob/master/docs_readme/Espressif-IDE.md#downloads) for your respective operating system. Following this, launch the IDE and proceed to install the necessary ESP-IDF and related tools. Please note that prior to launching the IDE, you must ensure that Java, Python, and Git are installed as [prerequisites](#Prerequisites). and available in the system path.
 
 If you plan to use Eclipse CDT and update it through the IDF Eclipse plugin, please ensure that you download the supported version for your operating system from <a href= "https://www.eclipse.org/downloads/packages/release/2023-12/r/eclipse-ide-cc-developers">here </a>.
 
@@ -105,7 +105,7 @@ For adding beta and nightly builds, you can use the following update site urls.
 
 > **Note:** While the screenshots are captured on macOS, the installation instructions are applicable to Windows, Linux, and macOS.
 
-![](docs/images/idf_update_site_install.png)
+![](docs_readme/images/idf_update_site_install.png)
 
 <a name="InstallTools"></a>
 # Installing ESP-IDF
@@ -113,10 +113,10 @@ For adding beta and nightly builds, you can use the following update site urls.
 Please follow the instructions below for installing ESP-IDF in the Espressif-IDE.
 
 1. Go to `Espressif` > `ESP-IDF Manager`. The following editor will open
-![](docs/images/ToolsManager/ESP-IDF_Manager_Editor_Screen.png)
+![](docs_readme/images/ToolsManager/ESP-IDF_Manager_Editor_Screen.png)
 
 1. Click on `Add ESP-IDF` button.
-![](docs/images/ToolsManager/ESP-IDF_Configuration_Download_or_Use_ESP-IDF.png)
+![](docs_readme/images/ToolsManager/ESP-IDF_Configuration_Download_or_Use_ESP-IDF.png)
 From the screen shown above you can choose an already downloaded ESP-IDF Directory or you can select and download directly from the given dialog. The `Git` and `Python` must be installed and if it is configured in system PATH it will be preloaded in the given view. If not you can Browse to the directory and select the proper executables.
 
 1. Click on `Finish` which will be enabled after all the paths and executables are properly configured.
@@ -125,12 +125,12 @@ From the screen shown above you can choose an already downloaded ESP-IDF Directo
 To configure an existing ESP-IDF:
 
 After you have clicked `Finish` you will see the progress on console for the tools getting installed. Once the installation is done and this is the very first set of ESP-IDF installed in the IDE it will be activated as well and you will see a similar entry in the editor for ESP-IDF Manager
-![](docs/images/ToolsManager/Tool_installed_and_activated.png)
+![](docs_readme/images/ToolsManager/Tool_installed_and_activated.png)
 
 You can add as many version of ESP-IDF as you want but only one of the version can be set active and that will be used to compile and index projects in your workspace. This new feature can help you in swithcing between versions in the workspace easily.
 
 Lets take a look at how the multiple versions will look like. You have to follow the same steps as done previously to add another ESP-IDF version to the IDE.
-![](docs/images/ToolsManager/ESP-IDF_Manager_Multiple_versions.png)
+![](docs_readme/images/ToolsManager/ESP-IDF_Manager_Multiple_versions.png)
 
 To activate any specific version simply click on the radio button next to it in the `Active` column.
 
@@ -150,7 +150,7 @@ To create a project using existing ESP-IDF templates, please refer to [this](#Ne
 
 > **Note:** You may see numerous unresolved headers and symbols errors in the editor, and these will only be resolved after the build process.
 
-![](docs/images/3_new_project_default.png)
+![](docs_readme/images/3_new_project_default.png)
 
 <a name="ConfigureLaunchTarget"></a>
 # Configuring build target
@@ -165,7 +165,7 @@ However, if you would like to add a target that is not available in the launch t
 1. Select `ESP Target`.
 1. Provide properties for the target where you would like to launch the application. Enter a `Name` for the target and select the `Serial Port` your ESP device is connected to on your machine.
 
-![](docs/images/8_launch_target.png)
+![](docs_readme/images/8_launch_target.png)
 
 <a name="BuildApplication"></a>
 # Compiling the Project
@@ -174,20 +174,20 @@ However, if you would like to add a target that is not available in the launch t
 1. Select `Run` from the first drop-down, which is called `Launch Mode`.
 1. Select your application from the second drop-down, which is called `Launch Configuration`(Auto-detected).
 1. Select a target from the third drop-down, which is called `Launch Target`.
-1. Now click on the `Build` ![](docs/images/icons/build.png) button to start with a build process.
+1. Now click on the `Build` ![](docs_readme/images/icons/build.png) button to start with a build process.
 
-![](docs/images/9_cmake_build.png)
+![](docs_readme/images/9_cmake_build.png)
 
 <a name="FlashApplication"></a>
 # Flashing the Project
 
-Flash operation can be initiated with just a click of a launch button ![](docs/images/icons/run.png) and it's auto-configured to flash the application with the default flash command i.e, `idf.py -p PORT flash`.
+Flash operation can be initiated with just a click of a launch button ![](docs_readme/images/icons/run.png) and it's auto-configured to flash the application with the default flash command i.e, `idf.py -p PORT flash`.
 
 <img width="767" alt="flash" src="https://github.com/espressif/idf-eclipse-plugin/assets/8463287/3249c01b-af23-4863-811f-c3959008f257">
 
 To provide the customized flash arguments, please follow [this](#customizeLaunchConfig) link for further instructions.
 
-To configure flashing via JTAG, please refer to this <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs/JTAG%20Flashing.md"> JTAG Flashing guide</a>.
+To configure flashing via JTAG, please refer to this <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs_readme/JTAG%20Flashing.md"> JTAG Flashing guide</a>.
 
 <a name="ConfigureLaunchTerminal"></a>
 # Viewing Serial Output
@@ -202,7 +202,7 @@ To see the serial output in Eclipse, we need to configure the `ESP-IDF Serial Mo
 1. Configure serial monitor filter options for output filtering.
 1. Click on `OK` to launch the terminal, which will listen to the USB port.
 
-![](docs/images/10_serial_terminal.png)
+![](docs_readme/images/10_serial_terminal.png)
 
 ### ESP-IDF Serial Monitor Settings
 
@@ -221,12 +221,12 @@ In most cases, only two things are required to start debugging an esp-idf projec
 
 The fastest way to create a debug configuration is to expand the configuration list in the launch bar and click `New Launch Configuration...`. Then select `ESP-IDF GDB OpenOCD Debugging` -> Double Click or `Next`. After that, the preview for the new debug configuration will open where it's necessary to check the board.
 
-After creating the debug configuration, you can go ahead and debug the project. Select the configuration you just created, select debug mode, and click on the "Debug" icon ![](docs/images/icons/debug.png) to start debugging:
+After creating the debug configuration, you can go ahead and debug the project. Select the configuration you just created, select debug mode, and click on the "Debug" icon ![](docs_readme/images/icons/debug.png) to start debugging:
 
 ![Debugging_process](https://github.com/espressif/idf-eclipse-plugin/assets/24419842/1fb0fb9b-a02a-4ed1-bdba-b4b4d36d100f)
 
 
-To learn more about the debug configuration, please refer to <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs/OpenOCD%20Debugging.md">GDB OpenOCD Debugging</a>.
+To learn more about the debug configuration, please refer to <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs_readme/OpenOCD%20Debugging.md">GDB OpenOCD Debugging</a>.
 
 # Other IDE Features
 
@@ -243,7 +243,7 @@ To learn more about the debug configuration, please refer to <a href="https://gi
 
 > **Note:** You will see a lot of unresolved inclusion errors in the editor and those will be resolved only after the build.
 
-![](docs/images/4_new_project_templates.png)
+![](docs_readme/images/4_new_project_templates.png)
 
 
 <a name="projectconfigure"></a>
@@ -258,18 +258,18 @@ To launch the SDK Configuration editor:
 1. Use `Ctrl+S` or  `Command+S` based on the OS environment to save the changes. You can also use Eclipse `Save` button from the toolbar.
 1. To revert the sdkconfig editor changes, you can either close the editor without saving them or you can right-click on the `sdkconfig` file and select `Load sdkconfig` menu option to revert the changes from the editor.
 
-![](docs/images/13_sdkconfig_editor.png)
+![](docs_readme/images/13_sdkconfig_editor.png)
 
 <a name="cmakeproject"></a>
 # CMake Editor
 
 CMake Editor Plug-in is integrated with IDF Plugin for editing CMake files such as CMakeLists.txt. It provides syntax coloring, CMake command content assist, and code templates.
 
-![](docs/images/cmake_editor_ca.png)
+![](docs_readme/images/cmake_editor_ca.png)
 
 CMake editor preferences can be controlled using `Eclipse` > `Preferences` > `CMakeEd`.
 
-![](docs/images/cmake_editor_preferences.png)
+![](docs_readme/images/cmake_editor_preferences.png)
 
 <a name="sizeanalysiseditor"></a>
 # ESP-IDF Application Size Analysis
@@ -287,11 +287,11 @@ To launch the Application Size Analysis editor:
 
 **Application Size Analysis - Overview**
 
-![](docs/images/sizeanalysis_overview.png)
+![](docs_readme/images/sizeanalysis_overview.png)
 
 **Application Size Analysis - Details**
 
-![](docs/images/sizeanalysis_details.png)
+![](docs_readme/images/sizeanalysis_details.png)
 
 <a name="idfterminal"></a>
 # ESP-IDF Terminal
@@ -305,7 +305,7 @@ To launch the ESP-IDF Terminal:
 * Click on the `Open a Terminal` icon from the toolbar.
 * Choose `ESP-IDF Terminal` from the terminal drop-down and click `OK` to launch a terminal.
 
-![](docs/images/idf_terminal.png)
+![](docs_readme/images/idf_terminal.png)
 
 <a name="espidfcomponents"></a>
 # Installing ESP-IDF Components
@@ -314,12 +314,12 @@ You can install the ESP-IDF Components directly into your project from the avail
 
 * Right-click on the project from `Project Explorer` in which you want to add the component to and Select `Install ESP-IDF Components`.
 
-  ![](docs/images/ESP-IDF_Components/install_components.png)
+  ![](docs_readme/images/ESP-IDF_Components/install_components.png)
 
   A new window will open up showing all the available component to be installed.
 
 * From the window, you can click on `Install` button to add that component to the project. To get to the readme file for that component you can click on `More Info` which will open the browser link to the readme file of that component.
-  ![](docs/images/ESP-IDF_Components/components_window.png)
+  ![](docs_readme/images/ESP-IDF_Components/components_window.png)
 
 Already added components are also shown but the `Install` button changes text to `Already Added` and is disabled.
 
@@ -328,7 +328,7 @@ Already added components are also shown but the `Install` button changes text to
 
 All the required environment variables are automatically configured by the IDE during the ESP-IDF and Tools installation process (Espressif > ESP-IDF Manager > Add ESP-IDF). You can verify them in the Preferences page under `C/C++` > `Build` > `Environment`.
 
-![](docs/images/2_environment_pref.png)
+![](docs_readme/images/2_environment_pref.png)
 
 # Configuring Toolchains
 
@@ -350,7 +350,7 @@ If these toolchains are not detected for any reason, please follow the step-by-s
 	* **Operating System:** esp32,
 	* **CPU Architecture:** xtensa
 
-![](docs/images/6_core_build_toolchains.png)
+![](docs_readme/images/6_core_build_toolchains.png)
 
 <a name="ConfigureCMakeToolchain"></a>
 # Configuring CMake Toolchain
@@ -364,7 +364,7 @@ We now need to tell CDT which toolchain to use when building the project. This w
 
 > **Note:**  Eclipse CDT has a bug in saving the toolchain preferences, hence it's recommended to restart Eclipse before we move further configuring the launch target.
 
-![](docs/images/7_cmake_toolchain.png)
+![](docs_readme/images/7_cmake_toolchain.png)
 
 <a name="SelectDifferentToolchain"></a>
 # Selecting Clang Toolchain
@@ -390,9 +390,9 @@ To provide the customized launch configuration and flash arguments, please follo
 1. Click OK to save the settings.
 1. Click on the `Launch` icon to flash the application to the selected board.
 
-![](docs/images/11_launch_configuration.png)
+![](docs_readme/images/11_launch_configuration.png)
 
-![](docs/images/12_flashing.png)
+![](docs_readme/images/12_flashing.png)
 
 <a name="changeLanguage"></a>
 # Changing Language
@@ -404,7 +404,7 @@ To change the plugin language a menu is provided to show the list of available l
 1. From the sub menu select the language you want.
 1. IDE will restart with the selected language.
 
-![](docs/images/change_language.png)
+![](docs_readme/images/change_language.png)
 
 Remember this will only change the language of the Eclipse if the required language bundles for the selected language are installed or else only the plugin interfaces will be changed.
 
@@ -438,7 +438,7 @@ To export the current log view content into a file, press the Export Log toolbar
 
 Always provide an error log when reporting an issue.
 
-![](docs/images/export_log.png)
+![](docs_readme/images/export_log.png)
 
 ## Console View Log
 
@@ -446,7 +446,7 @@ The Console View provides all the warnings and errors related to the current run
 
 From the menu bar, `Window` > `Show View` > `Console`.
 
-![](docs/images/CDT_Build_Console.png)
+![](docs_readme/images/CDT_Build_Console.png)
 
 ## CDT Global Build Log
 
@@ -460,11 +460,11 @@ If you encounter any issue while installing the IDF tools using `Espressif` > `E
 
 If this is not active, it can be switched by clicking on the `Display Selected Console` icon from the console view.
 
-![](docs/images/IDF_tools_console.png)
+![](docs_readme/images/IDF_tools_console.png)
 
 ## Heap Tracing
 
-Please refer to <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs/HeapTracing.md">this</a> doc.
+Please refer to <a href="https://github.com/espressif/idf-eclipse-plugin/tree/master/docs_readme/HeapTracing.md">this</a> doc.
 
 <a name="installPluginsFromMarketPlace"></a>
 # Installing IDF Eclipse Plugin from Eclipse Market Place
@@ -476,7 +476,7 @@ Please follow the steps below to install IDF Eclipse Plugin from the Eclipse Mar
 1. Click on `Install` to follow the installation instructions.
 1. Restart the Eclipse.
 
-![](docs/images/market_place.png)
+![](docs_readme/images/market_place.png)
 
 <a name="installPluginsUsingLocalFile"></a>
 # Installing IDF Eclipse Plugin from Local Archive
@@ -489,7 +489,7 @@ Please follow the steps below to install IDF Eclipse Plugin from the Eclipse Mar
 1. Select `Espressif IDF` from the list and proceed with the installation.
 1. Restart the Eclipse.
 
-![](docs/images/1_idffeature_install.png)
+![](docs_readme/images/1_idffeature_install.png)
 
 <a name="upgradePlugins"></a>
 # How do I upgrade my existing IDF Eclipse Plugin?
@@ -507,7 +507,7 @@ If you've already installed IDF Eclipse Plugin using `update site URL`, you can 
 1. If updates are found, select `Espressif IDF Plugins for Eclipse` and deselect all other items.
 1. Click `Next` to proceed with the installation.
 
-![](docs/images/Update_plugins.png)
+![](docs_readme/images/Update_plugins.png)
 
 <a name="ImportProject"></a>
 # Importing an existing IDF Project
@@ -521,7 +521,7 @@ If you've already installed IDF Eclipse Plugin using `update site URL`, you can 
 1. Provide `Project name` if you wish you have a different name.
 1. Click `Finish` to import the selected project into Eclipse workspace as a CMake project.
 
-![](docs/images/5_import_project.png)
+![](docs_readme/images/5_import_project.png)
 
 <a name="importDebugLaunchConfig"></a>
 # Importing an existing Debug launch configuration
@@ -545,10 +545,10 @@ You can now use the GDBStub debugging inside our Eclipse plugin to help you diag
 To enable GDBStub debugging for a project:
 
 1. Launch the `sdkconfig` in project root by double-clicking on it which will open the configuration editor.
-![](docs/images/GDBStubDebugging/sdkconfig_editor.png)
+![](docs_readme/images/GDBStubDebugging/sdkconfig_editor.png)
 
 1. Expand the `Component Config` section and select `ESP System Settings`. From the settings on the right for `Panic Handler behaviour` select the `GDBStub on Panic option` from the list.
-![](docs/images/GDBStubDebugging/sdkconfig_editor_panic_behavior.png)
+![](docs_readme/images/GDBStubDebugging/sdkconfig_editor_panic_behavior.png)
 
 Now you will be taken to the GDBStub debugger automatically when you connect the serial monitor and there is a panic for this example.
 
@@ -569,13 +569,13 @@ To use the GDBStub debugging for a project:
 	```
 
 The final file should be something like this:
-![](docs/images/GDBStubDebugging/code_example.png)
+![](docs_readme/images/GDBStubDebugging/code_example.png)
 
 Build and flash the project and launch the serial monitor. On line number 45, we are signaling for a failing assert which will put the chip in panic mode and when that line reaches, you will be prompted to switch the perspective to debug mode and the chip will be halted.
 
 Remember that this is a panic mode and you cannot continue the execution from here, you will have to stop and restart the chip through IDF commands or simply restart the serial monitor.
 
-![](docs/images/GDBStubDebugging/debug_panic_mode.png)
+![](docs_readme/images/GDBStubDebugging/debug_panic_mode.png)
 
 You can view the registers stack trace and even view the value of variables in the stack frame.
 
@@ -592,7 +592,7 @@ To enable core dump debugging for a project:
 1. You need to enable it first in `sdkconfig`. Launch the `sdkconfig` in the project root by double-clicking on it which will open the configuration editor
 
 1. Click on the `Core Dump` from the settings on the left and select `Data Destination` as `UART`.
-![](docs/images/CoreDumpDebugging/sdkconfig_editor.png)
+![](docs_readme/images/CoreDumpDebugging/sdkconfig_editor.png)
 
 This will enable the core dump debugging and whenever you connect a serial monitor for that project if any crash occurs it will load the dump and open a debug perspective in Eclipse to let you diagnose the dump where you can view all the information in the core dump.
 
@@ -639,15 +639,15 @@ Additional information, including common errors and known issues, is mentioned i
 # Application Level Tracing
 
 ESP-IDF provides a useful feature for program behavior analysis called [Application Level Tracing](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c3/api-guides/app_trace.html?). IDF-Eclipse plugin has UI, that allows the use of start, and stop tracing commands and process received data. To familiarize yourself with this library, you can use the [app_trace_to_host](https://github.com/espressif/esp-idf/tree/release/v5.0/examples/system/app_trace_to_host) project or the [app_trace_basic](https://github.com/espressif/esp-idf/tree/release/v5.1/examples/system/app_trace_basic) project if you are using esp-idf 5.1 and higher. These projects can be created from the plugin itself:
-![](docs/images/AppLvlTracing_1.png)
+![](docs_readme/images/AppLvlTracing_1.png)
 
 Before you start using application-level tracing, it is important to create a debug configuration for the project where you must select the board you are using in order to successfully start the OpenOCD server.
 
-![](docs/images/AppLvlTracing_3.png)
+![](docs_readme/images/AppLvlTracing_3.png)
 
 After the debug configuration is created, right-click on the project in the Project Explorer and click on `ESP-IDF` > `Application Level Tracing`:
 
-![](docs/images/AppLvlTracing_2.png)
+![](docs_readme/images/AppLvlTracing_2.png)
 
 It can take a while to open the application level tracing dialog because the OpenOCD server starts first, so you don't need to start it externally. At the very top of the application-level trace dialog, there are auto-configured fields that you can change for the trace start command.
 
@@ -664,7 +664,7 @@ Start command:
 
 Additional information can be found [here](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c3/api-guides/app_trace.html?).
 
-![](docs/images/AppLvlTracing_4.png)
+![](docs_readme/images/AppLvlTracing_4.png)
 
 The next two fields `Trace Processing Script` and `Start Parsing Command` are used to parse the output file.
 
@@ -675,7 +675,7 @@ Note the `Start parse` button is disabled until a dump file is available. To gen
 
 When the output file is generated, you can click on `Start parse` button, and you will see the parsed script output in the Eclipse console:
 
-![](docs/images/AppLvlTracing_5.png)
+![](docs_readme/images/AppLvlTracing_5.png)
 
 <a name ="partitionTableEditor"></a>
 # Partition Table Editor UI for ESP-IDF
@@ -789,7 +789,7 @@ IDE allows configuring a custom build directory to the project:
 
 Note this configuration changes where all the project build artifacts will be generated.
 
-![](docs/images/custombuilddir.png)
+![](docs_readme/images/custombuilddir.png)
 
 <a name ="wokwisimulator"></a>
 # Wokwi Simulator

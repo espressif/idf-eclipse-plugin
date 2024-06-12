@@ -53,6 +53,6 @@ After un-archiving, if the application still complains, check/remove the attribu
 $ xattr -dr com.apple.quarantine ~/Downloads/Espressif-IDE.app
 ```
 ### Other Topics
-- [Installing Espressif-IDE by Windows Offline Installer](https://github.com/espressif/idf-eclipse-plugin/blob/master/docs/Espressif-IDE-Windows-Installer.md)
+- [Installing Espressif-IDE by Windows Offline Installer](https://github.com/espressif/idf-eclipse-plugin/blob/master/docs_readme/Espressif-IDE-Windows-Installer.md)
 - [Updating Espressif-IDE with the Latest Version](https://github.com/espressif/idf-eclipse-plugin#installing-idf-plugin-using-update-site-url)
 
