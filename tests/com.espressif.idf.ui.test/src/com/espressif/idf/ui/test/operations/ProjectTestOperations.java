@@ -302,6 +302,8 @@ public class ProjectTestOperations
 
 		bot.tree().expandNode(category).select(subCategory);
 		bot.button("Finish").click();
+		SWTBotShell shell1 = bot.shell("New IDF Project");
+		shell1.activate();
 		bot.textWithLabel("Project name:").setText(projectName);
 		bot.button("Finish").click();
 		TestWidgetWaitUtility.waitUntilViewContainsTheTreeItemWithName(projectName, bot.viewByTitle("Project Explorer"),
@@ -573,23 +575,15 @@ public class ProjectTestOperations
 			projectItem.select();
 			projectItem.contextMenu(contextMenuLabel).click();
 		}
-		try
-		{
-			Thread.sleep(2000);
-		}
-		catch (InterruptedException e)
-		{
-			logger.error(e.getMessage(), e);
-		}
-
+		WaitUtils.waitForJobs();
 	}
 
-	public static void waitForProjectClean(SWTWorkbenchBot bot) throws IOException
+	public static void findInConsole(SWTWorkbenchBot bot, String consoleName, String findText) throws IOException
 	{
-		SWTBotView consoleView = viewConsole("Espressif IDF Tools Console", bot);
+		SWTBotView consoleView = viewConsole(consoleName, bot);
 		consoleView.show();
 		consoleView.setFocus();
-		TestWidgetWaitUtility.waitUntilViewContains(bot, "Done", consoleView, 0);
+		TestWidgetWaitUtility.waitUntilViewContains(bot, findText, consoleView, 3000);
 	}
 
 	public static void joinJobByName(String jobName)
