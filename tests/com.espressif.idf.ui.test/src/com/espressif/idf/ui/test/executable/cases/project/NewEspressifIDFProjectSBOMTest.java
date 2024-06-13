@@ -99,7 +99,7 @@ public class NewEspressifIDFProjectSBOMTest
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.whenOpenSbomTool();
-		Fixture.whenCleanProjectDescriptionPath();
+		Fixture.whenEmptyProjectDescriptionPath();
 		Fixture.thenRunOKbuttonDisabled(Fixture.bot);
 	}
 
@@ -133,13 +133,21 @@ public class NewEspressifIDFProjectSBOMTest
 	public void givenNewProjectCreatedBuiltWhenOpenSbomAndAddSpaceToOutputFilePathThenCheckPathValidation()
 			throws Exception
 	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectSbomSeventhTest");
-		Fixture.whenNewProjectIsSelected();
-		Fixture.whenProjectIsBuiltUsingContextMenu();
-		Fixture.whenOpenSbomTool();
-		Fixture.whenRedirectOutputToTheFileClicked();
-		Fixture.thenAddSpaceToOutputFilePathAndCheckValidation(Fixture.bot);
+		if (!SystemUtils.IS_OS_LINUX)
+		{
+			Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+			Fixture.givenProjectNameIs("NewProjectSbomSeventhTest");
+			Fixture.whenNewProjectIsSelected();
+			Fixture.whenProjectIsBuiltUsingContextMenu();
+			Fixture.whenOpenSbomTool();
+			Fixture.whenRedirectOutputToTheFileClicked();
+			Fixture.whenAddSpaceToOutputFilePath(Fixture.bot);
+			Fixture.thenRunOKbuttonDisabled(Fixture.bot);
+		}
+		else
+		{
+			assertTrue(true);
+		}
 	}
 
 	private static class Fixture
@@ -236,17 +244,12 @@ public class NewEspressifIDFProjectSBOMTest
 			assertTrue(ProjectTestOperations.checkTextEditorContentForPhrase("SPDXVersion", bot));
 		}
 
-		private static void thenAddSpaceToOutputFilePathAndCheckValidation(SWTWorkbenchBot bot) throws IOException
+		private static void whenAddSpaceToOutputFilePath(SWTWorkbenchBot bot) throws IOException
 		{
-			SWTBotButton okButton = bot.button("OK");
-			if (!SystemUtils.IS_OS_LINUX)
-			{
-				bot.shell("Software Bill of Materials Tool").bot().textWithLabel("Output File Path:").setText(" ");
-				assertTrue(!okButton.isEnabled());
-			}
+			bot.shell("Software Bill of Materials Tool").bot().textWithLabel("Output File Path:").setText(" ");
 		}
 
-		private static void whenCleanProjectDescriptionPath() throws IOException
+		private static void whenEmptyProjectDescriptionPath() throws IOException
 		{
 			bot.shell("Software Bill of Materials Tool").bot().textWithLabel("Project Description Path:").setText("");
 		}
