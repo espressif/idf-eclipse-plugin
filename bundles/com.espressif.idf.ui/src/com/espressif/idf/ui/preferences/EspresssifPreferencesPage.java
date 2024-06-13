@@ -1,5 +1,6 @@
 package com.espressif.idf.ui.preferences;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
@@ -38,6 +39,7 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 
 	private Text gitAssetsText;
 	private Text pythonWheelText;
+	private Text idfToolsPathText;
 
 	public EspresssifPreferencesPage()
 	{
@@ -100,16 +102,29 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		gitAssetsText.setLayoutData(gitTextGridData);
 		pythonWheelText.setLayoutData(pythonTextGridData);
 
+		Label idfToolsPathLabel = new Label(toolsInstallationGroup, SWT.NONE);
+		idfToolsPathLabel.setText("IDF_TOOLS_PATH");
+		idfToolsPathText = new Text(toolsInstallationGroup, SWT.SINGLE | SWT.NONE);
+		GridData idfToolsPathTextGridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		idfToolsPathTextGridData.widthHint = 200;
+		idfToolsPathText.setLayoutData(idfToolsPathTextGridData);
+		
+		
 		String gitUrl = getPreferenceStore().getString(IDFCorePreferenceConstants.IDF_GITHUB_ASSETS);
 		String pyWheelUrl = getPreferenceStore().getString(IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL);
+		String idfToolsPath = getPreferenceStore().getString(IDFCorePreferenceConstants.IDF_TOOLS_PATH);
 		gitUrl = StringUtil.isEmpty(gitUrl)
 				? getPreferenceStore().getDefaultString(IDFCorePreferenceConstants.IDF_GITHUB_ASSETS)
 				: gitUrl;
 		pyWheelUrl = StringUtil.isEmpty(pyWheelUrl)
 				? getPreferenceStore().getDefaultString(IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL)
 				: pyWheelUrl;
+		idfToolsPath = StringUtil.isEmpty(idfToolsPath)
+				? getPreferenceStore().getDefaultString(IDFCorePreferenceConstants.IDF_TOOLS_PATH)
+				: idfToolsPath;
 		gitAssetsText.setText(gitUrl);
 		pythonWheelText.setText(pyWheelUrl);
+		idfToolsPathText.setText(idfToolsPath);
 	}
 
 	private void addBuildSettings(Composite mainComposite)
@@ -214,6 +229,8 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 			getPreferenceStore().setValue(IDFCorePreferenceConstants.IDF_GITHUB_ASSETS, gitAssetsText.getText());
 
 			getPreferenceStore().setValue(IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL, pythonWheelText.getText());
+			
+			getPreferenceStore().setValue(IDFCorePreferenceConstants.IDF_TOOLS_PATH, idfToolsPathText.getText());
 		}
 		catch (Exception e)
 		{
@@ -237,6 +254,7 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 				.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.HIDE_ERRORS_IDF_COMPONENTS));
 		gitAssetsText.setText(getPreferenceStore().getDefaultString(IDFCorePreferenceConstants.IDF_GITHUB_ASSETS));
 		pythonWheelText.setText(getPreferenceStore().getDefaultString(IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL));
+		idfToolsPathText.setText(getPreferenceStore().getDefaultString(IDFCorePreferenceConstants.IDF_TOOLS_PATH));
 	}
 
 	private void initializeDefaults()
@@ -253,5 +271,6 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		
 		getPreferenceStore().setDefault(IDFCorePreferenceConstants.IDF_GITHUB_ASSETS, IDFCorePreferenceConstants.IDF_GITHUB_ASSETS_DEFAULT);
 		getPreferenceStore().setDefault(IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL, IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL_DEFAULT);
+		getPreferenceStore().setDefault(IDFCorePreferenceConstants.IDF_TOOLS_PATH, IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT);
 	}
 }
