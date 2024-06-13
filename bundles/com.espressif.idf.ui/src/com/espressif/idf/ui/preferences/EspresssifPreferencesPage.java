@@ -103,7 +103,7 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		pythonWheelText.setLayoutData(pythonTextGridData);
 
 		Label idfToolsPathLabel = new Label(toolsInstallationGroup, SWT.NONE);
-		idfToolsPathLabel.setText("IDF_TOOLS_PATH");
+		idfToolsPathLabel.setText(Messages.EspressifPreferencesPage_EspIdfToolsInstallationDirectoryLabel);
 		idfToolsPathText = new Text(toolsInstallationGroup, SWT.SINGLE | SWT.NONE);
 		GridData idfToolsPathTextGridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		idfToolsPathTextGridData.widthHint = 200;
