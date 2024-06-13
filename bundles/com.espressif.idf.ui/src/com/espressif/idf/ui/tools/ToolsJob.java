@@ -480,6 +480,11 @@ public abstract class ToolsJob extends Job
 					Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
 							IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL,
 							IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL_DEFAULT, null));
+			
+			environment.put("IDF_TOOLS_PATH", //$NON-NLS-1$
+					Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
+							IDFCorePreferenceConstants.IDF_TOOLS_PATH,
+							IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT, null));
 
 			if (gitExecutablePath != null)
 			{
