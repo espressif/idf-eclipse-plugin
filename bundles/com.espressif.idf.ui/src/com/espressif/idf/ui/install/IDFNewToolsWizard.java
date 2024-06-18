@@ -333,7 +333,7 @@ public class IDFNewToolsWizard extends Wizard
 			Display.getDefault().asyncExec(() -> {
 				if (espidfMainTablePage != null)
 				{
-					espidfMainTablePage.refreshTable();
+					espidfMainTablePage.refreshEditorUI();
 				}
 			});
 			

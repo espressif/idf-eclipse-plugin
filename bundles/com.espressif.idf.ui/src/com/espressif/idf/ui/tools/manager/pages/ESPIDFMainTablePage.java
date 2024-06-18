@@ -5,6 +5,7 @@
 package com.espressif.idf.ui.tools.manager.pages;
 
 import java.text.MessageFormat;
+import java.util.List;
 
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -35,6 +36,7 @@ import org.eclipse.swt.widgets.TableItem;
 import com.espressif.idf.core.tools.ToolSetConfigurationManager;
 import com.espressif.idf.core.tools.vo.IDFToolSet;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.ui.LaunchBarListener;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.install.IDFNewToolsWizard;
 import com.espressif.idf.ui.tools.Messages;
@@ -58,7 +60,9 @@ public class ESPIDFMainTablePage
 	private TableViewerColumn removeColumn;
 	private TableColumnLayout tableColumnLayout;
 	private Composite tableComposite;
-
+	private List<IDFToolSet> idfToolSets;
+	private Button removeAllButton;
+	
 	private static final String REMOVE_ICON = "icons/tools/delete.png"; //$NON-NLS-1$
 	private static final String RELOAD_ICON = "icons/tools/reload.png"; //$NON-NLS-1$
 	private static final String IDF_TOOL_SET_BTN_KEY = "IDFToolSet"; //$NON-NLS-1$
@@ -66,6 +70,7 @@ public class ESPIDFMainTablePage
 	public Composite createPage(Composite composite)
 	{
 		toolSetConfigurationManager = new ToolSetConfigurationManager();
+		idfToolSets = toolSetConfigurationManager.getIdfToolSets(true);
 		container = new Composite(composite, SWT.NONE);
 		final int numColumns = 2;
 		GridLayout gridLayout = new GridLayout(numColumns, false);
@@ -74,7 +79,7 @@ public class ESPIDFMainTablePage
 		return container;
 	}
 
-	public void refreshTable()
+	public void refreshEditorUI()
 	{
 		for (TableItem item : tableViewer.getTable().getItems())
 		{
@@ -104,12 +109,22 @@ public class ESPIDFMainTablePage
 			}
 		}
 		toolSetConfigurationManager.setReload(true);
+		idfToolSets = toolSetConfigurationManager.getIdfToolSets(true);
 		setupColumns();
-		tableViewer.setInput(toolSetConfigurationManager.getIdfToolSets(true));
+		tableViewer.setInput(idfToolSets);
 		tableViewer.getControl().requestLayout();
 		tableViewer.refresh();
 		container.redraw();
 		toolSetConfigurationManager.setReload(false);
+		
+		if (idfToolSets == null || idfToolSets.isEmpty())
+	    {
+	    	removeAllButton.setEnabled(false);
+	    }
+		else 
+		{
+			removeAllButton.setEnabled(true);
+		}
 	}
 
 	private Composite createIdfTable(Composite parent)
@@ -144,15 +159,19 @@ public class ESPIDFMainTablePage
 	    GridData buttonCompositeGridData = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
 	    buttonCompositeGridData.verticalAlignment = SWT.TOP; // Aligns the button composite at the top
 	    buttonComposite.setLayoutData(buttonCompositeGridData);
-	    buttonComposite.setLayout(new FillLayout());
+	    buttonComposite.setLayout(new GridLayout(1, true));
 
 	    // Creating the "Add" button
 	    Button addButton = new Button(buttonComposite, SWT.PUSH);
 	    addButton.setText(Messages.EspIdfManagerAddToolsBtn);
-	    addButton.addSelectionListener(new SelectionAdapter() {
-	        @Override
-	        public void widgetSelected(SelectionEvent e) {
-	        	IDFNewToolsWizard wizard = new IDFNewToolsWizard(ESPIDFMainTablePage.this);
+	    GridData addButtonGridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+	    addButton.setLayoutData(addButtonGridData);
+		addButton.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				IDFNewToolsWizard wizard = new IDFNewToolsWizard(ESPIDFMainTablePage.this);
 				wizard.setWindowTitle(Messages.IDFDownloadHandler_ESPIDFConfiguration);
 				WizardDialog wizDialog = new WizardDialog(container.getShell(), wizard);
 				wizDialog.create();
@@ -162,9 +181,43 @@ public class ESPIDFMainTablePage
 				wizDialog.getShell().setSize(Math.max(850, wizDialog.getShell().getSize().x), 550);
 
 				wizDialog.open();
-	        }
-	    });
+			}
+		});
+	    
+		removeAllButton = new Button(buttonComposite, SWT.PUSH);
+		removeAllButton.setText(Messages.EspIdfManagerRemoveAllBtn);
+		removeAllButton.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				MessageBox messageBox = new MessageBox(Display.getDefault().getActiveShell(),
+						SWT.ICON_WARNING | SWT.YES | SWT.NO);
+				messageBox.setMessage(Messages.EspIdfManagerMessageBoxDeleteAllConfirmMessage);
+				messageBox.setText(Messages.EspIdfManagerMessageBoxDeleteAllConfirmMessageTitle);
+				int response = messageBox.open();
+				if (response == SWT.YES)
+				{
+					for(IDFToolSet idfToolSet : idfToolSets)
+					{
+						toolSetConfigurationManager.delete(idfToolSet);
+					}
+					refreshEditorUI();
+				}
+			}
+		});
 		
+	    GridData removeAllButtonGridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+	    removeAllButton.setLayoutData(removeAllButtonGridData);
+	    if (idfToolSets == null || idfToolSets.isEmpty())
+	    {
+	    	removeAllButton.setEnabled(false);
+	    }
+	    else 
+		{
+			removeAllButton.setEnabled(true);
+		}
+	    
 		return idfToolsGroup;
 	}
 	
@@ -246,25 +299,14 @@ public class ESPIDFMainTablePage
 
 	private void performDeleteOperation(IDFToolSet idfToolSet)
 	{
-		if (idfToolSet.isActive())
+		MessageBox messageBox = new MessageBox(Display.getDefault().getActiveShell(),
+				SWT.ICON_WARNING | SWT.YES | SWT.NO);
+		messageBox.setMessage(MessageFormat.format(Messages.EspIdfManagerMessageBoxDeleteConfirmMessage, idfToolSet.getIdfVersion()));
+		messageBox.setText(Messages.EspIdfManagerMessageBoxDeleteConfirmMessageTitle);
+		int response = messageBox.open();
+		if (response == SWT.YES)
 		{
-			MessageBox messageBox = new MessageBox(Display.getDefault().getActiveShell(),
-					SWT.ICON_INFORMATION | SWT.OK);
-			messageBox.setMessage(Messages.EspIdfManagerMessageBoxActiveToolchainDelete);
-			messageBox.setText(Messages.EspIdfManagerMessageBoxActiveToolchainDeleteTitle);
-			messageBox.open();
-		}
-		else 
-		{
-			MessageBox messageBox = new MessageBox(Display.getDefault().getActiveShell(),
-					SWT.ICON_WARNING | SWT.YES | SWT.NO);
-			messageBox.setMessage(MessageFormat.format(Messages.EspIdfManagerMessageBoxDeleteConfirmMessage, idfToolSet.getIdfVersion()));
-			messageBox.setText(Messages.EspIdfManagerMessageBoxDeleteConfirmMessageTitle);
-			int response = messageBox.open();
-			if (response == SWT.YES)
-			{
-				toolSetConfigurationManager.delete(idfToolSet);
-			}
+			toolSetConfigurationManager.delete(idfToolSet);
 		}
 	}
 
@@ -409,20 +451,18 @@ public class ESPIDFMainTablePage
 					toolsActivationJob.schedule();
 				});
 			}
-			else 
-			{
-				Button removeButton = new Button(buttonComposite, SWT.PUSH | SWT.FLAT);
-				removeButton.pack(); 
-				removeButton.setData(IDF_TOOL_SET_BTN_KEY, idfToolSet);
-				removeButton.setImage(UIPlugin.getImage(REMOVE_ICON));
-				removeButton.setToolTipText(Messages.EspIdfManagerDeleteBtnToolTip);
-				removeButton.addListener(SWT.Selection, e -> {
-					Button btn = (Button) e.widget;
-					IDFToolSet selectedToolSet = (IDFToolSet) btn.getData(IDF_TOOL_SET_BTN_KEY);
-					performDeleteOperation(selectedToolSet);
-					refreshTable();
-				});
-			}
+
+			Button removeButton = new Button(buttonComposite, SWT.PUSH | SWT.FLAT);
+			removeButton.pack(); 
+			removeButton.setData(IDF_TOOL_SET_BTN_KEY, idfToolSet);
+			removeButton.setImage(UIPlugin.getImage(REMOVE_ICON));
+			removeButton.setToolTipText(Messages.EspIdfManagerDeleteBtnToolTip);
+			removeButton.addListener(SWT.Selection, e -> {
+				Button btn = (Button) e.widget;
+				IDFToolSet selectedToolSet = (IDFToolSet) btn.getData(IDF_TOOL_SET_BTN_KEY);
+				performDeleteOperation(selectedToolSet);
+				refreshEditorUI();
+			});
 
 			editor.grabHorizontal = true;
 			editor.setEditor(buttonComposite, item, cell.getColumnIndex());

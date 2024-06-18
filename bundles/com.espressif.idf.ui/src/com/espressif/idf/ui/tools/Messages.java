@@ -116,11 +116,12 @@ public class Messages extends NLS
 	public static String EspIdfManagerStateCol;
 	public static String EspIdfManagerActivateCol;
 	public static String EspIdfManagerAddToolsBtn;
+	public static String EspIdfManagerRemoveAllBtn;
 	public static String EspIdfManagerDeleteBtn;
-	public static String EspIdfManagerMessageBoxActiveToolchainDelete;
-	public static String EspIdfManagerMessageBoxActiveToolchainDeleteTitle;
 	public static String EspIdfManagerMessageBoxDeleteConfirmMessage;
 	public static String EspIdfManagerMessageBoxDeleteConfirmMessageTitle;
+	public static String EspIdfManagerMessageBoxDeleteAllConfirmMessage;
+	public static String EspIdfManagerMessageBoxDeleteAllConfirmMessageTitle;
 	
 	public static String IDFDownloadHandler_ESPIDFConfiguration;
 	public static String IDFDownloadHandler_DownloadPage_Title;

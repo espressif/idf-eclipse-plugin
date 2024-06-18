@@ -50,6 +50,21 @@ public class ToolSetConfigurationManager
 	{
 		reload = true;
 		getIdfToolSets(false);
+		// cleanup the env and toolchains
+		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+		idfEnvironmentVariables.removeAllEnvVariables();
+		try
+		{
+			ESPToolChainManager espToolChainManager = new ESPToolChainManager();
+			espToolChainManager.removeCmakeToolChains();
+			espToolChainManager.removeStdToolChains();	
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+		}
+		
+		// update the json now to remove the idf from it.
 		List<IDFToolSet> idfToolSetsToExport = new ArrayList<IDFToolSet>();
 		for (IDFToolSet idfTool : idfToolSets)
 		{
