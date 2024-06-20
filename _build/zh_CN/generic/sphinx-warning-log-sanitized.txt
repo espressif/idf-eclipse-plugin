@@ -1,0 +1,3 @@
+
+Application error:
+Cannot find source directory (/Users/kondalkolipaka/esp/idf-eclipse-plugin/zh_CN)
