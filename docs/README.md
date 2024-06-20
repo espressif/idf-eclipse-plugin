@@ -1,3 +1,3 @@
-# Basic Example
+# Espressif-IDE 
 
-Basic documentation building example that builds English and Chinese documentation for ESP32.
+Espressif-IDE documentation using esp-docs.
