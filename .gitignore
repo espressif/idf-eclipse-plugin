@@ -1,3 +1,9 @@
 /.DS_Store
 tests/com.espressif.idf.ui.test/target/classes/default-test.properties
 workspace/.metadata/.log
+/docs/_build/
+/docs/.DS_Store
+/docs/en/.DS_Store
+/docs/en/additionalfeatures/.DS_Store
+/.github/.DS_Store
+/docs/_static/.DS_Store
