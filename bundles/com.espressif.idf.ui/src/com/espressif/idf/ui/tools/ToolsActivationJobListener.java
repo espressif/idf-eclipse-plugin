@@ -49,7 +49,7 @@ public class ToolsActivationJobListener extends JobChangeAdapter
 		Display.getDefault().asyncExec(() -> {
 			if (espidfMainTablePage != null)
 			{
-				espidfMainTablePage.refreshTable();
+				espidfMainTablePage.refreshEditorUI();
 			}
 		});
 		OpenDialogListenerSupport.getSupport().firePropertyChange(PopupDialog.ENABLE_LAUNCHBAR_EVENTS.name(), null,
