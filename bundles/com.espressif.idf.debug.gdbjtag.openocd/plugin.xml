@@ -39,7 +39,7 @@
 	<extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
 		<launchConfigurationTypeImage
 			configTypeID="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationType"
-			icon="icons/obj16/ESP-IDF GDB OpenOCD Debugging.png"
+			icon="platform:/plugin/org.eclipse.jdt.debug.ui/icons/full/etool16/debug_exc.png"
 			id="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationTypeImage" />
 	</extension>
 
