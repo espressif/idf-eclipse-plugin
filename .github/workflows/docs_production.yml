@@ -9,12 +9,8 @@ on:
     - master
     paths:
     - 'docs/**'
-    - '.github/workflows/docs_deploy.yml'
-  pull_request:
-    paths:
-    - 'docs/**'
-    - '.github/workflows/docs_build.yml'
-
+    - '.github/workflows/docs_production.yml'
+ 
 jobs:
 
   deploy-prod-docs:
