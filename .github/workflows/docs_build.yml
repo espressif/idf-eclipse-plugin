@@ -16,7 +16,7 @@ on:
 jobs:
 
   build-docs:
-    name: Build ESP-Docs
+    name: Build Espressif-IDE Docs
     runs-on: ubuntu-22.04
     defaults:
       run:
