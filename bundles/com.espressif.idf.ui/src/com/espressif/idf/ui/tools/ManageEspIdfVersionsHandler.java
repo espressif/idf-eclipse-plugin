@@ -10,15 +10,16 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.part.ViewPart;
 
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.IToolsInstallationWizardConstants;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.tools.manager.ESPIDFManagerEditor;
-
 
 public class ManageEspIdfVersionsHandler extends AbstractHandler
 {
@@ -29,7 +30,7 @@ public class ManageEspIdfVersionsHandler extends AbstractHandler
 		launchEditor();
 		return null;
 	}
-	
+
 	private void launchEditor()
 	{
 		Display.getDefault().asyncExec(new Runnable()
@@ -38,6 +39,19 @@ public class ManageEspIdfVersionsHandler extends AbstractHandler
 			public void run()
 			{
 				IWorkbenchWindow activeww = EclipseHandler.getActiveWorkbenchWindow();
+				if (activeww != null)
+				{
+					IWorkbenchPage page = activeww.getActivePage();
+					if (page != null)
+					{
+						ViewPart viewPart = (ViewPart) page.findView("org.eclipse.ui.internal.introview");
+						if (viewPart != null)
+						{
+							page.hideView(viewPart);
+						}
+
+					}
+				}
 				try
 				{
 					File inputFile = new File(toolSetConfigFilePath());
@@ -45,9 +59,10 @@ public class ManageEspIdfVersionsHandler extends AbstractHandler
 					{
 						inputFile.createNewFile();
 					}
-					
-					IFile iFile = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(inputFile.getAbsolutePath()));
-					
+
+					IFile iFile = ResourcesPlugin.getWorkspace().getRoot()
+							.getFile(new Path(inputFile.getAbsolutePath()));
+
 					IDE.openEditor(activeww.getActivePage(), new FileEditorInput(iFile), ESPIDFManagerEditor.EDITOR_ID);
 				}
 				catch (Exception e)
@@ -57,7 +72,7 @@ public class ManageEspIdfVersionsHandler extends AbstractHandler
 			}
 		});
 	}
-	
+
 	private String toolSetConfigFilePath()
 	{
 		IPath path = ResourcesPlugin.getWorkspace().getRoot().getLocation();
