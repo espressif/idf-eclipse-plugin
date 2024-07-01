@@ -69,7 +69,6 @@ import com.espressif.idf.terminal.connector.serial.launcher.SerialLauncherDelega
 @SuppressWarnings("restriction")
 public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfigDelegate
 {
-	private static final String OPENOCD_PREFIX = "com.espressif.idf.debug.gdbjtag.openocd"; //$NON-NLS-1$
 	private String serialPort;
 
 	@Override
@@ -185,7 +184,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		Logger.log(String.format("flash command: %s", String.join(" ", commands))); //$NON-NLS-1$ //$NON-NLS-2$
 		String[] envArray = strings.toArray(new String[strings.size()]);
 		Process p = DebugPlugin.exec(commands.toArray(new String[0]), workingDir, envArray);
-		var process = DebugPlugin.newProcess(launch, p, String.join(" ", commands)); //$NON-NLS-1$
+		DebugPlugin.newProcess(launch, p, String.join(" ", commands)); //$NON-NLS-1$
 
 		try
 		{
@@ -196,16 +195,17 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 			Thread.currentThread().interrupt();
 			Logger.log(e);
 		}
-		openSerialMonitor(configuration);
+		if (configuration.getAttribute(IDFLaunchConstants.OPEN_SERIAL_MONITOR, false))
+			openSerialMonitor(configuration);
 
 	}
 
 	private void openSerialMonitor(ILaunchConfiguration configuration) throws CoreException
 	{
 		Map<String, Object> map = new HashMap<>();
-		map.put("delegateId", "com.espressif.idf.terminal.connector.serial.launcher.serial");
+		map.put("delegateId", "com.espressif.idf.terminal.connector.serial.launcher.serial"); //$NON-NLS-1$//$NON-NLS-2$
 		map.put(SerialSettings.PORT_NAME_ATTR, serialPort);
-		map.put("idf.monitor.project", configuration.getMappedResources()[0].getName());
+		map.put("idf.monitor.project", configuration.getMappedResources()[0].getName()); //$NON-NLS-1$
 		new SerialLauncherDelegate().execute(map, null);
 	}
 
