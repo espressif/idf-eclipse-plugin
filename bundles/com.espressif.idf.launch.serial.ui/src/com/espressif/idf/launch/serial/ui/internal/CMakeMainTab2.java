@@ -102,6 +102,7 @@ public class CMakeMainTab2 extends GenericMainTab
 	private Combo comboTargets;
 	private ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
 	private ILaunchTargetManager targetManager = Activator.getService(ILaunchTargetManager.class);
+	private Button checkButton;
 
 	public enum FlashInterface
 	{
@@ -130,6 +131,7 @@ public class CMakeMainTab2 extends GenericMainTab
 		isJtagFlashAvailable = ESPFlashUtil.checkIfJtagIsAvailable();
 		setControl(mainComposite);
 		createJtagFlashButton(mainComposite);
+		createOpenSerialMonitorCheckBox(mainComposite);
 		createDfuTargetComposite(mainComposite);
 		createProjectGroup(mainComposite, 0);
 		createUartComposite(mainComposite);
@@ -621,6 +623,7 @@ public class CMakeMainTab2 extends GenericMainTab
 			wc.setAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, jtagArgumentsField.getText());
 			wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, uartAgrumentsField.getText());
 			wc.setAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS, dfuArgumentsField.getText());
+			wc.setAttribute("openSerialPort", checkButton.getSelection());
 			wc.doSave();
 		}
 		catch (CoreException e)
@@ -918,4 +921,12 @@ public class CMakeMainTab2 extends GenericMainTab
 				new NewSerialFlashTargetWizard());
 		applyTargetJob.schedule(JOB_DELAY_MS);
 	}
+
+	private void createOpenSerialMonitorCheckBox(Composite mainComposite)
+	{
+		checkButton = new Button(mainComposite, SWT.CHECK);
+		checkButton.setText("Open serial monitor after flashing");
+
+	}
+
 }
