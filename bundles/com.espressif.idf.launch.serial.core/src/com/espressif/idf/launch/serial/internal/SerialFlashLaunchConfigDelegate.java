@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -58,6 +59,8 @@ import com.espressif.idf.core.util.RecheckConfigsHelper;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
+import com.espressif.idf.terminal.connector.serial.connector.SerialSettings;
+import com.espressif.idf.terminal.connector.serial.launcher.SerialLauncherDelegate;
 
 /**
  * Flashing into esp32 board
@@ -66,12 +69,6 @@ import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 @SuppressWarnings("restriction")
 public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfigDelegate
 {
-	private static final String OPENOCD_PREFIX = "com.espressif.idf.debug.gdbjtag.openocd"; //$NON-NLS-1$
-	private static final String INSTALL_FOLDER = "install.folder"; //$NON-NLS-1$
-	private static final String SERVER_EXECUTABLE = OPENOCD_PREFIX + ".openocd.gdbServerExecutable"; //$NON-NLS-1$
-	private static final String DEFAULT_PATH = "${openocd_path}/"; //$NON-NLS-1$
-	private static final String DEFAULT_EXECUTABLE = "bin/openocd"; //$NON-NLS-1$
-	private static final String SYSTEM_PATH_PYTHON = "${system_path:python}"; //$NON-NLS-1$
 	private String serialPort;
 
 	@Override
@@ -188,6 +185,28 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		String[] envArray = strings.toArray(new String[strings.size()]);
 		Process p = DebugPlugin.exec(commands.toArray(new String[0]), workingDir, envArray);
 		DebugPlugin.newProcess(launch, p, String.join(" ", commands)); //$NON-NLS-1$
+
+		try
+		{
+			p.waitFor();
+		}
+		catch (InterruptedException e)
+		{
+			Thread.currentThread().interrupt();
+			Logger.log(e);
+		}
+		if (configuration.getAttribute(IDFLaunchConstants.OPEN_SERIAL_MONITOR, false))
+			openSerialMonitor(configuration);
+
+	}
+
+	private void openSerialMonitor(ILaunchConfiguration configuration) throws CoreException
+	{
+		Map<String, Object> map = new HashMap<>();
+		map.put("delegateId", "com.espressif.idf.terminal.connector.serial.launcher.serial"); //$NON-NLS-1$//$NON-NLS-2$
+		map.put(SerialSettings.PORT_NAME_ATTR, serialPort);
+		map.put("idf.monitor.project", configuration.getMappedResources()[0].getName()); //$NON-NLS-1$
+		new SerialLauncherDelegate().execute(map, null);
 	}
 
 	private boolean checkIfPortIsEmpty(ILaunchConfiguration configuration)

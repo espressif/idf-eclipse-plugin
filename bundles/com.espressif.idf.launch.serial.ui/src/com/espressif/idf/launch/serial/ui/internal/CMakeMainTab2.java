@@ -102,6 +102,7 @@ public class CMakeMainTab2 extends GenericMainTab
 	private Combo comboTargets;
 	private ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
 	private ILaunchTargetManager targetManager = Activator.getService(ILaunchTargetManager.class);
+	private Button checkOpenSerialMonitorButton;
 
 	public enum FlashInterface
 	{
@@ -130,6 +131,7 @@ public class CMakeMainTab2 extends GenericMainTab
 		isJtagFlashAvailable = ESPFlashUtil.checkIfJtagIsAvailable();
 		setControl(mainComposite);
 		createJtagFlashButton(mainComposite);
+		createOpenSerialMonitorCheckBox(mainComposite);
 		createDfuTargetComposite(mainComposite);
 		createProjectGroup(mainComposite, 0);
 		createUartComposite(mainComposite);
@@ -621,6 +623,7 @@ public class CMakeMainTab2 extends GenericMainTab
 			wc.setAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, jtagArgumentsField.getText());
 			wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, uartAgrumentsField.getText());
 			wc.setAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS, dfuArgumentsField.getText());
+			wc.setAttribute(IDFLaunchConstants.OPEN_SERIAL_MONITOR, checkOpenSerialMonitorButton.getSelection());
 			wc.doSave();
 		}
 		catch (CoreException e)
@@ -639,6 +642,7 @@ public class CMakeMainTab2 extends GenericMainTab
 	public void initializeFrom(ILaunchConfiguration configuration)
 	{
 		super.initializeFrom(configuration);
+		updateStartSerialMonitorCheckbox(configuration);
 		updateProjetFromConfig(configuration);
 		updateFlashOverStatus(configuration);
 		updateArgumentsWithDefaultFlashCommand(configuration);
@@ -918,4 +922,26 @@ public class CMakeMainTab2 extends GenericMainTab
 				new NewSerialFlashTargetWizard());
 		applyTargetJob.schedule(JOB_DELAY_MS);
 	}
+
+	private void createOpenSerialMonitorCheckBox(Composite mainComposite)
+	{
+		checkOpenSerialMonitorButton = new Button(mainComposite, SWT.CHECK);
+		checkOpenSerialMonitorButton.setText(Messages.CMakeMainTab2_SerialMonitorBtn);
+
+	}
+
+	private void updateStartSerialMonitorCheckbox(ILaunchConfiguration configuration)
+	{
+		try
+		{
+			checkOpenSerialMonitorButton
+					.setSelection(configuration.getAttribute(IDFLaunchConstants.OPEN_SERIAL_MONITOR, true));
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+
+	}
+
 }
