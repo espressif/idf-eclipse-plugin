@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IResource;
@@ -24,8 +25,10 @@ import org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory;
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotLabel;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTable;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarDropDownButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
@@ -83,7 +86,9 @@ public class ProjectTestOperations
 		consoleView.show();
 		consoleView.setFocus();
 		TestWidgetWaitUtility.waitUntilViewContains(bot, "Build complete", consoleView,
-				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_PROJECT_BUILD_WAIT_PROPERTY, 600000));
+				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_PROJECT_BUILD_WAIT_PROPERTY, 300000));
+		bot.cTabItem("README.md").activate();
+		bot.cTabItem("README.md").close();
 	}
 
 	public static void waitForProjectNewComponentInstalled(SWTWorkbenchBot bot) throws IOException
@@ -100,7 +105,8 @@ public class ProjectTestOperations
 		SWTBotView view = bot.viewByPartName("Console");
 		view.setFocus();
 		SWTBotToolbarDropDownButton b = view.toolbarDropDownButton("Display Selected Console");
-		org.hamcrest.Matcher<MenuItem> withRegex = WidgetMatcherFactory.withRegex(".*" + consoleType + ".*");
+		String regex = ".*" + Pattern.quote(consoleType) + "( \\[.*\\])?.*";
+		org.hamcrest.Matcher<MenuItem> withRegex = WidgetMatcherFactory.withRegex(regex);
 		b.menuItem(withRegex).click();
 		view.setFocus();
 		return view;
@@ -245,16 +251,6 @@ public class ProjectTestOperations
 		String editorText = textEditor.toTextEditor().getText();
 
 		return editorText.contains(phrase);
-	}
-
-	public static void openProjectNewComponentUsingContextMenu(String projectName, SWTWorkbenchBot bot)
-	{
-		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
-		if (projectItem != null)
-		{
-			projectItem.select();
-			projectItem.contextMenu("Install New Component").click();
-		}
 	}
 
 	/**
@@ -584,6 +580,59 @@ public class ProjectTestOperations
 		consoleView.show();
 		consoleView.setFocus();
 		TestWidgetWaitUtility.waitUntilViewContains(bot, findText, consoleView, 3000);
+	}
+
+	public static boolean checkShellContent(SWTWorkbenchBot bot, String shellName, String expectedText)
+	{
+		SWTBotShell shell = bot.shell(shellName);
+		shell.activate();
+		SWTBotLabel label = bot.label(expectedText);
+		String actualText = label.getText();
+		return expectedText.equals(actualText);
+	}
+
+	public static boolean checkPartitionTableContent(SWTWorkbenchBot bot)
+	{
+		String[] builtInPartitionArray = { "nvs", "phy_init", "factory", "data", "data", "app", "nvs", "phy", "factory",
+				"0x9000", "0xf000", "0x10000", "0x6000", "0x1000", "1M", "", "", "" };
+		int builtInIndex = 0;
+		SWTBotTable table = bot.table();
+		int columns = table.columnCount();
+		int rows = table.rowCount();
+		if (columns != 6 && rows != 3)
+		{
+			return false;
+		}
+		for (int col = 0; col < columns; col++)
+		{
+			for (int row = 0; row < rows; row++)
+			{
+				String tableContent = table.cell(row, col);
+
+				if (!builtInPartitionArray[builtInIndex].equals(tableContent))
+				{
+					return false;
+				}
+				builtInIndex++;
+			}
+		}
+		return true;
+	}
+
+	public static boolean comparePartitionTableRows(SWTWorkbenchBot bot, int expectedDifference) throws IOException
+	{
+		SWTBotTable table = bot.table();
+		int defaultRows = 3;
+		int actualRows = table.rowCount();
+		return (actualRows - defaultRows) == expectedDifference;
+	}
+
+	public static void deletePartitionTableRow(SWTWorkbenchBot bot) throws IOException
+	{
+		SWTBotTable table = bot.table();
+		table.select(1);
+		bot.toolbarButton("Delete Selected").click();
+		bot.button("OK").click();
 	}
 
 	public static void joinJobByName(String jobName)

@@ -71,7 +71,6 @@ public class NewEspressifIDFProjectTest
 		Fixture.givenProjectNameIs("NewProjectTest");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.thenProjectIsAddedToProjectExplorer();
-
 	}
 
 	@Test
@@ -270,7 +269,7 @@ public class NewEspressifIDFProjectTest
 
 		private static void whenInstallNewComponentUsingContextMenu() throws IOException
 		{
-			ProjectTestOperations.openProjectNewComponentUsingContextMenu(projectName, bot);
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Install New Component");
 			bot.editorByTitle(projectName).show();
 			bot.button("Install").click();
 			ProjectTestOperations.waitForProjectNewComponentInstalled(bot);
@@ -335,13 +334,10 @@ public class NewEspressifIDFProjectTest
 			}
 		}
 
-		private static void thenConsoleShowsBuildSuccessful()
+		private static void thenConsoleShowsBuildSuccessful() throws IOException
 		{
-			SWTBotView consoleView = ProjectTestOperations.viewConsole("CDT Build Console", bot);
-			consoleView.show();
-			consoleView.setFocus();
-			String consoleTextString = consoleView.bot().styledText().getText();
-			assertTrue(consoleTextString.contains("Build complete (0 errors"));
+			ProjectTestOperations.findInConsole(bot, "CDT Build Console [" + Fixture.projectName + "]",
+					"Build complete (0 errors");
 		}
 
 		private static void cleanTestEnv()
