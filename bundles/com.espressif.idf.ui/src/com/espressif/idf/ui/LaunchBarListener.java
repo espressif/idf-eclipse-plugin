@@ -68,10 +68,14 @@ public class LaunchBarListener implements ILaunchBarListener
 				String configTypeIdentifier = activeLaunchConfiguration.getType().getIdentifier();
 				if (IDFLaunchConstants.RUN_LAUNCH_CONFIG_TYPE.equals(configTypeIdentifier))
 				{
+					// Set debug mode first to ensure a mode change, triggering listeners.
+					setMode(launchBarManager, ILaunchManager.DEBUG_MODE);
 					setMode(launchBarManager, ILaunchManager.RUN_MODE);
 				}
 				else if (IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE.equals(configTypeIdentifier))
 				{
+					// Set run mode first to ensure a mode change, triggering listeners.
+					setMode(launchBarManager, ILaunchManager.RUN_MODE);
 					setMode(launchBarManager, ILaunchManager.DEBUG_MODE);
 				}
 			}
