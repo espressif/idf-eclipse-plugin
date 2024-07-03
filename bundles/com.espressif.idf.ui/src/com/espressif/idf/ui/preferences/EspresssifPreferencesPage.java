@@ -4,11 +4,14 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -85,7 +88,7 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 	{
 		Group toolsInstallationGroup = new Group(mainComposite, SWT.SHADOW_ETCHED_IN);
 		toolsInstallationGroup.setText(Messages.EspressifPreferencesPage_ToolsInstallationGrpTxt);
-		toolsInstallationGroup.setLayout(new GridLayout(2, false));
+		toolsInstallationGroup.setLayout(new GridLayout(3, false));
 
 		Label githubAssetsLabel = new Label(toolsInstallationGroup, SWT.NONE);
 		githubAssetsLabel.setText(Messages.EspressifPreferencesPage_ToolsInstallationGitAssetUrlLabel);
@@ -94,10 +97,10 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		Label pythonWheelsLabel = new Label(toolsInstallationGroup, SWT.NONE);
 		pythonWheelsLabel.setText(Messages.EspressifPreferencesPage_ToolsInstallationPythonPyWheelUrlLabel);
 		pythonWheelText = new Text(toolsInstallationGroup, SWT.SINGLE | SWT.NONE);
-
-		GridData gitTextGridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		
+		GridData gitTextGridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
 		gitTextGridData.widthHint = 200;
-		GridData pythonTextGridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		GridData pythonTextGridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
 		pythonTextGridData.widthHint = 200;
 		gitAssetsText.setLayoutData(gitTextGridData);
 		pythonWheelText.setLayoutData(pythonTextGridData);
@@ -108,7 +111,21 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		GridData idfToolsPathTextGridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		idfToolsPathTextGridData.widthHint = 200;
 		idfToolsPathText.setLayoutData(idfToolsPathTextGridData);
-		
+		 // Add browse button
+	    Button browseButtonIdfToolsPath = new Button(toolsInstallationGroup, SWT.PUSH);
+	    browseButtonIdfToolsPath.setText(Messages.EspressifPreferencesPage_DirectorySelectionIDFToolsPathBrowseButton);
+	    browseButtonIdfToolsPath.addSelectionListener(new SelectionAdapter() {
+	        @Override
+	        public void widgetSelected(SelectionEvent e) {
+	            DirectoryDialog dialog = new DirectoryDialog(mainComposite.getShell());
+	            dialog.setText(Messages.EspressifPreferencesPage_DirectorySelectionIDFToolsPathTitle);
+	            dialog.setMessage(Messages.EspressifPreferencesPage_DirectorySelectionIDFToolsPathMessage);
+	            String dir = dialog.open();
+	            if (dir != null) {
+	                idfToolsPathText.setText(dir);
+	            }
+	        }
+	    });
 		
 		String gitUrl = getPreferenceStore().getString(IDFCorePreferenceConstants.IDF_GITHUB_ASSETS);
 		String pyWheelUrl = getPreferenceStore().getString(IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL);
