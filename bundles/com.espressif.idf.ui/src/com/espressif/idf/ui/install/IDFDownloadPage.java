@@ -399,7 +399,7 @@ public class IDFDownloadPage extends WizardPage
 			
 			String idfPyPath = idfPath + File.separator + IDFConstants.TOOLS_FOLDER + File.separator + IDFConstants.IDF_PYTHON_SCRIPT;
 			String idfToolsPyPth = idfPath + File.separator + IDFConstants.TOOLS_FOLDER + File.separator + IDFConstants.IDF_TOOLS_SCRIPT;
-			if (!new File (idfPyPath).exists() && !new File (idfToolsPyPth).exists())
+			if (!new File (idfPyPath).exists() || !new File (idfToolsPyPth).exists())
 			{
 				setErrorMessage(MessageFormat.format(Messages.IDFDownloadPage_CantfindProperEspIDFDirectory, idfPath));
 				setPageComplete(false);
