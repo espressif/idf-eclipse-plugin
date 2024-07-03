@@ -38,6 +38,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
+import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFVersion;
 import com.espressif.idf.core.IDFVersionsReader;
 import com.espressif.idf.core.SystemExecutableFinder;
@@ -396,8 +397,8 @@ public class IDFDownloadPage extends WizardPage
 				return;
 			}
 			
-			String idfPyPath = idfPath + File.separator + "tools" + File.separator + "idf.py"; //$NON-NLS-1$ //$NON-NLS-2$
-			String idfToolsPyPth = idfPath + File.separator + "tools" + File.separator + "idf_tools.py"; //$NON-NLS-1$ //$NON-NLS-2$
+			String idfPyPath = idfPath + File.separator + IDFConstants.TOOLS_FOLDER + File.separator + IDFConstants.IDF_PYTHON_SCRIPT;
+			String idfToolsPyPth = idfPath + File.separator + IDFConstants.TOOLS_FOLDER + File.separator + IDFConstants.IDF_TOOLS_SCRIPT;
 			if (!new File (idfPyPath).exists() && !new File (idfToolsPyPth).exists())
 			{
 				setErrorMessage(MessageFormat.format(Messages.IDFDownloadPage_CantfindProperEspIDFDirectory, idfPath));
