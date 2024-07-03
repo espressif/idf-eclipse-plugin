@@ -48,6 +48,7 @@ import org.eclipse.launchbar.core.target.launch.ITargetedLaunch;
 import org.eclipse.launchbar.ui.internal.Activator;
 import org.eclipse.launchbar.ui.target.ILaunchTargetUIManager;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.WorkbenchEncoding;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
@@ -206,6 +207,8 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		map.put("delegateId", "com.espressif.idf.terminal.connector.serial.launcher.serial"); //$NON-NLS-1$//$NON-NLS-2$
 		map.put(SerialSettings.PORT_NAME_ATTR, serialPort);
 		map.put("idf.monitor.project", configuration.getMappedResources()[0].getName()); //$NON-NLS-1$
+		map.put("encoding", configuration.getAttribute(IDFLaunchConstants.SERIAL_MONITOR_ENCODING, //$NON-NLS-1$
+				WorkbenchEncoding.getWorkbenchDefaultEncoding()));
 		new SerialLauncherDelegate().execute(map, null);
 	}
 

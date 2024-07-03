@@ -16,6 +16,8 @@ package com.espressif.idf.launch.serial.ui.internal;
 
 import java.io.File;
 import java.net.URI;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,6 +45,8 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.internal.ui.SWTFactory;
+import org.eclipse.debug.internal.ui.launchConfigurations.LaunchConfigurationsMessages;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -62,6 +66,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
+import org.eclipse.ui.ide.IDEEncoding;
 import org.json.simple.JSONArray;
 
 import com.espressif.idf.core.DefaultBoardProvider;
@@ -103,6 +108,7 @@ public class CMakeMainTab2 extends GenericMainTab
 	private ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
 	private ILaunchTargetManager targetManager = Activator.getService(ILaunchTargetManager.class);
 	private Button checkOpenSerialMonitorButton;
+	private Combo fEncodingCombo;
 
 	public enum FlashInterface
 	{
@@ -131,7 +137,7 @@ public class CMakeMainTab2 extends GenericMainTab
 		isJtagFlashAvailable = ESPFlashUtil.checkIfJtagIsAvailable();
 		setControl(mainComposite);
 		createJtagFlashButton(mainComposite);
-		createOpenSerialMonitorCheckBox(mainComposite);
+		createOpenSerialMonitorGroup(mainComposite);
 		createDfuTargetComposite(mainComposite);
 		createProjectGroup(mainComposite, 0);
 		createUartComposite(mainComposite);
@@ -584,7 +590,7 @@ public class CMakeMainTab2 extends GenericMainTab
 			}
 			return false;
 		}
-		return isConfigValid && hasProject;
+		return isConfigValid && hasProject && validateEncoding();
 	}
 
 	@Override
@@ -624,6 +630,8 @@ public class CMakeMainTab2 extends GenericMainTab
 			wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, uartAgrumentsField.getText());
 			wc.setAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS, dfuArgumentsField.getText());
 			wc.setAttribute(IDFLaunchConstants.OPEN_SERIAL_MONITOR, checkOpenSerialMonitorButton.getSelection());
+			if (checkOpenSerialMonitorButton.getSelection())
+				wc.setAttribute(IDFLaunchConstants.SERIAL_MONITOR_ENCODING, fEncodingCombo.getText());
 			wc.doSave();
 		}
 		catch (CoreException e)
@@ -642,7 +650,7 @@ public class CMakeMainTab2 extends GenericMainTab
 	public void initializeFrom(ILaunchConfiguration configuration)
 	{
 		super.initializeFrom(configuration);
-		updateStartSerialMonitorCheckbox(configuration);
+		updateStartSerialMonitorGroup(configuration);
 		updateProjetFromConfig(configuration);
 		updateFlashOverStatus(configuration);
 		updateArgumentsWithDefaultFlashCommand(configuration);
@@ -923,25 +931,76 @@ public class CMakeMainTab2 extends GenericMainTab
 		applyTargetJob.schedule(JOB_DELAY_MS);
 	}
 
-	private void createOpenSerialMonitorCheckBox(Composite mainComposite)
+	private void createOpenSerialMonitorGroup(Composite mainComposite)
 	{
-		checkOpenSerialMonitorButton = new Button(mainComposite, SWT.CHECK);
+		Group group = SWTFactory.createGroup(mainComposite, Messages.CMakeMainTab2_SerialMonitorGroup, 2, 1,
+				GridData.FILL_BOTH);
+		checkOpenSerialMonitorButton = new Button(group, SWT.CHECK);
 		checkOpenSerialMonitorButton.setText(Messages.CMakeMainTab2_SerialMonitorBtn);
+		GridData gd = new GridData(SWT.BEGINNING, SWT.NORMAL, true, false);
+		gd.horizontalSpan = 2;
+		checkOpenSerialMonitorButton.setLayoutData(gd);
+		checkOpenSerialMonitorButton.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e)
+			{
+				updateLaunchConfigurationDialog();
+			}
+		});
+		Label encodingLbl = new Label(group, SWT.NONE);
+		encodingLbl.setText(Messages.CMakeMainTab2_SerialMonitorEncodingLbl);
+		fEncodingCombo = new Combo(group, SWT.NONE);
+		fEncodingCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		List<String> allEncodings = IDEEncoding.getIDEEncodings();
+		String[] encodingArray = allEncodings.toArray(new String[0]);
+		fEncodingCombo.setItems(encodingArray);
+		if (encodingArray.length > 0)
+			fEncodingCombo.select(0);
+		fEncodingCombo.addModifyListener(e -> updateLaunchConfigurationDialog());
 
 	}
 
-	private void updateStartSerialMonitorCheckbox(ILaunchConfiguration configuration)
+	private void updateStartSerialMonitorGroup(ILaunchConfiguration configuration)
 	{
 		try
 		{
 			checkOpenSerialMonitorButton
 					.setSelection(configuration.getAttribute(IDFLaunchConstants.OPEN_SERIAL_MONITOR, true));
+			int encodingIndex = fEncodingCombo
+					.indexOf(configuration.getAttribute(IDFLaunchConstants.SERIAL_MONITOR_ENCODING, StringUtil.EMPTY));
+			encodingIndex = encodingIndex == -1 ? 0 : encodingIndex;
+			fEncodingCombo.select(encodingIndex);
 		}
 		catch (CoreException e)
 		{
 			Logger.log(e);
 		}
 
+	}
+
+	private boolean validateEncoding()
+	{
+		if (checkOpenSerialMonitorButton.getSelection() && fEncodingCombo.getSelectionIndex() == -1
+				&& !isValidEncoding(fEncodingCombo.getText().trim()))
+		{
+			setErrorMessage(LaunchConfigurationsMessages.CommonTab_15);
+			return false;
+		}
+		return true;
+	}
+
+	private boolean isValidEncoding(String enc)
+	{
+		try
+		{
+			return Charset.isSupported(enc);
+		}
+		catch (IllegalCharsetNameException e)
+		{
+			// This is a valid exception
+			return false;
+		}
 	}
 
 }

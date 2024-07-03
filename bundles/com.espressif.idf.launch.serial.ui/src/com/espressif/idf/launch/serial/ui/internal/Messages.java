@@ -49,6 +49,8 @@ public class Messages extends NLS
 	public static String IDFLaunchTargetNotFoundIDFLaunchTargetNotFoundTitle;
 	public static String IDFLaunchTargetNotFoundMsg3;
 	public static String CMakeMainTab2_SerialMonitorBtn;
+	public static String CMakeMainTab2_SerialMonitorGroup;
+	public static String CMakeMainTab2_SerialMonitorEncodingLbl;
 
 	public static String TargetPortUpdatingMessage;
 	public static String TargetPortInformationMessage;
