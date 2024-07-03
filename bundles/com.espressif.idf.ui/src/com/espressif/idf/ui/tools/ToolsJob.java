@@ -209,6 +209,11 @@ public abstract class ToolsJob extends Job
 
 			Map<String, String> environment = new HashMap<>(System.getenv());
 			Logger.log(environment.toString());
+			String idfToolsPath = Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
+					IDFCorePreferenceConstants.IDF_TOOLS_PATH, IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT, null);
+			
+			environment.put("IDF_TOOLS_PATH", //$NON-NLS-1$
+					idfToolsPath);
 
 			IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT, environment);
 			if (status == null)
@@ -352,6 +357,11 @@ public abstract class ToolsJob extends Job
 			Logger.log(environment.toString());
 			environment.put("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
 			loadIdfPathWithSystemPath(environment);
+			String idfToolsPath = Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
+					IDFCorePreferenceConstants.IDF_TOOLS_PATH, IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT, null);
+			
+			environment.put("IDF_TOOLS_PATH", //$NON-NLS-1$
+					idfToolsPath);
 			if (gitExecutablePath != null)
 			{
 				addPathToEnvironmentPath(environment, gitExecutablePath);
@@ -481,10 +491,11 @@ public abstract class ToolsJob extends Job
 							IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL,
 							IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL_DEFAULT, null));
 			
+			String idfToolsPath = Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
+					IDFCorePreferenceConstants.IDF_TOOLS_PATH, IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT, null);
+			
 			environment.put("IDF_TOOLS_PATH", //$NON-NLS-1$
-					Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
-							IDFCorePreferenceConstants.IDF_TOOLS_PATH,
-							IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT, null));
+					idfToolsPath);
 
 			if (gitExecutablePath != null)
 			{

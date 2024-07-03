@@ -13,6 +13,8 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 
+import com.espressif.idf.core.util.IDFUtil;
+
 /**
  * @author Kondal Kolipaka
  * 
@@ -34,8 +36,8 @@ public class IDFCorePreferenceConstants
 	public static final String PIP_EXTRA_INDEX_URL_DEFAULT = "https://dl.espressif.com/pypi"; //$NON-NLS-1$
 	public static final String IDF_TOOLS_PATH = "IDF_TOOLS_PATH"; //$NON-NLS-1$
 	public static final String IDF_TOOLS_PATH_DEFAULT = Platform.getOS().equals(Platform.OS_WIN32)
-			? "%USER_PROFILE\\.espressif" //$NON-NLS-1$
-			: "$HOME/.espressif"; //$NON-NLS-1$
+			? IDFUtil.resolveEnvVariable("%USERPROFILE%\\.espressif") //$NON-NLS-1$
+			: IDFUtil.resolveEnvVariable("$HOME/.espressif"); //$NON-NLS-1$
 	/**
 	 * Returns the node in the preference in the given context.
 	 *

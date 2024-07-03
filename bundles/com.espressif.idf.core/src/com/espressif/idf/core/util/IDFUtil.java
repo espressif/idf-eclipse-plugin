@@ -760,4 +760,40 @@ public class IDFUtil
 		}
 		return false;
 	}
+	
+	public static String resolveEnvVariable(String path)
+	{
+		Pattern winEnvPattern = Pattern.compile("%(\\w+)%"); //$NON-NLS-1$
+		Pattern unixEnvPattern = Pattern.compile("\\$(\\w+)"); //$NON-NLS-1$
+		Matcher matcher;
+		if (Platform.getOS().equals(Platform.OS_WIN32))
+		{
+			matcher = winEnvPattern.matcher(path);
+		}
+		else
+		{
+			matcher = unixEnvPattern.matcher(path);
+		}
+
+		StringBuffer resolvedPath = new StringBuffer();
+		while (matcher.find())
+		{
+			String envVarName = matcher.group(1);
+			String envVarValue = System.getenv(envVarName);
+
+			if (envVarValue != null)
+			{
+				matcher.appendReplacement(resolvedPath, envVarValue.replace("\\", "\\\\")); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			else
+			{
+				// If the environment variable is not found, keep the original
+				matcher.appendReplacement(resolvedPath, matcher.group(0));
+			}
+		}
+		matcher.appendTail(resolvedPath);
+
+		return resolvedPath.toString();
+
+	}
 }
