@@ -138,8 +138,8 @@ public class CMakeMainTab2 extends GenericMainTab
 		setControl(mainComposite);
 		createJtagFlashButton(mainComposite);
 		createOpenSerialMonitorGroup(mainComposite);
-		createDfuTargetComposite(mainComposite);
 		createProjectGroup(mainComposite, 0);
+		createDfuTargetComposite(mainComposite);
 		createUartComposite(mainComposite);
 		createJtagflashComposite(mainComposite);
 		createDfuArgumentField(mainComposite);
@@ -934,10 +934,10 @@ public class CMakeMainTab2 extends GenericMainTab
 	private void createOpenSerialMonitorGroup(Composite mainComposite)
 	{
 		Group group = SWTFactory.createGroup(mainComposite, Messages.CMakeMainTab2_SerialMonitorGroup, 2, 1,
-				GridData.FILL_BOTH);
+				GridData.FILL_HORIZONTAL);
 		checkOpenSerialMonitorButton = new Button(group, SWT.CHECK);
 		checkOpenSerialMonitorButton.setText(Messages.CMakeMainTab2_SerialMonitorBtn);
-		GridData gd = new GridData(SWT.BEGINNING, SWT.NORMAL, true, false);
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, false, false);
 		gd.horizontalSpan = 2;
 		checkOpenSerialMonitorButton.setLayoutData(gd);
 		checkOpenSerialMonitorButton.addSelectionListener(new SelectionAdapter()
