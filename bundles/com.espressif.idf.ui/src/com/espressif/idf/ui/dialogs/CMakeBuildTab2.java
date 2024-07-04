@@ -354,11 +354,12 @@ public class CMakeBuildTab2 extends CommonBuildTab
 
 	private String getCmakeArgumentsWithAbsProjectPath(IProject project, String cmakeArgumets)
 	{
-		String[] cmakeArgsArr = cmakeArgsText.getText().trim().replaceAll(" +", " ").split(" "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		String buildFolder = StringUtil.EMPTY;
-		for (int i = 0; i < cmakeArgsArr.length; i++)
+		String[] cmakeArgsArr = cmakeArgsText.getText().trim().split("\\s+"); // Split on any whitespace //$NON-NLS-1$
+
+		for (int i = 0; i < cmakeArgsArr.length - 1; i++)
 		{
-			if (cmakeArgsArr[i].equals("-B") && i + 1 < cmakeArgsArr.length) //$NON-NLS-1$
+			if (cmakeArgsArr[i].equals("-B")) //$NON-NLS-1$
 			{
 				buildFolder = cmakeArgsArr[i + 1];
 				break;
@@ -367,6 +368,7 @@ public class CMakeBuildTab2 extends CommonBuildTab
 
 		if (!Path.of(buildFolder).isAbsolute())
 		{
+			// Getting the first argument after -B option
 			cmakeArgumets = cmakeArgumets.replaceFirst("(?<=-B)\\s+(\\S+)", //$NON-NLS-1$
 					" " + project.getLocation().append(buildFolder)); //$NON-NLS-1$
 		}
