@@ -54,6 +54,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -543,6 +544,14 @@ public class CMakeMainTab2 extends GenericMainTab
 		switchComposites.get(flashInterface).forEach(composite -> composite.setVisible(true));
 
 		mainComposite.requestLayout();
+
+		// Update the layout and size of the parent composite if it is a ScrolledComposite
+		if (mainComposite.getParent() instanceof ScrolledComposite sc)
+		{
+			mainComposite.setSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+			sc.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+			mainComposite.layout(true, true);
+		}
 	}
 
 	@Override
