@@ -56,7 +56,6 @@ public class LaunchBarListener implements ILaunchBarListener
 	@Override
 	public void activeLaunchDescriptorChanged(ILaunchDescriptor descriptor)
 	{
-		descriptor.getAdapter(ILaunchConfiguration.class);
 		ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
 
 		try
