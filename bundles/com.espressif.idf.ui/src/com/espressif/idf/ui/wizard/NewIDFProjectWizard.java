@@ -173,7 +173,9 @@ public class NewIDFProjectWizard extends TemplateWizard
 		try
 		{
 			String originalName = wizard.getWorkingCopy().getName();
-			String debugConfigName = originalName.substring(0, originalName.lastIndexOf("Configuration")) + " Debug"; //$NON-NLS-1$ //$NON-NLS-2$
+			int configPartIndex = originalName.lastIndexOf("Configuration"); //$NON-NLS-1$
+			String debugConfigName = configPartIndex != -1 ? originalName.substring(0, configPartIndex) + "Debug" //$NON-NLS-1$
+					: originalName;
 			wizard.getWorkingCopy().copy(debugConfigName).doSave();
 		}
 		catch (CoreException e)
