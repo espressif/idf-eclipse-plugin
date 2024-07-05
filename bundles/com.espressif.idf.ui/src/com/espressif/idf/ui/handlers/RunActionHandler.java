@@ -7,12 +7,13 @@ package com.espressif.idf.ui.handlers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -35,7 +36,6 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.dialogs.SelectDebugConfigDialog;
-import com.espressif.idf.ui.dialogs.SelectLaunchConfigDialog;
 
 @SuppressWarnings("restriction")
 public class RunActionHandler extends LaunchActiveCommandHandler
@@ -67,7 +67,7 @@ public class RunActionHandler extends LaunchActiveCommandHandler
 				Boolean isYes = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
 						Messages.RunActionHandler_NoProjectQuestionTitle,
 						Messages.RunActionHandler_NoProjectQuestionText);
-				if (isYes)
+				if (Boolean.TRUE.equals(isYes))
 				{
 					ILaunchBarUIManager uiManager = UIPlugin.getService(ILaunchBarUIManager.class);
 					uiManager.openConfigurationEditor(launchBarManager.getActiveLaunchDescriptor());
@@ -84,16 +84,14 @@ public class RunActionHandler extends LaunchActiveCommandHandler
 					showMessage(Messages.DebugConfigurationNotFoundMsg);
 					return Status.CANCEL_STATUS;
 				}
-				returnCode = new SelectDebugConfigDialog(Display.getDefault().getActiveShell(), suitableDescNames)
-						.open();
+				returnCode = runActionBasedOnDescCount(launchBarManager, suitableDescNames);
 			}
 			else if (launchMode.getIdentifier().equals(ILaunchManager.RUN_MODE)
 					&& config.getType().getIdentifier().contentEquals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
 			{
 				List<String> suitableDescNames = findSuitableDescNames(projectName,
 						IDFLaunchConstants.RUN_LAUNCH_CONFIG_TYPE);
-				returnCode = new SelectLaunchConfigDialog(Display.getDefault().getActiveShell(), suitableDescNames)
-						.open();
+				returnCode = runActionBasedOnDescCount(launchBarManager, suitableDescNames);
 			}
 			if (returnCode == Window.OK)
 			{
@@ -108,6 +106,31 @@ public class RunActionHandler extends LaunchActiveCommandHandler
 		{
 			return e.getStatus();
 		}
+	}
+
+	private int runActionBasedOnDescCount(ILaunchBarManager launchBarManager, List<String> suitableDescNames)
+			throws CoreException
+	{
+		return suitableDescNames.size() == 1
+				? setLaunchBarWithFirstAppropriateDescriptor(launchBarManager, suitableDescNames)
+				: new SelectDebugConfigDialog(Display.getDefault().getActiveShell(), suitableDescNames).open();
+	}
+
+	private int setLaunchBarWithFirstAppropriateDescriptor(ILaunchBarManager launchBarManager,
+			List<String> suitableDescNames) throws CoreException
+	{
+		Stream.of(launchBarManager.getLaunchDescriptors())
+				.filter(desc -> desc.getName().equals(suitableDescNames.get(0))).findFirst().ifPresent(desc -> {
+					try
+					{
+						launchBarManager.setActiveLaunchDescriptor(desc);
+					}
+					catch (CoreException e)
+					{
+						Logger.log(e);
+					}
+				});
+		return IStatus.OK;
 	}
 
 	private List<String> findSuitableDescNames(String projectName, String configType)
@@ -135,33 +158,28 @@ public class RunActionHandler extends LaunchActiveCommandHandler
 				Logger.log(e);
 			}
 			return false;
-		}).map(config -> config.getName()).collect(Collectors.toList());
+		}).map(config -> config.getName()).toList();
 	}
 
 	private void showMessage(final String message)
 	{
-		Display.getDefault().asyncExec(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				Shell activeShell = Display.getDefault().getActiveShell();
-				boolean isYes = MessageDialog.openQuestion(activeShell, Messages.MissingDebugConfigurationTitle,
-						message);
-				if (isYes)
-				{
+		Display.getDefault().asyncExec(() -> {
 
-					NewLaunchConfigWizard wizard = new NewLaunchConfigWizard();
-					WizardDialog dialog = new NewLaunchConfigWizardDialog(activeShell, wizard);
-					dialog.open();
-					try
-					{
-						wizard.getWorkingCopy().doSave();
-					}
-					catch (CoreException e)
-					{
-						Logger.log(e);
-					}
+			Shell activeShell = Display.getDefault().getActiveShell();
+			boolean isYes = MessageDialog.openQuestion(activeShell, Messages.MissingDebugConfigurationTitle, message);
+			if (isYes)
+			{
+
+				NewLaunchConfigWizard wizard = new NewLaunchConfigWizard();
+				WizardDialog dialog = new NewLaunchConfigWizardDialog(activeShell, wizard);
+				dialog.open();
+				try
+				{
+					wizard.getWorkingCopy().doSave();
+				}
+				catch (CoreException e)
+				{
+					Logger.log(e);
 				}
 			}
 		});
