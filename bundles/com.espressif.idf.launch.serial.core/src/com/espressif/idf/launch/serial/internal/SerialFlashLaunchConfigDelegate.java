@@ -48,6 +48,7 @@ import org.eclipse.launchbar.core.target.launch.ITargetedLaunch;
 import org.eclipse.launchbar.ui.internal.Activator;
 import org.eclipse.launchbar.ui.target.ILaunchTargetUIManager;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.tm.terminal.view.core.interfaces.constants.ITerminalsConnectorConstants;
 import org.eclipse.ui.WorkbenchEncoding;
 
 import com.espressif.idf.core.IDFCorePlugin;
@@ -196,7 +197,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 			Thread.currentThread().interrupt();
 			Logger.log(e);
 		}
-		if (configuration.getAttribute(IDFLaunchConstants.OPEN_SERIAL_MONITOR, false))
+		if (configuration.getAttribute(IDFLaunchConstants.OPEN_SERIAL_MONITOR, true))
 			openSerialMonitor(configuration);
 
 	}
@@ -207,8 +208,9 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		map.put("delegateId", "com.espressif.idf.terminal.connector.serial.launcher.serial"); //$NON-NLS-1$//$NON-NLS-2$
 		map.put(SerialSettings.PORT_NAME_ATTR, serialPort);
 		map.put("idf.monitor.project", configuration.getMappedResources()[0].getName()); //$NON-NLS-1$
-		map.put("encoding", configuration.getAttribute(IDFLaunchConstants.SERIAL_MONITOR_ENCODING, //$NON-NLS-1$
-				WorkbenchEncoding.getWorkbenchDefaultEncoding()));
+		map.put(ITerminalsConnectorConstants.PROP_ENCODING, configuration.getAttribute(
+				IDFLaunchConstants.SERIAL_MONITOR_ENCODING, WorkbenchEncoding.getWorkbenchDefaultEncoding()));
+		map.put(ITerminalsConnectorConstants.PROP_FORCE_NEW, Boolean.FALSE);
 		new SerialLauncherDelegate().execute(map, null);
 	}
 
