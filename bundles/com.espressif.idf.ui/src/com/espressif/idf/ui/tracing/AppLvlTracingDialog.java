@@ -298,7 +298,7 @@ public class AppLvlTracingDialog extends TitleAreaDialog
 		try
 		{
 			List<String> arguments = new ArrayList<String>(Arrays.asList(parseCommandTxt.getText().split(" "))); //$NON-NLS-1$
-			Map<String, String> environment = new HashMap<>(System.getenv());
+			Map<String, String> environment = new HashMap<>(IDFUtil.getSystemEnv());
 			IStatus status = processRunner.runInBackground(arguments, Path.ROOT, environment);
 			if (status == null)
 			{

@@ -315,7 +315,7 @@ public class ESPToolChainManager
 			Logger.log(commands.toString());
 
 			IStatus idfToolsExportStatus = new ProcessBuilderFactory().runInBackground(commands,
-					org.eclipse.core.runtime.Path.ROOT, System.getenv());
+					org.eclipse.core.runtime.Path.ROOT, IDFUtil.getSystemEnv());
 			if (idfToolsExportStatus != null && idfToolsExportStatus.isOK())
 			{
 				String message = idfToolsExportStatus.getMessage();

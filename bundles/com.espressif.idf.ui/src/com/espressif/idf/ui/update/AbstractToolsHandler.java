@@ -143,7 +143,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 			console.println(cmdMsg);
 			Logger.log(cmdMsg);
 
-			Map<String, String> environment = new HashMap<>(System.getenv());
+			Map<String, String> environment = new HashMap<>(IDFUtil.getSystemEnv());
 			Logger.log(environment.toString());
 			environment.put("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
 			

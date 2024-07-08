@@ -48,7 +48,7 @@ public class ExportIDFTools
 		final String cmd = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments); //$NON-NLS-1$
 		log(cmd, console);
 
-		final Map<String, String> environment = new HashMap<>(System.getenv());
+		final Map<String, String> environment = new HashMap<>(IDFUtil.getSystemEnv());
 		if (gitExePath != null)
 		{
 			addGitToEnvironment(environment, gitExePath);
@@ -90,7 +90,7 @@ public class ExportIDFTools
 		final String cmd = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments); //$NON-NLS-1$
 		log(cmd, console);
 
-		final Map<String, String> environment = new HashMap<>(System.getenv());
+		final Map<String, String> environment = new HashMap<>(IDFUtil.getSystemEnv());
 		if (gitExePath != null)
 		{
 			addGitToEnvironment(environment, gitExePath);
@@ -128,17 +128,11 @@ public class ExportIDFTools
 		final String cmd = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments); //$NON-NLS-1$
 		log(cmd, console);
 
-		final Map<String, String> environment = new HashMap<>(System.getenv());
+		final Map<String, String> environment = new HashMap<>(IDFUtil.getSystemEnv());
 		if (gitExePath != null)
 		{
 			addGitToEnvironment(environment, gitExePath);
 		}
-		
-		String idfToolsPath = Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
-				IDFCorePreferenceConstants.IDF_TOOLS_PATH, IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT, null);
-		
-		environment.put("IDF_TOOLS_PATH", //$NON-NLS-1$
-				idfToolsPath);
 		
 		final ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 		try
@@ -234,7 +228,7 @@ public class ExportIDFTools
 	private String replacePathVariable(String value)
 	{
 		// Get system PATH
-		Map<String, String> systemEnv = new HashMap<>(System.getenv());
+		Map<String, String> systemEnv = new HashMap<>(IDFUtil.getSystemEnv());
 		String pathEntry = systemEnv.get("PATH"); //$NON-NLS-1$
 		if (pathEntry == null)
 		{
