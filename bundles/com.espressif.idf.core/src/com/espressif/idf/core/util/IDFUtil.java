@@ -806,4 +806,11 @@ public class IDFUtil
 		env.put(IDFCorePreferenceConstants.IDF_TOOLS_PATH, idfToolsPath);
 		return env;
 	}
+	
+	public static String getIDFToolsPathFromPreferences()
+	{
+		String idfToolsPath = Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
+				IDFCorePreferenceConstants.IDF_TOOLS_PATH, IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT, null);
+		return idfToolsPath;
+	}
 }
