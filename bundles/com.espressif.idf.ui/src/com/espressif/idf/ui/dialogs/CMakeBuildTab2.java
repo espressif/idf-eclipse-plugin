@@ -10,6 +10,7 @@
  *******************************************************************************/
 package com.espressif.idf.ui.dialogs;
 
+import java.nio.file.Path;
 import java.util.Map;
 
 import org.eclipse.cdt.cmake.core.internal.CMakeBuildConfiguration;
@@ -44,9 +45,12 @@ import com.espressif.idf.core.util.StringUtil;
 @SuppressWarnings("restriction")
 public class CMakeBuildTab2 extends CommonBuildTab
 {
-
+	private static final String LOCAL_CMAKE_ARGUMENTS = "local_cmake_arguments"; //$NON-NLS-1$
 	private static final String UNIX_MAKEFILES = "Unix Makefiles"; //$NON-NLS-1$
 	private static final String NINJA = "Ninja"; //$NON-NLS-1$
+	private static final String DEFAULT_CMAKE_MSG = "-B customBuildFolder"; //$NON-NLS-1$
+	private static final String DEFAULT_BUILD_MSG = "cmake --build ."; //$NON-NLS-1$
+	private static final String DEFAULT_CLEAN_MSG = "ninja clean"; //$NON-NLS-1$
 	private Button unixGenButton;
 	private Button ninjaGenButton;
 	private Text cmakeArgsText;
@@ -106,6 +110,7 @@ public class CMakeBuildTab2 extends CommonBuildTab
 		label.setText(Messages.CMakeBuildTab2_AdditionalCMakeArgs);
 
 		cmakeArgsText = new Text(cmakeGroup, SWT.BORDER);
+		cmakeArgsText.setMessage(DEFAULT_CMAKE_MSG);
 		cmakeArgsText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		cmakeArgsText.addModifyListener(e -> updateLaunchConfigurationDialog());
 
@@ -113,6 +118,7 @@ public class CMakeBuildTab2 extends CommonBuildTab
 		label.setText(Messages.CMakeBuildTab2_BuildCmd);
 
 		buildCommandText = new Text(cmakeGroup, SWT.BORDER);
+		buildCommandText.setMessage(DEFAULT_BUILD_MSG);
 		buildCommandText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		buildCommandText.addModifyListener(e -> updateLaunchConfigurationDialog());
 
@@ -120,6 +126,7 @@ public class CMakeBuildTab2 extends CommonBuildTab
 		label.setText(Messages.CMakeBuildTab2_CleanCmd);
 
 		cleanCommandText = new Text(cmakeGroup, SWT.BORDER);
+		cleanCommandText.setMessage(DEFAULT_CLEAN_MSG);
 		cleanCommandText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		cleanCommandText.addModifyListener(e -> updateLaunchConfigurationDialog());
 	}
@@ -160,7 +167,8 @@ public class CMakeBuildTab2 extends CommonBuildTab
 			String generator = configuration.getAttribute(CMakeBuildConfiguration.CMAKE_GENERATOR, StringUtil.EMPTY);
 			updateGeneratorButtons(generator);
 
-			String cmakeArgs = configuration.getAttribute(CMakeBuildConfiguration.CMAKE_ARGUMENTS, StringUtil.EMPTY);
+			String cmakeArgs = configuration.getAttribute(LOCAL_CMAKE_ARGUMENTS,
+					configuration.getAttribute(CMakeBuildConfiguration.CMAKE_ARGUMENTS, StringUtil.EMPTY));
 			cmakeArgsText.setText(cmakeArgs);
 
 			String buildCommand = configuration.getAttribute(CMakeBuildConfiguration.BUILD_COMMAND, StringUtil.EMPTY);
@@ -193,10 +201,10 @@ public class CMakeBuildTab2 extends CommonBuildTab
 	public void performApply(ILaunchConfigurationWorkingCopy configuration)
 	{
 		super.performApply(configuration);
-
+		IProject project = null;
 		try
 		{
-			IProject project = CoreBuildLaunchConfigDelegate.getProject(configuration);
+			project = CoreBuildLaunchConfigDelegate.getProject(configuration);
 			RecheckConfigsHelper.revalidateToolchain(project);
 		}
 		catch (CoreException e)
@@ -210,10 +218,14 @@ public class CMakeBuildTab2 extends CommonBuildTab
 		String cmakeArgs = cmakeArgsText.getText().trim();
 		if (!cmakeArgs.isEmpty())
 		{
-			configuration.setAttribute(CMakeBuildConfiguration.CMAKE_ARGUMENTS, cmakeArgs);
+			configuration.setAttribute(LOCAL_CMAKE_ARGUMENTS, cmakeArgs);
+			if (project != null)
+				configuration.setAttribute(CMakeBuildConfiguration.CMAKE_ARGUMENTS,
+						getCmakeArgumentsWithAbsProjectPath(project, cmakeArgs));
 		}
 		else
 		{
+			configuration.removeAttribute(LOCAL_CMAKE_ARGUMENTS);
 			configuration.removeAttribute(CMakeBuildConfiguration.CMAKE_ARGUMENTS);
 		}
 
@@ -245,7 +257,7 @@ public class CMakeBuildTab2 extends CommonBuildTab
 		super.saveProperties(properties);
 		properties.put(CMakeBuildConfiguration.CMAKE_GENERATOR, ninjaGenButton.getSelection() ? NINJA : UNIX_MAKEFILES);
 
-		properties.put(CMakeBuildConfiguration.CMAKE_ARGUMENTS, cmakeArgsText.getText().trim());
+		properties.put(LOCAL_CMAKE_ARGUMENTS, cmakeArgsText.getText().trim());
 		properties.put(CMakeBuildConfiguration.BUILD_COMMAND, buildCommandText.getText().trim());
 		properties.put(CMakeBuildConfiguration.CLEAN_COMMAND, cleanCommandText.getText().trim());
 	}
@@ -271,7 +283,7 @@ public class CMakeBuildTab2 extends CommonBuildTab
 			}
 		}
 
-		String cmakeArgs = properties.get(CMakeBuildConfiguration.CMAKE_ARGUMENTS);
+		String cmakeArgs = properties.get(LOCAL_CMAKE_ARGUMENTS);
 		if (cmakeArgs != null)
 		{
 			cmakeArgsText.setText(cmakeArgs);
@@ -338,6 +350,29 @@ public class CMakeBuildTab2 extends CommonBuildTab
 	public String getName()
 	{
 		return "CMake"; //$NON-NLS-1$
+	}
+
+	private String getCmakeArgumentsWithAbsProjectPath(IProject project, String cmakeArgumets)
+	{
+		String buildFolder = StringUtil.EMPTY;
+		String[] cmakeArgsArr = cmakeArgsText.getText().trim().split("\\s+"); // Split on any whitespace //$NON-NLS-1$
+
+		for (int i = 0; i < cmakeArgsArr.length - 1; i++)
+		{
+			if (cmakeArgsArr[i].equals("-B")) //$NON-NLS-1$
+			{
+				buildFolder = cmakeArgsArr[i + 1];
+				break;
+			}
+		}
+
+		if (!Path.of(buildFolder).isAbsolute())
+		{
+			// Getting the first argument after -B option
+			cmakeArgumets = cmakeArgumets.replaceFirst("(?<=-B)\\s+(\\S+)", //$NON-NLS-1$
+					" " + project.getLocation().append(buildFolder)); //$NON-NLS-1$
+		}
+		return cmakeArgumets;
 	}
 
 }
