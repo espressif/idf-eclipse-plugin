@@ -141,11 +141,14 @@ public class NewIDFProjectWizard extends TemplateWizard
 		return performFinish;
 	}
 
-	private void updateClangdFile(IProject project) 
+	private void updateClangdFile(IProject project)
 	{
-		try {
+		try
+		{
 			new ClangdConfigFileHandler().update(project);
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			Logger.log(e);
 		}
 	}
@@ -165,12 +168,15 @@ public class NewIDFProjectWizard extends TemplateWizard
 
 		PageChangingEvent pageChangingEvent = new PageChangingEvent(wizard, wizard.getStartingPage(), editPage);
 		editPage.handlePageChanging(pageChangingEvent);
-
 		wizard.performFinish();
 
 		try
 		{
-			wizard.getWorkingCopy().doSave();
+			String originalName = wizard.getWorkingCopy().getName();
+			int configPartIndex = originalName.lastIndexOf("Configuration"); //$NON-NLS-1$
+			String debugConfigName = configPartIndex != -1 ? originalName.substring(0, configPartIndex) + "Debug" //$NON-NLS-1$
+					: originalName;
+			wizard.getWorkingCopy().copy(debugConfigName).doSave();
 		}
 		catch (CoreException e)
 		{
