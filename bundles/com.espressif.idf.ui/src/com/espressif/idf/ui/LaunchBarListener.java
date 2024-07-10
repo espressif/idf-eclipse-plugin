@@ -6,6 +6,8 @@ package com.espressif.idf.ui;
 
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.core.resources.IProject;
@@ -17,6 +19,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.core.ILaunchMode;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.launchbar.core.ILaunchBarListener;
 import org.eclipse.launchbar.core.ILaunchBarManager;
@@ -47,6 +51,40 @@ public class LaunchBarListener implements ILaunchBarListener
 	public static void setIgnoreTargetChange(boolean status)
 	{
 		targetChangeIgnored = status;
+	}
+
+	@Override
+	public void activeLaunchDescriptorChanged(ILaunchDescriptor descriptor)
+	{
+		ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
+
+		try
+		{
+			ILaunchConfiguration activeLaunchConfiguration = launchBarManager.getActiveLaunchConfiguration();
+
+			if (activeLaunchConfiguration != null && activeLaunchConfiguration.getType() != null)
+			{
+				String configTypeIdentifier = activeLaunchConfiguration.getType().getIdentifier();
+				if (IDFLaunchConstants.RUN_LAUNCH_CONFIG_TYPE.equals(configTypeIdentifier))
+				{
+					// Set debug mode first to ensure a mode change, triggering listeners.
+					setMode(launchBarManager, ILaunchManager.DEBUG_MODE);
+					setMode(launchBarManager, ILaunchManager.RUN_MODE);
+				}
+				else if (IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE.equals(configTypeIdentifier))
+				{
+					// Set run mode first to ensure a mode change, triggering listeners.
+					setMode(launchBarManager, ILaunchManager.RUN_MODE);
+					setMode(launchBarManager, ILaunchManager.DEBUG_MODE);
+				}
+			}
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+
+		ILaunchBarListener.super.activeLaunchDescriptorChanged(descriptor);
 	}
 
 	@Override
@@ -215,6 +253,24 @@ public class LaunchBarListener implements ILaunchBarListener
 				// attempting one more time!
 				sdkconfig.renameTo(sdkconfigOld);
 			}
+		}
+	}
+
+	private void setMode(ILaunchBarManager launchBarManager, String mode)
+	{
+		try
+		{
+			Optional<ILaunchMode> runMode = Stream.of(launchBarManager.getLaunchModes())
+					.filter(m -> m.getIdentifier().equals(mode)).findFirst();
+			if (runMode.isPresent())
+			{
+				launchBarManager.setActiveLaunchMode(runMode.get());
+			}
+
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
 		}
 	}
 
