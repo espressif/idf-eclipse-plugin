@@ -949,25 +949,33 @@ public class CMakeMainTab2 extends GenericMainTab
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, false, false);
 		gd.horizontalSpan = 2;
 		checkOpenSerialMonitorButton.setLayoutData(gd);
-		checkOpenSerialMonitorButton.addSelectionListener(new SelectionAdapter()
-		{
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e)
-			{
-				updateLaunchConfigurationDialog();
-			}
-		});
 		Label encodingLbl = new Label(group, SWT.NONE);
 		encodingLbl.setText(Messages.CMakeMainTab2_SerialMonitorEncodingLbl);
-		fEncodingCombo = new Combo(group, SWT.NONE);
+		fEncodingCombo = new Combo(group, SWT.READ_ONLY);
 		fEncodingCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		List<String> allEncodings = IDEEncoding.getIDEEncodings();
 		String[] encodingArray = allEncodings.toArray(new String[0]);
 		fEncodingCombo.setItems(encodingArray);
 		if (encodingArray.length > 0)
 			fEncodingCombo.select(0);
-		fEncodingCombo.addModifyListener(e -> updateLaunchConfigurationDialog());
 
+		fEncodingCombo.addModifyListener(e -> updateLaunchConfigurationDialog());
+		checkOpenSerialMonitorButton.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				fEncodingCombo.setVisible(checkOpenSerialMonitorButton.getSelection());
+				GridData data = (GridData) fEncodingCombo.getLayoutData();
+				data.exclude = !fEncodingCombo.getVisible();
+				encodingLbl.setVisible(checkOpenSerialMonitorButton.getSelection());
+				data = (GridData) encodingLbl.getLayoutData();
+				data.exclude = !encodingLbl.getVisible();
+				mainComposite.layout(true, true);
+				updateLaunchConfigurationDialog();
+			}
+
+		});
 	}
 
 	private void updateStartSerialMonitorGroup(ILaunchConfiguration configuration)
@@ -975,7 +983,7 @@ public class CMakeMainTab2 extends GenericMainTab
 		try
 		{
 			checkOpenSerialMonitorButton
-					.setSelection(configuration.getAttribute(IDFLaunchConstants.OPEN_SERIAL_MONITOR, true));
+					.setSelection(configuration.getAttribute(IDFLaunchConstants.OPEN_SERIAL_MONITOR, false));
 			int encodingIndex = fEncodingCombo
 					.indexOf(configuration.getAttribute(IDFLaunchConstants.SERIAL_MONITOR_ENCODING, StringUtil.EMPTY));
 			encodingIndex = encodingIndex == -1 ? 0 : encodingIndex;
