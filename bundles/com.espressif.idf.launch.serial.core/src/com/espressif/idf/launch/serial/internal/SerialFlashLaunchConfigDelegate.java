@@ -197,7 +197,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 			Thread.currentThread().interrupt();
 			Logger.log(e);
 		}
-		if (configuration.getAttribute(IDFLaunchConstants.OPEN_SERIAL_MONITOR, false))
+		if (configuration.getAttribute(IDFLaunchConstants.OPEN_SERIAL_MONITOR, true))
 			openSerialMonitor(configuration);
 
 	}

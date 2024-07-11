@@ -974,7 +974,6 @@ public class CMakeMainTab2 extends GenericMainTab
 				mainComposite.layout(true, true);
 				updateLaunchConfigurationDialog();
 			}
-
 		});
 	}
 
@@ -983,7 +982,8 @@ public class CMakeMainTab2 extends GenericMainTab
 		try
 		{
 			checkOpenSerialMonitorButton
-					.setSelection(configuration.getAttribute(IDFLaunchConstants.OPEN_SERIAL_MONITOR, false));
+					.setSelection(configuration.getAttribute(IDFLaunchConstants.OPEN_SERIAL_MONITOR, true));
+			checkOpenSerialMonitorButton.notifyListeners(SWT.Selection, null);
 			int encodingIndex = fEncodingCombo
 					.indexOf(configuration.getAttribute(IDFLaunchConstants.SERIAL_MONITOR_ENCODING, StringUtil.EMPTY));
 			encodingIndex = encodingIndex == -1 ? 0 : encodingIndex;
