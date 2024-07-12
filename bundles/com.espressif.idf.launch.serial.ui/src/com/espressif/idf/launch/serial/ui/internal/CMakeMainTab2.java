@@ -952,7 +952,7 @@ public class CMakeMainTab2 extends GenericMainTab
 		Label encodingLbl = new Label(group, SWT.NONE);
 		encodingLbl.setText(Messages.CMakeMainTab2_SerialMonitorEncodingLbl);
 		fEncodingCombo = new Combo(group, SWT.READ_ONLY);
-		fEncodingCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		fEncodingCombo.setLayoutData(new GridData(GridData.BEGINNING));
 		List<String> allEncodings = IDEEncoding.getIDEEncodings();
 		String[] encodingArray = allEncodings.toArray(new String[0]);
 		fEncodingCombo.setItems(encodingArray);
