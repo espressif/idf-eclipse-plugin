@@ -22,6 +22,7 @@ public class Messages extends NLS
 	public static String IDFDownloadPage_DirectoryDialogMsg;
 	public static String IDFDownloadPage_DirectoryDialogText;
 	public static String IDFDownloadPage_DirectoryDialogTxt;
+	public static String IDFDownloadPage_VersionSpaceError;
 	public static String IDFDownloadPage_DownloadIDF;
 	public static String IDFDownloadPage_IDFBuildNotSupported;
 	public static String IDFDownloadPage_Note;
