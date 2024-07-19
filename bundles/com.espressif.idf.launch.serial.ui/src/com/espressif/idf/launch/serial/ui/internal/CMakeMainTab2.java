@@ -16,6 +16,8 @@ package com.espressif.idf.launch.serial.ui.internal;
 
 import java.io.File;
 import java.net.URI;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,6 +45,8 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.internal.ui.SWTFactory;
+import org.eclipse.debug.internal.ui.launchConfigurations.LaunchConfigurationsMessages;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -50,6 +54,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -62,6 +67,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
+import org.eclipse.ui.ide.IDEEncoding;
 import org.json.simple.JSONArray;
 
 import com.espressif.idf.core.DefaultBoardProvider;
@@ -102,6 +108,8 @@ public class CMakeMainTab2 extends GenericMainTab
 	private Combo comboTargets;
 	private ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
 	private ILaunchTargetManager targetManager = Activator.getService(ILaunchTargetManager.class);
+	private Button checkOpenSerialMonitorButton;
+	private Combo fEncodingCombo;
 
 	public enum FlashInterface
 	{
@@ -130,8 +138,9 @@ public class CMakeMainTab2 extends GenericMainTab
 		isJtagFlashAvailable = ESPFlashUtil.checkIfJtagIsAvailable();
 		setControl(mainComposite);
 		createJtagFlashButton(mainComposite);
-		createDfuTargetComposite(mainComposite);
+		createOpenSerialMonitorGroup(mainComposite);
 		createProjectGroup(mainComposite, 0);
+		createDfuTargetComposite(mainComposite);
 		createUartComposite(mainComposite);
 		createJtagflashComposite(mainComposite);
 		createDfuArgumentField(mainComposite);
@@ -535,6 +544,14 @@ public class CMakeMainTab2 extends GenericMainTab
 		switchComposites.get(flashInterface).forEach(composite -> composite.setVisible(true));
 
 		mainComposite.requestLayout();
+
+		// Update the layout and size of the parent composite if it is a ScrolledComposite
+		if (mainComposite.getParent() instanceof ScrolledComposite sc)
+		{
+			mainComposite.setSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+			sc.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+			mainComposite.layout(true, true);
+		}
 	}
 
 	@Override
@@ -582,7 +599,7 @@ public class CMakeMainTab2 extends GenericMainTab
 			}
 			return false;
 		}
-		return isConfigValid && hasProject;
+		return isConfigValid && hasProject && validateEncoding();
 	}
 
 	@Override
@@ -621,6 +638,9 @@ public class CMakeMainTab2 extends GenericMainTab
 			wc.setAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, jtagArgumentsField.getText());
 			wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, uartAgrumentsField.getText());
 			wc.setAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS, dfuArgumentsField.getText());
+			wc.setAttribute(IDFLaunchConstants.OPEN_SERIAL_MONITOR, checkOpenSerialMonitorButton.getSelection());
+			if (checkOpenSerialMonitorButton.getSelection())
+				wc.setAttribute(IDFLaunchConstants.SERIAL_MONITOR_ENCODING, fEncodingCombo.getText());
 			wc.doSave();
 		}
 		catch (CoreException e)
@@ -639,6 +659,7 @@ public class CMakeMainTab2 extends GenericMainTab
 	public void initializeFrom(ILaunchConfiguration configuration)
 	{
 		super.initializeFrom(configuration);
+		updateStartSerialMonitorGroup(configuration);
 		updateProjetFromConfig(configuration);
 		updateFlashOverStatus(configuration);
 		updateArgumentsWithDefaultFlashCommand(configuration);
@@ -918,4 +939,85 @@ public class CMakeMainTab2 extends GenericMainTab
 				new NewSerialFlashTargetWizard());
 		applyTargetJob.schedule(JOB_DELAY_MS);
 	}
+
+	private void createOpenSerialMonitorGroup(Composite mainComposite)
+	{
+		Group group = SWTFactory.createGroup(mainComposite, Messages.CMakeMainTab2_SerialMonitorGroup, 2, 1,
+				GridData.FILL_HORIZONTAL);
+		checkOpenSerialMonitorButton = new Button(group, SWT.CHECK);
+		checkOpenSerialMonitorButton.setText(Messages.CMakeMainTab2_SerialMonitorBtn);
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, false, false);
+		gd.horizontalSpan = 2;
+		checkOpenSerialMonitorButton.setLayoutData(gd);
+		Label encodingLbl = new Label(group, SWT.NONE);
+		encodingLbl.setText(Messages.CMakeMainTab2_SerialMonitorEncodingLbl);
+		fEncodingCombo = new Combo(group, SWT.READ_ONLY);
+		fEncodingCombo.setLayoutData(new GridData(GridData.BEGINNING));
+		List<String> allEncodings = IDEEncoding.getIDEEncodings();
+		String[] encodingArray = allEncodings.toArray(new String[0]);
+		fEncodingCombo.setItems(encodingArray);
+		if (encodingArray.length > 0)
+			fEncodingCombo.select(0);
+
+		fEncodingCombo.addModifyListener(e -> updateLaunchConfigurationDialog());
+		checkOpenSerialMonitorButton.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				fEncodingCombo.setVisible(checkOpenSerialMonitorButton.getSelection());
+				GridData data = (GridData) fEncodingCombo.getLayoutData();
+				data.exclude = !fEncodingCombo.getVisible();
+				encodingLbl.setVisible(checkOpenSerialMonitorButton.getSelection());
+				data = (GridData) encodingLbl.getLayoutData();
+				data.exclude = !encodingLbl.getVisible();
+				mainComposite.layout(true, true);
+				updateLaunchConfigurationDialog();
+			}
+		});
+	}
+
+	private void updateStartSerialMonitorGroup(ILaunchConfiguration configuration)
+	{
+		try
+		{
+			checkOpenSerialMonitorButton
+					.setSelection(configuration.getAttribute(IDFLaunchConstants.OPEN_SERIAL_MONITOR, true));
+			checkOpenSerialMonitorButton.notifyListeners(SWT.Selection, null);
+			int encodingIndex = fEncodingCombo
+					.indexOf(configuration.getAttribute(IDFLaunchConstants.SERIAL_MONITOR_ENCODING, StringUtil.EMPTY));
+			encodingIndex = encodingIndex == -1 ? 0 : encodingIndex;
+			fEncodingCombo.select(encodingIndex);
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+
+	}
+
+	private boolean validateEncoding()
+	{
+		if (checkOpenSerialMonitorButton.getSelection() && fEncodingCombo.getSelectionIndex() == -1
+				&& !isValidEncoding(fEncodingCombo.getText().trim()))
+		{
+			setErrorMessage(LaunchConfigurationsMessages.CommonTab_15);
+			return false;
+		}
+		return true;
+	}
+
+	private boolean isValidEncoding(String enc)
+	{
+		try
+		{
+			return Charset.isSupported(enc);
+		}
+		catch (IllegalCharsetNameException e)
+		{
+			// This is a valid exception
+			return false;
+		}
+	}
+
 }

@@ -17,4 +17,6 @@ public final class IDFLaunchConstants
 	public static final String ATTR_LAUNCH_CONFIGURATION_NAME = "com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationName"; //$NON-NLS-1$
 	public static final String ATTR_SERIAL_PORT = "com.espressif.idf.launch.serial.core.serialPort"; //$NON-NLS-1$
 	public static final String IDF_TARGET_TYPE = "com.espressif.idf.launch.serial.core.serialFlashTarget"; //$NON-NLS-1$
+	public static final String OPEN_SERIAL_MONITOR = "OPEN_SERIAL_MONITOR"; //$NON-NLS-1$
+	public static final String SERIAL_MONITOR_ENCODING = "SERIAL_MONITOR_ENCODING"; //$NON-NLS-1$
 }
