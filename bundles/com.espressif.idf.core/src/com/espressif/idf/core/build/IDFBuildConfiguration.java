@@ -85,6 +85,7 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.internal.CMakeConsoleWrapper;
 import com.espressif.idf.core.internal.CMakeErrorParser;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.ClangFormatFileHandler;
 import com.espressif.idf.core.util.ClangdConfigFileHandler;
 import com.espressif.idf.core.util.DfuCommandsUtil;
 import com.espressif.idf.core.util.HintsUtil;
@@ -339,6 +340,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 			}
 			runCmakeBuildCommand(console, monitor, project, start, generator, infoStream, buildDir);
 			new ClangdConfigFileHandler().update(project);
+			new ClangFormatFileHandler(project).update();
 			return new IProject[] { project };
 		}
 		catch (Exception e)

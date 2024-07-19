@@ -111,7 +111,7 @@ public class NewIDFProjectWizard extends TemplateWizard
 				String projectName = projectCreationWizardPage.getProjectName();
 				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 				selProvider.setSelection(new StructuredSelection(project));
-				updateClangdFile(project);
+				updateClangFiles(project);
 			}
 		}
 
@@ -142,12 +142,12 @@ public class NewIDFProjectWizard extends TemplateWizard
 		return performFinish;
 	}
 
-	private void updateClangdFile(IProject project)
+	private void updateClangFiles(IProject project)
 	{
 		try
 		{
-			new ClangFormatFileHandler().update(project);
 			new ClangdConfigFileHandler().update(project);
+			new ClangFormatFileHandler(project).update();
 		}
 		catch (Exception e)
 		{

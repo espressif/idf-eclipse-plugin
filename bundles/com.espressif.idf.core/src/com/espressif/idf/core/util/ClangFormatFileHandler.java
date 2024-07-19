@@ -1,7 +1,9 @@
+/*******************************************************************************
+ * Copyright 2024 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.core.util;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -19,63 +21,67 @@ import org.yaml.snakeyaml.Yaml;
 
 import com.espressif.idf.core.ILSPConstants;
 
-public class ClangFormatFileHandler
-{
+public class ClangFormatFileHandler {
 
-	public void update(IProject project) throws CoreException, IOException
+    private final IProject project;
+    private final Path clangFormatPath;
+
+    public ClangFormatFileHandler(IProject project) throws CoreException {
+        this.project = project;
+        this.clangFormatPath = project.getLocation().toPath().resolve(ILSPConstants.CLANG_FORMAT_FILE);
+    }
+
+	/**
+	 * Updates the .clang-format file. If the file does not exist, it is created and initialized with default settings.
+	 *
+	 * @throws IOException   if an I/O error occurs during file creation or writing
+	 * @throws CoreException if an error occurs while refreshing the project
+	 */
+    public void update() throws IOException, CoreException {
+		boolean isNewFile = createNewClangFormatFile();
+
+        if (isNewFile) {
+			Map<String, Object> data = new LinkedHashMap<>();
+			data.put("BasedOnStyle", "LLVM"); //$NON-NLS-1$ //$NON-NLS-2$
+			data.put("IndentWidth", 4); //$NON-NLS-1$
+
+            writeYamlFile(data);
+        }
+    }
+
+    private DumperOptions createYamlOptions() {
+        DumperOptions options = new DumperOptions();
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        options.setPrettyFlow(true);
+        return options;
+    }
+
+    private void writeYamlFile(Map<String, Object> data) throws IOException {
+        try (Writer writer = new FileWriter(clangFormatPath.toFile())) {
+            new Yaml(createYamlOptions()).dump(data, writer);
+        }
+    }
+
+	/**
+	 * Ensures that the .clang-format file exists. If the file does not exist, it is created and the project is
+	 * refreshed.
+	 *
+	 * @return true if the file was created, false if it already existed
+	 * @throws IOException   if an I/O error occurs during file creation
+	 * @throws CoreException if an error occurs while refreshing the project
+	 */
+	private boolean createNewClangFormatFile() throws IOException, CoreException
 	{
-		File file = getClangFormatFile(project);
+        if (Files.exists(clangFormatPath)) {
+            return false;
+        }
 
-		// Load existing .clang-format file
-		FileInputStream inputStream = new FileInputStream(file);
-		final DumperOptions options = new DumperOptions();
-		options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-		options.setPrettyFlow(true);
-		Yaml yaml = new Yaml(options);
-		Map<String, Object> obj = yaml.load(inputStream);
-
-		// Create new YAML structure if file is empty
-		Map<String, Object> data = createOrGetExistingYamlStructure(obj);
-		data.put("BasedOnStyle", data.getOrDefault("BasedOnStyle", "LLVM")); //$NON-NLS-1$
-		data.put("IndentWidth", data.getOrDefault("IndentWidth", 4));
-		// Write updated clang-format back to file
-		try (Writer writer = new FileWriter(file))
-		{
-			yaml.dump(data, writer);
-		}
-		catch (IOException e)
-		{
-			throw new IOException("Error writing .clang-format file: " + e.getMessage(), e); //$NON-NLS-1$
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private Map<String, Object> createOrGetExistingYamlStructure(Object obj)
-	{
-		if (obj instanceof Map)
-		{
-			return (Map<String, Object>) obj;
-		}
-		return new LinkedHashMap<>();
-	}
-
-	private File getClangFormatFile(IProject project) throws IOException, CoreException
-	{
-		// Resolve the path of the clang-format config file within the project directory
-		Path clangFormatPath = project.getLocation().toPath().resolve(ILSPConstants.CLANG_FORMAT_FILE);
-		if (!Files.exists(clangFormatPath))
-		{
-			try
-			{
-				Files.createFile(clangFormatPath);
-			}
-			catch (IOException e)
-			{
-				throw new IOException("Failed to create .clang_format file: " + e.getMessage(), e); //$NON-NLS-1$
-			}
-			project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-		}
-		return clangFormatPath.toFile();
-	}
-
+        try {
+            Files.createFile(clangFormatPath);
+            project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+            return true;
+        } catch (IOException e) {
+            throw new IOException("Failed to create .clang_format file: " + e.getMessage(), e); //$NON-NLS-1$
+        }
+    }
 }
