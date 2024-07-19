@@ -68,7 +68,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.debug.core.DebugPlugin;
@@ -180,13 +179,19 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	{
 		String userArgs = getProperty(CMAKE_ARGUMENTS);
 		// Custom build directory
-		int buildDirIndex = userArgs.indexOf("-B"); //$NON-NLS-1$
-		customBuildDir = buildDirIndex == -1 ? StringUtil.EMPTY
-				: userArgs.replaceFirst("-B", StringUtil.EMPTY).stripLeading(); //$NON-NLS-1$
+		String[] cmakeArgumentsArr = userArgs.split(" "); //$NON-NLS-1$
+		customBuildDir = StringUtil.EMPTY;
+		for (int i = 0; i < cmakeArgumentsArr.length; i++)
+		{
+			if (cmakeArgumentsArr[i].equals("-B")) //$NON-NLS-1$
+			{
+				customBuildDir = cmakeArgumentsArr[i + 1];
+				break;
+			}
+		}
 		try
 		{
-			getProject().setPersistentProperty(
-					new QualifiedName(IDFCorePlugin.PLUGIN_ID, IDFConstants.BUILD_DIR_PROPERTY), customBuildDir);
+			IDFUtil.setBuildDir(getProject(), customBuildDir);
 		}
 		catch (CoreException e)
 		{
