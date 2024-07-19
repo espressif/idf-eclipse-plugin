@@ -39,6 +39,7 @@ import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.ClangFormatFileHandler;
 import com.espressif.idf.core.util.ClangdConfigFileHandler;
 import com.espressif.idf.core.util.LaunchUtil;
 import com.espressif.idf.ui.UIPlugin;
@@ -145,6 +146,7 @@ public class NewIDFProjectWizard extends TemplateWizard
 	{
 		try
 		{
+			new ClangFormatFileHandler().update(project);
 			new ClangdConfigFileHandler().update(project);
 		}
 		catch (Exception e)

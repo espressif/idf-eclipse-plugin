@@ -11,4 +11,5 @@ public interface ILSPConstants
 {
 	String CLANGD_EXECUTABLE = "clangd"; //$NON-NLS-1$
 	String CLANGD_CONFIG_FILE = ".clangd"; //$NON-NLS-1$
+	String CLANG_FORMAT_FILE = ".clang-format"; //$NON-NLS-1$
 }
