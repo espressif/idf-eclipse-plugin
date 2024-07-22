@@ -134,6 +134,10 @@ public class IDFEnvironmentVariables
 			for (IEnvironmentVariable iEnvironmentVariable : variables)
 			{
 				String key = iEnvironmentVariable.getName();
+				if (key.equals(IDFCorePreferenceConstants.IDF_TOOLS_PATH))
+				{
+					continue;
+				}
 				String value = iEnvironmentVariable.getValue();
 				envMap.put(key, value);
 			}
