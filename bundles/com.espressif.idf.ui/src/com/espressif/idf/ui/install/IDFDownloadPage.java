@@ -112,6 +112,14 @@ public class IDFDownloadPage extends WizardPage
 		GridData gridData = new GridData(SWT.NONE, SWT.NONE, false, false, 2, 1);
 		gridData.widthHint = 250;
 		versionCombo.setLayoutData(gridData);
+		versionCombo.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				validate();
+			}
+		});
 
 		versionsMap = new IDFVersionsReader().getVersionsMap();
 		Set<String> keySet = versionsMap.keySet();
@@ -454,7 +462,7 @@ public class IDFDownloadPage extends WizardPage
 			
 			if (!supportSpaces && directoryTxt.getText().contains(" ")) //$NON-NLS-1$
 			{
-				setErrorMessage(Messages.IDFDownloadPage_IDFBuildNotSupported);
+				setErrorMessage(Messages.IDFDownloadPage_VersionSpaceError);
 				setPageComplete(false);
 				return;
 			}
