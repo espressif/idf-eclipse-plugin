@@ -13,14 +13,14 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 import com.espressif.idf.core.ILSPConstants;
 
-public class ClangFormatFileHandler {
+public class ClangFormatFileHandler
+{
+	private final IFile clangFormatFile;
 
-    private final IFile clangFormatFile;
-
-    public ClangFormatFileHandler(IProject project) throws CoreException
-    {
-        this.clangFormatFile = project.getFile(ILSPConstants.CLANG_FORMAT_FILE);
-    }
+	public ClangFormatFileHandler(IProject project) throws CoreException
+	{
+		this.clangFormatFile = project.getFile(ILSPConstants.CLANG_FORMAT_FILE);
+	}
 
 	/**
 	 * Updates the .clang-format file. If the file does not exist, it is created and initialized with default settings.
@@ -28,15 +28,15 @@ public class ClangFormatFileHandler {
 	 * @throws IOException   if an I/O error occurs during file creation or writing
 	 * @throws CoreException if an error occurs while refreshing the project
 	 */
-    public void update() throws IOException, CoreException
-    {
-        if (clangFormatFile.exists())
-        {
-            return;
-        }
-        try (final var source = getClass().getResourceAsStream(".clang-format-project");) //$NON-NLS-1$
-        {
-            clangFormatFile.create(source, true, new NullProgressMonitor());
-        }
-    }
+	public void update() throws IOException, CoreException
+	{
+		if (clangFormatFile.exists())
+		{
+			return;
+		}
+		try (final var source = getClass().getResourceAsStream(".clang-format-project");) //$NON-NLS-1$
+		{
+			clangFormatFile.create(source, true, new NullProgressMonitor());
+		}
+	}
 }
