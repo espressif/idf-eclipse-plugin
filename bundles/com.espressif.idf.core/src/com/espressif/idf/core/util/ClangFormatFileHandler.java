@@ -17,7 +17,8 @@ public class ClangFormatFileHandler {
 
     private final IFile clangFormatFile;
 
-    public ClangFormatFileHandler(IProject project) throws CoreException {
+    public ClangFormatFileHandler(IProject project) throws CoreException
+    {
         this.clangFormatFile = project.getFile(ILSPConstants.CLANG_FORMAT_FILE);
     }
 
@@ -27,7 +28,8 @@ public class ClangFormatFileHandler {
 	 * @throws IOException   if an I/O error occurs during file creation or writing
 	 * @throws CoreException if an error occurs while refreshing the project
 	 */
-    public void update() throws IOException, CoreException {
+    public void update() throws IOException, CoreException
+    {
         if (clangFormatFile.exists())
         {
             return;
