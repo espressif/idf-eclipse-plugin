@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -25,7 +26,6 @@ import org.yaml.snakeyaml.Yaml;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.ILSPConstants;
-import com.espressif.idf.core.logging.Logger;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -36,12 +36,10 @@ public class ClangdConfigFileHandler
 	public void update(IProject project) throws CoreException, IOException
 	{
 		File file = getClangdConfigFile(project);
-		FileInputStream inputStream = null;
 
-		try
+		// Load existing clangd file
+		try (FileInputStream inputStream = new FileInputStream(file))
 		{
-			// Load existing clangd file
-			inputStream = new FileInputStream(file);
 			Yaml yaml = new Yaml();
 			Object obj = yaml.load(inputStream);
 
@@ -59,7 +57,7 @@ public class ClangdConfigFileHandler
 					new QualifiedName(IDFCorePlugin.PLUGIN_ID, IDFConstants.BUILD_DIR_PROPERTY)));
 
 			// Write updated clangd back to file
-			try (Writer writer = new FileWriter(file))
+			try (Writer writer = new FileWriter(file, StandardCharsets.UTF_8))
 			{
 				yaml.dump(data, writer);
 			}
@@ -67,19 +65,10 @@ public class ClangdConfigFileHandler
 			{
 				throw new IOException("Error writing .clangd file: " + e.getMessage(), e); //$NON-NLS-1$
 			}
-		} finally
+		}
+		catch (IOException e)
 		{
-			if (inputStream != null)
-			{
-				try
-				{
-					inputStream.close();
-				}
-				catch (IOException e)
-				{
-					Logger.log(e);
-				}
-			}
+			throw new IOException("Error reading .clangd file: " + e.getMessage(), e); //$NON-NLS-1$
 		}
 	}
 
