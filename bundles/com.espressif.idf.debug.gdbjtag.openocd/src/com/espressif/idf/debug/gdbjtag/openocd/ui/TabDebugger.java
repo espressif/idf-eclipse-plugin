@@ -69,6 +69,7 @@ import org.json.simple.JSONArray;
 
 import com.espressif.idf.core.DefaultBoardProvider;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.actions.ApplyTargetJob;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
@@ -700,8 +701,8 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 		{
 			if (launchBarManager.getActiveLaunchConfiguration() != null)
 			{
-				selectedTarget = launchBarManager.getActiveLaunchTarget()
-						.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY);
+				selectedTarget = launchBarManager.getActiveLaunchTarget().getAttribute(LaunchBarTargetConstants.TARGET,
+						StringUtil.EMPTY);
 			}
 
 		}

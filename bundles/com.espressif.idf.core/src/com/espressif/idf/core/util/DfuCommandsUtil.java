@@ -28,6 +28,7 @@ import org.eclipse.ui.PlatformUI;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFDynamicVariables;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 
@@ -78,8 +79,7 @@ public class DfuCommandsUtil
 
 	public static boolean isTargetSupportDfu(ILaunchTarget launchTarget)
 	{
-		String targetName = launchTarget.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET,
-				StringUtil.EMPTY);
+		String targetName = launchTarget.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY);
 		return Arrays.stream(SUPPORTED_TARGETS).anyMatch(target -> target.contentEquals(targetName));
 	}
 

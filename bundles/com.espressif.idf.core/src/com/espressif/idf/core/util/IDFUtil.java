@@ -38,9 +38,9 @@ import org.osgi.service.prefs.BackingStoreException;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.SystemExecutableFinder;
-import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
 
@@ -78,7 +78,7 @@ public class IDFUtil
 				+ IDFConstants.IDF_PYTHON_SCRIPT;
 		return new File(idf_py_script);
 	}
-	
+
 	/**
 	 * @return idf.py file path based on the IDF_PATH given in the argument
 	 */
@@ -110,7 +110,7 @@ public class IDFUtil
 				+ IDFConstants.IDF_TOOLS_SCRIPT;
 		return new File(idf_py_script);
 	}
-	
+
 	/**
 	 * @return idf_tools.py file path based on the IDF_PATH given in the argument
 	 */
@@ -360,7 +360,7 @@ public class IDFUtil
 		}
 		return getXtensaToolchainExecutablePathByTarget(projectEspTarget);
 	}
-	
+
 	public static String getToolchainExePathForActiveTarget()
 	{
 		ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
@@ -370,7 +370,7 @@ public class IDFUtil
 			if (launchTarget != null)
 			{
 				File file = new ESPToolChainManager()
-						.findCompiler(launchTarget.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY));
+						.findCompiler(launchTarget.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY));
 				if (file != null)
 				{
 					return file.getAbsolutePath();
@@ -672,7 +672,7 @@ public class IDFUtil
 		}
 		return new SDKConfigJsonReader(project).getValue("IDF_TARGET"); //$NON-NLS-1$
 	}
-	
+
 	public static IProject getProjectFromActiveLaunchConfig() throws CoreException
 	{
 		final ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
@@ -682,10 +682,10 @@ public class IDFUtil
 		{
 			return mappedResources[0].getProject();
 		}
-		
+
 		return null;
 	}
-	
+
 	public static String getGitExecutablePathFromSystem()
 	{
 		IPath gitPath = new SystemExecutableFinder().find("git"); //$NON-NLS-1$
@@ -694,7 +694,7 @@ public class IDFUtil
 		{
 			return gitPath.toOSString();
 		}
-		
+
 		if (Platform.OS_WIN32.equals(Platform.getOS()))
 		{
 			GitWinRegistryReader gitWinRegistryReader = new GitWinRegistryReader();
@@ -735,7 +735,7 @@ public class IDFUtil
 		}
 		return StringUtil.EMPTY;
 	}
-	
+
 	public static boolean isReparseTag(File file)
 	{
 		if (!Platform.getOS().equals(Platform.OS_WIN32))

@@ -66,6 +66,7 @@ import org.json.simple.JSONArray;
 
 import com.espressif.idf.core.DefaultBoardProvider;
 import com.espressif.idf.core.IDFDynamicVariables;
+import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.actions.ApplyTargetJob;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
@@ -302,7 +303,7 @@ public class CMakeMainTab2 extends GenericMainTab
 				if (launchBarManager.getActiveLaunchConfiguration() != null)
 				{
 					return t.contentEquals(launchBarManager.getActiveLaunchTarget()
-							.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY));
+							.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY));
 				}
 			}
 			catch (CoreException e)
@@ -853,8 +854,8 @@ public class CMakeMainTab2 extends GenericMainTab
 		{
 			if (launchBarManager.getActiveLaunchConfiguration() != null)
 			{
-				selectedTarget = launchBarManager.getActiveLaunchTarget()
-						.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY);
+				selectedTarget = launchBarManager.getActiveLaunchTarget().getAttribute(LaunchBarTargetConstants.TARGET,
+						StringUtil.EMPTY);
 			}
 		}
 		catch (CoreException e)
