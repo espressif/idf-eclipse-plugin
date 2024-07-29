@@ -31,6 +31,7 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
 
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
@@ -93,8 +94,7 @@ public class LaunchBarListener implements ILaunchBarListener
 		Display.getDefault().syncExec(() -> {
 			if (target != null)
 			{
-				String targetName = target.getAttribute("com.espressif.idf.launch.serial.core.idfTarget", //$NON-NLS-1$
-						StringUtil.EMPTY);
+				String targetName = target.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY);
 				if (!StringUtil.isEmpty(targetName) && (!targetChangeIgnored))
 				{
 					update(targetName);

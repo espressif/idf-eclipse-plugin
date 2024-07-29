@@ -26,7 +26,7 @@ import org.eclipse.debug.core.model.ISourceLocator;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.launch.TargetedLaunch;
 
-import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
+import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.terminal.connector.serial.connector.SerialPortHandler;
 
 public class SerialFlashLaunch extends TargetedLaunch
@@ -41,7 +41,7 @@ public class SerialFlashLaunch extends TargetedLaunch
 		super(launchConfiguration, mode, target, locator);
 		if (target != null)
 		{
-			String serialPortName = target.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
+			String serialPortName = target.getAttribute(LaunchBarTargetConstants.SERIAL_PORT, ""); //$NON-NLS-1$
 			serialPort = !serialPortName.isEmpty() ? SerialPortHandler.get(serialPortName) : null;
 		}
 		DebugPlugin.getDefault().addDebugEventListener(this);

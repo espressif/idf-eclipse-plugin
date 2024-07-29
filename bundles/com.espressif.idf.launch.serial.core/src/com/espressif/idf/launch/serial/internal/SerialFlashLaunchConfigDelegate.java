@@ -50,13 +50,13 @@ import org.eclipse.swt.widgets.Display;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.DfuCommandsUtil;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.RecheckConfigsHelper;
 import com.espressif.idf.core.util.StringUtil;
-import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 
 /**
@@ -66,12 +66,6 @@ import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 @SuppressWarnings("restriction")
 public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfigDelegate
 {
-	private static final String OPENOCD_PREFIX = "com.espressif.idf.debug.gdbjtag.openocd"; //$NON-NLS-1$
-	private static final String INSTALL_FOLDER = "install.folder"; //$NON-NLS-1$
-	private static final String SERVER_EXECUTABLE = OPENOCD_PREFIX + ".openocd.gdbServerExecutable"; //$NON-NLS-1$
-	private static final String DEFAULT_PATH = "${openocd_path}/"; //$NON-NLS-1$
-	private static final String DEFAULT_EXECUTABLE = "bin/openocd"; //$NON-NLS-1$
-	private static final String SYSTEM_PATH_PYTHON = "${system_path:python}"; //$NON-NLS-1$
 	private String serialPort;
 
 	@Override
@@ -93,8 +87,8 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		// Start the launch (pause the serial port)
 		((SerialFlashLaunch) launch).start();
 
-		serialPort = ((SerialFlashLaunch) launch).getLaunchTarget()
-				.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
+		serialPort = ((SerialFlashLaunch) launch).getLaunchTarget().getAttribute(LaunchBarTargetConstants.SERIAL_PORT,
+				""); //$NON-NLS-1$
 		if (DfuCommandsUtil.isDfu())
 		{
 			DfuCommandsUtil.flashDfuBins(configuration, getProject(configuration), launch);
