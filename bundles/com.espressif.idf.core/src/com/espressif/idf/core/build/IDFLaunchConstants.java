@@ -3,7 +3,6 @@ package com.espressif.idf.core.build;
 public final class IDFLaunchConstants
 {
 	public static final String ESP_LAUNCH_TARGET_TYPE = "com.espressif.idf.launch.serial.core.serialFlashTarget"; //$NON-NLS-1$
-	public static final String ATTR_IDF_TARGET = "com.espressif.idf.launch.serial.core.idfTarget"; //$NON-NLS-1$
 	public static final String DEBUG_LAUNCH_CONFIG_TYPE = "com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationType"; //$NON-NLS-1$
 	public static final String RUN_LAUNCH_CONFIG_TYPE = "com.espressif.idf.launch.serial.launchConfigurationType"; //$NON-NLS-1$
 	public static final String FLASH_OVER_JTAG = "FLASH_OVER_JTAG"; //$NON-NLS-1$
@@ -15,7 +14,6 @@ public final class IDFLaunchConstants
 	public static final String ATTR_DFU_FLASH_ARGUMENTS = "com.espressif.idf.launch.serial.core.dfuFlashArguments"; //$NON-NLS-1$
 	public static final String ATTR_JTAG_FLASH_ARGUMENTS = "com.espressif.idf.debug.gdbjtag.openocd.jtagFlashArguments"; //$NON-NLS-1$
 	public static final String ATTR_LAUNCH_CONFIGURATION_NAME = "com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationName"; //$NON-NLS-1$
-	public static final String ATTR_SERIAL_PORT = "com.espressif.idf.launch.serial.core.serialPort"; //$NON-NLS-1$
 	public static final String IDF_TARGET_TYPE = "com.espressif.idf.launch.serial.core.serialFlashTarget"; //$NON-NLS-1$
 	public static final String OPEN_SERIAL_MONITOR = "OPEN_SERIAL_MONITOR"; //$NON-NLS-1$
 	public static final String SERIAL_MONITOR_ENCODING = "SERIAL_MONITOR_ENCODING"; //$NON-NLS-1$

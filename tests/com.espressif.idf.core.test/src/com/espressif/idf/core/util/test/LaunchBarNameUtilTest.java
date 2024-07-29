@@ -21,7 +21,7 @@ import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import com.espressif.idf.core.build.IDFLaunchConstants;
+import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.util.LaunchTargetHelper;
 import com.espressif.idf.core.util.StringUtil;
 
@@ -74,10 +74,10 @@ public class LaunchBarNameUtilTest
 		ILaunchTarget target = Mockito.mock(ILaunchTarget.class);
 		Mockito.when(launchTargetManager.getLaunchTargetsOfType(Mockito.anyString()))
 				.thenReturn(new ILaunchTarget[] { target });
-		Mockito.when(target.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY))
+		Mockito.when(target.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY))
 				.thenReturn(EXPECTED_TARGET_NAME);
 		Mockito.when(launchBarManager.getActiveLaunchTarget()).thenReturn(target);
-		Mockito.when(target.getAttribute(IDFLaunchConstants.ATTR_SERIAL_PORT, StringUtil.EMPTY))
+		Mockito.when(target.getAttribute(LaunchBarTargetConstants.SERIAL_PORT, StringUtil.EMPTY))
 				.thenReturn(SERIAL_PORT);
 
 		Optional<ILaunchTarget> result = LaunchTargetHelper.findSuitableTargetForSelectedItem(launchTargetManager,
@@ -85,8 +85,8 @@ public class LaunchBarNameUtilTest
 
 		assertTrue(result.isPresent());
 		assertEquals(EXPECTED_TARGET_NAME,
-				result.get().getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY));
-		assertEquals(SERIAL_PORT, result.get().getAttribute(IDFLaunchConstants.ATTR_SERIAL_PORT, StringUtil.EMPTY));
+				result.get().getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY));
+		assertEquals(SERIAL_PORT, result.get().getAttribute(LaunchBarTargetConstants.SERIAL_PORT, StringUtil.EMPTY));
 	}
 
 	@Test
@@ -97,14 +97,14 @@ public class LaunchBarNameUtilTest
 		ILaunchTarget target2 = Mockito.mock(ILaunchTarget.class);
 		Mockito.when(launchTargetManager.getLaunchTargetsOfType(Mockito.anyString()))
 				.thenReturn(new ILaunchTarget[] { target, target2 });
-		Mockito.when(target.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY))
+		Mockito.when(target.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY))
 				.thenReturn(EXPECTED_TARGET_NAME);
-		Mockito.when(target2.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY))
+		Mockito.when(target2.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY))
 				.thenReturn(EXPECTED_TARGET_NAME);
 		Mockito.when(launchBarManager.getActiveLaunchTarget()).thenReturn(target);
-		Mockito.when(target.getAttribute(IDFLaunchConstants.ATTR_SERIAL_PORT, StringUtil.EMPTY))
+		Mockito.when(target.getAttribute(LaunchBarTargetConstants.SERIAL_PORT, StringUtil.EMPTY))
 				.thenReturn(SERIAL_PORT);
-		Mockito.when(target2.getAttribute(IDFLaunchConstants.ATTR_SERIAL_PORT, StringUtil.EMPTY))
+		Mockito.when(target2.getAttribute(LaunchBarTargetConstants.SERIAL_PORT, StringUtil.EMPTY))
 				.thenReturn(FAKE_SERIAL_PORT);
 
 		Optional<ILaunchTarget> result = LaunchTargetHelper.findSuitableTargetForSelectedItem(launchTargetManager,
@@ -112,8 +112,8 @@ public class LaunchBarNameUtilTest
 
 		assertTrue(result.isPresent());
 		assertEquals(EXPECTED_TARGET_NAME,
-				result.get().getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY));
-		assertEquals(SERIAL_PORT, result.get().getAttribute(IDFLaunchConstants.ATTR_SERIAL_PORT, StringUtil.EMPTY));
+				result.get().getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY));
+		assertEquals(SERIAL_PORT, result.get().getAttribute(LaunchBarTargetConstants.SERIAL_PORT, StringUtil.EMPTY));
 	}
 
 	@Test
@@ -125,14 +125,14 @@ public class LaunchBarNameUtilTest
 
 		Mockito.when(launchTargetManager.getLaunchTargetsOfType(Mockito.anyString()))
 				.thenReturn(new ILaunchTarget[] { target });
-		Mockito.when(target.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY))
+		Mockito.when(target.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY))
 				.thenReturn(EXPECTED_TARGET_NAME);
-		Mockito.when(activeTarget.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY))
+		Mockito.when(activeTarget.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY))
 				.thenReturn(ACTIVE_LAUNCH_TARGET);
 		Mockito.when(launchBarManager.getActiveLaunchTarget()).thenReturn(activeTarget);
-		Mockito.when(target.getAttribute(IDFLaunchConstants.ATTR_SERIAL_PORT, StringUtil.EMPTY))
+		Mockito.when(target.getAttribute(LaunchBarTargetConstants.SERIAL_PORT, StringUtil.EMPTY))
 				.thenReturn(FAKE_SERIAL_PORT);
-		Mockito.when(activeTarget.getAttribute(IDFLaunchConstants.ATTR_SERIAL_PORT, StringUtil.EMPTY))
+		Mockito.when(activeTarget.getAttribute(LaunchBarTargetConstants.SERIAL_PORT, StringUtil.EMPTY))
 				.thenReturn(SERIAL_PORT);
 
 		Optional<ILaunchTarget> result = LaunchTargetHelper.findSuitableTargetForSelectedItem(launchTargetManager,
@@ -140,7 +140,7 @@ public class LaunchBarNameUtilTest
 
 		assertTrue(result.isPresent());
 		assertEquals(EXPECTED_TARGET_NAME,
-				result.get().getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY));
+				result.get().getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY));
 	}
 
 	@Test
@@ -149,7 +149,7 @@ public class LaunchBarNameUtilTest
 		ILaunchTarget target = Mockito.mock(ILaunchTarget.class);
 		Mockito.when(launchTargetManager.getLaunchTargetsOfType(Mockito.anyString()))
 				.thenReturn(new ILaunchTarget[] { target });
-		Mockito.when(target.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY))
+		Mockito.when(target.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY))
 				.thenReturn(EXPECTED_TARGET_NAME);
 		Mockito.when(launchBarManager.getActiveLaunchTarget()).thenReturn(target);
 

@@ -81,6 +81,7 @@ import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFCorePreferenceConstants;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.internal.CMakeConsoleWrapper;
 import com.espressif.idf.core.internal.CMakeErrorParser;
 import com.espressif.idf.core.logging.Logger;
@@ -515,7 +516,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 
 		if (launchtarget != null)
 		{
-			String idfTargetName = launchtarget.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY);
+			String idfTargetName = launchtarget.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY);
 			if (!idfTargetName.isEmpty())
 			{
 				command.add("-DIDF_TARGET=" + idfTargetName); //$NON-NLS-1$
@@ -651,7 +652,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		ILaunchBarManager launchBarManager = CCorePlugin.getService(ILaunchBarManager.class);
 		Collection<IToolChain> matchedToolChains = toolChainManager
 				.getToolChainsMatching(Map.of(IToolChain.ATTR_OS, launchBarManager.getActiveLaunchTarget()
-						.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY), TOOLCHAIN_TYPE, typeId));
+						.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY), TOOLCHAIN_TYPE, typeId));
 		return matchedToolChains.stream().findAny().orElse(toolChainManager.getToolChain(typeId, id));
 	}
 
