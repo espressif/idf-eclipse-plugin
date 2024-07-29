@@ -25,6 +25,7 @@ import org.yaml.snakeyaml.Yaml;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.ILSPConstants;
+import com.espressif.idf.core.logging.Logger;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -35,33 +36,50 @@ public class ClangdConfigFileHandler
 	public void update(IProject project) throws CoreException, IOException
 	{
 		File file = getClangdConfigFile(project);
+		FileInputStream inputStream = null;
 
-		// Load existing clangd file
-		FileInputStream inputStream = new FileInputStream(file);
-		Yaml yaml = new Yaml();
-		Object obj = yaml.load(inputStream);
-
-		// Create new YAML structure if file is empty
-		Map<String, Object> data = createOrGetExistingYamlStructure(obj);
-
-		// Add or update CompileFlags section
-		Map<String, Object> compileFlags = (Map<String, Object>) data.get("CompileFlags"); //$NON-NLS-1$
-		if (compileFlags == null)
+		try
 		{
-			compileFlags = new LinkedHashMap<>();
-			data.put("CompileFlags", compileFlags); //$NON-NLS-1$
-		}
-		updateCompileFlagsSection(compileFlags, project
-				.getPersistentProperty(new QualifiedName(IDFCorePlugin.PLUGIN_ID, IDFConstants.BUILD_DIR_PROPERTY)));
+			// Load existing clangd file
+			inputStream = new FileInputStream(file);
+			Yaml yaml = new Yaml();
+			Object obj = yaml.load(inputStream);
 
-		// Write updated clangd back to file
-		try (Writer writer = new FileWriter(file))
+			// Create new YAML structure if file is empty
+			Map<String, Object> data = createOrGetExistingYamlStructure(obj);
+
+			// Add or update CompileFlags section
+			Map<String, Object> compileFlags = (Map<String, Object>) data.get("CompileFlags"); //$NON-NLS-1$
+			if (compileFlags == null)
+			{
+				compileFlags = new LinkedHashMap<>();
+				data.put("CompileFlags", compileFlags); //$NON-NLS-1$
+			}
+			updateCompileFlagsSection(compileFlags, project.getPersistentProperty(
+					new QualifiedName(IDFCorePlugin.PLUGIN_ID, IDFConstants.BUILD_DIR_PROPERTY)));
+
+			// Write updated clangd back to file
+			try (Writer writer = new FileWriter(file))
+			{
+				yaml.dump(data, writer);
+			}
+			catch (IOException e)
+			{
+				throw new IOException("Error writing .clangd file: " + e.getMessage(), e); //$NON-NLS-1$
+			}
+		} finally
 		{
-			yaml.dump(data, writer);
-		}
-		catch (IOException e)
-		{
-			throw new IOException("Error writing .clangd file: " + e.getMessage(), e); //$NON-NLS-1$
+			if (inputStream != null)
+			{
+				try
+				{
+					inputStream.close();
+				}
+				catch (IOException e)
+				{
+					Logger.log(e);
+				}
+			}
 		}
 	}
 
