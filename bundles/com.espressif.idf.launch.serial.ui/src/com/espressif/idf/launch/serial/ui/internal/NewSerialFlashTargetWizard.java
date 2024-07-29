@@ -23,26 +23,30 @@ import org.eclipse.launchbar.ui.target.LaunchTargetWizard;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
+import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
-import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 
-public class NewSerialFlashTargetWizard extends LaunchTargetWizard {
+public class NewSerialFlashTargetWizard extends LaunchTargetWizard
+{
 
 	private NewSerialFlashTargetWizardPage page;
 
-	public NewSerialFlashTargetWizard() {
+	public NewSerialFlashTargetWizard()
+	{
 		setWindowTitle(Messages.NewSerialFlashTargetWizard_Title);
 	}
 
 	@Override
-	public void addPages() {
+	public void addPages()
+	{
 		super.addPages();
 		page = new NewSerialFlashTargetWizardPage(getLaunchTarget());
 		addPage(page);
 	}
 
 	@Override
-	public boolean performFinish() {
+	public boolean performFinish()
+	{
 		ILaunchTargetManager manager = Activator.getService(ILaunchTargetManager.class);
 
 		String typeId = IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE;
@@ -52,35 +56,44 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard {
 		wc.setId(id);
 		wc.setAttribute(ILaunchTarget.ATTR_OS, page.getOS());
 		wc.setAttribute(ILaunchTarget.ATTR_ARCH, page.getArch());
-		wc.setAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, page.getSerialPortName());
-		wc.setAttribute(SerialFlashLaunchTargetProvider.ATTR_IDF_TARGET, page.getIDFTarget());
+		wc.setAttribute(LaunchBarTargetConstants.SERIAL_PORT, page.getSerialPortName());
+		wc.setAttribute(LaunchBarTargetConstants.TARGET, page.getIDFTarget());
+		wc.setAttribute(LaunchBarTargetConstants.BOARD, page.getBoard());
+		wc.setAttribute(LaunchBarTargetConstants.FLASH_VOLTAGE, page.getVoltage());
 		wc.save();
 		storeLastUsedSerialPort();
 		return true;
 	}
 
-	private void storeLastUsedSerialPort() {
+	private void storeLastUsedSerialPort()
+	{
 		Preferences preferences = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
-		preferences.put(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, page.getSerialPortName());
+		preferences.put(LaunchBarTargetConstants.SERIAL_PORT, page.getSerialPortName());
 
-		try {
+		try
+		{
 			// forces the application to save the preferences
 			preferences.flush();
-		} catch (BackingStoreException e) {
+		}
+		catch (BackingStoreException e)
+		{
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public boolean canDelete() {
+	public boolean canDelete()
+	{
 		return true;
 	}
 
 	@Override
-	public void performDelete() {
+	public void performDelete()
+	{
 		ILaunchTargetManager targetMgr = Activator.getService(ILaunchTargetManager.class);
 		ILaunchTarget target = getLaunchTarget();
-		if (target != null) {
+		if (target != null)
+		{
 			targetMgr.removeLaunchTarget(target);
 		}
 	}

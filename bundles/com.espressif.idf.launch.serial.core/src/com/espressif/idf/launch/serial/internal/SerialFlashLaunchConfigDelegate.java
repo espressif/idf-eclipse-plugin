@@ -53,13 +53,13 @@ import org.eclipse.ui.WorkbenchEncoding;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.DfuCommandsUtil;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.RecheckConfigsHelper;
 import com.espressif.idf.core.util.StringUtil;
-import com.espressif.idf.launch.serial.SerialFlashLaunchTargetProvider;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 import com.espressif.idf.terminal.connector.serial.connector.SerialSettings;
 import com.espressif.idf.terminal.connector.serial.launcher.SerialLauncherDelegate;
@@ -92,8 +92,8 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		// Start the launch (pause the serial port)
 		((SerialFlashLaunch) launch).start();
 
-		serialPort = ((SerialFlashLaunch) launch).getLaunchTarget()
-				.getAttribute(SerialFlashLaunchTargetProvider.ATTR_SERIAL_PORT, ""); //$NON-NLS-1$
+		serialPort = ((SerialFlashLaunch) launch).getLaunchTarget().getAttribute(LaunchBarTargetConstants.SERIAL_PORT,
+				""); //$NON-NLS-1$
 		if (DfuCommandsUtil.isDfu())
 		{
 			DfuCommandsUtil.flashDfuBins(configuration, getProject(configuration), launch);

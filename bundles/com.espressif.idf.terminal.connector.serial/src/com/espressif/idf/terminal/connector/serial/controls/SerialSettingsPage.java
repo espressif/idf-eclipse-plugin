@@ -38,6 +38,7 @@ import org.eclipse.tm.terminal.view.ui.interfaces.IConfigurationPanelContainer;
 import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFProjectNature;
+import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.terminal.connector.serial.activator.Activator;
@@ -56,7 +57,6 @@ public class SerialSettingsPage extends AbstractSettingsPage
 	private Combo portCombo;
 	private Combo projectCombo;
 
-	private String portName;
 	private String lastUsedSerialPort;
 	private Text filterText;
 	private String filterConfig;
@@ -69,7 +69,7 @@ public class SerialSettingsPage extends AbstractSettingsPage
 
 		dialogSettings = DialogSettings.getOrCreateSection(Activator.getDefault().getDialogSettings(),
 				this.getClass().getSimpleName());
-		portName = dialogSettings.get(SerialSettings.PORT_NAME_ATTR);
+		dialogSettings.get(SerialSettings.PORT_NAME_ATTR);
 		filterConfig = dialogSettings.get(SerialSettings.MONITOR_FILTER);
 
 		lastUsedSerialPort = getLastUsedSerialPort();
@@ -79,7 +79,7 @@ public class SerialSettingsPage extends AbstractSettingsPage
 	protected String getLastUsedSerialPort()
 	{
 		Preferences preferences = InstanceScope.INSTANCE.getNode("com.espressif.idf.launch.serial.ui"); //$NON-NLS-1$
-		return preferences.get("com.espressif.idf.launch.serial.core.serialPort", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		return preferences.get(LaunchBarTargetConstants.SERIAL_PORT, ""); //$NON-NLS-1$
 	}
 
 	@Override

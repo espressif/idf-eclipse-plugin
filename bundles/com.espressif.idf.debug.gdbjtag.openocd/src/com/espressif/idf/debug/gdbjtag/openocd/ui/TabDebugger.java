@@ -33,6 +33,7 @@ import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
@@ -45,6 +46,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.VerifyEvent;
@@ -485,6 +488,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 							{
 								configOptionString = configOptionString + " -f " + config; //$NON-NLS-1$
 							}
+
 							fGdbServerOtherOptions.setText(configOptionString);
 						}
 
@@ -513,10 +517,10 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 		{
 			Composite local = new Composite(comp, SWT.NONE);
 			GridLayout layout = new GridLayout();
-			layout.numColumns = 2;
+			layout.numColumns = 4;
 			layout.marginHeight = 0;
 			layout.marginWidth = 0;
-			layout.makeColumnsEqualWidth = true;
+			layout.makeColumnsEqualWidth = false;
 			local.setLayout(layout);
 			GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 			gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns;
@@ -539,6 +543,28 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 			// update doStartGdbServerChanged() too
 			fDoGdbServerAllocateTelnetConsole.setEnabled(false);
+			fGdbServerOtherOptions.addMouseTrackListener(new MouseTrackAdapter()
+			{
+				@Override
+				public void mouseExit(MouseEvent e)
+				{
+					try
+					{
+						fGdbServerOtherOptions.setToolTipText(VariablesPlugin.getDefault().getStringVariableManager()
+								.performStringSubstitution(fGdbServerOtherOptions.getText(), false).trim());
+					}
+					catch (CoreException exc)
+					{
+						Logger.log(exc);
+					}
+				}
+			});
+			Button browseVariablesButton = createPushButton(local, "Browse...", null);
+			browseVariablesButton.addListener(SWT.Selection,
+					e -> browseButtonSelected("Select openocd scripts folder", fGdbClientOtherOptions));
+			Button otherOptionsVariablesButton = createPushButton(local, "Variables...", null);
+			otherOptionsVariablesButton.addListener(SWT.Selection,
+					e -> variablesButtonSelected(fGdbServerOtherOptions));
 		}
 
 		// ----- Actions ------------------------------------------------------

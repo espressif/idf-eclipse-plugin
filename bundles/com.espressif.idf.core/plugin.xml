@@ -326,5 +326,10 @@ config-only component and an interface library is created instead."
            name="OPENOCD_SCRIPTS"
            resolver="com.espressif.idf.core.variable.OpenocdVariableResolver">
      </variable>
+     <variable
+           description="%jtag_flash_args"
+           name="JTAG_FLASH_ARGS"
+           resolver="com.espressif.idf.core.variable.JtagVariableResolver">
+     </variable>
   </extension>
 </plugin>
