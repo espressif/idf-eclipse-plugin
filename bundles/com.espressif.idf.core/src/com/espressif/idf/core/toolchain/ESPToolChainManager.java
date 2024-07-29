@@ -42,6 +42,7 @@ import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.launchbar.core.target.ILaunchTargetWorkingCopy;
 
+import com.espressif.idf.core.DefaultBoardProvider;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
@@ -486,6 +487,8 @@ public class ESPToolChainManager
 				wc.setAttribute(ILaunchTarget.ATTR_OS, os);
 				wc.setAttribute(ILaunchTarget.ATTR_ARCH, arch);
 				wc.setAttribute(LaunchBarTargetConstants.TARGET, os);
+				wc.setAttribute(LaunchBarTargetConstants.FLASH_VOLTAGE, "default"); //$NON-NLS-1$
+				wc.setAttribute(LaunchBarTargetConstants.BOARD, new DefaultBoardProvider().getDefaultBoard(os));
 				wc.save();
 			}
 		}
@@ -531,6 +534,8 @@ public class ESPToolChainManager
 				wc.setAttribute(ILaunchTarget.ATTR_OS, os);
 				wc.setAttribute(ILaunchTarget.ATTR_ARCH, arch);
 				wc.setAttribute(LaunchBarTargetConstants.TARGET, os);
+				wc.setAttribute(LaunchBarTargetConstants.FLASH_VOLTAGE, "default"); //$NON-NLS-1$
+				wc.setAttribute(LaunchBarTargetConstants.BOARD, new DefaultBoardProvider().getDefaultBoard(os));
 				wc.save();
 			}
 		}

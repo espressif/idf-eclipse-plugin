@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -41,7 +40,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -70,16 +68,13 @@ import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.ide.IDEEncoding;
 import org.json.simple.JSONArray;
 
-import com.espressif.idf.core.DefaultBoardProvider;
 import com.espressif.idf.core.IDFDynamicVariables;
 import com.espressif.idf.core.LaunchBarTargetConstants;
-import com.espressif.idf.core.actions.ApplyTargetJob;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.DfuCommandsUtil;
-import com.espressif.idf.core.util.EspConfigParser;
-import com.espressif.idf.core.util.LaunchTargetHelper;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.core.variable.JtagDynamicVariable;
 import com.espressif.idf.core.variable.OpenocdDynamicVariable;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 import com.espressif.idf.ui.EclipseUtil;
@@ -89,12 +84,9 @@ public class CMakeMainTab2 extends GenericMainTab
 {
 	private static final String LAUNCH_TARGET_ATTR = "LAUNCH_TARGET"; //$NON-NLS-1$
 	private static final int JOB_DELAY_MS = 100;
-	private static final String EMPTY_CONFIG_OPTIONS = "%s" + File.separator + "%s -s %s"; //$NON-NLS-1$ //$NON-NLS-2$
+	private static final String DEFAULT_JTAG_CONFIG_OPTIONS = String.format("-s ${%s} ${%s}", //$NON-NLS-1$
+			OpenocdDynamicVariable.OPENOCD_SCRIPTS, JtagDynamicVariable.JTAG_FLASH_ARGS);
 	private Combo flashOverComboButton;
-	private Combo fFlashVoltage;
-	private Combo fTarget;
-	private Map<String, JSONArray> boardConfigsMap;
-	private Combo fTargetName;
 	private boolean isFlashOverJtag;
 	private boolean isJtagFlashAvailable;
 	private Text fProjText;
@@ -126,8 +118,6 @@ public class CMakeMainTab2 extends GenericMainTab
 	@Override
 	public void createControl(Composite parent)
 	{
-		parent.addDisposeListener(event -> scheduleApplyTargetJob());
-
 		mainComposite = new Composite(parent, SWT.NONE);
 		mainComposite.setFont(parent.getFont());
 		GridLayout layout = new GridLayout();
@@ -264,10 +254,6 @@ public class CMakeMainTab2 extends GenericMainTab
 		switchGridDatas.get(FlashInterface.JTAG).add(jtagCompositeGridData);
 		jtagComposite.setLayout(layout);
 		jtagComposite.setLayoutData(jtagCompositeGridData);
-
-		String selectedTarget = getLaunchTarget();
-		EspConfigParser parser = new EspConfigParser();
-		createOpenOcdSetupComponent(jtagComposite, selectedTarget, parser);
 
 		jtagArgumentsField = new Text(parent, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
 		createArgumentComponent(jtagComposite, jtagArgumentsField);
@@ -449,7 +435,6 @@ public class CMakeMainTab2 extends GenericMainTab
 					break;
 				case JTAG:
 					isFlashOverJtag = true;
-					fTarget.notifyListeners(SWT.Selection, null);
 					break;
 				case DFU:
 					isFlashOverJtag = false;
@@ -616,23 +601,8 @@ public class CMakeMainTab2 extends GenericMainTab
 			{
 				initializeCProject(selectedProject, wc);
 			}
-			if (!isFlashOverJtag && comboTargets.getSelectionIndex() != -1)
-			{
-				saveLaunchTargetName(wc, comboTargets.getItem(comboTargets.getSelectionIndex()));
-			}
-			else if (isFlashOverJtag)
-			{
-				saveLaunchTargetName(wc, fTarget.getText());
-			}
-			else
-			{
-				saveLaunchTargetName(wc, getLaunchTarget());
-			}
 
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, fProjText.getText());
-			wc.setAttribute(IDFLaunchConstants.JTAG_FLASH_VOLTAGE, fFlashVoltage.getText());
-			wc.setAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, fTarget.getText());
-			wc.setAttribute(IDFLaunchConstants.JTAG_BOARD, fTargetName.getText());
 			wc.setAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, isFlashOverJtag);
 			// For the case, when user wants to edit arguments line somehow and save changes
 
@@ -648,12 +618,6 @@ public class CMakeMainTab2 extends GenericMainTab
 		{
 			Logger.log(e);
 		}
-	}
-
-	private void saveLaunchTargetName(ILaunchConfigurationWorkingCopy wc, String targetName)
-	{
-		wc.setAttribute(LAUNCH_TARGET_ATTR, targetName);
-		LaunchTargetHelper.saveTargetName(targetName);
 	}
 
 	@Override
@@ -718,15 +682,6 @@ public class CMakeMainTab2 extends GenericMainTab
 		}
 		if (isFlashOverJtag && !isDfu)
 		{
-			try
-			{
-				initializeJtagComboFields(configuration);
-			}
-			catch (CoreException e)
-			{
-				Logger.log(e);
-			}
-
 			flashOverComboButton
 					.select(Arrays.asList(flashOverComboButton.getItems()).indexOf(FlashInterface.JTAG.name()));
 		}
@@ -743,8 +698,8 @@ public class CMakeMainTab2 extends GenericMainTab
 					uartFlashCommand.isBlank() ? ESPFlashUtil.getParseableEspFlashCommand(ESPFlashUtil.SERIAL_PORT)
 							: uartFlashCommand);
 
-			jtagArgumentsField.setText(
-					configuration.getAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, StringUtil.EMPTY));
+			jtagArgumentsField.setText(configuration.getAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS,
+					DEFAULT_JTAG_CONFIG_OPTIONS));
 
 			dfuArgumentsField.setText(configuration.getAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS,
 					DfuCommandsUtil.getDfuFlashCommand()));
@@ -755,135 +710,6 @@ public class CMakeMainTab2 extends GenericMainTab
 			Logger.log(e);
 		}
 
-	}
-
-	private void initializeJtagComboFields(ILaunchConfiguration configuration) throws CoreException
-	{
-		fFlashVoltage
-				.setText(configuration.getAttribute(IDFLaunchConstants.JTAG_FLASH_VOLTAGE, fFlashVoltage.getText()));
-		fTarget.setText(configuration.getAttribute(IDFLaunchConstants.TARGET_FOR_JTAG, fTarget.getText()));
-		fTarget.notifyListeners(SWT.Selection, null);
-		fTargetName.setText(configuration.getAttribute(IDFLaunchConstants.JTAG_BOARD, fTargetName.getText()));
-		fTargetName.notifyListeners(SWT.Selection, null);
-	}
-
-	private void createOpenOcdSetupComponent(Composite parent, String selectedTarget, EspConfigParser parser)
-	{
-		Group group = new Group(parent, SWT.NONE);
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 6;
-		group.setText(Messages.CMakeMainTab2_OpeonOcdSetupGroupTitle);
-		group.setLayout(gridLayout);
-		{
-			Label label = new Label(group, SWT.NONE);
-			label.setText(Messages.flashVoltageLabel);
-			label.setToolTipText(Messages.flashVoltageToolTip);
-			fFlashVoltage = new Combo(group, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
-			fFlashVoltage.setItems(parser.getEspFlashVoltages().toArray(new String[0]));
-			fFlashVoltage.setText("default"); //$NON-NLS-1$
-			fFlashVoltage.addSelectionListener(new SelectionAdapter()
-			{
-				@Override
-				public void widgetSelected(SelectionEvent e)
-				{
-					fTargetName.notifyListeners(SWT.Selection, null);
-				}
-			});
-		}
-		{
-			Label label = new Label(group, SWT.NONE);
-			label.setText(Messages.configTargetLabel);
-			label.setToolTipText(Messages.configTargetToolTip);
-			fTarget = new Combo(group, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
-			fTarget.setItems(parser.getTargets().toArray(new String[0]));
-			fTarget.setText(selectedTarget);
-			fTarget.addSelectionListener(new SelectionAdapter()
-			{
-
-				@Override
-				public void widgetSelected(SelectionEvent e)
-				{
-					int selectedIndex = fTarget.getSelectionIndex();
-					String selectedItem = StringUtil.EMPTY;
-					if (selectedIndex != -1)
-					{
-						selectedItem = fTarget.getItem(fTarget.getSelectionIndex());
-					}
-
-					boardConfigsMap = parser.getBoardsConfigs(selectedItem);
-					fTargetName.setItems(parser.getBoardsConfigs(selectedItem).keySet().toArray(new String[0]));
-					fTargetName.select(
-							new DefaultBoardProvider().getIndexOfDefaultBoard(selectedItem, fTargetName.getItems()));
-					updateArgumentsField();
-				}
-			});
-		}
-		{
-			Label label = new Label(group, SWT.NONE);
-			label.setText(Messages.configBoardLabel);
-			label.setToolTipText(Messages.configBoardTooTip);
-			fTargetName = new Combo(group, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
-			fTargetName.setItems(parser.getBoardsConfigs(selectedTarget).keySet().toArray(new String[0]));
-			boardConfigsMap = parser.getBoardsConfigs(selectedTarget);
-			fTargetName
-					.select(new DefaultBoardProvider().getIndexOfDefaultBoard(selectedTarget, fTargetName.getItems()));
-			fTargetName.addSelectionListener(new SelectionAdapter()
-			{
-				@Override
-				public void widgetSelected(SelectionEvent e)
-				{
-					updateArgumentsField();
-				}
-			});
-		}
-		GridData openOcdGroupData = new GridData(SWT.FILL, SWT.NONE, true, true);
-		group.setLayoutData(openOcdGroupData);
-	}
-
-	@SuppressWarnings("unchecked")
-	private void updateArgumentsField()
-	{
-		String selectedVoltage = fFlashVoltage.getText();
-		String selectedItem = fTargetName.getText();
-		String configOptiopns = String.format(EMPTY_CONFIG_OPTIONS,
-				newVariableExpression(OpenocdDynamicVariable.OPENOCD_PATH),
-				newVariableExpression(OpenocdDynamicVariable.OPENOCD_EXE),
-				newVariableExpression(OpenocdDynamicVariable.OPENOCD_SCRIPTS));
-		if (!selectedVoltage.equals("default"))//$NON-NLS-1$
-		{
-			configOptiopns = configOptiopns + " -c 'set ESP32_FLASH_VOLTAGE " + selectedVoltage + "'"; //$NON-NLS-1$//$NON-NLS-2$
-		}
-		if (!selectedItem.isEmpty())
-		{
-			for (String config : (String[]) boardConfigsMap.get(selectedItem).toArray(new String[0]))
-			{
-				configOptiopns = configOptiopns + " -f " + config; //$NON-NLS-1$
-			}
-		}
-		jtagArgumentsField.setText(configOptiopns);
-	}
-
-	private String newVariableExpression(OpenocdDynamicVariable dynamicVariable)
-	{
-		return newVariableExpression(dynamicVariable.getValue(), null);
-	}
-
-	private String getLaunchTarget()
-	{
-		String selectedTarget = StringUtil.EMPTY;
-		try
-		{
-			if (launchBarManager.getActiveLaunchConfiguration() != null)
-			{
-				selectedTarget = launchBarManager.getActiveLaunchTarget().getAttribute(LaunchBarTargetConstants.TARGET,
-						StringUtil.EMPTY);
-			}
-		}
-		catch (CoreException e)
-		{
-			Logger.log(e);
-		}
-		return selectedTarget;
 	}
 
 	@Override
@@ -932,13 +758,6 @@ public class CMakeMainTab2 extends GenericMainTab
 				Logger.log(e);
 			}
 		}
-	}
-
-	private void scheduleApplyTargetJob()
-	{
-		Job applyTargetJob = new ApplyTargetJob(launchBarManager, targetManager, LAUNCH_TARGET_ATTR,
-				new NewSerialFlashTargetWizard());
-		applyTargetJob.schedule(JOB_DELAY_MS);
 	}
 
 	private void createOpenSerialMonitorGroup(Composite mainComposite)

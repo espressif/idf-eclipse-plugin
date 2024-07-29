@@ -13,6 +13,7 @@ import org.eclipse.core.variables.IDynamicVariableResolver;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 
+import com.espressif.idf.core.DefaultBoardProvider;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.logging.Logger;
@@ -57,8 +58,7 @@ public class JtagVariableResolver implements IDynamicVariableResolver
 	private String generatePartOfConfigOptionsForVoltage()
 	{
 		ILaunchTarget activeILaunchTarget = getActiveLaunchTarget().orElseGet(() -> ILaunchTarget.NULL_TARGET);
-		var selectedVoltage = activeILaunchTarget.getAttribute(LaunchBarTargetConstants.FLASH_VOLTAGE,
-				StringUtil.EMPTY);
+		var selectedVoltage = activeILaunchTarget.getAttribute(LaunchBarTargetConstants.FLASH_VOLTAGE, "default"); //$NON-NLS-1$
 		return selectedVoltage.equals("default") ? StringUtil.EMPTY //$NON-NLS-1$
 				: String.format("-c 'set ESP32_FLASH_VOLTAGE' %s' ", selectedVoltage); //$NON-NLS-1$
 
@@ -66,11 +66,12 @@ public class JtagVariableResolver implements IDynamicVariableResolver
 
 	private String generatePartOfConfigOptionsForBoard()
 	{
-		ILaunchTarget activeILaunchTarget = getActiveLaunchTarget().orElseGet(() -> ILaunchTarget.NULL_TARGET);
 		var parser = new EspConfigParser();
-		var boardConfigMap = parser
-				.getBoardsConfigs(activeILaunchTarget.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY));
-		var board = activeILaunchTarget.getAttribute(LaunchBarTargetConstants.BOARD, StringUtil.EMPTY);
+		ILaunchTarget activeILaunchTarget = getActiveLaunchTarget().orElseGet(() -> ILaunchTarget.NULL_TARGET);
+		var targetName = activeILaunchTarget.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY);
+		var boardConfigMap = parser.getBoardsConfigs(targetName);
+		var board = activeILaunchTarget.getAttribute(LaunchBarTargetConstants.BOARD,
+				new DefaultBoardProvider().getDefaultBoard(targetName));
 		var boardConfigs = boardConfigMap.get(board);
 		var result = new StringBuilder();
 		var iterator = boardConfigs.iterator();
