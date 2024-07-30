@@ -92,11 +92,12 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		// Start the launch (pause the serial port)
 		((SerialFlashLaunch) launch).start();
 
-		serialPort = ((SerialFlashLaunch) launch).getLaunchTarget().getAttribute(LaunchBarTargetConstants.SERIAL_PORT,
-				""); //$NON-NLS-1$
+		serialPort = ((ITargetedLaunch) launch).getLaunchTarget().getAttribute(LaunchBarTargetConstants.SERIAL_PORT,
+				StringUtil.EMPTY);
 		if (DfuCommandsUtil.isDfu())
 		{
-			DfuCommandsUtil.flashDfuBins(configuration, getProject(configuration), launch);
+			if (DfuCommandsUtil.isTargetSupportDfu(((ITargetedLaunch) launch).getLaunchTarget()))
+				DfuCommandsUtil.flashDfuBins(configuration, getProject(configuration), launch);
 			return;
 		}
 		if (ESPFlashUtil.isJtag())

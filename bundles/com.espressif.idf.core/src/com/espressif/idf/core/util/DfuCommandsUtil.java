@@ -39,6 +39,10 @@ public class DfuCommandsUtil
 	private static final String[] SUPPORTED_TARGETS = { "esp32s2", "esp32s3" }; //$NON-NLS-1$ //$NON-NLS-2$
 	private static final String DFU_FLASH_COMMAND = "dfu-flash"; //$NON-NLS-1$
 
+	private DfuCommandsUtil()
+	{
+	}
+
 	public static String[] getSupportedTargets()
 	{
 		return SUPPORTED_TARGETS;
@@ -62,16 +66,11 @@ public class DfuCommandsUtil
 	public static boolean isDfuSupported(ILaunchTarget launchTarget)
 	{
 		boolean isDfuSupported = isTargetSupportDfu(launchTarget);
-		Display.getDefault().asyncExec(new Runnable()
-		{
-			@Override
-			public void run()
+		Display.getDefault().asyncExec(() -> {
+			if (!isDfuSupported)
 			{
-				if (!isDfuSupported)
-				{
-					MessageDialog.openWarning(getShell(), Messages.DfuWarningDialog_Title,
-							Messages.DfuWarningDialog_WrongTargterMsg);
-				}
+				MessageDialog.openWarning(getShell(), Messages.DfuWarningDialog_Title,
+						Messages.DfuWarningDialog_WrongTargterMsg);
 			}
 		});
 		return isDfuSupported;

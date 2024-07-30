@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -49,8 +48,6 @@ import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.window.Window;
-import org.eclipse.launchbar.core.ILaunchBarManager;
-import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -69,7 +66,6 @@ import org.eclipse.ui.ide.IDEEncoding;
 import org.json.simple.JSONArray;
 
 import com.espressif.idf.core.IDFDynamicVariables;
-import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.DfuCommandsUtil;
@@ -82,8 +78,6 @@ import com.espressif.idf.ui.EclipseUtil;
 @SuppressWarnings("restriction")
 public class CMakeMainTab2 extends GenericMainTab
 {
-	private static final String LAUNCH_TARGET_ATTR = "LAUNCH_TARGET"; //$NON-NLS-1$
-	private static final int JOB_DELAY_MS = 100;
 	private static final String DEFAULT_JTAG_CONFIG_OPTIONS = String.format("-s ${%s} ${%s}", //$NON-NLS-1$
 			OpenocdDynamicVariable.OPENOCD_SCRIPTS, JtagDynamicVariable.JTAG_FLASH_ARGS);
 	private Combo flashOverComboButton;
@@ -260,64 +254,6 @@ public class CMakeMainTab2 extends GenericMainTab
 		createVerticalSpacer(jtagComposite, 1);
 	}
 
-	protected void createDfuTargetComposite(Composite parent)
-	{
-		Composite dfuComposite = createDfuComposite(parent);
-
-		Composite targetComposite = new Composite(dfuComposite, SWT.NONE);
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 3;
-		GridData targetGridData = new GridData(GridData.FILL_HORIZONTAL);
-		targetComposite.setLayout(layout);
-		targetComposite.setData(targetGridData);
-
-		Label comboTargetLbl = new Label(targetComposite, SWT.NONE);
-		comboTargetLbl.setText(Messages.CMakeMainTab2_TargetsComboLbl);
-		comboTargets = new Combo(targetComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
-		comboTargets.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
-
-		String[] targetsWithDfuSupport = DfuCommandsUtil.getSupportedTargets();
-		comboTargets.setItems(targetsWithDfuSupport);
-		comboTargets.addSelectionListener(new SelectionAdapter()
-		{
-
-			@Override
-			public void widgetSelected(SelectionEvent evt)
-			{
-				if (!((Combo) evt.widget).getText().isEmpty() && dfuErrorLbl != null)
-				{
-					dfuErrorLbl.setText(StringUtil.EMPTY);
-				}
-				updateLaunchConfigurationDialog();
-			}
-		});
-
-		Optional<String> suitableTarget = Stream.of(targetsWithDfuSupport).filter(t -> {
-			try
-			{
-				if (launchBarManager.getActiveLaunchConfiguration() != null)
-				{
-					return t.contentEquals(launchBarManager.getActiveLaunchTarget()
-							.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY));
-				}
-			}
-			catch (CoreException e)
-			{
-				Logger.log(e);
-			}
-			return false;
-		}).findFirst();
-
-		suitableTarget.ifPresentOrElse(t -> comboTargets.select(Arrays.asList(comboTargets.getItems()).indexOf(t)),
-				() -> {
-					dfuErrorLbl = new Label(targetComposite, SWT.NONE);
-					dfuErrorLbl.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_DARK_YELLOW));
-					dfuErrorLbl.setText(Messages.CMakeMainTab2_WarningDfuMsg);
-				});
-
-		comboTargets.notifyListeners(SWT.Selection, null);
-	}
-
 	private Composite createDfuComposite(Composite parent)
 	{
 		Composite dfuComposite = new Composite(parent, SWT.NONE);
@@ -438,7 +374,6 @@ public class CMakeMainTab2 extends GenericMainTab
 					break;
 				case DFU:
 					isFlashOverJtag = false;
-					comboTargets.notifyListeners(SWT.Selection, null);
 					break;
 				default:
 					break;
@@ -571,20 +506,7 @@ public class CMakeMainTab2 extends GenericMainTab
 			setErrorMessage(LaunchMessages.CMainTab_Project_must_be_opened);
 			return false;
 		}
-		if (flashOverComboButton.getText().contentEquals(FlashInterface.DFU.name())
-				&& comboTargets.getSelectionIndex() == -1)
-		{
-			try
-			{
-				setErrorMessage(MessageFormat.format(Messages.CMakeMainTab2_NoDfuTargetSelectedError,
-						launchBarManager.getActiveLaunchTarget().getId()));
-			}
-			catch (CoreException e)
-			{
-				Logger.log(e);
-			}
-			return false;
-		}
+
 		return isConfigValid && hasProject && validateEncoding();
 	}
 
