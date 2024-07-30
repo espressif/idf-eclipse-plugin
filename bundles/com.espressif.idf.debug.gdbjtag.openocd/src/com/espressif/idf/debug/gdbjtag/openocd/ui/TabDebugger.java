@@ -1367,6 +1367,9 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			configuration.setAttribute(IGDBJtagConstants.ATTR_USE_REMOTE_TARGET,
 					DefaultPreferences.USE_REMOTE_TARGET_DEFAULT);
 
+			configuration.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME,
+					DefaultPreferences.GDB_CLIENT_EXECUTABLE_DEFAUTL);
+
 			defaultString = fPersistentPreferences.getGdbClientOtherOptions();
 			configuration.setAttribute(ConfigurationAttributes.GDB_CLIENT_OTHER_OPTIONS, defaultString);
 
