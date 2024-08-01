@@ -366,21 +366,36 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			Label label = new Label(comp, SWT.NONE);
 			label.setText(Messages.getString("DebuggerTab.gdbServerOther_Label")); //$NON-NLS-1$
 			label.setToolTipText(Messages.getString("DebuggerTab.gdbServerOther_ToolTipText")); //$NON-NLS-1$
-			GridData gd = new GridData();
-			gd.verticalAlignment = SWT.TOP;
-			label.setLayoutData(gd);
 
-			fGdbServerOtherOptions = new Text(comp, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
-			gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-			gd.heightHint = 60;
+			Composite local = new Composite(comp, SWT.NONE);
+			GridLayout layout = new GridLayout(3, false);
+			layout.marginHeight = 0;
+			layout.marginWidth = 0;
+			local.setLayout(layout);
+			GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 			gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
-			fGdbServerOtherOptions.setLayoutData(gd);
+			local.setLayoutData(gd);
+			{
+				fGdbServerOtherOptions = new Text(local, SWT.SINGLE | SWT.BORDER);
+				fGdbServerOtherOptions.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+				Button browseVariablesButton = new Button(local, SWT.NONE);
+				browseVariablesButton.setText(Messages.getString("DebuggerTab.gdbOtherOptionsBrowse")); //$NON-NLS-1$
+				browseVariablesButton.addListener(SWT.Selection,
+						e -> browseButtonSelected(Messages.getString("DebuggerTab.gdbOtherOptionsBrowse_Title"), //$NON-NLS-1$
+								fGdbClientOtherOptions));
+
+				Button otherOptionsVariablesButton = new Button(local, SWT.NONE);
+				otherOptionsVariablesButton.setText(Messages.getString("DebuggerTab.gdbOtherOptionsVariable")); //$NON-NLS-1$
+				otherOptionsVariablesButton.addListener(SWT.Selection,
+						e -> variablesButtonSelected(fGdbServerOtherOptions));
+			}
 		}
 
 		{
 			Composite local = new Composite(comp, SWT.NONE);
 			GridLayout layout = new GridLayout();
-			layout.numColumns = 4;
+			layout.numColumns = 2;
 			layout.marginHeight = 0;
 			layout.marginWidth = 0;
 			layout.makeColumnsEqualWidth = false;
@@ -422,12 +437,6 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 					}
 				}
 			});
-			Button browseVariablesButton = createPushButton(local, "Browse...", null);
-			browseVariablesButton.addListener(SWT.Selection,
-					e -> browseButtonSelected("Select openocd scripts folder", fGdbClientOtherOptions));
-			Button otherOptionsVariablesButton = createPushButton(local, "Variables...", null);
-			otherOptionsVariablesButton.addListener(SWT.Selection,
-					e -> variablesButtonSelected(fGdbServerOtherOptions));
 		}
 
 		// ----- Actions ------------------------------------------------------
