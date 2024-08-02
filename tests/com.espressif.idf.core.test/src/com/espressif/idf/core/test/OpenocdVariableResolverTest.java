@@ -29,7 +29,7 @@ class OpenocdVariableResolverTest
 {
 	private static final String NON_EXISTING_VALUE = "nonExistingValue";
 	private static final String OPENOCD_SCRIPTS_EXPECTED = "OPENOCD_SCRIPTS";
-	private static final String OPENOCD_EXE_EXPECTED = File.separator + "bin" + File.separator + "openocd";
+	private static final String OPENOCD_EXE_EXPECTED = "openocd";
 	private static final String OPENOCD_BIN_PATH_EXPECTED = "openocd" + File.separator + "bin";
 
 	private OpenocdVariableResolver variableResolver;
@@ -57,7 +57,7 @@ class OpenocdVariableResolverTest
 	void resolveValue_on_openocd_path_dynamic_variable_returns_openocd_path()
 	{
 		IDynamicVariable dynamicVariable = mock(IDynamicVariable.class);
-		String expectedResult = Paths.get(OPENOCD_BIN_PATH_EXPECTED).getParent().toString();
+		String expectedResult = Paths.get(OPENOCD_BIN_PATH_EXPECTED).toString();
 		when(dynamicVariable.getName()).thenReturn(OpenocdDynamicVariable.OPENOCD_PATH.getValue());
 
 		String actualResult = variableResolver.resolveValue(dynamicVariable, null);
@@ -103,5 +103,10 @@ class OpenocdVariableResolverTest
 			return Paths.get(OPENOCD_BIN_PATH_EXPECTED);
 		}
 
+		@Override
+		protected Path getOpenocdExecutable(ILaunchConfiguration configuration)
+		{
+			return Paths.get(OPENOCD_EXE_EXPECTED);
+		}
 	}
 }

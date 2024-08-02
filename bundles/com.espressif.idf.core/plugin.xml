@@ -318,7 +318,7 @@ config-only component and an interface library is created instead."
      </variable>
      <variable
            description="%openocd_exe"
-           name="openocd_exe"
+           name="openocd_executable"
            resolver="com.espressif.idf.core.variable.OpenocdVariableResolver">
      </variable>
      <variable

@@ -86,18 +86,18 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 	private Text fGdbServerTelnetPort;
 	private Text fGdbServerTclPort;
 
-	private Text fGdbServerExecutable;
+	private TextWithButton fGdbServerExecutable;
 	private Button fGdbServerBrowseButton;
 	private Button fGdbServerVariablesButton;
 	private Text fGdbServerPathLabel;
 
-	private Text fGdbServerOtherOptions;
+	private TextWithButton fGdbServerOtherOptions;
 
 	private Button fDoGdbServerAllocateConsole;
 	private Button fDoGdbServerAllocateTelnetConsole;
 
 	private Button fDoStartGdbClient;
-	private Text fGdbClientExecutable;
+	private TextWithButton fGdbClientExecutable;
 	private Button fGdbClientBrowseButton;
 	private Button fGdbClientVariablesButton;
 	private Text fGdbClientOtherOptions;
@@ -118,13 +118,11 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 	protected TabDebugger(TabStartup tabStartup)
 	{
 		super();
-
 		fDefaultPreferences = Activator.getInstance().getDefaultPreferences();
 		fPersistentPreferences = Activator.getInstance().getPersistentPreferences();
 	}
 
 	// ------------------------------------------------------------------------
-
 	@Override
 	public String getName()
 	{
@@ -167,7 +165,11 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 		setControl(comp);
 		GridLayout layout = new GridLayout();
 		comp.setLayout(layout);
-
+		StyledInfoText styledInfoText = new StyledInfoText(comp);
+		styledInfoText.setMouseListenerAction(() -> {
+			initializeFromDefaults();
+			scheduleUpdateJob();
+		});
 		createGdbServerGroup(comp);
 
 		createGdbClientControls(comp);
@@ -213,25 +215,25 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 		});
 	}
 
-	private void browseButtonSelected(String title, Text text)
+	private void browseButtonSelected(String title, TextWithButton fGdbServerExecutable2)
 	{
 		FileDialog dialog = new FileDialog(getShell(), SWT.NONE);
 		dialog.setText(title);
-		String str = text.getText().trim();
+		String str = fGdbServerExecutable2.getText().trim();
 		int lastSeparatorIndex = str.lastIndexOf(File.separator);
 		if (lastSeparatorIndex != -1)
 			dialog.setFilterPath(str.substring(0, lastSeparatorIndex));
 		str = dialog.open();
 		if (str != null)
-			text.setText(str);
+			fGdbServerExecutable2.setText(str);
 	}
 
-	private void variablesButtonSelected(Text text)
+	private void variablesButtonSelected(TextWithButton fGdbServerOtherOptions2)
 	{
 		StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(getShell());
 		if (dialog.open() == StringVariableSelectionDialog.OK)
 		{
-			text.insert(dialog.getVariableExpression());
+			fGdbServerOtherOptions2.insert(dialog.getVariableExpression());
 		}
 	}
 
@@ -290,7 +292,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
 			local.setLayoutData(gd);
 			{
-				fGdbServerExecutable = new Text(local, SWT.SINGLE | SWT.BORDER);
+				fGdbServerExecutable = new TextWithButton(local, SWT.SINGLE | SWT.BORDER);
 				gd = new GridData(GridData.FILL_HORIZONTAL);
 				fGdbServerExecutable.setLayoutData(gd);
 
@@ -376,14 +378,14 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
 			local.setLayoutData(gd);
 			{
-				fGdbServerOtherOptions = new Text(local, SWT.SINGLE | SWT.BORDER);
+				fGdbServerOtherOptions = new TextWithButton(local, SWT.SINGLE | SWT.BORDER);
 				fGdbServerOtherOptions.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 				Button browseVariablesButton = new Button(local, SWT.NONE);
 				browseVariablesButton.setText(Messages.getString("DebuggerTab.gdbOtherOptionsBrowse")); //$NON-NLS-1$
 				browseVariablesButton.addListener(SWT.Selection,
 						e -> browseButtonSelected(Messages.getString("DebuggerTab.gdbOtherOptionsBrowse_Title"), //$NON-NLS-1$
-								fGdbClientOtherOptions));
+								fGdbServerOtherOptions));
 
 				Button otherOptionsVariablesButton = new Button(local, SWT.NONE);
 				otherOptionsVariablesButton.setText(Messages.getString("DebuggerTab.gdbOtherOptionsVariable")); //$NON-NLS-1$
@@ -443,6 +445,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 		ModifyListener scheduleUpdateJobModifyListener = new ModifyListener()
 		{
+
 			@Override
 			public void modifyText(ModifyEvent e)
 			{
@@ -610,7 +613,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
 			local.setLayoutData(gd);
 			{
-				fGdbClientExecutable = new Text(local, SWT.SINGLE | SWT.BORDER);
+				fGdbClientExecutable = new TextWithButton(local, SWT.SINGLE | SWT.BORDER);
 				gd = new GridData(GridData.FILL_HORIZONTAL);
 				fGdbClientExecutable.setLayoutData(gd);
 

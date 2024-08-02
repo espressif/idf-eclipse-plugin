@@ -4,7 +4,6 @@
  *******************************************************************************/
 package com.espressif.idf.core.variable;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -31,6 +30,7 @@ public class OpenocdVariableResolver implements IDynamicVariableResolver
 {
 	private static final String OPENOCD_PREFIX = "com.espressif.idf.debug.gdbjtag.openocd"; //$NON-NLS-1$
 	private static final String INSTALL_FOLDER = "install.folder"; //$NON-NLS-1$
+	private static final String EXECUTABLE_NAME = "executable.name"; //$NON-NLS-1$
 
 	public String resolveValue(IDynamicVariable variable, String argument)
 	{
@@ -45,15 +45,16 @@ public class OpenocdVariableResolver implements IDynamicVariableResolver
 
 	private String resolveForOpenocdDynamicEnum(OpenocdDynamicVariable enumVariable)
 	{
+		ILaunchConfiguration configuration = getActiveLaunchConfiguration();
 		switch (enumVariable)
 		{
 		case OPENOCD_PATH:
-			ILaunchConfiguration configuration = getActiveLaunchConfiguration();
 			Path openocdBinPath = getOpenocdBinPath(configuration);
-			return openocdBinPath.getParent().toString();
+			return openocdBinPath.toString();
 
 		case OPENOCD_EXE:
-			return File.separator + "bin" + File.separator + "openocd"; //$NON-NLS-1$ //$NON-NLS-2$
+			Path openocdExe = getOpenocdExecutable(configuration);
+			return openocdExe.toString();
 
 		case OPENOCD_SCRIPTS:
 			return new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS);
@@ -84,5 +85,12 @@ public class OpenocdVariableResolver implements IDynamicVariableResolver
 		String installFolder = EclipseUtils.getPreferenceValueForId(OPENOCD_PREFIX, INSTALL_FOLDER, "", //$NON-NLS-1$
 				EclipseUtils.getProjectByLaunchConfiguration(configuration));
 		return Paths.get(installFolder);
+	}
+
+	protected Path getOpenocdExecutable(ILaunchConfiguration configuration)
+	{
+		String exectuableName = EclipseUtils.getPreferenceValueForId(OPENOCD_PREFIX, EXECUTABLE_NAME, "", //$NON-NLS-1$
+				EclipseUtils.getProjectByLaunchConfiguration(configuration));
+		return Paths.get(exectuableName);
 	}
 }
