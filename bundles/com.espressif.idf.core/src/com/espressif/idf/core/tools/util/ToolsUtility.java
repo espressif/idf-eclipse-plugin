@@ -37,6 +37,7 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.ToolsSystemWrapper;
 import com.espressif.idf.core.tools.vo.ToolsVO;
 import com.espressif.idf.core.util.FileUtil;
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 
 /**
@@ -318,7 +319,7 @@ public class ToolsUtility
 	{
 		if (StringUtil.isEmpty(path))
 		{
-			Map<String, String> env = System.getenv();
+			Map<String, String> env = IDFUtil.getSystemEnv();
 			if (env.containsKey(IDFEnvironmentVariables.PATH)) 
 				path = env.get(IDFEnvironmentVariables.PATH);
 			else

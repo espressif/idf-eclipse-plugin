@@ -247,7 +247,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 			}
 			Logger.log(cmdMsg);
 
-			Map<String, String> environment = new HashMap<>(System.getenv());
+			Map<String, String> environment = new HashMap<>(IDFUtil.getSystemEnv());
 			Logger.log(environment.toString());
 
 			IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT, environment);

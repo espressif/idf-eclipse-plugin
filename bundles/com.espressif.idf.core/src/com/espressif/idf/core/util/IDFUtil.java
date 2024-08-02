@@ -37,6 +37,7 @@ import org.osgi.service.prefs.BackingStoreException;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.IDFCorePreferenceConstants;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.SystemExecutableFinder;
@@ -728,7 +729,7 @@ public class IDFUtil
 				arguments.add("whereis"); //$NON-NLS-1$
 				arguments.add("git"); //$NON-NLS-1$
 
-				Map<String, String> environment = new HashMap<>(System.getenv());
+				Map<String, String> environment = new HashMap<>(getSystemEnv());
 
 				IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT,
 						environment);
@@ -759,5 +760,57 @@ public class IDFUtil
 			return WinNativeFileTagOperations.isReparseTagMicrosoft(reparseTag);
 		}
 		return false;
+	}
+	
+	public static String resolveEnvVariable(String path)
+	{
+		Pattern winEnvPattern = Pattern.compile("%(\\w+)%"); //$NON-NLS-1$
+		Pattern unixEnvPattern = Pattern.compile("\\$(\\w+)"); //$NON-NLS-1$
+		Matcher matcher;
+		if (Platform.getOS().equals(Platform.OS_WIN32))
+		{
+			matcher = winEnvPattern.matcher(path);
+		}
+		else
+		{
+			matcher = unixEnvPattern.matcher(path);
+		}
+
+		StringBuffer resolvedPath = new StringBuffer();
+		while (matcher.find())
+		{
+			String envVarName = matcher.group(1);
+			String envVarValue = System.getenv(envVarName);
+
+			if (envVarValue != null)
+			{
+				matcher.appendReplacement(resolvedPath, envVarValue.replace("\\", "\\\\")); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			else
+			{
+				// If the environment variable is not found, keep the original
+				matcher.appendReplacement(resolvedPath, matcher.group(0));
+			}
+		}
+		matcher.appendTail(resolvedPath);
+
+		return resolvedPath.toString();
+
+	}
+	
+	public static Map<String, String> getSystemEnv()
+	{
+		Map<String, String> env = new HashMap<String, String>(System.getenv());
+		String idfToolsPath = Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
+				IDFCorePreferenceConstants.IDF_TOOLS_PATH, IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT, null);
+		env.put(IDFCorePreferenceConstants.IDF_TOOLS_PATH, idfToolsPath);
+		return env;
+	}
+	
+	public static String getIDFToolsPathFromPreferences()
+	{
+		String idfToolsPath = Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
+				IDFCorePreferenceConstants.IDF_TOOLS_PATH, IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT, null);
+		return idfToolsPath;
 	}
 }

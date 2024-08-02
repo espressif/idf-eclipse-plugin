@@ -138,7 +138,7 @@ public abstract class ToolsJob extends Job
 	protected String replacePathVariable(String value)
 	{
 		// Get system PATH
-		Map<String, String> systemEnv = new HashMap<>(System.getenv());
+		Map<String, String> systemEnv = new HashMap<>(IDFUtil.getSystemEnv());
 		String pathEntry = systemEnv.get("PATH"); //$NON-NLS-1$
 		if (pathEntry == null)
 		{
@@ -207,7 +207,7 @@ public abstract class ToolsJob extends Job
 			}
 			Logger.log(cmdMsg);
 
-			Map<String, String> environment = new HashMap<>(System.getenv());
+			Map<String, String> environment = new HashMap<>(IDFUtil.getSystemEnv());
 			Logger.log(environment.toString());
 
 			IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT, environment);
@@ -348,7 +348,7 @@ public abstract class ToolsJob extends Job
 			console.println(cmdMsg);
 			Logger.log(cmdMsg);
 
-			Map<String, String> environment = new HashMap<>(System.getenv());
+			Map<String, String> environment = new HashMap<>(IDFUtil.getSystemEnv());
 			Logger.log(environment.toString());
 			environment.put("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
 			loadIdfPathWithSystemPath(environment);
@@ -468,7 +468,7 @@ public abstract class ToolsJob extends Job
 			console.println(cmdMsg);
 			Logger.log(cmdMsg);
 
-			Map<String, String> environment = new HashMap<>(System.getenv());
+			Map<String, String> environment = new HashMap<>(IDFUtil.getSystemEnv());
 			Logger.log(environment.toString());
 			environment.put("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
 			environment.put("IDF_GITHUB_ASSETS", //$NON-NLS-1$

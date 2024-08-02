@@ -14,11 +14,13 @@ import java.util.Map;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.IDFCorePreferenceConstants;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
@@ -46,7 +48,7 @@ public class ExportIDFTools
 		final String cmd = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments); //$NON-NLS-1$
 		log(cmd, console);
 
-		final Map<String, String> environment = new HashMap<>(System.getenv());
+		final Map<String, String> environment = new HashMap<>(IDFUtil.getSystemEnv());
 		if (gitExePath != null)
 		{
 			addGitToEnvironment(environment, gitExePath);
@@ -88,7 +90,7 @@ public class ExportIDFTools
 		final String cmd = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments); //$NON-NLS-1$
 		log(cmd, console);
 
-		final Map<String, String> environment = new HashMap<>(System.getenv());
+		final Map<String, String> environment = new HashMap<>(IDFUtil.getSystemEnv());
 		if (gitExePath != null)
 		{
 			addGitToEnvironment(environment, gitExePath);
@@ -126,11 +128,12 @@ public class ExportIDFTools
 		final String cmd = Messages.AbstractToolsHandler_ExecutingMsg + " " + getCommandString(arguments); //$NON-NLS-1$
 		log(cmd, console);
 
-		final Map<String, String> environment = new HashMap<>(System.getenv());
+		final Map<String, String> environment = new HashMap<>(IDFUtil.getSystemEnv());
 		if (gitExePath != null)
 		{
 			addGitToEnvironment(environment, gitExePath);
 		}
+		
 		final ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 		try
 		{
@@ -225,7 +228,7 @@ public class ExportIDFTools
 	private String replacePathVariable(String value)
 	{
 		// Get system PATH
-		Map<String, String> systemEnv = new HashMap<>(System.getenv());
+		Map<String, String> systemEnv = new HashMap<>(IDFUtil.getSystemEnv());
 		String pathEntry = systemEnv.get("PATH"); //$NON-NLS-1$
 		if (pathEntry == null)
 		{

@@ -25,21 +25,27 @@ public class EspToolCommands
 	public Process chipInformation(String port) throws Exception
 	{
 		destroyAnyChipInfoProcess();
-		chipInfoProcess = new ProcessBuilder(getChipInfoCommand(port)).start();
+		ProcessBuilder processBuilder = new ProcessBuilder(getChipInfoCommand(port));
+		processBuilder.environment().putAll(IDFUtil.getSystemEnv());
+		chipInfoProcess = processBuilder.start();
 		return chipInfoProcess;
 	}
 
 	public Process eraseFlash(String port) throws Exception
 	{
 		destroyAnyChipInfoProcess();
-		flashEraseProcess = new ProcessBuilder(getFlashEraseCommand(port)).start();
+		ProcessBuilder processBuilder = new ProcessBuilder(getFlashEraseCommand(port));
+		processBuilder.environment().putAll(IDFUtil.getSystemEnv());
+		flashEraseProcess = processBuilder.start();
 		return flashEraseProcess;
 	}
 
 	public Process writeFlash(String port, String path, String offset) throws IOException
 	{
 		destroyAnyChipInfoProcess();
-		writeFlashProcess = new ProcessBuilder(getWriteFlashCommand(port, path, offset)).start();
+		ProcessBuilder processBuilder = new ProcessBuilder(getWriteFlashCommand(port, path, offset));
+		processBuilder.environment().putAll(IDFUtil.getSystemEnv());
+		writeFlashProcess = processBuilder.start();
 		return writeFlashProcess;
 	}
 
