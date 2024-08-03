@@ -151,7 +151,7 @@ public class Launch extends GnuMcuLaunch
 				DefaultPreferences.GDB_SERVER_GDB_PORT_NUMBER_DEFAULT));
 		config.setAttribute(IGDBJtagConstants.ATTR_PORT_NUMBER, availableRemotePort);
 		
-		config.setAttribute(DebugPlugin.ATTR_PROCESS_FACTORY_ID, CustomIdfProcessFactory.ID);
+//		config.setAttribute(DebugPlugin.ATTR_PROCESS_FACTORY_ID, CustomIdfProcessFactory.ID);
 	}
 
 	// ------------------------------------------------------------------------
