@@ -14,5 +14,6 @@ Require-Bundle: org.eclipse.swt,
  org.eclipse.core.variables,
  org.eclipse.equinox.registry,
  com.espressif.idf.core,
- org.eclipse.core.runtime
+ org.eclipse.core.runtime,
+ org.eclipse.ui
 Bundle-ActivationPolicy: lazy
