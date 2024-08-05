@@ -89,8 +89,8 @@ public class OpenocdVariableResolver implements IDynamicVariableResolver
 
 	protected Path getOpenocdExecutable(ILaunchConfiguration configuration)
 	{
-		String exectuableName = EclipseUtils.getPreferenceValueForId(OPENOCD_PREFIX, EXECUTABLE_NAME, "", //$NON-NLS-1$
+		String executableName = EclipseUtils.getPreferenceValueForId(OPENOCD_PREFIX, EXECUTABLE_NAME, "", //$NON-NLS-1$
 				EclipseUtils.getProjectByLaunchConfiguration(configuration));
-		return Paths.get(exectuableName);
+		return Paths.get(executableName);
 	}
 }

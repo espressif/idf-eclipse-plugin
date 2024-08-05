@@ -74,10 +74,9 @@ public class JtagVariableResolver implements IDynamicVariableResolver
 				new DefaultBoardProvider().getDefaultBoard(targetName));
 		var boardConfigs = boardConfigMap.get(board);
 		var result = new StringBuilder();
-		var iterator = boardConfigs.iterator();
-		while (iterator.hasNext())
+		for (Object config : boardConfigs)
 		{
-			result.append(String.format("-f %s ", iterator.next()));//$NON-NLS-1$
+			result.append(String.format("-f %s ", config)); //$NON-NLS-1$
 		}
 		return result.toString();
 	}
