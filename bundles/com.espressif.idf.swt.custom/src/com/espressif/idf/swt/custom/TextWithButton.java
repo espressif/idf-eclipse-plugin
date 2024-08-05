@@ -1,4 +1,4 @@
-package com.espressif.idf.debug.gdbjtag.openocd.ui;
+package com.espressif.idf.swt.custom;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.variables.VariablesPlugin;
@@ -8,12 +8,15 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseTrackAdapter;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
@@ -41,9 +44,9 @@ public class TextWithButton
 		text = new Text(baseComposite, SWT.SINGLE);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		Image buttonShowImage = ImageDescriptor.createFromURL(getClass().getResource("/icons/obj16/show.png")) //$NON-NLS-1$
+		Image buttonShowImage = ImageDescriptor.createFromURL(getClass().getResource("/icons/show.png")) //$NON-NLS-1$
 				.createImage();
-		Image buttonHideImage = ImageDescriptor.createFromURL(getClass().getResource("/icons/obj16/hide.png")) //$NON-NLS-1$
+		Image buttonHideImage = ImageDescriptor.createFromURL(getClass().getResource("/icons/hide.png")) //$NON-NLS-1$
 				.createImage();
 
 		button = new Label(baseComposite, SWT.NONE);
@@ -99,6 +102,11 @@ public class TextWithButton
 		return text.getText();
 	}
 
+	public Control getControl()
+	{
+		return text;
+	}
+
 	public void setToolTipText(String trim)
 	{
 		text.setToolTipText(trim);
@@ -126,5 +134,17 @@ public class TextWithButton
 	{
 		text.setEnabled(enabled);
 		button.setEnabled(enabled);
+	}
+
+	public void setParent(Group group)
+	{
+		baseComposite.setParent(group);
+
+	}
+
+	public void addTraverseListener(TraverseListener traverseListener)
+	{
+		baseComposite.addTraverseListener(traverseListener);
+
 	}
 }

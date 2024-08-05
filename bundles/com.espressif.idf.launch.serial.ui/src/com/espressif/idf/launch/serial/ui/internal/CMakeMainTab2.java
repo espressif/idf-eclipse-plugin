@@ -73,6 +73,8 @@ import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.core.variable.JtagDynamicVariable;
 import com.espressif.idf.core.variable.OpenocdDynamicVariable;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
+import com.espressif.idf.swt.custom.StyledInfoText;
+import com.espressif.idf.swt.custom.TextWithButton;
 import com.espressif.idf.ui.EclipseUtil;
 
 @SuppressWarnings("restriction")
@@ -88,13 +90,10 @@ public class CMakeMainTab2 extends GenericMainTab
 	private Composite mainComposite;
 	private EnumMap<FlashInterface, List<Composite>> switchComposites = new EnumMap<>(FlashInterface.class);
 	private EnumMap<FlashInterface, List<GridData>> switchGridDatas = new EnumMap<>(FlashInterface.class);
-	private Text uartAgrumentsField;
-	private Text jtagArgumentsField;
-	private Text dfuArgumentsField;
+  private TextWithButton uartAgrumentsField;
+  private TextWithButton jtagArgumentsField;
+  private TextWithButton dfuArgumentsField;
 	private Label dfuErrorLbl;
-	private Combo comboTargets;
-	private ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
-	private ILaunchTargetManager targetManager = Activator.getService(ILaunchTargetManager.class);
 	private Button checkOpenSerialMonitorButton;
 	private Combo fEncodingCombo;
 
@@ -119,6 +118,11 @@ public class CMakeMainTab2 extends GenericMainTab
 		GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
 		mainComposite.setLayout(layout);
 		mainComposite.setLayoutData(gridData);
+		StyledInfoText styledInfoText = new StyledInfoText(mainComposite);
+		styledInfoText.setMouseListenerAction(() -> {
+			initializeFromDefaults();
+			scheduleUpdateJob();
+		});
 
 		isJtagFlashAvailable = ESPFlashUtil.checkIfJtagIsAvailable();
 		setControl(mainComposite);
@@ -145,7 +149,7 @@ public class CMakeMainTab2 extends GenericMainTab
 	 *
 	 * @param parent the composite to create the controls in
 	 */
-	protected void createArgumentComponent(Composite parent, Text argumentField)
+	protected void createArgumentComponent(Composite parent, TextWithButton argumentField)
 	{
 		Group group = new Group(parent, SWT.NONE);
 		String groupName = Messages.CMakeMainTab2_Arguments;
@@ -167,10 +171,9 @@ public class CMakeMainTab2 extends GenericMainTab
 
 		gridData = new GridData(GridData.FILL_BOTH);
 		gridData.widthHint = IDialogConstants.ENTRY_FIELD_WIDTH;
-		gridData.heightHint = 100;
 		argumentField.setLayoutData(gridData);
 		argumentField.addModifyListener(fListener);
-		addControlAccessibleListener(argumentField, group.getText());
+		addControlAccessibleListener(argumentField.getControl(), group.getText());
 
 		Composite composite = new Composite(group, SWT.NONE);
 		layout = new GridLayout();
@@ -190,7 +193,7 @@ public class CMakeMainTab2 extends GenericMainTab
 		instruction.setLayoutData(gridData);
 	}
 
-	private void handleVariablesButtonSelected(Text textField)
+	private void handleVariablesButtonSelected(TextWithButton textField)
 	{
 		String variable = getVariable();
 		if (variable != null)
@@ -227,7 +230,7 @@ public class CMakeMainTab2 extends GenericMainTab
 		locationField.getParent().setLayoutData(locationAndWorkDirGroupData);
 		workDirectoryField.getParent().setLayoutData(locationAndWorkDirGroupData);
 
-		uartAgrumentsField = new Text(parent, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
+		uartAgrumentsField = new TextWithButton(parent, SWT.WRAP | SWT.BORDER);
 
 		createArgumentComponent(defaultComposite, uartAgrumentsField);
 		createVerticalSpacer(defaultComposite, 1);
@@ -249,7 +252,7 @@ public class CMakeMainTab2 extends GenericMainTab
 		jtagComposite.setLayout(layout);
 		jtagComposite.setLayoutData(jtagCompositeGridData);
 
-		jtagArgumentsField = new Text(parent, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
+		jtagArgumentsField = new TextWithButton(parent, SWT.WRAP | SWT.BORDER);
 		createArgumentComponent(jtagComposite, jtagArgumentsField);
 		createVerticalSpacer(jtagComposite, 1);
 	}
@@ -275,7 +278,7 @@ public class CMakeMainTab2 extends GenericMainTab
 	{
 		Composite dfuComposite = createDfuComposite(parent);
 
-		dfuArgumentsField = new Text(parent, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
+		dfuArgumentsField = new TextWithButton(parent, SWT.WRAP | SWT.BORDER);
 		createArgumentComponent(dfuComposite, dfuArgumentsField);
 		createVerticalSpacer(dfuComposite, 1);
 	}
@@ -762,4 +765,10 @@ public class CMakeMainTab2 extends GenericMainTab
 		}
 	}
 
+	private void initializeFromDefaults()
+	{
+		uartAgrumentsField.setText(ESPFlashUtil.getParseableEspFlashCommand(ESPFlashUtil.SERIAL_PORT));
+		jtagArgumentsField.setText(DEFAULT_JTAG_CONFIG_OPTIONS);
+		dfuArgumentsField.setText(DfuCommandsUtil.getDfuFlashCommand());
+	}
 }
