@@ -1,4 +1,4 @@
-package com.espressif.idf.debug.gdbjtag.openocd.ui;
+package com.espressif.idf.swt.custom;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
@@ -16,17 +16,18 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 
+import com.espressif.idf.swt.messages.Messages;
+
 public class StyledInfoText
 {
+	private static final String IMAGE_CODE = "\uFFFC"; //$NON-NLS-1$
 	private StyledText styledText;
 	private String text;
 	private StyleRange linkStyleRange;
 
 	public StyledInfoText(Composite parent)
 	{
-		text = String.format(
-				"%1$s Text fields with an icon %1$s use dynamic variables. Click %1$s to see actual values. If the configuration is from an older version, click %2$s to populate fields with dynamic variables.",
-				"\uFFFC", "Restore defaults");
+		text = String.format(Messages.styledTextInfoDefaultMsg, IMAGE_CODE, Messages.styledTextRestoreDefaultsLinkMsg);
 
 		styledText = new StyledText(parent, SWT.WRAP | SWT.MULTI | SWT.READ_ONLY);
 		var gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -36,7 +37,8 @@ public class StyledInfoText
 		styledText.setBackground(grayColor);
 		styledText.setText(text);
 
-		linkStyleRange = new StyleRange(text.indexOf("Restore defaults"), "Restore defaults".length(), null, null);
+		linkStyleRange = new StyleRange(text.indexOf(Messages.styledTextRestoreDefaultsLinkMsg),
+				Messages.styledTextRestoreDefaultsLinkMsg.length(), null, null);
 		linkStyleRange.underline = true;
 		linkStyleRange.underlineStyle = SWT.UNDERLINE_LINK;
 		styledText.setStyleRange(linkStyleRange);
@@ -68,15 +70,16 @@ public class StyledInfoText
 
 	private void addAllListeners()
 	{
-		Image buttonShowImage = ImageDescriptor.createFromURL(getClass().getResource("/icons/obj16/show.png")) //$NON-NLS-1$
+		Image buttonShowImage = ImageDescriptor.createFromURL(getClass().getResource("/icons/show.png")) //$NON-NLS-1$
 				.createImage();
-		Image infoButtonImage = JFaceResources.getImage("dialog_messasge_info_image");
+		Image infoButtonImage = ImageDescriptor.createFromImage(JFaceResources.getImage("dialog_messasge_info_image")) //$NON-NLS-1$
+				.createImage();
 		Image[] images = new Image[] { infoButtonImage, buttonShowImage, buttonShowImage };
 		int[] offsets = new int[images.length];
 		int lastOffset = 0;
 		for (int i = 0; i < images.length; i++)
 		{
-			int offset = text.indexOf("\uFFFC", lastOffset);
+			int offset = text.indexOf(IMAGE_CODE, lastOffset);
 			offsets[i] = offset;
 			addImage(images[i], offset, styledText);
 			lastOffset = offset + 1;

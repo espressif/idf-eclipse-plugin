@@ -70,6 +70,8 @@ import com.espressif.idf.debug.gdbjtag.openocd.preferences.PersistentPreferences
 import com.espressif.idf.debug.gdbjtag.openocd.ui.preferences.GlobalMcuPage;
 import com.espressif.idf.debug.gdbjtag.openocd.ui.preferences.WorkspaceMcuPage;
 import com.espressif.idf.debug.gdbjtag.openocd.ui.properties.ProjectMcuPage;
+import com.espressif.idf.swt.custom.StyledInfoText;
+import com.espressif.idf.swt.custom.TextWithButton;
 
 /**
  * @since 7.0
@@ -1023,6 +1025,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 		{
 			fDoStartGdbClient.setSelection(DefaultPreferences.DO_START_GDB_CLIENT_DEFAULT);
 
+			fGdbClientExecutable.setText(DefaultPreferences.GDB_CLIENT_EXECUTABLE_DEFAUTL);
 			// Other options
 			fGdbClientOtherOptions.setText(DefaultPreferences.GDB_CLIENT_OTHER_OPTIONS_DEFAULT);
 
