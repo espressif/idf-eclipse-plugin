@@ -30,6 +30,7 @@
 		<module>com.espressif.idf.serial.monitor</module>
 		<module>com.espressif.idf.wokwi</module>
 		<module>com.espressif.idf.lsp</module>
+		<module>com.espressif.idf.swt.custom</module>
 	</modules>
 
 	<build>
