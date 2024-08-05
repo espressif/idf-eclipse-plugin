@@ -49,7 +49,7 @@ public class ConfigServerManager
 			jsonConfigServer.start();
 			return jsonConfigServer;
 		}
-		
+
 		return jsonConfigServer;
 	}
 	
@@ -72,13 +72,14 @@ public class ConfigServerManager
 	        if (o == null || getClass() != o.getClass()) return false;
 	        ProjectFileMapKey that = (ProjectFileMapKey) o;
 	        
-	        return project.getName().equals(that.project.getName()) && file.getName().equals(that.file.getName());
+			return project.getName().equals(that.project.getName())
+					&& file.getLocation().equals(that.file.getLocation());
 	    }
 		
 		@Override
 		public int hashCode()
 		{
-			return Objects.hash(project.getName(), file.getName());
+			return Objects.hash(project.getName(), file.getLocation());
 		}
 	}
 }

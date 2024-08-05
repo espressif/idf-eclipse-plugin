@@ -66,5 +66,4 @@ public class LspService
 					metadata.queryDriver().defaultValue());
 		}
 	}
-
 }

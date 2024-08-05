@@ -21,6 +21,10 @@ public class Messages extends NLS
 	public static String EspressifPreferencesPage_ToolsInstallationGrpTxt;
 	public static String EspressifPreferencesPage_ToolsInstallationGitAssetUrlLabel;
 	public static String EspressifPreferencesPage_ToolsInstallationPythonPyWheelUrlLabel;
+	public static String EspressifPreferencesPage_EspIdfToolsInstallationDirectoryLabel;
+	public static String EspressifPreferencesPage_DirectorySelectionIDFToolsPathMessage;
+	public static String EspressifPreferencesPage_DirectorySelectionIDFToolsPathTitle;
+	public static String EspressifPreferencesPage_DirectorySelectionIDFToolsPathBrowseButton;
 	
 	static
 	{

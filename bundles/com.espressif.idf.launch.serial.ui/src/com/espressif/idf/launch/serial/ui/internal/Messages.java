@@ -17,7 +17,8 @@ package com.espressif.idf.launch.serial.ui.internal;
 
 import org.eclipse.osgi.util.NLS;
 
-public class Messages extends NLS {
+public class Messages extends NLS
+{
 	private static final String BUNDLE_NAME = "com.espressif.idf.launch.serial.ui.internal.messages"; //$NON-NLS-1$
 	public static String NewSerialFlashTargetWizard_Title;
 	public static String NewSerialFlashTargetWizardPage_Description;
@@ -47,17 +48,22 @@ public class Messages extends NLS {
 	public static String IDFLaunchTargetNotFoundMsg2;
 	public static String IDFLaunchTargetNotFoundIDFLaunchTargetNotFoundTitle;
 	public static String IDFLaunchTargetNotFoundMsg3;
+	public static String CMakeMainTab2_SerialMonitorBtn;
+	public static String CMakeMainTab2_SerialMonitorGroup;
+	public static String CMakeMainTab2_SerialMonitorEncodingLbl;
 
 	public static String TargetPortUpdatingMessage;
 	public static String TargetPortInformationMessage;
 	public static String TargetPortFoundMessage;
 	public static String TargetPortNotFoundMessage;
 
-	static {
+	static
+	{
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
 	}
 
-	private Messages() {
+	private Messages()
+	{
 	}
 }

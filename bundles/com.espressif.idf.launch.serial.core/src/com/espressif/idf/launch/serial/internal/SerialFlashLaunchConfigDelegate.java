@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -47,6 +48,8 @@ import org.eclipse.launchbar.core.target.launch.ITargetedLaunch;
 import org.eclipse.launchbar.ui.internal.Activator;
 import org.eclipse.launchbar.ui.target.ILaunchTargetUIManager;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.tm.terminal.view.core.interfaces.constants.ITerminalsConnectorConstants;
+import org.eclipse.ui.WorkbenchEncoding;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
@@ -58,6 +61,8 @@ import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.RecheckConfigsHelper;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
+import com.espressif.idf.terminal.connector.serial.connector.SerialSettings;
+import com.espressif.idf.terminal.connector.serial.launcher.SerialLauncherDelegate;
 
 /**
  * Flashing into esp32 board
@@ -183,6 +188,31 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		String[] envArray = strings.toArray(new String[strings.size()]);
 		Process p = DebugPlugin.exec(commands.toArray(new String[0]), workingDir, envArray);
 		DebugPlugin.newProcess(launch, p, String.join(" ", commands)); //$NON-NLS-1$
+
+		try
+		{
+			p.waitFor();
+		}
+		catch (InterruptedException e)
+		{
+			Thread.currentThread().interrupt();
+			Logger.log(e);
+		}
+		if (configuration.getAttribute(IDFLaunchConstants.OPEN_SERIAL_MONITOR, true))
+			openSerialMonitor(configuration);
+
+	}
+
+	private void openSerialMonitor(ILaunchConfiguration configuration) throws CoreException
+	{
+		Map<String, Object> map = new HashMap<>();
+		map.put("delegateId", "com.espressif.idf.terminal.connector.serial.launcher.serial"); //$NON-NLS-1$//$NON-NLS-2$
+		map.put(SerialSettings.PORT_NAME_ATTR, serialPort);
+		map.put("idf.monitor.project", configuration.getMappedResources()[0].getName()); //$NON-NLS-1$
+		map.put(ITerminalsConnectorConstants.PROP_ENCODING, configuration.getAttribute(
+				IDFLaunchConstants.SERIAL_MONITOR_ENCODING, WorkbenchEncoding.getWorkbenchDefaultEncoding()));
+		map.put(ITerminalsConnectorConstants.PROP_FORCE_NEW, Boolean.FALSE);
+		new SerialLauncherDelegate().execute(map, null);
 	}
 
 	private boolean checkIfPortIsEmpty(ILaunchConfiguration configuration)
