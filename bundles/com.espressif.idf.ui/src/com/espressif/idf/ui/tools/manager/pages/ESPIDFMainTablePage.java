@@ -36,7 +36,6 @@ import org.eclipse.swt.widgets.TableItem;
 import com.espressif.idf.core.tools.ToolSetConfigurationManager;
 import com.espressif.idf.core.tools.vo.IDFToolSet;
 import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.ui.LaunchBarListener;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.install.IDFNewToolsWizard;
 import com.espressif.idf.ui.tools.Messages;
