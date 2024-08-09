@@ -27,11 +27,6 @@ import com.espressif.idf.core.toolchain.ESPToolChainManager;
  */
 public class SerialFlashLaunchTargetProvider implements ILaunchTargetProvider
 {
-
-	public static final String ATTR_SERIAL_PORT = "com.espressif.idf.launch.serial.core.serialPort"; //$NON-NLS-1$
-
-	public static final String ATTR_IDF_TARGET = "com.espressif.idf.launch.serial.core.idfTarget"; //$NON-NLS-1$
-
 	@Override
 	public void init(ILaunchTargetManager targetManager)
 	{

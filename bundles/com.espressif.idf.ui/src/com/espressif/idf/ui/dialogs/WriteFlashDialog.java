@@ -35,6 +35,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.BigIntDecoder;
 import com.espressif.idf.core.util.EspToolCommands;
@@ -42,7 +43,6 @@ import com.espressif.idf.core.util.StringUtil;
 
 public class WriteFlashDialog extends TitleAreaDialog
 {
-	private static final String ATTR_SERIAL_PORT = "com.espressif.idf.launch.serial.core.serialPort"; //$NON-NLS-1$
 	private static final String DEFAULT_BIN_NAME = "nvs.bin"; //$NON-NLS-1$
 	private static final String DEFAULT_OFFSET = "0x8000"; //$NON-NLS-1$
 	private static final String[] EXTENSIONS = new String[] { "*.bin" }; //$NON-NLS-1$
@@ -150,13 +150,13 @@ public class WriteFlashDialog extends TitleAreaDialog
 		offsetText.setText(DEFAULT_OFFSET);
 		ISelection selection = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService()
 				.getSelection();
-		if (selection instanceof IStructuredSelection)
+		if (selection instanceof IStructuredSelection sel)
 		{
-			Object element = ((IStructuredSelection) selection).getFirstElement();
+			Object element = sel.getFirstElement();
 
-			if (element instanceof IResource)
+			if (element instanceof IResource elem)
 			{
-				project = ((IResource) element).getProject();
+				project = elem.getProject();
 			}
 		}
 		String defaultPathToBin = project.getFile(DEFAULT_BIN_NAME).getLocation().toOSString();
@@ -173,8 +173,8 @@ public class WriteFlashDialog extends TitleAreaDialog
 		ILaunchBarManager barManager = IDFCorePlugin.getService(ILaunchBarManager.class);
 		try
 		{
-			String serialPortFromTarget = barManager.getActiveLaunchTarget().getAttribute(ATTR_SERIAL_PORT,
-					StringUtil.EMPTY);
+			String serialPortFromTarget = barManager.getActiveLaunchTarget()
+					.getAttribute(LaunchBarTargetConstants.SERIAL_PORT, StringUtil.EMPTY);
 			comPortsCombo.setText(serialPortFromTarget);
 			if (!serialPortFromTarget.isEmpty())
 			{

@@ -31,8 +31,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.actions.test.TestableApplyTargetJob.TestableApplyTargetJobException;
-import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.util.StringUtil;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -91,9 +91,8 @@ class ApplyTargetJobTest
 	{
 		// Available ILaunchTargets in provided by mocked target manager
 		ILaunchTarget target = Mockito.mock(ILaunchTarget.class);
-		when(target.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY))
-				.thenReturn(EXPECTED_TARGET_NAME);
-		when(target.getAttribute(IDFLaunchConstants.ATTR_SERIAL_PORT, StringUtil.EMPTY)).thenReturn(SERIAL_PORT);
+		when(target.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY)).thenReturn(EXPECTED_TARGET_NAME);
+		when(target.getAttribute(LaunchBarTargetConstants.SERIAL_PORT, StringUtil.EMPTY)).thenReturn(SERIAL_PORT);
 		when(targetManager.getLaunchTargetsOfType(Mockito.anyString())).thenReturn(new ILaunchTarget[] { target });
 
 		// Mocked LaunchBarManager has the active launch target with expected target name
@@ -114,9 +113,8 @@ class ApplyTargetJobTest
 		ILaunchTarget target = mock(ILaunchTarget.class);
 		ILaunchConfiguration launchConfiguration = mock(ILaunchConfiguration.class);
 
-		when(target.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY))
-				.thenReturn(EXPECTED_TARGET_NAME);
-		when(target.getAttribute(IDFLaunchConstants.ATTR_SERIAL_PORT, StringUtil.EMPTY)).thenReturn(SERIAL_PORT);
+		when(target.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY)).thenReturn(EXPECTED_TARGET_NAME);
+		when(target.getAttribute(LaunchBarTargetConstants.SERIAL_PORT, StringUtil.EMPTY)).thenReturn(SERIAL_PORT);
 		when(launchConfiguration.getAttribute(eq(TARGET_NAME_ATTR), anyString())).thenReturn(NOT_EXISTING_TARGET_NAME);
 		when(launchBarManager.getActiveLaunchConfiguration()).thenReturn(launchConfiguration);
 		when(launchBarManager.getActiveLaunchTarget()).thenReturn(target);

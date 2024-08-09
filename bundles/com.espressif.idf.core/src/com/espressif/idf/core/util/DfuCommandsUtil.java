@@ -28,6 +28,7 @@ import org.eclipse.ui.PlatformUI;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFDynamicVariables;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 
@@ -37,6 +38,10 @@ public class DfuCommandsUtil
 	public static final String DFU_COMMAND = "com.espressif.idf.ui.command.dfu"; //$NON-NLS-1$
 	private static final String[] SUPPORTED_TARGETS = { "esp32s2", "esp32s3" }; //$NON-NLS-1$ //$NON-NLS-2$
 	private static final String DFU_FLASH_COMMAND = "dfu-flash"; //$NON-NLS-1$
+
+	private DfuCommandsUtil()
+	{
+	}
 
 	public static String[] getSupportedTargets()
 	{
@@ -61,16 +66,11 @@ public class DfuCommandsUtil
 	public static boolean isDfuSupported(ILaunchTarget launchTarget)
 	{
 		boolean isDfuSupported = isTargetSupportDfu(launchTarget);
-		Display.getDefault().asyncExec(new Runnable()
-		{
-			@Override
-			public void run()
+		Display.getDefault().asyncExec(() -> {
+			if (!isDfuSupported)
 			{
-				if (!isDfuSupported)
-				{
-					MessageDialog.openWarning(getShell(), Messages.DfuWarningDialog_Title,
-							Messages.DfuWarningDialog_WrongTargterMsg);
-				}
+				MessageDialog.openWarning(getShell(), Messages.DfuWarningDialog_Title,
+						Messages.DfuWarningDialog_WrongTargterMsg);
 			}
 		});
 		return isDfuSupported;
@@ -78,8 +78,7 @@ public class DfuCommandsUtil
 
 	public static boolean isTargetSupportDfu(ILaunchTarget launchTarget)
 	{
-		String targetName = launchTarget.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET,
-				StringUtil.EMPTY);
+		String targetName = launchTarget.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY);
 		return Arrays.stream(SUPPORTED_TARGETS).anyMatch(target -> target.contentEquals(targetName));
 	}
 

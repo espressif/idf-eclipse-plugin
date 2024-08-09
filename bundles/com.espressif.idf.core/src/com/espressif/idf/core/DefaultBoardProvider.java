@@ -8,6 +8,7 @@ import java.util.OptionalInt;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import com.espressif.idf.core.util.EspConfigParser;
 import com.espressif.idf.core.util.StringUtil;
 
 public class DefaultBoardProvider
@@ -15,6 +16,7 @@ public class DefaultBoardProvider
 	private static final int DEFAULT_BOARD_EMPTY_INDEX = 0;
 	private static final String ESP32C3_DEFAULT_BOARD = "ESP32-C3 chip (via builtin USB-JTAG)"; //$NON-NLS-1$
 	private static final String ESP32S3_DEFAULT_BOARD = "ESP32-S3 chip (via builtin USB-JTAG)"; //$NON-NLS-1$
+	private EspConfigParser espConfigParser;
 
 	private enum EspTarget
 	{
@@ -34,7 +36,12 @@ public class DefaultBoardProvider
 		}
 
 	}
-	
+
+	public DefaultBoardProvider()
+	{
+		this.espConfigParser = new EspConfigParser();
+	}
+
 	public int getIndexOfDefaultBoard(String targetName, String[] boardsForTarget)
 	{
 		String defaultBoard = EspTarget.enumOf(targetName).board;
@@ -43,6 +50,13 @@ public class DefaultBoardProvider
 				.filter(i -> defaultBoard.equals(boardsForTarget[i])).findFirst();
 
 		return index.orElse(DEFAULT_BOARD_EMPTY_INDEX);
+	}
+
+	public String getDefaultBoard(String targetName)
+	{
+		var boardConfigMap = this.espConfigParser.getBoardsConfigs(targetName);
+		var boards = boardConfigMap.keySet().toArray(new String[0]);
+		return boards[getIndexOfDefaultBoard(targetName, boards)];
 	}
 
 }

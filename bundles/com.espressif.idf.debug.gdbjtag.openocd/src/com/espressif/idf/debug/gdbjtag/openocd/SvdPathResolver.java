@@ -23,7 +23,7 @@ import org.eclipse.embedcdt.core.EclipseUtils;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 
 import com.espressif.idf.core.IDFConstants;
-import com.espressif.idf.core.build.IDFLaunchConstants;
+import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.ui.TabSvdTarget;
@@ -45,7 +45,7 @@ public class SvdPathResolver implements IDynamicVariableResolver
 		String selectedTargetPath = StringUtil.EMPTY;
 		try
 		{
-			selectedTarget = LAUNCH_BAR_MANAGER.getActiveLaunchTarget().getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET,
+			selectedTarget = LAUNCH_BAR_MANAGER.getActiveLaunchTarget().getAttribute(LaunchBarTargetConstants.TARGET,
 					StringUtil.EMPTY);
 			if (StringUtil.isEmpty(selectedTarget))
 				return StringUtil.EMPTY;
@@ -97,6 +97,5 @@ public class SvdPathResolver implements IDynamicVariableResolver
 		project.refreshLocal(IProject.DEPTH_INFINITE, new NullProgressMonitor());
 		return svdFile.getRawLocation().toOSString();
 	}
-
 
 }
