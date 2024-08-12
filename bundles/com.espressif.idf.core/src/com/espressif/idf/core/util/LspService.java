@@ -4,13 +4,12 @@
  *******************************************************************************/
 package com.espressif.idf.core.util;
 
-import java.io.IOException;
 import java.util.stream.Stream;
 
-import org.eclipse.cdt.lsp.LspUtils;
 import org.eclipse.cdt.lsp.clangd.ClangdConfiguration;
 import org.eclipse.cdt.lsp.clangd.ClangdMetadata;
-import org.eclipse.cdt.lsp.editor.Configuration;
+import org.eclipse.cdt.lsp.config.Configuration;
+import org.eclipse.cdt.lsp.util.LspUtils;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.lsp4e.LanguageServerWrapper;
 import org.eclipse.ui.PlatformUI;
@@ -41,7 +40,7 @@ public class LspService
 			{
 				w.restart();
 			}
-			catch (IOException e)
+			catch (Exception e)
 			{
 				Logger.log(e);
 			}
