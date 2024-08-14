@@ -403,9 +403,11 @@ public class IDFDownloadPage extends WizardPage
 				setPageComplete(false);
 				return;
 			}
-			if (idfPath.contains(" ")) //$NON-NLS-1$
+			
+			String version = getIdfVersionUsingGit(idfPath);
+			
+			if (idfPath.contains(" ") && !StringUtil.isEmpty(version)) //$NON-NLS-1$
 			{
-				String version = getIdfVersionUsingGit(idfPath);
 				boolean validVersion = isVersionGreaterOrEqual(version, "5.0.0"); //$NON-NLS-1$
 				if (!validVersion)
 				{
