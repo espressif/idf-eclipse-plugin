@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -37,31 +38,37 @@ public class ClangdConfigFileHandler
 		File file = getClangdConfigFile(project);
 
 		// Load existing clangd file
-		FileInputStream inputStream = new FileInputStream(file);
-		Yaml yaml = new Yaml();
-		Object obj = yaml.load(inputStream);
-
-		// Create new YAML structure if file is empty
-		Map<String, Object> data = createOrGetExistingYamlStructure(obj);
-
-		// Add or update CompileFlags section
-		Map<String, Object> compileFlags = (Map<String, Object>) data.get("CompileFlags"); //$NON-NLS-1$
-		if (compileFlags == null)
+		try (FileInputStream inputStream = new FileInputStream(file))
 		{
-			compileFlags = new LinkedHashMap<>();
-			data.put("CompileFlags", compileFlags); //$NON-NLS-1$
-		}
-		updateCompileFlagsSection(compileFlags, project
-				.getPersistentProperty(new QualifiedName(IDFCorePlugin.PLUGIN_ID, IDFConstants.BUILD_DIR_PROPERTY)));
+			Yaml yaml = new Yaml();
+			Object obj = yaml.load(inputStream);
 
-		// Write updated clangd back to file
-		try (Writer writer = new FileWriter(file))
-		{
-			yaml.dump(data, writer);
+			// Create new YAML structure if file is empty
+			Map<String, Object> data = createOrGetExistingYamlStructure(obj);
+
+			// Add or update CompileFlags section
+			Map<String, Object> compileFlags = (Map<String, Object>) data.get("CompileFlags"); //$NON-NLS-1$
+			if (compileFlags == null)
+			{
+				compileFlags = new LinkedHashMap<>();
+				data.put("CompileFlags", compileFlags); //$NON-NLS-1$
+			}
+			updateCompileFlagsSection(compileFlags, project.getPersistentProperty(
+					new QualifiedName(IDFCorePlugin.PLUGIN_ID, IDFConstants.BUILD_DIR_PROPERTY)));
+
+			// Write updated clangd back to file
+			try (Writer writer = new FileWriter(file, StandardCharsets.UTF_8))
+			{
+				yaml.dump(data, writer);
+			}
+			catch (IOException e)
+			{
+				throw new IOException("Error writing .clangd file: " + e.getMessage(), e); //$NON-NLS-1$
+			}
 		}
 		catch (IOException e)
 		{
-			throw new IOException("Error writing .clangd file: " + e.getMessage(), e); //$NON-NLS-1$
+			throw new IOException("Error reading .clangd file: " + e.getMessage(), e); //$NON-NLS-1$
 		}
 	}
 
