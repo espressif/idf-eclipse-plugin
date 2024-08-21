@@ -48,8 +48,19 @@ public class RunActionHandler extends LaunchActiveCommandHandler
 		{
 			ILaunchBarManager launchBarManager = UIPlugin.getService(ILaunchBarManager.class);
 			new StopLaunchBuildHandler().stop();
+
 			ILaunchConfiguration config = launchBarManager.getActiveLaunchConfiguration();
 			if (config == null)
+			{
+				return Status.OK_STATUS;
+			}
+
+			boolean isEspLaunchConfig = config.getType().getIdentifier()
+					.contentEquals(IDFLaunchConstants.RUN_LAUNCH_CONFIG_TYPE);
+			boolean isEspDebugConfig = config.getType().getIdentifier()
+					.contentEquals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE);
+
+			if (!isEspLaunchConfig && !isEspDebugConfig)
 			{
 				return Status.OK_STATUS;
 			}
@@ -74,8 +85,7 @@ public class RunActionHandler extends LaunchActiveCommandHandler
 				}
 				return Status.CANCEL_STATUS;
 			}
-			if (launchMode.getIdentifier().equals(ILaunchManager.DEBUG_MODE)
-					&& config.getType().getIdentifier().contentEquals(IDFLaunchConstants.RUN_LAUNCH_CONFIG_TYPE))
+			if (launchMode.getIdentifier().equals(ILaunchManager.DEBUG_MODE) && isEspLaunchConfig)
 			{
 				List<String> suitableDescNames = findSuitableDescNames(projectName,
 						IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE);
@@ -86,8 +96,7 @@ public class RunActionHandler extends LaunchActiveCommandHandler
 				}
 				returnCode = runActionBasedOnDescCount(launchBarManager, suitableDescNames);
 			}
-			else if (launchMode.getIdentifier().equals(ILaunchManager.RUN_MODE)
-					&& config.getType().getIdentifier().contentEquals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
+			else if (launchMode.getIdentifier().equals(ILaunchManager.RUN_MODE) && isEspDebugConfig)
 			{
 				List<String> suitableDescNames = findSuitableDescNames(projectName,
 						IDFLaunchConstants.RUN_LAUNCH_CONFIG_TYPE);
