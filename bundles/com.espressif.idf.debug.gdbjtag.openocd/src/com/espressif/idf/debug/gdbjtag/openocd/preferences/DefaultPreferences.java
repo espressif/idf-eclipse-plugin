@@ -57,7 +57,7 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 	public static final boolean DO_GDB_SERVER_ALLOCATE_TELNET_CONSOLE_DEFAULT = false;
 
 	public static final boolean DO_START_GDB_CLIENT_DEFAULT = true;
-	public static final String GDB_CLIENT_EXECUTABLE_DEFAUTL = String.format("${%s}", //$NON-NLS-1$
+	public static final String GDB_CLIENT_EXECUTABLE_DYNAMIC_DEFAULT = String.format("${%s}", //$NON-NLS-1$
 			GdbClientDynamicVariable.GDB_CLIENT_EXECUTABLE);
 	public static final String GDB_CLIENT_OTHER_OPTIONS_DEFAULT = ""; //$NON-NLS-1$
 
