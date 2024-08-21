@@ -18,7 +18,6 @@ import java.io.File;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -63,7 +62,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.ide.IDEEncoding;
-import org.json.simple.JSONArray;
 
 import com.espressif.idf.core.IDFDynamicVariables;
 import com.espressif.idf.core.build.IDFLaunchConstants;
@@ -90,10 +88,9 @@ public class CMakeMainTab2 extends GenericMainTab
 	private Composite mainComposite;
 	private EnumMap<FlashInterface, List<Composite>> switchComposites = new EnumMap<>(FlashInterface.class);
 	private EnumMap<FlashInterface, List<GridData>> switchGridDatas = new EnumMap<>(FlashInterface.class);
-  private TextWithButton uartAgrumentsField;
-  private TextWithButton jtagArgumentsField;
-  private TextWithButton dfuArgumentsField;
-	private Label dfuErrorLbl;
+	private TextWithButton uartAgrumentsField;
+	private TextWithButton jtagArgumentsField;
+	private TextWithButton dfuArgumentsField;
 	private Button checkOpenSerialMonitorButton;
 	private Combo fEncodingCombo;
 
@@ -129,7 +126,6 @@ public class CMakeMainTab2 extends GenericMainTab
 		createJtagFlashButton(mainComposite);
 		createOpenSerialMonitorGroup(mainComposite);
 		createProjectGroup(mainComposite, 0);
-		createDfuTargetComposite(mainComposite);
 		createUartComposite(mainComposite);
 		createJtagflashComposite(mainComposite);
 		createDfuArgumentField(mainComposite);
