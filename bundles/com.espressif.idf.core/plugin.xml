@@ -301,6 +301,14 @@ config-only component and an interface library is created instead."
            id="riscv32-esp-elf"
            name="esp32h2">
      </ToolChain>
+          <ToolChain
+                arch="riscv32"
+                compilerPattern="riscv32-esp-elf[\\/]+bin[\\/]+riscv32-esp-elf-gcc(?:\.exe)?$"
+                debuggerPattern="riscv32-esp-elf-gdb(\.exe)?$"
+                fileName="toolchain-esp32p4.cmake"
+                id="riscv32-esp-elf"
+                name="esp32p4">
+          </ToolChain>
   </extension>
   <extension point="org.eclipse.core.variables.dynamicVariables">
      <variable
