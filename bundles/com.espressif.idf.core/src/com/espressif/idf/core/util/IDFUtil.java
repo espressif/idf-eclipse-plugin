@@ -33,6 +33,10 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.part.ViewPart;
 import org.osgi.service.prefs.BackingStoreException;
 
 import com.espressif.idf.core.IDFConstants;
@@ -812,5 +816,24 @@ public class IDFUtil
 		String idfToolsPath = Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
 				IDFCorePreferenceConstants.IDF_TOOLS_PATH, IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT, null);
 		return idfToolsPath;
+	}
+	
+	public static void closeWelcomePage(IWorkbenchWindow activeww)
+	{
+		Display.getDefault().syncExec(()-> {
+			if (activeww != null)
+			{
+				IWorkbenchPage page = activeww.getActivePage();
+				if (page != null)
+				{
+					ViewPart viewPart = (ViewPart) page.findView("org.eclipse.ui.internal.introview"); //$NON-NLS-1$
+					if (viewPart != null)
+					{
+						page.hideView(viewPart);
+					}
+
+				}
+			}
+		});
 	}
 }

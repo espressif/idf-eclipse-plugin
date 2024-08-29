@@ -7,6 +7,7 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.wizard.NewIDFProjectWizard;
 
 /**
@@ -18,6 +19,7 @@ public class NewProjectHandler extends AbstractHandler
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
+		IDFUtil.closeWelcomePage(EclipseHandler.getActiveWorkbenchWindow());
 		if (!NewProjectHandlerUtil.installToolsCheck())
 		{
 			return null;
