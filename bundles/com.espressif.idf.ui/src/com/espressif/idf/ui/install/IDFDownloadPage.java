@@ -501,6 +501,7 @@ public class IDFDownloadPage extends WizardPage
 			{
 				Logger.log(IDFCorePlugin.getPlugin(),
 						IDFCorePlugin.errorStatus("Unable to get the process status.", null)); //$NON-NLS-1$
+				return StringUtil.EMPTY;
 			}
 			String cmdOutput = status.getMessage();
 			String version = StringUtil.EMPTY;

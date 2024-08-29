@@ -116,22 +116,6 @@ public abstract class ToolsJob extends Job
 			idfToolSet.setIdfLocation(idfPath);	
 		}
 		
-//		if (StringUtil.isEmpty(idfToolSet.getEnvVars().get(IDFEnvironmentVariables.ESP_IDF_VERSION)))
-//		{
-//			IStatus status = getIdfVersionFromIdfPy();
-//			String cmdOutput = status.getMessage();
-//			Pattern pattern = Pattern.compile("v(\\d+\\.\\d+\\.\\d+)");
-//			Matcher matcher = pattern.matcher(cmdOutput.toLowerCase());
-//			if (matcher.find())
-//			{
-//				idfToolSet.setIdfVersion(matcher.group(1));
-//			}
-//			idfToolSet.getEnvVars().put(IDFEnvironmentVariables.ESP_IDF_VERSION, idfToolSet.getIdfVersion());
-//		}
-//		else
-//		{
-//			idfToolSet.setIdfVersion(idfToolSet.getEnvVars().get(IDFEnvironmentVariables.ESP_IDF_VERSION));	
-//		}
 		IStatus status = getIdfVersionFromIdfPy();
 		String cmdOutput = status.getMessage();
 		Pattern pattern = Pattern.compile("v(\\d+\\.\\d+\\.\\d+)"); //$NON-NLS-1$
