@@ -57,6 +57,8 @@ public class Messages extends NLS
 	public static String TargetPortFoundMessage;
 	public static String TargetPortNotFoundMessage;
 
+	public static String AddingTargetJobName;
+
 	static
 	{
 		// initialize resource bundle

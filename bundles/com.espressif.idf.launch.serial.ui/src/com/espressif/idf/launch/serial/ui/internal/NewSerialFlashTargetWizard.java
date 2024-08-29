@@ -15,9 +15,14 @@
  *******************************************************************************/
 package com.espressif.idf.launch.serial.ui.internal;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
+import org.eclipse.launchbar.core.target.ILaunchTargetManager2;
 import org.eclipse.launchbar.core.target.ILaunchTargetWorkingCopy;
 import org.eclipse.launchbar.ui.target.LaunchTargetWizard;
 import org.osgi.service.prefs.BackingStoreException;
@@ -47,11 +52,11 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard
 	@Override
 	public boolean performFinish()
 	{
-		ILaunchTargetManager manager = Activator.getService(ILaunchTargetManager.class);
+		ILaunchTargetManager targetManager = Activator.getService(ILaunchTargetManager.class);
 
 		String typeId = IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE;
 		String id = page.getTargetName();
-		ILaunchTarget target = manager.addLaunchTarget(typeId, id);
+		ILaunchTarget target = ((ILaunchTargetManager2) targetManager).addLaunchTargetNoNotify(typeId, id);
 		ILaunchTargetWorkingCopy wc = target.getWorkingCopy();
 		wc.setId(id);
 		wc.setAttribute(ILaunchTarget.ATTR_OS, page.getOS());
@@ -62,6 +67,19 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard
 		wc.setAttribute(LaunchBarTargetConstants.FLASH_VOLTAGE, page.getVoltage());
 		wc.save();
 		storeLastUsedSerialPort();
+
+		// adding the target later to trigger LaunchBarListener with proper wc attributes
+		Job job = new Job(Messages.AddingTargetJobName)
+		{
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor)
+			{
+				targetManager.addLaunchTarget(typeId, id);
+				return Status.OK_STATUS;
+			}
+		};
+		job.schedule();
 		return true;
 	}
 
