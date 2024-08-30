@@ -336,5 +336,10 @@ config-only component and an interface library is created instead."
            name="GDB_CLIENT_EXECUTABLE"
            resolver="com.espressif.idf.core.variable.GdbClientVariableResolver">
      </variable>
+     <variable
+           description="%serial_port"
+           name="serial_port"
+           resolver="com.espressif.idf.core.variable.UartVariableResolver">
+     </variable>
   </extension>
 </plugin>

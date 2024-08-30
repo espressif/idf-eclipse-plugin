@@ -149,7 +149,6 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 			return;
 		}
 		String arguments = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, espFlashCommand);
-		arguments = arguments.replace(ESPFlashUtil.SERIAL_PORT, serialPort);
 		arguments = varManager.performStringSubstitution(arguments);
 		if (!arguments.isEmpty())
 		{
