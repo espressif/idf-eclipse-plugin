@@ -8,15 +8,19 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -29,7 +33,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -38,9 +41,13 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
+import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFVersion;
 import com.espressif.idf.core.IDFVersionsReader;
+import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.SystemExecutableFinder;
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
@@ -105,6 +112,14 @@ public class IDFDownloadPage extends WizardPage
 		GridData gridData = new GridData(SWT.NONE, SWT.NONE, false, false, 2, 1);
 		gridData.widthHint = 250;
 		versionCombo.setLayoutData(gridData);
+		versionCombo.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				validate();
+			}
+		});
 
 		versionsMap = new IDFVersionsReader().getVersionsMap();
 		Set<String> keySet = versionsMap.keySet();
@@ -388,18 +403,30 @@ public class IDFDownloadPage extends WizardPage
 				setPageComplete(false);
 				return;
 			}
-			if (idfPath.contains(" ")) //$NON-NLS-1$
+			
+			String version = getIdfVersionUsingGit(idfPath);
+			
+			if (idfPath.contains(" ") && !StringUtil.isEmpty(version)) //$NON-NLS-1$
 			{
-				setErrorMessage(Messages.IDFDownloadPage_IDFBuildNotSupported);
-				setPageComplete(false);
-				showMessage();
-				return;
+				boolean validVersion = isVersionGreaterOrEqual(version, "5.0.0"); //$NON-NLS-1$
+				if (!validVersion)
+				{
+					setErrorMessage(Messages.IDFDownloadPage_VersionSpaceError);
+					setPageComplete(false);
+					return;
+				}
+				if (getErrorMessage() == null || getErrorMessage().equals(Messages.IDFDownloadPage_VersionSpaceError))
+				{
+					setErrorMessage(null);
+					setPageComplete(true);
+				}
 			}
 			
-			String idfPyPath = idfPath + File.separator + "tools" + File.separator + "idf.py"; //$NON-NLS-1$ //$NON-NLS-2$
-			if (!new File (idfPyPath).exists())
+			String idfPyPath = idfPath + File.separator + IDFConstants.TOOLS_FOLDER + File.separator + IDFConstants.IDF_PYTHON_SCRIPT;
+			String idfToolsPyPth = idfPath + File.separator + IDFConstants.TOOLS_FOLDER + File.separator + IDFConstants.IDF_TOOLS_SCRIPT;
+			if (!new File (idfPyPath).exists() || !new File (idfToolsPyPth).exists())
 			{
-				setErrorMessage(MessageFormat.format(Messages.IDFDownloadPage_CantfindIDFpy, idfPath));
+				setErrorMessage(MessageFormat.format(Messages.IDFDownloadPage_CantfindProperEspIDFDirectory, idfPath));
 				setPageComplete(false);
 				return;
 			}
@@ -437,7 +464,7 @@ public class IDFDownloadPage extends WizardPage
 			
 			if (!supportSpaces && directoryTxt.getText().contains(" ")) //$NON-NLS-1$
 			{
-				setErrorMessage(Messages.IDFDownloadPage_IDFBuildNotSupported);
+				setErrorMessage(Messages.IDFDownloadPage_VersionSpaceError);
 				setPageComplete(false);
 				return;
 			}
@@ -454,6 +481,96 @@ public class IDFDownloadPage extends WizardPage
 			}
 		}
 	}
+
+	private String getIdfVersionUsingGit(String idfPath)
+	{
+		if (!validateGitAndPython())
+			return StringUtil.EMPTY;
+		
+		List<String> commands = new ArrayList<String>();
+		commands.add(gitExecutablePath);
+		commands.add("describe"); //$NON-NLS-1$
+		
+		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
+		try
+		{
+			Logger.log("Executing commads: " + commands.toString());
+			Map<String, String> environment = new HashMap<>(System.getenv());
+			IStatus status = processRunner.runInBackground(commands, Path.fromOSString(idfPath), environment);
+			if (status == null)
+			{
+				Logger.log(IDFCorePlugin.getPlugin(),
+						IDFCorePlugin.errorStatus("Unable to get the process status.", null)); //$NON-NLS-1$
+				return StringUtil.EMPTY;
+			}
+			String cmdOutput = status.getMessage();
+			String version = StringUtil.EMPTY;
+			String patternString = "\\d+\\.\\d+\\.\\d+"; //$NON-NLS-1$
+	        Pattern pattern = Pattern.compile(patternString);
+	        Matcher matcher = pattern.matcher(cmdOutput);
+	        if (matcher.find())
+	        {
+	        	version = matcher.group(0);
+	        }
+	        
+	        if(StringUtil.isEmpty(version))
+	        {
+	        	return StringUtil.EMPTY;
+	        }
+
+	        return version;
+		}
+		catch (Exception e) 
+		{
+			Logger.log(e);
+		}
+		
+		return StringUtil.EMPTY;
+	}
+	
+	private boolean isVersionGreaterOrEqual(String version, String minVersion)
+	{
+		// Define the regex pattern to match version numbers
+		String pattern = "\\d+\\.\\d+\\.\\d+"; //$NON-NLS-1$
+		Pattern r = Pattern.compile(pattern);
+
+		// Now create matcher object.
+		Matcher m = r.matcher(version);
+		Matcher mMin = r.matcher(minVersion);
+
+		if (m.find() && mMin.find())
+		{
+			String[] currentVersionParts = m.group(0).split("\\."); //$NON-NLS-1$
+			String[] minVersionParts = mMin.group(0).split("\\."); //$NON-NLS-1$
+
+			int currentMajor = Integer.parseInt(currentVersionParts[0]);
+			int currentMinor = Integer.parseInt(currentVersionParts[1]);
+			int currentPatch = Integer.parseInt(currentVersionParts[2]);
+
+			int minMajor = Integer.parseInt(minVersionParts[0]);
+			int minMinor = Integer.parseInt(minVersionParts[1]);
+			int minPatch = Integer.parseInt(minVersionParts[2]);
+
+			if (currentMajor > minMajor)
+			{
+				return true;
+			}
+			else if (currentMajor == minMajor)
+			{
+				if (currentMinor > minMinor)
+				{
+					return true;
+				}
+				else if (currentMinor == minMinor)
+				{
+					return currentPatch >= minPatch;
+				}
+			}
+		}
+
+		return false;
+	}
+
 
 	protected IDFVersion Version()
 	{
@@ -475,24 +592,6 @@ public class IDFDownloadPage extends WizardPage
 	public boolean isConfigureExistingEnabled()
 	{
 		return fileSystemBtn.getSelection();
-	}
-	
-	private void showMessage()
-	{
-		Display.getDefault().asyncExec(new Runnable()
-		{
-
-			@Override
-			public void run() {
-				boolean allowToCreateProjectWithSpaces = MessageDialog.openQuestion(Display.getDefault().getActiveShell(), Messages.IDFDownloadWizard_AllowSpacesTitle, 
-						Messages.IDFDownloadWizard_AllowSpacesMsg);
-				
-				if (allowToCreateProjectWithSpaces) {
-					setErrorMessage(null);
-					setPageComplete(true);
-				}
-			}
-		});
 	}
 
 	public String getPythonExePath()

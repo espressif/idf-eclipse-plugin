@@ -9,7 +9,7 @@ public class Messages extends NLS
 	public static String IDFDownloadPage_0;
 	public static String IDFDownloadPage_BrowseBtn;
 	public static String IDFDownloadPage_BrowseBtnTxt;
-	public static String IDFDownloadPage_CantfindIDFpy;
+	public static String IDFDownloadPage_CantfindProperEspIDFDirectory;
 	public static String IDFDownloadPage_CantFindRequirementsFile;
 	public static String IDFDownloadPage_ChooseAnExistingIDF;
 	public static String IDFDownloadPage_ChooseDirIDF;
@@ -22,6 +22,7 @@ public class Messages extends NLS
 	public static String IDFDownloadPage_DirectoryDialogMsg;
 	public static String IDFDownloadPage_DirectoryDialogText;
 	public static String IDFDownloadPage_DirectoryDialogTxt;
+	public static String IDFDownloadPage_VersionSpaceError;
 	public static String IDFDownloadPage_DownloadIDF;
 	public static String IDFDownloadPage_IDFBuildNotSupported;
 	public static String IDFDownloadPage_Note;
