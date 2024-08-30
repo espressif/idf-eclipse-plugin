@@ -78,7 +78,7 @@ jobs:
       id: extract_version
       run: |
         # List all files and extract the version number from the file names
-        version=$(ls releng/com.espressif.idf.product/target/products/Espressif-IDE-*.tar.gz | grep -oP '(?<=Espressif-IDE-)\d+\.\d+\.\d+')
+        version=$(ls releng/com.espressif.idf.product/target/products/Espressif-IDE-*.tar.gz | sed -E 's/.*Espressif-IDE-([0-9]+\.[0-9]+\.[0-9]+)-.*/\1/' | head -n 1)
         echo "VERSION=${version}" >> $GITHUB_ENV
   
     - name: Upload build artifacts
