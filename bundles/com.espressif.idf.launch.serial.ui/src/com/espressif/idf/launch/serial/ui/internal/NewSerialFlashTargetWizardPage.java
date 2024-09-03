@@ -234,13 +234,10 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 		String targetPort = launchTarget.getAttribute(LaunchBarTargetConstants.SERIAL_PORT, null);
 		if (targetPort != null)
 		{
-			com.fazecast.jSerialComm.SerialPort serialComPort = com.fazecast.jSerialComm.SerialPort
-					.getCommPort(targetPort);
-			targetPort = targetPort + PORT_NAME_DESCRIPTOR_SPLITOR + serialComPort.getDescriptivePortName();
 			int i = 0;
 			for (String port : serialPortCombo.getItems())
 			{
-				if (port.equals(targetPort))
+				if (port.contains(targetPort))
 				{
 					serialPortCombo.select(i);
 					break;
