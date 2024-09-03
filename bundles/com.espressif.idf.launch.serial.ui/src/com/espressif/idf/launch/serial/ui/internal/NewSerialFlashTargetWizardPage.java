@@ -232,7 +232,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 			return;
 		}
 		String targetPort = launchTarget.getAttribute(LaunchBarTargetConstants.SERIAL_PORT, null);
-		if (targetPort != null)
+		if (targetPort != null && !targetPort.isEmpty())
 		{
 			int i = 0;
 			for (String port : serialPortCombo.getItems())
