@@ -253,14 +253,14 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 		Group jtaGroup = new Group(comp, SWT.NONE);
 		jtaGroup.setLayout(new GridLayout(2, false));
 		jtaGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
-		jtaGroup.setText("Settings required for JTAG flash/debug");
+		jtaGroup.setText(Messages.jtagGroupLbl);
 		Label fVoltageLbl = new Label(jtaGroup, SWT.NONE);
-		fVoltageLbl.setText("Flash Voltage:");
+		fVoltageLbl.setText(Messages.flashVoltageLabel);
 		fFlashVoltage = new Combo(jtaGroup, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
 		fFlashVoltage.setItems(parser.getEspFlashVoltages().toArray(new String[0]));
 		fFlashVoltage.setText("default"); //$NON-NLS-1$
 		Label fTargetLbl = new Label(jtaGroup, SWT.NONE);
-		fTargetLbl.setText("Board:");
+		fTargetLbl.setText(Messages.configBoardLabel);
 		fBoardCombo = new Combo(jtaGroup, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
 		String selectedTargetString = getIDFTarget();
 		Map<String, JSONArray> boardConfigsMap = parser.getBoardsConfigs(selectedTargetString);
