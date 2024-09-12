@@ -62,7 +62,7 @@ public class RunActionHandler extends LaunchActiveCommandHandler
 
 			if (!isEspLaunchConfig && !isEspDebugConfig)
 			{
-				return Status.OK_STATUS;
+				return super.execute(event);
 			}
 
 			ILaunchMode launchMode = launchBarManager.getActiveLaunchMode();
