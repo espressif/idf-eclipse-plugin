@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -44,6 +45,14 @@ public class NewEspressifIDFProjectPartitionTableEditorTest
 	}
 
 	@Test
+	public void givenNewProjectCreatedNotBuiltWhenOpenPartitionTableEditorThenEditorIsDisabled() throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectSbomFirstTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenOpenPartitionTableEditor();
+		Fixture.thenEditorIsDisabled();
+	}
 
 	private static class Fixture
 	{
@@ -80,6 +89,18 @@ public class NewEspressifIDFProjectPartitionTableEditorTest
 			ProjectTestOperations.buildProjectUsingContextMenu(projectName, bot);
 			ProjectTestOperations.waitForProjectBuild(bot);
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
+		}
+
+		private static void whenOpenPartitionTableEditor() throws IOException
+		{
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Partition Table Editor");
+		}
+
+		private static void thenEditorIsDisabled() throws IOException
+		{
+			SWTBotShell shell = bot.shell("Information");
+			shell.activate();
+			bot.button("OK").click();
 		}
 
 		private static void cleanTestEnv()

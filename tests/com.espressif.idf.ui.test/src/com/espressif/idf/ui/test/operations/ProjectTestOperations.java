@@ -247,16 +247,6 @@ public class ProjectTestOperations
 		return editorText.contains(phrase);
 	}
 
-	public static void openProjectNewComponentUsingContextMenu(String projectName, SWTWorkbenchBot bot)
-	{
-		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
-		if (projectItem != null)
-		{
-			projectItem.select();
-			projectItem.contextMenu("Install New Component").click();
-		}
-	}
-
 	/**
 	 * Creates an espressif idf project from the template
 	 * 
