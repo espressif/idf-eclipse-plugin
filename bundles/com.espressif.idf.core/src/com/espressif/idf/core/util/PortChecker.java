@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.core.util;
 
+import java.io.IOException;
 import java.net.Socket;
 
 import com.espressif.idf.core.logging.Logger;
@@ -24,14 +25,45 @@ public class PortChecker
 
 	public static boolean isPortAvailable(int port)
 	{
-		try (Socket ignored = new Socket("localhost", port)) //$NON-NLS-1$
+		int attempts = 0;
+		int retryCount = 3;
+		long retryDelayMillis = 200;
+
+		while (attempts <= retryCount)
 		{
-			return false;
+			try (Socket ignored = new Socket("localhost", port)) //$NON-NLS-1$
+			{
+				// If the socket opens, the port is in use
+				return false;
+			}
+			catch (IOException e)
+			{
+				// Port is unavailable, retrying if there are attempts left
+				if (attempts == retryCount)
+				{
+					// After exhausting all retries, return false
+					Logger.log("Port " + port + " is not available after " + retryCount + " retries."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					return false; // Failure, port is still not available
+				}
+
+				attempts++;
+
+				// Log retry attempt
+				Logger.log("Attempt " + attempts + " failed, retrying in " + retryDelayMillis + " ms..."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+				try
+				{
+					Thread.sleep(retryDelayMillis);
+				}
+				catch (InterruptedException interruptedException)
+				{
+					Thread.currentThread().interrupt(); // Restore interrupt status
+					Logger.log("Port availability check interrupted."); //$NON-NLS-1$
+					return false; // If interrupted, assume port unavailable and stop
+				}
+			}
 		}
-		catch (Exception e)
-		{
-			return true;
-		}
+		return true; //Fallback not reachable
 	}
 
 	/**
