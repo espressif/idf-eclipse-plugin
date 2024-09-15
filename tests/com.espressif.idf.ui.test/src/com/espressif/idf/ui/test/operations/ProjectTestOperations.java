@@ -24,6 +24,7 @@ import org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory;
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotLabel;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarDropDownButton;
@@ -574,6 +575,15 @@ public class ProjectTestOperations
 		consoleView.show();
 		consoleView.setFocus();
 		TestWidgetWaitUtility.waitUntilViewContains(bot, findText, consoleView, 3000);
+	}
+
+	public static boolean checkShellContent(SWTWorkbenchBot bot, String shellName, String expectedText)
+	{
+		SWTBotShell shell = bot.shell(shellName);
+		shell.activate();
+		SWTBotLabel label = bot.label(expectedText);
+		String actualText = label.getText();
+		return expectedText.equals(actualText);
 	}
 
 	public static void joinJobByName(String jobName)

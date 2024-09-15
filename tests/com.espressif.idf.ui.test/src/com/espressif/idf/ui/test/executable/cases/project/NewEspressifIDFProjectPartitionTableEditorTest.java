@@ -4,11 +4,12 @@
  *******************************************************************************/
 package com.espressif.idf.ui.test.executable.cases.project;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -45,13 +46,13 @@ public class NewEspressifIDFProjectPartitionTableEditorTest
 	}
 
 	@Test
-	public void givenNewProjectCreatedNotBuiltWhenOpenPartitionTableEditorThenEditorIsDisabled() throws Exception
+	public void givenNewProjectCreatedNotBuiltWhenOpenPartitionTableEditorThenInformationPopUpMessage() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectSbomFirstTest");
+		Fixture.givenProjectNameIs("NewProjectPartitionTableEditorFirstTest");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenOpenPartitionTableEditor();
-		Fixture.thenEditorIsDisabled();
+		Fixture.ThenInformationMessagePopUp();
 	}
 
 	private static class Fixture
@@ -96,11 +97,10 @@ public class NewEspressifIDFProjectPartitionTableEditorTest
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Partition Table Editor");
 		}
 
-		private static void thenEditorIsDisabled() throws IOException
+		private static void ThenInformationMessagePopUp() throws IOException
 		{
-			SWTBotShell shell = bot.shell("Information");
-			shell.activate();
-			bot.button("OK").click();
+			assertTrue(ProjectTestOperations.checkShellContent(bot, "Information",
+					"Failed to get partition CSV file name from sdkconfig. Make sure your project is compiled and has sdkconfig."));
 		}
 
 		private static void cleanTestEnv()
