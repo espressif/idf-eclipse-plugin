@@ -109,6 +109,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 	private Text fTargetIpAddress;
 	private Text fTargetPortNumber;
+	private Group gdbClientGroup;
 
 	protected Button fUpdateThreadlistOnSuspend;
 
@@ -470,6 +471,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			public void widgetSelected(SelectionEvent e)
 			{
 				doStartGdbServerChanged();
+				gdbClientGroup.setEnabled(!fDoStartGdbServer.getSelection());
 				if (fDoStartGdbServer.getSelection())
 				{
 					fTargetIpAddress.setText(DefaultPreferences.REMOTE_IP_ADDRESS_LOCALHOST);
@@ -572,16 +574,16 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 	private void createGdbClientControls(Composite parent)
 	{
 
-		Group group = new Group(parent, SWT.NONE);
+		gdbClientGroup = new Group(parent, SWT.NONE);
 		{
 			GridLayout layout = new GridLayout();
-			group.setLayout(layout);
+			gdbClientGroup.setLayout(layout);
 			GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-			group.setLayoutData(gd);
-			group.setText(Messages.getString("DebuggerTab.gdbSetupGroup_Text")); //$NON-NLS-1$
+			gdbClientGroup.setLayoutData(gd);
+			gdbClientGroup.setText(Messages.getString("DebuggerTab.gdbSetupGroup_Text")); //$NON-NLS-1$
 		}
 
-		Composite comp = new Composite(group, SWT.NONE);
+		Composite comp = new Composite(gdbClientGroup, SWT.NONE);
 		{
 			GridLayout layout = new GridLayout();
 			layout.numColumns = 5;
