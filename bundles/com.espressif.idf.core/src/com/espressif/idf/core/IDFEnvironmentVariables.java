@@ -44,12 +44,13 @@ public class IDFEnvironmentVariables
 
 	public static final String ESP_IDF_VERSION = "ESP_IDF_VERSION"; //$NON-NLS-1$
 
-	public static final String GIT_PATH ="GIT_PATH"; //$NON-NLS-1$
-	
-	public static final String PYTHON_EXE_PATH ="PYTHON_EXE_PATH"; //$NON-NLS-1$
-	
+	public static final String GIT_PATH = "GIT_PATH"; //$NON-NLS-1$
+
+	public static final String PYTHON_EXE_PATH = "PYTHON_EXE_PATH"; //$NON-NLS-1$
+
 	public static final String IDF_MAINTAINER = "IDF_MAINTAINER"; //$NON-NLS-1$
 
+	public static final String IDF_CCACHE_ENABLE = "IDF_CCACHE_ENABLE"; //$NON-NLS-1$
 
 	/**
 	 * @param variableName Environment variable Name
@@ -68,11 +69,11 @@ public class IDFEnvironmentVariables
 		IContributedEnvironment contributedEnvironment = getEnvironment();
 		contributedEnvironment.removeVariable(variableName, null);
 	}
-	
+
 	public void removeAllEnvVariables()
 	{
 		Map<String, String> currentVarMap = getEnvMap();
-		for(Entry<String, String> varEntry : currentVarMap.entrySet())
+		for (Entry<String, String> varEntry : currentVarMap.entrySet())
 		{
 			removeEnvVariable(varEntry.getKey());
 		}
@@ -100,7 +101,7 @@ public class IDFEnvironmentVariables
 
 		return envValue;
 	}
-	
+
 	public void addEnvVariable(String name, String value)
 	{
 		Logger.log(MessageFormat.format("Updating environment variables with key:{0} value:{1}", name, value)); //$NON-NLS-1$
@@ -142,7 +143,7 @@ public class IDFEnvironmentVariables
 				envMap.put(key, value);
 			}
 		}
-		
+
 		return envMap;
 	}
 
