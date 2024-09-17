@@ -615,6 +615,18 @@ public class ProjectTestOperations
 		return true;
 	}
 
+	public static boolean compareRows(SWTWorkbenchBot bot) throws IOException
+	{
+		SWTBotTable table = bot.table();
+		int defaultRows = 3;
+		int actualRows = table.rowCount();
+		if (1 != (actualRows - defaultRows))
+		{
+			return false;
+		}
+		return true;
+	}
+
 	public static void joinJobByName(String jobName)
 	{
 		Job[] jobs = Job.getJobManager().find(null);

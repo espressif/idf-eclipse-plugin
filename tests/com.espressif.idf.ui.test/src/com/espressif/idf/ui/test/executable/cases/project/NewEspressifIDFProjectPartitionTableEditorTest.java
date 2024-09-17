@@ -67,6 +67,19 @@ public class NewEspressifIDFProjectPartitionTableEditorTest
 		Fixture.ThenBuiltInPartitionTableDisplayed();
 	}
 
+	@Test
+	public void givenNewProjectCreatedBuiltWhenOpenPartitionTableEditorWhenAddRowToPartitionTableThenCheckRowAdded()
+			throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectPartitionTableEditorThirdTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.whenOpenPartitionTableEditor();
+		Fixture.whenAddRowToPartitionTable();
+		Fixture.ThenCheckRowAdded();
+	}
+
 	private static class Fixture
 	{
 		private static SWTWorkbenchBot bot;
@@ -118,6 +131,16 @@ public class NewEspressifIDFProjectPartitionTableEditorTest
 		private static void ThenBuiltInPartitionTableDisplayed() throws IOException
 		{
 			assertTrue(ProjectTestOperations.checkPartitionTableContent(bot));
+		}
+
+		private static void whenAddRowToPartitionTable() throws IOException
+		{
+			bot.toolbarButton("Add Row").click();
+		}
+
+		private static void ThenCheckRowAdded() throws IOException
+		{
+			assertTrue(ProjectTestOperations.compareRows(bot));
 		}
 
 		private static void cleanTestEnv()
