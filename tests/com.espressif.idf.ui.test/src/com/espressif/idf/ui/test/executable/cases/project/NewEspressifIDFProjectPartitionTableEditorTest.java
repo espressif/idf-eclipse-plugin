@@ -55,6 +55,18 @@ public class NewEspressifIDFProjectPartitionTableEditorTest
 		Fixture.ThenInformationMessagePopUp();
 	}
 
+	@Test
+	public void givenNewProjectCreatedBuiltWhenOpenPartitionTableEditorThenBuiltInPartitionTableDisplayed()
+			throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectPartitionTableEditorSecondTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.whenOpenPartitionTableEditor();
+		Fixture.ThenBuiltInPartitionTableDisplayed();
+	}
+
 	private static class Fixture
 	{
 		private static SWTWorkbenchBot bot;
@@ -101,6 +113,11 @@ public class NewEspressifIDFProjectPartitionTableEditorTest
 		{
 			assertTrue(ProjectTestOperations.checkShellContent(bot, "Information",
 					"Failed to get partition CSV file name from sdkconfig. Make sure your project is compiled and has sdkconfig."));
+		}
+
+		private static void ThenBuiltInPartitionTableDisplayed() throws IOException
+		{
+			assertTrue(ProjectTestOperations.checkPartitionTableContent(bot));
 		}
 
 		private static void cleanTestEnv()

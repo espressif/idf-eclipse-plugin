@@ -27,6 +27,7 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotLabel;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTable;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarDropDownButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
@@ -584,6 +585,34 @@ public class ProjectTestOperations
 		SWTBotLabel label = bot.label(expectedText);
 		String actualText = label.getText();
 		return expectedText.equals(actualText);
+	}
+
+	public static boolean checkPartitionTableContent(SWTWorkbenchBot bot)
+	{
+		String[] builtInPartitionArray = { "nvs", "phy_init", "factory", "data", "data", "app", "nvs", "phy", "factory",
+				"0x9000", "0xf000", "0x10000", "0x6000", "0x1000", "1M", "", "", "" };
+		int builtInIndex = 0;
+		SWTBotTable table = bot.table();
+		int columns = table.columnCount();
+		int rows = table.rowCount();
+		if (columns != 6 && rows != 3)
+		{
+			return false;
+		}
+		for (int col = 0; col < columns; col++)
+		{
+			for (int row = 0; row < rows; row++)
+			{
+				String tableContent = table.cell(row, col);
+
+				if (!builtInPartitionArray[builtInIndex].equals(tableContent))
+				{
+					return false;
+				}
+				builtInIndex++;
+			}
+		}
+		return true;
 	}
 
 	public static void joinJobByName(String jobName)
