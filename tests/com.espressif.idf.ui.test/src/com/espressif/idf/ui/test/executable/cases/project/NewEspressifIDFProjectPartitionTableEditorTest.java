@@ -68,8 +68,7 @@ public class NewEspressifIDFProjectPartitionTableEditorTest
 	}
 
 	@Test
-	public void givenNewProjectCreatedBuiltWhenOpenPartitionTableEditorWhenAddRowToPartitionTableThenCheckRowAdded()
-			throws Exception
+	public void givenNewProjectCreatedBuiltWhenOpenPartitionTableEditorWhenAddRowThenCheckRowAdded() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 		Fixture.givenProjectNameIs("NewProjectPartitionTableEditorThirdTest");
@@ -78,6 +77,19 @@ public class NewEspressifIDFProjectPartitionTableEditorTest
 		Fixture.whenOpenPartitionTableEditor();
 		Fixture.whenAddRowToPartitionTable();
 		Fixture.ThenCheckRowAdded();
+	}
+
+	@Test
+	public void givenNewProjectCreatedBuiltWhenOpenPartitionTableEditorWhenDeleteSelectedRowThenCheckRowDeleted()
+			throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectPartitionTableEditorThirdTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.whenOpenPartitionTableEditor();
+		Fixture.whenDeleteRowFromPartitionTable();
+		Fixture.ThenCheckRowDeleted();
 	}
 
 	private static class Fixture
@@ -140,7 +152,17 @@ public class NewEspressifIDFProjectPartitionTableEditorTest
 
 		private static void ThenCheckRowAdded() throws IOException
 		{
-			assertTrue(ProjectTestOperations.compareRows(bot));
+			assertTrue(ProjectTestOperations.comparePartitionTableRows(bot, 1));
+		}
+
+		private static void whenDeleteRowFromPartitionTable() throws IOException
+		{
+			ProjectTestOperations.deletePartitionTableRow(bot);
+		}
+
+		private static void ThenCheckRowDeleted() throws IOException
+		{
+			assertTrue(ProjectTestOperations.comparePartitionTableRows(bot, -1));
 		}
 
 		private static void cleanTestEnv()

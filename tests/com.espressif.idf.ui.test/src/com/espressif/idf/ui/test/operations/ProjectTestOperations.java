@@ -615,16 +615,20 @@ public class ProjectTestOperations
 		return true;
 	}
 
-	public static boolean compareRows(SWTWorkbenchBot bot) throws IOException
+	public static boolean comparePartitionTableRows(SWTWorkbenchBot bot, int expectedDifference) throws IOException
 	{
 		SWTBotTable table = bot.table();
 		int defaultRows = 3;
 		int actualRows = table.rowCount();
-		if (1 != (actualRows - defaultRows))
-		{
-			return false;
-		}
-		return true;
+		return (actualRows - defaultRows) == expectedDifference;
+	}
+
+	public static void deletePartitionTableRow(SWTWorkbenchBot bot) throws IOException
+	{
+		SWTBotTable table = bot.table();
+		table.select(1);
+		bot.toolbarButton("Delete Selected").click();
+		bot.button("OK").click();
 	}
 
 	public static void joinJobByName(String jobName)
