@@ -49,7 +49,7 @@ public class NewEspressifIDFProjectPartitionTableEditorTest
 	public void givenNewProjectCreatedNotBuiltWhenOpenPartitionTableEditorThenInformationPopUpMessage() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectPartitionTableEditorFirstTest");
+		Fixture.givenProjectNameIs("NewProjectPartitionTableEditor1Test");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenOpenPartitionTableEditor();
 		Fixture.ThenInformationMessagePopUp();
@@ -60,7 +60,7 @@ public class NewEspressifIDFProjectPartitionTableEditorTest
 			throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectPartitionTableEditorSecondTest");
+		Fixture.givenProjectNameIs("NewProjectPartitionTableEditor2Test");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.whenOpenPartitionTableEditor();
@@ -71,7 +71,7 @@ public class NewEspressifIDFProjectPartitionTableEditorTest
 	public void givenNewProjectCreatedBuiltWhenOpenPartitionTableEditorWhenAddRowThenCheckRowAdded() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectPartitionTableEditorThirdTest");
+		Fixture.givenProjectNameIs("NewProjectPartitionTableEditor3Test");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.whenOpenPartitionTableEditor();
@@ -84,12 +84,43 @@ public class NewEspressifIDFProjectPartitionTableEditorTest
 			throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectPartitionTableEditorThirdTest");
+		Fixture.givenProjectNameIs("NewProjectPartitionTableEditor4Test");
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.whenOpenPartitionTableEditor();
 		Fixture.whenDeleteRowFromPartitionTable();
 		Fixture.ThenCheckRowDeleted();
+	}
+
+	@Test
+	public void givenNewProjectCreatedBuiltWhenOpenPartitionTableEditorWhenDeleteSelectedRowWhenSaveAndQuitwhenReopenPartitionTableThenCheckChangesSaved()
+			throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectPartitionTableEditor5Test");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.whenOpenPartitionTableEditor();
+		Fixture.whenDeleteRowFromPartitionTable();
+		Fixture.whenSaveAndQuit();
+		Fixture.whenOpenPartitionTableEditor();
+		Fixture.thenCheckChangesSaved();
+	}
+
+	@Test
+	public void givenNewProjectCreatedBuiltWhenOpenPartitionTableEditorWhenDeleteSelectedRowWhenSaveAndCancelwhenReopenPartitionTableThenCheckChangesSaved()
+			throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectPartitionTableEditor6Test");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.whenOpenPartitionTableEditor();
+		Fixture.whenDeleteRowFromPartitionTable();
+		Fixture.whenSavePartitionTable();
+		Fixture.whenCancel();
+		Fixture.whenOpenPartitionTableEditor();
+		Fixture.thenCheckChangesSaved();
 	}
 
 	private static class Fixture
@@ -161,6 +192,28 @@ public class NewEspressifIDFProjectPartitionTableEditorTest
 		}
 
 		private static void ThenCheckRowDeleted() throws IOException
+		{
+			assertTrue(ProjectTestOperations.comparePartitionTableRows(bot, -1));
+		}
+
+		private static void whenSaveAndQuit() throws IOException
+		{
+			bot.button("Save and Quit").click();
+			bot.button("OK").click();
+		}
+
+		private static void whenSavePartitionTable() throws IOException
+		{
+			bot.toolbarButton("Save").click();
+			bot.button("OK").click();
+		}
+
+		private static void whenCancel() throws IOException
+		{
+			bot.button("Cancel").click();
+		}
+
+		private static void thenCheckChangesSaved() throws IOException
 		{
 			assertTrue(ProjectTestOperations.comparePartitionTableRows(bot, -1));
 		}
