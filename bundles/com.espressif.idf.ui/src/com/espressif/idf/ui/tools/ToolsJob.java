@@ -467,12 +467,12 @@ public abstract class ToolsJob extends Job
 			environment.put("IDF_GITHUB_ASSETS", //$NON-NLS-1$
 					Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
 							IDFCorePreferenceConstants.IDF_GITHUB_ASSETS,
-							IDFCorePreferenceConstants.IDF_GITHUB_ASSETS_DEFAULT, null));
+							IDFCorePreferenceConstants.IDF_GITHUB_ASSETS_DEFAULT_GLOBAL, null));
 			
 			environment.put("PIP_EXTRA_INDEX_URL", //$NON-NLS-1$
 					Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
 							IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL,
-							IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL_DEFAULT, null));
+							IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL_DEFAULT_GLOBAL, null));
 
 			if (gitExecutablePath != null)
 			{
