@@ -37,6 +37,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
 import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.ClangFormatFileHandler;
@@ -274,7 +275,7 @@ public class NewIDFProjectWizard extends TemplateWizard
 
 			for (ILaunchTarget iLaunchTarget : targets)
 			{
-				String idfTarget = iLaunchTarget.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, null);
+				String idfTarget = iLaunchTarget.getAttribute(LaunchBarTargetConstants.TARGET, null);
 				if (idfTarget.contentEquals(target))
 				{
 					return iLaunchTarget;

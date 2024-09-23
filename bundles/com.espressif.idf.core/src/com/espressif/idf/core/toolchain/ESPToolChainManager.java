@@ -25,7 +25,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.eclipse.cdt.cmake.core.ICMakeToolChainFile;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
@@ -43,9 +42,11 @@ import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.launchbar.core.target.ILaunchTargetWorkingCopy;
 
+import com.espressif.idf.core.DefaultBoardProvider;
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.build.Messages;
@@ -109,7 +110,7 @@ public class ESPToolChainManager
 			Logger.log(e);
 		}
 	}
-	
+
 	/**
 	 * @param manager
 	 * @param toolchainProvider
@@ -244,7 +245,7 @@ public class ESPToolChainManager
 		props.put(TOOLCHAIN_ATTR_ID, toolChainElement.fileName);
 		try
 		{
-			manager.getToolChainsMatching(props).forEach(toolchain -> manager.removeToolChain(toolchain));
+			manager.getToolChainsMatching(props).forEach(manager::removeToolChain);
 		}
 		catch (CoreException e)
 		{
@@ -414,7 +415,7 @@ public class ESPToolChainManager
 		{
 			targetSet.add(toolchain.getProperty(IToolChain.ATTR_OS));
 		}
-		return targetSet.stream().collect(Collectors.toList());
+		return targetSet.stream().toList();
 	}
 
 	public Collection<IToolChain> getAllEspToolchains()
@@ -430,14 +431,14 @@ public class ESPToolChainManager
 			Logger.log(e);
 		}
 		return toolchains.stream().filter(tc -> tc.getProperty(IToolChain.ATTR_OS).contains("esp")) //$NON-NLS-1$
-				.collect(Collectors.toList());
+				.toList();
 
 	}
 
 	public void addToolchainBasedTargets(ILaunchTargetManager targetManager)
 	{
 		Collection<IToolChain> toolchainsWithoutDuplicateTargets = getAllEspToolchains().stream()
-				.filter(distinctByOs(tc -> tc.getProperty(IToolChain.ATTR_OS))).collect(Collectors.toList());
+				.filter(distinctByOs(tc -> tc.getProperty(IToolChain.ATTR_OS))).toList();
 
 		try
 		{
@@ -448,11 +449,11 @@ public class ESPToolChainManager
 			Logger.log(e);
 		}
 	}
-	
+
 	public void addToolchainBasedTargets(ILaunchTargetManager targetManager, List<String> targets)
 	{
 		Collection<IToolChain> toolchainsWithoutDuplicateTargets = getAllEspToolchains().stream()
-				.filter(distinctByOs(tc -> tc.getProperty(IToolChain.ATTR_OS))).collect(Collectors.toList());
+				.filter(distinctByOs(tc -> tc.getProperty(IToolChain.ATTR_OS))).toList();
 
 		try
 		{
@@ -485,26 +486,29 @@ public class ESPToolChainManager
 				ILaunchTargetWorkingCopy wc = target.getWorkingCopy();
 				wc.setAttribute(ILaunchTarget.ATTR_OS, os);
 				wc.setAttribute(ILaunchTarget.ATTR_ARCH, arch);
-				wc.setAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, os);
+				wc.setAttribute(LaunchBarTargetConstants.TARGET, os);
+				wc.setAttribute(LaunchBarTargetConstants.FLASH_VOLTAGE, "default"); //$NON-NLS-1$
+				wc.setAttribute(LaunchBarTargetConstants.BOARD, new DefaultBoardProvider().getDefaultBoard(os));
 				wc.save();
 			}
 		}
-		
+
 		addLaunchTargets(targetManager, toolchainsWithoutDuplicateTargets, null);
 	}
-	
+
 	private void addLaunchTargets(ILaunchTargetManager targetManager,
-			Collection<IToolChain> toolchainsWithoutDuplicateTargets, List<String> targets) throws SecurityException, IllegalArgumentException
+			Collection<IToolChain> toolchainsWithoutDuplicateTargets, List<String> targets)
+			throws SecurityException, IllegalArgumentException
 	{
 		List<IToolChain> toolChainsToRemove = null;
 		List<IToolChain> toolChainsToUse = null;
 		if (targets != null)
 		{
 			toolChainsToRemove = toolchainsWithoutDuplicateTargets.stream()
-					.filter(tc -> !targets.contains(tc.getProperty(IToolChain.ATTR_OS))).collect(Collectors.toList());
+					.filter(tc -> !targets.contains(tc.getProperty(IToolChain.ATTR_OS))).toList();
 			toolChainsToUse = toolchainsWithoutDuplicateTargets.stream()
-					.filter(tc -> targets.contains(tc.getProperty(IToolChain.ATTR_OS))).collect(Collectors.toList());
-			for(IToolChain toolChain : toolChainsToRemove)
+					.filter(tc -> targets.contains(tc.getProperty(IToolChain.ATTR_OS))).toList();
+			for (IToolChain toolChain : toolChainsToRemove)
 			{
 				String os = toolChain.getProperty(IToolChain.ATTR_OS);
 				ILaunchTarget target = targetManager.getLaunchTarget(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE, os);
@@ -514,11 +518,10 @@ public class ESPToolChainManager
 				}
 			}
 		}
-		else 
+		else
 		{
-			toolChainsToUse = toolchainsWithoutDuplicateTargets.stream().collect(Collectors.toList());
+			toolChainsToUse = toolchainsWithoutDuplicateTargets.stream().toList();
 		}
-		
 
 		for (IToolChain toolchain : toolChainsToUse)
 		{
@@ -530,7 +533,9 @@ public class ESPToolChainManager
 				ILaunchTargetWorkingCopy wc = target.getWorkingCopy();
 				wc.setAttribute(ILaunchTarget.ATTR_OS, os);
 				wc.setAttribute(ILaunchTarget.ATTR_ARCH, arch);
-				wc.setAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, os);
+				wc.setAttribute(LaunchBarTargetConstants.TARGET, os);
+				wc.setAttribute(LaunchBarTargetConstants.FLASH_VOLTAGE, "default"); //$NON-NLS-1$
+				wc.setAttribute(LaunchBarTargetConstants.BOARD, new DefaultBoardProvider().getDefaultBoard(os));
 				wc.save();
 			}
 		}
@@ -553,9 +558,10 @@ public class ESPToolChainManager
 		initCMakeToolChain(cmakeTcManager);
 		addToolchainBasedTargets(IDFCorePlugin.getService(ILaunchTargetManager.class));
 	}
-	
+
 	/**
 	 * Configure the file in the preferences and initialize the launch bar with available targets
+	 * 
 	 * @param targets The targets to filter from the given idf version
 	 */
 	public void configureToolChain(List<String> targets)
@@ -567,15 +573,14 @@ public class ESPToolChainManager
 		initCMakeToolChain(cmakeTcManager);
 		addToolchainBasedTargets(IDFCorePlugin.getService(ILaunchTargetManager.class), targets);
 	}
-	
-	
+
 	/**
 	 * Removes all the launch targets
 	 */
 	public void removeLaunchTargetsNotPresent(List<String> targetsToKeep)
 	{
 		ILaunchTargetManager targetManager = IDFCorePlugin.getService(ILaunchTargetManager.class);
-		ILaunchTarget [] launchTargets = targetManager.getLaunchTargets();
+		ILaunchTarget[] launchTargets = targetManager.getLaunchTargets();
 		for (ILaunchTarget launchTarget : launchTargets)
 		{
 			if (!targetsToKeep.contains(launchTarget.getId()))
@@ -584,30 +589,30 @@ public class ESPToolChainManager
 			}
 		}
 	}
-	
+
 	/**
 	 * Removes all the cmake toolchains in the current environment
 	 */
 	public void removeCmakeToolChains()
 	{
 		ICMakeToolChainManager cmakeTcManager = CCorePlugin.getService(ICMakeToolChainManager.class);
-		
-		List<ICMakeToolChainFile> cIcMakeToolChainFiles = new ArrayList<ICMakeToolChainFile>(cmakeTcManager.getToolChainFiles());
+
+		List<ICMakeToolChainFile> cIcMakeToolChainFiles = new ArrayList<>(cmakeTcManager.getToolChainFiles());
 		for (ICMakeToolChainFile cmakeToolchain : cIcMakeToolChainFiles)
 		{
 			cmakeTcManager.removeToolChainFile(cmakeToolchain);
 		}
 	}
-	
+
 	/**
-	 * Removes all the gcc/std toolchains for ESP in current environment 
+	 * Removes all the gcc/std toolchains for ESP in current environment
 	 */
 	public void removeStdToolChains()
 	{
 		IToolChainManager tcManager = CCorePlugin.getService(IToolChainManager.class);
 		try
 		{
-			List<IToolChain> espToolchains = new ArrayList<IToolChain>(tcManager.getAllToolChains());
+			List<IToolChain> espToolchains = new ArrayList<>(tcManager.getAllToolChains());
 			for (IToolChain espToolChain : espToolchains)
 			{
 				if (!StringUtil.isEmpty(espToolChain.getTypeId()))
@@ -621,37 +626,39 @@ public class ESPToolChainManager
 			Logger.log(e);
 		}
 	}
-	
+
 	/**
 	 * Gets all the standard toolchains in the given path
+	 * 
 	 * @param path Path to look into for toolchains
 	 * @return
-	 * @throws CoreException 
+	 * @throws CoreException
 	 */
 	public List<ESPToolchain> getStdToolChains(List<String> paths, String idfPath) throws CoreException
 	{
-		List<ESPToolchain> espToolchains = new ArrayList<ESPToolchain>();
-		
+		List<ESPToolchain> espToolchains = new ArrayList<>();
+
 		IToolChainManager manager = CCorePlugin.getService(IToolChainManager.class);
 
 		IToolChainProvider toolchainProvider = manager.getProvider(ESPToolChainProvider.ID);
-		
+
 		for (ESPToolChainElement toolChainElement : toolchainElements.values())
 		{
 			File toolchainCompilerFile = findToolChain(paths, toolChainElement.compilerPattern);
 			Path toolChainCmakeFile = Paths.get(getIdfCMakePath(idfPath)).resolve(toolChainElement.fileName);
 			if (toolchainCompilerFile != null && Files.exists(toolChainCmakeFile))
 			{
-				espToolchains.add(new ESPToolchain(toolchainProvider, toolchainCompilerFile.toPath(), toolChainElement));
+				espToolchains
+						.add(new ESPToolchain(toolchainProvider, toolchainCompilerFile.toPath(), toolChainElement));
 			}
 		}
-		
+
 		return espToolchains;
 	}
-	
-	public List<ICMakeToolChainFile> getCmakeToolChains(String idfPath) throws CoreException
+
+	public List<ICMakeToolChainFile> getCmakeToolChains(String idfPath)
 	{
-		List<ICMakeToolChainFile> espToolchains = new ArrayList<ICMakeToolChainFile>();
+		List<ICMakeToolChainFile> espToolchains = new ArrayList<>();
 		ICMakeToolChainManager manager = CCorePlugin.getService(ICMakeToolChainManager.class);
 
 		toolchainElements.values().stream().forEach(value -> {
@@ -667,35 +674,8 @@ public class ESPToolChainManager
 				espToolchains.add(toolchainFile);
 			}
 		});
-		
-		return espToolchains;
-	}
-	
-	public List<ILaunchTarget> getToolChainTargets(List<ESPToolchain> espToolchains)
-	{
-		List<ILaunchTarget> launchTargets = new ArrayList<ILaunchTarget>();
-		ILaunchTargetManager targetManager = IDFCorePlugin.getService(ILaunchTargetManager.class);
-		Collection<IToolChain> toolchainsWithoutDuplicateTargets = espToolchains.stream()
-				.filter(distinctByOs(tc -> tc.getProperty(IToolChain.ATTR_OS))).collect(Collectors.toList());
-		
-		for (IToolChain toolchain : toolchainsWithoutDuplicateTargets)
-		{
-			String os = toolchain.getProperty(IToolChain.ATTR_OS);
-			String arch = toolchain.getProperty(IToolChain.ATTR_ARCH);
 
-			if (targetManager.getLaunchTarget(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE, os) == null)
-			{
-				ILaunchTarget target = targetManager.addLaunchTarget(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE, os);
-				ILaunchTargetWorkingCopy wc = target.getWorkingCopy();
-				wc.setAttribute(ILaunchTarget.ATTR_OS, os);
-				wc.setAttribute(ILaunchTarget.ATTR_ARCH, arch);
-				wc.setAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, os);
-				wc.save();
-				launchTargets.add(target);
-			}
-		}
-		
-		return launchTargets;
+		return espToolchains;
 	}
 }
 

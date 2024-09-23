@@ -42,4 +42,5 @@ Export-Package: com.espressif.idf.debug.gdbjtag.openocd,
  com.espressif.idf.debug.gdbjtag.openocd.dsf,
  com.espressif.idf.debug.gdbjtag.openocd.preferences,
  com.espressif.idf.debug.gdbjtag.openocd.ui
-Import-Package: org.eclipse.embedcdt.debug.gdbjtag.ui
+Import-Package: com.espressif.idf.swt.custom,
+ org.eclipse.embedcdt.debug.gdbjtag.ui

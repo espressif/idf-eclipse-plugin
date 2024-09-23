@@ -43,9 +43,9 @@ import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFCorePreferenceConstants;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.SystemExecutableFinder;
-import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
 
@@ -375,7 +375,7 @@ public class IDFUtil
 			if (launchTarget != null)
 			{
 				File file = new ESPToolChainManager()
-						.findCompiler(launchTarget.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY));
+						.findCompiler(launchTarget.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY));
 				if (file != null)
 				{
 					return file.getAbsolutePath();

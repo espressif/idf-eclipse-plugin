@@ -12,12 +12,17 @@ import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 
+import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 
 public class LaunchTargetHelper
 {
 	private static String lastSavedTargetName;
+
+	private LaunchTargetHelper()
+	{
+	}
 
 	public static void saveTargetName(String targetName)
 	{
@@ -46,14 +51,14 @@ public class LaunchTargetHelper
 		Stream<ILaunchTarget> launchTargetStream = streamTargetsByName(selectedItem, targets);
 		return launchTargetStream
 				.filter(target -> suitableSerialPort
-						.equals(target.getAttribute(IDFLaunchConstants.ATTR_SERIAL_PORT, StringUtil.EMPTY)))
+						.equals(target.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY)))
 				.findFirst().or(() -> streamTargetsByName(selectedItem, targets).findFirst());
 	}
 
 	private static Stream<ILaunchTarget> streamTargetsByName(String selectedItem, ILaunchTarget[] targets)
 	{
-		return Stream.of(targets).filter(target -> selectedItem
-				.equals(target.getAttribute(IDFLaunchConstants.ATTR_IDF_TARGET, StringUtil.EMPTY)));
+		return Stream.of(targets).filter(
+				target -> selectedItem.equals(target.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY)));
 	}
 
 	private static String getSerialPort(ILaunchBarManager launchBarManager)
@@ -62,7 +67,7 @@ public class LaunchTargetHelper
 		String serialPort = StringUtil.EMPTY;
 		try
 		{
-			serialPort = launchBarManager.getActiveLaunchTarget().getAttribute(IDFLaunchConstants.ATTR_SERIAL_PORT,
+			serialPort = launchBarManager.getActiveLaunchTarget().getAttribute(LaunchBarTargetConstants.SERIAL_PORT,
 					StringUtil.EMPTY);
 
 		}
