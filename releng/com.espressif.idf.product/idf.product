@@ -14,11 +14,11 @@
    </configIni>
 
    <launcherArgs>
-      <vmArgsLin>-Xms256m -Xmx2048m  -Dosgi.requiredJavaVersion=17 -Dosgi.instance.area.default=@user.home/workspace
+      <vmArgsLin>-Xms2048m -Xmx4096m  -Dosgi.requiredJavaVersion=17 -Dosgi.instance.area.default=@user.home/workspace
       </vmArgsLin>
-      <vmArgsMac>-Xms256m -Xmx2048m  -Xdock:icon=../Resources/espressif.icns -XstartOnFirstThread -Dosgi.requiredJavaVersion=17 -Dorg.eclipse.swt.internal.carbon.smallFonts -Dosgi.instance.area.default=@user.home/workspace
+      <vmArgsMac>-Xms2048m -Xmx4096m  -Xdock:icon=../Resources/espressif.icns -XstartOnFirstThread -Dosgi.requiredJavaVersion=17 -Dorg.eclipse.swt.internal.carbon.smallFonts -Dosgi.instance.area.default=@user.home/workspace
       </vmArgsMac>
-      <vmArgsWin>-Xms256m -Xmx2048m   -Dosgi.requiredJavaVersion=17 -Dosgi.instance.area.default=@user.home/workspace
+      <vmArgsWin>-Xms2048m -Xmx4096m   -Dosgi.requiredJavaVersion=17 -Dosgi.instance.area.default=@user.home/workspace
       </vmArgsWin>
    </launcherArgs>
 
