@@ -74,26 +74,40 @@ jobs:
     - name: Build with Maven
       run: mvn clean verify -Djarsigner.skip=true
 
+    - name: Extract version number
+      id: extract_version
+      run: |
+        # List all files and extract the version number from the file names
+        version=$(ls releng/com.espressif.idf.product/target/products/Espressif-IDE-*.tar.gz | sed -E 's/.*Espressif-IDE-([0-9]+\.[0-9]+\.[0-9]+)-.*/\1/' | head -n 1)
+        echo "VERSION=${version}" >> $GITHUB_ENV
+  
     - name: Upload build artifacts
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v4
       with:
-        name: com.espressif.idf.update
+        name: com.espressif.idf.update-${{ env.VERSION }}
         path: releng/com.espressif.idf.update/target/repository
-        
-    - name: Upload windows rcp
-      if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: espressif-ide-win32
-        path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-win32.win32.x86_64.zip
 
-    - name: Upload linux rcp
+    - name: Upload Windows x86_64 artifact
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v4
       with:
-        name: espressif-ide-linux
-        path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
+        name: Espressif-IDE-${{ env.VERSION }}-win32
+        path: releng/com.espressif.idf.product/target/products/Espressif-IDE-${{ env.VERSION }}-win32.win32.x86_64.zip
+  
+    - name: Upload Linux x86_64 artifact
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: Espressif-IDE-${{ env.VERSION }}-linux.gtk.x86_64
+        path: releng/com.espressif.idf.product/target/products/Espressif-IDE-${{ env.VERSION }}-linux.gtk.x86_64.tar.gz
+  
+    - name: Upload Linux ARM64 artifact
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: Espressif-IDE-${{ env.VERSION }}-linux.gtk.aarch64
+        path: releng/com.espressif.idf.product/target/products/Espressif-IDE-${{ env.VERSION }}-linux.gtk.aarch64.tar.gz
   
     - name: Codesign Espressif-IDE
       env: 
@@ -129,12 +143,12 @@ jobs:
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v4
       with:
-        name: espressif-ide-macosx-cocoa-x86_64
+        name: Espressif-IDE-${{ env.VERSION }}-macosx.cocoa.x86_64
         path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
 
     - name: Upload espressif-ide-macosx.cocoa.aarch64 dmg
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v4
       with:
-        name: espressif-ide-macosx.cocoa.aarch64
+        name: Espressif-IDE-${{ env.VERSION }}-macosx.cocoa.aarch64
         path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
