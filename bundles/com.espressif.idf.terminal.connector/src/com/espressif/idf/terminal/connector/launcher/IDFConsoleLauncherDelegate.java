@@ -302,6 +302,16 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 					.getString(IPreferenceKeys.PREF_LOCAL_TERMINAL_DEFAULT_SHELL_UNIX_ARGS);
 		}
 
+		// Avoding profiles to isolate PATH enviroment
+		arguments = ""; //$NON-NLS-1$
+		if (image.contains("bash")) { //$NON-NLS-1$
+			arguments = "--noprofile --norc"; //$NON-NLS-1$
+		} else if (image.contains("zsh")) { //$NON-NLS-1$
+			arguments = "--no-rcs --no-globalrcs"; //$NON-NLS-1$
+		} else if (image.contains("powershell")) { //$NON-NLS-1$
+			arguments = "-NoProfile"; //$NON-NLS-1$
+		}
+
 		// Determine if a PTY will be used
 		boolean isUsingPTY = (properties.get(ITerminalsConnectorConstants.PROP_PROCESS_OBJ) == null
 				&& PTY.isSupported(PTY.Mode.TERMINAL))
@@ -375,14 +385,14 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 		//Set CDT build environment variables
 		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
 		Set<String> keySet = envMap.keySet();
+
 		for (String envKey : keySet) {
 			String envValue = envMap.get(envKey);
 			if (envKey.equals("PATH")) //$NON-NLS-1$
 			{
 				String idfExtraPaths = IDFUtil.getIDFExtraPaths();
-				if(!StringUtil.isEmpty(idfExtraPaths))
-				{
-					envValue = envValue + ":" + idfExtraPaths; //$NON-NLS-1$
+				if (!StringUtil.isEmpty(idfExtraPaths)) {
+					envValue = idfExtraPaths + ":" + envValue; //$NON-NLS-1$
 				}
 			}
 			envpList.add(envKey + "=" + envValue); //$NON-NLS-1$
@@ -394,11 +404,10 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 		Assert.isTrue(image != null || process != null);
 
 		String terminalWrkDir = getWorkingDir();
-		if (StringUtil.isEmpty(terminalWrkDir))
-		{
+		if (StringUtil.isEmpty(terminalWrkDir)) {
 			terminalWrkDir = workingDir;
 		}
-		
+
 		// Construct the terminal settings store
 		ISettingsStore store = new SettingsStore();
 
@@ -420,7 +429,6 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 			processSettings
 					.setMergeWithNativeEnvironment(value instanceof Boolean ? ((Boolean) value).booleanValue() : false);
 		}
-
 		// And save the settings to the store
 		processSettings.save(store);
 
@@ -435,7 +443,7 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 
 		return connector;
 	}
-	
+
 	protected String getWorkingDir() {
 		Bundle bundle = Platform.getBundle("org.eclipse.core.resources"); //$NON-NLS-1$
 		if (bundle != null && bundle.getState() != Bundle.UNINSTALLED && bundle.getState() != Bundle.STOPPING) {
