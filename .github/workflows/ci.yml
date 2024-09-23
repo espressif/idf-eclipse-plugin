@@ -97,14 +97,14 @@ jobs:
   
     - name: Upload Linux x86_64 artifact
       if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: Espressif-IDE-${{ env.VERSION }}-linux.gtk.x86_64
         path: releng/com.espressif.idf.product/target/products/Espressif-IDE-${{ env.VERSION }}-linux.gtk.x86_64.tar.gz
   
     - name: Upload Linux ARM64 artifact
       if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: Espressif-IDE-${{ env.VERSION }}-linux.gtk.aarch64
         path: releng/com.espressif.idf.product/target/products/Espressif-IDE-${{ env.VERSION }}-linux.gtk.aarch64.tar.gz
