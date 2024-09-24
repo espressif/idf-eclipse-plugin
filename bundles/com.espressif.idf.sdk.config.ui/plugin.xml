@@ -39,6 +39,12 @@
 					</reference>
 				</visibleWhen>
 			</command>
+   <command
+         commandId="com.espressif.idf.sdk.config.ui.command.menuConfig"
+         icon="icons/sdkconfig.png"
+         label="Menu Config"
+         style="push">
+   </command>
 		</menuContribution>
 	</extension>
 	<extension
@@ -48,6 +54,11 @@
 			id="com.espressif.idf.sdk.config.ui.command.setdefault"
 			name="%command.name">
 		</command>
+  <command
+        defaultHandler="com.espressif.idf.sdk.config.ui.OpenSdkConfigEditor"
+        id="com.espressif.idf.sdk.config.ui.command.menuConfig"
+        name="Open MenuConfig">
+  </command>
 	</extension>
 	<extension
 		point="org.eclipse.core.expressions.definitions">

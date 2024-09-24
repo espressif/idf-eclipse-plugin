@@ -27,6 +27,8 @@ public class Messages extends NLS
 	public static String SDKConfigurationEditor_SDKConfiguration;
 	public static String SDKConfigurationEditor_StartingJSONConfigServer;
 	public static String SDKConfigurationEditor_UnableFindKConfigFile;
+	public static String SDKConfigFileNotFound_ErrorMessage;
+	public static String SDKConfigurationFileNotFound_Title;
 	static
 	{
 		// initialize resource bundle
