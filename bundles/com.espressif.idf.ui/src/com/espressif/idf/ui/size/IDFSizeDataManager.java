@@ -189,11 +189,12 @@ public class IDFSizeDataManager
 
 	private List<String> addJsonParseCommand()
 	{
-		List<String> arguments = new ArrayList<String>();
+		List<String> arguments = new ArrayList<>();
 		IEnvironmentVariable idfVersionEnv = new IDFEnvironmentVariables()
 				.getEnv(IDFEnvironmentVariables.ESP_IDF_VERSION);
 		String idfVersion = idfVersionEnv != null ? idfVersionEnv.getValue() : null;
-		if (idfVersion != null && Double.parseDouble(idfVersion) >= 5.1)
+
+		if (idfVersion != null && parseVersionWithMultipleDotsToDouble(idfVersion) >= 5.1)
 		{
 			arguments.add("--format"); //$NON-NLS-1$
 			arguments.add("json"); //$NON-NLS-1$
@@ -203,6 +204,12 @@ public class IDFSizeDataManager
 			arguments.add("--json"); //$NON-NLS-1$
 		}
 		return arguments;
+	}
+
+	public double parseVersionWithMultipleDotsToDouble(String version)
+	{
+		String numericVersion = version.replace(".", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		return Double.parseDouble(numericVersion) / Math.pow(10, version.split("\\.").length - 1.0); //$NON-NLS-1$
 	}
 
 	protected List<String> getCommandArgsSymbolDetails(String pythonExecutablenPath, IFile file)
