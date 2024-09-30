@@ -240,6 +240,12 @@ public class IDFSizeDataManager
 	protected JSONObject getJSON(String jsonOutput)
 	{
 		JSONObject jsonObj = null;
+		if (jsonOutput.indexOf("{") != 0) //$NON-NLS-1$
+		{
+			int begin = jsonOutput.indexOf("{") - 1; //$NON-NLS-1$
+			int end = jsonOutput.lastIndexOf("}") + 1; //$NON-NLS-1$
+			jsonOutput = jsonOutput.substring(begin, end);
+		}
 		try
 		{
 			jsonObj = (JSONObject) new JSONParser().parse(jsonOutput);
