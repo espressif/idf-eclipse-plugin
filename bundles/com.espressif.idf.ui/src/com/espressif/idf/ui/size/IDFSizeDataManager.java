@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.ui.size;
 
+import java.lang.module.ModuleDescriptor.Version;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +20,6 @@ import org.eclipse.swt.widgets.Display;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.osgi.framework.Version;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
@@ -209,8 +209,8 @@ public class IDFSizeDataManager
 
 	public boolean isVersionAtLeast(String currentIDFVersion, String minimumIDFVersion)
 	{
-		Version currentVersion = Version.parseVersion(currentIDFVersion);
-		Version minVersion = Version.parseVersion(minimumIDFVersion);
+		Version currentVersion = Version.parse(currentIDFVersion);
+		Version minVersion = Version.parse(minimumIDFVersion);
 		return currentVersion.compareTo(minVersion) >= 0;
 	}
 
