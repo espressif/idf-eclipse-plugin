@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.Display;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.osgi.framework.Version;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
@@ -194,7 +195,7 @@ public class IDFSizeDataManager
 				.getEnv(IDFEnvironmentVariables.ESP_IDF_VERSION);
 		String idfVersion = idfVersionEnv != null ? idfVersionEnv.getValue() : null;
 
-		if (idfVersion != null && parseVersionWithMultipleDotsToDouble(idfVersion) >= 5.1)
+		if (idfVersion != null && isVersionAtLeast(idfVersion, "5.1")) //$NON-NLS-1$
 		{
 			arguments.add("--format"); //$NON-NLS-1$
 			arguments.add("json"); //$NON-NLS-1$
@@ -206,10 +207,11 @@ public class IDFSizeDataManager
 		return arguments;
 	}
 
-	public double parseVersionWithMultipleDotsToDouble(String version)
+	public boolean isVersionAtLeast(String currentIDFVersion, String minimumIDFVersion)
 	{
-		String numericVersion = version.replace(".", ""); //$NON-NLS-1$ //$NON-NLS-2$
-		return Double.parseDouble(numericVersion) / Math.pow(10, version.split("\\.").length - 1.0); //$NON-NLS-1$
+		Version currentVersion = Version.parseVersion(currentIDFVersion);
+		Version minVersion = Version.parseVersion(minimumIDFVersion);
+		return currentVersion.compareTo(minVersion) >= 0;
 	}
 
 	protected List<String> getCommandArgsSymbolDetails(String pythonExecutablenPath, IFile file)
