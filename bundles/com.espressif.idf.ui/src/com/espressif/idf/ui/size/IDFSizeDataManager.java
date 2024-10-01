@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.ui.size;
 
+import java.lang.module.ModuleDescriptor.Version;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -189,11 +190,12 @@ public class IDFSizeDataManager
 
 	private List<String> addJsonParseCommand()
 	{
-		List<String> arguments = new ArrayList<String>();
+		List<String> arguments = new ArrayList<>();
 		IEnvironmentVariable idfVersionEnv = new IDFEnvironmentVariables()
 				.getEnv(IDFEnvironmentVariables.ESP_IDF_VERSION);
 		String idfVersion = idfVersionEnv != null ? idfVersionEnv.getValue() : null;
-		if (idfVersion != null && Double.parseDouble(idfVersion) >= 5.1)
+
+		if (idfVersion != null && isVersionAtLeast(idfVersion, "5.1")) //$NON-NLS-1$
 		{
 			arguments.add("--format"); //$NON-NLS-1$
 			arguments.add("json"); //$NON-NLS-1$
@@ -203,6 +205,13 @@ public class IDFSizeDataManager
 			arguments.add("--json"); //$NON-NLS-1$
 		}
 		return arguments;
+	}
+
+	public boolean isVersionAtLeast(String currentIDFVersion, String minimumIDFVersion)
+	{
+		Version currentVersion = Version.parse(currentIDFVersion);
+		Version minVersion = Version.parse(minimumIDFVersion);
+		return currentVersion.compareTo(minVersion) >= 0;
 	}
 
 	protected List<String> getCommandArgsSymbolDetails(String pythonExecutablenPath, IFile file)
@@ -231,6 +240,12 @@ public class IDFSizeDataManager
 	protected JSONObject getJSON(String jsonOutput)
 	{
 		JSONObject jsonObj = null;
+		if (jsonOutput.indexOf("{") != 0) //$NON-NLS-1$
+		{
+			int begin = jsonOutput.indexOf("{") - 1; //$NON-NLS-1$
+			int end = jsonOutput.lastIndexOf("}") + 1; //$NON-NLS-1$
+			jsonOutput = jsonOutput.substring(begin, end);
+		}
 		try
 		{
 			jsonObj = (JSONObject) new JSONParser().parse(jsonOutput);
