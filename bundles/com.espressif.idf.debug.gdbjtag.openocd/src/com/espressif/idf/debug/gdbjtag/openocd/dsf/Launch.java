@@ -149,9 +149,7 @@ public class Launch extends GnuMcuLaunch
 
 		if (Configuration.getDoStartGdbServer(config))
 		{
-			int availableRemotePort = PortChecker.getAvailablePort(config.getAttribute(IGDBJtagConstants.ATTR_PORT_NUMBER,
-					DefaultPreferences.GDB_SERVER_GDB_PORT_NUMBER_DEFAULT));
-			config.setAttribute(IGDBJtagConstants.ATTR_PORT_NUMBER, availableRemotePort);
+			config.setAttribute(IGDBJtagConstants.ATTR_PORT_NUMBER, DefaultPreferences.GDB_SERVER_GDB_PORT_NUMBER_DEFAULT);
 		}
 		
 		config.setAttribute(DebugPlugin.ATTR_PROCESS_FACTORY_ID, CustomIdfProcessFactory.ID);

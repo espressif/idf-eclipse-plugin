@@ -93,8 +93,7 @@ public class Configuration
 			lst.add(executable);
 
 			int port = PortChecker
-					.getAvailablePort(configuration.getAttribute(ConfigurationAttributes.GDB_SERVER_GDB_PORT_NUMBER,
-							DefaultPreferences.GDB_SERVER_GDB_PORT_NUMBER_DEFAULT));
+					.getAvailablePort(DefaultPreferences.GDB_SERVER_GDB_PORT_NUMBER_DEFAULT);
 
 			lst.add("-c"); //$NON-NLS-1$
 			lst.add("gdb_port " + port); //$NON-NLS-1$
