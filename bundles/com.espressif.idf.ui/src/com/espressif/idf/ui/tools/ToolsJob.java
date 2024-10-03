@@ -124,6 +124,10 @@ public abstract class ToolsJob extends Job
 		{
 			idfToolSet.setIdfVersion(matcher.group(1));
 		}
+		else 
+		{
+			idfToolSet.setIdfVersion(idfToolSet.getEnvVars().computeIfAbsent(IDFEnvironmentVariables.ESP_IDF_VERSION, k -> StringUtil.EMPTY));
+		}
 		idfToolSet.getEnvVars().put(IDFEnvironmentVariables.ESP_IDF_VERSION, idfToolSet.getIdfVersion());
 		
 	}
