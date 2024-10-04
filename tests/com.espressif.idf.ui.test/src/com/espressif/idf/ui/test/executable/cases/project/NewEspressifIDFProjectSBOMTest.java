@@ -61,34 +61,34 @@ public class NewEspressifIDFProjectSBOMTest
 		Fixture.thenRunOKbuttonDisabled(Fixture.bot);
 	}
 
-//	@Test
-//	public void givenNewProjectCreatedBuiltWhenRunSbomThenSbomIsGeneratedInConsole() throws Exception
-//	{
-//		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-//		Fixture.givenProjectNameIs("NewProjectSbomSecondTest");
-//		Fixture.whenNewProjectIsSelected();
-//		Fixture.whenProjectIsBuiltUsingContextMenu();
-//		Fixture.whenOpenSbomTool();
-//		Fixture.whenRunSbomTool();
-//		Fixture.thenCheckResultInConsole();
-//	}
+	@Test
+	public void givenNewProjectCreatedBuiltWhenRunSbomThenSbomIsGeneratedInConsole() throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectSbomSecondTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.whenOpenSbomTool();
+		Fixture.whenRunSbomTool();
+		Fixture.thenCheckResultInConsole();
+	}
 
-//	@Test
-//	public void givenNewProjectCreatedBuiltWhenRunSBOMtoolRedirectOutputToFileThenCheckConsoleAndSbomFile()
-//			throws Exception
-//	{
-//		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-//		Fixture.givenProjectNameIs("NewProjectSbomThirdTest");
-//		Fixture.whenNewProjectIsSelected();
-//		Fixture.whenProjectIsBuiltUsingContextMenu();
-//		Fixture.whenOpenSbomTool();
-//		Fixture.whenRedirectOutputToTheFileClicked();
-//		Fixture.whenRunSbomTool();
-//		Fixture.thenCheckInConsole();
-//		Fixture.whenRefreshProject();
-//		Fixture.thenOpenSbomFile();
-//		Fixture.thenCheckSbomFile();
-//	}
+	@Test
+	public void givenNewProjectCreatedBuiltWhenRunSBOMtoolRedirectOutputToFileThenCheckConsoleAndSbomFile()
+			throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectSbomThirdTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.whenOpenSbomTool();
+		Fixture.whenRedirectOutputToTheFileClicked();
+		Fixture.whenRunSbomTool();
+		Fixture.thenCheckInConsole();
+		Fixture.whenRefreshProject();
+		Fixture.thenOpenSbomFile();
+		Fixture.thenCheckSbomFile();
+	}
 
 	@Test
 	public void givenNewProjectCreatedBuiltWhenOpenSbomAndCleanProjectDescriptionPathThenCheckPathValidation()
