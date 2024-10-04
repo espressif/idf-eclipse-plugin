@@ -13,7 +13,7 @@ jobs:
   build_windows:
 
     runs-on:
-      - eclipse
+      - eclipseUpd
       - BrnoWIN0007
     
     steps:
