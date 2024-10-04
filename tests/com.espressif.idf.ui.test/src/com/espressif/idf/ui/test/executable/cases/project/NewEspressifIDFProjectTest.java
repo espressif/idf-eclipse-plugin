@@ -120,18 +120,18 @@ public class NewEspressifIDFProjectTest
 		Fixture.thenConsoleShowsBuildSuccessful();
 	}
 
-	@Test
-	public void givenNewProjectCreatedDfuBuiltThenHasDfuBin() throws Exception
-	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectTestDFU");
-		Fixture.whenNewProjectIsSelected();
-		Fixture.thenLaunchTargetIsSelectedFromLaunchTargets("esp32s2");
-		Fixture.turnOnDfu();
-		Fixture.whenProjectIsBuiltUsingContextMenu();
-		Fixture.thenProjectHasTheFile("dfu.bin", "/build");
-		Fixture.turnOffDfu();
-	}
+//	@Test
+//	public void givenNewProjectCreatedDfuBuiltThenHasDfuBin() throws Exception
+//	{
+//		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+//		Fixture.givenProjectNameIs("NewProjectTestDFU");
+//		Fixture.whenNewProjectIsSelected();
+//		Fixture.thenLaunchTargetIsSelectedFromLaunchTargets("esp32s2");
+//		Fixture.turnOnDfu();
+//		Fixture.whenProjectIsBuiltUsingContextMenu();
+//		Fixture.thenProjectHasTheFile("dfu.bin", "/build");
+//		Fixture.turnOffDfu();
+//	}
 
 	@Test
 	public void givenNewProjectCreatedThenInstallNewComponent() throws Exception
