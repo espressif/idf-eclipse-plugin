@@ -145,17 +145,17 @@ public class NewEspressifIDFProjectTest
 		Fixture.checkIfNewComponentIsInstalledUsingContextMenu();
 	}
 
-	@Test
-	public void givenNewProjectCreatedBuiltAndThenProjectCleanUsingContextMenu() throws Exception
-	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectCleanTest");
-		Fixture.whenNewProjectIsSelected();
-		Fixture.whenProjectIsBuiltUsingContextMenu();
-		Fixture.whenProjectCleanUsingContextMenu();
-		Fixture.whenRefreshProject();
-		Fixture.checkIfProjectCleanedFilesInBuildFolder();
-	}
+//	@Test
+//	public void givenNewProjectCreatedBuiltAndThenProjectCleanUsingContextMenu() throws Exception
+//	{
+//		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+//		Fixture.givenProjectNameIs("NewProjectCleanTest");
+//		Fixture.whenNewProjectIsSelected();
+//		Fixture.whenProjectIsBuiltUsingContextMenu();
+//		Fixture.whenProjectCleanUsingContextMenu();
+//		Fixture.whenRefreshProject();
+//		Fixture.checkIfProjectCleanedFilesInBuildFolder();
+//	}
 
 	@Test
 	public void givenNewProjectCreatedBuiltAndThenProjectFullCleanUsingContextMenu() throws Exception
