@@ -76,11 +76,20 @@ jobs:
           # Clean up extracted directory (but leave the signed JAR in SIGNED_JARS_DIR)
           rm -rf "$TEMP_DIR"
         done
-
-    - name: Check if signed JAR files exist
+    
+    - name: Verify Signed JAR Files Before Upload
       run: |
-        echo "Checking signed JAR files in ${SIGNED_JARS_DIR}:"
-        ls -al ${SIGNED_JARS_DIR}
+          for jar in ${{ runner.temp }}/signed-jars/*; do
+            echo "Verifying signed JAR: ${jar}"
+            /usr/bin/codesign -dvv "${jar}"
+          done
+
+    - name: Display Signed JAR Files
+      run: |
+        echo "Displaying the signed JAR directory:"
+        ls -al ${{ runner.temp }}/signed-jars/
+        echo "Listing all files in the signed JAR directory:"
+        find ${{ runner.temp }}/signed-jars/ -type f
 
     - name: Upload Signed JAR Files
       if: ${{ !cancelled() }}
