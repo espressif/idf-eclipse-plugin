@@ -34,7 +34,7 @@ jobs:
         /usr/bin/security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k espressif build.keychain
 
         # Step 2: Define the directory containing the JARs and native libraries and the temp directory for signed JARs
-        LIB_DIR="${PWD}/BUNDLES/com.espressif.idf.serial.monitor/lib"
+        LIB_DIR="${PWD}/BUNDLES/com.espressif.idf.launch.serial.ui/lib"
         SIGNED_JARS_DIR="${RUNNER_TEMP}/signed-jars"  # Use GitHub's RUNNER_TEMP for storing signed JARs
         mkdir -p "$SIGNED_JARS_DIR"
 
@@ -79,10 +79,10 @@ jobs:
     
     - name: Verify Signed JAR Files Before Upload
       run: |
-          for jar in ${{ runner.temp }}/signed-jars/*; do
-            echo "Verifying signed JAR: ${jar}"
-            /usr/bin/codesign -dvv "${jar}"
-          done
+        for jar in ${{ runner.temp }}/signed-jars/*; do
+          echo "Verifying signed JAR: ${jar}"
+          /usr/bin/codesign -dvv "${jar}"
+        done
 
     - name: Display Signed JAR Files
       run: |
