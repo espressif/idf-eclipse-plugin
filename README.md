@@ -54,7 +54,7 @@ To get a quick understanding of ESP-IDF and Eclipse plugin features, check our s
 * [ Device Firmware Upgrade (DFU) through USB ](#deviceFirmwareUpgrade)<br>
 * [ GDBStub Debugging ](#gdbStubDebugging)<br>
 * [ Core Dump Debugging ](#coreDumpDebugging)<br>
-* [ Application Level Tracing ](#appLvlTracing)<br
+* [ Application Level Tracing ](#appLvlTracing)<br>
 * [ Partition Table Editor UI for ESP-IDF](#partitionTableEditor)<br>
 * [ NVS Table Editor](#nvsTableEditor)<br>
 * [ Write Binary Data to Flash](#writeFlashBinary)<br>
