@@ -14,7 +14,7 @@ The plug-in runs on `macOS`, `Windows` and `Linux` platforms.
 ![](docs_readme/images/linux-logo.png)
 
 
-> **Note:** It supports ESP-IDF CMake based projects (4.x and above).
+> **Note:** Espressif-IDE 3.0 and higher supports ESP-IDF 5.x and above
 
 To get a quick understanding of ESP-IDF and Eclipse plugin features, check our session which was presented in <a href= "https://youtu.be/CbPX3q7LeBc">EclipseCon 2020</a>.
 
