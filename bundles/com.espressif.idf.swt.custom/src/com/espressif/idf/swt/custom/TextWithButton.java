@@ -28,6 +28,7 @@ public class TextWithButton
 	private Text text;
 	private Label button;
 	private Composite baseComposite;
+	private String textWithDynamicVariables;
 
 	public TextWithButton(final Composite parent, int style)
 	{
@@ -54,30 +55,36 @@ public class TextWithButton
 		button.setImage(buttonShowImage);
 		button.addMouseListener(new MouseAdapter()
 		{
-			String textWhenButtonIsPressed;
-
-			@Override
-			public void mouseUp(final MouseEvent e)
-			{
-				button.setImage(buttonShowImage);
-				text.setText(textWhenButtonIsPressed);
-			}
 
 			@Override
 			public void mouseDown(final MouseEvent e)
 			{
-				button.setImage(buttonHideImage);
-				textWhenButtonIsPressed = text.getText();
+				// text is not editable means that the button isn't pressed now and we have to show dynamic variables
+				if (!text.getEditable())
+				{
+					showDynamicVariables();
+					return;
+				}
 
+				button.setImage(buttonHideImage);
+				textWithDynamicVariables = text.getText();
+				text.setEditable(false);
 				try
 				{
 					text.setText(VariablesPlugin.getDefault().getStringVariableManager()
-							.performStringSubstitution((textWhenButtonIsPressed), false));
+							.performStringSubstitution((textWithDynamicVariables), false));
 				}
 				catch (CoreException e1)
 				{
 					Logger.log(e1);
 				}
+			}
+
+			private void showDynamicVariables()
+			{
+				text.setEditable(true);
+				button.setImage(buttonShowImage);
+				text.setText(textWithDynamicVariables);
 			}
 
 		});
@@ -97,9 +104,12 @@ public class TextWithButton
 		text.addMouseTrackListener(mouseTrackAdapter);
 	}
 
+	/*
+	 * Always return text with dynamic variables.
+	 */
 	public String getText()
 	{
-		return text.getText();
+		return text.getEditable() ? text.getText() : textWithDynamicVariables;
 	}
 
 	public Control getControl()
