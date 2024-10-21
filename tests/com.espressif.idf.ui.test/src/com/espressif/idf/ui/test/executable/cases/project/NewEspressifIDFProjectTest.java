@@ -180,6 +180,122 @@ public class NewEspressifIDFProjectTest
 		Fixture.checkPythonCLeanCommandDeleteFolder();
 	}
 
+	@Test
+	public void givenNewIDFProjectIsSelectedThenProjectIsCreatedAndAddedToProjectExplorer1() throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.thenProjectIsAddedToProjectExplorer();
+
+	}
+
+	@Test
+	public void givenNewIDFProjectIsSelectedFromTemplateThenProjectIsCreatedAndAddedToProjectExplorerWithRequiredFiles1()
+			throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectTestTemplate");
+		Fixture.givenProjectTemplateIs("bluetooth/esp_hid_device");
+		Fixture.whenProjectIsCreatedFromTemplate();
+		Fixture.thenProjectIsAddedToProjectExplorer();
+		Fixture.thenProjectHasTheFile("esp_hid_device_main.c", "/main");
+		Fixture.thenProjectHasTheFile("esp_hid_gap.c", "/main");
+		Fixture.thenProjectHasTheFile("esp_hid_gap.h", "/main");
+	}
+
+	@Test
+	public void givenNewIDFProjectIsCreatedAndBuiltUsingContextMenuOnProjectThenProjectIsCreatedAndBuilt1()
+			throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectForContextMenuBuildTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.thenConsoleShowsBuildSuccessful();
+	}
+
+	@Test
+	public void givenNewIDFProjectIsCreatedAndBuiltUsingToolbarButtonThenProjectIsBuilt1() throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectToolbarBuildButtonTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.thenConsoleShowsBuildSuccessful();
+	}
+
+	@Test
+	public void givenNewProjectCreatedAndRenamedAfterThenProjectIsBuildSuccessfully1() throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectForRenameTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsRenamed("NewProjectForRenameTest2");
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.thenConsoleShowsBuildSuccessful();
+	}
+
+	@Test
+	public void givenNewProjectCreatedDfuBuiltThenHasDfuBin1() throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectTestDFU");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.thenLaunchTargetIsSelectedFromLaunchTargets("esp32s2");
+		Fixture.turnOnDfu();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.thenProjectHasTheFile("dfu.bin", "/build");
+		Fixture.turnOffDfu();
+	}
+
+	@Test
+	public void givenNewProjectCreatedThenInstallNewComponent1() throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectForInstallNewComponentTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.whenInstallNewComponentUsingContextMenu();
+		Fixture.whenRefreshProject();
+		Fixture.checkIfNewComponentIsInstalledUsingContextMenu();
+	}
+
+	@Test
+	public void givenNewProjectCreatedBuiltAndThenProjectCleanUsingContextMenu1() throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectCleanTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.whenProjectCleanUsingContextMenu();
+		Fixture.whenRefreshProject();
+		Fixture.checkIfProjectCleanedFilesInBuildFolder();
+	}
+
+	@Test
+	public void givenNewProjectCreatedBuiltAndThenProjectFullCleanUsingContextMenu1() throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectFullCleanTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.whenProjectFullCleanUsingContextMenu();
+		Fixture.whenRefreshProject();
+		Fixture.checkIfProjectFullCleanedFilesInBuildFolder();
+	}
+
+	@Test
+	public void givenNewProjectCreatedBuiltAndThenProjectPythonCleanUsingContextMenu1() throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectPythonCleanTest");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.whenProjectPythonCleanUsingContextMenu();
+		Fixture.checkPythonCLeanCommandDeleteFolder();
+	}
+
 	private static class Fixture
 	{
 		private static SWTWorkbenchBot bot;
