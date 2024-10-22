@@ -37,6 +37,7 @@ To get a quick understanding of ESP-IDF and Eclipse plugin features, check our s
   <summary>Other IDE Features</summary>
 
 * [ Configuring the Project using sdkconfig Editor](#projectconfigure)<br>
+* [ LSP Editor](#lspeditor)<br>
 * [ CMake Editor](#cmakeproject)<br>
 * [ ESP-IDF Application Size Analysis Editor](#sizeanalysiseditor)<br>
 * [ Installing ESP-IDF Components](#espidfcomponents)<br>
@@ -259,6 +260,65 @@ To launch the SDK Configuration editor:
 1. To revert the sdkconfig editor changes, you can either close the editor without saving them or you can right-click on the `sdkconfig` file and select `Load sdkconfig` menu option to revert the changes from the editor.
 
 ![](docs_readme/images/13_sdkconfig_editor.png)
+
+<a name="lspeditor"></a>
+# LSP Editor
+Starting with Espressif IDE 3.0.0, the default code editor is the LSP Editor, which differs in several ways from the previous default editor. Below are the most notable differences:
+
+## Formatting
+To customize the formatting, open the .clang-format file located in your project. By default, the file contains the following content: 
+
+```
+BasedOnStyle: LLVM
+UseTab: Always
+IndentWidth: 4
+TabWidth: 4
+PackConstructorInitializers: NextLineOnly
+BreakConstructorInitializers: AfterColon
+IndentAccessModifiers: false
+AccessModifierOffset: -4
+```
+You can also disable formatting for specific folders by using the `DisableFormat: true option.` For example, if you want to disable formatting for the managed_components folder in a project structured like this:
+```
+project
+ - managed_components
+        - .clang-format  
+ - main
+ - .clang-format
+``` 
+Add the `DisableFormat: true` option to the `.clang-format` file located in the managed_components folder. This flag tells ClangFormat to completely ignore this specific `.clang-format` file and its formatting rules within the managed-components directory.
+
+For more information about available style options, refer to [the Clang-Format Style Options guide](https://clang.llvm.org/docs/ClangFormatStyleOptions.html#configurable-format-style-options).
+
+## Search
+The “search text” option in the right-click menu is currently unavailable in the LSP-based C/C++ Editor. However, you can use the toolbar menu **Search > Text > Workspace** as a workaround.
+<a name="cmakeproject"></a>
+
+## Inlay Hints
+The LSP Editor has inlay hints enabled by default. If you prefer not to use them, you can disable this feature by editing the `.clangd` file:
+```
+CompileFlags:
+  CompilationDatabase: build
+  Remove: 
+    - -m*
+    - -f*
+
+InlayHints:
+  Enabled: No
+```
+## Searching ESP-IDF Components
+To browse ESP-IDF components, follow these steps:
+- Create a new project.
+- Add the ESP-IDF components folder as a virtual folder to the newly created project.
+- Press **Ctrl + Shift + T** or **Ctrl + Shift + R**.
+- You should now be able to browse the ESP-IDF component files.
+- To search for a specific function or keyword, use the Search menu in the toolbar.
+
+Creating a Virtual Folder
+- Navigate to **New > Folder.**
+- Click on **Advanced.**
+- Select **Link to alternate Location (Linked Folder)**.
+- Click **Browse** and select the `ESP-IDF components` folder.
 
 <a name="cmakeproject"></a>
 # CMake Editor
