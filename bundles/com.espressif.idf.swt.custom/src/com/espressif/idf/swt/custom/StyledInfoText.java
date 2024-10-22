@@ -1,5 +1,6 @@
 package com.espressif.idf.swt.custom;
 
+import org.eclipse.jface.resource.ColorRegistry;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
@@ -15,6 +16,8 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.themes.CascadingColorRegistry;
 
 import com.espressif.idf.swt.messages.Messages;
 
@@ -33,8 +36,11 @@ public class StyledInfoText
 		var gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.widthHint = 100;
 		styledText.setLayoutData(gd);
-		Color grayColor = parent.getDisplay().getSystemColor(SWT.COLOR_INFO_BACKGROUND);
-		styledText.setBackground(grayColor);
+		@SuppressWarnings("restriction")
+		ColorRegistry colorRegistry = new CascadingColorRegistry(
+				PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getColorRegistry());
+		Color colorInfo = colorRegistry.get("org.eclipse.ui.workbench.INFORMATION_BACKGROUND"); //$NON-NLS-1$
+		styledText.setBackground(colorInfo);
 		styledText.setText(text);
 
 		linkStyleRange = new StyleRange(text.indexOf(Messages.styledTextRestoreDefaultsLinkMsg),
