@@ -66,8 +66,10 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.debug.core.DebugPlugin;
@@ -278,7 +280,12 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	public ICMakeToolChainFile getToolChainFile() throws CoreException
 	{
 		ICMakeToolChainManager manager = IDFCorePlugin.getService(ICMakeToolChainManager.class);
-		this.toolChainFile = manager.getToolChainFileFor(getToolChain());
+		IToolChain toolChain = getToolChain();
+		if (toolChain == null)
+		{
+			throw new CoreException(new Status(IStatus.ERROR, IDFCorePlugin.PLUGIN_ID, Messages.IDFToolChainsMissingErrorMsg));
+		}
+		this.toolChainFile = manager.getToolChainFileFor(toolChain);
 		return toolChainFile;
 	}
 
@@ -388,6 +395,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 
 			return false;
 		}
+		
+		
 
 		return true;
 	}
