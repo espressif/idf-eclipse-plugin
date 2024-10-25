@@ -713,6 +713,26 @@
 			id="com.espressif.idf.ui.manageespidf"
 			name="%editor.espidf.manager.name">
 		</editor>
+  <editor
+        class="com.espressif.idf.ui.nvs.dialog.NvsEditor"
+        default="false"
+        icon="icons/ESP-IDF_NVS_Table_Editor.png"
+        id="com.espressif.idf.ui.nvs_table_editor"
+        name="NVS Table Editor">
+     <contentTypeBinding
+           contentTypeId="com.espressif.idf.ui.nvs_editor_content_type">
+     </contentTypeBinding>
+  </editor>
+  <editor
+        class="com.espressif.idf.ui.partitiontable.dialog.PartitionTableEditor"
+        default="false"
+        icon="icons/ESP-IDF_Partition_Table_Editor.png"
+        id="com.espressif.idf.ui.partition_table_editor"
+        name="Partition Table Editor">
+     <contentTypeBinding
+           contentTypeId="com.espressif.idf.ui.partition_editor_content_type">
+     </contentTypeBinding>
+  </editor>
 	</extension>
 	<extension
 		point="org.eclipse.ui.views">
@@ -818,6 +838,18 @@
 			file-extensions="md"
 			file-names="README.md">
 		</file-association>
+  <content-type
+        file-patterns="nvs.csv"
+        id="com.espressif.idf.ui.nvs_editor_content_type"
+        name="NVS Table"
+        priority="normal">
+  </content-type>
+  <content-type
+        file-patterns="partitions.csv"
+        id="com.espressif.idf.ui.partition_editor_content_type"
+        name="Partition Table"
+        priority="normal">
+  </content-type>
 	</extension>
 	<extension
 		point="org.eclipse.ltk.core.refactoring.renameParticipants">
