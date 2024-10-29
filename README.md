@@ -320,6 +320,8 @@ Creating a Virtual Folder
 - Select **Link to alternate Location (Linked Folder)**.
 - Click **Browse** and select the `ESP-IDF components` folder.
 
+It is recommended to always create a new project instead of modifying your current one to avoid unnecessary Git files and error markers created by the indexer for the components folder. As both the projects will be in the same workspace, you should be able to search anywhere within your workspace.
+
 <a name="cmakeproject"></a>
 # CMake Editor
 
