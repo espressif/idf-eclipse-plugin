@@ -6,6 +6,9 @@ Espressif-IDE is an Integrated Development Environment(IDE) based on Eclipse CDT
 
 The plug-in runs on macOS, Windows and Linux platforms.
 
+.. note:: 
+    Espressif-IDE version 3.0 and later supports ESP-IDF version 5.x and above. For ESP-IDF version 4.x and earlier, please use Espressif-IDE version 2.12.1.
+
 Features
 ----------------
 
