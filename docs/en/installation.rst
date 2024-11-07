@@ -1,10 +1,10 @@
 Installation
 ===============================
-We recommend using the Espressif-IDE instead of the Eclipse CDT + IEP Plugin update approach to avoid the hassles of updating.
+To begin, download the Espressif-IDE for your respective operating system. 
 
 Windows
 -------------------------
-Download the Espressif-IDE with ESP-IDF Offline Windows Installer and follow the instructions provided here. This guide will walk you through the installation process for Java, Git, CMake, ESP-IDF, IDF Tools, Device Drivers, and Espressif-IDE to help you get started.
+Download the `Espressif-IDE with ESP-IDF Offline Windows Installer <https://dl.espressif.com/dl/esp-idf/>`_ and follow the instructions provided :ref:`here <windowsofflineinstaller>`. This guide will walk you through the installation process for Java, Git, CMake, ESP-IDF, IDF Tools, Device Drivers, and Espressif-IDE to help you get started.
 
 macOS
 ---------------------------------

@@ -40,7 +40,7 @@ Features
 For more about this project please see https://github.com/espressif/idf-eclipse-plugin
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
 
     Prerequisites <prerequisites>
     Installation <installation>
