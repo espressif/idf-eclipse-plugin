@@ -53,3 +53,4 @@ For more about this project please see https://github.com/espressif/idf-eclipse-
     Debug Your Project<debugproject>
     Additional IDE Features<additionalfeatures>
     FAQs<faqs>
+    Downloads<downloads>
