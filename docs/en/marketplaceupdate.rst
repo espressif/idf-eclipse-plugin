@@ -31,7 +31,8 @@ For adding beta and nightly builds, you can use the following update site URLs:
    * For Beta version: `<https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/>`_.
    * For Nightly build: `<https://dl.espressif.com/dl/idf-eclipse-plugin/updates/nightly/>`_.
 
-> **Note:** While the screenshots are captured on macOS, the installation instructions are applicable to Windows, Linux, and macOS.
+.. note::
+    While the screenshots are captured on macOS, the installation instructions are applicable to Windows, Linux, and macOS.
 
 .. image:: ../../media/idf_update_site_install.png
 

@@ -11,11 +11,12 @@ Flash operation can be initiated with just a click of a launch button |run_icon|
    :width: 767px
    :alt: flash
 
-To provide customized flash arguments, please follow `this link <#customizeLaunchConfig>`_ for further instructions.
+To provide customized flash arguments, please follow :ref:`this link <customizeLaunchConfig>` for further instructions.
 
-To configure flashing via JTAG, please refer to this `JTAG Flashing guide <https://github.com/espressif/idf-eclipse-plugin/tree/master/docs_readme/JTAG%20Flashing.md>`_.
+To configure flashing via JTAG, please refer to this :ref:`JTAG Flashing guide <JTAGFlashing>`
 
 .. _customizeLaunchConfig:
+
 Customized Launch Configuration
 -------------------------------
 
@@ -36,6 +37,7 @@ To provide the customized launch configuration and flash arguments, please follo
 .. image:: ../../media/12_flashing.png
    :alt: Flashing process
 
+.. _JTAGFlashing:
 
 Upload application via JTAG
 -------------------------------
