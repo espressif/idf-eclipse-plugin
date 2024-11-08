@@ -11,3 +11,4 @@ Additional IDE Features
     Configure CDT Build Environment Variables<additionalfeatures/configureenvvariables>
     Configuring Clang Toolchain<additionalfeatures/clangtoolchain>
     Switching Language<additionalfeatures/switchlanguage>
+    Heap Tracing<additionalfeatures/heaptracing>

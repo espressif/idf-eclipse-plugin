@@ -6,6 +6,8 @@ Configuring and installing the Espressif-IDE involves two main steps:
 1. :ref:`Installing the Espressif-IDE <esp-idf-installation>`
 2. :ref:`Installing the ESP-IDF and related tools within the Espressif-IDE <esp-idf-tools-installation>`
 
+For Eclipse CDT users who prefer installing the ESP-IDF Eclipse Plugin via the Update site, please refer to the :ref:`Update Site Installation Guide <marketplaceupdate>`. 
+
 Espressif-IDE Installation
 ----------------------------
 .. _esp-idf-installation:
