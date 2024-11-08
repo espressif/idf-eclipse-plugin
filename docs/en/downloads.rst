@@ -1,6 +1,6 @@
 .. _downloads:
 
-Espressif-IDE
+Espressif-IDE Downloads
 =========================
 
 You can find the latest Espressif-IDE release notes from `here <https://github.com/espressif/idf-eclipse-plugin/releases>`_. Provided below are the direct download links for various platforms.

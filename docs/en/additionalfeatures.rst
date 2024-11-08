@@ -8,9 +8,6 @@ Additional IDE Features
     Install ESP-IDF Components<additionalfeatures/install-esp-components>
     LSP C/C++ Editor<additionalfeatures/lspeditor>
     CMake Editor<additionalfeatures/cmakeeditor>
-    Configure CDT Build Environment Variables<additionalfeatures/configureenvvariables>
-    Configuring Clang Toolchain<additionalfeatures/clangtoolchain>
-    Switching Language<additionalfeatures/switchlanguage>
     Heap Tracing<additionalfeatures/heaptracing>
     ESP-IDF OpenOCD Debugging<additionalfeatures/openocddebugging>
     GDB Stub Debugging<additionalfeatures/gdbstubdebugging>
@@ -21,3 +18,6 @@ Additional IDE Features
     Write Binary to Flash<additionalfeatures/writebinarytoflash>
     DFU Flashing<additionalfeatures/dfu>
     Wokwi Simulator<additionalfeatures/wokwisimulator>
+    Switching Language<additionalfeatures/switchlanguage>
+    Configure CDT Build Environment Variables<additionalfeatures/configureenvvariables>
+    Configuring Clang Toolchain<additionalfeatures/clangtoolchain>

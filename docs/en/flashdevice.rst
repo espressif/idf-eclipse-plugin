@@ -17,7 +17,7 @@ To configure flashing via JTAG, please refer to this :ref:`JTAG Flashing guide <
 
 .. _customizeLaunchConfig:
 
-Customized Launch Configuration
+Customize Flash Arguments
 -------------------------------
 
 To provide the customized launch configuration and flash arguments, please follow the step-by-step instructions below.
@@ -39,7 +39,7 @@ To provide the customized launch configuration and flash arguments, please follo
 
 .. _JTAGFlashing:
 
-Upload application via JTAG
+Upload Application via JTAG
 -------------------------------
 
 The default option for uploading applications is UART. To change it to JTAG, you need to edit the launch configuration for your project and select the appropriate option.
