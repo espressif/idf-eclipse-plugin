@@ -26,16 +26,15 @@ public class PortChecker
 
 	public static boolean isPortAvailable(int port)
 	{
-		try (ServerSocket serverSocket = new ServerSocket(port))
-		{
-			serverSocket.setReuseAddress(true);
-			return true;
-		}
-		catch (Exception e)
-		{
-			Logger.log("Port: " + port + " is not available"); //$NON-NLS-1$ //$NON-NLS-2$
-			return false;
-		}
+		try (Socket socket = new Socket("127.0.0.1", port)) { //$NON-NLS-1$
+	        // If connection is successful, port is in use
+	        Logger.log("Port: " + port + " is not available (in use)");  //$NON-NLS-1$//$NON-NLS-2$
+	        return false;
+	    } catch (IOException e) {
+	        // If connection fails, port is likely available
+	        Logger.log("Port: " + port + " is available"); //$NON-NLS-1$ //$NON-NLS-2$
+	        return true;
+	    }
 	}
 
 	/**
