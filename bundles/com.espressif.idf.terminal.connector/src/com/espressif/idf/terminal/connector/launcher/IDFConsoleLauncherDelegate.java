@@ -397,7 +397,8 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 			}
 			envpList.add(envKey + "=" + envValue); //$NON-NLS-1$
 		}
-
+		//Removing path, since we are using PATH
+		envMap.remove("Path"); //$NON-NLS-1$
 		// Convert back into a string array
 		envp = envpList.toArray(new String[envpList.size()]);
 

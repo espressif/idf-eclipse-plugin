@@ -4,13 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.ui.wizard;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.eclipse.cdt.debug.internal.core.InternalDebugCoreMessages;
 import org.eclipse.core.resources.IProject;
@@ -19,7 +13,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugPlugin;
@@ -42,10 +35,7 @@ import org.eclipse.tools.templates.core.IGenerator;
 import org.eclipse.tools.templates.ui.TemplateWizard;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.MessageConsole;
-import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
 import com.espressif.idf.core.IDFConstants;
@@ -57,7 +47,8 @@ import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.ClangFormatFileHandler;
 import com.espressif.idf.core.util.ClangdConfigFileHandler;
-import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.ConsoleManager;
+import com.espressif.idf.core.util.IdfCommandExecutor;
 import com.espressif.idf.core.util.LaunchUtil;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.handlers.EclipseHandler;
@@ -157,12 +148,14 @@ public class NewIDFProjectWizard extends TemplateWizard
 			{
 				Logger.log(e);
 			}
-			Job job = new Job("Running idf.py reconfigure command...")
+			Job job = new Job(Messages.IdfReconfigureJobName)
 			{
 
 				protected IStatus run(IProgressMonitor monitor)
 				{
-					IStatus status = runCommandIdfPyInIdfEnv(target);
+					IdfCommandExecutor executor = new IdfCommandExecutor(target,
+							ConsoleManager.getConsole("CDT Build Console")); //$NON-NLS-1$
+					IStatus status = executor.executeReconfigure(project);
 					try
 					{
 						IDEWorkbenchPlugin.getPluginWorkspace().getRoot().refreshLocal(IResource.DEPTH_INFINITE, null);
@@ -177,114 +170,6 @@ public class NewIDFProjectWizard extends TemplateWizard
 			job.schedule();
 		});
 		return performFinish;
-	}
-
-	protected IStatus runCommandIdfPyInIdfEnv(String target)
-	{
-		openConsole("CDT Build Console"); //$NON-NLS-1$
-		console.activate();
-		MessageConsoleStream messageConsoleStream = console.newMessageStream();
-		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
-		StringBuilder output = new StringBuilder();
-		int waitCount = 10;
-		List<String> arguments = new ArrayList<String>();
-		try
-		{
-			arguments.add(0, pythonVirtualExecutablePath());
-			arguments.add(1, IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
-			arguments.add("-DIDF_TARGET=" + target); //$NON-NLS-1$
-			arguments.add("reconfigure"); //$NON-NLS-1$
-
-			Map<String, String> environment = new HashMap<>(new IDFEnvironmentVariables().getEnvMap());
-			Logger.log(environment.toString());
-			Process process = processRunner.run(arguments, project.getLocation(), environment);
-			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			String line;
-			while ((line = reader.readLine()) != null)
-			{
-				output.append(line).append(System.lineSeparator());
-				messageConsoleStream.println(line);
-				messageConsoleStream.flush();
-			}
-
-			while (process.isAlive() && waitCount > 0)
-			{
-				try
-				{
-					Thread.sleep(300);
-				}
-				catch (InterruptedException e)
-				{
-					Logger.log(e);
-				}
-				waitCount--;
-			}
-
-			if (waitCount == 0)
-			{
-				messageConsoleStream.println("Process possibly stuck"); //$NON-NLS-1$
-				Logger.log("Process possibly stuck"); //$NON-NLS-1$
-				return Status.CANCEL_STATUS;
-			}
-
-			IStatus status = new Status(process.exitValue() == 0 ? IStatus.OK : IStatus.ERROR, UIPlugin.PLUGIN_ID,
-					process.exitValue(), output.toString(), null);
-			messageConsoleStream.flush();
-			return status;
-		}
-		catch (Exception e1)
-		{
-			Logger.log(IDFCorePlugin.getPlugin(), e1);
-			return IDFCorePlugin.errorStatus(e1.getMessage(), e1);
-		}
-	}
-
-	private void openConsole(String consoleName)
-	{
-		// add it if necessary
-		boolean found = false;
-
-		IConsole[] consoles = ConsolePlugin.getDefault().getConsoleManager().getConsoles();
-		for (int i = 0; i < consoles.length; i++)
-		{
-			if (consoleName.equals(consoles[i].getName()))
-			{
-				console = (MessageConsole) consoles[i];
-				found = true;
-				break;
-			}
-		}
-
-		if (!found)
-		{
-			console = new MessageConsole(consoleName, null);
-			ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[] { console });
-		}
-
-		ConsolePlugin.getDefault().getConsoleManager().showConsoleView(console);
-	}
-
-	protected String pythonVirtualExecutablePath()
-	{
-		String pythonVirtualPath = new IDFEnvironmentVariables()
-				.getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH);
-		StringBuilder pythonVirtualExePath = new StringBuilder();
-		pythonVirtualExePath.append(pythonVirtualPath);
-		pythonVirtualExePath.append("/"); //$NON-NLS-1$
-		if (Platform.getOS().equals(Platform.OS_WIN32))
-		{
-			pythonVirtualExePath.append("Scripts"); //$NON-NLS-1$
-			pythonVirtualExePath.append("/"); //$NON-NLS-1$
-			pythonVirtualExePath.append("python.exe"); //$NON-NLS-1$
-		}
-		else
-		{
-			pythonVirtualExePath.append("bin"); //$NON-NLS-1$
-			pythonVirtualExePath.append("/"); //$NON-NLS-1$
-			pythonVirtualExePath.append("python"); //$NON-NLS-1$
-		}
-
-		return pythonVirtualExePath.toString();
 	}
 
 	private void updateClangFiles(IProject project)
