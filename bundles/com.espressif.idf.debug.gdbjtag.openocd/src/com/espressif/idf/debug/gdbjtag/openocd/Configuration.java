@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
+import org.eclipse.cdt.debug.gdbjtag.core.IGDBJtagConstants;
 import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
 import org.eclipse.cdt.dsf.gdb.IGdbDebugPreferenceConstants;
 import org.eclipse.cdt.dsf.gdb.internal.GdbPlugin;
@@ -25,6 +26,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.embedcdt.core.EclipseUtils;
 import org.eclipse.embedcdt.core.StringUtils;
 import org.eclipse.embedcdt.debug.gdbjtag.core.DebugUtils;
@@ -94,7 +96,11 @@ public class Configuration
 
 			int port = PortChecker
 					.getAvailablePort(DefaultPreferences.GDB_SERVER_GDB_PORT_NUMBER_DEFAULT);
-
+			
+			ILaunchConfigurationWorkingCopy configurationWorkingCopy = configuration.getWorkingCopy();
+			configurationWorkingCopy.setAttribute(IGDBJtagConstants.ATTR_PORT_NUMBER,  port);
+			configurationWorkingCopy.doSave();
+			
 			lst.add("-c"); //$NON-NLS-1$
 			lst.add("gdb_port " + port); //$NON-NLS-1$
 

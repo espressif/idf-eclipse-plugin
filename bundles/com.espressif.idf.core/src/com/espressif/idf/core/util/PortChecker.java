@@ -5,6 +5,7 @@
 package com.espressif.idf.core.util;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -26,7 +27,7 @@ public class PortChecker
 
 	public static boolean isPortAvailable(int port)
 	{
-		try (ServerSocket serverSocket = new ServerSocket(port))
+		try (ServerSocket serverSocket = new ServerSocket(port, 50, InetAddress.getByName("127.0.0.1"))) //$NON-NLS-1$
 		{
 			serverSocket.setReuseAddress(true);
 			return true;

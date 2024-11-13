@@ -173,8 +173,6 @@ public class Launch extends GnuMcuLaunch
 
 			// Add the GDB server process to the launch tree
 			newProcess = addServerProcess(Configuration.getGdbServerCommandName(fConfig));
-			newProcess.setAttribute(IProcess.ATTR_CMDLINE, Configuration.getGdbServerCommandLine(fConfig));
-
 			monitor.worked(1);
 		}
 	}
