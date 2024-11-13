@@ -36,7 +36,7 @@ For more information about available style options, refer to `the Clang-Format S
 Search
 ------
 
-The "search text" option in the right-click menu is currently unavailable in the LSP-based C/C++ Editor. However, you can use the toolbar menu **Search > Text > Workspace** as a workaround.
+The search text option in the right-click menu is currently unavailable in the LSP-based C/C++ Editor. However, you can use the toolbar menu ``Search`` > ``Text`` > ``Workspace`` as a workaround.
 
 Inlay Hints
 -----------
@@ -66,12 +66,12 @@ To browse ESP-IDF components, follow these steps:
 - To search for a specific function or keyword, use the Search menu in the toolbar.
 
 Creating a Virtual Folder
--------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Navigate to **New > Folder**.
-- Click on **Advanced**.
-- Select **Link to alternate Location (Linked Folder)**.
-- Click **Browse** and select the ``ESP-IDF components`` folder.
+- Navigate to ``New`` > ``Folder``.
+- Click on ``Advanced``.
+- Select ``Link to alternate Location (Linked Folder)``.
+- Click ``Browse`` and select the ``ESP-IDF components`` folder.
 
 It is recommended to always create a new project instead of modifying your current one to avoid unnecessary Git files and error markers created by the indexer for the components folder. Since both projects will be in the same workspace, you should be able to search anywhere within your workspace.
 

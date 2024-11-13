@@ -15,15 +15,15 @@ The Espressif-IDE Eclipse Plugin can be installed using the update site URL, Ecl
 
 Installing IDF Plugin using update site URL
 --------------------------------------------
-You can install the IDF Eclipse plugin into an existing IDE using the update site URL. First, add the release repository URL as follows:
+You can install the IDF Eclipse plugin into an existing Eclipse CDT/Espressif-IDE using the update site URL. First, add the release repository URL as follows:
 
-1. Go to `Help` > `Install New Software`.
+1. Go to ``Help`` > ``Install New Software``.
 2. Click `Add…`, and in the pop-up window:
     * Enter `Name` as `Espressif IDF Plugin for Eclipse`.
     * Enter `Location` of the repository
         * For the stable release: `<https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/>`_.
     * Click `Add`.
-3. Select `Espressif IDF` from the list and proceed with the installation.
+3. Select all from the list and proceed with the installation.
 
 For adding beta and nightly builds, you can use the following update site URLs:
    * For Beta version: `<https://dl.espressif.com/dl/idf-eclipse-plugin/updates/beta/>`_.
