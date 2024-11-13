@@ -79,7 +79,7 @@ How can I rollback to old ESP-IDF Eclipse plugin?
 -------------------------------------------------
 - Open Eclipse IDE and Uninstall the esp-idf plugin.
 - Restart Eclipse IDE.
-- Download the previous version of the ESP Eclipse Plugin using this `link`_.
+- Download the previous version of the ESP Eclipse Plugin from the release page
 - Go to `Help > Install New Software`.
 - Press the `Add` button, a window will open with the name of `Add Repository`.
 - Press the `Archive` button and select the file downloaded.

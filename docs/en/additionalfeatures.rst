@@ -22,4 +22,4 @@ Additional IDE Features
     Configure CDT Build Environment Variables<additionalfeatures/configureenvvariables>
     Configuring Clang Toolchain<additionalfeatures/clangtoolchain>
     Update Site Installation Guide<marketplaceupdate>
-    windowsofflineinstaller<windowsofflineinstaller>
+    Windows Offline Installer<windowsofflineinstaller>
