@@ -3,7 +3,7 @@ NVS Table Editor
 
 The NVS Table Editor helps create a binary file based on key-value pairs provided in a CSV file. The resulting binary file is compatible with the NVS architecture as defined in `ESP-IDF Non Volatile Storage <https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/storage/nvs_flash.html>`_. The expected CSV format is:
 
-.. code-block:: csv
+.. code-block:: text
 
    key,type,encoding,value      <-- column header (must be the first line)
    namespace_name,namespace,,   <-- First entry must be of type "namespace"
