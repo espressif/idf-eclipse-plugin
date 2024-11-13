@@ -112,15 +112,15 @@ After stopping the target at the default breakpoint, you will be suggested to sw
 You can customize the `Debug perspective` in your own way, for example, move some tabs, add additional views that you might find useful, or remove them. To add a view, follow these steps:
 
 * On the top panel of the Eclipse click on `Window`
-* `Short View`
+* `Show View`
 * Select the view you want to add
 
 .. image:: ../../media/OpenOCDDebug_12.png
 
 Troubleshooting
 ---------------
-* Please make sure you always have the latest `<https://github.com/espressif/idf-eclipse-plugin/releases/>`_ ESP-IDF Eclipse Plugin/Espressif-IDE.
-* Please check `<https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/jtag-debugging/index.html#selecting-jtag-adapter>`_ if the board has JTAG enabled.
+* Please make sure you always have the latest `Espressif-IDE <https://github.com/espressif/idf-eclipse-plugin/releases/>`_ .
+* Please check `this <https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/jtag-debugging/index.html#selecting-jtag-adapter>`_ if the board has JTAG enabled.
 * If there is any OpenOCD timeout issue, please increase the GDB server timeout value `<https://www.esp32.com/viewtopic.php?f=40&t=36164#p122701>`_ from the preferences. Usually, this happens while working with large-size applications.
-* If you see any error while debugging, please check this OpenOCD troubleshooting FAQ guide `<https://github.com/espressif/openocd-esp32/wiki/Troubleshooting-FAQ>`_ and see if that helps to resolve the issue.
-* If you have any issue and want to enable OpenOCD debugging verbose, please check Enable verbose output `<https://github.com/espressif/idf-eclipse-plugin/blob/master/docs_readme/OpenOCD%20Debugging.md#startup-tab>`_ option from the startup tab.
+* If you see any error while debugging, please check this OpenOCD troubleshooting `FAQ guide <https://github.com/espressif/openocd-esp32/wiki/Troubleshooting-FAQ>`_ and see if that helps to resolve the issue.
+* If you have any issue and want to enable OpenOCD debugging verbose, please check Enable verbose output option from the startup tab.
