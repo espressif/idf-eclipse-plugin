@@ -2,9 +2,9 @@ Connect Your Device
 ===============================
 Next, select the ESP target for your project (ignore this step if it was already set during project creation) and the serial port of your device by clicking on the gear icon. By default, the launch target dropdown will display all the supported targets provided by the plugin.
 
-.. image:: https://github.com/espressif/idf-eclipse-plugin/assets/8463287/8d85c547-5cd3-4c10-8ca2-9bb5d69b4bce
+.. image:: ../../media/target_selection.png
 
-Clicking on the gear icon will open the launch configuration dialog. Here, you can select the serial port for your device.
+Clicking the gear icon opens the ESP Target Configuration dialog, where you can select the serial port for your device and specify the ESP board. The plugin will automatically detect serial ports connected to your machine.
 
 .. image:: ../../media/8_launch_target.png
 
