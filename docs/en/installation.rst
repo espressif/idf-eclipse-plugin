@@ -60,4 +60,3 @@ Let's take a look at how multiple versions will look. Follow the same steps as b
 To activate any specific version, simply click on the radio button next to it in the ``Active`` column.
 
 The refresh button in the last column for the active ESP-IDF version can be used to reload any changes in the directory you made.
-

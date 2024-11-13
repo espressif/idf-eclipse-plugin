@@ -1,7 +1,7 @@
 .. _dfuflashing:
 
 Device Firmware Upgrade (DFU) through USB
-=========================================
+==========================================
 
 Device Firmware Upgrade (DFU) is a mechanism for upgrading the firmware of devices through Universal Serial Bus (USB). There are a few requirements that need to be met:
 
@@ -38,5 +38,5 @@ After meeting the above requirements, you can proceed to build and flash via DFU
 .. image:: https://user-images.githubusercontent.com/24419842/226182180-286099d3-9c1c-4394-abb0-212d43054529.png
    :alt: DFU actions
 
-Additional information, including common errors and known issues, is available in this `guide <https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/dfu.html#usb-drivers-windows-only>`_.
+Additional information, including common errors and known issues, is available in `this <https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/dfu.html#usb-drivers-windows-only>`_.
 

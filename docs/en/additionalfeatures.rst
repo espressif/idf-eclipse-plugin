@@ -21,3 +21,5 @@ Additional IDE Features
     Switch Between Languages<additionalfeatures/switchlanguage>
     Configure CDT Build Environment Variables<additionalfeatures/configureenvvariables>
     Configuring Clang Toolchain<additionalfeatures/clangtoolchain>
+    Update Site Installation Guide<marketplaceupdate>
+    windowsofflineinstaller<windowsofflineinstaller>
