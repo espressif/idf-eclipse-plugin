@@ -19,7 +19,7 @@ You can find the latest Espressif-IDE release notes from `here <https://github.c
 
 
 macOS security notice (Applicable only for Nightly Builds)
------------------------------------------------------
+------------------------------------------------------------
 On macOS, if you download the archive with the browser, the strict security checks on recent macOS will prevent it to run, and complain that the program is damaged. That’s obviously not true, and the fix is simple, you need to remove the `com.apple.quarantine` extended attribute.
 
 .. code-block:: shell
