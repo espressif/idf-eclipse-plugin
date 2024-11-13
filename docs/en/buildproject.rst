@@ -34,3 +34,10 @@ The IDE allows configuring a custom build directory for the project:
 
 .. image:: ../../media/custombuilddir.png
    :alt: Custom Build Directory Configuration
+
+References
+----------
+.. toctree::
+    :maxdepth: 1
+
+      Configure CDT Build Environment Variables<additionalfeatures/configureenvvariables>

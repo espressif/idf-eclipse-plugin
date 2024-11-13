@@ -74,3 +74,13 @@ Creating a Virtual Folder
 - Click **Browse** and select the ``ESP-IDF components`` folder.
 
 It is recommended to always create a new project instead of modifying your current one to avoid unnecessary Git files and error markers created by the indexer for the components folder. Since both projects will be in the same workspace, you should be able to search anywhere within your workspace.
+
+If you have any issues with the Clangd Configuration with the LSP Editor, please refer to the :ref:`Clangd Configuration <clangd_cdt_support>` guide.
+
+References
+----------
+.. toctree::
+    :maxdepth: 1
+
+    Clangd CDT Support and Configuration <clangd_cdt_support>
+    Configuring Clang Toolchain<clangtoolchain>

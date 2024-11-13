@@ -19,7 +19,5 @@ Additional IDE Features
     DFU Flashing<additionalfeatures/dfu>
     Wokwi Simulator<additionalfeatures/wokwisimulator>
     Switch Between Languages<additionalfeatures/switchlanguage>
-    Configure CDT Build Environment Variables<additionalfeatures/configureenvvariables>
-    Configuring Clang Toolchain<additionalfeatures/clangtoolchain>
-    Update Site Installation Guide<marketplaceupdate>
-    Windows Offline Installer<windowsofflineinstaller>
+
+
