@@ -3,7 +3,7 @@
 Installing Espressif-IDE by Windows Offline Installer
 ======================================================
 
-Espressif-IDE Installer (All-in-One) is an offline installer and it comes with all the required components to work with the ESP-IDF Application development.
+`Espressif-IDE with ESP-IDF Windows Offline Installer` is an offline installer that includes all the required components for ESP-IDF application development.
 
 The installer deploys the following components:
 
@@ -17,12 +17,11 @@ The installer deploys the following components:
 
 As Installer bundles, all the required components and tools including stable esp-idf so people behind corporate firewalls can use the whole solution out-of-box. This also configures all the required build environment variables and tool paths as you launch the IDE. All you could do is to get started with your project directly without manually configuring anything. This will give you a big boost to your productivity!
 
-More details about the standard setup of toolchain for Windows can be found in the `windows-setup <https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/windows-setup.html>`_.
 
 Download
 --------
 
-You can download the latest version of the installer from `this <https://dl.espressif.com/dl/esp-idf/>`_ and run the installer. You can find installer name with `espressif-ide-setup-2.10.0-with-esp-idf-5.0.1` or similar name based on the version of the installer and the version of the ESP-IDF.
+You can download the latest version of the installer from `this <https://dl.espressif.com/dl/esp-idf/>`_ and run the installer. You can find installer name with ``Espressif-IDE-3.1.1 with ESP-IDF v5.3.1`` or similar name based on the version of the IDE and the version of the ESP-IDF.
 
 Choose the Installer as shown below.
 
@@ -123,7 +122,7 @@ Step 10: Build Your First Project
 
 As IDE already configured with all the required environment variables, you can start with your project.
 
-You can find more details for creating a project in the `New Project <https://github.com/espressif/idf-eclipse-plugin#create-a-new-project>`_ section of the documentation.
+You can find more details for creating a project in the :ref:`New Project <startproject>` section of the documentation.
 
 .. image:: ../../media/windows-installation/ide_windows_installer_14.png
    :alt: drawing

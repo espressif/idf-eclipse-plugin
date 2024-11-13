@@ -6,7 +6,9 @@ Build the Project
    :align: middle
 
 
-Once you have created a project and configured the esp target and serial port, you can build the project by following the steps below:
+Once you have created a project and configured the esp target and serial port, you can build the project by clicking on |build_icon| in the toolbar.
+
+However, below steps will guide you through the process of building the project if you are new to the IDE:
 
 1. Select a project from the ``Project Explorer``.
 2. Select ``Run`` from the first dropdown, which is called ``Launch Mode``.

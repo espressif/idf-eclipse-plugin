@@ -3,10 +3,11 @@ Installation
 
 Configuring and installing the Espressif-IDE involves two main steps:
 
-1. :ref:`Installing the Espressif-IDE <esp-idf-installation>`
+1. :ref:`Downloading and Installing the Espressif-IDE <esp-idf-installation>`
 2. :ref:`Installing the ESP-IDF and related tools within the Espressif-IDE <esp-idf-tools-installation>`
 
-For Eclipse CDT users who prefer installing the ESP-IDF Eclipse Plugin via the Update site, please refer to the :ref:`Update Site Installation Guide <marketplaceupdate>`. 
+.. note::
+   For Eclipse CDT users who prefer installing the ESP-IDF Eclipse Plugin via the `Update site <https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/>`_, please refer to the :ref:`Update Site Installation Guide <marketplaceupdate>`. 
 
 Espressif-IDE Installation
 ----------------------------
@@ -16,12 +17,14 @@ To begin, navigate to the section corresponding to your operating system below a
 
 Windows
 ~~~~~~~~
-
-Download the `Espressif-IDE with ESP-IDF Offline Windows Installer <https://dl.espressif.com/dl/esp-idf/>`_ and follow the instructions provided :ref:`here <windowsofflineinstaller>`. This guide will walk you through the installation process for Java, Git, CMake, ESP-IDF, IDF Tools, Device Drivers, and Espressif-IDE to help you get started.
+.. note::
+   For Windows users, Espressif-IDE is available with ESP-IDF as an offline installer.
+   
+To download and install it, follow the instructions provided :ref:`here <windowsofflineinstaller>`. This guide will walk you through the installation process for Java, Git, CMake, ESP-IDF, IDF Tools, Device Drivers, and Espressif-IDE to help you get started.
 
 macOS/Linux
 ~~~~~~~~~~~~
-Download the Espressif-IDE for your respective operating system from the :ref:`download section <downloads>`. After downloading, launch the IDE and proceed to install the necessary ESP-IDF and related tools. Please ensure that Java, Python, and Git are installed as prerequisites and are available in the system path before launching the IDE.
+Download the Espressif-IDE for your respective operating system from the :ref:`download section <downloads>`. After downloading, launch the IDE and proceed to :ref:`install the necessary ESP-IDF and related tools <esp-idf-tools-installation>`. Please ensure that Java, Python, and Git are installed as prerequisites and are available in the system path before launching the IDE.
 
 ESP-IDF and Tools Installation
 -------------------------------

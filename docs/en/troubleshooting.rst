@@ -3,8 +3,16 @@
 Troubleshooting
 ===============
 
+- :ref:`suggestions_for_build_errors`
+- :ref:`error_log`
+- :ref:`console_view_log`
+- :ref:`cdt_global_build_log`
+- :ref:`espressif_idf_tools_console`
+
+.. _suggestions_for_build_errors:
+
 Suggestions for Build Errors using Hints Viewer
------------------------------------------------------------
+------------------------------------------------
 If you encounter a problem during a build, there may be a hint for this error in the ESP-IDF hint database, located at ``tools/idf_py_actions/hints.yml`` in ESP-IDF. The ESP-IDF Eclipse plugin provides a hint viewer where you can type an error message to find a hint for it.
 
 **Prerequisites:** The ``hints.yml`` file is available from ESP-IDF v5.0 and higher. If you are using an older version, you can manually download the ``hints.yml`` file from `here <https://github.com/espressif/esp-idf/blob/master/tools/idf_py_actions/hints.yml>`_ and save it to ``esp-idf/tools/idf_py_actions/``. To download the file, right-click the ``Raw`` button and select ``Save as...``.
@@ -26,6 +34,8 @@ Double-clicking on the row will display the hint message if it doesn't fully fit
 .. image:: https://user-images.githubusercontent.com/24419842/189673174-8ce40cda-6933-4dc4-a555-5d2ca617256e.png
    :alt: Hint Message
 
+.. _error_log:
+
 Error Log
 ---------
 The Error Log view captures warnings and errors logged by plug-ins. The log file is stored in the ``.log`` file within the ``.metadata`` subdirectory of the workspace.
@@ -42,6 +52,8 @@ It's recommended to include an error log when reporting an issue.
 .. image:: ../../media/export_log.png
    :alt: Export Log
 
+.. _console_view_log:
+
 Console View Log
 ----------------
 The Console View shows warnings and errors related to the current running process or build. To access the Console View:
@@ -51,10 +63,14 @@ The Console View shows warnings and errors related to the current running proces
 .. image:: ../../media/CDT_Build_Console.png
    :alt: Console View
 
+.. _cdt_global_build_log:
+
 CDT Global Build Log
 --------------------
 To enable global build logging:
 - Go to ``Preferences`` > ``C/C++`` > ``Build`` > ``Logging``.
+
+.. _espressif_idf_tools_console:
 
 Espressif IDF Tools Console
 ----------------------------

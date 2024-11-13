@@ -3,14 +3,12 @@
 Update Site Installation Guide
 ======================================
 
-.. toctree::
-    :maxdepth: 2
-    :caption: Contents:
+The Espressif-IDE Eclipse Plugin can be installed using the update site URL, Eclipse Marketplace, or a local archive. This guide provides instructions for each method.
 
-    installUpdateSiteURL
-    install_idf_eclipse_plugin_marketplace
-    install_idf_eclipse_plugin_local_archive
-    upgradePlugins
+- :ref:`installUpdateSiteURL`
+- :ref:`install_idf_eclipse_plugin_marketplace`
+- :ref:`install_idf_eclipse_plugin_local_archive`
+- :ref:`upgradePlugins`
 
 
 .. _installUpdateSiteURL:

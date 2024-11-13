@@ -1,6 +1,6 @@
-Switching Language in Espressif IDE
+Switch Between Languages in Espressif IDE
 =======================================
-To change the plugin language, a menu is provided to show the list of available languages for the plugin.
+Espressif IDE supports English and Chinese languages. You can switch between these languages using the following steps:
 
 1. Click on the ``Espressif`` menu from the menu bar.
 2. Select ``Change Language`` from the drop-down menu.

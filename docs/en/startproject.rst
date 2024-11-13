@@ -1,3 +1,5 @@
+.. _startproject:
+
 Start a Project
 ===============================
 
@@ -13,10 +15,14 @@ Create a New Project
 ---------------------
 To create a new Project in the Espressif-IDE, follow the steps below:
 
-#. Make sure you are in ``C/C++ Perspective``.
 #. Go to ``File > New > Espressif IDF Project``.
 #. Provide the ``Project name``
 #. Click ``Finish``.
+
+.. Note::
+    The ESP-IDF build system does not support spaces in the paths to either ESP-IDF or to projects.
+
+.. image:: ../../media/newproject_menu.png
 
 .. _newprojecttemplate:
 
@@ -25,6 +31,7 @@ Create a New Project Using ESP-IDF Templates
 Espressif-IDE also offers the ability to create a project using the ESP-IDF templates, which can be accessed by following the steps below:
 
 #. Go to ``File > New > Espressif IDF Project``.
+#. Choose a target board from the ``Select Project Target`` dropdown.
 #. Click on ``Create a project using one of the templates`` from the Templates section.
 #. Select the template you want to use and that automatically fills the project name based on the template selected.
 #. Click Finish.

@@ -84,7 +84,7 @@ Common Tab
 ----------
 You can save your debug logs to an external file. To do this:
 
-* Go-to Common tab.
+* Goto Common tab.
 * Under `Standard Input and Output` section: Select Output file checkbox, enter log file name and path where you want logs to be redirected.
 * Apply changes and run your application.
 
@@ -93,7 +93,8 @@ You can save your debug logs to an external file. To do this:
 
  .. image:: ../../media/OpenOCDDebug_13.png
 
-## Preferences for OpenOCD Configuration
+Preferences for OpenOCD Configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 OpenOCD path is auto-configured based on the `OPENOCD_SCRIPTS` path defined in the CDT Build environment variables.
 
 .. image:: ../../media/OpenOCDDebug_2.png

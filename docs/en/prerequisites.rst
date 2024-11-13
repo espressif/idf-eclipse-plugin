@@ -1,6 +1,6 @@
 Prerequisites
 ===============================
-This document outlines the necessary requirements for installing and running the Espressif-IDE for building applications with the ESP-IDF.
+This document outlines the necessary requirements for installing and running Espressif-IDE to build applications with ESP-IDF.
 
 Hardware Prerequisites
 -----------------------
