@@ -36,6 +36,8 @@ Features
 
 For more about this project please see https://github.com/espressif/idf-eclipse-plugin
 
+Contents
+----------------
 .. toctree::
     :maxdepth: 1
 

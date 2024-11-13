@@ -8,6 +8,8 @@ Clicking on the gear icon will open the launch configuration dialog. Here, you c
 
 .. image:: ../../media/8_launch_target.png
 
+Regarding the Serial ports and their patterns, please refer to the `ESP-IDF documentation <https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/linux-macos-setup.html#connect-your-device>`_.
+
 Custom Target
 ----------------
 If you need to add a target that is not available in the launch target dropdown, please follow the instructions below:
