@@ -698,6 +698,19 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		}
 		// --------------------------------------------------------------------
 	}
+	
+	@Override
+	/**
+	 * This method takes care of cleaning up any resources allocated by the launch, as early as
+	 * the call to getLaunch(), whenever the launch is cancelled or does not complete properly.
+	 * @since 5.0 */
+	protected void cleanupLaunch(ILaunch launch) throws DebugException
+	{
+		if (launch instanceof GdbLaunch)
+		{
+			launch.terminate();
+		}
+	}
 
 	/**
 	 * Perform some local validations before starting the debug session.
