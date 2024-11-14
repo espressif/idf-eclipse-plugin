@@ -95,19 +95,6 @@ Check below links:
 - https://esp32.com/viewtopic.php?f=13&t=12327&start=10#p50137 
 - https://stackoverflow.com/questions/6908948/java-sun-security-provider-certpath-suncertpathbuilderexception-unable-to-find
 
-## Why Java 11 recommended for IDF Eclipse Plugin?
-We recommend using Java 11(that's the latest LTS version from Oracle) and above while working with IDF Eclipse Plugin considering Eclipse 2020-06 has a requirement for Java 11 to work with the CDT. Here are some important pointers from Eclipse.
-
-### Installing CDT 9.11 on Eclipse 2020-06 and later requires a workaround when using Java 8
-Check this - https://wiki.eclipse.org/CDT/User/NewIn911#Release
-
-CDT 9.11 only requires Java 8 to run. However, a new feature in Eclipse 2020-06 and later means that the install wizard may prevent installation. The workaround is to disable "Verify provisioning operation is compatible with currently running JRE" in Windows -> Preferences -> Install/Update. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=564407#c1
-
-### CDT 10.0 required Java 11 or later
-Check this - https://wiki.eclipse.org/CDT/User/NewIn100
-
-Starting with CDT 10.0 Java 11 or later is required to run CDT. This aligns with requirements of Eclipse IDE which also requires Java 11 to run starting in 2020-09.
-
 ## How to delete Launch Targets from the Eclipse
 There is no UI option to delete launch targets directly from the eclipse, however this can be achieved by following the below instructions.
 - Go to the Eclipse workspace directory. For example: In my case /Users/myName/myTesteclipseWorkspace

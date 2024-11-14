@@ -1,4 +1,4 @@
-name: Documentation Build and Deploy CI
+name: Documentation Build and Preview Deploy CI
 
 on:
   push:
