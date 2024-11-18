@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 Liviu Ionescu.
+ * Copyright (c) 2006, 2012 Wind River Systems, Nokia and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,10 +7,28 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
- *     Liviu Ionescu - initial version
+ *     Nokia              - initial API and implementation with some code moved from GDBControl.
+ *     Wind River System
+ *     Ericsson
+ *     Marc Khouzam (Ericsson) - Use the new IMIBackend2 interface (Bug 350837)
+ *     Mark Bozeman (Mentor Graphics) - Report GDB start failures (Bug 376203)
+ *     Iulia Vasii (Freescale Semiconductor) - Separate GDB command from its arguments (Bug 445360)
  *******************************************************************************/
+
+/* ----------------------------------------------------------------------------
+ *
+ * Copied here because we need the new version, but still remain compatible
+ * with Kepler. When dependency to Kepler will be removed, this file will
+ * no longer be necessary.
+ *
+ * It is identical to the newer GDBBackend, with the following changes:
+ * - package org.eclipse.embedcdt.debug.gdbjtag.jlink.dsf;
+ * - some imports
+ * - @SuppressWarnings("restriction")
+ *
+ * ------------------------------------------------------------------------- */
 
 package com.espressif.idf.debug.gdbjtag.openocd.dsf;
 
@@ -72,17 +90,25 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.embedcdt.debug.gdbjtag.core.DebugUtils;
+import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuGdbBackend;
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuProcesses_7_2_1.ProcessStateChangedEvent;
 import org.osgi.framework.BundleContext;
 
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
 
-/**
- * The Kepler CDT GDBBackend does not allow such a simple customisation, we had
- * to copy a newer version locally and use it.
- */
 
+/**
+ * Implementation of {@link IGDBBackend} for the common case where GDB is
+ * launched in local file system on host PC where Eclipse runs. This also
+ * manages some GDB parameters from a given launch configuration.<br>
+ * <br>
+ * You can subclass for you special needs.
+ *
+ * @since 1.1
+ * 
+ * This class is taken from {@link GnuMcuGdbBackend}
+ */
 public class GdbBackend extends AbstractDsfService implements IGDBBackend, IMIBackend2 {
 
 	private final ILaunchConfiguration fLaunchConfiguration;
