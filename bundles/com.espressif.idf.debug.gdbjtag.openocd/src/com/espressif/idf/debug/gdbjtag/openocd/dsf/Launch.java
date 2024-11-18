@@ -32,15 +32,16 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.ISourceLocator;
-import org.eclipse.debug.internal.core.LaunchConfigurationWorkingCopy;
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuLaunch;
+import org.eclipse.swt.widgets.Display;
 
-import com.espressif.idf.core.util.PortChecker;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
 import com.espressif.idf.debug.gdbjtag.openocd.ConfigurationAttributes;
@@ -57,6 +58,8 @@ public class Launch extends GnuMcuLaunch
 	private DsfSession fSession;
 	private DsfServicesTracker fTracker;
 	private DefaultDsfExecutor fExecutor;
+	private IProcess openOcdServerProcess;
+	private IProcess gdbIProcess;
 
 	// ------------------------------------------------------------------------
 
@@ -165,14 +168,13 @@ public class Launch extends GnuMcuLaunch
 			System.out.println("openocd.Launch.initializeServerConsole()");
 		}
 
-		IProcess newProcess;
 		boolean doAddServerConsole = Configuration.getDoAddServerConsole(fConfig);
 
 		if (doAddServerConsole)
 		{
 
 			// Add the GDB server process to the launch tree
-			newProcess = addServerProcess(Configuration.getGdbServerCommandName(fConfig));
+			openOcdServerProcess = addServerProcess(Configuration.getGdbServerCommandName(fConfig));
 			monitor.worked(1);
 		}
 	}
@@ -185,11 +187,10 @@ public class Launch extends GnuMcuLaunch
 			System.out.println("openocd.Launch.initializeConsoles()");
 		}
 
-		IProcess newProcess;
 		{
 			// Add the GDB client process to the launch tree.
-			newProcess = addClientProcess(Configuration.getGdbClientCommandName(fConfig));
-			newProcess.setAttribute(IProcess.ATTR_CMDLINE, Configuration.getGdbClientCommandLine(fConfig));
+			gdbIProcess = addClientProcess(Configuration.getGdbClientCommandName(fConfig));
+			gdbIProcess.setAttribute(IProcess.ATTR_CMDLINE, Configuration.getGdbClientCommandLine(fConfig));
 
 			monitor.worked(1);
 		}
@@ -244,4 +245,31 @@ public class Launch extends GnuMcuLaunch
 	}
 
 	// ------------------------------------------------------------------------
+	
+	@Override
+	public void terminate() throws DebugException
+	{
+		super.terminate();
+		for(IProcess process : getProcesses())
+		{
+			if (process != null)
+			{
+				try
+				{
+					process.terminate();	
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+					
+			}
+		}
+	}
+	
+	@Override
+	public IProcess[] getProcesses()
+	{
+		return new IProcess[] { openOcdServerProcess, gdbIProcess };
+	}
 }

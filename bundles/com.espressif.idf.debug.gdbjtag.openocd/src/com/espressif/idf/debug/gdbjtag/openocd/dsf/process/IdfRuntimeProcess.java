@@ -16,6 +16,7 @@ import org.eclipse.debug.core.model.IStreamsProxy;
 import org.eclipse.debug.core.model.RuntimeProcess;
 import org.eclipse.debug.internal.core.NullStreamsProxy;
 
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.dsf.process.monitors.StreamsProxy;
 
 /**
@@ -38,6 +39,10 @@ public class IdfRuntimeProcess extends GDBProcess
 	@Override
 	protected IStreamsProxy createStreamsProxy()
 	{
+		if(!StringUtil.isEmpty(getLabel()) && getLabel().contains("gdb"))
+		{
+			return super.createStreamsProxy();
+		}
 		String captureOutput = getLaunch().getAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT);
 		fCaptureOutput = !("false".equals(captureOutput)); //$NON-NLS-1$
 		if (!fCaptureOutput)
