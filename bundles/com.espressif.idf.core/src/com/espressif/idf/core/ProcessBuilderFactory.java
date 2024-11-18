@@ -37,7 +37,10 @@ public class ProcessBuilderFactory
 		{
 			processBuilder.environment().putAll(environment);
 			// Removing Path, because we are using PATH
-			processBuilder.environment().remove("Path"); //$NON-NLS-1$
+			if (processBuilder.environment().containsKey("PATH") && processBuilder.environment().containsKey("Path")) //$NON-NLS-1$
+			{
+				processBuilder.environment().remove("Path"); //$NON-NLS-1$
+			}
 		}
 
 		processBuilder.redirectErrorStream(true);
