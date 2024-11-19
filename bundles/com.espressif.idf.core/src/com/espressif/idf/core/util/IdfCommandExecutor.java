@@ -46,7 +46,7 @@ public class IdfCommandExecutor
 	{
 		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 		List<String> arguments = prepareArguments();
-		Map<String, String> environment = new HashMap<>(new IDFEnvironmentVariables().getEnvMap());
+		Map<String, String> environment = new HashMap<>(new IDFEnvironmentVariables().getSystemEnvMap());
 
 		try (MessageConsoleStream messageConsoleStream = console.newMessageStream())
 		{
