@@ -39,10 +39,6 @@ public class IdfRuntimeProcess extends GDBProcess
 	@Override
 	protected IStreamsProxy createStreamsProxy()
 	{
-		if(!StringUtil.isEmpty(getLabel()) && getLabel().contains("gdb"))
-		{
-			return super.createStreamsProxy();
-		}
 		String captureOutput = getLaunch().getAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT);
 		fCaptureOutput = !("false".equals(captureOutput)); //$NON-NLS-1$
 		if (!fCaptureOutput)

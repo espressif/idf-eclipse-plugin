@@ -14,7 +14,9 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd.dsf;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -270,6 +272,13 @@ public class Launch extends GnuMcuLaunch
 	@Override
 	public IProcess[] getProcesses()
 	{
-		return new IProcess[] { openOcdServerProcess, gdbIProcess };
+		List<IProcess> processes = new ArrayList<>();
+	    if (openOcdServerProcess != null) {
+	        processes.add(openOcdServerProcess);
+	    }
+	    if (gdbIProcess != null) {
+	        processes.add(gdbIProcess);
+	    }
+	    return processes.toArray(new IProcess[0]);
 	}
 }
