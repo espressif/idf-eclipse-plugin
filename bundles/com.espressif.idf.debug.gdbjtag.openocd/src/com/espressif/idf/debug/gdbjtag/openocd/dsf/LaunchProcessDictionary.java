@@ -3,6 +3,7 @@ package com.espressif.idf.debug.gdbjtag.openocd.dsf;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IProcess;
 
 public class LaunchProcessDictionary
@@ -47,6 +48,26 @@ public class LaunchProcessDictionary
 		}
 		
 		return processDictionary.get(launchName).get(procName);
+	}
+	
+	public void killAllProcessesInLaunch(String launchName)
+	{
+		if(!processDictionary.containsKey(launchName))
+		{
+			return;
+		}
+		
+		for (IProcess process : processDictionary.get(launchName).values())
+		{
+			try
+			{
+				process.terminate();
+			}
+			catch (DebugException e)
+			{
+				e.printStackTrace();
+			}
+		}
 	}
 
 }

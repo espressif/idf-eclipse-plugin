@@ -264,22 +264,22 @@ public class Launch extends GnuMcuLaunch
 	public void terminate() throws DebugException
 	{
 		super.terminate();
-		for(IProcess process : getProcesses())
-		{
-			if (process != null)
-			{
-				try
-				{
-					process.terminate();	
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-				}
-					
-			}
-		}
+		
+		LaunchProcessDictionary.getInstance().killAllProcessesInLaunch(getLaunchConfiguration().getName());
 	}
+	
+	@Override
+	public boolean canDisconnect()
+	{
+		return true;
+	}
+	
+	@Override
+	public boolean canTerminate()
+	{
+		return true;
+	}
+	
 	
 	@Override
 	public IProcess[] getProcesses()
