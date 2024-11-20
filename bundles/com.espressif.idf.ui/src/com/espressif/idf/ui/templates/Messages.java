@@ -23,7 +23,8 @@ public class Messages extends NLS
 	public static String TemplateGroupHeader;
 	public static String NewProjectTargetSelection_Tooltip;
 	public static String NewProjectTargetSelection_Label;
-	
+	public static String RunIdfCommandButtonTxt;
+
 	static
 	{
 		// initialize resource bundle

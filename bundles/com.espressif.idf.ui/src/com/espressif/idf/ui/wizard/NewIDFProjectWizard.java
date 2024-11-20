@@ -40,9 +40,6 @@ import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.LaunchBarTargetConstants;
-import com.espressif.idf.core.IDFCorePlugin;
-import com.espressif.idf.core.IDFEnvironmentVariables;
-import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.ClangFormatFileHandler;
@@ -148,28 +145,37 @@ public class NewIDFProjectWizard extends TemplateWizard
 			{
 				Logger.log(e);
 			}
-			Job job = new Job(Messages.IdfReconfigureJobName)
+			if (projectCreationWizardPage.isRunIdfReconfigureEnabled())
 			{
+				runIdfReconfigureCommandJob(target);
 
-				protected IStatus run(IProgressMonitor monitor)
-				{
-					IdfCommandExecutor executor = new IdfCommandExecutor(target,
-							ConsoleManager.getConsole("CDT Build Console")); //$NON-NLS-1$
-					IStatus status = executor.executeReconfigure(project);
-					try
-					{
-						IDEWorkbenchPlugin.getPluginWorkspace().getRoot().refreshLocal(IResource.DEPTH_INFINITE, null);
-					}
-					catch (CoreException e)
-					{
-						Logger.log(e);
-					}
-					return status;
-				}
-			};
-			job.schedule();
+			}
 		});
 		return performFinish;
+	}
+
+	private void runIdfReconfigureCommandJob(final String target)
+	{
+		Job job = new Job(Messages.IdfReconfigureJobName)
+		{
+
+			protected IStatus run(IProgressMonitor monitor)
+			{
+				IdfCommandExecutor executor = new IdfCommandExecutor(target,
+						ConsoleManager.getConsole("CDT Build Console")); //$NON-NLS-1$
+				IStatus status = executor.executeReconfigure(project);
+				try
+				{
+					IDEWorkbenchPlugin.getPluginWorkspace().getRoot().refreshLocal(IResource.DEPTH_INFINITE, null);
+				}
+				catch (CoreException e)
+				{
+					Logger.log(e);
+				}
+				return status;
+			}
+		};
+		job.schedule();
 	}
 
 	private void updateClangFiles(IProject project)
