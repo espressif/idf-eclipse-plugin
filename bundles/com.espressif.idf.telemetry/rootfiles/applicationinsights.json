@@ -1,0 +1,6 @@
+{
+  "connectionString": "InstrumentationKey=912cbb4e-e606-4c4f-9a00-1731acb15117;IngestionEndpoint=https://eastasia-0.in.applicationinsights.azure.com/;LiveEndpoint=https://eastasia.livediagnostics.monitor.azure.com/;ApplicationId=1efdbec9-ed3f-4e75-a44d-67c6708b6d79",
+  "role": {
+    "name": "Espressif-IDE"
+  }
+}
