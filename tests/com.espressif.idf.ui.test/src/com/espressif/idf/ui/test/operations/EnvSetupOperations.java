@@ -4,10 +4,8 @@ import static org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory.wi
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
-import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 
-import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 
@@ -47,15 +45,6 @@ public class EnvSetupOperations
 		{
 			prefrencesShell.bot().checkBox("Refresh using native hooks or polling").click();
 		}
-
-		prefrencesShell.bot().tree().getTreeItem("C/C++").select();
-		prefrencesShell.bot().tree().getTreeItem("C/C++").expand();
-		prefrencesShell.bot().tree().getTreeItem("C/C++").getNode("Indexer").select();
-		if (prefrencesShell.bot().checkBox("Enable indexer").isChecked())
-		{
-			prefrencesShell.bot().checkBox("Enable indexer").click();
-		}
-
 		prefrencesShell.bot().button("Apply and Close").click();
 
 		bot.toolbarButtonWithTooltip("Select and deselect filters to apply to the content in the tree").click();
@@ -88,6 +77,8 @@ public class EnvSetupOperations
 		consoleView.show();
 		consoleView.setFocus();
 		TestWidgetWaitUtility.waitUntilViewContains(bot, "Tools Activated", consoleView, 99000000);
+		bot.cTabItem("ESP-IDF Manager").activate();
+		bot.cTabItem("ESP-IDF Manager").close();
 		SETUP = true;
 	}
 

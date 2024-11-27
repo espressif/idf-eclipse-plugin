@@ -85,7 +85,8 @@ public class ProjectTestOperations
 		consoleView.show();
 		consoleView.setFocus();
 		TestWidgetWaitUtility.waitUntilViewContains(bot, "Build complete", consoleView,
-				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_PROJECT_BUILD_WAIT_PROPERTY, 600000));
+				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_PROJECT_BUILD_WAIT_PROPERTY, 300000));
+		consoleView.close();
 	}
 
 	public static void waitForProjectNewComponentInstalled(SWTWorkbenchBot bot) throws IOException
@@ -300,6 +301,8 @@ public class ProjectTestOperations
 		bot.button("Finish").click();
 		TestWidgetWaitUtility.waitUntilViewContainsTheTreeItemWithName(projectName, bot.viewByTitle("Project Explorer"),
 				5000);
+		bot.cTabItem("README.md").activate();
+		bot.cTabItem("README.md").close();
 	}
 
 	/**

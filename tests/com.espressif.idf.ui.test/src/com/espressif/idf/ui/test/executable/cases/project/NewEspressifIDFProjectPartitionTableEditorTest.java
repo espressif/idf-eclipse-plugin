@@ -42,7 +42,14 @@ public class NewEspressifIDFProjectPartitionTableEditorTest
 	@After
 	public void afterEachTest()
 	{
-		Fixture.cleanTestEnv();
+		try
+		{
+			Fixture.cleanTestEnv(); // Make sure test environment is always cleaned up
+		}
+		catch (Exception e)
+		{
+			System.err.println("Error during cleanup: " + e.getMessage());
+		}
 	}
 
 	@Test
