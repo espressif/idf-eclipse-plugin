@@ -14,7 +14,9 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd.dsf;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -32,15 +34,14 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.ISourceLocator;
-import org.eclipse.debug.internal.core.LaunchConfigurationWorkingCopy;
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuLaunch;
 
-import com.espressif.idf.core.util.PortChecker;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
 import com.espressif.idf.debug.gdbjtag.openocd.ConfigurationAttributes;
@@ -57,6 +58,11 @@ public class Launch extends GnuMcuLaunch
 	private DsfSession fSession;
 	private DsfServicesTracker fTracker;
 	private DefaultDsfExecutor fExecutor;
+	private IProcess openOcdServerProcess;
+	private IProcess gdbIProcess;
+	
+	private static final String SERVER_PROC_KEY = "SERVER_PROC";
+	private static final String GDB_PROC_KEY = "GDB_PROC";
 
 	// ------------------------------------------------------------------------
 
@@ -100,6 +106,15 @@ public class Launch extends GnuMcuLaunch
 				// fireChanged();
 			}
 		};
+		
+		try
+		{
+			cleanUpOldLaunchProcesses();
+		}
+		catch (CoreException e)
+		{
+			e.printStackTrace();
+		}
 
 		// Invoke the execution code and block waiting for the result.
 		try
@@ -116,6 +131,7 @@ public class Launch extends GnuMcuLaunch
 			new Status(IStatus.ERROR, Activator.PLUGIN_ID, IDsfStatusConstants.INTERNAL_ERROR,
 					"Error initializing launch", e); //$NON-NLS-1$
 		}
+		
 	}
 
 	@Override
@@ -147,9 +163,10 @@ public class Launch extends GnuMcuLaunch
 					fDefaultPreferences.getGdbClientExecutable());
 		}
 
-		int availableRemotePort = PortChecker.getAvailablePort(config.getAttribute(IGDBJtagConstants.ATTR_PORT_NUMBER,
-				DefaultPreferences.GDB_SERVER_GDB_PORT_NUMBER_DEFAULT));
-		config.setAttribute(IGDBJtagConstants.ATTR_PORT_NUMBER, availableRemotePort);
+		if (Configuration.getDoStartGdbServer(config))
+		{
+			config.setAttribute(IGDBJtagConstants.ATTR_PORT_NUMBER, DefaultPreferences.GDB_SERVER_GDB_PORT_NUMBER_DEFAULT);
+		}
 		
 		config.setAttribute(DebugPlugin.ATTR_PROCESS_FACTORY_ID, CustomIdfProcessFactory.ID);
 	}
@@ -164,16 +181,14 @@ public class Launch extends GnuMcuLaunch
 			System.out.println("openocd.Launch.initializeServerConsole()");
 		}
 
-		IProcess newProcess;
 		boolean doAddServerConsole = Configuration.getDoAddServerConsole(fConfig);
 
 		if (doAddServerConsole)
 		{
 
 			// Add the GDB server process to the launch tree
-			newProcess = addServerProcess(Configuration.getGdbServerCommandName(fConfig));
-			newProcess.setAttribute(IProcess.ATTR_CMDLINE, Configuration.getGdbServerCommandLine(fConfig));
-
+			openOcdServerProcess = addServerProcess(Configuration.getGdbServerCommandName(fConfig));
+			LaunchProcessDictionary.getInstance().addProcessToDictionary(getLaunchConfiguration().getName(), SERVER_PROC_KEY, openOcdServerProcess);
 			monitor.worked(1);
 		}
 	}
@@ -186,12 +201,11 @@ public class Launch extends GnuMcuLaunch
 			System.out.println("openocd.Launch.initializeConsoles()");
 		}
 
-		IProcess newProcess;
 		{
 			// Add the GDB client process to the launch tree.
-			newProcess = addClientProcess(Configuration.getGdbClientCommandName(fConfig));
-			newProcess.setAttribute(IProcess.ATTR_CMDLINE, Configuration.getGdbClientCommandLine(fConfig));
-
+			gdbIProcess = addClientProcess(Configuration.getGdbClientCommandName(fConfig));
+			gdbIProcess.setAttribute(IProcess.ATTR_CMDLINE, Configuration.getGdbClientCommandLine(fConfig));
+			LaunchProcessDictionary.getInstance().addProcessToDictionary(getLaunchConfiguration().getName(), GDB_PROC_KEY, gdbIProcess);
 			monitor.worked(1);
 		}
 	}
@@ -245,4 +259,53 @@ public class Launch extends GnuMcuLaunch
 	}
 
 	// ------------------------------------------------------------------------
+	
+	@Override
+	public void terminate() throws DebugException
+	{
+		super.terminate();
+		
+		LaunchProcessDictionary.getInstance().killAllProcessesInLaunch(getLaunchConfiguration().getName());
+	}
+	
+	@Override
+	public boolean canDisconnect()
+	{
+		return true;
+	}
+	
+	@Override
+	public boolean canTerminate()
+	{
+		return true;
+	}
+	
+	
+	@Override
+	public IProcess[] getProcesses()
+	{
+		List<IProcess> processes = new ArrayList<>();
+	    if (openOcdServerProcess != null) {
+	        processes.add(openOcdServerProcess);
+	    }
+	    if (gdbIProcess != null) {
+	        processes.add(gdbIProcess);
+	    }
+	    return processes.toArray(new IProcess[0]);
+	}
+	
+	private void cleanUpOldLaunchProcesses() throws CoreException
+	{
+		IProcess serverIProcess = LaunchProcessDictionary.getInstance().getProcessFromDictionary(getLaunchConfiguration().getName(), SERVER_PROC_KEY);
+		if (serverIProcess != null && !serverIProcess.isTerminated())
+		{
+			serverIProcess.terminate();
+		}
+		
+		IProcess gdbIProcess = LaunchProcessDictionary.getInstance().getProcessFromDictionary(getLaunchConfiguration().getName(), GDB_PROC_KEY);
+		if(gdbIProcess != null && !gdbIProcess.isTerminated())
+		{
+			gdbIProcess.terminate();
+		}
+	}
 }

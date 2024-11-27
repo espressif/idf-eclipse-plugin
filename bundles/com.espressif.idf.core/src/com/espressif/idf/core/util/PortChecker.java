@@ -4,6 +4,9 @@
  *******************************************************************************/
 package com.espressif.idf.core.util;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 
 import com.espressif.idf.core.logging.Logger;
@@ -24,13 +27,15 @@ public class PortChecker
 
 	public static boolean isPortAvailable(int port)
 	{
-		try (Socket ignored = new Socket("localhost", port)) //$NON-NLS-1$
+		try (ServerSocket serverSocket = new ServerSocket(port, 50, InetAddress.getByName("127.0.0.1"))) //$NON-NLS-1$
 		{
-			return false;
+			serverSocket.setReuseAddress(true);
+			return true;
 		}
 		catch (Exception e)
 		{
-			return true;
+			Logger.log("Port: " + port + " is not available"); //$NON-NLS-1$ //$NON-NLS-2$
+			return false;
 		}
 	}
 

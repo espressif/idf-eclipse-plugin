@@ -698,7 +698,7 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		}
 		// --------------------------------------------------------------------
 	}
-
+	
 	/**
 	 * Perform some local validations before starting the debug session.
 	 */
