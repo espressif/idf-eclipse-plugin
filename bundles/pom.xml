@@ -31,6 +31,7 @@
 		<module>com.espressif.idf.wokwi</module>
 		<module>com.espressif.idf.lsp</module>
 		<module>com.espressif.idf.swt.custom</module>
+		<module>com.espressif.idf.telemetry</module>
 	</modules>
 
 	<build>

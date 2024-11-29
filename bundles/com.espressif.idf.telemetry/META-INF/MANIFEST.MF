@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Telemetry
+Bundle-SymbolicName: com.espressif.idf.telemetry
+Bundle-Version: 1.0.0.qualifier
+Eclipse-BundleShape: dir
+Bundle-Vendor: Espressif Systems
+Automatic-Module-Name: com.espressif.idf.telemetry
+Bundle-RequiredExecutionEnvironment: JavaSE-17

@@ -14,11 +14,13 @@
    </configIni>
 
    <launcherArgs>
-      <vmArgsLin>-Xms2048m -Xmx4096m  -Dosgi.requiredJavaVersion=17 -Dosgi.instance.area.default=@user.home/workspace
+      <vmArgsLin>-javaagent:resources/applicationinsights-agent-3.6.2.jar
+-Xms2048m -Xmx4096m  -Dosgi.requiredJavaVersion=17 -Dosgi.instance.area.default=@user.home/workspace
       </vmArgsLin>
-      <vmArgsMac>-Xms2048m -Xmx4096m  -Xdock:icon=../Resources/espressif.icns -XstartOnFirstThread -Dosgi.requiredJavaVersion=17 -Dorg.eclipse.swt.internal.carbon.smallFonts -Dosgi.instance.area.default=@user.home/workspace
+      <vmArgsMac>-javaagent:resources/applicationinsights-agent-3.6.2.jar
+-Xms2048m -Xmx4096m  -Xdock:icon=../Resources/espressif.icns -XstartOnFirstThread -Dosgi.requiredJavaVersion=17 -Dorg.eclipse.swt.internal.carbon.smallFonts -Dosgi.instance.area.default=@user.home/workspace
       </vmArgsMac>
-      <vmArgsWin>-Xms2048m -Xmx4096m   -Dosgi.requiredJavaVersion=17 -Dosgi.instance.area.default=@user.home/workspace
+      <vmArgsWin>-javaagent:resources/applicationinsights-agent-3.6.2.jar -Xms2048m -Xmx4096m   -Dosgi.requiredJavaVersion=17 -Dosgi.instance.area.default=@user.home/workspace
       </vmArgsWin>
    </launcherArgs>
 
