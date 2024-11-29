@@ -13,7 +13,7 @@ The plug-in runs on `macOS`, `Windows` and `Linux` platforms.
 ![](docs_readme/images/linux-logo.png)
 
 
-> **Note:** Espressif-IDE version 3.0 and later supports ESP-IDF version 5.x and above. For ESP-IDF version 4.x and earlier, please use Espressif-IDE version <a href="https://github.com/espressif/idf-eclipse-plugin/releases/tag/v2.12.1">2.12.1</a>
+> **Note:** Espressif-IDE version 3.0 and later supports ESP-IDF version 5.x and above. For ESP-IDF version 4.x, please use Espressif-IDE version <a href="https://github.com/espressif/idf-eclipse-plugin/releases/tag/v2.12.1">2.12.1</a>
 
 # To Get Started with the Espressif-IDE
 
