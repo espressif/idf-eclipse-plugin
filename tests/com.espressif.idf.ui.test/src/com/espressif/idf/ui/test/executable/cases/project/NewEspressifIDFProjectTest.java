@@ -270,7 +270,7 @@ public class NewEspressifIDFProjectTest
 
 		private static void whenInstallNewComponentUsingContextMenu() throws IOException
 		{
-			ProjectTestOperations.openProjectNewComponentUsingContextMenu(projectName, bot);
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Install New Component");
 			bot.editorByTitle(projectName).show();
 			bot.button("Install").click();
 			ProjectTestOperations.waitForProjectNewComponentInstalled(bot);
