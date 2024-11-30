@@ -476,6 +476,12 @@
 					</iterate>
 				</visibleWhen>
 			</command>
+   <command
+         commandId="com.espressif.idf.ui.reconfigure"
+         icon="icons/espressif.png"
+         label="Reconfigure"
+         style="push">
+   </command>
 		</menuContribution>
 	</extension>
 	<extension
@@ -659,6 +665,10 @@
 			class="com.espressif.idf.ui.handlers.WriteFlashCommandHandler"
 			commandId="com.espressif.idf.ui.writeFlashCommand">
 		</handler>
+  <handler
+        class="com.espressif.idf.ui.handlers.IdfReconfigureHandler"
+        commandId="com.espressif.idf.ui.reconfigure">
+  </handler>
 	</extension>
 	<extension
 		point="org.eclipse.ui.commands">

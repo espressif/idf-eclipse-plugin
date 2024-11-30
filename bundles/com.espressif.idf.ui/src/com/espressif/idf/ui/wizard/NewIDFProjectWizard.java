@@ -8,6 +8,7 @@ import java.io.File;
 
 import org.eclipse.cdt.debug.internal.core.InternalDebugCoreMessages;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -34,6 +35,7 @@ import org.eclipse.tools.templates.core.IGenerator;
 import org.eclipse.tools.templates.ui.TemplateWizard;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
 import com.espressif.idf.core.IDFConstants;
@@ -42,6 +44,8 @@ import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.ClangFormatFileHandler;
 import com.espressif.idf.core.util.ClangdConfigFileHandler;
+import com.espressif.idf.core.util.ConsoleManager;
+import com.espressif.idf.core.util.IdfCommandExecutor;
 import com.espressif.idf.core.util.LaunchUtil;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.handlers.EclipseHandler;
@@ -62,6 +66,8 @@ public class NewIDFProjectWizard extends TemplateWizard
 	private static final String NEW_LAUNCH_CONFIG_EDIT_PAGE = "NewLaunchConfigEditPage"; //$NON-NLS-1$
 	public static final String TARGET_SWITCH_JOB = "TARGET SWITCH JOB"; //$NON-NLS-1$
 	private NewProjectCreationWizardPage projectCreationWizardPage;
+	private IProject project;
+	private MessageConsole console;
 
 	public NewIDFProjectWizard()
 	{
@@ -110,7 +116,7 @@ public class NewIDFProjectWizard extends TemplateWizard
 			{
 				ISelectionProvider selProvider = viewPart.getSite().getSelectionProvider();
 				String projectName = projectCreationWizardPage.getProjectName();
-				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+				project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 				selProvider.setSelection(new StructuredSelection(project));
 				updateClangFiles(project);
 			}
@@ -139,8 +145,37 @@ public class NewIDFProjectWizard extends TemplateWizard
 			{
 				Logger.log(e);
 			}
+			if (projectCreationWizardPage.isRunIdfReconfigureEnabled())
+			{
+				runIdfReconfigureCommandJob(target);
+
+			}
 		});
 		return performFinish;
+	}
+
+	private void runIdfReconfigureCommandJob(final String target)
+	{
+		Job job = new Job(Messages.IdfReconfigureJobName)
+		{
+
+			protected IStatus run(IProgressMonitor monitor)
+			{
+				IdfCommandExecutor executor = new IdfCommandExecutor(target,
+						ConsoleManager.getConsole("CDT Build Console")); //$NON-NLS-1$
+				IStatus status = executor.executeReconfigure(project);
+				try
+				{
+					IDEWorkbenchPlugin.getPluginWorkspace().getRoot().refreshLocal(IResource.DEPTH_INFINITE, null);
+				}
+				catch (CoreException e)
+				{
+					Logger.log(e);
+				}
+				return status;
+			}
+		};
+		job.schedule();
 	}
 
 	private void updateClangFiles(IProject project)
