@@ -283,7 +283,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		IToolChain toolChain = getToolChain();
 		if (toolChain == null)
 		{
-			throw new CoreException(new Status(IStatus.ERROR, IDFCorePlugin.PLUGIN_ID, Messages.IDFToolChainsMissingErrorMsg));
+			throw new CoreException(
+					new Status(IStatus.ERROR, IDFCorePlugin.PLUGIN_ID, Messages.IDFToolChainsMissingErrorMsg));
 		}
 		this.toolChainFile = manager.getToolChainFileFor(toolChain);
 		return toolChainFile;
@@ -395,8 +396,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 
 			return false;
 		}
-		
-		
 
 		return true;
 	}
@@ -430,10 +429,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 					}
 				}
 			}
-			
+
 			envVars.add(new EnvironmentVariable(IDFCorePreferenceConstants.IDF_TOOLS_PATH,
 					IDFUtil.getIDFToolsPathFromPreferences()));
-			
+
 			String buildCommand = getProperty(BUILD_COMMAND);
 			if (buildCommand.isBlank())
 			{
@@ -488,7 +487,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 				paritionSizeHandler.startCheckingSize();
 
 				LspService lspService = new LspService();
-				lspService.updateAdditionalOptions(String.format("--compile-commands-dir=%s", buildDir)); //$NON-NLS-1$
+				lspService.updateAdditionalOptions(String.format("--compile-commands-dir=\"%s\"", buildDir)); //$NON-NLS-1$
 				lspService.restartLspServers();
 			}
 
@@ -536,7 +535,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		{
 			command.add("-DIDF_TOOLCHAIN=clang"); //$NON-NLS-1$
 		}
-		
+
 		String userArgs = getProperty(CMAKE_ARGUMENTS);
 		if (userArgs != null && !userArgs.isBlank())
 		{
@@ -554,10 +553,11 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		// Set PYTHONUNBUFFERED to 1/TRUE to dump the messages back immediately without
 		// buffering
 		IEnvironmentVariable bufferEnvVar = new EnvironmentVariable("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
-		IEnvironmentVariable idfToolsPathEnvVar = new EnvironmentVariable(IDFCorePreferenceConstants.IDF_TOOLS_PATH, IDFUtil.getIDFToolsPathFromPreferences());
+		IEnvironmentVariable idfToolsPathEnvVar = new EnvironmentVariable(IDFCorePreferenceConstants.IDF_TOOLS_PATH,
+				IDFUtil.getIDFToolsPathFromPreferences());
 
-		Process p = startBuildProcess(command, new IEnvironmentVariable[] { bufferEnvVar, idfToolsPathEnvVar }, workingDir, errConsole,
-				monitor);
+		Process p = startBuildProcess(command, new IEnvironmentVariable[] { bufferEnvVar, idfToolsPathEnvVar },
+				workingDir, errConsole, monitor);
 		if (p == null)
 		{
 			console.getErrorStream().write(String.format(Messages.CMakeBuildConfiguration_Failure, "")); //$NON-NLS-1$
