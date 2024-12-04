@@ -34,14 +34,15 @@ import com.espressif.idf.ui.update.ExportIDFTools;
 import com.espressif.idf.ui.update.Messages;
 
 /**
- * Job to activate the provide 
- * {@link IDFToolSet} in the given ide environment
+ * Job to activate the provide {@link IDFToolSet} in the given ide environment
+ * 
  * @author Ali Azam Rana
  *
  */
 public class ToolsActivationJob extends ToolsJob
 {
 	public static final String INSTALL_TOOLS_FLAG = "INSTALL_TOOLS_FLAG"; //$NON-NLS-1$
+
 	public ToolsActivationJob(IDFToolSet idfToolSet, String pythonExecutablePath, String gitExecutablePath)
 	{
 		super("Tools Activation Job", null, null);
@@ -55,12 +56,12 @@ public class ToolsActivationJob extends ToolsJob
 		{
 			return Status.error("IDF Tool Set Cannot be null");
 		}
-		
+
 		// verify with export script to test if everything is okay with installation
-		
+
 		monitor.beginTask("Verifying if there are any changes to the installed tools", 5);
 		monitor.worked(1);
-		
+
 		ExportIDFTools exportIDFTools = new ExportIDFTools();
 		IStatus status = exportIDFTools.getToolsExportOutputFromGivenIdfPath(idfToolSet.getSystemPythonExecutablePath(),
 				idfToolSet.getSystemGitExecutablePath(), console, errorConsoleStream, idfToolSet.getIdfLocation());
@@ -69,30 +70,31 @@ public class ToolsActivationJob extends ToolsJob
 			return Status.error("INSTALL_AGAIN");
 		}
 		monitor.worked(1);
-		
+
 		monitor.setTaskName("Exporting variables to eclipse");
 		processExportCmdOutput(status.getMessage());
 		setEnvVarsInEclipse();
 		monitor.worked(1);
-		
+
 		monitor.setTaskName("Setting up toolchains and targets");
 		setUpToolChainsAndTargets();
 		monitor.worked(1);
-		
-		// post export operations like copying openocd rules may also need to setup with the python dependencies here as well like websocket-client
+
+		// post export operations like copying openocd rules may also need to setup with the python dependencies here as
+		// well like websocket-client
 		monitor.setTaskName(Messages.InstallToolsHandler_InstallingWebscoketMsg);
 		handleWebSocketClientInstall();
 		monitor.worked(1);
-		
+
 		monitor.setTaskName("Setting OpenOCD rules");
 		copyOpenOcdRules();
 		monitor.worked(1);
-		
+
 		idfToolSet.setActive(true);
-		
+
 		toolSetConfigurationManager.export(idfToolSet);
 		console.println("Tools Activated");
-		
+
 		Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 		scopedPreferenceStore.putBoolean(INSTALL_TOOLS_FLAG, true);
 		try
@@ -103,7 +105,7 @@ public class ToolsActivationJob extends ToolsJob
 		{
 			Logger.log(e);
 		}
-		
+
 		return Status.OK_STATUS;
 	}
 
@@ -167,7 +169,6 @@ public class ToolsActivationJob extends ToolsJob
 		}
 	}
 
-	
 	private void setUpToolChainsAndTargets()
 	{
 		IStatus status = loadTargetsAvailableFromIdfInCurrentToolSet();
@@ -176,7 +177,7 @@ public class ToolsActivationJob extends ToolsJob
 			Logger.log("Unable to get IDF targets from current toolset");
 			return;
 		}
-		
+
 		List<String> targets = extractTargets(status.getMessage());
 		ESPToolChainManager espToolChainManager = new ESPToolChainManager();
 		espToolChainManager.removeLaunchTargetsNotPresent(targets);
@@ -189,22 +190,16 @@ public class ToolsActivationJob extends ToolsJob
 	{
 		if (idfToolSet == null)
 			throw new RuntimeException("Tools Cannot be null");
-		
+
 		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
 		idfEnvironmentVariables.removeAllEnvVariables();
-		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.ESP_IDF_VERSION, idfToolSet.getIdfVersion());
-		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.GIT_PATH, idfToolSet.getSystemGitExecutablePath());
-		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER, idfToolSet.getEnvVars().get(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER));
-		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_MAINTAINER, idfToolSet.getEnvVars().get(IDFEnvironmentVariables.IDF_MAINTAINER));
-		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, idfToolSet.getIdfLocation());
-		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH, idfToolSet.getEnvVars().get(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH));
-		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.OPENOCD_SCRIPTS, idfToolSet.getEnvVars().get(IDFEnvironmentVariables.OPENOCD_SCRIPTS));
-		
+		idfToolSet.getEnvVars().forEach(idfEnvironmentVariables::addEnvVariable);
 		String path = replacePathVariable(idfToolSet.getEnvVars().get(IDFEnvironmentVariables.PATH));
-		
+
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, path);
-		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PYTHON_EXE_PATH, idfToolSet.getSystemPythonExecutablePath());
-		
+		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PYTHON_EXE_PATH,
+				idfToolSet.getSystemPythonExecutablePath());
+
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER, "1");
 		// IDF_MAINTAINER=1 to be able to build with the clang toolchain
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_MAINTAINER, "1");
