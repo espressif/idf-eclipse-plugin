@@ -193,7 +193,10 @@ public class ToolsActivationJob extends ToolsJob
 
 		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
 		idfEnvironmentVariables.removeAllEnvVariables();
-		idfToolSet.getEnvVars().forEach(idfEnvironmentVariables::addEnvVariable);
+		idfToolSet.getEnvVars().forEach((key, value) -> {
+			if (value != null)
+				idfEnvironmentVariables.addEnvVariable(key, value);
+		});
 		String path = replacePathVariable(idfToolSet.getEnvVars().get(IDFEnvironmentVariables.PATH));
 
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, path);
