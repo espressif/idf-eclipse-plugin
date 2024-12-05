@@ -22,6 +22,7 @@ import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -140,6 +141,7 @@ public class ESPIDFMainTablePage
 		tableComposite.setLayout(tableColumnLayout);
 		tableViewer = new TableViewer(tableComposite, SWT.BORDER | SWT.H_SCROLL);
 		tableViewer.setContentProvider(ArrayContentProvider.getInstance());
+		
 		Table table = tableViewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
@@ -149,10 +151,12 @@ public class ESPIDFMainTablePage
 		comparator = new ColumnViewerComparator();
 		tableViewer.setComparator(comparator);
 		setupColumns();
+		table.addListener(SWT.MeasureItem, e -> {
+			e.height = 30;
+		});
 
 		tableViewer.setInput(toolSetConfigurationManager.getIdfToolSets(true));
 		table.layout();
-		
 		// Composite for the "Add" button
 	    Composite buttonComposite = new Composite(idfToolsGroup, SWT.NONE);
 	    GridData buttonCompositeGridData = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
@@ -267,7 +271,7 @@ public class ESPIDFMainTablePage
 		
 		removeColumn = new TableViewerColumn(tableViewer, SWT.NONE);
 		removeColumn.setLabelProvider(new IdfManagerTableColumnLabelProvider());
-		tableColumnLayout.setColumnData(removeColumn.getColumn(), new ColumnWeightData(2, 10, true));
+		tableColumnLayout.setColumnData(removeColumn.getColumn(), new ColumnWeightData(3, 100, true));
 	}
 
 	private void setComparatorForCols(TableViewerColumn column, int colIndex)
@@ -417,6 +421,7 @@ public class ESPIDFMainTablePage
 		private void createButtonsForLastCol(ViewerCell cell)
 		{
 			TableItem item = (TableItem) cell.getItem();
+			Rectangle cellBounds = cell.getBounds();
 			// using a unique key to store the editor to avoid creating multiple editors for the same cell
 			String EDITOR_KEY = "action_editor_last";
 			if (item.getData(EDITOR_KEY) != null)
@@ -426,13 +431,12 @@ public class ESPIDFMainTablePage
 			TableEditor editor = new TableEditor(tableViewer.getTable());
 			Composite buttonComposite = new Composite(tableViewer.getTable(), SWT.NONE);
 			FillLayout fillLayout = new FillLayout(SWT.HORIZONTAL);
-			fillLayout.marginWidth = 2;
-			fillLayout.spacing = 5;
-			
 			buttonComposite.setLayout(fillLayout);
-			
+			buttonComposite.redraw();
 			item.setData(EDITOR_KEY, editor);
 			IDFToolSet idfToolSet = (IDFToolSet) cell.getElement();
+			
+			int buttonHeight = Math.min(cellBounds.height - 6, 30);
 			
 			if (idfToolSet.isActive())
 			{
@@ -449,6 +453,10 @@ public class ESPIDFMainTablePage
 					toolsActivationJob.addJobChangeListener(toolsActivationJobListener);
 					toolsActivationJob.schedule();
 				});
+				
+				reloadButton.setSize(cellBounds.width, buttonHeight);
+				reloadButton.addListener(SWT.Paint, e-> e.gc.drawRectangle(reloadButton.getBounds()));
+				reloadButton.redraw();
 			}
 
 			Button removeButton = new Button(buttonComposite, SWT.PUSH | SWT.FLAT);
@@ -462,13 +470,20 @@ public class ESPIDFMainTablePage
 				performDeleteOperation(selectedToolSet);
 				refreshEditorUI();
 			});
-
+			removeButton.setSize(cellBounds.width, buttonHeight);
+			removeButton.redraw();
+			
 			editor.grabHorizontal = true;
-			editor.setEditor(buttonComposite, item, cell.getColumnIndex());
+			editor.grabVertical = true;
 			editor.horizontalAlignment = SWT.CENTER;
 			editor.verticalAlignment = SWT.CENTER;
-			editor.minimumWidth = buttonComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
-		    editor.minimumHeight = buttonComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
+			editor.minimumHeight = removeButton.getSize().y;
+			editor.minimumWidth = removeButton.getSize().x;
+			editor.setEditor(buttonComposite, item, cell.getColumnIndex());
+			buttonComposite.layout(true, true);
+			buttonComposite.redraw();
+			editor.layout();
+		    tableViewer.getTable().layout(true, true);
 		}
 		
 		@Override
