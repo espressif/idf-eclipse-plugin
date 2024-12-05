@@ -426,10 +426,12 @@ public class ESPIDFMainTablePage
 			TableEditor editor = new TableEditor(tableViewer.getTable());
 			Composite buttonComposite = new Composite(tableViewer.getTable(), SWT.NONE);
 			FillLayout fillLayout = new FillLayout(SWT.HORIZONTAL);
-			fillLayout.marginWidth = 2;
+			fillLayout.marginWidth = 5;
+			fillLayout.marginHeight = 5;
 			fillLayout.spacing = 5;
 			
 			buttonComposite.setLayout(fillLayout);
+			buttonComposite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
 			
 			item.setData(EDITOR_KEY, editor);
 			IDFToolSet idfToolSet = (IDFToolSet) cell.getElement();
@@ -456,6 +458,7 @@ public class ESPIDFMainTablePage
 			removeButton.setData(IDF_TOOL_SET_BTN_KEY, idfToolSet);
 			removeButton.setImage(UIPlugin.getImage(REMOVE_ICON));
 			removeButton.setToolTipText(Messages.EspIdfManagerDeleteBtnToolTip);
+			removeButton.setSize(20, 20);
 			removeButton.addListener(SWT.Selection, e -> {
 				Button btn = (Button) e.widget;
 				IDFToolSet selectedToolSet = (IDFToolSet) btn.getData(IDF_TOOL_SET_BTN_KEY);
