@@ -10,7 +10,8 @@ import org.eclipse.osgi.util.NLS;
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
-public class Messages extends NLS {
+public class Messages extends NLS
+{
 	private static final String BUNDLE_NAME = "com.espressif.idf.ui.wizard.messages"; //$NON-NLS-1$
 	public static String ImportIDFProjectWizard_0;
 	public static String ImportIDFProjectWizardPage_0;
@@ -41,12 +42,15 @@ public class Messages extends NLS {
 	public static String NewComponentWizardPage_CantCreateCompErr;
 	public static String NewComponentWizardPage_ProjectDoesntExistErr;
 	public static String NewComponentWizardPage_ProjectNameLbl;
-	
-	static {
+	public static String IdfReconfigureJobName;
+
+	static
+	{
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
 	}
 
-	private Messages() {
+	private Messages()
+	{
 	}
 }
