@@ -41,7 +41,7 @@ public class EclipsePluginDocHandler extends AbstractHandler {
 	}
 
 	protected URL getDocsUrl() throws MalformedURLException {
-		return new URL("https://github.com/espressif/idf-eclipse-plugin#esp-idf-eclipse-plugin"); //$NON-NLS-1$
+		return new URL("https://docs.espressif.com/projects/espressif-ide/en/latest/index.html"); //$NON-NLS-1$
 	}
 
 }
