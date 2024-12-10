@@ -1,0 +1,60 @@
+{
+  "version":"1.0",
+  "layout":
+[
+  {
+    "name": "DRAM",
+    "total": "171728",
+    "parts": {
+      ".bss": "11288",
+      ".data": "45670",
+      "free": "114770"
+    }
+  },
+  {
+    "name": "IRAM",
+    "total": "131072",
+    "parts": {
+      ".text": "45243",
+      ".vectors": "1027",
+      "free": "84802"
+    }
+  },
+  {
+    "name": "RTC Fast RAM",
+    "total": "200040",
+    "parts": {
+      "data": "17444",
+      "code": "22220",
+      "free": "160376"
+    }
+  },
+  {
+    "name": "RTC Slow RAM",
+    "total": "290040",
+    "parts": {
+      "data": "17444",
+      "code": "22220",
+      "free": "160376"
+    }
+  },
+  {
+    "name": "Flash",
+    "total": "200040",
+    "parts": {
+      ".text": "17444",
+      ".rodata": "22220",
+      "free": "160376"
+    }
+  },
+  {
+    "name": "PSRAM",
+    "total": "100040",
+    "parts": {
+      "used": "50040",
+      "free": "50040"
+    }
+  }
+]
+  
+}
