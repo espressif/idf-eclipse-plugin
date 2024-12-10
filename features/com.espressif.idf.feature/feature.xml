@@ -165,4 +165,8 @@ You may add additional accurate notices of copyright ownership.
          id="com.espressif.idf.swt.custom"
          version="0.0.0"/>
 
+   <plugin
+         id="com.espressif.idf.telemetry"
+         version="0.0.0"/>
+
 </feature>

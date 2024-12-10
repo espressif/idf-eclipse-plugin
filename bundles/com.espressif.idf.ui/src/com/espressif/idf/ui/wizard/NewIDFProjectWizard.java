@@ -5,6 +5,8 @@
 package com.espressif.idf.ui.wizard;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.cdt.debug.internal.core.InternalDebugCoreMessages;
 import org.eclipse.core.resources.IProject;
@@ -40,8 +42,10 @@ import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.logging.TelemetryLogger;
 import com.espressif.idf.core.util.ClangFormatFileHandler;
 import com.espressif.idf.core.util.ClangdConfigFileHandler;
+import com.espressif.idf.core.util.EclipseIniUtil;
 import com.espressif.idf.core.util.LaunchUtil;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.handlers.EclipseHandler;
@@ -113,6 +117,11 @@ public class NewIDFProjectWizard extends TemplateWizard
 				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 				selProvider.setSelection(new StructuredSelection(project));
 				updateClangFiles(project);
+				
+				//update telemetry
+				Map<String, String> properties = new HashMap<String, String>();
+				properties.put("platform", "eclipse");
+				TelemetryLogger.logEvent("New project creation", properties);
 			}
 		}
 
