@@ -1,0 +1,29 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: com.espressif.idf.component.dsl
+Bundle-ManifestVersion: 2
+Bundle-Name: com.espressif.idf.component.dsl
+Bundle-Vendor: My Company
+Bundle-Version: 1.0.0.qualifier
+Bundle-SymbolicName: com.espressif.idf.component.dsl; singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.eclipse.xtext,
+ org.eclipse.xtext.xbase,
+ org.eclipse.equinox.common;bundle-version="3.5.0",
+ org.eclipse.emf.ecore,
+ org.eclipse.xtext.xbase.lib;bundle-version="2.14.0",
+ org.eclipse.xtext.util,
+ org.eclipse.emf.common,
+ org.antlr.runtime;bundle-version="[3.2.0,3.2.1)"
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: com.espressif.idf.componen.parser.antlr,
+ com.espressif.idf.componen.iDFComponentDsl.impl,
+ com.espressif.idf.componen.parser.antlr.internal,
+ com.espressif.idf.componen.generator,
+ com.espressif.idf.componen.scoping,
+ com.espressif.idf.componen.iDFComponentDsl.util,
+ com.espressif.idf.componen.services,
+ com.espressif.idf.componen,
+ com.espressif.idf.componen.iDFComponentDsl,
+ com.espressif.idf.componen.validation,
+ com.espressif.idf.componen.serializer
+Import-Package: org.apache.log4j
