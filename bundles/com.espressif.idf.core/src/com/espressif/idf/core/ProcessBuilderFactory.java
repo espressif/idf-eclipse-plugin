@@ -36,8 +36,13 @@ public class ProcessBuilderFactory
 		if (environment != null && !environment.isEmpty())
 		{
 			processBuilder.environment().putAll(environment);
+			// Removing Path, because we are using PATH
+			if (processBuilder.environment().containsKey("PATH") && processBuilder.environment().containsKey("Path")) //$NON-NLS-1$
+			{
+				processBuilder.environment().remove("Path"); //$NON-NLS-1$
+			}
 		}
-		// let's merge the error stream with the standard output
+
 		processBuilder.redirectErrorStream(true);
 		return processBuilder.start();
 	}
@@ -46,8 +51,7 @@ public class ProcessBuilderFactory
 			throws IOException
 	{
 		Process process = run(commands, workingDirectory, environment);
-		return processData(process.getInputStream(), process.getErrorStream(), process.getOutputStream(),
-				process);
+		return processData(process.getInputStream(), process.getErrorStream(), process.getOutputStream(), process);
 	}
 
 	/**

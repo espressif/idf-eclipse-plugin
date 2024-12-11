@@ -22,6 +22,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -47,6 +48,7 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 	private Combo targetCombo;
 	// initial value stores
 	private String initialProjectFieldValue;
+	private Button runIdfReconfigureCheckBoxButton;
 
 	/**
 	 * Constructor
@@ -84,7 +86,7 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 		targetCombo.select(0);
 		targetCombo.setToolTipText(Messages.NewProjectTargetSelection_Tooltip);
 	}
-	
+
 	private void createProjectNameGroup(Composite container)
 	{
 		Composite mainComposite = new Composite(container, SWT.NONE);
@@ -92,9 +94,9 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 		GridData gridData = new GridData(GridData.FILL_BOTH);
 		gridData.horizontalSpan = 20;
 		gridData.verticalSpan = 5;
-		
+
 		mainComposite.setLayoutData(gridData);
-		
+
 		Composite projectNameGroup = new Composite(mainComposite, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
@@ -102,8 +104,7 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 		projectNameGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		Label projectNameLabel = new Label(projectNameGroup, SWT.NONE);
 		projectNameLabel.setText(IDEWorkbenchMessages.WizardNewProjectCreationPage_nameLabel);
-		
-		
+
 		projectNameField = new Text(projectNameGroup, SWT.BORDER);
 		projectNameField.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		projectNameField.addModifyListener(new ModifyListener()
@@ -119,20 +120,26 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 				{
 					setPageComplete(false);
 				}
-				
+
 				boolean valid = validatePage();
 				setPageComplete(valid);
 			}
 		});
-		
-		
+
 		locationArea = new ProjectContentsLocationArea(getErrorReporter(), mainComposite);
 		if (initialProjectFieldValue != null)
 		{
 			locationArea.updateProjectName(initialProjectFieldValue);
 		}
+
+		runIdfReconfigureCheckBoxButton = new Button(projectNameGroup, SWT.CHECK | SWT.RIGHT);
+		GridData buttonData = new GridData();
+		buttonData.horizontalSpan = 4;
+		runIdfReconfigureCheckBoxButton.setLayoutData(buttonData);
+		runIdfReconfigureCheckBoxButton.setSelection(true);
+		runIdfReconfigureCheckBoxButton.setText(Messages.RunIdfCommandButtonTxt);
 	}
-	
+
 	/**
 	 * Get an error reporter for the receiver.
 	 * 
@@ -157,7 +164,7 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 			setPageComplete(valid);
 		};
 	}
-	
+
 	/**
 	 * Returns the useDefaults.
 	 * 
@@ -167,17 +174,22 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 	{
 		return locationArea.isDefault();
 	}
-	
+
+	public boolean isRunIdfReconfigureEnabled()
+	{
+		return runIdfReconfigureCheckBoxButton.getSelection();
+	}
+
 	public IPath getLocationPath()
 	{
 		return new Path(locationArea.getProjectLocation());
 	}
-	
+
 	public URI getLocationURI()
 	{
 		return locationArea.getProjectLocationURI();
 	}
-	
+
 	/**
 	 * Sets the initial project name that this page will use when created. The name is ignored if the
 	 * createControl(Composite) method has already been called. Leading and trailing spaces in the name are ignored.
@@ -204,7 +216,7 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 			}
 		}
 	}
-	
+
 	/**
 	 * Set the location to the default location if we are set to useDefaults.
 	 */
@@ -213,7 +225,6 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 		locationArea.updateProjectName(getProjectNameFieldValue());
 	}
 
-	
 	/**
 	 * Returns the value of the project name field with leading and trailing spaces removed.
 	 *
@@ -228,7 +239,7 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 
 		return projectNameField.getText().trim();
 	}
-	
+
 	@Override
 	protected boolean validatePage()
 	{
@@ -242,7 +253,8 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 
 		if (!IDFUtil.checkIfIdfSupportsSpaces() && worspaceLocation.contains(" ")) //$NON-NLS-1$
 		{
-			setErrorMessage(com.espressif.idf.ui.wizard.Messages.WizardNewProjectCreationPage_WorkspaceLocCantIncludeSpaceErr);
+			setErrorMessage(
+					com.espressif.idf.ui.wizard.Messages.WizardNewProjectCreationPage_WorkspaceLocCantIncludeSpaceErr);
 			return false;
 		}
 
@@ -303,7 +315,7 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 	{
 		return ResourcesPlugin.getWorkspace().getRoot().getProject(getProjectName());
 	}
-	
+
 	/**
 	 * Returns the current project name as entered by the user, or its anticipated initial value.
 	 *
@@ -318,7 +330,7 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 
 		return getProjectNameFieldValue();
 	}
-	
+
 	@Override
 	protected void initializeViewer()
 	{
@@ -401,7 +413,7 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 	@Override
 	public void setVisible(boolean visible)
 	{
-		if (visible && getfUseTemplate() != null )
+		if (visible && getfUseTemplate() != null)
 		{
 			if (getfUseTemplate().getSelection() == false)
 				templateViewer.getControl().setEnabled(false);
