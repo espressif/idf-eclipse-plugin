@@ -15,5 +15,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: com.espressif.idf.lsp
 Bundle-ActivationPolicy: lazy
 Bundle-Name: ESP-IDF LSP Plugin
-Service-Component: OSGI-INF/com.espressif.idf.lsp.preferences.IDFClangdEnable.xml,
- OSGI-INF/com.espressif.idf.lsp.preferences.IDFClangdOptionsDefaults.xml
+Service-Component: OSGI-INF/com.espressif.idf.lsp.preferences.IDFClangdEnable.xml,OSGI-INF/com.espressif.idf.lsp.preferences.IDFClangdOptionsDefaults.xml,
+ OSGI-INF/com.espressif.idf.lsp.preferences.IDFClangdConfigurationAccess.xml
