@@ -119,7 +119,7 @@ public class ESPFlashUtil
 			{
 				buildPath = buildPath.substring(1);
 			}
-			espFlashCommand = espFlashCommand.replace("<path-to-build-dir>", buildPath); //$NON-NLS-1$
+			espFlashCommand = espFlashCommand.replace("<path-to-build-dir>", buildPath.replace(" ", "\\ ")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		catch (CoreException e)
 		{
