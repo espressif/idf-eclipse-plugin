@@ -47,6 +47,8 @@ import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.dialogs.BuildView;
 import com.espressif.idf.ui.dialogs.MessageLinkDialog;
 import com.espressif.idf.ui.tools.ToolsActivationJob;
+import com.espressif.idf.ui.tools.ToolsActivationJobListener;
+import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
 
 @SuppressWarnings("restriction")
 public class InitializeToolsStartup implements IStartup
@@ -180,8 +182,9 @@ public class InitializeToolsStartup implements IStartup
 					Logger.log(e);
 				}
 				ToolsActivationJob toolsActivationJob = new ToolsActivationJob(newToolSet, pythonExecutablePath, gitExecutablePath);
+				ToolsActivationJobListener toolsActivationJobListener = new ToolsActivationJobListener(ESPIDFMainTablePage.getInstance());
+				toolsActivationJob.addJobChangeListener(toolsActivationJobListener);
 				toolsActivationJob.schedule();
-
 			}
 
 			// save state
