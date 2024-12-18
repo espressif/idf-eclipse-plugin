@@ -67,6 +67,22 @@ public class ESPIDFMainTablePage
 	private static final String RELOAD_ICON = "icons/tools/reload.png"; //$NON-NLS-1$
 	private static final String IDF_TOOL_SET_BTN_KEY = "IDFToolSet"; //$NON-NLS-1$
 	
+	private static ESPIDFMainTablePage espidfMainTablePage;
+	
+	private ESPIDFMainTablePage()
+	{
+	}
+	
+	public static ESPIDFMainTablePage getInstance()
+	{
+		if (espidfMainTablePage == null)
+		{
+			espidfMainTablePage = new ESPIDFMainTablePage();
+		}
+		
+		return espidfMainTablePage;
+	}
+	
 	public Composite createPage(Composite composite)
 	{
 		toolSetConfigurationManager = new ToolSetConfigurationManager();
@@ -81,6 +97,8 @@ public class ESPIDFMainTablePage
 
 	public void refreshEditorUI()
 	{
+		if (container == null)
+			return;
 		for (TableItem item : tableViewer.getTable().getItems())
 		{
 			String EDITOR_KEY = "action_editor";
