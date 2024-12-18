@@ -18,8 +18,8 @@ You can check using `java -version` command from the terminal
 - macOSX
 - Linux
 
-For downloads please check this [here](https://github.com/espressif/idf-eclipse-plugin/blob/master/docs/Espressif-IDE.md#espressif-ide-1)  
-## How do I provide Eclipse envrionment and plugins information?
+For downloads please check this [here](https://github.com/espressif/idf-eclipse-plugin/blob/master/docs_readme/Espressif-IDE.md#espressif-ide-1)
+## How do I provide Eclipse environment and plugins information?
 `Help > About Eclipse > Installation Details > Configuration > Copy to Clipboard` 
 ## How do I know the installed IDF Eclipse Plugins version?
 - You can check using the menu `Eclipse > About Eclipse > Installation Details > Installed Software`  
@@ -48,7 +48,7 @@ If you are getting errors when downloading or installing tools this can be due t
 ### Mirror for python wheels (PIP_EXTRA_INDEX_URL)
 - https://dl.espressif.com/pypi (default)
 - https://dl.espressif.cn/pypi
-## Deleted C/C++ build envrionment variables still appearing?
+## Deleted C/C++ build environment variables still appearing?
 - You need to uncheck the preference recorder. This can be performed by following. Eclipse `Preferences > Oomph > Setup Tasks > Preference Recorder`  
 - Uncheck `Record into`
 ## "Unresolved inclusion" errors in the editor
@@ -73,7 +73,7 @@ You see this error when you're trying a compile a project without selecting an `
 ## Where can I find Compiler_commands.json file for the project?
 `/projectName/build/compile_commands.json`
 
-compile_commands.json containing the exact compiler calls for all translation units of the project in machine-readable form which is used by the Eclipse CDT indexing for parsing and resovling headers
+compile_commands.json containing the exact compiler calls for all translation units of the project in machine-readable form which is used by the Eclipse CDT indexing for parsing and resolving headers
 ## How do I access CDT Parser error log?
 Please follow this menu. `Project > C/C++ Index >  Create Parser Log`
 ##  How do I access the error log?
@@ -137,9 +137,9 @@ This occurs basically because the directory `/etc/udev/` requires elevated permi
   
 
 ## Why esp_idf_components folder is created in the project?
-`esp_idf_components` folder is introduced with v2.4.0 release to achieve source code navigation for the function definitions((Press F3 or Ctrl+Click on the functional call) and to fix unresolved header problems with the indexer. It will be created immediately after the build based on the `build/compile_commands.json` file list. secondly, it also helps the users who want to check source of esp-idf components directly from the IDE. The files created under esp_idf_componenets are virtual folders for /esp-idf/components and these will be re-generated everytime after the build.
+`esp_idf_components` folder is introduced with v2.4.0 release to achieve source code navigation for the function definitions((Press F3 or Ctrl+Click on the functional call) and to fix unresolved header problems with the indexer. It will be created immediately after the build based on the `build/compile_commands.json` file list. secondly, it also helps the users who want to check source of esp-idf components directly from the IDE. The files created under esp_idf_components are virtual folders for /esp-idf/components and these will be re-generated everytime after the build.
  
- This could be disabled by adding the `-Dskip.idf.components=true` VM argument in the eclipse.ini(espressif-ide.ini) file but this might create inconsistency issues with the indexer where it's unable to resovle headers properly and you might not be able to navigate to the function definitions from the code editors.
+ This could be disabled by adding the `-Dskip.idf.components=true` VM argument in the eclipse.ini(espressif-ide.ini) file but this might create inconsistency issues with the indexer where it's unable to resolve headers properly and you might not be able to navigate to the function definitions from the code editors.
   
 ## Installation of drivers
   If you are a windows user, always prefer [ESP-IDF Windows Installer](https://dl.espressif.com/dl/esp-idf/) for installing pre-requisites and required drivers
@@ -172,9 +172,9 @@ This occurs basically because the directory `/etc/udev/` requires elevated permi
 - Choose either GCC or Clang toolchain from the list
 - Click Ok
 
-![](docs/images/buildconfiguration_clang.png)
+![](docs_readme/images/buildconfiguration_clang.png)
 
-More details on using clang and clangd, please check [this](https://github.com/espressif/idf-eclipse-plugin/blob/master/docs/clangd_cdt_support.md)
+More details on using clang and clangd, please check [this](https://github.com/espressif/idf-eclipse-plugin/blob/master/docs_readme/clangd_cdt_support.md)
 
   # How to configure esp-who in Espressif-IDE
 - Clone esp-who: `git clone https://github.com/espressif/esp-who.git`
@@ -211,7 +211,7 @@ To resolve this issue, you can try disabling Unresolved Symbol error marker.
 
 When IDE parser add the support for C/C++ 20 language features, you can revert the above change.
 
-![](docs/images/code_analysis_disable_symbols.png)
+![](docs_readme/images/code_analysis_disable_symbols.png)
 
 # How to manage two environment setup (different skconfig and partition.csv) during compilation?
 Create two `sdkconfig.defaults` files for the two build configurations (e.g. sdkconfig.develop and sdkconfig.prod). Refer to the readme of [this](https://github.com/espressif/esp-idf/tree/master/examples/build_system/cmake/multi_config) example for details. 
