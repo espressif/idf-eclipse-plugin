@@ -199,6 +199,7 @@ public class ToolsActivationJob extends ToolsJob
 		});
 		String path = replacePathVariable(idfToolSet.getEnvVars().get(IDFEnvironmentVariables.PATH));
 
+		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_PATH, idfToolSet.getIdfLocation());
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, path);
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PYTHON_EXE_PATH,
 				idfToolSet.getSystemPythonExecutablePath());
