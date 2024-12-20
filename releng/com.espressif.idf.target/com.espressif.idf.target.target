@@ -3,7 +3,7 @@
 <target name="com.espressif.idf.target" sequenceNumber="25">
 	<locations>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<repository location="https://download.eclipse.org/eclipse/updates/4.32"/>
+			<repository location="https://download.eclipse.org/eclipse/updates/4.33"/>
 			<unit id="org.eclipse.equinox.sdk.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.rcp.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.rcp.source.feature.group" version="0.0.0"/>
@@ -130,6 +130,19 @@
 					<version>2.3.32</version>
 					<type>jar</type>
 				</dependency>
+				<dependency>
+					<groupId>net.java.dev.jna</groupId>
+					<artifactId>jna-platform</artifactId>
+					<version>5.14.0</version>
+					<type>jar</type>
+				</dependency>
+				<dependency>
+					<groupId>net.java.dev.jna</groupId>
+					<artifactId>jna</artifactId>
+					<version>5.14.0</version>
+					<type>jar</type>
+				</dependency>
+				
 			</dependencies>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
