@@ -349,6 +349,11 @@ public abstract class ToolsJob extends Job
 			Logger.log(environment.toString());
 			environment.put("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
 			loadIdfPathWithSystemPath(environment);
+			environment.remove(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH);
+			environment.remove(IDFEnvironmentVariables.ESP_IDF_VERSION);
+			environment.remove(IDFEnvironmentVariables.IDF_PATH);
+			environment.remove(IDFEnvironmentVariables.OPENOCD_SCRIPTS);
+			
 			if (gitExecutablePath != null)
 			{
 				addPathToEnvironmentPath(environment, gitExecutablePath);
@@ -399,7 +404,7 @@ public abstract class ToolsJob extends Job
 			return IDFCorePlugin.errorStatus(e1.getMessage(), e1);
 		}
 	}
-	
+
 	private void addPathToEnvironmentPath(Map<String, String> environment, String gitExecutablePath)
 	{
 		IPath gitPath = new org.eclipse.core.runtime.Path(gitExecutablePath);
