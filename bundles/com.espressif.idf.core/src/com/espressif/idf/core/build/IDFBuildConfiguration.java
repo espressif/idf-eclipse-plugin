@@ -65,7 +65,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
@@ -497,10 +496,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		}
 
 		command.add("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"); //$NON-NLS-1$
-		if (isCCacheEnabled())
-		{
-			command.add("-DCCACHE_ENABLE=1"); //$NON-NLS-1$
-		}
+
+		IDFEnvironmentVariables envVariables = new IDFEnvironmentVariables();
+		String ccacheStatus = envVariables.getEnvValue(IDFEnvironmentVariables.IDF_CCACHE_ENABLE);
+		command.add("-DCCACHE_ENABLE=" + (ccacheStatus.isBlank() ? "0" : ccacheStatus)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		if (launchtarget != null)
 		{
@@ -621,13 +620,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		}
 
 		return true;
-	}
-
-	private boolean isCCacheEnabled()
-	{
-		IEclipsePreferences node = IDFCorePreferenceConstants
-				.getPreferenceNode(IDFCorePreferenceConstants.CMAKE_CCACHE_STATUS, null);
-		return node.getBoolean(IDFCorePreferenceConstants.CMAKE_CCACHE_STATUS, true);
 	}
 
 	@Override
