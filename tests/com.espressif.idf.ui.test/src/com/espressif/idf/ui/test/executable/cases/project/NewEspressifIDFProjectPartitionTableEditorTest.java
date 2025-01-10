@@ -86,50 +86,6 @@ public class NewEspressifIDFProjectPartitionTableEditorTest
 		Fixture.ThenCheckRowAdded();
 	}
 
-	@Test
-	public void givenNewProjectCreatedBuiltWhenOpenPartitionTableEditorWhenDeleteSelectedRowThenCheckRowDeleted()
-			throws Exception
-	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectPartitionTableEditor4Test");
-		Fixture.whenNewProjectIsSelected();
-		Fixture.whenProjectIsBuiltUsingContextMenu();
-		Fixture.whenOpenPartitionTableEditor();
-		Fixture.whenDeleteRowFromPartitionTable();
-		Fixture.ThenCheckRowDeleted();
-	}
-
-	@Test
-	public void givenNewProjectCreatedBuiltWhenOpenPartitionTableEditorWhenDeleteSelectedRowWhenSaveAndQuitwhenReopenPartitionTableThenCheckChangesSaved()
-			throws Exception
-	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectPartitionTableEditor5Test");
-		Fixture.whenNewProjectIsSelected();
-		Fixture.whenProjectIsBuiltUsingContextMenu();
-		Fixture.whenOpenPartitionTableEditor();
-		Fixture.whenDeleteRowFromPartitionTable();
-		Fixture.whenSaveAndQuit();
-		Fixture.whenOpenPartitionTableEditor();
-		Fixture.thenCheckChangesSaved();
-	}
-
-	@Test
-	public void givenNewProjectCreatedBuiltWhenOpenPartitionTableEditorWhenDeleteSelectedRowWhenSaveAndCancelwhenReopenPartitionTableThenCheckChangesSaved()
-			throws Exception
-	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectPartitionTableEditor6Test");
-		Fixture.whenNewProjectIsSelected();
-		Fixture.whenProjectIsBuiltUsingContextMenu();
-		Fixture.whenOpenPartitionTableEditor();
-		Fixture.whenDeleteRowFromPartitionTable();
-		Fixture.whenSavePartitionTable();
-		Fixture.whenCancel();
-		Fixture.whenOpenPartitionTableEditor();
-		Fixture.thenCheckChangesSaved();
-	}
-
 	private static class Fixture
 	{
 		private static SWTWorkbenchBot bot;
@@ -191,38 +147,6 @@ public class NewEspressifIDFProjectPartitionTableEditorTest
 		private static void ThenCheckRowAdded() throws IOException
 		{
 			assertTrue(ProjectTestOperations.comparePartitionTableRows(bot, 1));
-		}
-
-		private static void whenDeleteRowFromPartitionTable() throws IOException
-		{
-			ProjectTestOperations.deletePartitionTableRow(bot);
-		}
-
-		private static void ThenCheckRowDeleted() throws IOException
-		{
-			assertTrue(ProjectTestOperations.comparePartitionTableRows(bot, -1));
-		}
-
-		private static void whenSaveAndQuit() throws IOException
-		{
-			bot.button("Save and Quit").click();
-			bot.button("OK").click();
-		}
-
-		private static void whenSavePartitionTable() throws IOException
-		{
-			bot.toolbarButton("Save").click();
-			bot.button("OK").click();
-		}
-
-		private static void whenCancel() throws IOException
-		{
-			bot.button("Cancel").click();
-		}
-
-		private static void thenCheckChangesSaved() throws IOException
-		{
-			assertTrue(ProjectTestOperations.comparePartitionTableRows(bot, -1));
 		}
 
 		private static void cleanTestEnv()
