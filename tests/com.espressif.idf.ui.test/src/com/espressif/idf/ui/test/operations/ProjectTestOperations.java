@@ -86,9 +86,9 @@ public class ProjectTestOperations
 		consoleView.setFocus();
 		TestWidgetWaitUtility.waitUntilViewContains(bot, "Build complete", consoleView,
 				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_PROJECT_BUILD_WAIT_PROPERTY, 300000));
-		consoleView.close();
-		bot.cTabItem("README.md").activate();
-		bot.cTabItem("README.md").close();
+//		consoleView.close();
+//		bot.cTabItem("README.md").activate();
+//		bot.cTabItem("README.md").close();
 	}
 
 	public static void waitForProjectNewComponentInstalled(SWTWorkbenchBot bot) throws IOException
