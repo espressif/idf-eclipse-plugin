@@ -126,6 +126,7 @@ public class NewEspressifIDFProjectPartitionTableEditorTest
 		private static void whenOpenPartitionTableEditor() throws IOException
 		{
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Partition Table Editor");
+			bot.sleep(5000);
 		}
 
 		private static void ThenInformationMessagePopUp() throws IOException
