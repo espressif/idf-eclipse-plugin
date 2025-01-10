@@ -337,6 +337,7 @@ public class NewEspressifIDFProjectTest
 
 		private static void thenConsoleShowsBuildSuccessful()
 		{
+			bot.sleep(5000);
 			SWTBotView consoleView = ProjectTestOperations.viewConsole("CDT Build Console", bot);
 			consoleView.show();
 			consoleView.setFocus();
