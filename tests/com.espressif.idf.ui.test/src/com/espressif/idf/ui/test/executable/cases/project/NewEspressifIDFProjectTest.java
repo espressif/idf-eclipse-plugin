@@ -266,6 +266,7 @@ public class NewEspressifIDFProjectTest
 		{
 			ProjectTestOperations.buildProjectUsingContextMenu(projectName, bot);
 			ProjectTestOperations.waitForProjectBuild(bot);
+			bot.sleep(5000);
 		}
 
 		private static void whenInstallNewComponentUsingContextMenu() throws IOException
