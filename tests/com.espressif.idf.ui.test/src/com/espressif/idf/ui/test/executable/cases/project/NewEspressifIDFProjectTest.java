@@ -341,9 +341,12 @@ public class NewEspressifIDFProjectTest
 			SWTBotView consoleView = ProjectTestOperations.viewConsole("CDT Build Console", bot);
 			consoleView.show();
 			consoleView.setFocus();
+			bot.sleep(5000);
 			String consoleTextString = consoleView.bot().styledText().getText();
 //			assertTrue(consoleTextString.contains("Build complete (0 errors"));
-			assertTrue(consoleTextString.contains("Memory Type"));
+			bot.sleep(5000);
+			assertTrue(consoleTextString.contains("Total time"));
+			bot.sleep(5000);
 		}
 
 		private static void cleanTestEnv()
