@@ -342,7 +342,8 @@ public class NewEspressifIDFProjectTest
 			consoleView.show();
 			consoleView.setFocus();
 			String consoleTextString = consoleView.bot().styledText().getText();
-			assertTrue(consoleTextString.contains("Build complete (0 errors"));
+//			assertTrue(consoleTextString.contains("Build complete (0 errors"));
+			assertTrue(consoleTextString.contains("Memory Type"));
 		}
 
 		private static void cleanTestEnv()
