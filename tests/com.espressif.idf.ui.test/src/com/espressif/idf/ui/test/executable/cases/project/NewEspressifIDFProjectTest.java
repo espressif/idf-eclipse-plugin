@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.ui.test.executable.cases.project;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -338,16 +339,24 @@ public class NewEspressifIDFProjectTest
 
 		private static void thenConsoleShowsBuildSuccessful()
 		{
-			bot.sleep(5000);
 			SWTBotView consoleView = ProjectTestOperations.viewConsole("CDT Build Console", bot);
 			consoleView.show();
 			consoleView.setFocus();
-			bot.sleep(5000);
+			bot.sleep(10000);
 			String consoleTextString = consoleView.bot().styledText().getText();
+			assertNotNull("Console text is null, ensure the console is visible and active", consoleTextString);
+			assertTrue("Console does not show build successful message",
+					consoleTextString.contains("Build complete (0 errors,"));
+//			String consoleTextString = consoleView.bot().styledText().getText();
 //			assertTrue(consoleTextString.contains("Build complete (0 errors"));
-			bot.sleep(5000);
-			assertTrue(consoleTextString.contains("Total time"));
-			bot.sleep(5000);
+		}
+
+		private static void assertConsoleShowsBuildSuccessful()
+		{
+			SWTBotView consoleView = ProjectTestOperations.viewConsole("CDT Build Console", bot);
+			consoleView.show();
+			consoleView.setFocus();
+
 		}
 
 		private static void cleanTestEnv()
