@@ -69,15 +69,6 @@
    <bundle id="org.eclipse.lsp4j.jsonrpc">
       <category name="com.espressif.idf"/>
    </bundle>
-   <bundle id="org.eclipse.mylyn.wikitext">
-      <category name="com.espressif.idf"/>
-   </bundle>
-   <bundle id="org.eclipse.mylyn.wikitext.markdown">
-      <category name="com.espressif.idf"/>
-   </bundle>
-   <bundle id="org.jsoup">
-      <category name="com.espressif.idf.dependencies"/>
-   </bundle>
    <bundle id="org.eclipse.tm4e.registry">
       <category name="com.espressif.idf"/>
    </bundle>
