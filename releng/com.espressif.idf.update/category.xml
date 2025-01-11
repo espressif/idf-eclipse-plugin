@@ -27,6 +27,9 @@
    <feature id="org.eclipse.userstorage">
       <category name="com.espressif.idf"/>
    </feature>
+   <feature id="org.eclipse.tm4e.feature">
+      <category name="com.espressif.idf"/>
+   </feature>
    <bundle id="org.eclipse.embedcdt.templates.core">
       <category name="com.espressif.idf"/>
    </bundle>
@@ -34,15 +37,6 @@
       <category name="com.espressif.idf"/>
    </bundle>
    <bundle id="org.eclipse.lsp4e">
-      <category name="com.espressif.idf"/>
-   </bundle>
-   <bundle id="org.eclipse.tm4e.languageconfiguration">
-      <category name="com.espressif.idf"/>
-   </bundle>
-   <bundle id="org.eclipse.tm4e.ui">
-      <category name="com.espressif.idf"/>
-   </bundle>
-   <bundle id="org.eclipse.tm4e.core">
       <category name="com.espressif.idf"/>
    </bundle>
    <bundle id="org.jcodings">
@@ -67,9 +61,6 @@
       <category name="com.espressif.idf"/>
    </bundle>
    <bundle id="org.eclipse.lsp4j.jsonrpc">
-      <category name="com.espressif.idf"/>
-   </bundle>
-   <bundle id="org.eclipse.tm4e.registry">
       <category name="com.espressif.idf"/>
    </bundle>
    <bundle id="org.apache.httpcomponents.httpclient">
