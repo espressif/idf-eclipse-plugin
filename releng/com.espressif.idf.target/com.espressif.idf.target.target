@@ -44,6 +44,7 @@
 			<unit id="org.apache.batik.util" version="0.0.0"/>
 			<unit id="org.apache.batik.i18n" version="0.0.0"/>
 			<unit id="org.apache.batik.constants" version="0.0.0"/>
+			<unit id="org.commonmark" version="0.0.0"/> <!-- 0.22.0 -->
 			<repository location="https://download.eclipse.org/tools/orbit/simrel/orbit-aggregation/2024-09"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
@@ -81,7 +82,7 @@
 			<unit id="org.eclipse.embedcdt.packs.feature.group" version="6.4.0.202307251916"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<repository location="https://download.eclipse.org/lsp4e/snapshots/"/>
+			<repository location="https://download.eclipse.org/lsp4e/releases/0.26.5/"/>
 			<unit id="org.eclipse.lsp4j" version="0.0.0"/>
 			<unit id="org.eclipse.lsp4j.debug" version="0.0.0"/>
 			<unit id="org.eclipse.lsp4j.jsonrpc" version="0.0.0"/>
