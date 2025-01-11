@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.ui.test.executable.cases.project;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -266,11 +267,12 @@ public class NewEspressifIDFProjectTest
 		{
 			ProjectTestOperations.buildProjectUsingContextMenu(projectName, bot);
 			ProjectTestOperations.waitForProjectBuild(bot);
+			bot.sleep(5000);
 		}
 
 		private static void whenInstallNewComponentUsingContextMenu() throws IOException
 		{
-			ProjectTestOperations.openProjectNewComponentUsingContextMenu(projectName, bot);
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Install New Component");
 			bot.editorByTitle(projectName).show();
 			bot.button("Install").click();
 			ProjectTestOperations.waitForProjectNewComponentInstalled(bot);
@@ -340,8 +342,21 @@ public class NewEspressifIDFProjectTest
 			SWTBotView consoleView = ProjectTestOperations.viewConsole("CDT Build Console", bot);
 			consoleView.show();
 			consoleView.setFocus();
+			bot.sleep(10000);
 			String consoleTextString = consoleView.bot().styledText().getText();
-			assertTrue(consoleTextString.contains("Build complete (0 errors"));
+			assertNotNull("Console text is null, ensure the console is visible and active", consoleTextString);
+			assertTrue("Console does not show build successful message",
+					consoleTextString.contains("Build complete (0 errors,"));
+//			String consoleTextString = consoleView.bot().styledText().getText();
+//			assertTrue(consoleTextString.contains("Build complete (0 errors"));
+		}
+
+		private static void assertConsoleShowsBuildSuccessful()
+		{
+			SWTBotView consoleView = ProjectTestOperations.viewConsole("CDT Build Console", bot);
+			consoleView.show();
+			consoleView.setFocus();
+
 		}
 
 		private static void cleanTestEnv()
