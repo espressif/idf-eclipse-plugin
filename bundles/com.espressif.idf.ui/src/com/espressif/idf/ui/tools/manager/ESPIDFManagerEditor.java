@@ -53,7 +53,8 @@ public class ESPIDFManagerEditor extends EditorPart
 	@Override
 	public void createPartControl(Composite parent)
 	{
-		ESPIDFMainTablePage espidfMainTablePage = ESPIDFMainTablePage.getInstance();
+		ESPIDFMainTablePage espidfMainTablePage = ESPIDFMainTablePage
+				.getInstance(((EimEditorInput) getEditorInput()).getEimJson());
 		espidfMainTablePage.createPage(parent);
 	}
 
