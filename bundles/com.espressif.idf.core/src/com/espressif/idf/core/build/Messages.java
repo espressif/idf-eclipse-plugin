@@ -33,6 +33,9 @@ public class Messages extends NLS
 	public static String ToolsInitializationDifferentPathMessageBoxOptionYes;
 	public static String ToolsInitializationDifferentPathMessageBoxOptionNo;
 	public static String IDFToolChainsMissingErrorMsg;
+	
+	public static String ToolsInitializationEimMissingMsgBoxTitle;
+	public static String ToolsInitializationEimMissingMsgBoxMessage;
 
 	public static String RefreshingProjects_JobName;
 

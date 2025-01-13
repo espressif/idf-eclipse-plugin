@@ -21,12 +21,16 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IStartup;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.part.FileEditorInput;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -42,12 +46,19 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.resources.OpenDialogListenerSupport;
 import com.espressif.idf.core.resources.PopupDialog;
 import com.espressif.idf.core.resources.ResourceChangeListener;
+import com.espressif.idf.core.tools.EimConstants;
+import com.espressif.idf.core.tools.EimIdfConfiguratinParser;
+import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.core.tools.vo.IDFToolSet;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.dialogs.BuildView;
 import com.espressif.idf.ui.dialogs.MessageLinkDialog;
+import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.tools.ToolsActivationJob;
 import com.espressif.idf.ui.tools.ToolsActivationJobListener;
+import com.espressif.idf.ui.tools.manager.ESPIDFManagerEditor;
+import com.espressif.idf.ui.tools.manager.EimEditorInput;
 import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
 
 @SuppressWarnings("restriction")
@@ -73,6 +84,9 @@ public class InitializeToolsStartup implements IStartup
 
 	private String newIdfPath;
 	private LaunchBarListener launchBarListener;
+	private EimIdfConfiguratinParser eimIdfConfiguratinParser;
+	private EimJson eimJson;
+	
 	@Override
 	public void earlyStartup()
 	{
@@ -102,111 +116,191 @@ public class InitializeToolsStartup implements IStartup
 		launchBarManager.addListener(launchBarListener);
 
 		// Get the location of the eclipse root directory
-		Location installLocation = Platform.getInstallLocation();
-		URL url = installLocation.getURL();
-		Logger.log("Eclipse Install location::" + url);
-		File idf_json_file = new File(url.getPath() + File.separator + ESP_IDF_JSON_FILE);
-		if (!idf_json_file.exists())
+		boolean eimIdfJsonExists = isEimIdfJsonPresent();
+		if (!eimIdfJsonExists)
 		{
-			Logger.log(MessageFormat.format("esp-idf.json file doesn't exist at this location: '{0}'", url.getPath()));
-			return;
+			userNotficationToInstallEim();
 		}
-		else if (isInstallerConfigSet())
+		else 
 		{
-			checkForUpdatedVersion(idf_json_file);
-			if (isInstallerConfigSet())
+			if (eimIdfConfiguratinParser == null)
 			{
-				Logger.log("Ignoring esp_idf.json settings as it was configured earilier and idf_path is similar.");
-				return;
+				eimIdfConfiguratinParser = new EimIdfConfiguratinParser();
 			}
-
-			IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
-			Display.getDefault().syncExec(() -> {
-				Shell shell = new Shell(Display.getDefault());
-				MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO);
-				messageBox.setButtonLabels(Map.of(SWT.YES, Messages.ToolsInitializationDifferentPathMessageBoxOptionYes,
-						SWT.NO, Messages.ToolsInitializationDifferentPathMessageBoxOptionNo));
-				messageBox.setText(Messages.ToolsInitializationDifferentPathMessageBoxTitle);
-				messageBox.setMessage(MessageFormat.format(Messages.ToolsInitializationDifferentPathMessageBoxMessage,
-						newIdfPath, idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PATH)));
-				int response = messageBox.open();
-				if (response == SWT.NO)
-				{
-					IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
-					updateEspIdfJsonFile(idf_json_file,
-							idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH));
-					Preferences prefs = getPreferences();
-					prefs.putBoolean(IS_INSTALLER_CONFIG_SET, true);
-					try
-					{
-						prefs.flush();
-					}
-					catch (BackingStoreException e)
-					{
-						Logger.log(e);
-					}
-
-					return;
-				}
-			});
-		}
-
-		// read esp-idf.json file
-		JSONParser parser = new JSONParser();
-		try
-		{
-			JSONObject jsonObj = (JSONObject) parser.parse(new FileReader(idf_json_file));
-			String gitExecutablePath = (String) jsonObj.get(GIT_PATH);
-			String idfToolsPath = (String) jsonObj.get(IDF_TOOLS_PATH_KEY);
-			String idfVersionId = (String) jsonObj.get(IDF_VERSIONS_ID);
-			JSONObject list = (JSONObject) jsonObj.get(IDF_INSTALLED_LIST_KEY);
-			if (list != null)
-			{
-				// selected esp-idf version information
-				JSONObject selectedIDFInfo = (JSONObject) list.get(idfVersionId);
-				String idfPath = (String) selectedIDFInfo.get(IDF_PATH);
-				String pythonExecutablePath = (String) selectedIDFInfo.get(PYTHON_PATH);
-				IDFToolSet newToolSet = new IDFToolSet();
-				newToolSet.setIdfLocation(idfPath);
-				newToolSet.setSystemGitExecutablePath(gitExecutablePath);
-				newToolSet.setSystemPythonExecutablePath(pythonExecutablePath);
-				newToolSet.setActive(true);
-				Preferences prefs = InstanceScope.INSTANCE.getNode(IDFCorePlugin.PLUGIN_ID);
-				prefs.put(IDFCorePreferenceConstants.IDF_TOOLS_PATH, idfToolsPath);
-				try
-				{
-					prefs.flush();
-				}
-				catch (BackingStoreException e)
-				{
-					Logger.log(e);
-				}
-				ToolsActivationJob toolsActivationJob = new ToolsActivationJob(newToolSet, pythonExecutablePath, gitExecutablePath);
-				ToolsActivationJobListener toolsActivationJobListener = new ToolsActivationJobListener(ESPIDFMainTablePage.getInstance());
-				toolsActivationJob.addJobChangeListener(toolsActivationJobListener);
-				toolsActivationJob.schedule();
-			}
-
-			// save state
-			Preferences prefs = getPreferences();
-			prefs.putBoolean(IS_INSTALLER_CONFIG_SET, true);
+			
 			try
 			{
-				prefs.flush();
+				eimJson = eimIdfConfiguratinParser.getEimJson(true);
 			}
-			catch (BackingStoreException e)
+			catch (IOException e)
 			{
 				Logger.log(e);
 			}
-			IDFUtil.updateEspressifPrefPageOpenocdPath();
-
 		}
-		catch (
-				IOException
-				| ParseException e)
+		if (!isInstallerConfigSet())
 		{
-			Logger.log(e);
+			// TODO: Installer config flag is not set so we need to start IDF Manager and let user select the IDF for workspace
+			Display.getDefault().syncExec(()-> {
+				Shell shell = Display.getDefault().getActiveShell();
+				MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING| SWT.YES | SWT.NO);
+				messageBox.setText("No Active ESP-IDF in workspace");
+				messageBox.setMessage("No active ESP-IDF found in current workspace. Do you want to select the ESP-IDF for current workspace?");
+				
+				int response = messageBox.open();
+				if (response == SWT.YES)
+				{
+					IWorkbenchWindow activeww = EclipseHandler.getActiveWorkbenchWindow();
+					IDFUtil.closeWelcomePage(activeww);
+					try
+					{
+						IDE.openEditor(activeww.getActivePage(), new EimEditorInput(eimJson), ESPIDFManagerEditor.EDITOR_ID);
+					}
+					catch (PartInitException e)
+					{
+						Logger.log(e);
+					}
+				}
+			});
 		}
+		
+//		Location installLocation = Platform.getInstallLocation();
+//		URL url = installLocation.getURL();
+//		Logger.log("Eclipse Install location::" + url);
+//		File idf_json_file = new File(url.getPath() + File.separator + ESP_IDF_JSON_FILE);
+//		if (!idf_json_file.exists())
+//		{
+//			Logger.log(MessageFormat.format("esp-idf.json file doesn't exist at this location: '{0}'", url.getPath()));
+//			return;
+//		}
+//		else if (isInstallerConfigSet())
+//		{
+//			
+//			checkForUpdatedVersion(idf_json_file);
+//			if (isInstallerConfigSet())
+//			{
+//				Logger.log("Ignoring esp_idf.json settings as it was configured earilier and idf_path is similar.");
+//				return;
+//			}
+//
+//			IDFEnvironmentVariables idfEnvMgr = new IDFEnvironmentVariables();
+//			Display.getDefault().syncExec(() -> {
+//				Shell shell = new Shell(Display.getDefault());
+//				MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO);
+//				messageBox.setButtonLabels(Map.of(SWT.YES, Messages.ToolsInitializationDifferentPathMessageBoxOptionYes,
+//						SWT.NO, Messages.ToolsInitializationDifferentPathMessageBoxOptionNo));
+//				messageBox.setText(Messages.ToolsInitializationDifferentPathMessageBoxTitle);
+//				messageBox.setMessage(MessageFormat.format(Messages.ToolsInitializationDifferentPathMessageBoxMessage,
+//						newIdfPath, idfEnvMgr.getEnvValue(IDFEnvironmentVariables.IDF_PATH)));
+//				int response = messageBox.open();
+//				if (response == SWT.NO)
+//				{
+//					IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+//					updateEspIdfJsonFile(idf_json_file,
+//							idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.IDF_PATH));
+//					Preferences prefs = getPreferences();
+//					prefs.putBoolean(IS_INSTALLER_CONFIG_SET, true);
+//					try
+//					{
+//						prefs.flush();
+//					}
+//					catch (BackingStoreException e)
+//					{
+//						Logger.log(e);
+//					}
+//
+//					return;
+//				}
+//			});
+//		}
+//
+//		// read esp-idf.json file
+//		JSONParser parser = new JSONParser();
+//		try
+//		{
+//			JSONObject jsonObj = (JSONObject) parser.parse(new FileReader(idf_json_file));
+//			String gitExecutablePath = (String) jsonObj.get(GIT_PATH);
+//			String idfToolsPath = (String) jsonObj.get(IDF_TOOLS_PATH_KEY);
+//			String idfVersionId = (String) jsonObj.get(IDF_VERSIONS_ID);
+//			JSONObject list = (JSONObject) jsonObj.get(IDF_INSTALLED_LIST_KEY);
+//			if (list != null)
+//			{
+//				// selected esp-idf version information
+//				JSONObject selectedIDFInfo = (JSONObject) list.get(idfVersionId);
+//				String idfPath = (String) selectedIDFInfo.get(IDF_PATH);
+//				String pythonExecutablePath = (String) selectedIDFInfo.get(PYTHON_PATH);
+//				IDFToolSet newToolSet = new IDFToolSet();
+//				newToolSet.setIdfLocation(idfPath);
+//				newToolSet.setSystemGitExecutablePath(gitExecutablePath);
+//				newToolSet.setSystemPythonExecutablePath(pythonExecutablePath);
+//				newToolSet.setActive(true);
+//				Preferences prefs = InstanceScope.INSTANCE.getNode(IDFCorePlugin.PLUGIN_ID);
+//				prefs.put(IDFCorePreferenceConstants.IDF_TOOLS_PATH, idfToolsPath);
+//				try
+//				{
+//					prefs.flush();
+//				}
+//				catch (BackingStoreException e)
+//				{
+//					Logger.log(e);
+//				}
+//				ToolsActivationJob toolsActivationJob = new ToolsActivationJob(newToolSet, pythonExecutablePath, gitExecutablePath);
+//				ToolsActivationJobListener toolsActivationJobListener = new ToolsActivationJobListener(ESPIDFMainTablePage.getInstance());
+//				toolsActivationJob.addJobChangeListener(toolsActivationJobListener);
+//				toolsActivationJob.schedule();
+//			}
+//
+//			// save state
+//			Preferences prefs = getPreferences();
+//			prefs.putBoolean(IS_INSTALLER_CONFIG_SET, true);
+//			try
+//			{
+//				prefs.flush();
+//			}
+//			catch (BackingStoreException e)
+//			{
+//				Logger.log(e);
+//			}
+//			IDFUtil.updateEspressifPrefPageOpenocdPath();
+//
+//		}
+//		catch (
+//				IOException
+//				| ParseException e)
+//		{
+//			Logger.log(e);
+//		}
+	}
+
+	private boolean isEimIdfJsonPresent()
+	{
+		String path = StringUtil.EMPTY;
+		if (Platform.getOS().equals(Platform.OS_WIN32))
+		{
+			 path = EimConstants.EIM_WIN_PATH;
+		}
+		else
+		{
+			path = EimConstants.EIM_POSIX_PATH;
+		}
+		
+		File file = new File(path);
+		return file.exists();
+	}
+
+	private void userNotficationToInstallEim()
+	{
+		Display.getDefault().asyncExec(()-> {
+			Shell shell = new Shell(Display.getDefault());
+			MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO);
+			
+			messageBox.setText(Messages.ToolsInitializationEimMissingMsgBoxTitle);
+			messageBox.setMessage(Messages.ToolsInitializationEimMissingMsgBoxMessage);
+			int response = messageBox.open();
+			if (response == SWT.YES)
+			{
+				Program.launch(EimConstants.EIM_URL);
+			}	
+		});
 	}
 
 	@SuppressWarnings("static-access")
