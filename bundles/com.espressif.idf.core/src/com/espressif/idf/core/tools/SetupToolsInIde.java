@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2025 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.core.tools;
 
 import java.io.BufferedReader;
@@ -41,6 +45,11 @@ import com.espressif.idf.core.tools.vo.IdfInstalled;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 
+/**
+ * This job is responsible for setting up the esp-idf in the IDE
+ * @author Ali Azam Rana
+ *
+ */
 public class SetupToolsInIde extends Job
 {
 	private EimJson eimJson;
@@ -122,37 +131,31 @@ public class SetupToolsInIde extends Job
 			
 			log(activationScriptOutput, IStatus.OK);
 			monitor.setTaskName("Processing output from activation script"); //$NON-NLS-1$
+			log("Processing output from activation script", IStatus.INFO); //$NON-NLS-1$
 			envVarsFromActivationScriptMap = parseEnvKeys(activationScriptOutput);
 			monitor.worked(1);
 			
 			monitor.setTaskName("Setting up IDE environment"); //$NON-NLS-1$
+			log("Setting up IDE environment variables", IStatus.INFO); //$NON-NLS-1$
 			setupEnvVarsInEclipse();
 			monitor.worked(1);
 
 			monitor.setTaskName("Setting up toolchains"); //$NON-NLS-1$
+			log("Setting up toolchains", IStatus.INFO); //$NON-NLS-1$
 			setUpToolChainsAndTargets(false);
 			monitor.worked(1);
 			
 			monitor.setTaskName("Installing pyhton dependency web-socket"); //$NON-NLS-1$
+			log("Installing pyhton dependency web-socket", IStatus.INFO); //$NON-NLS-1$
 			handleWebSocketClientInstall();
 			monitor.worked(1);
 			
 			monitor.setTaskName("Copying OpenOCD Rules"); //$NON-NLS-1$
+			log("Copying OpenOCD Rules", IStatus.INFO); //$NON-NLS-1$
 			copyOpenOcdRules();
 			monitor.worked(1);
 			
-			// Scoped preference flag should be updated by caller
-//			Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
-//			scopedPreferenceStore.putBoolean(INSTALL_TOOLS_FLAG, true);
-//			try
-//			{
-//				scopedPreferenceStore.flush();
-//			}
-//			catch (BackingStoreException e)
-//			{
-//				Logger.log(e);
-//			}
-
+			log("Tools Setup complete", IStatus.INFO); //$NON-NLS-1$
 			
 			return Status.OK_STATUS;
 		}
