@@ -55,7 +55,7 @@ public class InitializeToolsStartup implements IStartup
 	 */
 	public static final String ESP_IDF_JSON_FILE = "esp_idf.json"; //$NON-NLS-1$
 
-	private static final String IS_INSTALLER_CONFIG_SET = "isInstallerConfigSet"; //$NON-NLS-1$
+//	private static final String IS_INSTALLER_CONFIG_SET = "isInstallerConfigSet"; //$NON-NLS-1$
 	private static final String DOC_URL = "\"https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/partition-tables.html?highlight=partitions%20csv#creating-custom-tables\""; //$NON-NLS-1$
 
 	private LaunchBarListener launchBarListener;
@@ -112,7 +112,7 @@ public class InitializeToolsStartup implements IStartup
 				Logger.log(e);
 			}
 		}
-		if (!isInstallerConfigSet())
+		if (!isEspIdfSet())
 		{
 			// TODO: Installer config flag is not set so we need to start IDF Manager and let user select the IDF for workspace
 			Display.getDefault().syncExec(()-> {
@@ -230,8 +230,8 @@ public class InitializeToolsStartup implements IStartup
 		return InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 	}
 
-	private boolean isInstallerConfigSet()
+	private boolean isEspIdfSet()
 	{
-		return getPreferences().getBoolean(IS_INSTALLER_CONFIG_SET, false);
+		return getPreferences().getBoolean(EimConstants.INSTALL_TOOLS_FLAG, false);
 	}
 }
