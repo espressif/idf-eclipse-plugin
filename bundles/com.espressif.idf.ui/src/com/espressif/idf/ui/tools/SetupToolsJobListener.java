@@ -15,10 +15,10 @@ import org.osgi.service.prefs.Preferences;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.resources.OpenDialogListenerSupport;
 import com.espressif.idf.core.resources.PopupDialog;
+import com.espressif.idf.core.tools.EimConstants;
 import com.espressif.idf.core.tools.SetupToolsInIde;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
-import com.espressif.idf.ui.update.InstallToolsHandler;
 
 /**
  * Listener for {@link SetupToolsInIde}
@@ -60,11 +60,11 @@ public class SetupToolsJobListener extends JobChangeAdapter
 		
 		if (event.getResult().isOK())
 		{
-			scopedPreferenceStore.putBoolean(InstallToolsHandler.INSTALL_TOOLS_FLAG, true);
+			scopedPreferenceStore.putBoolean(EimConstants.INSTALL_TOOLS_FLAG, true);
 		}
 		else 
 		{
-			scopedPreferenceStore.putBoolean(InstallToolsHandler.INSTALL_TOOLS_FLAG, false);	
+			scopedPreferenceStore.putBoolean(EimConstants.INSTALL_TOOLS_FLAG, false);	
 		}
 		
 		try

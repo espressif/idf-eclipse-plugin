@@ -37,9 +37,9 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
+import com.espressif.idf.core.tools.EimConstants;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
-import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.UIPlugin;
 
 /**
@@ -50,8 +50,6 @@ import com.espressif.idf.ui.UIPlugin;
  */
 public class InstallToolsHandler extends AbstractToolsHandler
 {
-	public static final String INSTALL_TOOLS_FLAG = "INSTALL_TOOLS_FLAG"; //$NON-NLS-1$
-
 	@Override
 	protected void execute()
 	{
@@ -108,7 +106,7 @@ public class InstallToolsHandler extends AbstractToolsHandler
 			}
 		};
 		Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
-		scopedPreferenceStore.putBoolean(INSTALL_TOOLS_FLAG, true);
+		scopedPreferenceStore.putBoolean(EimConstants.INSTALL_TOOLS_FLAG, true);
 		try
 		{
 			scopedPreferenceStore.flush();
