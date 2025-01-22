@@ -34,7 +34,7 @@ import com.espressif.idf.core.tools.ToolSetConfigurationManager;
 import com.espressif.idf.core.tools.vo.IDFToolSet;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.tools.ToolsActivationJob;
-import com.espressif.idf.ui.tools.ToolsActivationJobListener;
+import com.espressif.idf.ui.tools.SetupToolsJobListener;
 import com.espressif.idf.ui.tools.ToolsInstallationJob;
 import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
 
@@ -340,9 +340,9 @@ public class IDFNewToolsWizard extends Wizard
 			if (idfToolSets != null && idfToolSets.size() == 1)
 			{
 				ToolsActivationJob toolsActivationJob = new ToolsActivationJob(idfToolSets.get(0), pythonPath, gitPath);
-				ToolsActivationJobListener toolsActivationJobListener = new ToolsActivationJobListener(espidfMainTablePage);
-				toolsActivationJob.addJobChangeListener(toolsActivationJobListener);
-				toolsActivationJob.schedule();
+//				SetupToolsJobListener toolsActivationJobListener = new SetupToolsJobListener(espidfMainTablePage4);
+//				toolsActivationJob.addJobChangeListener(toolsActivationJobListener);
+//				toolsActivationJob.schedule();
 			}
 			
 		}

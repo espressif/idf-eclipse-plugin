@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.ui.tools;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -14,25 +15,28 @@ import org.osgi.service.prefs.Preferences;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.resources.OpenDialogListenerSupport;
 import com.espressif.idf.core.resources.PopupDialog;
+import com.espressif.idf.core.tools.SetupToolsInIde;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
 import com.espressif.idf.ui.update.InstallToolsHandler;
 
 /**
- * Listener for {@link ToolsActivationJob}
+ * Listener for {@link SetupToolsInIde}
  * @author Ali Azam Rana
  *
  */
-public class ToolsActivationJobListener extends JobChangeAdapter
+public class SetupToolsJobListener extends JobChangeAdapter
 {
 	private ESPIDFMainTablePage espidfMainTablePage;
+	private SetupToolsInIde setupToolsInIde;
 	
-	public ToolsActivationJobListener(ESPIDFMainTablePage espidfMainTablePage)
+	public SetupToolsJobListener(ESPIDFMainTablePage espidfMainTablePage, SetupToolsInIde setupToolsInIde)
 	{
 		this.espidfMainTablePage = espidfMainTablePage;
+		this.setupToolsInIde = setupToolsInIde;
 	}
 	
-	public ToolsActivationJobListener()
+	public SetupToolsJobListener()
 	{
 	}
 
@@ -46,16 +50,14 @@ public class ToolsActivationJobListener extends JobChangeAdapter
 	@Override
 	public void done(IJobChangeEvent event)
 	{
-		Display.getDefault().asyncExec(() -> {
-			if (espidfMainTablePage != null)
-			{
-				espidfMainTablePage.refreshEditorUI();
-			}
-		});
-		OpenDialogListenerSupport.getSupport().firePropertyChange(PopupDialog.ENABLE_LAUNCHBAR_EVENTS.name(), null,
-				null);
-		
 		Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
+		
+		if (event.getResult().getSeverity() != IStatus.OK)
+		{
+			// Rollback all the changes
+			setupToolsInIde.rollback();
+		}
+		
 		if (event.getResult().isOK())
 		{
 			scopedPreferenceStore.putBoolean(InstallToolsHandler.INSTALL_TOOLS_FLAG, true);
@@ -73,5 +75,14 @@ public class ToolsActivationJobListener extends JobChangeAdapter
 		{
 			Logger.log(e);
 		}
+		
+		Display.getDefault().asyncExec(() -> {
+			if (espidfMainTablePage != null)
+			{
+				espidfMainTablePage.refreshEditorUI();
+			}
+		});
+		OpenDialogListenerSupport.getSupport().firePropertyChange(PopupDialog.ENABLE_LAUNCHBAR_EVENTS.name(), null,
+				null);
 	}
 }
