@@ -7,4 +7,6 @@ public interface EimConstants
 	String EIM_URL = "https://github.com/espressif/idf-im-cli"; //$NON-NLS-1$
 	
 	String EIM_POSIX_PATH = "~/.espressif/tools/eim_idf.json"; //$NON-NLS-1$
+	
+	String INSTALL_TOOLS_FLAG = "INSTALL_TOOLS_FLAG"; //$NON-NLS-1$
 }
