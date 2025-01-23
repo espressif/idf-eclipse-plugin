@@ -55,7 +55,6 @@ public class InitializeToolsStartup implements IStartup
 	 */
 	public static final String ESP_IDF_JSON_FILE = "esp_idf.json"; //$NON-NLS-1$
 
-//	private static final String IS_INSTALLER_CONFIG_SET = "isInstallerConfigSet"; //$NON-NLS-1$
 	private static final String DOC_URL = "\"https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/partition-tables.html?highlight=partitions%20csv#creating-custom-tables\""; //$NON-NLS-1$
 
 	private LaunchBarListener launchBarListener;
@@ -118,8 +117,8 @@ public class InitializeToolsStartup implements IStartup
 			Display.getDefault().syncExec(()-> {
 				Shell shell = Display.getDefault().getActiveShell();
 				MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING| SWT.YES | SWT.NO);
-				messageBox.setText("No Active ESP-IDF in workspace");
-				messageBox.setMessage("No active ESP-IDF found in current workspace. Do you want to select the ESP-IDF for current workspace?");
+				messageBox.setText(Messages.NoActiveEspIdfInWorkspaceMsgTitle);
+				messageBox.setMessage(Messages.NoActiveEspIdfInWorkspaceMsg);
 				
 				int response = messageBox.open();
 				if (response == SWT.YES)
