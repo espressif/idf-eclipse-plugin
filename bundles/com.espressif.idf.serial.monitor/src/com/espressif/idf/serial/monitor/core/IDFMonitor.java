@@ -12,7 +12,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -20,14 +19,12 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.embedcdt.debug.gdbjtag.core.DebugUtils;
 
 import com.espressif.idf.core.IDFConstants;
-import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.GenericJsonReader;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.SDKConfigJsonReader;
 import com.espressif.idf.core.util.StringUtil;
-import com.espressif.idf.ui.update.InstallToolsHandler;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -143,10 +140,6 @@ public class IDFMonitor
 
 	public Process start() throws Exception
 	{
-		if (!dependenciesAreInstalled())
-		{
-			throw new Exception("The WebSocket dependency is missing and cannot be installed automatically"); //$NON-NLS-1$
-		}
 		List<String> arguments = commandArgsWithSocketServer();
 
 		// command to execute
@@ -185,19 +178,5 @@ public class IDFMonitor
 
 		LocalTerminal localTerminal = new LocalTerminal(arguments, workingDir.toFile(), environment);
 		return localTerminal.connect();
-	}
-
-	public boolean dependenciesAreInstalled()
-	{
-		InstallToolsHandler installToolsHandler = new InstallToolsHandler();
-		IStatus status = installToolsHandler.handleWebSocketClientInstall();
-		if (status == null || status.getSeverity() == IStatus.ERROR)
-		{
-			Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Unable to get the process status.", null)); //$NON-NLS-1$
-			return false;
-		}
-
-		Logger.log(status.getMessage());
-		return true;
 	}
 }
