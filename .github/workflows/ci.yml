@@ -75,7 +75,7 @@ jobs:
 
     - name: Install ESP-IDF via eim		
       run: |
-         eim -p ../dependencies/idf-tools --idf-versions v5.3 --tool-download-folder-name dist --tool-install-folder-name tools --target all --non-interactive true -m https://github.com --idf-mirror https://github.com --recurse-submodules tue --verbose
+         eim -p ../dependencies/idf-tools --idf-versions v5.3 --tool-download-folder-name dist --tool-install-folder-name tools --target all --non-interactive true -m https://github.com --idf-mirror https://github.com --recurse-submodules true --verbose
 
     - name: Set up Maven
       uses: stCarolas/setup-maven@v5
