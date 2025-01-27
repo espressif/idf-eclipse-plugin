@@ -10,7 +10,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  build_linux:
 
     runs-on: [self-hosted, eclipse, BrnoUBU0004]
 
