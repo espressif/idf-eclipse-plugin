@@ -203,7 +203,6 @@ public class InitializeToolsStartup implements IStartup
 			}
 			updateValuesInBuildView(erroHintPairs);
 		});
-
 	}
 
 	private void updateValuesInBuildView(List<ReHintPair> erroHintPairs)
