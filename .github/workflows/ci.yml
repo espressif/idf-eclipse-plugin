@@ -18,6 +18,8 @@ jobs:
       - BrnoUBU0004
 
     steps:
+	- uses: actions/checkout@v2
+	
 	- name: Set up Python
 	      uses: actions/setup-python@v2
 	      with:
