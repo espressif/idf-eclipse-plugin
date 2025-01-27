@@ -52,25 +52,25 @@ jobs:
         fi
 
         echo "asset_url=$asset_url" >> $GITHUB_ENV
-			
+
     - name: Download the latest EIM-CLI
       run: |
-        # Use the extracted asset URL to download the file
-        curl -L -o eim-cli.zip "$asset_url"
-        # Extract the downloaded archive (if it's a tar.gz file)
-        unzip eim-cli.zip -d eim-cli
+         # Use the extracted asset URL to download the file
+         curl -L -o eim-cli.zip "$asset_url"
+         # Extract the downloaded archive (if it's a tar.gz file)
+         unzip eim-cli.zip -d eim-cli
 
     - name: Setup the latest EIM-CLI
       run: |
-        # Add commands to install or set up the downloaded release
-			echo "Installing release from tag: ${{ env.tag_name }}"
-			cd eim-cli
-			chmod +x eim
-			sudo mv eim /usr/local/bin
-			
+         # Add commands to install or set up the downloaded release
+         echo "Installing release from tag: ${{ env.tag_name }}"
+         cd eim-cli
+         chmod +x eim
+         sudo mv eim /usr/local/bin
+
     - name: Install ESP-IDF via eim		
       run: |
-      eim -p ../dependencies/idf-tools --idf-versions v5.3 --tool-download-folder-name dist --tool-install-folder-name tools --target all --non-interactive true -m https://github.com --idf-mirror https://github.com --recurse-submodules tue --verbose
+         eim -p ../dependencies/idf-tools --idf-versions v5.3 --tool-download-folder-name dist --tool-install-folder-name tools --target all --non-interactive true -m https://github.com --idf-mirror https://github.com --recurse-submodules tue --verbose
 
     - name: Set up Maven
       uses: stCarolas/setup-maven@v5
