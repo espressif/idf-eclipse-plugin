@@ -7,16 +7,21 @@ package com.espressif.idf.ui;
 import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.MessageFormat;
 import java.util.List;
 
 import org.eclipse.cdt.cmake.core.internal.Activator;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.program.Program;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -89,28 +94,29 @@ public class InitializeToolsStartup implements IStartup
 		ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
 		launchBarManager.addListener(launchBarListener);
 
-		// Get the location of the eclipse root directory
-		boolean eimIdfJsonExists = isEimIdfJsonPresent();
-		if (!eimIdfJsonExists)
+		checkAndHandleOldConfig();
+		if (isEimInstalled())
 		{
-			userNotficationToInstallEim();
+			notifyAndSetEspIdf();
 		}
-		else 
+	}
+	
+	private void notifyAndSetEspIdf()
+	{
+		if (eimIdfConfiguratinParser == null)
 		{
-			if (eimIdfConfiguratinParser == null)
-			{
-				eimIdfConfiguratinParser = new EimIdfConfiguratinParser();
-			}
-			
-			try
-			{
-				eimJson = eimIdfConfiguratinParser.getEimJson(true);
-			}
-			catch (IOException e)
-			{
-				Logger.log(e);
-			}
+			eimIdfConfiguratinParser = new EimIdfConfiguratinParser();
 		}
+		
+		try
+		{
+			eimJson = eimIdfConfiguratinParser.getEimJson(true);
+		}
+		catch (IOException e)
+		{
+			Logger.log(e);
+		}
+		
 		if (!isEspIdfSet())
 		{
 			// TODO: Installer config flag is not set so we need to start IDF Manager and let user select the IDF for workspace
@@ -137,6 +143,62 @@ public class InitializeToolsStartup implements IStartup
 			});
 		}
 	}
+	
+	private boolean isEimInstalled()
+	{
+		boolean eimIdfJsonExists = isEimIdfJsonPresent();
+		if (!eimIdfJsonExists)
+		{
+			userNotficationToInstallEim();
+		}
+		
+		return eimIdfJsonExists;
+	}
+
+	private void checkAndHandleOldConfig()
+	{
+		if (isOldConfigExported())
+			return;
+		
+		if (isOldEspIdfConfigPresnet())
+		{
+			File oldConfig = getOldConfigFile();
+			Display.getDefault().asyncExec(() -> {
+				Shell shell = Display.getDefault().getActiveShell();
+				boolean userWantsToExport = MessageDialog.openQuestion(shell, Messages.OldConfigFoundMsgBoxTitle,
+						Messages.OldConfigFoundMsgBoxMsg);
+
+				String selectedDirectory = StringUtil.EMPTY;
+				if (userWantsToExport)
+				{
+					DirectoryDialog directoryDialog = new DirectoryDialog(shell, SWT.SAVE);
+					directoryDialog.setText(Messages.OldConfigExportDirectorSelectionDialogTitle);
+					directoryDialog.setMessage(Messages.OldConfigExportDirectorSelectionDialogInfo);
+					selectedDirectory = directoryDialog.open();
+				}
+
+				if (!StringUtil.isEmpty(selectedDirectory))
+				{
+					File destinationFile = new File(selectedDirectory, oldConfig.getName());
+					try
+					{
+						Files.copy(oldConfig.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+						MessageDialog.openInformation(shell, Messages.OldConfigExportCompleteSuccessMsgTitle,
+								MessageFormat.format(Messages.OldConfigExportCompleteSuccessMsg,
+										destinationFile.getAbsolutePath()));
+					}
+					catch (IOException e)
+					{
+						MessageDialog.openError(shell, Messages.OldConfigExportCompleteFailMsgTitle,
+								MessageFormat.format(Messages.OldConfigExportCompleteFailMsg, e.getMessage()));
+						Logger.log(e);
+					}
+					
+					getPreferences().putBoolean(EimConstants.OLD_CONFIG_EXPORTED_FLAG, true);
+				}
+			});
+		}
+	}
 
 	private boolean isEimIdfJsonPresent()
 	{
@@ -152,6 +214,21 @@ public class InitializeToolsStartup implements IStartup
 		
 		File file = new File(path);
 		return file.exists();
+	}
+	
+	private boolean isOldEspIdfConfigPresnet()
+	{
+		return getOldConfigFile().exists();
+	}
+	
+	private File getOldConfigFile()
+	{
+		IPath path = ResourcesPlugin.getWorkspace().getRoot().getLocation();
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append(path.toOSString());
+		stringBuilder.append(File.separatorChar);
+		stringBuilder.append(EimConstants.TOOL_SET_CONFIG_LEGACY_CONFIG_FILE);
+		return new File(stringBuilder.toString());
 	}
 
 	private void userNotficationToInstallEim()
@@ -226,6 +303,11 @@ public class InitializeToolsStartup implements IStartup
 	private Preferences getPreferences()
 	{
 		return InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
+	}
+	
+	private boolean isOldConfigExported()
+	{
+		return getPreferences().getBoolean(EimConstants.OLD_CONFIG_EXPORTED_FLAG, false);
 	}
 
 	private boolean isEspIdfSet()
