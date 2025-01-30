@@ -41,6 +41,15 @@ public class Messages extends NLS
 	
 	public static String NoActiveEspIdfInWorkspaceMsgTitle;
 	public static String NoActiveEspIdfInWorkspaceMsg;
+	
+	public static String OldConfigFoundMsgBoxTitle;
+	public static String OldConfigFoundMsgBoxMsg;
+	public static String OldConfigExportDirectorSelectionDialogTitle;
+	public static String OldConfigExportDirectorSelectionDialogInfo;
+	public static String OldConfigExportCompleteSuccessMsgTitle;
+	public static String OldConfigExportCompleteSuccessMsg;
+	public static String OldConfigExportCompleteFailMsgTitle;
+	public static String OldConfigExportCompleteFailMsg;
 
 	static
 	{
