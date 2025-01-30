@@ -15,15 +15,15 @@ jobs:
     runs-on: [self-hosted, eclipse, BrnoUBU0004]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: '3.10'
 
-    - name: Install ESP-IDF via eim		
-      uses: Hahihula/esp-idf-install-action@v1
+    - name: Install ESP-IDF via eim
+      uses: espressif/esp-idf-install-action@v1
       with:
         esp_idf_version: 'v5.3'
 
