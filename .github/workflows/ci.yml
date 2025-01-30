@@ -10,28 +10,22 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  build_linux:
 
-    runs-on:
-      - self-hosted
-      - eclipse
-      - BrnoUBU0004
+    runs-on: [self-hosted, eclipse, BrnoUBU0004]
 
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Clone IDF Release From Github
-      uses: actions/checkout@v2
-      with:
-        repository: espressif/esp-idf
-        path: dependencies/idf-tools
-        submodules: 'true'
-        ref: release/v5.1
+    - uses: actions/checkout@v4
 
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-          python-version: '3.10'
+        python-version: '3.10'
+
+    - name: Install ESP-IDF via eim		
+      uses: espressif/install-esp-idf-action@v1
+      with:
+        version: 'v5.3'
 
     - name: Set up Maven
       uses: stCarolas/setup-maven@v5
