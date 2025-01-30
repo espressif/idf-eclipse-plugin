@@ -23,7 +23,7 @@ jobs:
         python-version: '3.10'
 
     - name: Install ESP-IDF via eim		
-      uses: hahihula/esp-idf-install-action@v1
+      uses: espressif/esp-idf-install-action@v1
       with:
         esp_idf_version: 'v5.3'
 
