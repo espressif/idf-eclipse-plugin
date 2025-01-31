@@ -65,7 +65,7 @@ public class TestWidgetWaitUtility
 			}
 		}, 99000000, 3000);
 	}
-	
+
 	public static void waitForOperationsInProgressToFinishSync(SWTWorkbenchBot bot)
 	{
 		bot.viewById(IPageLayout.ID_PROGRESS_VIEW).show();
@@ -111,7 +111,7 @@ public class TestWidgetWaitUtility
 			}
 		}, 99000000, 500);
 	}
-	
+
 	/**
 	 * Waits until the specified view contains the provided text, the view must contain a styled text
 	 * 
@@ -213,27 +213,31 @@ public class TestWidgetWaitUtility
 	 * @param dialogTitle  The title of the dialog to look for
 	 * @param timeout      Time to wait in ms before throwing {@link WidgetNotFoundException}
 	 */
-	public static void waitUntilDialogIsNotVisible(SWTWorkbenchBot workbenchBot, String dialogTitle, long timeout)
+	public static void waitForDialogToAppear(SWTWorkbenchBot workbenchBot, String dialogTitle, long timeout)
 	{
 		workbenchBot.waitUntil(new DefaultCondition()
 		{
-
 			@Override
 			public boolean test() throws Exception
 			{
-				SWTBotShell swtBotShell = workbenchBot.activeShell();
-				return swtBotShell.getText().contains(dialogTitle);
+				for (SWTBotShell shell : workbenchBot.shells())
+				{
+					if (shell.getText().contains(dialogTitle))
+					{
+						return true; // Dialog is now visible
+					}
+				}
+				return false; // Dialog is not yet visible
 			}
 
 			@Override
 			public String getFailureMessage()
 			{
-				return "View with title: " + dialogTitle + " not found";
+				return "Dialog with title: " + dialogTitle + " did not appear in time.";
 			}
 		}, timeout);
 	}
-	
-	
+
 	/**
 	 * Waits while the provided bot has a dialog with the title visible
 	 * 
@@ -245,33 +249,56 @@ public class TestWidgetWaitUtility
 	{
 		workbenchBot.waitWhile(new DefaultCondition()
 		{
-
 			@Override
 			public boolean test() throws Exception
 			{
-				SWTBotShell swtBotShell = workbenchBot.activeShell();
-				return swtBotShell.getText().contains(dialogTitle);
+				for (SWTBotShell shell : workbenchBot.shells())
+				{
+					if (shell.getText().contains(dialogTitle))
+					{
+						return true;
+					}
+				}
+				return false;
 			}
 
 			@Override
 			public String getFailureMessage()
 			{
-				return "View with title: " + dialogTitle + " not found";
+				return "Dialog with title: " + dialogTitle + " did not close in time.";
 			}
 		}, timeout);
 	}
-	
+
+	public static void waitForSDKConfigurationTab(SWTWorkbenchBot workbenchBot, long timeout)
+	{
+		workbenchBot.waitUntil(new DefaultCondition()
+		{
+			@Override
+			public boolean test() throws Exception
+			{
+				return workbenchBot.cTabItem("SDK Configuration (sdkconfig)").isActive();
+			}
+
+			@Override
+			public String getFailureMessage()
+			{
+				return "SDK Configuration tab did not open in time.";
+			}
+		}, timeout);
+	}
+
 	private static OperationResponse getOperationResponse()
 	{
 		TestWidgetWaitUtility testWidgetWaitUtility = new TestWidgetWaitUtility();
 		return testWidgetWaitUtility.getOperationResponseObject();
 	}
-	
+
 	private OperationResponse getOperationResponseObject()
 	{
 		return new OperationResponse();
 	}
-	
+
 	private class OperationResponse
 	{
 		private boolean itemStillPending = true;
