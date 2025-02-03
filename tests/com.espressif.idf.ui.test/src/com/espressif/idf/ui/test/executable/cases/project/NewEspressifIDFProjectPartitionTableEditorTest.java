@@ -171,13 +171,13 @@ public class NewEspressifIDFProjectPartitionTableEditorTest
 		private static void whenOpenPartitionTableEditor() throws IOException
 		{
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Partition Table Editor");
-			TestWidgetWaitUtility.waitUntilDialogIsNotVisible(bot, "Partition Table Editor", 10000);
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Partition Table Editor", 10000);
 		}
 
 		private static void whenOpenEmptyPartitionTableEditor() throws IOException
 		{
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Partition Table Editor");
-			TestWidgetWaitUtility.waitUntilDialogIsNotVisible(bot, "Information", 10000);
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Information", 10000);
 		}
 
 		private static void ThenInformationMessagePopUp() throws IOException
