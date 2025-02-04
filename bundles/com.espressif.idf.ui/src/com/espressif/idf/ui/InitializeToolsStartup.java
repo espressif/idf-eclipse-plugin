@@ -121,6 +121,7 @@ public class InitializeToolsStartup implements IStartup
 		{
 			Display.getDefault().syncExec(()-> {
 				String skipTestsValue = System.getProperty("skipTests");
+				Logger.log("skipTests: " + skipTestsValue);
 				if (!StringUtil.isEmpty(skipTestsValue) && !Boolean.parseBoolean(skipTestsValue))
 				{
 					openEspIdfManager();
