@@ -77,9 +77,15 @@ public class ToolsUtility
 			command.add(activationScriptPath);
 			command.add("-e"); //$NON-NLS-1$
 		}
+		else if (Platform.getOS().equals(Platform.OS_LINUX))
+		{
+			command.add("/bin/bash"); //$NON-NLS-1$
+			command.add(activationScriptPath);
+			command.add("-e"); //$NON-NLS-1$
+		}
 		else 
 		{
-			command.add("sh"); //$NON-NLS-1$
+			command.add("/bin/zsh"); //$NON-NLS-1$
 			command.add(activationScriptPath);
 			command.add("-e"); //$NON-NLS-1$
 		}
