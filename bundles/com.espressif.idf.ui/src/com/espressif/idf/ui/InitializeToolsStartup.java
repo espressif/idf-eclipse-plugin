@@ -119,8 +119,13 @@ public class InitializeToolsStartup implements IStartup
 		
 		if (!isEspIdfSet())
 		{
-			// TODO: Installer config flag is not set so we need to start IDF Manager and let user select the IDF for workspace
 			Display.getDefault().syncExec(()-> {
+				String skipTestsValue = System.getProperty("skipTests");
+				if (!StringUtil.isEmpty(skipTestsValue) && !Boolean.parseBoolean(skipTestsValue))
+				{
+					openEspIdfManager();
+					return;
+				}
 				Shell shell = Display.getDefault().getActiveShell();
 				MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING| SWT.YES | SWT.NO);
 				messageBox.setText(Messages.NoActiveEspIdfInWorkspaceMsgTitle);
@@ -129,18 +134,23 @@ public class InitializeToolsStartup implements IStartup
 				int response = messageBox.open();
 				if (response == SWT.YES)
 				{
-					IWorkbenchWindow activeww = EclipseHandler.getActiveWorkbenchWindow();
-					IDFUtil.closeWelcomePage(activeww);
-					try
-					{
-						IDE.openEditor(activeww.getActivePage(), new EimEditorInput(eimJson), ESPIDFManagerEditor.EDITOR_ID);
-					}
-					catch (PartInitException e)
-					{
-						Logger.log(e);
-					}
+					openEspIdfManager();
 				}
 			});
+		}
+	}
+	
+	private void openEspIdfManager()
+	{
+		IWorkbenchWindow activeww = EclipseHandler.getActiveWorkbenchWindow();
+		IDFUtil.closeWelcomePage(activeww);
+		try
+		{
+			IDE.openEditor(activeww.getActivePage(), new EimEditorInput(eimJson), ESPIDFManagerEditor.EDITOR_ID);
+		}
+		catch (PartInitException e)
+		{
+			Logger.log(e);
 		}
 	}
 	
