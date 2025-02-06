@@ -48,7 +48,7 @@ public class NewEspressifIDFProjectClangFilesTest
 	}
 
 	@Test
-	public void givenNewProjectIsCreatedThenTestFullSDKconfigWorkflowForNewProject() throws Exception
+	public void givenNewProjectIsCreatedThenTestClangFilesForNewProject() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 		Fixture.givenProjectNameIs("NewProjectClangFilesTest");
@@ -61,6 +61,21 @@ public class NewEspressifIDFProjectClangFilesTest
 		Fixture.whenClangFormatFileOpenedUsingDoubleClick();
 		Fixture.thenClangFormatContentChecked();
 		Fixture.thenClangFormatShellClosed();
+	}
+
+	@Test
+	public void givenNewProjectIsCreatedWhenClangdFileIsDeletedThenTestClangdFileCreatedUsingContextMenu()
+			throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectClangFilesTest2");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenClangdFileDeleted();
+		Fixture.thenClangdFileIsAbsent();
+		Fixture.thenCreateClangdFileUsingContextMenu();
+		Fixture.thenClangdFileIsPresent();
+		Fixture.whenClangdFileOpenedUsingDoubleClick();
+		Fixture.thenClangdFileContentChecked();
 	}
 
 	private static class Fixture
@@ -111,10 +126,25 @@ public class NewEspressifIDFProjectClangFilesTest
 			assertTrue(bot.tree().getTreeItem(projectName).getNode(".clang-format") != null);
 		}
 
-//		private static void thenClangdFileIsAbsent() throws IOException
-//		{
-//			assertTrue(!bot.tree().getTreeItem(projectName).getNodes().contains(".clangd"));
-//		}
+		private static void whenClangdFileDeleted() throws IOException
+		{
+			bot.tree().getTreeItem(projectName).getNode(".clangd").select();
+			bot.tree().getTreeItem(projectName).getNode(".clangd").contextMenu("Delete").click();
+			bot.shell("Delete Resources").bot().button("OK").click();
+			bot.sleep(1000);
+		}
+
+		private static void thenClangdFileIsAbsent() throws IOException
+		{
+			assertTrue(!bot.tree().getTreeItem(projectName).getNodes().contains(".clangd"));
+		}
+
+		private static void thenCreateClangdFileUsingContextMenu() throws IOException
+		{
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Create Clangd Config");
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Clangd Configuration", 5000);
+			bot.shell("Clangd Configuration").bot().button("OK").click();
+		}
 
 		private static void whenClangdFileOpenedUsingDoubleClick() throws IOException
 		{
