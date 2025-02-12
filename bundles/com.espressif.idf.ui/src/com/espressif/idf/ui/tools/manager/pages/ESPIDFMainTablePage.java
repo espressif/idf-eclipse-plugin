@@ -7,6 +7,7 @@ package com.espressif.idf.ui.tools.manager.pages;
 import java.io.IOException;
 import java.util.List;
 
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -32,8 +33,10 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.console.MessageConsoleStream;
+import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.tools.EimConstants;
 import com.espressif.idf.core.tools.EimIdfConfiguratinParser;
 import com.espressif.idf.core.tools.SetupToolsInIde;
 import com.espressif.idf.core.tools.util.ToolsUtility;
@@ -96,6 +99,24 @@ public class ESPIDFMainTablePage
 		container.setLayout(gridLayout);
 		createIdfTable(container);
 		return container;
+	}
+	
+	public void setupInitialEspIdf()
+	{
+		if (idfInstalledList != null && idfInstalledList.size() == 1)
+		{
+			// activate the only available esp-idf first check if its not already active
+			Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
+			if (!scopedPreferenceStore.getBoolean(EimConstants.INSTALL_TOOLS_FLAG, false))
+			{
+				SetupToolsInIde setupToolsInIde = new SetupToolsInIde(idfInstalledList.get(0), eimJson,
+						getConsoleStream(true), getConsoleStream(false));
+				SetupToolsJobListener toolsActivationJobListener = new SetupToolsJobListener(ESPIDFMainTablePage.this,
+						setupToolsInIde);
+				setupToolsInIde.addJobChangeListener(toolsActivationJobListener);
+				setupToolsInIde.schedule();
+			}
+		}
 	}
 
 	public void refreshEditorUI()

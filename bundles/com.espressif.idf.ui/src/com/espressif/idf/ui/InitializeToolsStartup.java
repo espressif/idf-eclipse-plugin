@@ -142,7 +142,9 @@ public class InitializeToolsStartup implements IStartup
 		IDFUtil.closeWelcomePage(activeww);
 		try
 		{
-			IDE.openEditor(activeww.getActivePage(), new EimEditorInput(eimJson), ESPIDFManagerEditor.EDITOR_ID);
+			EimEditorInput eimEditorInput = new EimEditorInput(eimJson);
+			eimEditorInput.setFirstStartup(true);
+			IDE.openEditor(activeww.getActivePage(), eimEditorInput, ESPIDFManagerEditor.EDITOR_ID);
 		}
 		catch (PartInitException e)
 		{

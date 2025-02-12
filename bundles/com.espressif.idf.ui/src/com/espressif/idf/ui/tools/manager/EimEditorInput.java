@@ -9,6 +9,8 @@ import com.espressif.idf.core.tools.vo.EimJson;
 public class EimEditorInput implements IEditorInput
 {
 	private EimJson eimJson;
+	private boolean firstStartup;
+	
 	public EimEditorInput(EimJson eimJson)
 	{
 		this.eimJson = eimJson;
@@ -54,6 +56,16 @@ public class EimEditorInput implements IEditorInput
 	public String getToolTipText()
 	{
 		return null;
+	}
+
+	public boolean isFirstStartup()
+	{
+		return firstStartup;
+	}
+
+	public void setFirstStartup(boolean firstStartup)
+	{
+		this.firstStartup = firstStartup;
 	}
 
 }
