@@ -55,11 +55,6 @@ public class InitializeToolsStartup implements IStartup
 
 	private static final String BUILDHINTS_ID = "com.espressif.idf.ui.views.buildhints"; //$NON-NLS-1$
 
-	/**
-	 * esp-idf.json is file created by the installer
-	 */
-	public static final String ESP_IDF_JSON_FILE = "esp_idf.json"; //$NON-NLS-1$
-
 	private static final String DOC_URL = "\"https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/partition-tables.html?highlight=partitions%20csv#creating-custom-tables\""; //$NON-NLS-1$
 
 	private LaunchBarListener launchBarListener;
