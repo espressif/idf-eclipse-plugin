@@ -43,6 +43,7 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 	private Combo gitAssetsCombo;
 	private Combo pythonWheelCombo;
 	private Text idfToolsPathText;
+	private Button automateClangdFormatCreationBtn;
 
 	public EspresssifPreferencesPage()
 	{
@@ -93,15 +94,17 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		Label githubAssetsLabel = new Label(toolsInstallationGroup, SWT.NONE);
 		githubAssetsLabel.setText(Messages.EspressifPreferencesPage_ToolsInstallationGitAssetUrlLabel);
 		gitAssetsCombo = new Combo(toolsInstallationGroup, SWT.DROP_DOWN | SWT.BORDER);
-		gitAssetsCombo.setItems(IDFCorePreferenceConstants.IDF_GITHUB_ASSETS_DEFAULT_GLOBAL, IDFCorePreferenceConstants.IDF_GITHUB_ASSETS_DEFAULT_CHINA);
+		gitAssetsCombo.setItems(IDFCorePreferenceConstants.IDF_GITHUB_ASSETS_DEFAULT_GLOBAL,
+				IDFCorePreferenceConstants.IDF_GITHUB_ASSETS_DEFAULT_CHINA);
 		gitAssetsCombo.select(0);
-		
+
 		Label pythonWheelsLabel = new Label(toolsInstallationGroup, SWT.NONE);
 		pythonWheelsLabel.setText(Messages.EspressifPreferencesPage_ToolsInstallationPythonPyWheelUrlLabel);
 		pythonWheelCombo = new Combo(toolsInstallationGroup, SWT.DROP_DOWN | SWT.BORDER);
-	    pythonWheelCombo.setItems(IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL_DEFAULT_GLOBAL, IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL_DEFAULT_CHINA);
-	    pythonWheelCombo.select(0);
-	    
+		pythonWheelCombo.setItems(IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL_DEFAULT_GLOBAL,
+				IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL_DEFAULT_CHINA);
+		pythonWheelCombo.select(0);
+
 		GridData gitTextGridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
 		gitTextGridData.widthHint = 200;
 		GridData pythonTextGridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
@@ -115,37 +118,36 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		GridData idfToolsPathTextGridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		idfToolsPathTextGridData.widthHint = 200;
 		idfToolsPathText.setLayoutData(idfToolsPathTextGridData);
-		 // Add browse button
-	    Button browseButtonIdfToolsPath = new Button(toolsInstallationGroup, SWT.PUSH);
-	    browseButtonIdfToolsPath.setText(Messages.EspressifPreferencesPage_DirectorySelectionIDFToolsPathBrowseButton);
-	    browseButtonIdfToolsPath.addSelectionListener(new SelectionAdapter() {
-	        @Override
-	        public void widgetSelected(SelectionEvent e) {
-	            DirectoryDialog dialog = new DirectoryDialog(mainComposite.getShell());
-	            dialog.setText(Messages.EspressifPreferencesPage_DirectorySelectionIDFToolsPathTitle);
-	            dialog.setMessage(Messages.EspressifPreferencesPage_DirectorySelectionIDFToolsPathMessage);
-	            String dir = dialog.open();
-	            if (dir != null) {
-	                idfToolsPathText.setText(dir);
-	            }
-	        }
-	    });
-		
+		// Add browse button
+		Button browseButtonIdfToolsPath = new Button(toolsInstallationGroup, SWT.PUSH);
+		browseButtonIdfToolsPath.setText(Messages.EspressifPreferencesPage_DirectorySelectionIDFToolsPathBrowseButton);
+		browseButtonIdfToolsPath.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				DirectoryDialog dialog = new DirectoryDialog(mainComposite.getShell());
+				dialog.setText(Messages.EspressifPreferencesPage_DirectorySelectionIDFToolsPathTitle);
+				dialog.setMessage(Messages.EspressifPreferencesPage_DirectorySelectionIDFToolsPathMessage);
+				String dir = dialog.open();
+				if (dir != null)
+				{
+					idfToolsPathText.setText(dir);
+				}
+			}
+		});
+
 		String idfToolsPath = getPreferenceStore().getString(IDFCorePreferenceConstants.IDF_TOOLS_PATH);
 		idfToolsPath = StringUtil.isEmpty(idfToolsPath)
 				? getPreferenceStore().getDefaultString(IDFCorePreferenceConstants.IDF_TOOLS_PATH)
 				: idfToolsPath;
 		idfToolsPathText.setText(idfToolsPath);
-		
+
 		String gitUrl = getPreferenceStore().getString(IDFCorePreferenceConstants.IDF_GITHUB_ASSETS);
 		String pyWheelUrl = getPreferenceStore().getString(IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL);
-		gitUrl = StringUtil.isEmpty(gitUrl)
-				? gitAssetsCombo.getItem(0)
-				: gitUrl;
-		pyWheelUrl = StringUtil.isEmpty(pyWheelUrl)
-				? pythonWheelCombo.getItem(0)
-				: pyWheelUrl;
-		
+		gitUrl = StringUtil.isEmpty(gitUrl) ? gitAssetsCombo.getItem(0) : gitUrl;
+		pyWheelUrl = StringUtil.isEmpty(pyWheelUrl) ? pythonWheelCombo.getItem(0) : pyWheelUrl;
+
 		gitAssetsCombo.setText(gitUrl);
 		pythonWheelCombo.setText(pyWheelUrl);
 	}
@@ -169,6 +171,13 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		hideErrorsOnIdfComponentsBtn.setToolTipText(Messages.EspresssifPreferencesPage_HideErrprOnIdfComponentsToolTip);
 		hideErrorsOnIdfComponentsBtn
 				.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.HIDE_ERRORS_IDF_COMPONENTS));
+
+		automateClangdFormatCreationBtn = new Button(buildGroup, SWT.CHECK);
+		automateClangdFormatCreationBtn.setText(Messages.EspresssifPreferencesPage_AutoCreateClangFormatBtnName);
+		automateClangdFormatCreationBtn.setToolTipText(
+				Messages.EspresssifPreferencesPage_AutoCreateClangFormatTooltipMsg);
+		automateClangdFormatCreationBtn
+				.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.AUTOMATE_CLANGD_FORMAT_FILE));
 	}
 
 	private void addccacheControl(Composite mainComposite)
@@ -240,7 +249,8 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 			getPreferenceStore().setValue(IDFCorePreferenceConstants.AUTOMATE_BUILD_HINTS_STATUS,
 					automateHintsBtn.getSelection());
 
-			boolean prevMarkerValue = getPreferenceStore().getBoolean(IDFCorePreferenceConstants.HIDE_ERRORS_IDF_COMPONENTS);
+			boolean prevMarkerValue = getPreferenceStore()
+					.getBoolean(IDFCorePreferenceConstants.HIDE_ERRORS_IDF_COMPONENTS);
 			getPreferenceStore().setValue(IDFCorePreferenceConstants.HIDE_ERRORS_IDF_COMPONENTS,
 					hideErrorsOnIdfComponentsBtn.getSelection());
 			// need to initiate a cleanup for initial clean of markers after they are enabled
@@ -248,12 +258,15 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 			{
 				IDFCorePlugin.ERROR_MARKER_LISTENER.initialMarkerCleanup();
 			}
-			
+
 			getPreferenceStore().setValue(IDFCorePreferenceConstants.IDF_GITHUB_ASSETS, gitAssetsCombo.getText());
 
 			getPreferenceStore().setValue(IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL, pythonWheelCombo.getText());
-			
+
 			getPreferenceStore().setValue(IDFCorePreferenceConstants.IDF_TOOLS_PATH, idfToolsPathText.getText());
+
+			getPreferenceStore().setValue(IDFCorePreferenceConstants.AUTOMATE_CLANGD_FORMAT_FILE,
+					automateClangdFormatCreationBtn.getSelection());
 		}
 		catch (Exception e)
 		{
@@ -275,6 +288,8 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 				.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.AUTOMATE_BUILD_HINTS_STATUS));
 		hideErrorsOnIdfComponentsBtn
 				.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.HIDE_ERRORS_IDF_COMPONENTS));
+		automateClangdFormatCreationBtn
+				.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.AUTOMATE_CLANGD_FORMAT_FILE));
 		gitAssetsCombo.setText(gitAssetsCombo.getItem(0));
 		pythonWheelCombo.setText(pythonWheelCombo.getItem(0));
 		idfToolsPathText.setText(getPreferenceStore().getDefaultString(IDFCorePreferenceConstants.IDF_TOOLS_PATH));
@@ -291,9 +306,14 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 				IDFCorePreferenceConstants.AUTOMATE_BUILD_HINTS_DEFAULT_STATUS);
 		getPreferenceStore().setDefault(IDFCorePreferenceConstants.HIDE_ERRORS_IDF_COMPONENTS,
 				IDFCorePreferenceConstants.HIDE_ERRORS_IDF_COMPONENTS_DEFAULT_STATUS);
-		
-		getPreferenceStore().setDefault(IDFCorePreferenceConstants.IDF_GITHUB_ASSETS, IDFCorePreferenceConstants.IDF_GITHUB_ASSETS_DEFAULT_GLOBAL);
-		getPreferenceStore().setDefault(IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL, IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL_DEFAULT_GLOBAL);
-		getPreferenceStore().setDefault(IDFCorePreferenceConstants.IDF_TOOLS_PATH, IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT);
+
+		getPreferenceStore().setDefault(IDFCorePreferenceConstants.IDF_GITHUB_ASSETS,
+				IDFCorePreferenceConstants.IDF_GITHUB_ASSETS_DEFAULT_GLOBAL);
+		getPreferenceStore().setDefault(IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL,
+				IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL_DEFAULT_GLOBAL);
+		getPreferenceStore().setDefault(IDFCorePreferenceConstants.IDF_TOOLS_PATH,
+				IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT);
+		getPreferenceStore().setDefault(IDFCorePreferenceConstants.AUTOMATE_CLANGD_FORMAT_FILE,
+				IDFCorePreferenceConstants.AUTOMATE_BUILD_HINTS_DEFAULT_STATUS);
 	}
 }

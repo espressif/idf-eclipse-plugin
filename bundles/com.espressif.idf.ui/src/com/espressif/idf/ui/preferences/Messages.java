@@ -5,6 +5,8 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS
 {
 	private static final String BUNDLE_NAME = "com.espressif.idf.ui.preferences.messages"; //$NON-NLS-1$
+	public static String EspresssifPreferencesPage_AutoCreateClangFormatBtnName;
+	public static String EspresssifPreferencesPage_AutoCreateClangFormatTooltipMsg;
 	public static String EspresssifPreferencesPage_BuildGroupTxt;
 	public static String EspresssifPreferencesPage_CCacheToolTip;
 	public static String EspresssifPreferencesPage_EnableCCache;
