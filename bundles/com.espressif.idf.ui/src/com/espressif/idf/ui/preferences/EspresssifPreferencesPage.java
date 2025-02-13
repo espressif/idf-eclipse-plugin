@@ -314,6 +314,6 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		getPreferenceStore().setDefault(IDFCorePreferenceConstants.IDF_TOOLS_PATH,
 				IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT);
 		getPreferenceStore().setDefault(IDFCorePreferenceConstants.AUTOMATE_CLANGD_FORMAT_FILE,
-				IDFCorePreferenceConstants.AUTOMATE_BUILD_HINTS_DEFAULT_STATUS);
+				IDFCorePreferenceConstants.AUTOMATE_CLANGD_FORMAT_FILE_DEFAULT);
 	}
 }
