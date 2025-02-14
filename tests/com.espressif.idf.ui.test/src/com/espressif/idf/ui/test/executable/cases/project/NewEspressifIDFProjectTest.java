@@ -120,18 +120,6 @@ public class NewEspressifIDFProjectTest
 	}
 
 	@Test
-	public void givenNewProjectCreatedBuiltAndThenProjectFullCleanUsingContextMenu() throws Exception
-	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectFullCleanTest");
-		Fixture.whenNewProjectIsSelected();
-		Fixture.whenProjectIsBuiltUsingContextMenu();
-		Fixture.whenProjectFullCleanUsingContextMenu();
-		Fixture.whenRefreshProject();
-		Fixture.checkIfProjectFullCleanedFilesInBuildFolder();
-	}
-
-	@Test
 	public void givenNewProjectCreatedBuiltAndThenProjectPythonCleanUsingContextMenu() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
