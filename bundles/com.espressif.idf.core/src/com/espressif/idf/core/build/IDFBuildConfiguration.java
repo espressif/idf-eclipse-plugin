@@ -469,7 +469,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 				paritionSizeHandler.startCheckingSize();
 
 				LspService lspService = new LspService();
-				lspService.updateCompileCommandsDir(buildCommand);
+				lspService.updateCompileCommandsDir(buildDir.toString());
 				lspService.restartLspServers();
 			}
 
