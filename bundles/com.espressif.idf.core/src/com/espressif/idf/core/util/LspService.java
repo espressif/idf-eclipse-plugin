@@ -5,10 +5,14 @@
 package com.espressif.idf.core.util;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.stream.Stream;
 
 import org.eclipse.cdt.lsp.clangd.ClangdConfiguration;
 import org.eclipse.cdt.lsp.clangd.ClangdMetadata;
 import org.eclipse.cdt.lsp.config.Configuration;
+import org.eclipse.cdt.lsp.util.LspUtils;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.lsp4e.LanguageServerWrapper;
 import org.eclipse.lsp4e.LanguageServiceAccessor;
@@ -65,6 +69,25 @@ public class LspService
 			String qualifier = configuration.qualifier();
 			InstanceScope.INSTANCE.getNode(qualifier).put(metadata.queryDriver().identifer(),
 					metadata.queryDriver().defaultValue());
+		}
+	}
+
+	public void updateCompileCommandsDir(String buildDir)
+	{
+		if (configuration.metadata() instanceof ClangdMetadata metadata)
+		{
+			String qualifier = configuration.qualifier();
+			String identifier = metadata.additionalOptions().identifer();
+			IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(qualifier);
+
+			String existingOptions = preferences.get(identifier, StringUtil.EMPTY);
+			String compileCommandsDirString = "--compile-commands-dir="; //$NON-NLS-1$
+			String newCompuileCommandsDirString = compileCommandsDirString + buildDir;
+			String updatedOptions = existingOptions.contains(compileCommandsDirString)
+					? existingOptions.replaceAll(compileCommandsDirString + ".+", //$NON-NLS-1$
+							Matcher.quoteReplacement(newCompuileCommandsDirString))
+					: newCompuileCommandsDirString;
+			preferences.put(identifier, updatedOptions);
 		}
 	}
 }
