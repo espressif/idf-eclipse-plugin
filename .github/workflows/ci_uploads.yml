@@ -1,0 +1,45 @@
+name: IDE File Uploads
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  upload-file:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for changes in uploads folder
+        id: check_changes
+        run: |
+          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q '^internal/com.espressif.idf.uploads/'; then
+            echo "changed=true" >> $GITHUB_ENV
+          else
+            echo "changed=false" >> $GITHUB_ENV
+          fi
+
+      - name: Upload file to S3
+        if: env.changed == 'true'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+        run: |
+          FILE="./internal/com.espressif.idf.uploads/cmakeed/CMakeEd-1.24.1.zip"
+          FILE_NAME=$(basename "$FILE")
+          BUCKET_NAME="dl.espressif.com"
+          REMOTE_PATH="dl/cmakeed/updates/"
+
+          if [ -f "$FILE" ]; then
+            echo "Uploading $FILE_NAME to S3..."
+            aws s3 cp "$FILE" "s3://$BUCKET_NAME/$REMOTE_PATH$FILE_NAME" --acl public-read
+          else
+            echo "File $FILE not found, skipping..."
+          fi
