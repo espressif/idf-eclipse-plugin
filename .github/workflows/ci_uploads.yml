@@ -18,15 +18,24 @@ jobs:
 
       - name: Check for changes in uploads folder
         id: check_changes
-        run: |
-          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q '^internal/com.espressif.idf.uploads/'; then
-            echo "changed=true" >> $GITHUB_ENV
-          else
-            echo "changed=false" >> $GITHUB_ENV
-          fi
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const changedFiles = await github.paginate(
+              github.rest.repos.compareCommits,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                base: context.payload.before,
+                head: context.sha,
+              }
+            );
+
+            const hasChanges = changedFiles.some(file => file.filename.startsWith('internal/com.espressif.idf.uploads/'));
+            core.setOutput('changed', hasChanges);
 
       - name: Upload file to S3
-        if: env.changed == 'true'
+        if: steps.check_changes.outputs.changed == 'true'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
