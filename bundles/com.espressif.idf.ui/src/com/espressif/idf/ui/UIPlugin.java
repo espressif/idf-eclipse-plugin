@@ -6,6 +6,7 @@ package com.espressif.idf.ui;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -41,8 +42,8 @@ public class UIPlugin extends AbstractUIPlugin
 	public void start(BundleContext context) throws Exception
 	{
 		super.start(context);
-		IContextService contextService = (IContextService) PlatformUI.getWorkbench().getService(IContextService.class);
-		contextService.activateContext(LAUNCH_CONTEXT);
+		IContextService contextService = PlatformUI.getWorkbench().getService(IContextService.class);
+		Display.getDefault().asyncExec(() -> contextService.activateContext(LAUNCH_CONTEXT));
 		plugin = this;
 	}
 
