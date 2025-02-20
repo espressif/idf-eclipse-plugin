@@ -36,21 +36,22 @@ public class FileOpenListener implements IPartListener2
 		{
 			IFile file = fileInput.getFile();
 			IProject project = file.getProject();
-			if (project != null)
+			if (project == null)
+				return;
+			String buildDir = StringUtil.EMPTY;
+			try
 			{
-				String buildDir = StringUtil.EMPTY;
-				try
-				{
-					buildDir = IDFUtil.getBuildDir(project);
-				}
-				catch (CoreException e)
-				{
-					Logger.log(e);
-				}
-				LspService lspService = new LspService();
-				lspService.updateCompileCommandsDir(buildDir);
-				lspService.restartLspServers();
+				buildDir = IDFUtil.getBuildDir(project);
 			}
+			catch (CoreException e)
+			{
+				Logger.log(e);
+			}
+			if (StringUtil.isEmpty(buildDir))
+				return;
+			LspService lspService = new LspService();
+			lspService.updateCompileCommandsDir(buildDir);
+			lspService.restartLspServers();
 
 		}
 	}
