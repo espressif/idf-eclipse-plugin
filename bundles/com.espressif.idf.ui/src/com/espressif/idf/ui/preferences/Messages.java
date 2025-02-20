@@ -9,6 +9,7 @@ public class Messages extends NLS
 	public static String EspresssifPreferencesPage_AutoCreateClangFormatTooltipMsg;
 	public static String EspresssifPreferencesPage_BuildGroupTxt;
 	public static String EspresssifPreferencesPage_CCacheToolTip;
+	public static String EspresssifPreferencesPage_ClangdSettingsGroupName;
 	public static String EspresssifPreferencesPage_EnableCCache;
 	public static String EspresssifPreferencesPage_IDFSpecificPrefs;
 	public static String EspresssifPreferencesPage_SearchHintsCheckBtn;

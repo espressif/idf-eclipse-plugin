@@ -82,7 +82,22 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 
 		addToolsInstallationSettings(mainComposite);
 
+		addClangdSettings(mainComposite);
 		return mainComposite;
+	}
+
+	private void addClangdSettings(Composite mainComposite)
+	{
+		Group clangdOptionsGroup = new Group(mainComposite, SWT.SHADOW_ETCHED_IN);
+		clangdOptionsGroup.setText(Messages.EspresssifPreferencesPage_ClangdSettingsGroupName);
+		clangdOptionsGroup.setLayout(new GridLayout(1, false));
+
+		automateClangdFormatCreationBtn = new Button(clangdOptionsGroup, SWT.CHECK);
+		automateClangdFormatCreationBtn.setText(Messages.EspresssifPreferencesPage_AutoCreateClangFormatBtnName);
+		automateClangdFormatCreationBtn
+				.setToolTipText(Messages.EspresssifPreferencesPage_AutoCreateClangFormatTooltipMsg);
+		automateClangdFormatCreationBtn
+				.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.AUTOMATE_CLANGD_FORMAT_FILE));
 	}
 
 	private void addToolsInstallationSettings(Composite mainComposite)
@@ -171,13 +186,6 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		hideErrorsOnIdfComponentsBtn.setToolTipText(Messages.EspresssifPreferencesPage_HideErrprOnIdfComponentsToolTip);
 		hideErrorsOnIdfComponentsBtn
 				.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.HIDE_ERRORS_IDF_COMPONENTS));
-
-		automateClangdFormatCreationBtn = new Button(buildGroup, SWT.CHECK);
-		automateClangdFormatCreationBtn.setText(Messages.EspresssifPreferencesPage_AutoCreateClangFormatBtnName);
-		automateClangdFormatCreationBtn.setToolTipText(
-				Messages.EspresssifPreferencesPage_AutoCreateClangFormatTooltipMsg);
-		automateClangdFormatCreationBtn
-				.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.AUTOMATE_CLANGD_FORMAT_FILE));
 	}
 
 	private void addccacheControl(Composite mainComposite)
