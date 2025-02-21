@@ -1,0 +1,37 @@
+name: IDE File Uploads
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'internal/com.espressif.idf.uploads/**'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'internal/com.espressif.idf.uploads/**'
+
+jobs:
+  upload-file:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Upload file to S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+        run: |
+          FILE="./internal/com.espressif.idf.uploads/cmakeed/CMakeEd-1.24.1.zip"
+          FILE_NAME=$(basename "$FILE")
+          
+          if [ -f "$FILE" ]; then
+            echo "Uploading $FILE_NAME to S3..."
+            aws s3 cp "$FILE" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/$FILE_NAME" --acl public-read
+          else
+            echo "File $FILE not found, skipping..."
+          fi
