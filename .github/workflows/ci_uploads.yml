@@ -29,7 +29,7 @@ jobs:
           FILE="./internal/com.espressif.idf.uploads/cmakeed/CMakeEd-1.24.1.zip"
           FILE_NAME=$(basename "$FILE")
           BUCKET_NAME="dl.espressif.com"
-          REMOTE_PATH="dl/cmakeed/updates/"
+          REMOTE_PATH="dl/idf-eclipse-plugin/updates/"
 
           if [ -f "$FILE" ]; then
             echo "Uploading $FILE_NAME to S3..."
