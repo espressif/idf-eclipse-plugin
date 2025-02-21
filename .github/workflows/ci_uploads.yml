@@ -4,9 +4,13 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'internal/com.espressif.idf.uploads/**'
   pull_request:
     branches:
       - master
+    paths:
+      - 'internal/com.espressif.idf.uploads/**'
 
 jobs:
   upload-file:
@@ -16,26 +20,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check for changes in uploads folder
-        id: check_changes
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const changedFiles = await github.paginate(
-              github.rest.repos.compareCommits,
-              {
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                base: context.payload.before,
-                head: context.sha,
-              }
-            );
-
-            const hasChanges = changedFiles.some(file => file.filename.startsWith('internal/com.espressif.idf.uploads/'));
-            core.setOutput('changed', hasChanges);
-
       - name: Upload file to S3
-        if: steps.check_changes.outputs.changed == 'true'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
