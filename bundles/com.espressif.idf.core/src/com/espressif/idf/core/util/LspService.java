@@ -4,14 +4,14 @@
  *******************************************************************************/
 package com.espressif.idf.core.util;
 
-import java.util.stream.Stream;
+import java.util.List;
 
 import org.eclipse.cdt.lsp.clangd.ClangdConfiguration;
 import org.eclipse.cdt.lsp.clangd.ClangdMetadata;
 import org.eclipse.cdt.lsp.config.Configuration;
-import org.eclipse.cdt.lsp.util.LspUtils;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.lsp4e.LanguageServerWrapper;
+import org.eclipse.lsp4e.LanguageServiceAccessor;
 import org.eclipse.ui.PlatformUI;
 
 import com.espressif.idf.core.logging.Logger;
@@ -20,14 +20,16 @@ import com.espressif.idf.core.logging.Logger;
 public class LspService
 {
 	private final Configuration configuration;
-	private final Stream<LanguageServerWrapper> languageServerWrappers;
+	private final List<LanguageServerWrapper> languageServerWrappers;
 
 	public LspService()
 	{
-		this(PlatformUI.getWorkbench().getService(ClangdConfiguration.class), LspUtils.getLanguageServers());
+		this(PlatformUI.getWorkbench().getService(ClangdConfiguration.class),
+				LanguageServiceAccessor.getStartedWrappers(null, true).stream()
+						.filter(w -> "org.eclipse.cdt.lsp.server".equals(w.serverDefinition.id)).toList()); //$NON-NLS-1$
 	}
 
-	public LspService(Configuration configuration, Stream<LanguageServerWrapper> languageServerWrappers)
+	public LspService(Configuration configuration, List<LanguageServerWrapper> languageServerWrappers)
 	{
 		this.configuration = configuration;
 		this.languageServerWrappers = languageServerWrappers;
