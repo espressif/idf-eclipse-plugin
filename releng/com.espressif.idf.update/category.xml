@@ -6,9 +6,6 @@
    <feature id="com.cthing.cmakeed.feature">
       <category name="com.espressif.idf"/>
    </feature>
-   <feature id="org.eclipse.swtchart.feature">
-      <category name="com.espressif.idf"/>
-   </feature>
    <feature id="org.eclipse.nebula.widgets.xviewer.feature">
       <category name="com.espressif.idf"/>
    </feature>
@@ -28,6 +25,12 @@
       <category name="com.espressif.idf"/>
    </feature>
    <feature id="org.eclipse.tm4e.feature">
+      <category name="com.espressif.idf"/>
+   </feature>
+   <feature id="org.eclipse.swtchart.feature">
+      <category name="com.espressif.idf"/>
+   </feature>
+   <feature id="org.eclipse.mylyn.wikitext.feature">
       <category name="com.espressif.idf"/>
    </feature>
    <bundle id="org.eclipse.embedcdt.templates.core">
