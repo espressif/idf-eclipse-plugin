@@ -10,7 +10,10 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 
+import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.IDFCorePreferenceConstants;
 import com.espressif.idf.core.ILSPConstants;
 
 public class ClangFormatFileHandler
@@ -30,7 +33,8 @@ public class ClangFormatFileHandler
 	 */
 	public void update() throws IOException, CoreException
 	{
-		if (clangFormatFile.exists())
+
+		if (!shouldCreateClangFormat())
 		{
 			return;
 		}
@@ -38,5 +42,12 @@ public class ClangFormatFileHandler
 		{
 			clangFormatFile.create(source, true, new NullProgressMonitor());
 		}
+	}
+
+	private boolean shouldCreateClangFormat()
+	{
+		return !clangFormatFile.exists() && Platform.getPreferencesService().getBoolean(IDFCorePlugin.PLUGIN_ID,
+				IDFCorePreferenceConstants.AUTOMATE_CLANGD_FORMAT_FILE,
+				IDFCorePreferenceConstants.AUTOMATE_CLANGD_FORMAT_FILE_DEFAULT, null);
 	}
 }
