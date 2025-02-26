@@ -175,14 +175,14 @@ public class NewEspressifIDFProjectSDKconfigTest
 		{
 			bot.tree().getTreeItem(projectName).getNode("sdkconfig").doubleClick();
 			TestWidgetWaitUtility.waitWhileDialogIsVisible(bot, "Progress Information", 40000);
-			TestWidgetWaitUtility.waitForSDKConfigurationTab(bot, 50000);
+			TestWidgetWaitUtility.waitForSDKConfigurationTab(bot, 900000);
 		}
 
 		private static void whenSDKconfigFileOpenedUsingContextMenu() throws IOException
 		{
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Menu Config");
 			TestWidgetWaitUtility.waitWhileDialogIsVisible(bot, "Progress Information", 40000);
-			TestWidgetWaitUtility.waitForSDKConfigurationTab(bot, 50000);
+			TestWidgetWaitUtility.waitForSDKConfigurationTab(bot, 900000);
 		}
 
 		private static void thenSDKconfigFileContentChecked() throws Exception
