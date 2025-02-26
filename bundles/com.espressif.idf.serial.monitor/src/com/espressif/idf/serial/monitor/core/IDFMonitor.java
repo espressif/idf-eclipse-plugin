@@ -55,6 +55,9 @@ public class IDFMonitor
 		List<String> args = new ArrayList<>();
 		args.add(pythonBinPath);
 		args.add(IDFUtil.getIDFMonitorPythonScriptFile().getAbsolutePath());
+		args.add("--make"); //$NON-NLS-1$
+		args.add(Path.fromOSString(IDFUtil.getIDFPythonEnvPath()) + " " //$NON-NLS-1$
+				+ Path.fromOSString(IDFUtil.getIDFPythonScriptFile().getAbsolutePath()));
 		if (!StringUtil.isEmpty(filterOptions))
 		{
 			args.add("--print_filter"); //$NON-NLS-1$
