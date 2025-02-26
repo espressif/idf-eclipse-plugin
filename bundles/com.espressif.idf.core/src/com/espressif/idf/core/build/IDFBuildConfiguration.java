@@ -17,12 +17,9 @@ package com.espressif.idf.core.build;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
@@ -48,10 +45,8 @@ import org.eclipse.cdt.core.build.IToolChainManager;
 import org.eclipse.cdt.core.envvar.EnvironmentVariable;
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
 import org.eclipse.cdt.core.model.CoreModel;
-import org.eclipse.cdt.core.model.ElementChangedEvent;
 import org.eclipse.cdt.core.model.IBinary;
 import org.eclipse.cdt.core.model.IBinaryContainer;
-import org.eclipse.cdt.core.model.ICElementDelta;
 import org.eclipse.cdt.core.model.ICModelMarker;
 import org.eclipse.cdt.core.model.ICProject;
 import org.eclipse.cdt.core.resources.IConsole;
@@ -62,7 +57,6 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -71,7 +65,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
@@ -119,7 +112,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	 * ErrorParserManager intermixes these streams making it impossible to parse for errors.<br>
 	 * To work around that, we run cmake in advance with its dedicated working error parser.
 	 */
-	private boolean cmakeListsModified;
 	private ICMakeToolChainFile toolChainFile;
 	private String customBuildDir;
 	private IProgressMonitor monitor;
@@ -341,17 +333,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		try
 		{
 			infoStream.write(String.format(Messages.CMakeBuildConfiguration_BuildingIn, buildDir.toString()));
-			boolean runCMake = cmakeListsModified;
-			if (!runCMake)
-			{
-				runCMake = generator.contentEquals(NINJA) ? !Files.exists(buildDir.resolve("build.ninja")) //$NON-NLS-1$
-						: !Files.exists(buildDir.resolve("CMakeFiles")); //$NON-NLS-1$
-			}
-
-			if (runCMake)
-			{
-				runCmakeCommand(console, monitor, project, generator, infoStream, buildDir);
-			}
+			runCmakeCommand(console, monitor, project, generator, infoStream, buildDir);
 			runCmakeBuildCommand(console, monitor, project, start, generator, infoStream, buildDir);
 			new ClangdConfigFileHandler().update(project);
 			new ClangFormatFileHandler(project).update();
@@ -501,9 +483,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		deleteCMakeErrorMarkers(project);
 
 		infoStream.write(String.format(Messages.CMakeBuildConfiguration_Configuring, buildDir));
-		// clean output to make sure there is no content
-		// incompatible with current settings (cmake config would fail)
-		cleanBuildDirectory(buildDir);
 
 		List<String> command = new ArrayList<>();
 
@@ -517,10 +496,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		}
 
 		command.add("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"); //$NON-NLS-1$
-		if (isCCacheEnabled())
-		{
-			command.add("-DCCACHE_ENABLE=1"); //$NON-NLS-1$
-		}
+
+		IDFEnvironmentVariables envVariables = new IDFEnvironmentVariables();
+		String ccacheStatus = envVariables.getEnvValue(IDFEnvironmentVariables.IDF_CCACHE_ENABLE);
+		command.add("-DCCACHE_ENABLE=" + (ccacheStatus.isBlank() ? "0" : ccacheStatus)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		if (launchtarget != null)
 		{
@@ -570,8 +549,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 			epm.setOutputStream(console.getOutputStream());
 			watchProcess(new IConsoleParser[] { epm }, monitor);
 		}
-
-		cmakeListsModified = false;
 	}
 
 	private boolean checkToolChainFile(IConsole console)
@@ -643,13 +620,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		}
 
 		return true;
-	}
-
-	private boolean isCCacheEnabled()
-	{
-		IEclipsePreferences node = IDFCorePreferenceConstants
-				.getPreferenceNode(IDFCorePreferenceConstants.CMAKE_CCACHE_STATUS, null);
-		return node.getBoolean(IDFCorePreferenceConstants.CMAKE_CCACHE_STATUS, true);
 	}
 
 	@Override
@@ -729,102 +699,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 			throw new CoreException(IDFCorePlugin
 					.errorStatus(String.format(Messages.CMakeBuildConfiguration_Cleaning, project.getName()), e));
 		}
-	}
-
-	/**
-	 * Recursively removes any files and directories found below the specified Path.
-	 */
-	private static void cleanDirectory(Path dir) throws IOException
-	{
-		SimpleFileVisitor<Path> deltor = new SimpleFileVisitor<>()
-		{
-			@Override
-			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
-			{
-				Files.delete(file);
-				return FileVisitResult.CONTINUE;
-			}
-
-			@Override
-			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException
-			{
-				super.postVisitDirectory(dir, exc);
-				Files.delete(dir);
-				return FileVisitResult.CONTINUE;
-			}
-		};
-		Path[] files = Files.list(dir).toArray(Path[]::new);
-		for (Path file : files)
-		{
-			Files.walkFileTree(file, deltor);
-		}
-	}
-
-	private void cleanBuildDirectory(Path buildDir) throws IOException
-	{
-		if (!Files.exists(buildDir))
-			return;
-		if (Files.isDirectory(buildDir))
-			cleanDirectory(buildDir);
-		// TODO: not a directory should we do something?
-	}
-
-	/**
-	 * Overwritten to detect whether one of the CMakeLists.txt files in the project was modified since the last build.
-	 */
-	@Override
-	public void elementChanged(ElementChangedEvent event)
-	{
-		super.elementChanged(event);
-		// Only respond to post change events
-		if (event.getType() != ElementChangedEvent.POST_CHANGE)
-			return;
-		if (!cmakeListsModified)
-		{
-			processElementDelta(event.getDelta());
-		}
-	}
-
-	/**
-	 * Processes the delta in order to detect whether one of the CMakeLists.txt files in the project has been modified
-	 * and saved by the user since the last build.
-	 *
-	 * @return <code>true</code> to continue with delta processing, otherwise <code>false</code>
-	 */
-	private boolean processElementDelta(ICElementDelta delta)
-	{
-		if (delta == null)
-		{
-			return true;
-		}
-
-		if (delta.getKind() == ICElementDelta.CHANGED && ((delta.getFlags() & ICElementDelta.F_CONTENT) != 0))
-		{
-			// check for modified CMakeLists.txt file
-			IResourceDelta[] resourceDeltas = delta.getResourceDeltas();
-			if (resourceDeltas != null)
-			{
-				cmakeListsModified = Stream.of(resourceDeltas).map(t -> t.getResource())
-						.filter(t -> t.getType() == IResource.FILE
-								&& !t.getFullPath().toOSString().contains(IDFConstants.BUILD_FOLDER))
-						.map(t -> t.getName()).anyMatch(t -> t.equals("CMakeLists.txt") || t.endsWith(".cmake")); //$NON-NLS-1$ //$NON-NLS-2$
-
-			}
-			if (cmakeListsModified)
-			{
-				return false;
-			}
-		}
-
-		// recurse...
-		for (ICElementDelta child : delta.getAffectedChildren())
-		{
-			if (!processElementDelta(child))
-			{
-				return false; // stop processing
-			}
-		}
-		return true;
 	}
 
 	/**
