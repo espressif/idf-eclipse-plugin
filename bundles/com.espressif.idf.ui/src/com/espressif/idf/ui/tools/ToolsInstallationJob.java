@@ -75,6 +75,8 @@ public class ToolsInstallationJob extends ToolsJob
 		{
 			return status;
 		}
+		
+		Logger.log(status.getMessage());
 		processExportCmdOutput(status.getMessage());
 
 		monitor.worked(1);
