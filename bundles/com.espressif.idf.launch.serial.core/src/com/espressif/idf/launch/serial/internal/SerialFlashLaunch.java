@@ -15,10 +15,6 @@
  *******************************************************************************/
 package com.espressif.idf.launch.serial.internal;
 
-import java.io.IOException;
-
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -55,14 +51,7 @@ public class SerialFlashLaunch extends TargetedLaunch
 			wasOpen = serialPort.isOpen();
 			if (wasOpen)
 			{
-				try
-				{
-					serialPort.pause();
-				}
-				catch (IOException e)
-				{
-					Activator.log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, Messages.SerialFlashLaunch_Pause, e));
-				}
+				serialPort.pause();
 			}
 		}
 		else
@@ -77,14 +66,7 @@ public class SerialFlashLaunch extends TargetedLaunch
 		super.handleDebugEvents(events);
 		if (isTerminated() && wasOpen)
 		{
-			try
-			{
-				serialPort.resume();
-			}
-			catch (IOException e)
-			{
-				Activator.log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, Messages.SerialFlashLaunch_Resume, e));
-			}
+			serialPort.resume();
 			wasOpen = false;
 		}
 	}
