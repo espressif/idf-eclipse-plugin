@@ -1,12 +1,10 @@
 package com.espressif.idf.terminal.connector.serial.connector;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.WeakReference;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
@@ -24,28 +22,12 @@ public class SerialPortHandler
 	private boolean isOpen;
 	private boolean isPaused;
 	private Object pauseMutex = new Object();
-	private IProject project;
-
-	private static final Map<String, LinkedList<WeakReference<SerialPortHandler>>> openPorts = new HashMap<>();
+	private static final Map<String, LinkedList<SerialPortHandler>> openPorts = new ConcurrentHashMap<>();
 
 	private Process process;
 	private Thread thread;
 	private SerialConnector serialConnector;
 	private SocketServerMessageHandler serverMessageHandler;
-
-	private SocketServerHandler socketServerHandler;
-
-	private static String adjustPortName(String portName)
-	{
-		if (System.getProperty("os.name").startsWith("Windows") && !portName.startsWith("\\\\.\\")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		{
-			return portName; // $NON-NLS-1$
-		}
-		else
-		{
-			return portName;
-		}
-	}
 
 	/**
 	 * Return an the SerialPortHandler with the given name or null if it hasn't been allocated yet. This would be used
@@ -57,19 +39,18 @@ public class SerialPortHandler
 	 */
 	public static SerialPortHandler get(String portName)
 	{
-		synchronized (openPorts)
+		LinkedList<SerialPortHandler> list = openPorts.get(portName);
+		if (list == null)
 		{
-			LinkedList<WeakReference<SerialPortHandler>> list = openPorts.get(adjustPortName(portName));
-			if (list == null)
-			{
-				return null;
-			}
+			return null;
+		}
 
-			Iterator<WeakReference<SerialPortHandler>> i = list.iterator();
+		synchronized (list)
+		{
+			Iterator<SerialPortHandler> i = list.iterator();
 			while (i.hasNext())
 			{
-				WeakReference<SerialPortHandler> ref = i.next();
-				SerialPortHandler port = ref.get();
+				SerialPortHandler port = i.next();
 				if (port == null)
 				{
 					i.remove();
@@ -79,16 +60,14 @@ public class SerialPortHandler
 					return port;
 				}
 			}
-
-			return null;
 		}
+		return null;
 	}
 
 	public SerialPortHandler(String portName, SerialConnector serialConnector, IProject project)
 	{
-		this.portName = adjustPortName(portName);
+		this.portName = portName;
 		this.serialConnector = serialConnector;
-		this.project = project;
 		this.serverMessageHandler = new SocketServerMessageHandler(serialConnector, project);
 	}
 
@@ -99,6 +78,7 @@ public class SerialPortHandler
 
 	private int startSocketServerThread() throws Exception
 	{
+		SocketServerHandler socketServerHandler;
 		socketServerHandler = SocketServerHandler.getInstance();
 		socketServerHandler.startServer();
 
@@ -126,34 +106,28 @@ public class SerialPortHandler
 				serialConnector.filterOptions, serverPort);
 		process = serialMonitorHandler.invokeIDFMonitor();
 		serialConnector.process = process;
-		thread = new Thread()
-		{
-			@Override
-			public void run()
+		thread = new Thread(() -> {
+			try (InputStream targetIn = process.getInputStream())
 			{
-				InputStream targetIn = process.getInputStream();
 				byte[] buff = new byte[256];
 				int n;
-				try
+				while ((n = targetIn.read(buff)) >= 0)
 				{
-					while ((n = targetIn.read(buff, 0, buff.length)) >= 0)
+					if (n != 0)
 					{
-						if (n != 0)
-						{
-							serialConnector.control.getRemoteToTerminalOutputStream().write(buff, 0, n);
-						}
+						serialConnector.control.getRemoteToTerminalOutputStream().write(buff, 0, n);
 					}
-
-					serialConnector.disconnect();
-				}
-				catch (Exception e)
-				{
-					Activator.log(e);
-					serialConnector.disconnect();
-					serialConnector.control.setState(TerminalState.CLOSED);
 				}
 			}
-		};
+			catch (Exception e)
+			{
+				Activator.log(e);
+			} finally
+			{
+				serialConnector.disconnect();
+				serialConnector.control.setState(TerminalState.CLOSED);
+			}
+		});
 
 		thread.start();
 		if (!serverMessageHandler.isAlive())
@@ -164,20 +138,10 @@ public class SerialPortHandler
 		isOpen = true;
 
 		serialConnector.control.setState(TerminalState.CONNECTED);
-
-		synchronized (openPorts)
-		{
-			LinkedList<WeakReference<SerialPortHandler>> list = openPorts.get(portName);
-			if (list == null)
-			{
-				list = new LinkedList<>();
-				openPorts.put(portName, list);
-			}
-			list.addFirst(new WeakReference<>(this));
-		}
+		openPorts.computeIfAbsent(portName, k -> new LinkedList<>()).addFirst(this);
 	}
 
-	public synchronized void close() throws IOException
+	public synchronized void close()
 	{
 		if (isOpen)
 		{
@@ -193,23 +157,10 @@ public class SerialPortHandler
 				thread.interrupt();
 			}
 
-			synchronized (openPorts)
-			{
-				LinkedList<WeakReference<SerialPortHandler>> list = openPorts.get(portName);
-				if (list != null)
-				{
-					Iterator<WeakReference<SerialPortHandler>> i = list.iterator();
-					while (i.hasNext())
-					{
-						WeakReference<SerialPortHandler> ref = i.next();
-						SerialPortHandler port = ref.get();
-						if (port == null || port.equals(this))
-						{
-							i.remove();
-						}
-					}
-				}
-			}
+			openPorts.computeIfPresent(portName, (k, list) -> {
+				list.remove(this);
+				return list.isEmpty() ? null : list;
+			});
 
 			try
 			{
@@ -228,7 +179,7 @@ public class SerialPortHandler
 		return isOpen;
 	}
 
-	public void pause() throws IOException
+	public void pause()
 	{
 		if (!isOpen)
 		{
@@ -250,7 +201,7 @@ public class SerialPortHandler
 		}
 	}
 
-	public void resume() throws IOException
+	public void resume()
 	{
 		synchronized (pauseMutex)
 		{
