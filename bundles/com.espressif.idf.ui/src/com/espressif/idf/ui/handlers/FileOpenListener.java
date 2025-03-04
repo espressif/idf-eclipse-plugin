@@ -17,6 +17,7 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.LspService;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.ui.tools.manager.ESPIDFManagerEditor;
 
 public class FileOpenListener implements IPartListener2
 {
@@ -34,6 +35,10 @@ public class FileOpenListener implements IPartListener2
 		if (part instanceof IEditorPart ieditorpart
 				&& ieditorpart.getEditorInput() instanceof FileEditorInput fileInput)
 		{
+			
+			if (ieditorpart instanceof ESPIDFManagerEditor)
+				return;
+			
 			IFile file = fileInput.getFile();
 			IProject project = file.getProject();
 			if (project == null)
