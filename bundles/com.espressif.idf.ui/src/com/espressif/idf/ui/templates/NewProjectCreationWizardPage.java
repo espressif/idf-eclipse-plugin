@@ -135,6 +135,7 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 		runIdfReconfigureCheckBoxButton = new Button(projectNameGroup, SWT.CHECK | SWT.RIGHT);
 		GridData buttonData = new GridData();
 		buttonData.horizontalSpan = 4;
+		buttonData.verticalIndent = 4;
 		runIdfReconfigureCheckBoxButton.setLayoutData(buttonData);
 		runIdfReconfigureCheckBoxButton.setSelection(true);
 		runIdfReconfigureCheckBoxButton.setText(Messages.RunIdfCommandButtonTxt);
