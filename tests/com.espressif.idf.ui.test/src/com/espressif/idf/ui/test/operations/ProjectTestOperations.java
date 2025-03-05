@@ -10,6 +10,7 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IResource;
@@ -251,6 +252,28 @@ public class ProjectTestOperations
 		String editorText = textEditor.toTextEditor().getText();
 
 		return editorText.contains(phrase);
+	}
+
+	public static boolean checkExactMatchInTextEditor(String phrase, SWTWorkbenchBot bot)
+	{
+		SWTBotEditor textEditor = bot.activeEditor();
+		String editorText = textEditor.toTextEditor().getText();
+
+		// Normalize line endings
+		String normalizedEditorText = editorText.replace("\r\n", "\n").trim();
+		String normalizedPhrase = phrase.replace("\r\n", "\n").trim();
+
+		// Trim leading and trailing spaces for each line to ignore indentation differences
+		normalizedEditorText = normalizeWhitespace(normalizedEditorText);
+		normalizedPhrase = normalizeWhitespace(normalizedPhrase);
+
+		return normalizedEditorText.equals(normalizedPhrase);
+	}
+
+	private static String normalizeWhitespace(String text)
+	{
+		return Arrays.stream(text.split("\n")).map(String::trim) // Trim each line
+				.collect(Collectors.joining("\n")); // Reconstruct text with normalized lines
 	}
 
 	/**
