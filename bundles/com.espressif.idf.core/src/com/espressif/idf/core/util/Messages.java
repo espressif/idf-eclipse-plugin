@@ -10,7 +10,8 @@ import org.eclipse.osgi.util.NLS;
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
-public class Messages extends NLS {
+public class Messages extends NLS
+{
 	private static final String BUNDLE_NAME = "com.espressif.idf.core.util.messages"; //$NON-NLS-1$
 	public static String FileUtil_CopyingMsg;
 	public static String FileUtil_DesDirNotavailable;
@@ -43,15 +44,20 @@ public class Messages extends NLS {
 	public static String NvsValidation_EncodingValidationErr_1;
 	public static String NvsValidation_KeyValidationErr_1;
 	public static String NvsValidation_KeyValidationErr_2;
-	
+
 	public static String PortChecker_AttemptLimitExceededMsg;
 	public static String PortChecker_PortIsAvailable;
 	public static String PortChecker_PortNotAvailable;
 
-	static {
+	public static String LspService_RestartJobMsg;
+
+	static
+	{
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
 	}
-	private Messages() {
+
+	private Messages()
+	{
 	}
 }

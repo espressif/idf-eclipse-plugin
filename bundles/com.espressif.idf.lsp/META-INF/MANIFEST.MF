@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-SymbolicName: com.espressif.idf.lsp;singleton:=true
 Bundle-Vendor: ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD
 Bundle-Version: 1.0.1.qualifier
-Export-Package: com.espressif.idf.lsp
+Export-Package: com.espressif.idf.lsp,
+ com.espressif.idf.lsp.preferences
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.cdt.lsp.clangd,
