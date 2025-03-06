@@ -7,6 +7,9 @@ package com.espressif.idf.ui.handlers;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.content.IContentType;
+import org.eclipse.core.runtime.content.IContentTypeManager;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbenchPart;
@@ -17,7 +20,6 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.LspService;
 import com.espressif.idf.core.util.StringUtil;
-import com.espressif.idf.ui.tools.manager.ESPIDFManagerEditor;
 
 public class FileOpenListener implements IPartListener2
 {
@@ -35,14 +37,28 @@ public class FileOpenListener implements IPartListener2
 		if (part instanceof IEditorPart ieditorpart
 				&& ieditorpart.getEditorInput() instanceof FileEditorInput fileInput)
 		{
-			
-			if (ieditorpart instanceof ESPIDFManagerEditor)
-				return;
-			
 			IFile file = fileInput.getFile();
 			IProject project = file.getProject();
 			if (project == null)
 				return;
+			
+			try
+			{
+				IContentTypeManager contentTypeManager = Platform.getContentTypeManager();
+				IContentType contentType = contentTypeManager.findContentTypeFor(file.getFullPath().toOSString());
+				if (contentType != null)
+				{
+					String id = contentType.getId();
+					if (!(id.startsWith("org.eclipse.cdt.core.c") && (id.endsWith("Source") || id.endsWith("Header")))) {
+	                    return; // Skip files that are not C source/header files
+	                }
+				}
+			}
+			catch (Exception e)
+			{
+				Logger.log(e);
+			}
+			
 			String buildDir = StringUtil.EMPTY;
 			try
 			{
