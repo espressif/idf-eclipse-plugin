@@ -16,8 +16,6 @@ import org.eclipse.lsp4e.LanguageServerWrapper;
 import org.eclipse.lsp4e.LanguageServiceAccessor;
 import org.eclipse.ui.PlatformUI;
 
-import com.espressif.idf.core.logging.Logger;
-
 @SuppressWarnings("restriction")
 public class LspService
 {
@@ -29,6 +27,7 @@ public class LspService
 		this(PlatformUI.getWorkbench().getService(ClangdConfiguration.class),
 				LanguageServiceAccessor.getStartedWrappers(null, true).stream()
 						.filter(w -> "org.eclipse.cdt.lsp.server".equals(w.serverDefinition.id)).toList()); //$NON-NLS-1$
+
 	}
 
 	public LspService(Configuration configuration, List<LanguageServerWrapper> languageServerWrappers)
@@ -39,16 +38,9 @@ public class LspService
 
 	public void restartLspServers()
 	{
-		languageServerWrappers.forEach(w -> {
-			try
-			{
-				w.restart();
-			}
-			catch (Exception e)
-			{
-				Logger.log(e);
-			}
-		});
+		languageServerWrappers.forEach(w ->
+		// ensures that the LS is initialized before proceeding.
+		w.execute(ls -> ls.shutdown()).thenRun(w::restart));
 	}
 
 	public void updateAdditionalOptions(String additionalOptions)
@@ -67,6 +59,16 @@ public class LspService
 			String qualifier = configuration.qualifier();
 			InstanceScope.INSTANCE.getNode(qualifier).put(metadata.queryDriver().identifer(),
 					metadata.queryDriver().defaultValue());
+		}
+	}
+
+	public void updateClangdPath()
+	{
+		if (configuration.metadata() instanceof ClangdMetadata metadata)
+		{
+			String qualifier = configuration.qualifier();
+			InstanceScope.INSTANCE.getNode(qualifier).put(metadata.clangdPath().identifer(),
+					metadata.clangdPath().defaultValue());
 		}
 	}
 
