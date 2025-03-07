@@ -42,21 +42,9 @@ public class FileOpenListener implements IPartListener2
 			if (project == null)
 				return;
 			
-			try
+			if (!isSourceOrHeaderFile(file))
 			{
-				IContentTypeManager contentTypeManager = Platform.getContentTypeManager();
-				IContentType contentType = contentTypeManager.findContentTypeFor(file.getFullPath().toOSString());
-				if (contentType != null)
-				{
-					String id = contentType.getId();
-					if (!(id.startsWith("org.eclipse.cdt.core.c") && (id.endsWith("Source") || id.endsWith("Header")))) {
-	                    return; // Skip files that are not C source/header files
-	                }
-				}
-			}
-			catch (Exception e)
-			{
-				Logger.log(e);
+				return;
 			}
 			
 			String buildDir = StringUtil.EMPTY;
@@ -75,6 +63,27 @@ public class FileOpenListener implements IPartListener2
 			lspService.restartLspServers();
 
 		}
+	}
+	
+	private boolean isSourceOrHeaderFile(IFile file)
+	{
+		try
+		{
+			IContentTypeManager contentTypeManager = Platform.getContentTypeManager();
+			IContentType contentType = contentTypeManager.findContentTypeFor(file.getFullPath().toOSString());
+			if (contentType != null)
+			{
+				String id = contentType.getId();
+				if ((id.startsWith("org.eclipse.cdt.core.c") && (id.endsWith("Source") || id.endsWith("Header")))) {
+                    return true;
+                }
+			}
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+		}
+		return false;
 	}
 
 	@Override
