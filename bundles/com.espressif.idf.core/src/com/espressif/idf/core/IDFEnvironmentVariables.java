@@ -18,7 +18,6 @@ import org.eclipse.cdt.internal.core.envvar.EnvironmentVariableManager;
 import org.eclipse.cdt.managedbuilder.envvar.IBuildEnvironmentVariable;
 
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 
 /**
@@ -131,7 +130,7 @@ public class IDFEnvironmentVariables
 		IEnvironmentVariableManager buildEnvironmentManager = CCorePlugin.getDefault().getBuildEnvironmentManager();
 		IEnvironmentVariable[] variables = buildEnvironmentManager.getVariables((ICConfigurationDescription) null,
 				true);
-		Map<String, String> envMap = System.getenv();
+		Map<String, String> envMap = new HashMap<String, String>(System.getenv());
 		if (variables != null)
 		{
 			for (IEnvironmentVariable iEnvironmentVariable : variables)

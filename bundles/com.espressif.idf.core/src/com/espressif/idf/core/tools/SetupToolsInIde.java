@@ -318,6 +318,12 @@ public class SetupToolsInIde extends Job
 		{
 			value = value.concat(File.pathSeparator).concat(pathEntry);
 		}
+		
+		if (Platform.getOS().equals(Platform.OS_MACOSX))
+		{
+			value = value.concat(File.pathSeparator).concat("/opt/homebrew/bin").concat(File.pathSeparator).concat("/usr/local/bin"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		
 		return value;
 	}
 	
