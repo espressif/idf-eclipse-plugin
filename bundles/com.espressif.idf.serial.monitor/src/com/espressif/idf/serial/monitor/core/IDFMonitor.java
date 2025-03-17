@@ -152,7 +152,7 @@ public class IDFMonitor
 		idfEnvMap.put("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		// Update with the CDT build environment variables
-		Map<String, String> environment = new HashMap<>(IDFUtil.getSystemEnv());
+		Map<String, String> environment = new HashMap<>(System.getenv());
 		environment.putAll(idfEnvMap);
 
 		Logger.log(environment.toString());

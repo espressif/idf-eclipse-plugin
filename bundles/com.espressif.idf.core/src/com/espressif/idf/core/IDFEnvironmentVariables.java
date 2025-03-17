@@ -131,16 +131,12 @@ public class IDFEnvironmentVariables
 		IEnvironmentVariableManager buildEnvironmentManager = CCorePlugin.getDefault().getBuildEnvironmentManager();
 		IEnvironmentVariable[] variables = buildEnvironmentManager.getVariables((ICConfigurationDescription) null,
 				true);
-		Map<String, String> envMap = IDFUtil.getSystemEnv();
+		Map<String, String> envMap = System.getenv();
 		if (variables != null)
 		{
 			for (IEnvironmentVariable iEnvironmentVariable : variables)
 			{
 				String key = iEnvironmentVariable.getName();
-				if (key.equals(IDFCorePreferenceConstants.IDF_TOOLS_PATH))
-				{
-					continue;
-				}
 				String value = iEnvironmentVariable.getValue();
 				envMap.put(key, value);
 			}

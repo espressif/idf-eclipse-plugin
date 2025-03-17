@@ -41,7 +41,6 @@ import org.osgi.service.prefs.BackingStoreException;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
-import com.espressif.idf.core.IDFCorePreferenceConstants;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.ProcessBuilderFactory;
@@ -757,7 +756,7 @@ public class IDFUtil
 				arguments.add("whereis"); //$NON-NLS-1$
 				arguments.add("git"); //$NON-NLS-1$
 
-				Map<String, String> environment = new HashMap<>(getSystemEnv());
+				Map<String, String> environment = new HashMap<>(System.getenv());
 
 				IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT,
 						environment);
@@ -824,22 +823,6 @@ public class IDFUtil
 
 		return resolvedPath.toString();
 
-	}
-	
-	public static Map<String, String> getSystemEnv()
-	{
-		Map<String, String> env = new HashMap<String, String>(System.getenv());
-		String idfToolsPath = Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
-				IDFCorePreferenceConstants.IDF_TOOLS_PATH, IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT, null);
-		env.put(IDFCorePreferenceConstants.IDF_TOOLS_PATH, idfToolsPath);
-		return env;
-	}
-	
-	public static String getIDFToolsPathFromPreferences()
-	{
-		String idfToolsPath = Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
-				IDFCorePreferenceConstants.IDF_TOOLS_PATH, IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT, null);
-		return idfToolsPath;
 	}
 	
 	public static void closeWelcomePage(IWorkbenchWindow activeww)
