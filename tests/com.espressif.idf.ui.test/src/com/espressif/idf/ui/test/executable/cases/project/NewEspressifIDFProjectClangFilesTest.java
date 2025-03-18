@@ -9,9 +9,10 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
-
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -48,7 +49,7 @@ public class NewEspressifIDFProjectClangFilesTest
 	}
 
 	@Test
-	public void givenNewProjectIsCreatedThenTestClangFilesForNewProject() throws Exception
+	public void givenNewProjectIsCreatedThenTestClangFilesPresenceAndContentForNewProject() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 		Fixture.givenProjectNameIs("NewProjectClangFilesTest");
@@ -64,7 +65,7 @@ public class NewEspressifIDFProjectClangFilesTest
 	}
 
 	@Test
-	public void givenNewProjectIsCreatedWhenClangdFileIsDeletedThenTestClangdFileCreatedUsingContextMenu()
+	public void givenNewProjectIsCreatedWhenClangdFileIsDeletedThenTestClangdFileCreatedUsingContextMenuThenClangdFileContentChecked()
 			throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
@@ -76,6 +77,23 @@ public class NewEspressifIDFProjectClangFilesTest
 		Fixture.thenClangdFileIsPresent();
 		Fixture.whenClangdFileOpenedUsingDoubleClick();
 		Fixture.thenClangdFileContentChecked();
+	}
+
+	@Test
+	public void givenNewProjectIsCreatedThenTestClangFormatFileSettingsAreBeingApplied() throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectClangFilesTest3");
+		Fixture.setupAutoSave();
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenClangFormatFileOpenedUsingDoubleClick();
+		Fixture.thenClangFormatContentEdited();
+		Fixture.thenEditedClangFormatShellClosed();
+		Fixture.whenMainFileIsOpened();
+		Fixture.addSpaceToMainFile();
+		Fixture.thenMainFileShellClosed();
+		Fixture.whenMainFileIsOpened();
+		Fixture.checkMainFileContentFormattedUnderActualSettings();
 	}
 
 	private static class Fixture
@@ -177,11 +195,55 @@ public class NewEspressifIDFProjectClangFilesTest
 					bot));
 		}
 
-//		private static void thenClangFormatFileContentEdited() throws Exception
-//		{
-//			bot.cTabItem(".clang-format").activate();
-//
-//		}
+		private static void thenClangFormatContentEdited() throws Exception
+		{
+			SWTBotEditor textEditor = bot.activeEditor();
+			textEditor.toTextEditor().setText(
+					"# We'll use defaults from the LLVM style, but with some modifications so that it's close to the CDT K&R style.\n"
+							+ "BasedOnStyle: LLVM\n" + "UseTab: Always\n" + "IndentWidth: 0\n" + "TabWidth: 0\n"
+							+ "PackConstructorInitializers: NextLineOnly\n"
+							+ "BreakConstructorInitializers: AfterColon\n" + "IndentAccessModifiers: false\n"
+							+ "AccessModifierOffset: -4");
+		}
+
+		private static void addSpaceToMainFile() throws Exception
+		{
+			SWTBotEditor textEditor = bot.activeEditor();
+			textEditor.toTextEditor()
+					.setText("#include <stdbool.h>\n" + "#include <stdio.h>\n" + "#include <unistd.h>\n\n"
+							+ "void app_main(void) {\n" + "\t\twhile (true) {\n"
+							+ "\t\t\tprintf(\"Hello from app_main!\\n\");\n" + // 2 tabs here
+							"\t\t\tsleep(1   );\n" + // 2 tabs here and extra spaces
+							"\t\t}\n" + // 2 tabs here
+							"}");
+		}
+
+		private static void checkMainFileContentFormattedUnderActualSettings() throws Exception
+		{
+			bot.sleep(1000);
+			assertTrue(ProjectTestOperations.checkExactMatchInTextEditorwithWhiteSpaces("#include <stdbool.h>\n"
+					+ "#include <stdio.h>\n" + "#include <unistd.h>\n\n" + "void app_main(void) {\n"
+					+ "while (true) {\n" + "printf(\"Hello from app_main!\\n\");\n" + "sleep(1);\n" + "}\n" + "}",
+					bot));
+		}
+
+		private static void setupAutoSave() throws Exception
+		{
+			bot.menu("Window").menu("Preferences").click();
+			SWTBotShell prefrencesShell = bot.shell("Preferences");
+			prefrencesShell.bot().tree().getTreeItem("C/C++").select();
+			prefrencesShell.bot().tree().getTreeItem("C/C++").expand();
+			prefrencesShell.bot().tree().getTreeItem("C/C++").getNode("Editor (LSP)").select();
+			prefrencesShell.bot().tree().getTreeItem("C/C++").getNode("Editor (LSP)").expand();
+			prefrencesShell.bot().tree().getTreeItem("C/C++").getNode("Editor (LSP)").getNode("Save Actions").select();
+			prefrencesShell.bot().checkBox("Format source code").click();
+			prefrencesShell.bot().button("Apply and Close").click();
+		}
+
+		private static void whenMainFileIsOpened() throws Exception
+		{
+			ProjectTestOperations.openMainFileInTextEditorUsingContextMenu(projectName, bot);
+		}
 
 		private static void thenClangdShellClosed() throws IOException
 		{
@@ -193,29 +255,17 @@ public class NewEspressifIDFProjectClangFilesTest
 			bot.cTabItem(".clang-format").close();
 		}
 
-//		private static void whenClangdFileIsSaved() throws IOException
-//		{
-//			bot.cTabItem("*.clangd").activate();
-//			bot.cTabItem("*.clangd").close();
-//			bot.sleep(1000);
-//			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Save Resource", 5000);
-//			bot.shell("Save Resource").bot().button("Save").click();
-//		}
-//
-//		private static void whenClangFormatFileIsSaved() throws IOException
-//		{
-//			bot.cTabItem("*.clangd").activate();
-//			bot.cTabItem("*.clangd").close();
-//			bot.sleep(1000);
-//			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Save Resource", 5000);
-//			bot.shell("Save Resource").bot().button("Save").click();
-//		}
+		private static void thenEditedClangFormatShellClosed() throws IOException
+		{
+			bot.cTabItem("*.clang-format").close();
+			bot.shell("Save Resource").bot().button("Save").click();
+		}
 
-//		private static void thenCheckChangesAreSaved() throws Exception
-//		{
-//			bot.cTabItem(".clangd").activate();
-//
-//		}
+		private static void thenMainFileShellClosed() throws IOException
+		{
+			bot.cTabItem("*main.c").close();
+			bot.shell("Save Resource").bot().button("Save").click();
+		}
 
 		private static void cleanTestEnv()
 		{
