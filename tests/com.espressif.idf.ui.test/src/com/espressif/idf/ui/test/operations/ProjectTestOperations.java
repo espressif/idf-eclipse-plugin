@@ -165,6 +165,42 @@ public class ProjectTestOperations
 		}
 	}
 
+	public static void openMainFileInTextEditorUsingContextMenu(String projectName, SWTWorkbenchBot bot)
+	{
+		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
+		if (projectItem != null)
+		{
+			projectItem.select();
+			projectItem.expand();
+			projectItem.getNode("main").expand();
+
+			int maxAttempts = 2;
+			for (int attempt = 0; attempt <= maxAttempts; attempt++)
+			{
+				SWTBotTreeItem fileToOpenItem = findTreeItem(projectItem.getNode("main"), "main.c");
+
+				if (fileToOpenItem != null)
+				{
+					fileToOpenItem.select();
+					fileToOpenItem.doubleClick();
+					return;
+				}
+
+				else
+				{
+					try
+					{
+						Thread.sleep(3000);
+					}
+					catch (InterruptedException e)
+					{
+						logger.error(e.getMessage(), e);
+					}
+				}
+			}
+		}
+	}
+
 	public static boolean findProjectCleanedFilesInBuildFolder(String projectName, SWTWorkbenchBot bot)
 	{
 		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
@@ -274,6 +310,19 @@ public class ProjectTestOperations
 	{
 		return Arrays.stream(text.split("\n")).map(String::trim) // Trim each line
 				.collect(Collectors.joining("\n")); // Reconstruct text with normalized lines
+	}
+
+	public static boolean checkExactMatchInTextEditorwithWhiteSpaces(String phrase, SWTWorkbenchBot bot)
+	{
+		SWTBotEditor textEditor = bot.activeEditor();
+		String editorText = textEditor.toTextEditor().getText();
+
+		// Normalize line endings to ensure consistency
+		String normalizedEditorText = editorText.replace("\r\n", "\n");
+		String normalizedPhrase = phrase.replace("\r\n", "\n");
+
+		// Check for exact match, including spaces, tabs, and newlines
+		return normalizedEditorText.equals(normalizedPhrase);
 	}
 
 	/**
