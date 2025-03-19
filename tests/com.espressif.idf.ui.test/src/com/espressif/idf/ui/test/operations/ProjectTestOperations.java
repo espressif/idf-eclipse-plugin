@@ -314,15 +314,28 @@ public class ProjectTestOperations
 
 	public static boolean checkExactMatchInTextEditorwithWhiteSpaces(String phrase, SWTWorkbenchBot bot)
 	{
+		// Get the text from the active editor
 		SWTBotEditor textEditor = bot.activeEditor();
 		String editorText = textEditor.toTextEditor().getText();
 
-		// Normalize line endings to ensure consistency
-		String normalizedEditorText = editorText.replace("\r\n", "\n");
-		String normalizedPhrase = phrase.replace("\r\n", "\n");
+		// Normalize line endings to a consistent format (e.g., using '\n')
+		String normalizedEditorText = normalizeLineEndings(editorText);
+		String normalizedPhrase = normalizeLineEndings(phrase);
 
 		// Check for exact match, including spaces, tabs, and newlines
 		return normalizedEditorText.equals(normalizedPhrase);
+	}
+
+	/**
+	 * Normalizes line endings to '\n' to ensure consistency across platforms.
+	 * 
+	 * @param input The input string to normalize.
+	 * @return The normalized string with consistent line endings.
+	 */
+	private static String normalizeLineEndings(String input)
+	{
+		// Normalize to '\n' for consistency across platforms (Mac, Linux, Windows)
+		return input.replace("\r\n", "\n").replace("\r", "\n");
 	}
 
 	/**
