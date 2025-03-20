@@ -26,7 +26,7 @@ import com.espressif.idf.ui.test.operations.EnvSetupOperations;
 import com.espressif.idf.ui.test.operations.ProjectTestOperations;
 
 /**
- * Test class to test the project creation, build and basic operations
+ * Test class to test Clangd / Clang-Format files functionality
  * 
  * @author Andrii Filippov
  *
@@ -45,7 +45,14 @@ public class NewEspressifIDFProjectClangFilesTest
 	@After
 	public void afterEachTest()
 	{
-		Fixture.cleanTestEnv();
+		try
+		{
+			Fixture.cleanTestEnv(); // Make sure test environment is always cleaned up
+		}
+		catch (Exception e)
+		{
+			System.err.println("Error during cleanup: " + e.getMessage());
+		}
 	}
 
 	@Test
