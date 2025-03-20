@@ -188,6 +188,7 @@ public class NewEspressifIDFProjectClangFilesTest
 			bot.cTabItem(".clangd").activate();
 			assertTrue(ProjectTestOperations.checkExactMatchInTextEditor(
 					"CompileFlags:\n" + "  CompilationDatabase: build\n" + "  Remove: [-m*, -f*]", bot));
+			bot.sleep(5000);
 		}
 
 		private static void thenClangFormatContentChecked() throws Exception
@@ -200,6 +201,7 @@ public class NewEspressifIDFProjectClangFilesTest
 							+ "BreakConstructorInitializers: AfterColon\n" + "IndentAccessModifiers: false\n"
 							+ "AccessModifierOffset: -4",
 					bot));
+			bot.sleep(5000);
 		}
 
 		private static void thenClangFormatContentEdited() throws Exception
