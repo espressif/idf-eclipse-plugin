@@ -270,20 +270,20 @@ public class TestWidgetWaitUtility
 		}, timeout);
 	}
 
-	public static void waitForSDKConfigurationTab(SWTWorkbenchBot workbenchBot, long timeout)
+	public static void waitForCTabToAppear(SWTWorkbenchBot workbenchBot, String tabName, long timeout)
 	{
 		workbenchBot.waitUntil(new DefaultCondition()
 		{
 			@Override
 			public boolean test() throws Exception
 			{
-				return workbenchBot.cTabItem("SDK Configuration (sdkconfig)").isActive();
+				return workbenchBot.cTabItem(tabName).isActive();
 			}
 
 			@Override
 			public String getFailureMessage()
 			{
-				return "SDK Configuration tab did not open in time.";
+				return "Tab '" + tabName + "' did not open in time.";
 			}
 		}, timeout);
 	}
