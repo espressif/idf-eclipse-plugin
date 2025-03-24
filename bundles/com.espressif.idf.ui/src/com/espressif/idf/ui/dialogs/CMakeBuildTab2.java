@@ -12,7 +12,8 @@ package com.espressif.idf.ui.dialogs;
 
 import java.util.Map;
 
-import org.eclipse.cdt.cmake.core.internal.CMakeBuildConfiguration;
+import org.eclipse.cdt.cmake.core.CMakeBuildConfiguration;
+import org.eclipse.cdt.cmake.core.ICMakeBuildConfiguration;
 import org.eclipse.cdt.debug.core.launch.CoreBuildLaunchConfigDelegate;
 import org.eclipse.cdt.launch.internal.ui.LaunchMessages;
 import org.eclipse.cdt.launch.ui.corebuild.CommonBuildTab;
@@ -207,10 +208,12 @@ public class CMakeBuildTab2 extends CommonBuildTab
 					configuration.getAttribute(CMakeBuildConfiguration.CMAKE_ARGUMENTS, StringUtil.EMPTY));
 			cmakeArgsText.setText(cmakeArgs);
 
-			String buildCommand = configuration.getAttribute(CMakeBuildConfiguration.BUILD_COMMAND, StringUtil.EMPTY);
+			String buildCommand = configuration.getAttribute(CMakeBuildConfiguration.CMAKE_BUILD_COMMAND,
+					StringUtil.EMPTY);
 			buildCommandText.setText(buildCommand);
 
-			String cleanCommand = configuration.getAttribute(CMakeBuildConfiguration.CLEAN_COMMAND, StringUtil.EMPTY);
+			String cleanCommand = configuration.getAttribute(CMakeBuildConfiguration.CMAKE_CLEAN_TARGET,
+					StringUtil.EMPTY);
 			cleanCommandText.setText(cleanCommand);
 
 		}
@@ -250,7 +253,7 @@ public class CMakeBuildTab2 extends CommonBuildTab
 
 		configuration.setAttribute(IDFLaunchConstants.BUILD_FOLDER_PATH, buildFolderText.getText());
 
-		configuration.setAttribute(CMakeBuildConfiguration.CMAKE_GENERATOR,
+		configuration.setAttribute(ICMakeBuildConfiguration.CMAKE_GENERATOR,
 				ninjaGenButton.getSelection() ? NINJA : UNIX_MAKEFILES);
 
 		String cmakeArgs = cmakeArgsText.getText().trim();
@@ -263,27 +266,27 @@ public class CMakeBuildTab2 extends CommonBuildTab
 		else
 		{
 			configuration.removeAttribute(LOCAL_CMAKE_ARGUMENTS);
-			configuration.removeAttribute(CMakeBuildConfiguration.CMAKE_ARGUMENTS);
+			configuration.removeAttribute(ICMakeBuildConfiguration.CMAKE_ARGUMENTS);
 		}
 
 		String buildCommand = buildCommandText.getText().trim();
 		if (!buildCommand.isEmpty())
 		{
-			configuration.setAttribute(CMakeBuildConfiguration.BUILD_COMMAND, buildCommand);
+			configuration.setAttribute(CMakeBuildConfiguration.CMAKE_BUILD_COMMAND, buildCommand);
 		}
 		else
 		{
-			configuration.removeAttribute(CMakeBuildConfiguration.BUILD_COMMAND);
+			configuration.removeAttribute(CMakeBuildConfiguration.CMAKE_BUILD_COMMAND);
 		}
 
 		String cleanCommand = cleanCommandText.getText().trim();
 		if (!cleanCommand.isEmpty())
 		{
-			configuration.setAttribute(CMakeBuildConfiguration.CLEAN_COMMAND, cleanCommand);
+			configuration.setAttribute(CMakeBuildConfiguration.CMAKE_CLEAN_TARGET, cleanCommand);
 		}
 		else
 		{
-			configuration.removeAttribute(CMakeBuildConfiguration.CLEAN_COMMAND);
+			configuration.removeAttribute(CMakeBuildConfiguration.CMAKE_CLEAN_TARGET);
 		}
 
 	}
@@ -296,8 +299,8 @@ public class CMakeBuildTab2 extends CommonBuildTab
 
 		properties.put(IDFLaunchConstants.BUILD_FOLDER_PATH, buildFolderText.getText().trim());
 		properties.put(LOCAL_CMAKE_ARGUMENTS, cmakeArgsText.getText().trim());
-		properties.put(CMakeBuildConfiguration.BUILD_COMMAND, buildCommandText.getText().trim());
-		properties.put(CMakeBuildConfiguration.CLEAN_COMMAND, cleanCommandText.getText().trim());
+		properties.put(CMakeBuildConfiguration.CMAKE_BUILD_COMMAND, buildCommandText.getText().trim());
+		properties.put(CMakeBuildConfiguration.CMAKE_CLEAN_TARGET, cleanCommandText.getText().trim());
 	}
 
 	@Override
@@ -336,7 +339,7 @@ public class CMakeBuildTab2 extends CommonBuildTab
 			cmakeArgsText.setText(StringUtil.EMPTY);
 		}
 
-		String buildCmd = properties.get(CMakeBuildConfiguration.BUILD_COMMAND);
+		String buildCmd = properties.get(CMakeBuildConfiguration.CMAKE_BUILD_COMMAND);
 		if (buildCmd != null)
 		{
 			buildCommandText.setText(buildCmd);
@@ -346,7 +349,7 @@ public class CMakeBuildTab2 extends CommonBuildTab
 			buildCommandText.setText(StringUtil.EMPTY);
 		}
 
-		String cleanCmd = properties.get(CMakeBuildConfiguration.CLEAN_COMMAND);
+		String cleanCmd = properties.get(CMakeBuildConfiguration.CMAKE_CLEAN_TARGET);
 		if (cleanCmd != null)
 		{
 			cleanCommandText.setText(cleanCmd);
