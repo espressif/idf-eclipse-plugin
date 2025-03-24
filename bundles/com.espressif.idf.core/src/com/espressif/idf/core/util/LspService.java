@@ -45,49 +45,40 @@ public class LspService
 
 	public void updateAdditionalOptions(String additionalOptions)
 	{
-		if (configuration.metadata() instanceof ClangdMetadata metadata)
-		{
-			String qualifier = configuration.qualifier();
-			InstanceScope.INSTANCE.getNode(qualifier).put(metadata.additionalOptions().identifer(), additionalOptions);
-		}
+		String qualifier = configuration.qualifier();
+		InstanceScope.INSTANCE.getNode(qualifier).put(ClangdMetadata.Predefined.additionalOptions.identifer(),
+				additionalOptions);
 	}
 
 	public void updateLspQueryDrivers()
 	{
-		if (configuration.metadata() instanceof ClangdMetadata metadata)
-		{
-			String qualifier = configuration.qualifier();
-			InstanceScope.INSTANCE.getNode(qualifier).put(metadata.queryDriver().identifer(),
-					metadata.queryDriver().defaultValue());
-		}
+		String qualifier = configuration.qualifier();
+		// By passing --query-driver argument to clangd helps to resolve the
+		// cross-compiler toolchain headers.
+		String toolchainPath = IDFUtil.getToolchainExePathForActiveTarget();
+		InstanceScope.INSTANCE.getNode(qualifier).put(ClangdMetadata.Predefined.queryDriver.identifer(), toolchainPath);
 	}
 
 	public void updateClangdPath()
 	{
-		if (configuration.metadata() instanceof ClangdMetadata metadata)
-		{
-			String qualifier = configuration.qualifier();
-			InstanceScope.INSTANCE.getNode(qualifier).put(metadata.clangdPath().identifer(),
-					metadata.clangdPath().defaultValue());
-		}
+		String qualifier = configuration.qualifier();
+		InstanceScope.INSTANCE.getNode(qualifier).put(ClangdMetadata.Predefined.clangdPath.identifer(),
+				ClangdMetadata.Predefined.clangdPath.defaultValue());
 	}
 
 	public void updateCompileCommandsDir(String buildDir)
 	{
-		if (configuration.metadata() instanceof ClangdMetadata metadata)
-		{
-			String qualifier = configuration.qualifier();
-			String identifier = metadata.additionalOptions().identifer();
-			IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(qualifier);
+		String qualifier = configuration.qualifier();
+		String identifier = ClangdMetadata.Predefined.additionalOptions.identifer();
+		IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(qualifier);
 
-			String existingOptions = preferences.get(identifier, StringUtil.EMPTY);
-			String compileCommandsDirString = "--compile-commands-dir="; //$NON-NLS-1$
-			String newCompuileCommandsDirString = compileCommandsDirString + buildDir;
-			String updatedOptions = existingOptions.contains(compileCommandsDirString)
-					? existingOptions.replaceAll(compileCommandsDirString + ".+", //$NON-NLS-1$
-							Matcher.quoteReplacement(newCompuileCommandsDirString))
-					: newCompuileCommandsDirString;
-			preferences.put(identifier, updatedOptions);
-		}
+		String existingOptions = preferences.get(identifier, StringUtil.EMPTY);
+		String compileCommandsDirString = "--compile-commands-dir="; //$NON-NLS-1$
+		String newCompuileCommandsDirString = compileCommandsDirString + buildDir;
+		String updatedOptions = existingOptions.contains(compileCommandsDirString)
+				? existingOptions.replaceAll(compileCommandsDirString + ".+", //$NON-NLS-1$
+						Matcher.quoteReplacement(newCompuileCommandsDirString))
+				: newCompuileCommandsDirString;
+		preferences.put(identifier, updatedOptions);
 	}
 }
