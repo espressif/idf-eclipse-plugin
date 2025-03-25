@@ -198,7 +198,7 @@ public class IDFSizeDataManager
 		if (idfVersion != null && isVersionAtLeast(idfVersion, "5.1")) //$NON-NLS-1$
 		{
 			arguments.add("--format"); //$NON-NLS-1$
-			arguments.add("json"); //$NON-NLS-1$
+			arguments.add("json2"); //$NON-NLS-1$
 		}
 		else
 		{
@@ -230,9 +230,12 @@ public class IDFSizeDataManager
 	{
 		List<String> arguments = new ArrayList<String>();
 		arguments.add(pythonExecutablenPath);
-		arguments.add(IDFUtil.getIDFSizeScriptFile().getAbsolutePath());
+		arguments.add("-m"); //$NON-NLS-1$
+		arguments.add("esp_idf_size"); //$NON-NLS-1$
+		arguments.add("--ng"); //$NON-NLS-1$
+		arguments.add("--format"); //$NON-NLS-1$
+		arguments.add("json2"); //$NON-NLS-1$
 		arguments.add(file.getLocation().toOSString());
-		arguments.addAll(addJsonParseCommand());
 
 		return arguments;
 	}
