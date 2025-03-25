@@ -125,7 +125,7 @@ public class SerialPortHandler
 			} finally
 			{
 				serialConnector.disconnect();
-				serialConnector.process.destroy();
+				serialConnector.process.destroyForcibly();
 				serialConnector.control.setState(TerminalState.CLOSED);
 			}
 		});
