@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.console.MessageConsoleStream;
@@ -97,8 +98,28 @@ public class ESPIDFMainTablePage
 		final int numColumns = 2;
 		GridLayout gridLayout = new GridLayout(numColumns, false);
 		container.setLayout(gridLayout);
+		createGuideLink(composite);
 		createIdfTable(container);
 		return container;
+	}
+	
+	private void createGuideLink(Composite composite)
+	{
+		Link guideLink = new Link(composite, SWT.WRAP);
+		guideLink.setText(
+				"Select the version of ESP-IDF you want to use. For help in choosing the correct version, visit <a>ESP-IDF Version Guide</a>.");
+		guideLink.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
+		guideLink.addListener(SWT.Selection, e -> {
+			try
+			{
+				java.awt.Desktop.getDesktop().browse(new java.net.URI(
+						"https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html"));
+			}
+			catch (Exception ex)
+			{
+				Logger.log(ex);
+			}
+		});
 	}
 	
 	public void setupInitialEspIdf()
