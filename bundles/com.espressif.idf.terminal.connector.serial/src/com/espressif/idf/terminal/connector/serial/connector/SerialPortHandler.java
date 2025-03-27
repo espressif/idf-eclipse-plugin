@@ -151,7 +151,7 @@ public class SerialPortHandler
 			// kill the port process and thread
 			if (process != null)
 			{
-				process.destroy();
+				process.destroyForcibly();
 			}
 			if (thread != null)
 			{
