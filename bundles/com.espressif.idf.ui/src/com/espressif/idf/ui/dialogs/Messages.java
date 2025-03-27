@@ -11,10 +11,14 @@ public class Messages extends NLS
 	public static String DeleteResourcesWizard_project_deleteConfigurations;
 	public static String CMakeBuildTab2_AdditionalCMakeArgs;
 	public static String CMakeBuildTab2_BuildCmd;
+	public static String CMakeBuildTab2_BuildFolderTextLbl;
+	public static String CMakeBuildTab2_BuildFolderTextMsg;
+	public static String CMakeBuildTab2_BuildFolderTextToolTip;
 	public static String CMakeBuildTab2_CleanCmd;
 	public static String CMakeBuildTab2_CMakeSettings;
 	public static String CMakeBuildTab2_Generator;
 	public static String CMakeBuildTab2_Ninja;
+	public static String CMakeBuildTab2_SelectBuildFolderMsg;
 	public static String CMakeBuildTab2_UnixMakeFiles;
 	public static String EraseFlashDialog_Title;
 	public static String EraseFlashDialog_OkButton;
