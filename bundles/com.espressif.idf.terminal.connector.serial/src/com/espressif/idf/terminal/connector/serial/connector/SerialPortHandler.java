@@ -1,10 +1,12 @@
 package com.espressif.idf.terminal.connector.serial.connector;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
@@ -125,7 +127,9 @@ public class SerialPortHandler
 			} finally
 			{
 				serialConnector.disconnect();
+				closeStreams(serialConnector.process);
 				serialConnector.process.destroyForcibly();
+				waitForProcessTermination(serialConnector.process);
 				serialConnector.control.setState(TerminalState.CLOSED);
 			}
 		});
@@ -144,34 +148,37 @@ public class SerialPortHandler
 
 	public synchronized void close()
 	{
-		if (isOpen)
+		if (!isOpen)
 		{
-			isOpen = false;
+			return;
+		}
+		isOpen = false;
 
-			// kill the port process and thread
-			if (process != null)
-			{
-				process.destroyForcibly();
-			}
-			if (thread != null)
-			{
-				thread.interrupt();
-			}
+		if (process != null)
+		{
+			closeStreams(process);
+			process.destroyForcibly();
+			waitForProcessTermination(process);
 
-			openPorts.computeIfPresent(portName, (k, list) -> {
-				list.remove(this);
-				return list.isEmpty() ? null : list;
-			});
+		}
 
-			try
-			{
-				// Sleep for a second since some serial ports take a while to actually close
-				Thread.sleep(500);
-			}
-			catch (InterruptedException e)
-			{
-				// nothing to do
-			}
+		if (thread != null && thread.isAlive())
+		{
+			thread.interrupt();
+		}
+
+		openPorts.computeIfPresent(portName, (k, list) -> {
+			list.remove(this);
+			return list.isEmpty() ? null : list;
+		});
+
+		try
+		{
+			Thread.sleep(500);
+		}
+		catch (InterruptedException e)
+		{
+			Thread.currentThread().interrupt();
 		}
 	}
 
@@ -217,4 +224,32 @@ public class SerialPortHandler
 		}
 	}
 
+	private void waitForProcessTermination(Process process)
+	{
+		try
+		{
+			if (!process.waitFor(2, TimeUnit.SECONDS))
+			{
+				Logger.log("Process did not terminate in time");
+			}
+		}
+		catch (InterruptedException e)
+		{
+			Logger.log(e);
+		}
+	}
+
+	private void closeStreams(Process process)
+	{
+		try
+		{
+			process.getInputStream().close();
+			process.getOutputStream().close();
+			process.getErrorStream().close();
+		}
+		catch (IOException e)
+		{
+			Logger.log(e);
+		}
+	}
 }
