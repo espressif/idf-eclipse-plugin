@@ -1,6 +1,5 @@
 package com.espressif.idf.terminal.connector.serial.connector;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -127,7 +126,8 @@ public class SerialPortHandler
 			} finally
 			{
 				serialConnector.disconnect();
-				closeStreams(serialConnector.process);
+				stopWebSocketServer(serialConnector.process);
+
 				serialConnector.process.destroyForcibly();
 				waitForProcessTermination(serialConnector.process);
 				serialConnector.control.setState(TerminalState.CLOSED);
@@ -156,7 +156,7 @@ public class SerialPortHandler
 
 		if (process != null)
 		{
-			closeStreams(process);
+			stopWebSocketServer(process);
 			process.destroyForcibly();
 			waitForProcessTermination(process);
 
@@ -239,15 +239,13 @@ public class SerialPortHandler
 		}
 	}
 
-	private void closeStreams(Process process)
+	private void stopWebSocketServer(Process process)
 	{
 		try
 		{
-			process.getInputStream().close();
-			process.getOutputStream().close();
-			process.getErrorStream().close();
+			SocketServerHandler.getInstance().stopServer();
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
 			Logger.log(e);
 		}
