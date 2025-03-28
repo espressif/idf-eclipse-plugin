@@ -98,7 +98,7 @@ public class ESPIDFMainTablePage
 		final int numColumns = 2;
 		GridLayout gridLayout = new GridLayout(numColumns, false);
 		container.setLayout(gridLayout);
-		createGuideLink(composite);
+		createGuideLink(container);
 		createIdfTable(container);
 		return container;
 	}
@@ -106,14 +106,13 @@ public class ESPIDFMainTablePage
 	private void createGuideLink(Composite composite)
 	{
 		Link guideLink = new Link(composite, SWT.WRAP);
-		guideLink.setText(
-				"Select the version of ESP-IDF you want to use. For help in choosing the correct version, visit <a>ESP-IDF Version Guide</a>.");
+		guideLink.setText(Messages.IDFGuideLinkLabel_Text);
 		guideLink.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
 		guideLink.addListener(SWT.Selection, e -> {
 			try
 			{
 				java.awt.Desktop.getDesktop().browse(new java.net.URI(
-						"https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html"));
+						"https://dl.espressif.com/dl/esp-idf/support-periods.svg"));
 			}
 			catch (Exception ex)
 			{
