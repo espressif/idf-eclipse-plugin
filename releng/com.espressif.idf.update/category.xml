@@ -21,9 +21,6 @@
    <feature id="org.eclipse.epp.mpc">
       <category name="com.espressif.idf"/>
    </feature>
-   <feature id="org.eclipse.userstorage">
-      <category name="com.espressif.idf"/>
-   </feature>
    <feature id="org.eclipse.tm4e.feature">
       <category name="com.espressif.idf"/>
    </feature>
