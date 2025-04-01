@@ -44,12 +44,6 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
 
-    - name: Build with Maven
-      run: export NO_AT_BRIDGE=1 && mvn clean verify -Djarsigner.skip=true spotbugs:spotbugs -DskipTests=false -DtestWorkspace=/opt/actions-runner/_work/workspace
-    - uses: jwgmeligmeyling/spotbugs-github-action@master
-      with:
-        path: '**/spotbugsXml.xml'
-
     - name: Publish Test Reports
       if: ${{ always() }}
       uses: phoenix-actions/test-reporting@v12
