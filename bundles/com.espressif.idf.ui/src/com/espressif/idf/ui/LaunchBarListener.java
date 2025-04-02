@@ -17,7 +17,6 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.core.runtime.Status;
@@ -97,21 +96,9 @@ public class LaunchBarListener implements ILaunchBarListener
 				if (!StringUtil.isEmpty(targetName) && (!targetChangeIgnored))
 				{
 					update(targetName);
-
-					Job updateLspQueryJob = new Job("Update Lsp Query Drivers...")
-					{
-
-						protected IStatus run(IProgressMonitor monitor)
-						{
-							LspService lspService = new LspService();
-							lspService.updateLspQueryDrivers();
-							lspService.restartLspServers();
-							return Status.OK_STATUS;
-						}
-
-					};
-					updateLspQueryJob.schedule(1000);
-
+					LspService lspService = new LspService();
+					lspService.updateLspQueryDrivers();
+					lspService.restartLspServers();
 				}
 			}
 		});
