@@ -18,7 +18,6 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.part.FileEditorInput;
 
-import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.LspService;
@@ -63,24 +62,6 @@ public class FileOpenListener implements IPartListener2
 				return;
 			LspService lspService = new LspService();
 			lspService.updateCompileCommandsDir(buildDir);
-			ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
-			// Ensure the launch bar is initialized before restarting LSP servers.
-			// Sometimes, when restarting Eclipse with a C file open, attempting to restart LSP servers immediately
-			// during startup can throw an exception if the launch bar is not yet initialized.
-			// This issue has been observed on CDT 12 and LSP 3.0.0.
-			try
-			{
-				ILaunchTarget launchtarget = launchBarManager.getActiveLaunchTarget();
-				//
-				if (launchtarget == null)
-				{
-					return;
-				}
-			}
-			catch (Exception e)
-			{
-				Logger.log(e);
-			}
 			lspService.restartLspServers();
 
 		}
