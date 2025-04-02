@@ -16,6 +16,8 @@ import org.eclipse.lsp4e.LanguageServerWrapper;
 import org.eclipse.lsp4e.LanguageServiceAccessor;
 import org.eclipse.ui.PlatformUI;
 
+import com.espressif.idf.core.ILSPConstants;
+
 @SuppressWarnings("restriction")
 public class LspService
 {
@@ -63,7 +65,7 @@ public class LspService
 	{
 		String qualifier = configuration.qualifier();
 		InstanceScope.INSTANCE.getNode(qualifier).put(ClangdMetadata.Predefined.clangdPath.identifer(),
-				ClangdMetadata.Predefined.clangdPath.defaultValue());
+				IDFUtil.findCommandFromBuildEnvPath(ILSPConstants.CLANGD_EXECUTABLE));
 	}
 
 	public void updateCompileCommandsDir(String buildDir)
