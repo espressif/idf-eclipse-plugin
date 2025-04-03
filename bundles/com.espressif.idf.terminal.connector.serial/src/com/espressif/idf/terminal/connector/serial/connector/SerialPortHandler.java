@@ -150,6 +150,8 @@ public class SerialPortHandler
 				{
 					Activator.log(e);
 					serialConnector.disconnect();
+					stopWebSocketServer();
+					process.destroy();
 					serialConnector.control.setState(TerminalState.CLOSED);
 				}
 			}
@@ -186,6 +188,7 @@ public class SerialPortHandler
 			// kill the port process and thread
 			if (process != null)
 			{
+				stopWebSocketServer();
 				process.destroy();
 			}
 			if (thread != null)
@@ -262,6 +265,18 @@ public class SerialPortHandler
 			open();
 			isOpen = true;
 			pauseMutex.notifyAll();
+		}
+	}
+
+	private void stopWebSocketServer()
+	{
+		try
+		{
+			SocketServerHandler.getInstance().stopServer();
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
 		}
 	}
 
