@@ -151,3 +151,15 @@ IDF Eclipse plugin uses CMake commands to build the project, so it's possible to
 - Click on the editor configuration wizard.
 - Navigate to `Build Settings` tab.
 - Add `--debug-output` or other
+
+How do I build multiple configurations in Espressif-IDE?
+----------------------------------------------------------
+- Create a new project.
+- Open the `Launch Configuration` dialog.
+- Navigate to the `Build Settings` tab and enter `-B build_release` in the `Additional CMake Arguments` section. Here, `build_release` is the name of the build folder.
+- Click the `OK` button to save the configuration.
+- Reopen the `Launch Configuration` dialog.
+- Click the `Duplicate` button (located at the bottom left corner).
+- Navigate to the `Build Settings` tab and update the `Additional CMake Arguments` section to `-B build_dev`. Here, `build_dev` is the name of the build folder.
+- Click the `OK` button to save the configuration.
+- Click the Build icon from the toolbar (the leftmost icon) for the selected configuration. This will build the project and create a build folder for that configuration. Repeat the same process for the other configuration by selecting it from the dropdown.
