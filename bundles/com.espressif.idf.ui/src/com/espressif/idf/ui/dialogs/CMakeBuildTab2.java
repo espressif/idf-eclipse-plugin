@@ -10,11 +10,11 @@
  *******************************************************************************/
 package com.espressif.idf.ui.dialogs;
 
-import java.nio.file.Path;
 import java.util.Map;
 
 import org.eclipse.cdt.cmake.core.internal.CMakeBuildConfiguration;
 import org.eclipse.cdt.debug.core.launch.CoreBuildLaunchConfigDelegate;
+import org.eclipse.cdt.launch.internal.ui.LaunchMessages;
 import org.eclipse.cdt.launch.ui.corebuild.CommonBuildTab;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -31,12 +31,14 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.build.IDFBuildConfigurationProvider;
+import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.LaunchTargetHelper;
 import com.espressif.idf.core.util.RecheckConfigsHelper;
@@ -48,7 +50,7 @@ public class CMakeBuildTab2 extends CommonBuildTab
 	private static final String LOCAL_CMAKE_ARGUMENTS = "local_cmake_arguments"; //$NON-NLS-1$
 	private static final String UNIX_MAKEFILES = "Unix Makefiles"; //$NON-NLS-1$
 	private static final String NINJA = "Ninja"; //$NON-NLS-1$
-	private static final String DEFAULT_CMAKE_MSG = "-B customBuildFolder"; //$NON-NLS-1$
+	private static final String DEFAULT_CMAKE_MSG = ""; //$NON-NLS-1$
 	private static final String DEFAULT_BUILD_MSG = "cmake --build ."; //$NON-NLS-1$
 	private static final String DEFAULT_CLEAN_MSG = "ninja clean"; //$NON-NLS-1$
 	private Button unixGenButton;
@@ -56,6 +58,7 @@ public class CMakeBuildTab2 extends CommonBuildTab
 	private Text cmakeArgsText;
 	private Text buildCommandText;
 	private Text cleanCommandText;
+	private Text buildFolderText;
 
 	@Override
 	protected String getBuildConfigProviderId()
@@ -103,6 +106,37 @@ public class CMakeBuildTab2 extends CommonBuildTab
 			public void widgetSelected(SelectionEvent e)
 			{
 				updateLaunchConfigurationDialog();
+			}
+		});
+
+		label = new Label(cmakeGroup, SWT.NONE);
+		label.setText(Messages.CMakeBuildTab2_BuildFolderTextLbl);
+
+		// Create a composite to hold the text field and button
+		Composite buildFolderComp = new Composite(cmakeGroup, SWT.NONE);
+		buildFolderComp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		buildFolderComp.setLayout(new GridLayout(2, false)); // Two columns: Text field & Button
+
+		// Text field for displaying the build folder path
+		buildFolderText = new Text(buildFolderComp, SWT.BORDER);
+		buildFolderText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		buildFolderText.setMessage(Messages.CMakeBuildTab2_BuildFolderTextMsg);
+		buildFolderText.setToolTipText(Messages.CMakeBuildTab2_BuildFolderTextToolTip);
+
+		// Browse button to select a folder
+		Button browseButton = createPushButton(buildFolderComp, LaunchMessages.Launch_common_Browse_1, null); // $NON-NLS-1$
+		browseButton.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				DirectoryDialog dialog = new DirectoryDialog(parent.getShell());
+				dialog.setMessage(Messages.CMakeBuildTab2_SelectBuildFolderMsg);
+				String selectedDir = dialog.open();
+				if (selectedDir != null)
+				{
+					buildFolderText.setText(selectedDir);
+				}
 			}
 		});
 
@@ -156,7 +190,6 @@ public class CMakeBuildTab2 extends CommonBuildTab
 		{
 			IProject project = CoreBuildLaunchConfigDelegate.getProject(configuration);
 			RecheckConfigsHelper.revalidateToolchain(project);
-
 		}
 		catch (CoreException e)
 		{
@@ -164,6 +197,9 @@ public class CMakeBuildTab2 extends CommonBuildTab
 		}
 		try
 		{
+			String buildFolderPath = configuration.getAttribute(IDFLaunchConstants.BUILD_FOLDER_PATH, StringUtil.EMPTY);
+			buildFolderText.setText(buildFolderPath);
+
 			String generator = configuration.getAttribute(CMakeBuildConfiguration.CMAKE_GENERATOR, StringUtil.EMPTY);
 			updateGeneratorButtons(generator);
 
@@ -212,6 +248,8 @@ public class CMakeBuildTab2 extends CommonBuildTab
 			Logger.log(e);
 		}
 
+		configuration.setAttribute(IDFLaunchConstants.BUILD_FOLDER_PATH, buildFolderText.getText());
+
 		configuration.setAttribute(CMakeBuildConfiguration.CMAKE_GENERATOR,
 				ninjaGenButton.getSelection() ? NINJA : UNIX_MAKEFILES);
 
@@ -220,8 +258,7 @@ public class CMakeBuildTab2 extends CommonBuildTab
 		{
 			configuration.setAttribute(LOCAL_CMAKE_ARGUMENTS, cmakeArgs);
 			if (project != null)
-				configuration.setAttribute(CMakeBuildConfiguration.CMAKE_ARGUMENTS,
-						getCmakeArgumentsWithAbsProjectPath(project, cmakeArgs));
+				configuration.setAttribute(CMakeBuildConfiguration.CMAKE_ARGUMENTS, cmakeArgs);
 		}
 		else
 		{
@@ -257,6 +294,7 @@ public class CMakeBuildTab2 extends CommonBuildTab
 		super.saveProperties(properties);
 		properties.put(CMakeBuildConfiguration.CMAKE_GENERATOR, ninjaGenButton.getSelection() ? NINJA : UNIX_MAKEFILES);
 
+		properties.put(IDFLaunchConstants.BUILD_FOLDER_PATH, buildFolderText.getText().trim());
 		properties.put(LOCAL_CMAKE_ARGUMENTS, cmakeArgsText.getText().trim());
 		properties.put(CMakeBuildConfiguration.BUILD_COMMAND, buildCommandText.getText().trim());
 		properties.put(CMakeBuildConfiguration.CLEAN_COMMAND, cleanCommandText.getText().trim());
@@ -283,6 +321,11 @@ public class CMakeBuildTab2 extends CommonBuildTab
 			}
 		}
 
+		String buildFolderPath = properties.get(IDFLaunchConstants.BUILD_FOLDER_PATH);
+		if (buildFolderPath != null)
+		{
+			buildFolderText.setText(buildFolderPath);
+		}
 		String cmakeArgs = properties.get(LOCAL_CMAKE_ARGUMENTS);
 		if (cmakeArgs != null)
 		{
@@ -350,29 +393,6 @@ public class CMakeBuildTab2 extends CommonBuildTab
 	public String getName()
 	{
 		return "CMake"; //$NON-NLS-1$
-	}
-
-	private String getCmakeArgumentsWithAbsProjectPath(IProject project, String cmakeArgumets)
-	{
-		String buildFolder = StringUtil.EMPTY;
-		String[] cmakeArgsArr = cmakeArgsText.getText().trim().split("\\s+"); // Split on any whitespace //$NON-NLS-1$
-
-		for (int i = 0; i < cmakeArgsArr.length - 1; i++)
-		{
-			if (cmakeArgsArr[i].equals("-B")) //$NON-NLS-1$
-			{
-				buildFolder = cmakeArgsArr[i + 1];
-				break;
-			}
-		}
-
-		if (!Path.of(buildFolder).isAbsolute())
-		{
-			// Getting the first argument after -B option
-			cmakeArgumets = cmakeArgumets.replaceFirst("(?<=-B)\\s+(\\S+)", //$NON-NLS-1$
-					" " + project.getLocation().append(buildFolder)); //$NON-NLS-1$
-		}
-		return cmakeArgumets;
 	}
 
 }

@@ -113,7 +113,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	 * To work around that, we run cmake in advance with its dedicated working error parser.
 	 */
 	private ICMakeToolChainFile toolChainFile;
-	private String customBuildDir;
 	private IProgressMonitor monitor;
 	public boolean isProgressSet;
 
@@ -158,43 +157,12 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 
 	public IPath getBuildContainerPath() throws CoreException
 	{
-		if (hasCustomBuild())
+		org.eclipse.core.runtime.Path path = new org.eclipse.core.runtime.Path(IDFUtil.getBuildDir(getProject()));
+		if (!path.toFile().exists())
 		{
-			org.eclipse.core.runtime.Path path = new org.eclipse.core.runtime.Path(customBuildDir);
-			if (!path.toFile().exists())
-			{
-				path.toFile().mkdirs();
-			}
-			return path;
+			path.toFile().mkdirs();
 		}
-
-		return getBuildContainer().getLocation();
-	}
-
-	private boolean hasCustomBuild()
-	{
-		String userArgs = getProperty(CMAKE_ARGUMENTS);
-		// Custom build directory
-		String[] cmakeArgumentsArr = userArgs.split(" "); //$NON-NLS-1$
-		customBuildDir = StringUtil.EMPTY;
-		for (int i = 0; i < cmakeArgumentsArr.length; i++)
-		{
-			if (cmakeArgumentsArr[i].equals("-B")) //$NON-NLS-1$
-			{
-				customBuildDir = cmakeArgumentsArr[i + 1];
-				break;
-			}
-		}
-		try
-		{
-			IDFUtil.setBuildDir(getProject(), customBuildDir);
-		}
-		catch (CoreException e)
-		{
-			Logger.log(e);
-		}
-
-		return !customBuildDir.isBlank();
+		return path;
 	}
 
 	@Override
