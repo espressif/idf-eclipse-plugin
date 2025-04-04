@@ -177,7 +177,7 @@ public class ESPToolChainManager
 
 	private Path[] getDirectories(String path)
 	{
-		return Arrays.stream(path.split(File.pathSeparator)).map(String::trim).map(Paths::get).filter(Files::exists)
+		return Arrays.stream(path.split(File.pathSeparator)).map(String::trim).map(Paths::get).filter(Files::exists).filter(Files::isDirectory)
 				.toArray(Path[]::new);
 	}
 
