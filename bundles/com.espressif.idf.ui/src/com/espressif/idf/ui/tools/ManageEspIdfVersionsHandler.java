@@ -53,7 +53,7 @@ public class ManageEspIdfVersionsHandler extends AbstractHandler
 				try
 				{
 					IDE.openEditor(activeww.getActivePage(), new EimEditorInput(eimJson),
-							ESPIDFManagerEditor.EDITOR_ID);
+							ESPIDFManagerEditor.EDITOR_ID, true);
 				}
 				catch (Exception e)
 				{

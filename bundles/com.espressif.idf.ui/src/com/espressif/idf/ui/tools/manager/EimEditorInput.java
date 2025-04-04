@@ -10,7 +10,8 @@ public class EimEditorInput implements IEditorInput
 {
 	private EimJson eimJson;
 	private boolean firstStartup;
-	
+	private String FILE_NAME = "idf_eim.json"; //$NON-NLS-1$
+
 	public EimEditorInput(EimJson eimJson)
 	{
 		this.eimJson = eimJson;
@@ -20,7 +21,7 @@ public class EimEditorInput implements IEditorInput
 	{
 		return eimJson;
 	}
-	
+
 	@Override
 	public <T> T getAdapter(Class<T> adapter)
 	{
@@ -66,6 +67,27 @@ public class EimEditorInput implements IEditorInput
 	public void setFirstStartup(boolean firstStartup)
 	{
 		this.firstStartup = firstStartup;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+		{
+			return true;
+		}
+		if (obj == null || getClass() != obj.getClass())
+		{
+			return false;
+		}
+		EimEditorInput that = (EimEditorInput) obj;
+		return FILE_NAME.equals(that.FILE_NAME);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return FILE_NAME.hashCode();
 	}
 
 }
