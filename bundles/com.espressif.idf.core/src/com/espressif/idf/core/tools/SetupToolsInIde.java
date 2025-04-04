@@ -98,7 +98,7 @@ public class SetupToolsInIde extends Job
 		monitor.beginTask("Setting up tools in IDE", 7); //$NON-NLS-1$
 		monitor.worked(1);
 		List<String> arguemnts = new ArrayList<>();
-		Map<String, String> env = System.getenv();
+		Map<String, String> env = new HashMap<>(System.getenv());
 		addGitToEnvironment(env, eimJson.getGitPath());
 		arguemnts = ToolsUtility.getExportScriptCommand(idfInstalled.getActivationScript());
 		final ProcessBuilderFactory processBuilderFactory = new ProcessBuilderFactory();
