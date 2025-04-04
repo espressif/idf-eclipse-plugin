@@ -241,17 +241,11 @@ public class InitializeToolsStartup implements IStartup
 
 	private void userNotficationToInstallEim()
 	{
-		Display.getDefault().asyncExec(()-> {
-			Shell shell = new Shell(Display.getDefault());
-			MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO);
-			
-			messageBox.setText(Messages.ToolsInitializationEimMissingMsgBoxTitle);
-			messageBox.setMessage(Messages.ToolsInitializationEimMissingMsgBoxMessage);
-			int response = messageBox.open();
-			if (response == SWT.YES)
-			{
-				Program.launch(EimConstants.EIM_URL);
-			}	
+		Display.getDefault().asyncExec(() -> {
+			MessageLinkDialog.openWarning(Display.getDefault().getActiveShell(),
+					Messages.ToolsInitializationEimMissingMsgBoxTitle,
+					MessageFormat.format(Messages.ToolsInitializationEimMissingMsgBoxMessage, EimConstants.EIM_URL));
+
 		});
 	}
 
