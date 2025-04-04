@@ -1,5 +1,6 @@
 package com.espressif.idf.core.tools.vo;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.google.gson.annotations.Expose;
@@ -11,7 +12,7 @@ public class EimJson
 	@Expose
 	private String idfSelectedId;
 	@Expose
-	private List<IdfInstalled> idfInstalled;
+	private List<IdfInstalled> idfInstalled = Collections.emptyList();
 
 	public String getGitPath()
 	{
