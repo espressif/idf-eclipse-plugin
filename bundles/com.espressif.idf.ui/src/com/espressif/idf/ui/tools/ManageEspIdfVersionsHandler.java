@@ -1,5 +1,7 @@
 package com.espressif.idf.ui.tools;
 
+import java.io.IOException;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -9,6 +11,7 @@ import org.eclipse.ui.ide.IDE;
 
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.EimIdfConfiguratinParser;
+import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.tools.manager.ESPIDFManagerEditor;
@@ -33,12 +36,24 @@ public class ManageEspIdfVersionsHandler extends AbstractHandler
 			{
 				IWorkbenchWindow activeww = EclipseHandler.getActiveWorkbenchWindow();
 				IDFUtil.closeWelcomePage(activeww);
-				
+
+				EimJson eimJson = new EimJson();
+
 				try
 				{
 					EimIdfConfiguratinParser eimIdfConfiguratinParser = new EimIdfConfiguratinParser();
-					
-					IDE.openEditor(activeww.getActivePage(), new EimEditorInput(eimIdfConfiguratinParser.getEimJson(true)), ESPIDFManagerEditor.EDITOR_ID);
+					eimJson = eimIdfConfiguratinParser.getEimJson(true);
+				}
+				catch (IOException e)
+				{
+					Logger.log(e);
+					// Proceed with an empty EimJson object and show the information to the user in the ESP-IDF Manager view
+				}
+
+				try
+				{
+					IDE.openEditor(activeww.getActivePage(), new EimEditorInput(eimJson),
+							ESPIDFManagerEditor.EDITOR_ID);
 				}
 				catch (Exception e)
 				{
