@@ -22,6 +22,11 @@ import com.espressif.idf.core.util.IDFUtil;
  *
  */
 public class IDFSizeConstants {
+	
+	public static String LAYOUT = "layout"; //$NON-NLS-1$
+	public static String NAME = "name"; //$NON-NLS-1$
+	public static String USED = "used"; //$NON-NLS-1$
+	public static String FREE = "free"; //$NON-NLS-1$
 
 	public static String DATA = "data"; // DRAM .data //$NON-NLS-1$
 	public static String BSS = "bss"; // DRAM .bss //$NON-NLS-1$
