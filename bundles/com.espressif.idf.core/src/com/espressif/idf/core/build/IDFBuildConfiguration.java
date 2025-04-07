@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 import org.eclipse.cdt.build.gcc.core.ClangToolChain;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainFile;
@@ -67,7 +66,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.ILaunchMode;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
@@ -85,6 +83,7 @@ import com.espressif.idf.core.util.ClangdConfigFileHandler;
 import com.espressif.idf.core.util.DfuCommandsUtil;
 import com.espressif.idf.core.util.HintsUtil;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.LaunchUtil;
 import com.espressif.idf.core.util.LspService;
 import com.espressif.idf.core.util.ParitionSizeHandler;
 import com.espressif.idf.core.util.ProjectDescriptionReader;
@@ -200,7 +199,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 			if (configuration != null
 					&& configuration.getType().getIdentifier().equals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
 			{
-				configuration = getBoundConfiguration(configuration);
+				configuration = new LaunchUtil(DebugPlugin.getDefault().getLaunchManager())
+						.getBoundConfiguration(configuration);
 			}
 			String property = configuration == null ? StringUtil.EMPTY
 					: configuration.getAttribute(name, StringUtil.EMPTY);
@@ -213,22 +213,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		}
 
 		return super.getProperty(name);
-	}
-
-	/*
-	 * In case when the active configuration is debugging, we are using bound launch configuration to build the project
-	 */
-	private ILaunchConfiguration getBoundConfiguration(ILaunchConfiguration configuration) throws CoreException
-	{
-		String bindedLaunchConfigName = configuration.getAttribute(IDFLaunchConstants.ATTR_LAUNCH_CONFIGURATION_NAME,
-				StringUtil.EMPTY);
-		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-		ILaunchConfiguration[] launchConfigurations = launchManager.getLaunchConfigurations(DebugPlugin.getDefault()
-				.getLaunchManager().getLaunchConfigurationType(IDFLaunchConstants.RUN_LAUNCH_CONFIG_TYPE));
-		ILaunchConfiguration defaultConfiguration = launchConfigurations[0];
-		return Stream.of(launchConfigurations).filter(config -> config.getName().contentEquals(bindedLaunchConfigName))
-				.findFirst().orElse(defaultConfiguration);
-
 	}
 
 	private IBinary[] getBuildOutput(final IBinaryContainer binaries, final IPath outputPath) throws CoreException

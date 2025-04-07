@@ -18,6 +18,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.ILaunchMode;
@@ -34,6 +35,7 @@ import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.LaunchUtil;
 import com.espressif.idf.core.util.LspService;
 import com.espressif.idf.core.util.SDKConfigJsonReader;
 import com.espressif.idf.core.util.StringUtil;
@@ -71,7 +73,7 @@ public class LaunchBarListener implements ILaunchBarListener
 					setMode(launchBarManager, ILaunchManager.RUN_MODE);
 					setMode(launchBarManager, ILaunchManager.DEBUG_MODE);
 				}
-				IDFUtil.updateProjectBuildFolder(activeLaunchConfiguration.getWorkingCopy());
+				updateProjectBuildFolderBasedOnActiveConfig(activeLaunchConfiguration);
 			}
 		}
 		catch (CoreException e)
@@ -238,6 +240,28 @@ public class LaunchBarListener implements ILaunchBarListener
 			{
 				launchBarManager.setActiveLaunchMode(runMode.get());
 			}
+
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+	}
+
+	private void updateProjectBuildFolderBasedOnActiveConfig(ILaunchConfiguration configuration)
+	{
+		if (configuration == null)
+		{
+			return;
+		}
+		try
+		{
+			if (configuration.getType().getIdentifier().equals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
+			{
+				configuration = new LaunchUtil(DebugPlugin.getDefault().getLaunchManager())
+						.getBoundConfiguration(configuration);
+			}
+			IDFUtil.updateProjectBuildFolder(configuration.getWorkingCopy());
 
 		}
 		catch (CoreException e)
