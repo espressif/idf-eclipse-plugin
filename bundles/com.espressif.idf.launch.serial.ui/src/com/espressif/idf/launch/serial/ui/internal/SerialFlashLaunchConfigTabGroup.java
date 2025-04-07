@@ -31,6 +31,7 @@ import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.launchbar.ui.internal.LaunchBarLaunchConfigDialog;
 
+import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
@@ -67,7 +68,7 @@ public class SerialFlashLaunchConfigTabGroup extends AbstractLaunchConfiguration
 			}
 			String buildFolder = configuration.getAttribute(IDFLaunchConstants.BUILD_FOLDER_PATH,
 					IDFUtil.getBuildDir(project));
-			buildFolder = buildFolder.isBlank() ? IDFUtil.getBuildDir(project) : buildFolder;
+			buildFolder = buildFolder.isBlank() ? IDFConstants.BUILD_FOLDER : buildFolder;
 			if (!Path.of(buildFolder).isAbsolute())
 			{
 				buildFolder = project.getLocation().append(buildFolder).toOSString();
