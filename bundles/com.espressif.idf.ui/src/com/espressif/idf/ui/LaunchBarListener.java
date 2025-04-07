@@ -71,6 +71,7 @@ public class LaunchBarListener implements ILaunchBarListener
 					setMode(launchBarManager, ILaunchManager.RUN_MODE);
 					setMode(launchBarManager, ILaunchManager.DEBUG_MODE);
 				}
+				IDFUtil.updateProjectBuildFolder(activeLaunchConfiguration.getWorkingCopy());
 			}
 		}
 		catch (CoreException e)
