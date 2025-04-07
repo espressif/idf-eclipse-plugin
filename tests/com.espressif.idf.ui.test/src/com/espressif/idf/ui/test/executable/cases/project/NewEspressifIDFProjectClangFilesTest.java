@@ -47,7 +47,7 @@ public class NewEspressifIDFProjectClangFilesTest
 	{
 		try
 		{
-			Fixture.cleanTestEnv(); // Make sure test environment is always cleaned up
+			Fixture.cleanTestEnv();
 		}
 		catch (Exception e)
 		{
@@ -197,7 +197,6 @@ public class NewEspressifIDFProjectClangFilesTest
 			assertTrue(ProjectTestOperations.checkExactMatchInTextEditor(
 					"# We'll use defaults from the LLVM style, but with some modifications so that it's close to the CDT K&R style.\n"
 							+ "BasedOnStyle: LLVM\n" + "UseTab: Always\n" + "IndentWidth: 4\n" + "TabWidth: 4\n"
-							+ "PackConstructorInitializers: NextLineOnly\n"
 							+ "BreakConstructorInitializers: AfterColon\n" + "IndentAccessModifiers: false\n"
 							+ "AccessModifierOffset: -4",
 					bot));
@@ -210,7 +209,6 @@ public class NewEspressifIDFProjectClangFilesTest
 			textEditor.toTextEditor().setText(
 					"# We'll use defaults from the LLVM style, but with some modifications so that it's close to the CDT K&R style.\n"
 							+ "BasedOnStyle: LLVM\n" + "UseTab: Always\n" + "IndentWidth: 0\n" + "TabWidth: 0\n"
-							+ "PackConstructorInitializers: NextLineOnly\n"
 							+ "BreakConstructorInitializers: AfterColon\n" + "IndentAccessModifiers: false\n"
 							+ "AccessModifierOffset: -4");
 		}
