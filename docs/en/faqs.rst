@@ -163,3 +163,27 @@ How do I build multiple configurations in Espressif-IDE?
 - Navigate to the `Build Settings` tab and update the `Additional CMake Arguments` section to `-B build_dev`. Here, `build_dev` is the name of the build folder.
 - Click the `OK` button to save the configuration.
 - Click the Build icon from the toolbar (the leftmost icon) for the selected configuration. This will build the project and create a build folder for that configuration. Repeat the same process for the other configuration by selecting it from the dropdown.
+
+Can I Use My Old C/C++ Editor Formatter File (.xml) as a .clang-format File?
+----------------------------------------------------------------------------
+No, you cannot directly use the old `.xml` (CDT formatter) file with ESP-IDF projects, as these now use the CDT LSP Editor, which relies on Clangd for code formatting. Clangd requires a `.clang-format` file, and there is no official tool to convert `.xml` formatter files to the Clang format.
+
+However, Clang provides several default formatting styles (such as LLVM, Google, Mozilla, etc.) that you can use as a starting point. You can generate a default `.clang-format` file using the following command:
+
+.. code-block:: none
+
+  clang-format -style=llvm -dump-config > .clang-format
+
+For new ESP-IDF projects, a `.clang-format` file is automatically created in the root directory with default settings. This file is picked up by Clangd automatically—no additional configuration is needed.
+
+For existing projects, you can create this file manually by right-clicking the project and selecting:
+
+  ESP-IDF > Create Clangd File
+
+If you would like to replicate your old formatter settings, you can either:
+
+- Manually map your `.xml` settings to Clang format using Clang’s formatting guide.
+- Or Use an AI tool(e.g: ChatGPT) to assist in converting your old configuration to the new one and then manually adjust if there are any discrepancies.
+
+More information on the Clang format can be found in the `Clang Format documentation <https://clang.llvm.org/docs/ClangFormat.html>`_ and formatting styles can be found in the `Clang Format Style Options <https://clang.llvm.org/docs/ClangFormatStyleOptions.html>`_.
+
