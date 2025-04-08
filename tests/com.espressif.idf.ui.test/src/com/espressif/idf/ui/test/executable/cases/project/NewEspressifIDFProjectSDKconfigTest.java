@@ -128,6 +128,7 @@ public class NewEspressifIDFProjectSDKconfigTest
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
 			thenSDKconfigFileIsAbsent();
 			whenProjectIsBuiltUsingContextMenu();
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
 			thenSDKconfigFileIsPresent();
 			whenSDKconfigFileOpenedViaContextMenuthenVerifiedthenClosed();
 		}
