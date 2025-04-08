@@ -51,3 +51,16 @@ If, for some reason, it is not disabled, please follow the steps below to disabl
    
    
    ![](images/clangd/cdt_indexer_disable.png)
+```
+
+
+## Automatic .clang-format Creation
+
+To ensure consistent code formatting across all projects, including those imported from the old plugin 2.x version, Espressif-IDE automatically creates a .clang-format file for each project.
+
+If you want to disable this option or enable this functionality manually, follow these steps:
+
+1. Go to Window > Preferences > Espressif
+2. Locate the `Auto-create .clang-format` option
+3. Enable or disable the option as needed.
+4. Click on `Apply and Close`.

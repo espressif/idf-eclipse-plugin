@@ -74,10 +74,7 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 	{
 		Composite mainComposite = new Composite(container, SWT.NONE);
 		mainComposite.setLayout(new GridLayout(2, false));
-		GridData gridData = new GridData(GridData.FILL_BOTH);
-		gridData.horizontalSpan = 20;
-		gridData.verticalSpan = 5;
-		mainComposite.setLayoutData(gridData);
+		mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		Label label = new Label(mainComposite, SWT.NONE);
 		label.setText(Messages.NewProjectTargetSelection_Label);
 		EspConfigParser parser = new EspConfigParser();
@@ -91,7 +88,7 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 	{
 		Composite mainComposite = new Composite(container, SWT.NONE);
 		mainComposite.setLayout(new GridLayout());
-		GridData gridData = new GridData(GridData.FILL_BOTH);
+		GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, false);
 		gridData.horizontalSpan = 20;
 		gridData.verticalSpan = 5;
 
@@ -106,7 +103,7 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 		projectNameLabel.setText(IDEWorkbenchMessages.WizardNewProjectCreationPage_nameLabel);
 
 		projectNameField = new Text(projectNameGroup, SWT.BORDER);
-		projectNameField.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		projectNameField.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		projectNameField.addModifyListener(new ModifyListener()
 		{
 			@Override
@@ -135,6 +132,7 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 		runIdfReconfigureCheckBoxButton = new Button(projectNameGroup, SWT.CHECK | SWT.RIGHT);
 		GridData buttonData = new GridData();
 		buttonData.horizontalSpan = 4;
+		buttonData.verticalIndent = 4;
 		runIdfReconfigureCheckBoxButton.setLayoutData(buttonData);
 		runIdfReconfigureCheckBoxButton.setSelection(true);
 		runIdfReconfigureCheckBoxButton.setText(Messages.RunIdfCommandButtonTxt);

@@ -28,6 +28,7 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
 import com.espressif.idf.core.tools.vo.IDFToolSet;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.LspService;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.update.ExportIDFTools;
@@ -94,7 +95,7 @@ public class ToolsActivationJob extends ToolsJob
 
 		toolSetConfigurationManager.export(idfToolSet);
 		console.println("Tools Activated");
-
+		new LspService().updateClangdPath();
 		Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 		scopedPreferenceStore.putBoolean(INSTALL_TOOLS_FLAG, true);
 		try

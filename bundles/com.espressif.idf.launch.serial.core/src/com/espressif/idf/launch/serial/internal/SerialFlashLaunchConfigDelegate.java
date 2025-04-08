@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.cdt.debug.core.CDebugCorePlugin;
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
@@ -192,17 +194,22 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		Process p = DebugPlugin.exec(commands.toArray(new String[0]), workingDir, envArray);
 		DebugPlugin.newProcess(launch, p, String.join(" ", commands)); //$NON-NLS-1$
 
-		try
-		{
-			p.waitFor();
-		}
-		catch (InterruptedException e)
-		{
-			Thread.currentThread().interrupt();
-			Logger.log(e);
-		}
-		if (configuration.getAttribute(IDFLaunchConstants.OPEN_SERIAL_MONITOR, true))
-			openSerialMonitor(configuration);
+		p.onExit().thenAcceptAsync(process -> {
+			if (process.exitValue() == 0)
+			{
+				try
+				{
+					if (configuration.getAttribute(IDFLaunchConstants.OPEN_SERIAL_MONITOR, true))
+					{
+						openSerialMonitor(configuration);
+					}
+				}
+				catch (CoreException e)
+				{
+					Logger.log(e);
+				}
+			}
+		}, CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS));
 
 	}
 

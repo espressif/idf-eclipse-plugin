@@ -39,7 +39,7 @@ public class SerialPortHandler
 	{
 		if (System.getProperty("os.name").startsWith("Windows") && !portName.startsWith("\\\\.\\")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		{
-			return "\\\\.\\" + portName; //$NON-NLS-1$
+			return portName; // $NON-NLS-1$
 		}
 		else
 		{

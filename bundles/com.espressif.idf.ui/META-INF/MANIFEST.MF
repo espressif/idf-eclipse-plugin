@@ -59,3 +59,4 @@ Bundle-ClassPath: .,
  lib/ini4j-0.5.4.jar,
  lib/gson-2.8.7.jar,
  lib/commonmark-0.24.0.jar
+Import-Package: com.espressif.idf.lsp.preferences
