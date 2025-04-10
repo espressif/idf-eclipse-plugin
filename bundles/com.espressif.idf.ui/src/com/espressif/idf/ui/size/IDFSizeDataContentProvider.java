@@ -9,8 +9,10 @@ import java.util.List;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
+import com.espressif.idf.ui.size.vo.Library;
+
 /**
- * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>, Ali Azam Rana <ali.azamrana@espressif.com>
  *
  */
 public class IDFSizeDataContentProvider implements ITreeContentProvider
@@ -19,8 +21,8 @@ public class IDFSizeDataContentProvider implements ITreeContentProvider
 	{
 		if (parentElement instanceof List)
 			return ((List<?>) parentElement).toArray();
-		if (parentElement instanceof IDFSizeData)
-			return ((IDFSizeData) parentElement).getChildren().toArray();
+		if (parentElement instanceof Library)
+			return ((Library) parentElement).getChildren().toArray();
 		return new Object[0];
 	}
 
@@ -33,8 +35,8 @@ public class IDFSizeDataContentProvider implements ITreeContentProvider
 	{
 		if (element instanceof List)
 			return ((List<?>) element).size() > 0;
-		if (element instanceof IDFSizeData)
-			return ((IDFSizeData) element).getChildren().size() > 0;
+		if (element instanceof Library)
+			return ((Library) element).getChildren().size() > 0;
 		return false;
 	}
 

@@ -5,6 +5,7 @@
 package com.espressif.idf.ui.size;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -21,19 +22,44 @@ import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.ui.size.vo.Library;
 
 /**
- * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>, Ali Azam Rana <ali.azamrana@espressif.com>
  *
  */
 public class IDFSizeDetailsComposite
 {
 	private TreeViewer treeViewer;
-	private String columnProperties[] = new String[] { "File Name", "DRAM .data", "DRAM .bss", "DIRAM", "IRAM", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-			"Flash Code", "Flash rodata", "Other", "Total" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 	
 	public void createPartControl(Composite parent, IFile iFile)
 	{
+		List<Library> dataList = new ArrayList<>();
+		try
+		{
+			dataList = new IDFSizeDataManager().getDataList(iFile);
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+		}
+		
+		LinkedHashSet<String> columnList = new LinkedHashSet<String>();
+		columnList.add("File Name"); //$NON-NLS-1$
+		for (Library library : dataList)
+		{
+			for (String memoryType : library.getMemoryTypes().keySet())
+			{
+				for (String memorySection : library.getMemoryTypes().get(memoryType).getSections().keySet())
+				{
+					columnList.add(memoryType + " -> " + memorySection); //$NON-NLS-1$
+				}
+				columnList.add(memoryType + " Total"); //$NON-NLS-1$
+			}
+		}
+		columnList.add("Total"); //$NON-NLS-1$
+		
+		
 		PatternFilter patternFilter = new IDFSizePatternFilter();
 		FilteredTree filteredTree = new FilteredTree(parent, SWT.SINGLE | SWT.FULL_SELECTION | SWT.BORDER,
 				patternFilter, true, true);
@@ -58,16 +84,14 @@ public class IDFSizeDetailsComposite
 		treeViewer.getTree().setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		IDFSizeComparator comparator = new IDFSizeComparator();
-		if (IDFSizeConstants.OTHER != "other") { //$NON-NLS-1$ 
-			columnProperties[7] = "Ram Total"; //$NON-NLS-1$ 
-			columnProperties[8] = "Flash Total"; //$NON-NLS-1$ 
-		}
-		for (int i = 0; i < columnProperties.length; i++)
+
+		int i = 0;
+		for (String column : columnList)
 		{
 			TreeColumn tc = new TreeColumn(tree, SWT.NONE, i);
-			tc.setText(columnProperties[i]);
-			tc.setWidth(90);
-			tc.addSelectionListener(new ResortColumn(comparator, tc, treeViewer, i));
+			tc.setText(column);
+			tc.setWidth(column.length() * 8);
+			tc.addSelectionListener(new ResortColumn(comparator, tc, treeViewer, i++));
 		}
 
 		final TreeColumn[] columns = treeViewer.getTree().getColumns();
@@ -75,18 +99,10 @@ public class IDFSizeDetailsComposite
 		tree.setSortColumn(columns[0]);
 		tree.setSortDirection(comparator.isAscending() ? SWT.UP : SWT.DOWN);
 
-		List<IDFSizeData> dataList = new ArrayList<>();
-		try
-		{
-			dataList = new IDFSizeDataManager().getDataList(iFile);
-		}
-		catch (Exception e)
-		{
-			Logger.log(e);
-		}
+		
 
 		treeViewer.setContentProvider(new IDFSizeDataContentProvider());
-		treeViewer.setLabelProvider(new IDFSizeDataLabelProvider());
+		treeViewer.setLabelProvider(new IDFSizeDataLabelProvider(columnList));
 		treeViewer.setInput(dataList);
 		treeViewer.setComparator(comparator);
 	}
