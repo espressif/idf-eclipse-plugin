@@ -50,6 +50,7 @@ public class IDFSizeAnalysisEditor extends MultiPageEditorPart
 		Logger.log("Editor input:" + osString); //$NON-NLS-1$
 
 		createOverviewPage();
+		createChartsComposite();
 		createDetailsPage();
 	}
 
@@ -122,6 +123,16 @@ public class IDFSizeAnalysisEditor extends MultiPageEditorPart
 
 		int index = addPage(parent);
 		setPageText(index, "Overview"); //$NON-NLS-1$
+	}
+	
+	private void createChartsComposite()
+	{
+		Composite parent = new Composite(getContainer(), SWT.NONE);
+		parent.setLayout(new FillLayout());
+		
+		new IDFSizeChartsComposite().createPartControl(parent, file, getTarget());
+		int index = addPage(parent);
+		setPageText(index, "Charts"); //$NON-NLS-1$
 	}
 
 	private String getTarget()

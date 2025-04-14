@@ -58,5 +58,6 @@ Export-Package: com.espressif.idf.ui,
 Bundle-ClassPath: .,
  lib/ini4j-0.5.4.jar,
  lib/gson-2.8.7.jar,
- lib/commonmark-0.24.0.jar
+ lib/commonmark-0.16.1.jar,
+ lib/jfreechart-1.5.5.jar
 Import-Package: com.espressif.idf.lsp.preferences
