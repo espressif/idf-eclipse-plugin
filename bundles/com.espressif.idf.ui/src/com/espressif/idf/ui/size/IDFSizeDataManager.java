@@ -121,7 +121,9 @@ public class IDFSizeDataManager
 	protected Library getSizeRecord(String key, JSONObject object)
 	{
 		Library library = new Library();
-		library.setName(key);
+		String []keySplit = key.split("/");
+		String nameToSet = keySplit[keySplit.length-1] + " -> " + key; 
+		library.setName(nameToSet);
 		library.setAbbrevName((String) object.get("abbrev_name"));
         library.setSize(getValue(object.get("size")));
         library.setSizeDiff(getValue(object.get("size_diff")));

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2018-2020 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Copyright 2025 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
 package com.espressif.idf.ui.size;
@@ -15,7 +15,9 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.dialogs.FilteredTree;
@@ -30,21 +32,42 @@ import com.espressif.idf.ui.size.vo.Library;
  */
 public class IDFSizeDetailsComposite
 {
+
 	private TreeViewer treeViewer;
-	
+	private LinkedHashSet<String> allColumns = new LinkedHashSet<>();
+	private LinkedHashSet<String> visibleColumns = new LinkedHashSet<>();
+	private IFile currentFile;
+	private Composite treeContainer;
+
 	public void createPartControl(Composite parent, IFile iFile)
 	{
+		this.currentFile = iFile;
+
+		if (treeContainer != null && !treeContainer.isDisposed())
+		{
+			treeContainer.dispose(); // remove old container if rebuilding
+		}
+
+		treeContainer = new Composite(parent, SWT.NONE);
+		treeContainer.setLayout(new GridLayout(1, false));
+		treeContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
+		Button columnSelectBtn = new Button(treeContainer, SWT.PUSH);
+		columnSelectBtn.setText("Select Columns...");
+		columnSelectBtn.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
+		columnSelectBtn.addListener(SWT.Selection, e -> openColumnSelectionDialog());
+
 		List<Library> dataList = new ArrayList<>();
 		try
 		{
-			dataList = new IDFSizeDataManager().getDataList(iFile);
+			dataList = new IDFSizeDataManager().getDataList(currentFile);
 		}
 		catch (Exception e)
 		{
 			Logger.log(e);
 		}
-		
-		LinkedHashSet<String> columnList = new LinkedHashSet<String>();
+
+		LinkedHashSet<String> columnList = new LinkedHashSet<>();
 		columnList.add("File Name"); //$NON-NLS-1$
 		for (Library library : dataList)
 		{
@@ -58,58 +81,102 @@ public class IDFSizeDetailsComposite
 			}
 		}
 		columnList.add("Total"); //$NON-NLS-1$
-		
-		
+
+		if (allColumns.isEmpty())
+		{
+			allColumns.addAll(columnList);
+			visibleColumns.addAll(columnList);
+		}
+
 		PatternFilter patternFilter = new IDFSizePatternFilter();
-		FilteredTree filteredTree = new FilteredTree(parent, SWT.SINGLE | SWT.FULL_SELECTION | SWT.BORDER,
+		FilteredTree filteredTree = new FilteredTree(treeContainer, SWT.SINGLE | SWT.FULL_SELECTION | SWT.BORDER,
 				patternFilter, true, true);
 
-		final GridLayout layout = new GridLayout(1, false);
-		layout.marginWidth = 0;
-		filteredTree.setLayout(layout);
-
-		GridData gridData = new GridData();
-		gridData.grabExcessHorizontalSpace = true;
-		gridData.grabExcessVerticalSpace = true;
-		gridData.horizontalAlignment = SWT.FILL;
-		gridData.verticalAlignment = SWT.FILL;
+		GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
 		filteredTree.setLayoutData(gridData);
 
-		final TreeViewer treeViewer = filteredTree.getViewer();
+		treeViewer = filteredTree.getViewer();
 		Tree tree = treeViewer.getTree();
-
 		tree.setHeaderVisible(true);
 		tree.setLinesVisible(true);
 
-		treeViewer.getTree().setLayoutData(new GridData(GridData.FILL_BOTH));
-
 		IDFSizeComparator comparator = new IDFSizeComparator();
-
 		int i = 0;
-		for (String column : columnList)
+		for (String column : visibleColumns)
 		{
 			TreeColumn tc = new TreeColumn(tree, SWT.NONE, i);
 			tc.setText(column);
-			tc.setWidth(column.length() * 8);
 			tc.addSelectionListener(new ResortColumn(comparator, tc, treeViewer, i++));
+			tc.pack();
 		}
 
-		final TreeColumn[] columns = treeViewer.getTree().getColumns();
-		columns[0].setWidth(200);
-		tree.setSortColumn(columns[0]);
-		tree.setSortDirection(comparator.isAscending() ? SWT.UP : SWT.DOWN);
-
-		
+		if (tree.getColumnCount() > 0)
+		{
+			tree.setSortColumn(tree.getColumn(0));
+			tree.setSortDirection(SWT.UP);
+		}
 
 		treeViewer.setContentProvider(new IDFSizeDataContentProvider());
-		treeViewer.setLabelProvider(new IDFSizeDataLabelProvider(columnList));
+		treeViewer.setLabelProvider(new IDFSizeDataLabelProvider(visibleColumns));
 		treeViewer.setInput(dataList);
 		treeViewer.setComparator(comparator);
+
+		treeContainer.layout(true, true);
+		parent.layout(true, true);
+	}
+
+	private void openColumnSelectionDialog()
+	{
+		Shell shell = new Shell(treeContainer.getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+		shell.setText("Choose Columns");
+		shell.setLayout(new GridLayout(1, false));
+
+		List<Button> checkboxes = new ArrayList<>();
+		for (String col : allColumns)
+		{
+			Button checkbox = new Button(shell, SWT.CHECK);
+			checkbox.setText(col);
+			checkbox.setSelection(visibleColumns.contains(col));
+			checkboxes.add(checkbox);
+		}
+
+		Button applyBtn = new Button(shell, SWT.PUSH);
+		applyBtn.setText("Apply");
+		applyBtn.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
+		applyBtn.addListener(SWT.Selection, e -> {
+			visibleColumns.clear();
+			for (Button cb : checkboxes)
+			{
+				if (cb.getSelection())
+				{
+					visibleColumns.add(cb.getText());
+				}
+			}
+			shell.close();
+			rebuildTree(); // ✅ safely rebuild
+		});
+
+		shell.pack();
+		shell.open();
+	}
+
+	private void rebuildTree()
+	{
+		if (treeContainer != null && !treeContainer.isDisposed())
+		{
+			Composite parent = treeContainer.getParent(); // Store before disposal
+			treeContainer.dispose();
+			createPartControl(parent, currentFile); // Recreate safely
+			parent.layout(true, true);
+		}
 	}
 
 	public void setFocus()
 	{
-		treeViewer.getControl().setFocus();
+		if (treeViewer != null)
+		{
+			treeViewer.getControl().setFocus();
+		}
 	}
 
 	private final class ResortColumn extends SelectionAdapter
