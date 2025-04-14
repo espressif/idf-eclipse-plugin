@@ -13,6 +13,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
@@ -118,6 +119,7 @@ public class IDFSizeAnalysisEditor extends MultiPageEditorPart
 	{
 		Composite parent = new Composite(getContainer(), SWT.NONE);
 		parent.setLayout(new FillLayout());
+		parent.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 
 		new IDFSizeOverviewComposite().createPartControl(parent, file, getTarget());
 
