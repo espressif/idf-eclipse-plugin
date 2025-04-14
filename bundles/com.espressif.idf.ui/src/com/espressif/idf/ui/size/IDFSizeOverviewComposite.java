@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2025 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.ui.size;
 
 import org.eclipse.core.resources.IFile;
@@ -19,6 +23,11 @@ import org.json.simple.JSONObject;
 
 import com.espressif.idf.core.logging.Logger;
 
+/**
+ * Completely refactored overview composite to only show the basic overview of the memory size analysis
+ * @author Ali Azam Rana <ali.azamrana@espressif.com>
+ *
+ */
 public class IDFSizeOverviewComposite {
 
 	private Table table;
@@ -26,7 +35,9 @@ public class IDFSizeOverviewComposite {
 	private Font boldFont;
 
 	private enum MemoryUnit {
-		BYTES(1, "B"), KILOBYTES(1024, "KB"), MEGABYTES(1024 * 1024, "MB");
+		BYTES(1, "B"), //$NON-NLS-1$
+		KILOBYTES(1024, "KB"), //$NON-NLS-1$ 
+		MEGABYTES(1024 * 1024, "MB"); //$NON-NLS-1$
 
 		private final long divider;
 		private final String label;
@@ -92,9 +103,6 @@ public class IDFSizeOverviewComposite {
 
 		// Bold header
 		Font headerFont = applyBold(table.getFont());
-//		for (TableColumn col : table.getColumns()) {
-//			col.pack();
-//		}
 		table.setFont(headerFont);
 	}
 

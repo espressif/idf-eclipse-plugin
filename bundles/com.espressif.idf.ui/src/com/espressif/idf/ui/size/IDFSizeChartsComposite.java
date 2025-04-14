@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2025 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.ui.size;
 
 import java.awt.Color;
@@ -24,7 +28,6 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.StandardChartTheme;
 import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
-import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.plot.PiePlot3D;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.util.Rotation;
@@ -35,12 +38,20 @@ import org.json.simple.JSONObject;
 
 import com.espressif.idf.core.logging.Logger;
 
+/**
+ * Charts composite to display all the charts related to memory consumption
+ * @author Ali Azam Rana <ali.azamrana@espressif.com>
+ *
+ */
+@SuppressWarnings("deprecation")
 public class IDFSizeChartsComposite {
 
 	private enum ChartMode { STACKED_BAR, PIE }
 
 	private enum MemoryUnit {
-		BYTES(1, "B"), KILOBYTES(1024, "KB"), MEGABYTES(1024 * 1024, "MB");
+		BYTES(1, "B"), //$NON-NLS-1$ 
+		KILOBYTES(1024, "KB"), //$NON-NLS-1$
+		MEGABYTES(1024 * 1024, "MB"); //$NON-NLS-1$
 		private final long divider;
 		private final String label;
 		MemoryUnit(long divider, String label) {
