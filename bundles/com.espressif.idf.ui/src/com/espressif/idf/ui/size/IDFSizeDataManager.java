@@ -30,7 +30,7 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
-import com.espressif.idf.ui.size.vo.Library;
+import com.espressif.idf.ui.size.vo.LibraryMemoryComponent;
 import com.espressif.idf.ui.size.vo.MemoryType;
 import com.espressif.idf.ui.size.vo.Section;
 
@@ -42,7 +42,7 @@ public class IDFSizeDataManager
 {
 
 	@SuppressWarnings("unchecked")
-	public List<Library> getDataList(IFile mapFile) throws Exception
+	public List<LibraryMemoryComponent> getDataList(IFile mapFile) throws Exception
 	{
 		String pythonExecutablePath = preconditionsCheck();
 
@@ -86,15 +86,15 @@ public class IDFSizeDataManager
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<Library> convertToViewerModel(JSONObject archivesJsonObj, JSONObject symbolJsonObj)
+	private List<LibraryMemoryComponent> convertToViewerModel(JSONObject archivesJsonObj, JSONObject symbolJsonObj)
 	{
 
-		List<Library> arrayList = new ArrayList<>();
+		List<LibraryMemoryComponent> arrayList = new ArrayList<>();
 		Set<String> keySet = archivesJsonObj.keySet();
 		for (String key : keySet)
 		{
 			JSONObject object = (JSONObject) archivesJsonObj.get(key);
-			Library record = getSizeRecord(key, object);
+			LibraryMemoryComponent record = getSizeRecord(key, object);
 			arrayList.add(record);
 			// update children
 			if (symbolJsonObj != null)
@@ -118,9 +118,9 @@ public class IDFSizeDataManager
 		return arrayList;
 	}
 
-	protected Library getSizeRecord(String key, JSONObject object)
+	protected LibraryMemoryComponent getSizeRecord(String key, JSONObject object)
 	{
-		Library library = new Library();
+		LibraryMemoryComponent library = new LibraryMemoryComponent();
 		String []keySplit = key.split("/");
 		String nameToSet = keySplit[keySplit.length-1] + " -> " + key; 
 		library.setName(nameToSet);

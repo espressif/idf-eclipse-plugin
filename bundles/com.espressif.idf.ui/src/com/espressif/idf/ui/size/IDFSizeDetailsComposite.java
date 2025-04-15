@@ -24,7 +24,7 @@ import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.ui.size.vo.Library;
+import com.espressif.idf.ui.size.vo.LibraryMemoryComponent;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>, Ali Azam Rana <ali.azamrana@espressif.com>
@@ -57,7 +57,7 @@ public class IDFSizeDetailsComposite
 		columnSelectBtn.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
 		columnSelectBtn.addListener(SWT.Selection, e -> openColumnSelectionDialog());
 
-		List<Library> dataList = new ArrayList<>();
+		List<LibraryMemoryComponent> dataList = new ArrayList<>();
 		try
 		{
 			dataList = new IDFSizeDataManager().getDataList(currentFile);
@@ -69,7 +69,7 @@ public class IDFSizeDetailsComposite
 
 		LinkedHashSet<String> columnList = new LinkedHashSet<>();
 		columnList.add("File Name"); //$NON-NLS-1$
-		for (Library library : dataList)
+		for (LibraryMemoryComponent library : dataList)
 		{
 			for (String memoryType : library.getMemoryTypes().keySet())
 			{

@@ -14,24 +14,24 @@ import java.util.Map;
  * @author Ali Azam Rana <ali.azamrana@espressif.com>
  *
  */
-public class Library
+public class LibraryMemoryComponent
 {
 	private String name;
-	
-    private String abbrevName;
 
-    private long size;
+	private String abbrevName;
 
-    private Map<String, MemoryType> memoryTypes;
+	private long size;
 
-    private long sizeDiff;
-    
-    private List<Library> children;
-    
-    public Library()
-    {
-    	children = new LinkedList<>();
-    }
+	private Map<String, MemoryType> memoryTypes;
+
+	private long sizeDiff;
+
+	private List<LibraryMemoryComponent> children;
+
+	public LibraryMemoryComponent()
+	{
+		children = new LinkedList<>();
+	}
 
 	public String getAbbrevName()
 	{
@@ -73,12 +73,12 @@ public class Library
 		this.sizeDiff = sizeDiff;
 	}
 
-	public List<Library> getChildren()
+	public List<LibraryMemoryComponent> getChildren()
 	{
 		return children;
 	}
 
-	public void setChildren(List<Library> children)
+	public void setChildren(List<LibraryMemoryComponent> children)
 	{
 		this.children = children;
 	}

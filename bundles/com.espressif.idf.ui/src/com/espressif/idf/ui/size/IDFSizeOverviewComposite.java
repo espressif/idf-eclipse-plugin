@@ -63,14 +63,14 @@ public class IDFSizeOverviewComposite {
 		parent.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
 
 		Label title = new Label(parent, SWT.NONE);
-		title.setText("ESP–IDF Application Memory Usage"); //$NON-NLS-1$
+		title.setText(Messages.IDFSizeOverviewComposite_ApplicatoinMemoryUsage);
 		title.setFont(applyBold(title.getFont()));
 		title.setBackground(parent.getBackground());
 		GridData titleData = new GridData(SWT.LEFT, SWT.TOP, true, false, 2, 1);
 		title.setLayoutData(titleData);
 
 		Label unitLabel = new Label(parent, SWT.NONE);
-		unitLabel.setText("Size Unit:"); //$NON-NLS-1$
+		unitLabel.setText(Messages.IDFSizeChartsComposite_SizeUnit);
 		unitLabel.setBackground(parent.getBackground());
 
 		Combo unitCombo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);

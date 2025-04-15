@@ -10,7 +10,7 @@ import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 
-import com.espressif.idf.ui.size.vo.Library;
+import com.espressif.idf.ui.size.vo.LibraryMemoryComponent;
 
 /**
  * Dynamically provides labels for each visible column.
@@ -31,7 +31,7 @@ public class IDFSizeDataLabelProvider extends LabelProvider implements ITableLab
 
 	@Override
 	public String getColumnText(Object element, int columnIndex) {
-		Library data = (Library) element;
+		LibraryMemoryComponent data = (LibraryMemoryComponent) element;
 
 		if (columnIndex >= columns.length)
 			return null;

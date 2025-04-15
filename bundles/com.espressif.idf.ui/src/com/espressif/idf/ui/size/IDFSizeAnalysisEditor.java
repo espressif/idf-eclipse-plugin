@@ -109,7 +109,7 @@ public class IDFSizeAnalysisEditor extends MultiPageEditorPart
 		new IDFSizeDetailsComposite().createPartControl(tableComposite, file);
 
 		int index = addPage(parent);
-		setPageText(index, "Details"); //$NON-NLS-1$
+		setPageText(index, Messages.IDFSizeEditorDetails);
 	}
 
 	/**
@@ -124,7 +124,7 @@ public class IDFSizeAnalysisEditor extends MultiPageEditorPart
 		new IDFSizeOverviewComposite().createPartControl(parent, file, getTarget());
 
 		int index = addPage(parent);
-		setPageText(index, "Overview"); //$NON-NLS-1$
+		setPageText(index, Messages.IDFSizeEditorOverview);
 	}
 	
 	private void createChartsComposite()
@@ -134,7 +134,7 @@ public class IDFSizeAnalysisEditor extends MultiPageEditorPart
 		
 		new IDFSizeChartsComposite().createPartControl(parent, file, getTarget());
 		int index = addPage(parent);
-		setPageText(index, "Charts"); //$NON-NLS-1$
+		setPageText(index, Messages.IDFSizeEditorCharts);
 	}
 
 	private String getTarget()

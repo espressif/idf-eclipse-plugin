@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +48,6 @@ import com.espressif.idf.core.logging.Logger;
  * @author Ali Azam Rana <ali.azamrana@espressif.com>
  *
  */
-@SuppressWarnings("deprecation")
 public class IDFSizeChartsComposite
 {
 
@@ -108,7 +108,7 @@ public class IDFSizeChartsComposite
 		toggleButton.setText(Messages.IDFSizeOverviewComposite_SwitchToPie);
 
 		Label unitLabel = new Label(toolbar, SWT.NONE);
-		unitLabel.setText("Size Unit:"); //$NON-NLS-1$
+		unitLabel.setText(Messages.IDFSizeChartsComposite_SizeUnit);
 
 		Combo unitCombo = new Combo(toolbar, SWT.DROP_DOWN | SWT.READ_ONLY);
 		unitCombo.setItems(new String[] { "Bytes", "KB", "MB" }); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -196,8 +196,8 @@ public class IDFSizeChartsComposite
 			double value = (double) values.get(i) / selectedUnit.getDivider();
 			dataset.addValue(value, labels.get(i), ""); //$NON-NLS-1$
 		}
-		JFreeChart chart = ChartFactory.createStackedBarChart(title, "Memory Parts", //$NON-NLS-1$
-				"Size (" + selectedUnit.getLabel() + ")", //$NON-NLS-1$ //$NON-NLS-2$
+		JFreeChart chart = ChartFactory.createStackedBarChart(title, Messages.IDFSizeChartsComposite_MemoryParts,
+				MessageFormat.format(Messages.IDFSizeChartsComposite_SizeTag, selectedUnit.getLabel()),
 				dataset, PlotOrientation.HORIZONTAL, true, true, false);
 
 		CategoryPlot categoryPlot = chart.getCategoryPlot();
