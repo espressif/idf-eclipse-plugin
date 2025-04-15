@@ -8,7 +8,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/com.espressif.idf.ui/lib/gson-2.8.7-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/commonmark-0.16.1.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.5.5.jar" sourcepath="lib/jfreechart-1.5.5-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/com.espressif.idf.ui/lib/jfreechart-1.5.5-javadoc.jar!/"/>
