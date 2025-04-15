@@ -9,7 +9,9 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 
@@ -26,10 +28,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.StandardChartTheme;
-import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
-import org.jfree.chart.plot.PiePlot3D;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.chart.util.Rotation;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
@@ -40,26 +43,43 @@ import com.espressif.idf.core.logging.Logger;
 
 /**
  * Charts composite to display all the charts related to memory consumption
+ * 
  * @author Ali Azam Rana <ali.azamrana@espressif.com>
  *
  */
 @SuppressWarnings("deprecation")
-public class IDFSizeChartsComposite {
+public class IDFSizeChartsComposite
+{
 
-	private enum ChartMode { STACKED_BAR, PIE }
+	private enum ChartMode
+	{
+		STACKED_BAR, PIE
+	}
 
-	private enum MemoryUnit {
-		BYTES(1, "B"), //$NON-NLS-1$ 
+	private enum MemoryUnit
+	{
+		BYTES(1, "B"), //$NON-NLS-1$
 		KILOBYTES(1024, "KB"), //$NON-NLS-1$
 		MEGABYTES(1024 * 1024, "MB"); //$NON-NLS-1$
+
 		private final long divider;
 		private final String label;
-		MemoryUnit(long divider, String label) {
+
+		MemoryUnit(long divider, String label)
+		{
 			this.divider = divider;
 			this.label = label;
 		}
-		public long getDivider() { return divider; }
-		public String getLabel() { return label; }
+
+		public long getDivider()
+		{
+			return divider;
+		}
+
+		public String getLabel()
+		{
+			return label;
+		}
 	}
 
 	private ChartMode chartMode = ChartMode.STACKED_BAR;
@@ -69,7 +89,12 @@ public class IDFSizeChartsComposite {
 	private JSONObject overviewJson;
 	private ScrolledComposite scrollable;
 
-	public void createPartControl(Composite parent, IFile file, String targetName) {
+	private final Map<String, Color> labelColorMap = new HashMap<>();
+	private final List<Color> availableColors = new ArrayList<>(List.of(Color.BLUE, Color.RED, Color.ORANGE,
+			Color.MAGENTA, Color.CYAN, Color.PINK, Color.YELLOW, Color.LIGHT_GRAY, Color.DARK_GRAY));
+
+	public void createPartControl(Composite parent, IFile file, String targetName)
+	{
 		parent.setLayout(new GridLayout(1, false));
 
 		Composite toolbar = new Composite(parent, SWT.NONE);
@@ -99,19 +124,19 @@ public class IDFSizeChartsComposite {
 		scrollable.setContent(chartComp);
 
 		unitCombo.addListener(SWT.Selection, e -> {
-			selectedUnit = switch (unitCombo.getSelectionIndex()) {
-				case 0 -> MemoryUnit.BYTES;
-				case 2 -> MemoryUnit.MEGABYTES;
-				default -> MemoryUnit.KILOBYTES;
+			selectedUnit = switch (unitCombo.getSelectionIndex())
+			{
+			case 0 -> MemoryUnit.BYTES;
+			case 2 -> MemoryUnit.MEGABYTES;
+			default -> MemoryUnit.KILOBYTES;
 			};
 			plotCharts();
 		});
 
 		toggleButton.addListener(SWT.Selection, e -> {
 			chartMode = (chartMode == ChartMode.STACKED_BAR) ? ChartMode.PIE : ChartMode.STACKED_BAR;
-			toggleButton.setText(chartMode == ChartMode.STACKED_BAR
-				? Messages.IDFSizeOverviewComposite_SwitchToPie
-				: Messages.IDFSizeOverviewComposite_SwitchToBar);
+			toggleButton.setText(chartMode == ChartMode.STACKED_BAR ? Messages.IDFSizeOverviewComposite_SwitchToPie
+					: Messages.IDFSizeOverviewComposite_SwitchToBar);
 			plotCharts();
 		});
 
@@ -119,11 +144,14 @@ public class IDFSizeChartsComposite {
 		plotCharts();
 	}
 
-	private void plotCharts() {
-		for (var child : chartComp.getChildren()) child.dispose();
+	private void plotCharts()
+	{
+		for (var child : chartComp.getChildren())
+			child.dispose();
 
 		JSONArray layoutArray = (JSONArray) overviewJson.get(IDFSizeConstants.LAYOUT);
-		for (Object obj : layoutArray) {
+		for (Object obj : layoutArray)
+		{
 			JSONObject section = (JSONObject) obj;
 			String sectionName = (String) section.get(IDFSizeConstants.NAME);
 			long free = (long) section.get(IDFSizeConstants.FREE);
@@ -131,22 +159,27 @@ public class IDFSizeChartsComposite {
 
 			List<String> labels = new ArrayList<>();
 			List<Long> values = new ArrayList<>();
-			for (Object key : parts.keySet()) {
+			for (Object key : parts.keySet())
+			{
 				String label = (String) key;
 				JSONObject partInfo = (JSONObject) parts.get(label);
 				long size = (long) partInfo.get("size"); //$NON-NLS-1$
 				labels.add(label);
 				values.add(size);
 			}
-			if (free > 0) {
+			if (free > 0)
+			{
 				labels.add("Free"); //$NON-NLS-1$
 				values.add(free);
 			}
 
 			String title = Messages.IDFSizeOverviewComposite_MemoryUsagePrefix + sectionName;
-			if (chartMode == ChartMode.PIE) {
+			if (chartMode == ChartMode.PIE)
+			{
 				createPieChart(chartComp, title, labels, values);
-			} else {
+			}
+			else
+			{
 				createBarChart(chartComp, title, labels, values);
 			}
 		}
@@ -155,50 +188,101 @@ public class IDFSizeChartsComposite {
 		scrollable.setMinSize(chartComp.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 
-	private void createBarChart(Composite parent, String title, List<String> labels, List<Long> values) {
+	private void createBarChart(Composite parent, String title, List<String> labels, List<Long> values)
+	{
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-		for (int i = 0; i < labels.size(); i++) {
+		for (int i = 0; i < labels.size(); i++)
+		{
 			double value = (double) values.get(i) / selectedUnit.getDivider();
 			dataset.addValue(value, labels.get(i), ""); //$NON-NLS-1$
 		}
-		JFreeChart chart = ChartFactory.createStackedBarChart(
-			title,
-			"Memory Parts", //$NON-NLS-1$
-			"Size (" + selectedUnit.getLabel() + ")", //$NON-NLS-1$ //$NON-NLS-2$
-			dataset,
-			PlotOrientation.HORIZONTAL,
-			true, true, false
-		);
+		JFreeChart chart = ChartFactory.createStackedBarChart(title, "Memory Parts", //$NON-NLS-1$
+				"Size (" + selectedUnit.getLabel() + ")", //$NON-NLS-1$ //$NON-NLS-2$
+				dataset, PlotOrientation.HORIZONTAL, true, true, false);
+
+		CategoryPlot categoryPlot = chart.getCategoryPlot();
+		BarRenderer barRenderer = (BarRenderer) categoryPlot.getRenderer();
+		
+		for (int i = 0; i < dataset.getRowCount(); i++)
+		{
+			String rowKey = dataset.getRowKey(i).toString();
+			if (rowKey.startsWith("Free"))
+			{
+				labelColorMap.putIfAbsent(rowKey, Color.GREEN);
+			}
+			else
+			{
+				labelColorMap.putIfAbsent(rowKey, getNextAvailableColor());
+			}
+			barRenderer.setSeriesPaint(i, labelColorMap.get(rowKey));
+		}
+		
+		barRenderer.setBarPainter(new StandardBarPainter());	
+		
 		displayChartAsImage(parent, chart, 400, 300);
 	}
 
-	private void createPieChart(Composite parent, String title, List<String> labels, List<Long> values) {
+	private void createPieChart(Composite parent, String title, List<String> labels, List<Long> values)
+	{
 		DefaultPieDataset<String> dataset = new DefaultPieDataset<>();
-		for (int i = 0; i < labels.size(); i++) {
+		for (int i = 0; i < labels.size(); i++)
+		{
 			String label = labels.get(i) + " (" + formatMemory(values.get(i)) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 			double value = (double) values.get(i) / selectedUnit.getDivider();
 			dataset.setValue(label, value);
 		}
-		JFreeChart chart = ChartFactory.createPieChart3D(title, dataset, true, true, false);
-		PiePlot3D plot = (PiePlot3D) chart.getPlot();
-		plot.setStartAngle(290);
+		JFreeChart chart = ChartFactory.createPieChart(title, dataset, true, true, false);
+		@SuppressWarnings("rawtypes")
+		PiePlot plot = (PiePlot) chart.getPlot();
 		plot.setDirection(Rotation.CLOCKWISE);
 		plot.setForegroundAlpha(0.8f); // semi-transparency
 		plot.setBackgroundPaint(Color.WHITE); // white background
-		plot.setOutlineVisible(false);
-		
-		plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0} ({1} KB) ({2})"));
-		plot.setSimpleLabels(false);
-		plot.setLabelGap(0.02);
+		plot.setOutlineVisible(true);
 
-		StandardChartTheme theme = (StandardChartTheme) StandardChartTheme.createJFreeTheme();
-		theme.apply(chart);
+		plot.setLabelGenerator(null);
+		plot.setSimpleLabels(false);
+		plot.setLabelGap(0.05);
+
+		for (String key : dataset.getKeys())
+		{
+			if (key.startsWith("Free"))
+			{
+				labelColorMap.putIfAbsent(key, Color.GREEN);
+			}
+			else
+			{
+				labelColorMap.putIfAbsent(key, getNextAvailableColor());
+			}
+
+			plot.setSectionPaint(key, labelColorMap.get(key));
+		}
 
 		displayChartAsImage(parent, chart, 400, 400);
 	}
 
-	private void displayChartAsImage(Composite parent, JFreeChart chart, int width, int height) {
-		try {
+	private int colorIndex = 0;
+
+	private Color getNextAvailableColor()
+	{
+		if (colorIndex >= availableColors.size())
+		{
+			// If we run out, generate a new random color (not green)
+			Color random = new Color((int) (Math.random() * 200), (int) (Math.random() * 200),
+					(int) (Math.random() * 200));
+
+			// Don't allow green
+			if (random.equals(Color.GREEN))
+				return getNextAvailableColor();
+
+			return random;
+		}
+		return availableColors.get(colorIndex++);
+	}
+
+	private void displayChartAsImage(Composite parent, JFreeChart chart, int width, int height)
+	{
+		try
+		{
 			BufferedImage image = chart.createBufferedImage(width, height);
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
 			ImageIO.write(image, "png", os); //$NON-NLS-1$
@@ -207,21 +291,28 @@ public class IDFSizeChartsComposite {
 			Image swtImg = new Image(parent.getDisplay(), imgData);
 			Label imgLabel = new Label(parent, SWT.NONE);
 			imgLabel.setImage(swtImg);
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			Logger.log(e);
 		}
 	}
 
-	private JSONObject getIDFSizeOverviewData(IFile file, String targetName) {
-		try {
+	private JSONObject getIDFSizeOverviewData(IFile file, String targetName)
+	{
+		try
+		{
 			return new IDFSizeDataManager().getIDFSizeOverview(file, targetName);
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			Logger.log(e);
 			return null;
 		}
 	}
 
-	private String formatMemory(long bytes) {
+	private String formatMemory(long bytes)
+	{
 		double value = (double) bytes / selectedUnit.getDivider();
 		return String.format("%.1f %s", value, selectedUnit.getLabel()); //$NON-NLS-1$
 	}
