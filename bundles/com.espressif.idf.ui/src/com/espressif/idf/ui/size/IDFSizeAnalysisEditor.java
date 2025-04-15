@@ -49,6 +49,7 @@ public class IDFSizeAnalysisEditor extends MultiPageEditorPart
 		String osString = file.getLocation().toOSString();
 		Logger.log("Editor input:" + osString); //$NON-NLS-1$
 
+		createNewOverviewPage();
 		createOverviewPage();
 		createDetailsPage();
 	}
@@ -122,6 +123,20 @@ public class IDFSizeAnalysisEditor extends MultiPageEditorPart
 
 		int index = addPage(parent);
 		setPageText(index, "Overview"); //$NON-NLS-1$
+	}
+	
+	/**
+	 * Creates Size Analysis Overview Page
+	 */
+	private void createNewOverviewPage()
+	{
+		Composite parent = new Composite(getContainer(), SWT.NONE);
+		parent.setLayout(new FillLayout());
+
+		new IDFSizeOverviewComposite2().createPartControl(parent, file, getTarget());
+
+		int index = addPage(parent);
+		setPageText(index, "Size"); //$NON-NLS-1$
 	}
 
 	private String getTarget()
