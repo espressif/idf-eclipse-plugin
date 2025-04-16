@@ -1,0 +1,12 @@
+{
+  "default": true,
+  "MD003": { "style": "atx_closed" },
+  "MD007": { "indent": 4 },
+  "no-hard-tabs": false,
+  "whitespace": false
+}az ad app create --display-name "github-deploy-afredeal"
+az ad sp create --id <appId>
+az role assignment create --assignee <SP_ID> --role contributor --scope /subscriptions/<subscription_id>/resourceGroups/<your_rg>{
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {}
+}
