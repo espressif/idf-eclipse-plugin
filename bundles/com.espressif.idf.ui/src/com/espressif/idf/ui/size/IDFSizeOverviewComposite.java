@@ -25,40 +25,47 @@ import com.espressif.idf.core.logging.Logger;
 
 /**
  * Completely refactored overview composite to only show the basic overview of the memory size analysis
+ * 
  * @author Ali Azam Rana <ali.azamrana@espressif.com>
  *
  */
-public class IDFSizeOverviewComposite {
+public class IDFSizeOverviewComposite
+{
 
 	private Table table;
 	private JSONObject overviewJson;
 	private Font boldFont;
 
-	private enum MemoryUnit {
+	private enum MemoryUnit
+	{
 		BYTES(1, "B"), //$NON-NLS-1$
-		KILOBYTES(1024, "KB"), //$NON-NLS-1$ 
+		KILOBYTES(1024, "KB"), //$NON-NLS-1$
 		MEGABYTES(1024 * 1024, "MB"); //$NON-NLS-1$
 
 		private final long divider;
 		private final String label;
 
-		MemoryUnit(long divider, String label) {
+		MemoryUnit(long divider, String label)
+		{
 			this.divider = divider;
 			this.label = label;
 		}
 
-		public long getDivider() {
+		public long getDivider()
+		{
 			return divider;
 		}
 
-		public String getLabel() {
+		public String getLabel()
+		{
 			return label;
 		}
 	}
 
 	private MemoryUnit selectedUnit = MemoryUnit.KILOBYTES;
 
-	public void createPartControl(Composite parent, IFile file, String targetName) {
+	public void createPartControl(Composite parent, IFile file, String targetName)
+	{
 		parent.setLayout(new GridLayout(2, false));
 		parent.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
 
@@ -77,22 +84,24 @@ public class IDFSizeOverviewComposite {
 		unitCombo.setItems(new String[] { "Bytes", "KB", "MB" }); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		unitCombo.select(1);
 		unitCombo.addListener(SWT.Selection, e -> {
-			selectedUnit = switch (unitCombo.getSelectionIndex()) {
-				case 0 -> MemoryUnit.BYTES;
-				case 2 -> MemoryUnit.MEGABYTES;
-				default -> MemoryUnit.KILOBYTES;
+			selectedUnit = switch (unitCombo.getSelectionIndex())
+			{
+			case 0 -> MemoryUnit.BYTES;
+			case 2 -> MemoryUnit.MEGABYTES;
+			default -> MemoryUnit.KILOBYTES;
 			};
 			populateTable();
 		});
 
 		// Table
-		table = new Table(parent, SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL);
+		table = new Table(parent, SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL | SWT.NO_FOCUS);
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 
 		String[] columns = { "Region", "Used", "Free", "Total", "Usage" };
-		for (String colName : columns) {
+		for (String colName : columns)
+		{
 			TableColumn col = new TableColumn(table, SWT.NONE);
 			col.setText(colName);
 			col.setWidth(150);
@@ -106,7 +115,8 @@ public class IDFSizeOverviewComposite {
 		table.setFont(headerFont);
 	}
 
-	private void populateTable() {
+	private void populateTable()
+	{
 		table.removeAll();
 
 		JSONArray layout = (JSONArray) overviewJson.get("layout");
@@ -114,7 +124,8 @@ public class IDFSizeOverviewComposite {
 		long grandFree = 0;
 
 		int rowIndex = 0;
-		for (Object obj : layout) {
+		for (Object obj : layout)
+		{
 			JSONObject section = (JSONObject) obj;
 			String name = (String) section.get("name");
 			long used = (long) section.get("used");
@@ -125,12 +136,11 @@ public class IDFSizeOverviewComposite {
 			grandFree += free;
 
 			TableItem item = new TableItem(table, SWT.NONE);
-			item.setText(new String[] {
-				name,
-				formatMemory(used),
-				formatMemory(free),
-				formatMemory(total),
-				"" // progress bar will go here
+			item.setText(new String[] { name, formatMemory(used), formatMemory(free), formatMemory(total), "" // progress
+																												// bar
+																												// will
+																												// go
+																												// here
 			});
 			applyBoldToColumn(item, 0);
 
@@ -140,70 +150,88 @@ public class IDFSizeOverviewComposite {
 
 		// Total row
 		TableItem totalRow = new TableItem(table, SWT.NONE);
-		totalRow.setText(new String[] {
-			"Total:",
-			formatMemory(grandUsed),
-			formatMemory(grandFree),
-			formatMemory(grandUsed + grandFree),
-			""
-		});
-		for (int i = 0; i < 5; i++) {
+		totalRow.setText(new String[] { "Total:", formatMemory(grandUsed), formatMemory(grandFree),
+				formatMemory(grandUsed + grandFree), "" });
+		for (int i = 0; i < 5; i++)
+		{
 			applyBoldToColumn(totalRow, i);
 		}
 		createProgressBar(rowIndex, grandUsed, grandUsed + grandFree);
 	}
 
-	private void createProgressBar(int rowIndex, long used, long total) {
-		if (total == 0) return;
+	private void createProgressBar(int rowIndex, long used, long total)
+	{
+		if (total == 0)
+			return;
 
 		TableEditor editor = new TableEditor(table);
 		editor.grabHorizontal = true;
+		editor.grabVertical = true;
+		editor.horizontalAlignment = SWT.FILL;
 
 		Composite barComposite = new Composite(table, SWT.NONE);
-		barComposite.setLayout(new GridLayout(2, false));
+		GridLayout layout = new GridLayout(2, false);
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		barComposite.setLayout(layout);
+		barComposite.setBackground(table.getBackground());
 
 		ProgressBar bar = new ProgressBar(barComposite, SWT.HORIZONTAL);
 		bar.setMaximum((int) total);
 		bar.setSelection((int) used);
-		bar.setLayoutData(new GridData(80, SWT.DEFAULT));
+		GridData barData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		barData.widthHint = 100;
+		bar.setLayoutData(barData);
 
 		Label percent = new Label(barComposite, SWT.NONE);
 		percent.setText(getUsagePercent(used, total));
 		percent.setBackground(barComposite.getBackground());
+		percent.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 
 		editor.setEditor(barComposite, table.getItem(rowIndex), 4);
 	}
 
-	private void applyBoldToColumn(TableItem item, int columnIndex) {
+	private void applyBoldToColumn(TableItem item, int columnIndex)
+	{
 		Font bold = applyBold(item.getFont());
 		item.setFont(columnIndex, bold);
 	}
 
-	private String formatMemory(long bytes) {
+	private String formatMemory(long bytes)
+	{
 		double value = (double) bytes / selectedUnit.getDivider();
 		return String.format("%.1f %s", value, selectedUnit.getLabel()); //$NON-NLS-1$
 	}
 
-	private String getUsagePercent(long used, long total) {
-		if (total == 0) return "-";
+	private String getUsagePercent(long used, long total)
+	{
+		if (total == 0)
+			return "-";
 		double percent = (double) used / total * 100;
 		return String.format("%.1f%%", percent); //$NON-NLS-1$
 	}
 
-	private Font applyBold(Font original) {
-		if (boldFont != null) return boldFont;
+	private Font applyBold(Font original)
+	{
+		if (boldFont != null)
+			return boldFont;
 		FontData[] data = original.getFontData();
-		for (FontData d : data) {
+		for (FontData d : data)
+		{
 			d.setStyle(SWT.BOLD);
 		}
 		boldFont = new Font(original.getDevice(), data);
 		return boldFont;
 	}
 
-	protected JSONObject getIDFSizeOverviewData(IFile file, String targetName) {
-		try {
+	protected JSONObject getIDFSizeOverviewData(IFile file, String targetName)
+	{
+		try
+		{
 			return new IDFSizeDataManager().getIDFSizeOverview(file, targetName);
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			Logger.log(e);
 			return null;
 		}
