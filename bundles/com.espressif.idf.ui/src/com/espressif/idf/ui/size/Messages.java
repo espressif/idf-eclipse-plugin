@@ -32,6 +32,10 @@ public class Messages extends NLS
 	public static String IDFSizeChartsComposite_SizeUnit;
 	public static String IDFSizeChartsComposite_MemoryParts;
 	public static String IDFSizeChartsComposite_SizeTag;
+	public static String IDFSizeEditorVersionError;
+	public static String IDFSizeEditorVersionErrorDescription;
+	public static String IDFSizeEditorCloseButton;
+	public static String IDFSizeEditorError;
 
 	static
 	{
