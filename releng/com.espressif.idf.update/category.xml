@@ -87,6 +87,9 @@
    <bundle id="org.commonmark">
       <category name="com.espressif.idf.dependencies"/>
    </bundle>
+   <bundle id="org.eclipse.justj.openjdk.hotspot.jre.full">
+      <category name="com.espressif.idf.dependencies"/>
+   </bundle>
    <category-def name="com.espressif.idf" label="ESP-IDF Eclipse Plugin">
       <description>
          ESP-IDF Eclipse Plugin for developing ESP32 based IoT applications
