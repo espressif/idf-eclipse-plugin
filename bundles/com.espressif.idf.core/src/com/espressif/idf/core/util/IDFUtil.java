@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
+import org.eclipse.cdt.debug.core.launch.CoreBuildLaunchConfigDelegate;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -31,6 +32,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.swt.widgets.Display;
@@ -46,6 +48,7 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.SystemExecutableFinder;
+import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
 
@@ -561,6 +564,46 @@ public class IDFUtil
 	}
 
 	/**
+	 * Updates the build folder for the specified project in the given launch configuration.
+	 * 
+	 * This method retrieves the project associated with the given launch configuration, checks if a build folder path
+	 * is specified in the configuration, and sets the build directory for the project. If no build folder path is
+	 * specified, a default value is used. If the specified path is relative, it is converted to an absolute path based
+	 * on the project's location.
+	 * 
+	 * @param configuration The launch configuration whose associated project’s build folder is to be updated. This
+	 *                      parameter cannot be {@code null}.
+	 * @throws CoreException If there is an issue with accessing the project or updating the build folder. This
+	 *                       exception is logged, but not rethrown.
+	 */
+	public static void updateProjectBuildFolder(ILaunchConfigurationWorkingCopy configuration)
+	{
+		try
+		{
+			IProject project = CoreBuildLaunchConfigDelegate.getProject(configuration);
+			if (project == null)
+			{
+				return;
+			}
+			String buildFolder = configuration.getAttribute(IDFLaunchConstants.BUILD_FOLDER_PATH,
+					IDFUtil.getBuildDir(project));
+			buildFolder = buildFolder.isBlank() ? IDFConstants.BUILD_FOLDER : buildFolder;
+
+			IPath path = new Path(buildFolder);
+			if (!path.isAbsolute())
+			{
+				IPath projectLocation = project.getLocation();
+				path = projectLocation.append(path);
+			}
+			IDFUtil.setBuildDir(project, path.toOSString());
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+	}
+
+	/**
 	 * Project .map file path
 	 *
 	 * @param project
@@ -765,7 +808,7 @@ public class IDFUtil
 		}
 		return false;
 	}
-	
+
 	public static String resolveEnvVariable(String path)
 	{
 		Pattern winEnvPattern = Pattern.compile("%(\\w+)%"); //$NON-NLS-1$
@@ -801,7 +844,7 @@ public class IDFUtil
 		return resolvedPath.toString();
 
 	}
-	
+
 	public static Map<String, String> getSystemEnv()
 	{
 		Map<String, String> env = new HashMap<String, String>(System.getenv());
@@ -810,17 +853,17 @@ public class IDFUtil
 		env.put(IDFCorePreferenceConstants.IDF_TOOLS_PATH, idfToolsPath);
 		return env;
 	}
-	
+
 	public static String getIDFToolsPathFromPreferences()
 	{
 		String idfToolsPath = Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
 				IDFCorePreferenceConstants.IDF_TOOLS_PATH, IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT, null);
 		return idfToolsPath;
 	}
-	
+
 	public static void closeWelcomePage(IWorkbenchWindow activeww)
 	{
-		Display.getDefault().syncExec(()-> {
+		Display.getDefault().syncExec(() -> {
 			if (activeww != null)
 			{
 				IWorkbenchPage page = activeww.getActivePage();

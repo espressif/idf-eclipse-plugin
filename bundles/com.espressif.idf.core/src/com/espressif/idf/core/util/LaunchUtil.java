@@ -4,12 +4,17 @@
  *******************************************************************************/
 package com.espressif.idf.core.util;
 
+import java.util.stream.Stream;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.launchbar.core.ILaunchDescriptor;
+
+import com.espressif.idf.core.build.IDFLaunchConstants;
 
 public class LaunchUtil
 {
@@ -34,6 +39,21 @@ public class LaunchUtil
 			}
 		}
 		return null;
+	}
+
+	/*
+	 * In case when the active configuration is debugging, we are using bound launch configuration to build the project
+	 */
+	public ILaunchConfiguration getBoundConfiguration(ILaunchConfiguration configuration) throws CoreException
+	{
+		String bindedLaunchConfigName = configuration.getAttribute(IDFLaunchConstants.ATTR_LAUNCH_CONFIGURATION_NAME,
+				StringUtil.EMPTY);
+		ILaunchConfiguration[] launchConfigurations = launchManager.getLaunchConfigurations(DebugPlugin.getDefault()
+				.getLaunchManager().getLaunchConfigurationType(IDFLaunchConstants.RUN_LAUNCH_CONFIG_TYPE));
+		ILaunchConfiguration defaultConfiguration = launchConfigurations[0];
+		return Stream.of(launchConfigurations).filter(config -> config.getName().contentEquals(bindedLaunchConfigName))
+				.findFirst().orElse(defaultConfiguration);
+
 	}
 
 }

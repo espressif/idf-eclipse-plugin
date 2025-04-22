@@ -30,6 +30,7 @@ public class Messages extends NLS
 	public static String NewSerialFlashTargetWizardPage_Title;
 	public static String CMakeMainTab2_FlashComboLbl;
 	public static String CMakeMainTab2_Arguments;
+	public static String CMakeMainTab2_CmakeArgsDeprecatedBArgMessage;
 	public static String CMakeMainTab2_NoDfuTargetSelectedError;
 	public static String CMakeMainTab2_Note;
 	public static String CMakeMainTab2_TargetsComboLbl;

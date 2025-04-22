@@ -54,7 +54,6 @@ public class IdfCommandExecutor
 	private IStatus runIdfReconfigureCommand(IProject project)
 	{
 		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
-		setBuildFolder(project);
 		List<String> arguments = prepareCmakeArguments(project);
 		Map<String, String> environment = new HashMap<>(new IDFEnvironmentVariables().getSystemEnvMap());
 
@@ -95,32 +94,6 @@ public class IdfCommandExecutor
 			Logger.log(e);
 		}
 		return arguments;
-	}
-
-	private boolean setBuildFolder(IProject project)
-	{
-		String userArgs = getProperty(CMAKE_ARGUMENTS);
-		// Custom build directory
-		String[] cmakeArgumentsArr = userArgs.split(" "); //$NON-NLS-1$
-		String customBuildDir = StringUtil.EMPTY;
-		for (int i = 0; i < cmakeArgumentsArr.length; i++)
-		{
-			if (cmakeArgumentsArr[i].equals("-B")) //$NON-NLS-1$
-			{
-				customBuildDir = cmakeArgumentsArr[i + 1];
-				break;
-			}
-		}
-		try
-		{
-			IDFUtil.setBuildDir(project, customBuildDir);
-		}
-		catch (CoreException e)
-		{
-			Logger.log(e);
-		}
-
-		return !customBuildDir.isBlank();
 	}
 
 	public String getProperty(String name)

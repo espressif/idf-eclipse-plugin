@@ -19,6 +19,7 @@ import org.eclipse.cdt.launch.ui.corebuild.CoreBuildTab;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
 import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.EnvironmentTab;
@@ -27,6 +28,7 @@ import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.launchbar.ui.internal.LaunchBarLaunchConfigDialog;
 
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.IDFUtil;
 
 @SuppressWarnings("restriction")
 public class SerialFlashLaunchConfigTabGroup extends AbstractLaunchConfigurationTabGroup
@@ -45,6 +47,13 @@ public class SerialFlashLaunchConfigTabGroup extends AbstractLaunchConfiguration
 					new CommonTab() });
 		}
 
+	}
+
+	@Override
+	public void performApply(ILaunchConfigurationWorkingCopy configuration)
+	{
+		super.performApply(configuration);
+		IDFUtil.updateProjectBuildFolder(configuration);
 	}
 
 	@Override

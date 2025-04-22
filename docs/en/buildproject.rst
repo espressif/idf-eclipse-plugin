@@ -26,7 +26,7 @@ The IDE allows configuring a custom build directory for the project:
 
 1. Select a project and click on the ``Edit`` button for the launch configuration in the top toolbar to open the ``Edit Configuration`` window.
 2. Navigate to the ``Build Settings`` tab.
-3. In the ``Additional CMake Arguments`` section, provide a custom build directory by adding arguments ``-B <custom build path>`` with an absolute path. The customized build directory path can be within the project or in any other location in the file system. For example: ``-B /Users/myUser/esp/generated``.
+3. In the ``Build folder location`` section, provide a custom build directory. The customized build directory path can be within the project or in any other location in the file system.
 4. Click on ``Ok`` and build the project.
 
 .. note::
