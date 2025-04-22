@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.cdt.utils.CommandLineUtil;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.variables.VariablesPlugin;
@@ -118,7 +119,7 @@ public class DfuCommandsUtil
 			String flashCommand = configuration.getAttribute(IDFLaunchConstants.ATTR_DFU_FLASH_ARGUMENTS,
 					getDfuFlashCommand());
 			flashCommand = resolveExpressionFromVariableManager(flashCommand);
-			flashCommandList = Arrays.asList(flashCommand.split(" ")); //$NON-NLS-1$
+			flashCommandList = Arrays.asList(CommandLineUtil.argumentsToArray(flashCommand));
 		}
 		catch (CoreException e1)
 		{
