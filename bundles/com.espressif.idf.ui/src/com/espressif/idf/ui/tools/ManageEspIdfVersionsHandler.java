@@ -65,8 +65,10 @@ public class ManageEspIdfVersionsHandler extends AbstractHandler
 		IPath path = ResourcesPlugin.getWorkspace().getRoot().getLocation();
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append(path.toOSString());
+		Logger.log("Workspace path: " + stringBuilder.toString());
 		stringBuilder.append(File.separatorChar);
 		stringBuilder.append(IToolsInstallationWizardConstants.TOOL_SET_CONFIG_FILE);
+		Logger.log("Tool Set configuraion file Path: " + stringBuilder.toString());
 		return stringBuilder.toString();
 	}
 }
