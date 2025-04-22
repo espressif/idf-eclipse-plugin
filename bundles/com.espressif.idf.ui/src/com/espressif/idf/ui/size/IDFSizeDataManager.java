@@ -7,7 +7,9 @@ package com.espressif.idf.ui.size;
 import java.lang.module.ModuleDescriptor.Version;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
@@ -28,16 +30,19 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
+import com.espressif.idf.ui.size.vo.LibraryMemoryComponent;
+import com.espressif.idf.ui.size.vo.MemoryType;
+import com.espressif.idf.ui.size.vo.Section;
 
 /**
- * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>, Ali Azam Rana <ali.azamrana@espressif.com>
  *
  */
 public class IDFSizeDataManager
 {
 
 	@SuppressWarnings("unchecked")
-	public List<IDFSizeData> getDataList(IFile mapFile) throws Exception
+	public List<LibraryMemoryComponent> getDataList(IFile mapFile) throws Exception
 	{
 		String pythonExecutablePath = preconditionsCheck();
 
@@ -81,17 +86,16 @@ public class IDFSizeDataManager
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<IDFSizeData> convertToViewerModel(JSONObject archivesJsonObj, JSONObject symbolJsonObj)
+	private List<LibraryMemoryComponent> convertToViewerModel(JSONObject archivesJsonObj, JSONObject symbolJsonObj)
 	{
 
-		List<IDFSizeData> arrayList = new ArrayList<>();
+		List<LibraryMemoryComponent> arrayList = new ArrayList<>();
 		Set<String> keySet = archivesJsonObj.keySet();
 		for (String key : keySet)
 		{
 			JSONObject object = (JSONObject) archivesJsonObj.get(key);
-			IDFSizeData record = getSizeRecord(key, object);
+			LibraryMemoryComponent record = getSizeRecord(key, object);
 			arrayList.add(record);
-
 			// update children
 			if (symbolJsonObj != null)
 			{
@@ -103,6 +107,7 @@ public class IDFSizeDataManager
 						String symbolName = symbolsKey.substring(key.length() + 1); // libnet80211.a:ieee80211_output.o
 
 						JSONObject symbolObj = (JSONObject) symbolJsonObj.get(symbolsKey);
+						
 						record.getChildren().add(getSizeRecord(symbolName, symbolObj));
 					}
 
@@ -113,15 +118,48 @@ public class IDFSizeDataManager
 		return arrayList;
 	}
 
-	protected IDFSizeData getSizeRecord(String key, JSONObject object)
+	protected LibraryMemoryComponent getSizeRecord(String key, JSONObject object)
 	{
-		IDFSizeData record = new IDFSizeData(key, getValue(object.get(IDFSizeConstants.DATA)),
-				getValue(object.get(IDFSizeConstants.BSS)), getValue(object.get(IDFSizeConstants.DIRAM)),
-				getValue(object.get(IDFSizeConstants.IRAM)), getValue(object.get(IDFSizeConstants.FLASH_TEXT)),
-				getValue(object.get(IDFSizeConstants.FLASH_RODATA)), getValue(object.get(IDFSizeConstants.OTHER)),
-				getValue(object.get(IDFSizeConstants.TOTAL)));
+		LibraryMemoryComponent library = new LibraryMemoryComponent();
+		String []keySplit = key.split("/");
+		String nameToSet = keySplit[keySplit.length-1] + " -> " + key; 
+		library.setName(nameToSet);
+		library.setAbbrevName((String) object.get("abbrev_name"));
+        library.setSize(getValue(object.get("size")));
+        library.setSizeDiff(getValue(object.get("size_diff")));
+        Map<String, MemoryType> memoryTypesMap = new LinkedHashMap<>();
+        JSONObject memoryTypesJson = (JSONObject) object.get("memory_types");
 
-		return record;
+        for (Object memoryKeyObj : memoryTypesJson.keySet()) {
+            String memoryKey = (String) memoryKeyObj;
+            JSONObject memoryTypeJson = (JSONObject) memoryTypesJson.get(memoryKey);
+
+            MemoryType memoryType = new MemoryType();
+            memoryType.setSize(getValue(memoryTypeJson.get("size")));
+            memoryType.setSizeDiff(getValue(memoryTypeJson.get("size_diff")));
+
+            JSONObject sectionsJson = (JSONObject) memoryTypeJson.get("sections");
+            Map<String, Section> sectionsMap = new LinkedHashMap<>();
+
+            for (Object sectionKeyObj : sectionsJson.keySet()) {
+                String sectionKey = (String) sectionKeyObj;
+                JSONObject sectionJson = (JSONObject) sectionsJson.get(sectionKey);
+
+                Section section = new Section();
+                section.setSize(getValue(sectionJson.get("size")));
+                section.setSizeDiff(getValue(sectionJson.get("size_diff")));
+                section.setAbbrevName((String) sectionJson.get("abbrev_name"));
+
+                sectionsMap.put(sectionKey, section);
+            }
+
+            memoryType.setSections(sectionsMap);
+            memoryTypesMap.put(memoryKey, memoryType);
+        }
+
+        library.setMemoryTypes(memoryTypesMap);
+        
+		return library;
 	}
 
 	protected long getValue(Object object)
@@ -198,7 +236,7 @@ public class IDFSizeDataManager
 		if (idfVersion != null && isVersionAtLeast(idfVersion, "5.1")) //$NON-NLS-1$
 		{
 			arguments.add("--format"); //$NON-NLS-1$
-			arguments.add("json"); //$NON-NLS-1$
+			arguments.add("json2"); //$NON-NLS-1$
 		}
 		else
 		{
@@ -230,9 +268,12 @@ public class IDFSizeDataManager
 	{
 		List<String> arguments = new ArrayList<String>();
 		arguments.add(pythonExecutablenPath);
-		arguments.add(IDFUtil.getIDFSizeScriptFile().getAbsolutePath());
+		arguments.add("-m"); //$NON-NLS-1$
+		arguments.add("esp_idf_size"); //$NON-NLS-1$
+		arguments.add("--ng"); //$NON-NLS-1$
+		arguments.add("--format"); //$NON-NLS-1$
+		arguments.add("json2"); //$NON-NLS-1$
 		arguments.add(file.getLocation().toOSString());
-		arguments.addAll(addJsonParseCommand());
 
 		return arguments;
 	}

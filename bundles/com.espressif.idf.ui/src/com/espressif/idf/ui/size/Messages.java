@@ -20,6 +20,23 @@ public class Messages extends NLS
 	public static String IDFSizeOverviewComposite_ChartUsedText;
 	public static String IDFSizeOverviewComposite_ChartAvailableText;
 	public static String IDFSizeOverviewComposite_SinglePlot_UsedDiram;
+	public static String IDFSizeOverviewComposite_MemoryRegion;
+	public static String IDFSizeOverviewComposite_UsedSize;
+	public static String IDFSizeOverviewComposite_ChartView;
+	public static String IDFSizeOverviewComposite_SwitchToPie;
+	public static String IDFSizeOverviewComposite_SwitchToBar;
+	public static String IDFSizeOverviewComposite_MemoryUsagePrefix;
+	public static String IDFSizeEditorOverview;
+	public static String IDFSizeEditorDetails;
+	public static String IDFSizeEditorCharts;
+	public static String IDFSizeChartsComposite_SizeUnit;
+	public static String IDFSizeChartsComposite_MemoryParts;
+	public static String IDFSizeChartsComposite_SizeTag;
+	public static String IDFSizeEditorVersionError;
+	public static String IDFSizeEditorVersionErrorDescription;
+	public static String IDFSizeEditorCloseButton;
+	public static String IDFSizeEditorError;
+
 	static
 	{
 		// initialize resource bundle

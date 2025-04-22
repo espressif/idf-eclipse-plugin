@@ -1,68 +1,77 @@
 /*******************************************************************************
- * Copyright 2020 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Copyright 2025 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
 package com.espressif.idf.ui.size;
 
-import org.eclipse.jface.viewers.ILabelProvider;
-import org.eclipse.jface.viewers.ILabelProviderListener;
+import java.util.LinkedHashSet;
+
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 
+import com.espressif.idf.ui.size.vo.LibraryMemoryComponent;
+
 /**
- * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
- *
+ * Dynamically provides labels for each visible column.
+ * Handles memory sections, memory totals, file name, and total size.
  */
-public class IDFSizeDataLabelProvider extends LabelProvider implements ITableLabelProvider, ILabelProvider
-{
+public class IDFSizeDataLabelProvider extends LabelProvider implements ITableLabelProvider {
 
-	public Image getColumnImage(Object element, int columnIndex)
-	{
+	private final String[] columns;
+
+	public IDFSizeDataLabelProvider(LinkedHashSet<String> columns) {
+		this.columns = columns.toArray(new String[0]);
+	}
+
+	@Override
+	public Image getColumnImage(Object element, int columnIndex) {
 		return null;
 	}
 
-	public String getColumnText(Object element, int columnIndex)
-	{
-		IDFSizeData data = (IDFSizeData) element;
-		switch (columnIndex)
-		{
-		case 0:
+	@Override
+	public String getColumnText(Object element, int columnIndex) {
+		LibraryMemoryComponent data = (LibraryMemoryComponent) element;
+
+		if (columnIndex >= columns.length)
+			return null;
+
+		String columnName = columns[columnIndex];
+
+		if (columnName.equals("File Name")) { //$NON-NLS-1$
 			return data.getName();
-		case 1:
-			return String.valueOf(data.getData());
-		case 2:
-			return String.valueOf(data.getBss());
-		case 3:
-			return String.valueOf(data.getDiram());
-		case 4:
-			return String.valueOf(data.getIram());
-		case 5:
-			return String.valueOf(data.getFlash_text());
-		case 6:
-			return String.valueOf(data.getFlash_rodata());
-		case 7:
-			return String.valueOf(data.getOther());
-		case 8:
-			return String.valueOf(data.getTotal());
 		}
-		return null;
-	}
 
-	public void addListener(ILabelProviderListener listener)
-	{
-	}
+		if (columnName.equals("Total")) { //$NON-NLS-1$
+			return String.valueOf(data.getSize());
+		}
 
-	public void dispose()
-	{
-	}
+		if (columnName.contains("->")) { //$NON-NLS-1$
+			// memoryType -> section
+			String[] split = columnName.split(" -> ");
+			if (split.length == 2) {
+				String memoryType = split[0];
+				String memorySection = split[1];
 
-	public boolean isLabelProperty(Object element, String property)
-	{
-		return false;
-	}
+				try {
+					return String.valueOf(
+						data.getMemoryTypes().get(memoryType).getSections().get(memorySection).getSize()
+					);
+				} catch (Exception e) {
+					// section not found
+					return "0";
+				}
+			}
+		} else if (columnName.endsWith(" Total")) { //$NON-NLS-1$
+			String memoryType = columnName.replace(" Total", "");
+			try {
+				return String.valueOf(data.getMemoryTypes().get(memoryType).getSize());
+			} catch (Exception e) {
+				// memoryType not found
+				return "0";
+			}
+		}
 
-	public void removeListener(ILabelProviderListener listener)
-	{
+		return ""; // default fallback
 	}
 }

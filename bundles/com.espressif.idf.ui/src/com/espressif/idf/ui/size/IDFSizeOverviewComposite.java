@@ -1,231 +1,239 @@
 /*******************************************************************************
- * Copyright 2018-2020 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Copyright 2025 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
 package com.espressif.idf.ui.size;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swtchart.Chart;
-import org.eclipse.swtchart.IBarSeries;
-import org.eclipse.swtchart.ISeries.SeriesType;
-import org.eclipse.ui.forms.widgets.Form;
-import org.eclipse.ui.forms.widgets.FormToolkit;
-import org.eclipse.ui.forms.widgets.Section;
+import org.eclipse.swt.widgets.ProgressBar;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import com.espressif.idf.core.logging.Logger;
 
 /**
- * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ * Completely refactored overview composite to only show the basic overview of the memory size analysis
+ * 
+ * @author Ali Azam Rana <ali.azamrana@espressif.com>
  *
  */
 public class IDFSizeOverviewComposite
 {
 
-	private FormToolkit toolkit;
-	private Composite overviewComp;
+	private Table table;
 	private JSONObject overviewJson;
 	private Font boldFont;
-	private Composite chartComp;
+
+	private enum MemoryUnit
+	{
+		BYTES(1, "B"), //$NON-NLS-1$
+		KILOBYTES(1024, "KB"), //$NON-NLS-1$
+		MEGABYTES(1024 * 1024, "MB"); //$NON-NLS-1$
+
+		private final long divider;
+		private final String label;
+
+		MemoryUnit(long divider, String label)
+		{
+			this.divider = divider;
+			this.label = label;
+		}
+
+		public long getDivider()
+		{
+			return divider;
+		}
+
+		public String getLabel()
+		{
+			return label;
+		}
+	}
+
+	private MemoryUnit selectedUnit = MemoryUnit.KILOBYTES;
 
 	public void createPartControl(Composite parent, IFile file, String targetName)
 	{
-		toolkit = new FormToolkit(parent.getDisplay());
-		Form form = toolkit.createForm(parent);
-		toolkit.decorateFormHeading(form);
-		form.setText(Messages.IDFSizeOverviewComposite_ApplicatoinMemoryUsage);
-		form.getBody().setLayout(new GridLayout());
+		parent.setLayout(new GridLayout(2, false));
+		parent.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
 
-		Section ec2 = toolkit.createSection(form.getBody(), Section.TITLE_BAR);
-		ec2.setText(Messages.IDFSizeOverviewComposite_Overview);
-		ec2.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+		Label title = new Label(parent, SWT.NONE);
+		title.setText(Messages.IDFSizeOverviewComposite_ApplicatoinMemoryUsage);
+		title.setFont(applyBold(title.getFont()));
+		title.setBackground(parent.getBackground());
+		GridData titleData = new GridData(SWT.LEFT, SWT.TOP, true, false, 2, 1);
+		title.setLayoutData(titleData);
 
-		overviewComp = new Composite(ec2, SWT.NONE);
-		overviewComp.setLayout(new GridLayout(2, false));
-		overviewComp.setBackground(form.getBody().getBackground());
-		overviewComp.setForeground(form.getBody().getForeground());
-		ec2.setClient(overviewComp);
+		Label unitLabel = new Label(parent, SWT.NONE);
+		unitLabel.setText(Messages.IDFSizeChartsComposite_SizeUnit);
+		unitLabel.setBackground(parent.getBackground());
+
+		Combo unitCombo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
+		unitCombo.setItems(new String[] { "Bytes", "KB", "MB" }); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		unitCombo.select(1);
+		unitCombo.addListener(SWT.Selection, e -> {
+			selectedUnit = switch (unitCombo.getSelectionIndex())
+			{
+			case 0 -> MemoryUnit.BYTES;
+			case 2 -> MemoryUnit.MEGABYTES;
+			default -> MemoryUnit.KILOBYTES;
+			};
+			populateTable();
+		});
+
+		// Table
+		table = new Table(parent, SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL | SWT.NO_FOCUS);
+		table.setHeaderVisible(true);
+		table.setLinesVisible(true);
+		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+
+		String[] columns = { "Region", "Used", "Free", "Total", "Usage" };
+		for (String colName : columns)
+		{
+			TableColumn col = new TableColumn(table, SWT.NONE);
+			col.setText(colName);
+			col.setWidth(150);
+		}
 
 		overviewJson = getIDFSizeOverviewData(file, targetName);
-		long dram_data = (long) overviewJson.get(IDFSizeConstants.AVAILABLE_DIRAM);
-		long dram_bss = (long) overviewJson.get(IDFSizeConstants.DRAM_BSS);
-		long flash_code = (long) overviewJson.get(IDFSizeConstants.FLASH_CODE);
-		long flash_rodata = (long) overviewJson.get(IDFSizeConstants.FLASH_RODATA_OVERVIEW);
-		long total_size = (long) overviewJson.get(IDFSizeConstants.TOTAL_SIZE);
-		Label sizeLbl = toolkit.createLabel(overviewComp, Messages.IDFSizeOverviewComposite_TotalSize);
-		Label sizeVal = toolkit.createLabel(overviewComp, convertToKB(total_size));
+		populateTable();
 
-		FontDescriptor boldDescriptor = FontDescriptor.createFrom(sizeLbl.getFont()).setStyle(SWT.BOLD);
-		boldFont = boldDescriptor.createFont(sizeLbl.getDisplay());
-		sizeVal.setFont(boldFont);
-
-		toolkit.createLabel(overviewComp, Messages.IDFSizeOverviewComposite_DramDataSize);
-		Label b1Val = toolkit.createLabel(overviewComp, convertToKB(dram_data));
-		b1Val.setFont(boldFont);
-
-		toolkit.createLabel(overviewComp, Messages.IDFSizeOverviewComposite_DramBssSize);
-		Label b2Val = toolkit.createLabel(overviewComp, convertToKB(dram_bss));
-		b2Val.setFont(boldFont);
-
-		toolkit.createLabel(overviewComp, Messages.IDFSizeOverviewComposite_FlashCodeSize);
-		Label b3Val = toolkit.createLabel(overviewComp, convertToKB(flash_code));
-		b3Val.setFont(boldFont);
-
-		toolkit.createLabel(overviewComp, Messages.IDFSizeOverviewComposite_FlashRoDataSize);
-		Label b4Val = toolkit.createLabel(overviewComp, convertToKB(flash_rodata));
-		b4Val.setFont(boldFont);
-
-		Section ec = toolkit.createSection(form.getBody(), Section.TITLE_BAR);
-		ec.setText(Messages.IDFSizeOverviewComposite_MemoryAllocation);
-		ec.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-
-		chartComp = new Composite(ec, SWT.NONE);
-		chartComp.setLayout(new GridLayout(2, false));
-		chartComp.setBackground(form.getBody().getBackground());
-		chartComp.setForeground(form.getBody().getForeground());
-		ec.setClient(chartComp);
-
-		// available_diram is non-zero for esp32
-		long available_diram = overviewJson.get(IDFSizeConstants.AVAILABLE_DIRAM) != null
-				? (long) overviewJson.get(IDFSizeConstants.AVAILABLE_DIRAM)
-				: 0;
-		if (available_diram == 0)
-		{
-			plotDoubleBar();
-		}
-		else
-		{
-			plotSingleBar();
-		}
-
-	}
-	
-	private void plotSingleBar()
-	{
-		// esps2-s2 specific
-		long used_diram = (long) overviewJson.get(IDFSizeConstants.USED_DIRAM);
-		long available_diram = (long) overviewJson.get(IDFSizeConstants.AVAILABLE_DIRAM);
-		double used_diram_ratio = (double) overviewJson.get(IDFSizeConstants.USED_DIRAM_RATIO);
-
-		toolkit.createLabel(overviewComp, Messages.IDFSizeOverviewComposite_SinglePlot_UsedDiram);
-		String chartText = String.format(Messages.IDFSizeOverviewComposite_UsedSizeText, convertToKB(used_diram),
-				convertToKB(available_diram), Math.round(used_diram_ratio * 100));
-		Label dramUsedVal = toolkit.createLabel(overviewComp, chartText); // $NON-NLS-1$
-		dramUsedVal.setFont(boldFont);
-
-		createChart(chartComp, used_diram, available_diram, chartText, "DIRAM"); //$NON-NLS-1$
-
+		// Bold header
+		Font headerFont = applyBold(table.getFont());
+		table.setFont(headerFont);
 	}
 
-	protected void plotDoubleBar()
+	private void populateTable()
 	{
-		long used_iram = (long) overviewJson.get(IDFSizeConstants.USED_IRAM);
-		long available_iram = (long) overviewJson.get(IDFSizeConstants.AVAILABLE_IRAM);
-		double used_iram_ratio = (double) overviewJson.get(IDFSizeConstants.USED_IRAM_RATIO);
+		table.removeAll();
 
-		long used_dram = (long) overviewJson.get(IDFSizeConstants.USED_DRAM);
-		long available_dram = (long) overviewJson.get(IDFSizeConstants.AVAILABLE_DRAM);
-		double used_dram_ratio = (double) overviewJson.get(IDFSizeConstants.USED_DRAM_RATIO);
+		JSONArray layout = (JSONArray) overviewJson.get("layout");
+		long grandUsed = 0;
+		long grandFree = 0;
 
-		// Used static DRAM
-		toolkit.createLabel(overviewComp, Messages.IDFSizeOverviewComposite_UsedStaticDram);
+		int rowIndex = 0;
+		for (Object obj : layout)
+		{
+			JSONObject section = (JSONObject) obj;
+			String name = (String) section.get("name");
+			long used = (long) section.get("used");
+			long free = (long) section.get("free");
+			long total = (long) section.get("total");
 
-		String dramText = String.format(Messages.IDFSizeOverviewComposite_UsedSizeText, convertToKB(used_dram),
-				convertToKB(available_dram), Math.round(used_dram_ratio * 100));
+			grandUsed += used;
+			grandFree += free;
 
-		Label dramUsedVal = toolkit.createLabel(overviewComp, dramText); // $NON-NLS-1$
-		dramUsedVal.setFont(boldFont);
+			TableItem item = new TableItem(table, SWT.NONE);
+			item.setText(new String[] { name, formatMemory(used), formatMemory(free), formatMemory(total), "" // progress
+																												// bar
+																												// will
+																												// go
+																												// here
+			});
+			applyBoldToColumn(item, 0);
 
-		// Used static IRAM
-		toolkit.createLabel(overviewComp, Messages.IDFSizeOverviewComposite_UsedStaticIram);
-		String iramText = String.format(Messages.IDFSizeOverviewComposite_UsedSizeText, convertToKB(used_iram),
-				convertToKB(available_iram), Math.round(used_iram_ratio * 100));
-		Label iramUsedVal = toolkit.createLabel(overviewComp, iramText); // $NON-NLS-1$
-		iramUsedVal.setFont(boldFont);
+			createProgressBar(rowIndex, used, total);
+			rowIndex++;
+		}
 
-		createChart(chartComp, used_dram, available_dram, dramText, "DRAM"); //$NON-NLS-1$
-		createChart(chartComp, used_iram, available_iram, iramText, "IRAM"); //$NON-NLS-1$
+		// Total row
+		TableItem totalRow = new TableItem(table, SWT.NONE);
+		totalRow.setText(new String[] { "Total:", formatMemory(grandUsed), formatMemory(grandFree),
+				formatMemory(grandUsed + grandFree), "" });
+		for (int i = 0; i < 5; i++)
+		{
+			applyBoldToColumn(totalRow, i);
+		}
+		createProgressBar(rowIndex, grandUsed, grandUsed + grandFree);
+	}
 
+	private void createProgressBar(int rowIndex, long used, long total)
+	{
+		if (total == 0)
+			return;
+
+		TableEditor editor = new TableEditor(table);
+		editor.grabHorizontal = true;
+		editor.grabVertical = true;
+		editor.horizontalAlignment = SWT.FILL;
+
+		Composite barComposite = new Composite(table, SWT.NONE);
+		GridLayout layout = new GridLayout(2, false);
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		barComposite.setLayout(layout);
+		barComposite.setBackground(table.getBackground());
+
+		ProgressBar bar = new ProgressBar(barComposite, SWT.HORIZONTAL);
+		bar.setMaximum((int) total);
+		bar.setSelection((int) used);
+		GridData barData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		barData.widthHint = 100;
+		bar.setLayoutData(barData);
+
+		Label percent = new Label(barComposite, SWT.NONE);
+		percent.setText(getUsagePercent(used, total));
+		percent.setBackground(barComposite.getBackground());
+		percent.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
+
+		editor.setEditor(barComposite, table.getItem(rowIndex), 4);
+	}
+
+	private void applyBoldToColumn(TableItem item, int columnIndex)
+	{
+		Font bold = applyBold(item.getFont());
+		item.setFont(columnIndex, bold);
+	}
+
+	private String formatMemory(long bytes)
+	{
+		double value = (double) bytes / selectedUnit.getDivider();
+		return String.format("%.1f %s", value, selectedUnit.getLabel()); //$NON-NLS-1$
+	}
+
+	private String getUsagePercent(long used, long total)
+	{
+		if (total == 0)
+			return "-";
+		double percent = (double) used / total * 100;
+		return String.format("%.1f%%", percent); //$NON-NLS-1$
+	}
+
+	private Font applyBold(Font original)
+	{
+		if (boldFont != null)
+			return boldFont;
+		FontData[] data = original.getFontData();
+		for (FontData d : data)
+		{
+			d.setStyle(SWT.BOLD);
+		}
+		boldFont = new Font(original.getDevice(), data);
+		return boldFont;
 	}
 
 	protected JSONObject getIDFSizeOverviewData(IFile file, String targetName)
 	{
-		// Get data
-		JSONObject idfSizeOverview = null;
 		try
 		{
-			idfSizeOverview = new IDFSizeDataManager().getIDFSizeOverview(file, targetName);
+			return new IDFSizeDataManager().getIDFSizeOverview(file, targetName);
 		}
 		catch (Exception e)
 		{
 			Logger.log(e);
+			return null;
 		}
-		return idfSizeOverview;
 	}
-
-	/**
-	 * create the chart.
-	 * 
-	 * @param parent        The parent composite
-	 * @param available_ram
-	 * @param used_ram
-	 * @param chartText
-	 * @param chartName
-	 * @return The created chart
-	 */
-	static public Chart createChart(Composite parent, long used_ram, long available_ram, String chartText,
-			String chartName)
-	{
-
-		double[] used = { used_ram / 1024 }; // KB
-		double[] available = { available_ram / 1024 }; // KB
-
-		// create a chart
-		Chart chart = new Chart(parent, SWT.NONE);
-		chart.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-
-		// set titles
-		chart.getTitle().setText("Used " + chartText); //$NON-NLS-1$
-
-		chart.getAxisSet().getXAxis(0).getTitle().setText(""); //$NON-NLS-1$
-		chart.getAxisSet().getYAxis(0).getTitle().setText(""); //$NON-NLS-1$ S
-
-		// set category
-		chart.getAxisSet().getXAxis(0).enableCategory(true);
-		chart.getAxisSet().getXAxis(0).setCategorySeries(new String[] { chartName });
-
-		// create bar series
-		IBarSeries<?> barSeries1 = (IBarSeries<?>) chart.getSeriesSet().createSeries(SeriesType.BAR,
-				Messages.IDFSizeOverviewComposite_ChartUsedText);
-		barSeries1.setYSeries(used);
-		barSeries1.setBarColor(Display.getDefault().getSystemColor(SWT.COLOR_RED));
-
-		IBarSeries<?> barSeries2 = (IBarSeries<?>) chart.getSeriesSet().createSeries(SeriesType.BAR,
-				Messages.IDFSizeOverviewComposite_ChartAvailableText);
-		barSeries2.setYSeries(available);
-		barSeries2.setBarColor(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GREEN));
-
-		// enable stack series
-		barSeries1.enableStack(true);
-		barSeries2.enableStack(true);
-		chart.setSize(100, 200);
-
-		// adjust the axis range
-		chart.getAxisSet().adjustRange();
-		return chart;
-	}
-
-	protected String convertToKB(long value)
-	{
-		return String.valueOf(Math.round(value / 1024)) + " KB"; //$NON-NLS-1$
-	}
-
 }
