@@ -2,10 +2,11 @@
  * Copyright 2025 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.ui;
+package com.espressif.idf.ui.tools;
 
 import java.text.MessageFormat;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -21,15 +22,20 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.EimConstants;
 import com.espressif.idf.core.tools.ToolInitializer;
 import com.espressif.idf.core.tools.vo.EimJson;
+import com.espressif.idf.core.tools.watcher.EimJsonStateChecker;
+import com.espressif.idf.core.tools.watcher.EimJsonWatchService;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.dialogs.MessageLinkDialog;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.tools.manager.ESPIDFManagerEditor;
 import com.espressif.idf.ui.tools.manager.EimEditorInput;
+import com.espressif.idf.ui.tools.watcher.EimJsonUiChangeHandler;
 
 /**
  * Startup class to handle the tools
+ * 
  * @author Ali Azam Rana <ali.azamrana@espressif.com>
  *
  */
@@ -58,6 +64,24 @@ public class EspressifToolStartup implements IStartup
 		{
 			promptUserToOpenToolManager(eimJson);
 		}
+
+		EimJsonStateChecker stateChecker = new EimJsonStateChecker(preferences);
+		if (stateChecker.wasModifiedSinceLastRun())
+		{
+			showEimJsonStateChangeNotification();
+		}
+
+		stateChecker.updateLastSeenTimestamp();
+		EimJsonWatchService.getInstance().addEimJsonChangeListener(new EimJsonUiChangeHandler(preferences));
+	}
+
+	private void showEimJsonStateChangeNotification()
+	{
+		Display.getDefault().asyncExec(() -> {
+			MessageDialog.openInformation(Display.getDefault().getActiveShell(),
+					com.espressif.idf.ui.tools.Messages.EimJsonChangedMsgTitle,
+					com.espressif.idf.ui.tools.Messages.EimJsonStateChangedMsgDetail);
+		});
 	}
 
 	private void notifyMissingTools()

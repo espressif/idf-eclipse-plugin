@@ -26,6 +26,10 @@ public class Messages extends NLS
 	
 	public static String IDFToolsHandler_ToolsManagerConsole;
 	
+	public static String EimJsonChangedMsgTitle;
+	public static String EimJsonChangedMsgDetail;
+	public static String EimJsonStateChangedMsgDetail;
+	
 	static
 	{
 		// initialize resource bundle
