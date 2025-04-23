@@ -544,8 +544,9 @@
 	<extension
 		point="org.eclipse.ui.startup">
 		<startup
-			class="com.espressif.idf.ui.InitializeToolsStartup">
-		</startup>
+			class="com.espressif.idf.ui.EspressifGeneralStartup"/>
+		<startup
+			class="com.espressif.idf.ui.EspressifToolStartup"/>
 	</extension>
 	<extension
 		id="com.espressif.idf.ui.extension.locale.support"
