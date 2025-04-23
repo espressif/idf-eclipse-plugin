@@ -26,6 +26,7 @@ import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.logging.Logger;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -54,6 +55,7 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 		ILaunchTarget target = barManager.getActiveLaunchTarget();
 		if (config.getName().equals(IBuildConfiguration.DEFAULT_CONFIG_NAME))
 		{
+			Logger.log("Default config name is't supported"); //$NON-NLS-1$
 			return null;
 		}
 		IDFBuildConfiguration cmakeConfig = new IDFBuildConfiguration(config, name);
@@ -61,6 +63,7 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 		IToolChain toolChain = cmakeConfig.getToolChain();
 		if (toolChain == null)
 		{
+			Logger.log("Toolchain is null"); //$NON-NLS-1$
 			// config not complete
 			return null;
 		}
@@ -74,6 +77,7 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 		{
 			return cmakeConfig;
 		}
+
 	}
 
 	@Override

@@ -120,11 +120,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		super(config, name);
 	}
 
-	public IDFBuildConfiguration(IBuildConfiguration config, String name, IToolChain toolChain, ILaunchTarget target)
-	{
-		this(config, name, toolChain, null, "run", target); //$NON-NLS-1$
-	}
-
 	public IDFBuildConfiguration(IBuildConfiguration config, String name, IToolChain toolChain,
 			ICMakeToolChainFile toolChainFile, String launchMode, ILaunchTarget target)
 	{
