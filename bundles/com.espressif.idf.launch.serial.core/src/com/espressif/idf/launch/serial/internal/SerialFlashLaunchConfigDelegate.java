@@ -32,6 +32,7 @@ import org.eclipse.cdt.debug.core.launch.CoreBuildGenericLaunchConfigDelegate;
 import org.eclipse.cdt.debug.core.launch.NullProcess;
 import org.eclipse.cdt.debug.internal.core.Messages;
 import org.eclipse.cdt.serial.SerialPort;
+import org.eclipse.cdt.utils.CommandLineUtil;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -150,11 +151,13 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		{
 			return;
 		}
-		String arguments = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, espFlashCommand);
-		arguments = varManager.performStringSubstitution(arguments);
-		if (!arguments.isEmpty())
+		String args = configuration.getAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, espFlashCommand);
+
+		if (!args.isEmpty())
 		{
-			commands.addAll(Arrays.asList(varManager.performStringSubstitution(arguments).split(" "))); //$NON-NLS-1$
+			args = varManager.performStringSubstitution(args);
+			String[] arguments = CommandLineUtil.argumentsToArray(args);
+			commands.addAll(Arrays.asList((arguments)));
 		}
 
 		String workingDirectory = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY,
