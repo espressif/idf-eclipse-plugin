@@ -43,6 +43,11 @@ public class BuildFolderVariableResolver implements IDynamicVariableResolver
 				buildFolder = projectBuildFolder;
 		}
 
+		if (buildFolder != null && buildFolder.contains(" ")) //$NON-NLS-1$
+		{
+			buildFolder = "\"" + buildFolder + "\""; //$NON-NLS-1$ //$NON-NLS-2$
+		}
+
 		return buildFolder;
 	}
 
