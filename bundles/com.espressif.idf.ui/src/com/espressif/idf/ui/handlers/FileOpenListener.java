@@ -7,6 +7,9 @@ package com.espressif.idf.ui.handlers;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.content.IContentType;
+import org.eclipse.core.runtime.content.IContentTypeManager;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbenchPart;
@@ -38,6 +41,12 @@ public class FileOpenListener implements IPartListener2
 			IProject project = file.getProject();
 			if (project == null)
 				return;
+			
+			if (!isSourceOrHeaderFile(file))
+			{
+				return;
+			}
+			
 			String buildDir = StringUtil.EMPTY;
 			try
 			{
@@ -54,6 +63,27 @@ public class FileOpenListener implements IPartListener2
 			lspService.restartLspServers();
 
 		}
+	}
+	
+	private boolean isSourceOrHeaderFile(IFile file)
+	{
+		try
+		{
+			IContentTypeManager contentTypeManager = Platform.getContentTypeManager();
+			IContentType contentType = contentTypeManager.findContentTypeFor(file.getFullPath().toOSString());
+			if (contentType != null)
+			{
+				String id = contentType.getId();
+				if ((id.startsWith("org.eclipse.cdt.core.c") && (id.endsWith("Source") || id.endsWith("Header")))) {
+                    return true;
+                }
+			}
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+		}
+		return false;
 	}
 
 	@Override
