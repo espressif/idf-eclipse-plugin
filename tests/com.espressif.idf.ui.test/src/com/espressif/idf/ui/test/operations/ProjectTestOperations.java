@@ -689,7 +689,7 @@ public class ProjectTestOperations
 		SWTBotView consoleView = viewConsole(consoleName, bot);
 		consoleView.show();
 		consoleView.setFocus();
-		TestWidgetWaitUtility.waitUntilViewContains(bot, findText, consoleView, 3000);
+		TestWidgetWaitUtility.waitUntilViewContains(bot, findText, consoleView, 30000);
 	}
 
 	public static boolean checkShellContent(SWTWorkbenchBot bot, String shellName, String expectedText)

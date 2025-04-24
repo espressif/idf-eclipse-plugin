@@ -283,7 +283,7 @@ public class SbomCommandDialog extends TitleAreaDialog
 
 	private void runEspIdfSbomCommand()
 	{
-		Map<String, String> environment = new HashMap<>(IDFUtil.getSystemEnv());
+		Map<String, String> environment = new HashMap<>(System.getenv());
 		List<String> arguments = new ArrayList<>();
 		final String pythonEnvPath = IDFUtil.getIDFPythonEnvPath();
 		arguments.add(pythonEnvPath);
@@ -435,7 +435,7 @@ public class SbomCommandDialog extends TitleAreaDialog
 
 	private void installEspIdfSbom()
 	{
-		Map<String, String> environment = new HashMap<>(IDFUtil.getSystemEnv());
+		Map<String, String> environment = new HashMap<>(System.getenv());
 		List<String> arguments = new ArrayList<>();
 		final String pythonEnvPath = IDFUtil.getIDFPythonEnvPath();
 		arguments.add(pythonEnvPath);
@@ -450,7 +450,7 @@ public class SbomCommandDialog extends TitleAreaDialog
 
 	private boolean getEspIdfSbomInstalledStatus()
 	{
-		Map<String, String> environment = new HashMap<>(IDFUtil.getSystemEnv());
+		Map<String, String> environment = new HashMap<>(System.getenv());
 		List<String> arguments = new ArrayList<>();
 		final String pythonEnvPath = IDFUtil.getIDFPythonEnvPath();
 		arguments.add(pythonEnvPath);

@@ -177,7 +177,7 @@ public class ESPToolChainManager
 
 	private Path[] getDirectories(String path)
 	{
-		return Arrays.stream(path.split(File.pathSeparator)).map(String::trim).map(Paths::get).filter(Files::exists)
+		return Arrays.stream(path.split(File.pathSeparator)).map(String::trim).map(Paths::get).filter(Files::exists).filter(Files::isDirectory)
 				.toArray(Path[]::new);
 	}
 
@@ -316,7 +316,7 @@ public class ESPToolChainManager
 			Logger.log(commands.toString());
 
 			IStatus idfToolsExportStatus = new ProcessBuilderFactory().runInBackground(commands,
-					org.eclipse.core.runtime.Path.ROOT, IDFUtil.getSystemEnv());
+					org.eclipse.core.runtime.Path.ROOT, System.getenv());
 			if (idfToolsExportStatus != null && idfToolsExportStatus.isOK())
 			{
 				String message = idfToolsExportStatus.getMessage();

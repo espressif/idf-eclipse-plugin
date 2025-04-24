@@ -16,11 +16,11 @@ import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.tools.EimConstants;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.tools.ManageEspIdfVersionsHandler;
-import com.espressif.idf.ui.update.InstallToolsHandler;
 
 public class NewProjectHandlerUtil
 {
@@ -35,7 +35,7 @@ public class NewProjectHandlerUtil
 		String path = Optional.ofNullable(pathEnv).map(o -> o.getValue()).orElse(null);
 
 		Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
-		boolean isToolsInstalled = scopedPreferenceStore.getBoolean(InstallToolsHandler.INSTALL_TOOLS_FLAG, false);
+		boolean isToolsInstalled = scopedPreferenceStore.getBoolean(EimConstants.INSTALL_TOOLS_FLAG, false);
 
 		if (StringUtil.isEmpty(idfPath))
 		{
