@@ -17,7 +17,6 @@ import org.eclipse.cdt.core.build.ICBuildConfiguration;
 import org.eclipse.cdt.core.build.ICBuildConfigurationManager;
 import org.eclipse.cdt.core.build.ICBuildConfigurationProvider;
 import org.eclipse.cdt.core.build.IToolChain;
-import org.eclipse.cdt.core.build.IToolChainManager;
 import org.eclipse.core.resources.IBuildConfiguration;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -50,12 +49,11 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 	public synchronized ICBuildConfiguration getCBuildConfiguration(IBuildConfiguration config, String name)
 			throws CoreException
 	{
-		IToolChainManager toolChainManager = IDFCorePlugin.getService(IToolChainManager.class);
 		ILaunchBarManager barManager = IDFCorePlugin.getService(ILaunchBarManager.class);
-		ILaunchTarget target = barManager.getActiveLaunchTarget();
+		ILaunchTarget target = barManager != null ? barManager.getActiveLaunchTarget() : null;
 		if (config.getName().equals(IBuildConfiguration.DEFAULT_CONFIG_NAME))
 		{
-			Logger.log("Default config name is't supported"); //$NON-NLS-1$
+			Logger.log("Default config name is not supported"); //$NON-NLS-1$
 			return null;
 		}
 		IDFBuildConfiguration cmakeConfig = new IDFBuildConfiguration(config, name);
