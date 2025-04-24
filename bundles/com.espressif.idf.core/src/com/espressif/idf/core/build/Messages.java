@@ -33,8 +33,23 @@ public class Messages extends NLS
 	public static String ToolsInitializationDifferentPathMessageBoxOptionYes;
 	public static String ToolsInitializationDifferentPathMessageBoxOptionNo;
 	public static String IDFToolChainsMissingErrorMsg;
+	
+	public static String ToolsInitializationEimMissingMsgBoxTitle;
+	public static String ToolsInitializationEimMissingMsgBoxMessage;
 
 	public static String RefreshingProjects_JobName;
+	
+	public static String NoActiveEspIdfInWorkspaceMsgTitle;
+	public static String NoActiveEspIdfInWorkspaceMsg;
+	
+	public static String OldConfigFoundMsgBoxTitle;
+	public static String OldConfigFoundMsgBoxMsg;
+	public static String OldConfigExportDirectorSelectionDialogTitle;
+	public static String OldConfigExportDirectorSelectionDialogInfo;
+	public static String OldConfigExportCompleteSuccessMsgTitle;
+	public static String OldConfigExportCompleteSuccessMsg;
+	public static String OldConfigExportCompleteFailMsgTitle;
+	public static String OldConfigExportCompleteFailMsg;
 
 	static
 	{
