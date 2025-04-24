@@ -131,7 +131,7 @@ public class ProductInformationHandler extends ListInstalledToolsHandler
 		List<String> commands = new ArrayList<>();
 		commands.add(pythonExePath);
 		commands.add("--version"); //$NON-NLS-1$
-		return pythonExePath != null ? runCommand(commands, IDFUtil.getSystemEnv()) : null;
+		return pythonExePath != null ? runCommand(commands, System.getenv()) : null;
 	}
 
 	private String runCommand(List<String> arguments, Map<String, String> env)
