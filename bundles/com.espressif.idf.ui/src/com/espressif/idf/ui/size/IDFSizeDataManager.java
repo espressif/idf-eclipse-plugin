@@ -205,7 +205,7 @@ public class IDFSizeDataManager
 		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 		try
 		{
-			return processRunner.runInBackground(arguments, Path.ROOT, IDFUtil.getSystemEnv());
+			return processRunner.runInBackground(arguments, Path.ROOT, System.getenv());
 		}
 		catch (Exception e1)
 		{
