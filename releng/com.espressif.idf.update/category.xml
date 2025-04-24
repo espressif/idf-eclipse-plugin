@@ -30,6 +30,9 @@
    <feature id="org.eclipse.tm4e.language_pack.feature">
       <category name="com.espressif.idf"/>
    </feature>
+   <feature id="org.eclipse.justj.openjdk.hotspot.jre.full">
+      <category name="com.espressif.idf.dependencies"/>
+   </feature>
    <bundle id="org.eclipse.embedcdt.templates.core">
       <category name="com.espressif.idf"/>
    </bundle>
@@ -85,9 +88,6 @@
       <category name="com.espressif.idf.dependencies"/>
    </bundle>
    <bundle id="org.commonmark">
-      <category name="com.espressif.idf.dependencies"/>
-   </bundle>
-   <bundle id="org.eclipse.justj.openjdk.hotspot.jre.full">
       <category name="com.espressif.idf.dependencies"/>
    </bundle>
    <category-def name="com.espressif.idf" label="ESP-IDF Eclipse Plugin">
