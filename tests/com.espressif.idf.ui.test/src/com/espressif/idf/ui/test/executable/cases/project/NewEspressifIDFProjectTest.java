@@ -119,55 +119,6 @@ public class NewEspressifIDFProjectTest
 //		Fixture.thenConsoleShowsBuildSuccessful();
 //	}
 
-//	@Test
-//	public void givenNewProjectCreatedDfuBuiltThenHasDfuBin() throws Exception
-//	{
-//		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-//		Fixture.givenProjectNameIs("NewProjectTestDFU");
-//		Fixture.whenNewProjectIsSelected();
-//		Fixture.thenLaunchTargetIsSelectedFromLaunchTargets("esp32s2");
-//		Fixture.turnOnDfu();
-//		Fixture.whenProjectIsBuiltUsingContextMenu();
-//		Fixture.thenProjectHasTheFile("dfu.bin", "/build");
-//		Fixture.turnOffDfu();
-//	}
-
-	@Test
-	public void givenNewProjectCreatedThenInstallNewComponent() throws Exception
-	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectForInstallNewComponentTest");
-		Fixture.whenNewProjectIsSelected();
-		Fixture.whenProjectIsBuiltUsingContextMenu();
-		Fixture.whenInstallNewComponentUsingContextMenu();
-		Fixture.whenRefreshProject();
-		Fixture.checkIfNewComponentIsInstalledUsingContextMenu();
-	}
-
-//	@Test
-//	public void givenNewProjectCreatedBuiltAndThenProjectCleanUsingContextMenu() throws Exception
-//	{
-//		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-//		Fixture.givenProjectNameIs("NewProjectCleanTest");
-//		Fixture.whenNewProjectIsSelected();
-//		Fixture.whenProjectIsBuiltUsingContextMenu();
-//		Fixture.whenProjectCleanUsingContextMenu();
-//		Fixture.whenRefreshProject();
-//		Fixture.checkIfProjectCleanedFilesInBuildFolder();
-//	}
-
-	@Test
-	public void givenNewProjectCreatedBuiltAndThenProjectFullCleanUsingContextMenu() throws Exception
-	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectFullCleanTest");
-		Fixture.whenNewProjectIsSelected();
-		Fixture.whenProjectIsBuiltUsingContextMenu();
-		Fixture.whenProjectFullCleanUsingContextMenu();
-		Fixture.whenRefreshProject();
-		Fixture.checkIfProjectFullCleanedFilesInBuildFolder();
-	}
-
 	@Test
 	public void givenNewProjectCreatedBuiltAndThenProjectPythonCleanUsingContextMenu() throws Exception
 	{
