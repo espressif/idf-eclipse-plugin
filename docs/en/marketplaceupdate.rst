@@ -107,6 +107,6 @@ To resolve this:
 - Update items already installed
 - Remove items already installed
 
-.. image:: ../../media/Resolve_update_error.png .png
+.. image:: ../../media/Resolve_update_error.png
 
 This will allow the installer to update or replace any conflicting components and continue the installation successfully.
