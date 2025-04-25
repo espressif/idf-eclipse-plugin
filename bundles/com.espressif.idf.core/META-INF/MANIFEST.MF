@@ -8,7 +8,7 @@ Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.filesystem;visibility:=reexport,
  org.eclipse.core.resources;visibility:=reexport,
- org.eclipse.cdt.core;bundle-version="8.0.0",
+ org.eclipse.cdt.core;bundle-version="9.0.0",
  org.eclipse.cdt.cmake.core;visibility:=reexport,
  org.eclipse.core.expressions;visibility:=reexport,
  org.eclipse.cdt.managedbuilder.core;visibility:=reexport,
@@ -30,9 +30,9 @@ Require-Bundle: org.eclipse.core.runtime,
  com.sun.jna,
  com.sun.jna.platform,
  org.eclipse.cdt.lsp.clangd,
- org.eclipse.cdt.lsp,
- org.eclipse.lsp4e,
- org.eclipse.lsp4j
+ org.eclipse.cdt.lsp;bundle-version="3.0.0",
+ org.eclipse.lsp4e;bundle-version="0.18.18",
+ org.eclipse.lsp4j;bundle-version="0.24.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: com.espressif.idf.core
 Bundle-ActivationPolicy: lazy

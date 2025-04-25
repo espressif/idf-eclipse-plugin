@@ -51,9 +51,8 @@ public class FormBrowser
 		flayout.marginHeight = 1;
 		container.setLayout(flayout);
 		formText = new Browser(container, SWT.NONE);
-		LocationListener locationListener = new LocationListener()
+		formText.addLocationListener(new LocationListener()
 		{
-
 			@Override
 			public void changing(LocationEvent event)
 			{
@@ -68,17 +67,14 @@ public class FormBrowser
 				{
 					// no need to report
 				}
-				formText.setText(text);
 			}
 
 			@Override
 			public void changed(LocationEvent event)
 			{
-
+				// Empty or custom behavior for changed() if needed
 			}
-
-		};
-		formText.addLocationListener(locationListener);
+		});
 
 		if (borderStyle == SWT.NULL)
 		{

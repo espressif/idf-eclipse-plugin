@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.eclipse.cdt.cmake.core.internal.CMakeBuildConfiguration;
+import org.eclipse.cdt.cmake.core.ICMakeBuildConfiguration;
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.model.CModelException;
 import org.eclipse.cdt.core.model.CoreModel;
@@ -485,7 +485,7 @@ public class CMakeMainTab2 extends GenericMainTab
 			hasProject = launchConfig.getMappedResources() != null
 					&& launchConfig.getMappedResources()[0].getProject().exists();
 			// Manually check for "-B" in cmakeArgs here because CMakeBuildTab2's isValid() method is not being called
-			String cmakeArgs = launchConfig.getAttribute(CMakeBuildConfiguration.CMAKE_ARGUMENTS, StringUtil.EMPTY);
+			String cmakeArgs = launchConfig.getAttribute(ICMakeBuildConfiguration.CMAKE_ARGUMENTS, StringUtil.EMPTY);
 			if (cmakeArgs.contains("-B")) //$NON-NLS-1$
 			{
 				setErrorMessage(Messages.CMakeMainTab2_CmakeArgsDeprecatedBArgMessage);

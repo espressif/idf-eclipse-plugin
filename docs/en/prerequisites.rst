@@ -15,7 +15,7 @@ Software Prerequisites
 -----------------------
 The minimum requirements for running the Espressif-IDE are listed below.
 
-- `Java 17 <https://www.oracle.com/technetwork/java/javase/downloads/index.html>`_ and above.
+- `Java 21 <https://www.oracle.com/technetwork/java/javase/downloads/index.html>`_ and above.
 - `Python 3.12 <https://www.python.org/downloads/>`_ and above.
 - `Git <https://git-scm.com/downloads>`_.
 - `ESP-IDF Prerequisites <https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/linux-macos-setup.html#step-1-install-prerequisites>`_ based on your Operating System.

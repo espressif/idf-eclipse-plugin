@@ -120,15 +120,10 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		super(config, name);
 	}
 
-	public IDFBuildConfiguration(IBuildConfiguration config, String name, IToolChain toolChain)
-	{
-		this(config, name, toolChain, null, "run"); //$NON-NLS-1$
-	}
-
 	public IDFBuildConfiguration(IBuildConfiguration config, String name, IToolChain toolChain,
-			ICMakeToolChainFile toolChainFile, String launchMode)
+			ICMakeToolChainFile toolChainFile, String launchMode, ILaunchTarget target)
 	{
-		super(config, name, toolChain, launchMode);
+		super(config, name, toolChain, launchMode, target);
 		this.toolChainFile = toolChainFile;
 	}
 
@@ -581,9 +576,13 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		String id = getProperty(TOOLCHAIN_ID);
 		IToolChainManager toolChainManager = CCorePlugin.<IToolChainManager>getService(IToolChainManager.class);
 		ILaunchBarManager launchBarManager = CCorePlugin.getService(ILaunchBarManager.class);
-		Collection<IToolChain> matchedToolChains = toolChainManager
-				.getToolChainsMatching(Map.of(IToolChain.ATTR_OS, launchBarManager.getActiveLaunchTarget()
-						.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY), TOOLCHAIN_TYPE, typeId));
+		ILaunchTarget activeTarget = launchBarManager.getActiveLaunchTarget();
+		if (activeTarget == null)
+		{
+			return super.getToolChain();
+		}
+		Collection<IToolChain> matchedToolChains = toolChainManager.getToolChainsMatching(Map.of(IToolChain.ATTR_OS,
+				activeTarget.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY), TOOLCHAIN_TYPE, typeId));
 		return matchedToolChains.stream().findAny().orElse(toolChainManager.getToolChain(typeId, id));
 	}
 

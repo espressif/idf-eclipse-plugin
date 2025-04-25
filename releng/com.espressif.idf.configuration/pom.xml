@@ -7,7 +7,7 @@
 
 	<properties>
 		<required-maven-version>3.9</required-maven-version>
-		<tycho-version>4.0.6</tycho-version>
+		<tycho-version>4.0.9</tycho-version>
 		<tycho-extras.version>${tycho-version}</tycho-extras.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<espressif-ide-release-version>3.4.0</espressif-ide-release-version>
@@ -38,7 +38,7 @@
 					</target>
 					<resolver>p2</resolver>
 					<pomDependencies>consider</pomDependencies>
-					<executionEnvironment>org.eclipse.justj.openjdk.hotspot.jre.full-17</executionEnvironment>
+					<executionEnvironment>org.eclipse.justj.openjdk.hotspot.jre.full-21</executionEnvironment>
 					<environments>
 						<environment>
 							<os>linux</os>
@@ -54,6 +54,11 @@
 							<os>macosx</os>
 							<ws>cocoa</ws>
 							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>aarch64</arch>
 						</environment>
 					</environments>
 				</configuration>

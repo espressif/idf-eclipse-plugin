@@ -21,14 +21,17 @@
    <feature id="org.eclipse.epp.mpc">
       <category name="com.espressif.idf"/>
    </feature>
-   <feature id="org.eclipse.userstorage">
-      <category name="com.espressif.idf"/>
-   </feature>
    <feature id="org.eclipse.tm4e.feature">
       <category name="com.espressif.idf"/>
    </feature>
    <feature id="org.eclipse.swtchart.feature">
       <category name="com.espressif.idf"/>
+   </feature>
+   <feature id="org.eclipse.tm4e.language_pack.feature">
+      <category name="com.espressif.idf"/>
+   </feature>
+   <feature id="org.eclipse.justj.openjdk.hotspot.jre.full">
+      <category name="com.espressif.idf.dependencies"/>
    </feature>
    <bundle id="org.eclipse.embedcdt.templates.core">
       <category name="com.espressif.idf"/>
@@ -84,8 +87,8 @@
    <bundle id="org.apache.batik.util">
       <category name="com.espressif.idf.dependencies"/>
    </bundle>
-   <bundle id="org.eclipse.mylyn.wikitext.markdown">
-      <category name="com.espressif.idf"/>
+   <bundle id="org.commonmark">
+      <category name="com.espressif.idf.dependencies"/>
    </bundle>
    <category-def name="com.espressif.idf" label="ESP-IDF Eclipse Plugin">
       <description>

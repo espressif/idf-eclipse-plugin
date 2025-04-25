@@ -91,3 +91,22 @@ If you have already installed the IDF Eclipse Plugin using the update site URL, 
 3. Click `Next` to proceed with the installation.
 
 .. image:: ../../media/Update_plugins.png
+	
+If the next version of the plugin requires updated dependencies (e.g., the minimum CDT version has changed from 11.6 to 12), you’ll need to ensure these dependencies are updated during installation from the update site.
+
+.. image:: ../../media/Update_dependencies.png
+	
+If the required dependencies are not updated, the installer will display the following error:
+`The installation cannot be completed as requested.`
+
+To resolve this:
+
+1. Click Show original error and build my own solution.
+2. Then select both:
+
+- Update items already installed
+- Remove items already installed
+
+.. image:: ../../media/Resolve_update_error.png
+
+This will allow the installer to update or replace any conflicting components and continue the installation successfully.

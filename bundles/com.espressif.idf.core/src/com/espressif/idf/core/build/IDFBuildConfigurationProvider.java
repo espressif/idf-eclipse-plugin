@@ -17,7 +17,6 @@ import org.eclipse.cdt.core.build.ICBuildConfiguration;
 import org.eclipse.cdt.core.build.ICBuildConfigurationManager;
 import org.eclipse.cdt.core.build.ICBuildConfigurationProvider;
 import org.eclipse.cdt.core.build.IToolChain;
-import org.eclipse.cdt.core.build.IToolChainManager;
 import org.eclipse.core.resources.IBuildConfiguration;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -27,7 +26,6 @@ import org.eclipse.launchbar.core.target.ILaunchTarget;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.toolchain.ESPToolchain;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -51,80 +49,38 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 	public synchronized ICBuildConfiguration getCBuildConfiguration(IBuildConfiguration config, String name)
 			throws CoreException
 	{
+		ILaunchBarManager barManager = IDFCorePlugin.getService(ILaunchBarManager.class);
+		ILaunchTarget target = barManager != null ? barManager.getActiveLaunchTarget() : null;
 		if (config.getName().equals(IBuildConfiguration.DEFAULT_CONFIG_NAME))
 		{
-			IToolChain toolChain = null;
-
-			// try the toolchain for the current target
-			IToolChainManager toolChainManager = IDFCorePlugin.getService(IToolChainManager.class);
-			ILaunchBarManager barManager = IDFCorePlugin.getService(ILaunchBarManager.class);
-			try
-			{
-				ILaunchTarget target = barManager.getActiveLaunchTarget();
-				if (target == null)
-				{
-					return null;
-				}
-				for (IToolChain tc : toolChainManager.getToolChainsMatching(target.getAttributes()))
-				{
-					if (tc instanceof ESPToolchain)
-					{
-						toolChain = tc;
-						break;
-					}
-				}
-			}
-			catch (CoreException e)
-			{
-				Logger.log(e);
-			}
-
-			// current didn't work, try and find one that does
-			if (toolChain == null)
-			{
-				for (IToolChain tc : toolChainManager.getToolChainsMatching(new HashMap<>()))
-				{
-					if (tc instanceof ESPToolchain)
-					{
-						toolChain = tc;
-						break;
-					}
-				}
-
-			}
-
-			if (toolChain != null)
-			{
-				return new IDFBuildConfiguration(config, name, toolChain);
-			}
-			else
-			{
-				// No valid combinations
-				return null;
-			}
+			Logger.log("Default config name is not supported"); //$NON-NLS-1$
+			return null;
 		}
 		IDFBuildConfiguration cmakeConfig = new IDFBuildConfiguration(config, name);
 		ICMakeToolChainFile tcFile = cmakeConfig.getToolChainFile();
 		IToolChain toolChain = cmakeConfig.getToolChain();
 		if (toolChain == null)
 		{
+			Logger.log("Toolchain is null"); //$NON-NLS-1$
 			// config not complete
 			return null;
 		}
 		if (tcFile != null && !toolChain.equals(tcFile.getToolChain()))
 		{
 			// toolchain changed
-			return new IDFBuildConfiguration(config, name, tcFile.getToolChain(), tcFile, cmakeConfig.getLaunchMode());
+			return new IDFBuildConfiguration(config, name, tcFile.getToolChain(), tcFile, cmakeConfig.getLaunchMode(),
+					target);
 		}
 		else
 		{
 			return cmakeConfig;
 		}
+
 	}
 
 	@Override
-	public ICBuildConfiguration createBuildConfiguration(IProject project, IToolChain toolChain, String launchMode,
-			IProgressMonitor monitor) throws CoreException
+	public ICBuildConfiguration createCBuildConfiguration(IProject project, IToolChain toolChain, String launchMode,
+			ILaunchTarget launchTarget, IProgressMonitor monitor) throws CoreException
 	{
 		// get matching toolchain file if any
 		Map<String, String> properties = new HashMap<>();
@@ -150,7 +106,7 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 		}
 
 		// Let's generate build artifacts directly under the build folder so that CLI and eclipse IDF will be in sync
-		String name = ICBuildConfiguration.DEFAULT_NAME;
+		String name = ICBuildConfiguration.TOOLCHAIN_ID;
 		IBuildConfiguration buildConfig;
 		if (configManager.hasConfiguration(this, project, name))
 		{
@@ -162,7 +118,8 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 
 		}
 
-		CBuildConfiguration cmakeConfig = new IDFBuildConfiguration(buildConfig, name, toolChain, file, launchMode);
+		CBuildConfiguration cmakeConfig = new IDFBuildConfiguration(buildConfig, name, toolChain, file, launchMode,
+				launchTarget);
 		configManager.addBuildConfiguration(buildConfig, cmakeConfig);
 		return cmakeConfig;
 	}
