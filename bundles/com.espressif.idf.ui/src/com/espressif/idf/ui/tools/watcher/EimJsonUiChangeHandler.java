@@ -7,6 +7,7 @@ package com.espressif.idf.ui.tools.watcher;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -39,7 +40,7 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 {
 	private Preferences preferences;
 	private EimJson eimJson;
-	
+
 	public EimJsonUiChangeHandler(Preferences preferences)
 	{
 		this.preferences = preferences;
@@ -51,10 +52,10 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 		int response = displayMessageToUser();
 		handleUserResponse(response);
 	}
-	
+
 	public int displayMessageToUser()
 	{
-		final int[] response = new int[] {-1};
+		final int[] response = new int[] { -1 };
 		Display display = Display.getDefault();
 		display.syncExec(() -> {
 			Shell shell = display.getActiveShell();
@@ -62,18 +63,18 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 			{
 				shell = new Shell(display);
 			}
-			MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO);
-			messageBox.setText(Messages.EimJsonChangedMsgTitle);
-			messageBox.setMessage(Messages.EimJsonChangedMsgDetail);
-			response[0] = messageBox.open();
+			MessageDialog messageDialog = new MessageDialog(shell, Messages.EimJsonChangedMsgTitle, null,
+					Messages.EimJsonChangedMsgDetail, MessageDialog.WARNING, 0,
+					new String[] { Messages.MsgYes, Messages.MsgNo });
+			response[0] = messageDialog.open();
 		});
-		
+
 		return response[0];
 	}
 
 	public void handleUserResponse(int response)
 	{
-		if (response == SWT.YES)
+		if (response == 0)
 		{
 			try
 			{
@@ -83,61 +84,62 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 					// only one entry in eimJson so we can simply refresh the IDE environment with that.
 					setupToolsInIde();
 				}
-				else 
+				else
 				{
 					// multiple entries in json so launch manager for user to handle this
 					launchEspIdfManager();
 				}
 			}
-			catch (IOException | PartInitException e)
+			catch (
+					IOException
+					| PartInitException e)
 			{
 				Logger.log(e);
 			}
 		}
-		
+
 		EimJsonStateChecker checker = new EimJsonStateChecker(preferences);
 		checker.updateLastSeenTimestamp();
 	}
-	
+
 	private void loadEimJson() throws IOException
 	{
 		EimIdfConfiguratinParser eimIdfConfiguratinParser = new EimIdfConfiguratinParser();
 		eimJson = eimIdfConfiguratinParser.getEimJson(true);
 	}
-	
-	
-	
+
 	private void setupToolsInIde()
 	{
-		SetupToolsInIde setupToolsInIde = new SetupToolsInIde(eimJson.getIdfInstalled().get(0), eimJson, getConsoleStream(true), getConsoleStream(false));
+		SetupToolsInIde setupToolsInIde = new SetupToolsInIde(eimJson.getIdfInstalled().get(0), eimJson,
+				getConsoleStream(true), getConsoleStream(false));
 		setupToolsInIde.schedule();
 	}
-	
+
 	private void launchEspIdfManager() throws PartInitException
 	{
 		Display.getDefault().asyncExec(() -> {
-	        IWorkbenchWindow activeww = EclipseHandler.getActiveWorkbenchWindow();
-	        if (activeww != null && activeww.getActivePage() != null)
-	        {
-	            try
-	            {
-	                IDE.openEditor(activeww.getActivePage(), new EimEditorInput(eimJson),
-	                        ESPIDFManagerEditor.EDITOR_ID, true);
-	            }
-	            catch (PartInitException e)
-	            {
-	                Logger.log("Failed to open ESP-IDF Manager Editor.");
-	                Logger.log(e);
-	            }
-	        }
-	        else
-	        {
-	            Logger.log("Cannot open ESP-IDF Manager Editor. No active workbench window yet.");
-	        }
-	    });
+			IWorkbenchWindow activeww = EclipseHandler.getActiveWorkbenchWindow();
+			if (activeww != null && activeww.getActivePage() != null)
+			{
+				try
+				{
+					IDE.openEditor(activeww.getActivePage(), new EimEditorInput(eimJson), ESPIDFManagerEditor.EDITOR_ID,
+							true);
+				}
+				catch (PartInitException e)
+				{
+					Logger.log("Failed to open ESP-IDF Manager Editor.");
+					Logger.log(e);
+				}
+			}
+			else
+			{
+				Logger.log("Cannot open ESP-IDF Manager Editor. No active workbench window yet.");
+			}
+		});
 
 	}
-	
+
 	private MessageConsoleStream getConsoleStream(boolean errorStream)
 	{
 		IDFConsole idfConsole = new IDFConsole();

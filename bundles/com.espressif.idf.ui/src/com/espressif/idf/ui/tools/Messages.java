@@ -30,6 +30,9 @@ public class Messages extends NLS
 	public static String EimJsonChangedMsgDetail;
 	public static String EimJsonStateChangedMsgDetail;
 	
+	public static String MsgYes;
+	public static String MsgNo;
+	
 	static
 	{
 		// initialize resource bundle
