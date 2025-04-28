@@ -9,6 +9,7 @@ The Espressif-IDE Eclipse Plugin can be installed using the update site URL, Ecl
 - :ref:`install_idf_eclipse_plugin_marketplace`
 - :ref:`install_idf_eclipse_plugin_local_archive`
 - :ref:`upgradePlugins`
+- :ref:`upgradeEspressifIdeDependencies`
 
 
 .. _installUpdateSiteURL:
@@ -92,7 +93,12 @@ If you have already installed the IDF Eclipse Plugin using the update site URL, 
 
 .. image:: ../../media/Update_plugins.png
 	
-If the next version of the plugin requires updated dependencies (e.g., the minimum CDT version has changed from 11.6 to 12), you’ll need to ensure these dependencies are updated during installation from the update site.
+
+.. _upgradeEspressifIdeDependencies:
+	
+Upgrading from Espressif-IDE 3.3.0 to 3.4.0
+------------------------------------------------------
+If the next version of the plugin requires updated dependencies (e.g., the minimum CDT version has changed from 11.6 to 12), make sure these dependencies are updated during installation from the update site.
 
 .. image:: ../../media/Update_dependencies.png
 	
@@ -101,11 +107,11 @@ If the required dependencies are not updated, the installer will display the fol
 
 To resolve this:
 
-1. Click Show original error and build my own solution.
+1. Click **Show original error and build my own solution**.
 2. Then select both:
 
-- Update items already installed
-- Remove items already installed
+- **Update items already installed**
+- **Remove items already installed**
 
 .. image:: ../../media/Resolve_update_error.png
 
