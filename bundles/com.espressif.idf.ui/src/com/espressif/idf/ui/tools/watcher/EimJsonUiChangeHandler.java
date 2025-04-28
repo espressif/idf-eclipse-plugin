@@ -8,9 +8,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
@@ -119,22 +117,21 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 	{
 		Display.getDefault().asyncExec(() -> {
 			IWorkbenchWindow activeww = EclipseHandler.getActiveWorkbenchWindow();
-			if (activeww != null && activeww.getActivePage() != null)
+			if (activeww == null || activeww.getActivePage() == null)
 			{
-				try
-				{
-					IDE.openEditor(activeww.getActivePage(), new EimEditorInput(eimJson), ESPIDFManagerEditor.EDITOR_ID,
-							true);
-				}
-				catch (PartInitException e)
-				{
-					Logger.log("Failed to open ESP-IDF Manager Editor.");
-					Logger.log(e);
-				}
+				Logger.log("Cannot open ESP-IDF Manager. No active workbench window or active page.");
+				return;
 			}
-			else
+			
+			try
 			{
-				Logger.log("Cannot open ESP-IDF Manager Editor. No active workbench window yet.");
+				IDE.openEditor(activeww.getActivePage(), new EimEditorInput(eimJson), ESPIDFManagerEditor.EDITOR_ID,
+						true);
+			}
+			catch (PartInitException e)
+			{
+				Logger.log("Failed to open ESP-IDF Manager Editor.");
+				Logger.log(e);
 			}
 		});
 
