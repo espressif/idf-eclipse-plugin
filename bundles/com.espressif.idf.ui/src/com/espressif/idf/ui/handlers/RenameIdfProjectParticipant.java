@@ -102,7 +102,6 @@ public class RenameIdfProjectParticipant extends RenameParticipant
 		// workaround to save active launch target when renaming the project
 		ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
 		ILaunchTarget activeLaunchTarget = launchBarManager.getActiveLaunchTarget();
-		launchBarManager.getActiveLaunchConfiguration().getAttributes();
 		LaunchBarListener.setIgnoreTargetChange(true);
 		Display.getDefault().syncExec(() -> Display.getDefault().getActiveShell().addDisposeListener(disposeEvent -> {
 			try
