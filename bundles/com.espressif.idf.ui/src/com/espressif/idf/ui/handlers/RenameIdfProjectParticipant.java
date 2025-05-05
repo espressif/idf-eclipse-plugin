@@ -32,6 +32,7 @@ public class RenameIdfProjectParticipant extends RenameParticipant
 		private String oldBuildFolderPath;
 		private String newBuildPath;
 		private IProject newProject;
+		private IFolder newBuildFolder;
 
 		@Override
 		public String getName()
@@ -54,7 +55,7 @@ public class RenameIdfProjectParticipant extends RenameParticipant
 				oldBuildFolderPath = IDFUtil.getBuildDir(project);
 				String newProjectName = getArguments().getNewName();
 				newProject = ResourcesPlugin.getWorkspace().getRoot().getProject(newProjectName);
-				IFolder newBuildFolder = newProject.getFolder(IDFConstants.BUILD_FOLDER);
+				newBuildFolder = newProject.getFolder(IDFConstants.BUILD_FOLDER);
 				newBuildPath = newBuildFolder.getFullPath().toOSString();
 			}
 			catch (CoreException e)
@@ -66,7 +67,7 @@ public class RenameIdfProjectParticipant extends RenameParticipant
 		@Override
 		public Change perform(IProgressMonitor pm) throws CoreException
 		{
-			IDFUtil.setBuildDir(newProject, newBuildPath);
+			IDFUtil.setBuildDir(newProject, newBuildFolder.getLocation().toOSString());
 			return null;
 		}
 
