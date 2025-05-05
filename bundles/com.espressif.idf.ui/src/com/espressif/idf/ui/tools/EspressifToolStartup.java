@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.ui.tools;
 
+import java.io.IOException;
 import java.text.MessageFormat;
 
 import org.eclipse.swt.SWT;
@@ -41,6 +42,8 @@ import com.espressif.idf.ui.tools.watcher.EimJsonUiChangeHandler;
 public class EspressifToolStartup implements IStartup
 {
 	private EimJsonUiChangeHandler eimJsonUiChangeHandler;
+	private ToolInitializer toolInitializer;
+	
 	@Override
 	public void earlyStartup()
 	{
@@ -51,6 +54,14 @@ public class EspressifToolStartup implements IStartup
 		eimJsonUiChangeHandler = new EimJsonUiChangeHandler(preferences);
 		stateChecker.updateLastSeenTimestamp();
 		EimJsonWatchService.getInstance().addEimJsonChangeListener(eimJsonUiChangeHandler);
+		
+		if (toolInitializer.isEspIdfSet() && toolInitializer.isOldEspIdfConfigPresent() && !toolInitializer.isOldConfigExported())
+		{
+			// verify if the old config is present and wasnt exported to new one
+			Logger.log("Old configuration not exported");
+			handleOldConfigExport();
+		}
+		
 		if (!toolInitializer.isEimInstalled())
 		{
 			notifyMissingTools();
@@ -71,6 +82,32 @@ public class EspressifToolStartup implements IStartup
 		if (stateChecker.wasModifiedSinceLastRun())
 		{
 			showEimJsonStateChangeNotification();
+		}
+	}
+
+	private void handleOldConfigExport()
+	{
+		final int[] response = new int[] { -1 };
+		Display display = Display.getDefault();
+		display.syncExec(() -> {
+			MessageDialog messageDialog = new MessageDialog(display.getActiveShell(), "Export old configuration", null,
+					"Please export the current workspace configuration to the EIM configuration for proper environment setup. Do you want to export configurations?",
+					0, 0, new String[] { Messages.ToolsInitializationDifferentPathMessageBoxOptionYes,
+							Messages.ToolsInitializationDifferentPathMessageBoxOptionNo });
+			response[0] = messageDialog.open();
+		});
+		
+		if (response[0] == 0)
+		{
+			try
+			{
+				toolInitializer.exportOldConfig();
+			}
+			catch (IOException e)
+			{
+				Logger.log("Error exporting old configuration");
+				Logger.log(e);
+			}
 		}
 	}
 
