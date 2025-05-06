@@ -128,6 +128,7 @@ public class NewEspressifIDFProjectSDKconfigTest
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
 			thenSDKconfigFileIsAbsent();
 			whenProjectIsBuiltUsingContextMenu();
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
 			thenSDKconfigFileIsPresent();
 			whenSDKconfigFileOpenedViaContextMenuthenVerifiedthenClosed();
 		}
@@ -175,14 +176,14 @@ public class NewEspressifIDFProjectSDKconfigTest
 		{
 			bot.tree().getTreeItem(projectName).getNode("sdkconfig").doubleClick();
 			TestWidgetWaitUtility.waitWhileDialogIsVisible(bot, "Progress Information", 40000);
-			TestWidgetWaitUtility.waitForSDKConfigurationTab(bot, 5000);
+			TestWidgetWaitUtility.waitForCTabToAppear(bot, "SDK Configuration (sdkconfig)", 5000);
 		}
 
 		private static void whenSDKconfigFileOpenedUsingContextMenu() throws IOException
 		{
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Menu Config");
 			TestWidgetWaitUtility.waitWhileDialogIsVisible(bot, "Progress Information", 40000);
-			TestWidgetWaitUtility.waitForSDKConfigurationTab(bot, 5000);
+			TestWidgetWaitUtility.waitForCTabToAppear(bot, "SDK Configuration (sdkconfig)", 5000);
 		}
 
 		private static void thenSDKconfigFileContentChecked() throws Exception
@@ -201,7 +202,9 @@ public class NewEspressifIDFProjectSDKconfigTest
 			bot.tree(1).getTreeItem("Partition Table").click();
 			bot.sleep(1000);
 			bot.textWithLabel("Offset of partition table (hex)").setText("0x4000");
+			bot.sleep(2000);
 			bot.comboBoxWithLabel("Partition Table").setSelection("Custom partition table CSV");
+			bot.sleep(2000);
 			bot.checkBox("Generate an MD5 checksum for the partition table").click();
 		}
 
@@ -226,7 +229,9 @@ public class NewEspressifIDFProjectSDKconfigTest
 			bot.tree(1).getTreeItem("Partition Table").click();
 			bot.sleep(2000);
 			assertTrue(bot.textWithLabel("Offset of partition table (hex)").getText().matches("0x4000"));
+			bot.sleep(2000);
 			assertTrue(bot.comboBoxWithLabel("Partition Table").selection().equals("Custom partition table CSV"));
+			bot.sleep(2000);
 			assertTrue(!bot.checkBox("Generate an MD5 checksum for the partition table").isChecked());
 		}
 
