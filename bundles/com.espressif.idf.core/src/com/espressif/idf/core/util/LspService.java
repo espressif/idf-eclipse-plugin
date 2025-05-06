@@ -42,7 +42,7 @@ public class LspService
 	{
 		languageServerWrappers.forEach(w ->
 		// ensures that the LS is initialized before proceeding.
-		w.execute(ls -> ls.shutdown()).thenRun(w::restart));
+		w.restart());
 	}
 
 	public void updateAdditionalOptions(String additionalOptions)
