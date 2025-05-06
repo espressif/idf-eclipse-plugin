@@ -28,6 +28,7 @@ public class Messages extends NLS
 	public static String MissingDebugConfigurationTitle;
 	public static String DebugConfigurationNotFoundMsg;
 
+	public static String RenameIdfProjectParticipant_RenameBuildFolderPathChangeName;
 	public static String RunActionHandler_NoProjectQuestionText;
 	public static String RunActionHandler_NoProjectQuestionTitle;
 
