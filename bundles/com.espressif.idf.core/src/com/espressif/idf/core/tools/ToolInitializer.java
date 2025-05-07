@@ -11,9 +11,12 @@ import java.util.List;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
 import org.osgi.service.prefs.Preferences;
 
+import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.vo.EimJson;
@@ -58,7 +61,7 @@ public class ToolInitializer
 		return getOldConfigFile().exists();
 	}
 
-	public void exportOldConfig() throws IOException
+	public IStatus exportOldConfig() throws IOException
 	{
 		File oldConfig = getOldConfigFile();
 		if (oldConfig.exists())
@@ -69,9 +72,14 @@ public class ToolInitializer
 			commands.add("import"); //$NON-NLS-1$
 			commands.add(oldConfig.getAbsolutePath());
 			ProcessBuilderFactory processBuilderFactory = new ProcessBuilderFactory();
+			IStatus status = processBuilderFactory.runInBackground(commands, org.eclipse.core.runtime.Path.ROOT,
+					System.getenv());
 			
-			preferences.putBoolean(EimConstants.OLD_CONFIG_EXPORTED_FLAG, true);
+			Logger.log(status.getMessage());
+			return status;			
 		}
+		
+		return new Status(IStatus.ERROR, IDFCorePlugin.getId(), -1, "Error in conversion", null); //$NON-NLS-1$
 	}
 
 	public boolean isOldConfigExported()
