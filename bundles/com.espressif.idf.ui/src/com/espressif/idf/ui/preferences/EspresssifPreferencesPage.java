@@ -19,7 +19,6 @@ import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFCorePreferenceConstants;
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.util.StringUtil;
 
 public class EspresssifPreferencesPage extends PreferencePage implements IWorkbenchPreferencePage
 {
@@ -76,8 +75,6 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 
 		addBuildSettings(mainComposite);
 
-		addToolsInstallationSettings(mainComposite);
-
 		addClangdSettings(mainComposite);
 		return mainComposite;
 	}
@@ -94,42 +91,6 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 				.setToolTipText(Messages.EspresssifPreferencesPage_AutoCreateClangFormatTooltipMsg);
 		automateClangdFormatCreationBtn
 				.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.AUTOMATE_CLANGD_FORMAT_FILE));
-	}
-
-	private void addToolsInstallationSettings(Composite mainComposite)
-	{
-		Group toolsInstallationGroup = new Group(mainComposite, SWT.SHADOW_ETCHED_IN);
-		toolsInstallationGroup.setText(Messages.EspressifPreferencesPage_ToolsInstallationGrpTxt);
-		toolsInstallationGroup.setLayout(new GridLayout(3, false));
-
-		Label githubAssetsLabel = new Label(toolsInstallationGroup, SWT.NONE);
-		githubAssetsLabel.setText(Messages.EspressifPreferencesPage_ToolsInstallationGitAssetUrlLabel);
-		gitAssetsCombo = new Combo(toolsInstallationGroup, SWT.DROP_DOWN | SWT.BORDER);
-		gitAssetsCombo.setItems(IDFCorePreferenceConstants.IDF_GITHUB_ASSETS_DEFAULT_GLOBAL,
-				IDFCorePreferenceConstants.IDF_GITHUB_ASSETS_DEFAULT_CHINA);
-		gitAssetsCombo.select(0);
-
-		Label pythonWheelsLabel = new Label(toolsInstallationGroup, SWT.NONE);
-		pythonWheelsLabel.setText(Messages.EspressifPreferencesPage_ToolsInstallationPythonPyWheelUrlLabel);
-		pythonWheelCombo = new Combo(toolsInstallationGroup, SWT.DROP_DOWN | SWT.BORDER);
-		pythonWheelCombo.setItems(IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL_DEFAULT_GLOBAL,
-				IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL_DEFAULT_CHINA);
-		pythonWheelCombo.select(0);
-
-		GridData gitTextGridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
-		gitTextGridData.widthHint = 200;
-		GridData pythonTextGridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
-		pythonTextGridData.widthHint = 200;
-		gitAssetsCombo.setLayoutData(gitTextGridData);
-		pythonWheelCombo.setLayoutData(pythonTextGridData);
-
-		String gitUrl = getPreferenceStore().getString(IDFCorePreferenceConstants.IDF_GITHUB_ASSETS);
-		String pyWheelUrl = getPreferenceStore().getString(IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL);
-		gitUrl = StringUtil.isEmpty(gitUrl) ? gitAssetsCombo.getItem(0) : gitUrl;
-		pyWheelUrl = StringUtil.isEmpty(pyWheelUrl) ? pythonWheelCombo.getItem(0) : pyWheelUrl;
-
-		gitAssetsCombo.setText(gitUrl);
-		pythonWheelCombo.setText(pyWheelUrl);
 	}
 
 	private void addBuildSettings(Composite mainComposite)
@@ -231,10 +192,6 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 			{
 				IDFCorePlugin.ERROR_MARKER_LISTENER.initialMarkerCleanup();
 			}
-
-			getPreferenceStore().setValue(IDFCorePreferenceConstants.IDF_GITHUB_ASSETS, gitAssetsCombo.getText());
-
-			getPreferenceStore().setValue(IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL, pythonWheelCombo.getText());
 
 			getPreferenceStore().setValue(IDFCorePreferenceConstants.AUTOMATE_CLANGD_FORMAT_FILE,
 					automateClangdFormatCreationBtn.getSelection());
