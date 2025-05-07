@@ -6,7 +6,6 @@ package com.espressif.idf.ui.tools;
 
 import java.text.MessageFormat;
 
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -41,13 +40,14 @@ import com.espressif.idf.ui.tools.watcher.EimJsonUiChangeHandler;
  */
 public class EspressifToolStartup implements IStartup
 {
+	private EimJsonUiChangeHandler eimJsonUiChangeHandler;
 	@Override
 	public void earlyStartup()
 	{
 		Preferences preferences = org.eclipse.core.runtime.preferences.InstanceScope.INSTANCE
 				.getNode(UIPlugin.PLUGIN_ID);
 		ToolInitializer toolInitializer = new ToolInitializer(preferences);
-
+		eimJsonUiChangeHandler = new EimJsonUiChangeHandler(preferences);
 		if (!toolInitializer.isEimInstalled())
 		{
 			notifyMissingTools();
@@ -72,16 +72,13 @@ public class EspressifToolStartup implements IStartup
 		}
 
 		stateChecker.updateLastSeenTimestamp();
-		EimJsonWatchService.getInstance().addEimJsonChangeListener(new EimJsonUiChangeHandler(preferences));
+		EimJsonWatchService.getInstance().addEimJsonChangeListener(eimJsonUiChangeHandler);
 	}
 
 	private void showEimJsonStateChangeNotification()
 	{
-		Display.getDefault().asyncExec(() -> {
-			MessageDialog.openInformation(Display.getDefault().getActiveShell(),
-					com.espressif.idf.ui.tools.Messages.EimJsonChangedMsgTitle,
-					com.espressif.idf.ui.tools.Messages.EimJsonStateChangedMsgDetail);
-		});
+		int response = eimJsonUiChangeHandler.displayMessageToUser();
+		eimJsonUiChangeHandler.handleUserResponse(response);
 	}
 
 	private void notifyMissingTools()
