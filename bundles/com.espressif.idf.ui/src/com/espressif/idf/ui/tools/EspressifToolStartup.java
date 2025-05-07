@@ -61,8 +61,7 @@ public class EspressifToolStartup implements IStartup
 		if (toolInitializer.isEspIdfSet() && toolInitializer.isOldEspIdfConfigPresent()
 				&& !toolInitializer.isOldConfigExported())
 		{
-			// verify if the old config is present and wasnt exported to new one
-			Logger.log("Old configuration not exported");
+			Logger.log("Old configuration not imported");
 			handleOldConfigExport();
 		}
 
