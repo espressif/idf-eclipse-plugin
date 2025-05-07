@@ -56,7 +56,10 @@
       <feature id="com.espressif.idf.feature" installMode="root"/>
       <feature id="org.eclipse.cdt" installMode="root"/>
       <feature id="org.eclipse.cdt.gdb" installMode="root"/>
-      <feature id="org.eclipse.justj.openjdk.hotspot.jre.full" installMode="root"/>
+      <feature id="org.eclipse.justj.openjdk.hotspot.jre.full.macosx.aarch64" installMode="root" os="macosx" ws="cocoa" arch="aarch64"/>
+      <feature id="org.eclipse.justj.openjdk.hotspot.jre.full.macosx.x86_64" installMode="root" os="macosx" ws="cocoa" arch="x86_64"/>
+      <feature id="org.eclipse.justj.openjdk.hotspot.jre.full.linux.x86_64" installMode="root" os="linux" ws="gtk" arch="x86_64"/>
+      <feature id="org.eclipse.justj.openjdk.hotspot.jre.full.win32.x86_64" installMode="root" os="win32" ws="win32" arch="x86_64"/>
       <feature id="org.eclipse.cdt.gnu.build" installMode="root"/>
       <feature id="org.eclipse.cdt.gnu.debug" installMode="root"/>
       <feature id="org.eclipse.cdt.gnu.dsf" installMode="root"/>
