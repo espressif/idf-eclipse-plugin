@@ -7,6 +7,8 @@ package com.espressif.idf.ui.tools;
 import java.io.IOException;
 import java.text.MessageFormat;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -43,7 +45,8 @@ public class EspressifToolStartup implements IStartup
 {
 	private EimJsonUiChangeHandler eimJsonUiChangeHandler;
 	private ToolInitializer toolInitializer;
-	
+	private Preferences preferences;
+
 	@Override
 	public void earlyStartup()
 	{
@@ -54,14 +57,15 @@ public class EspressifToolStartup implements IStartup
 		eimJsonUiChangeHandler = new EimJsonUiChangeHandler(preferences);
 		stateChecker.updateLastSeenTimestamp();
 		EimJsonWatchService.getInstance().addEimJsonChangeListener(eimJsonUiChangeHandler);
-		
-		if (toolInitializer.isEspIdfSet() && toolInitializer.isOldEspIdfConfigPresent() && !toolInitializer.isOldConfigExported())
+
+		if (toolInitializer.isEspIdfSet() && toolInitializer.isOldEspIdfConfigPresent()
+				&& !toolInitializer.isOldConfigExported())
 		{
 			// verify if the old config is present and wasnt exported to new one
 			Logger.log("Old configuration not exported");
 			handleOldConfigExport();
 		}
-		
+
 		if (!toolInitializer.isEimInstalled())
 		{
 			notifyMissingTools();
@@ -90,25 +94,48 @@ public class EspressifToolStartup implements IStartup
 		final int[] response = new int[] { -1 };
 		Display display = Display.getDefault();
 		display.syncExec(() -> {
-			MessageDialog messageDialog = new MessageDialog(display.getActiveShell(), "Export old configuration", null,
-					"Please export the current workspace configuration to the EIM configuration for proper environment setup. Do you want to export configurations?",
-					0, 0, new String[] { Messages.ToolsInitializationDifferentPathMessageBoxOptionYes,
+			MessageDialog messageDialog = new MessageDialog(display.getActiveShell(),
+					Messages.OldConfigFoundMsgBoxTitle, null, Messages.OldConfigFoundMsgBoxMsg, 0, 0,
+					new String[] { Messages.ToolsInitializationDifferentPathMessageBoxOptionYes,
 							Messages.ToolsInitializationDifferentPathMessageBoxOptionNo });
 			response[0] = messageDialog.open();
 		});
-		
+
 		if (response[0] == 0)
 		{
 			try
 			{
-				toolInitializer.exportOldConfig();
+				IStatus status = toolInitializer.exportOldConfig();
+				Logger.log("Tools Conversion Process Message: ");
+				Logger.log(status.getMessage());
+				if (status.getSeverity() != IStatus.ERROR)
+				{
+					preferences.putBoolean(EimConstants.OLD_CONFIG_EXPORTED_FLAG, true);
+					displayInformationMessageBox(Messages.OldConfigExportCompleteSuccessMsgTitle,
+							Messages.OldConfigExportCompleteSuccessMsg);
+				}
+				else
+				{
+					displayInformationMessageBox(Messages.OldConfigExportCompleteFailMsgTitle,
+							Messages.OldConfigExportCompleteFailMsg);
+				}
 			}
 			catch (IOException e)
 			{
 				Logger.log("Error exporting old configuration");
 				Logger.log(e);
+				displayInformationMessageBox(Messages.OldConfigExportCompleteFailMsgTitle,
+						Messages.OldConfigExportCompleteFailMsg);
 			}
 		}
+	}
+
+	private void displayInformationMessageBox(String messageTitle, String message)
+	{
+		Display display = Display.getDefault();
+		display.syncExec(() -> {
+			MessageDialog.openInformation(display.getActiveShell(), messageTitle, message);
+		});
 	}
 
 	private void showEimJsonStateChangeNotification()
