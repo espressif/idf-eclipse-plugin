@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.window.Window;
@@ -24,7 +23,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.espressif.idf.core.IDFCorePlugin;
-import com.espressif.idf.core.IDFCorePreferenceConstants;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.SystemExecutableFinder;
@@ -146,16 +144,6 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 			Map<String, String> environment = new HashMap<>(System.getenv());
 			Logger.log(environment.toString());
 			environment.put("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
-			
-			environment.put("IDF_GITHUB_ASSETS", //$NON-NLS-1$
-					Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
-							IDFCorePreferenceConstants.IDF_GITHUB_ASSETS,
-							IDFCorePreferenceConstants.IDF_GITHUB_ASSETS_DEFAULT_GLOBAL, null));
-			
-			environment.put("PIP_EXTRA_INDEX_URL", //$NON-NLS-1$
-					Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
-							IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL,
-							IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL_DEFAULT_GLOBAL, null));
 			
 			if (gitExecutablePath != null)
 			{
