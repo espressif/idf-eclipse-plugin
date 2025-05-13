@@ -51,7 +51,12 @@ public class StreamListener implements IStreamListener
 		fOutputStreamMonitor = outputStreamMonitor;
 
 		idfProcessConsole = IdfProcessConsoleFactory.showAndActivateConsole(charset);
-		idfProcessConsole.clearConsole();
+
+		// Clear the console only at the beginning, when OpenOCD starts
+		if (iProcess.getLabel().contains("openocd")) //$NON-NLS-1$
+		{
+			idfProcessConsole.clearConsole();
+		}
 		fConsoleErrorOutputStream = idfProcessConsole.getErrorStream();
 		fConsoleErrorOutputStream.setActivateOnWrite(true);
 		fConsoleOutputStream = idfProcessConsole.getOutputStream();
