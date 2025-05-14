@@ -21,6 +21,7 @@ import org.eclipse.ui.console.IOConsoleOutputStream;
 import com.espressif.idf.core.build.ReHintPair;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.HintsUtil;
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.dsf.console.IdfProcessConsole;
 import com.espressif.idf.debug.gdbjtag.openocd.dsf.console.IdfProcessConsoleFactory;
 import com.espressif.idf.debug.gdbjtag.openocd.ui.Messages;
@@ -111,16 +112,14 @@ public class StreamListener implements IStreamListener
 		{
 			while ((line = bufferedReader.readLine()) != null)
 			{
-				if (line.startsWith("Error:") && fConsoleErrorOutputStream != null)
+
+				if (line.startsWith("Error:") && fConsoleErrorOutputStream != null) //$NON-NLS-1$
 				{
 					fConsoleErrorOutputStream.write((line + System.lineSeparator()).getBytes());
 					fConsoleErrorOutputStream.flush();
 
-					if (reHintsList.isEmpty())
-					{
-						fConsoleOutputStream.write((Messages.OpenOCDConsole_ErrorGuideMessage + System.lineSeparator()
-								+ OPENOCD_FAQ_LINK + System.lineSeparator()).getBytes());
-					}
+					boolean[] hintMatched = { false };
+
 					final String processedLine = line;
 					reHintsList.stream()
 							.filter(reHintEntry -> reHintEntry.getRe()
@@ -131,10 +130,12 @@ public class StreamListener implements IStreamListener
 								try
 								{
 									// ANSI escape code for cyan text
+									hintMatched[0] = true;
 									String cyanHint = "\u001B[36mHint: " + matchedReHintEntry.getHint() + "\u001B[0m"; //$NON-NLS-1$ //$NON-NLS-2$
 
 									fConsoleOutputStream.write(cyanHint + System.lineSeparator()
-											+ matchedReHintEntry.getRef().orElse("") + System.lineSeparator());
+											+ matchedReHintEntry.getRef().orElse(StringUtil.EMPTY)
+											+ System.lineSeparator());
 									fConsoleOutputStream.flush();
 								}
 								catch (IOException e)
@@ -142,6 +143,11 @@ public class StreamListener implements IStreamListener
 									Logger.log(e);
 								}
 							});
+					if (!hintMatched[0] && fConsoleOutputStream != null)
+					{
+						fConsoleOutputStream.write((Messages.OpenOCDConsole_ErrorGuideMessage + System.lineSeparator()
+								+ OPENOCD_FAQ_LINK + System.lineSeparator()).getBytes());
+					}
 
 				}
 				else if (fConsoleOutputStream != null)
