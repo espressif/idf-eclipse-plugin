@@ -5,9 +5,11 @@
 package com.espressif.idf.debug.gdbjtag.openocd.dsf.process;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.Charset;
+import java.util.List;
 
 import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IFlushableStreamMonitor;
@@ -16,7 +18,9 @@ import org.eclipse.debug.core.model.IStreamMonitor;
 import org.eclipse.debug.internal.ui.views.console.ProcessConsole;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 
+import com.espressif.idf.core.build.ReHintPair;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.HintsUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.dsf.console.IdfProcessConsole;
 import com.espressif.idf.debug.gdbjtag.openocd.dsf.console.IdfProcessConsoleFactory;
 import com.espressif.idf.debug.gdbjtag.openocd.ui.Messages;
@@ -43,6 +47,7 @@ public class StreamListener implements IStreamListener
 
 	/** Flag to remember if stream was already closed. */
 	private boolean fStreamClosed = false;
+	private List<ReHintPair> reHintsList;
 
 	public StreamListener(IProcess iProcess, IStreamMonitor errorStreamMonitor, IStreamMonitor outputStreamMonitor,
 			Charset charset)
@@ -51,12 +56,12 @@ public class StreamListener implements IStreamListener
 		fOutputStreamMonitor = outputStreamMonitor;
 
 		idfProcessConsole = IdfProcessConsoleFactory.showAndActivateConsole(charset);
-
 		// Clear the console only at the beginning, when OpenOCD starts
-		if (iProcess.getLabel().contains("openocd")) //$NON-NLS-1$
+		if (iProcess.getLabel().contains("openocd"))
 		{
 			idfProcessConsole.clearConsole();
 		}
+		reHintsList = HintsUtil.getReHintsList(new File(HintsUtil.getOpenocdHintsYmlPath()));
 		fConsoleErrorOutputStream = idfProcessConsole.getErrorStream();
 		fConsoleErrorOutputStream.setActivateOnWrite(true);
 		fConsoleOutputStream = idfProcessConsole.getOutputStream();
@@ -111,9 +116,33 @@ public class StreamListener implements IStreamListener
 					fConsoleErrorOutputStream.write((line + System.lineSeparator()).getBytes());
 					fConsoleErrorOutputStream.flush();
 
-					fConsoleOutputStream.write((Messages.OpenOCDConsole_ErrorGuideMessage + System.lineSeparator()
-							+ OPENOCD_FAQ_LINK + System.lineSeparator()).getBytes());
-					fConsoleOutputStream.flush();
+					if (reHintsList.isEmpty())
+					{
+						fConsoleOutputStream.write((Messages.OpenOCDConsole_ErrorGuideMessage + System.lineSeparator()
+								+ OPENOCD_FAQ_LINK + System.lineSeparator()).getBytes());
+					}
+					final String processedLine = line;
+					reHintsList.stream()
+							.filter(reHintEntry -> reHintEntry.getRe()
+									.map(pattern -> pattern.matcher(processedLine).find()
+											|| processedLine.contains(pattern.toString()))
+									.orElse(false))
+							.forEach(matchedReHintEntry -> {
+								try
+								{
+									// ANSI escape code for cyan text
+									String cyanHint = "\u001B[36mHint: " + matchedReHintEntry.getHint() + "\u001B[0m"; //$NON-NLS-1$ //$NON-NLS-2$
+
+									fConsoleOutputStream.write(cyanHint + System.lineSeparator()
+											+ matchedReHintEntry.getRef().orElse("") + System.lineSeparator());
+									fConsoleOutputStream.flush();
+								}
+								catch (IOException e)
+								{
+									Logger.log(e);
+								}
+							});
+
 				}
 				else if (fConsoleOutputStream != null)
 				{

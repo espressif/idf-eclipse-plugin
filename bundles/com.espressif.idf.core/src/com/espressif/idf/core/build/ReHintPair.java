@@ -19,8 +19,14 @@ public class ReHintPair
 {
 	private Pattern re;
 	private String hint;
+	private String ref; // Optional reference
 
 	public ReHintPair(String re, String hint)
+	{
+		this(re, hint, null);
+	}
+
+	public ReHintPair(String re, String hint, String ref)
 	{
 		try
 		{
@@ -31,6 +37,7 @@ public class ReHintPair
 			Logger.log(e);
 		}
 		this.hint = hint;
+		this.ref = ref;
 	}
 
 	public Optional<Pattern> getRe()
@@ -43,4 +50,8 @@ public class ReHintPair
 		return hint;
 	}
 
+	public Optional<String> getRef()
+	{
+		return Optional.ofNullable(ref);
+	}
 }
