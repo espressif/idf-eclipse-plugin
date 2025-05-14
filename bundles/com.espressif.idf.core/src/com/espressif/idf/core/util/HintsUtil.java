@@ -9,6 +9,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,14 +66,16 @@ public class HintsUtil
 
 	public static String getOpenocdHintsYmlPath()
 	{
-
 		String openOCDScriptPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS);
 		if (!StringUtil.isEmpty(openOCDScriptPath))
 		{
-			return openOCDScriptPath.replace("scripts",
-					"espressif" + File.separator + "tools" + File.separator + "esp_problems_hints.yml");
+			Path base = Paths.get(openOCDScriptPath).getParent();
+			if (base != null)
+			{
+				return base.resolve("espressif").resolve("tools").resolve("esp_problems_hints.yml").toString(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			}
+			return StringUtil.EMPTY;
 		}
-
 		return StringUtil.EMPTY;
 	}
 
