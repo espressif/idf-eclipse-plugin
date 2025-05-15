@@ -108,5 +108,39 @@
 			<repository location="https://download.eclipse.org/swtchart/releases/1.0.0/repository/"/>
 			<unit id="org.eclipse.swtchart.feature.feature.group" version="1.0.0.202412021530"/>
 		</location>
+		<location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="DirectFromMaven" missingManifest="error" type="Maven">
+			<dependencies>
+				<dependency>
+					<groupId>org.assertj</groupId>
+					<artifactId>assertj-core</artifactId>
+					<version>3.26.3</version>
+					<type>jar</type>
+				</dependency>
+				<dependency>
+					<groupId>org.hamcrest</groupId>
+					<artifactId>hamcrest</artifactId>
+					<version>2.2</version>
+					<type>jar</type>
+				</dependency>
+				<dependency>
+					<groupId>org.junit.jupiter</groupId>
+					<artifactId>junit-jupiter-api</artifactId>
+					<version>5.11.0</version>
+					<type>jar</type>
+				</dependency>
+				<dependency>
+					<groupId>org.junit.jupiter</groupId>
+					<artifactId>junit-jupiter-engine</artifactId>
+					<version>5.11.0</version>
+					<type>jar</type>
+				</dependency>
+				<dependency>
+					<groupId>org.mockito</groupId>
+					<artifactId>mockito-core</artifactId>
+					<version>5.13.0</version>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
+		</location>
 	</locations>
 </target>
