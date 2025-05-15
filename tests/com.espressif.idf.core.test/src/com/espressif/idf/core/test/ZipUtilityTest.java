@@ -12,14 +12,11 @@ import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import com.espressif.idf.core.ZipUtility;
 
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class ZipUtilityTest
 {
 	private static final String TEST_INPUT = "Test, Input!";

@@ -11,8 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 
 import com.espressif.idf.core.build.EspIdfErrorParser;
@@ -21,7 +19,6 @@ import com.espressif.idf.core.resources.OpenDialogListenerSupport;
 import com.espressif.idf.core.resources.PopupDialog;
 import com.espressif.idf.core.util.StringUtil;
 
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class EspIdfErrorParserTest
 {
 

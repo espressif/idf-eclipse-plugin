@@ -24,8 +24,6 @@ import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -35,7 +33,6 @@ import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.actions.test.TestableApplyTargetJob.TestableApplyTargetJobException;
 import com.espressif.idf.core.util.StringUtil;
 
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class ApplyTargetJobTest
 {
 	private static final String TARGET_NAME_ATTR = "targetNameAttr"; //$NON-NLS-1$

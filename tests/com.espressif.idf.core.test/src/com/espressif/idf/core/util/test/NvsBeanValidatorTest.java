@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigInteger;
 
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -17,7 +15,6 @@ import com.espressif.idf.core.util.NvsBeanValidator;
 import com.espressif.idf.core.util.NvsTableDataService;
 import com.espressif.idf.core.util.StringUtil;
 
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class NvsBeanValidatorTest
 {
 
@@ -137,7 +134,7 @@ class NvsBeanValidatorTest
 
 		assertEquals(Messages.NvsValidation_ValueValidationErr_2, actualResult);
 	}
-	
+
 	@ParameterizedTest
 	@ValueSource(strings = { "C:", "test", "file.exe" })
 	void validate_value_with_type_file_returns_empty_string(String value)
@@ -182,7 +179,6 @@ class NvsBeanValidatorTest
 
 		assertEquals(StringUtil.EMPTY, actualResult);
 	}
-
 
 	@Test
 	void validate_out_of_limit_value_with_data_type_and_binary_encoding_returns_validation_error()
@@ -267,7 +263,7 @@ class NvsBeanValidatorTest
 		{
 			expectedResult = String.format(Messages.NvsValidation_NumberValueValidationErr_1, e.getLocalizedMessage());
 		}
-		
+
 		String actualResult = new NvsBeanValidator().validateBean(testTableBean, VALUE_COLUMN);
 
 		assertEquals(expectedResult, actualResult);
