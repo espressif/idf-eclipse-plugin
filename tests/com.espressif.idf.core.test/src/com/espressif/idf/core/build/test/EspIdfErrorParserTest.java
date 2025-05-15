@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.core.build.test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -14,6 +15,8 @@ import org.junit.jupiter.api.Test;
 
 import com.espressif.idf.core.build.EspIdfErrorParser;
 import com.espressif.idf.core.build.ReHintPair;
+import com.espressif.idf.core.resources.OpenDialogListenerSupport;
+import com.espressif.idf.core.resources.PopupDialog;
 import com.espressif.idf.core.util.StringUtil;
 
 class EspIdfErrorParserTest
@@ -49,29 +52,29 @@ class EspIdfErrorParserTest
 
 		assertFalse(actualResult);
 	}
-//
-//	@SuppressWarnings("unchecked")
-//	@Test
-//	void shutdown_should_trigger_property_change_listener_with_error_hints_pairs_as_new_value()
-//	{
-//		List<ReHintPair> actualReHintPair = new ArrayList<>();
-//		OpenDialogListenerSupport.getSupport().addPropertyChangeListener(evt -> {
-//			PopupDialog popupDialog = PopupDialog.valueOf(evt.getPropertyName());
-//			if (popupDialog.equals(PopupDialog.AVAILABLE_HINTS))
-//				actualReHintPair.addAll((List<ReHintPair>) evt.getNewValue());
-//		});
-//		List<ReHintPair> reHintPairs = new ArrayList<>();
-//		String expectedHint = EXPECTED_HINT;
-//		reHintPairs.add(new ReHintPair(ERROR_REGEX, expectedHint));
-//		String errorLine = ERROR_LINE;
-//
-//		EspIdfErrorParser ep = new EspIdfErrorParser(reHintPairs);
-//		boolean actualResult = ep.processLine(errorLine);
-//		ep.shutdown();
-//
-//		assertTrue(actualResult);
-//		assertEquals(expectedHint, actualReHintPair.get(0).getHint());
-//		assertEquals(errorLine, actualReHintPair.get(0).getRe().get().pattern());
-//	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	void shutdown_should_trigger_property_change_listener_with_error_hints_pairs_as_new_value()
+	{
+		List<ReHintPair> actualReHintPair = new ArrayList<>();
+		OpenDialogListenerSupport.getSupport().addPropertyChangeListener(evt -> {
+			PopupDialog popupDialog = PopupDialog.valueOf(evt.getPropertyName());
+			if (popupDialog.equals(PopupDialog.AVAILABLE_HINTS))
+				actualReHintPair.addAll((List<ReHintPair>) evt.getNewValue());
+		});
+		List<ReHintPair> reHintPairs = new ArrayList<>();
+		String expectedHint = EXPECTED_HINT;
+		reHintPairs.add(new ReHintPair(ERROR_REGEX, expectedHint));
+		String errorLine = ERROR_LINE;
+
+		EspIdfErrorParser ep = new EspIdfErrorParser(reHintPairs);
+		boolean actualResult = ep.processLine(errorLine);
+		ep.shutdown();
+
+		assertTrue(actualResult);
+		assertEquals(expectedHint, actualReHintPair.get(0).getHint());
+		assertEquals(errorLine, actualReHintPair.get(0).getRe().get().pattern());
+	}
 
 }
