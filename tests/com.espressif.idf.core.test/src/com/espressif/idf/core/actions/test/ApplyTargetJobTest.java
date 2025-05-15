@@ -4,8 +4,8 @@
  *******************************************************************************/
 package com.espressif.idf.core.actions.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -89,13 +89,11 @@ class ApplyTargetJobTest
 	@Test
 	void run_whenSuitableTargetFound_shouldSetActiveLaunchTarget() throws CoreException
 	{
-		// Available ILaunchTargets in provided by mocked target manager
 		ILaunchTarget target = Mockito.mock(ILaunchTarget.class);
 		when(target.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY)).thenReturn(EXPECTED_TARGET_NAME);
 		when(target.getAttribute(LaunchBarTargetConstants.SERIAL_PORT, StringUtil.EMPTY)).thenReturn(SERIAL_PORT);
 		when(targetManager.getLaunchTargetsOfType(Mockito.anyString())).thenReturn(new ILaunchTarget[] { target });
 
-		// Mocked LaunchBarManager has the active launch target with expected target name
 		when(launchBarManager.getActiveLaunchTarget()).thenReturn(target);
 		when(launchBarManager.getActiveLaunchConfiguration()).thenReturn(mock(ILaunchConfiguration.class));
 		when(launchBarManager.getActiveLaunchConfiguration().getAttribute(eq(TARGET_NAME_ATTR), anyString()))
@@ -122,7 +120,7 @@ class ApplyTargetJobTest
 
 		TestableApplyTargetJobException exception = assertThrows(
 				TestableApplyTargetJob.TestableApplyTargetJobException.class, () -> applyTargetJob.run(monitor));
-		assertEquals(exception.getMessage(), NOT_EXISTING_TARGET_NAME);
+		assertEquals(NOT_EXISTING_TARGET_NAME, exception.getMessage());
 		verify(launchBarManager, never()).setActiveLaunchTarget(any());
 	}
 
@@ -136,5 +134,4 @@ class ApplyTargetJobTest
 
 		assertEquals(Status.CANCEL_STATUS, result);
 	}
-
 }

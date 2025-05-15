@@ -4,8 +4,8 @@
  *******************************************************************************/
 package com.espressif.idf.core.util.test;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -87,7 +87,6 @@ class HintsUtilTest
 		assertEquals(expectedSecondComplexRe, reHintsList.get(SECOND_SIMPLIFIED_ENTRY_INDEX).getRe().get().pattern());
 	}
 
-
 	@Test
 	void getReHintsList_returns_empty_array_when_not_existing_path_is_provided()
 	{
@@ -96,6 +95,5 @@ class HintsUtilTest
 		assertNotNull(reHintsList);
 		assertEquals(new ArrayList<>(), reHintsList);
 	}
-
 
 }
