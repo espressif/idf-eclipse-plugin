@@ -13,7 +13,9 @@ Require-Bundle: com.espressif.idf.core;bundle-version="1.0.1",
  org.eclipse.jface,
  junit-jupiter-engine,
  junit-platform-launcher,
- junit-platform-commons
+ junit-platform-commons,
+ junit-platform-engine,
+ junit-vintage-engine
 Bundle-ClassPath: .,
  lib/jmock-2.12.0.jar,
  lib/commons-collections4-4.4.jar,
