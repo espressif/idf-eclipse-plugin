@@ -16,6 +16,8 @@ import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -23,6 +25,7 @@ import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.util.LaunchTargetHelper;
 import com.espressif.idf.core.util.StringUtil;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class LaunchBarNameUtilTest
 {
 	private static final String ACTIVE_LAUNCH_TARGET = "ACTIVE_LAUNCH_TARGET";

@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -23,6 +25,7 @@ import com.espressif.idf.core.build.ReHintPair;
 import com.espressif.idf.core.util.HintsUtil;
 import com.espressif.idf.core.util.IDFUtil;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @TestInstance(Lifecycle.PER_CLASS)
 class HintsUtilTest
 {

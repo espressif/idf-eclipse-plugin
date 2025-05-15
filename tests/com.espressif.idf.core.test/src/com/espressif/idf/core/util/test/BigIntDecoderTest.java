@@ -7,12 +7,15 @@ package com.espressif.idf.core.util.test;
 import java.math.BigInteger;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import com.espressif.idf.core.util.BigIntDecoder;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class BigIntDecoderTest
 {
 
@@ -105,6 +108,7 @@ public class BigIntDecoderTest
 
 		Assertions.assertEquals(expectedResult, decodedNumber.intValue());
 	}
+
 
 	@Test
 	void test_decode_invalid_number()

@@ -16,12 +16,15 @@ import java.nio.file.Paths;
 import org.eclipse.core.variables.IDynamicVariable;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.variable.OpenocdDynamicVariable;
 import com.espressif.idf.core.variable.OpenocdVariableResolver;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class OpenocdVariableResolverTest
 {
 	private static final String NON_EXISTING_VALUE = "nonExistingValue";
