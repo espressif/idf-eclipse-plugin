@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.swt.SWT;
@@ -44,6 +45,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -121,31 +123,43 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 			public void widgetSelected(SelectionEvent e)
 			{
 				String selectedTargetString = idfTargetCombo.getText();
-				// Fetch detected boards from the script
-				String json = IDFUtil.runEspDetectConfigScript();
-				Logger.log("esp_detect_config.py JSON output: " + json); //$NON-NLS-1$
-				if (json != null)
+				Shell shell = display.getActiveShell();
+				final List<String> boardDisplayNames = new ArrayList<>();
+				try
 				{
-					try
-					{
-						JSONObject root = (JSONObject) new JSONParser().parse(json);
-						JSONArray boards = (JSONArray) root.get("boards"); //$NON-NLS-1$
-						List<String> boardDisplayNames = getBoardDisplayNamesForTarget(selectedTargetString, boards);
-						fBoardCombo.setItems(boardDisplayNames.toArray(new String[0]));
-						if (!boardDisplayNames.isEmpty())
+					ProgressMonitorDialog dialog = new ProgressMonitorDialog(shell);
+					dialog.run(true, false, monitor -> {
+						monitor.beginTask("Finding the Connected Boards...", IProgressMonitor.UNKNOWN); //$NON-NLS-1$
+						String json = IDFUtil.runEspDetectConfigScript();
+						Logger.log("esp_detect_config.py JSON output: " + json); //$NON-NLS-1$
+						if (json != null)
 						{
-							fBoardCombo.select(0);
+							try
+							{
+								JSONObject root = (JSONObject) new JSONParser().parse(json);
+								JSONArray boards = (JSONArray) root.get("boards"); //$NON-NLS-1$
+								boardDisplayNames.addAll(getBoardDisplayNamesForTarget(selectedTargetString, boards));
+							}
+							catch (Exception ex)
+							{
+								Logger.log(ex);
+							}
 						}
-					}
-					catch (Exception ex)
-					{
-						Logger.log(ex);
-					}
+						monitor.done();
+					});
 				}
-				else
+				catch (Exception ex)
 				{
-					fBoardCombo.setItems(new String[0]);
+					Logger.log(ex);
 				}
+				// Update UI on SWT thread
+				display.asyncExec(() -> {
+					fBoardCombo.setItems(boardDisplayNames.toArray(new String[0]));
+					if (!boardDisplayNames.isEmpty())
+					{
+						fBoardCombo.select(0);
+					}
+				});
 				super.widgetSelected(e);
 			}
 		});
@@ -286,6 +300,9 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 		Label fTargetLbl = new Label(jtaGroup, SWT.NONE);
 		fTargetLbl.setText(Messages.configBoardLabel);
 		fBoardCombo = new Combo(jtaGroup, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
+		GridData boardComboGridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		boardComboGridData.minimumWidth = 250;
+		fBoardCombo.setLayoutData(boardComboGridData);
 	}
 
 	@Override
@@ -471,12 +488,14 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 	}
 
 	/**
-	 * Returns a list of display names for boards matching the selected target.
-	 * Each display name is formatted as "<name> [<location>]".
+	 * Returns a list of display names for boards matching the selected target. Each display name is formatted as
+	 * "<name> [<location>]".
 	 */
-	private List<String> getBoardDisplayNamesForTarget(String selectedTarget, JSONArray boards) {
+	private List<String> getBoardDisplayNamesForTarget(String selectedTarget, JSONArray boards)
+	{
 		List<String> boardDisplayNames = new ArrayList<>();
-		for (Object obj : boards) {
+		for (Object obj : boards)
+		{
 			JSONObject board = (JSONObject) obj;
 			if (selectedTarget.equals(board.get("target"))) //$NON-NLS-1$
 			{

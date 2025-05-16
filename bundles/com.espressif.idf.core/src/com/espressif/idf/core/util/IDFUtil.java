@@ -893,8 +893,8 @@ public class IDFUtil
 		// Derive the scripts and tools directories from the bin directory
 		File binDir = new File(openocdBinDir);
 		File openocdRoot = binDir.getParentFile();
-		File scriptsDir = new File(openocdRoot, "share/openocd/scripts"); //$NON-NLS-1$
-		File toolsDir = new File(openocdRoot, "share/openocd/espressif/tools"); //$NON-NLS-1$
+		File scriptsDir = Paths.get(openocdRoot.getPath(), "share", "openocd", "scripts").toFile(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		File toolsDir = Paths.get(openocdRoot.getPath(), "share", "openocd", "espressif", "tools").toFile(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		String scriptPath = new File(toolsDir, "esp_detect_config.py").getAbsolutePath(); //$NON-NLS-1$
 		String configPath = new File(scriptsDir, "esp-config.json").getAbsolutePath(); //$NON-NLS-1$
 		String openocdExecutable = Platform.getOS().equals(Platform.OS_WIN32) ? "openocd.exe" : "openocd"; //$NON-NLS-1$ //$NON-NLS-2$
