@@ -48,11 +48,11 @@ public class EclipseIniUtil
 		loadEclipseIniSwitchMap();
 		loadEclipseVmArgMap();
 	}
-
+	
 	private void loadIniFilePath() throws Exception
 	{
-		URL url = new URL(Platform.getInstallLocation().getURL()
-				+ System.getProperty("eclipse.launcher.name", "eclipse").toLowerCase() + ".ini"); //$NON-NLS-1$ //$NON-NLS-2$
+		URL url = new URL(
+				Platform.getInstallLocation().getURL() + System.getProperty("eclipse.launcher.name").toLowerCase() + ".ini"); //$NON-NLS-1$ //$NON-NLS-2$
 		ECLIPSE_INI_FILE = url.toString();
 	}
 
@@ -104,7 +104,7 @@ public class EclipseIniUtil
 			for (int i = indexOfVmArgs + 1; i < eclipseIniFileContents.size(); i++)
 			{
 				eclipseIniArgs.add(eclipseIniFileContents.get(i));
-			}
+			}			
 		}
 	}
 
@@ -136,8 +136,9 @@ public class EclipseIniUtil
 				{
 					contentsToWrite.add(entry.getKey());
 				}
-			}
+			}	
 		}
+		
 
 		FileUtils.writeLines(file, contentsToWrite);
 	}
@@ -150,7 +151,7 @@ public class EclipseIniUtil
 		{
 			indexOfVmArgs = eclipseIniFileContents.size();
 		}
-
+		
 		for (int i = 0; i < indexOfVmArgs; i++)
 		{
 			String key = eclipseIniFileContents.get(i);
@@ -175,7 +176,7 @@ public class EclipseIniUtil
 		{
 			return;
 		}
-
+		
 		for (int i = indexOfVmArgs + 1; i < eclipseIniFileContents.size(); i++)
 		{
 			String[] arg = eclipseIniFileContents.get(i).split("=");
