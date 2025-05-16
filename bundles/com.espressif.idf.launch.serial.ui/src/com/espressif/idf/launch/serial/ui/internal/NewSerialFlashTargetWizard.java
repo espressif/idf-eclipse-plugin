@@ -65,6 +65,18 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard
 		wc.setAttribute(LaunchBarTargetConstants.TARGET, page.getIDFTarget());
 		wc.setAttribute(LaunchBarTargetConstants.BOARD, page.getBoard());
 		wc.setAttribute(LaunchBarTargetConstants.FLASH_VOLTAGE, page.getVoltage());
+
+		// Set OPENOCD_USB_ADAPTER_LOCATION from selected board's USB location
+		String usbLocation = page.getSelectedBoardUsbLocation();
+		if (usbLocation != null && !usbLocation.isEmpty())
+		{
+			if (usbLocation.startsWith("usb://")) //$NON-NLS-1$
+			{
+				usbLocation = usbLocation.substring("usb://".length()); //$NON-NLS-1$
+			}
+			wc.setAttribute(IDFLaunchConstants.OPENOCD_USB_LOCATION, usbLocation);
+		}
+
 		wc.save();
 		storeLastUsedSerialPort();
 

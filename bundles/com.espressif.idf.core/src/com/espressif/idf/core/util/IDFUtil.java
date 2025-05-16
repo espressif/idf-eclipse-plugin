@@ -879,4 +879,56 @@ public class IDFUtil
 			}
 		});
 	}
+
+	/**
+	 * Runs the esp_detect_config.py script using the OPENOCD_SCRIPTS environment variable to locate the script and config files.
+	 * Returns the JSON output as a string, or null on error.
+	 */
+	public static String runEspDetectConfigScript() {
+		String openocdBinDir = getOpenOCDLocation();
+		if (StringUtil.isEmpty(openocdBinDir)) {
+			Logger.log("OpenOCD location could not be determined."); //$NON-NLS-1$
+			return null;
+		}
+		// Derive the scripts and tools directories from the bin directory
+		File binDir = new File(openocdBinDir);
+		File openocdRoot = binDir.getParentFile();
+		File scriptsDir = new File(openocdRoot, "share/openocd/scripts"); //$NON-NLS-1$
+		File toolsDir = new File(openocdRoot, "share/openocd/espressif/tools"); //$NON-NLS-1$
+		String scriptPath = new File(toolsDir, "esp_detect_config.py").getAbsolutePath(); //$NON-NLS-1$
+		String configPath = new File(scriptsDir, "esp-config.json").getAbsolutePath(); //$NON-NLS-1$
+		String openocdExecutable = Platform.getOS().equals(Platform.OS_WIN32) ? "openocd.exe" : "openocd"; //$NON-NLS-1$ //$NON-NLS-2$
+		File openocdBin = new File(openocdBinDir, openocdExecutable);
+		if (!openocdBin.exists()) {
+			Logger.log("OpenOCD binary not found at expected location."); //$NON-NLS-1$
+			return null;
+		}
+		
+		String idfPythonEnvPath = IDFUtil.getIDFPythonEnvPath();
+		if (StringUtil.isEmpty(idfPythonEnvPath)) {
+			Logger.log("IDF_PYTHON_ENV_PATH could not be found."); //$NON-NLS-1$
+			return null;
+		}
+		
+		List<String> command = new ArrayList<>();
+		command.add(idfPythonEnvPath);
+		command.add(scriptPath);
+		command.add("--esp-config"); //$NON-NLS-1$
+		command.add(configPath);
+		command.add("--oocd");//$NON-NLS-1$
+		command.add(openocdBin.getAbsolutePath());
+		
+		Map<String, String> env = new IDFEnvironmentVariables().getSystemEnvMap();
+		try {
+			IStatus status = new ProcessBuilderFactory().runInBackground(command, null, env);
+			if (status == null) {
+				Logger.log("esp_detect_config.py did not return a result."); //$NON-NLS-1$
+				return null;
+			}
+			return status.getMessage();
+		} catch (Exception e) {
+			Logger.log(e);
+			return null;
+		}
+	}
 }

@@ -18,6 +18,7 @@ package com.espressif.idf.launch.serial.ui.internal;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -45,13 +46,15 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
-import com.espressif.idf.core.DefaultBoardProvider;
 import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
 import com.espressif.idf.core.util.EspConfigParser;
 import com.espressif.idf.core.util.EspToolCommands;
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 
 public class NewSerialFlashTargetWizardPage extends WizardPage
@@ -117,11 +120,32 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				EspConfigParser parser = new EspConfigParser();
 				String selectedTargetString = idfTargetCombo.getText();
-				fBoardCombo.setItems(parser.getBoardsConfigs(selectedTargetString).keySet().toArray(new String[0]));
-				fBoardCombo.select(new DefaultBoardProvider().getIndexOfDefaultBoard(selectedTargetString,
-						fBoardCombo.getItems()));
+				// Fetch detected boards from the script
+				String json = IDFUtil.runEspDetectConfigScript();
+				Logger.log("esp_detect_config.py JSON output: " + json); //$NON-NLS-1$
+				if (json != null)
+				{
+					try
+					{
+						JSONObject root = (JSONObject) new JSONParser().parse(json);
+						JSONArray boards = (JSONArray) root.get("boards"); //$NON-NLS-1$
+						List<String> boardDisplayNames = getBoardDisplayNamesForTarget(selectedTargetString, boards);
+						fBoardCombo.setItems(boardDisplayNames.toArray(new String[0]));
+						if (!boardDisplayNames.isEmpty())
+						{
+							fBoardCombo.select(0);
+						}
+					}
+					catch (Exception ex)
+					{
+						Logger.log(ex);
+					}
+				}
+				else
+				{
+					fBoardCombo.setItems(new String[0]);
+				}
 				super.widgetSelected(e);
 			}
 		});
@@ -262,11 +286,6 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 		Label fTargetLbl = new Label(jtaGroup, SWT.NONE);
 		fTargetLbl.setText(Messages.configBoardLabel);
 		fBoardCombo = new Combo(jtaGroup, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
-		String selectedTargetString = getIDFTarget();
-		Map<String, JSONArray> boardConfigsMap = parser.getBoardsConfigs(selectedTargetString);
-		fBoardCombo.setItems(boardConfigsMap.keySet().toArray(new String[0]));
-		fBoardCombo.select(
-				new DefaultBoardProvider().getIndexOfDefaultBoard(selectedTargetString, fBoardCombo.getItems()));
 	}
 
 	@Override
@@ -437,6 +456,36 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 			return StringUtil.EMPTY;
 		}
 
+	}
+
+	public String getSelectedBoardUsbLocation()
+	{
+		String selected = fBoardCombo.getText();
+		int idx = selected.lastIndexOf("["); //$NON-NLS-1$
+		int endIdx = selected.lastIndexOf("]"); //$NON-NLS-1$
+		if (idx != -1 && endIdx != -1 && endIdx > idx)
+		{
+			return selected.substring(idx + 1, endIdx);
+		}
+		return null;
+	}
+
+	/**
+	 * Returns a list of display names for boards matching the selected target.
+	 * Each display name is formatted as "<name> [<location>]".
+	 */
+	private List<String> getBoardDisplayNamesForTarget(String selectedTarget, JSONArray boards) {
+		List<String> boardDisplayNames = new ArrayList<>();
+		for (Object obj : boards) {
+			JSONObject board = (JSONObject) obj;
+			if (selectedTarget.equals(board.get("target"))) //$NON-NLS-1$
+			{
+				String name = (String) board.get("name"); //$NON-NLS-1$
+				String location = (String) board.get("location"); //$NON-NLS-1$
+				boardDisplayNames.add(String.format("%s [%s]", name, location)); //$NON-NLS-1$
+			}
+		}
+		return boardDisplayNames;
 	}
 
 }
