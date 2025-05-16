@@ -4,6 +4,7 @@ import static org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory.wi
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
+import org.eclipse.swtbot.swt.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 
 import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
@@ -32,20 +33,22 @@ public class EnvSetupOperations
 		bot.button("Open").click();
 
 		bot.menu("Window").menu("Preferences").click();
-		SWTBotShell prefrencesShell = bot.shell("Preferences");
+		bot.waitUntil(Conditions.shellIsActive("Preferences"));
+		SWTBotShell preferencesShell = bot.shell("Preferences");
+		preferencesShell.activate();
 
-		prefrencesShell.bot().tree().getTreeItem("General").select();
-		prefrencesShell.bot().tree().getTreeItem("General").expand();
-		prefrencesShell.bot().tree().getTreeItem("General").getNode("Editors").select();
-		prefrencesShell.bot().tree().getTreeItem("General").getNode("Editors").expand();
-		prefrencesShell.bot().tree().getTreeItem("General").getNode("Editors").getNode("File Associations").select();
-		prefrencesShell.bot().comboBox().setSelection("Text Editor");
-		prefrencesShell.bot().tree().getTreeItem("General").getNode("Workspace").select();
-		if (!prefrencesShell.bot().checkBox("Refresh using native hooks or polling").isChecked())
+		preferencesShell.bot().tree().getTreeItem("General").select();
+		preferencesShell.bot().tree().getTreeItem("General").expand();
+		preferencesShell.bot().tree().getTreeItem("General").getNode("Editors").select();
+		preferencesShell.bot().tree().getTreeItem("General").getNode("Editors").expand();
+		preferencesShell.bot().tree().getTreeItem("General").getNode("Editors").getNode("File Associations").select();
+		preferencesShell.bot().comboBox().setSelection("Text Editor");
+		preferencesShell.bot().tree().getTreeItem("General").getNode("Workspace").select();
+		if (!preferencesShell.bot().checkBox("Refresh using native hooks or polling").isChecked())
 		{
-			prefrencesShell.bot().checkBox("Refresh using native hooks or polling").click();
+			preferencesShell.bot().checkBox("Refresh using native hooks or polling").click();
 		}
-		prefrencesShell.bot().button("Apply and Close").click();
+		preferencesShell.bot().button("Apply and Close").click();
 
 		bot.toolbarButtonWithTooltip("Select and deselect filters to apply to the content in the tree").click();
 		bot.table().getTableItem(".* resources").uncheck();
