@@ -4,9 +4,9 @@
  *******************************************************************************/
 package com.espressif.idf.core.build.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +34,7 @@ class EspIdfErrorParserTest
 	void process_line_returns_true_if_hint_available_for_error_line()
 	{
 		List<ReHintPair> reHintPairs = new ArrayList<>();
-		reHintPairs.add(
-				new ReHintPair(ERROR_REGEX, StringUtil.EMPTY));
+		reHintPairs.add(new ReHintPair(ERROR_REGEX, StringUtil.EMPTY));
 		String errorLine = ERROR_LINE;
 		EspIdfErrorParser ep = new EspIdfErrorParser(reHintPairs);
 
@@ -48,8 +47,7 @@ class EspIdfErrorParserTest
 	void process_line_returns_false_if_no_hint_found_for_error_line()
 	{
 		List<ReHintPair> reHintPairs = new ArrayList<>();
-		reHintPairs.add(
-				new ReHintPair(NON_EXISTING_ERROR_REGEX, StringUtil.EMPTY));
+		reHintPairs.add(new ReHintPair(NON_EXISTING_ERROR_REGEX, StringUtil.EMPTY));
 		String errorLine = ERROR_LINE;
 		EspIdfErrorParser ep = new EspIdfErrorParser(reHintPairs);
 
@@ -70,8 +68,7 @@ class EspIdfErrorParserTest
 		});
 		List<ReHintPair> reHintPairs = new ArrayList<>();
 		String expectedHint = EXPECTED_HINT;
-		reHintPairs.add(
-				new ReHintPair(ERROR_REGEX, expectedHint));
+		reHintPairs.add(new ReHintPair(ERROR_REGEX, expectedHint));
 		String errorLine = ERROR_LINE;
 
 		EspIdfErrorParser ep = new EspIdfErrorParser(reHintPairs);

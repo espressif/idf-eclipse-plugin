@@ -4,7 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.core.test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +40,7 @@ class ActiveLaunchConfigurationTest
 		ActiveLaunchConfigurationProvider provider = new ActiveLaunchConfigurationProvider(launchBarManager);
 		runInitLaunchBarJob(launchBarManager, launchConfiguration);
 		ILaunchConfiguration configuration = provider.getActiveLaunchConfiguration();
-		
+
 		assertEquals(EXPECTED_LAUNCH_CONFIG_NAME, configuration.getName());
 	}
 
