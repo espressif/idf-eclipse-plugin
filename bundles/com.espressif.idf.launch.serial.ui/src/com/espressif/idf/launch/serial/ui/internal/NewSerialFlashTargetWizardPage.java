@@ -111,6 +111,9 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 		label.setText(Messages.NewSerialFlashTargetWizardPage_IDFTarget);
 
 		idfTargetCombo = new Combo(comp, SWT.NONE);
+		GridData idfTargetComboGridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		idfTargetComboGridData.minimumWidth = 250;
+		idfTargetCombo.setLayoutData(idfTargetComboGridData);
 
 		List<String> idfTargetList = getIDFTargetList();
 
@@ -175,6 +178,9 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 		label.setText(Messages.NewSerialFlashTargetWizardPage_SerialPort);
 
 		serialPortCombo = new Combo(comp, SWT.READ_ONLY);
+		GridData serialPortComboGridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		serialPortComboGridData.minimumWidth = 250;
+		serialPortCombo.setLayoutData(serialPortComboGridData);
 		serialPortCombo.addSelectionListener(new SelectionAdapter()
 		{
 
