@@ -95,7 +95,7 @@ public class NewEspressifIDFProjectClangFilesTest
 		Fixture.thenCreateClangdFileUsingContextMenu();
 		Fixture.thenClangdFileIsPresent();
 		Fixture.whenClangdFileOpenedUsingDoubleClick();
-		Fixture.thenClangdFileContentChecked();
+		Fixture.thenClangdFileContentCheckedAgain("NewProjectClangFilesTest2");
 	}
 
 	@Test
@@ -253,11 +253,31 @@ public class NewEspressifIDFProjectClangFilesTest
 			TestWidgetWaitUtility.waitForCTabToAppear(bot, ".clang-format", 5000);
 		}
 
+		private static String getExpectedBuildFolderPATH(String projectName) throws IOException
+		{
+			try {
+			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+		    String buildFolder = IDFUtil.getBuildDir(project);
+			Path buildFolderPath = Paths.get(buildFolder);
+			return buildFolderPath.toAbsolutePath().toString();
+			   } catch (CoreException e) {
+			        throw new IOException("Failed to get build directory for project: " + projectName, e);
+			    }
+		}
+
 		private static void thenClangdFileContentChecked() throws Exception
 		{
 			bot.cTabItem(".clangd").activate();
 			assertTrue(ProjectTestOperations.checkExactMatchInTextEditor(
 					"CompileFlags:\n" + "  CompilationDatabase: build\n" + "  Remove: [-m*, -f*]", bot));
+		}
+
+		private static void thenClangdFileContentCheckedAgain(String projectName) throws Exception
+		{
+			String buildPath = getExpectedBuildFolderPATH(projectName);
+			bot.cTabItem(".clangd").activate();
+			assertTrue(ProjectTestOperations.checkExactMatchInTextEditor(
+					"CompileFlags:\n" + "  CompilationDatabase: " + buildPath + "\n" + "  Remove: [-m*, -f*]", bot));
 		}
 
 		public static void thenLaunchTargetIsSelectedFromLaunchTargets(String launchTargetName)
