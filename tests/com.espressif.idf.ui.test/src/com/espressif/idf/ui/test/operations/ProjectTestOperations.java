@@ -385,6 +385,7 @@ public class ProjectTestOperations
 		bot.button("Finish").click();
 		SWTBotShell shell1 = bot.shell("New IDF Project");
 		shell1.activate();
+		bot.checkBox("Run idf.py reconfigure after project creation to initialize the CMake build configuration").click();
 		bot.textWithLabel("Project name:").setText(projectName);
 		bot.button("Finish").click();
 		TestWidgetWaitUtility.waitUntilViewContainsTheTreeItemWithName(projectName, bot.viewByTitle("Project Explorer"),
