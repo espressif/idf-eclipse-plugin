@@ -45,3 +45,12 @@ jobs:
             /td sha256 `
             /fd sha256 `
             releng/espressif-ide.exe
+
+
+    - name: Upload Executable to test
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: Espressif-IDE-Signed
+        path: releng/espressif-ide.exe
+      
