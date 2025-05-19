@@ -1,0 +1,47 @@
+name: Java CI with Maven 
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      JKS_B64: ${{ secrets.JARSIGNER_REL_KEYSTORE_B64 }}
+      JKS_PASS: ${{ secrets.JARSIGNER_REL_STOREPASS }}
+      ALIAS: ${{ secrets.JARSIGNER_REL_ALIAS }}
+      PFX_PASS: ${{ secrets.WIN_CERTIFICATE_PWD }}
+    
+    steps:
+    - uses: actions/checkout@v3
+
+ 
+    - name: Decode base64-encoded JKS
+      run: |
+       echo "$env:JKS_B64" | Out-File -FilePath encoded.b64 -Encoding ASCII
+       certutil -decode encoded.b64 mykeystore.jks
+       Remove-Item encoded.b64
+
+    - name: Convert JKS to PFX
+      shell: pwsh
+      run: |
+       & "${env:JAVA_HOME}\bin\keytool.exe" -importkeystore `
+            -srckeystore mykeystore.jks `
+            -srcstorepass $env:JKS_PASS `
+            -srcalias $env:ALIAS `
+            -destkeystore cert.pfx `
+            -deststoretype PKCS12 `
+            -deststorepass $env:PFX_PASS
+
+    - name: Sign Windows Executable
+      run: |
+       & "C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x86\signtool.exe" sign `
+            /f cert.pfx `
+            /p $env:PFX_PASS `
+            /tr http://timestamp.digicert.com `
+            /td sha256 `
+            /fd sha256 `
+            releng/espressif-ide.exe
