@@ -53,6 +53,7 @@ public class NewEspressifIDFProjectSDKconfigTest
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 		Fixture.givenProjectNameIs("NewProjectSDKconfigTest");
 		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.thenSDKconfigFileIsPresent();
 		Fixture.whenSDKconfigFileOpenedViaDoubleClickthenVerifiedthenClosed();
 		Fixture.whenSDKconfigFileOpenedViaContextMenuthenVerifiedthenClosed();
@@ -66,6 +67,7 @@ public class NewEspressifIDFProjectSDKconfigTest
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 		Fixture.givenProjectNameIs("NewProjectSDKconfigTest2");
 		Fixture.whenNewProjectIsSelected();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.whenSDKconfigFileOpenedEditedSaved();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.whenSDKconfigFileOpenedUsingContextMenu();
