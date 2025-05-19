@@ -1,4 +1,4 @@
-name: Java CI with Maven 
+name: Signing Windows Executable test workflow
 
 on:
   push:
@@ -7,13 +7,13 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  signing:
     runs-on: windows-latest
     env:
       JKS_B64: ${{ secrets.JARSIGNER_REL_KEYSTORE_B64 }}
       JKS_PASS: ${{ secrets.JARSIGNER_REL_STOREPASS }}
       ALIAS: ${{ secrets.JARSIGNER_REL_ALIAS }}
-      PFX_PASS: ${{ secrets.WIN_CERTIFICATE_PWD }}
+      PFX_PASS: ${{ secrets.JARSIGNER_REL_STOREPASS }}
     
     steps:
     - uses: actions/checkout@v3
