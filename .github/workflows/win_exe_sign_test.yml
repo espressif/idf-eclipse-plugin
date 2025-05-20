@@ -73,13 +73,13 @@ jobs:
             /usr/bin/codesign --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg -v
             /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
 
-            - name: Notarization of Espressif-IDE dmg files
-            env: 
-                NOTARIZATION_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
-                NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
-                NOTARIZATION_TEAM_ID: ${{ secrets.NOTARIZATION_TEAM_ID }}
-            run: |
-                echo "Create notary keychain"
+      - name: Notarization of Espressif-IDE dmg files
+        env: 
+          NOTARIZATION_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
+          NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
+          NOTARIZATION_TEAM_ID: ${{ secrets.NOTARIZATION_TEAM_ID }}
+        run: |
+              echo "Create notary keychain"
                 /usr/bin/security create-keychain -p espressif notary.keychain
                 /usr/bin/security default-keychain -s notary.keychain
                 /usr/bin/security unlock-keychain -p espressif notary.keychain
