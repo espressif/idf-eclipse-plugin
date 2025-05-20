@@ -881,6 +881,22 @@ public class IDFUtil
 	}
 
 	/**
+	 * Checks if esp_detect_config.py exists in the expected OpenOCD tools directory.
+	 * @return true if esp_detect_config.py exists, false otherwise.
+	 */
+	public static boolean espDetectConfigScriptExists() {
+		String openocdBinDir = getOpenOCDLocation();
+		if (StringUtil.isEmpty(openocdBinDir)) {
+			return false;
+		}
+		File binDir = new File(openocdBinDir);
+		File openocdRoot = binDir.getParentFile();
+		File toolsDir = Paths.get(openocdRoot.getPath(), "share", "openocd", "espressif", "tools").toFile(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		File scriptFile = new File(toolsDir, "esp_detect_config.py"); //$NON-NLS-1$
+		return scriptFile.exists();
+	}
+
+	/**
 	 * Runs the esp_detect_config.py script using the OPENOCD_SCRIPTS environment variable to locate the script and config files.
 	 * Returns the JSON output as a string, or null on error.
 	 */
@@ -895,8 +911,17 @@ public class IDFUtil
 		File openocdRoot = binDir.getParentFile();
 		File scriptsDir = Paths.get(openocdRoot.getPath(), "share", "openocd", "scripts").toFile(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		File toolsDir = Paths.get(openocdRoot.getPath(), "share", "openocd", "espressif", "tools").toFile(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		File configFile = new File(scriptsDir, "esp-config.json"); //$NON-NLS-1$
+		if (!configFile.exists()) {
+			Logger.log("esp-config.json not found at expected location: " + configFile.getAbsolutePath()); //$NON-NLS-1$
+			return null;
+		}
+		if (!espDetectConfigScriptExists()) {
+			Logger.log("esp_detect_config.py not found at expected location: " + new File(toolsDir, "esp_detect_config.py").getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+			return null;
+		}
 		String scriptPath = new File(toolsDir, "esp_detect_config.py").getAbsolutePath(); //$NON-NLS-1$
-		String configPath = new File(scriptsDir, "esp-config.json").getAbsolutePath(); //$NON-NLS-1$
+		String configPath = configFile.getAbsolutePath();
 		String openocdExecutable = Platform.getOS().equals(Platform.OS_WIN32) ? "openocd.exe" : "openocd"; //$NON-NLS-1$ //$NON-NLS-2$
 		File openocdBin = new File(openocdBinDir, openocdExecutable);
 		if (!openocdBin.exists()) {

@@ -51,6 +51,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import com.espressif.idf.core.DefaultBoardProvider;
 import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
@@ -78,6 +79,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 	private String serialPort;
 	private Combo fBoardCombo;
 	private Combo fFlashVoltage;
+	private String previousBoard = null;
 
 	public NewSerialFlashTargetWizardPage(ILaunchTarget launchTarget)
 	{
@@ -128,24 +130,37 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 				String selectedTargetString = idfTargetCombo.getText();
 				Shell shell = display.getActiveShell();
 				final List<String> boardDisplayNames = new ArrayList<>();
+				final String[] jsonHolder = new String[1];
 				try
 				{
 					ProgressMonitorDialog dialog = new ProgressMonitorDialog(shell);
 					dialog.run(true, false, monitor -> {
 						monitor.beginTask("Finding the Connected Boards...", IProgressMonitor.UNKNOWN); //$NON-NLS-1$
-						String json = IDFUtil.runEspDetectConfigScript();
-						Logger.log("esp_detect_config.py JSON output: " + json); //$NON-NLS-1$
-						if (json != null)
-						{
-							try
+						if (IDFUtil.espDetectConfigScriptExists()) {
+							String json = IDFUtil.runEspDetectConfigScript();
+							jsonHolder[0] = json;
+							Logger.log("esp_detect_config.py JSON output: " + json); //$NON-NLS-1$
+							if (json != null)
 							{
-								JSONObject root = (JSONObject) new JSONParser().parse(json);
-								JSONArray boards = (JSONArray) root.get("boards"); //$NON-NLS-1$
-								boardDisplayNames.addAll(getBoardDisplayNamesForTarget(selectedTargetString, boards));
+								try
+								{
+									JSONObject root = (JSONObject) new JSONParser().parse(json);
+									JSONArray boards = (JSONArray) root.get("boards"); //$NON-NLS-1$
+									boardDisplayNames.addAll(getBoardDisplayNamesForTarget(selectedTargetString, boards));
+								}
+								catch (Exception ex)
+								{
+									Logger.log(ex);
+								}
 							}
-							catch (Exception ex)
+						} else {
+							// Fallback to old approach if script does not exist
+							EspConfigParser parser = new EspConfigParser();
+							Map<String, JSONArray> boardConfigsMap = parser.getBoardsConfigs(selectedTargetString);
+							String[] boardNames = boardConfigsMap.keySet().toArray(new String[0]);
+							for (String boardName : boardNames)
 							{
-								Logger.log(ex);
+								boardDisplayNames.add(boardName);
 							}
 						}
 						monitor.done();
@@ -155,12 +170,32 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 				{
 					Logger.log(ex);
 				}
-				// Update UI on SWT thread
 				display.asyncExec(() -> {
 					fBoardCombo.setItems(boardDisplayNames.toArray(new String[0]));
 					if (!boardDisplayNames.isEmpty())
 					{
-						fBoardCombo.select(0);
+						int defaultIdx = 0;
+						if (jsonHolder[0] == null)
+						{
+							defaultIdx = new DefaultBoardProvider().getIndexOfDefaultBoard(selectedTargetString,
+									boardDisplayNames.toArray(new String[0]));
+						}
+						if (previousBoard != null) {
+							int idx = -1;
+							for (int i = 0; i < boardDisplayNames.size(); i++) {
+								if (boardDisplayNames.get(i).equals(previousBoard)) {
+									idx = i;
+									break;
+								}
+							}
+							if (idx != -1) {
+								fBoardCombo.select(idx);
+							} else {
+								fBoardCombo.deselectAll();
+							}
+						} else {
+							fBoardCombo.select(defaultIdx);
+						}
 					}
 				});
 				super.widgetSelected(e);
@@ -261,12 +296,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 			}
 			idfTargetCombo.notifyListeners(SWT.Selection, null);
 		}
-		String board = launchTarget.getAttribute(LaunchBarTargetConstants.BOARD, null);
-		if (board != null)
-		{
-			fBoardCombo.setText(board);
-		}
-
+		previousBoard = launchTarget.getAttribute(LaunchBarTargetConstants.BOARD, null);
 	}
 
 	private void setDefaultSerialPort()
