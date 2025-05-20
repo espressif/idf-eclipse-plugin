@@ -1,34 +1,131 @@
-name: Signing Windows Executable test workflow
+name: Espressif-IDE Cross-platform Release
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
   pull_request:
-    branches: [ master ]
+    branches: [master]
+
+env:
+  ARCHIVE_PREFIX: com.espressif.idf.update-
+  ARCHIVE_SUFFIX: -SNAPSHOT.zip
 
 jobs:
-  signing:
-    runs-on: windows-latest
-    env:
-      JKS_B64: ${{ secrets.JARSIGNER_REL_KEYSTORE_B64 }}
-      JKS_PASS: ${{ secrets.JARSIGNER_REL_STOREPASS }}
-      ALIAS: ${{ secrets.JARSIGNER_REL_ALIAS }}
-      PFX_PASS: ${{ secrets.JARSIGNER_REL_STOREPASS }}
-    
+
+  macos-build:
+    runs-on: macos-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
- 
-    - name: Decode base64-encoded JKS
-      run: |
-       echo "$env:JKS_B64" | Out-File -FilePath encoded.b64 -Encoding ASCII
-       certutil -decode encoded.b64 mykeystore.jks
-       Remove-Item encoded.b64
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-    - name: Convert JKS to PFX
-      shell: pwsh
-      run: |
-       & "${env:JAVA_HOME}\bin\keytool.exe" -importkeystore `
+      - name: Get version from tag
+        id: get_version
+        run: echo "version=${GITHUB_REF##*/v}" >> $GITHUB_OUTPUT
+
+      - name: Decode keystore and build with Maven
+        env:
+          JARSIGNER_KEYSTORE_B64: ${{ secrets.JARSIGNER_REL_KEYSTORE_B64 }}
+          JARSIGNER_STOREPASS: ${{ secrets.JARSIGNER_REL_STOREPASS }}
+          JARSIGNER_ALIAS: ${{ secrets.JARSIGNER_REL_ALIAS }}
+        run: |
+          echo "$JARSIGNER_KEYSTORE_B64" | base64 -d > signer.jks
+          mvn clean install -Djarsigner.keystore=signer.jks -Djarsigner.alias="$JARSIGNER_ALIAS" -Djarsigner.storepass="$JARSIGNER_STOREPASS" -DskipTests=true
+          rm signer.jks
+
+      - name: Code sign and notarize macOS apps and DMGs
+        env:
+          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+          MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+          NOTARIZATION_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
+          NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
+          NOTARIZATION_TEAM_ID: ${{ secrets.NOTARIZATION_TEAM_ID }}
+        run: |
+          echo "$MACOS_CERTIFICATE" | base64 -d > certificate.p12
+
+          # Set up keychain
+          security create-keychain -p espressif build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p espressif build.keychain
+          security import certificate.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k espressif build.keychain
+
+          # Codesign
+          for arch in x86_64 aarch64; do
+            app=releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/$arch/Espressif-IDE.app
+            codesign --entitlements releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" "$app"
+            codesign -v --deep "$app"
+          done
+
+          # Create and sign DMGs
+          releng/ide-dmg-builder/ide-dmg-builder.sh
+          releng/ide-dmg-builder/ide-dmg-builder-aarch64.sh
+
+          for arch in x86_64 aarch64; do
+            dmg="releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-${arch}.dmg"
+            codesign --entitlements releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" "$dmg"
+            codesign -v --deep "$dmg"
+          done
+
+          # Notarization
+          security create-keychain -p espressif notary.keychain
+          security default-keychain -s notary.keychain
+          security unlock-keychain -p espressif notary.keychain
+
+          xcrun notarytool store-credentials "ide-notarytool-profile" --apple-id "$NOTARIZATION_USERNAME" --team-id "$NOTARIZATION_TEAM_ID" --password "$NOTARIZATION_PASSWORD"
+
+          for arch in x86_64 aarch64; do
+            dmg="releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-${arch}.dmg"
+            xcrun notarytool submit "$dmg" --keychain-profile "ide-notarytool-profile" --wait
+            xcrun stapler staple "$dmg"
+          done
+
+      - name: Upload macOS DMGs and other artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: |
+            releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-*.dmg
+            releng/com.espressif.idf.update/target/repository
+            releng/com.espressif.idf.product/target/products/Espressif-IDE-*-win32.win32.x86_64.zip
+            releng/com.espressif.idf.product/target/products/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
+            releng/com.espressif.idf.update/target/com.espressif.idf.update-*.zip
+
+  windows-sign:
+    runs-on: windows-latest
+    needs: macos-build
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download built artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-artifacts
+          path: artifacts
+
+      - name: Extract Windows ZIP
+        run: |
+          Expand-Archive -Path (Get-ChildItem -Path artifacts -Filter "*win32.win32.x86_64.zip").FullName -DestinationPath extracted
+
+      - name: Decode JKS and convert to PFX
+        env:
+          JKS_B64: ${{ secrets.JARSIGNER_REL_KEYSTORE_B64 }}
+          JKS_PASS: ${{ secrets.JARSIGNER_REL_STOREPASS }}
+          ALIAS: ${{ secrets.JARSIGNER_REL_ALIAS }}
+          PFX_PASS: ${{ secrets.JARSIGNER_REL_STOREPASS }}
+        run: |
+          echo $env:JKS_B64 | Out-File encoded.b64 -Encoding ASCII
+          certutil -decode encoded.b64 mykeystore.jks
+          Remove-Item encoded.b64
+          & "${env:JAVA_HOME}\bin\keytool.exe" -importkeystore `
             -srckeystore mykeystore.jks `
             -srcstorepass $env:JKS_PASS `
             -srcalias $env:ALIAS `
@@ -36,21 +133,69 @@ jobs:
             -deststoretype PKCS12 `
             -deststorepass $env:PFX_PASS
 
-    - name: Sign Windows Executable
-      run: |
-       & "C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x86\signtool.exe" sign `
+      - name: Sign Windows Executable
+        run: |
+          $exe = Get-ChildItem -Recurse extracted\*.exe | Select-Object -First 1
+          & "C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x86\signtool.exe" sign `
             /f cert.pfx `
             /p $env:PFX_PASS `
             /tr http://timestamp.digicert.com `
             /td sha256 `
             /fd sha256 `
-            releng/espressif-ide.exe
+            $exe.FullName
 
+      - name: Repack signed Windows ZIP
+        run: |
+          Compress-Archive -Path extracted\* -DestinationPath artifacts/Espressif-IDE-win32.win32.x86_64.zip -Force
 
-    - name: Upload Executable to test
-      if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: Espressif-IDE-Signed
-        path: releng/espressif-ide.exe
-      
+      - name: Upload Signed Windows ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: artifacts/Espressif-IDE-win32.win32.x86_64.zip
+
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   needs: [macos-build, windows-sign]
+  #   steps:
+  #     - uses: actions/checkout@v3
+
+  #     - name: Download final artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: release-artifacts
+  #         path: final
+
+  #     - name: Upload to S3 (dl.espressif.com)
+  #       env:
+  #         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+  #         DL_BUCKET: ${{ secrets.DL_BUCKET }}
+  #         DL_DISTRIBUTION_ID: ${{ secrets.DL_DISTRIBUTION_ID }}
+  #       run: |
+  #         version=${GITHUB_REF##*/v}
+  #         folder=v${version}
+
+  #         mkdir "$folder"
+  #         unzip -q final/com.espressif.idf.update-*.zip -d "$folder"
+
+  #         mv final/com.espressif.idf.update-*.zip "${ARCHIVE_PREFIX}${version}.zip"
+  #         mv final/Espressif-IDE-macosx-cocoa-x86_64.dmg "Espressif-IDE-macosx-cocoa-x86_64-${folder}.dmg"
+  #         mv final/Espressif-IDE-macosx-cocoa-aarch64.dmg "Espressif-IDE-macosx-cocoa-aarch64-${folder}.dmg"
+
+  #         aws s3 rm s3://$DL_BUCKET/dl/idf-eclipse-plugin/updates/latest --recursive
+  #         aws s3 cp --acl=public-read --recursive "./$folder/" s3://$DL_BUCKET/dl/idf-eclipse-plugin/updates/latest
+  #         aws s3 cp --acl=public-read ./releng/index.html s3://$DL_BUCKET/dl/idf-eclipse-plugin/updates/latest/
+  #         aws s3 cp --acl=public-read --recursive "./$folder/" s3://$DL_BUCKET/dl/idf-eclipse-plugin/updates/$folder
+  #         aws s3 cp --acl=public-read --recursive --exclude "*" --include "Espressif-IDE-*" final/ s3://$DL_BUCKET/dl/idf-eclipse-plugin/ide/
+  #         aws s3 cp --acl=public-read "${ARCHIVE_PREFIX}${version}.zip" s3://$DL_BUCKET/dl/idf-eclipse-plugin/updates/
+  #         aws s3 cp --acl=public-read "Espressif-IDE-macosx-cocoa-x86_64-${folder}.dmg" s3://$DL_BUCKET/dl/idf-eclipse-plugin/ide/
+  #         aws s3 cp --acl=public-read "Espressif-IDE-macosx-cocoa-aarch64-${folder}.dmg" s3://$DL_BUCKET/dl/idf-eclipse-plugin/ide/
+
+  #         aws cloudfront create-invalidation --distribution-id $DL_DISTRIBUTION_ID --paths "/dl/idf-eclipse-plugin/updates/latest/*"
+
+  #         aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-win32.win32.x86_64/latest" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-${version}-win32.win32.x86_64.zip"
+  #         aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-x86_64/latest" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-x86_64-${folder}.dmg"
+  #         aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64/latest" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64-${folder}.dmg"
+  #         aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-linux.gtk.x86_64/latest" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-${version}-linux.gtk.x86_64.tar.gz"
