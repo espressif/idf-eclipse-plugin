@@ -168,6 +168,9 @@ jobs:
             -deststoretype PKCS12 `
             -deststorepass $env:PFX_PASS
 
+      - name: Validate PFX file
+        run: certutil -dump cert.pfx
+
       - name: Sign Windows Executable
         run: |
           $exe = Get-ChildItem -Recurse extracted\*.exe | Select-Object -First 1
