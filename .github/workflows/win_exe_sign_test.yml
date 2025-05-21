@@ -137,6 +137,11 @@ jobs:
   windows-sign:
     runs-on: windows-latest
     needs: macos-build
+    env:
+      JKS_B64: ${{ secrets.JARSIGNER_REL_KEYSTORE_B64 }}
+      JKS_PASS: ${{ secrets.JARSIGNER_REL_STOREPASS }}
+      ALIAS: ${{ secrets.JARSIGNER_REL_ALIAS }}
+      PFX_PASS: ${{ secrets.JARSIGNER_REL_STOREPASS }}
     steps:
       - uses: actions/checkout@v3
 
@@ -151,11 +156,6 @@ jobs:
           Expand-Archive -Path (Get-ChildItem -Path artifacts -Filter "*win32.win32.x86_64.zip").FullName -DestinationPath extracted
 
       - name: Decode JKS and convert to PFX
-        env:
-          JKS_B64: ${{ secrets.JARSIGNER_REL_KEYSTORE_B64 }}
-          JKS_PASS: ${{ secrets.JARSIGNER_REL_STOREPASS }}
-          ALIAS: ${{ secrets.JARSIGNER_REL_ALIAS }}
-          PFX_PASS: ${{ secrets.JARSIGNER_REL_STOREPASS }}
         run: |
           echo $env:JKS_B64 | Out-File encoded.b64 -Encoding ASCII
           certutil -decode encoded.b64 mykeystore.jks
