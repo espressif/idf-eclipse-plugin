@@ -191,6 +191,13 @@ jobs:
             /fd sha256 `
             $exe.FullName
 
+      - name: Verify Signature
+        run: |
+         $exe = Get-ChildItem -Recurse extracted\Espressif-IDE\espressif-ide.exe | Select-Object -First 1
+         & "C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x86\signtool.exe" verify `
+         /pa `
+         $exe.FullName
+
       - name: Repack signed Windows ZIP
         run: |
           Compress-Archive -Path extracted\* -DestinationPath artifacts/Espressif-IDE-win32.win32.x86_64.zip -Force
