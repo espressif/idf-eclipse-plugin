@@ -13,7 +13,6 @@ env:
   ARCHIVE_SUFFIX: -SNAPSHOT.zip
 
 jobs:
-
   macos-build:
     runs-on: macos-latest
     outputs:
