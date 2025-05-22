@@ -177,7 +177,9 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 		}
 
 		infoArea = new Text(comp, SWT.BORDER | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
-		infoArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+		GridData infoAreaGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
+		infoAreaGridData.heightHint = 100;
+		infoArea.setLayoutData(infoAreaGridData);
 		setDefaults();
 	}
 
