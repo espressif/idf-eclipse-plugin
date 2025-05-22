@@ -9,6 +9,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.regex.Pattern;
 
 import org.yaml.snakeyaml.Yaml;
 
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.ReHintPair;
 import com.espressif.idf.core.logging.Logger;
 
@@ -58,35 +61,58 @@ public class HintsUtil
 	public static String getHintsYmlPath()
 	{
 		return IDFUtil.getIDFPath() + File.separator + "tools" + File.separator + "idf_py_actions" //$NON-NLS-1$ //$NON-NLS-2$
-				+ File.separator
-				+ "hints.yml"; //$NON-NLS-1$
+				+ File.separator + "hints.yml"; //$NON-NLS-1$
+	}
+
+	public static String getOpenocdHintsYmlPath()
+	{
+		String openOCDScriptPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS);
+		if (!StringUtil.isEmpty(openOCDScriptPath))
+		{
+			Path base = Paths.get(openOCDScriptPath).getParent();
+			if (base != null)
+			{
+				return base.resolve("espressif").resolve("tools").resolve("esp_problems_hints.yml").toString(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			}
+			return StringUtil.EMPTY;
+		}
+		return StringUtil.EMPTY;
 	}
 
 	private static List<ReHintPair> loadHintsYamlFis(InputStream inputStream)
 	{
 		Yaml yaml = new Yaml();
 		List<ReHintPair> reHintsPairArray = new ArrayList<>();
-		List<Map<String, List<Map<String, List<String>>>>> reHintsArray = yaml.load(inputStream);
-		for (Map<String, List<Map<String, List<String>>>> entry : reHintsArray)
+		List<Map<String, Object>> hintEntries = yaml.load(inputStream);
+
+		for (Map<String, Object> entry : hintEntries)
 		{
-			List<Map<String, List<String>>> reHintVarsMapList = entry.get("variables"); //$NON-NLS-1$
-			reHintVarsMapList = reHintVarsMapList == null ? new ArrayList<>() : reHintVarsMapList;
-			for (Map<String, List<String>> reHintVarsMap : reHintVarsMapList)
+			String re = (String) entry.get("re"); //$NON-NLS-1$
+			String hint = (String) entry.get("hint"); //$NON-NLS-1$
+			String ref = (String) entry.get("ref"); // optional //$NON-NLS-1$
+
+			@SuppressWarnings("unchecked")
+			List<Map<String, List<String>>> variablesList = (List<Map<String, List<String>>>) entry.get("variables"); //$NON-NLS-1$
+
+			if (variablesList != null && !variablesList.isEmpty())
 			{
-				String re = String.valueOf(entry.get("re")); //$NON-NLS-1$
-				String hint = String.valueOf(entry.get("hint")); //$NON-NLS-1$
-				List<String> reVariables = reHintVarsMap.get("re_variables"); //$NON-NLS-1$
-				List<String> hintsVariables = reHintVarsMap.get("hint_variables"); //$NON-NLS-1$
-				re = formatEntry(reVariables, re);
-				hint = formatEntry(hintsVariables, hint);
-				reHintsPairArray.add(new ReHintPair(re, hint));
+				for (Map<String, List<String>> variableMap : variablesList)
+				{
+					List<String> reVars = variableMap.get("re_variables"); //$NON-NLS-1$
+					List<String> hintVars = variableMap.get("hint_variables"); //$NON-NLS-1$
+
+					String formattedRe = formatEntry(reVars, re);
+					String formattedHint = formatEntry(hintVars, hint);
+
+					reHintsPairArray.add(new ReHintPair(formattedRe, formattedHint, ref));
+				}
 			}
-			if (reHintVarsMapList.isEmpty())
+			else
 			{
-				reHintsPairArray.add(new ReHintPair(String.valueOf(entry.get("re")), //$NON-NLS-1$
-						String.valueOf(entry.get("hint")))); //$NON-NLS-1$
+				reHintsPairArray.add(new ReHintPair(re, hint, ref));
 			}
 		}
+
 		return reHintsPairArray;
 	}
 
