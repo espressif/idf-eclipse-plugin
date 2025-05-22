@@ -150,6 +150,18 @@ jobs:
           name: espressif-ide-win32
           path: artifacts
 
+
+      - name: Verify the downloaded file
+        shell: pwsh
+        run: |
+           ls .\artifacts\*
+      
+      
+      - name: Verify the downloaded file
+        shell: pwsh
+        run: |
+           ls artifacts\*
+
       - name: Extract Windows ZIP
         shell: pwsh
         run: |
