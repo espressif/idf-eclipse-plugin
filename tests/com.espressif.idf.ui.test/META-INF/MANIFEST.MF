@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Tests
 Bundle-SymbolicName: com.espressif.idf.ui.test;singleton:=true
 Bundle-Version: 0.0.1.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: com.espressif.idf.tests
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
