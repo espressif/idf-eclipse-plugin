@@ -16,6 +16,7 @@ import org.eclipse.launchbar.core.target.ILaunchTarget;
 
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.util.LaunchUtil;
+import com.espressif.idf.core.util.StringUtil;
 
 public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigProvider
 {
@@ -37,6 +38,14 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 				.findAppropriateLaunchConfig(descriptor, IDFLaunchConstants.RUN_LAUNCH_CONFIG_TYPE) : configuration;
 		configuration = configuration == null ? createLaunchConfiguration(descriptor, target) : configuration;
 		projectConfigs.put(configuration.getName(), configuration);
+
+		String usbLoc = target.getAttribute(IDFLaunchConstants.OPENOCD_USB_LOCATION, (String) null);
+		if (!StringUtil.isEmpty(usbLoc)) {
+			ILaunchConfigurationWorkingCopy wc = configuration.getWorkingCopy();
+			wc.setAttribute(IDFLaunchConstants.OPENOCD_USB_LOCATION, usbLoc);
+			configuration = wc.doSave();
+			projectConfigs.put(configuration.getName(), configuration);
+		}
 		return configuration;
 	}
 
@@ -65,8 +74,7 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 		{
 			return true;
 		}
-		if (configuration.exists())
-		{
+		if (configuration.exists()) {
 			configs.computeIfAbsent(project, key -> new HashMap<>()).put(configuration.getName(), configuration);
 		}
 
@@ -84,8 +92,7 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 	public void launchDescriptorRemoved(ILaunchDescriptor descriptor) throws CoreException
 	{
 		IProject project = descriptor.getAdapter(IProject.class);
-		if (project == null)
-		{
+		if (project == null) {
 			return;
 		}
 		Map<String, ILaunchConfiguration> projectConfigs = configs.get(project);
