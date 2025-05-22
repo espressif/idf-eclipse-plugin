@@ -155,18 +155,12 @@ jobs:
         shell: pwsh
         run: |
            ls .\artifacts\*
-      
-      
-      - name: Verify the downloaded file
-        shell: pwsh
-        run: |
-           ls artifacts\*
 
       - name: Extract Windows ZIP
         shell: pwsh
         run: |
-          Expand-Archive -Path artifacts\espressif-ide-win32.zip -DestinationPath extracted -Force
-          Expand-Archive -Path (Get-ChildItem -Path extracted -Filter "*win32.win32.x86_64.zip").FullName -DestinationPath extracted-final -Force
+          Expand-Archive -Path artifacts\*.zip -DestinationPath extracted -Force
+          ls .\artifacts\*
 
       - name: Decode base64-encoded JKS
         run: |
@@ -188,7 +182,7 @@ jobs:
       - name: Sign Windows Executable
         shell: pwsh
         run: |
-          $exe = Get-ChildItem -Recurse extracted-final\Espressif-IDE\espressif-ide.exe | Select-Object -First 1
+          $exe = Get-ChildItem -Recurse extracted\Espressif-IDE\espressif-ide.exe | Select-Object -First 1
           & "C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x86\signtool.exe" sign `
             /f cert.pfx `
             /p $env:PFX_PASS `
@@ -199,12 +193,12 @@ jobs:
 
       - name: Repack signed Windows ZIP
         run: |
-          Compress-Archive -Path extracted-final\* -DestinationPath artifacts/Espressif-IDE-win32.win32.x86_64.zip -Force
+          Compress-Archive -Path extracted\* -DestinationPath artifacts/Espressif-IDE-win32.win32.x86_64.zip -Force
 
       - name: Upload Signed Windows ZIP
         uses: actions/upload-artifact@v4
         with:
-          name: release-artifacts
+          name: Espressif-IDE-win32-Signed
           path: artifacts/Espressif-IDE-win32.win32.x86_64.zip
 
   # deploy:
