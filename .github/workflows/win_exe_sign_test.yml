@@ -155,12 +155,16 @@ jobs:
         run: |
           Expand-Archive -Path (Get-ChildItem -Path artifacts -Filter "*win32.win32.x86_64.zip").FullName -DestinationPath extracted
 
-      - name: Decode JKS and convert to PFX
+      - name: Decode base64-encoded JKS
         run: |
-          echo $env:JKS_B64 | Out-File encoded.b64 -Encoding ASCII
+          echo "$env:JKS_B64" | Out-File -FilePath encoded.b64 -Encoding ASCII
           certutil -decode encoded.b64 mykeystore.jks
           Remove-Item encoded.b64
-          & "${env:JAVA_HOME}\bin\keytool.exe" -importkeystore `
+
+      - name: Convert JKS to PFX
+        shell: pwsh
+        run: |
+            & "${env:JAVA_HOME}\bin\keytool.exe" -importkeystore `
             -srckeystore mykeystore.jks `
             -srcstorepass $env:JKS_PASS `
             -srcalias $env:ALIAS `
@@ -168,10 +172,8 @@ jobs:
             -deststoretype PKCS12 `
             -deststorepass $env:PFX_PASS
 
-      - name: Validate PFX file
-        run: certutil -dump cert.pfx
-
       - name: Sign Windows Executable
+        shell: pwsh
         run: |
           $exe = Get-ChildItem -Recurse extracted\*.exe | Select-Object -First 1
           & "C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x86\signtool.exe" sign `
