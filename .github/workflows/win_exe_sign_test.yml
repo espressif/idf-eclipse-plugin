@@ -198,15 +198,17 @@ jobs:
          /pa `
          $exe.FullName
 
-      - name: Repack signed Windows ZIP
+      - name: Removing original ZIP from extracted folder
         run: |
-          Compress-Archive -Path extracted\* -DestinationPath artifacts/Espressif-IDE-win32.win32.x86_64.zip -Force
+           Remove-Item -Force artifacts\*.zip
 
       - name: Upload Signed Windows ZIP
         uses: actions/upload-artifact@v4
         with:
           name: Espressif-IDE-win32-Signed
-          path: artifacts/Espressif-IDE-win32.win32.x86_64.zip
+          path: artifacts/
+          overwrite: true
+          if-no-files-found: error
 
   # deploy:
   #   runs-on: ubuntu-latest
