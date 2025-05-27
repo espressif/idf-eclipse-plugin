@@ -206,7 +206,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Espressif-IDE-win32-Signed
-          path: artifacts/
+          path: artifacts/*
           overwrite: true
           if-no-files-found: error
 
