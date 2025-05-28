@@ -30,6 +30,8 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.embedcdt.core.StringUtils;
 import org.eclipse.embedcdt.debug.gdbjtag.core.DebugUtils;
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuGdbServerBackend;
+import org.eclipse.launchbar.core.ILaunchBarManager;
+import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.osgi.framework.BundleContext;
 
 import com.espressif.idf.core.IDFCorePlugin;
@@ -220,9 +222,13 @@ public class GdbServerBackend extends GnuMcuGdbServerBackend {
 		}
 
 		// Add custom env var from launch config
-		String openocdLoc = fLaunchConfiguration.getAttribute(IDFLaunchConstants.OPENOCD_USB_LOCATION, (String) null);
-		if (openocdLoc != null) {
-			envMap.put(IDFLaunchConstants.OPENOCD_USB_LOCATION, openocdLoc);
+		ILaunchTarget activeLaunchTarget = Activator.getService(ILaunchBarManager.class).getActiveLaunchTarget();
+		if (activeLaunchTarget != null)
+		{
+			String openocdLoc = activeLaunchTarget.getAttribute(IDFLaunchConstants.OPENOCD_USB_LOCATION, (String) null);
+			if (openocdLoc != null) {
+				envMap.put(IDFLaunchConstants.OPENOCD_USB_LOCATION, openocdLoc);
+			}
 		}
 
 		// Convert back to envp
