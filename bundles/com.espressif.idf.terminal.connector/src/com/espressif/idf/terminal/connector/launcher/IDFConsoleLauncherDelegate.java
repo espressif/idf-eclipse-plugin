@@ -304,12 +304,15 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 
 		// Avoding profiles to isolate PATH enviroment
 		arguments = ""; //$NON-NLS-1$
-		if (image.contains("bash")) { //$NON-NLS-1$
-			arguments = "--noprofile --norc"; //$NON-NLS-1$
-		} else if (image.contains("zsh")) { //$NON-NLS-1$
-			arguments = "--no-rcs --no-globalrcs"; //$NON-NLS-1$
-		} else if (image.contains("powershell")) { //$NON-NLS-1$
-			arguments = "-NoProfile"; //$NON-NLS-1$
+		if (image.contains("bash")) {
+			String idfPath = IDFUtil.getIDFPath();
+			arguments = idfPath + "/export.sh; exec bash\"";
+		} else if (image.contains("zsh")) {
+			String idfPath = IDFUtil.getIDFPath();
+			arguments = idfPath + "/export.sh; exec zsh\"";
+		} else if (image.toLowerCase().contains("cmd.exe") || image.toLowerCase().contains("cmd")) {
+			String idfPath = IDFUtil.getIDFPath();
+			arguments = "/k " + Path.forWindows(idfPath).append("export.bat");
 		}
 
 		// Determine if a PTY will be used
@@ -386,6 +389,11 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
 		Set<String> keySet = envMap.keySet();
 
+		//Removing path, since we are using PATH
+		if (envMap.containsKey("PATH") && envMap.containsKey("Path")) { //$NON-NLS-1$ //$NON-NLS-2$
+			envMap.remove("Path"); //$NON-NLS-1$
+		}
+
 		for (String envKey : keySet) {
 			String envValue = envMap.get(envKey);
 			if (envKey.equals("PATH")) //$NON-NLS-1$
@@ -397,10 +405,7 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 			}
 			envpList.add(envKey + "=" + envValue); //$NON-NLS-1$
 		}
-		//Removing path, since we are using PATH
-		if (envMap.containsKey("PATH") && envMap.containsKey("Path")) { //$NON-NLS-1$ //$NON-NLS-2$
-			envMap.remove("Path"); //$NON-NLS-1$
-		}
+
 		// Convert back into a string array
 		envp = envpList.toArray(new String[envpList.size()]);
 
