@@ -26,7 +26,7 @@ public class EspToolCommands
 	{
 		destroyAnyChipInfoProcess();
 		ProcessBuilder processBuilder = new ProcessBuilder(getChipInfoCommand(port));
-		processBuilder.environment().putAll(IDFUtil.getSystemEnv());
+		processBuilder.environment().putAll(System.getenv());
 		chipInfoProcess = processBuilder.start();
 		return chipInfoProcess;
 	}
@@ -35,7 +35,7 @@ public class EspToolCommands
 	{
 		destroyAnyChipInfoProcess();
 		ProcessBuilder processBuilder = new ProcessBuilder(getFlashEraseCommand(port));
-		processBuilder.environment().putAll(IDFUtil.getSystemEnv());
+		processBuilder.environment().putAll(System.getenv());
 		flashEraseProcess = processBuilder.start();
 		return flashEraseProcess;
 	}
@@ -44,7 +44,7 @@ public class EspToolCommands
 	{
 		destroyAnyChipInfoProcess();
 		ProcessBuilder processBuilder = new ProcessBuilder(getWriteFlashCommand(port, path, offset));
-		processBuilder.environment().putAll(IDFUtil.getSystemEnv());
+		processBuilder.environment().putAll(System.getenv());
 		writeFlashProcess = processBuilder.start();
 		return writeFlashProcess;
 	}

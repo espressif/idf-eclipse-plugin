@@ -66,11 +66,6 @@
 	<extension
 		point="org.eclipse.ui.commands">
 		<command
-			defaultHandler="com.espressif.idf.ui.update.InstallToolsHandler"
-			id="com.espressif.idf.ui.command.install"
-			name="%command.name">
-		</command>
-		<command
 			defaultHandler="com.espressif.idf.ui.update.ListInstalledToolsHandler"
 			id="com.espressif.idf.ui.command.list"
 			name="%command.name.0">
@@ -101,11 +96,6 @@
 			name="%command.name.9">
 		</command>
 		<command
-			defaultHandler="com.espressif.idf.ui.handlers.UpdateEspIdfHandler"
-			id="com.espressif.idf.ui.command.update"
-			name="%command.name.updateEspIdfMaster">
-		</command>
-		<command
 			defaultHandler="com.espressif.idf.ui.tools.ManageEspIdfVersionsHandler"
 			description="Manage ESP-IDF Versions"
 			id="com.espressif.idf.ui.espidfmanager"
@@ -130,17 +120,6 @@
 				icon="icons/ESP-IDFManageToolsInstallation.png"
 				id="espidftoolsInstall"
 				style="push">
-			</command>
-			<command
-				commandId="com.espressif.idf.ui.command.update"
-				icon="icons/Update_ESP-IDF.png"
-				style="push">
-				<visibleWhen
-					checkEnabled="false">
-					<test
-						property="com.espressif.idf.ui.propertyTester.testProperty">
-					</test>
-				</visibleWhen>
 			</command>
 			<separator
 				name="com.espressif.idf.ui.separator1"
@@ -565,11 +544,9 @@
 	<extension
 		point="org.eclipse.ui.startup">
 		<startup
-			class="com.espressif.idf.ui.InitializeToolsStartup">
-		</startup>
-  <startup
-        class="com.espressif.idf.ui.ListenerStartup">
-  </startup>
+			class="com.espressif.idf.ui.EspressifGeneralStartup"/>
+		<startup
+			class="com.espressif.idf.ui.tools.EspressifToolStartup"/>
 	</extension>
 	<extension
 		id="com.espressif.idf.ui.extension.locale.support"
