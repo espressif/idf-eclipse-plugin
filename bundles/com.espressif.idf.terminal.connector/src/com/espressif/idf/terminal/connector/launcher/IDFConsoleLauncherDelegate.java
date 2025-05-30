@@ -386,6 +386,11 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
 		Set<String> keySet = envMap.keySet();
 
+		//Removing path, since we are using PATH
+		if (envMap.containsKey("PATH") && envMap.containsKey("Path")) { //$NON-NLS-1$ //$NON-NLS-2$
+			envMap.remove("Path"); //$NON-NLS-1$
+		}
+
 		for (String envKey : keySet) {
 			String envValue = envMap.get(envKey);
 			if (envKey.equals("PATH")) //$NON-NLS-1$
@@ -397,10 +402,7 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 			}
 			envpList.add(envKey + "=" + envValue); //$NON-NLS-1$
 		}
-		//Removing path, since we are using PATH
-		if (envMap.containsKey("PATH") && envMap.containsKey("Path")) { //$NON-NLS-1$ //$NON-NLS-2$
-			envMap.remove("Path"); //$NON-NLS-1$
-		}
+
 		// Convert back into a string array
 		envp = envpList.toArray(new String[envpList.size()]);
 
