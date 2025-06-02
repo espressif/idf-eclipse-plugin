@@ -198,6 +198,12 @@ jobs:
          /pa `
          $exe.FullName
 
+      - name: Verify the files in extracted Directory
+        run: ls .\artifacts\extracted\*
+
+      - name: Verify the files in original Directory
+        run: ls .\artifacts\*
+
       - name: Removing original ZIP from extracted folder
         run: |
            Remove-Item -Force artifacts\*.zip
