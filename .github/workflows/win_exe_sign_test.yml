@@ -257,13 +257,22 @@ jobs:
         path: artifacts
 
     - name: Extract macOS x86_64 dmg
-      run: unzip -q artifacts/macos_x86/*.zip -d artifacts/macos_x86
+      run: |
+        ls -altr artifacts
+        ls -altr artifacts/macos_x86
+        unzip -q artifacts/macos_x86/*.zip -d artifacts/macos_x86
 
     - name: Extract macOS aarch64 dmg
-      run: unzip -q artifacts/macos_arm/*.zip -d artifacts/macos_arm
+      run: |
+        ls -altr artifacts
+        ls -altr artifacts/macos_arm
+        unzip -q artifacts/macos_arm/*.zip -d artifacts/macos_arm
 
     - name: Extract linux zip (keep internal .tar.gz intact)
-      run: unzip -q artifacts/*.zip -d artifacts/linux
+      run: |
+        ls -altr artifacts
+        unzip -q artifacts/*.zip -d artifacts/linux
+        ls -altr artifacts/linux/
 
     - name: Determine version and prepare folder
       run: |
