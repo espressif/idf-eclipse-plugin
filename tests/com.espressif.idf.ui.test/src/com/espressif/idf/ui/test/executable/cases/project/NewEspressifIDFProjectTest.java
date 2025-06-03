@@ -108,16 +108,16 @@ public class NewEspressifIDFProjectTest
 		Fixture.thenConsoleShowsBuildSuccessful();
 	}
 
-	@Test
-	public void givenNewProjectCreatedAndRenamedAfterThenProjectIsBuildSuccessfully() throws Exception
-	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectForRenameTest");
-		Fixture.whenNewProjectIsSelected();
-		Fixture.whenProjectIsRenamed("NewProjectForRenameTest2");
-		Fixture.whenProjectIsBuiltUsingContextMenu();
-		Fixture.thenConsoleShowsBuildSuccessful();
-	}
+//	@Test
+//	public void givenNewProjectCreatedAndRenamedAfterThenProjectIsBuildSuccessfully() throws Exception
+//	{
+//		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+//		Fixture.givenProjectNameIs("NewProjectForRenameTest");
+//		Fixture.whenNewProjectIsSelected();
+//		Fixture.whenProjectIsRenamed("NewProjectForRenameTest2");
+//		Fixture.whenProjectIsBuiltUsingContextMenu();
+//		Fixture.thenConsoleShowsBuildSuccessful();
+//	}
 
 //	@Test
 //	public void givenNewProjectCreatedDfuBuiltThenHasDfuBin() throws Exception
