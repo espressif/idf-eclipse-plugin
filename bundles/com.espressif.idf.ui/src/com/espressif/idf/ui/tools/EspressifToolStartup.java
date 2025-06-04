@@ -52,17 +52,18 @@ public class EspressifToolStartup implements IStartup
 		preferences = org.eclipse.core.runtime.preferences.InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 		toolInitializer = new ToolInitializer(preferences);
 
-		if (toolInitializer.isEspIdfSet() && toolInitializer.isOldEspIdfConfigPresent()
-				&& !toolInitializer.isOldConfigExported())
-		{
-			Logger.log("Old configuration not imported");
-			handleOldConfigExport();
-		}
-
 		if (!toolInitializer.isEimInstalled())
 		{
+			Logger.log("EIM not installed");
 			notifyMissingTools();
 			return;
+		}
+		
+		if (toolInitializer.isOldEspIdfConfigPresent()
+				&& !toolInitializer.isOldConfigExported())
+		{
+			Logger.log("Old configuration found and not converted");
+			handleOldConfigExport();
 		}
 
 		EimJson eimJson = toolInitializer.loadEimJson();
@@ -119,8 +120,7 @@ public class EspressifToolStartup implements IStartup
 			}
 			catch (IOException e)
 			{
-				Logger.log("Error exporting old configuration");
-				Logger.log(e);
+				Logger.log("Error exporting old configuration", e);
 				displayInformationMessageBox(Messages.OldConfigExportCompleteFailMsgTitle,
 						Messages.OldConfigExportCompleteFailMsg);
 			}
