@@ -6,14 +6,18 @@ package com.espressif.idf.core.tools;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
 import org.osgi.service.prefs.Preferences;
 
+import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.vo.EimJson;
 
@@ -57,15 +61,25 @@ public class ToolInitializer
 		return getOldConfigFile().exists();
 	}
 
-	public void exportOldConfigIfNeeded(String exportPath) throws IOException
+	public IStatus exportOldConfig() throws IOException
 	{
 		File oldConfig = getOldConfigFile();
 		if (oldConfig.exists())
 		{
-			File destinationFile = new File(exportPath, oldConfig.getName());
-			Files.copy(oldConfig.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-			preferences.putBoolean(EimConstants.OLD_CONFIG_EXPORTED_FLAG, true);
+			// eim import pathToOldConfigJson
+			List<String> commands = new ArrayList<>();
+			commands.add(loadEimJson().getEimPath());
+			commands.add("import"); //$NON-NLS-1$
+			commands.add(oldConfig.getAbsolutePath());
+			ProcessBuilderFactory processBuilderFactory = new ProcessBuilderFactory();
+			IStatus status = processBuilderFactory.runInBackground(commands, org.eclipse.core.runtime.Path.ROOT,
+					System.getenv());
+			
+			Logger.log(status.getMessage());
+			return status;			
 		}
+		
+		return new Status(IStatus.ERROR, IDFCorePlugin.getId(), -1, "Error in conversion", null); //$NON-NLS-1$
 	}
 
 	public boolean isOldConfigExported()
