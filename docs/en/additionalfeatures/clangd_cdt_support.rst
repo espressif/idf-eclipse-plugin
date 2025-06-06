@@ -9,7 +9,7 @@ In line with this enhancement, we've discontinued support for the standard CDT E
 
 The LSP powered C/C++ editor greatly benefits ESP-IDF developers by aligning with the latest language standards and compiler versions, enhancing productivity, and improving code quality.
 
-You can find more details on the LSP based C/C++ Editor features `here <https://github.com/eclipse-cdt/cdt-lsp/>`_.
+You can find more details on the LSP based C/C++ Editor features in the `Eclipse CDT-LSP documentation <https://github.com/eclipse-cdt/cdt-lsp/>`_.
 
 Prerequisites
 -------------
@@ -59,7 +59,7 @@ If you are seeing the following error markers while navigating to the esp-idf co
 
 Please follow the steps below to fix it:
 
-1. Download the script from `here <https://github.com/espressif/idf-eclipse-plugin/tree/master/resources/resources/fix_compile_commands/fix_compile_commands.py>`_.
+1. Download the script for `fix_compile_commands.py <https://github.com/espressif/idf-eclipse-plugin/tree/master/resources/resources/fix_compile_commands/fix_compile_commands.py>`_.
 
 2. Invoke the script from the project post build step. Here is example for `CMakeLists.txt <https://github.com/espressif/idf-eclipse-plugin/blob/master/resources/resources/fix_compile_commands/CMakeLists.txt>`_:
 
