@@ -25,8 +25,10 @@ import com.espressif.idf.core.tools.watcher.EimJsonStateChecker;
 import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.tools.Messages;
+import com.espressif.idf.ui.tools.SetupToolsJobListener;
 import com.espressif.idf.ui.tools.manager.ESPIDFManagerEditor;
 import com.espressif.idf.ui.tools.manager.EimEditorInput;
+import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
 
 /**
  * eim_idf.json file ui change handler to notify user for changes.
@@ -110,6 +112,9 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 	{
 		SetupToolsInIde setupToolsInIde = new SetupToolsInIde(eimJson.getIdfInstalled().get(0), eimJson,
 				getConsoleStream(true), getConsoleStream(false));
+		SetupToolsJobListener toolsActivationJobListener = new SetupToolsJobListener(ESPIDFMainTablePage.getInstance(eimJson),
+				setupToolsInIde);
+		setupToolsInIde.addJobChangeListener(toolsActivationJobListener);
 		setupToolsInIde.schedule();
 	}
 
