@@ -40,4 +40,6 @@ References
 .. toctree::
     :maxdepth: 1
 
-      Configure CDT Build Environment Variables<additionalfeatures/configureenvvariables>
+    Configure CDT Build Environment Variables <additionalfeatures/configureenvvariables>
+    Add a Preview or Custom ESP-IDF Target <additionalfeatures/configuretoolchain>
+      
