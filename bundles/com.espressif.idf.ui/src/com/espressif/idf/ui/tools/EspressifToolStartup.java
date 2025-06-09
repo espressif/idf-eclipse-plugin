@@ -47,7 +47,10 @@ public class EspressifToolStartup implements IStartup
 		Preferences preferences = org.eclipse.core.runtime.preferences.InstanceScope.INSTANCE
 				.getNode(UIPlugin.PLUGIN_ID);
 		ToolInitializer toolInitializer = new ToolInitializer(preferences);
+		EimJsonStateChecker stateChecker = new EimJsonStateChecker(preferences);
 		eimJsonUiChangeHandler = new EimJsonUiChangeHandler(preferences);
+		stateChecker.updateLastSeenTimestamp();
+		EimJsonWatchService.getInstance().addEimJsonChangeListener(eimJsonUiChangeHandler);
 		if (!toolInitializer.isEimInstalled())
 		{
 			notifyMissingTools();
@@ -65,14 +68,10 @@ public class EspressifToolStartup implements IStartup
 			promptUserToOpenToolManager(eimJson);
 		}
 
-		EimJsonStateChecker stateChecker = new EimJsonStateChecker(preferences);
 		if (stateChecker.wasModifiedSinceLastRun())
 		{
 			showEimJsonStateChangeNotification();
 		}
-
-		stateChecker.updateLastSeenTimestamp();
-		EimJsonWatchService.getInstance().addEimJsonChangeListener(eimJsonUiChangeHandler);
 	}
 
 	private void showEimJsonStateChangeNotification()
