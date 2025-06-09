@@ -23,12 +23,14 @@ public class IDFClangdMetadataDefaults extends ConfigurationMetadataBase impleme
 	protected List<PreferenceMetadata<?>> definePreferences()
 	{
 		Set<String> filteredKeys = Set.of(Predefined.clangdPath.identifer(), Predefined.queryDriver.identifer());
+
 		var filteredDefaults = Predefined.defaults.stream().filter(pref -> filteredKeys.contains(pref.identifer()))
 				.toList();
 
-		var clangdMetadataWithDefault = wrapWithCustomDefaultValue(
-				IDFUtil.findCommandFromBuildEnvPath(ILSPConstants.CLANGD_EXECUTABLE),
-				ClangdMetadata.Predefined.clangdPath);
+		String clangdPath = Optional.ofNullable(IDFUtil.findCommandFromBuildEnvPath(ILSPConstants.CLANGD_EXECUTABLE))
+				.orElse(ClangdMetadata.Predefined.clangdPath.defaultValue());
+
+		var clangdMetadataWithDefault = wrapWithCustomDefaultValue(clangdPath, ClangdMetadata.Predefined.clangdPath);
 
 		ESPToolChainManager toolChainManager = new ESPToolChainManager();
 		String defaultIdfQueryDriver = Optional.ofNullable(toolChainManager.findCompiler("esp32")) //$NON-NLS-1$
@@ -49,5 +51,4 @@ public class IDFClangdMetadataDefaults extends ConfigurationMetadataBase impleme
 		return new PreferenceMetadata<>(metadata.valueClass(), metadata.identifer(), customDefaultValue,
 				metadata.name(), metadata.description());
 	}
-
 }
