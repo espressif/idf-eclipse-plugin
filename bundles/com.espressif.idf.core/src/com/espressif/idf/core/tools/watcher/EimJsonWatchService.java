@@ -129,6 +129,7 @@ public class EimJsonWatchService extends Thread
 		try
 		{
 			watchService.close();
+			Logger.log("File Watch Service close"); //$NON-NLS-1$
 		}
 		catch (IOException e)
 		{
