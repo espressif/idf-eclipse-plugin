@@ -39,7 +39,7 @@ public class EnvSetupOperations
 		prefrencesShell.bot().tree().getTreeItem("General").getNode("Editors").select();
 		prefrencesShell.bot().tree().getTreeItem("General").getNode("Editors").expand();
 		prefrencesShell.bot().tree().getTreeItem("General").getNode("Editors").getNode("File Associations").select();
-		prefrencesShell.bot().comboBox().setSelection("Text Editor");
+		prefrencesShell.bot().comboBox().setSelection("Plain Text Editor");
 		prefrencesShell.bot().tree().getTreeItem("General").getNode("Workspace").select();
 		if (!prefrencesShell.bot().checkBox("Refresh using native hooks or polling").isChecked())
 		{

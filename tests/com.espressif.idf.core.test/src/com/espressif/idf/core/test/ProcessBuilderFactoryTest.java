@@ -1,8 +1,8 @@
 package com.espressif.idf.core.test;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -56,8 +56,8 @@ class ProcessBuilderFactoryTest
 	{
 		Map<String, String> emptyEnvironment = new HashMap<>();
 
-		assertThrows(IOException.class, () ->
-		new ProcessBuilderFactory().run(dummyCommand, Path.EMPTY, emptyEnvironment));
+		assertThrows(IOException.class,
+				() -> new ProcessBuilderFactory().run(dummyCommand, Path.EMPTY, emptyEnvironment));
 	}
 
 	@Test

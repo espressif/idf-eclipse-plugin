@@ -9,7 +9,7 @@ In line with this enhancement, we've discontinued support for the standard CDT E
 
 The LSP powered C/C++ editor greatly benefits ESP-IDF developers by aligning with the latest language standards and compiler versions, enhancing productivity, and improving code quality.
 
-You can find more details on the LSP based C/C++ Editor features `here <https://github.com/eclipse-cdt/cdt-lsp/>`_.
+You can find more details on the LSP based C/C++ Editor features in the `Eclipse CDT-LSP documentation <https://github.com/eclipse-cdt/cdt-lsp/>`_.
 
 Prerequisites
 -------------
@@ -44,6 +44,40 @@ However, if you are dealing with an existing project, please create a `.clangd` 
     CompileFlags:
       CompilationDatabase: build
       Remove: [-m*, -f*]
+
+How to fix Unknown argument error when navigating to the esp-idf components
+----------------------------------------------------------------------------------------
+
+If you are seeing the following error markers while navigating to the esp-idf components source code:
+
+.. code-block:: none
+
+    Multiple markers at this line
+    - Unknown argument: '-fno-tree-switch-conversion' [drv_unknown_argument]
+    - Unknown argument: '-fno-shrink-wrap' [drv_unknown_argument]
+    - Unknown argument: '-fstrict-volatile-bitfields' [drv_unknown_argument]
+
+Please follow the steps below to fix it:
+
+1. Download the script for `fix_compile_commands.py <https://github.com/espressif/idf-eclipse-plugin/tree/master/resources/resources/fix_compile_commands/fix_compile_commands.py>`_.
+
+2. Invoke the script from the project post build step. Here is example for `CMakeLists.txt <https://github.com/espressif/idf-eclipse-plugin/blob/master/resources/resources/fix_compile_commands/CMakeLists.txt>`_:
+
+   .. code-block:: cmake
+
+      if(EXISTS "${CMAKE_SOURCE_DIR}/fix_compile_commands.py")
+        add_custom_target(
+            fix_clangd ALL
+            COMMAND ${CMAKE_COMMAND} -E echo "Running fix_compile_commands.py..."
+            COMMAND ${CMAKE_COMMAND} -E env python3 ${CMAKE_SOURCE_DIR}/fix_compile_commands.py
+            COMMENT "Cleaning compile_commands.json for clangd"
+            VERBATIM
+        )
+      endif()
+
+3. Now run the build, the script will remove the -m* and -f* flags from the compile_commands.json file which are unknown to clangd.
+
+4. Now, you can navigate to the esp-idf components source code without any errors.
 
 Disable CDT Indexer
 -------------------
