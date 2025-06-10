@@ -231,7 +231,7 @@ public class SetupToolsInIde extends Job
 		String websocketClient = "websocket-client"; //$NON-NLS-1$
 		// pip install websocket-client
 		List<String> arguments = new ArrayList<String>();
-		final String pythonEnvPath = IDFUtil.getIDFPythonEnvPath(envVarsFromActivationScriptMap.get(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH));
+		final String pythonEnvPath = idfInstalled.getPython();
 		if (pythonEnvPath == null || !new File(pythonEnvPath).exists())
 		{
 			log(String.format("%s executable not found. Unable to run `%s -m pip install websocket-client`", //$NON-NLS-1$
@@ -331,10 +331,8 @@ public class SetupToolsInIde extends Job
 	{
 		List<String> arguments = new ArrayList<String>();
 		arguments.add(rollback
-				? IDFUtil.getIDFPythonEnvPath(
-						existingEnvVarsInIdeForRollback.get(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH))
-				: IDFUtil.getIDFPythonEnvPath(
-						envVarsFromActivationScriptMap.get(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH)));
+				? existingEnvVarsInIdeForRollback.get(IDFEnvironmentVariables.PYTHON_EXE_PATH)
+				: idfInstalled.getPython());
 		arguments
 				.add(IDFUtil
 						.getIDFPythonScriptFile(
