@@ -22,7 +22,8 @@ public class IDFClangdMetadataDefaults extends ConfigurationMetadataBase impleme
 	@Override
 	protected List<PreferenceMetadata<?>> definePreferences()
 	{
-		Set<String> filteredKeys = Set.of(Predefined.clangdPath.identifer(), Predefined.queryDriver.identifer());
+		Set<String> filteredKeys = Set.of(Predefined.clangdPath.identifer(), Predefined.queryDriver.identifer(),
+				Predefined.setCompilationDatabase.identifer());
 
 		var filteredDefaults = Predefined.defaults.stream().filter(pref -> filteredKeys.contains(pref.identifer()))
 				.toList();
@@ -38,10 +39,12 @@ public class IDFClangdMetadataDefaults extends ConfigurationMetadataBase impleme
 
 		var queryDriverMetadataWithDefault = wrapWithCustomDefaultValue(defaultIdfQueryDriver,
 				ClangdMetadata.Predefined.queryDriver);
+		var setCompilationDatabaseDefault = wrapWithCustomDefaultValue(false, Predefined.setCompilationDatabase);
 
 		List<PreferenceMetadata<?>> mergedPreferences = new ArrayList<>(filteredDefaults);
 		mergedPreferences.add(clangdMetadataWithDefault);
 		mergedPreferences.add(queryDriverMetadataWithDefault);
+		mergedPreferences.add(setCompilationDatabaseDefault);
 
 		return mergedPreferences;
 	}
