@@ -24,6 +24,7 @@ public class IDFClangdMetadataDefaults extends ConfigurationMetadataBase impleme
 	{
 		Set<String> filteredKeys = Set.of(Predefined.clangdPath.identifer(), Predefined.queryDriver.identifer(),
 				Predefined.setCompilationDatabase.identifer());
+
 		var filteredDefaults = Predefined.defaults.stream().filter(pref -> filteredKeys.contains(pref.identifer()))
 				.toList();
 
