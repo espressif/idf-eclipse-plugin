@@ -479,6 +479,8 @@ public class SetupToolsInIde extends Job
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_MAINTAINER, "1"); //$NON-NLS-1$
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.ESP_IDF_EIM_ID, idfInstalled.getId());
 		
+		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PYTHON_EXE_PATH, idfInstalled.getPython());
+		
 		IDFUtil.updateEspressifPrefPageOpenocdPath();
 	}
 
