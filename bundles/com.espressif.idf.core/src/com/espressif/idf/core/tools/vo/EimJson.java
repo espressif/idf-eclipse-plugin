@@ -8,6 +8,8 @@ import com.google.gson.annotations.Expose;
 public class EimJson
 {
 	@Expose
+	private String eimPath;
+	@Expose
 	private String gitPath;
 	@Expose
 	private String idfSelectedId;
@@ -42,6 +44,16 @@ public class EimJson
 	public void setIdfInstalled(List<IdfInstalled> idfInstalled)
 	{
 		this.idfInstalled = idfInstalled;
+	}
+
+	public String getEimPath()
+	{
+		return eimPath;
+	}
+
+	public void setEimPath(String eimPath)
+	{
+		this.eimPath = eimPath;
 	}
 
 }
