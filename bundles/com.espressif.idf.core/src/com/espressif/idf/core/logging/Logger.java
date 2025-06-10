@@ -20,6 +20,10 @@ import com.espressif.idf.core.IDFCorePlugin;
  */
 public class Logger
 {
+	public static void log(String message, Exception e)
+	{
+		log(IDFCorePlugin.getPlugin(), message, e);
+	}
 
 	public static void log(String message)
 	{
