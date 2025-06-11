@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -51,6 +53,7 @@ import com.espressif.idf.core.SystemExecutableFinder;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
@@ -62,6 +65,14 @@ public class IDFUtil
 	private IDFUtil()
 	{
 	}
+
+	// Seam for tests
+	@VisibleForTesting
+	public static UnaryOperator<String> systemEnvPathProvider = System::getenv;
+	@VisibleForTesting
+	public static UnaryOperator<String> idfEnvVarPathProvider = env -> new IDFEnvironmentVariables().getEnvValue(env);
+	@VisibleForTesting
+	public static Function<String, IEnvironmentVariable> idfEnvProvider = v -> new IDFEnvironmentVariables().getEnv(v);
 
 	private static Boolean idfSupportsSpaces;
 
@@ -167,7 +178,8 @@ public class IDFUtil
 	 */
 	public static String getIDFPath()
 	{
-		String idfPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PATH);
+		String idfPath = idfEnvVarPathProvider.apply(IDFEnvironmentVariables.IDF_PATH);
+
 		if (StringUtil.isEmpty(idfPath))
 		{
 
@@ -188,7 +200,7 @@ public class IDFUtil
 	 */
 	public static String getIDFPythonEnvPath()
 	{
-		String idfPyEnvPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH);
+		String idfPyEnvPath = idfEnvVarPathProvider.apply(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH);
 		idfPyEnvPath = idfPyEnvPath.strip();
 		if (!StringUtil.isEmpty(idfPyEnvPath))
 		{
@@ -295,7 +307,7 @@ public class IDFUtil
 	 */
 	public static String findCommandFromBuildEnvPath(String command)
 	{
-		String pathStr = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.PATH);
+		String pathStr = idfEnvVarPathProvider.apply(IDFEnvironmentVariables.PATH);
 		if (pathStr != null)
 		{
 			java.nio.file.Path commandPath = findCommand(command, pathStr);
@@ -343,7 +355,7 @@ public class IDFUtil
 	 */
 	public static String getOpenOCDLocation()
 	{
-		String openOCDScriptPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS);
+		String openOCDScriptPath = idfEnvVarPathProvider.apply(IDFEnvironmentVariables.OPENOCD_SCRIPTS);
 		if (!StringUtil.isEmpty(openOCDScriptPath))
 		{
 			return openOCDScriptPath
