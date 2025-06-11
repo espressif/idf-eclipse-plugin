@@ -7,8 +7,10 @@ import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mockStatic;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.nio.file.Paths;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
@@ -87,6 +89,14 @@ public class IDFUtilTest
 		String result = IDFUtil.getIDFPath();
 		String expected = "esp_idf_path";
 		assertEquals(expected, result);
+	}
+
+	@AfterEach
+	public void resetCachedFlag() throws Exception
+	{
+		Field f = IDFUtil.class.getDeclaredField("idfSupportsSpaces");
+		f.setAccessible(true);
+		f.set(null, null); // reset static cached value
 	}
 
 	@Test
