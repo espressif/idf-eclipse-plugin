@@ -120,7 +120,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 
 	protected String getPythonExecutablePath()
 	{
-		pythonExecutablenPath = IDFUtil.getPythonExecutable();
+		pythonExecutablenPath = IDFUtil.getIDFPythonEnvPath();
 		return pythonExecutablenPath;
 	}
 
