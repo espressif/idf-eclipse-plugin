@@ -39,12 +39,68 @@ public class IDFUtilTest
 	public void testGetIdfSysviewTraceScriptFile_ShouldReturnValidScriptFile()
 	{
 		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
-				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path")))
+				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
 		{
 
 			File result = IDFUtil.getIDFSysviewTraceScriptFile();
 			String expectedPath = Paths.get("esp_idf_path", IDFConstants.TOOLS_FOLDER, //$NON-NLS-1$
 					IDFConstants.IDF_APP_TRACE_FOLDER, IDFConstants.IDF_SYSVIEW_TRACE_SCRIPT).toString();
+
+			assertEquals(expectedPath, result.getPath());
+		}
+	}
+
+	@Test
+	public void testGetIDFPythonScriptFile_ShouldReturnValidScriptFile()
+	{
+		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
+				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
+		{
+
+			File result = IDFUtil.getIDFPythonScriptFile();
+			String expectedPath = Paths.get("esp_idf_path", IDFConstants.TOOLS_FOLDER, IDFConstants.IDF_PYTHON_SCRIPT) //$NON-NLS-1$
+					.toString();
+
+			assertEquals(expectedPath, result.getPath());
+		}
+	}
+
+	@Test
+	public void testGetIDFPythonScriptFile_WithArgument_ShouldReturnValidScriptFile()
+	{
+		String idfPath = "esp_idf_path"; //$NON-NLS-1$
+
+		File result = IDFUtil.getIDFPythonScriptFile(idfPath);
+		String expectedPath = Paths.get(idfPath, IDFConstants.TOOLS_FOLDER, IDFConstants.IDF_PYTHON_SCRIPT).toString();
+
+		assertEquals(expectedPath, result.getPath());
+	}
+
+	@Test
+	public void testGetIDFMonitorPythonScriptFile_ShouldReturnValidScriptFile()
+	{
+		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
+				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
+		{
+
+			File result = IDFUtil.getIDFMonitorPythonScriptFile();
+			String expectedPath = Paths
+					.get("esp_idf_path", IDFConstants.TOOLS_FOLDER, IDFConstants.IDF_MONITOR_PYTHON_SCRIPT).toString(); //$NON-NLS-1$
+
+			assertEquals(expectedPath, result.getPath());
+		}
+	}
+
+	@Test
+	public void testGetIDFToolsScriptFile_ShouldReturnValidScriptFile()
+	{
+		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
+				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
+		{
+
+			File result = IDFUtil.getIDFToolsScriptFile();
+			String expectedPath = Paths.get("esp_idf_path", IDFConstants.TOOLS_FOLDER, IDFConstants.IDF_TOOLS_SCRIPT) //$NON-NLS-1$
+					.toString();
 
 			assertEquals(expectedPath, result.getPath());
 		}
@@ -66,7 +122,7 @@ public class IDFUtilTest
 	public void testGetIDFMonitorScriptFile_ShouldReturnValidScriptFile()
 	{
 		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
-				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path")))
+				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
 		{
 			File result = IDFUtil.getIDFMonitorScriptFile();
 			String expectedPath = Paths.get("esp_idf_path", IDFConstants.TOOLS_FOLDER, IDFConstants.IDF_MONITOR_SCRIPT) //$NON-NLS-1$
@@ -80,7 +136,7 @@ public class IDFUtilTest
 	public void testGetIDFSizeScriptFile_ShouldReturnValidScriptFile()
 	{
 		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
-				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path")))
+				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
 		{
 			File result = IDFUtil.getIDFSizeScriptFile();
 			String expectedPath = Paths.get("esp_idf_path", IDFConstants.TOOLS_FOLDER, IDFConstants.IDF_SIZE_SCRIPT) //$NON-NLS-1$
@@ -94,7 +150,7 @@ public class IDFUtilTest
 	public void testGetIDFToolsJsonFileForInstallation_ShouldReturnValidScriptFile()
 	{
 		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
-				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path")))
+				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
 		{
 			File result = IDFUtil.getIDFToolsJsonFileForInstallation();
 			String expectedPath = Paths.get("esp_idf_path", IDFConstants.TOOLS_FOLDER, IDFConstants.IDF_TOOLS_JSON) //$NON-NLS-1$
@@ -108,7 +164,7 @@ public class IDFUtilTest
 	public void testGetIDFPath_ShouldReturnIDFPathSpecifiedInIDFEnvironmentVariables()
 	{
 		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
-				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path")))
+				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
 		{
 			String result = IDFUtil.getIDFPath();
 			String expected = "esp_idf_path"; //$NON-NLS-1$
@@ -178,7 +234,7 @@ public class IDFUtilTest
 	public void testGetIDFExtraPaths_WhenIDFPathIsSet_ShouldReturnExpectedPaths()
 	{
 		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
-				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path")))
+				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
 		{
 			String result = IDFUtil.getIDFExtraPaths();
 
@@ -196,7 +252,7 @@ public class IDFUtilTest
 	public void testGetIDFExtraPaths_WhenIDFPathIsEmpty_ShouldReturnEmptyString()
 	{
 		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
-				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("")))
+				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn(""))) //$NON-NLS-1$
 		{
 			String result = IDFUtil.getIDFExtraPaths();
 			assertEquals("", result); //$NON-NLS-1$
@@ -227,13 +283,13 @@ public class IDFUtilTest
 	void testGetXtensaToolchainExecutablePathByTarget_DebuggerFound_ShouldReturnPath()
 	{
 		File mockFile = mock(File.class);
-		when(mockFile.getAbsolutePath()).thenReturn("/mock/debugger/xtensa-gdb");
+		when(mockFile.getAbsolutePath()).thenReturn("/mock/debugger/xtensa-gdb"); //$NON-NLS-1$
 
 		try (MockedConstruction<ESPToolChainManager> mocked = mockConstruction(ESPToolChainManager.class,
-				(mock, context) -> when(mock.findDebugger("esp32")).thenReturn(mockFile)))
+				(mock, context) -> when(mock.findDebugger("esp32")).thenReturn(mockFile))) //$NON-NLS-1$
 		{
-			String result = IDFUtil.getXtensaToolchainExecutablePathByTarget("esp32");
-			assertEquals("/mock/debugger/xtensa-gdb", result);
+			String result = IDFUtil.getXtensaToolchainExecutablePathByTarget("esp32"); //$NON-NLS-1$
+			assertEquals("/mock/debugger/xtensa-gdb", result); //$NON-NLS-1$
 		}
 	}
 
@@ -241,9 +297,9 @@ public class IDFUtilTest
 	void testGetXtensaToolchainExecutablePathByTarget_DebuggerNotFound_ShouldReturnNull()
 	{
 		try (MockedConstruction<ESPToolChainManager> mocked = mockConstruction(ESPToolChainManager.class,
-				(mock, context) -> when(mock.findDebugger("esp32")).thenReturn(null)))
+				(mock, context) -> when(mock.findDebugger("esp32")).thenReturn(null))) //$NON-NLS-1$
 		{
-			String result = IDFUtil.getXtensaToolchainExecutablePathByTarget("esp32");
+			String result = IDFUtil.getXtensaToolchainExecutablePathByTarget("esp32"); //$NON-NLS-1$
 			assertNull(result);
 		}
 	}
@@ -255,19 +311,19 @@ public class IDFUtilTest
 		ILaunchTarget mockTarget = mock(ILaunchTarget.class);
 		File mockFile = mock(File.class);
 
-		when(mockTarget.getAttribute(eq(LaunchBarTargetConstants.TARGET), any())).thenReturn("esp32");
-		when(mockFile.getAbsolutePath()).thenReturn("/mock/toolchain/xtensa-gcc");
+		when(mockTarget.getAttribute(eq(LaunchBarTargetConstants.TARGET), any())).thenReturn("esp32"); //$NON-NLS-1$
+		when(mockFile.getAbsolutePath()).thenReturn("/mock/toolchain/xtensa-gcc"); //$NON-NLS-1$
 
 		try (MockedStatic<IDFCorePlugin> mockedPlugin = mockStatic(IDFCorePlugin.class);
 				MockedConstruction<ESPToolChainManager> mockedToolchain = mockConstruction(ESPToolChainManager.class,
-						(mock, context) -> when(mock.findCompiler("esp32")).thenReturn(mockFile)))
+						(mock, context) -> when(mock.findCompiler("esp32")).thenReturn(mockFile))) //$NON-NLS-1$
 		{
 			mockedPlugin.when(() -> IDFCorePlugin.getService(ILaunchBarManager.class)).thenReturn(mockManager);
 			when(mockManager.getActiveLaunchTarget()).thenReturn(mockTarget);
 
 			String result = IDFUtil.getToolchainExePathForActiveTarget();
 
-			assertEquals("/mock/toolchain/xtensa-gcc", result);
+			assertEquals("/mock/toolchain/xtensa-gcc", result); //$NON-NLS-1$
 		}
 	}
 
