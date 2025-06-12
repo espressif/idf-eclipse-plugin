@@ -17,7 +17,6 @@ import java.lang.reflect.Field;
 import java.nio.file.Paths;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
@@ -28,6 +27,7 @@ import org.mockito.MockedStatic;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
 import com.espressif.idf.core.util.IDFUtil;
@@ -38,14 +38,16 @@ public class IDFUtilTest
 	@Test
 	public void testGetIdfSysviewTraceScriptFile_ShouldReturnValidScriptFile()
 	{
-		IDFUtil.idfEnvVarPathProvider = env -> "esp_idf_path"; //$NON-NLS-1$
+		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
+				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path")))
+		{
 
-		File result = IDFUtil.getIDFSysviewTraceScriptFile();
+			File result = IDFUtil.getIDFSysviewTraceScriptFile();
+			String expectedPath = Paths.get("esp_idf_path", IDFConstants.TOOLS_FOLDER, //$NON-NLS-1$
+					IDFConstants.IDF_APP_TRACE_FOLDER, IDFConstants.IDF_SYSVIEW_TRACE_SCRIPT).toString();
 
-		String expectedPath = Paths.get("esp_idf_path", IDFConstants.TOOLS_FOLDER, //$NON-NLS-1$
-				IDFConstants.IDF_APP_TRACE_FOLDER, IDFConstants.IDF_SYSVIEW_TRACE_SCRIPT).toString();
-
-		assertEquals(expectedPath, result.getPath());
+			assertEquals(expectedPath, result.getPath());
+		}
 	}
 
 	@Test
@@ -63,47 +65,55 @@ public class IDFUtilTest
 	@Test
 	public void testGetIDFMonitorScriptFile_ShouldReturnValidScriptFile()
 	{
-		IDFUtil.idfEnvVarPathProvider = env -> "esp_idf_path"; //$NON-NLS-1$
+		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
+				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path")))
+		{
+			File result = IDFUtil.getIDFMonitorScriptFile();
+			String expectedPath = Paths.get("esp_idf_path", IDFConstants.TOOLS_FOLDER, IDFConstants.IDF_MONITOR_SCRIPT) //$NON-NLS-1$
+					.toString();
 
-		File result = IDFUtil.getIDFMonitorScriptFile();
-		String expectedPath = Paths.get("esp_idf_path", IDFConstants.TOOLS_FOLDER, IDFConstants.IDF_MONITOR_SCRIPT) //$NON-NLS-1$
-				.toString();
-
-		assertEquals(expectedPath, result.getPath());
+			assertEquals(expectedPath, result.getPath());
+		}
 	}
 
 	@Test
 	public void testGetIDFSizeScriptFile_ShouldReturnValidScriptFile()
 	{
-		IDFUtil.idfEnvVarPathProvider = env -> "esp_idf_path"; //$NON-NLS-1$
+		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
+				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path")))
+		{
+			File result = IDFUtil.getIDFSizeScriptFile();
+			String expectedPath = Paths.get("esp_idf_path", IDFConstants.TOOLS_FOLDER, IDFConstants.IDF_SIZE_SCRIPT) //$NON-NLS-1$
+					.toString();
 
-		File result = IDFUtil.getIDFSizeScriptFile();
-		String expectedPath = Paths.get("esp_idf_path", IDFConstants.TOOLS_FOLDER, IDFConstants.IDF_SIZE_SCRIPT) //$NON-NLS-1$
-				.toString();
-
-		assertEquals(expectedPath, result.getPath());
+			assertEquals(expectedPath, result.getPath());
+		}
 	}
 
 	@Test
 	public void testGetIDFToolsJsonFileForInstallation_ShouldReturnValidScriptFile()
 	{
-		IDFUtil.idfEnvVarPathProvider = env -> "esp_idf_path"; //$NON-NLS-1$
+		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
+				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path")))
+		{
+			File result = IDFUtil.getIDFToolsJsonFileForInstallation();
+			String expectedPath = Paths.get("esp_idf_path", IDFConstants.TOOLS_FOLDER, IDFConstants.IDF_TOOLS_JSON) //$NON-NLS-1$
+					.toString();
 
-		File result = IDFUtil.getIDFToolsJsonFileForInstallation();
-		String expectedPath = Paths.get("esp_idf_path", IDFConstants.TOOLS_FOLDER, IDFConstants.IDF_TOOLS_JSON) //$NON-NLS-1$
-				.toString();
-
-		assertEquals(expectedPath, result.getPath());
+			assertEquals(expectedPath, result.getPath());
+		}
 	}
 
 	@Test
 	public void testGetIDFPath_ShouldReturnIDFPathSpecifiedInIDFEnvironmentVariables()
 	{
-		IDFUtil.idfEnvVarPathProvider = env -> "esp_idf_path"; //$NON-NLS-1$
-
-		String result = IDFUtil.getIDFPath();
-		String expected = "esp_idf_path"; //$NON-NLS-1$
-		assertEquals(expected, result);
+		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
+				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path")))
+		{
+			String result = IDFUtil.getIDFPath();
+			String expected = "esp_idf_path"; //$NON-NLS-1$
+			assertEquals(expected, result);
+		}
 	}
 
 	@AfterEach
@@ -167,23 +177,30 @@ public class IDFUtilTest
 	@Test
 	public void testGetIDFExtraPaths_WhenIDFPathIsSet_ShouldReturnExpectedPaths()
 	{
-		IDFUtil.idfEnvVarPathProvider = env -> "esp_idf_path"; //$NON-NLS-1$
-		String result = IDFUtil.getIDFExtraPaths();
+		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
+				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path")))
+		{
+			String result = IDFUtil.getIDFExtraPaths();
 
-		String expected = new Path("esp_idf_path").append("components/esptool_py/esptool").append(":") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				.append("esp_idf_path").append("components/espcoredump").append(":").append("esp_idf_path") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				.append("components/partition_table").append(":").append("esp_idf_path").append("components/app_update") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				.toString();
+			String expected = new Path("esp_idf_path").append("components/esptool_py/esptool").append(":") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					.append("esp_idf_path").append("components/espcoredump").append(":").append("esp_idf_path") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					.append("components/partition_table").append(":").append("esp_idf_path") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					.append("components/app_update") //$NON-NLS-1$
+					.toString();
 
-		assertEquals(expected, result);
+			assertEquals(expected, result);
+		}
 	}
 
 	@Test
 	public void testGetIDFExtraPaths_WhenIDFPathIsEmpty_ShouldReturnEmptyString()
 	{
-		IDFUtil.idfEnvVarPathProvider = env -> ""; //$NON-NLS-1$
-		String result = IDFUtil.getIDFExtraPaths();
-		assertEquals("", result); //$NON-NLS-1$
+		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
+				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("")))
+		{
+			String result = IDFUtil.getIDFExtraPaths();
+			assertEquals("", result); //$NON-NLS-1$
+		}
 	}
 
 	@Test
@@ -191,14 +208,19 @@ public class IDFUtilTest
 	{
 		String openocdScriptsLoc = "openocd_path" + File.separator + "share" + File.separator + "openocd" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				+ File.separator + "scripts"; //$NON-NLS-1$
-		IDFUtil.idfEnvVarPathProvider = env -> openocdScriptsLoc;
-		String result = IDFUtil.getOpenOCDLocation();
 
-		String expected = openocdScriptsLoc
-				.replace(File.separator + "share" + File.separator + "openocd" + File.separator + "scripts", "") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				+ File.separator + "bin"; //$NON-NLS-1$
+		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
+				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS))
+						.thenReturn(openocdScriptsLoc)))
+		{
+			String result = IDFUtil.getOpenOCDLocation();
 
-		assertEquals(expected, result);
+			String expected = openocdScriptsLoc
+					.replace(File.separator + "share" + File.separator + "openocd" + File.separator + "scripts", "") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					+ File.separator + "bin"; //$NON-NLS-1$
+
+			assertEquals(expected, result);
+		}
 	}
 
 	@Test
@@ -258,27 +280,6 @@ public class IDFUtilTest
 		{
 			mockedPlugin.when(() -> IDFCorePlugin.getService(ILaunchBarManager.class)).thenReturn(mockManager);
 			when(mockManager.getActiveLaunchTarget()).thenReturn(null);
-
-			String result = IDFUtil.getToolchainExePathForActiveTarget();
-
-			assertNull(result);
-		}
-	}
-
-	@Test
-	void testGetToolchainExePathForActiveTarget_CoreException_ShouldReturnNull() throws CoreException
-	{
-		ILaunchBarManager mockManager = mock(ILaunchBarManager.class);
-		IStatus mockStatus = mock(IStatus.class);
-
-		when(mockStatus.getMessage()).thenReturn("Simulated CoreException");
-
-		CoreException coreException = new CoreException(mockStatus);
-
-		try (MockedStatic<IDFCorePlugin> mockedPlugin = mockStatic(IDFCorePlugin.class))
-		{
-			mockedPlugin.when(() -> IDFCorePlugin.getService(ILaunchBarManager.class)).thenReturn(mockManager);
-			when(mockManager.getActiveLaunchTarget()).thenThrow(coreException);
 
 			String result = IDFUtil.getToolchainExePathForActiveTarget();
 

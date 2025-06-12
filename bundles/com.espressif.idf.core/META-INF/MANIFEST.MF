@@ -63,8 +63,7 @@ Bundle-ClassPath: .,
  lib/commons-text-1.10.0.jar,
  lib/commons-compress-1.21.jar,
  lib/xz-1.9.jar
-Import-Package: com.google.common.annotations,
- org.eclipse.cdt.debug.core.launch,
+Import-Package: org.eclipse.cdt.debug.core.launch,
  org.eclipse.embedcdt.core,
  org.eclipse.launchbar.ui.target,
  org.eclipse.ui.console
