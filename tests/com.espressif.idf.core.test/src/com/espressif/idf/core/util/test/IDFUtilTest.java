@@ -13,15 +13,19 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Paths;
 
+import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 
@@ -31,9 +35,12 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.SDKConfigJsonReader;
 
 public class IDFUtilTest
 {
+	@TempDir
+	File tempDir;
 
 	@Test
 	public void testGetIdfSysviewTraceScriptFile_ShouldReturnValidScriptFile()
@@ -340,6 +347,32 @@ public class IDFUtilTest
 			String result = IDFUtil.getToolchainExePathForActiveTarget();
 
 			assertNull(result);
+		}
+	}
+
+	@Test
+	void testGetXtensaToolchainExecutableAddr2LinePath_shouldReturnMatchingPath() throws IOException
+	{
+		IProject mockProject = mock(IProject.class);
+		String target = "esp32"; //$NON-NLS-1$
+		File matchingDir = new File(tempDir, "toolchain"); //$NON-NLS-1$
+		matchingDir.mkdirs();
+		File matchingFile = new File(matchingDir, "xtensa-" + target + "-elf-addr2line"); //$NON-NLS-1$ //$NON-NLS-2$
+		matchingFile.createNewFile();
+
+		try (MockedConstruction<SDKConfigJsonReader> mockedReader = mockConstruction(SDKConfigJsonReader.class,
+				(reader, context) -> when(reader.getValue("IDF_TARGET")).thenReturn(target)); //$NON-NLS-1$
+
+				MockedConstruction<IDFEnvironmentVariables> mockedEnv = mockConstruction(IDFEnvironmentVariables.class,
+						(env, context) -> {
+							IEnvironmentVariable pathVar = mock(IEnvironmentVariable.class);
+							when(pathVar.getValue()).thenReturn(matchingDir.getAbsolutePath());
+							when(env.getEnv("PATH")).thenReturn(pathVar); //$NON-NLS-1$
+						}))
+		{
+
+			String result = IDFUtil.getXtensaToolchainExecutableAddr2LinePath(mockProject);
+			assertEquals(matchingFile.getAbsolutePath(), result);
 		}
 	}
 
