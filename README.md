@@ -27,7 +27,9 @@ Please refer to the <a href="https://docs.espressif.com/projects/espressif-ide/e
 	```
 	git clone https://github.com/espressif/idf-eclipse-plugin.git
 	cd idf-eclipse-plugin
-	mvn clean verify -Djarsigner.skip=true
+	mvn clean verify -Djarsigner.skip=true \
+	  -Djdk.xml.maxGeneralEntitySizeLimit=0 \
+	  -Djdk.xml.totalEntitySizeLimit=0
 	```
 
 This will generate p2 update site artifact:
