@@ -16,10 +16,13 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Paths;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
@@ -404,6 +407,23 @@ public class IDFUtilTest
 					IDFConstants.ESP_CORE_DUMP_FOLDER, IDFConstants.ESP_CORE_DUMP_SCRIPT).toString();
 
 			assertEquals(expectedPath, result.getPath());
+		}
+	}
+
+	@Test
+	public void testGetNvsGeneratorScriptPath_ShouldReturnValidScriptPath()
+	{
+		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
+				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
+		{
+
+			String result = IDFUtil.getNvsGeneratorScriptPath();
+
+			String expectedPath = Stream
+					.of("esp_idf_path", "components", "nvs_flash", "nvs_partition_generator", "nvs_partition_gen.py") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+					.collect(Collectors.joining(String.valueOf(IPath.SEPARATOR)));
+
+			assertEquals(expectedPath, result);
 		}
 	}
 
