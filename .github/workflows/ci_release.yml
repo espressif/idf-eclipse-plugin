@@ -17,10 +17,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
 
       - name: Get version from tag
@@ -217,9 +217,9 @@ jobs:
    runs-on: macos-latest
    needs: windows-sign
    env:
-    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+     AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
    steps:
     - uses: actions/checkout@v3
 
@@ -235,13 +235,13 @@ jobs:
         name: espressif-ide-linux
         path: artifacts/linux
 
-    - name: Download macOS x86_64 dmg zip
+    - name: Download macOS x86_64 dmg
       uses: actions/download-artifact@v4
       with:
         name: espressif-ide-macosx-cocoa-x86_64
         path: artifacts/macos_x86
 
-    - name: Download macOS aarch64 dmg zip
+    - name: Download macOS aarch64 dmg
       uses: actions/download-artifact@v4
       with:
         name: espressif-ide-macosx.cocoa.aarch64
@@ -256,45 +256,48 @@ jobs:
     - name: Extract version from tag and prepare folder
       id: get_version
       run: |
-       if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
-            TAG="${GITHUB_REF##*/}"
-            VERSION="${TAG#v}"
-       else
-            VERSION="testing"
+        if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+          TAG="${GITHUB_REF##*/}"
+          VERSION="${TAG#v}"
+        else
+          VERSION="testing"
         fi
-       echo "version=$VERSION" >> "$GITHUB_ENV"
-       echo "FOLDER=v${VERSION}" >> $GITHUB_ENV
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "FOLDER=v$VERSION" >> $GITHUB_ENV
 
     - name: Rename DMGs with version suffix
       run: |
-        mv artifacts/macos_x86/Espressif-IDE-macosx-cocoa-x86_64.dmg artifacts/macos_x86/Espressif-IDE-macosx-cocoa-x86_64-v${{ env.VERSION }}.dmg
-        mv artifacts/macos_arm/Espressif-IDE-macosx-cocoa-aarch64.dmg artifacts/macos_arm/Espressif-IDE-macosx-cocoa-aarch64-v${{ env.VERSION }}.dmg
+        VERSION="${{ env.VERSION }}"
+        mv artifacts/macos_x86/Espressif-IDE-macosx-cocoa-x86_64.dmg "artifacts/macos_x86/Espressif-IDE-macosx-cocoa-x86_64-v$VERSION.dmg"
+        mv artifacts/macos_arm/Espressif-IDE-macosx-cocoa-aarch64.dmg "artifacts/macos_arm/Espressif-IDE-macosx-cocoa-aarch64-v$VERSION.dmg"
 
-    - name: Compress the archives for upload
+    - name: Compress the update and win32 artifacts
       run: |
-        zip -r com.espressif.idf.update-v${{ env.VERSION }}.zip artifacts/update/*
-        zip -r Espressif-IDE-${{ env.VERSION }}-win32.win32.x86_64.zip artifacts/win32/*
+        VERSION="${{ env.VERSION }}"
+        zip -r "com.espressif.idf.update-v$VERSION.zip" artifacts/update/*
+        zip -r "Espressif-IDE-$VERSION-win32.win32.x86_64.zip" artifacts/win32/*
 
     - name: Upload build assets to dl.espressif.com
       run: |
-        aws s3 rm s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/latest --recursive
+        VERSION="${{ env.VERSION }}"
 
-        aws s3 cp --acl=public-read --recursive artifacts/linux/ s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
-        aws s3 cp --acl=public-read ./releng/index.html s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/latest/
+        aws s3 rm "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/latest" --recursive
 
-        aws s3 cp --acl=public-read --recursive artifacts/linux/ s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/v${{ env.VERSION }}
+        aws s3 cp --acl=public-read --recursive artifacts/linux/ "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/"
+        aws s3 cp --acl=public-read ./releng/index.html "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/latest/"
+        aws s3 cp --acl=public-read --recursive artifacts/linux/ "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/v$VERSION"
 
-        aws s3 cp --acl=public-read com.espressif.idf.update-v${{ env.VERSION }}.zip s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/
-        aws s3 cp --acl=public-read artifacts/macos_x86/Espressif-IDE-macosx-cocoa-x86_64-v${{ env.VERSION }}.dmg s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
-        aws s3 cp --acl=public-read artifacts/macos_arm/Espressif-IDE-macosx-cocoa-aarch64-v${{ env.VERSION }}.dmg s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
-        aws s3 cp --acl=public-read Espressif-IDE-${{ env.VERSION }}-win32.win32.x86_64.zip s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
+        aws s3 cp --acl=public-read "com.espressif.idf.update-v$VERSION.zip" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/"
+        aws s3 cp --acl=public-read "artifacts/macos_x86/Espressif-IDE-macosx-cocoa-x86_64-v$VERSION.dmg" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/"
+        aws s3 cp --acl=public-read "artifacts/macos_arm/Espressif-IDE-macosx-cocoa-aarch64-v$VERSION.dmg" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/"
+        aws s3 cp --acl=public-read "Espressif-IDE-$VERSION-win32.win32.x86_64.zip" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/"
 
         aws cloudfront create-invalidation --distribution-id ${{ secrets.DL_DISTRIBUTION_ID }} --paths "/dl/idf-eclipse-plugin/updates/latest/*"
 
-        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-win32.win32.x86_64/latest" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-${{ env.VERSION }}-win32.win32.x86_64.zip"
+        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-win32.win32.x86_64/latest" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-$VERSION-win32.win32.x86_64.zip"
 
-        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-x86_64/latest" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-x86_64-v${{ env.VERSION }}.dmg"
+        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-x86_64/latest" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-x86_64-v$VERSION.dmg"
 
-        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64/latest" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64-v${{ env.VERSION }}.dmg"
+        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64/latest" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64-v$VERSION.dmg"
 
-        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-linux.gtk.x86_64/latest" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-${{ env.VERSION }}-linux.gtk.x86_64.tar.gz"
+        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-linux.gtk.x86_64/latest" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-$VERSION-linux.gtk.x86_64.tar.gz"
