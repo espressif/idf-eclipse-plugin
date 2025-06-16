@@ -252,17 +252,8 @@ public class IDFUtil
 
 	public static String getPythonExecutable()
 	{
-		IPath pythonPath = new SystemExecutableFinder().find(IDFConstants.PYTHON3_CMD); // look for python3
-		if (pythonPath == null)
-		{
-			pythonPath = new SystemExecutableFinder().find(IDFConstants.PYTHON_CMD); // look for python
-		}
-		if (pythonPath != null)
-		{
-			return pythonPath.toOSString();
-		}
-
-		return IDFConstants.PYTHON_CMD;
+		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+		return idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PYTHON_EXE_PATH);
 	}
 
 	/**
