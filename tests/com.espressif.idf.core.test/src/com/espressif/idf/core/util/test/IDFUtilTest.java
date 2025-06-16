@@ -376,4 +376,35 @@ public class IDFUtilTest
 		}
 	}
 
+	@Test
+	public void testGetEspToolScriptFile_ShouldReturnValidScriptFile()
+	{
+		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
+				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
+		{
+
+			File result = IDFUtil.getEspToolScriptFile();
+			String expectedPath = Paths.get("esp_idf_path", IDFConstants.COMPONENTS_FOLDER, //$NON-NLS-1$
+					IDFConstants.ESP_TOOL_FOLDER_PY, IDFConstants.ESP_TOOL_FOLDER, IDFConstants.ESP_TOOL_SCRIPT)
+					.toString();
+
+			assertEquals(expectedPath, result.getPath());
+		}
+	}
+
+	@Test
+	public void testGetEspCoreDumpScriptFile_ShouldReturnValidScriptFile()
+	{
+		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
+				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
+		{
+
+			File result = IDFUtil.getEspCoreDumpScriptFile();
+			String expectedPath = Paths.get("esp_idf_path", IDFConstants.COMPONENTS_FOLDER, //$NON-NLS-1$
+					IDFConstants.ESP_CORE_DUMP_FOLDER, IDFConstants.ESP_CORE_DUMP_SCRIPT).toString();
+
+			assertEquals(expectedPath, result.getPath());
+		}
+	}
+
 }
