@@ -279,7 +279,7 @@ jobs:
       run: |
         aws s3 rm s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/latest --recursive
 
-        aws s3 cp --acl=public-read --recursive artifacts/linux/ s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/latest
+        aws s3 cp --acl=public-read --recursive artifacts/linux/ s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
         aws s3 cp --acl=public-read ./releng/index.html s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/latest/
 
         aws s3 cp --acl=public-read --recursive artifacts/linux/ s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/v${{ env.VERSION }}
