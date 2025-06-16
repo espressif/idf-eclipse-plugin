@@ -13,5 +13,5 @@ import java.nio.file.Path;
  */
 public interface EimJsonChangeListener
 {
-	void onJsonFileChanged(Path file);
+	void onJsonFileChanged(Path file, boolean paused);
 }

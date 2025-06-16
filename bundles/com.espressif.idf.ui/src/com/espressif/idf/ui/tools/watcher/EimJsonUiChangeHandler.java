@@ -47,8 +47,13 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 	}
 
 	@Override
-	public void onJsonFileChanged(Path file)
+	public void onJsonFileChanged(Path file, boolean paused)
 	{
+		if (paused)
+		{
+			Logger.log("Listener is paused");
+			return;
+		}
 		int response = displayMessageToUser();
 		handleUserResponse(response);
 	}
