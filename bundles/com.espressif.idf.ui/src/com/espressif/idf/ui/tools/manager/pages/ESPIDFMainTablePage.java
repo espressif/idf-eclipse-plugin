@@ -45,6 +45,7 @@ import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.core.tools.vo.IdfInstalled;
 import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.UIPlugin;
+import com.espressif.idf.ui.tools.EimButtonLaunchListener;
 import com.espressif.idf.ui.tools.Messages;
 import com.espressif.idf.ui.tools.SetupToolsJobListener;
 
@@ -63,6 +64,7 @@ public class ESPIDFMainTablePage
 	private TableViewerColumn activateColumn;
 	private TableViewerColumn removeColumn;
 	private TableViewerColumn nameColumn;
+	private Button eimLaunchBtn;
 	
 	private TableColumnLayout tableColumnLayout;
 	private Composite tableComposite;
@@ -98,12 +100,12 @@ public class ESPIDFMainTablePage
 		final int numColumns = 2;
 		GridLayout gridLayout = new GridLayout(numColumns, false);
 		container.setLayout(gridLayout);
-		createGuideLink(container);
+		createButtonAndGuideLink(container);
 		createIdfTable(container);
 		return container;
 	}
 	
-	private void createGuideLink(Composite composite)
+	private void createButtonAndGuideLink(Composite composite)
 	{
 		Link guideLink = new Link(composite, SWT.WRAP);
 		guideLink.setText(Messages.IDFGuideLinkLabel_Text);
@@ -119,6 +121,10 @@ public class ESPIDFMainTablePage
 				Logger.log(ex);
 			}
 		});
+		
+		eimLaunchBtn = new Button(composite, SWT.PUSH);
+		eimLaunchBtn.setText("Launch EIM");
+		eimLaunchBtn.addSelectionListener(new EimButtonLaunchListener(espidfMainTablePage, Display.getDefault(), getConsoleStream(false), getConsoleStream(true)));
 	}
 	
 	public void setupInitialEspIdf()

@@ -19,6 +19,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.ide.IDE;
 import org.osgi.service.prefs.Preferences;
 
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.Messages;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.EimConstants;
@@ -77,6 +78,10 @@ public class EspressifToolStartup implements IStartup
 		{
 			return;
 		}
+		
+		// Set EimPath on every startup to ensure proper path in configurations
+		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, eimJson.getEimPath());
 
 		if (!toolInitializer.isEspIdfSet())
 		{

@@ -26,7 +26,9 @@ public class EimJsonWatchService extends Thread
 	private final Path watchDirectoryPath;
 	private final List<EimJsonChangeListener> eimJsonChangeListeners = new CopyOnWriteArrayList<>();
 	private volatile boolean running = true;
-
+	private volatile boolean paused = false;
+	
+	
 	private EimJsonWatchService() throws IOException
 	{
 		String directoryPathString = Platform.getOS().equals(Platform.OS_WIN32) ? EimConstants.EIM_WIN_DIR
@@ -73,10 +75,42 @@ public class EimJsonWatchService extends Thread
 			eimJsonChangeListeners.add(listener);
 		}
 	}
-
+	
 	public void removeAllListeners()
 	{
 		eimJsonChangeListeners.clear();
+	}
+	
+	public static void withPausedListeners(Runnable task)
+	{
+		EimJsonWatchService watchService = getInstance();
+		boolean wasPaused = watchService.paused;
+		watchService.pauseListeners();
+		
+		try
+		{
+			task.run();
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+		}
+		finally {
+			if (!wasPaused)
+				watchService.unpauseListeners();
+		}
+	}
+	
+	private void pauseListeners()
+	{
+		Logger.log("Listeners are paused"); //$NON-NLS-1$
+		paused = true;
+	}
+	
+	private void unpauseListeners()
+	{
+		Logger.log("Listeners are resumed"); //$NON-NLS-1$
+		paused = false;
 	}
 
 	@Override
@@ -113,7 +147,7 @@ public class EimJsonWatchService extends Thread
 					Path fullPath = watchDirectoryPath.resolve(path);
 					for (EimJsonChangeListener listener : eimJsonChangeListeners)
 					{
-						listener.onJsonFileChanged(fullPath);
+						listener.onJsonFileChanged(fullPath, paused);
 					}
 				}
 			}
