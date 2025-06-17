@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2025 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.core.tools;
 
 import java.io.BufferedReader;
@@ -31,6 +35,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+/**
+ * This class is responsible for downloading and launching the EIM. 
+ * The clients using this must take care of UI refreshes and pausing any listeners.
+ * @author Ali Azam Rana <ali.azamrana@espressif.com>
+ *
+ */
 public class EimLoader
 {
 	private static final String URL_JSON = "https://dl.espressif.com/dl/eim/eim_unified_release.json"; //$NON-NLS-1$

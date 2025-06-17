@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2025 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.ui.tools;
 
 import java.io.IOException;
@@ -30,6 +34,13 @@ import com.espressif.idf.ui.tools.manager.ESPIDFManagerEditor;
 import com.espressif.idf.ui.tools.manager.EimEditorInput;
 import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
 
+/**
+ * This is a class that other UI elements can also use to trigger 
+ * a simulated event on any widget to launch or download the EIM.
+ * The primary usage is in {@link ESPIDFMainTablePage}
+ * @author Ali Azam Rana <ali.azamrana@espressif.com>
+ *
+ */
 public class EimButtonLaunchListener extends SelectionAdapter
 {
 	private ESPIDFMainTablePage espidfMainTablePage;
