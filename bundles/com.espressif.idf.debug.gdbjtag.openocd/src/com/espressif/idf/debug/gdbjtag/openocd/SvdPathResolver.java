@@ -64,6 +64,13 @@ public class SvdPathResolver implements IDynamicVariableResolver
 		String jarPath = new File(TabSvdTarget.class.getProtectionDomain().getCodeSource().getLocation().toURI())
 				.getPath();
 		String selectedTargetPath;
+
+		if (svdUrl == null)
+		{
+			Logger.log("svd file is missing"); //$NON-NLS-1$
+			return StringUtil.EMPTY;
+		}
+
 		if (!jarPath.contains(".jar")) //$NON-NLS-1$
 			selectedTargetPath = new File(FileLocator.resolve(svdUrl).toURI()).getPath();
 		else
