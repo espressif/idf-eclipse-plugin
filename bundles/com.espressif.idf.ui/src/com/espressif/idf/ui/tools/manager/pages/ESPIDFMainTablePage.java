@@ -109,7 +109,7 @@ public class ESPIDFMainTablePage
 	{
 		Link guideLink = new Link(composite, SWT.WRAP);
 		guideLink.setText(Messages.IDFGuideLinkLabel_Text);
-		guideLink.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
+		guideLink.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 		guideLink.addListener(SWT.Selection, e -> {
 			try
 			{
@@ -123,7 +123,7 @@ public class ESPIDFMainTablePage
 		});
 		
 		eimLaunchBtn = new Button(composite, SWT.PUSH);
-		eimLaunchBtn.setText("Launch EIM");
+		eimLaunchBtn.setText(eimJson.getIdfInstalled().isEmpty() ? Messages.EIMButtonDownloadText : Messages.EIMButtonLaunchText);
 		eimLaunchBtn.addSelectionListener(new EimButtonLaunchListener(espidfMainTablePage, Display.getDefault(), getConsoleStream(false), getConsoleStream(true)));
 	}
 	
@@ -190,6 +190,7 @@ public class ESPIDFMainTablePage
 		tableViewer.setInput(idfInstalledList);
 		tableViewer.getControl().requestLayout();
 		tableViewer.refresh();
+		eimLaunchBtn.setText(eimJson.getIdfSelectedId().isEmpty() ? Messages.EIMButtonDownloadText : Messages.EIMButtonLaunchText);
 		container.redraw();
 	}
 
@@ -198,7 +199,7 @@ public class ESPIDFMainTablePage
 		Group idfToolsGroup = new Group(parent, SWT.SHADOW_ETCHED_IN);
 		idfToolsGroup.setText("IDF Tools");
 		idfToolsGroup.setLayout(new GridLayout(2, false));
-		idfToolsGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		idfToolsGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 
 		// Composite for the TableViewer, with TableColumnLayout
 		tableComposite = new Composite(idfToolsGroup, SWT.NONE);
