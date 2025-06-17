@@ -67,6 +67,7 @@ Export-Package: com.espressif.idf.core.test,
  org.apache.commons.lang3.text.translate,
  org.apache.commons.lang3.time,
  org.apache.commons.lang3.tuple
-Import-Package: org.eclipse.core.runtime,
+Import-Package: org.eclipse.cdt.core.envvar,
+ org.eclipse.core.runtime,
  org.eclipse.core.runtime.jobs,
  org.eclipse.core.variables
