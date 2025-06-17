@@ -1,6 +1,9 @@
 package com.espressif.idf.core.tools;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -11,33 +14,164 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.console.MessageConsoleStream;
 
+import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.StringUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class EimDownloader
+public class EimLoader
 {
 	private static final String URL_JSON = "https://dl.espressif.com/dl/eim/eim_unified_release.json"; //$NON-NLS-1$
 	private static final Path DOWNLOAD_DIR = Paths.get(System.getProperty("java.io.tmpdir"), "eim_gui"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private String os;
 	private String arch;
-	DownloadListener listener;
+	private DownloadListener listener;
+	private MessageConsoleStream standardConsoleStream;
+	private MessageConsoleStream errorConsoleStream;
+	private Display display;
 
-	public EimDownloader(DownloadListener listener)
+	public EimLoader(DownloadListener listener, MessageConsoleStream standardConsoleStream, MessageConsoleStream errorConsoleStream, Display display)
 	{
 		os = Platform.getOS();
 		arch = Platform.getOSArch();
 		this.listener = listener;
+		this.standardConsoleStream = standardConsoleStream;
+		this.errorConsoleStream = errorConsoleStream;
+		this.display = display;
 	}
+	
+	private void logMessage(String message)
+	{
+		display.asyncExec(()->{
+			try
+			{
+				standardConsoleStream.write(message);
+			}
+			catch (IOException e)
+			{
+				Logger.log(e);
+				logError(e.getMessage());
+			}
+		});
+		
+		Logger.log(message);
+	}
+	
+	private void logError(String message)
+	{
+		display.asyncExec(()->{
+			try
+			{
+				errorConsoleStream.write(message);
+			}
+			catch (IOException e)
+			{
+				Logger.log(e);
+			}
+		});
+		
+		Logger.log(message);
+	}
+	
+	public Process launchEim(String eimPath) throws IOException
+	{
+		if (!Files.exists(Paths.get(eimPath)))
+			throw new FileNotFoundException("EIM path not found: " + eimPath); //$NON-NLS-1$
+
+		String os = Platform.getOS();
+		List<String> command;
+
+		if (os.equals(Platform.OS_WIN32))
+		{
+			command = List.of("cmd.exe", "/c", eimPath.toString()); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		else if (os.equals(Platform.OS_MACOSX))
+		{
+			command = List.of("open", "-a", eimPath.toString());  //$NON-NLS-1$//$NON-NLS-2$
+		}
+		else if (os.equals(Platform.OS_LINUX))
+		{
+			command = List.of("bash", "-c", "\"" + eimPath.toString() + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		}
+		else
+		{
+			throw new UnsupportedOperationException("Unsupported OS: " + os); //$NON-NLS-1$
+		}
+
+		Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
+
+		logMessage("Launched EIM application: " + eimPath + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+
+		return process;
+	}
+	
+	public Process installAndLaunchDmg(Path dmgPath) throws IOException, InterruptedException
+	{
+		logMessage("Mounting DMG...\n"); //$NON-NLS-1$
+		ProcessBuilder mountBuilder = new ProcessBuilder("hdiutil", "attach", dmgPath.toString()); //$NON-NLS-1$ //$NON-NLS-2$
+		Process mountProcess = mountBuilder.start();
+
+		String volumePath = null;
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(mountProcess.getInputStream())))
+		{
+			String line;
+			while ((line = reader.readLine()) != null)
+			{
+				if (line.contains("/Volumes/")) //$NON-NLS-1$
+				{
+					String[] parts = line.split("\t"); //$NON-NLS-1$
+					for (String part : parts)
+					{
+						if (part.startsWith("/Volumes/")) //$NON-NLS-1$
+						{
+							volumePath = part.trim();
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		if (volumePath == null)
+			throw new IOException("Failed to mount DMG: Volume path not found."); //$NON-NLS-1$
+
+		File[] apps = new File(volumePath).listFiles((dir, name) -> name.endsWith(".app")); //$NON-NLS-1$
+		if (apps == null || apps.length == 0)
+			throw new FileNotFoundException("No .app found inside DMG."); //$NON-NLS-1$
+
+		File appBundle = apps[0];
+		Path targetAppPath = Paths.get("/Applications", appBundle.getName()); //$NON-NLS-1$
+
+		logMessage("Copying app to /Applications...\n"); //$NON-NLS-1$
+
+		// Copy to /Applications
+		ProcessBuilder copyBuilder = new ProcessBuilder("cp", "-R", appBundle.getAbsolutePath(), //$NON-NLS-1$ //$NON-NLS-2$
+				targetAppPath.toString());
+		copyBuilder.inheritIO().start().waitFor();
+
+		logMessage("Unmounting DMG...\n"); //$NON-NLS-1$
+		new ProcessBuilder("hdiutil", "detach", volumePath).start().waitFor(); //$NON-NLS-1$ //$NON-NLS-2$
+
+		logMessage("Launching app from /Applications...\n"); //$NON-NLS-1$
+
+		Process openProcess = new ProcessBuilder("open", "-W", "-a", targetAppPath.toString()).start(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		new IDFEnvironmentVariables().addEnvVariable(IDFEnvironmentVariables.EIM_PATH, targetAppPath.toString());
+		return openProcess;
+	}
+
 
 	public void downloadEim(IProgressMonitor monitor)
 	{

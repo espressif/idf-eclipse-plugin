@@ -89,7 +89,7 @@ public class EimJsonWatchService extends Thread
 		
 		try
 		{
-			task.run();
+			task.run();			
 		}
 		catch (Exception e)
 		{

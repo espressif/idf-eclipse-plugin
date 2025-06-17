@@ -5,18 +5,24 @@
 package com.espressif.idf.ui.tools;
 
 import java.io.IOException;
-import java.text.MessageFormat;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IStartup;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.intro.IIntroManager;
 import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
@@ -29,11 +35,12 @@ import com.espressif.idf.core.tools.watcher.EimJsonStateChecker;
 import com.espressif.idf.core.tools.watcher.EimJsonWatchService;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.UIPlugin;
-import com.espressif.idf.ui.dialogs.MessageLinkDialog;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.tools.manager.ESPIDFManagerEditor;
 import com.espressif.idf.ui.tools.manager.EimEditorInput;
+import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
 import com.espressif.idf.ui.tools.watcher.EimJsonUiChangeHandler;
 
 /**
@@ -65,9 +72,8 @@ public class EspressifToolStartup implements IStartup
 			notifyMissingTools();
 			return;
 		}
-		
-		if (toolInitializer.isOldEspIdfConfigPresent()
-				&& !toolInitializer.isOldConfigExported())
+
+		if (toolInitializer.isOldEspIdfConfigPresent() && !toolInitializer.isOldConfigExported())
 		{
 			Logger.log("Old configuration found and not converted");
 			handleOldConfigExport();
@@ -78,7 +84,7 @@ public class EspressifToolStartup implements IStartup
 		{
 			return;
 		}
-		
+
 		// Set EimPath on every startup to ensure proper path in configurations
 		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, eimJson.getEimPath());
@@ -151,10 +157,56 @@ public class EspressifToolStartup implements IStartup
 	private void notifyMissingTools()
 	{
 		Display.getDefault().asyncExec(() -> {
-			MessageLinkDialog.openWarning(Display.getDefault().getActiveShell(),
+			boolean userAgreed = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
 					Messages.ToolsInitializationEimMissingMsgBoxTitle,
-					MessageFormat.format(Messages.ToolsInitializationEimMissingMsgBoxMessage, EimConstants.EIM_URL));
+					Messages.ToolsInitializationEimMissingMsgBoxMessage);
+			if (userAgreed)
+			{
+				// Download Launch EIM
+				downloadAndLaunchEim();
+			}
+			else
+			{
+				Logger.log("User selected No to download EIM");
+			}
 		});
+	}
+
+	private void downloadAndLaunchEim()
+	{
+		closeWelcomePage();
+		Event event = new Event();
+		event.widget = new Label(Display.getDefault().getActiveShell(), 0);
+		SelectionEvent simulatedEvent = new SelectionEvent(event);
+		EimButtonLaunchListener eimButtonLaunchListener = new EimButtonLaunchListener(
+				ESPIDFMainTablePage.getInstance(null), Display.getDefault(), getConsoleStream(false),
+				getConsoleStream(true));
+		eimButtonLaunchListener.widgetSelected(simulatedEvent);
+	}
+
+	private void closeWelcomePage()
+	{
+		Display.getDefault().asyncExec(() -> {
+			IWorkbench workbench = PlatformUI.getWorkbench();
+			if (workbench != null)
+			{
+				IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
+				if (window != null)
+				{
+					IIntroManager introManager = workbench.getIntroManager();
+					if (introManager.getIntro() != null)
+					{
+						introManager.closeIntro(introManager.getIntro());
+					}
+				}
+			}
+		});
+	}
+
+	private MessageConsoleStream getConsoleStream(boolean errorStream)
+	{
+		IDFConsole idfConsole = new IDFConsole();
+		return idfConsole.getConsoleStream("EIM Launch Console", null, errorStream);
 	}
 
 	private void promptUserToOpenToolManager(EimJson eimJson)
