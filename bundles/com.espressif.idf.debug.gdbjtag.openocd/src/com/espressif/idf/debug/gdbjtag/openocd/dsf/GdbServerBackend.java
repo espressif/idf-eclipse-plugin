@@ -14,18 +14,28 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd.dsf;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.eclipse.cdt.dsf.concurrent.RequestMonitor;
 import org.eclipse.cdt.dsf.service.DsfSession;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.embedcdt.core.StringUtils;
+import org.eclipse.embedcdt.debug.gdbjtag.core.DebugUtils;
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuGdbServerBackend;
+import org.eclipse.launchbar.core.ILaunchBarManager;
+import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.osgi.framework.BundleContext;
 
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
 
@@ -194,4 +204,39 @@ public class GdbServerBackend extends GnuMcuGdbServerBackend {
 	}
 
 	// ------------------------------------------------------------------------
+
+	@Override
+	protected Process launchGdbServerProcess(String[] commandLineArray) throws CoreException {
+		File dir = null;
+		IPath path = DebugUtils.getGdbWorkingDirectory(fLaunchConfiguration);
+		if (path != null) {
+			dir = new File(path.toOSString());
+		}
+
+		// Get the default environment
+		String[] envp = DebugUtils.getLaunchEnvironment(fLaunchConfiguration);
+		Map<String, String> envMap = new HashMap<>();
+		for (String env : envp) {
+			int idx = env.indexOf('=');
+			if (idx > 0) envMap.put(env.substring(0, idx), env.substring(idx + 1));
+		}
+
+		// Add custom env var from launch config
+		ILaunchTarget activeLaunchTarget = Activator.getService(ILaunchBarManager.class).getActiveLaunchTarget();
+		if (activeLaunchTarget != null)
+		{
+			String openocdLoc = activeLaunchTarget.getAttribute(IDFLaunchConstants.OPENOCD_USB_LOCATION, (String) null);
+			if (openocdLoc != null) {
+				envMap.put(IDFLaunchConstants.OPENOCD_USB_LOCATION, openocdLoc);
+			}
+		}
+
+		// Convert back to envp
+		java.util.List<String> envList = new java.util.ArrayList<>();
+		for (Entry<String, String> entry : envMap.entrySet()) {
+			envList.add(entry.getKey() + "=" + entry.getValue());
+		}
+
+		return DebugUtils.exec(commandLineArray, envList.toArray(new String[0]), dir);
+	}
 }

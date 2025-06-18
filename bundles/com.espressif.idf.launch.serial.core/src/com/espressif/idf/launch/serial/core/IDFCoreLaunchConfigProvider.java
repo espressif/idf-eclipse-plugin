@@ -37,6 +37,7 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 				.findAppropriateLaunchConfig(descriptor, IDFLaunchConstants.RUN_LAUNCH_CONFIG_TYPE) : configuration;
 		configuration = configuration == null ? createLaunchConfiguration(descriptor, target) : configuration;
 		projectConfigs.put(configuration.getName(), configuration);
+
 		return configuration;
 	}
 
