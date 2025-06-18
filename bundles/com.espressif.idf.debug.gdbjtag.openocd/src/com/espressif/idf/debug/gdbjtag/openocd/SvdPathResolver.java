@@ -61,8 +61,9 @@ public class SvdPathResolver implements IDynamicVariableResolver
 	private String resolveSvdPath(String target) throws Exception
 	{
 		URL svdUrl = Platform.getBundle(Activator.PLUGIN_ID).getResource("svd/".concat(target.concat(".svd"))); //$NON-NLS-1$ //$NON-NLS-2$
-		String jarPath = new File(TabSvdTarget.class.getProtectionDomain().getCodeSource().getLocation().toURI())
-				.getPath();
+		String jarPath = new File(TabSvdTarget.class.getProtectionDomain().getCodeSource().getLocation().getPath())
+				.getAbsolutePath();
+
 		String selectedTargetPath;
 
 		if (svdUrl == null)
@@ -72,7 +73,7 @@ public class SvdPathResolver implements IDynamicVariableResolver
 		}
 
 		if (!jarPath.contains(".jar")) //$NON-NLS-1$
-			selectedTargetPath = new File(FileLocator.resolve(svdUrl).toURI()).getPath();
+			selectedTargetPath = new File(FileLocator.resolve(svdUrl).getPath()).getAbsolutePath();
 		else
 			selectedTargetPath = resolveSvdPathFromJar(svdUrl, jarPath);
 		return selectedTargetPath;
