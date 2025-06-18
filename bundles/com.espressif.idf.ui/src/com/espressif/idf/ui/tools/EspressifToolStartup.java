@@ -58,9 +58,9 @@ public class EspressifToolStartup implements IStartup
 	@Override
 	public void earlyStartup()
 	{
-		Preferences preferences = org.eclipse.core.runtime.preferences.InstanceScope.INSTANCE
+		preferences = org.eclipse.core.runtime.preferences.InstanceScope.INSTANCE
 				.getNode(UIPlugin.PLUGIN_ID);
-		ToolInitializer toolInitializer = new ToolInitializer(preferences);
+			toolInitializer = new ToolInitializer(preferences);
 		EimJsonStateChecker stateChecker = new EimJsonStateChecker(preferences);
 		eimJsonUiChangeHandler = new EimJsonUiChangeHandler(preferences);
 		stateChecker.updateLastSeenTimestamp();
@@ -76,7 +76,7 @@ public class EspressifToolStartup implements IStartup
 		if (toolInitializer.isOldEspIdfConfigPresent() && !toolInitializer.isOldConfigExported())
 		{
 			Logger.log("Old configuration found and not converted");
-			handleOldConfigExport();
+			EimJsonWatchService.withPausedListeners(()-> handleOldConfigExport());
 		}
 
 		EimJson eimJson = toolInitializer.loadEimJson();
