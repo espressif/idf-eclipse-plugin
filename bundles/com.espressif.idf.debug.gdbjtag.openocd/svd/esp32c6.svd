@@ -4,10 +4,9 @@
   <vendorID>ESPRESSIF</vendorID>
   <name>ESP32-C6</name>
   <series>ESP32 C-Series</series>
-  <version>5</version>
+  <version>11</version>
   <description>32-bit RISC-V MCU &amp; 2.4 GHz Wi-Fi 6 &amp; Bluetooth 5 (LE) &amp; IEEE 802.15.4</description>
-  <licenseText>
-    Copyright 2023 Espressif Systems (Shanghai) PTE LTD
+  <licenseText>Copyright 2024 Espressif Systems (Shanghai) PTE LTD
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -19,15 +18,14 @@
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
-    limitations under the License.
-</licenseText>
+    limitations under the License.</licenseText>
   <cpu>
     <name>RV32IMAC</name>
     <revision>r0p0</revision>
     <endian>little</endian>
     <mpuPresent>false</mpuPresent>
     <fpuPresent>false</fpuPresent>
-    <nvicPrioBits>4</nvicPrioBits>
+    <nvicPrioBits>0</nvicPrioBits>
     <vendorSystickConfig>false</vendorSystickConfig>
   </cpu>
   <addressUnitBits>32</addressUnitBits>
@@ -351,36 +349,36 @@
           </fields>
         </register>
         <register>
-          <dim>16</dim>
-          <dimIncrement>0x1</dimIncrement>
+          <dim>4</dim>
+          <dimIncrement>0x4</dimIncrement>
           <name>IV_MEM[%s]</name>
           <description>The memory that stores initialization vector</description>
           <addressOffset>0x50</addressOffset>
-          <size>0x8</size>
+          <size>0x20</size>
         </register>
         <register>
-          <dim>16</dim>
-          <dimIncrement>0x1</dimIncrement>
+          <dim>4</dim>
+          <dimIncrement>0x4</dimIncrement>
           <name>H_MEM[%s]</name>
           <description>The memory that stores GCM hash subkey</description>
           <addressOffset>0x60</addressOffset>
-          <size>0x8</size>
+          <size>0x20</size>
         </register>
         <register>
-          <dim>16</dim>
-          <dimIncrement>0x1</dimIncrement>
+          <dim>4</dim>
+          <dimIncrement>0x4</dimIncrement>
           <name>J0_MEM[%s]</name>
           <description>The memory that stores J0</description>
           <addressOffset>0x70</addressOffset>
-          <size>0x8</size>
+          <size>0x20</size>
         </register>
         <register>
-          <dim>16</dim>
-          <dimIncrement>0x1</dimIncrement>
+          <dim>4</dim>
+          <dimIncrement>0x4</dimIncrement>
           <name>T0_MEM[%s]</name>
           <description>The memory that stores T0</description>
           <addressOffset>0x80</addressOffset>
-          <size>0x8</size>
+          <size>0x20</size>
         </register>
         <register>
           <name>DMA_ENABLE</name>
@@ -1555,7 +1553,7 @@
       </interrupt>
       <registers>
         <register>
-          <name>C0RE_0_INTR_ENA</name>
+          <name>CORE_0_MONTR_ENA</name>
           <description>core0 monitor enable configuration register</description>
           <addressOffset>0x0</addressOffset>
           <size>0x20</size>
@@ -1739,90 +1737,90 @@
           </fields>
         </register>
         <register>
-          <name>CORE_0_INTR_RLS</name>
+          <name>CORE_0_INTR_ENA</name>
           <description>core0 monitor interrupt enable register</description>
           <addressOffset>0x8</addressOffset>
           <size>0x20</size>
           <fields>
             <field>
-              <name>CORE_0_AREA_DRAM0_0_RD_RLS</name>
+              <name>CORE_0_AREA_DRAM0_0_RD_INTR_ENA</name>
               <description>Core0 dram0 area0 read monitor interrupt enable</description>
               <bitOffset>0</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>CORE_0_AREA_DRAM0_0_WR_RLS</name>
+              <name>CORE_0_AREA_DRAM0_0_WR_INTR_ENA</name>
               <description>Core0 dram0 area0 write monitor interrupt enable</description>
               <bitOffset>1</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>CORE_0_AREA_DRAM0_1_RD_RLS</name>
+              <name>CORE_0_AREA_DRAM0_1_RD_INTR_ENA</name>
               <description>Core0 dram0 area1 read monitor interrupt enable</description>
               <bitOffset>2</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>CORE_0_AREA_DRAM0_1_WR_RLS</name>
+              <name>CORE_0_AREA_DRAM0_1_WR_INTR_ENA</name>
               <description>Core0 dram0 area1 write monitor interrupt enable</description>
               <bitOffset>3</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>CORE_0_AREA_PIF_0_RD_RLS</name>
+              <name>CORE_0_AREA_PIF_0_RD_INTR_ENA</name>
               <description>Core0 PIF area0 read monitor interrupt enable</description>
               <bitOffset>4</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>CORE_0_AREA_PIF_0_WR_RLS</name>
+              <name>CORE_0_AREA_PIF_0_WR_INTR_ENA</name>
               <description>Core0 PIF area0 write monitor interrupt enable</description>
               <bitOffset>5</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>CORE_0_AREA_PIF_1_RD_RLS</name>
+              <name>CORE_0_AREA_PIF_1_RD_INTR_ENA</name>
               <description>Core0 PIF area1 read monitor interrupt enable</description>
               <bitOffset>6</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>CORE_0_AREA_PIF_1_WR_RLS</name>
+              <name>CORE_0_AREA_PIF_1_WR_INTR_ENA</name>
               <description>Core0 PIF area1 write monitor interrupt enable</description>
               <bitOffset>7</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>CORE_0_SP_SPILL_MIN_RLS</name>
+              <name>CORE_0_SP_SPILL_MIN_INTR_ENA</name>
               <description>Core0 stackpoint underflow monitor interrupt enable</description>
               <bitOffset>8</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>CORE_0_SP_SPILL_MAX_RLS</name>
+              <name>CORE_0_SP_SPILL_MAX_INTR_ENA</name>
               <description>Core0 stackpoint overflow monitor interrupt enable</description>
               <bitOffset>9</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>CORE_0_IRAM0_EXCEPTION_MONITOR_RLS</name>
+              <name>CORE_0_IRAM0_EXCEPTION_MONITOR_INTR_ENA</name>
               <description>IBUS busy monitor interrupt enable</description>
               <bitOffset>10</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>CORE_0_DRAM0_EXCEPTION_MONITOR_RLS</name>
+              <name>CORE_0_DRAM0_EXCEPTION_MONITOR_INTR_ENA</name>
               <description>DBUS busy monitor interrupt enbale</description>
               <bitOffset>11</bitOffset>
               <bitWidth>1</bitWidth>
@@ -3792,60 +3790,60 @@
       </addressBlock>
       <registers>
         <register>
-          <dim>512</dim>
-          <dimIncrement>0x1</dimIncrement>
+          <dim>128</dim>
+          <dimIncrement>0x4</dimIncrement>
           <name>Y_MEM[%s]</name>
           <description>memory that stores Y</description>
           <addressOffset>0x0</addressOffset>
-          <size>0x8</size>
+          <size>0x20</size>
         </register>
         <register>
-          <dim>512</dim>
-          <dimIncrement>0x1</dimIncrement>
+          <dim>128</dim>
+          <dimIncrement>0x4</dimIncrement>
           <name>M_MEM[%s]</name>
           <description>memory that stores M</description>
           <addressOffset>0x200</addressOffset>
-          <size>0x8</size>
+          <size>0x20</size>
         </register>
         <register>
-          <dim>512</dim>
-          <dimIncrement>0x1</dimIncrement>
+          <dim>128</dim>
+          <dimIncrement>0x4</dimIncrement>
           <name>RB_MEM[%s]</name>
           <description>memory that stores Rb</description>
           <addressOffset>0x400</addressOffset>
-          <size>0x8</size>
+          <size>0x20</size>
         </register>
         <register>
-          <dim>48</dim>
-          <dimIncrement>0x1</dimIncrement>
+          <dim>12</dim>
+          <dimIncrement>0x4</dimIncrement>
           <name>BOX_MEM[%s]</name>
           <description>memory that stores BOX</description>
           <addressOffset>0x600</addressOffset>
-          <size>0x8</size>
+          <size>0x20</size>
         </register>
         <register>
-          <dim>16</dim>
-          <dimIncrement>0x1</dimIncrement>
+          <dim>4</dim>
+          <dimIncrement>0x4</dimIncrement>
           <name>IV_MEM[%s]</name>
           <description>memory that stores IV</description>
           <addressOffset>0x630</addressOffset>
-          <size>0x8</size>
+          <size>0x20</size>
         </register>
         <register>
-          <dim>512</dim>
-          <dimIncrement>0x1</dimIncrement>
+          <dim>128</dim>
+          <dimIncrement>0x4</dimIncrement>
           <name>X_MEM[%s]</name>
           <description>memory that stores X</description>
           <addressOffset>0x800</addressOffset>
-          <size>0x8</size>
+          <size>0x20</size>
         </register>
         <register>
-          <dim>512</dim>
-          <dimIncrement>0x1</dimIncrement>
+          <dim>128</dim>
+          <dimIncrement>0x4</dimIncrement>
           <name>Z_MEM[%s]</name>
           <description>memory that stores Z</description>
           <addressOffset>0xA00</addressOffset>
-          <size>0x8</size>
+          <size>0x20</size>
         </register>
         <register>
           <name>SET_START</name>
@@ -4119,28 +4117,28 @@
           </fields>
         </register>
         <register>
-          <dim>32</dim>
-          <dimIncrement>0x1</dimIncrement>
+          <dim>8</dim>
+          <dimIncrement>0x4</dimIncrement>
           <name>K_MEM[%s]</name>
           <description>The memory that stores k.</description>
           <addressOffset>0x100</addressOffset>
-          <size>0x8</size>
+          <size>0x20</size>
         </register>
         <register>
-          <dim>32</dim>
-          <dimIncrement>0x1</dimIncrement>
+          <dim>8</dim>
+          <dimIncrement>0x4</dimIncrement>
           <name>PX_MEM[%s]</name>
           <description>The memory that stores Px.</description>
           <addressOffset>0x120</addressOffset>
-          <size>0x8</size>
+          <size>0x20</size>
         </register>
         <register>
-          <dim>32</dim>
-          <dimIncrement>0x1</dimIncrement>
+          <dim>8</dim>
+          <dimIncrement>0x4</dimIncrement>
           <name>PY_MEM[%s]</name>
           <description>The memory that stores Py.</description>
           <addressOffset>0x140</addressOffset>
-          <size>0x8</size>
+          <size>0x20</size>
         </register>
       </registers>
     </peripheral>
@@ -4816,17 +4814,59 @@
           <size>0x20</size>
           <fields>
             <field>
-              <name>MAC_SPI_RESERVED</name>
-              <description>Reserved.</description>
+              <name>ACTIVE_HP_DBIAS</name>
+              <description>Stores the active hp dbias.</description>
               <bitOffset>0</bitOffset>
-              <bitWidth>14</bitWidth>
+              <bitWidth>5</bitWidth>
+              <access>read-only</access>
+            </field>
+            <field>
+              <name>ACTIVE_LP_DBIAS</name>
+              <description>Stores the active lp dbias.</description>
+              <bitOffset>5</bitOffset>
+              <bitWidth>5</bitWidth>
+              <access>read-only</access>
+            </field>
+            <field>
+              <name>LSLP_HP_DBG</name>
+              <description>Stores the lslp hp dbg.</description>
+              <bitOffset>10</bitOffset>
+              <bitWidth>2</bitWidth>
+              <access>read-only</access>
+            </field>
+            <field>
+              <name>LSLP_HP_DBIAS</name>
+              <description>Stores the lslp hp dbias.</description>
+              <bitOffset>12</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-only</access>
+            </field>
+            <field>
+              <name>DSLP_LP_DBG</name>
+              <description>Stores the dslp lp dbg.</description>
+              <bitOffset>16</bitOffset>
+              <bitWidth>3</bitWidth>
+              <access>read-only</access>
+            </field>
+            <field>
+              <name>DSLP_LP_DBIAS</name>
+              <description>Stores the dslp lp dbias.</description>
+              <bitOffset>19</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-only</access>
+            </field>
+            <field>
+              <name>DBIAS_VOL_GAP</name>
+              <description>Stores the hp and lp dbias vol gap.</description>
+              <bitOffset>23</bitOffset>
+              <bitWidth>5</bitWidth>
               <access>read-only</access>
             </field>
             <field>
               <name>SPI_PAD_CONF_1</name>
-              <description>Stores the first part of SPI_PAD_CONF.</description>
-              <bitOffset>14</bitOffset>
-              <bitWidth>18</bitWidth>
+              <description>Reserved.</description>
+              <bitOffset>28</bitOffset>
+              <bitWidth>4</bitWidth>
               <access>read-only</access>
             </field>
           </fields>
@@ -14168,7 +14208,7 @@
       <name>GPIO_SD</name>
       <description>Sigma-Delta Modulation</description>
       <groupName>GPIOSD</groupName>
-      <baseAddress>0x60004F00</baseAddress>
+      <baseAddress>0x60091F00</baseAddress>
       <addressBlock>
         <offset>0x0</offset>
         <size>0x7C</size>
@@ -15702,7 +15742,7 @@
           <size>0x20</size>
           <fields>
             <field>
-              <name>QUREY_CHECK</name>
+              <name>QUERY_CHECK</name>
               <description>Hmac configuration state. 0: key are agree with purpose. 1: error</description>
               <bitOffset>0</bitOffset>
               <bitWidth>1</bitWidth>
@@ -15726,20 +15766,20 @@
           </fields>
         </register>
         <register>
-          <dim>64</dim>
-          <dimIncrement>0x1</dimIncrement>
+          <dim>16</dim>
+          <dimIncrement>0x4</dimIncrement>
           <name>WR_MESSAGE_MEM[%s]</name>
           <description>Message block memory.</description>
           <addressOffset>0x80</addressOffset>
-          <size>0x8</size>
+          <size>0x20</size>
         </register>
         <register>
-          <dim>32</dim>
-          <dimIncrement>0x1</dimIncrement>
+          <dim>8</dim>
+          <dimIncrement>0x4</dimIncrement>
           <name>RD_RESULT_MEM[%s]</name>
           <description>Result from upstream.</description>
           <addressOffset>0xC0</addressOffset>
-          <size>0x8</size>
+          <size>0x20</size>
         </register>
         <register>
           <name>SET_MESSAGE_PAD</name>
@@ -19754,7 +19794,7 @@ level.</description>
         <usage>registers</usage>
       </addressBlock>
       <interrupt>
-        <name>I2S1</name>
+        <name>I2S0</name>
         <value>41</value>
       </interrupt>
       <registers>
@@ -21034,6 +21074,1684 @@ level.</description>
               <description>I2S version control register</description>
               <bitOffset>0</bitOffset>
               <bitWidth>28</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+      </registers>
+    </peripheral>
+    <peripheral>
+      <name>IEEE802154</name>
+      <description>IEEE802154 Peripheral</description>
+      <groupName>IEEE802154</groupName>
+      <baseAddress>0x600A3000</baseAddress>
+      <addressBlock>
+        <offset>0x0</offset>
+        <size>0x174</size>
+        <usage>registers</usage>
+      </addressBlock>
+      <registers>
+        <register>
+          <name>COMMAND</name>
+          <addressOffset>0x0</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>OPCODE</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>8</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CTRL_CFG</name>
+          <addressOffset>0x4</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>HW_AUTO_ACK_TX_EN</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>HW_ENHANCE_ACK_TX_EN</name>
+              <bitOffset>1</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>HW_AUTO_ACK_RX_EN</name>
+              <bitOffset>3</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>DIS_IFS_CONTROL</name>
+              <bitOffset>5</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>PAN_COORDINATOR</name>
+              <bitOffset>6</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>PROMISCUOUS_MODE</name>
+              <bitOffset>7</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>DIS_FRAME_VERSION_RSV_FILTER</name>
+              <bitOffset>11</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>AUTOPEND_ENHANCE</name>
+              <bitOffset>12</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>FILTER_ENHANCE</name>
+              <bitOffset>14</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>COEX_ARB_DELAY</name>
+              <bitOffset>16</bitOffset>
+              <bitWidth>5</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>BIT_ORDER</name>
+              <bitOffset>24</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>NO_RSS_TRK_ENB</name>
+              <bitOffset>25</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>FORCE_RX_ENB</name>
+              <bitOffset>26</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>RX_DONE_TRIGGER_IDLE</name>
+              <bitOffset>27</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>MAC_INF0_ENABLE</name>
+              <bitOffset>28</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>MAC_INF1_ENABLE</name>
+              <bitOffset>29</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>MAC_INF2_ENABLE</name>
+              <bitOffset>30</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>MAC_INF3_ENABLE</name>
+              <bitOffset>31</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>INF0_SHORT_ADDR</name>
+          <addressOffset>0x8</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>MAC_INF0_SHORT_ADDR</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>INF0_PAN_ID</name>
+          <addressOffset>0xC</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>MAC_INF0_PAN_ID</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>INF0_EXTEND_ADDR0</name>
+          <addressOffset>0x10</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>MAC_INF0_EXTEND_ADDR0</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>INF0_EXTEND_ADDR1</name>
+          <addressOffset>0x14</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>MAC_INF0_EXTEND_ADDR1</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>INF1_SHORT_ADDR</name>
+          <addressOffset>0x18</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>MAC_INF1_SHORT_ADDR</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>INF1_PAN_ID</name>
+          <addressOffset>0x1C</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>MAC_INF1_PAN_ID</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>INF1_EXTEND_ADDR0</name>
+          <addressOffset>0x20</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>MAC_INF1_EXTEND_ADDR0</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>INF1_EXTEND_ADDR1</name>
+          <addressOffset>0x24</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>MAC_INF1_EXTEND_ADDR1</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>INF2_SHORT_ADDR</name>
+          <addressOffset>0x28</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>MAC_INF2_SHORT_ADDR</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>INF2_PAN_ID</name>
+          <addressOffset>0x2C</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>MAC_INF2_PAN_ID</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>INF2_EXTEND_ADDR0</name>
+          <addressOffset>0x30</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>MAC_INF2_EXTEND_ADDR0</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>INF2_EXTEND_ADDR1</name>
+          <addressOffset>0x34</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>MAC_INF2_EXTEND_ADDR1</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>INF3_SHORT_ADDR</name>
+          <addressOffset>0x38</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>MAC_INF3_SHORT_ADDR</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>INF3_PAN_ID</name>
+          <addressOffset>0x3C</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>MAC_INF3_PAN_ID</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>INF3_EXTEND_ADDR0</name>
+          <addressOffset>0x40</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>MAC_INF3_EXTEND_ADDR0</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>INF3_EXTEND_ADDR1</name>
+          <addressOffset>0x44</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>MAC_INF3_EXTEND_ADDR1</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CHANNEL</name>
+          <addressOffset>0x48</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>HOP</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>7</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TX_POWER</name>
+          <addressOffset>0x4C</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TX_POWER</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>5</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>ED_SCAN_DURATION</name>
+          <addressOffset>0x50</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>ED_SCAN_DURATION</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>24</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>ED_SCAN_WAIT_DLY</name>
+              <bitOffset>24</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>ED_SCAN_CFG</name>
+          <addressOffset>0x54</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>CCA_ED_THRESHOLD</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>8</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>ED_SAMPLE_MODE</name>
+              <bitOffset>11</bitOffset>
+              <bitWidth>2</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>DIS_ED_POWER_SEL</name>
+              <bitOffset>13</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>CCA_MODE</name>
+              <bitOffset>14</bitOffset>
+              <bitWidth>2</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>ED_RSS</name>
+              <bitOffset>16</bitOffset>
+              <bitWidth>8</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>CCA_BUSY</name>
+              <bitOffset>24</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>IFS</name>
+          <addressOffset>0x58</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>SIFS</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>8</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>LIFS</name>
+              <bitOffset>16</bitOffset>
+              <bitWidth>10</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>ACK_TIMEOUT</name>
+          <addressOffset>0x5C</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>ACK_TIMEOUT</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>EVENT_EN</name>
+          <addressOffset>0x60</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>EVENT_EN</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>13</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>EVENT_STATUS</name>
+          <addressOffset>0x64</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>EVENT_STATUS</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>13</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>RX_ABORT_INTR_CTRL</name>
+          <addressOffset>0x68</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>RX_ABORT_INTR_CTRL</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>31</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>ACK_FRAME_PENDING_EN</name>
+          <addressOffset>0x6C</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>ACK_FRAME_PENDING_EN</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>ACK_TX_ACK_TIMEOUT</name>
+              <bitOffset>16</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>COEX_PTI</name>
+          <addressOffset>0x70</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>COEX_PTI</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>COEX_ACK_PTI</name>
+              <bitOffset>4</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>CLOSE_RF_SEL</name>
+              <bitOffset>8</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CORE_DUMMY_DATA</name>
+          <addressOffset>0x74</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>CORE_DUMMY_DATA</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TX_ABORT_INTERRUPT_CONTROL</name>
+          <addressOffset>0x78</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TX_ABORT_INTERRUPT_CONTROL</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>31</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>ENHANCE_ACK_CFG</name>
+          <addressOffset>0x7C</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TX_ENH_ACK_GENERATE_DONE_NOTIFY</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>RX_STATUS</name>
+          <addressOffset>0x80</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>FILTER_FAIL_STATUS</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>RX_ABORT_STATUS</name>
+              <bitOffset>4</bitOffset>
+              <bitWidth>5</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>RX_STATE</name>
+              <bitOffset>16</bitOffset>
+              <bitWidth>3</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>PREAMBLE_MATCH</name>
+              <bitOffset>20</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>SFD_MATCH</name>
+              <bitOffset>21</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TX_STATUS</name>
+          <addressOffset>0x84</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TX_STATE</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>TX_ABORT_STATUS</name>
+              <bitOffset>4</bitOffset>
+              <bitWidth>5</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>TX_SEC_ERROR_CODE</name>
+              <bitOffset>16</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TXRX_STATUS</name>
+          <addressOffset>0x88</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TXRX_STATE</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>TX_PROC</name>
+              <bitOffset>8</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>RX_PROC</name>
+              <bitOffset>9</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>ED_PROC</name>
+              <bitOffset>10</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>ED_TRIGGER_TX_PROC</name>
+              <bitOffset>11</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>RF_CTRL_STATE</name>
+              <bitOffset>16</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TX_CCM_SCHEDULE_STATUS</name>
+          <addressOffset>0x8C</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TX_CCM_SCHEDULE_STATUS</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>31</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CORE_GCK_CFG</name>
+          <addressOffset>0x90</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>DIS_PKT_GCK</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>DIS_CTRL_GCK</name>
+              <bitOffset>1</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TEST_CONTROL</name>
+          <addressOffset>0x94</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>WRONG_CRC</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>DTM_CONFIG</name>
+          <addressOffset>0x98</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>DTMCH_TX_LENGTH</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>8</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>DTM_TX_PLD_TYPE</name>
+              <bitOffset>8</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>DTM_HOP_FREQ</name>
+              <bitOffset>16</bitOffset>
+              <bitWidth>6</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>DTM_CONTRX_EN</name>
+              <bitOffset>24</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>DTM_ON</name>
+              <bitOffset>25</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>DTM_TX_PKT_CONFIG</name>
+          <addressOffset>0x9C</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>DTM_TX_PKT_THRESHOLD</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>DTM_PKT_COUNTER</name>
+          <addressOffset>0xA0</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>DTM_TXRX_PKT_COUNT</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>DTM_CRC_ERR_PKT_COUNT</name>
+              <bitOffset>16</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>RX_LENGTH</name>
+          <addressOffset>0xA4</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>RX_LENGTH</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>7</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TIME0_THRESHOLD</name>
+          <addressOffset>0xA8</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TIMER0_THRESHOLD</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TIME0_VALUE</name>
+          <addressOffset>0xAC</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TIMER0_VALUE</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TIME1_THRESHOLD</name>
+          <addressOffset>0xB0</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TIMER1_THRESHOLD</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TIME1_VALUE</name>
+          <addressOffset>0xB4</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TIMER1_VALUE</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CLK_COUNTER_MATCH_VAL</name>
+          <addressOffset>0xB8</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>CLK_COUNT_MATCH_VAL</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CLK_COUNTER</name>
+          <addressOffset>0xBC</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>CLK_625US_CNT</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>IFS_COUNTER</name>
+          <addressOffset>0xC0</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>IFS_COUNTER</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>10</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>EN</name>
+              <bitOffset>16</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SFD_WAIT_SYMBOL</name>
+          <addressOffset>0xC4</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>NUM</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TXRX_PATH_DELAY</name>
+          <addressOffset>0xC8</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TX_PATH_DELAY</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>6</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>RX_PATH_DELAY</name>
+              <bitOffset>16</bitOffset>
+              <bitWidth>6</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>BB_CLK</name>
+          <addressOffset>0xCC</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>FREQ_MINUS_1</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>5</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TXDMA_ADDR</name>
+          <addressOffset>0xD0</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TXDMA_ADDR</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TXDMA_CTRL_STATE</name>
+          <addressOffset>0xD4</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TXDMA_WATER_LEVEL</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>3</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>TXDMA_FILL_ENTRY</name>
+              <bitOffset>4</bitOffset>
+              <bitWidth>3</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>TXDMA_STATE</name>
+              <bitOffset>16</bitOffset>
+              <bitWidth>5</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>TXDMA_FETCH_BYTE_CNT</name>
+              <bitOffset>24</bitOffset>
+              <bitWidth>7</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TXDMA_ERR</name>
+          <addressOffset>0xD8</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TXDMA_ERR</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>RXDMA_ADDR</name>
+          <addressOffset>0xE0</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>RXDMA_ADDR</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>RXDMA_CTRL_STATE</name>
+          <addressOffset>0xE4</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>RXDMA_WATER_LEVEL</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>3</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>RXDMA_STATE</name>
+              <bitOffset>16</bitOffset>
+              <bitWidth>5</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>RXDMA_APPEND_LQI_OFFSET</name>
+              <bitOffset>24</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>RXDMA_APPEND_FREQ_OFFSET</name>
+              <bitOffset>25</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>RXDMA_ERR</name>
+          <addressOffset>0xE8</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>RXDMA_ERR</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>DMA_GCK_CFG</name>
+          <addressOffset>0xF0</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>DMA_GCK_CFG</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>DMA_DUMMY</name>
+          <addressOffset>0xF4</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>DATA</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>PAON_DELAY</name>
+          <addressOffset>0x100</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>PAON_DELAY</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>10</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TXON_DELAY</name>
+          <addressOffset>0x104</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TXON_DELAY</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>10</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TXEN_STOP_DELAY</name>
+          <addressOffset>0x108</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TXEN_STOP_DLY</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>6</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TXOFF_DELAY</name>
+          <addressOffset>0x10C</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TXOFF_DELAY</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>6</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>RXON_DELAY</name>
+          <addressOffset>0x110</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>RXON_DELAY</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>11</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TXRX_SWITCH_DELAY</name>
+          <addressOffset>0x114</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TXRX_SWITCH_DELAY</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>10</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CONT_RX_DELAY</name>
+          <addressOffset>0x118</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>CONT_RX_DELAY</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>6</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>DCDC_CTRL</name>
+          <addressOffset>0x11C</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>DCDC_PRE_UP_DELAY</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>8</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>DCDC_DOWN_DELAY</name>
+              <bitOffset>8</bitOffset>
+              <bitWidth>8</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>EN</name>
+              <bitOffset>16</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>TX_DCDC_UP</name>
+              <bitOffset>31</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>DEBUG_CTRL</name>
+          <addressOffset>0x120</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>DEBUG_SIGNAL_SEL</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>3</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>DEBUG_TRIGGER_STATE_SELECT</name>
+              <bitOffset>8</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>DEBUG_SER_DEBUG_SEL</name>
+              <bitOffset>12</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>DEBUG_TRIGGER_STATE_MATCH_VALUE</name>
+              <bitOffset>16</bitOffset>
+              <bitWidth>5</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>DEBUG_TRIGGER_PULSE_SELECT</name>
+              <bitOffset>24</bitOffset>
+              <bitWidth>3</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>DEBUG_STATE_MATCH_DUMP_EN</name>
+              <bitOffset>30</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>DEBUG_TRIGGER_DUMP_EN</name>
+              <bitOffset>31</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SEC_CTRL</name>
+          <addressOffset>0x128</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>SEC_EN</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>SEC_PAYLOAD_OFFSET</name>
+              <bitOffset>8</bitOffset>
+              <bitWidth>7</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SEC_EXTEND_ADDRESS0</name>
+          <addressOffset>0x12C</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>SEC_EXTEND_ADDRESS0</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SEC_EXTEND_ADDRESS1</name>
+          <addressOffset>0x130</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>SEC_EXTEND_ADDRESS1</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SEC_KEY0</name>
+          <addressOffset>0x134</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>SEC_KEY0</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SEC_KEY1</name>
+          <addressOffset>0x138</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>SEC_KEY1</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SEC_KEY2</name>
+          <addressOffset>0x13C</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>SEC_KEY2</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SEC_KEY3</name>
+          <addressOffset>0x140</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>SEC_KEY3</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SFD_TIMEOUT_CNT</name>
+          <addressOffset>0x144</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>SFD_TIMEOUT_CNT</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CRC_ERROR_CNT</name>
+          <addressOffset>0x148</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>CRC_ERROR_CNT</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>ED_ABORT_CNT</name>
+          <addressOffset>0x14C</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>ED_ABORT_CNT</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CCA_FAIL_CNT</name>
+          <addressOffset>0x150</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>CCA_FAIL_CNT</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>RX_FILTER_FAIL_CNT</name>
+          <addressOffset>0x154</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>RX_FILTER_FAIL_CNT</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>NO_RSS_DETECT_CNT</name>
+          <addressOffset>0x158</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>NO_RSS_DETECT_CNT</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>RX_ABORT_COEX_CNT</name>
+          <addressOffset>0x15C</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>RX_ABORT_COEX_CNT</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>RX_RESTART_CNT</name>
+          <addressOffset>0x160</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>RX_RESTART_CNT</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TX_ACK_ABORT_COEX_CNT</name>
+          <addressOffset>0x164</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TX_ACK_ABORT_COEX_CNT</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>ED_SCAN_COEX_CNT</name>
+          <addressOffset>0x168</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>ED_SCAN_COEX_CNT</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>RX_ACK_ABORT_COEX_CNT</name>
+          <addressOffset>0x16C</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>RX_ACK_ABORT_COEX_CNT</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>RX_ACK_TIMEOUT_CNT</name>
+          <addressOffset>0x170</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>RX_ACK_TIMEOUT_CNT</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TX_BREAK_COEX_CNT</name>
+          <addressOffset>0x174</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TX_BREAK_COEX_CNT</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TX_SECURITY_ERROR_CNT</name>
+          <addressOffset>0x178</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TX_SECURITY_ERROR_CNT</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CCA_BUSY_CNT</name>
+          <addressOffset>0x17C</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>CCA_BUSY_CNT</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>ERROR_CNT_CLEAR</name>
+          <addressOffset>0x180</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>CCA_BUSY_CNT_CLEAR</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>TX_SECURITY_ERROR_CNT_CLEAR</name>
+              <bitOffset>1</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>TX_BREAK_COEX_CNT_CLEAR</name>
+              <bitOffset>2</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>RX_ACK_TIMEOUT_CNT_CLEAR</name>
+              <bitOffset>3</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>RX_ACK_ABORT_COEX_CNT_CLEAR</name>
+              <bitOffset>4</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>ED_SCAN_COEX_CNT_CLEAR</name>
+              <bitOffset>5</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>TX_ACK_ABORT_COEX_CNT_CLEAR</name>
+              <bitOffset>6</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>RX_RESTART_CNT_CLEAR</name>
+              <bitOffset>7</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>RX_ABORT_COEX_CNT_CLEAR</name>
+              <bitOffset>8</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>NO_RSS_DETECT_CNT_CLEAR</name>
+              <bitOffset>9</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>RX_FILTER_FAIL_CNT_CLEAR</name>
+              <bitOffset>10</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>CCA_FAIL_CNT_CLEAR</name>
+              <bitOffset>11</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>ED_ABORT_CNT_CLEAR</name>
+              <bitOffset>12</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>CRC_ERROR_CNT_CLEAR</name>
+              <bitOffset>13</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>SFD_TIMEOUT_CNT_CLEAR</name>
+              <bitOffset>14</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>MAC_DATE</name>
+          <addressOffset>0x184</addressOffset>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>MAC_DATE</name>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
               <access>read-write</access>
             </field>
           </fields>
@@ -24743,8 +26461,15 @@ The least significant eight bits represent the fractional part.</description>
           <description>need_des</description>
           <addressOffset>0x0</addressOffset>
           <size>0x20</size>
-          <resetValue>0x7F000000</resetValue>
+          <resetValue>0x7F800000</resetValue>
           <fields>
+            <field>
+              <name>LP_TOUCH_CK_EN</name>
+              <description>need_des</description>
+              <bitOffset>23</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
             <field>
               <name>RNG_CK_EN</name>
               <description>need_des</description>
@@ -24815,6 +26540,13 @@ The least significant eight bits represent the fractional part.</description>
               <bitOffset>23</bitOffset>
               <bitWidth>1</bitWidth>
               <access>write-only</access>
+            </field>
+            <field>
+              <name>LP_TOUCH_RESET_EN</name>
+              <description>need_des</description>
+              <bitOffset>24</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
             </field>
             <field>
               <name>OTP_DBG_RESET_EN</name>
@@ -25799,7 +27531,7 @@ The least significant eight bits represent the fractional part.</description>
     </peripheral>
     <peripheral>
       <name>LP_APM</name>
-      <description>LP_APM Peripheral</description>
+      <description>Low-power Access Permission Management Controller</description>
       <groupName>LP_APM</groupName>
       <baseAddress>0x600B3800</baseAddress>
       <addressBlock>
@@ -27474,7 +29206,7 @@ The least significant eight bits represent the fractional part.</description>
     </peripheral>
     <peripheral>
       <name>LP_I2C0</name>
-      <description>LP_I2C0 Peripheral</description>
+      <description>Low-power I2C (Inter-Integrated Circuit) Controller 0</description>
       <groupName>LP_I2C0</groupName>
       <baseAddress>0x600B1800</baseAddress>
       <addressBlock>
@@ -28971,7 +30703,7 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO_OUT_DATA</name>
+              <name>OUT_DATA</name>
               <description>set lp gpio output data</description>
               <bitOffset>0</bitOffset>
               <bitWidth>8</bitWidth>
@@ -28986,7 +30718,7 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO_OUT_DATA_W1TS</name>
+              <name>OUT_DATA_W1TS</name>
               <description>set one time output data</description>
               <bitOffset>0</bitOffset>
               <bitWidth>8</bitWidth>
@@ -29001,7 +30733,7 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO_OUT_DATA_W1TC</name>
+              <name>OUT_DATA_W1TC</name>
               <description>clear one time output data</description>
               <bitOffset>0</bitOffset>
               <bitWidth>8</bitWidth>
@@ -29016,7 +30748,7 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO_ENABLE</name>
+              <name>ENABLE</name>
               <description>set lp gpio output data</description>
               <bitOffset>0</bitOffset>
               <bitWidth>8</bitWidth>
@@ -29031,7 +30763,7 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO_ENABLE_W1TS</name>
+              <name>ENABLE_W1TS</name>
               <description>set one time output data</description>
               <bitOffset>0</bitOffset>
               <bitWidth>8</bitWidth>
@@ -29046,7 +30778,7 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO_ENABLE_W1TC</name>
+              <name>ENABLE_W1TC</name>
               <description>clear one time output data</description>
               <bitOffset>0</bitOffset>
               <bitWidth>8</bitWidth>
@@ -29061,7 +30793,7 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO_STATUS_INTERRUPT</name>
+              <name>INTERRUPT</name>
               <description>set lp gpio output data</description>
               <bitOffset>0</bitOffset>
               <bitWidth>8</bitWidth>
@@ -29076,7 +30808,7 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO_STATUS_W1TS</name>
+              <name>STATUS_W1TS</name>
               <description>set one time output data</description>
               <bitOffset>0</bitOffset>
               <bitWidth>8</bitWidth>
@@ -29091,7 +30823,7 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO_STATUS_W1TC</name>
+              <name>STATUS_W1TC</name>
               <description>clear one time output data</description>
               <bitOffset>0</bitOffset>
               <bitWidth>8</bitWidth>
@@ -29106,7 +30838,7 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO_IN_DATA_NEXT</name>
+              <name>DATA_NEXT</name>
               <description>need des</description>
               <bitOffset>0</bitOffset>
               <bitWidth>8</bitWidth>
@@ -29121,42 +30853,42 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO0_SYNC_BYPASS</name>
+              <name>SYNC_BYPASS</name>
               <description>need des</description>
               <bitOffset>0</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO0_PAD_DRIVER</name>
+              <name>PAD_DRIVER</name>
               <description>need des</description>
               <bitOffset>2</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO0_EDGE_WAKEUP_CLR</name>
+              <name>EDGE_WAKEUP_CLR</name>
               <description>need des</description>
               <bitOffset>3</bitOffset>
               <bitWidth>1</bitWidth>
               <access>write-only</access>
             </field>
             <field>
-              <name>LP_GPIO0_INT_TYPE</name>
+              <name>INT_TYPE</name>
               <description>need des</description>
               <bitOffset>7</bitOffset>
               <bitWidth>3</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO0_WAKEUP_ENABLE</name>
+              <name>WAKEUP_ENABLE</name>
               <description>need des</description>
               <bitOffset>10</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO0_FILTER_EN</name>
+              <name>FILTER_EN</name>
               <description>need des</description>
               <bitOffset>11</bitOffset>
               <bitWidth>1</bitWidth>
@@ -29171,42 +30903,42 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO1_SYNC_BYPASS</name>
+              <name>SYNC_BYPASS</name>
               <description>need des</description>
               <bitOffset>0</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO1_PAD_DRIVER</name>
+              <name>PAD_DRIVER</name>
               <description>need des</description>
               <bitOffset>2</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO1_EDGE_WAKEUP_CLR</name>
+              <name>EDGE_WAKEUP_CLR</name>
               <description>need des</description>
               <bitOffset>3</bitOffset>
               <bitWidth>1</bitWidth>
               <access>write-only</access>
             </field>
             <field>
-              <name>LP_GPIO1_INT_TYPE</name>
+              <name>INT_TYPE</name>
               <description>need des</description>
               <bitOffset>7</bitOffset>
               <bitWidth>3</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO1_WAKEUP_ENABLE</name>
+              <name>WAKEUP_ENABLE</name>
               <description>need des</description>
               <bitOffset>10</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO1_FILTER_EN</name>
+              <name>FILTER_EN</name>
               <description>need des</description>
               <bitOffset>11</bitOffset>
               <bitWidth>1</bitWidth>
@@ -29221,42 +30953,42 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO2_SYNC_BYPASS</name>
+              <name>SYNC_BYPASS</name>
               <description>need des</description>
               <bitOffset>0</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO2_PAD_DRIVER</name>
+              <name>PAD_DRIVER</name>
               <description>need des</description>
               <bitOffset>2</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO2_EDGE_WAKEUP_CLR</name>
+              <name>EDGE_WAKEUP_CLR</name>
               <description>need des</description>
               <bitOffset>3</bitOffset>
               <bitWidth>1</bitWidth>
               <access>write-only</access>
             </field>
             <field>
-              <name>LP_GPIO2_INT_TYPE</name>
+              <name>INT_TYPE</name>
               <description>need des</description>
               <bitOffset>7</bitOffset>
               <bitWidth>3</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO2_WAKEUP_ENABLE</name>
+              <name>WAKEUP_ENABLE</name>
               <description>need des</description>
               <bitOffset>10</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO2_FILTER_EN</name>
+              <name>FILTER_EN</name>
               <description>need des</description>
               <bitOffset>11</bitOffset>
               <bitWidth>1</bitWidth>
@@ -29271,42 +31003,42 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO3_SYNC_BYPASS</name>
+              <name>SYNC_BYPASS</name>
               <description>need des</description>
               <bitOffset>0</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO3_PAD_DRIVER</name>
+              <name>PAD_DRIVER</name>
               <description>need des</description>
               <bitOffset>2</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO3_EDGE_WAKEUP_CLR</name>
+              <name>EDGE_WAKEUP_CLR</name>
               <description>need des</description>
               <bitOffset>3</bitOffset>
               <bitWidth>1</bitWidth>
               <access>write-only</access>
             </field>
             <field>
-              <name>LP_GPIO3_INT_TYPE</name>
+              <name>INT_TYPE</name>
               <description>need des</description>
               <bitOffset>7</bitOffset>
               <bitWidth>3</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO3_WAKEUP_ENABLE</name>
+              <name>WAKEUP_ENABLE</name>
               <description>need des</description>
               <bitOffset>10</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO3_FILTER_EN</name>
+              <name>FILTER_EN</name>
               <description>need des</description>
               <bitOffset>11</bitOffset>
               <bitWidth>1</bitWidth>
@@ -29321,42 +31053,42 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO4_SYNC_BYPASS</name>
+              <name>SYNC_BYPASS</name>
               <description>need des</description>
               <bitOffset>0</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO4_PAD_DRIVER</name>
+              <name>PAD_DRIVER</name>
               <description>need des</description>
               <bitOffset>2</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO4_EDGE_WAKEUP_CLR</name>
+              <name>EDGE_WAKEUP_CLR</name>
               <description>need des</description>
               <bitOffset>3</bitOffset>
               <bitWidth>1</bitWidth>
               <access>write-only</access>
             </field>
             <field>
-              <name>LP_GPIO4_INT_TYPE</name>
+              <name>INT_TYPE</name>
               <description>need des</description>
               <bitOffset>7</bitOffset>
               <bitWidth>3</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO4_WAKEUP_ENABLE</name>
+              <name>WAKEUP_ENABLE</name>
               <description>need des</description>
               <bitOffset>10</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO4_FILTER_EN</name>
+              <name>FILTER_EN</name>
               <description>need des</description>
               <bitOffset>11</bitOffset>
               <bitWidth>1</bitWidth>
@@ -29371,42 +31103,42 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO5_SYNC_BYPASS</name>
+              <name>SYNC_BYPASS</name>
               <description>need des</description>
               <bitOffset>0</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO5_PAD_DRIVER</name>
+              <name>PAD_DRIVER</name>
               <description>need des</description>
               <bitOffset>2</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO5_EDGE_WAKEUP_CLR</name>
+              <name>EDGE_WAKEUP_CLR</name>
               <description>need des</description>
               <bitOffset>3</bitOffset>
               <bitWidth>1</bitWidth>
               <access>write-only</access>
             </field>
             <field>
-              <name>LP_GPIO5_INT_TYPE</name>
+              <name>INT_TYPE</name>
               <description>need des</description>
               <bitOffset>7</bitOffset>
               <bitWidth>3</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO5_WAKEUP_ENABLE</name>
+              <name>WAKEUP_ENABLE</name>
               <description>need des</description>
               <bitOffset>10</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO5_FILTER_EN</name>
+              <name>FILTER_EN</name>
               <description>need des</description>
               <bitOffset>11</bitOffset>
               <bitWidth>1</bitWidth>
@@ -29421,42 +31153,42 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO6_SYNC_BYPASS</name>
+              <name>SYNC_BYPASS</name>
               <description>need des</description>
               <bitOffset>0</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO6_PAD_DRIVER</name>
+              <name>PAD_DRIVER</name>
               <description>need des</description>
               <bitOffset>2</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO6_EDGE_WAKEUP_CLR</name>
+              <name>EDGE_WAKEUP_CLR</name>
               <description>need des</description>
               <bitOffset>3</bitOffset>
               <bitWidth>1</bitWidth>
               <access>write-only</access>
             </field>
             <field>
-              <name>LP_GPIO6_INT_TYPE</name>
+              <name>INT_TYPE</name>
               <description>need des</description>
               <bitOffset>7</bitOffset>
               <bitWidth>3</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO6_WAKEUP_ENABLE</name>
+              <name>WAKEUP_ENABLE</name>
               <description>need des</description>
               <bitOffset>10</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO6_FILTER_EN</name>
+              <name>FILTER_EN</name>
               <description>need des</description>
               <bitOffset>11</bitOffset>
               <bitWidth>1</bitWidth>
@@ -29471,42 +31203,42 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO7_SYNC_BYPASS</name>
+              <name>SYNC_BYPASS</name>
               <description>need des</description>
               <bitOffset>0</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO7_PAD_DRIVER</name>
+              <name>PAD_DRIVER</name>
               <description>need des</description>
               <bitOffset>2</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO7_EDGE_WAKEUP_CLR</name>
+              <name>EDGE_WAKEUP_CLR</name>
               <description>need des</description>
               <bitOffset>3</bitOffset>
               <bitWidth>1</bitWidth>
               <access>write-only</access>
             </field>
             <field>
-              <name>LP_GPIO7_INT_TYPE</name>
+              <name>INT_TYPE</name>
               <description>need des</description>
               <bitOffset>7</bitOffset>
               <bitWidth>3</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO7_WAKEUP_ENABLE</name>
+              <name>WAKEUP_ENABLE</name>
               <description>need des</description>
               <bitOffset>10</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO7_FILTER_EN</name>
+              <name>FILTER_EN</name>
               <description>need des</description>
               <bitOffset>11</bitOffset>
               <bitWidth>1</bitWidth>
@@ -29521,77 +31253,77 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO0_MCU_OE</name>
+              <name>MCU_OE</name>
               <description>need des</description>
               <bitOffset>0</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO0_SLP_SEL</name>
+              <name>SLP_SEL</name>
               <description>need des</description>
               <bitOffset>1</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO0_MCU_WPD</name>
+              <name>MCU_WPD</name>
               <description>need des</description>
               <bitOffset>2</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO0_MCU_WPU</name>
+              <name>MCU_WPU</name>
               <description>need des</description>
               <bitOffset>3</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO0_MCU_IE</name>
+              <name>MCU_IE</name>
               <description>need des</description>
               <bitOffset>4</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO0_MCU_DRV</name>
+              <name>MCU_DRV</name>
               <description>need des</description>
               <bitOffset>5</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO0_FUN_WPD</name>
+              <name>FUN_WPD</name>
               <description>need des</description>
               <bitOffset>7</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO0_FUN_WPU</name>
+              <name>FUN_WPU</name>
               <description>need des</description>
               <bitOffset>8</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO0_FUN_IE</name>
+              <name>FUN_IE</name>
               <description>need des</description>
               <bitOffset>9</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO0_FUN_DRV</name>
+              <name>FUN_DRV</name>
               <description>need des</description>
               <bitOffset>10</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO0_MCU_SEL</name>
+              <name>MCU_SEL</name>
               <description>need des</description>
               <bitOffset>12</bitOffset>
               <bitWidth>3</bitWidth>
@@ -29606,77 +31338,77 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO1_MCU_OE</name>
+              <name>MCU_OE</name>
               <description>need des</description>
               <bitOffset>0</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO1_SLP_SEL</name>
+              <name>SLP_SEL</name>
               <description>need des</description>
               <bitOffset>1</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO1_MCU_WPD</name>
+              <name>MCU_WPD</name>
               <description>need des</description>
               <bitOffset>2</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO1_MCU_WPU</name>
+              <name>MCU_WPU</name>
               <description>need des</description>
               <bitOffset>3</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO1_MCU_IE</name>
+              <name>MCU_IE</name>
               <description>need des</description>
               <bitOffset>4</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO1_MCU_DRV</name>
+              <name>MCU_DRV</name>
               <description>need des</description>
               <bitOffset>5</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO1_FUN_WPD</name>
+              <name>FUN_WPD</name>
               <description>need des</description>
               <bitOffset>7</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO1_FUN_WPU</name>
+              <name>FUN_WPU</name>
               <description>need des</description>
               <bitOffset>8</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO1_FUN_IE</name>
+              <name>FUN_IE</name>
               <description>need des</description>
               <bitOffset>9</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO1_FUN_DRV</name>
+              <name>FUN_DRV</name>
               <description>need des</description>
               <bitOffset>10</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO1_MCU_SEL</name>
+              <name>MCU_SEL</name>
               <description>need des</description>
               <bitOffset>12</bitOffset>
               <bitWidth>3</bitWidth>
@@ -29691,77 +31423,77 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO2_MCU_OE</name>
+              <name>MCU_OE</name>
               <description>need des</description>
               <bitOffset>0</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO2_SLP_SEL</name>
+              <name>SLP_SEL</name>
               <description>need des</description>
               <bitOffset>1</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO2_MCU_WPD</name>
+              <name>MCU_WPD</name>
               <description>need des</description>
               <bitOffset>2</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO2_MCU_WPU</name>
+              <name>MCU_WPU</name>
               <description>need des</description>
               <bitOffset>3</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO2_MCU_IE</name>
+              <name>MCU_IE</name>
               <description>need des</description>
               <bitOffset>4</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO2_MCU_DRV</name>
+              <name>MCU_DRV</name>
               <description>need des</description>
               <bitOffset>5</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO2_FUN_WPD</name>
+              <name>FUN_WPD</name>
               <description>need des</description>
               <bitOffset>7</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO2_FUN_WPU</name>
+              <name>FUN_WPU</name>
               <description>need des</description>
               <bitOffset>8</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO2_FUN_IE</name>
+              <name>FUN_IE</name>
               <description>need des</description>
               <bitOffset>9</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO2_FUN_DRV</name>
+              <name>FUN_DRV</name>
               <description>need des</description>
               <bitOffset>10</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO2_MCU_SEL</name>
+              <name>MCU_SEL</name>
               <description>need des</description>
               <bitOffset>12</bitOffset>
               <bitWidth>3</bitWidth>
@@ -29776,77 +31508,77 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO3_MCU_OE</name>
+              <name>MCU_OE</name>
               <description>need des</description>
               <bitOffset>0</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO3_SLP_SEL</name>
+              <name>SLP_SEL</name>
               <description>need des</description>
               <bitOffset>1</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO3_MCU_WPD</name>
+              <name>MCU_WPD</name>
               <description>need des</description>
               <bitOffset>2</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO3_MCU_WPU</name>
+              <name>MCU_WPU</name>
               <description>need des</description>
               <bitOffset>3</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO3_MCU_IE</name>
+              <name>MCU_IE</name>
               <description>need des</description>
               <bitOffset>4</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO3_MCU_DRV</name>
+              <name>MCU_DRV</name>
               <description>need des</description>
               <bitOffset>5</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO3_FUN_WPD</name>
+              <name>FUN_WPD</name>
               <description>need des</description>
               <bitOffset>7</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO3_FUN_WPU</name>
+              <name>FUN_WPU</name>
               <description>need des</description>
               <bitOffset>8</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO3_FUN_IE</name>
+              <name>FUN_IE</name>
               <description>need des</description>
               <bitOffset>9</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO3_FUN_DRV</name>
+              <name>FUN_DRV</name>
               <description>need des</description>
               <bitOffset>10</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO3_MCU_SEL</name>
+              <name>MCU_SEL</name>
               <description>need des</description>
               <bitOffset>12</bitOffset>
               <bitWidth>3</bitWidth>
@@ -29861,77 +31593,77 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO4_MCU_OE</name>
+              <name>MCU_OE</name>
               <description>need des</description>
               <bitOffset>0</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO4_SLP_SEL</name>
+              <name>SLP_SEL</name>
               <description>need des</description>
               <bitOffset>1</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO4_MCU_WPD</name>
+              <name>MCU_WPD</name>
               <description>need des</description>
               <bitOffset>2</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO4_MCU_WPU</name>
+              <name>MCU_WPU</name>
               <description>need des</description>
               <bitOffset>3</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO4_MCU_IE</name>
+              <name>MCU_IE</name>
               <description>need des</description>
               <bitOffset>4</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO4_MCU_DRV</name>
+              <name>MCU_DRV</name>
               <description>need des</description>
               <bitOffset>5</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO4_FUN_WPD</name>
+              <name>FUN_WPD</name>
               <description>need des</description>
               <bitOffset>7</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO4_FUN_WPU</name>
+              <name>FUN_WPU</name>
               <description>need des</description>
               <bitOffset>8</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO4_FUN_IE</name>
+              <name>FUN_IE</name>
               <description>need des</description>
               <bitOffset>9</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO4_FUN_DRV</name>
+              <name>FUN_DRV</name>
               <description>need des</description>
               <bitOffset>10</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO4_MCU_SEL</name>
+              <name>MCU_SEL</name>
               <description>need des</description>
               <bitOffset>12</bitOffset>
               <bitWidth>3</bitWidth>
@@ -29946,77 +31678,77 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO5_MCU_OE</name>
+              <name>MCU_OE</name>
               <description>need des</description>
               <bitOffset>0</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO5_SLP_SEL</name>
+              <name>SLP_SEL</name>
               <description>need des</description>
               <bitOffset>1</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO5_MCU_WPD</name>
+              <name>MCU_WPD</name>
               <description>need des</description>
               <bitOffset>2</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO5_MCU_WPU</name>
+              <name>MCU_WPU</name>
               <description>need des</description>
               <bitOffset>3</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO5_MCU_IE</name>
+              <name>MCU_IE</name>
               <description>need des</description>
               <bitOffset>4</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO5_MCU_DRV</name>
+              <name>MCU_DRV</name>
               <description>need des</description>
               <bitOffset>5</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO5_FUN_WPD</name>
+              <name>FUN_WPD</name>
               <description>need des</description>
               <bitOffset>7</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO5_FUN_WPU</name>
+              <name>FUN_WPU</name>
               <description>need des</description>
               <bitOffset>8</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO5_FUN_IE</name>
+              <name>FUN_IE</name>
               <description>need des</description>
               <bitOffset>9</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO5_FUN_DRV</name>
+              <name>FUN_DRV</name>
               <description>need des</description>
               <bitOffset>10</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO5_MCU_SEL</name>
+              <name>MCU_SEL</name>
               <description>need des</description>
               <bitOffset>12</bitOffset>
               <bitWidth>3</bitWidth>
@@ -30031,77 +31763,77 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO6_MCU_OE</name>
+              <name>MCU_OE</name>
               <description>need des</description>
               <bitOffset>0</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO6_SLP_SEL</name>
+              <name>SLP_SEL</name>
               <description>need des</description>
               <bitOffset>1</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO6_MCU_WPD</name>
+              <name>MCU_WPD</name>
               <description>need des</description>
               <bitOffset>2</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO6_MCU_WPU</name>
+              <name>MCU_WPU</name>
               <description>need des</description>
               <bitOffset>3</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO6_MCU_IE</name>
+              <name>MCU_IE</name>
               <description>need des</description>
               <bitOffset>4</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO6_MCU_DRV</name>
+              <name>MCU_DRV</name>
               <description>need des</description>
               <bitOffset>5</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO6_FUN_WPD</name>
+              <name>FUN_WPD</name>
               <description>need des</description>
               <bitOffset>7</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO6_FUN_WPU</name>
+              <name>FUN_WPU</name>
               <description>need des</description>
               <bitOffset>8</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO6_FUN_IE</name>
+              <name>FUN_IE</name>
               <description>need des</description>
               <bitOffset>9</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO6_FUN_DRV</name>
+              <name>FUN_DRV</name>
               <description>need des</description>
               <bitOffset>10</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO6_MCU_SEL</name>
+              <name>MCU_SEL</name>
               <description>need des</description>
               <bitOffset>12</bitOffset>
               <bitWidth>3</bitWidth>
@@ -30116,77 +31848,77 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO7_MCU_OE</name>
+              <name>MCU_OE</name>
               <description>need des</description>
               <bitOffset>0</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO7_SLP_SEL</name>
+              <name>SLP_SEL</name>
               <description>need des</description>
               <bitOffset>1</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO7_MCU_WPD</name>
+              <name>MCU_WPD</name>
               <description>need des</description>
               <bitOffset>2</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO7_MCU_WPU</name>
+              <name>MCU_WPU</name>
               <description>need des</description>
               <bitOffset>3</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO7_MCU_IE</name>
+              <name>MCU_IE</name>
               <description>need des</description>
               <bitOffset>4</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO7_MCU_DRV</name>
+              <name>MCU_DRV</name>
               <description>need des</description>
               <bitOffset>5</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO7_FUN_WPD</name>
+              <name>FUN_WPD</name>
               <description>need des</description>
               <bitOffset>7</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO7_FUN_WPU</name>
+              <name>FUN_WPU</name>
               <description>need des</description>
               <bitOffset>8</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO7_FUN_IE</name>
+              <name>FUN_IE</name>
               <description>need des</description>
               <bitOffset>9</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO7_FUN_DRV</name>
+              <name>FUN_DRV</name>
               <description>need des</description>
               <bitOffset>10</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>LP_GPIO7_MCU_SEL</name>
+              <name>MCU_SEL</name>
               <description>need des</description>
               <bitOffset>12</bitOffset>
               <bitWidth>3</bitWidth>
@@ -30201,7 +31933,7 @@ Information.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>LP_GPIO_STATUS_INTERRUPT_NEXT</name>
+              <name>NEXT</name>
               <description>need des</description>
               <bitOffset>0</bitOffset>
               <bitWidth>8</bitWidth>
@@ -30310,7 +32042,7 @@ Information.</description>
     </peripheral>
     <peripheral>
       <name>LP_TEE</name>
-      <description>LP_TEE Peripheral</description>
+      <description>Low-power Trusted Execution Environment</description>
       <groupName>LP_TEE</groupName>
       <baseAddress>0x600B3400</baseAddress>
       <addressBlock>
@@ -30386,7 +32118,7 @@ Information.</description>
     </peripheral>
     <peripheral>
       <name>LP_TIMER</name>
-      <description>LP_TIMER Peripheral</description>
+      <description>Low-power Timer</description>
       <groupName>LP_TIMER</groupName>
       <baseAddress>0x600B0C00</baseAddress>
       <addressBlock>
@@ -30787,7 +32519,7 @@ Information.</description>
     </peripheral>
     <peripheral>
       <name>LP_UART</name>
-      <description>LP_UART Peripheral</description>
+      <description>Low-power UART (Universal Asynchronous Receiver-Transmitter) Controller</description>
       <groupName>LP_UART</groupName>
       <baseAddress>0x600B1400</baseAddress>
       <addressBlock>
@@ -32244,7 +33976,7 @@ Information.</description>
     </peripheral>
     <peripheral>
       <name>LP_WDT</name>
-      <description>LP_WDT Peripheral</description>
+      <description>Low-power Watchdog Timer</description>
       <groupName>LP_WDT</groupName>
       <baseAddress>0x600B1C00</baseAddress>
       <addressBlock>
@@ -40144,7 +41876,7 @@ Information.</description>
     </peripheral>
     <peripheral>
       <name>PARL_IO</name>
-      <description>PARL_IO Peripheral</description>
+      <description>Parallel IO Controller</description>
       <groupName>PARL_IO</groupName>
       <baseAddress>0x60015000</baseAddress>
       <addressBlock>
@@ -41709,21 +43441,21 @@ Any pulses with width less than this will be ignored when the filter is enabled.
           </fields>
         </register>
         <register>
-          <name>I2C_CONF</name>
+          <name>I2C0_CONF</name>
           <description>I2C configuration register</description>
           <addressOffset>0x20</addressOffset>
           <size>0x20</size>
           <resetValue>0x00000001</resetValue>
           <fields>
             <field>
-              <name>I2C_CLK_EN</name>
+              <name>I2C0_CLK_EN</name>
               <description>Set 1 to enable i2c apb clock</description>
               <bitOffset>0</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>I2C_RST_EN</name>
+              <name>I2C0_RST_EN</name>
               <description>Set 0 to reset i2c module</description>
               <bitOffset>1</bitOffset>
               <bitWidth>1</bitWidth>
@@ -47546,17 +49278,17 @@ Any pulses with width less than this will be ignored when the filter is enabled.
         <register>
           <dim>4</dim>
           <dimIncrement>0x4</dimIncrement>
-          <name>TX_CH%sDATA</name>
+          <name>CH%sDATA</name>
           <description>The read and write  data register for CHANNEL%s by apb fifo access.</description>
           <addressOffset>0x0</addressOffset>
           <size>0x20</size>
           <fields>
             <field>
-              <name>CHDATA</name>
+              <name>DATA</name>
               <description>Read and write data for channel %s via APB FIFO.</description>
               <bitOffset>0</bitOffset>
               <bitWidth>32</bitWidth>
-              <access>read-only</access>
+              <access>read-write</access>
             </field>
           </fields>
         </register>
@@ -47683,42 +49415,43 @@ Any pulses with width less than this will be ignored when the filter is enabled.
         <register>
           <dim>2</dim>
           <dimIncrement>0x8</dimIncrement>
-          <name>RX_CH%sCONF0</name>
+          <dimIndex>2-3</dimIndex>
+          <name>CH%s_RX_CONF0</name>
           <description>Channel %s configure register 0</description>
           <addressOffset>0x18</addressOffset>
           <size>0x20</size>
           <resetValue>0x30FFFF02</resetValue>
           <fields>
             <field>
-              <name>DIV_CNT_CH2</name>
+              <name>DIV_CNT</name>
               <description>This register is used to configure the divider for clock of CHANNEL%s.</description>
               <bitOffset>0</bitOffset>
               <bitWidth>8</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>IDLE_THRES_CH2</name>
+              <name>IDLE_THRES</name>
               <description>When no edge is detected on the input signal and continuous clock cycles is longer than this register value, received process is finished.</description>
               <bitOffset>8</bitOffset>
               <bitWidth>15</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>MEM_SIZE_CH2</name>
+              <name>MEM_SIZE</name>
               <description>This register is used to configure the maximum size of memory allocated to CHANNEL%s.</description>
               <bitOffset>23</bitOffset>
               <bitWidth>3</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>CARRIER_EN_CH2</name>
+              <name>CARRIER_EN</name>
               <description>This is the carrier modulation enable-control bit for CHANNEL%s. 1: Add carrier modulation in the output signal. 0: No carrier modulation in sig_out.</description>
               <bitOffset>28</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>CARRIER_OUT_LV_CH2</name>
+              <name>CARRIER_OUT_LV</name>
               <description>This bit is used to configure the position of carrier wave for CHANNEL%s.
 
 1'h0: add carrier wave on low level.
@@ -47733,35 +49466,36 @@ Any pulses with width less than this will be ignored when the filter is enabled.
         <register>
           <dim>2</dim>
           <dimIncrement>0x8</dimIncrement>
-          <name>RX_CH%sCONF1</name>
+          <dimIndex>2-3</dimIndex>
+          <name>CH%s_RX_CONF1</name>
           <description>Channel %s configure register 1</description>
           <addressOffset>0x1C</addressOffset>
           <size>0x20</size>
           <resetValue>0x000001E8</resetValue>
           <fields>
             <field>
-              <name>RX_EN_CH2</name>
+              <name>RX_EN</name>
               <description>Set this bit to enable receiver to receive data on CHANNEL%s.</description>
               <bitOffset>0</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>MEM_WR_RST_CH2</name>
+              <name>MEM_WR_RST</name>
               <description>Set this bit to reset write ram address for CHANNEL%s by accessing receiver.</description>
               <bitOffset>1</bitOffset>
               <bitWidth>1</bitWidth>
               <access>write-only</access>
             </field>
             <field>
-              <name>APB_MEM_RST_CH2</name>
+              <name>APB_MEM_RST</name>
               <description>Set this bit to reset W/R ram address for CHANNEL%s by accessing apb fifo.</description>
               <bitOffset>2</bitOffset>
               <bitWidth>1</bitWidth>
               <access>write-only</access>
             </field>
             <field>
-              <name>MEM_OWNER_CH2</name>
+              <name>MEM_OWNER</name>
               <description>This register marks the ownership of CHANNEL%s's ram block.
 
 1'h1: Receiver is using the ram. 
@@ -47772,35 +49506,35 @@ Any pulses with width less than this will be ignored when the filter is enabled.
               <access>read-write</access>
             </field>
             <field>
-              <name>RX_FILTER_EN_CH2</name>
+              <name>RX_FILTER_EN</name>
               <description>This is the receive filter's enable bit for CHANNEL%s.</description>
               <bitOffset>4</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>RX_FILTER_THRES_CH2</name>
+              <name>RX_FILTER_THRES</name>
               <description>Ignores the input pulse when its width is smaller than this register value in APB clock periods (in receive mode).</description>
               <bitOffset>5</bitOffset>
               <bitWidth>8</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>MEM_RX_WRAP_EN_CH2</name>
+              <name>MEM_RX_WRAP_EN</name>
               <description>This is the channel %s enable bit for wraparound mode: it will resume receiving at the start when the data to be received is more than its memory size.</description>
               <bitOffset>13</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>AFIFO_RST_CH2</name>
+              <name>AFIFO_RST</name>
               <description>Reserved</description>
               <bitOffset>14</bitOffset>
               <bitWidth>1</bitWidth>
               <access>write-only</access>
             </field>
             <field>
-              <name>CONF_UPDATE_CH2</name>
+              <name>CONF_UPDATE</name>
               <description>synchronization bit for CHANNEL%s</description>
               <bitOffset>15</bitOffset>
               <bitWidth>1</bitWidth>
@@ -47811,55 +49545,55 @@ Any pulses with width less than this will be ignored when the filter is enabled.
         <register>
           <dim>2</dim>
           <dimIncrement>0x4</dimIncrement>
-          <name>TX_CH%sSTATUS</name>
+          <name>CH%s_TX_STATUS</name>
           <description>Channel %s status register</description>
           <addressOffset>0x28</addressOffset>
           <size>0x20</size>
           <fields>
             <field>
-              <name>MEM_RADDR_EX_CH0</name>
+              <name>MEM_RADDR_EX</name>
               <description>This register records the memory address offset when transmitter of CHANNEL%s is using the RAM.</description>
               <bitOffset>0</bitOffset>
               <bitWidth>9</bitWidth>
               <access>read-only</access>
             </field>
             <field>
-              <name>STATE_CH0</name>
+              <name>STATE</name>
               <description>This register records the FSM status of CHANNEL%s.</description>
               <bitOffset>9</bitOffset>
               <bitWidth>3</bitWidth>
               <access>read-only</access>
             </field>
             <field>
-              <name>APB_MEM_WADDR_CH0</name>
+              <name>APB_MEM_WADDR</name>
               <description>This register records the memory address offset when writes RAM over APB bus.</description>
               <bitOffset>12</bitOffset>
               <bitWidth>9</bitWidth>
               <access>read-only</access>
             </field>
             <field>
-              <name>APB_MEM_RD_ERR_CH0</name>
+              <name>APB_MEM_RD_ERR</name>
               <description>This status bit will be set if the offset address out of memory size when reading via APB bus.</description>
               <bitOffset>21</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-only</access>
             </field>
             <field>
-              <name>MEM_EMPTY_CH0</name>
+              <name>MEM_EMPTY</name>
               <description>This status bit will be set when the data to be set is more than memory size and the wraparound mode is disabled.</description>
               <bitOffset>22</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-only</access>
             </field>
             <field>
-              <name>APB_MEM_WR_ERR_CH0</name>
+              <name>APB_MEM_WR_ERR</name>
               <description>This status bit will be set if the offset address out of memory size when writes via APB bus.</description>
               <bitOffset>23</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-only</access>
             </field>
             <field>
-              <name>APB_MEM_RADDR_CH0</name>
+              <name>APB_MEM_RADDR</name>
               <description>This register records the memory address offset when reading RAM over APB bus.</description>
               <bitOffset>24</bitOffset>
               <bitWidth>8</bitWidth>
@@ -47870,48 +49604,48 @@ Any pulses with width less than this will be ignored when the filter is enabled.
         <register>
           <dim>2</dim>
           <dimIncrement>0x4</dimIncrement>
-          <name>RX_CH%sSTATUS</name>
+          <name>CH%s_RX_STATUS</name>
           <description>Channel %s status register</description>
           <addressOffset>0x30</addressOffset>
           <size>0x20</size>
           <fields>
             <field>
-              <name>MEM_WADDR_EX_CH2</name>
+              <name>MEM_WADDR_EX</name>
               <description>This register records the memory address offset when receiver of CHANNEL%s is using the RAM.</description>
               <bitOffset>0</bitOffset>
               <bitWidth>9</bitWidth>
               <access>read-only</access>
             </field>
             <field>
-              <name>APB_MEM_RADDR_CH2</name>
+              <name>APB_MEM_RADDR</name>
               <description>This register records the memory address offset when reads RAM over APB bus.</description>
               <bitOffset>12</bitOffset>
               <bitWidth>9</bitWidth>
               <access>read-only</access>
             </field>
             <field>
-              <name>STATE_CH2</name>
+              <name>STATE</name>
               <description>This register records the FSM status of CHANNEL%s.</description>
               <bitOffset>22</bitOffset>
               <bitWidth>3</bitWidth>
               <access>read-only</access>
             </field>
             <field>
-              <name>MEM_OWNER_ERR_CH2</name>
+              <name>MEM_OWNER_ERR</name>
               <description>This status bit will be set when the ownership of memory block is wrong.</description>
               <bitOffset>25</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-only</access>
             </field>
             <field>
-              <name>MEM_FULL_CH2</name>
+              <name>MEM_FULL</name>
               <description>This status bit will be set if the receiver receives more data than the memory size.</description>
               <bitOffset>26</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-only</access>
             </field>
             <field>
-              <name>APB_MEM_RD_ERR_CH2</name>
+              <name>APB_MEM_RD_ERR</name>
               <description>This status bit will be set if the offset address out of memory size when reads via APB bus.</description>
               <bitOffset>27</bitOffset>
               <bitWidth>1</bitWidth>
@@ -47929,7 +49663,7 @@ Any pulses with width less than this will be ignored when the filter is enabled.
               <dim>2</dim>
               <dimIncrement>0x1</dimIncrement>
               <dimIndex>0-1</dimIndex>
-              <name>CH%s_TX_END_INT_RAW</name>
+              <name>CH%s_TX_END</name>
               <description>The interrupt raw bit for CHANNEL%s. Triggered when transmission done.</description>
               <bitOffset>0</bitOffset>
               <bitWidth>1</bitWidth>
@@ -47939,17 +49673,17 @@ Any pulses with width less than this will be ignored when the filter is enabled.
               <dim>2</dim>
               <dimIncrement>0x1</dimIncrement>
               <dimIndex>2-3</dimIndex>
-              <name>CH%s_RX_END_INT_RAW</name>
+              <name>CH%s_RX_END</name>
               <description>The interrupt raw bit for CHANNEL2. Triggered when reception done.</description>
               <bitOffset>2</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <dim>4</dim>
+              <dim>2</dim>
               <dimIncrement>0x1</dimIncrement>
-              <dimIndex>0-3</dimIndex>
-              <name>CH%s_TX_ERR_INT_RAW</name>
+              <dimIndex>0-1</dimIndex>
+              <name>CH%s_TX_ERR</name>
               <description>The interrupt raw bit for CHANNEL4. Triggered when error occurs.</description>
               <bitOffset>4</bitOffset>
               <bitWidth>1</bitWidth>
@@ -47958,8 +49692,18 @@ Any pulses with width less than this will be ignored when the filter is enabled.
             <field>
               <dim>2</dim>
               <dimIncrement>0x1</dimIncrement>
+              <dimIndex>2-3</dimIndex>
+              <name>CH%s_RX_ERR</name>
+              <description>The interrupt raw bit for CHANNEL6. Triggered when error occurs.</description>
+              <bitOffset>6</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <dim>2</dim>
+              <dimIncrement>0x1</dimIncrement>
               <dimIndex>0-1</dimIndex>
-              <name>CH%s_TX_THR_EVENT_INT_RAW</name>
+              <name>CH%s_TX_THR_EVENT</name>
               <description>The interrupt raw bit for CHANNEL%s. Triggered when transmitter sent more data than configured value.</description>
               <bitOffset>8</bitOffset>
               <bitWidth>1</bitWidth>
@@ -47969,7 +49713,7 @@ Any pulses with width less than this will be ignored when the filter is enabled.
               <dim>2</dim>
               <dimIncrement>0x1</dimIncrement>
               <dimIndex>2-3</dimIndex>
-              <name>CH%s_RX_THR_EVENT_INT_RAW</name>
+              <name>CH%s_RX_THR_EVENT</name>
               <description>The interrupt raw bit for CHANNEL2. Triggered when receiver receive more data than configured value.</description>
               <bitOffset>10</bitOffset>
               <bitWidth>1</bitWidth>
@@ -47979,7 +49723,7 @@ Any pulses with width less than this will be ignored when the filter is enabled.
               <dim>2</dim>
               <dimIncrement>0x1</dimIncrement>
               <dimIndex>0-1</dimIndex>
-              <name>CH%s_TX_LOOP_INT_RAW</name>
+              <name>CH%s_TX_LOOP</name>
               <description>The interrupt raw bit for CHANNEL%s. Triggered when the loop count reaches the configured threshold value.</description>
               <bitOffset>12</bitOffset>
               <bitWidth>1</bitWidth>
@@ -47994,100 +49738,72 @@ Any pulses with width less than this will be ignored when the filter is enabled.
           <size>0x20</size>
           <fields>
             <field>
-              <name>CH0_TX_END_INT_ST</name>
-              <description>The masked interrupt status bit for CH0_TX_END_INT.</description>
+              <dim>2</dim>
+              <dimIncrement>0x1</dimIncrement>
+              <dimIndex>0-1</dimIndex>
+              <name>CH%s_TX_END</name>
+              <description>The masked interrupt status bit for CH%s_TX_END_INT.</description>
               <bitOffset>0</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-only</access>
             </field>
             <field>
-              <name>CH1_TX_END_INT_ST</name>
-              <description>The masked interrupt status bit for CH1_TX_END_INT.</description>
-              <bitOffset>1</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-only</access>
-            </field>
-            <field>
-              <name>CH2_RX_END_INT_ST</name>
+              <dim>2</dim>
+              <dimIncrement>0x1</dimIncrement>
+              <dimIndex>2-3</dimIndex>
+              <name>CH%s_RX_END</name>
               <description>The masked interrupt status bit for CH2_RX_END_INT.</description>
               <bitOffset>2</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-only</access>
             </field>
             <field>
-              <name>CH3_RX_END_INT_ST</name>
-              <description>The masked interrupt status bit for CH3_RX_END_INT.</description>
-              <bitOffset>3</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-only</access>
-            </field>
-            <field>
-              <name>RX_CH0_ERR_INT_ST</name>
+              <dim>2</dim>
+              <dimIncrement>0x1</dimIncrement>
+              <dimIndex>0-1</dimIndex>
+              <name>CH%s_TX_ERR</name>
               <description>The masked interrupt status bit for CH4_ERR_INT.</description>
               <bitOffset>4</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-only</access>
             </field>
             <field>
-              <name>RX_CH1_ERR_INT_ST</name>
-              <description>The masked interrupt status bit for CH5_ERR_INT.</description>
-              <bitOffset>5</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-only</access>
-            </field>
-            <field>
-              <name>RX_CH2_ERR_INT_ST</name>
+              <dim>2</dim>
+              <dimIncrement>0x1</dimIncrement>
+              <dimIndex>2-3</dimIndex>
+              <name>CH%s_RX_ERR</name>
               <description>The masked interrupt status bit for CH6_ERR_INT.</description>
               <bitOffset>6</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-only</access>
             </field>
             <field>
-              <name>RX_CH3_ERR_INT_ST</name>
-              <description>The masked interrupt status bit for CH7_ERR_INT.</description>
-              <bitOffset>7</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-only</access>
-            </field>
-            <field>
-              <name>CH0_TX_THR_EVENT_INT_ST</name>
-              <description>The masked interrupt status bit for CH0_TX_THR_EVENT_INT.</description>
+              <dim>2</dim>
+              <dimIncrement>0x1</dimIncrement>
+              <dimIndex>0-1</dimIndex>
+              <name>CH%s_TX_THR_EVENT</name>
+              <description>The masked interrupt status bit for CH%s_TX_THR_EVENT_INT.</description>
               <bitOffset>8</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-only</access>
             </field>
             <field>
-              <name>CH1_TX_THR_EVENT_INT_ST</name>
-              <description>The masked interrupt status bit for CH1_TX_THR_EVENT_INT.</description>
-              <bitOffset>9</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-only</access>
-            </field>
-            <field>
-              <name>CH2_RX_THR_EVENT_INT_ST</name>
+              <dim>2</dim>
+              <dimIncrement>0x1</dimIncrement>
+              <dimIndex>2-3</dimIndex>
+              <name>CH%s_RX_THR_EVENT</name>
               <description>The masked interrupt status bit for CH2_RX_THR_EVENT_INT.</description>
               <bitOffset>10</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-only</access>
             </field>
             <field>
-              <name>CH3_RX_THR_EVENT_INT_ST</name>
-              <description>The masked interrupt status bit for CH3_RX_THR_EVENT_INT.</description>
-              <bitOffset>11</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-only</access>
-            </field>
-            <field>
-              <name>CH0_TX_LOOP_INT_ST</name>
-              <description>The masked interrupt status bit for CH0_TX_LOOP_INT.</description>
+              <dim>2</dim>
+              <dimIncrement>0x1</dimIncrement>
+              <dimIndex>0-1</dimIndex>
+              <name>CH%s_X_LOOP</name>
+              <description>The masked interrupt status bit for CH%s_TX_LOOP_INT.</description>
               <bitOffset>12</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-only</access>
-            </field>
-            <field>
-              <name>CH1_TX_LOOP_INT_ST</name>
-              <description>The masked interrupt status bit for CH1_TX_LOOP_INT.</description>
-              <bitOffset>13</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-only</access>
             </field>
@@ -48100,100 +49816,72 @@ Any pulses with width less than this will be ignored when the filter is enabled.
           <size>0x20</size>
           <fields>
             <field>
-              <name>CH0_TX_END_INT_ENA</name>
-              <description>The interrupt enable bit for CH0_TX_END_INT.</description>
+              <dim>2</dim>
+              <dimIncrement>0x1</dimIncrement>
+              <dimIndex>0-1</dimIndex>
+              <name>CH%s_TX_END</name>
+              <description>The interrupt enable bit for CH%s_TX_END_INT.</description>
               <bitOffset>0</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>CH1_TX_END_INT_ENA</name>
-              <description>The interrupt enable bit for CH1_TX_END_INT.</description>
-              <bitOffset>1</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>CH2_RX_END_INT_ENA</name>
+              <dim>2</dim>
+              <dimIncrement>0x1</dimIncrement>
+              <dimIndex>2-3</dimIndex>
+              <name>CH%s_RX_END</name>
               <description>The interrupt enable bit for CH2_RX_END_INT.</description>
               <bitOffset>2</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>CH3_RX_END_INT_ENA</name>
-              <description>The interrupt enable bit for CH3_RX_END_INT.</description>
-              <bitOffset>3</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>CH0_ERR_INT_ENA</name>
+              <dim>2</dim>
+              <dimIncrement>0x1</dimIncrement>
+              <dimIndex>0-1</dimIndex>
+              <name>CH%s_TX_ERR</name>
               <description>The interrupt enable bit for CH4_ERR_INT.</description>
               <bitOffset>4</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>CH1_ERR_INT_ENA</name>
-              <description>The interrupt enable bit for CH5_ERR_INT.</description>
-              <bitOffset>5</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>CH2_ERR_INT_ENA</name>
+              <dim>2</dim>
+              <dimIncrement>0x1</dimIncrement>
+              <dimIndex>2-3</dimIndex>
+              <name>CH%s_RX_ERR</name>
               <description>The interrupt enable bit for CH6_ERR_INT.</description>
               <bitOffset>6</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>CH3_ERR_INT_ENA</name>
-              <description>The interrupt enable bit for CH7_ERR_INT.</description>
-              <bitOffset>7</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>CH0_TX_THR_EVENT_INT_ENA</name>
-              <description>The interrupt enable bit for CH0_TX_THR_EVENT_INT.</description>
+              <dim>2</dim>
+              <dimIncrement>0x1</dimIncrement>
+              <dimIndex>0-1</dimIndex>
+              <name>CH%s_TX_THR_EVENT</name>
+              <description>The interrupt enable bit for CH%s_TX_THR_EVENT_INT.</description>
               <bitOffset>8</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>CH1_TX_THR_EVENT_INT_ENA</name>
-              <description>The interrupt enable bit for CH1_TX_THR_EVENT_INT.</description>
-              <bitOffset>9</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>CH2_RX_THR_EVENT_INT_ENA</name>
+              <dim>2</dim>
+              <dimIncrement>0x1</dimIncrement>
+              <dimIndex>2-3</dimIndex>
+              <name>CH%s_RX_THR_EVENT</name>
               <description>The interrupt enable bit for CH2_RX_THR_EVENT_INT.</description>
               <bitOffset>10</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>CH3_RX_THR_EVENT_INT_ENA</name>
-              <description>The interrupt enable bit for CH3_RX_THR_EVENT_INT.</description>
-              <bitOffset>11</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>CH0_TX_LOOP_INT_ENA</name>
-              <description>The interrupt enable bit for CH0_TX_LOOP_INT.</description>
+              <dim>2</dim>
+              <dimIncrement>0x1</dimIncrement>
+              <dimIndex>0-1</dimIndex>
+              <name>CH%s_X_LOOP</name>
+              <description>The interrupt enable bit for CH%s_TX_LOOP_INT.</description>
               <bitOffset>12</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>CH1_TX_LOOP_INT_ENA</name>
-              <description>The interrupt enable bit for CH1_TX_LOOP_INT.</description>
-              <bitOffset>13</bitOffset>
               <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
@@ -48209,7 +49897,7 @@ Any pulses with width less than this will be ignored when the filter is enabled.
               <dim>2</dim>
               <dimIncrement>0x1</dimIncrement>
               <dimIndex>0-1</dimIndex>
-              <name>CH%s_TX_END_INT_CLR</name>
+              <name>CH%s_TX_END</name>
               <description>Set this bit to clear theCH%s_TX_END_INT interrupt.</description>
               <bitOffset>0</bitOffset>
               <bitWidth>1</bitWidth>
@@ -48219,37 +49907,9 @@ Any pulses with width less than this will be ignored when the filter is enabled.
               <dim>2</dim>
               <dimIncrement>0x1</dimIncrement>
               <dimIndex>2-3</dimIndex>
-              <name>CH%s_RX_END_INT_CLR</name>
+              <name>CH%s_RX_END</name>
               <description>Set this bit to clear theCH2_RX_END_INT interrupt.</description>
               <bitOffset>2</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>write-only</access>
-            </field>
-            <field>
-              <name>CH0_TX_ERR_INT_CLR</name>
-              <description>Set this bit to clear theCH4_ERR_INT interrupt.</description>
-              <bitOffset>4</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>write-only</access>
-            </field>
-            <field>
-              <name>CH1_TX_ERR_INT_CLR</name>
-              <description>Set this bit to clear theCH5_ERR_INT interrupt.</description>
-              <bitOffset>5</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>write-only</access>
-            </field>
-            <field>
-              <name>CH0_RX_ERR_INT_CLR</name>
-              <description>Set this bit to clear theCH6_ERR_INT interrupt.</description>
-              <bitOffset>6</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>write-only</access>
-            </field>
-            <field>
-              <name>CH1_RX_ERR_INT_CLR</name>
-              <description>Set this bit to clear theCH7_ERR_INT interrupt.</description>
-              <bitOffset>7</bitOffset>
               <bitWidth>1</bitWidth>
               <access>write-only</access>
             </field>
@@ -48257,7 +49917,27 @@ Any pulses with width less than this will be ignored when the filter is enabled.
               <dim>2</dim>
               <dimIncrement>0x1</dimIncrement>
               <dimIndex>0-1</dimIndex>
-              <name>CH%s_TX_THR_EVENT_INT_CLR</name>
+              <name>CH%s_TX_ERR</name>
+              <description>Set this bit to clear theCH4_ERR_INT interrupt.</description>
+              <bitOffset>4</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>write-only</access>
+            </field>
+            <field>
+              <dim>2</dim>
+              <dimIncrement>0x1</dimIncrement>
+              <dimIndex>2-3</dimIndex>
+              <name>CH%s_RX_ERR</name>
+              <description>Set this bit to clear theCH6_ERR_INT interrupt.</description>
+              <bitOffset>6</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>write-only</access>
+            </field>
+            <field>
+              <dim>2</dim>
+              <dimIncrement>0x1</dimIncrement>
+              <dimIndex>0-1</dimIndex>
+              <name>CH%s_TX_THR_EVENT</name>
               <description>Set this bit to clear theCH%s_TX_THR_EVENT_INT interrupt.</description>
               <bitOffset>8</bitOffset>
               <bitWidth>1</bitWidth>
@@ -48267,23 +49947,19 @@ Any pulses with width less than this will be ignored when the filter is enabled.
               <dim>2</dim>
               <dimIncrement>0x1</dimIncrement>
               <dimIndex>2-3</dimIndex>
-              <name>CH%s_RX_THR_EVENT_INT_CLR</name>
+              <name>CH%s_RX_THR_EVENT</name>
               <description>Set this bit to clear theCH2_RX_THR_EVENT_INT interrupt.</description>
               <bitOffset>10</bitOffset>
               <bitWidth>1</bitWidth>
               <access>write-only</access>
             </field>
             <field>
-              <name>CH0_TX_LOOP_INT_CLR</name>
-              <description>Set this bit to clear theCH0_TX_LOOP_INT interrupt.</description>
+              <dim>2</dim>
+              <dimIncrement>0x1</dimIncrement>
+              <dimIndex>0-1</dimIndex>
+              <name>CH%s_TX_LOOP</name>
+              <description>Set this bit to clear theCH%s_TX_LOOP_INT interrupt.</description>
               <bitOffset>12</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>write-only</access>
-            </field>
-            <field>
-              <name>CH1_TX_LOOP_INT_CLR</name>
-              <description>Set this bit to clear theCH1_TX_LOOP_INT interrupt.</description>
-              <bitOffset>13</bitOffset>
               <bitWidth>1</bitWidth>
               <access>write-only</access>
             </field>
@@ -48299,14 +49975,14 @@ Any pulses with width less than this will be ignored when the filter is enabled.
           <resetValue>0x00400040</resetValue>
           <fields>
             <field>
-              <name>CARRIER_LOW_CH0</name>
+              <name>CARRIER_LOW</name>
               <description>This register is used to configure carrier wave 's low level clock period for CHANNEL%s.</description>
               <bitOffset>0</bitOffset>
               <bitWidth>16</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>CARRIER_HIGH_CH0</name>
+              <name>CARRIER_HIGH</name>
               <description>This register is used to configure carrier wave 's high level clock period for CHANNEL%s.</description>
               <bitOffset>16</bitOffset>
               <bitWidth>16</bitWidth>
@@ -48323,14 +49999,14 @@ Any pulses with width less than this will be ignored when the filter is enabled.
           <size>0x20</size>
           <fields>
             <field>
-              <name>CARRIER_LOW_THRES_CH2</name>
+              <name>CARRIER_LOW_THRES</name>
               <description>The low level period in a carrier modulation mode is (REG_RMT_REG_CARRIER_LOW_THRES_CH%s + 1) for channel %s.</description>
               <bitOffset>0</bitOffset>
               <bitWidth>16</bitWidth>
               <access>read-write</access>
             </field>
             <field>
-              <name>CARRIER_HIGH_THRES_CH2</name>
+              <name>CARRIER_HIGH_THRES</name>
               <description>The high level period in a carrier modulation mode is (REG_RMT_REG_CARRIER_HIGH_THRES_CH%s + 1) for channel %s.</description>
               <bitOffset>16</bitOffset>
               <bitWidth>16</bitWidth>
@@ -48394,7 +50070,7 @@ Any pulses with width less than this will be ignored when the filter is enabled.
           <resetValue>0x00000080</resetValue>
           <fields>
             <field>
-              <name>RMT_RX_LIM_CH2</name>
+              <name>RMT_RX_LIM</name>
               <description>This register is used to configure the maximum entries that CHANNEL%s can receive.</description>
               <bitOffset>0</bitOffset>
               <bitWidth>9</bitWidth>
@@ -48517,7 +50193,7 @@ Any pulses with width less than this will be ignored when the filter is enabled.
           <size>0x20</size>
           <fields>
             <field>
-              <name>TX_REF_CNT_RST_CH0</name>
+              <name>TX_REF_CNT_RST</name>
               <description>This register is used to reset the clock divider of CHANNEL0.</description>
               <bitOffset>0</bitOffset>
               <bitWidth>1</bitWidth>
@@ -48600,39 +50276,39 @@ Any pulses with width less than this will be ignored when the filter is enabled.
       </interrupt>
       <registers>
         <register>
-          <dim>384</dim>
-          <dimIncrement>0x1</dimIncrement>
+          <dim>96</dim>
+          <dimIncrement>0x4</dimIncrement>
           <name>M_MEM[%s]</name>
           <description>The memory that stores M</description>
           <addressOffset>0x0</addressOffset>
-          <size>0x8</size>
+          <size>0x20</size>
           <access>read-write</access>
         </register>
         <register>
-          <dim>384</dim>
-          <dimIncrement>0x1</dimIncrement>
+          <dim>96</dim>
+          <dimIncrement>0x4</dimIncrement>
           <name>Z_MEM[%s]</name>
           <description>The memory that stores Z</description>
           <addressOffset>0x200</addressOffset>
-          <size>0x8</size>
+          <size>0x20</size>
           <access>read-write</access>
         </register>
         <register>
-          <dim>384</dim>
-          <dimIncrement>0x1</dimIncrement>
+          <dim>96</dim>
+          <dimIncrement>0x4</dimIncrement>
           <name>Y_MEM[%s]</name>
           <description>The memory that stores Y</description>
           <addressOffset>0x400</addressOffset>
-          <size>0x8</size>
+          <size>0x20</size>
           <access>read-write</access>
         </register>
         <register>
-          <dim>384</dim>
-          <dimIncrement>0x1</dimIncrement>
+          <dim>96</dim>
+          <dimIncrement>0x4</dimIncrement>
           <name>X_MEM[%s]</name>
           <description>The memory that stores X</description>
           <addressOffset>0x600</addressOffset>
-          <size>0x8</size>
+          <size>0x20</size>
           <access>read-write</access>
         </register>
         <register>
@@ -49031,20 +50707,20 @@ Any pulses with width less than this will be ignored when the filter is enabled.
           </fields>
         </register>
         <register>
-          <dim>64</dim>
-          <dimIncrement>0x1</dimIncrement>
+          <dim>8</dim>
+          <dimIncrement>0x4</dimIncrement>
           <name>H_MEM[%s]</name>
           <description>Sha H memory which contains intermediate hash or finial hash.</description>
           <addressOffset>0x40</addressOffset>
-          <size>0x8</size>
+          <size>0x20</size>
         </register>
         <register>
-          <dim>64</dim>
-          <dimIncrement>0x1</dimIncrement>
+          <dim>16</dim>
+          <dimIncrement>0x4</dimIncrement>
           <name>M_MEM[%s]</name>
           <description>Sha M memory which contains message.</description>
           <addressOffset>0x80</addressOffset>
-          <size>0x8</size>
+          <size>0x20</size>
         </register>
       </registers>
     </peripheral>
@@ -53141,7 +54817,7 @@ Any pulses with width less than this will be ignored when the filter is enabled.
     </peripheral>
     <peripheral>
       <name>SOC_ETM</name>
-      <description>SOC_ETM Peripheral</description>
+      <description>Event Task Matrix</description>
       <groupName>SOC_ETM</groupName>
       <baseAddress>0x60013000</baseAddress>
       <addressBlock>
@@ -63553,8 +65229,7 @@ counter.</description>
           <fields>
             <field>
               <name>LOAD</name>
-              <description>
-Write any value to trigger a timer %s time-base counter reload.</description>
+              <description>Write any value to trigger a timer %s time-base counter reload.</description>
               <bitOffset>0</bitOffset>
               <bitWidth>32</bitWidth>
               <access>write-only</access>
@@ -63621,32 +65296,28 @@ Write any value to trigger a timer %s time-base counter reload.</description>
             </field>
             <field>
               <name>WDT_STG3</name>
-              <description>Stage 3 configuration. 0: off, 1: interrupt, 2: reset CPU, 3: reset system.
-</description>
+              <description>Stage 3 configuration. 0: off, 1: interrupt, 2: reset CPU, 3: reset system.</description>
               <bitOffset>23</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
               <name>WDT_STG2</name>
-              <description>Stage 2 configuration. 0: off, 1: interrupt, 2: reset CPU, 3: reset system.
-</description>
+              <description>Stage 2 configuration. 0: off, 1: interrupt, 2: reset CPU, 3: reset system.</description>
               <bitOffset>25</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
               <name>WDT_STG1</name>
-              <description>Stage 1 configuration. 0: off, 1: interrupt, 2: reset CPU, 3: reset system.
-</description>
+              <description>Stage 1 configuration. 0: off, 1: interrupt, 2: reset CPU, 3: reset system.</description>
               <bitOffset>27</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
             </field>
             <field>
               <name>WDT_STG0</name>
-              <description>Stage 0 configuration. 0: off, 1: interrupt, 2: reset CPU, 3: reset system.
-</description>
+              <description>Stage 0 configuration. 0: off, 1: interrupt, 2: reset CPU, 3: reset system.</description>
               <bitOffset>29</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
@@ -64038,7 +65709,7 @@ protection is enabled.</description>
     </peripheral>
     <peripheral>
       <name>TRACE</name>
-      <description>TRACE Peripheral</description>
+      <description>RISC-V Trace Encoder</description>
       <groupName>TRACE</groupName>
       <baseAddress>0x600C0000</baseAddress>
       <addressBlock>
@@ -64058,7 +65729,7 @@ protection is enabled.</description>
           <size>0x20</size>
           <fields>
             <field>
-              <name>MEM_STAET_ADDR</name>
+              <name>MEM_START_ADDR</name>
               <description>The start address of trace memory</description>
               <bitOffset>0</bitOffset>
               <bitWidth>32</bitWidth>
@@ -67837,7 +69508,7 @@ protection is enabled.</description>
         <usage>registers</usage>
       </addressBlock>
       <interrupt>
-        <name>USB</name>
+        <name>USB_DEVICE</name>
         <value>48</value>
       </interrupt>
       <registers>
