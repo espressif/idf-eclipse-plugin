@@ -30,9 +30,8 @@ ESP-IDF and Tools Installation
 -------------------------------
 .. _esp-idf-tools-installation:
 
-The Espressif-IDE provides a Tool Manager view that allows you to activate available ESP-IDF versions and manage related tools. To install the ESP-IDF and its tools, first download the Espressif Installation Manager (EIM) from the following `link`_.
+The Espressif-IDE provides a Tool Manager view that allows you to activate available ESP-IDF versions and manage related tools. To install the ESP-IDF and its tools, first download the Espressif Installation Manager (EIM) from the following `link <https://dl.espressif.com/dl/eim/>`_.
 
-  .. link:: https://dl.espressif.com/dl/eim/
 
 After downloading and launching EIM, follow the on-screen instructions to install the required ESP-IDF version and associated tools. Once the installation is complete, you can use the ESP-IDF Manager within the IDE to activate the installed ESP-IDF version in the workspace.
 The Espressif-IDE allows you to download and launch the EIM directly from the IDE, making it easier to manage your ESP-IDF versions and tools. If you are coming trying to open the workspace from and older version of Espressif-IDE you will be prompted to convert the older configuration to use with EIM.
