@@ -5,14 +5,15 @@
 package com.espressif.idf.ui.tools;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IStartup;
@@ -28,7 +29,9 @@ import org.osgi.service.prefs.Preferences;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.Messages;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.tools.DownloadListener;
 import com.espressif.idf.core.tools.EimConstants;
+import com.espressif.idf.core.tools.EimLoader;
 import com.espressif.idf.core.tools.ToolInitializer;
 import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.core.tools.watcher.EimJsonStateChecker;
@@ -40,7 +43,6 @@ import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.tools.manager.ESPIDFManagerEditor;
 import com.espressif.idf.ui.tools.manager.EimEditorInput;
-import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
 import com.espressif.idf.ui.tools.watcher.EimJsonUiChangeHandler;
 
 /**
@@ -54,19 +56,29 @@ public class EspressifToolStartup implements IStartup
 	private EimJsonUiChangeHandler eimJsonUiChangeHandler;
 	private ToolInitializer toolInitializer;
 	private Preferences preferences;
+	private EimJson eimJson;
+	private EimLoader eimLoader;
+	private MessageConsoleStream standardConsoleStream;
+	private MessageConsoleStream errorConsoleStream;
+	private IDFEnvironmentVariables idfEnvironmentVariables;
 
 	@Override
 	public void earlyStartup()
 	{
 		preferences = org.eclipse.core.runtime.preferences.InstanceScope.INSTANCE
 				.getNode(UIPlugin.PLUGIN_ID);
-			toolInitializer = new ToolInitializer(preferences);
+		toolInitializer = new ToolInitializer(preferences);
+		standardConsoleStream = getConsoleStream(false);
+		errorConsoleStream = getConsoleStream(true);
+		idfEnvironmentVariables = new IDFEnvironmentVariables();
+		eimLoader = new EimLoader(new StartupClassDownloadEimDownloadListener(), 
+				standardConsoleStream, errorConsoleStream, Display.getDefault());
 		EimJsonStateChecker stateChecker = new EimJsonStateChecker(preferences);
 		eimJsonUiChangeHandler = new EimJsonUiChangeHandler(preferences);
 		stateChecker.updateLastSeenTimestamp();
 		EimJsonWatchService.getInstance().addEimJsonChangeListener(eimJsonUiChangeHandler);
 
-		if (!toolInitializer.isEimInstalled())
+		if (!toolInitializer.isEimInstalled() && !toolInitializer.isEimIdfJsonPresent())
 		{
 			Logger.log("EIM not installed");
 			notifyMissingTools();
@@ -78,21 +90,14 @@ public class EspressifToolStartup implements IStartup
 			Logger.log("Old configuration found and not converted");
 			EimJsonWatchService.withPausedListeners(()-> handleOldConfigExport());
 		}
-
-		EimJson eimJson = toolInitializer.loadEimJson();
-		if (eimJson == null)
+		else if (toolInitializer.isEimIdfJsonPresent() && !toolInitializer.isEspIdfSet())
 		{
-			return;
+			eimJson = toolInitializer.loadEimJson();
+			promptUserToOpenToolManager(eimJson);
 		}
 
 		// Set EimPath on every startup to ensure proper path in configurations
-		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, eimJson.getEimPath());
-
-		if (!toolInitializer.isEspIdfSet())
-		{
-			promptUserToOpenToolManager(eimJson);
-		}
 
 		if (stateChecker.wasModifiedSinceLastRun())
 		{
@@ -156,32 +161,39 @@ public class EspressifToolStartup implements IStartup
 
 	private void notifyMissingTools()
 	{
-		Display.getDefault().asyncExec(() -> {
-			boolean userAgreed = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
+		boolean [] userAgreed = new boolean[1];
+		Display.getDefault().syncExec(() -> {
+			userAgreed[0] = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
 					Messages.ToolsInitializationEimMissingMsgBoxTitle,
 					Messages.ToolsInitializationEimMissingMsgBoxMessage);
-			if (userAgreed)
-			{
-				// Download Launch EIM
-				downloadAndLaunchEim();
-			}
-			else
-			{
-				Logger.log("User selected No to download EIM");
-			}
 		});
+		
+		if (userAgreed[0])
+		{
+			// Download Launch EIM
+			downloadAndLaunchEim();
+		}
+		else
+		{
+			Logger.log("User selected No to download EIM");
+		}
 	}
 
 	private void downloadAndLaunchEim()
 	{
 		closeWelcomePage();
-		Event event = new Event();
-		event.widget = new Label(Display.getDefault().getActiveShell(), 0);
-		SelectionEvent simulatedEvent = new SelectionEvent(event);
-		EimButtonLaunchListener eimButtonLaunchListener = new EimButtonLaunchListener(
-				ESPIDFMainTablePage.getInstance(null), Display.getDefault(), getConsoleStream(false),
-				getConsoleStream(true));
-		eimButtonLaunchListener.widgetSelected(simulatedEvent);
+		Job downloadJob = new Job("Download and Launch EIM")
+		{
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor)
+			{
+				eimLoader.downloadEim(monitor);
+				return Status.OK_STATUS;
+			}
+		};
+		downloadJob.setUser(true);
+		downloadJob.schedule();
 	}
 
 	private void closeWelcomePage()
@@ -246,6 +258,122 @@ public class EspressifToolStartup implements IStartup
 		catch (PartInitException e)
 		{
 			Logger.log(e);
+		}
+	}
+	
+	private class StartupClassDownloadEimDownloadListener implements DownloadListener
+	{
+
+		@Override
+		public void onProgress(int percent)
+		{
+			Display.getDefault().asyncExec(() -> {
+				try
+				{
+					int blocks = percent / 10;
+					String bar = "[" + "#".repeat(blocks) + " ".repeat(10 - blocks) + "] " + percent + "%";
+					standardConsoleStream.write("\r" + bar);
+				}
+				catch (IOException e)
+				{
+					Logger.log(e);
+				}
+			});
+			
+		}
+
+		@Override
+		public void onCompleted(String filePath)
+		{
+			EimJsonWatchService.withPausedListeners(() -> {
+				Display.getDefault().syncExec(() -> {
+					try
+					{
+						standardConsoleStream.write("\nEIM Downloaded to: " + filePath + "\nLaunching...\n");
+					}
+					catch (IOException e)
+					{
+						Logger.log(e);
+					}
+				});
+
+				if (filePath.endsWith(".dmg"))
+				{
+					try
+					{
+						Process process = eimLoader.installAndLaunchDmg(Paths.get(filePath));
+						waitForEimClosure(process);
+					}
+					catch (
+							IOException
+							| InterruptedException e)
+					{
+						Logger.log(e);
+					}
+				}
+				else
+				{
+					Process process;
+					try
+					{
+						idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, filePath);
+						process = eimLoader.launchEim(filePath);
+						waitForEimClosure(process);
+					}
+					catch (IOException | InterruptedException e)
+					{
+						Logger.log(e);
+					}
+				}
+
+				if (toolInitializer.isOldEspIdfConfigPresent() && !toolInitializer.isOldConfigExported())
+				{
+					Logger.log("Old configuration found and not converted");
+					EimJsonWatchService.withPausedListeners(()-> handleOldConfigExport());
+				}
+			});
+		}
+
+		@Override
+		public void onError(String message, Exception e)
+		{
+			Display.getDefault().asyncExec(() -> {
+				try
+				{
+					errorConsoleStream.write("Download Failed: " + e.getMessage());
+				}
+				catch (IOException e1)
+				{
+					Logger.log(e1);
+				}
+			});
+		}
+		
+		private void waitForEimClosure(Process process) throws InterruptedException
+		{
+			Thread t = new Thread(() -> {
+				try
+				{
+					process.waitFor();
+					Display.getDefault().asyncExec(() -> {
+						try
+						{
+							standardConsoleStream.write("EIM has been closed.\n");
+						}
+						catch (IOException e)
+						{
+							Logger.log(e);
+						}
+					});
+				}
+				catch (Exception ex)
+				{
+					Logger.log(ex);
+				}
+			});
+			
+			t.start();
+			t.join();
 		}
 	}
 }

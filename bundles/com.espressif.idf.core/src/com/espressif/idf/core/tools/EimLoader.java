@@ -178,7 +178,7 @@ public class EimLoader
 		logMessage("Launching app from /Applications...\n"); //$NON-NLS-1$
 
 		Process openProcess = new ProcessBuilder("open", "-W", "-a", targetAppPath.toString()).start(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		new IDFEnvironmentVariables().addEnvVariable(IDFEnvironmentVariables.EIM_PATH, targetAppPath.toString());
+		new IDFEnvironmentVariables().addEnvVariable(IDFEnvironmentVariables.EIM_PATH, targetAppPath.toString().concat("/Contents/MacOS/eim")); //$NON-NLS-1$
 		return openProcess;
 	}
 
