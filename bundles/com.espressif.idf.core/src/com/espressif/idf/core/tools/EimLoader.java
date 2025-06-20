@@ -123,7 +123,7 @@ public class EimLoader
 		}
 		else if (os.equals(Platform.OS_MACOSX))
 		{
-			command = List.of("open", "-a", eimPath.toString());  //$NON-NLS-1$//$NON-NLS-2$
+			command = List.of("open", "-W",  "-a", eimPath.toString());  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 		}
 		else if (os.equals(Platform.OS_LINUX))
 		{
@@ -330,10 +330,7 @@ public class EimLoader
 	{
 		try
 		{
-			while (process.isAlive())
-			{
-				Thread.sleep(1000);
-			}
+			process.waitFor();
 			return Status.OK_STATUS;
 		}
 		catch (InterruptedException e)
