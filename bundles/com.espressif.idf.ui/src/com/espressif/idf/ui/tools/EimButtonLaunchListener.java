@@ -134,6 +134,7 @@ public class EimButtonLaunchListener extends SelectionAdapter
 				launchEspIdfManager();
 				standardConsoleStream.write("Refreshing UI after EIM closed...\n");
 				espidfMainTablePage.refreshEditorUI();
+				espidfMainTablePage.setupInitialEspIdf();
 			}
 			catch (IOException | PartInitException e)
 			{
