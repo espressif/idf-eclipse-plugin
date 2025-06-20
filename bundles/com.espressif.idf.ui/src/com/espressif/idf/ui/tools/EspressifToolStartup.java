@@ -285,51 +285,39 @@ public class EspressifToolStartup implements IStartup
 		@Override
 		public void onCompleted(String filePath)
 		{
-			EimJsonWatchService.withPausedListeners(() -> {
-				Display.getDefault().syncExec(() -> {
-					try
-					{
-						standardConsoleStream.write("\nEIM Downloaded to: " + filePath + "\nLaunching...\n");
-					}
-					catch (IOException e)
-					{
-						Logger.log(e);
-					}
-				});
-
+			Display.getDefault().syncExec(() -> {
+				try
+				{
+					standardConsoleStream.write("\nEIM Downloaded to: " + filePath + "\nLaunching...\n");
+				}
+				catch (IOException e)
+				{
+					Logger.log(e);
+				}
+			});
+			
+			Process process = null;
+			String appToLaunch = filePath;
+			try
+			{
 				if (filePath.endsWith(".dmg"))
 				{
-					try
-					{
-						Process process = eimLoader.installAndLaunchDmg(Paths.get(filePath));
-						waitForEimClosure(process);
-					}
-					catch (
-							IOException
-							| InterruptedException e)
-					{
-						Logger.log(e);
-					}
+					appToLaunch = eimLoader.installAndLaunchDmg(Paths.get(filePath));
 				}
-				else
-				{
-					Process process;
-					try
-					{
-						idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, filePath);
-						process = eimLoader.launchEim(filePath);
-						waitForEimClosure(process);
-					}
-					catch (IOException | InterruptedException e)
-					{
-						Logger.log(e);
-					}
-				}
-
+				
+				idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, appToLaunch);
+				process = eimLoader.launchEim(appToLaunch);
+			}
+			catch (IOException | InterruptedException e)
+			{
+				Logger.log(e);
+			}
+			
+			eimLoader.waitForEimClosure(process, () -> {
 				if (toolInitializer.isOldEspIdfConfigPresent() && !toolInitializer.isOldConfigExported())
 				{
 					Logger.log("Old configuration found and not converted");
-					EimJsonWatchService.withPausedListeners(()-> handleOldConfigExport());
+					handleOldConfigExport();
 				}
 			});
 		}
@@ -347,33 +335,6 @@ public class EspressifToolStartup implements IStartup
 					Logger.log(e1);
 				}
 			});
-		}
-		
-		private void waitForEimClosure(Process process) throws InterruptedException
-		{
-			Thread t = new Thread(() -> {
-				try
-				{
-					process.waitFor();
-					Display.getDefault().asyncExec(() -> {
-						try
-						{
-							standardConsoleStream.write("EIM has been closed.\n");
-						}
-						catch (IOException e)
-						{
-							Logger.log(e);
-						}
-					});
-				}
-				catch (Exception ex)
-				{
-					Logger.log(ex);
-				}
-			});
-			
-			t.start();
-			t.join();
 		}
 	}
 }

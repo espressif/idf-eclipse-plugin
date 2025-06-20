@@ -8,7 +8,9 @@ public interface EimConstants
 	
 	String EIM_POSIX_DIR = System.getProperty("user.home").concat("/.espressif/tools/");  //$NON-NLS-1$//$NON-NLS-2$
 	
-	String EIM_WIN_DIR = "C:\\Espressif\\tools\\";  //$NON-NLS-1$
+	String EIM_WIN_ESPRESSIF_DIR = "C:\\Espressif"; //$NON-NLS-1$
+	
+	String EIM_WIN_DIR = EIM_WIN_ESPRESSIF_DIR + "\\tools\\";  //$NON-NLS-1$
 	
 	String EIM_WIN_PATH = EIM_WIN_DIR + EIM_JSON;
 

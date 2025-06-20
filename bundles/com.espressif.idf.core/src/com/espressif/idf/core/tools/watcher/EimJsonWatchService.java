@@ -101,13 +101,13 @@ public class EimJsonWatchService extends Thread
 		}
 	}
 	
-	private void pauseListeners()
+	public void pauseListeners()
 	{
 		Logger.log("Listeners are paused"); //$NON-NLS-1$
 		paused = true;
 	}
 	
-	private void unpauseListeners()
+	public void unpauseListeners()
 	{
 		Logger.log("Listeners are resumed"); //$NON-NLS-1$
 		paused = false;
