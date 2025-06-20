@@ -6,6 +6,8 @@ package com.espressif.idf.core.tools;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,9 +19,11 @@ import org.eclipse.core.runtime.Status;
 import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.vo.EimJson;
+import com.espressif.idf.core.util.StringUtil;
 
 /**
  * Initializer class to be used on startup of eclipse and also
@@ -31,16 +35,26 @@ public class ToolInitializer
 {
 	private final Preferences preferences;
 	private final EimIdfConfiguratinParser parser;
+	private IDFEnvironmentVariables idfEnvironmentVariables;
 
 	public ToolInitializer(Preferences preferences)
 	{
 		this.preferences = preferences;
 		this.parser = new EimIdfConfiguratinParser();
+		idfEnvironmentVariables = new IDFEnvironmentVariables();
 	}
 
 	public boolean isEimInstalled()
 	{
-		return isEimIdfJsonPresent();
+		String eimExePathEnv = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH);
+		return !StringUtil.isEmpty(eimExePathEnv) && Files.exists(Paths.get(eimExePathEnv));
+	}
+	
+	public boolean isEimIdfJsonPresent()
+	{
+		String path = Platform.getOS().equals(Platform.OS_WIN32) ? EimConstants.EIM_WIN_PATH
+				: EimConstants.EIM_POSIX_PATH;
+		return new File(path).exists();
 	}
 
 	public EimJson loadEimJson()
@@ -68,7 +82,7 @@ public class ToolInitializer
 		{
 			// eim import pathToOldConfigJson
 			List<String> commands = new ArrayList<>();
-			commands.add(loadEimJson().getEimPath());
+			commands.add(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH));
 			commands.add("import"); //$NON-NLS-1$
 			commands.add(oldConfig.getAbsolutePath());
 			ProcessBuilderFactory processBuilderFactory = new ProcessBuilderFactory();
@@ -91,13 +105,6 @@ public class ToolInitializer
 	{
 		IPath path = ResourcesPlugin.getWorkspace().getRoot().getLocation();
 		return new File(path.toOSString(), EimConstants.TOOL_SET_CONFIG_LEGACY_CONFIG_FILE);
-	}
-
-	private boolean isEimIdfJsonPresent()
-	{
-		String path = Platform.getOS().equals(Platform.OS_WIN32) ? EimConstants.EIM_WIN_PATH
-				: EimConstants.EIM_POSIX_PATH;
-		return new File(path).exists();
 	}
 
 	public boolean isEspIdfSet()
