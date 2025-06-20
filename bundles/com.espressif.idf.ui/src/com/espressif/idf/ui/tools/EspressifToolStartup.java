@@ -247,18 +247,20 @@ public class EspressifToolStartup implements IStartup
 
 	private void openEspIdfManager(EimJson eimJson)
 	{
-		IWorkbenchWindow window = EclipseHandler.getActiveWorkbenchWindow();
-		IDFUtil.closeWelcomePage(window);
-		try
-		{
-			EimEditorInput input = new EimEditorInput(eimJson);
-			input.setFirstStartup(true);
-			IDE.openEditor(window.getActivePage(), input, ESPIDFManagerEditor.EDITOR_ID);
-		}
-		catch (PartInitException e)
-		{
-			Logger.log(e);
-		}
+		Display.getDefault().asyncExec(() -> {
+			IWorkbenchWindow window = EclipseHandler.getActiveWorkbenchWindow();
+			try
+			{
+				EimEditorInput input = new EimEditorInput(eimJson);
+				input.setFirstStartup(true);
+				IDE.openEditor(window.getActivePage(), input, ESPIDFManagerEditor.EDITOR_ID);
+				IDFUtil.closeWelcomePage(window);
+			}
+			catch (PartInitException e)
+			{
+				Logger.log(e);
+			}
+		});
 	}
 	
 	private class StartupClassDownloadEimDownloadListener implements DownloadListener
@@ -319,6 +321,8 @@ public class EspressifToolStartup implements IStartup
 					Logger.log("Old configuration found and not converted");
 					handleOldConfigExport();
 				}
+				eimJson = toolInitializer.loadEimJson();
+				openEspIdfManager(eimJson);
 			});
 		}
 
