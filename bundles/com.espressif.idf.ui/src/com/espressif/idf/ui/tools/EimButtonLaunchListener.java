@@ -27,7 +27,6 @@ import com.espressif.idf.core.tools.EimIdfConfiguratinParser;
 import com.espressif.idf.core.tools.EimLoader;
 import com.espressif.idf.core.tools.ToolInitializer;
 import com.espressif.idf.core.tools.vo.EimJson;
-import com.espressif.idf.core.tools.watcher.EimJsonWatchService;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.tools.manager.ESPIDFManagerEditor;
@@ -84,46 +83,16 @@ public class EimButtonLaunchListener extends SelectionAdapter
 		}
 		else
 		{
-			EimJsonWatchService.withPausedListeners(() -> {
-				try
-				{
-					Process process = eimLoader.launchEim(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH));
-					waitForEimClosure(process);
-				}
-				catch (IOException | InterruptedException e)
-				{
-					Logger.log(e);
-				}
-			});
-		}
-	}
-
-	private void waitForEimClosure(Process process) throws InterruptedException
-	{
-		Thread t = new Thread(() -> {
 			try
 			{
-				process.waitFor();
-				display.asyncExec(() -> {
-					try
-					{
-						standardConsoleStream.write("EIM has been closed.\n");
-					}
-					catch (IOException e)
-					{
-						Logger.log(e);
-					}
-					refreshAfterEimClose();
-				});
+				Process process = eimLoader.launchEim(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH));
+				eimLoader.waitForEimClosure(process, EimButtonLaunchListener.this::refreshAfterEimClose);
 			}
-			catch (Exception ex)
+			catch (IOException e)
 			{
-				Logger.log(ex);
+				Logger.log(e);
 			}
-		});
-		
-		t.start();
-		t.join();
+		}
 	}
 	
 	private void refreshAfterEimClose()
@@ -191,49 +160,44 @@ public class EimButtonLaunchListener extends SelectionAdapter
 		@Override
 		public void onCompleted(String filePath)
 		{
-			EimJsonWatchService.withPausedListeners(() -> {
-				display.syncExec(() -> {
-					try
-					{
-						standardConsoleStream.write("\nEIM Downloaded to: " + filePath + "\nLaunching...\n");
-					}
-					catch (IOException e)
-					{
-						Logger.log(e);
-					}
-				});
-
-				if (filePath.endsWith(".dmg"))
+			display.syncExec(() -> {
+				try
 				{
-					try
-					{
-						Process process = eimLoader.installAndLaunchDmg(Paths.get(filePath));
-						waitForEimClosure(process);
-					}
-					catch (
-							IOException
-							| InterruptedException e)
-					{
-						Logger.log(e);
-					}
+					standardConsoleStream.write("\nEIM Downloaded to: " + filePath + "\nLaunching...\n");
 				}
-				else
+				catch (IOException e)
 				{
-					Process process;
-					try
-					{
-						idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, filePath);
-						process = eimLoader.launchEim(filePath);
-						waitForEimClosure(process);
-					}
-					catch (IOException | InterruptedException e)
-					{
-						Logger.log(e);
-					}
+					Logger.log(e);
 				}
-
-				
 			});
+
+			String appToLaunch = filePath;
+			
+			if (filePath.endsWith(".dmg"))
+			{
+				try
+				{
+					appToLaunch = eimLoader.installAndLaunchDmg(Paths.get(filePath));
+				}
+				catch (
+						IOException
+						| InterruptedException e)
+				{
+					Logger.log(e);
+				}
+			}
+			
+			Process process;
+			try
+			{
+				idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, appToLaunch);
+				process = eimLoader.launchEim(appToLaunch);
+				eimLoader.waitForEimClosure(process, EimButtonLaunchListener.this::refreshAfterEimClose);
+			}
+			catch (IOException e)
+			{
+				Logger.log(e);
+			}
 		}
 
 		@Override

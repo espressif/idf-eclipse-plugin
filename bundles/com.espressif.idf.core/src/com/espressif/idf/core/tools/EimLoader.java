@@ -24,12 +24,18 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.tools.watcher.EimJsonWatchService;
 import com.espressif.idf.core.util.StringUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -52,6 +58,7 @@ public class EimLoader
 	private MessageConsoleStream standardConsoleStream;
 	private MessageConsoleStream errorConsoleStream;
 	private Display display;
+	private long windowsPid;
 
 	public EimLoader(DownloadListener listener, MessageConsoleStream standardConsoleStream, MessageConsoleStream errorConsoleStream, Display display)
 	{
@@ -106,7 +113,13 @@ public class EimLoader
 
 		if (os.equals(Platform.OS_WIN32))
 		{
-			command = List.of("cmd.exe", "/c", eimPath.toString()); //$NON-NLS-1$ //$NON-NLS-2$
+			 String powershellCmd = String.format(
+				        "Start-Process -FilePath \"%s\" -PassThru  | Select-Object -ExpandProperty Id", //$NON-NLS-1$
+				        eimPath.toString()
+				    );
+			command = List.of("powershell.exe",  //$NON-NLS-1$
+					"-Command",  //$NON-NLS-1$
+					powershellCmd);
 		}
 		else if (os.equals(Platform.OS_MACOSX))
 		{
@@ -120,15 +133,48 @@ public class EimLoader
 		{
 			throw new UnsupportedOperationException("Unsupported OS: " + os); //$NON-NLS-1$
 		}
-
+		
 		Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
+		if (os.equals(Platform.OS_WIN32))
+		{
+			// store the PID returned by powershell query to a variable
+			storePid(process);
+		}
 
 		logMessage("Launched EIM application: " + eimPath + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		return process;
 	}
 	
-	public Process installAndLaunchDmg(Path dmgPath) throws IOException, InterruptedException
+	private void storePid(Process powershellProcess)
+	{
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(powershellProcess.getInputStream())))
+		{
+			String line;
+			while ((line = reader.readLine()) != null)
+			{
+				line = line.trim();
+				if (!line.isEmpty())
+				{
+					try
+					{
+						windowsPid = Long.parseLong(line);
+						
+					}
+					catch (NumberFormatException ignored)
+					{
+						// skipping invalid lines
+					}
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			Logger.log(e);
+		}
+	}
+
+	public String installAndLaunchDmg(Path dmgPath) throws IOException, InterruptedException
 	{
 		logMessage("Mounting DMG...\n"); //$NON-NLS-1$
 		ProcessBuilder mountBuilder = new ProcessBuilder("hdiutil", "attach", dmgPath.toString()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -175,11 +221,9 @@ public class EimLoader
 		logMessage("Unmounting DMG...\n"); //$NON-NLS-1$
 		new ProcessBuilder("hdiutil", "detach", volumePath).start().waitFor(); //$NON-NLS-1$ //$NON-NLS-2$
 
-		logMessage("Launching app from /Applications...\n"); //$NON-NLS-1$
-
-		Process openProcess = new ProcessBuilder("open", "-W", "-a", targetAppPath.toString()).start(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		new IDFEnvironmentVariables().addEnvVariable(IDFEnvironmentVariables.EIM_PATH, targetAppPath.toString().concat("/Contents/MacOS/eim")); //$NON-NLS-1$
-		return openProcess;
+		String eimPath = targetAppPath.toString().concat("/Contents/MacOS/eim"); //$NON-NLS-1$
+		new IDFEnvironmentVariables().addEnvVariable(IDFEnvironmentVariables.EIM_PATH, eimPath);
+		return eimPath;
 	}
 
 
@@ -217,6 +261,7 @@ public class EimLoader
 			}
 			else if (name.endsWith(".exe")) //$NON-NLS-1$
 			{
+				eimPath = Paths.get(eimPath.toString().concat("\\").concat(name)); //$NON-NLS-1$
 				Files.copy(downloadPath, eimPath, StandardCopyOption.REPLACE_EXISTING);
 				listener.onCompleted(eimPath.toString());
 			}
@@ -233,6 +278,120 @@ public class EimLoader
 			monitor.done();
 		}
 
+	}
+	
+	private IStatus waitForProcessWindows()
+	{
+		while (isWindowsProcessAlive(windowsPid))
+		{
+			try
+			{
+				Thread.sleep(1000);
+			}
+			catch (InterruptedException e)
+			{
+				Logger.log(e);
+			}
+		}
+		
+		return Status.OK_STATUS;
+	}
+	
+	private boolean isWindowsProcessAlive(long pid)
+	{
+		try
+		{
+			Process check = new ProcessBuilder("cmd.exe",  //$NON-NLS-1$
+					"/c",  //$NON-NLS-1$
+					"tasklist", //$NON-NLS-1$
+					"/FI", //$NON-NLS-1$
+					"\"PID eq " + pid + "\"").redirectErrorStream(true).start(); //$NON-NLS-1$ //$NON-NLS-2$
+			try (BufferedReader reader = new BufferedReader(new InputStreamReader(check.getInputStream())))
+			{
+				String line;
+				while ((line = reader.readLine()) != null)
+				{
+					if (line.contains(String.valueOf(windowsPid)))
+					{
+						return true;
+					}
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			Logger.log(e);
+		}
+		
+		return false;
+	}
+	
+	private IStatus waitForProcess(Process process)
+	{
+		try
+		{
+			while (process.isAlive())
+			{
+				Thread.sleep(1000);
+			}
+			return Status.OK_STATUS;
+		}
+		catch (InterruptedException e)
+		{
+			return Status.CANCEL_STATUS;
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+			return Status.error(e.getMessage());
+		}
+	}
+	
+	public void waitForEimClosure(Process process, Runnable callback)
+	{
+		Job waitJob = new Job("Wait for EIM Closure") //$NON-NLS-1$
+		{
+			@Override
+			protected IStatus run(IProgressMonitor monitor)
+			{
+				return os.equals(Platform.OS_WIN32) ? waitForProcessWindows() : waitForProcess(process);
+			}
+		};
+		waitJob.setSystem(true);
+		
+		
+		waitJob.addJobChangeListener(new JobChangeAdapter()
+		{
+			@Override
+			public void aboutToRun(IJobChangeEvent event) 
+			{
+				EimJsonWatchService.getInstance().pauseListeners();
+			}
+			
+			@Override
+			public void done(IJobChangeEvent event)
+			{
+				Display.getDefault().asyncExec(() -> {
+					try
+					{
+						standardConsoleStream.write("EIM has been closed.\n"); //$NON-NLS-1$
+					}
+					catch (IOException e)
+					{
+						Logger.log(e);
+					}
+				});
+				
+				if (callback != null)
+				{
+					callback.run();
+				}
+				
+				EimJsonWatchService.getInstance().unpauseListeners();
+			}
+		});
+		
+		waitJob.schedule();
 	}
 
 	private JsonObject fetchJson() throws IOException
