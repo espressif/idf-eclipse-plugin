@@ -67,7 +67,7 @@ public class EimButtonLaunchListener extends SelectionAdapter
 	@Override
 	public void widgetSelected(SelectionEvent selectionEvent)
 	{
-		if (!isEimInstalled())
+		if (!toolInitializer.isEimInstalled())
 		{
 			Job downloadJob = new Job("Download and Launch EIM")
 			{
@@ -96,11 +96,6 @@ public class EimButtonLaunchListener extends SelectionAdapter
 				}
 			});
 		}
-	}
-
-	private boolean isEimInstalled()
-	{
-		return toolInitializer.isEimInstalled();
 	}
 
 	private void waitForEimClosure(Process process) throws InterruptedException

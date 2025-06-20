@@ -40,6 +40,7 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.EimConstants;
 import com.espressif.idf.core.tools.EimIdfConfiguratinParser;
 import com.espressif.idf.core.tools.SetupToolsInIde;
+import com.espressif.idf.core.tools.ToolInitializer;
 import com.espressif.idf.core.tools.util.ToolsUtility;
 import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.core.tools.vo.IdfInstalled;
@@ -71,6 +72,7 @@ public class ESPIDFMainTablePage
 	private List<IdfInstalled> idfInstalledList;
 	private static EimJson eimJson;
 	private EimIdfConfiguratinParser eimIdfConfiguratinParser;
+	private ToolInitializer toolInitializer;
 	
 	private static final String RELOAD_ICON = "icons/tools/reload.png"; //$NON-NLS-1$
 	private static final String IDF_TOOL_SET_BTN_KEY = "IDFToolSet"; //$NON-NLS-1$
@@ -80,6 +82,8 @@ public class ESPIDFMainTablePage
 	private ESPIDFMainTablePage()
 	{
 		eimIdfConfiguratinParser = new EimIdfConfiguratinParser();
+		toolInitializer = new ToolInitializer(org.eclipse.core.runtime.preferences.InstanceScope.INSTANCE
+				.getNode(UIPlugin.PLUGIN_ID));
 	}
 	
 	public static ESPIDFMainTablePage getInstance(EimJson eimJson)
@@ -123,7 +127,7 @@ public class ESPIDFMainTablePage
 		});
 		
 		eimLaunchBtn = new Button(composite, SWT.PUSH);
-		eimLaunchBtn.setText(eimJson.getIdfInstalled().isEmpty() ? Messages.EIMButtonDownloadText : Messages.EIMButtonLaunchText);
+		eimLaunchBtn.setText(!toolInitializer.isEimInstalled() ? Messages.EIMButtonDownloadText : Messages.EIMButtonLaunchText);
 		eimLaunchBtn.addSelectionListener(new EimButtonLaunchListener(espidfMainTablePage, Display.getDefault(), getConsoleStream(false), getConsoleStream(true)));
 	}
 	
@@ -190,7 +194,7 @@ public class ESPIDFMainTablePage
 		tableViewer.setInput(idfInstalledList);
 		tableViewer.getControl().requestLayout();
 		tableViewer.refresh();
-		eimLaunchBtn.setText(eimJson.getIdfSelectedId().isEmpty() ? Messages.EIMButtonDownloadText : Messages.EIMButtonLaunchText);
+		eimLaunchBtn.setText(!toolInitializer.isEimInstalled() ? Messages.EIMButtonDownloadText : Messages.EIMButtonLaunchText);
 		container.redraw();
 	}
 
