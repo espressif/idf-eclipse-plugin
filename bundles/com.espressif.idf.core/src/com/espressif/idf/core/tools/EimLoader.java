@@ -207,13 +207,20 @@ public class EimLoader
 			Path downloadPath = DOWNLOAD_DIR.resolve(name);
 
 			downloadFile(downloadUrl, downloadPath, listener, monitor);
-
+			Path eimPath = Paths.get(EimConstants.USER_EIM_DIR);
+			Files.createDirectories(eimPath);
+			
 			if (name.endsWith(".zip")) //$NON-NLS-1$
 			{
-				Path extracted = unzip(downloadPath, DOWNLOAD_DIR.resolve("unzipped")); //$NON-NLS-1$
+				Path extracted = unzip(downloadPath, eimPath);
 				listener.onCompleted(extracted.toAbsolutePath().toString());
 			}
-			else
+			else if (name.endsWith(".exe")) //$NON-NLS-1$
+			{
+				Files.copy(downloadPath, eimPath, StandardCopyOption.REPLACE_EXISTING);
+				listener.onCompleted(eimPath.toString());
+			}
+			else 
 			{
 				listener.onCompleted(downloadPath.toAbsolutePath().toString());
 			}
