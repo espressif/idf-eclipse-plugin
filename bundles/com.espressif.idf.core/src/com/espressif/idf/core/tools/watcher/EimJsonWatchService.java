@@ -6,6 +6,7 @@ package com.espressif.idf.core.tools.watcher;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.nio.file.attribute.FileAttribute;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -35,6 +36,10 @@ public class EimJsonWatchService extends Thread
 				: EimConstants.EIM_POSIX_DIR;
 
 		watchDirectoryPath = Paths.get(directoryPathString);
+		if (!Files.exists(watchDirectoryPath))
+		{
+			Files.createDirectories(watchDirectoryPath);
+		}
 		watchService = FileSystems.getDefault().newWatchService();
 		watchDirectoryPath.register(watchService, StandardWatchEventKinds.ENTRY_CREATE,
 				StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
