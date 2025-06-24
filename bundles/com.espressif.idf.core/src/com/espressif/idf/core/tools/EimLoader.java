@@ -115,7 +115,7 @@ public class EimLoader
 		{
 			 String powershellCmd = String.format(
 				        "Start-Process -FilePath \"%s\" -PassThru  | Select-Object -ExpandProperty Id", //$NON-NLS-1$
-				        eimPath.toString()
+				        eimPath
 				    );
 			command = List.of("powershell.exe",  //$NON-NLS-1$
 					"-Command",  //$NON-NLS-1$
@@ -123,11 +123,11 @@ public class EimLoader
 		}
 		else if (os.equals(Platform.OS_MACOSX))
 		{
-			command = List.of("open", "-W",  "-a", eimPath.toString());  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+			command = List.of("open", "-W",  "-a", eimPath);  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 		}
 		else if (os.equals(Platform.OS_LINUX))
 		{
-			command = List.of("bash", "-c", "\"" + eimPath.toString() + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			command = List.of("bash", "-c", "\"" + eimPath + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		}
 		else
 		{
@@ -176,33 +176,18 @@ public class EimLoader
 
 	public String installAndLaunchDmg(Path dmgPath) throws IOException, InterruptedException
 	{
-		logMessage("Mounting DMG...\n"); //$NON-NLS-1$
-		ProcessBuilder mountBuilder = new ProcessBuilder("hdiutil", "attach", dmgPath.toString()); //$NON-NLS-1$ //$NON-NLS-2$
-		Process mountProcess = mountBuilder.start();
+		logMessage("Mounting DMG…\n"); //$NON-NLS-1$
+		Process mountProcess = new ProcessBuilder("hdiutil", "attach", dmgPath.toString()) //$NON-NLS-1$ //$NON-NLS-2$
+				.redirectErrorStream(true).start();
 
-		String volumePath = null;
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(mountProcess.getInputStream())))
-		{
-			String line;
-			while ((line = reader.readLine()) != null)
-			{
-				if (line.contains("/Volumes/")) //$NON-NLS-1$
-				{
-					String[] parts = line.split("\t"); //$NON-NLS-1$
-					for (String part : parts)
-					{
-						if (part.startsWith("/Volumes/")) //$NON-NLS-1$
-						{
-							volumePath = part.trim();
-							break;
-						}
-					}
-				}
-			}
-		}
+		int mountExit = mountProcess.waitFor();
+		if (mountExit != 0)
+			throw new IOException("hdiutil attach failed (exit " + mountExit + "): " //$NON-NLS-1$ //$NON-NLS-2$
+					+ readProcessOutput(mountProcess));
 
+		String volumePath = parseVolumePath(mountProcess.getInputStream());
 		if (volumePath == null)
-			throw new IOException("Failed to mount DMG: Volume path not found."); //$NON-NLS-1$
+			throw new IOException("Failed to mount DMG: volume path not found."); //$NON-NLS-1$
 
 		File[] apps = new File(volumePath).listFiles((dir, name) -> name.endsWith(".app")); //$NON-NLS-1$
 		if (apps == null || apps.length == 0)
@@ -211,19 +196,55 @@ public class EimLoader
 		File appBundle = apps[0];
 		Path targetAppPath = Paths.get("/Applications", appBundle.getName()); //$NON-NLS-1$
 
-		logMessage("Copying app to /Applications...\n"); //$NON-NLS-1$
+		logMessage("Copying app to /Applications…\n"); //$NON-NLS-1$
+		Process copyProcess = new ProcessBuilder("cp", "-R", appBundle.getAbsolutePath(), //$NON-NLS-1$ //$NON-NLS-2$
+				targetAppPath.toString()).redirectErrorStream(true).start();
 
-		// Copy to /Applications
-		ProcessBuilder copyBuilder = new ProcessBuilder("cp", "-R", appBundle.getAbsolutePath(), //$NON-NLS-1$ //$NON-NLS-2$
-				targetAppPath.toString());
-		copyBuilder.inheritIO().start().waitFor();
+		int copyExit = copyProcess.waitFor();
+		if (copyExit != 0)
+			throw new IOException("Copy failed (exit " + copyExit + "): " //$NON-NLS-1$ //$NON-NLS-2$
+					+ readProcessOutput(copyProcess));
 
-		logMessage("Unmounting DMG...\n"); //$NON-NLS-1$
-		new ProcessBuilder("hdiutil", "detach", volumePath).start().waitFor(); //$NON-NLS-1$ //$NON-NLS-2$
+		logMessage("Unmounting DMG…\n"); //$NON-NLS-1$
+		Process detachProcess = new ProcessBuilder("hdiutil", "detach", volumePath) //$NON-NLS-1$ //$NON-NLS-2$
+				.redirectErrorStream(true).start();
 
-		String eimPath = targetAppPath.toString().concat("/Contents/MacOS/eim"); //$NON-NLS-1$
+		int detachExit = detachProcess.waitFor();
+		if (detachExit != 0)
+			throw new IOException("hdiutil detach failed (exit " + detachExit + "): " //$NON-NLS-1$ //$NON-NLS-2$
+					+ readProcessOutput(detachProcess));
+
+		String eimPath = targetAppPath.resolve("Contents/MacOS/eim").toString(); //$NON-NLS-1$
 		new IDFEnvironmentVariables().addEnvVariable(IDFEnvironmentVariables.EIM_PATH, eimPath);
 		return eimPath;
+	}
+	
+	private String readProcessOutput(Process p) throws IOException
+	{
+	    try (BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream())))
+	    {
+	        StringBuilder sb = new StringBuilder();
+	        String line;
+	        while ((line = br.readLine()) != null) sb.append(line).append(System.lineSeparator());
+	        return sb.toString();
+	    }
+	}
+
+	private String parseVolumePath(InputStream mountOut) throws IOException
+	{
+	    try (BufferedReader reader = new BufferedReader(new InputStreamReader(mountOut)))
+	    {
+	        String line;
+	        while ((line = reader.readLine()) != null)
+	        {
+	            if (line.contains("/Volumes/")) //$NON-NLS-1$
+	            {
+	                for (String part : line.split("\t")) //$NON-NLS-1$
+	                    if (part.startsWith("/Volumes/")) return part.trim(); //$NON-NLS-1$
+	            }
+	        }
+	    }
+	    return null;
 	}
 
 
@@ -231,7 +252,6 @@ public class EimLoader
 	{
 		try
 		{
-			monitor.beginTask("Downloading EIM GUI...", IProgressMonitor.UNKNOWN); //$NON-NLS-1$
 			JsonObject root = fetchJson();
 			JsonArray assets = root.getAsJsonArray("assets"); //$NON-NLS-1$
 			Optional<JsonObject> match = findMatchingAsset(assets);
@@ -248,6 +268,7 @@ public class EimLoader
 			String downloadUrl = asset.get("browser_download_url").getAsString(); //$NON-NLS-1$
 
 			Files.createDirectories(DOWNLOAD_DIR);
+			cleanupDownloadDirectory();
 			Path downloadPath = DOWNLOAD_DIR.resolve(name);
 
 			downloadFile(downloadUrl, downloadPath, listener, monitor);
@@ -261,7 +282,7 @@ public class EimLoader
 			}
 			else if (name.endsWith(".exe")) //$NON-NLS-1$
 			{
-				eimPath = Paths.get(eimPath.toString().concat("\\").concat(name)); //$NON-NLS-1$
+				eimPath = Paths.get(eimPath.toString(), name);
 				Files.copy(downloadPath, eimPath, StandardCopyOption.REPLACE_EXISTING);
 				listener.onCompleted(eimPath.toString());
 			}
@@ -270,7 +291,7 @@ public class EimLoader
 				listener.onCompleted(downloadPath.toAbsolutePath().toString());
 			}
 		}
-		catch (Exception e)
+		catch (IOException e)
 		{
 			listener.onError("Download failed", e); //$NON-NLS-1$
 		} finally
@@ -405,6 +426,29 @@ public class EimLoader
 		}
 	}
 
+	private void cleanupDownloadDirectory()
+	{
+	    try
+	    {
+	        Files.list(DOWNLOAD_DIR)
+	             .filter(Files::isRegularFile)
+	             .forEach(path -> {
+	                 try
+	                 {
+	                     Files.deleteIfExists(path);
+	                 }
+	                 catch (IOException e)
+	                 {
+	                     Logger.log("Failed to delete old download: " + path); //$NON-NLS-1$
+	                 }
+	             });
+	    }
+	    catch (IOException e)
+	    {
+	        Logger.log("Failed to clean up download directory: " + e.getMessage()); //$NON-NLS-1$
+	    }
+	}
+	
 	private Optional<JsonObject> findMatchingAsset(JsonArray assets)
 	{
 		String osToken = switch (os)
