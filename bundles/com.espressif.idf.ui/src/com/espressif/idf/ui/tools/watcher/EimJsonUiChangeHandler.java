@@ -93,6 +93,7 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 				{
 					// multiple entries in json so launch manager for user to handle this
 					launchEspIdfManager();
+					ESPIDFMainTablePage.getInstance(eimJson).refreshEditorUI();
 				}
 			}
 			catch (
