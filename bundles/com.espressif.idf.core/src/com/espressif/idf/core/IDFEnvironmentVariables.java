@@ -54,6 +54,8 @@ public class IDFEnvironmentVariables
 	public static final String ESP_IDF_EIM_ID = "ESP_IDF_EIM_ID"; //$NON-NLS-1$
 
 	public static final String EIM_PATH = "EIM_PATH"; //$NON-NLS-1$
+
+	public static final String SYSTEM_PATH = "SYSTEM_PATH"; //$NON-NLS-1$
 	
 	/**
 	 * @param variableName Environment variable Name
