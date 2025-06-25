@@ -221,7 +221,7 @@ public class SetupToolsInIde extends Job
 		}
 	}
 	
-	private String replacePathVariable(String value)
+	private String getUpdatedPathWithSystemPath()
 	{
 		// EIM is giving us SYSTEM_PATH variable as well so we can simply add it to the PATH here and remove it from ENV vars
 		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
