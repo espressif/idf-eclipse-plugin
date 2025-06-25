@@ -5,10 +5,12 @@
 package com.espressif.idf.ui.tools;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -88,6 +90,12 @@ public class EspressifToolStartup implements IStartup
 		if (toolInitializer.isOldEspIdfConfigPresent() && !toolInitializer.isOldConfigExported())
 		{
 			Logger.log("Old configuration found and not converted");
+			boolean isEimInApplications = checkIfEimPathMacOsIsInApplications();
+			if (!isEimInApplications)
+			{
+				promptUserToMoveEimToApplications();
+			}
+			
 			EimJsonWatchService.withPausedListeners(()-> handleOldConfigExport());
 		}
 		else if (toolInitializer.isEimIdfJsonPresent() && !toolInitializer.isEspIdfSet())
@@ -103,6 +111,29 @@ public class EspressifToolStartup implements IStartup
 		{
 			showEimJsonStateChangeNotification();
 		}
+	}
+
+	private boolean checkIfEimPathMacOsIsInApplications()
+	{
+		if (!Platform.getOS().equals(Platform.OS_MACOSX))
+			return true;
+		
+		String eimPath = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH); 
+		if (!StringUtil.isEmpty(eimPath))
+		{
+			if (Files.exists(Paths.get(eimPath)))
+			{
+				boolean isInApplications = eimPath.startsWith("/Applications/") ||
+                        eimPath.startsWith(System.getProperty("user.home") + "/Applications/");
+				if (!isInApplications)
+				{
+					Logger.log("EIM_PATH not in applications: " + eimPath);
+					return false;
+				}
+			}
+		}
+		
+		return true;
 	}
 
 	private void handleOldConfigExport()
@@ -242,6 +273,15 @@ public class EspressifToolStartup implements IStartup
 			{
 				openEspIdfManager(eimJson);
 			}
+		});
+	}
+	
+	private void promptUserToMoveEimToApplications()
+	{
+		Display.getDefault().asyncExec(() -> {
+			MessageDialog.openInformation(
+				    Display.getDefault().getActiveShell(),
+				    Messages.EIMNotInApplicationsTitle, Messages.EIMNotInApplicationsMessage);
 		});
 	}
 

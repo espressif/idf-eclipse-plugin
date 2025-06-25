@@ -50,6 +50,9 @@ public class Messages extends NLS
 	public static String OldConfigExportCompleteSuccessMsg;
 	public static String OldConfigExportCompleteFailMsgTitle;
 	public static String OldConfigExportCompleteFailMsg;
+	
+	public static String EIMNotInApplicationsTitle;
+	public static String EIMNotInApplicationsMessage;
 
 	static
 	{
