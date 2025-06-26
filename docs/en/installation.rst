@@ -5,6 +5,7 @@ Configuring and installing the Espressif-IDE involves two main steps:
 
 1. :ref:`Downloading and Installing the Espressif-IDE <esp-idf-installation>`
 2. :ref:`Installing the ESP-IDF and related tools within the Espressif-IDE <esp-idf-tools-installation>`
+3. :ref:`Migrating old workspace to new <esp-idf-tools-migration>`
 
 .. note::
    For Eclipse CDT users who prefer installing the ESP-IDF Eclipse Plugin via the `Update site <https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/>`_, please refer to the :ref:`Update Site Installation Guide <marketplaceupdate>`. 
@@ -26,7 +27,7 @@ macOS/Linux
 ~~~~~~~~~~~~
 Download the Espressif-IDE for your respective operating system from the :ref:`download section <downloads>`. After downloading, launch the IDE and proceed to :ref:`install the necessary ESP-IDF and related tools <esp-idf-tools-installation>`. Please ensure that Java, Python, and Git are installed as prerequisites and are available in the system path before launching the IDE.
 
-ESP-IDF and Tools Installation
+ESP-IDF and Tools Installation (New Workspace)
 -------------------------------
 .. _esp-idf-tools-installation:
 
@@ -65,6 +66,27 @@ The refresh button in the last column for the active ESP-IDF version can be used
     Any manual changes made to the ESP-IDF directory will not be reflected in the IDE until you refresh the active ESP-IDF version using the refresh button but if you made any changes to the installation of ESP-IDF using the EIM, those changes will be detected and a popup message will be shown to you to update the ESP-IDF version in the IDE.
 
 .. image:: ../../media/ToolsManager/ESP-IDF_Manager_Changed_Installation_Message.png
+
+
+Migrating Old Workspace to New
+-------------------------------
+.. _esp-idf-tools-migration:
+If you are migrating from an older version of the Espressif-IDE, you will need to convert your existing workspace to be 
+compatible with the new ESP-IDF Manager. 
+You will need to download and install the Espressif Installation Manager (EIM) from the following `link <https://dl.espressif.com/dl/eim/>`_. 
+After installation of the EIM please follow the steps below:
+
+1. Copy the downloaded EIM executable to `.espressif/eim_gui/` in user home directory.
+   For example, on Windows, it would be `C:\Users\<username>\.espressif\eim_gui\`.
+   On Linux or macOS, it would be `~/.espressif/eim_gui/`.
+
+2. Open the Espressif-IDE if already running restart it.
+3. After the IDE detects the EIM executable and a valid older workspace, it will prompt you to convert the old workspace to the new format.
+   .. image:: ../../media/ToolsManager/ESP-IDF_Manager_Convert_Old_Workspace.png
+4. Click on the ``Yes`` button to convert the old configuration. 
+5. Now in Espressif-IDE, go to ``Espressif > ESP-IDF Manager``.
+   The ESP-IDF Manager editor will open, and you can proceed to select activate against the version you want.
+
 
 References
 ----------
