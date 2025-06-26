@@ -16,6 +16,11 @@ Espressif-IDE Installation
 
 To begin, navigate to the section corresponding to your operating system below and follow the provided instructions to install the Espressif-IDE.
 
+Please note that the Espressif-IDE requires that 
+you install ESP-IDF via Espressif Installation Manager (EIM) to manage the ESP-IDF versions and tools.
+For detailed documentation on using the Espressif Installation Manager (EIM), 
+please refer to the official guide `here <https://docs.espressif.com/projects/idf-im-ui/en/latest/>`_.
+
 Windows
 ~~~~~~~~
 .. note::
@@ -86,8 +91,7 @@ After installation of the EIM please follow the steps below:
 4. Click on the ``Yes`` button to convert the old configuration. 
 5. Now in Espressif-IDE, go to ``Espressif > ESP-IDF Manager``.
    The ESP-IDF Manager editor will open, and you can proceed to select activate against the version you want.
-
-
+   
 References
 ----------
 .. toctree::
