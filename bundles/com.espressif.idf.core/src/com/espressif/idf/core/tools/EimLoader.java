@@ -113,13 +113,14 @@ public class EimLoader
 
 		if (os.equals(Platform.OS_WIN32))
 		{
-			 String powershellCmd = String.format(
-				        "Start-Process -FilePath \"%s\" -PassThru  | Select-Object -ExpandProperty Id", //$NON-NLS-1$
-				        eimPath
-				    );
+			String escapedPathForPowershell = eimPath.replace("'", "''"); //$NON-NLS-1$ //$NON-NLS-2$
+			String powershellCmd = String.format(
+					"Start-Process -FilePath '%s' -PassThru | " //$NON-NLS-1$
+					+ "Select-Object -ExpandProperty Id", //$NON-NLS-1$
+					escapedPathForPowershell);
+
 			command = List.of("powershell.exe",  //$NON-NLS-1$
-					"-Command",  //$NON-NLS-1$
-					powershellCmd);
+					"-Command", powershellCmd); //$NON-NLS-1$
 		}
 		else if (os.equals(Platform.OS_MACOSX))
 		{
