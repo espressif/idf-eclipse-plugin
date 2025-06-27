@@ -5,31 +5,43 @@
 package com.espressif.idf.ui.tools;
 
 import java.io.IOException;
-import java.text.MessageFormat;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IStartup;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.intro.IIntroManager;
 import org.osgi.service.prefs.Preferences;
 
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.Messages;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.tools.DownloadListener;
 import com.espressif.idf.core.tools.EimConstants;
+import com.espressif.idf.core.tools.EimLoader;
 import com.espressif.idf.core.tools.ToolInitializer;
 import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.core.tools.watcher.EimJsonStateChecker;
 import com.espressif.idf.core.tools.watcher.EimJsonWatchService;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.UIPlugin;
-import com.espressif.idf.ui.dialogs.MessageLinkDialog;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.tools.manager.ESPIDFManagerEditor;
 import com.espressif.idf.ui.tools.manager.EimEditorInput;
@@ -46,47 +58,86 @@ public class EspressifToolStartup implements IStartup
 	private EimJsonUiChangeHandler eimJsonUiChangeHandler;
 	private ToolInitializer toolInitializer;
 	private Preferences preferences;
+	private EimJson eimJson;
+	private EimLoader eimLoader;
+	private MessageConsoleStream standardConsoleStream;
+	private MessageConsoleStream errorConsoleStream;
+	private IDFEnvironmentVariables idfEnvironmentVariables;
 
 	@Override
 	public void earlyStartup()
 	{
-		Preferences preferences = org.eclipse.core.runtime.preferences.InstanceScope.INSTANCE
+		preferences = org.eclipse.core.runtime.preferences.InstanceScope.INSTANCE
 				.getNode(UIPlugin.PLUGIN_ID);
-		ToolInitializer toolInitializer = new ToolInitializer(preferences);
+		toolInitializer = new ToolInitializer(preferences);
+		standardConsoleStream = getConsoleStream(false);
+		errorConsoleStream = getConsoleStream(true);
+		idfEnvironmentVariables = new IDFEnvironmentVariables();
+		eimLoader = new EimLoader(new StartupClassDownloadEimDownloadListener(), 
+				standardConsoleStream, errorConsoleStream, Display.getDefault());
 		EimJsonStateChecker stateChecker = new EimJsonStateChecker(preferences);
 		eimJsonUiChangeHandler = new EimJsonUiChangeHandler(preferences);
 		stateChecker.updateLastSeenTimestamp();
 		EimJsonWatchService.getInstance().addEimJsonChangeListener(eimJsonUiChangeHandler);
 
-		if (!toolInitializer.isEimInstalled())
+		if (!toolInitializer.isEimInstalled() && !toolInitializer.isEimIdfJsonPresent())
 		{
 			Logger.log("EIM not installed");
 			notifyMissingTools();
 			return;
 		}
 		
-		if (toolInitializer.isOldEspIdfConfigPresent()
-				&& !toolInitializer.isOldConfigExported())
+		eimJson = toolInitializer.loadEimJson();
+
+		if (toolInitializer.isOldEspIdfConfigPresent() && !toolInitializer.isOldConfigExported())
 		{
 			Logger.log("Old configuration found and not converted");
-			handleOldConfigExport();
+			boolean isEimInApplications = checkIfEimPathMacOsIsInApplications();
+			if (!isEimInApplications)
+			{
+				promptUserToMoveEimToApplications();
+			}
+			
+			EimJsonWatchService.withPausedListeners(()-> handleOldConfigExport());
 		}
-
-		EimJson eimJson = toolInitializer.loadEimJson();
-		if (eimJson == null)
-		{
-			return;
-		}
-
-		if (!toolInitializer.isEspIdfSet())
+		else if (toolInitializer.isEimIdfJsonPresent() && !toolInitializer.isEspIdfSet())
 		{
 			promptUserToOpenToolManager(eimJson);
+		}
+
+		// Set EimPath on every startup to ensure proper path in configurations
+		if (eimJson != null)
+		{
+			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, eimJson.getEimPath());
 		}
 
 		if (stateChecker.wasModifiedSinceLastRun())
 		{
 			showEimJsonStateChangeNotification();
 		}
+	}
+
+	private boolean checkIfEimPathMacOsIsInApplications()
+	{
+		if (!Platform.getOS().equals(Platform.OS_MACOSX))
+			return true;
+		
+		String eimPath = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH); 
+		if (!StringUtil.isEmpty(eimPath))
+		{
+			if (Files.exists(Paths.get(eimPath)))
+			{
+				boolean isInApplications = eimPath.startsWith("/Applications/") ||
+                        eimPath.startsWith(System.getProperty("user.home") + "/Applications/");
+				if (!isInApplications)
+				{
+					Logger.log("EIM_PATH not in applications: " + eimPath);
+					return false;
+				}
+			}
+		}
+		
+		return true;
 	}
 
 	private void handleOldConfigExport()
@@ -105,7 +156,7 @@ public class EspressifToolStartup implements IStartup
 		{
 			try
 			{
-				IStatus status = toolInitializer.exportOldConfig();
+				IStatus status = toolInitializer.exportOldConfig(eimJson != null ? eimJson.getEimPath() : StringUtil.EMPTY);
 				Logger.log("Tools Conversion Process Message: ");
 				Logger.log(status.getMessage());
 				if (status.getSeverity() != IStatus.ERROR)
@@ -145,11 +196,64 @@ public class EspressifToolStartup implements IStartup
 
 	private void notifyMissingTools()
 	{
-		Display.getDefault().asyncExec(() -> {
-			MessageLinkDialog.openWarning(Display.getDefault().getActiveShell(),
+		boolean [] userAgreed = new boolean[1];
+		Display.getDefault().syncExec(() -> {
+			userAgreed[0] = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
 					Messages.ToolsInitializationEimMissingMsgBoxTitle,
-					MessageFormat.format(Messages.ToolsInitializationEimMissingMsgBoxMessage, EimConstants.EIM_URL));
+					Messages.ToolsInitializationEimMissingMsgBoxMessage);
 		});
+		
+		if (userAgreed[0])
+		{
+			// Download Launch EIM
+			downloadAndLaunchEim();
+		}
+		else
+		{
+			Logger.log("User selected No to download EIM");
+		}
+	}
+
+	private void downloadAndLaunchEim()
+	{
+		closeWelcomePage();
+		Job downloadJob = new Job("Download and Launch EIM")
+		{
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor)
+			{
+				eimLoader.downloadEim(monitor);
+				return Status.OK_STATUS;
+			}
+		};
+		downloadJob.setUser(true);
+		downloadJob.schedule();
+	}
+
+	private void closeWelcomePage()
+	{
+		Display.getDefault().asyncExec(() -> {
+			IWorkbench workbench = PlatformUI.getWorkbench();
+			if (workbench != null)
+			{
+				IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
+				if (window != null)
+				{
+					IIntroManager introManager = workbench.getIntroManager();
+					if (introManager.getIntro() != null)
+					{
+						introManager.closeIntro(introManager.getIntro());
+					}
+				}
+			}
+		});
+	}
+
+	private MessageConsoleStream getConsoleStream(boolean errorStream)
+	{
+		IDFConsole idfConsole = new IDFConsole();
+		return idfConsole.getConsoleStream("EIM Launch Console", null, errorStream);
 	}
 
 	private void promptUserToOpenToolManager(EimJson eimJson)
@@ -175,20 +279,110 @@ public class EspressifToolStartup implements IStartup
 			}
 		});
 	}
+	
+	private void promptUserToMoveEimToApplications()
+	{
+		Display.getDefault().asyncExec(() -> {
+			MessageDialog.openInformation(
+				    Display.getDefault().getActiveShell(),
+				    Messages.EIMNotInApplicationsTitle, Messages.EIMNotInApplicationsMessage);
+		});
+	}
 
 	private void openEspIdfManager(EimJson eimJson)
 	{
-		IWorkbenchWindow window = EclipseHandler.getActiveWorkbenchWindow();
-		IDFUtil.closeWelcomePage(window);
-		try
+		Display.getDefault().asyncExec(() -> {
+			IWorkbenchWindow window = EclipseHandler.getActiveWorkbenchWindow();
+			try
+			{
+				EimEditorInput input = new EimEditorInput(eimJson);
+				input.setFirstStartup(true);
+				IDE.openEditor(window.getActivePage(), input, ESPIDFManagerEditor.EDITOR_ID);
+				IDFUtil.closeWelcomePage(window);
+			}
+			catch (PartInitException e)
+			{
+				Logger.log(e);
+			}
+		});
+	}
+	
+	private class StartupClassDownloadEimDownloadListener implements DownloadListener
+	{
+
+		@Override
+		public void onProgress(int percent)
 		{
-			EimEditorInput input = new EimEditorInput(eimJson);
-			input.setFirstStartup(true);
-			IDE.openEditor(window.getActivePage(), input, ESPIDFManagerEditor.EDITOR_ID);
+			Display.getDefault().asyncExec(() -> {
+				try
+				{
+					int blocks = percent / 10;
+					String bar = "[" + "#".repeat(blocks) + " ".repeat(10 - blocks) + "] " + percent + "%";
+					standardConsoleStream.write("\r" + bar);
+				}
+				catch (IOException e)
+				{
+					Logger.log(e);
+				}
+			});
+			
 		}
-		catch (PartInitException e)
+
+		@Override
+		public void onCompleted(String filePath)
 		{
-			Logger.log(e);
+			Display.getDefault().syncExec(() -> {
+				try
+				{
+					standardConsoleStream.write("\nEIM Downloaded to: " + filePath + "\nLaunching...\n");
+				}
+				catch (IOException e)
+				{
+					Logger.log(e);
+				}
+			});
+			
+			Process process = null;
+			String appToLaunch = filePath;
+			try
+			{
+				if (filePath.endsWith(".dmg"))
+				{
+					appToLaunch = eimLoader.installAndLaunchDmg(Paths.get(filePath));
+				}
+				
+				idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, appToLaunch);
+				process = eimLoader.launchEim(appToLaunch);
+			}
+			catch (IOException | InterruptedException e)
+			{
+				Logger.log(e);
+			}
+			
+			eimLoader.waitForEimClosure(process, () -> {
+				if (toolInitializer.isOldEspIdfConfigPresent() && !toolInitializer.isOldConfigExported())
+				{
+					Logger.log("Old configuration found and not converted");
+					handleOldConfigExport();
+				}
+				eimJson = toolInitializer.loadEimJson();
+				openEspIdfManager(eimJson);
+			});
+		}
+
+		@Override
+		public void onError(String message, Exception e)
+		{
+			Display.getDefault().asyncExec(() -> {
+				try
+				{
+					errorConsoleStream.write("Download Failed: " + e.getMessage());
+				}
+				catch (IOException e1)
+				{
+					Logger.log(e1);
+				}
+			});
 		}
 	}
 }

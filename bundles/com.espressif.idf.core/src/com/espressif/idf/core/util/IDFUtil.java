@@ -191,6 +191,30 @@ public class IDFUtil
 		return idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PYTHON_EXE_PATH);
 
 	}
+	
+	public static String getIDFPythonEnvPath(String idfPyEnvPath)
+	{
+		idfPyEnvPath = idfPyEnvPath.strip();
+		if (!StringUtil.isEmpty(idfPyEnvPath))
+		{
+
+			if (Platform.getOS().equals(Platform.OS_WIN32))
+			{
+				idfPyEnvPath = idfPyEnvPath + "/" + "Scripts"; //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			else
+			{
+				idfPyEnvPath = idfPyEnvPath + "/" + "bin"; //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			java.nio.file.Path commandPath = findCommand(IDFConstants.PYTHON_CMD, idfPyEnvPath);
+			if (commandPath != null)
+			{
+				return commandPath.toFile().getAbsolutePath();
+			}
+		}
+		return findCommandFromBuildEnvPath(IDFConstants.PYTHON_CMD);
+
+	}
 
 	public static boolean checkIfIdfSupportsSpaces()
 	{

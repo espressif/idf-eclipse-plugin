@@ -2,16 +2,18 @@
  * Copyright 2025 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.core.tools.watcher;
-
-import java.nio.file.Path;
+package com.espressif.idf.core.tools;
 
 /**
- * Classes that want to handle the eim_idf.json Changes must implement this listener
+ * Interface to use for the download listening this can be used in your own classes. 
+ * Added specifically for {@link EimLoader} 
  * @author Ali Azam Rana <ali.azamrana@espressif.com>
  *
  */
-public interface EimJsonChangeListener
+public interface DownloadListener
 {
-	void onJsonFileChanged(Path file, boolean paused);
+	public void onProgress(int percent);
+	public void onCompleted(String filePath);
+	public void onError(String message, Exception e);
+
 }

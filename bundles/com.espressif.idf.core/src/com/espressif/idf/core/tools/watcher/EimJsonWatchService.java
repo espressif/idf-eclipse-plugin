@@ -6,6 +6,7 @@ package com.espressif.idf.core.tools.watcher;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.nio.file.attribute.FileAttribute;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -26,13 +27,19 @@ public class EimJsonWatchService extends Thread
 	private final Path watchDirectoryPath;
 	private final List<EimJsonChangeListener> eimJsonChangeListeners = new CopyOnWriteArrayList<>();
 	private volatile boolean running = true;
-
+	private volatile boolean paused = false;
+	
+	
 	private EimJsonWatchService() throws IOException
 	{
 		String directoryPathString = Platform.getOS().equals(Platform.OS_WIN32) ? EimConstants.EIM_WIN_DIR
 				: EimConstants.EIM_POSIX_DIR;
 
 		watchDirectoryPath = Paths.get(directoryPathString);
+		if (!Files.exists(watchDirectoryPath))
+		{
+			Files.createDirectories(watchDirectoryPath);
+		}
 		watchService = FileSystems.getDefault().newWatchService();
 		watchDirectoryPath.register(watchService, StandardWatchEventKinds.ENTRY_CREATE,
 				StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
@@ -73,10 +80,42 @@ public class EimJsonWatchService extends Thread
 			eimJsonChangeListeners.add(listener);
 		}
 	}
-
+	
 	public void removeAllListeners()
 	{
 		eimJsonChangeListeners.clear();
+	}
+	
+	public static void withPausedListeners(Runnable task)
+	{
+		EimJsonWatchService watchService = getInstance();
+		boolean wasPaused = watchService.paused;
+		watchService.pauseListeners();
+		
+		try
+		{
+			task.run();			
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+		}
+		finally {
+			if (!wasPaused)
+				watchService.unpauseListeners();
+		}
+	}
+	
+	public void pauseListeners()
+	{
+		Logger.log("Listeners are paused"); //$NON-NLS-1$
+		paused = true;
+	}
+	
+	public void unpauseListeners()
+	{
+		Logger.log("Listeners are resumed"); //$NON-NLS-1$
+		paused = false;
 	}
 
 	@Override
@@ -113,7 +152,7 @@ public class EimJsonWatchService extends Thread
 					Path fullPath = watchDirectoryPath.resolve(path);
 					for (EimJsonChangeListener listener : eimJsonChangeListeners)
 					{
-						listener.onJsonFileChanged(fullPath);
+						listener.onJsonFileChanged(fullPath, paused);
 					}
 				}
 			}

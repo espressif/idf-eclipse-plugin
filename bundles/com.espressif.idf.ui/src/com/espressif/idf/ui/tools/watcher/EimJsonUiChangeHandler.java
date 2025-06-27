@@ -47,8 +47,13 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 	}
 
 	@Override
-	public void onJsonFileChanged(Path file)
+	public void onJsonFileChanged(Path file, boolean paused)
 	{
+		if (paused)
+		{
+			Logger.log("Listener is paused");
+			return;
+		}
 		int response = displayMessageToUser();
 		handleUserResponse(response);
 	}
@@ -87,12 +92,21 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 				else
 				{
 					// multiple entries in json so launch manager for user to handle this
-					launchEspIdfManager();
+					Display.getDefault().asyncExec(() -> {
+						try
+						{
+							launchEspIdfManager();
+						}
+						catch (PartInitException e)
+						{
+							Logger.log(e);
+						}
+						ESPIDFMainTablePage.getInstance(eimJson).refreshEditorUI();
+					});
 				}
 			}
 			catch (
-					IOException
-					| PartInitException e)
+					IOException e)
 			{
 				Logger.log(e);
 			}
