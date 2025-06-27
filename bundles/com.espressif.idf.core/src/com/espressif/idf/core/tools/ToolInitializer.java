@@ -75,14 +75,15 @@ public class ToolInitializer
 		return getOldConfigFile().exists();
 	}
 
-	public IStatus exportOldConfig() throws IOException
+	public IStatus exportOldConfig(String eimPath) throws IOException
 	{
 		File oldConfig = getOldConfigFile();
 		if (oldConfig.exists())
 		{
 			// eim import pathToOldConfigJson
 			List<String> commands = new ArrayList<>();
-			commands.add(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH));
+			commands.add(StringUtil.isEmpty(eimPath) ? 
+					idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH) : eimPath);
 			commands.add("import"); //$NON-NLS-1$
 			commands.add(oldConfig.getAbsolutePath());
 			Logger.log("Running: " + commands.toString()); //$NON-NLS-1$

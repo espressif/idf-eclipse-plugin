@@ -156,7 +156,7 @@ public class EspressifToolStartup implements IStartup
 		{
 			try
 			{
-				IStatus status = toolInitializer.exportOldConfig();
+				IStatus status = toolInitializer.exportOldConfig(eimJson != null ? eimJson.getEimPath() : StringUtil.EMPTY);
 				Logger.log("Tools Conversion Process Message: ");
 				Logger.log(status.getMessage());
 				if (status.getSeverity() != IStatus.ERROR)
