@@ -85,6 +85,7 @@ public class ToolInitializer
 			commands.add(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH));
 			commands.add("import"); //$NON-NLS-1$
 			commands.add(oldConfig.getAbsolutePath());
+			Logger.log("Running: " + commands.toString()); //$NON-NLS-1$
 			ProcessBuilderFactory processBuilderFactory = new ProcessBuilderFactory();
 			IStatus status = processBuilderFactory.runInBackground(commands, org.eclipse.core.runtime.Path.ROOT,
 					System.getenv());

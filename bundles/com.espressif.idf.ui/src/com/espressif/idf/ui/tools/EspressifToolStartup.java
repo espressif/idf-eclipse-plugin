@@ -86,6 +86,8 @@ public class EspressifToolStartup implements IStartup
 			notifyMissingTools();
 			return;
 		}
+		
+		eimJson = toolInitializer.loadEimJson();
 
 		if (toolInitializer.isOldEspIdfConfigPresent() && !toolInitializer.isOldConfigExported())
 		{
@@ -100,12 +102,14 @@ public class EspressifToolStartup implements IStartup
 		}
 		else if (toolInitializer.isEimIdfJsonPresent() && !toolInitializer.isEspIdfSet())
 		{
-			eimJson = toolInitializer.loadEimJson();
 			promptUserToOpenToolManager(eimJson);
 		}
 
 		// Set EimPath on every startup to ensure proper path in configurations
-		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, eimJson.getEimPath());
+		if (eimJson != null)
+		{
+			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, eimJson.getEimPath());
+		}
 
 		if (stateChecker.wasModifiedSinceLastRun())
 		{
