@@ -22,6 +22,7 @@ import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTable;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -430,7 +431,8 @@ public class NewEspressifIDFProjectTest
 			// Type and open "Error Log"
 			SWTBotShell showViewShell = bot.shell("Show View");
 			showViewShell.activate();
-			bot.tree().expandNode("General").select("Error Log");
+			SWTBotTree tree = showViewShell.bot().tree();
+			tree.expandNode("General").select("Error Log");
 			bot.button("Open").click();
 			SWTBotView errorLogView = bot.activeView();
 
