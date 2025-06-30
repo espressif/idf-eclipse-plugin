@@ -4,8 +4,9 @@
  *******************************************************************************/
 package com.espressif.idf.ui.test.executable.cases.project;
 
+import static org.eclipse.swtbot.swt.finder.waits.Conditions.shellIsActive;
+import static org.eclipse.swtbot.swt.finder.waits.Conditions.widgetIsEnabled;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,9 +22,9 @@ import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTable;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -428,42 +429,22 @@ public class NewEspressifIDFProjectTest
 
 			// Open the "Error Log" view
 			bot.menu("Window").menu("Show View").menu("Other...").click();
+			bot.waitUntil(shellIsActive("Show View"));
 
-			// Type and open "Error Log"
 			SWTBotShell showViewShell = bot.shell("Show View");
 			showViewShell.activate();
-			SWTBotTree tree = showViewShell.bot().tree();
 
-			boolean errorLogFound = false;
-			for (SWTBotTreeItem category : tree.getAllItems())
-			{
-				try
-				{
-					category.expand();
-					for (SWTBotTreeItem viewItem : category.getItems())
-					{
-						if (viewItem.getText().equals("Error Log"))
-						{
-							viewItem.select();
-							errorLogFound = true;
-							break;
-						}
-					}
-				}
-				catch (WidgetNotFoundException ignored)
-				{
-				}
-				if (errorLogFound)
-					break;
-			}
+			// Wait for the tree to appear and expand the node
+			bot.waitUntil(widgetIsEnabled(bot.tree()));
+			bot.tree().expandNode("General").select("Error Log");
 
-			if (!errorLogFound)
-			{
-				fail("Error Log not found in any category");
-			}
+			// Wait for the "Open" button to be enabled and click it
+			SWTBotButton openButton = bot.button("Open");
+			bot.waitUntil(widgetIsEnabled(openButton));
+			openButton.click();
 
-			bot.button("Open").click();
 			SWTBotView errorLogView = bot.activeView();
+
 			try
 			{
 				SWTBotTable errorTable = errorLogView.bot().table();
