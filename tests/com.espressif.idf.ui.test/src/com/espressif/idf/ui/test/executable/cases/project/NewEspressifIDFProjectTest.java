@@ -5,6 +5,7 @@
 package com.espressif.idf.ui.test.executable.cases.project;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -432,10 +433,37 @@ public class NewEspressifIDFProjectTest
 			SWTBotShell showViewShell = bot.shell("Show View");
 			showViewShell.activate();
 			SWTBotTree tree = showViewShell.bot().tree();
-			tree.expandNode("General").select("Error Log");
+
+			boolean errorLogFound = false;
+			for (SWTBotTreeItem category : tree.getAllItems())
+			{
+				try
+				{
+					category.expand();
+					for (SWTBotTreeItem viewItem : category.getItems())
+					{
+						if (viewItem.getText().equals("Error Log"))
+						{
+							viewItem.select();
+							errorLogFound = true;
+							break;
+						}
+					}
+				}
+				catch (WidgetNotFoundException ignored)
+				{
+				}
+				if (errorLogFound)
+					break;
+			}
+
+			if (!errorLogFound)
+			{
+				fail("Error Log not found in any category");
+			}
+
 			bot.button("Open").click();
 			SWTBotView errorLogView = bot.activeView();
-
 			try
 			{
 				SWTBotTable errorTable = errorLogView.bot().table();
