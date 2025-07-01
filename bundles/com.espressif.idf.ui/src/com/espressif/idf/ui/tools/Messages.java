@@ -23,6 +23,8 @@ public class Messages extends NLS
 	public static String EspIdfManagerNameCol;
 	public static String EspIdfManagerReloadBtnToolTip;
 	public static String IDFGuideLinkLabel_Text;
+	public static String EIMButtonDownloadText;
+	public static String EIMButtonLaunchText;
 	
 	public static String IDFToolsHandler_ToolsManagerConsole;
 	

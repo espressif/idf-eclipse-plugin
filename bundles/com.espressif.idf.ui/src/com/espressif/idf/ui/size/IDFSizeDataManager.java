@@ -247,6 +247,11 @@ public class IDFSizeDataManager
 
 	public boolean isVersionAtLeast(String currentIDFVersion, String minimumIDFVersion)
 	{
+		if (currentIDFVersion.equalsIgnoreCase("master")) //$NON-NLS-1$
+		{
+			return true;
+		}
+		
 		Version currentVersion = Version.parse(currentIDFVersion);
 		Version minVersion = Version.parse(minimumIDFVersion);
 		return currentVersion.compareTo(minVersion) >= 0;
