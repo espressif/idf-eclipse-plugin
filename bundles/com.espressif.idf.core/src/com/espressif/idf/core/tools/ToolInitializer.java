@@ -7,6 +7,7 @@ package com.espressif.idf.core.tools;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +48,15 @@ public class ToolInitializer
 	public boolean isEimInstalled()
 	{
 		String eimExePathEnv = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH);
-		return !StringUtil.isEmpty(eimExePathEnv) && Files.exists(Paths.get(eimExePathEnv));
+		boolean exists = !StringUtil.isEmpty(eimExePathEnv) && Files.exists(Paths.get(eimExePathEnv));
+		if (!exists)
+		{
+	        // Fallback: check in user home .espressif/eim_gui folder
+	        Path defaultEimPath = getDefaultEimPath();
+	        if (defaultEimPath != null)
+	        	exists = Files.exists(defaultEimPath);
+		}
+		return exists;
 	}
 	
 	public boolean isEimIdfJsonPresent()
@@ -112,5 +121,43 @@ public class ToolInitializer
 	public boolean isEspIdfSet()
 	{
 		return preferences.getBoolean(EimConstants.INSTALL_TOOLS_FLAG, false);
+	}
+
+	private Path getDefaultEimPath()
+	{
+		String userHome = System.getProperty("user.home"); //$NON-NLS-1$
+        Path defaultEimPath;
+        String os = Platform.getOS(); 
+        if (os.equals(Platform.OS_WIN32))
+        {
+            defaultEimPath = Paths.get(userHome, ".espressif", "eim_gui", //$NON-NLS-1$//$NON-NLS-2$ 
+            		"eim.exe"); //$NON-NLS-1$
+        }
+        else if (os.equals(Platform.OS_MACOSX))
+        {
+            defaultEimPath = Paths.get("/Applications", //$NON-NLS-1$
+            		"eim.app", "Contents", //$NON-NLS-1$//$NON-NLS-2$
+            		"MacOS", "eim"); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        else
+        {
+            defaultEimPath = Paths.get(userHome, ".espressif",  //$NON-NLS-1$
+            		"eim_gui", "eim");  //$NON-NLS-1$//$NON-NLS-2$
+        }
+        
+        return defaultEimPath;
+	}
+	
+	public void findAndSetEimPath()
+	{
+        Path defaultEimPath = getDefaultEimPath();
+        
+        if (defaultEimPath != null)
+        	setEimPathInEnvVar(defaultEimPath.toString());
+	}
+	
+	private void setEimPathInEnvVar(String eimPath)
+	{
+		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, eimPath);
 	}
 }

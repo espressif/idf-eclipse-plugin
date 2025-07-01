@@ -110,6 +110,11 @@ public class EspressifToolStartup implements IStartup
 		{
 			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, eimJson.getEimPath());
 		}
+		else 
+		{
+			// Fail-safe call to ensure if the eim is in Applications or user.home it is setup in env vars
+			toolInitializer.findAndSetEimPath();
+		}
 
 		if (stateChecker.wasModifiedSinceLastRun())
 		{
