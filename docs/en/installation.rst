@@ -81,10 +81,11 @@ compatible with the new ESP-IDF Manager.
 You will need to download and install the Espressif Installation Manager (EIM) from the following `link <https://dl.espressif.com/dl/eim/>`_. 
 After installation of the EIM please follow the steps below:
 
-1. Copy the downloaded EIM executable to `.espressif/eim_gui/` in user home directory.
-   For example, on Windows, it would be `C:\Users\<username>\.espressif\eim_gui\`.
-   On Linux or macOS, it would be `~/.espressif/eim_gui/`.
-
+1. Copy the downloaded EIM executable to `.espressif/eim_gui/` in user home directory for Windows and Linux.
+   For example, on Windows, it would be `C:\Users\<username>\.espressif\eim_gui\eim.exe`.
+   On Linux , it would be `~/.espressif/eim_gui/eim`.
+   For macOS, copy the downloaded `eim.app` to your `Applications`, for example, `/Applications/eim.app`.
+   
 2. Open the Espressif-IDE if already running restart it.
 3. After the IDE detects the EIM executable and a valid older workspace, it will prompt you to convert the old workspace to the new format.
    .. image:: ../../media/ToolsManager/ESP-IDF_Manager_Convert_Old_Workspace.png
