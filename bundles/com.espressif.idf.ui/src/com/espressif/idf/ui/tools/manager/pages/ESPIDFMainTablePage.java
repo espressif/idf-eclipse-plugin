@@ -40,11 +40,13 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.EimConstants;
 import com.espressif.idf.core.tools.EimIdfConfiguratinParser;
 import com.espressif.idf.core.tools.SetupToolsInIde;
+import com.espressif.idf.core.tools.ToolInitializer;
 import com.espressif.idf.core.tools.util.ToolsUtility;
 import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.core.tools.vo.IdfInstalled;
 import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.UIPlugin;
+import com.espressif.idf.ui.tools.EimButtonLaunchListener;
 import com.espressif.idf.ui.tools.Messages;
 import com.espressif.idf.ui.tools.SetupToolsJobListener;
 
@@ -63,12 +65,14 @@ public class ESPIDFMainTablePage
 	private TableViewerColumn activateColumn;
 	private TableViewerColumn removeColumn;
 	private TableViewerColumn nameColumn;
+	private Button eimLaunchBtn;
 	
 	private TableColumnLayout tableColumnLayout;
 	private Composite tableComposite;
 	private List<IdfInstalled> idfInstalledList;
 	private static EimJson eimJson;
 	private EimIdfConfiguratinParser eimIdfConfiguratinParser;
+	private ToolInitializer toolInitializer;
 	
 	private static final String RELOAD_ICON = "icons/tools/reload.png"; //$NON-NLS-1$
 	private static final String IDF_TOOL_SET_BTN_KEY = "IDFToolSet"; //$NON-NLS-1$
@@ -78,6 +82,8 @@ public class ESPIDFMainTablePage
 	private ESPIDFMainTablePage()
 	{
 		eimIdfConfiguratinParser = new EimIdfConfiguratinParser();
+		toolInitializer = new ToolInitializer(org.eclipse.core.runtime.preferences.InstanceScope.INSTANCE
+				.getNode(UIPlugin.PLUGIN_ID));
 	}
 	
 	public static ESPIDFMainTablePage getInstance(EimJson eimJson)
@@ -98,16 +104,16 @@ public class ESPIDFMainTablePage
 		final int numColumns = 2;
 		GridLayout gridLayout = new GridLayout(numColumns, false);
 		container.setLayout(gridLayout);
-		createGuideLink(container);
+		createButtonAndGuideLink(container);
 		createIdfTable(container);
 		return container;
 	}
 	
-	private void createGuideLink(Composite composite)
+	private void createButtonAndGuideLink(Composite composite)
 	{
 		Link guideLink = new Link(composite, SWT.WRAP);
 		guideLink.setText(Messages.IDFGuideLinkLabel_Text);
-		guideLink.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
+		guideLink.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 		guideLink.addListener(SWT.Selection, e -> {
 			try
 			{
@@ -119,6 +125,10 @@ public class ESPIDFMainTablePage
 				Logger.log(ex);
 			}
 		});
+		
+		eimLaunchBtn = new Button(composite, SWT.PUSH);
+		eimLaunchBtn.setText(!toolInitializer.isEimInstalled() ? Messages.EIMButtonDownloadText : Messages.EIMButtonLaunchText);
+		eimLaunchBtn.addSelectionListener(new EimButtonLaunchListener(espidfMainTablePage, Display.getDefault(), getConsoleStream(false), getConsoleStream(true)));
 	}
 	
 	public void setupInitialEspIdf()
@@ -184,6 +194,7 @@ public class ESPIDFMainTablePage
 		tableViewer.setInput(idfInstalledList);
 		tableViewer.getControl().requestLayout();
 		tableViewer.refresh();
+		eimLaunchBtn.setText(!toolInitializer.isEimInstalled() ? Messages.EIMButtonDownloadText : Messages.EIMButtonLaunchText);
 		container.redraw();
 	}
 
@@ -192,7 +203,7 @@ public class ESPIDFMainTablePage
 		Group idfToolsGroup = new Group(parent, SWT.SHADOW_ETCHED_IN);
 		idfToolsGroup.setText("IDF Tools");
 		idfToolsGroup.setLayout(new GridLayout(2, false));
-		idfToolsGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		idfToolsGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 
 		// Composite for the TableViewer, with TableColumnLayout
 		tableComposite = new Composite(idfToolsGroup, SWT.NONE);

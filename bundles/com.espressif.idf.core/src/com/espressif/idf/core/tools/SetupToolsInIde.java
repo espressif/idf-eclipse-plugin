@@ -221,31 +221,18 @@ public class SetupToolsInIde extends Job
 		}
 	}
 	
-	private String replacePathVariable(String value)
+	private String getUpdatedPathWithSystemPath()
 	{
-		// Get system PATH
-		Map<String, String> systemEnv = new HashMap<>(System.getenv());
-		String pathEntry = systemEnv.get("PATH"); //$NON-NLS-1$
-		if (pathEntry == null)
-		{
-			pathEntry = systemEnv.get("Path"); // for Windows //$NON-NLS-1$
-			if (pathEntry == null) // no idea
-			{
-				Logger.log(new Exception("No PATH found in the system environment variables")); //$NON-NLS-1$
-			}
-		}
-
-		if (!StringUtil.isEmpty(pathEntry))
-		{
-			value = value.concat(File.pathSeparator).concat(pathEntry);
-		}
+		// EIM is giving us SYSTEM_PATH variable as well so we can simply add it to the PATH here and remove it from ENV vars
+		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
 		
-		if (Platform.getOS().equals(Platform.OS_MACOSX))
-		{
-			value = value.concat(File.pathSeparator).concat("/opt/homebrew/bin").concat(File.pathSeparator).concat("/usr/local/bin"); //$NON-NLS-1$ //$NON-NLS-2$
-		}
+		String systemPath = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.SYSTEM_PATH);
+		String path = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH) + File.pathSeparator + systemPath;
 		
-		return value;
+		// we can remove the system_path from build vars as we dont need it here
+		idfEnvironmentVariables.removeEnvVariable(IDFEnvironmentVariables.SYSTEM_PATH);
+		
+		return path;
 	}
 	
 	private IStatus loadTargetsAvailableFromIdfInCurrentToolSet(boolean rollback)
@@ -390,7 +377,7 @@ public class SetupToolsInIde extends Job
 			idfEnvironmentVariables.addEnvVariable(entry.getKey(), entry.getValue());
 		}
 		
-		String path = replacePathVariable(envVarsFromActivationScriptMap.get(IDFEnvironmentVariables.PATH));
+		String path = getUpdatedPathWithSystemPath();
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, path);
 		
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER, "1"); //$NON-NLS-1$
@@ -399,6 +386,8 @@ public class SetupToolsInIde extends Job
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.ESP_IDF_EIM_ID, idfInstalled.getId());
 		
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PYTHON_EXE_PATH, idfInstalled.getPython());
+		
+		
 		
 		IDFUtil.updateEspressifPrefPageOpenocdPath();
 	}
