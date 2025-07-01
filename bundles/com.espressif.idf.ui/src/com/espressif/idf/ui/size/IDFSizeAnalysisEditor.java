@@ -76,6 +76,11 @@ public class IDFSizeAnalysisEditor extends MultiPageEditorPart
 			return false;
 		}
 		
+		if (idfVersion.equalsIgnoreCase("master")) //$NON-NLS-1$
+		{
+			return true;
+		}
+		
 		if (idfVersion.toLowerCase().startsWith("v")) //$NON-NLS-1$
 		{
 			idfVersion = idfVersion.substring(1);
