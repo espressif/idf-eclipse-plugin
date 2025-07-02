@@ -20,6 +20,7 @@ import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTable;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.junit.After;
@@ -433,8 +434,9 @@ public class NewEspressifIDFProjectTest
 
 			try
 			{
+
+				bot.waitUntil(Conditions.widgetIsEnabled(errorLogView.bot().table()));
 				SWTBotTable errorTable = errorLogView.bot().table();
-				// Check if there are no exceptions in error log
 				boolean hasErrors = errorTable.containsItem("Exception");
 
 				assertTrue(!hasErrors);
