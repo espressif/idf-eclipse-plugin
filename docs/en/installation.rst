@@ -90,7 +90,7 @@ After installation of the EIM please follow the steps below:
 2. Open the Espressif-IDE if already running restart it.
 3. After the IDE detects the EIM executable and a valid older workspace, it will prompt you to convert the old workspace to the new format.
 
-   .. image:: ../../media/ToolsManager/ESP-IDF_Manager_Conversion_old_worskpace.png
+   .. image:: ../../media/ToolsManager/ESP-IDF_Manager_Conversion_Message_Old_Workspace.png
 
 4. Click on the ``Yes`` button to convert the old configuration. 
 5. Now in Espressif-IDE, go to ``Espressif > ESP-IDF Manager``.
