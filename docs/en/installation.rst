@@ -88,7 +88,7 @@ After installation of the EIM please follow the steps below:
    For macOS, copy the downloaded `eim.app` to your `Applications`, for example, `/Applications/eim.app`.
    
 2. Open the Espressif-IDE if already running restart it.
-3. After the IDE detects the EIM executable and a valid older workspace, it will prompt you to convert the old workspace to the new format.
+3. After the IDE detects the EIM executable and a valid older workspace, it will prompt you to convert the old workspace to the new format.:
 
 .. image:: ../../media/ToolsManager/ESP-IDF_Manager_Conversion_Message_Old_Workspace.png
 
