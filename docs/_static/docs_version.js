@@ -4,6 +4,6 @@ var DOCUMENTATION_VERSIONS = {
               },
     VERSIONS: [
         { name: "latest" },
-        { name: "release/v4.0.0", pre_release: true }
+        { name: "release-v4.0.0", pre_release: true }
     ]
 };
