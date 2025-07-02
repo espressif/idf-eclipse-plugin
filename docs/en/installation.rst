@@ -33,7 +33,7 @@ macOS/Linux
 Download the Espressif-IDE for your respective operating system from the :ref:`download section <downloads>`. After downloading, launch the IDE and proceed to :ref:`install the necessary ESP-IDF and related tools <esp-idf-tools-installation>`. Please ensure that Java, Python, and Git are installed as prerequisites and are available in the system path before launching the IDE.
 
 ESP-IDF and Tools Installation (New Workspace)
--------------------------------
+----------------------------------------------
 .. _esp-idf-tools-installation:
 
 The Espressif-IDE provides a Tool Manager view that allows you to activate available ESP-IDF versions and manage related tools. To install the ESP-IDF and its tools, first download the Espressif Installation Manager (EIM) from the following `link <https://dl.espressif.com/dl/eim/>`_.
