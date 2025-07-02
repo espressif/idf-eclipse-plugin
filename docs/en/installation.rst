@@ -76,6 +76,7 @@ The refresh button in the last column for the active ESP-IDF version can be used
 Migrating Old Workspace to New
 -------------------------------
 .. _esp-idf-tools-migration:
+
 If you are migrating from an older version of the Espressif-IDE, you will need to convert your existing workspace to be 
 compatible with the new ESP-IDF Manager. 
 You will need to download and install the Espressif Installation Manager (EIM) from the following `link <https://dl.espressif.com/dl/eim/>`_. 
