@@ -383,7 +383,33 @@ public class ProjectTestOperations
 		bot.button("Finish").click();
 		SWTBotShell shell1 = bot.shell("New IDF Project");
 		shell1.activate();
-		bot.checkBox("Run idf.py reconfigure after project creation to initialize the CMake build configuration").click();
+		bot.checkBox("Run idf.py reconfigure after project creation to initialize the CMake build configuration")
+				.click();
+		bot.textWithLabel("Project name:").setText(projectName);
+		bot.button("Finish").click();
+		TestWidgetWaitUtility.waitUntilViewContainsTheTreeItemWithName(projectName, bot.viewByTitle("Project Explorer"),
+				5000);
+	}
+
+	/**
+	 * Set up a project
+	 * 
+	 * @param projectName name of the project
+	 * @param category    category of the project
+	 * @param subCategory sub category of the project
+	 * @param bot         current SWT bot reference
+	 */
+	public static void setupProjectWithReconfigureCommand(String projectName, String category, String subCategory,
+			SWTWorkbenchBot bot)
+	{
+		bot.shell().activate().bot().menu("File").menu("New").menu("Project...").click();
+		SWTBotShell shell = bot.shell("New Project");
+		shell.activate();
+
+		bot.tree().expandNode(category).select(subCategory);
+		bot.button("Finish").click();
+		SWTBotShell shell1 = bot.shell("New IDF Project");
+		shell1.activate();
 		bot.textWithLabel("Project name:").setText(projectName);
 		bot.button("Finish").click();
 		TestWidgetWaitUtility.waitUntilViewContainsTheTreeItemWithName(projectName, bot.viewByTitle("Project Explorer"),
