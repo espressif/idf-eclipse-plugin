@@ -92,7 +92,7 @@ After installation of the EIM please follow the steps below:
 
 .. image:: ../../media/ToolsManager/ESP-IDF_Manager_Conversion.png
 
-4. Click on the ``Yes`` button to convert the old configuration. 
+4. Click on the ``Yes`` button to convert the old configuration.
 5. Now in Espressif-IDE, go to ``Espressif > ESP-IDF Manager``.
    The ESP-IDF Manager editor will open, and you can proceed to select activate against the version you want.
    
