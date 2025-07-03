@@ -68,14 +68,13 @@ public class EspressifToolStartup implements IStartup
 	@Override
 	public void earlyStartup()
 	{
-		preferences = org.eclipse.core.runtime.preferences.InstanceScope.INSTANCE
-				.getNode(UIPlugin.PLUGIN_ID);
+		preferences = org.eclipse.core.runtime.preferences.InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 		toolInitializer = new ToolInitializer(preferences);
 		standardConsoleStream = getConsoleStream(false);
 		errorConsoleStream = getConsoleStream(true);
 		idfEnvironmentVariables = new IDFEnvironmentVariables();
-		eimLoader = new EimLoader(new StartupClassDownloadEimDownloadListener(), 
-				standardConsoleStream, errorConsoleStream, Display.getDefault());
+		eimLoader = new EimLoader(new StartupClassDownloadEimDownloadListener(), standardConsoleStream,
+				errorConsoleStream, Display.getDefault());
 		EimJsonStateChecker stateChecker = new EimJsonStateChecker(preferences);
 		eimJsonUiChangeHandler = new EimJsonUiChangeHandler(preferences);
 		stateChecker.updateLastSeenTimestamp();
@@ -87,7 +86,7 @@ public class EspressifToolStartup implements IStartup
 			notifyMissingTools();
 			return;
 		}
-		
+
 		eimJson = toolInitializer.loadEimJson();
 
 		if (toolInitializer.isOldEspIdfConfigPresent() && !toolInitializer.isOldConfigExported())
@@ -98,8 +97,8 @@ public class EspressifToolStartup implements IStartup
 			{
 				promptUserToMoveEimToApplications();
 			}
-			
-			EimJsonWatchService.withPausedListeners(()-> handleOldConfigExport());
+
+			EimJsonWatchService.withPausedListeners(() -> handleOldConfigExport());
 		}
 		else if (toolInitializer.isEimIdfJsonPresent() && !toolInitializer.isEspIdfSet())
 		{
@@ -111,7 +110,7 @@ public class EspressifToolStartup implements IStartup
 		{
 			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, eimJson.getEimPath());
 		}
-		else 
+		else
 		{
 			// Fail-safe call to ensure if the eim is in Applications or user.home it is setup in env vars
 			toolInitializer.findAndSetEimPath();
@@ -127,14 +126,14 @@ public class EspressifToolStartup implements IStartup
 	{
 		if (!Platform.getOS().equals(Platform.OS_MACOSX))
 			return true;
-		
-		String eimPath = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH); 
+
+		String eimPath = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH);
 		if (!StringUtil.isEmpty(eimPath))
 		{
 			if (Files.exists(Paths.get(eimPath)))
 			{
-				boolean isInApplications = eimPath.startsWith("/Applications/") ||
-                        eimPath.startsWith(System.getProperty("user.home") + "/Applications/");
+				boolean isInApplications = eimPath.startsWith("/Applications/")
+						|| eimPath.startsWith(System.getProperty("user.home") + "/Applications/");
 				if (!isInApplications)
 				{
 					Logger.log("EIM_PATH not in applications: " + eimPath);
@@ -142,7 +141,7 @@ public class EspressifToolStartup implements IStartup
 				}
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -218,13 +217,13 @@ public class EspressifToolStartup implements IStartup
 
 	private void notifyMissingTools()
 	{
-		boolean [] userAgreed = new boolean[1];
+		boolean[] userAgreed = new boolean[1];
 		Display.getDefault().syncExec(() -> {
 			userAgreed[0] = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
 					Messages.ToolsInitializationEimMissingMsgBoxTitle,
 					Messages.ToolsInitializationEimMissingMsgBoxMessage);
 		});
-		
+
 		if (userAgreed[0])
 		{
 			// Download Launch EIM
@@ -301,13 +300,12 @@ public class EspressifToolStartup implements IStartup
 			}
 		});
 	}
-	
+
 	private void promptUserToMoveEimToApplications()
 	{
 		Display.getDefault().asyncExec(() -> {
-			MessageDialog.openInformation(
-				    Display.getDefault().getActiveShell(),
-				    Messages.EIMNotInApplicationsTitle, Messages.EIMNotInApplicationsMessage);
+			MessageDialog.openInformation(Display.getDefault().getActiveShell(), Messages.EIMNotInApplicationsTitle,
+					Messages.EIMNotInApplicationsMessage);
 		});
 	}
 
@@ -328,7 +326,7 @@ public class EspressifToolStartup implements IStartup
 			}
 		});
 	}
-	
+
 	private class StartupClassDownloadEimDownloadListener implements DownloadListener
 	{
 
@@ -347,7 +345,7 @@ public class EspressifToolStartup implements IStartup
 					Logger.log(e);
 				}
 			});
-			
+
 		}
 
 		@Override
@@ -363,7 +361,7 @@ public class EspressifToolStartup implements IStartup
 					Logger.log(e);
 				}
 			});
-			
+
 			Process process = null;
 			String appToLaunch = filePath;
 			try
@@ -372,15 +370,17 @@ public class EspressifToolStartup implements IStartup
 				{
 					appToLaunch = eimLoader.installAndLaunchDmg(Paths.get(filePath));
 				}
-				
+
 				idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, appToLaunch);
 				process = eimLoader.launchEim(appToLaunch);
 			}
-			catch (IOException | InterruptedException e)
+			catch (
+					IOException
+					| InterruptedException e)
 			{
 				Logger.log(e);
 			}
-			
+
 			eimLoader.waitForEimClosure(process, () -> {
 				if (toolInitializer.isOldEspIdfConfigPresent() && !toolInitializer.isOldConfigExported())
 				{
