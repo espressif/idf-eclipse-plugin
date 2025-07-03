@@ -6,6 +6,7 @@ package com.espressif.idf.ui.tools;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -162,7 +163,22 @@ public class EspressifToolStartup implements IStartup
 			try
 			{
 				// if eim json is present it means that it contains the updated path and we use that else we fallback to finding eim in default paths
-				IStatus status = toolInitializer.exportOldConfig(eimJson != null ? Paths.get(eimJson.getEimPath()) : toolInitializer.getDefaultEimPath());
+				Path eimPath;
+				String eimPathEnvVar = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH);
+				if (eimJson != null)
+				{
+					eimPath = Paths.get(eimJson.getEimPath());
+				}
+				else if (!StringUtil.isEmpty(eimPathEnvVar))
+				{
+					eimPath = Paths.get(eimPathEnvVar);
+				}
+				else 
+				{
+					eimPath = toolInitializer.getDefaultEimPath();
+				}
+				
+				IStatus status = toolInitializer.exportOldConfig(eimPath);
 				Logger.log("Tools Conversion Process Message: ");
 				Logger.log(status.getMessage());
 				if (status.getSeverity() != IStatus.ERROR)
