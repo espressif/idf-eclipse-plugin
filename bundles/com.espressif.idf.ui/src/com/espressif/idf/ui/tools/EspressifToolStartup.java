@@ -40,6 +40,7 @@ import com.espressif.idf.core.tools.watcher.EimJsonStateChecker;
 import com.espressif.idf.core.tools.watcher.EimJsonWatchService;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.ui.GlobalModalLock;
 import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.handlers.EclipseHandler;
@@ -146,50 +147,52 @@ public class EspressifToolStartup implements IStartup
 
 	private void handleOldConfigExport()
 	{
-		final int[] response = new int[] { -1 };
 		Display display = Display.getDefault();
-		display.syncExec(() -> {
-			MessageDialog messageDialog = new MessageDialog(display.getActiveShell(),
-					Messages.OldConfigFoundMsgBoxTitle, null, Messages.OldConfigFoundMsgBoxMsg, 0, 0,
-					new String[] { Messages.ToolsInitializationDifferentPathMessageBoxOptionYes,
-							Messages.ToolsInitializationDifferentPathMessageBoxOptionNo });
-			response[0] = messageDialog.open();
-		});
 
-		if (response[0] == 0)
+		GlobalModalLock.showModal(() -> MessageDialog.openQuestion(display.getActiveShell(),
+				Messages.OldConfigFoundMsgBoxTitle, Messages.OldConfigFoundMsgBoxMsg), response -> {
+					if (response)
+					{
+						startExportOldConfig();
+					}
+				});
+
+	}
+
+	private void startExportOldConfig()
+	{
+		try
 		{
-			try
+			IStatus status = toolInitializer.exportOldConfig(eimJson != null ? eimJson.getEimPath() : StringUtil.EMPTY);
+			Logger.log("Tools Conversion Process Message: ");
+			Logger.log(status.getMessage());
+			if (status.getSeverity() != IStatus.ERROR)
 			{
-				IStatus status = toolInitializer
-						.exportOldConfig(eimJson != null ? eimJson.getEimPath() : StringUtil.EMPTY);
-				Logger.log("Tools Conversion Process Message: ");
-				Logger.log(status.getMessage());
-				if (status.getSeverity() != IStatus.ERROR)
-				{
-					preferences.putBoolean(EimConstants.OLD_CONFIG_EXPORTED_FLAG, true);
-					displayInformationMessageBox(Messages.OldConfigExportCompleteSuccessMsgTitle,
-							Messages.OldConfigExportCompleteSuccessMsg);
-				}
-				else
-				{
-					displayInformationMessageBox(Messages.OldConfigExportCompleteFailMsgTitle,
-							Messages.OldConfigExportCompleteFailMsg);
-				}
+				preferences.putBoolean(EimConstants.OLD_CONFIG_EXPORTED_FLAG, true);
+				displayInformationMessageBox(Messages.OldConfigExportCompleteSuccessMsgTitle,
+						Messages.OldConfigExportCompleteSuccessMsg);
 			}
-			catch (IOException e)
+			else
 			{
-				Logger.log("Error exporting old configuration", e);
 				displayInformationMessageBox(Messages.OldConfigExportCompleteFailMsgTitle,
 						Messages.OldConfigExportCompleteFailMsg);
 			}
+		}
+		catch (IOException e)
+		{
+			Logger.log("Error exporting old configuration", e);
+			displayInformationMessageBox(Messages.OldConfigExportCompleteFailMsgTitle,
+					Messages.OldConfigExportCompleteFailMsg);
 		}
 	}
 
 	private void displayInformationMessageBox(String messageTitle, String message)
 	{
 		Display display = Display.getDefault();
-		display.syncExec(() -> {
+		GlobalModalLock.showModal(() -> {
 			MessageDialog.openInformation(display.getActiveShell(), messageTitle, message);
+			return null;
+		}, ignored -> {
 		});
 	}
 

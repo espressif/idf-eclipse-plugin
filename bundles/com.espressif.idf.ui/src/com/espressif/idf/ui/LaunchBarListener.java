@@ -19,8 +19,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.ILaunchMode;
@@ -146,15 +144,17 @@ public class LaunchBarListener implements ILaunchBarListener
 						// If both are not same
 						if (currentTarget != null && !newTarget.equals(currentTarget))
 						{
-
-							boolean isDelete = MessageDialog.openQuestion(EclipseUtil.getShell(),
+							GlobalModalLock.showModal(() -> MessageDialog.openQuestion(EclipseUtil.getShell(),
 									Messages.LaunchBarListener_TargetChanged_Title,
 									MessageFormat.format(Messages.LaunchBarListener_TargetChanged_Msg,
-											project.getName(), currentTarget, newTarget));
-							if (isDelete)
-							{
-								deleteBuildFolder(project, buildLocation);
-							}
+											project.getName(), currentTarget, newTarget)),
+									isDelete -> {
+										if (isDelete)
+										{
+											deleteBuildFolder(project, buildLocation);
+
+										}
+									});
 						}
 					}
 				}
