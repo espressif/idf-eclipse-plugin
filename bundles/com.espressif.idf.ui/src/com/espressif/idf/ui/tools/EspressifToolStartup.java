@@ -117,7 +117,6 @@ public class EspressifToolStartup implements IStartup
 			toolInitializer.findAndSetEimPath();
 		}
 
-		showEimJsonStateChangeNotification();
 		if (stateChecker.wasModifiedSinceLastRun())
 		{
 			showEimJsonStateChangeNotification();
