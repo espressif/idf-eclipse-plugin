@@ -161,7 +161,8 @@ public class EspressifToolStartup implements IStartup
 		{
 			try
 			{
-				IStatus status = toolInitializer.exportOldConfig(eimJson != null ? eimJson.getEimPath() : StringUtil.EMPTY);
+				// if eim json is present it means that it contains the updated path and we use that else we fallback to finding eim in default paths
+				IStatus status = toolInitializer.exportOldConfig(eimJson != null ? Paths.get(eimJson.getEimPath()) : toolInitializer.getDefaultEimPath());
 				Logger.log("Tools Conversion Process Message: ");
 				Logger.log(status.getMessage());
 				if (status.getSeverity() != IStatus.ERROR)
