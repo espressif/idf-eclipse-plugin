@@ -231,22 +231,19 @@ public class EspressifToolStartup implements IStartup
 
 	private void notifyMissingTools()
 	{
-		boolean[] userAgreed = new boolean[1];
-		Display.getDefault().syncExec(() -> {
-			userAgreed[0] = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
-					Messages.ToolsInitializationEimMissingMsgBoxTitle,
-					Messages.ToolsInitializationEimMissingMsgBoxMessage);
-		});
-
-		if (userAgreed[0])
-		{
-			// Download Launch EIM
-			downloadAndLaunchEim();
-		}
-		else
-		{
-			Logger.log("User selected No to download EIM");
-		}
+		GlobalModalLock.showModal(() -> MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
+				Messages.ToolsInitializationEimMissingMsgBoxTitle, Messages.ToolsInitializationEimMissingMsgBoxMessage),
+				response -> {
+					if (response)
+					{
+						// Download Launch EIM
+						downloadAndLaunchEim();
+					}
+					else
+					{
+						Logger.log("User selected No to download EIM");
+					}
+				});
 	}
 
 	private void downloadAndLaunchEim()
@@ -308,18 +305,22 @@ public class EspressifToolStartup implements IStartup
 			messageBox.setText(Messages.NoActiveEspIdfInWorkspaceMsgTitle);
 			messageBox.setMessage(Messages.NoActiveEspIdfInWorkspaceMsg);
 
-			if (messageBox.open() == SWT.YES)
-			{
-				openEspIdfManager(eimJson);
-			}
+			GlobalModalLock.showModal(messageBox::open, response -> {
+				if (response == SWT.YES)
+				{
+					openEspIdfManager(eimJson);
+				}
+			});
 		});
 	}
 
 	private void promptUserToMoveEimToApplications()
 	{
-		Display.getDefault().asyncExec(() -> {
+		GlobalModalLock.showModal(() -> {
 			MessageDialog.openInformation(Display.getDefault().getActiveShell(), Messages.EIMNotInApplicationsTitle,
 					Messages.EIMNotInApplicationsMessage);
+			return null;
+		}, ignored -> {
 		});
 	}
 
