@@ -84,15 +84,26 @@ public class ToolInitializer
 		return getOldConfigFile().exists();
 	}
 
-	public IStatus exportOldConfig(String eimPath) throws IOException
+	public IStatus exportOldConfig(Path eimPath) throws IOException
 	{
 		File oldConfig = getOldConfigFile();
 		if (oldConfig.exists())
 		{
 			// eim import pathToOldConfigJson
 			List<String> commands = new ArrayList<>();
-			commands.add(StringUtil.isEmpty(eimPath) ? 
-					idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH) : eimPath);
+			String eimPathStr = StringUtil.EMPTY;
+			
+			if (eimPath != null && Files.exists(eimPath))
+			{
+				eimPathStr = eimPath.toString();
+			}
+			else 
+			{
+				return new Status(IStatus.ERROR, IDFCorePlugin.getId(), -1, "Cannot Convert EIM is not installed", null); //$NON-NLS-1$
+			}
+			
+			
+			commands.add(eimPathStr);
 			commands.add("import"); //$NON-NLS-1$
 			commands.add(oldConfig.getAbsolutePath());
 			Logger.log("Running: " + commands.toString()); //$NON-NLS-1$
@@ -123,7 +134,7 @@ public class ToolInitializer
 		return preferences.getBoolean(EimConstants.INSTALL_TOOLS_FLAG, false);
 	}
 
-	private Path getDefaultEimPath()
+	public Path getDefaultEimPath()
 	{
 		String userHome = System.getProperty("user.home"); //$NON-NLS-1$
         Path defaultEimPath;
