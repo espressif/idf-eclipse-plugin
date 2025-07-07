@@ -164,41 +164,31 @@ public class EspressifToolStartup implements IStartup
 	{
 		try
 		{
-			IStatus status = toolInitializer.exportOldConfig(eimJson != null ? eimJson.getEimPath() : StringUtil.EMPTY);
+			// if eim json is present it means that it contains the updated path and we use that else we fallback to
+			// finding eim in default paths
+			Path eimPath;
+			String eimPathEnvVar = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH);
+			if (eimJson != null)
+			{
+				eimPath = Paths.get(eimJson.getEimPath());
+			}
+			else if (!StringUtil.isEmpty(eimPathEnvVar))
+			{
+				eimPath = Paths.get(eimPathEnvVar);
+			}
+			else
+			{
+				eimPath = toolInitializer.getDefaultEimPath();
+			}
+
+			IStatus status = toolInitializer.exportOldConfig(eimPath);
 			Logger.log("Tools Conversion Process Message: ");
 			Logger.log(status.getMessage());
 			if (status.getSeverity() != IStatus.ERROR)
 			{
-				// if eim json is present it means that it contains the updated path and we use that else we fallback to finding eim in default paths
-				Path eimPath;
-				String eimPathEnvVar = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH);
-				if (eimJson != null)
-				{
-					eimPath = Paths.get(eimJson.getEimPath());
-				}
-				else if (!StringUtil.isEmpty(eimPathEnvVar))
-				{
-					eimPath = Paths.get(eimPathEnvVar);
-				}
-				else 
-				{
-					eimPath = toolInitializer.getDefaultEimPath();
-				}
-				
-				IStatus status = toolInitializer.exportOldConfig(eimPath);
-				Logger.log("Tools Conversion Process Message: ");
-				Logger.log(status.getMessage());
-				if (status.getSeverity() != IStatus.ERROR)
-				{
-					preferences.putBoolean(EimConstants.OLD_CONFIG_EXPORTED_FLAG, true);
-					displayInformationMessageBox(Messages.OldConfigExportCompleteSuccessMsgTitle,
-							Messages.OldConfigExportCompleteSuccessMsg);
-				}
-				else
-				{
-					displayInformationMessageBox(Messages.OldConfigExportCompleteFailMsgTitle,
-							Messages.OldConfigExportCompleteFailMsg);
-				}
+				preferences.putBoolean(EimConstants.OLD_CONFIG_EXPORTED_FLAG, true);
+				displayInformationMessageBox(Messages.OldConfigExportCompleteSuccessMsgTitle,
+						Messages.OldConfigExportCompleteSuccessMsg);
 			}
 			else
 			{
