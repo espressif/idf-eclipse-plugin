@@ -140,15 +140,17 @@ public class LaunchBarListener implements ILaunchBarListener
 						// If both are not same
 						if (currentTarget != null && !newTarget.equals(currentTarget))
 						{
-
-							boolean isDelete = MessageDialog.openQuestion(EclipseUtil.getShell(),
+							GlobalModalLock.showModal(() -> MessageDialog.openQuestion(EclipseUtil.getShell(),
 									Messages.LaunchBarListener_TargetChanged_Title,
 									MessageFormat.format(Messages.LaunchBarListener_TargetChanged_Msg,
-											project.getName(), currentTarget, newTarget));
-							if (isDelete)
-							{
-								deleteBuildFolder(project, buildLocation);
-							}
+											project.getName(), currentTarget, newTarget)),
+									isDelete -> {
+										if (isDelete)
+										{
+											deleteBuildFolder(project, buildLocation);
+
+										}
+									});
 						}
 					}
 				}
