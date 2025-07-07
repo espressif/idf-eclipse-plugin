@@ -9,7 +9,6 @@ import java.nio.file.Path;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.console.MessageConsoleStream;
@@ -22,6 +21,8 @@ import com.espressif.idf.core.tools.SetupToolsInIde;
 import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.core.tools.watcher.EimJsonChangeListener;
 import com.espressif.idf.core.tools.watcher.EimJsonStateChecker;
+import com.espressif.idf.ui.EclipseUtil;
+import com.espressif.idf.ui.GlobalModalLock;
 import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.tools.Messages;
@@ -54,32 +55,18 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 			Logger.log("Listener is paused");
 			return;
 		}
-		int response = displayMessageToUser();
-		handleUserResponse(response);
+		displayMessageToUser();
 	}
 
-	public int displayMessageToUser()
+	public void displayMessageToUser()
 	{
-		final int[] response = new int[] { -1 };
-		Display display = Display.getDefault();
-		display.syncExec(() -> {
-			Shell shell = display.getActiveShell();
-			if (shell == null)
-			{
-				shell = new Shell(display);
-			}
-			MessageDialog messageDialog = new MessageDialog(shell, Messages.EimJsonChangedMsgTitle, null,
-					Messages.EimJsonChangedMsgDetail, MessageDialog.WARNING, 0,
-					new String[] { Messages.MsgYes, Messages.MsgNo });
-			response[0] = messageDialog.open();
-		});
-
-		return response[0];
+		GlobalModalLock.showModal(() -> MessageDialog.openQuestion(EclipseUtil.getShell(),
+				Messages.EimJsonChangedMsgTitle, Messages.EimJsonChangedMsgDetail), this::handleUserResponse);
 	}
 
-	public void handleUserResponse(int response)
+	public void handleUserResponse(Boolean response)
 	{
-		if (response == 0)
+		if (response)
 		{
 			try
 			{
@@ -105,8 +92,7 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 					});
 				}
 			}
-			catch (
-					IOException e)
+			catch (IOException e)
 			{
 				Logger.log(e);
 			}
@@ -126,8 +112,8 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 	{
 		SetupToolsInIde setupToolsInIde = new SetupToolsInIde(eimJson.getIdfInstalled().get(0), eimJson,
 				getConsoleStream(true), getConsoleStream(false));
-		SetupToolsJobListener toolsActivationJobListener = new SetupToolsJobListener(ESPIDFMainTablePage.getInstance(eimJson),
-				setupToolsInIde);
+		SetupToolsJobListener toolsActivationJobListener = new SetupToolsJobListener(
+				ESPIDFMainTablePage.getInstance(eimJson), setupToolsInIde);
 		setupToolsInIde.addJobChangeListener(toolsActivationJobListener);
 		setupToolsInIde.schedule();
 	}
@@ -141,7 +127,7 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 				Logger.log("Cannot open ESP-IDF Manager. No active workbench window or active page.");
 				return;
 			}
-			
+
 			try
 			{
 				IDE.openEditor(activeww.getActivePage(), new EimEditorInput(eimJson), ESPIDFManagerEditor.EDITOR_ID,
