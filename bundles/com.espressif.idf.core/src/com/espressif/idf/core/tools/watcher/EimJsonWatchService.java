@@ -5,8 +5,15 @@
 package com.espressif.idf.core.tools.watcher;
 
 import java.io.IOException;
-import java.nio.file.*;
-import java.nio.file.attribute.FileAttribute;
+import java.nio.file.ClosedWatchServiceException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -28,8 +35,7 @@ public class EimJsonWatchService extends Thread
 	private final List<EimJsonChangeListener> eimJsonChangeListeners = new CopyOnWriteArrayList<>();
 	private volatile boolean running = true;
 	private volatile boolean paused = false;
-	
-	
+
 	private EimJsonWatchService() throws IOException
 	{
 		String directoryPathString = Platform.getOS().equals(Platform.OS_WIN32) ? EimConstants.EIM_WIN_DIR
@@ -80,38 +86,38 @@ public class EimJsonWatchService extends Thread
 			eimJsonChangeListeners.add(listener);
 		}
 	}
-	
+
 	public void removeAllListeners()
 	{
 		eimJsonChangeListeners.clear();
 	}
-	
+
 	public static void withPausedListeners(Runnable task)
 	{
 		EimJsonWatchService watchService = getInstance();
 		boolean wasPaused = watchService.paused;
 		watchService.pauseListeners();
-		
+
 		try
 		{
-			task.run();			
+			task.run();
 		}
 		catch (Exception e)
 		{
 			Logger.log(e);
-		}
-		finally {
+		} finally
+		{
 			if (!wasPaused)
 				watchService.unpauseListeners();
 		}
 	}
-	
+
 	public void pauseListeners()
 	{
 		Logger.log("Listeners are paused"); //$NON-NLS-1$
 		paused = true;
 	}
-	
+
 	public void unpauseListeners()
 	{
 		Logger.log("Listeners are resumed"); //$NON-NLS-1$
@@ -139,6 +145,17 @@ public class EimJsonWatchService extends Thread
 				break;
 			}
 
+			try
+			{
+				// Prevent handling multiple ENTRY_MODIFY events (e.g., when eim_idf.json is edited in a text editor
+				// like VS Code)
+				Thread.sleep(100);
+			}
+			catch (InterruptedException e)
+			{
+				Logger.log(e);
+				Thread.currentThread().interrupt();
+			}
 			for (WatchEvent<?> event : key.pollEvents())
 			{
 				if (event.kind() == StandardWatchEventKinds.OVERFLOW)
