@@ -19,8 +19,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -93,6 +96,7 @@ public class EspressifToolStartup implements IStartup
 		if (toolInitializer.isOldEspIdfConfigPresent() && !toolInitializer.isOldConfigExported())
 		{
 			Logger.log("Old configuration found and not converted");
+			closeEspIdfManager();
 			boolean isEimInApplications = checkIfEimPathMacOsIsInApplications();
 			if (!isEimInApplications)
 			{
@@ -213,6 +217,33 @@ public class EspressifToolStartup implements IStartup
 		}, ignored -> {
 		});
 	}
+	
+	private void closeEspIdfManager()
+	{
+		Display.getDefault().asyncExec(() -> {
+			IWorkbenchWindow window = EclipseHandler.getActiveWorkbenchWindow();
+			if (window != null)
+			{
+				IWorkbenchPage page = window.getActivePage();
+				if (page != null)
+				{
+					IEditorReference[] editors = page.getEditorReferences();
+					for (IEditorReference editorRef : editors)
+					{
+						if (ESPIDFManagerEditor.EDITOR_ID.equals(editorRef.getId()))
+						{
+							IEditorPart editor = editorRef.getEditor(false);
+							if (editor != null)
+							{
+								page.closeEditor(editor, false);
+							}
+						}
+					}
+				}
+			}
+		});
+	}
+
 
 	private void showEimJsonStateChangeNotification()
 	{

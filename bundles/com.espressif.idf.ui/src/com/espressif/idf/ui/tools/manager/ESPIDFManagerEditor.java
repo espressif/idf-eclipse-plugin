@@ -16,13 +16,14 @@ import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
 
 /**
  * Editor main class used for tools management
+ * 
  * @author Ali Azam Rana
  *
  */
 public class ESPIDFManagerEditor extends EditorPart
 {
 	public static final String EDITOR_ID = "com.espressif.idf.ui.manageespidf";
-	
+
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException
 	{
@@ -30,8 +31,7 @@ public class ESPIDFManagerEditor extends EditorPart
 		setInput(input);
 		setPartName(Messages.EspIdfEditorTitle);
 	}
-	
-	
+
 	@Override
 	public void doSave(IProgressMonitor monitor)
 	{
@@ -49,19 +49,26 @@ public class ESPIDFManagerEditor extends EditorPart
 	{
 		return false;
 	}
-	
+
 	@Override
 	public void createPartControl(Composite parent)
 	{
-		ESPIDFMainTablePage espidfMainTablePage = ESPIDFMainTablePage
-				.getInstance(((EimEditorInput) getEditorInput()).getEimJson());
-		espidfMainTablePage.createPage(parent);
-		if (((EimEditorInput) getEditorInput()).isFirstStartup())
+		IEditorInput input = getEditorInput();
+
+		if (input instanceof EimEditorInput eimInput)
 		{
-			espidfMainTablePage.setupInitialEspIdf();
+			ESPIDFMainTablePage espidfMainTablePage = ESPIDFMainTablePage.getInstance(eimInput.getEimJson());
+			espidfMainTablePage.createPage(parent);
+			if (eimInput.isFirstStartup())
+			{
+				espidfMainTablePage.setupInitialEspIdf();
+			}
+		}
+		else
+		{
+			getSite().getPage().closeEditor(this, false);
 		}
 	}
-
 
 	@Override
 	public boolean isDirty()
@@ -69,10 +76,9 @@ public class ESPIDFManagerEditor extends EditorPart
 		return false;
 	}
 
-
 	@Override
 	public void setFocus()
 	{
-		
+
 	}
 }
