@@ -15,6 +15,7 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.core.runtime.Platform;
@@ -35,6 +36,8 @@ public class EimJsonWatchService extends Thread
 	private final List<EimJsonChangeListener> eimJsonChangeListeners = new CopyOnWriteArrayList<>();
 	private volatile boolean running = true;
 	private volatile boolean paused = false;
+	private final ConcurrentHashMap<Path, Long> debounceMap = new ConcurrentHashMap<>();
+	private static final long DEBOUNCE_INTERVAL_MS = 300;
 
 	private EimJsonWatchService() throws IOException
 	{
@@ -145,17 +148,8 @@ public class EimJsonWatchService extends Thread
 				break;
 			}
 
-			try
-			{
-				// Prevent handling multiple ENTRY_MODIFY events (e.g., when eim_idf.json is edited in a text editor
-				// like VS Code)
-				Thread.sleep(100);
-			}
-			catch (InterruptedException e)
-			{
-				Logger.log(e);
-				Thread.currentThread().interrupt();
-			}
+			long now = System.currentTimeMillis();
+
 			for (WatchEvent<?> event : key.pollEvents())
 			{
 				if (event.kind() == StandardWatchEventKinds.OVERFLOW)
@@ -167,9 +161,16 @@ public class EimJsonWatchService extends Thread
 				if (context instanceof Path path && path.toString().equals(EimConstants.EIM_JSON))
 				{
 					Path fullPath = watchDirectoryPath.resolve(path);
-					for (EimJsonChangeListener listener : eimJsonChangeListeners)
+					Long lastProcessed = debounceMap.get(fullPath);
+
+					if (lastProcessed == null || (now - lastProcessed) > DEBOUNCE_INTERVAL_MS)
 					{
-						listener.onJsonFileChanged(fullPath, paused);
+						debounceMap.put(fullPath, now);
+
+						for (EimJsonChangeListener listener : eimJsonChangeListeners)
+						{
+							listener.onJsonFileChanged(fullPath, paused);
+						}
 					}
 				}
 			}
