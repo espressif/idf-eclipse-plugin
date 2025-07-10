@@ -432,7 +432,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		infoStream.write(String.format(Messages.CMakeBuildConfiguration_Configuring, buildDir));
 
 		List<String> command = new ArrayList<>();
-
 		command.add("cmake"); //$NON-NLS-1$
 		command.add("-G"); //$NON-NLS-1$
 		command.add(generator);
@@ -442,6 +441,9 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 			command.add("-DCMAKE_TOOLCHAIN_FILE=" + toolChainFile.getPath().toString()); //$NON-NLS-1$
 		}
 
+		command.add("-DPYTHON_DEPS_CHECKED=1"); //$NON-NLS-1$
+		command.add("-DPYTHON=" + IDFUtil.getIDFPythonEnvPath()); //$NON-NLS-1$
+		command.add("-DESP_PLATFORM=1"); //$NON-NLS-1$
 		command.add("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"); //$NON-NLS-1$
 
 		IDFEnvironmentVariables envVariables = new IDFEnvironmentVariables();
