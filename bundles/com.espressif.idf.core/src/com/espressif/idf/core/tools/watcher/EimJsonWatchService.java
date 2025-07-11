@@ -14,8 +14,9 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.core.runtime.Platform;
@@ -36,8 +37,7 @@ public class EimJsonWatchService extends Thread
 	private final List<EimJsonChangeListener> eimJsonChangeListeners = new CopyOnWriteArrayList<>();
 	private volatile boolean running = true;
 	private volatile boolean paused = false;
-	private final ConcurrentHashMap<Path, Long> debounceMap = new ConcurrentHashMap<>();
-	private static final long DEBOUNCE_INTERVAL_MS = 300;
+	private volatile Instant lastModifiedTime;
 
 	private EimJsonWatchService() throws IOException
 	{
@@ -148,8 +148,6 @@ public class EimJsonWatchService extends Thread
 				break;
 			}
 
-			long now = System.currentTimeMillis();
-
 			for (WatchEvent<?> event : key.pollEvents())
 			{
 				if (event.kind() == StandardWatchEventKinds.OVERFLOW)
@@ -161,16 +159,26 @@ public class EimJsonWatchService extends Thread
 				if (context instanceof Path path && path.toString().equals(EimConstants.EIM_JSON))
 				{
 					Path fullPath = watchDirectoryPath.resolve(path);
-					Long lastProcessed = debounceMap.get(fullPath);
-
-					if (lastProcessed == null || (now - lastProcessed) > DEBOUNCE_INTERVAL_MS)
+					try
 					{
-						debounceMap.put(fullPath, now);
+						Instant currentModified = Files.getLastModifiedTime(fullPath).toInstant()
+								.truncatedTo(ChronoUnit.SECONDS);
+
+						if (lastModifiedTime != null && currentModified.compareTo(lastModifiedTime) <= 0)
+						{
+							continue; // skip duplicate or same-second event
+						}
+
+						lastModifiedTime = currentModified;
 
 						for (EimJsonChangeListener listener : eimJsonChangeListeners)
 						{
 							listener.onJsonFileChanged(fullPath, paused);
 						}
+					}
+					catch (IOException e)
+					{
+						Logger.log(e);
 					}
 				}
 			}
