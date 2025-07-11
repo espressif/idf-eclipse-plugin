@@ -11,10 +11,15 @@ import java.util.List;
 
 import org.eclipse.jface.bindings.keys.KeyStroke;
 import org.eclipse.jface.bindings.keys.ParseException;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotStyledText;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -120,6 +125,37 @@ public class IDFProjectLspCdtFunctionalityTest
 
 		assertTrue("Expected error marker not found after inserting invalid code", //$NON-NLS-1$
 				problemsView.bot().tree().rowCount() != 0);
+	}
+
+	@Test
+	public void test_SyntaxHighlighting_ColorsApplied()
+	{
+		openMainCFile();
+
+		SWTBotEditor botEditor = bot.editorByTitle("main.c"); //$NON-NLS-1$
+		botEditor.setFocus();
+		TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
+		bot.sleep(2000); // allow LSP highlight to apply
+
+		SWTBotStyledText botStyledText = botEditor.toTextEditor().getStyledText();
+		StyledText styledText = botStyledText.widget;
+
+		final StyleRange[][] styleRangesHolder = new StyleRange[1][];
+		Display.getDefault().syncExec(() -> styleRangesHolder[0] = styledText.getStyleRanges());
+
+		StyleRange[] ranges = styleRangesHolder[0];
+
+		boolean foundColoredText = false;
+		for (StyleRange range : ranges)
+		{
+			if (range.foreground != null || range.background != null || range.fontStyle != SWT.NORMAL)
+			{
+				foundColoredText = true;
+				break;
+			}
+		}
+
+		assertTrue("Expected some styled (highlighted) text ranges, but none were found", foundColoredText); //$NON-NLS-1$
 	}
 
 	private static void openMainCFile()
