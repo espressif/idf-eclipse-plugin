@@ -27,10 +27,10 @@ public class EspConfigParserTest
 	public void setup() throws IOException
 	{
 		// Copy test JSON resource to a temp file
-		InputStream in = getClass().getClassLoader().getResourceAsStream("esp-config.json");
-		assertNotNull(in, "test-esp-config.json not found in resources");
+		InputStream in = getClass().getClassLoader().getResourceAsStream("esp-config.json"); //$NON-NLS-1$
+		assertNotNull(in, "test-esp-config.json not found in resources"); //$NON-NLS-1$
 
-		tempJsonFile = File.createTempFile("esp-config", ".json");
+		tempJsonFile = File.createTempFile("esp-config", ".json"); //$NON-NLS-1$ //$NON-NLS-2$
 		tempJsonFile.deleteOnExit();
 
 		try (OutputStream out = new FileOutputStream(tempJsonFile))
@@ -47,8 +47,8 @@ public class EspConfigParserTest
 		Set<String> targets = parser.getTargets();
 
 		assertNotNull(targets);
-		assertTrue(targets.contains("esp32"));
-		assertTrue(targets.contains("esp32c3"));
+		assertTrue(targets.contains("esp32")); //$NON-NLS-1$
+		assertTrue(targets.contains("esp32c3")); //$NON-NLS-1$
 		assertEquals(9, targets.size());
 	}
 
@@ -60,7 +60,7 @@ public class EspConfigParserTest
 		List<String> voltages = parser.getEspFlashVoltages();
 
 		assertNotNull(voltages);
-		assertEquals(List.of("default", "3.3", "1.8"), voltages);
+		assertEquals(List.of("default", "3.3", "1.8"), voltages); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	@Test
@@ -68,13 +68,13 @@ public class EspConfigParserTest
 	{
 		EspConfigParser parser = new EspConfigParser(tempJsonFile.getAbsolutePath());
 
-		Map<String, List<String>> configs = parser.getBoardsConfigs("esp32s3");
+		Map<String, List<String>> configs = parser.getBoardsConfigs("esp32s3"); //$NON-NLS-1$
 
 		assertNotNull(configs);
 		assertEquals(3, configs.size());
-		assertTrue(configs.containsKey("ESP32-S3 chip (via builtin USB-JTAG)"));
-		assertTrue(configs.containsKey("ESP32-S3 chip (via ESP-PROG)"));
-		assertTrue(configs.containsKey("ESP32-S3 chip (via ESP-PROG-2)"));
+		assertTrue(configs.containsKey("ESP32-S3 chip (via builtin USB-JTAG)")); //$NON-NLS-1$
+		assertTrue(configs.containsKey("ESP32-S3 chip (via ESP-PROG)")); //$NON-NLS-1$
+		assertTrue(configs.containsKey("ESP32-S3 chip (via ESP-PROG-2)")); //$NON-NLS-1$
 	}
 
 	@Test
