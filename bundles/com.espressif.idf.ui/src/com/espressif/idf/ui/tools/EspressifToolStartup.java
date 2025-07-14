@@ -40,7 +40,6 @@ import com.espressif.idf.core.tools.EimConstants;
 import com.espressif.idf.core.tools.EimLoader;
 import com.espressif.idf.core.tools.ToolInitializer;
 import com.espressif.idf.core.tools.vo.EimJson;
-import com.espressif.idf.core.tools.watcher.EimJsonStateChecker;
 import com.espressif.idf.core.tools.watcher.EimJsonWatchService;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
@@ -79,9 +78,7 @@ public class EspressifToolStartup implements IStartup
 		idfEnvironmentVariables = new IDFEnvironmentVariables();
 		eimLoader = new EimLoader(new StartupClassDownloadEimDownloadListener(), standardConsoleStream,
 				errorConsoleStream, Display.getDefault());
-		EimJsonStateChecker stateChecker = new EimJsonStateChecker(preferences);
 		eimJsonUiChangeHandler = new EimJsonUiChangeHandler(preferences);
-		stateChecker.updateLastSeenTimestamp();
 		EimJsonWatchService.getInstance().addEimJsonChangeListener(eimJsonUiChangeHandler);
 
 		if (!toolInitializer.isEimInstalled() && !toolInitializer.isEimIdfJsonPresent())
@@ -121,10 +118,6 @@ public class EspressifToolStartup implements IStartup
 			toolInitializer.findAndSetEimPath();
 		}
 
-		if (stateChecker.wasModifiedSinceLastRun())
-		{
-			showEimJsonStateChangeNotification();
-		}
 	}
 
 	private boolean checkIfEimPathMacOsIsInApplications()
@@ -217,7 +210,7 @@ public class EspressifToolStartup implements IStartup
 		}, ignored -> {
 		});
 	}
-	
+
 	private void closeEspIdfManager()
 	{
 		Display.getDefault().asyncExec(() -> {
@@ -242,12 +235,6 @@ public class EspressifToolStartup implements IStartup
 				}
 			}
 		});
-	}
-
-
-	private void showEimJsonStateChangeNotification()
-	{
-		eimJsonUiChangeHandler.displayMessageToUser();
 	}
 
 	private void notifyMissingTools()
