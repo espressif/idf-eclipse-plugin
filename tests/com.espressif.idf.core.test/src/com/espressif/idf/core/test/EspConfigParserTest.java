@@ -1,0 +1,87 @@
+package com.espressif.idf.core.test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.espressif.idf.core.util.EspConfigParser;
+
+public class EspConfigParserTest
+{
+
+	private File tempJsonFile;
+
+	@BeforeEach
+	public void setup() throws IOException
+	{
+		// Copy test JSON resource to a temp file
+		InputStream in = getClass().getClassLoader().getResourceAsStream("esp-config.json");
+		assertNotNull(in, "test-esp-config.json not found in resources");
+
+		tempJsonFile = File.createTempFile("esp-config", ".json");
+		tempJsonFile.deleteOnExit();
+
+		try (OutputStream out = new FileOutputStream(tempJsonFile))
+		{
+			in.transferTo(out);
+		}
+	}
+
+	@Test
+	public void testGetTargets()
+	{
+		EspConfigParser parser = new EspConfigParser(tempJsonFile.getAbsolutePath());
+
+		Set<String> targets = parser.getTargets();
+
+		assertNotNull(targets);
+		assertTrue(targets.contains("esp32"));
+		assertTrue(targets.contains("esp32c3"));
+		assertEquals(9, targets.size());
+	}
+
+	@Test
+	public void testGetEspFlashVoltages()
+	{
+		EspConfigParser parser = new EspConfigParser(tempJsonFile.getAbsolutePath());
+
+		List<String> voltages = parser.getEspFlashVoltages();
+
+		assertNotNull(voltages);
+		assertEquals(List.of("default", "3.3", "1.8"), voltages);
+	}
+
+	@Test
+	public void testGetBoardsConfigsForEsp32s3()
+	{
+		EspConfigParser parser = new EspConfigParser(tempJsonFile.getAbsolutePath());
+
+		Map<String, List<String>> configs = parser.getBoardsConfigs("esp32s3");
+
+		assertNotNull(configs);
+		assertEquals(3, configs.size());
+		assertTrue(configs.containsKey("ESP32-S3 chip (via builtin USB-JTAG)"));
+		assertTrue(configs.containsKey("ESP32-S3 chip (via ESP-PROG)"));
+		assertTrue(configs.containsKey("ESP32-S3 chip (via ESP-PROG-2)"));
+	}
+
+	@Test
+	public void testHasBoardConfigJson()
+	{
+		EspConfigParser parser = new EspConfigParser(tempJsonFile.getAbsolutePath());
+
+		assertTrue(parser.hasBoardConfigJson());
+	}
+}
