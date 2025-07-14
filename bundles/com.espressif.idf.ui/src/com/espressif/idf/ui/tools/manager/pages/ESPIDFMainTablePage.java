@@ -119,7 +119,7 @@ public class ESPIDFMainTablePage
 			try
 			{
 				java.awt.Desktop.getDesktop()
-						.browse(new java.net.URI("https://dl.espressif.com/dl/esp-idf/support-periods.svg"));
+						.browse(new java.net.URI("https://dl.espressif.com/dl/esp-idf/support-periods.svg")); //$NON-NLS-1$
 			}
 			catch (Exception ex)
 			{
@@ -158,8 +158,8 @@ public class ESPIDFMainTablePage
 			return;
 		for (TableItem item : tableViewer.getTable().getItems())
 		{
-			String EDITOR_KEY = "action_editor";
-			String EDITOR_KEY_LAST = "action_editor_last";
+			String EDITOR_KEY = "action_editor"; //$NON-NLS-1$
+			String EDITOR_KEY_LAST = "action_editor_last"; //$NON-NLS-1$
 			TableEditor editorFirst = (TableEditor) item.getData(EDITOR_KEY);
 			TableEditor editorLast = (TableEditor) item.getData(EDITOR_KEY_LAST);
 			if (editorFirst != null)
@@ -205,7 +205,7 @@ public class ESPIDFMainTablePage
 	private Composite createIdfTable(Composite parent)
 	{
 		Group idfToolsGroup = new Group(parent, SWT.SHADOW_ETCHED_IN);
-		idfToolsGroup.setText("IDF Tools");
+		idfToolsGroup.setText("IDF Tools"); //$NON-NLS-1$
 		idfToolsGroup.setLayout(new GridLayout(2, false));
 		idfToolsGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 
@@ -415,7 +415,7 @@ public class ESPIDFMainTablePage
 			TableItem item = (TableItem) cell.getItem();
 
 			// using a unique key to store the editor to avoid creating multiple editors for the same cell
-			String EDITOR_KEY = "action_editor";
+			String EDITOR_KEY = "action_editor"; //$NON-NLS-1$
 			if (item.getData(EDITOR_KEY) != null)
 			{
 				return; // This cell already has an editor
@@ -448,7 +448,7 @@ public class ESPIDFMainTablePage
 			TableItem item = (TableItem) cell.getItem();
 			Rectangle cellBounds = cell.getBounds();
 			// using a unique key to store the editor to avoid creating multiple editors for the same cell
-			String EDITOR_KEY = "action_editor_last";
+			String EDITOR_KEY = "action_editor_last"; //$NON-NLS-1$
 			if (item.getData(EDITOR_KEY) != null)
 			{
 				return; // This cell already has an editor
