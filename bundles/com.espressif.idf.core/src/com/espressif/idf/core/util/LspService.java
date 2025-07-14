@@ -47,6 +47,10 @@ public class LspService
 
 	public void updateAdditionalOptions(String additionalOptions)
 	{
+		if (additionalOptions == null)
+		{
+			return;
+		}
 		String qualifier = configuration.qualifier();
 		InstanceScope.INSTANCE.getNode(qualifier).put(ClangdMetadata.Predefined.additionalOptions.identifer(),
 				additionalOptions);
@@ -54,18 +58,26 @@ public class LspService
 
 	public void updateLspQueryDrivers()
 	{
+		String toolchainPath = IDFUtil.getToolchainExePathForActiveTarget();
 		String qualifier = configuration.qualifier();
+		if (toolchainPath == null)
+		{
+			return;
+		}
 		// By passing --query-driver argument to clangd helps to resolve the
 		// cross-compiler toolchain headers.
-		String toolchainPath = IDFUtil.getToolchainExePathForActiveTarget();
 		InstanceScope.INSTANCE.getNode(qualifier).put(ClangdMetadata.Predefined.queryDriver.identifer(), toolchainPath);
 	}
 
 	public void updateClangdPath()
 	{
+		String clangdPath = IDFUtil.findCommandFromBuildEnvPath(ILSPConstants.CLANGD_EXECUTABLE);
+		if (clangdPath == null)
+		{
+			return;
+		}
 		String qualifier = configuration.qualifier();
-		InstanceScope.INSTANCE.getNode(qualifier).put(ClangdMetadata.Predefined.clangdPath.identifer(),
-				IDFUtil.findCommandFromBuildEnvPath(ILSPConstants.CLANGD_EXECUTABLE));
+		InstanceScope.INSTANCE.getNode(qualifier).put(ClangdMetadata.Predefined.clangdPath.identifer(), clangdPath);
 	}
 
 	public void updateCompileCommandsDir(String buildDir)
