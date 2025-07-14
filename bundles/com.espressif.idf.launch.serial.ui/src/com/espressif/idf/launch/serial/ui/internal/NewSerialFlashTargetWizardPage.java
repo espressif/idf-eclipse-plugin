@@ -47,9 +47,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 
 import com.espressif.idf.core.DefaultBoardProvider;
 import com.espressif.idf.core.LaunchBarTargetConstants;
@@ -341,6 +338,11 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 		GridData boardComboGridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		boardComboGridData.minimumWidth = 250;
 		fBoardCombo.setLayoutData(boardComboGridData);
+		String selectedTargetString = getIDFTarget();
+		Map<String, List<String>> boardConfigsMap = parser.getBoardsConfigs(selectedTargetString);
+		fBoardCombo.setItems(boardConfigsMap.keySet().toArray(new String[0]));
+		fBoardCombo.select(
+				new DefaultBoardProvider().getIndexOfDefaultBoard(selectedTargetString, fBoardCombo.getItems()));
 	}
 
 	@Override

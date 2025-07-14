@@ -1,11 +1,10 @@
 /*******************************************************************************
- * Copyright 2018-2019 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Copyright 2025 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
 package com.espressif.idf.core.util;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,124 +14,126 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
+import com.google.gson.Gson;
 
 public class EspConfigParser
 {
+
 	private final String espConfigPath;
+	private final Gson gson = new Gson();
+	private final EspConfig config;
 
 	public EspConfigParser()
 	{
-		espConfigPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS)
+		this.espConfigPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS)
 				+ "/esp-config.json"; //$NON-NLS-1$
+		this.config = loadConfig();
 	}
 
-	@SuppressWarnings("unchecked")
-	public Set<String> getTargets()
+	public EspConfigParser(String espConfigPath)
 	{
-		Set<String> targets = new LinkedHashSet<String>();
-		JSONParser jsonParser = new JSONParser();
-		try (FileReader reader = new FileReader(espConfigPath))
+		this.espConfigPath = espConfigPath;
+		this.config = loadConfig();
+	}
+
+	private EspConfig loadConfig()
+	{
+		File file = new File(espConfigPath);
+		if (!file.exists())
 		{
-			JSONObject json = (JSONObject) jsonParser.parse(reader);
-			JSONArray targetsArray = (JSONArray) json.get("targets"); //$NON-NLS-1$
-			targetsArray.forEach(target -> targets.add((String) ((JSONObject) target).get("id"))); //$NON-NLS-1$
-			reader.close();
+			Logger.log("esp-config.json not found at: " + espConfigPath); //$NON-NLS-1$
+			return null;
 		}
-		catch (FileNotFoundException e)
+
+		try (FileReader reader = new FileReader(file))
 		{
-			Logger.log(e);
+			return gson.fromJson(reader, EspConfig.class);
 		}
 		catch (IOException e)
 		{
 			Logger.log(e);
+			return null;
 		}
-		catch (ParseException e)
-		{
-			Logger.log(e);
-		}
+	}
 
+	public Set<String> getTargets()
+	{
+		Set<String> targets = new LinkedHashSet<>();
+		if (config == null || config.targets == null)
+			return targets;
+
+		for (Target target : config.targets)
+		{
+			if (target.id != null)
+			{
+				targets.add(target.id);
+			}
+		}
 		return targets;
 	}
 
-	@SuppressWarnings("unchecked")
 	public List<String> getEspFlashVoltages()
 	{
-		List<String> voltages = new ArrayList<String>();
-		JSONObject voltageOption;
-		JSONParser jsonParser = new JSONParser();
-		try (FileReader reader = new FileReader(espConfigPath))
-		{
-			JSONObject json = (JSONObject) jsonParser.parse(reader);
-			JSONArray optionsArray = (JSONArray) json.get("options"); //$NON-NLS-1$
-			voltageOption = (JSONObject) optionsArray.stream()
-					.filter(option -> ((JSONObject) option).get("name").equals("ESP_FLASH_VOLTAGE")).findFirst() //$NON-NLS-1$ //$NON-NLS-2$
-					.orElse(null);
-			((JSONArray) voltageOption.get("values")).forEach(value -> voltages.add(value.toString())); //$NON-NLS-1$
-			reader.close();
-		}
-		catch (FileNotFoundException e)
-		{
-			Logger.log(e);
-		}
-		catch (IOException e)
-		{
-			Logger.log(e);
-		}
-		catch (ParseException e)
-		{
-			Logger.log(e);
-		}
+		List<String> voltages = new ArrayList<>();
+		if (config == null || config.options == null)
+			return voltages;
 
+		for (Option option : config.options)
+		{
+			if ("ESP_FLASH_VOLTAGE".equals(option.name) && option.values != null) //$NON-NLS-1$
+			{
+				voltages.addAll(option.values);
+				break;
+			}
+		}
 		return voltages;
-
 	}
 
-	@SuppressWarnings("unchecked")
-	public Map<String, JSONArray> getBoardsConfigs(String target)
+	public Map<String, List<String>> getBoardsConfigs(String target)
 	{
-		Map<String, JSONArray> boardsConfigs = new HashMap<>();
-		List<JSONObject> objects = new ArrayList<>();
-		JSONParser jsonParser = new JSONParser();
-		try (FileReader reader = new FileReader(espConfigPath))
-		{
-			JSONObject json = (JSONObject) jsonParser.parse(reader);
-			JSONArray boardsArray = (JSONArray) json.get("boards"); //$NON-NLS-1$
-			boardsArray.forEach(board -> objects.add((JSONObject) board));
-			for (JSONObject object : objects)
-			{
-				if (object.get("target").equals(target)) //$NON-NLS-1$
-				{
-					boardsConfigs.put((String) object.get("name"), //$NON-NLS-1$
-							((JSONArray) object.get("config_files"))); //$NON-NLS-1$
-				}
-			}
-			reader.close();
-		}
-		catch (FileNotFoundException e)
-		{
-			Logger.log(e);
-		}
-		catch (IOException e)
-		{
-			Logger.log(e);
-		}
-		catch (ParseException e)
-		{
-			Logger.log(e);
-		}
+		Map<String, List<String>> boardsConfigs = new HashMap<>();
+		if (config == null || config.boards == null)
+			return boardsConfigs;
 
+		for (Board board : config.boards)
+		{
+			if (target.equals(board.target) && board.name != null && board.config_files != null)
+			{
+				boardsConfigs.put(board.name, board.config_files);
+			}
+		}
 		return boardsConfigs;
 	}
 
 	public boolean hasBoardConfigJson()
 	{
 		return new File(espConfigPath).exists();
+	}
+
+	private static class EspConfig
+	{
+		List<Target> targets;
+		List<Option> options;
+		List<Board> boards;
+	}
+
+	private static class Target
+	{
+		String id;
+	}
+
+	private static class Option
+	{
+		String name;
+		List<String> values;
+	}
+
+	private static class Board
+	{
+		String name;
+		String target;
+		List<String> config_files;
 	}
 }
