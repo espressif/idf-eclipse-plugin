@@ -186,6 +186,11 @@ public class ESPIDFMainTablePage
 		try
 		{
 			eimJson = eimIdfConfiguratinParser.getEimJson(true);
+			// eimJson is null if EIM was closed before tool installation completed
+			if (eimJson == null)
+			{
+				return;
+			}
 		}
 		catch (IOException e)
 		{
