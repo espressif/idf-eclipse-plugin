@@ -5,8 +5,17 @@
 package com.espressif.idf.core.tools.watcher;
 
 import java.io.IOException;
-import java.nio.file.*;
-import java.nio.file.attribute.FileAttribute;
+import java.nio.file.ClosedWatchServiceException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -28,8 +37,8 @@ public class EimJsonWatchService extends Thread
 	private final List<EimJsonChangeListener> eimJsonChangeListeners = new CopyOnWriteArrayList<>();
 	private volatile boolean running = true;
 	private volatile boolean paused = false;
-	
-	
+	private volatile Instant lastModifiedTime;
+
 	private EimJsonWatchService() throws IOException
 	{
 		String directoryPathString = Platform.getOS().equals(Platform.OS_WIN32) ? EimConstants.EIM_WIN_DIR
@@ -80,38 +89,38 @@ public class EimJsonWatchService extends Thread
 			eimJsonChangeListeners.add(listener);
 		}
 	}
-	
+
 	public void removeAllListeners()
 	{
 		eimJsonChangeListeners.clear();
 	}
-	
+
 	public static void withPausedListeners(Runnable task)
 	{
 		EimJsonWatchService watchService = getInstance();
 		boolean wasPaused = watchService.paused;
 		watchService.pauseListeners();
-		
+
 		try
 		{
-			task.run();			
+			task.run();
 		}
 		catch (Exception e)
 		{
 			Logger.log(e);
-		}
-		finally {
+		} finally
+		{
 			if (!wasPaused)
 				watchService.unpauseListeners();
 		}
 	}
-	
+
 	public void pauseListeners()
 	{
 		Logger.log("Listeners are paused"); //$NON-NLS-1$
 		paused = true;
 	}
-	
+
 	public void unpauseListeners()
 	{
 		Logger.log("Listeners are resumed"); //$NON-NLS-1$
@@ -150,9 +159,26 @@ public class EimJsonWatchService extends Thread
 				if (context instanceof Path path && path.toString().equals(EimConstants.EIM_JSON))
 				{
 					Path fullPath = watchDirectoryPath.resolve(path);
-					for (EimJsonChangeListener listener : eimJsonChangeListeners)
+					try
 					{
-						listener.onJsonFileChanged(fullPath, paused);
+						Instant currentModified = Files.getLastModifiedTime(fullPath).toInstant()
+								.truncatedTo(ChronoUnit.SECONDS);
+
+						if (lastModifiedTime != null && currentModified.compareTo(lastModifiedTime) <= 0)
+						{
+							continue; // skip duplicate or same-second event
+						}
+
+						lastModifiedTime = currentModified;
+
+						for (EimJsonChangeListener listener : eimJsonChangeListeners)
+						{
+							listener.onJsonFileChanged(fullPath, paused);
+						}
+					}
+					catch (IOException e)
+					{
+						Logger.log(e);
 					}
 				}
 			}
