@@ -256,7 +256,6 @@ public class EspressifToolStartup implements IStartup
 
 	private void downloadAndLaunchEim()
 	{
-		closeWelcomePage();
 		Job downloadJob = new Job("Download and Launch EIM")
 		{
 
@@ -269,25 +268,6 @@ public class EspressifToolStartup implements IStartup
 		};
 		downloadJob.setUser(true);
 		downloadJob.schedule();
-	}
-
-	private void closeWelcomePage()
-	{
-		Display.getDefault().asyncExec(() -> {
-			IWorkbench workbench = PlatformUI.getWorkbench();
-			if (workbench != null)
-			{
-				IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
-				if (window != null)
-				{
-					IIntroManager introManager = workbench.getIntroManager();
-					if (introManager.getIntro() != null)
-					{
-						introManager.closeIntro(introManager.getIntro());
-					}
-				}
-			}
-		});
 	}
 
 	private MessageConsoleStream getConsoleStream(boolean errorStream)
