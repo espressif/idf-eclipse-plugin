@@ -17,6 +17,7 @@ import org.eclipse.lsp4e.LanguageServiceAccessor;
 import org.eclipse.ui.PlatformUI;
 
 import com.espressif.idf.core.ILSPConstants;
+import com.espressif.idf.core.logging.Logger;
 
 @SuppressWarnings("restriction")
 public class LspService
@@ -49,6 +50,7 @@ public class LspService
 	{
 		if (additionalOptions == null)
 		{
+			Logger.log("Skipped updating additional options: value is null"); //$NON-NLS-1$
 			return;
 		}
 		String qualifier = configuration.qualifier();
@@ -62,6 +64,7 @@ public class LspService
 		String qualifier = configuration.qualifier();
 		if (toolchainPath == null)
 		{
+			Logger.log("Toolchain path not found. Skipping update of --query-driver for LSP"); //$NON-NLS-1$
 			return;
 		}
 		// By passing --query-driver argument to clangd helps to resolve the
@@ -74,6 +77,7 @@ public class LspService
 		String clangdPath = IDFUtil.findCommandFromBuildEnvPath(ILSPConstants.CLANGD_EXECUTABLE);
 		if (clangdPath == null)
 		{
+			Logger.log("clangd executable not found in build environment path. Skipping clangd path update."); //$NON-NLS-1$
 			return;
 		}
 		String qualifier = configuration.qualifier();
