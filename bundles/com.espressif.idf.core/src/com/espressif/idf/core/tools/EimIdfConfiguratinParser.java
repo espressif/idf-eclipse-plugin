@@ -42,12 +42,7 @@ public class EimIdfConfiguratinParser
 
 	public EimJson getEimJson(boolean reload) throws IOException
 	{
-		if (reload)
-		{
-			load();
-		}
-
-		if (eimJson == null)
+		if (reload || eimJson == null)
 		{
 			load();
 		}
