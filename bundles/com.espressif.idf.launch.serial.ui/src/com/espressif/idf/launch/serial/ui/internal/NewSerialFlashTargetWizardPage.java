@@ -44,7 +44,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.json.simple.JSONArray;
 
 import com.espressif.idf.core.DefaultBoardProvider;
 import com.espressif.idf.core.LaunchBarTargetConstants;
@@ -265,7 +264,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 		fTargetLbl.setText(Messages.configBoardLabel);
 		fBoardCombo = new Combo(jtaGroup, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
 		String selectedTargetString = getIDFTarget();
-		Map<String, JSONArray> boardConfigsMap = parser.getBoardsConfigs(selectedTargetString);
+		Map<String, List<String>> boardConfigsMap = parser.getBoardsConfigs(selectedTargetString);
 		fBoardCombo.setItems(boardConfigsMap.keySet().toArray(new String[0]));
 		fBoardCombo.select(
 				new DefaultBoardProvider().getIndexOfDefaultBoard(selectedTargetString, fBoardCombo.getItems()));
