@@ -30,6 +30,7 @@ import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
+import com.espressif.idf.core.util.StringUtil;
 
 public class NewSerialFlashTargetWizard extends LaunchTargetWizard
 {
@@ -65,6 +66,9 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard
 		wc.setAttribute(LaunchBarTargetConstants.TARGET, page.getIDFTarget());
 		wc.setAttribute(LaunchBarTargetConstants.BOARD, page.getBoard());
 		wc.setAttribute(LaunchBarTargetConstants.FLASH_VOLTAGE, page.getVoltage());
+
+		setOpenOCDAdaptorLocation(wc);
+
 		wc.save();
 		storeLastUsedSerialPort();
 
@@ -81,6 +85,20 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard
 		};
 		job.schedule();
 		return true;
+	}
+
+	private void setOpenOCDAdaptorLocation(ILaunchTargetWorkingCopy wc)
+	{
+		String usbLocation = page.getSelectedBoardUsbLocation();
+		if (StringUtil.isEmpty(usbLocation))
+		{
+			wc.setAttribute(IDFLaunchConstants.OPENOCD_USB_LOCATION, null); // nullify existing one
+		}
+		else if (usbLocation.startsWith("usb://")) //$NON-NLS-1$
+		{
+			usbLocation = usbLocation.substring("usb://".length()); //$NON-NLS-1$
+			wc.setAttribute(IDFLaunchConstants.OPENOCD_USB_LOCATION, usbLocation);
+		}
 	}
 
 	private void storeLastUsedSerialPort()
