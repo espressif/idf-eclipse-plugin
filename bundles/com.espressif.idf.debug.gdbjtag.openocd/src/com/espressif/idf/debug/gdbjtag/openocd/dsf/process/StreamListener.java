@@ -6,11 +6,14 @@ package com.espressif.idf.debug.gdbjtag.openocd.dsf.process;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.util.List;
 
+import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IFlushableStreamMonitor;
 import org.eclipse.debug.core.model.IProcess;
@@ -50,11 +53,24 @@ public class StreamListener implements IStreamListener
 	private boolean fStreamClosed = false;
 	private List<ReHintPair> reHintsList;
 
+	private String outputFile;
+	private PrintWriter fileWriter;
+
 	public StreamListener(IProcess iProcess, IStreamMonitor errorStreamMonitor, IStreamMonitor outputStreamMonitor,
-			Charset charset)
+			Charset charset, String outputFile, boolean append)
 	{
 		fErrorStreamMonitor = errorStreamMonitor;
 		fOutputStreamMonitor = outputStreamMonitor;
+		this.outputFile = outputFile;
+		String resolvedOutputFile = resolveOutputFilePath(outputFile);
+		if (resolvedOutputFile != null && !resolvedOutputFile.isEmpty()) {
+			try {
+				fileWriter = new PrintWriter(new FileWriter(resolvedOutputFile, append), true);
+			} catch (IOException e) {
+				Logger.log(e);
+				fileWriter = null;
+			}
+		}
 
 		idfProcessConsole = IdfProcessConsoleFactory.showAndActivateConsole(charset);
 		// Clear the console only at the beginning, when OpenOCD starts
@@ -112,6 +128,9 @@ public class StreamListener implements IStreamListener
 		{
 			while ((line = bufferedReader.readLine()) != null)
 			{
+				if (outputFile != null && !outputFile.isEmpty() && fileWriter != null) {
+					fileWriter.println(line);
+				}
 
 				if (line.startsWith("Error:") && fConsoleErrorOutputStream != null) //$NON-NLS-1$
 				{
@@ -186,5 +205,38 @@ public class StreamListener implements IStreamListener
 		}
 		fErrorStreamMonitor = null;
 		fOutputStreamMonitor = null;
+		if (fileWriter != null) {
+			fileWriter.close();
+			fileWriter = null;
+		}
+	}
+
+	/**
+	 * Resolves the output file path, expands variables, handles directory case, and ensures file/parent directories exist.
+	 */
+	private static String resolveOutputFilePath(String outputFile) {
+		if (outputFile == null || outputFile.isEmpty()) {
+			return null;
+		}
+		try {
+			// Expand Eclipse variables (e.g., ${workspace_loc:...})
+			String expanded = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(outputFile);
+			File file = new File(expanded);
+			if (file.isDirectory() || (!file.exists() && expanded.endsWith(File.separator))) {
+				// If it's a directory or ends with a separator, append openocd.log
+				file = new File(file, "openocd.log");
+			}
+			File parent = file.getParentFile();
+			if (parent != null && !parent.exists()) {
+				parent.mkdirs();
+			}
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			return file.getAbsolutePath();
+		} catch (Exception e) {
+			Logger.log(e);
+			return null;
+		}
 	}
 }
