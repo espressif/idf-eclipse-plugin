@@ -93,6 +93,9 @@ You can save your debug logs to an external file. To do this:
 .. note::   
     Path to the file can be relative if it's located in the workspace (see screenshot below)
 
+.. note::
+    When specifying a directory path (ending with a separator like ``/`` or ``\``), the system will automatically append ``openocd.log`` as the filename. For example, entering ``/tmp/logs/`` will create the file as ``/tmp/logs/openocd.log``.
+
  .. image:: ../../media/OpenOCDDebug_13.png
 
 Preferences for OpenOCD Configuration

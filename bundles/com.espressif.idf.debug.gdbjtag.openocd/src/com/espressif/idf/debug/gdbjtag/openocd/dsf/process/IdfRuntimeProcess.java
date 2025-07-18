@@ -10,13 +10,13 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.Map;
 
 import org.eclipse.cdt.dsf.gdb.launching.GDBProcess;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IStreamsProxy;
-import org.eclipse.debug.core.model.RuntimeProcess;
 import org.eclipse.debug.internal.core.NullStreamsProxy;
+import org.eclipse.debug.ui.IDebugUIConstants;
 
-import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.dsf.process.monitors.StreamsProxy;
 
 /**
@@ -60,7 +60,32 @@ public class IdfRuntimeProcess extends GDBProcess
 				DebugPlugin.log(e);
 			}
 		}
-		StreamsProxy streamsProxy = new StreamsProxy(this, getSystemProcess(), charset, getLabel());
+		// Use Eclipse Common tab attribute for output file and append
+		final String outputFileName = getAttributeSafe(getLaunch().getLaunchConfiguration()::getAttribute,
+				IDebugUIConstants.ATTR_CAPTURE_IN_FILE, "");
+
+		final boolean append = getAttributeSafe(getLaunch().getLaunchConfiguration()::getAttribute,
+				IDebugUIConstants.ATTR_APPEND_TO_FILE, false);
+		StreamsProxy streamsProxy = new StreamsProxy(this, getSystemProcess(), charset, getLabel(), outputFileName, append);
 		return streamsProxy;
+	}
+	
+	private <T> T getAttributeSafe(AttributeGetter<T> getter, String attribute, T defaultValue)
+	{
+		try
+		{
+			return getter.get(attribute, defaultValue);
+		}
+		catch (CoreException e)
+		{
+			DebugPlugin.log(e);
+			return defaultValue;
+		}
+	}
+
+	@FunctionalInterface
+	interface AttributeGetter<T>
+	{
+		T get(String attribute, T defaultValue) throws CoreException;
 	}
 }
