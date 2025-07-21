@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.List;
 
@@ -54,7 +55,7 @@ public class StreamListener implements IStreamListener
 	private List<ReHintPair> reHintsList;
 
 	private String outputFile;
-	private PrintWriter fileWriter;
+	private boolean append;
 
 	public StreamListener(IProcess iProcess, IStreamMonitor errorStreamMonitor, IStreamMonitor outputStreamMonitor,
 			Charset charset, String outputFile, boolean append)
@@ -62,15 +63,7 @@ public class StreamListener implements IStreamListener
 		fErrorStreamMonitor = errorStreamMonitor;
 		fOutputStreamMonitor = outputStreamMonitor;
 		this.outputFile = outputFile;
-		String resolvedOutputFile = resolveOutputFilePath(outputFile);
-		if (resolvedOutputFile != null && !resolvedOutputFile.isEmpty()) {
-			try {
-				fileWriter = new PrintWriter(new FileWriter(resolvedOutputFile, append), true);
-			} catch (IOException e) {
-				Logger.log(e);
-				fileWriter = null;
-			}
-		}
+		this.append = append;
 
 		idfProcessConsole = IdfProcessConsoleFactory.showAndActivateConsole(charset);
 		// Clear the console only at the beginning, when OpenOCD starts
@@ -124,13 +117,15 @@ public class StreamListener implements IStreamListener
 	public void streamAppended(String text, IStreamMonitor monitor)
 	{
 		String line;
-		try (BufferedReader bufferedReader = new BufferedReader(new StringReader(text)))
+		String resolvedOutputFilePath = resolveOutputFilePath(this.outputFile);
+		try (BufferedReader bufferedReader = new BufferedReader(new StringReader(text));
+				PrintWriter fileWriter = (resolvedOutputFilePath != null && !resolvedOutputFilePath.isEmpty())
+						? new PrintWriter(new FileWriter(resolvedOutputFilePath, append), true)
+						: new PrintWriter(Writer.nullWriter());)
 		{
 			while ((line = bufferedReader.readLine()) != null)
 			{
-				if (outputFile != null && !outputFile.isEmpty() && fileWriter != null) {
-					fileWriter.println(line);
-				}
+				fileWriter.println(line);
 
 				if (line.startsWith("Error:") && fConsoleErrorOutputStream != null) //$NON-NLS-1$
 				{
@@ -205,36 +200,42 @@ public class StreamListener implements IStreamListener
 		}
 		fErrorStreamMonitor = null;
 		fOutputStreamMonitor = null;
-		if (fileWriter != null) {
-			fileWriter.close();
-			fileWriter = null;
-		}
 	}
 
 	/**
-	 * Resolves the output file path, expands variables, handles directory case, and ensures file/parent directories exist.
+	 * Resolves the output file path, expands variables, handles directory case, and ensures file/parent directories
+	 * exist.
 	 */
-	private static String resolveOutputFilePath(String outputFile) {
-		if (outputFile == null || outputFile.isEmpty()) {
+	private static String resolveOutputFilePath(String outputFile)
+	{
+		if (outputFile == null || outputFile.isEmpty())
+		{
 			return null;
 		}
-		try {
+		try
+		{
 			// Expand Eclipse variables (e.g., ${workspace_loc:...})
-			String expanded = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(outputFile);
+			String expanded = VariablesPlugin.getDefault().getStringVariableManager()
+					.performStringSubstitution(outputFile);
 			File file = new File(expanded);
-			if (file.isDirectory() || (!file.exists() && expanded.endsWith(File.separator))) {
+			if (file.isDirectory() || (!file.exists() && expanded.endsWith(File.separator)))
+			{
 				// If it's a directory or ends with a separator, append openocd.log
 				file = new File(file, "openocd.log");
 			}
 			File parent = file.getParentFile();
-			if (parent != null && !parent.exists()) {
+			if (parent != null && !parent.exists())
+			{
 				parent.mkdirs();
 			}
-			if (!file.exists()) {
+			if (!file.exists())
+			{
 				file.createNewFile();
 			}
 			return file.getAbsolutePath();
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			Logger.log(e);
 			return null;
 		}
