@@ -38,6 +38,12 @@ public class EimIdfConfiguratinParser
 		{
 			eimJson = gson.fromJson(fileReader, EimJson.class);
 		}
+		
+		if (!eimJson.getVersion().equals(EimConstants.EIM_JSON_VALID_VERSION))
+		{
+			throw new IOException("Invalid eim_idf.json version found. Valid version is: " + //$NON-NLS-1$
+					EimConstants.EIM_JSON_VALID_VERSION + " found version: " + eimJson.getVersion()); //$NON-NLS-1$
+		}
 	}
 
 	public EimJson getEimJson(boolean reload) throws IOException
