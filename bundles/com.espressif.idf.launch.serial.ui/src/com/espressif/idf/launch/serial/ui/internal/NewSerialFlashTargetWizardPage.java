@@ -18,6 +18,7 @@ package com.espressif.idf.launch.serial.ui.internal;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +32,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.swt.SWT;
@@ -43,8 +45,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import com.espressif.idf.core.DefaultBoardProvider;
 import com.espressif.idf.core.LaunchBarTargetConstants;
@@ -52,6 +57,7 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
 import com.espressif.idf.core.util.EspConfigParser;
 import com.espressif.idf.core.util.EspToolCommands;
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 
 public class NewSerialFlashTargetWizardPage extends WizardPage
@@ -73,6 +79,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 	private String serialPort;
 	private Combo fBoardCombo;
 	private Combo fFlashVoltage;
+	private String previousBoard = null;
 
 	public NewSerialFlashTargetWizardPage(ILaunchTarget launchTarget)
 	{
@@ -106,6 +113,9 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 		label.setText(Messages.NewSerialFlashTargetWizardPage_IDFTarget);
 
 		idfTargetCombo = new Combo(comp, SWT.NONE);
+		GridData idfTargetComboGridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		idfTargetComboGridData.minimumWidth = 250;
+		idfTargetCombo.setLayoutData(idfTargetComboGridData);
 
 		List<String> idfTargetList = getIDFTargetList();
 
@@ -117,11 +127,77 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				EspConfigParser parser = new EspConfigParser();
 				String selectedTargetString = idfTargetCombo.getText();
-				fBoardCombo.setItems(parser.getBoardsConfigs(selectedTargetString).keySet().toArray(new String[0]));
-				fBoardCombo.select(new DefaultBoardProvider().getIndexOfDefaultBoard(selectedTargetString,
-						fBoardCombo.getItems()));
+				Shell shell = display.getActiveShell();
+				final List<String> boardDisplayNames = new ArrayList<>();
+				final String[] jsonHolder = new String[1];
+				try
+				{
+					ProgressMonitorDialog dialog = new ProgressMonitorDialog(shell);
+					dialog.run(true, false, monitor -> {
+						monitor.beginTask("Finding the Connected Boards...", IProgressMonitor.UNKNOWN); //$NON-NLS-1$
+						if (IDFUtil.espDetectConfigScriptExists()) {
+							String json = IDFUtil.runEspDetectConfigScript();
+							jsonHolder[0] = json;
+							Logger.log("esp_detect_config.py JSON output: " + json); //$NON-NLS-1$
+							if (json != null)
+							{
+								try
+								{
+									JSONObject root = (JSONObject) new JSONParser().parse(json);
+									JSONArray boards = (JSONArray) root.get("boards"); //$NON-NLS-1$
+									boardDisplayNames.addAll(getBoardDisplayNamesForTarget(selectedTargetString, boards));
+								}
+								catch (Exception ex)
+								{
+									Logger.log(ex);
+								}
+							}
+						} else {
+							// Fallback to old approach if script does not exist
+							EspConfigParser parser = new EspConfigParser();
+							Map<String, JSONArray> boardConfigsMap = parser.getBoardsConfigs(selectedTargetString);
+							String[] boardNames = boardConfigsMap.keySet().toArray(new String[0]);
+							for (String boardName : boardNames)
+							{
+								boardDisplayNames.add(boardName);
+							}
+						}
+						monitor.done();
+					});
+				}
+				catch (Exception ex)
+				{
+					Logger.log(ex);
+				}
+				display.asyncExec(() -> {
+					fBoardCombo.setItems(boardDisplayNames.toArray(new String[0]));
+					if (!boardDisplayNames.isEmpty())
+					{
+						int defaultIdx = 0;
+						if (jsonHolder[0] == null)
+						{
+							defaultIdx = new DefaultBoardProvider().getIndexOfDefaultBoard(selectedTargetString,
+									boardDisplayNames.toArray(new String[0]));
+						}
+						if (previousBoard != null) {
+							int idx = -1;
+							for (int i = 0; i < boardDisplayNames.size(); i++) {
+								if (boardDisplayNames.get(i).equals(previousBoard)) {
+									idx = i;
+									break;
+								}
+							}
+							if (idx != -1) {
+								fBoardCombo.select(idx);
+							} else {
+								fBoardCombo.deselectAll();
+							}
+						} else {
+							fBoardCombo.select(defaultIdx);
+						}
+					}
+				});
 				super.widgetSelected(e);
 			}
 		});
@@ -137,6 +213,9 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 		label.setText(Messages.NewSerialFlashTargetWizardPage_SerialPort);
 
 		serialPortCombo = new Combo(comp, SWT.READ_ONLY);
+		GridData serialPortComboGridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		serialPortComboGridData.minimumWidth = 250;
+		serialPortCombo.setLayoutData(serialPortComboGridData);
 		serialPortCombo.addSelectionListener(new SelectionAdapter()
 		{
 
@@ -219,12 +298,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 			}
 			idfTargetCombo.notifyListeners(SWT.Selection, null);
 		}
-		String board = launchTarget.getAttribute(LaunchBarTargetConstants.BOARD, null);
-		if (board != null)
-		{
-			fBoardCombo.setText(board);
-		}
-
+		previousBoard = launchTarget.getAttribute(LaunchBarTargetConstants.BOARD, null);
 	}
 
 	private void setDefaultSerialPort()
@@ -264,11 +338,9 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 		Label fTargetLbl = new Label(jtaGroup, SWT.NONE);
 		fTargetLbl.setText(Messages.configBoardLabel);
 		fBoardCombo = new Combo(jtaGroup, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
-		String selectedTargetString = getIDFTarget();
-		Map<String, JSONArray> boardConfigsMap = parser.getBoardsConfigs(selectedTargetString);
-		fBoardCombo.setItems(boardConfigsMap.keySet().toArray(new String[0]));
-		fBoardCombo.select(
-				new DefaultBoardProvider().getIndexOfDefaultBoard(selectedTargetString, fBoardCombo.getItems()));
+		GridData boardComboGridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		boardComboGridData.minimumWidth = 250;
+		fBoardCombo.setLayoutData(boardComboGridData);
 	}
 
 	@Override
@@ -439,6 +511,38 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 			return StringUtil.EMPTY;
 		}
 
+	}
+
+	public String getSelectedBoardUsbLocation()
+	{
+		String selected = fBoardCombo.getText();
+		int idx = selected.lastIndexOf("["); //$NON-NLS-1$
+		int endIdx = selected.lastIndexOf("]"); //$NON-NLS-1$
+		if (idx != -1 && endIdx != -1 && endIdx > idx)
+		{
+			return selected.substring(idx + 1, endIdx);
+		}
+		return null;
+	}
+
+	/**
+	 * Returns a list of display names for boards matching the selected target. Each display name is formatted as
+	 * "<name> [<location>]".
+	 */
+	private List<String> getBoardDisplayNamesForTarget(String selectedTarget, JSONArray boards)
+	{
+		List<String> boardDisplayNames = new ArrayList<>();
+		for (Object obj : boards)
+		{
+			JSONObject board = (JSONObject) obj;
+			if (selectedTarget.equals(board.get("target"))) //$NON-NLS-1$
+			{
+				String name = (String) board.get("name"); //$NON-NLS-1$
+				String location = (String) board.get("location"); //$NON-NLS-1$
+				boardDisplayNames.add(String.format("%s [%s]", name, location)); //$NON-NLS-1$
+			}
+		}
+		return boardDisplayNames;
 	}
 
 }
