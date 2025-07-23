@@ -2,19 +2,21 @@
  * Copyright 2025 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-package com.espressif.idf.core.util;
+package com.espressif.idf.core.configparser;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.configparser.vo.Board;
+import com.espressif.idf.core.configparser.vo.EspConfig;
+import com.espressif.idf.core.configparser.vo.Option;
+import com.espressif.idf.core.configparser.vo.Target;
 import com.espressif.idf.core.logging.Logger;
 import com.google.gson.Gson;
 
@@ -61,14 +63,14 @@ public class EspConfigParser
 	public Set<String> getTargets()
 	{
 		Set<String> targets = new LinkedHashSet<>();
-		if (config == null || config.targets == null)
+		if (config == null || config.targets() == null)
 			return targets;
 
-		for (Target target : config.targets)
+		for (Target target : config.targets())
 		{
-			if (target.id != null)
+			if (target.id() != null)
 			{
-				targets.add(target.id);
+				targets.add(target.id());
 			}
 		}
 		return targets;
@@ -77,63 +79,38 @@ public class EspConfigParser
 	public List<String> getEspFlashVoltages()
 	{
 		List<String> voltages = new ArrayList<>();
-		if (config == null || config.options == null)
+		if (config == null || config.options() == null)
 			return voltages;
 
-		for (Option option : config.options)
+		for (Option option : config.options())
 		{
-			if ("ESP_FLASH_VOLTAGE".equals(option.name) && option.values != null) //$NON-NLS-1$
+			if ("ESP_FLASH_VOLTAGE".equals(option.name()) && option.values() != null) //$NON-NLS-1$
 			{
-				voltages.addAll(option.values);
+				voltages.addAll(option.values());
 				break;
 			}
 		}
 		return voltages;
 	}
 
-	public Map<String, List<String>> getBoardsConfigs(String target)
+	public List<Board> getBoardsForTarget(String target)
 	{
-		Map<String, List<String>> boardsConfigs = new HashMap<>();
-		if (config == null || config.boards == null)
-			return boardsConfigs;
+		List<Board> boardsForTarget = new ArrayList<>();
+		if (config == null || config.boards() == null)
+			return boardsForTarget;
 
-		for (Board board : config.boards)
+		for (Board board : config.boards())
 		{
-			if (target.equals(board.target) && board.name != null && board.config_files != null)
+			if (target.equals(board.target()) && board.name() != null && board.config_files() != null)
 			{
-				boardsConfigs.put(board.name, board.config_files);
+				boardsForTarget.add(board);
 			}
 		}
-		return boardsConfigs;
+		return boardsForTarget;
 	}
 
 	public boolean hasBoardConfigJson()
 	{
 		return new File(espConfigPath).exists();
-	}
-
-	private static class EspConfig
-	{
-		List<Target> targets;
-		List<Option> options;
-		List<Board> boards;
-	}
-
-	private static class Target
-	{
-		String id;
-	}
-
-	private static class Option
-	{
-		String name;
-		List<String> values;
-	}
-
-	private static class Board
-	{
-		String name;
-		String target;
-		List<String> config_files;
 	}
 }

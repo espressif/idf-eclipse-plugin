@@ -50,9 +50,10 @@ import org.eclipse.swt.widgets.Text;
 
 import com.espressif.idf.core.DefaultBoardProvider;
 import com.espressif.idf.core.LaunchBarTargetConstants;
+import com.espressif.idf.core.configparser.EspConfigParser;
+import com.espressif.idf.core.configparser.vo.Board;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
-import com.espressif.idf.core.util.EspConfigParser;
 import com.espressif.idf.core.util.EspToolCommands;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
@@ -195,6 +196,10 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 						}
 					}
 				});
+				List<Board> boards = parser.getBoardsForTarget(selectedTargetString);
+				String[] boardNames = boards.stream().map(Board::name).toArray(String[]::new);
+				fBoardCombo.setItems(boardNames);
+				fBoardCombo.select(new DefaultBoardProvider().getIndexOfDefaultBoard(selectedTargetString, boardNames));
 				super.widgetSelected(e);
 			}
 		});
@@ -339,8 +344,8 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 		boardComboGridData.minimumWidth = 250;
 		fBoardCombo.setLayoutData(boardComboGridData);
 		String selectedTargetString = getIDFTarget();
-		Map<String, List<String>> boardConfigsMap = parser.getBoardsConfigs(selectedTargetString);
-		fBoardCombo.setItems(boardConfigsMap.keySet().toArray(new String[0]));
+		List<Board> boards = parser.getBoardsForTarget(selectedTargetString);
+		fBoardCombo.setItems(boards.stream().map(Board::name).toArray(String[]::new));
 		fBoardCombo.select(
 				new DefaultBoardProvider().getIndexOfDefaultBoard(selectedTargetString, fBoardCombo.getItems()));
 	}

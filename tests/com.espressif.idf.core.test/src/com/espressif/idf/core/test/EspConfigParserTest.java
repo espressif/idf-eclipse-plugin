@@ -10,13 +10,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.espressif.idf.core.util.EspConfigParser;
+import com.espressif.idf.core.configparser.EspConfigParser;
+import com.espressif.idf.core.configparser.vo.Board;
 
 public class EspConfigParserTest
 {
@@ -68,13 +69,13 @@ public class EspConfigParserTest
 	{
 		EspConfigParser parser = new EspConfigParser(tempJsonFile.getAbsolutePath());
 
-		Map<String, List<String>> configs = parser.getBoardsConfigs("esp32s3"); //$NON-NLS-1$
+		List<Board> boards = parser.getBoardsForTarget("esp32s3"); //$NON-NLS-1$
+		assertEquals(3, boards.size());
 
-		assertNotNull(configs);
-		assertEquals(3, configs.size());
-		assertTrue(configs.containsKey("ESP32-S3 chip (via builtin USB-JTAG)")); //$NON-NLS-1$
-		assertTrue(configs.containsKey("ESP32-S3 chip (via ESP-PROG)")); //$NON-NLS-1$
-		assertTrue(configs.containsKey("ESP32-S3 chip (via ESP-PROG-2)")); //$NON-NLS-1$
+		Set<String> names = boards.stream().map(Board::name).collect(Collectors.toSet());
+		assertTrue(names.contains("ESP32-S3 chip (via builtin USB-JTAG)")); //$NON-NLS-1$
+		assertTrue(names.contains("ESP32-S3 chip (via ESP-PROG)")); //$NON-NLS-1$
+		assertTrue(names.contains("ESP32-S3 chip (via ESP-PROG-2)")); //$NON-NLS-1$
 	}
 
 	@Test

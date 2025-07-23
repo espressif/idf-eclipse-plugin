@@ -39,6 +39,8 @@ Bundle-ActivationPolicy: lazy
 Export-Package: com.espressif.idf.core,
  com.espressif.idf.core.actions,
  com.espressif.idf.core.build,
+ com.espressif.idf.core.configparser,
+ com.espressif.idf.core.configparser.vo,
  com.espressif.idf.core.logging,
  com.espressif.idf.core.resources,
  com.espressif.idf.core.toolchain,
