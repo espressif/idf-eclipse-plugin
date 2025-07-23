@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.eclipse.cdt.dsf.gdb.launching.GDBProcess;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IStreamsProxy;
@@ -20,9 +21,9 @@ import org.eclipse.debug.ui.IDebugUIConstants;
 import com.espressif.idf.debug.gdbjtag.openocd.dsf.process.monitors.StreamsProxy;
 
 /**
- * Customised process class for the 
- * Idf based processes that will require a 
- * custom console based on the settings provided in the espressif configurations
+ * Customised process class for the Idf based processes that will require a custom console based on the settings
+ * provided in the espressif configurations
+ * 
  * @author Ali Azam Rana
  *
  */
@@ -30,6 +31,7 @@ import com.espressif.idf.debug.gdbjtag.openocd.dsf.process.monitors.StreamsProxy
 public class IdfRuntimeProcess extends GDBProcess
 {
 	private boolean fCaptureOutput = true;
+	private StreamsProxy streamsProxy;
 
 	public IdfRuntimeProcess(ILaunch launch, Process process, String name, Map<String, String> attributes)
 	{
@@ -66,10 +68,17 @@ public class IdfRuntimeProcess extends GDBProcess
 
 		final boolean append = getAttributeSafe(getLaunch().getLaunchConfiguration()::getAttribute,
 				IDebugUIConstants.ATTR_APPEND_TO_FILE, false);
-		StreamsProxy streamsProxy = new StreamsProxy(this, getSystemProcess(), charset, getLabel(), outputFileName, append);
+		streamsProxy = new StreamsProxy(this, getSystemProcess(), charset, getLabel(), outputFileName, append);
 		return streamsProxy;
 	}
-	
+
+	@Override
+	public void terminate() throws DebugException
+	{
+		super.terminate();
+		streamsProxy.kill();
+	}
+
 	private <T> T getAttributeSafe(AttributeGetter<T> getter, String attribute, T defaultValue)
 	{
 		try
