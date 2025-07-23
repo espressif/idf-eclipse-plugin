@@ -67,11 +67,7 @@ public class StreamListener implements IStreamListener
 		{
 			idfProcessConsole.clearConsole();
 		}
-		else
-		{
-			// for gdb stream we always wants to append because we want the shared log with openocd
-			append = true;
-		}
+
 		this.fileWriter = LogFileWriterManager.getWriter(resolvedOutputFilePath, append);
 		this.reHintsList = HintsUtil.getReHintsList(new File(HintsUtil.getOpenocdHintsYmlPath()));
 
