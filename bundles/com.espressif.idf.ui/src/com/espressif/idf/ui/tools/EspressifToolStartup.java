@@ -146,15 +146,9 @@ public class EspressifToolStartup implements IStartup
 	private void handleOldConfigExport()
 	{
 		Display display = Display.getDefault();
-
-		GlobalModalLock.showModal(() -> MessageDialog.openQuestion(display.getActiveShell(),
-				Messages.OldConfigFoundMsgBoxTitle, Messages.OldConfigFoundMsgBoxMsg), response -> {
-					if (response)
-					{
-						startExportOldConfig();
-					}
-				});
-
+		display.asyncExec(()-> {
+			startExportOldConfig();
+		});
 	}
 
 	private void startExportOldConfig()
@@ -184,31 +178,42 @@ public class EspressifToolStartup implements IStartup
 			if (status.getSeverity() != IStatus.ERROR)
 			{
 				preferences.putBoolean(EimConstants.OLD_CONFIG_EXPORTED_FLAG, true);
-				displayInformationMessageBox(Messages.OldConfigExportCompleteSuccessMsgTitle,
-						Messages.OldConfigExportCompleteSuccessMsg);
+				writeToStandardConsoleStream(Messages.OldConfigExportCompleteSuccessMsg);
 			}
 			else
 			{
-				displayInformationMessageBox(Messages.OldConfigExportCompleteFailMsgTitle,
-						Messages.OldConfigExportCompleteFailMsg);
+				writeToErrorConsoleStream(Messages.OldConfigExportCompleteFailMsg);
 			}
 		}
 		catch (IOException e)
 		{
 			Logger.log("Error exporting old configuration", e);
-			displayInformationMessageBox(Messages.OldConfigExportCompleteFailMsgTitle,
-					Messages.OldConfigExportCompleteFailMsg);
+			writeToErrorConsoleStream(Messages.OldConfigExportCompleteFailMsg);
 		}
 	}
-
-	private void displayInformationMessageBox(String messageTitle, String message)
+	
+	private void writeToStandardConsoleStream(String msg)
 	{
-		Display display = Display.getDefault();
-		GlobalModalLock.showModal(() -> {
-			MessageDialog.openInformation(display.getActiveShell(), messageTitle, message);
-			return null;
-		}, ignored -> {
-		});
+		try
+		{
+			standardConsoleStream.write(msg);
+		}
+		catch (IOException e)
+		{
+			Logger.log(e);
+		}
+	}
+	
+	private void writeToErrorConsoleStream(String msg)
+	{
+		try
+		{
+			errorConsoleStream.write(msg);
+		}
+		catch (IOException e)
+		{
+			Logger.log(e);
+		}
 	}
 
 	private void closeEspIdfManager()
