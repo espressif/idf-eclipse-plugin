@@ -27,8 +27,8 @@ import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFDynamicVariables;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.build.IDFLaunchConstants;
+import com.espressif.idf.core.configparser.EspConfigParser;
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.util.EspConfigParser;
 import com.espressif.idf.core.util.IDFUtil;
 
 public class ESPFlashUtil

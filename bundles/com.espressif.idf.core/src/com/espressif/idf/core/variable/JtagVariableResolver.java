@@ -5,6 +5,7 @@
 package com.espressif.idf.core.variable;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import org.eclipse.core.runtime.CoreException;
@@ -16,8 +17,9 @@ import org.eclipse.launchbar.core.target.ILaunchTarget;
 import com.espressif.idf.core.DefaultBoardProvider;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.LaunchBarTargetConstants;
+import com.espressif.idf.core.configparser.EspConfigParser;
+import com.espressif.idf.core.configparser.vo.Board;
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.util.EspConfigParser;
 import com.espressif.idf.core.util.StringUtil;
 
 public class JtagVariableResolver implements IDynamicVariableResolver
@@ -69,14 +71,16 @@ public class JtagVariableResolver implements IDynamicVariableResolver
 		var parser = new EspConfigParser();
 		ILaunchTarget activeILaunchTarget = getActiveLaunchTarget().orElseGet(() -> ILaunchTarget.NULL_TARGET);
 		var targetName = activeILaunchTarget.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY);
-		var boardConfigMap = parser.getBoardsConfigs(targetName);
 		var board = activeILaunchTarget.getAttribute(LaunchBarTargetConstants.BOARD,
 				new DefaultBoardProvider().getDefaultBoard(targetName));
 		int idx = board.lastIndexOf(" [usb://"); //$NON-NLS-1$
 		String boardKey = (idx != -1) ? board.substring(0, idx) : board;
-		var boardConfigs = boardConfigMap.get(boardKey);
+		List<Board> boards = parser.getBoardsForTarget(targetName);
+		List<String> boardConfigs = boards.stream().filter(b -> b.name().equals(boardKey)).findFirst()
+				.map(Board::config_files).orElse(List.of());
 		var result = new StringBuilder();
-		if (boardConfigs != null) {
+		if (boardConfigs != null)
+		{
 			for (Object config : boardConfigs)
 			{
 				result.append(String.format("-f %s ", config)); //$NON-NLS-1$
