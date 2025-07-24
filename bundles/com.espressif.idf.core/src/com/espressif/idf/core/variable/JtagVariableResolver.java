@@ -75,12 +75,12 @@ public class JtagVariableResolver implements IDynamicVariableResolver
 				new DefaultBoardProvider().getDefaultBoard(targetName));
 		int idx = board.lastIndexOf(" [usb://"); //$NON-NLS-1$
 		String boardKey = (idx != -1) ? board.substring(0, idx) : board;
-		var boardConfigs = boardConfigMap.get(boardKey);
 		List<Board> boards = parser.getBoardsForTarget(targetName);
-		List<String> boardConfigs = boards.stream().filter(b -> b.name().equals(board)).findFirst()
+		List<String> boardConfigs = boards.stream().filter(b -> b.name().equals(boardKey)).findFirst()
 				.map(Board::config_files).orElse(List.of());
 		var result = new StringBuilder();
-		if (boardConfigs != null) {
+		if (boardConfigs != null)
+		{
 			for (Object config : boardConfigs)
 			{
 				result.append(String.format("-f %s ", config)); //$NON-NLS-1$

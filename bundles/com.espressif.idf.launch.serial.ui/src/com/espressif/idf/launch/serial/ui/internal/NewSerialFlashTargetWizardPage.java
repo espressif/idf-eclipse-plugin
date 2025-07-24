@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +48,9 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import com.espressif.idf.core.DefaultBoardProvider;
 import com.espressif.idf.core.LaunchBarTargetConstants;
@@ -134,7 +138,8 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 					ProgressMonitorDialog dialog = new ProgressMonitorDialog(shell);
 					dialog.run(true, false, monitor -> {
 						monitor.beginTask("Finding the Connected Boards...", IProgressMonitor.UNKNOWN); //$NON-NLS-1$
-						if (IDFUtil.espDetectConfigScriptExists()) {
+						if (IDFUtil.espDetectConfigScriptExists())
+						{
 							String json = IDFUtil.runEspDetectConfigScript();
 							jsonHolder[0] = json;
 							Logger.log("esp_detect_config.py JSON output: " + json); //$NON-NLS-1$
@@ -144,22 +149,22 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 								{
 									JSONObject root = (JSONObject) new JSONParser().parse(json);
 									JSONArray boards = (JSONArray) root.get("boards"); //$NON-NLS-1$
-									boardDisplayNames.addAll(getBoardDisplayNamesForTarget(selectedTargetString, boards));
+									boardDisplayNames
+											.addAll(getBoardDisplayNamesForTarget(selectedTargetString, boards));
 								}
 								catch (Exception ex)
 								{
 									Logger.log(ex);
 								}
 							}
-						} else {
+						}
+						else
+						{
 							// Fallback to old approach if script does not exist
 							EspConfigParser parser = new EspConfigParser();
-							Map<String, JSONArray> boardConfigsMap = parser.getBoardsConfigs(selectedTargetString);
-							String[] boardNames = boardConfigsMap.keySet().toArray(new String[0]);
-							for (String boardName : boardNames)
-							{
-								boardDisplayNames.add(boardName);
-							}
+							List<Board> boards = parser.getBoardsForTarget(selectedTargetString);
+							String[] boardNames = boards.stream().map(Board::name).toArray(String[]::new);
+							boardDisplayNames.addAll(Arrays.asList(boardNames));
 						}
 						monitor.done();
 					});
@@ -178,28 +183,32 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 							defaultIdx = new DefaultBoardProvider().getIndexOfDefaultBoard(selectedTargetString,
 									boardDisplayNames.toArray(new String[0]));
 						}
-						if (previousBoard != null) {
+						if (previousBoard != null)
+						{
 							int idx = -1;
-							for (int i = 0; i < boardDisplayNames.size(); i++) {
-								if (boardDisplayNames.get(i).equals(previousBoard)) {
+							for (int i = 0; i < boardDisplayNames.size(); i++)
+							{
+								if (boardDisplayNames.get(i).equals(previousBoard))
+								{
 									idx = i;
 									break;
 								}
 							}
-							if (idx != -1) {
+							if (idx != -1)
+							{
 								fBoardCombo.select(idx);
-							} else {
+							}
+							else
+							{
 								fBoardCombo.deselectAll();
 							}
-						} else {
+						}
+						else
+						{
 							fBoardCombo.select(defaultIdx);
 						}
 					}
 				});
-				List<Board> boards = parser.getBoardsForTarget(selectedTargetString);
-				String[] boardNames = boards.stream().map(Board::name).toArray(String[]::new);
-				fBoardCombo.setItems(boardNames);
-				fBoardCombo.select(new DefaultBoardProvider().getIndexOfDefaultBoard(selectedTargetString, boardNames));
 				super.widgetSelected(e);
 			}
 		});
