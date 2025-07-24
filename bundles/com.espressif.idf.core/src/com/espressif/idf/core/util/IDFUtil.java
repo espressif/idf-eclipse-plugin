@@ -168,6 +168,7 @@ public class IDFUtil
 	public static String getIDFPath()
 	{
 		String idfPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PATH);
+
 		if (StringUtil.isEmpty(idfPath))
 		{
 
@@ -189,6 +190,7 @@ public class IDFUtil
 	public static String getIDFPythonEnvPath()
 	{
 		String idfPyEnvPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH);
+
 		idfPyEnvPath = idfPyEnvPath.strip();
 		if (!StringUtil.isEmpty(idfPyEnvPath))
 		{
@@ -296,6 +298,7 @@ public class IDFUtil
 	public static String findCommandFromBuildEnvPath(String command)
 	{
 		String pathStr = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.PATH);
+
 		if (pathStr != null)
 		{
 			java.nio.file.Path commandPath = findCommand(command, pathStr);
