@@ -359,9 +359,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 				}
 			}
 
-			envVars.add(new EnvironmentVariable(IDFCorePreferenceConstants.IDF_TOOLS_PATH,
-					IDFUtil.getIDFToolsPathFromPreferences()));
-
 			String buildCommand = getProperty(BUILD_COMMAND);
 			if (buildCommand.isBlank())
 			{
@@ -481,10 +478,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		// Set PYTHONUNBUFFERED to 1/TRUE to dump the messages back immediately without
 		// buffering
 		IEnvironmentVariable bufferEnvVar = new EnvironmentVariable("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
-		IEnvironmentVariable idfToolsPathEnvVar = new EnvironmentVariable(IDFCorePreferenceConstants.IDF_TOOLS_PATH,
-				IDFUtil.getIDFToolsPathFromPreferences());
 
-		Process p = startBuildProcess(command, new IEnvironmentVariable[] { bufferEnvVar, idfToolsPathEnvVar },
+		Process p = startBuildProcess(command, new IEnvironmentVariable[] { bufferEnvVar },
 				workingDir, errConsole, monitor);
 		if (p == null)
 		{
