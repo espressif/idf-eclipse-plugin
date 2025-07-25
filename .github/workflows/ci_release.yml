@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+\\.[0-9]+\\.[0-9]+-beta"  # v3.5.1-beta (beta)
 
 env:
   ARCHIVE_PREFIX: com.espressif.idf.update-
@@ -54,7 +55,7 @@ jobs:
             echo "codesigning espressif-ide-macosx.cocoa.x86_64"
             /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app -v
             /usr/bin/codesign -v -vvv --deep $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app
-    
+            
             echo "codesigning espressif-ide-macosx.cocoa.aarch64"
             /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/aarch64/Espressif-IDE.app -v
             /usr/bin/codesign -v -vvv --deep $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/aarch64/Espressif-IDE.app
@@ -256,14 +257,23 @@ jobs:
     - name: Extract version from tag and prepare folder
       id: get_version
       run: |
-        if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
-          TAG="${GITHUB_REF##*/}"
-          VERSION="${TAG#v}"
+        TAG="${GITHUB_REF##*/}"
+        VERSION="${TAG#v}"
+        if [[ "$TAG" == *"-beta"* ]]; then
+          IS_BETA="true"
+          UPLOAD_PATH="beta"
+          REDIRECT_PATH="beta"
         else
-          VERSION="testing"
+          IS_BETA="false"
+          UPLOAD_PATH="latest"
+          REDIRECT_PATH="latest"
         fi
         echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "IS_BETA=$IS_BETA" >> $GITHUB_ENV
+        echo "UPLOAD_PATH=$UPLOAD_PATH" >> $GITHUB_ENV
+        echo "REDIRECT_PATH=$REDIRECT_PATH" >> $GITHUB_ENV
         echo "FOLDER=v$VERSION" >> $GITHUB_ENV
+        echo "TAG=$TAG" >> $GITHUB_ENV
 
     - name: Rename DMGs with version suffix
       run: |
@@ -289,8 +299,10 @@ jobs:
     - name: Upload build assets to dl.espressif.com
       run: |
         VERSION="${{ env.VERSION }}"
+        UPLOAD_PATH="${{ env.UPLOAD_PATH }}"
+        REDIRECT_PATH="${{ env.REDIRECT_PATH }}"
 
-        aws s3 rm "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/latest" --recursive
+        aws s3 rm "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/$UPLOAD_PATH" --recursive
 
         # Extract the update site from the versioned zip and upload its contents
         TMP_UPDATE_DIR="update_site_tmp"
@@ -298,9 +310,9 @@ jobs:
         unzip -q "com.espressif.idf.update-v$VERSION.zip" -d "$TMP_UPDATE_DIR"
         echo "Contents of $TMP_UPDATE_DIR:"
         ls -l "$TMP_UPDATE_DIR"
-        aws s3 cp --acl=public-read --recursive "$TMP_UPDATE_DIR/artifacts/update/" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/latest"
+        aws s3 cp --acl=public-read --recursive "$TMP_UPDATE_DIR/artifacts/update/" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/$UPLOAD_PATH"
         aws s3 cp --acl=public-read --recursive "$TMP_UPDATE_DIR/artifacts/update/" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/v$VERSION"
-        aws s3 cp --acl=public-read ./releng/index.html "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/latest/"
+        aws s3 cp --acl=public-read ./releng/index.html "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/$UPLOAD_PATH/"
         
         aws s3 cp --acl=public-read "com.espressif.idf.update-v$VERSION.zip" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/"
         aws s3 cp --acl=public-read --recursive artifacts/linux/ "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/"
@@ -308,12 +320,12 @@ jobs:
         aws s3 cp --acl=public-read "artifacts/macos_arm/Espressif-IDE-macosx-cocoa-aarch64-v$VERSION.dmg" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/"
         aws s3 cp --acl=public-read "Espressif-IDE-$VERSION-win32.win32.x86_64.zip" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/"
 
-        aws cloudfront create-invalidation --distribution-id ${{ secrets.DL_DISTRIBUTION_ID }} --paths "/dl/idf-eclipse-plugin/updates/latest/*"
+        aws cloudfront create-invalidation --distribution-id ${{ secrets.DL_DISTRIBUTION_ID }} --paths "/dl/idf-eclipse-plugin/updates/$UPLOAD_PATH/*"
 
-        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-win32.win32.x86_64/latest" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-$VERSION-win32.win32.x86_64.zip"
+        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-win32.win32.x86_64/$REDIRECT_PATH" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-$VERSION-win32.win32.x86_64.zip"
 
-        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-x86_64/latest" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-x86_64-v$VERSION.dmg"
+        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-x86_64/$REDIRECT_PATH" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-x86_64-v$VERSION.dmg"
 
-        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64/latest" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64-v$VERSION.dmg"
+        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64/$REDIRECT_PATH" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64-v$VERSION.dmg"
 
-        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-linux.gtk.x86_64/latest" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-$VERSION-linux.gtk.x86_64.tar.gz"
+        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-linux.gtk.x86_64/$REDIRECT_PATH" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-$VERSION-linux.gtk.x86_64.tar.gz"
