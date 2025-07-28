@@ -157,7 +157,7 @@ public class SerialSettingsPage extends AbstractSettingsPage
 		filterText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		encryptionCheckbox = new Button(comp, SWT.CHECK);
-		encryptionCheckbox.setText("Enable Encryption");
+		encryptionCheckbox.setText(Messages.SerialSettingsPage_EncryptionOption);
 		encryptionCheckbox.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		loadSettings();
