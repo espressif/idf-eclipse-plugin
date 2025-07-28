@@ -19,7 +19,8 @@ import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
 
 import com.espressif.idf.core.util.StringUtil;
 
-public class SerialSettings {
+public class SerialSettings
+{
 
 	public static final String PORT_NAME_ATTR = "cdtserial.portName"; //$NON-NLS-1$
 	public static final String MONITOR_FILTER = "idf.monitor.filter"; //$NON-NLS-1$
@@ -32,7 +33,8 @@ public class SerialSettings {
 	/**
 	 * Load information into the RemoteSettings object.
 	 */
-	public void load(ISettingsStore store) {
+	public void load(ISettingsStore store)
+	{
 		portName = store.get(PORT_NAME_ATTR, ""); //$NON-NLS-1$
 		filterText = store.get(MONITOR_FILTER, ""); //$NON-NLS-1$
 		selectedProject = store.get(SELECTED_PROJECT_ATTR, ""); //$NON-NLS-1$
@@ -41,44 +43,53 @@ public class SerialSettings {
 	/**
 	 * Extract information from the RemoteSettings object.
 	 */
-	public void save(ISettingsStore store) {
+	public void save(ISettingsStore store)
+	{
 		store.put(PORT_NAME_ATTR, portName);
 		store.put(MONITOR_FILTER, filterText);
 		store.put(SELECTED_PROJECT_ATTR, selectedProject);
 	}
 
-	public String getPortName() {
+	public String getPortName()
+	{
 		return portName;
 	}
 
-	public String getFilterText() {
+	public String getFilterText()
+	{
 		return filterText;
 	}
 
-	public String getProjectName() {
+	public String getProjectName()
+	{
 		return selectedProject;
 	}
 
-	public IProject getProject() {
+	public IProject getProject()
+	{
 
 		return !StringUtil.isEmpty(selectedProject)
 				? ResourcesPlugin.getWorkspace().getRoot().getProject(selectedProject)
 				: null;
 	}
 
-	public void setPortName(String portName) {
+	public void setPortName(String portName)
+	{
 		this.portName = portName;
 	}
 
-	public void setFilterText(String filterText) {
+	public void setFilterText(String filterText)
+	{
 		this.filterText = filterText;
 	}
 
-	public String getSummary() {
+	public String getSummary()
+	{
 		return portName;
 	}
 
-	public void setProject(String projectName) {
+	public void setProject(String projectName)
+	{
 		this.selectedProject = projectName;
 	}
 

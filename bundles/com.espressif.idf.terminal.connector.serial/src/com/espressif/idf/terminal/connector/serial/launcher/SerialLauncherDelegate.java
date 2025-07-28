@@ -30,25 +30,30 @@ import org.eclipse.tm.terminal.view.ui.launcher.AbstractLauncherDelegate;
 import com.espressif.idf.terminal.connector.serial.connector.SerialSettings;
 import com.espressif.idf.terminal.connector.serial.controls.SerialConfigPanel;
 
-public class SerialLauncherDelegate extends AbstractLauncherDelegate {
+public class SerialLauncherDelegate extends AbstractLauncherDelegate
+{
 
 	@Override
-	public boolean needsUserConfiguration() {
+	public boolean needsUserConfiguration()
+	{
 		return true;
 	}
 
 	@Override
-	public IConfigurationPanel getPanel(IConfigurationPanelContainer container) {
+	public IConfigurationPanel getPanel(IConfigurationPanelContainer container)
+	{
 		return new SerialConfigPanel(container);
 	}
 
 	@Override
-	public ITerminalConnector createTerminalConnector(Map<String, Object> properties) {
+	public ITerminalConnector createTerminalConnector(Map<String, Object> properties)
+	{
 		Assert.isNotNull(properties);
 
 		// Check for the terminal connector id
 		String connectorId = (String) properties.get(ITerminalsConnectorConstants.PROP_TERMINAL_CONNECTOR_ID);
-		if (connectorId == null) {
+		if (connectorId == null)
+		{
 			connectorId = "com.espressif.idf.terminal.connector.serial.SerialConnector"; //$NON-NLS-1$
 		}
 
@@ -63,7 +68,8 @@ public class SerialLauncherDelegate extends AbstractLauncherDelegate {
 
 		// Construct the terminal connector instance
 		ITerminalConnector connector = TerminalConnectorExtension.makeTerminalConnector(connectorId);
-		if (connector != null) {
+		if (connector != null)
+		{
 			// Apply default settings
 			connector.setDefaultSettings();
 			// And load the real settings
@@ -74,7 +80,8 @@ public class SerialLauncherDelegate extends AbstractLauncherDelegate {
 	}
 
 	@Override
-	public void execute(Map<String, Object> properties, Done done) {
+	public void execute(Map<String, Object> properties, Done done)
+	{
 		Assert.isNotNull(properties);
 
 		// Set the terminal tab title
@@ -83,14 +90,16 @@ public class SerialLauncherDelegate extends AbstractLauncherDelegate {
 
 		// Force a new terminal tab each time it is launched, if not set otherwise from outside
 		// TODO need a command shell service routing to get this
-		if (!properties.containsKey(ITerminalsConnectorConstants.PROP_FORCE_NEW)) {
+		if (!properties.containsKey(ITerminalsConnectorConstants.PROP_FORCE_NEW))
+		{
 			properties.put(ITerminalsConnectorConstants.PROP_FORCE_NEW, Boolean.TRUE);
 		}
 
 		// Get the terminal service
 		ITerminalService terminal = TerminalServiceFactory.getService();
 		// If not available, we cannot fulfill this request
-		if (terminal != null) {
+		if (terminal != null)
+		{
 			terminal.openConsole(properties, done);
 		}
 	}
