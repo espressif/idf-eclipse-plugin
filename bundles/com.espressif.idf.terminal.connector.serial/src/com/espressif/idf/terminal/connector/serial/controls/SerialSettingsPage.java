@@ -28,6 +28,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -60,6 +61,8 @@ public class SerialSettingsPage extends AbstractSettingsPage
 	private String lastUsedSerialPort;
 	private Text filterText;
 	private String filterConfig;
+	private Button encryptionCheckbox;
+	private boolean encryptionOption;
 
 	public SerialSettingsPage(SerialSettings settings, IConfigurationPanel panel)
 	{
@@ -71,6 +74,7 @@ public class SerialSettingsPage extends AbstractSettingsPage
 				this.getClass().getSimpleName());
 		dialogSettings.get(SerialSettings.PORT_NAME_ATTR);
 		filterConfig = dialogSettings.get(SerialSettings.MONITOR_FILTER);
+		encryptionOption = Boolean.parseBoolean(dialogSettings.get(SerialSettings.ENCRYPTION_ATTR));
 
 		lastUsedSerialPort = getLastUsedSerialPort();
 
@@ -152,6 +156,10 @@ public class SerialSettingsPage extends AbstractSettingsPage
 		filterText = new Text(comp, SWT.SINGLE | SWT.BORDER);
 		filterText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
+		encryptionCheckbox = new Button(comp, SWT.CHECK);
+		encryptionCheckbox.setText("Enable Encryption");
+		encryptionCheckbox.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
 		loadSettings();
 	}
 
@@ -192,6 +200,8 @@ public class SerialSettingsPage extends AbstractSettingsPage
 		{
 			this.filterText.setText(filterConfig);
 		}
+
+		this.encryptionCheckbox.setSelection(encryptionOption);
 	}
 
 	@Override
@@ -200,10 +210,12 @@ public class SerialSettingsPage extends AbstractSettingsPage
 		settings.setPortName(portCombo.getText());
 		settings.setFilterText(filterText.getText().trim());
 		settings.setProject(projectCombo.getText());
+		settings.setExtraOptions(encryptionCheckbox.getSelection());
 
 		dialogSettings.put(SerialSettings.SELECTED_PROJECT_ATTR, projectCombo.getText());
 		dialogSettings.put(SerialSettings.PORT_NAME_ATTR, portCombo.getText());
 		dialogSettings.put(SerialSettings.MONITOR_FILTER, filterText.getText().trim());
+		dialogSettings.put(SerialSettings.ENCRYPTION_ATTR, encryptionCheckbox.getSelection());
 	}
 
 	@Override

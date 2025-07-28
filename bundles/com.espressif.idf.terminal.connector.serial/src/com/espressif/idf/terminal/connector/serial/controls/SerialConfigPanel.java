@@ -67,6 +67,7 @@ public class SerialConfigPanel extends AbstractExtendedConfigurationPanel
 		data.put(SerialSettings.PORT_NAME_ATTR, settings.getPortName());
 		data.put(SerialSettings.MONITOR_FILTER, settings.getFilterText());
 		data.put(SerialSettings.SELECTED_PROJECT_ATTR, settings.getProjectName());
+		data.put(SerialSettings.ENCRYPTION_ATTR, settings.getExtraMonitorOptions());
 
 		if (getEncoding() != null)
 		{
@@ -84,7 +85,7 @@ public class SerialConfigPanel extends AbstractExtendedConfigurationPanel
 
 		settings.setPortName((String) data.get(SerialSettings.PORT_NAME_ATTR));
 		settings.setFilterText((String) data.get(SerialSettings.MONITOR_FILTER));
-
+		settings.setExtraOptions((boolean) data.get(SerialSettings.ENCRYPTION_ATTR));
 		String encoding = (String) data.get(ITerminalsConnectorConstants.PROP_ENCODING);
 		if (encoding != null)
 		{

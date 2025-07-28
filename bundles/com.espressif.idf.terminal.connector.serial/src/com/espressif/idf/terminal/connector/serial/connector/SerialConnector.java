@@ -36,6 +36,7 @@ public class SerialConnector extends TerminalConnectorImpl
 	protected Thread thread;
 	protected IProject project;
 	protected String filterOptions;
+	protected boolean encryptionOption;
 	protected ITerminalControl control;
 	private SerialPortHandler serialPort;
 
@@ -94,7 +95,7 @@ public class SerialConnector extends TerminalConnectorImpl
 		String portName = settings.getPortName();
 		filterOptions = settings.getFilterText();
 		filterOptions = StringUtil.isEmpty(filterOptions) ? StringUtil.EMPTY : filterOptions;
-
+		encryptionOption = settings.getExtraMonitorOptions();
 		serialPort = new SerialPortHandler(portName, this, project);
 		serialPort.open();
 

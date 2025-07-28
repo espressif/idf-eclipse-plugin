@@ -25,10 +25,12 @@ public class SerialSettings
 	public static final String PORT_NAME_ATTR = "cdtserial.portName"; //$NON-NLS-1$
 	public static final String MONITOR_FILTER = "idf.monitor.filter"; //$NON-NLS-1$
 	public static final String SELECTED_PROJECT_ATTR = "idf.monitor.project"; //$NON-NLS-1$
+	public static final String ENCRYPTION_ATTR = "idf.monitor.extraOptions"; //$NON-NLS-1$
 
 	private String portName;
 	private String filterText;
 	private String selectedProject;
+	private boolean extraMonitorOpts;
 
 	/**
 	 * Load information into the RemoteSettings object.
@@ -38,6 +40,7 @@ public class SerialSettings
 		portName = store.get(PORT_NAME_ATTR, ""); //$NON-NLS-1$
 		filterText = store.get(MONITOR_FILTER, ""); //$NON-NLS-1$
 		selectedProject = store.get(SELECTED_PROJECT_ATTR, ""); //$NON-NLS-1$
+		extraMonitorOpts = Boolean.parseBoolean(store.get(ENCRYPTION_ATTR, "false")); //$NON-NLS-1$
 	}
 
 	/**
@@ -48,6 +51,7 @@ public class SerialSettings
 		store.put(PORT_NAME_ATTR, portName);
 		store.put(MONITOR_FILTER, filterText);
 		store.put(SELECTED_PROJECT_ATTR, selectedProject);
+		store.put(ENCRYPTION_ATTR, Boolean.toString(extraMonitorOpts));
 	}
 
 	public String getPortName()
@@ -63,6 +67,11 @@ public class SerialSettings
 	public String getProjectName()
 	{
 		return selectedProject;
+	}
+
+	public boolean getExtraMonitorOptions()
+	{
+		return extraMonitorOpts;
 	}
 
 	public IProject getProject()
@@ -91,6 +100,11 @@ public class SerialSettings
 	public void setProject(String projectName)
 	{
 		this.selectedProject = projectName;
+	}
+
+	public void setExtraOptions(boolean extraOptions)
+	{
+		this.extraMonitorOpts = extraOptions;
 	}
 
 }
