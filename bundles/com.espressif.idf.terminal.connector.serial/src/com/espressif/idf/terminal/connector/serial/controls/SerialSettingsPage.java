@@ -210,7 +210,7 @@ public class SerialSettingsPage extends AbstractSettingsPage
 		settings.setPortName(portCombo.getText());
 		settings.setFilterText(filterText.getText().trim());
 		settings.setProject(projectCombo.getText());
-		settings.setExtraOptions(encryptionCheckbox.getSelection());
+		settings.setEncryptionOption(encryptionCheckbox.getSelection());
 
 		dialogSettings.put(SerialSettings.SELECTED_PROJECT_ATTR, projectCombo.getText());
 		dialogSettings.put(SerialSettings.PORT_NAME_ATTR, portCombo.getText());

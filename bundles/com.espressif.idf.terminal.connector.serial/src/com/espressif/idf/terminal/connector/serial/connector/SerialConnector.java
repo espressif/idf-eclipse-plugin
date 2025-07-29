@@ -95,7 +95,7 @@ public class SerialConnector extends TerminalConnectorImpl
 		String portName = settings.getPortName();
 		filterOptions = settings.getFilterText();
 		filterOptions = StringUtil.isEmpty(filterOptions) ? StringUtil.EMPTY : filterOptions;
-		encryptionOption = settings.getExtraMonitorOptions();
+		encryptionOption = settings.getEncryptionOption();
 		serialPort = new SerialPortHandler(portName, this, project);
 		serialPort.open();
 

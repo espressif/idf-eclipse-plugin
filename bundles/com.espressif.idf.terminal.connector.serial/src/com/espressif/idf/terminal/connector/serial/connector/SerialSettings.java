@@ -30,7 +30,7 @@ public class SerialSettings
 	private String portName;
 	private String filterText;
 	private String selectedProject;
-	private boolean extraMonitorOpts;
+	private boolean encryptionOption;
 
 	/**
 	 * Load information into the RemoteSettings object.
@@ -40,7 +40,7 @@ public class SerialSettings
 		portName = store.get(PORT_NAME_ATTR, ""); //$NON-NLS-1$
 		filterText = store.get(MONITOR_FILTER, ""); //$NON-NLS-1$
 		selectedProject = store.get(SELECTED_PROJECT_ATTR, ""); //$NON-NLS-1$
-		extraMonitorOpts = Boolean.parseBoolean(store.get(ENCRYPTION_ATTR, "false")); //$NON-NLS-1$
+		encryptionOption = Boolean.parseBoolean(store.get(ENCRYPTION_ATTR, "false")); //$NON-NLS-1$
 	}
 
 	/**
@@ -51,7 +51,7 @@ public class SerialSettings
 		store.put(PORT_NAME_ATTR, portName);
 		store.put(MONITOR_FILTER, filterText);
 		store.put(SELECTED_PROJECT_ATTR, selectedProject);
-		store.put(ENCRYPTION_ATTR, Boolean.toString(extraMonitorOpts));
+		store.put(ENCRYPTION_ATTR, Boolean.toString(encryptionOption));
 	}
 
 	public String getPortName()
@@ -69,9 +69,9 @@ public class SerialSettings
 		return selectedProject;
 	}
 
-	public boolean getExtraMonitorOptions()
+	public boolean getEncryptionOption()
 	{
-		return extraMonitorOpts;
+		return encryptionOption;
 	}
 
 	public IProject getProject()
@@ -102,9 +102,9 @@ public class SerialSettings
 		this.selectedProject = projectName;
 	}
 
-	public void setExtraOptions(boolean extraOptions)
+	public void setEncryptionOption(boolean encryptionOption)
 	{
-		this.extraMonitorOpts = extraOptions;
+		this.encryptionOption = encryptionOption;
 	}
 
 }
