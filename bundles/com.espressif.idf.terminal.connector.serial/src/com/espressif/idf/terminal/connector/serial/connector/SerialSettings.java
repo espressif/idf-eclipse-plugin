@@ -25,7 +25,7 @@ public class SerialSettings
 	public static final String PORT_NAME_ATTR = "cdtserial.portName"; //$NON-NLS-1$
 	public static final String MONITOR_FILTER = "idf.monitor.filter"; //$NON-NLS-1$
 	public static final String SELECTED_PROJECT_ATTR = "idf.monitor.project"; //$NON-NLS-1$
-	public static final String ENCRYPTION_ATTR = "idf.monitor.extraOptions"; //$NON-NLS-1$
+	public static final String ENCRYPTION_ATTR = "idf.monitor.encryption"; //$NON-NLS-1$
 
 	private String portName;
 	private String filterText;
