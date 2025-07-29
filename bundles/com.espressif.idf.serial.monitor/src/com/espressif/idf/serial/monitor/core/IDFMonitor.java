@@ -40,13 +40,16 @@ public class IDFMonitor
 	private IProject project;
 	private String filterOptions;
 	private int serverPort;
+	private boolean encryptionOption;
 
-	public IDFMonitor(IProject project, String port, String filterOptions, String pythonBinPath, int serverPort)
+	public IDFMonitor(IProject project, String port, String filterOptions, boolean encryptionOption,
+			String pythonBinPath, int serverPort)
 	{
 		this.project = project;
 		this.port = port;
 		this.pythonBinPath = pythonBinPath;
 		this.filterOptions = filterOptions;
+		this.encryptionOption = encryptionOption;
 		this.serverPort = serverPort;
 	}
 
@@ -71,6 +74,10 @@ public class IDFMonitor
 		args.add(port);
 		args.add("-b"); //$NON-NLS-1$
 		args.add(getMonitorBaudRate());
+		if (encryptionOption)
+		{
+			args.add("--encrypted"); //$NON-NLS-1$
+		}
 		args.add("--ws"); //$NON-NLS-1$
 		args.add("ws://localhost:".concat(String.valueOf(serverPort))); //$NON-NLS-1$
 		args.add(getElfFilePath(project).toString());
