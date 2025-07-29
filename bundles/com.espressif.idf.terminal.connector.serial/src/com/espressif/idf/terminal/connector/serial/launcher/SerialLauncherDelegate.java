@@ -63,7 +63,7 @@ public class SerialLauncherDelegate extends AbstractLauncherDelegate
 		settings.setFilterText((String) properties.get(SerialSettings.MONITOR_FILTER));
 		settings.setProject((String) properties.get(SerialSettings.SELECTED_PROJECT_ATTR));
 		Boolean encryptionOption = (Boolean) properties.get(SerialSettings.ENCRYPTION_ATTR);
-		settings.setExtraOptions(encryptionOption != null ? encryptionOption : false);
+		settings.setExtraOptions(encryptionOption != null && encryptionOption);
 		// Construct the terminal settings store
 		ISettingsStore store = new SettingsStore();
 		settings.save(store);

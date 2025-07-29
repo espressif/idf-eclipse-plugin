@@ -86,7 +86,7 @@ public class SerialConfigPanel extends AbstractExtendedConfigurationPanel
 		settings.setPortName((String) data.get(SerialSettings.PORT_NAME_ATTR));
 		settings.setFilterText((String) data.get(SerialSettings.MONITOR_FILTER));
 		Boolean encryptionValue = (Boolean) data.get(SerialSettings.ENCRYPTION_ATTR);
-		settings.setExtraOptions(encryptionValue != null ? encryptionValue : false);
+		settings.setExtraOptions(encryptionValue != null && encryptionValue);
 		String encoding = (String) data.get(ITerminalsConnectorConstants.PROP_ENCODING);
 		if (encoding != null)
 		{
