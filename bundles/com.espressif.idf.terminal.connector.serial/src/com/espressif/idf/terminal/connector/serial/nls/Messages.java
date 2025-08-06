@@ -34,6 +34,7 @@ public class Messages extends NLS
 
 	// **** Declare externalized string id's down here *****
 
+	public static String SerialSettingsPage_EncryptionOption;
 	public static String SerialSettingsPage_FilterOptions;
 	public static String SerialSettingsPage_ProjectName;
 	public static String SerialTerminalSettingsPage_SerialPort;

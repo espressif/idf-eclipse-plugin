@@ -17,13 +17,16 @@ public class SerialMonitorHandler
 	private String serialPort;
 	private String filterOptions;
 	private int serverPort;
+	private boolean encryptionOption;
 
-	public SerialMonitorHandler(IProject project, String serialPort, String filterOptions, int serverPort)
+	public SerialMonitorHandler(IProject project, String serialPort, String filterOptions, boolean encryptionOption,
+			int serverPort)
 	{
 		this.project = project;
 		this.serialPort = serialPort;
 		this.filterOptions = filterOptions;
 		this.serverPort = serverPort;
+		this.encryptionOption = encryptionOption;
 	}
 
 	public Process invokeIDFMonitor()
@@ -31,7 +34,8 @@ public class SerialMonitorHandler
 		// python path
 		String pythonPath = IDFUtil.getIDFPythonEnvPath();
 
-		IDFMonitor monitor = new IDFMonitor(project, serialPort, filterOptions, pythonPath, serverPort);
+		IDFMonitor monitor = new IDFMonitor(project, serialPort, filterOptions, encryptionOption, pythonPath,
+				serverPort);
 		try
 		{
 			return monitor.start();
