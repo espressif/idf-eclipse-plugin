@@ -1,0 +1,2 @@
+com.espressif.idf.core.component.registry.http.handlers.HandshakeHandler
+com.espressif.idf.core.component.registry.http.handlers.AddComponentHandler
