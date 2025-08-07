@@ -424,13 +424,8 @@ public class NewEspressifIDFProjectTest
 			editor.setFocus();
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 
-			// Open the "Error Log" view
-			bot.menu("Window").menu("Show View").menu("Other...").click();
-			bot.tree().getTreeItem("General").select();
-			bot.tree().getTreeItem("General").doubleClick();
-			bot.tree().getTreeItem("General").getNode("Error Log").select();
-			bot.button("Open").click();
-			SWTBotView errorLogView = bot.activeView();
+			SWTBotView errorLogView = bot.viewByPartName("Problems");
+			errorLogView.show();
 
 			try
 			{
