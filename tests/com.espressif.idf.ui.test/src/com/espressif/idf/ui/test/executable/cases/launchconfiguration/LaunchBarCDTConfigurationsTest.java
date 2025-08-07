@@ -20,7 +20,6 @@ import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -76,7 +75,6 @@ public class LaunchBarCDTConfigurationsTest
 		Fixture.givenTargetTypeSelectedIs("ESP Target");
 		Fixture.givenNewLaunchTargetName("TestESP");
 		Fixture.givenNewLaunchTargetComPortIsSetTo("COMTEST");
-		Fixture.givenNewLaunchTargetIdfTargetSetTo("esp32s2");
 		Fixture.whenFinishIsClicked();
 		Fixture.thenLaunchTargetContains("TestESP");
 		Fixture.thenLaunchTargetIsSelectedFromLaunchTargets("TestESP");
@@ -119,7 +117,7 @@ public class LaunchBarCDTConfigurationsTest
 
 		private static void givenNewLaunchTargetComPortIsSetTo(String comPort)
 		{
-			
+
 			if (bot.comboBoxWithLabel("Serial Port:").itemCount() != 0)
 			{
 				bot.comboBoxWithLabel("Serial Port:").setSelection(0);

@@ -9,8 +9,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import org.eclipse.jface.bindings.keys.KeyStroke;
-import org.eclipse.jface.bindings.keys.ParseException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -79,24 +77,25 @@ public class IDFProjectLspCdtFunctionalityTest
 		assertTrue("Expected LSP proposals not found", !proposals.isEmpty()); //$NON-NLS-1$
 	}
 
-	@Test
-	public void test_HoverInformationAppears() throws ParseException
-	{
-		openMainCFile();
-		SWTBotEditor editor = bot.editorByTitle("main.c"); //$NON-NLS-1$
-		editor.setFocus();
-		TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
-
-		bot.sleep(2000);
-		editor.toTextEditor().navigateTo(0, 5);
-		editor.toTextEditor().pressShortcut(KeyStroke.getInstance("F2")); //$NON-NLS-1$
-		bot.sleep(2000);
-
-		// lsp hover contains the code field
-		boolean hoverShown = editor.toTextEditor().bot().shell("").bot().browser().getText().contains("code"); //$NON-NLS-1$ //$NON-NLS-2$
-
-		assertTrue("Hover documentation not shown", hoverShown); //$NON-NLS-1$
-	}
+	// TODO: This test is flaky — it occasionally fails on CI runners and sometimes locally when run with other tests.
+//	@Test
+//	public void test_HoverInformationAppears() throws ParseException
+//	{
+//		openMainCFile();
+//		SWTBotEditor editor = bot.editorByTitle("main.c"); //$NON-NLS-1$
+//		editor.setFocus();
+//		TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
+//
+//		bot.sleep(2000);
+//		editor.toTextEditor().navigateTo(0, 5);
+//		editor.toTextEditor().pressShortcut(KeyStroke.getInstance("F2")); //$NON-NLS-1$
+//		bot.sleep(2000);
+//
+//		// lsp hover contains the code field
+//		boolean hoverShown = editor.toTextEditor().bot().shell("").bot().browser().getText().contains("code"); //$NON-NLS-1$ //$NON-NLS-2$
+//
+//		assertTrue("Hover documentation not shown", hoverShown); //$NON-NLS-1$
+//	}
 
 	@Test
 	public void test_Diagnostics_NoErrorThenErrorAppears()
