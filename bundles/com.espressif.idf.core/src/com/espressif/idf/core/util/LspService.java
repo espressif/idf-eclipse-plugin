@@ -58,20 +58,6 @@ public class LspService
 				additionalOptions);
 	}
 
-	public void updateLspQueryDrivers()
-	{
-		String toolchainPath = IDFUtil.getToolchainExePathForActiveTarget();
-		String qualifier = configuration.qualifier();
-		if (toolchainPath == null)
-		{
-			Logger.log("Toolchain path not found. Skipping update of --query-driver for LSP"); //$NON-NLS-1$
-			return;
-		}
-		// By passing --query-driver argument to clangd helps to resolve the
-		// cross-compiler toolchain headers.
-		InstanceScope.INSTANCE.getNode(qualifier).put(ClangdMetadata.Predefined.queryDriver.identifer(), toolchainPath);
-	}
-
 	public void updateClangdPath()
 	{
 		String clangdPath = IDFUtil.findCommandFromBuildEnvPath(ILSPConstants.CLANGD_EXECUTABLE);

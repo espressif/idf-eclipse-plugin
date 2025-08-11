@@ -19,8 +19,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.ILaunchMode;
@@ -38,7 +36,6 @@ import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.LaunchUtil;
-import com.espressif.idf.core.util.LspService;
 import com.espressif.idf.core.util.SDKConfigJsonReader;
 import com.espressif.idf.core.util.StringUtil;
 
@@ -96,9 +93,6 @@ public class LaunchBarListener implements ILaunchBarListener
 				if (!StringUtil.isEmpty(targetName) && (!targetChangeIgnored))
 				{
 					update(targetName);
-					LspService lspService = new LspService();
-					lspService.updateLspQueryDrivers();
-					lspService.restartLspServers();
 				}
 			}
 		});
