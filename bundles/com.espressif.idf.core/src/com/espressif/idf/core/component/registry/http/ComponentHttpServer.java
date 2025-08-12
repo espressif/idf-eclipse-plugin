@@ -1,12 +1,14 @@
 package com.espressif.idf.core.component.registry.http;
 
 import java.util.ServiceLoader;
+import java.util.Set;
 
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.CrossOriginHandler;
 
 import com.espressif.idf.core.component.registry.http.handlers.ComponentHttpServerHandler;
 import com.espressif.idf.core.logging.Logger;
@@ -15,7 +17,7 @@ import com.espressif.idf.core.util.StringUtil;
 public class ComponentHttpServer
 {
 	private Server server;
-	private ContextHandlerCollection contextHandlers;
+	private ContextHandlerCollection handlersCollection;
 	private ServerConnector connector;
 	private int port = 8080; // Default port
 
@@ -23,7 +25,7 @@ public class ComponentHttpServer
 	{
 		server = new Server();
 		connector = new ServerConnector(server, 1, 1, new HttpConnectionFactory());
-		contextHandlers = new ContextHandlerCollection();
+		handlersCollection = new ContextHandlerCollection();
 	}
 
 	public void start() throws Exception
@@ -35,8 +37,11 @@ public class ComponentHttpServer
 		server.addConnector(connector);
 
 		initiateHandlers();
-
-		server.setHandler(contextHandlers);
+		CrossOriginHandler corsHandler = new CrossOriginHandler();
+		corsHandler.setAllowedOriginPatterns(Set.of("https://components.espressif.com/")); //$NON-NLS-1$
+		corsHandler.setHandler(handlersCollection);
+		
+		server.setHandler(corsHandler);
 
 		server.start();
 		Logger.log("Component HTTP Server started on port " + port); //$NON-NLS-1$
@@ -74,7 +79,7 @@ public class ComponentHttpServer
 
 			ContextHandler contextHandler = new ContextHandler(path);
 			contextHandler.setHandler(handler.getHandler());
-			contextHandlers.addHandler(contextHandler);
+			handlersCollection.addHandler(contextHandler);
 			Logger.log("Added handler for path: " + path); //$NON-NLS-1$
 		}
 	}
