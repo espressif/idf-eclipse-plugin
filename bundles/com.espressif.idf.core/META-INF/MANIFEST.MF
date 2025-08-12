@@ -32,13 +32,19 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.cdt.lsp.clangd,
  org.eclipse.cdt.lsp;bundle-version="3.0.0",
  org.eclipse.lsp4e;bundle-version="0.18.18",
- org.eclipse.lsp4j;bundle-version="0.24.0"
+ org.eclipse.lsp4j;bundle-version="0.24.0",
+ org.eclipse.jetty.server;bundle-version="12.0.16",
+ org.eclipse.jetty.util;bundle-version="9.4.44",
+ org.eclipse.jetty.io;bundle-version="12.0.16",
+ org.eclipse.jetty.http;bundle-version="12.0.16",
+ org.eclipse.jetty.servlet-api;bundle-version="4.0.6"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: com.espressif.idf.core
 Bundle-ActivationPolicy: lazy
 Export-Package: com.espressif.idf.core,
  com.espressif.idf.core.actions,
  com.espressif.idf.core.build,
+ com.espressif.idf.core.component.registry.http,
  com.espressif.idf.core.configparser,
  com.espressif.idf.core.configparser.vo,
  com.espressif.idf.core.logging,

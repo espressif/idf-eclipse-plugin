@@ -444,11 +444,6 @@
         name="%command.name.7">
   </command>
   <command
-        defaultHandler="com.espressif.idf.ui.installcomponents.handler.InstallIDFComponentsHandler"
-        id="com.espressif.idf.ui.installidfcomponents"
-        name="%command.name.8">
-  </command>
-  <command
         categoryId="org.plugin.espressif.commands.category"
         id="org.plugin.espressif.commands.eraseFlash"
         name="%command.name.6">
@@ -457,12 +452,6 @@
         defaultHandler="com.espressif.idf.ui.handlers.HelpContribItemHandler"
         id="com.espressif.idf.ui.contributions.help"
         name="%command.name.9">
-  </command>
-  <command
-        categoryId="org.plugin.espressif.commands.category"
-        defaultHandler="com.espressif.idf.ui.installcomponents.handler.InstallIDFComponentsHandler"
-        id="com.espressif.idf.bundles.installIdfComponents"
-        name="%command.name.10">
   </command>
 	</extension>
 	<extension
@@ -646,6 +635,8 @@
   <startup
         class="com.espressif.idf.ui.ListenerStartup">
   </startup>
+  		<startup
+			class="com.espressif.idf.ui.installcomponents.ComponentsHttpServerStartup" />
 	</extension>
 	<extension
 		id="com.espressif.idf.ui.extension.locale.support"
@@ -704,13 +695,6 @@
 			icon="icons/espressif.png"
 			id="com.espressif.idf.ui.editor.heapTraceAnalysis"
 			name="%editor.name.0">
-		</editor>
-		<editor
-			class="com.espressif.idf.ui.installcomponents.InstallComponentsEditor"
-			default="false"
-			icon="icons/ESP-IDF_InstallComponents.png"
-			id="com.espressif.idf.ui.installComponents"
-			name="%editor.name.1">
 		</editor>
 		<editor
 			class="com.espressif.idf.ui.tools.manager.ESPIDFManagerEditor"
