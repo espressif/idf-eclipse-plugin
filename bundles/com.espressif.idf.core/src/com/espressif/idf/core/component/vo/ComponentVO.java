@@ -30,4 +30,10 @@ public class ComponentVO
 	{
 		this.version = version;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "ComponentVO [name=" + name + ", namespace=" + namespace + ", version=" + version + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+	}
 }
