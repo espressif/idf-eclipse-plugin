@@ -158,6 +158,7 @@ public class SerialSettingsPage extends AbstractSettingsPage
 
 		encryptionCheckbox = new Button(comp, SWT.CHECK);
 		encryptionCheckbox.setText(Messages.SerialSettingsPage_EncryptionOption);
+		encryptionCheckbox.setToolTipText(Messages.SerialSettingsPage_EncryptionOptionTooltip);
 		encryptionCheckbox.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		loadSettings();
