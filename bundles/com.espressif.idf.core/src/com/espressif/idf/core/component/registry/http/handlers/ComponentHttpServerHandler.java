@@ -6,5 +6,4 @@ public interface ComponentHttpServerHandler
 {
 	String getPath();
     Handler.Abstract getHandler();
-
 }

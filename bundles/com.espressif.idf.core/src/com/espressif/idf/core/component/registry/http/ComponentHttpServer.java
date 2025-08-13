@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2025 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.core.component.registry.http;
 
 import java.util.ServiceLoader;
@@ -14,6 +18,13 @@ import com.espressif.idf.core.component.registry.http.handlers.ComponentHttpServ
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.StringUtil;
 
+/**
+ * ComponentHttpServer is responsible for starting an HTTP server that listens for component-related requests.
+ * It dynamically loads handlers for different component paths and allows cross-origin requests from specified origins.
+ * The server runs on a default port of 8080, but can find an available port in the range of 8080-8180 if needed.
+ * 
+ * @author Ali Azam Rana 
+ */
 public class ComponentHttpServer
 {
 	private Server server;
@@ -26,6 +37,19 @@ public class ComponentHttpServer
 		server = new Server();
 		connector = new ServerConnector(server, 1, 1, new HttpConnectionFactory());
 		handlersCollection = new ContextHandlerCollection();
+	}
+	
+	public void stop() throws Exception
+	{
+		if (server != null && server.isStarted())
+		{
+			server.stop();
+			Logger.log("Component HTTP Server stopped."); //$NON-NLS-1$
+		}
+		else
+		{
+			Logger.log("Component HTTP Server is not running."); //$NON-NLS-1$
+		}
 	}
 
 	public void start() throws Exception
