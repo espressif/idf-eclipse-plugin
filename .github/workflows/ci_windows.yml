@@ -44,7 +44,7 @@ jobs:
         distribution: 'temurin'
 
     - name: Build with Maven
-      run: mvn clean verify -Djava.home="%JAVA_HOME%" "-Djarsigner.skip=true" "-DskipTests=false" "-DtestWorkspace=C:/actions-runner/_work/workspace"
+      run: mvn clean verify "-Djarsigner.skip=true" "-DskipTests=false" "-DtestWorkspace=C:/actions-runner/_work/workspace"
 
     - name: Publish Test Reports
       if: ${{ always() }}
