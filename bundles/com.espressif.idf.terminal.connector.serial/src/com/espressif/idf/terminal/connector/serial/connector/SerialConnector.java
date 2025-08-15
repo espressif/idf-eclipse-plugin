@@ -28,55 +28,65 @@ import org.eclipse.tm.internal.terminal.provisional.api.provider.TerminalConnect
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.terminal.connector.serial.activator.Activator;
 
-public class SerialConnector extends TerminalConnectorImpl {
+public class SerialConnector extends TerminalConnectorImpl
+{
 
 	private SerialSettings settings = new SerialSettings();
 	protected Process process;
 	protected Thread thread;
 	protected IProject project;
 	protected String filterOptions;
+	protected boolean encryptionOption;
 	protected ITerminalControl control;
 	private SerialPortHandler serialPort;
 
 	private static Set<String> openPorts = new HashSet<>();
 
-	public static boolean isOpen(String portName) {
+	public static boolean isOpen(String portName)
+	{
 		return openPorts.contains(portName);
 	}
 
 	@Override
-	public OutputStream getTerminalToRemoteStream() {
+	public OutputStream getTerminalToRemoteStream()
+	{
 		return process.getOutputStream();
 	}
 
-	public SerialSettings getSettings() {
+	public SerialSettings getSettings()
+	{
 		return settings;
 	}
 
 	@Override
-	public String getSettingsSummary() {
+	public String getSettingsSummary()
+	{
 		return settings.getSummary();
 	}
 
 	@Override
-	public void load(ISettingsStore store) {
+	public void load(ISettingsStore store)
+	{
 		settings.load(store);
 	}
 
 	@Override
-	public void save(ISettingsStore store) {
+	public void save(ISettingsStore store)
+	{
 		settings.save(store);
 	}
 
 	@Override
-	public void connect(ITerminalControl control) {
+	public void connect(ITerminalControl control)
+	{
 		super.connect(control);
 		this.control = control;
 
-		//Get selected project - which is required for IDF Monitor
+		// Get selected project - which is required for IDF Monitor
 		project = settings.getProject();
 
-		if (project == null) {
+		if (project == null)
+		{
 			String message = "project can't be null. Make sure you select a project before launch a serial monitor"; //$NON-NLS-1$
 			Activator.log(new Status(IStatus.ERROR, Activator.getUniqueIdentifier(), message, null));
 			return;
@@ -85,7 +95,7 @@ public class SerialConnector extends TerminalConnectorImpl {
 		String portName = settings.getPortName();
 		filterOptions = settings.getFilterText();
 		filterOptions = StringUtil.isEmpty(filterOptions) ? StringUtil.EMPTY : filterOptions;
-
+		encryptionOption = settings.getEncryptionOption();
 		serialPort = new SerialPortHandler(portName, this, project);
 		serialPort.open();
 
@@ -94,13 +104,18 @@ public class SerialConnector extends TerminalConnectorImpl {
 	}
 
 	@Override
-	protected void doDisconnect() {
+	protected void doDisconnect()
+	{
 
-		if (serialPort != null && serialPort.isOpen()) {
+		if (serialPort != null && serialPort.isOpen())
+		{
 			openPorts.remove(serialPort.getPortName());
-			try {
+			try
+			{
 				serialPort.close();
-			} catch (IOException e) {
+			}
+			catch (IOException e)
+			{
 				Activator.log(e);
 			}
 		}
