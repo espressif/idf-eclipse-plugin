@@ -1,6 +1,5 @@
 package com.espressif.idf.lsp.preferences;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +11,6 @@ import org.eclipse.core.runtime.preferences.PreferenceMetadata;
 import org.osgi.service.component.annotations.Component;
 
 import com.espressif.idf.core.ILSPConstants;
-import com.espressif.idf.core.toolchain.ESPToolChainManager;
 import com.espressif.idf.core.util.IDFUtil;
 
 @Component(property = { "service.ranking:Integer=0" })
@@ -33,9 +31,8 @@ public class IDFClangdMetadataDefaults extends ConfigurationMetadataBase impleme
 
 		var clangdMetadataWithDefault = wrapWithCustomDefaultValue(clangdPath, ClangdMetadata.Predefined.clangdPath);
 
-		ESPToolChainManager toolChainManager = new ESPToolChainManager();
-		String defaultIdfQueryDriver = Optional.ofNullable(toolChainManager.findCompiler("esp32")) //$NON-NLS-1$
-				.map(File::getAbsolutePath).orElse(""); //$NON-NLS-1$
+		// Allow clangd to use the driver specified in compile_commands.json
+		String defaultIdfQueryDriver = "**"; //$NON-NLS-1$
 
 		var queryDriverMetadataWithDefault = wrapWithCustomDefaultValue(defaultIdfQueryDriver,
 				ClangdMetadata.Predefined.queryDriver);
