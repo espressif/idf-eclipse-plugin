@@ -4,18 +4,19 @@
  *******************************************************************************/
 package com.espressif.idf.core.util;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.eclipse.cdt.utils.CommandLineUtil;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.variables.VariablesPlugin;
-import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -121,34 +122,53 @@ public class DfuCommandsUtil
 			flashCommand = resolveExpressionFromVariableManager(flashCommand);
 			flashCommandList = Arrays.asList(CommandLineUtil.argumentsToArray(flashCommand));
 		}
-		catch (CoreException e1)
-		{
-			Logger.log(e1);
-		}
-		List<String> commands = new ArrayList<>();
-		commands.addAll(flashCommandList);
-		File workingDir = null;
-		workingDir = new File(project.getLocationURI());
-		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
-		List<String> strings = new ArrayList<>(envMap.size());
-		for (Entry<String, String> entry : envMap.entrySet())
-		{
-			StringBuilder buffer = new StringBuilder(entry.getKey());
-			buffer.append('=').append(entry.getValue()); // $NON-NLS-1$
-			strings.add(buffer.toString());
-		}
-
-		String[] envArray = strings.toArray(new String[strings.size()]);
-		Process p = null;
-		try
-		{
-			p = DebugPlugin.exec(commands.toArray(new String[0]), workingDir, envArray);
-		}
 		catch (CoreException e)
 		{
 			Logger.log(e);
+			return;
 		}
-		DebugPlugin.newProcess(launch, p, String.join(" ", commands)); //$NON-NLS-1$
+
+		File workingDir = new File(project.getLocationURI());
+		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
+		envMap.put("PYTHONUNBUFFERED", "1");
+		ProcessBuilder pb = new ProcessBuilder(flashCommandList);
+		pb.directory(workingDir);
+		pb.environment().putAll(envMap);
+//		pb.redirectError(Redirect.INHERIT);
+//		pb.redirectOutput(Redirect.INHERIT);
+		pb.redirectErrorStream(true);
+		try
+		{
+			Process process = pb.start();
+
+			Thread outputThread = new Thread(() -> {
+				try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream())))
+				{
+					String line;
+					while ((line = reader.readLine()) != null)
+					{
+						System.out.println(line);
+					}
+				}
+				catch (IOException e)
+				{
+					Logger.log(e);
+				}
+			});
+			outputThread.start();
+
+			int exitCode = process.waitFor();
+			outputThread.join();
+			System.out.println("DFU flash process exited with code: " + exitCode);
+
+		}
+		catch (
+				IOException
+				| InterruptedException e)
+		{
+			Logger.log(e);
+			Thread.currentThread().interrupt();
+		}
 	}
 
 	private static Shell getShell()
