@@ -309,11 +309,21 @@ public class EspressifToolStartup implements IStartup
 
 	private void promptUserToMoveEimToApplications()
 	{
-		GlobalModalLock.showModal(() -> {
-			MessageDialog.openInformation(Display.getDefault().getActiveShell(), Messages.EIMNotInApplicationsTitle,
+		Display.getDefault().syncExec(() -> {
+			String testRunValue = System.getProperty("testRun");
+			Logger.log("testRun: " + testRunValue);
+
+			if (!StringUtil.isEmpty(testRunValue) && Boolean.parseBoolean(testRunValue))
+			{
+				return;
+			}
+			
+			GlobalModalLock.showModal(() -> {
+				MessageDialog.openInformation(Display.getDefault().getActiveShell(), Messages.EIMNotInApplicationsTitle,
 					Messages.EIMNotInApplicationsMessage);
-			return null;
-		}, ignored -> {
+				return null;
+			}, ignored -> {
+			});
 		});
 	}
 

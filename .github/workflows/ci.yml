@@ -44,7 +44,7 @@ jobs:
         cache: 'maven'
 
     - name: Build with Maven
-      run: export NO_AT_BRIDGE=1 && mvn clean verify -Djarsigner.skip=true -DskipTests=false -DtestWorkspace=/opt/actions-runner/_work/workspace
+      run: export NO_AT_BRIDGE=1 && mvn clean verify -Djarsigner.skip=true -DskipTests=false -DtestRun=TEST -DtestWorkspace=/opt/actions-runner/_work/workspace
 
     - name: Publish Test Reports
       if: ${{ always() }}
