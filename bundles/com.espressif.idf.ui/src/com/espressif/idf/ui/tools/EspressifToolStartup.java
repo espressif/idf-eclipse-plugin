@@ -284,10 +284,10 @@ public class EspressifToolStartup implements IStartup
 	private void promptUserToOpenToolManager(EimJson eimJson)
 	{
 		Display.getDefault().syncExec(() -> {
-			String testRunValue = System.getProperty("testRun");
-			Logger.log("testRun: " + testRunValue);
+			String skipTestsValue = System.getProperty("skipTests");
+			Logger.log("skipTests: " + skipTestsValue);
 
-			if (!StringUtil.isEmpty(testRunValue) && Boolean.parseBoolean(testRunValue))
+			if (!StringUtil.isEmpty(skipTestsValue) && !Boolean.parseBoolean(skipTestsValue))
 			{
 				openEspIdfManager(eimJson);
 				return;
@@ -308,23 +308,22 @@ public class EspressifToolStartup implements IStartup
 	}
 
 	private void promptUserToMoveEimToApplications()
-	{
-		Display.getDefault().syncExec(() -> {
-			String testRunValue = System.getProperty("testRun");
-			Logger.log("testRun: " + testRunValue);
+	{ //we don't run tests on Mac machine yet, this was added for future Mac test cases.
+			String skipTestsValue = System.getProperty("skipTests");
+			Logger.log("skipTests: " + skipTestsValue);
 
-			if (!StringUtil.isEmpty(testRunValue) && Boolean.parseBoolean(testRunValue))
+			if (!StringUtil.isEmpty(skipTestsValue) && !Boolean.parseBoolean(skipTestsValue))
 			{
 				return;
 			}
-			
-			GlobalModalLock.showModal(() -> {
-				MessageDialog.openInformation(Display.getDefault().getActiveShell(), Messages.EIMNotInApplicationsTitle,
-					Messages.EIMNotInApplicationsMessage);
-				return null;
-			}, ignored -> {
+			Display.getDefault().syncExec(() -> {
+				GlobalModalLock.showModal(() -> {
+					MessageDialog.openInformation(Display.getDefault().getActiveShell(), Messages.EIMNotInApplicationsTitle,
+							Messages.EIMNotInApplicationsMessage);
+					return null;
+				}, ignored -> {
+				});
 			});
-		});
 	}
 
 	private void openEspIdfManager(EimJson eimJson)
