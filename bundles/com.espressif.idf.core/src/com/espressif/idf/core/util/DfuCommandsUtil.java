@@ -7,9 +7,13 @@ package com.espressif.idf.core.util;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.cdt.utils.CommandLineUtil;
 import org.eclipse.core.resources.IProject;
@@ -129,17 +133,38 @@ public class DfuCommandsUtil
 		commands.addAll(flashCommandList);
 		File workingDir = null;
 		workingDir = new File(project.getLocationURI());
-		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
-		List<String> strings = new ArrayList<>(envMap.size());
-		for (Entry<String, String> entry : envMap.entrySet())
+		Map<String, String> idfEnvMap = new IDFEnvironmentVariables().getSystemEnvMap();
+
+		// Disable buffering of output
+		idfEnvMap.put("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
+
+		// Update with the CDT build environment variables
+		Map<String, String> environment = new HashMap<>(IDFUtil.getSystemEnv());
+		environment.putAll(idfEnvMap);
+
+		Logger.log(environment.toString());
+
+		// Merge PATH and Path
+		String mergedPath = Stream.of(environment.get("PATH"), environment.get("Path")).filter(Objects::nonNull) //$NON-NLS-1$ //$NON-NLS-2$
+				.collect(Collectors.joining(";")); //$NON-NLS-1$
+
+		// Remove duplicate Path
+		if (!mergedPath.isEmpty())
+		{
+			environment.put("PATH", mergedPath); //$NON-NLS-1$
+			environment.remove("Path"); //$NON-NLS-1$
+		}
+
+		List<String> strings = new ArrayList<>(environment.size());
+		for (Entry<String, String> entry : environment.entrySet())
+
 		{
 			StringBuilder buffer = new StringBuilder(entry.getKey());
 			buffer.append('=').append(entry.getValue()); // $NON-NLS-1$
 			strings.add(buffer.toString());
 		}
-
-		String[] envArray = strings.toArray(new String[strings.size()]);
 		Process p = null;
+		String[] envArray = strings.toArray(new String[strings.size()]);
 		try
 		{
 			p = DebugPlugin.exec(commands.toArray(new String[0]), workingDir, envArray);

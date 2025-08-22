@@ -850,10 +850,30 @@ public class IDFUtil
 
 	public static Map<String, String> getSystemEnv()
 	{
-		Map<String, String> env = new HashMap<String, String>(System.getenv());
+		Map<String, String> env = new HashMap<>(System.getenv());
+
 		String idfToolsPath = Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
 				IDFCorePreferenceConstants.IDF_TOOLS_PATH, IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT, null);
 		env.put(IDFCorePreferenceConstants.IDF_TOOLS_PATH, idfToolsPath);
+
+		// Merge Homebrew bin paths into PATH
+		String existingPath = env.getOrDefault("PATH", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		StringBuilder newPath = new StringBuilder();
+
+		String[] brewPaths = { "/usr/local/bin", "/opt/homebrew/bin" }; //$NON-NLS-1$ //$NON-NLS-2$
+
+		for (String brewPath : brewPaths)
+		{
+			if (Files.exists(Paths.get(brewPath)) && !existingPath.contains(brewPath))
+			{
+				newPath.append(brewPath).append(":"); //$NON-NLS-1$
+			}
+		}
+
+		// Append the original PATH at the end
+		newPath.append(existingPath);
+		env.put("PATH", newPath.toString()); //$NON-NLS-1$
+
 		return env;
 	}
 
@@ -885,11 +905,14 @@ public class IDFUtil
 
 	/**
 	 * Checks if esp_detect_config.py exists in the expected OpenOCD tools directory.
+	 * 
 	 * @return true if esp_detect_config.py exists, false otherwise.
 	 */
-	public static boolean espDetectConfigScriptExists() {
+	public static boolean espDetectConfigScriptExists()
+	{
 		String openocdBinDir = getOpenOCDLocation();
-		if (StringUtil.isEmpty(openocdBinDir)) {
+		if (StringUtil.isEmpty(openocdBinDir))
+		{
 			return false;
 		}
 		File binDir = new File(openocdBinDir);
@@ -900,12 +923,14 @@ public class IDFUtil
 	}
 
 	/**
-	 * Runs the esp_detect_config.py script using the OPENOCD_SCRIPTS environment variable to locate the script and config files.
-	 * Returns the JSON output as a string, or null on error.
+	 * Runs the esp_detect_config.py script using the OPENOCD_SCRIPTS environment variable to locate the script and
+	 * config files. Returns the JSON output as a string, or null on error.
 	 */
-	public static String runEspDetectConfigScript() {
+	public static String runEspDetectConfigScript()
+	{
 		String openocdBinDir = getOpenOCDLocation();
-		if (StringUtil.isEmpty(openocdBinDir)) {
+		if (StringUtil.isEmpty(openocdBinDir))
+		{
 			Logger.log("OpenOCD location could not be determined."); //$NON-NLS-1$
 			return null;
 		}
@@ -915,29 +940,34 @@ public class IDFUtil
 		File scriptsDir = Paths.get(openocdRoot.getPath(), "share", "openocd", "scripts").toFile(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		File toolsDir = Paths.get(openocdRoot.getPath(), "share", "openocd", "espressif", "tools").toFile(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		File configFile = new File(scriptsDir, "esp-config.json"); //$NON-NLS-1$
-		if (!configFile.exists()) {
+		if (!configFile.exists())
+		{
 			Logger.log("esp-config.json not found at expected location: " + configFile.getAbsolutePath()); //$NON-NLS-1$
 			return null;
 		}
-		if (!espDetectConfigScriptExists()) {
-			Logger.log("esp_detect_config.py not found at expected location: " + new File(toolsDir, "esp_detect_config.py").getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		if (!espDetectConfigScriptExists())
+		{
+			Logger.log("esp_detect_config.py not found at expected location: " //$NON-NLS-1$
+					+ new File(toolsDir, "esp_detect_config.py").getAbsolutePath()); //$NON-NLS-1$
 			return null;
 		}
 		String scriptPath = new File(toolsDir, "esp_detect_config.py").getAbsolutePath(); //$NON-NLS-1$
 		String configPath = configFile.getAbsolutePath();
 		String openocdExecutable = Platform.getOS().equals(Platform.OS_WIN32) ? "openocd.exe" : "openocd"; //$NON-NLS-1$ //$NON-NLS-2$
 		File openocdBin = new File(openocdBinDir, openocdExecutable);
-		if (!openocdBin.exists()) {
+		if (!openocdBin.exists())
+		{
 			Logger.log("OpenOCD binary not found at expected location."); //$NON-NLS-1$
 			return null;
 		}
-		
+
 		String idfPythonEnvPath = IDFUtil.getIDFPythonEnvPath();
-		if (StringUtil.isEmpty(idfPythonEnvPath)) {
+		if (StringUtil.isEmpty(idfPythonEnvPath))
+		{
 			Logger.log("IDF_PYTHON_ENV_PATH could not be found."); //$NON-NLS-1$
 			return null;
 		}
-		
+
 		List<String> command = new ArrayList<>();
 		command.add(idfPythonEnvPath);
 		command.add(scriptPath);
@@ -945,16 +975,20 @@ public class IDFUtil
 		command.add(configPath);
 		command.add("--oocd");//$NON-NLS-1$
 		command.add(openocdBin.getAbsolutePath());
-		
+
 		Map<String, String> env = new IDFEnvironmentVariables().getSystemEnvMap();
-		try {
+		try
+		{
 			IStatus status = new ProcessBuilderFactory().runInBackground(command, null, env);
-			if (status == null) {
+			if (status == null)
+			{
 				Logger.log("esp_detect_config.py did not return a result."); //$NON-NLS-1$
 				return null;
 			}
 			return status.getMessage();
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			Logger.log(e);
 			return null;
 		}
