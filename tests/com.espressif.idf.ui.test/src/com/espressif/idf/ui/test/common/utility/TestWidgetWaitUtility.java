@@ -6,7 +6,6 @@ package com.espressif.idf.ui.test.common.utility;
 
 import java.util.Arrays;
 import java.util.Optional;
-
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
@@ -130,6 +129,7 @@ public class TestWidgetWaitUtility
 				view.show();
 				view.setFocus();
 				String textString = view.bot().styledText().getText();
+				
 				return textString.toLowerCase().contains(text.toLowerCase());
 			}
 
@@ -140,6 +140,25 @@ public class TestWidgetWaitUtility
 			}
 		}, timeOut, 3000);
 	}
+	
+	public static void waitUntilTextContains(SWTWorkbenchBot bot, String text, SWTBotView terminalView, long timeOut) {
+	    terminalView.bot().waitUntil(new DefaultCondition() {
+	        @Override
+	        public boolean test() throws Exception {
+	            
+	            String terminalText = terminalView.bot().canvas().getText();
+	            
+	            return terminalText.toLowerCase().contains(text.toLowerCase());
+	        }
+
+	        @Override
+	        public String getFailureMessage() {
+	            return "Text not found in terminal!";
+	        }
+	    }, timeOut, 3000);  // Wait for up to 'timeOut' milliseconds
+	}
+
+
 
 	/**
 	 * Waits until the tree contains an item which contains the name in its text
