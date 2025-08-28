@@ -118,7 +118,7 @@ public class NewEspressifIDFProjectFlashProcessTest {
 			LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
 			targetSelector.clickEdit();
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "New ESP Target", 20000);
-			bot.comboBoxWithLabel("Serial Port:").setSelection("<Once device will be connected to runner the field should be updated here>");
+			bot.comboBoxWithLabel("Serial Port:").setSelection("/dev/ttyUSB1 CP2102N USB to UART Bridge Controller");
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
 			bot.button("Finish").click();
 		}
