@@ -5,14 +5,11 @@
 package com.espressif.idf.ui.test.executable.cases.project;
 
 import java.io.IOException;
-import static org.junit.Assert.assertTrue;
 
-import org.eclipse.launchbar.core.ILaunchBarManager;
-import org.eclipse.launchbar.core.internal.Activator;
-import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
-import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
+import static org.eclipse.swtbot.swt.finder.waits.Conditions.*;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -132,7 +129,10 @@ public class NewEspressifIDFProjectFlashProcessTest {
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Edit Configuration", 20000);
 			bot.cTabItem("Main").show();
 			bot.cTabItem("Main").setFocus();
-			bot.checkBox("Open Serial Monitor After Flashing").click();
+			SWTBotCheckBox checkBox = bot.checkBox("Open Serial Monitor After Flashing");
+			if (checkBox.isChecked()) {
+			checkBox.click();
+			}
 			bot.button("OK").click();
 		}
 		
@@ -143,7 +143,7 @@ public class NewEspressifIDFProjectFlashProcessTest {
 			bot.tree().getTreeItem("ESP-IDF Application").select();
 			bot.tree().getTreeItem("ESP-IDF Application").expand();
 			bot.tree().getTreeItem("ESP-IDF Application").getNode(projectName).select();
-			bot.sleep(1000);
+			bot.waitUntil(widgetIsEnabled(bot.button("Run")), 5000);
 			bot.button("Run").click();
 		}
 		

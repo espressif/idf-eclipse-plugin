@@ -52,6 +52,8 @@ public class ProjectTestOperations
 {
 
 	private static final String DEFAULT_PROJECT_BUILD_WAIT_PROPERTY = "default.project.build.wait";
+	
+	private static final String DEFAULT_FLASH_WAIT_PROPERTY = "default.project.flash.wait";
 
 	private static final Logger logger = LoggerFactory.getLogger(ProjectTestOperations.class);
 
@@ -95,7 +97,7 @@ public class ProjectTestOperations
 		SWTBotView view = bot.viewByPartName("Console");
 		view.setFocus();
 		TestWidgetWaitUtility.waitUntilViewContains(bot, "Hard resetting via RTS pin...", view,
-				DefaultPropertyFetcher.getLongPropertyValue("Default_project_flash_wait", 40000));
+				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_FLASH_WAIT_PROPERTY, 120000));
 	}
 
 	public static void waitForProjectNewComponentInstalled(SWTWorkbenchBot bot) throws IOException
