@@ -763,4 +763,12 @@ public class ProjectTestOperations
 			}
 		}
 	}
+	
+	public static void waitProjectFlashAndVerify(SWTWorkbenchBot bot) throws IOException
+	{
+		SWTBotView view = bot.viewByPartName("Console");
+		view.setFocus();
+		TestWidgetWaitUtility.waitUntilViewContains(bot, "Hard resetting via RTS pin...", view,
+				DefaultPropertyFetcher.getLongPropertyValue("Default_project_flash_wait", 40000));
+	}
 }

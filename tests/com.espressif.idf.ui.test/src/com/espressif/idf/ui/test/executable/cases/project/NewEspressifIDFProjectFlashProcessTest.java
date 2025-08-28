@@ -5,8 +5,13 @@
 package com.espressif.idf.ui.test.executable.cases.project;
 
 import java.io.IOException;
+import static org.junit.Assert.assertTrue;
 
+import org.eclipse.launchbar.core.ILaunchBarManager;
+import org.eclipse.launchbar.core.internal.Activator;
+import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -19,6 +24,8 @@ import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 import com.espressif.idf.ui.test.operations.EnvSetupOperations;
 import com.espressif.idf.ui.test.operations.ProjectTestOperations;
+import com.espressif.idf.ui.test.operations.selectors.LaunchBarConfigSelector;
+import com.espressif.idf.ui.test.operations.selectors.LaunchBarTargetSelector;
 
 /**
  * Test class to test the Flash process
@@ -58,7 +65,11 @@ public class NewEspressifIDFProjectFlashProcessTest {
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 		Fixture.givenProjectNameIs("NewProjectFlashTest");
 		Fixture.whenNewProjectIsSelected();
+		Fixture.whenTurnOffOpenSerialMonitorAfterFlashingInLaunchConfig();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.whenSelectLaunchTargetSerialPort();
+		Fixture.whenFlashProject();
+		Fixture.thenVerifyFlashDoneSuccessfully();
 	}
 
 	private static class Fixture
@@ -73,6 +84,7 @@ public class NewEspressifIDFProjectFlashProcessTest {
 			bot = WorkBenchSWTBot.getBot();
 			EnvSetupOperations.setupEspressifEnv(bot);
 			bot.sleep(1000);
+			ProjectTestOperations.deleteAllProjects(bot);
 		}
 
 		private static void givenNewEspressifIDFProjectIsSelected(String category, String subCategory)
@@ -103,6 +115,42 @@ public class NewEspressifIDFProjectFlashProcessTest {
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
 			ProjectTestOperations.closeAllProjects(bot);
 			ProjectTestOperations.deleteAllProjects(bot);
+		}
+
+		private static void whenSelectLaunchTargetSerialPort() throws Exception {
+			LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
+			targetSelector.clickEdit();
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "New ESP Target", 20000);
+			bot.comboBoxWithLabel("Serial Port:").setSelection("<Once device will be connected to runner the field should be updated here>");
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
+			bot.button("Finish").click();
+		}
+		
+		private static void whenTurnOffOpenSerialMonitorAfterFlashingInLaunchConfig() throws Exception {
+			LaunchBarConfigSelector configSelector = new LaunchBarConfigSelector(bot);
+			configSelector.clickEdit();
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Edit Configuration", 20000);
+			bot.cTabItem("Main").show();
+			bot.cTabItem("Main").setFocus();
+			bot.checkBox("Open Serial Monitor After Flashing").click();
+			bot.sleep(4000);
+			bot.button("OK").click();
+			bot.sleep(3000);
+		}
+		
+		private static void whenFlashProject() throws IOException
+		{
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Run Configurations...");
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Run Configurations", 10000);
+			bot.tree().getTreeItem("ESP-IDF Application").select();
+			bot.tree().getTreeItem("ESP-IDF Application").expand();
+			bot.tree().getTreeItem("ESP-IDF Application").getNode(projectName).select();
+			bot.sleep(1000);
+			bot.button("Run").click();
+		}
+		
+		private static void thenVerifyFlashDoneSuccessfully() throws Exception {
+			ProjectTestOperations.waitProjectFlashAndVerify(bot);
 		}
 	}
 }
