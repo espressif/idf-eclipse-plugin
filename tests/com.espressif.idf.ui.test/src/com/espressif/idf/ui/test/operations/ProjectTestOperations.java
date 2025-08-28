@@ -90,6 +90,14 @@ public class ProjectTestOperations
 				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_PROJECT_BUILD_WAIT_PROPERTY, 300000));
 	}
 
+	public static void waitForProjectFlash(SWTWorkbenchBot bot) throws IOException
+	{
+		SWTBotView view = bot.viewByPartName("Console");
+		view.setFocus();
+		TestWidgetWaitUtility.waitUntilViewContains(bot, "Hard resetting via RTS pin...", view,
+				DefaultPropertyFetcher.getLongPropertyValue("Default_project_flash_wait", 40000));
+	}
+
 	public static void waitForProjectNewComponentInstalled(SWTWorkbenchBot bot) throws IOException
 	{
 		SWTBotView consoleView = viewConsole("ESP-IDF Console", bot);
@@ -762,13 +770,5 @@ public class ProjectTestOperations
 				logger.error(e.getMessage(), e);
 			}
 		}
-	}
-	
-	public static void waitProjectFlashAndVerify(SWTWorkbenchBot bot) throws IOException
-	{
-		SWTBotView view = bot.viewByPartName("Console");
-		view.setFocus();
-		TestWidgetWaitUtility.waitUntilViewContains(bot, "Hard resetting via RTS pin...", view,
-				DefaultPropertyFetcher.getLongPropertyValue("Default_project_flash_wait", 40000));
 	}
 }

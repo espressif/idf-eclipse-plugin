@@ -133,9 +133,7 @@ public class NewEspressifIDFProjectFlashProcessTest {
 			bot.cTabItem("Main").show();
 			bot.cTabItem("Main").setFocus();
 			bot.checkBox("Open Serial Monitor After Flashing").click();
-			bot.sleep(4000);
 			bot.button("OK").click();
-			bot.sleep(3000);
 		}
 		
 		private static void whenFlashProject() throws IOException
@@ -150,7 +148,7 @@ public class NewEspressifIDFProjectFlashProcessTest {
 		}
 		
 		private static void thenVerifyFlashDoneSuccessfully() throws Exception {
-			ProjectTestOperations.waitProjectFlashAndVerify(bot);
+			ProjectTestOperations.waitForProjectFlash(bot);
 		}
 	}
 }
