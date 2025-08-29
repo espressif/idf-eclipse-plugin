@@ -5,38 +5,18 @@
 
 package com.espressif.idf.ui.test.executable.cases.project;
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyleRange;
-import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
-import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
-import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
-import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotStyledText;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
-import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
+import static org.eclipse.swtbot.swt.finder.waits.Conditions.*;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 import com.espressif.idf.ui.test.operations.EnvSetupOperations;
 import com.espressif.idf.ui.test.operations.ProjectTestOperations;
@@ -60,7 +40,7 @@ public class IDFProjectJTAGFlashTest
 		Fixture.loadEnv();
 	}
 
-	@AfterClass
+	@After
 	public void afterEachTest()
 	{
 		try
@@ -74,14 +54,16 @@ public class IDFProjectJTAGFlashTest
 	}
 
 	@Test
-	public void givenNewProjectCreated() throws Exception
+	public void givenNewProjectCreatedWhenSelectJTAGflashWhenBuiltThenCheckFlashedSuccessfully() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 		Fixture.givenProjectNameIs("NewProject");
 		Fixture.whenNewProjectIsSelected();
-		Fixture.whenSelectJTAGFlashInLaunchConfig();
+		Fixture.whenSelectJTAGflashInLaunchConfig();
 		Fixture.whenSelectLaunchTargetBoard();
-//		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.whenFlashProject();
+		Fixture.thenVerifyJTAGflashDone();
 	}
 
 	private static class Fixture
@@ -90,8 +72,6 @@ public class IDFProjectJTAGFlashTest
 		private static String category;
 		private static String subCategory;
 		private static String projectName;
-		private static LaunchBarConfigSelector launchBarConfigSelector;
-		private static LaunchBarTargetSelector launchBarTargetSelector;
 
 		private static void loadEnv() throws Exception
 		{
@@ -99,16 +79,6 @@ public class IDFProjectJTAGFlashTest
 			EnvSetupOperations.setupEspressifEnv(bot);
 			bot.sleep(1000);
 			ProjectTestOperations.deleteAllProjects(bot);
-			launchBarConfigSelector = new LaunchBarConfigSelector(bot);
-			try
-			{
-				launchBarTargetSelector = new LaunchBarTargetSelector(bot);
-			}
-			catch (WidgetNotFoundException e)
-			{
-				launchBarTargetSelector = new LaunchBarTargetSelector(bot, false);
-			}
-
 		}
 
 		private static void givenNewEspressifIDFProjectIsSelected(String category, String subCategory)
@@ -134,26 +104,45 @@ public class IDFProjectJTAGFlashTest
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
 		}
 
-		private static void whenSelectJTAGFlashInLaunchConfig() throws Exception {
+		private static void whenFlashProject() throws IOException
+		{
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Run Configurations...");
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Run Configurations", 10000);
+			bot.tree().getTreeItem("ESP-IDF Application").select();
+			bot.tree().getTreeItem("ESP-IDF Application").expand();
+			bot.tree().getTreeItem("ESP-IDF Application").getNode(projectName).select();
+			bot.waitUntil(widgetIsEnabled(bot.button("Run")), 5000);
+			bot.button("Run").click();
+		}
+
+		private static void whenSelectJTAGflashInLaunchConfig() throws Exception
+		{
 			LaunchBarConfigSelector configSelector = new LaunchBarConfigSelector(bot);
 			configSelector.clickEdit();
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Edit Configuration", 20000);
 			bot.cTabItem("Main").show();
 			bot.cTabItem("Main").setFocus();
 			bot.comboBoxWithLabel("Flash over:").setSelection("JTAG");
-			bot.sleep(5000);
 			bot.button("OK").click();
 		}
 
-		private static void whenSelectLaunchTargetBoard() throws Exception {
+		private static void whenSelectLaunchTargetBoard() throws Exception
+		{
 			LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
 			targetSelector.clickEdit();
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "New ESP Target", 20000);
+			bot.comboBoxWithLabel("IDF Target").setSelection("esp32p4");
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
 			bot.comboBoxWithLabel("Board:").setSelection("ESP32-P4 chip (via builtin USB-JTAG) [usb://2-5]");
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
 			bot.button("Finish").click();
 		}
-		
+
+		private static void thenVerifyJTAGflashDone() throws Exception
+		{
+			ProjectTestOperations.verifyTheConsoleOutput(bot, "** Verify OK **");
+		}
+
 		private static void cleanTestEnv()
 		{
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
