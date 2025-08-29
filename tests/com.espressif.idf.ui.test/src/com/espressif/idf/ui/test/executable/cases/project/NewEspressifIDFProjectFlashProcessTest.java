@@ -10,7 +10,7 @@ import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import static org.eclipse.swtbot.swt.finder.waits.Conditions.*;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -41,7 +41,7 @@ public class NewEspressifIDFProjectFlashProcessTest {
 		Fixture.loadEnv();
 	}
 
-	@After
+	@AfterClass
 	public void afterEachTest()
 	{
 		try
