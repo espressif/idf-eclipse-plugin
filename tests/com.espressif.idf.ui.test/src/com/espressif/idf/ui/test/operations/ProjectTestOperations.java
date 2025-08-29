@@ -52,7 +52,7 @@ public class ProjectTestOperations
 {
 
 	private static final String DEFAULT_PROJECT_BUILD_WAIT_PROPERTY = "default.project.build.wait";
-
+	
 	private static final String DEFAULT_FLASH_WAIT_PROPERTY = "default.project.flash.wait";
 
 	private static final Logger logger = LoggerFactory.getLogger(ProjectTestOperations.class);
@@ -753,6 +753,15 @@ public class ProjectTestOperations
 		table.select(1);
 		bot.toolbarButton("Delete Selected").click();
 		bot.button("OK").click();
+	}
+
+	
+	public static void verifyTheConsoleOutput(SWTWorkbenchBot bot, String text) throws IOException
+	{
+		SWTBotView view = bot.viewByPartName("Console");
+		view.setFocus();
+		TestWidgetWaitUtility.waitUntilViewContains(bot, text, view,
+				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_FLASH_WAIT_PROPERTY, 120000));
 	}
 
 	public static void joinJobByName(String jobName)

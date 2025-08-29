@@ -1,18 +1,15 @@
 /*******************************************************************************
- * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
- * Use is subject to license terms.
+ * Copyright 2025 Espressif Systems (Shanghai) PTE LTD.
+ * All rights reserved. Use is subject to license terms.
  *******************************************************************************/
+
 package com.espressif.idf.ui.test.executable.cases.project;
 
 import java.io.IOException;
 
 import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
-import static org.eclipse.swtbot.swt.finder.waits.Conditions.*;
-import static org.junit.Assert.assertTrue;
-
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -22,6 +19,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
 import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
+import static org.eclipse.swtbot.swt.finder.waits.Conditions.*;
+import static org.junit.Assert.assertTrue;
+
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 import com.espressif.idf.ui.test.operations.EnvSetupOperations;
 import com.espressif.idf.ui.test.operations.ProjectTestOperations;
@@ -29,16 +29,17 @@ import com.espressif.idf.ui.test.operations.selectors.LaunchBarConfigSelector;
 import com.espressif.idf.ui.test.operations.selectors.LaunchBarTargetSelector;
 
 /**
- * Test class to test the Flash process
+ * Test class to test JTAG Flash Process
  * 
  * @author Andrii Filippov
  *
  */
+
 @SuppressWarnings("restriction")
 @RunWith(SWTBotJunit4ClassRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-
-public class NewEspressifIDFProjectFlashProcessTest {
+public class IDFProjectJTAGFlashTest 
+{
 	@BeforeClass
 	public static void beforeTestClass() throws Exception
 	{
@@ -50,7 +51,7 @@ public class NewEspressifIDFProjectFlashProcessTest {
 	{
 		try
 		{
-			Fixture.cleanTestEnv(); // Make sure test environment is always cleaned up
+			Fixture.cleanTestEnv();
 		}
 		catch (Exception e)
 		{
@@ -58,21 +59,19 @@ public class NewEspressifIDFProjectFlashProcessTest {
 		}
 	}
 
-
 	@Test
-	public void givenNewProjectCreatedBuiltWhenSelectSerialPortWhenFlashThenCheckFlashedSuccessfully()
-			throws Exception
+	public void givenNewProjectCreatedWhenSelectJTAGflashWhenBuiltThenCheckFlashedSuccessfully() throws Exception
 	{
 		if (SystemUtils.IS_OS_LINUX) //temporary solution until new ESP boards arrive for Windows
 		{
 			Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-			Fixture.givenProjectNameIs("NewProjectFlashTest");
+			Fixture.givenProjectNameIs("NewProject");
 			Fixture.whenNewProjectIsSelected();
-			Fixture.whenTurnOffOpenSerialMonitorAfterFlashingInLaunchConfig();
+			Fixture.whenSelectJTAGflashInLaunchConfig();
+			Fixture.whenSelectLaunchTargetBoard();
 			Fixture.whenProjectIsBuiltUsingContextMenu();
-			Fixture.whenSelectLaunchTargetSerialPort();
 			Fixture.whenFlashProject();
-			Fixture.thenVerifyFlashDoneSuccessfully();
+			Fixture.thenVerifyJTAGflashDone();
 		}
 		else
 		{
@@ -118,39 +117,6 @@ public class NewEspressifIDFProjectFlashProcessTest {
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
 		}
 
-		private static void cleanTestEnv()
-		{
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
-			ProjectTestOperations.closeAllProjects(bot);
-			ProjectTestOperations.deleteAllProjects(bot);
-		}
-
-		private static void whenSelectLaunchTargetSerialPort() throws Exception
-		{
-			LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
-			targetSelector.clickEdit();
-			TestWidgetWaitUtility.waitForDialogToAppear(bot, "New ESP Target", 20000);
-			SWTBotShell shell = bot.shell("New ESP Target");
-			bot.comboBoxWithLabel("Serial Port:").setSelection("/dev/ttyUSB1 Dual RS232-HS");
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
-			shell.setFocus();
-			bot.button("Finish").click();
-		}
-		
-		private static void whenTurnOffOpenSerialMonitorAfterFlashingInLaunchConfig() throws Exception
-		{
-			LaunchBarConfigSelector configSelector = new LaunchBarConfigSelector(bot);
-			configSelector.clickEdit();
-			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Edit Configuration", 20000);
-			bot.cTabItem("Main").show();
-			bot.cTabItem("Main").setFocus();
-			SWTBotCheckBox checkBox = bot.checkBox("Open Serial Monitor After Flashing");
-			if (checkBox.isChecked()) {
-			checkBox.click();
-			}
-			bot.button("OK").click();
-		}
-		
 		private static void whenFlashProject() throws IOException
 		{
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Run Configurations...");
@@ -161,10 +127,40 @@ public class NewEspressifIDFProjectFlashProcessTest {
 			bot.waitUntil(widgetIsEnabled(bot.button("Run")), 5000);
 			bot.button("Run").click();
 		}
-		
-		private static void thenVerifyFlashDoneSuccessfully() throws Exception
+
+		private static void whenSelectJTAGflashInLaunchConfig() throws Exception
 		{
-			ProjectTestOperations.waitForProjectFlash(bot);
+			LaunchBarConfigSelector configSelector = new LaunchBarConfigSelector(bot);
+			configSelector.clickEdit();
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Edit Configuration", 20000);
+			bot.cTabItem("Main").show();
+			bot.cTabItem("Main").setFocus();
+			bot.comboBoxWithLabel("Flash over:").setSelection("JTAG");
+			bot.button("OK").click();
+		}
+
+		private static void whenSelectLaunchTargetBoard() throws Exception
+		{
+			LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
+			targetSelector.clickEdit();
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "New ESP Target", 20000);
+			SWTBotShell shell = bot.shell("New ESP Target");
+			bot.comboBoxWithLabel("Board:").setSelection("ESP32-ETHERNET-KIT [usb://1-10]");
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
+			shell.setFocus();
+			bot.button("Finish").click();
+		}
+
+		private static void thenVerifyJTAGflashDone() throws Exception
+		{
+			ProjectTestOperations.verifyTheConsoleOutput(bot, "** Flashing done for partition_table/partition-table.bin");
+		}
+
+		private static void cleanTestEnv()
+		{
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
+			ProjectTestOperations.closeAllProjects(bot);
+			ProjectTestOperations.deleteAllProjects(bot);
 		}
 	}
 }
