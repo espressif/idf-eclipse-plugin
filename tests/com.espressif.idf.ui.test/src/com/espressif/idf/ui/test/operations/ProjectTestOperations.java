@@ -52,6 +52,8 @@ public class ProjectTestOperations
 {
 
 	private static final String DEFAULT_PROJECT_BUILD_WAIT_PROPERTY = "default.project.build.wait";
+	
+	private static final String DEFAULT_FLASH_WAIT_PROPERTY = "default.project.build.wait";
 
 	private static final Logger logger = LoggerFactory.getLogger(ProjectTestOperations.class);
 
@@ -99,6 +101,25 @@ public class ProjectTestOperations
 				DefaultPropertyFetcher.getLongPropertyValue("Install New Component", 10000));
 	}
 
+	public static void waitForProjectMonitorAndDisconnect(SWTWorkbenchBot bot) throws IOException
+	{
+		bot.sleep(5000);
+		SWTBotView terminalView = viewTerminal("COM5", bot, 30000);
+		terminalView.toolbarPushButton("Disconnect Terminal Connection").click();
+		terminalView.show();
+		terminalView.setFocus();
+	}
+	
+	public static void findTextInSerialMonitorOutput(SWTWorkbenchBot bot) throws IOException
+	{
+		bot.sleep(5000);
+		SWTBotView terminalView = viewTerminal("<Closed> COM5", bot, 30000);
+		terminalView.show();
+		terminalView.setFocus();
+		TestWidgetWaitUtility.waitUntilTextContains(bot, "Hello", terminalView,
+				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_FLASH_WAIT_PROPERTY, 20000));
+	}
+
 	public static SWTBotView viewConsole(String consoleType, SWTWorkbenchBot bot)
 	{
 		SWTBotView view = bot.viewByPartName("Console");
@@ -109,6 +130,22 @@ public class ProjectTestOperations
 		b.menuItem(withRegex).click();
 		view.setFocus();
 		return view;
+	}
+	
+	public static SWTBotView viewTerminal(String terminalType, SWTWorkbenchBot bot, long timeOut)
+	{
+		SWTBotView view = bot.viewByPartName("Terminal");
+		view.show();
+		view.setFocus();
+		return view;
+	}
+
+	public static void waitProjectFlash(SWTWorkbenchBot bot) throws IOException
+	{
+		SWTBotView view = bot.viewByPartName("Console");
+		view.setFocus();
+		TestWidgetWaitUtility.waitUntilViewContains(bot, "Hard resetting via RTS pin...", view,
+				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_FLASH_WAIT_PROPERTY, 40000));
 	}
 
 	public static void createDebugConfiguration(String projectName, SWTWorkbenchBot bot)
