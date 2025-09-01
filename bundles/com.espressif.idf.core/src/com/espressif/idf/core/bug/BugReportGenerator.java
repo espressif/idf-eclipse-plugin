@@ -36,7 +36,8 @@ import com.espressif.idf.core.util.StringUtil;
  */
 public class BugReportGenerator
 {
-	private static final String bugReportDirectoryPrefix = "bug_report_"; //$NON-NLS-1$
+	private static final String UNKNOWN = "Unknown"; //$NON-NLS-1$
+	private static final String BUG_REPORT_DIRECTORY_PREFIX = "bug_report_"; //$NON-NLS-1$
 	private String installedToolsCommandOutput;
 	private String productInformationCommandOutput;
 	private File bugReportDirectory;
@@ -69,7 +70,7 @@ public class BugReportGenerator
 		this.installedToolsCommandOutput = installedToolsCommandOutput;
 		this.productInformationCommandOutput = productInformationCommandOutput;
 		String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")); //$NON-NLS-1$
-		bugReportDirectory = getWorkspaceDirectory().resolve(bugReportDirectoryPrefix + timestamp + File.separator)
+		bugReportDirectory = getWorkspaceDirectory().resolve(BUG_REPORT_DIRECTORY_PREFIX + timestamp + File.separator)
 				.toFile();
 	}
 
@@ -121,9 +122,9 @@ public class BugReportGenerator
 
 	private File createBasicSystemInfoFile() throws IOException
 	{
-		String osName = System.getProperty("os.name", "Unknown"); //$NON-NLS-1$ //$NON-NLS-2$
-		String osVersion = System.getProperty("os.version", "Unknown"); //$NON-NLS-1$ //$NON-NLS-2$
-		String arch = System.getProperty("os.arch", "Unknown"); //$NON-NLS-1$//$NON-NLS-2$
+		String osName = System.getProperty("os.name", UNKNOWN); //$NON-NLS-1$
+		String osVersion = System.getProperty("os.version", UNKNOWN); //$NON-NLS-1$
+		String arch = System.getProperty("os.arch", UNKNOWN); //$NON-NLS-1$
 
 		long freePhys = -1L;
 		long totalPhys = -1L;
