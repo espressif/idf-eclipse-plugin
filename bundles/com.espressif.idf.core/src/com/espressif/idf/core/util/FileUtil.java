@@ -20,7 +20,6 @@ import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -447,7 +446,7 @@ public class FileUtil
 				String r1 = base.relativize(p1).toString().replace(File.separatorChar, '/');
 				String r2 = base.relativize(p2).toString().replace(File.separatorChar, '/');
 				return r1.compareTo(r2);
-			}).collect(Collectors.toList());
+			}).toList();
 		}
 
 		if (zipPath.getParent() != null)
