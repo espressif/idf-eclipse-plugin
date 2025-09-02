@@ -275,5 +275,10 @@ config-only component and an interface library is created instead."
            name="serial_port"
            resolver="com.espressif.idf.core.variable.UartVariableResolver">
      </variable>
+     <variable
+           description="flash_command: Specifies which idf.py flash command should be executed, depending on whether flash encryption is enabled (e.g., &quot;flash&quot; or &quot;encrypted-app-flash&quot;)."
+           name="flash_command"
+           resolver="com.espressif.idf.core.variable.UartVariableResolver">
+     </variable>
   </extension>
 </plugin>
