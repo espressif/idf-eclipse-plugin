@@ -737,6 +737,28 @@ public class IDFUtil
 		return new SDKConfigJsonReader(project).getValue("IDF_TARGET"); //$NON-NLS-1$
 	}
 
+	public static boolean isFlashEncrypted()
+	{
+		IProject project = null;
+		try
+		{
+			ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
+			ILaunchConfiguration activeConfig = launchBarManager.getActiveLaunchConfiguration();
+			if (activeConfig == null || activeConfig.getMappedResources() == null)
+			{
+				Logger.log(Messages.IDFUtil_CantFindProjectMsg);
+				return false;
+			}
+			project = activeConfig.getMappedResources()[0].getProject();
+			Logger.log("Project:: " + project); //$NON-NLS-1$
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+		return Boolean.parseBoolean(new SDKConfigJsonReader(project).getValue("SECURE_FLASH_ENC_ENABLED")); //$NON-NLS-1$
+	}
+
 	public static IProject getProjectFromActiveLaunchConfig() throws CoreException
 	{
 		final ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
