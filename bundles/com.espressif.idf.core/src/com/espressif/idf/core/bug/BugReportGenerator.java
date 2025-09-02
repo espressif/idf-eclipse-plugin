@@ -8,7 +8,10 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,6 +39,8 @@ import com.espressif.idf.core.util.StringUtil;
  */
 public class BugReportGenerator
 {
+	private static final String ECLIPSE_METADATA_DIRECTORY = ".metadata"; //$NON-NLS-1$
+	private static final String ECLIPSE_LOG_FILE_NAME = ".log"; //$NON-NLS-1$
 	private static final String UNKNOWN = "Unknown"; //$NON-NLS-1$
 	private static final String BUG_REPORT_DIRECTORY_PREFIX = "bug_report_"; //$NON-NLS-1$
 	private String installedToolsCommandOutput;
@@ -114,10 +119,63 @@ public class BugReportGenerator
 		return workspaceRoot.toPath();
 	}
 
-	private File getIdeMetadataLogsFile()
+	private List<File> getIdeMetadataLogsFile()
 	{
-		File metadataDir = getWorkspaceDirectory().resolve(".metadata").toFile(); //$NON-NLS-1$
-		return metadataDir;
+		File metadataDir = getWorkspaceDirectory().resolve(ECLIPSE_METADATA_DIRECTORY).toFile();
+		File[] allFiles = metadataDir.listFiles();
+		List<File> logFiles = new LinkedList<>();
+		if (!metadataDir.exists() || !metadataDir.isDirectory() || allFiles == null)
+	    {
+	        return logFiles;
+	    }
+		File activeLog = new File(metadataDir, ECLIPSE_LOG_FILE_NAME);
+		LocalDate refDate = null;
+		if (activeLog.exists() && activeLog.isFile())
+		{
+			refDate = Instant.ofEpochMilli(activeLog.lastModified())
+					.atZone(ZoneId.systemDefault())
+					.toLocalDate();
+		}
+		
+		for (File file : allFiles)
+		{
+			if (file.isDirectory())
+			{
+				continue;
+			}
+			
+			String fileName = file.getName();
+			if (fileName.equals("version.ini")) //$NON-NLS-1$
+			{
+				logFiles.add(file);
+				continue;
+			}
+			
+			if (fileName.endsWith(ECLIPSE_LOG_FILE_NAME))
+			{
+				if (fileName.equals(ECLIPSE_LOG_FILE_NAME))
+				{
+					logFiles.add(file);
+					continue;
+				}
+				
+				// Including only same day log files or one day earlier to ignore any late night logs.
+				if (refDate != null)
+				{
+					LocalDate fileDate = Instant.ofEpochMilli(file.lastModified())
+	                        .atZone(ZoneId.systemDefault())
+	                        .toLocalDate();
+					
+					if (fileDate.equals(refDate) || fileDate.equals(refDate.minusDays(1)))
+					{
+						logFiles.add(file);
+					}
+				}
+				
+			}
+		}
+		
+		return logFiles;
 	}
 
 	private File createBasicSystemInfoFile() throws IOException
@@ -206,15 +264,18 @@ public class BugReportGenerator
 			filesToZip.add(productInfoFile);
 			filesToZip.add(basicSysInfoFile);
 
-			File metadataLogsFile = getIdeMetadataLogsFile();
+			List<File> metadataLogsFile = getIdeMetadataLogsFile();
 			File ideLogDir = new File(bugReportDirectory.getAbsolutePath() + File.separator + "ide_metadata_logs"); //$NON-NLS-1$ )
 			if (!ideLogDir.exists())
 			{
 				ideLogDir.mkdirs();
 			}
 
-			FileUtil.copyDirectory(metadataLogsFile, ideLogDir);
-
+			for (File logFile : metadataLogsFile)
+			{
+				FileUtil.copyFile(logFile, new File(ideLogDir.getAbsolutePath() + File.separator + logFile.getName()));
+			}
+			
 			File eimLogPath = getEimLogPath();
 			File eimLogDir = new File(bugReportDirectory.getAbsolutePath() + File.separator + "eim_logs"); //$NON-NLS-1$ )
 			FileUtil.copyDirectory(eimLogPath, eimLogDir);
