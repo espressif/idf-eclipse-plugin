@@ -68,10 +68,9 @@ public class LaunchBarTargetSelector extends AbstractSWTBotControl<CSelector>
 		notify(SWT.MouseUp, createMouseEvent(x, y, 1, SWT.BUTTON1, 1));
 	}
 
-	public void clickEdit()
+    public void clickEdit()
 	{
-		click();
-		bot().buttonWithId(LaunchBarWidgetIds.EDIT).click(); // $NON-NLS-1$
+		bot().canvasWithId(LaunchBarWidgetIds.EDIT).click(); // $NON-NLS-1$
 	}
 
 	private void clickOnInternalWidget(int x, int y, Widget internalWidget)
