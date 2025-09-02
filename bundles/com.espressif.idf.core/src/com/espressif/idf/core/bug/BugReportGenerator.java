@@ -157,14 +157,12 @@ public class BugReportGenerator
 			{
 				continue;
 			}
-
 			String fileName = file.getName();
 			if (fileName.equals("version.ini")) //$NON-NLS-1$
 			{
 				logFiles.add(file);
 				continue;
 			}
-
 			if (fileName.endsWith(ECLIPSE_LOG_FILE_NAME))
 			{
 				if (fileName.equals(ECLIPSE_LOG_FILE_NAME))
@@ -286,7 +284,6 @@ public class BugReportGenerator
 			{
 				FileUtil.copyFile(logFile, new File(ideLogDir.getAbsolutePath() + File.separator + logFile.getName()));
 			}
-
 			File eimLogPath = getEimLogPath();
 			Logger.log("EIM log path: " + eimLogPath.getAbsolutePath()); //$NON-NLS-1$
 			File eimLogDir = new File(bugReportDirectory.getAbsolutePath() + File.separator + "eim_logs"); //$NON-NLS-1$ )
