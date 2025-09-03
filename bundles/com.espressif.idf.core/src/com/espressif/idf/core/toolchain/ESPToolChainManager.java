@@ -74,6 +74,43 @@ public class ESPToolChainManager
 
 	private static Map<String, ESPToolChainElement> readESPToolchainRegistry()
 	{
+		// Read targets dynamically from ESP-IDF constants.py instead of plugin.xml
+		String idfPath = IDFUtil.getIDFPath();
+		IDFTargets idfTargets = IDFTargetsReader.readTargetsFromEspIdf(idfPath);
+		
+		// Fallback to plugin.xml if dynamic reading fails
+		if (idfTargets.getAllTargets().isEmpty())
+		{
+			Logger.log("Dynamic target reading failed, falling back to plugin.xml");
+			return readESPToolchainRegistryFromPluginXml();
+		}
+		
+		// Convert dynamic targets to toolchain elements
+		for (IDFTargets.IDFTarget target : idfTargets.getAllTargets())
+		{
+			String name = target.getName();
+			String id = target.getToolchainId();
+			String arch = target.getArchitecture();
+			String fileName = target.getToolchainFileName();
+			String compilerPattern = target.getCompilerPattern();
+			String debuggerPattern = target.getDebuggerPattern();
+
+			String uniqueToolChainId = name.concat("/").concat(arch).concat("/").concat(fileName); //$NON-NLS-1$ //$NON-NLS-2$
+
+			toolchainElements.put(uniqueToolChainId,
+					new ESPToolChainElement(name, id, arch, fileName, compilerPattern, debuggerPattern));
+		}
+		
+		Logger.log("Dynamically loaded " + toolchainElements.size() + " toolchain elements from ESP-IDF");
+		return toolchainElements;
+	}
+	
+	/**
+	 * Fallback method to read toolchain registry from plugin.xml
+	 * @return Map of toolchain elements
+	 */
+	private static Map<String, ESPToolChainElement> readESPToolchainRegistryFromPluginXml()
+	{
 		IConfigurationElement[] configElements = Platform.getExtensionRegistry()
 				.getConfigurationElementsFor("com.espressif.idf.core.toolchain"); //$NON-NLS-1$
 		for (IConfigurationElement iConfigurationElement : configElements)
@@ -89,7 +126,6 @@ public class ESPToolChainManager
 
 			toolchainElements.put(uniqueToolChainId,
 					new ESPToolChainElement(name, id, arch, fileName, compilerPattern, debuggerPatten));
-
 		}
 		return toolchainElements;
 	}

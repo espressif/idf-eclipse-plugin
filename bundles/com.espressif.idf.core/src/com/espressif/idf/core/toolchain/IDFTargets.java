@@ -1,0 +1,204 @@
+/*******************************************************************************
+ * Copyright 2024 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
+
+package com.espressif.idf.core.toolchain;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Class to hold ESP-IDF target information including preview status
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ *
+ */
+public class IDFTargets
+{
+	private List<IDFTarget> supportedTargets;
+	private List<IDFTarget> previewTargets;
+	
+	public IDFTargets()
+	{
+		this.supportedTargets = new ArrayList<>();
+		this.previewTargets = new ArrayList<>();
+	}
+	
+	public void addSupportedTarget(String target)
+	{
+		supportedTargets.add(new IDFTarget(target, false));
+	}
+	
+	public void addPreviewTarget(String target)
+	{
+		previewTargets.add(new IDFTarget(target, true));
+	}
+	
+	public List<IDFTarget> getAllTargets()
+	{
+		List<IDFTarget> allTargets = new ArrayList<>();
+		allTargets.addAll(supportedTargets);
+		allTargets.addAll(previewTargets);
+		return allTargets;
+	}
+	
+	public List<IDFTarget> getSupportedTargets()
+	{
+		return supportedTargets;
+	}
+	
+	public List<IDFTarget> getPreviewTargets()
+	{
+		return previewTargets;
+	}
+	
+	public boolean hasTarget(String targetName)
+	{
+		return getAllTargets().stream()
+				.anyMatch(target -> target.getName().equals(targetName));
+	}
+	
+	/**
+	 * Get a specific target by name
+	 * @param targetName Name of the target to find
+	 * @return IDFTarget if found, null otherwise
+	 */
+	public IDFTarget getTarget(String targetName)
+	{
+		return getAllTargets().stream()
+				.filter(target -> target.getName().equals(targetName))
+				.findFirst()
+				.orElse(null);
+	}
+	
+	/**
+	 * Get all target names as strings
+	 * @return List of target names
+	 */
+	public List<String> getAllTargetNames()
+	{
+		return getAllTargets().stream()
+				.map(IDFTarget::getName)
+				.collect(java.util.stream.Collectors.toList());
+	}
+	
+	/**
+	 * Get supported target names as strings
+	 * @return List of supported target names
+	 */
+	public List<String> getSupportedTargetNames()
+	{
+		return getSupportedTargets().stream()
+				.map(IDFTarget::getName)
+				.collect(java.util.stream.Collectors.toList());
+	}
+	
+	/**
+	 * Get preview target names as strings
+	 * @return List of preview target names
+	 */
+	public List<String> getPreviewTargetNames()
+	{
+		return getPreviewTargets().stream()
+				.map(IDFTarget::getName)
+				.collect(java.util.stream.Collectors.toList());
+	}
+	
+	/**
+	 * Inner class representing a single IDF target
+	 */
+	public static class IDFTarget
+	{
+		private final String name;
+		private final boolean isPreview;
+		
+		public IDFTarget(String name, boolean isPreview)
+		{
+			this.name = name;
+			this.isPreview = isPreview;
+		}
+		
+		public String getName()
+		{
+			return name;
+		}
+		
+		public boolean isPreview()
+		{
+			return isPreview;
+		}
+		
+		/**
+		 * Get the architecture for this target
+		 * @return "xtensa" for esp32/esp32s2/esp32s3, "riscv32" for others
+		 */
+		public String getArchitecture()
+		{
+			switch (name)
+			{
+				case "esp32":
+				case "esp32s2":
+				case "esp32s3":
+					return "xtensa";
+				case "esp32c2":
+				case "esp32c3":
+				case "esp32c6":
+				case "esp32h2":
+				case "esp32p4":
+				default:
+					return "riscv32";
+			}
+		}
+		
+		/**
+		 * Get the toolchain ID for this target
+		 * @return toolchain ID string
+		 */
+		public String getToolchainId()
+		{
+			switch (name)
+			{
+				case "esp32":
+				case "esp32s2":
+				case "esp32s3":
+					return "xtensa-" + name + "-elf";
+				case "esp32c2":
+				case "esp32c3":
+				case "esp32c6":
+				case "esp32h2":
+				case "esp32p4":
+				default:
+					return "riscv32-esp-elf";
+			}
+		}
+		
+		/**
+		 * Get the compiler pattern for this target
+		 * @return regex pattern for compiler
+		 */
+		public String getCompilerPattern()
+		{
+			String toolchainId = getToolchainId();
+			return toolchainId + "[\\\\/]+bin[\\\\/]+" + toolchainId + "-gcc(?:\\.exe)?$";
+		}
+		
+		/**
+		 * Get the debugger pattern for this target
+		 * @return regex pattern for debugger
+		 */
+		public String getDebuggerPattern()
+		{
+			String toolchainId = getToolchainId();
+			return toolchainId + "-gdb(?:\\.exe)?$";
+		}
+		
+		/**
+		 * Get the CMake toolchain file name for this target
+		 * @return toolchain file name
+		 */
+		public String getToolchainFileName()
+		{
+			return "toolchain-" + name + ".cmake";
+		}
+	}
+}
