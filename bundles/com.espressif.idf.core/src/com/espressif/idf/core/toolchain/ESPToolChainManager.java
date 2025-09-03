@@ -34,10 +34,8 @@ import org.eclipse.cdt.core.build.IToolChain;
 import org.eclipse.cdt.core.build.IToolChainManager;
 import org.eclipse.cdt.core.build.IToolChainProvider;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
 import org.eclipse.launchbar.core.target.ILaunchTargetWorkingCopy;
@@ -77,14 +75,7 @@ public class ESPToolChainManager
 		// Read targets dynamically from ESP-IDF constants.py instead of plugin.xml
 		String idfPath = IDFUtil.getIDFPath();
 		IDFTargets idfTargets = IDFTargetsReader.readTargetsFromEspIdf(idfPath);
-		
-		// Fallback to plugin.xml if dynamic reading fails
-		if (idfTargets.getAllTargets().isEmpty())
-		{
-			Logger.log("Dynamic target reading failed, falling back to plugin.xml");
-			return readESPToolchainRegistryFromPluginXml();
-		}
-		
+
 		// Convert dynamic targets to toolchain elements
 		for (IDFTargets.IDFTarget target : idfTargets.getAllTargets())
 		{
@@ -100,33 +91,8 @@ public class ESPToolChainManager
 			toolchainElements.put(uniqueToolChainId,
 					new ESPToolChainElement(name, id, arch, fileName, compilerPattern, debuggerPattern));
 		}
-		
-		Logger.log("Dynamically loaded " + toolchainElements.size() + " toolchain elements from ESP-IDF");
-		return toolchainElements;
-	}
-	
-	/**
-	 * Fallback method to read toolchain registry from plugin.xml
-	 * @return Map of toolchain elements
-	 */
-	private static Map<String, ESPToolChainElement> readESPToolchainRegistryFromPluginXml()
-	{
-		IConfigurationElement[] configElements = Platform.getExtensionRegistry()
-				.getConfigurationElementsFor("com.espressif.idf.core.toolchain"); //$NON-NLS-1$
-		for (IConfigurationElement iConfigurationElement : configElements)
-		{
-			String name = iConfigurationElement.getAttribute("name"); //$NON-NLS-1$
-			String id = iConfigurationElement.getAttribute("id"); //$NON-NLS-1$
-			String arch = iConfigurationElement.getAttribute("arch"); //$NON-NLS-1$
-			String fileName = iConfigurationElement.getAttribute("fileName"); //$NON-NLS-1$
-			String compilerPattern = iConfigurationElement.getAttribute("compilerPattern"); //$NON-NLS-1$
-			String debuggerPatten = iConfigurationElement.getAttribute("debuggerPattern"); //$NON-NLS-1$
 
-			String uniqueToolChainId = name.concat("/").concat(arch).concat("/").concat(fileName); //$NON-NLS-1$ //$NON-NLS-2$
-
-			toolchainElements.put(uniqueToolChainId,
-					new ESPToolChainElement(name, id, arch, fileName, compilerPattern, debuggerPatten));
-		}
+		Logger.log("Dynamically loaded " + toolchainElements.size() + " toolchain elements from ESP-IDF"); //$NON-NLS-1$ //$NON-NLS-2$
 		return toolchainElements;
 	}
 
