@@ -728,13 +728,20 @@ public class IDFUtil
 
 	public static boolean isFlashEncrypted()
 	{
-		IProject project = getProjectFromActiveLaunchConfig();
-		if (project == null)
+		ILaunchConfiguration configuration;
+		try
 		{
-			Logger.log(Messages.IDFUtil_CantFindProjectMsg);
-			return false;
+			configuration = getActiveLaunchConfiguration();
+
+			return configuration != null
+					&& configuration.getAttribute(IDFLaunchConstants.FLASH_ENCRYPTION_ENABLED, false);
 		}
-		return Boolean.parseBoolean(new SDKConfigJsonReader(project).getValue("SECURE_FLASH_ENC_ENABLED")); //$NON-NLS-1$
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+
+		return false;
 	}
 
 	/**
@@ -744,17 +751,9 @@ public class IDFUtil
 	{
 		try
 		{
-			ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
-			if (launchBarManager == null)
-			{
-				Logger.log("LaunchBarManager service not found."); //$NON-NLS-1$
-				return null;
-			}
-
-			ILaunchConfiguration activeConfig = launchBarManager.getActiveLaunchConfiguration();
+			ILaunchConfiguration activeConfig = getActiveLaunchConfiguration();
 			if (activeConfig == null)
 			{
-				Logger.log("No active launch configuration."); //$NON-NLS-1$
 				return null;
 			}
 
@@ -774,6 +773,24 @@ public class IDFUtil
 			Logger.log(e);
 			return null;
 		}
+	}
+
+	private static ILaunchConfiguration getActiveLaunchConfiguration() throws CoreException
+	{
+		ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
+		if (launchBarManager == null)
+		{
+			Logger.log("LaunchBarManager service not found."); //$NON-NLS-1$
+			return null;
+		}
+
+		ILaunchConfiguration activeConfig = launchBarManager.getActiveLaunchConfiguration();
+		if (activeConfig == null)
+		{
+			Logger.log("No active launch configuration."); //$NON-NLS-1$
+			return null;
+		}
+		return activeConfig;
 	}
 
 	public static String getGitExecutablePathFromSystem()
