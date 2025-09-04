@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.ui.test.executable.cases.project;
 
+import static org.eclipse.swtbot.swt.finder.waits.Conditions.widgetIsEnabled;
 import static org.junit.Assert.assertTrue;
 
 import java.awt.Button;
@@ -139,10 +140,8 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 			SWTBotShell shell = bot.shell("New Launch Target");
 			bot.table().select("ESP Target");
 			shell.setFocus();
-			if(bot.button("Next >").isEnabled())
-				{
-				bot.button("Next >").click();
-				}
+			bot.waitUntil(widgetIsEnabled(bot.button("Next >")), 5000);
+			bot.button("Next >").click();
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "New ESP Target",10000);
 		}
 
