@@ -65,7 +65,7 @@ public class IDFProjectJTAGFlashTest
 		if (SystemUtils.IS_OS_LINUX) //temporary solution until new ESP boards arrive for Windows
 		{
 			Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-			Fixture.givenProjectNameIs("NewProject");
+			Fixture.givenProjectNameIs("NewProjectJTAGFlashTest");
 			Fixture.whenNewProjectIsSelected();
 			Fixture.whenSelectJTAGflashInLaunchConfig();
 			Fixture.whenSelectLaunchTargetBoard();
