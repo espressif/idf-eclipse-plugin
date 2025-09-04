@@ -6,6 +6,7 @@ package com.espressif.idf.ui.test.executable.cases.project;
 
 import static org.junit.Assert.assertTrue;
 
+import java.awt.Button;
 import java.io.IOException;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
@@ -67,6 +68,17 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 		Fixture.thenBuildFolderDeletedSuccessfully();
 	}
 
+	@Test
+	public void givenNewProjectCreatedWhenCreateNewLaunchTargetThenProjectBuiltSuccessfully()
+			throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectLaunchTargetTest2");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenCreateNewLaunchTarget();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+	}
+
 	private static class Fixture
 	{
 		private static SWTWorkbenchBot bot;
@@ -113,6 +125,38 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 			SWTBotShell shell = bot.shell("IDF Launch Target Changed");
 			shell.setFocus();
 			bot.button("Yes").click();
+		}
+
+		private static void selectNewLaunchTarget()
+		{
+			LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
+			targetSelector.select("New Launch Target...");
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "New Launch Target", 20000);
+		}
+
+		private static void handleNewLaunchTargetDialog() throws Exception
+		{
+			SWTBotShell shell = bot.shell("New Launch Target");
+			bot.table().select("ESP Target");
+			shell.setFocus();
+			if(bot.button("Next >").isEnabled())
+				{
+				bot.button("Next >").click();
+				}
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "New ESP Target",10000);
+		}
+
+		private static void handleNewEspTargetDialog() throws Exception
+		{
+			bot.textWithLabel("Name:").setText("target");
+			bot.button("Finish").click();
+		}
+
+		private static void whenCreateNewLaunchTarget() throws Exception
+		{
+			selectNewLaunchTarget();
+			handleNewLaunchTargetDialog();
+			handleNewEspTargetDialog();
 		}
 
 		private static void whenRefreshProject() throws IOException
