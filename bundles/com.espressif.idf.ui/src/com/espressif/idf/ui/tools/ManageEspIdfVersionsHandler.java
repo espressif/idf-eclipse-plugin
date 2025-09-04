@@ -5,12 +5,14 @@ import java.io.IOException;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.ide.IDE;
 
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.EimIdfConfiguratinParser;
+import com.espressif.idf.core.tools.exceptions.EimVersionMismatchException;
 import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.handlers.EclipseHandler;
@@ -44,10 +46,14 @@ public class ManageEspIdfVersionsHandler extends AbstractHandler
 					EimIdfConfiguratinParser eimIdfConfiguratinParser = new EimIdfConfiguratinParser();
 					eimJson = eimIdfConfiguratinParser.getEimJson(true);
 				}
-				catch (IOException e)
+				catch (IOException | EimVersionMismatchException e)
 				{
 					Logger.log(e);
-					// Proceed with an empty EimJson object
+					if (e instanceof EimVersionMismatchException)
+					{
+						EimVersionMismatchException eimEx = (EimVersionMismatchException) e;
+						MessageDialog.openError(Display.getDefault().getActiveShell(), eimEx.msgTitle(), eimEx.getMessage());
+					}
 				}
 
 				try

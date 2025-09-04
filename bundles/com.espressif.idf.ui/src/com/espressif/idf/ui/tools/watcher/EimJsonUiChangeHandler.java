@@ -18,6 +18,7 @@ import org.osgi.service.prefs.Preferences;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.EimIdfConfiguratinParser;
 import com.espressif.idf.core.tools.SetupToolsInIde;
+import com.espressif.idf.core.tools.exceptions.EimVersionMismatchException;
 import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.core.tools.watcher.EimJsonChangeListener;
 import com.espressif.idf.core.tools.watcher.EimJsonStateChecker;
@@ -92,7 +93,7 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 					});
 				}
 			}
-			catch (IOException e)
+			catch (IOException | EimVersionMismatchException e)
 			{
 				Logger.log(e);
 			}
@@ -102,7 +103,7 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 		checker.updateLastSeenTimestamp();
 	}
 
-	private void loadEimJson() throws IOException
+	private void loadEimJson() throws IOException, EimVersionMismatchException
 	{
 		EimIdfConfiguratinParser eimIdfConfiguratinParser = new EimIdfConfiguratinParser();
 		eimJson = eimIdfConfiguratinParser.getEimJson(true);
