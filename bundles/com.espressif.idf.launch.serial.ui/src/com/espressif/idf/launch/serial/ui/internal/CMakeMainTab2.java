@@ -54,12 +54,14 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.ide.IDEEncoding;
@@ -79,6 +81,7 @@ import com.espressif.idf.ui.EclipseUtil;
 @SuppressWarnings("restriction")
 public class CMakeMainTab2 extends GenericMainTab
 {
+	private static final String DOCS_ESPRESSIF_FLASH_ENCRYPTION_HTML = "https://docs.espressif.com/projects/esp-idf/en/stable/esp32/security/flash-encryption.html"; //$NON-NLS-1$
 	private static final String DEFAULT_JTAG_CONFIG_OPTIONS = String.format("-s ${%s} ${%s}", //$NON-NLS-1$
 			OpenocdDynamicVariable.OPENOCD_SCRIPTS, JtagDynamicVariable.JTAG_FLASH_ARGS);
 	private Combo flashOverComboButton;
@@ -94,6 +97,7 @@ public class CMakeMainTab2 extends GenericMainTab
 	private TextWithButton dfuArgumentsField;
 	private Button checkOpenSerialMonitorButton;
 	private Combo fEncodingCombo;
+	private Button flashEncryptionCheckbox;
 
 	public enum FlashInterface
 	{
@@ -230,7 +234,25 @@ public class CMakeMainTab2 extends GenericMainTab
 		uartAgrumentsField = new TextWithButton(parent, SWT.WRAP | SWT.BORDER);
 
 		createArgumentComponent(defaultComposite, uartAgrumentsField);
+		createFlashEncryptionCheckbox(defaultComposite);
 		createVerticalSpacer(defaultComposite, 1);
+	}
+
+	private void createFlashEncryptionCheckbox(Composite parent)
+	{
+		Group flashGroup = new Group(parent, SWT.NONE);
+		flashGroup.setText(Messages.CMakeMainTab2_FlashEncryptionGroup);
+		flashGroup.setLayout(new GridLayout(1, false));
+		flashGroup.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+
+		flashEncryptionCheckbox = new Button(flashGroup, SWT.CHECK);
+		flashEncryptionCheckbox.setText(Messages.CMakeMainTab2_FlashEncryptionCheckbox);
+		flashEncryptionCheckbox.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
+
+		Link flashEncryptionNote = new Link(flashGroup, SWT.WRAP);
+		flashEncryptionNote.setText(Messages.CMakeMainTab2_FlashEncryptionNote);
+
+		flashEncryptionNote.addListener(SWT.Selection, e -> Program.launch(DOCS_ESPRESSIF_FLASH_ENCRYPTION_HTML));
 	}
 
 	protected void createJtagflashComposite(Composite parent)
@@ -541,6 +563,8 @@ public class CMakeMainTab2 extends GenericMainTab
 			wc.setAttribute(IDFLaunchConstants.OPEN_SERIAL_MONITOR, checkOpenSerialMonitorButton.getSelection());
 			if (checkOpenSerialMonitorButton.getSelection())
 				wc.setAttribute(IDFLaunchConstants.SERIAL_MONITOR_ENCODING, fEncodingCombo.getText());
+			wc.setAttribute(IDFLaunchConstants.FLASH_ENCRYPTION_ENABLED, flashEncryptionCheckbox.getSelection());
+
 			wc.doSave();
 		}
 		catch (CoreException e)
@@ -553,11 +577,29 @@ public class CMakeMainTab2 extends GenericMainTab
 	public void initializeFrom(ILaunchConfiguration configuration)
 	{
 		super.initializeFrom(configuration);
+		updateFlashEncryptionGroup(configuration);
 		updateStartSerialMonitorGroup(configuration);
 		updateProjetFromConfig(configuration);
 		updateFlashOverStatus(configuration);
 		updateArgumentsWithDefaultFlashCommand(configuration);
 		switchUI(FlashInterface.values()[flashOverComboButton.getSelectionIndex()]);
+	}
+
+	private void updateFlashEncryptionGroup(ILaunchConfiguration configuration)
+	{
+		boolean isFlashEncryptionEnabled = false;
+		try
+		{
+			isFlashEncryptionEnabled = configuration.getAttribute(IDFLaunchConstants.FLASH_ENCRYPTION_ENABLED, false);
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+		flashEncryptionCheckbox.setSelection(isFlashEncryptionEnabled);
+
+		// Update the note visibility
+		flashEncryptionCheckbox.notifyListeners(SWT.Selection, null);
 	}
 
 	private void updateProjetFromConfig(ILaunchConfiguration configuration)
