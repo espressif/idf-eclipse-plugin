@@ -133,6 +133,7 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 			LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
 			targetSelector.select("New Launch Target...");
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "New Launch Target", 20000);
+			assertTrue("'New Launch Target' dialog did not appear", bot.shell("New Launch Target").isActive());
 		}
 
 		private static void handleNewLaunchTargetDialog() throws Exception
@@ -149,6 +150,7 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 		{
 			bot.textWithLabel("Name:").setText("target");
 			bot.button("Finish").click();
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 		}
 
 		private static void whenCreateNewLaunchTarget() throws Exception
