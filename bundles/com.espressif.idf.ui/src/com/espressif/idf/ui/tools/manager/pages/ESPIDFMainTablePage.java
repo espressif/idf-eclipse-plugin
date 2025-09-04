@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -41,6 +42,7 @@ import com.espressif.idf.core.tools.EimConstants;
 import com.espressif.idf.core.tools.EimIdfConfiguratinParser;
 import com.espressif.idf.core.tools.SetupToolsInIde;
 import com.espressif.idf.core.tools.ToolInitializer;
+import com.espressif.idf.core.tools.exceptions.EimVersionMismatchException;
 import com.espressif.idf.core.tools.util.ToolsUtility;
 import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.core.tools.vo.IdfInstalled;
@@ -185,7 +187,15 @@ public class ESPIDFMainTablePage
 		}
 		try
 		{
-			eimJson = eimIdfConfiguratinParser.getEimJson(true);
+			try
+			{
+				eimJson = eimIdfConfiguratinParser.getEimJson(true);
+			}
+			catch (EimVersionMismatchException e)
+			{
+				Logger.log(e);
+				MessageDialog.openError(Display.getDefault().getActiveShell(), e.msgTitle(), e.getMessage());
+			}
 			// eimJson is null if EIM was closed before tool installation completed
 			if (eimJson == null)
 			{
