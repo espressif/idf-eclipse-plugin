@@ -7,7 +7,6 @@ package com.espressif.idf.ui.test.executable.cases.project;
 import static org.eclipse.swtbot.swt.finder.waits.Conditions.widgetIsEnabled;
 import static org.junit.Assert.assertTrue;
 
-import java.awt.Button;
 import java.io.IOException;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
@@ -80,6 +79,18 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 	}
 
+	@Test
+	public void givenNewProjectCreatedWhenCreateNewLaunchTargetWhenDeleteCreatedLaunchTargetThenDeletedSuccessfully()
+			throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("NewProjectLaunchTargetTest3");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.whenCreateNewLaunchTarget();
+		Fixture.whenDeleteLaunchTarget();
+		Fixture.thenLaunchTargetDeletedSuccessfully();
+	}
+
 	private static class Fixture
 	{
 		private static SWTWorkbenchBot bot;
@@ -126,6 +137,28 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 			SWTBotShell shell = bot.shell("IDF Launch Target Changed");
 			shell.setFocus();
 			bot.button("Yes").click();
+		}
+
+		private static void whenDeleteLaunchTarget() throws Exception
+		{
+			bot.sleep(500);
+			LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
+			targetSelector.clickEdit();
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "New ESP Target", 20000);
+			String targetName = bot.textWithLabel("Name:").getText();
+			assertTrue("Expected launch target name to be 'target', but was '" + targetName + "'",
+		               targetName.equals("target"));
+			SWTBotShell shell = bot.shell("New ESP Target");
+			shell.setFocus();
+			bot.button("Delete").click();
+		}
+
+		private static void thenLaunchTargetDeletedSuccessfully() throws Exception
+		{
+			bot.sleep(500);
+			LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
+			// ???
+
 		}
 
 		private static void selectNewLaunchTarget()
