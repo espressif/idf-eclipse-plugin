@@ -597,9 +597,6 @@ public class CMakeMainTab2 extends GenericMainTab
 			Logger.log(e);
 		}
 		flashEncryptionCheckbox.setSelection(isFlashEncryptionEnabled);
-
-		// Update the note visibility
-		flashEncryptionCheckbox.notifyListeners(SWT.Selection, null);
 	}
 
 	private void updateProjetFromConfig(ILaunchConfiguration configuration)
