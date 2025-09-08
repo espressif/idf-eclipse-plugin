@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -132,6 +133,8 @@ public class ExportIDFTools
 			addGitToEnvironment(environment, gitExePath);
 		}
 		
+		cleanUpSystemEnvironment(environment);
+		
 		final ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 		try
 		{
@@ -154,6 +157,26 @@ public class ExportIDFTools
 		{
 			Logger.log(IDFCorePlugin.getPlugin(), e);
 			return IDFCorePlugin.errorStatus(e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * Remove the variables which can affect the idf_tools.py export command
+	 * These variables can come from system environment
+	 * @param environment
+	 */
+	private void cleanUpSystemEnvironment(Map<String, String> environment)
+	{
+		List<String> keysToRenmove = new LinkedList<>();
+		keysToRenmove.add(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH);
+		keysToRenmove.add(IDFEnvironmentVariables.IDF_PATH);
+		
+		for (String key : keysToRenmove)
+		{
+			if (environment.containsKey(key))
+			{
+				environment.remove(key);
+			}
 		}
 	}
 
