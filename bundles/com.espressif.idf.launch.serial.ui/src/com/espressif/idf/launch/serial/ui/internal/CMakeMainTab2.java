@@ -81,7 +81,7 @@ import com.espressif.idf.ui.EclipseUtil;
 @SuppressWarnings("restriction")
 public class CMakeMainTab2 extends GenericMainTab
 {
-	private static final String DOCS_ESPRESSIF_FLASH_ENCRYPTION_HTML = "https://docs.espressif.com/projects/esp-idf/en/stable/esp32/security/flash-encryption.html"; //$NON-NLS-1$
+	private static final String DOCS_ESPRESSIF_FLASH_ENCRYPTION_HTML = "https://docs.espressif.com/projects/espressif-ide/en/latest/flashdevice.html#customize-flash-arguments"; //$NON-NLS-1$
 	private static final String DEFAULT_JTAG_CONFIG_OPTIONS = String.format("-s ${%s} ${%s}", //$NON-NLS-1$
 			OpenocdDynamicVariable.OPENOCD_SCRIPTS, JtagDynamicVariable.JTAG_FLASH_ARGS);
 	private Combo flashOverComboButton;

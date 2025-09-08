@@ -13,6 +13,8 @@ Flash operation can be initiated with just a click of a launch button |run_icon|
 
 To provide customized flash arguments, please follow :ref:`this link <customizeLaunchConfig>` for further instructions.
 
+To enable flash encryption, please see the :ref:`Flash Encryption guide <flashEncryption>`.
+
 To configure flashing via JTAG, please refer to this :ref:`JTAG Flashing guide <JTAGFlashing>`
 
 .. _customizeLaunchConfig:
@@ -20,22 +22,59 @@ To configure flashing via JTAG, please refer to this :ref:`JTAG Flashing guide <
 Customize Flash Arguments
 -------------------------------
 
-To provide the customized launch configuration and flash arguments, please follow the step-by-step instructions below.
+To provide the customized launch configuration and flash arguments, follow the steps below:
 
 #. Click on the ``Launch Configuration`` edit button.
 #. Switch to the ``Main`` tab.
 #. Specify the ``Location`` where this application has to run. Since ``idf.py`` is a Python file, configure the Python system path. Example: ``${system_path:python}``.
 #. Specify the ``Working directory`` of the application. Example: ``${workspace_loc:/hello_world}``.
-#. In additional arguments, provide a flashing command that will run in the specified working directory.
-#. The flash command looks like this: ``/Users/user-name/esp/esp-idf/tools/idf.py -p /dev/cu.SLAB_USBtoUART flash``.
-#. Click OK to save the settings.
+#. In the **Arguments** field (see **1** in the image), the default value uses **dynamic variables**:
+
+   ``${IDF_PY} -B ${BUILD_DIR} -p ${serial_port} ${flash_command}``
+
+   This default setup automatically adapts to your project and board, so usually no manual changes are needed.
+
+   - Use the **Preview icon** (see **2**) to switch between showing resolved values and the raw dynamic variables.  
+   - The field is **modifiable only** when dynamic variables are shown (not resolved).  
+   - If you are migrating from an older plugin version and the field does not contain dynamic variables, click **Restore Defaults** (see **3**) to reset it.
+
+#. Click **OK** to save the settings.
 #. Click on the ``Launch`` icon to flash the application to the selected board.
 
-.. image:: ../../media/11_launch_configuration.png
+.. image:: ../../media/launch_configuration.png
    :alt: Launch configuration
 
 .. image:: ../../media/12_flashing.png
    :alt: Flashing process
+
+
+.. _flashEncryption:
+
+Flash Encryption
+-------------------------------
+
+.. warning::
+
+   Enabling flash encryption is an **irreversible operation**.  
+   If configured incorrectly, the board may become permanently unusable.  
+   Proceed with caution and only enable this option if you fully understand its implications.
+
+To enable flash encryption in ESP-IDF, follow these steps:
+
+#. Open ``sdkconfig`` and enable the ``Enable flash encryption on boot`` option.
+.. image:: ../../media/flash_encryption_1.png
+   :alt: Flash encryption sdkconfig
+#. Perform a normal flash of the application.
+#. Open the **Launch Configuration** dialog, edit the configuration, and check the **Enable Flash Encryption** box.
+.. image:: ../../media/flash_encryption_2.png
+   :alt: Flash encryption checkbox
+#. Flash the application again.
+
+Once enabled, flash encryption will automatically secure the contents of the flash memory according to ESP-IDF settings.
+
+For more details, please refer to the official  
+`ESP-IDF Flash Encryption documentation <https://docs.espressif.com/projects/esp-idf/en/stable/esp32/security/flash-encryption.html>`_.
+
 
 .. _JTAGFlashing:
 
