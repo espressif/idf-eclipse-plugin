@@ -51,7 +51,7 @@ To provide the customized launch configuration and flash arguments, follow the s
 .. _flashEncryption:
 
 Flash Encryption
--------------------------------
+----------------
 
 .. warning::
 
