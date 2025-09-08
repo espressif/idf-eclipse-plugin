@@ -62,12 +62,16 @@ Flash Encryption
 To enable flash encryption in ESP-IDF, follow these steps:
 
 #. Open ``sdkconfig`` and enable the ``Enable flash encryption on boot`` option.
+
 .. image:: ../../media/flash_encryption_1.png
    :alt: Flash encryption sdkconfig
+   
 #. Perform a normal flash of the application.
 #. Open the **Launch Configuration** dialog, edit the configuration, and check the **Enable Flash Encryption** box.
+
 .. image:: ../../media/flash_encryption_2.png
    :alt: Flash encryption checkbox
+   
 #. Flash the application again.
 
 Once enabled, flash encryption will automatically secure the contents of the flash memory according to ESP-IDF settings.
