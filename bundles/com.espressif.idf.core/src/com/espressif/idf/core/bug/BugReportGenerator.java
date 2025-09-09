@@ -7,44 +7,62 @@ package com.espressif.idf.core.bug;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 
+import com.espressif.idf.core.IDFConstants;
+import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.IDFCorePreferenceConstants;
+import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.ProcessBuilderFactory;
+import com.espressif.idf.core.SystemExecutableFinder;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.FileUtil;
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 
 /**
- * This class generates a bug report zip file containing:
- * 1. Installed tools information
- * 2. Product information
- * 3. Basic system information (OS, Arch, Memory)
- * 4. IDE metadata logs
- * 5. eim logs (if available)
+ * This class generates a bug report zip file containing: 1. Installed tools information 2. Product information 3. Basic
+ * system information (OS, Arch, Memory) 4. IDE metadata logs 5. eim logs (if available)
  * 
  * The generated zip file is named with a timestamp and stored in the workspace directory.
+ * 
  * @author Ali Azam Rana
  *
  */
 public class BugReportGenerator
 {
-	private static final String ECLIPSE_METADATA_DIRECTORY = ".metadata"; //$NON-NLS-1$
+	private static final String JAVA_RUNTIME_VERSION_MSG = "Java Runtime Version:"; //$NON-NLS-1$
+	private static final String OPERATING_SYSTEM_MSG = "Operating System:"; //$NON-NLS-1$
+	private static final String ECLIPSE_CDT_MSG = "Eclipse CDT Version:"; //$NON-NLS-1$
+	private static final String IDF_ECLIPSE_PLUGIN_VERSION_MSG = "IDF Eclipse Plugin Version:"; //$NON-NLS-1$
+	private static final String ECLIPSE_VERSION_MSG = "Eclipse Version:"; //$NON-NLS-1$
+	private static final String PYTHON_IDF_ENV_MSG = "Python set for IDF_PYTHON_ENV:"; //$NON-NLS-1$
+	private static final String NOT_FOUND_MSG = "<NOT FOUND>"; //$NON-NLS-1$
+
 	private static final String ECLIPSE_LOG_FILE_NAME = ".log"; //$NON-NLS-1$
+	private static final String ECLIPSE_METADATA_DIRECTORY = ".metadata"; //$NON-NLS-1$
 	private static final String UNKNOWN = "Unknown"; //$NON-NLS-1$
 	private static final String BUG_REPORT_DIRECTORY_PREFIX = "bug_report_"; //$NON-NLS-1$
-	private String installedToolsCommandOutput;
-	private String productInformationCommandOutput;
 	private File bugReportDirectory;
 
 	private enum ByteUnit
@@ -70,10 +88,8 @@ public class BugReportGenerator
 		}
 	}
 
-	public BugReportGenerator(String installedToolsCommandOutput, String productInformationCommandOutput)
+	public BugReportGenerator()
 	{
-		this.installedToolsCommandOutput = installedToolsCommandOutput;
-		this.productInformationCommandOutput = productInformationCommandOutput;
 		String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")); //$NON-NLS-1$
 		bugReportDirectory = getWorkspaceDirectory().resolve(BUG_REPORT_DIRECTORY_PREFIX + timestamp + File.separator)
 				.toFile();
@@ -125,32 +141,30 @@ public class BugReportGenerator
 		File[] allFiles = metadataDir.listFiles();
 		List<File> logFiles = new LinkedList<>();
 		if (!metadataDir.exists() || !metadataDir.isDirectory() || allFiles == null)
-	    {
-	        return logFiles;
-	    }
+		{
+			return logFiles;
+		}
 		File activeLog = new File(metadataDir, ECLIPSE_LOG_FILE_NAME);
 		LocalDate refDate = null;
 		if (activeLog.exists() && activeLog.isFile())
 		{
-			refDate = Instant.ofEpochMilli(activeLog.lastModified())
-					.atZone(ZoneId.systemDefault())
-					.toLocalDate();
+			refDate = Instant.ofEpochMilli(activeLog.lastModified()).atZone(ZoneId.systemDefault()).toLocalDate();
 		}
-		
+
 		for (File file : allFiles)
 		{
 			if (file.isDirectory())
 			{
 				continue;
 			}
-			
+
 			String fileName = file.getName();
 			if (fileName.equals("version.ini")) //$NON-NLS-1$
 			{
 				logFiles.add(file);
 				continue;
 			}
-			
+
 			if (fileName.endsWith(ECLIPSE_LOG_FILE_NAME))
 			{
 				if (fileName.equals(ECLIPSE_LOG_FILE_NAME))
@@ -158,23 +172,22 @@ public class BugReportGenerator
 					logFiles.add(file);
 					continue;
 				}
-				
+
 				// Including only same day log files or one day earlier to ignore any late night logs.
 				if (refDate != null)
 				{
-					LocalDate fileDate = Instant.ofEpochMilli(file.lastModified())
-	                        .atZone(ZoneId.systemDefault())
-	                        .toLocalDate();
-					
+					LocalDate fileDate = Instant.ofEpochMilli(file.lastModified()).atZone(ZoneId.systemDefault())
+							.toLocalDate();
+
 					if (fileDate.equals(refDate) || fileDate.equals(refDate.minusDays(1)))
 					{
 						logFiles.add(file);
 					}
 				}
-				
+
 			}
 		}
-		
+
 		return logFiles;
 	}
 
@@ -253,10 +266,8 @@ public class BugReportGenerator
 
 		try
 		{
-			File installedToolsFile = FileUtil.createFileWithContentsInDirectory("installed_tools.txt", //$NON-NLS-1$
-					installedToolsCommandOutput, bugReportDirectory.getAbsolutePath());
-			File productInfoFile = FileUtil.createFileWithContentsInDirectory("product_information.txt", //$NON-NLS-1$
-					productInformationCommandOutput, bugReportDirectory.getAbsolutePath());
+			File installedToolsFile = getInstalledToolsInfoFile();
+			File productInfoFile = getProductInfoFile();
 			File basicSysInfoFile = createBasicSystemInfoFile();
 
 			List<File> filesToZip = new LinkedList<>();
@@ -275,7 +286,7 @@ public class BugReportGenerator
 			{
 				FileUtil.copyFile(logFile, new File(ideLogDir.getAbsolutePath() + File.separator + logFile.getName()));
 			}
-			
+
 			File eimLogPath = getEimLogPath();
 			File eimLogDir = new File(bugReportDirectory.getAbsolutePath() + File.separator + "eim_logs"); //$NON-NLS-1$ )
 			FileUtil.copyDirectory(eimLogPath, eimLogDir);
@@ -288,5 +299,157 @@ public class BugReportGenerator
 			Logger.log(e);
 		}
 		return bugReportDirectory.getAbsolutePath() + ".zip"; //$NON-NLS-1$
+	}
+
+	private File getInstalledToolsInfoFile() throws IOException
+	{
+		File installedToolsFile = new File(bugReportDirectory, "installed_tools.txt"); //$NON-NLS-1$
+
+		List<String> arguments = new ArrayList<String>();
+		IPath gitPath = new SystemExecutableFinder().find("git"); //$NON-NLS-1$
+		Logger.log("GIT path:" + gitPath); //$NON-NLS-1$
+		String gitExecutablePath = gitPath.getDevice();
+		if (StringUtil.isEmpty(gitExecutablePath))
+		{
+			gitExecutablePath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.GIT_PATH);
+		}
+		
+		arguments.add(IDFUtil.getIDFPythonEnvPath());
+		arguments.add(IDFUtil.getIDFToolsScriptFile().getAbsolutePath());
+		arguments.add(IDFConstants.TOOLS_LIST_CMD);
+		Logger.log("Executing command: " + String.join(" ", arguments)); //$NON-NLS-1$ //$NON-NLS-2$
+		Map<String, String> environment = new HashMap<>(IDFUtil.getSystemEnv());
+		Logger.log(environment.toString());
+		environment.put("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
+
+		environment.put("IDF_GITHUB_ASSETS", //$NON-NLS-1$
+				Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
+						IDFCorePreferenceConstants.IDF_GITHUB_ASSETS,
+						IDFCorePreferenceConstants.IDF_GITHUB_ASSETS_DEFAULT_GLOBAL, null));
+
+		environment.put("PIP_EXTRA_INDEX_URL", //$NON-NLS-1$
+				Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
+						IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL,
+						IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL_DEFAULT_GLOBAL, null));
+
+		if (StringUtil.isEmpty(gitExecutablePath))
+		{
+			Logger.log("Git executable path is empty. Please check GIT_PATH environment variable."); //$NON-NLS-1$
+		}
+		else
+		{
+			addGitToEnvironment(environment, gitExecutablePath);
+		}
+		String output = runCommand(arguments, environment);
+		Files.write(installedToolsFile.toPath(), output.getBytes(), StandardOpenOption.CREATE_NEW);
+		return installedToolsFile;
+	}
+
+	private void addGitToEnvironment(Map<String, String> environment, String gitExecutablePath)
+	{
+		IPath gitPath = new org.eclipse.core.runtime.Path(gitExecutablePath);
+		if (gitPath.toFile().exists())
+		{
+			String gitDir = gitPath.removeLastSegments(1).toOSString();
+			String path1 = environment.get("PATH"); //$NON-NLS-1$
+			String path2 = environment.get("Path"); //$NON-NLS-1$
+			if (!StringUtil.isEmpty(path1) && !path1.contains(gitDir)) // Git not found on the PATH environment
+			{
+				path1 = gitDir.concat(";").concat(path1); //$NON-NLS-1$
+				environment.put("PATH", path1); //$NON-NLS-1$
+			}
+			else if (!StringUtil.isEmpty(path2) && !path2.contains(gitDir)) // Git not found on the Path environment
+			{
+				path2 = gitDir.concat(";").concat(path2); //$NON-NLS-1$
+				environment.put("Path", path2); //$NON-NLS-1$
+			}
+		}
+	}
+
+	private File getProductInfoFile() throws IOException
+	{
+		File productInfoFile = new File(bugReportDirectory, "product_information.txt"); //$NON-NLS-1$
+
+		String pythonExe = IDFUtil.getIDFPythonEnvPath();
+		String idfPath = IDFUtil.getIDFPath();
+		if (StringUtil.isEmpty(pythonExe) || StringUtil.isEmpty(idfPath))
+		{
+			Files.write(productInfoFile.toPath(), "IDF_PATH and IDF_PYTHON_ENV_PATH are not found".getBytes(), //$NON-NLS-1$
+					StandardOpenOption.CREATE_NEW);
+			return productInfoFile;
+		}
+
+		StringBuilder sb = new StringBuilder();
+		sb.append(System.lineSeparator());
+		sb.append(OPERATING_SYSTEM_MSG + System.getProperty("os.name").toLowerCase()); //$NON-NLS-1$
+		sb.append(System.lineSeparator());
+		sb.append(JAVA_RUNTIME_VERSION_MSG
+				+ (Optional.ofNullable(System.getProperty("java.runtime.version")).orElse(NOT_FOUND_MSG))); //$NON-NLS-1$
+		sb.append(System.lineSeparator());
+		sb.append(ECLIPSE_VERSION_MSG + (Optional.ofNullable(Platform.getBundle("org.eclipse.platform")) //$NON-NLS-1$
+				.map(o -> o.getVersion().toString()).orElse(NOT_FOUND_MSG))); // $NON-NLS-1$
+		sb.append(System.lineSeparator());
+		sb.append(ECLIPSE_CDT_MSG + (Optional.ofNullable(Platform.getBundle("org.eclipse.cdt")) //$NON-NLS-1$
+				.map(o -> o.getVersion().toString()).orElse(NOT_FOUND_MSG))); // $NON-NLS-1$
+		sb.append(System.lineSeparator());
+		sb.append(
+				IDF_ECLIPSE_PLUGIN_VERSION_MSG + (Optional.ofNullable(Platform.getBundle("com.espressif.idf.branding")) //$NON-NLS-1$
+						.map(o -> o.getVersion().toString()).orElse(NOT_FOUND_MSG))); // $NON-NLS-1$
+		sb.append(System.lineSeparator());
+		showEspIdfVersion();
+		sb.append(PYTHON_IDF_ENV_MSG
+				+ (Optional.ofNullable(getPythonExeVersion(IDFUtil.getIDFPythonEnvPath())).orElse(NOT_FOUND_MSG)));
+		sb.append(System.lineSeparator());
+		
+		Files.write(productInfoFile.toPath(), sb.toString().getBytes(), StandardOpenOption.CREATE_NEW);
+		return productInfoFile;
+	}
+
+	private void showEspIdfVersion()
+	{
+		if (IDFUtil.getIDFPath() != null && IDFUtil.getIDFPythonEnvPath() != null)
+		{
+			List<String> commands = new ArrayList<>();
+			commands.add(IDFUtil.getIDFPythonEnvPath());
+			commands.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
+			commands.add("--version"); //$NON-NLS-1$
+			Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
+			Logger.log(runCommand(commands, envMap));
+		}
+		else
+		{
+			Logger.log("ESP-IDF version cannot be checked. IDF_PATH or IDF_PYTHON_ENV_PATH  are not set."); //$NON-NLS-1$
+		}
+	}
+
+	private String runCommand(List<String> arguments, Map<String, String> env)
+	{
+		String exportCmdOp = ""; //$NON-NLS-1$
+		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
+		try
+		{
+			IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT, env);
+			if (status == null)
+			{
+				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$
+			}
+
+			// process export command output
+			exportCmdOp = status.getMessage();
+			Logger.log(exportCmdOp);
+		}
+		catch (Exception e1)
+		{
+			Logger.log(IDFCorePlugin.getPlugin(), e1);
+		}
+		return exportCmdOp;
+	}
+
+	private String getPythonExeVersion(String pythonExePath)
+	{
+		List<String> commands = new ArrayList<>();
+		commands.add(pythonExePath);
+		commands.add("--version"); //$NON-NLS-1$
+		return pythonExePath != null ? runCommand(commands, IDFUtil.getSystemEnv()) : null;
 	}
 }
