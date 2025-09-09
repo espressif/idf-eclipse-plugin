@@ -8,14 +8,21 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -348,7 +355,7 @@ public class FileUtil
 			while (scanner.hasNext())
 			{
 				fileContents.append(scanner.nextLine());
-				fileContents.append(System.getProperty("line.separator"));
+				fileContents.append(System.getProperty("line.separator")); //$NON-NLS-1$
 			}
 			scanner.close();
 		}
@@ -403,6 +410,83 @@ public class FileUtil
 		if (!file.delete())
 		{
 			throw new IOException("Failed to delete " + file); //$NON-NLS-1$
+		}
+	}
+	
+	public static File createFileWithContentsInDirectory(String fileName, String content, String direcotry) throws IOException
+	{
+		java.nio.file.Path directoryPath = java.nio.file.Paths.get(direcotry);
+		java.nio.file.Path filePath = directoryPath.resolve(fileName);
+		try (FileWriter writer = new FileWriter(filePath.toFile()))
+		{
+			writer.write(content);
+		}
+		return filePath.toFile();
+	}
+	
+	public static void zipDirectory(File directoryToZip, String zipFileName) throws IOException
+	{
+		if (directoryToZip == null || !directoryToZip.isDirectory())
+		{
+			throw new IllegalArgumentException("directoryToZip must be an existing directory"); //$NON-NLS-1$
+		}
+
+		java.nio.file.Path base = directoryToZip.toPath();
+		java.nio.file.Path zipPath = Paths.get(zipFileName);
+		String rootName = base.getFileName().toString();
+
+		List<java.nio.file.Path> paths;
+		try (Stream<java.nio.file.Path> walk = Files.walk(base))
+		{
+			paths = walk.sorted((p1, p2) -> {
+				boolean d1 = Files.isDirectory(p1);
+				boolean d2 = Files.isDirectory(p2);
+				if (d1 != d2)
+					return d1 ? -1 : 1; // dirs before files
+				String r1 = base.relativize(p1).toString().replace(File.separatorChar, '/');
+				String r2 = base.relativize(p2).toString().replace(File.separatorChar, '/');
+				return r1.compareTo(r2);
+			}).toList();
+		}
+
+		if (zipPath.getParent() != null)
+		{
+			Files.createDirectories(zipPath.getParent());
+		}
+
+		try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipPath)))
+		{
+			ZipEntry rootEntry = new ZipEntry(rootName + "/"); //$NON-NLS-1$
+			rootEntry.setTime(Files.getLastModifiedTime(base).toMillis());
+			zos.putNextEntry(rootEntry);
+			zos.closeEntry();
+
+			for (java.nio.file.Path p : paths)
+			{
+				if (p.equals(base))
+					continue; // root already added
+
+				String rel = base.relativize(p).toString().replace(File.separatorChar, '/');
+				String entryName = rootName + "/" + rel; //$NON-NLS-1$
+
+				if (Files.isDirectory(p))
+				{
+					if (!entryName.endsWith("/")) //$NON-NLS-1$
+						entryName += "/"; //$NON-NLS-1$
+					ZipEntry dirEntry = new ZipEntry(entryName);
+					dirEntry.setTime(Files.getLastModifiedTime(p).toMillis());
+					zos.putNextEntry(dirEntry);
+					zos.closeEntry();
+				}
+				else
+				{
+					ZipEntry fileEntry = new ZipEntry(entryName);
+					fileEntry.setTime(Files.getLastModifiedTime(p).toMillis());
+					zos.putNextEntry(fileEntry);
+					Files.copy(p, zos);
+					zos.closeEntry();
+				}
+			}
 		}
 	}
 
