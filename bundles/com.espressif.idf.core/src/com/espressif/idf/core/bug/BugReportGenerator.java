@@ -31,7 +31,6 @@ import org.eclipse.core.runtime.Platform;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
-import com.espressif.idf.core.IDFCorePreferenceConstants;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.SystemExecutableFinder;
@@ -318,19 +317,9 @@ public class BugReportGenerator
 		arguments.add(IDFUtil.getIDFToolsScriptFile().getAbsolutePath());
 		arguments.add(IDFConstants.TOOLS_LIST_CMD);
 		Logger.log("Executing command: " + String.join(" ", arguments)); //$NON-NLS-1$ //$NON-NLS-2$
-		Map<String, String> environment = new HashMap<>(IDFUtil.getSystemEnv());
+		Map<String, String> environment = new HashMap<>(System.getenv());
 		Logger.log(environment.toString());
 		environment.put("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
-
-		environment.put("IDF_GITHUB_ASSETS", //$NON-NLS-1$
-				Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
-						IDFCorePreferenceConstants.IDF_GITHUB_ASSETS,
-						IDFCorePreferenceConstants.IDF_GITHUB_ASSETS_DEFAULT_GLOBAL, null));
-
-		environment.put("PIP_EXTRA_INDEX_URL", //$NON-NLS-1$
-				Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
-						IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL,
-						IDFCorePreferenceConstants.PIP_EXTRA_INDEX_URL_DEFAULT_GLOBAL, null));
 
 		if (StringUtil.isEmpty(gitExecutablePath))
 		{
@@ -450,6 +439,6 @@ public class BugReportGenerator
 		List<String> commands = new ArrayList<>();
 		commands.add(pythonExePath);
 		commands.add("--version"); //$NON-NLS-1$
-		return pythonExePath != null ? runCommand(commands, IDFUtil.getSystemEnv()) : null;
+		return pythonExePath != null ? runCommand(commands, System.getenv()) : null;
 	}
 }
