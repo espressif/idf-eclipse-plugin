@@ -39,22 +39,22 @@ public interface IDFConstants
 	 * idf python file
 	 */
 	String IDF_PYTHON_SCRIPT = "idf.py"; //$NON-NLS-1$
-	
+
 	/**
 	 * idf.py list targets
 	 */
-	String IDF_LIST_TARGETS_CMD = "--list-targets";  //$NON-NLS-1$
-	
+	String IDF_LIST_TARGETS_CMD = "--list-targets"; //$NON-NLS-1$
+
 	/**
 	 * idf_monitor python file
 	 */
 	String IDF_MONITOR_PYTHON_SCRIPT = "idf_monitor.py"; //$NON-NLS-1$
-	
+
 	/**
 	 * idf sysviewtrace_proc script file
 	 */
 	String IDF_SYSVIEW_TRACE_SCRIPT = "sysviewtrace_proc.py"; //$NON-NLS-1$
-	
+
 	/**
 	 * idf app_trace_folder
 	 */
@@ -64,17 +64,17 @@ public interface IDFConstants
 	 * idf tools file
 	 */
 	String IDF_TOOLS_SCRIPT = "idf_tools.py"; //$NON-NLS-1$
-	
+
 	/**
 	 * idf_monitor.py
 	 */
 	String IDF_MONITOR_SCRIPT = "idf_monitor.py"; //$NON-NLS-1$
-	
+
 	/**
 	 * idf size file
 	 */
 	String IDF_SIZE_SCRIPT = "idf_size.py"; //$NON-NLS-1$
-	
+
 	/**
 	 * idf tools.json file for installable tools
 	 */
@@ -84,8 +84,10 @@ public interface IDFConstants
 	 * <IDF_PATH>/tools
 	 */
 	String TOOLS_FOLDER = "tools"; //$NON-NLS-1$
-	
+
 	String FLASH_CMD = "flash"; //$NON-NLS-1$
+
+	String FLASH_ENCRYPTED_CMD = "encrypted-flash"; //$NON-NLS-1$
 
 	/**
 	 * <IDF_PATH>/tools/cmake
@@ -106,7 +108,7 @@ public interface IDFConstants
 	 * Json config menu file name
 	 */
 	String KCONFIG_MENUS_JSON = "kconfig_menus.json"; //$NON-NLS-1$
-	
+
 	/**
 	 * sdk config json file
 	 */
@@ -130,9 +132,9 @@ public interface IDFConstants
 	String TOOLS_INSTALL_CMD = "install"; //$NON-NLS-1$
 
 	String TOOLS_INSTALL_ALL_CMD = "all"; //$NON-NLS-1$
-	
+
 	String TOOLS_INSTALL_PYTHON_CMD = "install-python-env"; //$NON-NLS-1$
-	
+
 	String TOOLS_LIST_CMD = "list"; //$NON-NLS-1$
 
 	String TOOLS_EXPORT_FORMAT_KEYVALUE = "key-value"; //$NON-NLS-1$
@@ -140,18 +142,18 @@ public interface IDFConstants
 	String TOOLS_EXPORT_CMD_FORMAT = "--format"; //$NON-NLS-1$
 
 	String TOOLS_EXPORT_CMD_FORMAT_VAL = TOOLS_EXPORT_CMD_FORMAT + "=" + TOOLS_EXPORT_FORMAT_KEYVALUE; //$NON-NLS-1$
-	
+
 	String PYTHON_CMD = "python"; //$NON-NLS-1$
-	
+
 	String PYTHON3_CMD = "python3"; //$NON-NLS-1$
 
 	/**
 	 * <IDF_PATH>/components
 	 */
 	String COMPONENTS_FOLDER = "components"; //$NON-NLS-1$
-	
+
 	String ESP_CORE_DUMP_FOLDER = "espcoredump"; //$NON-NLS-1$
-	
+
 	String ESP_CORE_DUMP_SCRIPT = "espcoredump.py"; //$NON-NLS-1$
 
 	/**
@@ -172,13 +174,13 @@ public interface IDFConstants
 	String ESP_TOOL_CHIP_ID_CMD = "chip_id"; //$NON-NLS-1$
 
 	String ESP_TOOL_ERASE_FLASH_CMD = "erase_flash"; //$NON-NLS-1$
-	
+
 	String ESP_WRITE_FLASH_CMD = "write_flash"; //$NON-NLS-1$
 
 	/**
 	 * Property to store project custom build directory
 	 */
 	String BUILD_DIR_PROPERTY = "idf.buildDirectory.property"; //$NON-NLS-1$
-	
+
 	String PROECT_DESCRIPTION_JSON = "project_description.json"; //$NON-NLS-1$
 }
