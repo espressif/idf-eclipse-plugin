@@ -56,7 +56,7 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 	}
 
 	@Test
-	public void givenNewProjectCreatedBuiltWhenSelectNewTargetWhenPopUpAppearsThenBuildFolderDeletedSuccessfully()
+	public void givenANewProjectCreatedBuiltWhenSelectNewTargetWhenPopUpAppearsThenBuildFolderDeletedSuccessfully()
 			throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
@@ -69,7 +69,7 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 	}
 
 	@Test
-	public void givenNewProjectCreatedWhenCreateNewLaunchTargetThenProjectBuiltSuccessfully()
+	public void givenBNewProjectCreatedWhenCreateNewLaunchTargetThenProjectBuiltSuccessfully()
 			throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
@@ -80,13 +80,13 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 	}
 
 	@Test
-	public void givenNewProjectCreatedWhenCreateNewLaunchTargetWhenDeleteCreatedLaunchTargetThenDeletedSuccessfully()
+	public void givenCNewProjectCreatedWhenDeleteSelectedLaunchTargetThenDeletedSuccessfully()
 			throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 		Fixture.givenProjectNameIs("NewProjectLaunchTargetTest3");
 		Fixture.whenNewProjectIsSelected();
-		Fixture.whenDeleteLaunchTarget();
+		Fixture.whenDeleteSelectedLaunchTarget();
 		Fixture.thenLaunchTargetDeletedSuccessfully();
 	}
 
@@ -138,8 +138,15 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 			bot.button("Yes").click();
 		}
 
+		private static void whenSelectLaunchTarget() throws Exception
+		{
+			LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
+			targetSelector.selectTarget("target");
+		}
+
 		private static void whenDeleteLaunchTarget() throws Exception
 		{
+			bot.sleep(500);
 			LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
 			targetSelector.clickEdit();
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "New ESP Target", 20000);
@@ -148,11 +155,17 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 			bot.button("Delete").click();
 		}
 
+		private static void whenDeleteSelectedLaunchTarget() throws Exception
+		{
+			whenSelectLaunchTarget();
+			whenDeleteLaunchTarget();
+		}
+
 		private static void thenLaunchTargetDeletedSuccessfully() throws Exception
 		{
 			bot.sleep(500);
 			LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
-			assertTrue(!targetSelector.isTargetPresent("esp32"));
+			assertTrue("Launch Target was not deleted successfully!", !targetSelector.isTargetPresent("target"));
 		}
 
 		private static void selectNewLaunchTarget()
@@ -194,7 +207,7 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 
 		private static void thenBuildFolderDeletedSuccessfully() throws Exception
 		{
-			assertTrue(ProjectTestOperations.findProjectFullCleanedFilesInBuildFolder(projectName, bot));
+			assertTrue("Build folder was not deleted successfully!", ProjectTestOperations.findProjectFullCleanedFilesInBuildFolder(projectName, bot));
 		}
 
 		private static void cleanTestEnv()
