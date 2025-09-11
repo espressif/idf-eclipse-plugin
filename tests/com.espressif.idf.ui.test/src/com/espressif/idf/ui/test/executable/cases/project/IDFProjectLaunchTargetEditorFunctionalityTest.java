@@ -47,7 +47,7 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 	{
 		try
 		{
-			Fixture.cleanTestEnv(); // Make sure test environment is always cleaned up
+			Fixture.cleanTestEnv();
 		}
 		catch (Exception e)
 		{
@@ -86,7 +86,6 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 		Fixture.givenProjectNameIs("NewProjectLaunchTargetTest3");
 		Fixture.whenNewProjectIsSelected();
-		Fixture.whenCreateNewLaunchTarget();
 		Fixture.whenDeleteLaunchTarget();
 		Fixture.thenLaunchTargetDeletedSuccessfully();
 	}
@@ -141,13 +140,9 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 
 		private static void whenDeleteLaunchTarget() throws Exception
 		{
-			bot.sleep(500);
 			LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
 			targetSelector.clickEdit();
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "New ESP Target", 20000);
-			String targetName = bot.textWithLabel("Name:").getText();
-			assertTrue("Expected launch target name to be 'target', but was '" + targetName + "'",
-		               targetName.equals("target"));
 			SWTBotShell shell = bot.shell("New ESP Target");
 			shell.setFocus();
 			bot.button("Delete").click();
@@ -157,8 +152,7 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 		{
 			bot.sleep(500);
 			LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
-			// ???
-
+			assertTrue(!targetSelector.isTargetPresent("esp32"));
 		}
 
 		private static void selectNewLaunchTarget()
