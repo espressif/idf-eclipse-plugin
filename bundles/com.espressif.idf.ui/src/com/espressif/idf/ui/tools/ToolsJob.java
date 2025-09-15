@@ -491,7 +491,7 @@ public abstract class ToolsJob extends Job
 			
 			Logger.log("Environment Variables after filtering from system:");
 			IDFUtil.cleanUpSystemEnvironment(environment);
-			Logger.log(environment);
+			Logger.log(environment.toString());
 			
 			Process process = processRunner.run(arguments, org.eclipse.core.runtime.Path.ROOT, environment);
 			IStatus status = processData(process);
