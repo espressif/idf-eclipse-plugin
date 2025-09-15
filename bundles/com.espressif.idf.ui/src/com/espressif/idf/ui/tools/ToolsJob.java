@@ -471,6 +471,7 @@ public abstract class ToolsJob extends Job
 			Logger.log(cmdMsg);
 
 			Map<String, String> environment = new HashMap<>(IDFUtil.getSystemEnv());
+			Logger.log("Environment Variables from System:");
 			Logger.log(environment.toString());
 			environment.put("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
 			environment.put("IDF_GITHUB_ASSETS", //$NON-NLS-1$
@@ -487,6 +488,11 @@ public abstract class ToolsJob extends Job
 			{
 				addPathToEnvironmentPath(environment, gitExecutablePath);
 			}
+			
+			Logger.log("Environment Variables after filtering from system:");
+			IDFUtil.cleanUpSystemEnvironment(environment);
+			Logger.log(environment);
+			
 			Process process = processRunner.run(arguments, org.eclipse.core.runtime.Path.ROOT, environment);
 			IStatus status = processData(process);
 			console.println();

@@ -10,6 +10,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -991,6 +992,31 @@ public class IDFUtil
 		{
 			Logger.log(e);
 			return null;
+		}
+	}
+	
+	/**
+	 * Remove the variables which can affect the idf_tools.py export command
+	 * These variables can come from system environment
+	 * @param environment
+	 */
+	public static void cleanUpSystemEnvironment(Map<String, String> environment)
+	{
+		List<String> keysToRenmove = new LinkedList<>();
+		keysToRenmove.add(IDFEnvironmentVariables.IDF_PYTHON_ENV_PATH);
+		keysToRenmove.add(IDFEnvironmentVariables.IDF_PATH);
+		keysToRenmove.add(IDFEnvironmentVariables.ESP_IDF_VERSION);
+		keysToRenmove.add(IDFEnvironmentVariables.IDF_CCACHE_ENABLE);
+		keysToRenmove.add(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER);
+		keysToRenmove.add(IDFEnvironmentVariables.IDF_MAINTAINER);
+		keysToRenmove.add(IDFEnvironmentVariables.OPENOCD_SCRIPTS);
+		
+		for (String key : keysToRenmove)
+		{
+			if (environment.containsKey(key))
+			{
+				environment.remove(key);
+			}
 		}
 	}
 }
