@@ -861,43 +861,6 @@ public class IDFUtil
 		return resolvedPath.toString();
 
 	}
-
-	public static Map<String, String> getSystemEnv()
-	{
-		Map<String, String> env = new HashMap<>(System.getenv());
-
-		String idfToolsPath = Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
-				IDFCorePreferenceConstants.IDF_TOOLS_PATH, IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT, null);
-		env.put(IDFCorePreferenceConstants.IDF_TOOLS_PATH, idfToolsPath);
-
-		// Merge Homebrew bin paths into PATH
-		String existingPath = env.getOrDefault("PATH", ""); //$NON-NLS-1$ //$NON-NLS-2$
-		StringBuilder newPath = new StringBuilder();
-
-		String[] brewPaths = { "/usr/local/bin", "/opt/homebrew/bin" }; //$NON-NLS-1$ //$NON-NLS-2$
-
-		for (String brewPath : brewPaths)
-		{
-			if (Files.exists(Paths.get(brewPath)) && !existingPath.contains(brewPath))
-			{
-				newPath.append(brewPath).append(":"); //$NON-NLS-1$
-			}
-		}
-
-		// Append the original PATH at the end
-		newPath.append(existingPath);
-		env.put("PATH", newPath.toString()); //$NON-NLS-1$
-
-		return env;
-	}
-
-	public static String getIDFToolsPathFromPreferences()
-	{
-		String idfToolsPath = Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
-				IDFCorePreferenceConstants.IDF_TOOLS_PATH, IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT, null);
-		return idfToolsPath;
-	}
-
 	
 	public static void closeWelcomePage(IWorkbenchWindow activeww)
 	{
