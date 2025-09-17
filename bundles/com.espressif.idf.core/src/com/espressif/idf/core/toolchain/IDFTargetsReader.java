@@ -104,11 +104,11 @@ public class IDFTargetsReader
 		{
 			String targetsString = matcher.group(1);
 			// Split by comma and clean up
-			String[] targetArray = targetsString.split(",");
+			String[] targetArray = targetsString.split(","); //$NON-NLS-1$
 			for (String target : targetArray)
 			{
 				// Remove quotes, whitespace and filter empty strings
-				String cleanTarget = target.replaceAll("['\"\\s]", "").trim();
+				String cleanTarget = target.replaceAll("['\"\\s]", "").trim(); //$NON-NLS-1$ //$NON-NLS-2$
 				if (!cleanTarget.isEmpty())
 				{
 					targets.add(cleanTarget);
