@@ -23,6 +23,7 @@ import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.tools.exceptions.EimVersionMismatchException;
 import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.core.util.StringUtil;
 
@@ -66,7 +67,7 @@ public class ToolInitializer
 		return new File(path).exists();
 	}
 
-	public EimJson loadEimJson()
+	public EimJson loadEimJson() throws EimVersionMismatchException
 	{
 		try
 		{

@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Display;
@@ -26,6 +27,7 @@ import com.espressif.idf.core.tools.DownloadListener;
 import com.espressif.idf.core.tools.EimIdfConfiguratinParser;
 import com.espressif.idf.core.tools.EimLoader;
 import com.espressif.idf.core.tools.ToolInitializer;
+import com.espressif.idf.core.tools.exceptions.EimVersionMismatchException;
 import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.handlers.EclipseHandler;
@@ -129,10 +131,15 @@ public class EimButtonLaunchListener extends SelectionAdapter
 				IDE.openEditor(activeww.getActivePage(), new EimEditorInput(eimJson), ESPIDFManagerEditor.EDITOR_ID,
 						true);
 			}
-			catch (PartInitException | IOException e)
+			catch (PartInitException| EimVersionMismatchException | IOException e)
 			{
 				Logger.log("Failed to open ESP-IDF Manager Editor.");
 				Logger.log(e);
+				if (e instanceof EimVersionMismatchException)
+				{
+					EimVersionMismatchException eimEx = (EimVersionMismatchException) e;
+					MessageDialog.openError(Display.getDefault().getActiveShell(), eimEx.msgTitle(), eimEx.getMessage());
+				}
 			}
 		});
 
