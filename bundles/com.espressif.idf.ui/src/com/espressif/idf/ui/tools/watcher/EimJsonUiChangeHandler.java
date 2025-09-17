@@ -62,10 +62,20 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 	public void displayMessageToUser()
 	{
 		GlobalModalLock.showModal(() -> MessageDialog.openQuestion(EclipseUtil.getShell(),
-				Messages.EimJsonChangedMsgTitle, Messages.EimJsonChangedMsgDetail), this::handleUserResponse);
+				Messages.EimJsonChangedMsgTitle, Messages.EimJsonChangedMsgDetail), t -> {
+					try
+					{
+						handleUserResponse(t);
+					}
+					catch (EimVersionMismatchException e)
+					{
+						MessageDialog.openError(EclipseUtil.getShell(), e.msgTitle(), e.getMessage());
+						Logger.log(e);
+					}
+				});
 	}
 
-	public void handleUserResponse(Boolean response)
+	public void handleUserResponse(Boolean response) throws EimVersionMismatchException
 	{
 		if (response)
 		{
@@ -93,7 +103,7 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 					});
 				}
 			}
-			catch (IOException | EimVersionMismatchException e)
+			catch (IOException e)
 			{
 				Logger.log(e);
 			}
