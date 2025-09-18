@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2024 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Copyright 2025 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
 
@@ -132,17 +132,17 @@ public class IDFTargets
 		{
 			switch (name)
 			{
-			case "esp32":
-			case "esp32s2":
-			case "esp32s3":
-				return "xtensa";
-			case "esp32c2":
-			case "esp32c3":
-			case "esp32c6":
-			case "esp32h2":
-			case "esp32p4":
+			case "esp32": //$NON-NLS-1$
+			case "esp32s2": //$NON-NLS-1$
+			case "esp32s3": //$NON-NLS-1$
+				return "xtensa"; //$NON-NLS-1$
+			case "esp32c2": //$NON-NLS-1$
+			case "esp32c3": //$NON-NLS-1$
+			case "esp32c6": //$NON-NLS-1$
+			case "esp32h2": //$NON-NLS-1$
+			case "esp32p4": //$NON-NLS-1$
 			default:
-				return "riscv32";
+				return "riscv32"; //$NON-NLS-1$
 			}
 		}
 
@@ -155,17 +155,17 @@ public class IDFTargets
 		{
 			switch (name)
 			{
-			case "esp32":
-			case "esp32s2":
-			case "esp32s3":
-				return "xtensa-" + name + "-elf";
-			case "esp32c2":
-			case "esp32c3":
-			case "esp32c6":
-			case "esp32h2":
-			case "esp32p4":
+			case "esp32": //$NON-NLS-1$
+			case "esp32s2": //$NON-NLS-1$
+			case "esp32s3": //$NON-NLS-1$
+				return "xtensa-" + name + "-elf"; //$NON-NLS-1$ //$NON-NLS-2$
+			case "esp32c2": //$NON-NLS-1$
+			case "esp32c3": //$NON-NLS-1$
+			case "esp32c6": //$NON-NLS-1$
+			case "esp32h2": //$NON-NLS-1$
+			case "esp32p4": //$NON-NLS-1$
 			default:
-				return "riscv32-esp-elf";
+				return "riscv32-esp-elf"; //$NON-NLS-1$
 			}
 		}
 
@@ -176,8 +176,15 @@ public class IDFTargets
 		 */
 		public String getCompilerPattern()
 		{
-			String toolchainId = getToolchainId();
-			return toolchainId + "[\\\\/]+bin[\\\\/]+" + toolchainId + "-gcc(?:\\.exe)?$";
+			String executableName = getExecutableName();
+
+			// Support both old and new unified directory structures
+			String targetSpecificDir = getTargetSpecificDirectoryName();
+			String unifiedDir = getUnifiedDirectoryName();
+
+			// Create pattern that matches either directory structure
+			return "(?:" + targetSpecificDir + "|" + unifiedDir + ")[\\\\/]+bin[\\\\/]+" + executableName //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					+ "-gcc(?:\\.exe)?$"; //$NON-NLS-1$
 		}
 
 		/**
@@ -187,8 +194,67 @@ public class IDFTargets
 		 */
 		public String getDebuggerPattern()
 		{
-			String toolchainId = getToolchainId();
-			return toolchainId + "-gdb(?:\\.exe)?$";
+			String executableName = getExecutableName();
+			return executableName + "-gdb(?:\\.exe)?$"; //$NON-NLS-1$
+		}
+
+		/**
+		 * Get the executable name prefix for this target (different from directory structure in ESP-IDF v5.5+)
+		 * 
+		 * @return executable name prefix
+		 */
+		private String getExecutableName()
+		{
+			switch (name)
+			{
+			case "esp32": //$NON-NLS-1$
+			case "esp32s2": //$NON-NLS-1$
+			case "esp32s3": //$NON-NLS-1$
+				return "xtensa-" + name + "-elf"; // Target-specific executable names //$NON-NLS-1$ //$NON-NLS-2$
+			case "esp32c2": //$NON-NLS-1$
+			case "esp32c3": //$NON-NLS-1$
+			case "esp32c6": //$NON-NLS-1$
+			case "esp32h2": //$NON-NLS-1$
+			case "esp32p4": //$NON-NLS-1$
+			default:
+				return "riscv32-esp-elf"; // Unified executable name //$NON-NLS-1$
+			}
+		}
+
+		private String getTargetSpecificDirectoryName()
+		{
+			switch (name)
+			{
+			case "esp32": //$NON-NLS-1$
+			case "esp32s2": //$NON-NLS-1$
+			case "esp32s3": //$NON-NLS-1$
+				return "xtensa-" + name + "-elf"; // Target-specific directory names //$NON-NLS-1$ //$NON-NLS-2$
+			case "esp32c2": //$NON-NLS-1$
+			case "esp32c3": //$NON-NLS-1$
+			case "esp32c6": //$NON-NLS-1$
+			case "esp32h2": //$NON-NLS-1$
+			case "esp32p4": //$NON-NLS-1$
+			default:
+				return "riscv32-esp-elf"; // Same for both old and new //$NON-NLS-1$
+			}
+		}
+
+		private String getUnifiedDirectoryName()
+		{
+			switch (name)
+			{
+			case "esp32": //$NON-NLS-1$
+			case "esp32s2": //$NON-NLS-1$
+			case "esp32s3": //$NON-NLS-1$
+				return "xtensa-esp-elf"; // Unified directory name  //$NON-NLS-1$
+			case "esp32c2": //$NON-NLS-1$
+			case "esp32c3": //$NON-NLS-1$
+			case "esp32c6": //$NON-NLS-1$
+			case "esp32h2": //$NON-NLS-1$
+			case "esp32p4": //$NON-NLS-1$
+			default:
+				return "riscv32-esp-elf"; //$NON-NLS-1$
+			}
 		}
 
 		/**
@@ -198,7 +264,7 @@ public class IDFTargets
 		 */
 		public String getToolchainFileName()
 		{
-			return "toolchain-" + name + ".cmake";
+			return "toolchain-" + name + ".cmake"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 }
