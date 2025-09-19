@@ -277,7 +277,14 @@ public class TestWidgetWaitUtility
 			@Override
 			public boolean test() throws Exception
 			{
-				return workbenchBot.cTabItem(tabName).isActive();
+				try
+				{
+					return workbenchBot.cTabItem(tabName) != null;
+				}
+				catch (WidgetNotFoundException e)
+				{
+					return false;
+				}
 			}
 
 			@Override

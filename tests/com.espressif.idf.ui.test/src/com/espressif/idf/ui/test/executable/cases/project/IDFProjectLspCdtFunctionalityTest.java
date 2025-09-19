@@ -48,9 +48,10 @@ public class IDFProjectLspCdtFunctionalityTest
 		bot = WorkBenchSWTBot.getBot();
 		EnvSetupOperations.setupEspressifEnv(bot);
 		ProjectTestOperations.deleteAllProjects(bot);
-		ProjectTestOperations.setupProjectWithReconfigureCommand(PROJECT_NAME, "EspressIf", "Espressif IDF Project", //$NON-NLS-1$ //$NON-NLS-2$
-				bot);
-		TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
+		ProjectTestOperations.setupProject(PROJECT_NAME, "EspressIf", "Espressif IDF Project", bot);
+		ProjectTestOperations.buildProjectUsingContextMenu(PROJECT_NAME, bot);
+		ProjectTestOperations.waitForProjectBuild(bot);
+		TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
 	}
 
 	@AfterClass
