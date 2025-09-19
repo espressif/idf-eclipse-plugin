@@ -172,28 +172,26 @@ public class NewEspressifIDFProjectSDKconfigTest
 
 		private static void thenSDKconfigFileIsPresent() throws IOException
 		{
-			assertTrue(bot.tree().getTreeItem(projectName).getNode("sdkconfig") != null);
+			assertTrue("sdk not found", bot.tree().getTreeItem(projectName).getNode("sdkconfig") != null);
 		}
 
 		private static void thenSDKconfigFileIsAbsent() throws IOException
 		{
-			assertTrue(!bot.tree().getTreeItem(projectName).getNodes().contains("sdkconfig"));
+			assertTrue("sdk still present",!bot.tree().getTreeItem(projectName).getNodes().contains("sdkconfig"));
 		}
 
 		private static void whenSDKconfigFileOpenedUsingDoubleClick() throws IOException
 		{
 			bot.tree().getTreeItem(projectName).getNode("sdkconfig").doubleClick();
 			TestWidgetWaitUtility.waitWhileDialogIsVisible(bot, "Progress Information", 40000);
-			bot.sleep(5000);
-			bot.cTabItem("SDK Configuration (sdkconfig)").activate();
+			TestWidgetWaitUtility.waitForCTabToAppear(bot, "SDK Configuration (sdkconfig)", 10000);
 		}
 
 		private static void whenSDKconfigFileOpenedUsingContextMenu() throws IOException
 		{
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Menu Config");
 			TestWidgetWaitUtility.waitWhileDialogIsVisible(bot, "Progress Information", 40000);
-			bot.sleep(5000);
-			bot.cTabItem("SDK Configuration (sdkconfig)").activate();
+			TestWidgetWaitUtility.waitForCTabToAppear(bot, "SDK Configuration (sdkconfig)", 10000);
 		}
 
 		private static void thenSDKconfigFileContentChecked() throws Exception
@@ -202,7 +200,7 @@ public class NewEspressifIDFProjectSDKconfigTest
 			TestWidgetWaitUtility.waitForTreeItem("Partition Table", bot.tree(1), bot);
 			bot.tree(1).getTreeItem("Partition Table").click();
 			bot.sleep(1000);
-			assertTrue(bot.textWithLabel("Offset of partition table (hex)").getText().matches("0x8000"));
+			assertTrue("Offset not 0x8000", bot.textWithLabel("Offset of partition table (hex)").getText().matches("0x8000"));
 		}
 
 		private static void thenSDKconfigFileContentEdited() throws Exception
@@ -238,11 +236,11 @@ public class NewEspressifIDFProjectSDKconfigTest
 			TestWidgetWaitUtility.waitForTreeItem("Partition Table", bot.tree(1), bot);
 			bot.tree(1).getTreeItem("Partition Table").click();
 			bot.sleep(2000);
-			assertTrue(bot.textWithLabel("Offset of partition table (hex)").getText().matches("0x4000"));
+			assertTrue("Offset not 0x4000", bot.textWithLabel("Offset of partition table (hex)").getText().matches("0x4000"));
 			bot.sleep(2000);
-			assertTrue(bot.comboBoxWithLabel("Partition Table").selection().equals("Custom partition table CSV"));
+			assertTrue("Custom partition not set", bot.comboBoxWithLabel("Partition Table").selection().equals("Custom partition table CSV"));
 			bot.sleep(2000);
-			assertTrue(!bot.checkBox("Generate an MD5 checksum for the partition table").isChecked());
+			assertTrue("Checkbox is still checked", !bot.checkBox("Generate an MD5 checksum for the partition table").isChecked());
 		}
 
 		private static void cleanTestEnv()
