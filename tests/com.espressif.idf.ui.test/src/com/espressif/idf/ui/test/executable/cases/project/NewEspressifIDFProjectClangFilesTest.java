@@ -429,7 +429,7 @@ public class NewEspressifIDFProjectClangFilesTest
 		{
 			SWTBotShell prefrencesShell = bot.shell("Preferences");
 			String actualDriversPath = prefrencesShell.bot().textWithLabel("Drivers").getText();
-			String expectedDriversPath = getXtensaToolchainPathBasedOnTheTargetConfigured();
+			String expectedDriversPath = "**";
 			assertEquals(expectedDriversPath, actualDriversPath);
 		}
 
