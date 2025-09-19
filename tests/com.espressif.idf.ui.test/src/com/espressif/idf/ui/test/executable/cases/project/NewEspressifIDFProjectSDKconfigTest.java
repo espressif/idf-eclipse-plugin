@@ -184,14 +184,16 @@ public class NewEspressifIDFProjectSDKconfigTest
 		{
 			bot.tree().getTreeItem(projectName).getNode("sdkconfig").doubleClick();
 			TestWidgetWaitUtility.waitWhileDialogIsVisible(bot, "Progress Information", 40000);
-			TestWidgetWaitUtility.waitForCTabToAppear(bot, "SDK Configuration (sdkconfig)", 15000);
+			bot.sleep(5000);
+			bot.cTabItem("SDK Configuration (sdkconfig)").activate();
 		}
 
 		private static void whenSDKconfigFileOpenedUsingContextMenu() throws IOException
 		{
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Menu Config");
 			TestWidgetWaitUtility.waitWhileDialogIsVisible(bot, "Progress Information", 40000);
-			TestWidgetWaitUtility.waitForCTabToAppear(bot, "SDK Configuration (sdkconfig)", 15000);
+			bot.sleep(5000);
+			bot.cTabItem("SDK Configuration (sdkconfig)").activate();
 		}
 
 		private static void thenSDKconfigFileContentChecked() throws Exception
