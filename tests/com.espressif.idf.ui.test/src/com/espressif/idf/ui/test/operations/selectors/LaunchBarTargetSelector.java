@@ -17,9 +17,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.SWTBotWidget;
@@ -30,8 +28,6 @@ import org.eclipse.swtbot.swt.finder.widgets.AbstractSWTBotControl;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotLabel;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.allOf;
-import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.widgetOfType;
-import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.withText;
 
 /**
  * Launchbar CDT helper class to select items from launch targets
