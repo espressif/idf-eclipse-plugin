@@ -150,10 +150,10 @@ public class LaunchBarTargetSelector extends AbstractSWTBotControl<CSelector>
 	            scrollToBottom(swtBotShell.bot().widget(widgetOfType(ScrolledComposite.class)));
 	            swtBotShell.bot().text().setText(text);
 
-	            List<? extends Widget> labels = swtBotShell.bot().widgets(widgetOfType(Label.class));
-	            for (Widget widget : labels)
+	            List<? extends Label> labels = swtBotShell.bot().widgets(widgetOfType(Label.class));
+	            for (Label label : labels)
 	            {
-	                String labelText = syncExec(() -> ((Label) widget).getText());
+	                String labelText = syncExec(label::getText);
 	                if (labelText.equals(text))
 	                {
 	                    return true;
