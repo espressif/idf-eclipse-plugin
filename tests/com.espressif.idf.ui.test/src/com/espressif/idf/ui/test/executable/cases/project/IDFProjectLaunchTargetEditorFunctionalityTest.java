@@ -12,7 +12,7 @@ import java.io.IOException;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -40,10 +40,13 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 	public static void beforeTestClass() throws Exception
 	{
 		Fixture.loadEnv();
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("LaunchTargetEditorTest");
+		Fixture.whenNewProjectIsSelected();
 	}
 
-	@After
-	public void afterEachTest()
+	@AfterClass
+	public static void afterEachTest()
 	{
 		try
 		{
@@ -58,10 +61,7 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 	@Test
 	public void givenANewProjectCreatedBuiltWhenSelectNewTargetWhenPopUpAppearsThenBuildFolderDeletedSuccessfully()
 			throws Exception
-	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectLaunchTargetTest");
-		Fixture.whenNewProjectIsSelected();
+	{	
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.whenChangeLaunchTarget();
 		Fixture.whenRefreshProject();
@@ -72,9 +72,6 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 	public void givenBNewProjectCreatedWhenCreateNewLaunchTargetThenProjectBuiltSuccessfully()
 			throws Exception
 	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectLaunchTargetTest2");
-		Fixture.whenNewProjectIsSelected();
 		Fixture.whenCreateNewLaunchTarget();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 	}
@@ -83,9 +80,6 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 	public void givenCNewProjectCreatedWhenDeleteSelectedLaunchTargetThenDeletedSuccessfully()
 			throws Exception
 	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectLaunchTargetTest3");
-		Fixture.whenNewProjectIsSelected();
 		Fixture.whenDeleteSelectedLaunchTarget();
 		Fixture.thenLaunchTargetDeletedSuccessfully();
 	}
@@ -153,6 +147,9 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 			SWTBotShell shell = bot.shell("New ESP Target");
 			shell.setFocus();
 			bot.button("Delete").click();
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "IDF Launch Target Changed", 5000);
+			bot.button("Yes").click();
+			bot.sleep(500);		
 		}
 
 		private static void whenDeleteSelectedLaunchTarget() throws Exception
