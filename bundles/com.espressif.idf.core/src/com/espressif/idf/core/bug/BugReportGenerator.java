@@ -101,10 +101,10 @@ public class BugReportGenerator
 		switch (Platform.getOS())
 		{
 		case Platform.OS_WIN32:
-			eimPath = System.getenv("APPDATA"); //$NON-NLS-1$
+			eimPath = System.getenv("LOCALAPPDATA"); //$NON-NLS-1$
 			if (!StringUtil.isEmpty(eimPath))
 			{
-				eimPath = eimPath + "\\Local\\eim\\logs"; //$NON-NLS-1$
+				eimPath = eimPath + "\\eim\\logs"; //$NON-NLS-1$
 			}
 			break;
 		case Platform.OS_MACOSX:
@@ -290,7 +290,10 @@ public class BugReportGenerator
 			File eimLogPath = getEimLogPath();
 			Logger.log("EIM log path: " + eimLogPath.getAbsolutePath()); //$NON-NLS-1$
 			File eimLogDir = new File(bugReportDirectory.getAbsolutePath() + File.separator + "eim_logs"); //$NON-NLS-1$ )
-			FileUtil.copyDirectory(eimLogPath, eimLogDir);
+			IStatus status = FileUtil.copyDirectory(eimLogPath, eimLogDir);
+			Logger.log("EIM log copy status-code: " + status.getCode()); //$NON-NLS-1$
+			Logger.log("EIM log copy status-message: " + status.getMessage()); //$NON-NLS-1$
+			
 
 			// Zip the bug report directory
 			FileUtil.zipDirectory(bugReportDirectory, bugReportDirectory.getAbsolutePath() + ".zip"); //$NON-NLS-1$
