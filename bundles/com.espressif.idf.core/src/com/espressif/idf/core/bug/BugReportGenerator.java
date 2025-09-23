@@ -288,6 +288,7 @@ public class BugReportGenerator
 			}
 
 			File eimLogPath = getEimLogPath();
+			Logger.log("EIM log path: " + eimLogPath.getAbsolutePath()); //$NON-NLS-1$
 			File eimLogDir = new File(bugReportDirectory.getAbsolutePath() + File.separator + "eim_logs"); //$NON-NLS-1$ )
 			FileUtil.copyDirectory(eimLogPath, eimLogDir);
 
