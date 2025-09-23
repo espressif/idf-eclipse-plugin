@@ -172,26 +172,26 @@ public class NewEspressifIDFProjectSDKconfigTest
 
 		private static void thenSDKconfigFileIsPresent() throws IOException
 		{
-			assertTrue(bot.tree().getTreeItem(projectName).getNode("sdkconfig") != null);
+			assertTrue("SDKconfig file was not found", bot.tree().getTreeItem(projectName).getNode("sdkconfig") != null);
 		}
 
 		private static void thenSDKconfigFileIsAbsent() throws IOException
 		{
-			assertTrue(!bot.tree().getTreeItem(projectName).getNodes().contains("sdkconfig"));
+			assertTrue("SDKconfig file is still present",!bot.tree().getTreeItem(projectName).getNodes().contains("sdkconfig"));
 		}
 
 		private static void whenSDKconfigFileOpenedUsingDoubleClick() throws IOException
 		{
 			bot.tree().getTreeItem(projectName).getNode("sdkconfig").doubleClick();
 			TestWidgetWaitUtility.waitWhileDialogIsVisible(bot, "Progress Information", 40000);
-			TestWidgetWaitUtility.waitForCTabToAppear(bot, "SDK Configuration (sdkconfig)", 5000);
+			TestWidgetWaitUtility.waitForCTabToAppear(bot, "SDK Configuration (sdkconfig)", 10000);
 		}
 
 		private static void whenSDKconfigFileOpenedUsingContextMenu() throws IOException
 		{
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Menu Config");
 			TestWidgetWaitUtility.waitWhileDialogIsVisible(bot, "Progress Information", 40000);
-			TestWidgetWaitUtility.waitForCTabToAppear(bot, "SDK Configuration (sdkconfig)", 5000);
+			TestWidgetWaitUtility.waitForCTabToAppear(bot, "SDK Configuration (sdkconfig)", 10000);
 		}
 
 		private static void thenSDKconfigFileContentChecked() throws Exception
@@ -200,7 +200,7 @@ public class NewEspressifIDFProjectSDKconfigTest
 			TestWidgetWaitUtility.waitForTreeItem("Partition Table", bot.tree(1), bot);
 			bot.tree(1).getTreeItem("Partition Table").click();
 			bot.sleep(1000);
-			assertTrue(bot.textWithLabel("Offset of partition table (hex)").getText().matches("0x8000"));
+			assertTrue("'Offset of partition table (hex)' does not match '0x8000'", bot.textWithLabel("Offset of partition table (hex)").getText().matches("0x8000"));
 		}
 
 		private static void thenSDKconfigFileContentEdited() throws Exception
@@ -210,9 +210,9 @@ public class NewEspressifIDFProjectSDKconfigTest
 			bot.tree(1).getTreeItem("Partition Table").click();
 			bot.sleep(1000);
 			bot.textWithLabel("Offset of partition table (hex)").setText("0x4000");
-			bot.sleep(2000);
+			bot.sleep(1000);
 			bot.comboBoxWithLabel("Partition Table").setSelection("Custom partition table CSV");
-			bot.sleep(2000);
+			bot.sleep(1000);
 			bot.checkBox("Generate an MD5 checksum for the partition table").click();
 		}
 
@@ -225,8 +225,7 @@ public class NewEspressifIDFProjectSDKconfigTest
 		{
 			bot.cTabItem("*SDK Configuration (sdkconfig)").activate();
 			bot.cTabItem("*SDK Configuration (sdkconfig)").close();
-			bot.sleep(5000);
-			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Save Resource", 5000);
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Save Resource", 10000);
 			bot.shell("Save Resource").bot().button("Save").click();
 		}
 
@@ -235,12 +234,12 @@ public class NewEspressifIDFProjectSDKconfigTest
 			bot.cTabItem("SDK Configuration (sdkconfig)").activate();
 			TestWidgetWaitUtility.waitForTreeItem("Partition Table", bot.tree(1), bot);
 			bot.tree(1).getTreeItem("Partition Table").click();
-			bot.sleep(2000);
-			assertTrue(bot.textWithLabel("Offset of partition table (hex)").getText().matches("0x4000"));
-			bot.sleep(2000);
-			assertTrue(bot.comboBoxWithLabel("Partition Table").selection().equals("Custom partition table CSV"));
-			bot.sleep(2000);
-			assertTrue(!bot.checkBox("Generate an MD5 checksum for the partition table").isChecked());
+			bot.sleep(1000);
+			assertTrue("'Offset of partition table (hex)' does not match '0x4000'", bot.textWithLabel("Offset of partition table (hex)").getText().matches("0x4000"));
+			bot.sleep(1000);
+			assertTrue("'Partition Table' does not match 'Custom partition table CSV'", bot.comboBoxWithLabel("Partition Table").selection().equals("Custom partition table CSV"));
+			bot.sleep(1000);
+			assertTrue("'Generate an MD5 checksum for the partition table' checkbox is still checked!", !bot.checkBox("Generate an MD5 checksum for the partition table").isChecked());
 		}
 
 		private static void cleanTestEnv()
