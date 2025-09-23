@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
+import com.espressif.idf.ui.handlers.Messages;
 import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 import com.espressif.idf.ui.test.operations.EnvSetupOperations;
@@ -80,6 +81,7 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 	public void givenCNewProjectCreatedWhenDeleteSelectedLaunchTargetThenDeletedSuccessfully()
 			throws Exception
 	{
+		Fixture.whenProjectFullCleanUsingContextMenu();
 		Fixture.whenDeleteSelectedLaunchTarget();
 		Fixture.thenLaunchTargetDeletedSuccessfully();
 	}
@@ -146,10 +148,7 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "New ESP Target", 20000);
 			SWTBotShell shell = bot.shell("New ESP Target");
 			shell.setFocus();
-			bot.button("Delete").click();
-			TestWidgetWaitUtility.waitForDialogToAppear(bot, "IDF Launch Target Changed", 5000);
-			bot.button("Yes").click();
-			bot.sleep(500);		
+			bot.button("Delete").click();	
 		}
 
 		private static void whenDeleteSelectedLaunchTarget() throws Exception
@@ -205,6 +204,14 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 		private static void thenBuildFolderDeletedSuccessfully() throws Exception
 		{
 			assertTrue("Build folder was not deleted successfully!", ProjectTestOperations.findProjectFullCleanedFilesInBuildFolder(projectName, bot));
+		}
+
+		private static void whenProjectFullCleanUsingContextMenu() throws IOException
+		{
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Project Full Clean");
+			ProjectTestOperations.joinJobByName(Messages.ProjectFullCleanCommandHandler_RunningFullcleanJobName);
+			ProjectTestOperations.findInConsole(bot, "Espressif IDF Tools Console", "Done");
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 		}
 
 		private static void cleanTestEnv()
