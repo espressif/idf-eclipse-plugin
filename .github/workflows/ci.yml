@@ -122,13 +122,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-	  - name: Clone IDF Release From Github
-	    uses: actions/checkout@v4
-	    with:
-	      repository: espressif/esp-idf
-	      path: dependencies/idf-tools
-	      submodules: 'true'
-	      ref: release/v5.4
+      - name: Clone IDF Release From Github
+        uses: actions/checkout@v4
+        with:
+          repository: espressif/esp-idf
+          path: dependencies/idf-tools
+          submodules: 'true'
+          ref: release/v5.4
 
       - name: Set up Python
         uses: actions/setup-python@v4
