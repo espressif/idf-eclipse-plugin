@@ -31,21 +31,35 @@ jobs:
           echo "VERSION=$version" >> $GITHUB_ENV
           echo "VERSION=$version" >> $GITHUB_OUTPUT
 
-      - name: Upload build artifacts
+      - name: Upload build artifacts (update site)
         if: ${{ !cancelled() }}
-        run: |
-          for platform in \
-            "com.espressif.idf.update-${VERSION}:releng/com.espressif.idf.update/target/repository" \
-            "Espressif-IDE-${VERSION}-win32:releng/com.espressif.idf.product/target/products/Espressif-IDE-${VERSION}-win32.win32.x86_64.zip" \
-            "Espressif-IDE-${VERSION}-linux.gtk.x86_64:releng/com.espressif.idf.product/target/products/Espressif-IDE-${VERSION}-linux.gtk.x86_64.tar.gz" \
-            "Espressif-IDE-${VERSION}-linux.gtk.aarch64:releng/com.espressif.idf.product/target/products/Espressif-IDE-${VERSION}-linux.gtk.aarch64.tar.gz"; do
-            name=${platform%%:*}
-            path=${platform##*:}
-            echo "Uploading $name"
-            gh actions upload-artifact --name "$name" --path "$path"
-          done
+        uses: actions/upload-artifact@v4
+        with:
+          name: com.espressif.idf.update-${{ env.VERSION }}
+          path: releng/com.espressif.idf.update/target/repository
 
-      - name: Codesign and create DMGs (macOS)
+      - name: Upload Windows x86_64 artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Espressif-IDE-${{ env.VERSION }}-win32
+          path: releng/com.espressif.idf.product/target/products/Espressif-IDE-${{ env.VERSION }}-win32.win32.x86_64.zip
+
+      - name: Upload Linux x86_64 artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Espressif-IDE-${{ env.VERSION }}-linux.gtk.x86_64
+          path: releng/com.espressif.idf.product/target/products/Espressif-IDE-${{ env.VERSION }}-linux.gtk.x86_64.tar.gz
+
+      - name: Upload Linux ARM64 artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Espressif-IDE-${{ env.VERSION }}-linux.gtk.aarch64
+          path: releng/com.espressif.idf.product/target/products/Espressif-IDE-${{ env.VERSION }}-linux.gtk.aarch64.tar.gz
+
+      - name: Codesign Espressif-IDE
         env:
           MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
           MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
@@ -57,19 +71,37 @@ jobs:
           /usr/bin/security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
           /usr/bin/security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k espressif build.keychain
 
-          for arch in x86_64 aarch64; do
-            /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement \
-              --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" \
-              $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/$arch/Espressif-IDE.app -v
-            /usr/bin/codesign -v -vvv --deep $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/$arch/Espressif-IDE.app
+          echo "codesigning espressif-ide-macosx.cocoa.x86_64"
+          /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app -v
+          /usr/bin/codesign -v -vvv --deep $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app
 
-            $PWD/releng/ide-dmg-builder/ide-dmg-builder${arch == "aarch64" && "-aarch64" || ""}.sh
-            /usr/bin/codesign --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" \
-              $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-$arch.dmg -v
-            /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-$arch.dmg
+          echo "codesigning espressif-ide-macosx.cocoa.aarch64"
+          /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/aarch64/Espressif-IDE.app -v
+          /usr/bin/codesign -v -vvv --deep $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/aarch64/Espressif-IDE.app
 
-            gh actions upload-artifact --name Espressif-IDE-${VERSION}-macosx.cocoa-$arch --path $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-$arch.dmg
-          done
+          echo "Creating dmg for espressif-ide-macosx.cocoa.x86_64"
+          $PWD/releng/ide-dmg-builder/ide-dmg-builder.sh
+          /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg -v
+          /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
+
+          echo "Creating dmg for espressif-ide-macosx.cocoa.aarch64"
+          $PWD/releng/ide-dmg-builder/ide-dmg-builder-aarch64.sh
+          /usr/bin/codesign --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg -v
+          /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
+
+      - name: Upload espressif-ide-macosx.cocoa.x86_64 dmg
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Espressif-IDE-${{ env.VERSION }}-macosx.cocoa.x86_64
+          path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
+
+      - name: Upload espressif-ide-macosx.cocoa.aarch64 dmg
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Espressif-IDE-${{ env.VERSION }}-macosx.cocoa.aarch64
+          path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
 
   build_and_test:
     strategy:
