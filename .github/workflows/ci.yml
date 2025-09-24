@@ -104,11 +104,20 @@ jobs:
           path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
 
   build_and_test:
-    strategy:
-      matrix:
-        os: [linux, windows]
-      fail-fast: false
-    runs-on: ${{ matrix.os == 'linux' && 'self-hosted, eclipse, BrnoUBU0004' || 'self-hosted, eclipseUpd, BrnoWIN0007' }}
+	strategy:
+	  matrix:
+	    include:
+	      - os: linux
+	        runner: [self-hosted, eclipse, BrnoUBU0004]
+	        testWorkspace: /opt/actions-runner/_work/workspace
+	        reportName: Linux Test Reports
+	      - os: windows
+	        runner: [self-hosted, eclipseUpd, BrnoWIN0007]
+	        testWorkspace: C:/actions-runner/_work/workspace
+	        reportName: Windows Test Reports
+	  fail-fast: false
+
+	runs-on: ${{ matrix.runner }}
 
     steps:
       - uses: actions/checkout@v4
@@ -132,12 +141,12 @@ jobs:
       - name: Run Tests
         run: |
           export NO_AT_BRIDGE=1
-          mvn verify -Djarsigner.skip=true -DskipTests=false -DtestWorkspace=${{ matrix.os == 'linux' && '/opt/actions-runner/_work/workspace' || 'C:/actions-runner/_work/workspace' }}
+		  mvn verify -Djarsigner.skip=true -DskipTests=false -DtestWorkspace="${{ matrix.testWorkspace }}"
 
       - name: Publish Test Reports
         if: ${{ always() }}
         uses: phoenix-actions/test-reporting@v12
         with:
-          name: ${{ matrix.os == 'linux' && 'Linux Test Reports' || 'Windows Test Reports' }}
+          name: ${{ matrix.reportName }}
           path: tests/*/*/*/TEST-*.xml
           reporter: java-junit
