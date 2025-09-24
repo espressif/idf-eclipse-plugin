@@ -74,8 +74,6 @@ public class Messages extends NLS
 
 	public static String ToolsInstallationJobCompletedMessage;
 	
-	public static String BugReportHandler_CompletedBugReportMsg;
-	
 	static
 	{
 		// initialize resource bundle

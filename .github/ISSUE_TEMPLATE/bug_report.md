@@ -23,6 +23,10 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Bug Report**
-Please attach the bug report zip file generated. The file is generated in the workspace root directory.
-Espressif > Generate Bug Report
+**Espressif-IDE Product Information:**
+Espressif > Product Information (Copy content from the console and attach as a file)
+
+**Eclipse Error log:** 
+Window > Show View > Other > Search for "Error Log" (Attach as a file)
+
+Please attach the error log as described here https://github.com/espressif/idf-eclipse-plugin#error-log 
