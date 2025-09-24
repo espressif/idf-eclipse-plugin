@@ -8,6 +8,8 @@ import com.google.gson.annotations.Expose;
 public class EimJson
 {
 	@Expose
+	private String version;
+	@Expose
 	private String eimPath;
 	@Expose
 	private String gitPath;
@@ -54,6 +56,16 @@ public class EimJson
 	public void setEimPath(String eimPath)
 	{
 		this.eimPath = eimPath;
+	}
+
+	public String getVersion()
+	{
+		return version;
+	}
+
+	public void setVersion(String version)
+	{
+		this.version = version;
 	}
 
 }
