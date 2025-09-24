@@ -142,7 +142,7 @@ jobs:
         if: runner.os == 'linux'
         run: export NO_AT_BRIDGE=1
       - name: Run Maven
-        run: mvn verify -Djarsigner.skip=true -DskipTests=false -DtestWorkspace="${{ matrix.testWorkspace }}"
+        run: mvn verify "-Djarsigner.skip=true" "-DskipTests=false" "-DtestWorkspace=${{ matrix.testWorkspace }}"
 
       - name: Publish Test Reports
         if: ${{ always() }}
