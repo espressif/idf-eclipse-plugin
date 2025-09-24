@@ -22,14 +22,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IStartup;
-import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.intro.IIntroManager;
 import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
@@ -39,6 +36,7 @@ import com.espressif.idf.core.tools.DownloadListener;
 import com.espressif.idf.core.tools.EimConstants;
 import com.espressif.idf.core.tools.EimLoader;
 import com.espressif.idf.core.tools.ToolInitializer;
+import com.espressif.idf.core.tools.exceptions.EimVersionMismatchException;
 import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.core.tools.watcher.EimJsonWatchService;
 import com.espressif.idf.core.util.IDFUtil;
@@ -88,7 +86,15 @@ public class EspressifToolStartup implements IStartup
 			return;
 		}
 
-		eimJson = toolInitializer.loadEimJson();
+		try
+		{
+			eimJson = toolInitializer.loadEimJson();
+		}
+		catch (EimVersionMismatchException e)
+		{
+			Logger.log(e);
+			return;
+		}
 
 		if (toolInitializer.isOldEspIdfConfigPresent() && !toolInitializer.isOldConfigExported())
 		{
@@ -395,7 +401,16 @@ public class EspressifToolStartup implements IStartup
 					Logger.log("Old configuration found and not converted");
 					handleOldConfigExport();
 				}
-				eimJson = toolInitializer.loadEimJson();
+				try
+				{
+					eimJson = toolInitializer.loadEimJson();
+				}
+				catch (EimVersionMismatchException e)
+				{
+					Logger.log(e);
+					MessageDialog.openError(Display.getDefault().getActiveShell(), e.msgTitle(), e.getMessage());
+					return;
+				}
 				openEspIdfManager(eimJson);
 			});
 		}

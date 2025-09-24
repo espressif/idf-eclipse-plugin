@@ -18,6 +18,7 @@ import org.osgi.service.prefs.Preferences;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.EimIdfConfiguratinParser;
 import com.espressif.idf.core.tools.SetupToolsInIde;
+import com.espressif.idf.core.tools.exceptions.EimVersionMismatchException;
 import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.core.tools.watcher.EimJsonChangeListener;
 import com.espressif.idf.core.tools.watcher.EimJsonStateChecker;
@@ -61,10 +62,20 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 	public void displayMessageToUser()
 	{
 		GlobalModalLock.showModal(() -> MessageDialog.openQuestion(EclipseUtil.getShell(),
-				Messages.EimJsonChangedMsgTitle, Messages.EimJsonChangedMsgDetail), this::handleUserResponse);
+				Messages.EimJsonChangedMsgTitle, Messages.EimJsonChangedMsgDetail), t -> {
+					try
+					{
+						handleUserResponse(t);
+					}
+					catch (EimVersionMismatchException e)
+					{
+						MessageDialog.openError(EclipseUtil.getShell(), e.msgTitle(), e.getMessage());
+						Logger.log(e);
+					}
+				});
 	}
 
-	public void handleUserResponse(Boolean response)
+	public void handleUserResponse(Boolean response) throws EimVersionMismatchException
 	{
 		if (response)
 		{
@@ -102,7 +113,7 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 		checker.updateLastSeenTimestamp();
 	}
 
-	private void loadEimJson() throws IOException
+	private void loadEimJson() throws IOException, EimVersionMismatchException
 	{
 		EimIdfConfiguratinParser eimIdfConfiguratinParser = new EimIdfConfiguratinParser();
 		eimJson = eimIdfConfiguratinParser.getEimJson(true);

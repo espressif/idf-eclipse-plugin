@@ -15,6 +15,9 @@ public class Messages extends NLS
 	public static String InstallToolsHandler_OpenOCDRulesCopyError;
 	public static String InstallToolsHandler_OpenOCDRulesCopied;
 	
+	public static String EimVersionMismatchExceptionMessage;
+	public static String EimVersionMismatchExceptionMessageTitle;
+	
 	static
 	{
 		// initialize resource bundle
