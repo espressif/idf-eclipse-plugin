@@ -114,6 +114,17 @@
      </command>
   </menuContribution>
   <menuContribution
+        allPopups="false"
+        locationURI="menu:espressifMenu?after=productinfo">
+     <command
+           commandId="com.espressif.idf.ui.command.generateBugReport"
+           icon="icons/espressif.png"
+           id="generateBugReport"
+           label="Generate Bug Report"
+           style="push">
+     </command>
+  </menuContribution>
+  <menuContribution
         locationURI="popup:common.new.menu?after=new">
      <command
            commandId="com.espressif.idf.ui.command.new"
@@ -463,6 +474,11 @@
         defaultHandler="com.espressif.idf.ui.installcomponents.handler.InstallIDFComponentsHandler"
         id="com.espressif.idf.bundles.installIdfComponents"
         name="%command.name.10">
+  </command>
+  <command
+        defaultHandler="com.espressif.idf.ui.handlers.GenerateBugReportCommandHandler"
+        id="com.espressif.idf.ui.command.generateBugReport"
+        name="Gennerate Bug Report">
   </command>
 	</extension>
 	<extension
