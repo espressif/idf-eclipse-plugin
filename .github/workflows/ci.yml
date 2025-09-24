@@ -129,7 +129,7 @@ jobs:
 	      path: dependencies/idf-tools
 	      submodules: 'true'
 	      ref: release/v5.4
-		  
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
