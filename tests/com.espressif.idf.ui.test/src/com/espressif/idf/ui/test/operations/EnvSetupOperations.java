@@ -28,13 +28,13 @@ public class EnvSetupOperations
 			return;
 
 		Display.getDefault().syncExec(() -> {
-		      Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-		      // Maximize (Windows/Linux/macOS windowed)
-		      shell.setMaximized(true);
-		      if (Platform.OS_WIN32.equals(Platform.getOS()) || Platform.OS_LINUX.equals(Platform.getOS()) || Platform.OS_MACOSX.equals(Platform.getOS())) {
-		        try { shell.setFullScreen(true); } catch (Throwable ignore) {}
-		      }
-		    });
+		    Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		    // Maximize (Windows/Linux/macOS windowed)
+		    shell.setMaximized(true);
+		    try {
+		        shell.setFullScreen(true);
+		    } catch (Throwable ignore) {}
+		});
 
 		for (SWTBotView view : bot.views(withPartName("Welcome")))
 		{
