@@ -7,11 +7,14 @@ package com.espressif.idf.core.toolchain;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import com.espressif.idf.core.toolchain.enums.Target;
 
 /**
  * Class to hold ESP-IDF target information including preview status
  * 
- * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
+ * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>, Ali Azam Rana <ali.azamrana@espresif.com>
  *
  */
 public class IDFTargets
@@ -25,22 +28,25 @@ public class IDFTargets
 		this.previewTargets = new ArrayList<>();
 	}
 
-	public void addSupportedTarget(String target)
+	public void addSupportedTarget(String targetName)
 	{
-		supportedTargets.add(new IDFTarget(target, false));
+		Target t = Target.fromString(targetName);
+		if (t != null)
+			supportedTargets.add(new IDFTarget(t, false));
 	}
 
-	public void addPreviewTarget(String target)
+	public void addPreviewTarget(String targetName)
 	{
-		previewTargets.add(new IDFTarget(target, true));
+		Target t = Target.fromString(targetName);
+		if (t != null)
+			previewTargets.add(new IDFTarget(t, true));
 	}
 
 	public List<IDFTarget> getAllTargets()
 	{
-		List<IDFTarget> allTargets = new ArrayList<>();
-		allTargets.addAll(supportedTargets);
-		allTargets.addAll(previewTargets);
-		return allTargets;
+		List<IDFTarget> all = new ArrayList<>(supportedTargets);
+		all.addAll(previewTargets);
+		return all;
 	}
 
 	public List<IDFTarget> getSupportedTargets()
@@ -55,48 +61,29 @@ public class IDFTargets
 
 	public boolean hasTarget(String targetName)
 	{
-		return getAllTargets().stream().anyMatch(target -> target.getName().equals(targetName));
+		Target t = Target.fromString(targetName);
+		return t != null && getAllTargets().stream().anyMatch(x -> x.getTarget() == t);
 	}
 
-	/**
-	 * Get a specific target by name
-	 * 
-	 * @param targetName Name of the target to find
-	 * @return IDFTarget if found, null otherwise
-	 */
 	public IDFTarget getTarget(String targetName)
 	{
-		return getAllTargets().stream().filter(target -> target.getName().equals(targetName)).findFirst().orElse(null);
+		Target t = Target.fromString(targetName);
+		return t == null ? null : getAllTargets().stream().filter(x -> x.getTarget() == t).findFirst().orElse(null);
 	}
 
-	/**
-	 * Get all target names as strings
-	 * 
-	 * @return List of target names
-	 */
 	public List<String> getAllTargetNames()
 	{
-		return getAllTargets().stream().map(IDFTarget::getName).collect(java.util.stream.Collectors.toList());
+		return getAllTargets().stream().map(IDFTarget::getName).collect(Collectors.toList());
 	}
 
-	/**
-	 * Get supported target names as strings
-	 * 
-	 * @return List of supported target names
-	 */
 	public List<String> getSupportedTargetNames()
 	{
-		return getSupportedTargets().stream().map(IDFTarget::getName).collect(java.util.stream.Collectors.toList());
+		return getSupportedTargets().stream().map(IDFTarget::getName).collect(Collectors.toList());
 	}
 
-	/**
-	 * Get preview target names as strings
-	 * 
-	 * @return List of preview target names
-	 */
 	public List<String> getPreviewTargetNames()
 	{
-		return getPreviewTargets().stream().map(IDFTarget::getName).collect(java.util.stream.Collectors.toList());
+		return getPreviewTargets().stream().map(IDFTarget::getName).collect(Collectors.toList());
 	}
 
 	/**
@@ -104,18 +91,18 @@ public class IDFTargets
 	 */
 	public static class IDFTarget
 	{
-		private final String name;
+		private final Target target;
 		private final boolean isPreview;
 
-		public IDFTarget(String name, boolean isPreview)
+		public IDFTarget(Target target, boolean isPreview)
 		{
-			this.name = name;
+			this.target = target;
 			this.isPreview = isPreview;
 		}
 
 		public String getName()
 		{
-			return name;
+			return target.idfName();
 		}
 
 		public boolean isPreview()
@@ -123,148 +110,34 @@ public class IDFTargets
 			return isPreview;
 		}
 
-		/**
-		 * Get the architecture for this target
-		 * 
-		 * @return "xtensa" for esp32/esp32s2/esp32s3, "riscv32" for others
-		 */
+		public Target getTarget()
+		{
+			return target;
+		}
+
 		public String getArchitecture()
 		{
-			switch (name)
-			{
-			case "esp32": //$NON-NLS-1$
-			case "esp32s2": //$NON-NLS-1$
-			case "esp32s3": //$NON-NLS-1$
-				return "xtensa"; //$NON-NLS-1$
-			case "esp32c2": //$NON-NLS-1$
-			case "esp32c3": //$NON-NLS-1$
-			case "esp32c6": //$NON-NLS-1$
-			case "esp32h2": //$NON-NLS-1$
-			case "esp32p4": //$NON-NLS-1$
-			default:
-				return "riscv32"; //$NON-NLS-1$
-			}
+			return target.architectureId();
 		}
 
-		/**
-		 * Get the toolchain ID for this target
-		 * 
-		 * @return toolchain ID string
-		 */
 		public String getToolchainId()
 		{
-			switch (name)
-			{
-			case "esp32": //$NON-NLS-1$
-			case "esp32s2": //$NON-NLS-1$
-			case "esp32s3": //$NON-NLS-1$
-				return "xtensa-" + name + "-elf"; //$NON-NLS-1$ //$NON-NLS-2$
-			case "esp32c2": //$NON-NLS-1$
-			case "esp32c3": //$NON-NLS-1$
-			case "esp32c6": //$NON-NLS-1$
-			case "esp32h2": //$NON-NLS-1$
-			case "esp32p4": //$NON-NLS-1$
-			default:
-				return "riscv32-esp-elf"; //$NON-NLS-1$
-			}
+			return target.toolchainId();
 		}
 
-		/**
-		 * Get the compiler pattern for this target
-		 * 
-		 * @return regex pattern for compiler
-		 */
 		public String getCompilerPattern()
 		{
-			String executableName = getExecutableName();
-
-			// Support both old and new unified directory structures
-			String targetSpecificDir = getTargetSpecificDirectoryName();
-			String unifiedDir = getUnifiedDirectoryName();
-
-			// Create pattern that matches either directory structure
-			return "(?:" + targetSpecificDir + "|" + unifiedDir + ")[\\\\/]+bin[\\\\/]+" + executableName //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					+ "-gcc(?:\\.exe)?$"; //$NON-NLS-1$
+			return target.compilerPattern();
 		}
 
-		/**
-		 * Get the debugger pattern for this target
-		 * 
-		 * @return regex pattern for debugger
-		 */
 		public String getDebuggerPattern()
 		{
-			String executableName = getExecutableName();
-			return executableName + "-gdb(?:\\.exe)?$"; //$NON-NLS-1$
+			return target.debuggerPattern();
 		}
 
-		/**
-		 * Get the executable name prefix for this target (different from directory structure in ESP-IDF v5.5+)
-		 * 
-		 * @return executable name prefix
-		 */
-		private String getExecutableName()
-		{
-			switch (name)
-			{
-			case "esp32": //$NON-NLS-1$
-			case "esp32s2": //$NON-NLS-1$
-			case "esp32s3": //$NON-NLS-1$
-				return "xtensa-" + name + "-elf"; // Target-specific executable names //$NON-NLS-1$ //$NON-NLS-2$
-			case "esp32c2": //$NON-NLS-1$
-			case "esp32c3": //$NON-NLS-1$
-			case "esp32c6": //$NON-NLS-1$
-			case "esp32h2": //$NON-NLS-1$
-			case "esp32p4": //$NON-NLS-1$
-			default:
-				return "riscv32-esp-elf"; // Unified executable name //$NON-NLS-1$
-			}
-		}
-
-		private String getTargetSpecificDirectoryName()
-		{
-			switch (name)
-			{
-			case "esp32": //$NON-NLS-1$
-			case "esp32s2": //$NON-NLS-1$
-			case "esp32s3": //$NON-NLS-1$
-				return "xtensa-" + name + "-elf"; // Target-specific directory names //$NON-NLS-1$ //$NON-NLS-2$
-			case "esp32c2": //$NON-NLS-1$
-			case "esp32c3": //$NON-NLS-1$
-			case "esp32c6": //$NON-NLS-1$
-			case "esp32h2": //$NON-NLS-1$
-			case "esp32p4": //$NON-NLS-1$
-			default:
-				return "riscv32-esp-elf"; // Same for both old and new //$NON-NLS-1$
-			}
-		}
-
-		private String getUnifiedDirectoryName()
-		{
-			switch (name)
-			{
-			case "esp32": //$NON-NLS-1$
-			case "esp32s2": //$NON-NLS-1$
-			case "esp32s3": //$NON-NLS-1$
-				return "xtensa-esp-elf"; // Unified directory name  //$NON-NLS-1$
-			case "esp32c2": //$NON-NLS-1$
-			case "esp32c3": //$NON-NLS-1$
-			case "esp32c6": //$NON-NLS-1$
-			case "esp32h2": //$NON-NLS-1$
-			case "esp32p4": //$NON-NLS-1$
-			default:
-				return "riscv32-esp-elf"; //$NON-NLS-1$
-			}
-		}
-
-		/**
-		 * Get the CMake toolchain file name for this target
-		 * 
-		 * @return toolchain file name
-		 */
 		public String getToolchainFileName()
 		{
-			return "toolchain-" + name + ".cmake"; //$NON-NLS-1$ //$NON-NLS-2$
+			return target.toolchainFileName();
 		}
 	}
 }
