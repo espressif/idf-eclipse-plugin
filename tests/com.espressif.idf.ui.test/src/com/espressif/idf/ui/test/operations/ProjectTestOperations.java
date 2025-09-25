@@ -88,8 +88,12 @@ public class ProjectTestOperations
 		SWTBotView consoleView = viewConsole("CDT Build Console", bot);
 		consoleView.show();
 		consoleView.setFocus();
+		try {
 		TestWidgetWaitUtility.waitUntilViewContains(bot, "Build complete", consoleView,
 				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_PROJECT_BUILD_WAIT_PROPERTY, 300000));
+		} catch (Exception e) {
+			throw new AssertionError("Project Build failed", e);
+		}
 	}
 
 	public static void waitForProjectFlash(SWTWorkbenchBot bot) throws IOException

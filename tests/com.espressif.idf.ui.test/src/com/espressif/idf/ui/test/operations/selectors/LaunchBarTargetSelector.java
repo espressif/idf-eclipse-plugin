@@ -8,6 +8,8 @@ package com.espressif.idf.ui.test.operations.selectors;
 import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.widgetOfType;
 import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.withText;
 
+import java.util.List;
+
 import org.eclipse.launchbar.ui.controls.internal.CSelector;
 import org.eclipse.launchbar.ui.controls.internal.LaunchBarWidgetIds;
 import org.eclipse.launchbar.ui.controls.internal.TargetSelector;
@@ -23,7 +25,9 @@ import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory;
 import org.eclipse.swtbot.swt.finder.results.Result;
 import org.eclipse.swtbot.swt.finder.widgets.AbstractSWTBotControl;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotLabel;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
+import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.allOf;
 
 /**
  * Launchbar CDT helper class to select items from launch targets
@@ -98,27 +102,80 @@ public class LaunchBarTargetSelector extends AbstractSWTBotControl<CSelector>
 
 	public LaunchBarTargetSelector selectTarget(String text)
 	{
-		click();
-		SWTBotShell swtBotShell = bot().shellWithId(LaunchBarWidgetIds.POPUP);
-		ScrolledComposite scrolledComposite = swtBotShell.bot().widget(widgetOfType(ScrolledComposite.class));
-		int numberOfItemsInScrolledComp = syncExec(
-				() -> ((Composite) scrolledComposite.getChildren()[0]).getChildren().length);
-		Label itemToSelect;
+	    click();
+	    SWTBotShell swtBotShell = bot().shellWithId(LaunchBarWidgetIds.POPUP);
+	    ScrolledComposite scrolledComposite = swtBotShell.bot().widget(widgetOfType(ScrolledComposite.class));
+	    int numberOfItemsInScrolledComp = syncExec(
+	            () -> ((Composite) scrolledComposite.getChildren()[0]).getChildren().length);
+	    Label itemToSelect;
 
-		// Set the text in the not visible text field
-		// when the target list is too big, swtbot cannot select a target label, so we filter the list
-		if (numberOfItemsInScrolledComp > NUM_FOR_FILTER_POPUP)
-		{
-			swtBotShell.bot().text().setText(text);
-			itemToSelect = swtBotShell.bot().label(0).widget;
-		}
-		else
-		{
-			itemToSelect = swtBotShell.bot().widget(withText(text));
-		}
+	    if (numberOfItemsInScrolledComp > NUM_FOR_FILTER_POPUP)
+	    {
+	        swtBotShell.bot().text().setText(text);
+	        itemToSelect = swtBotShell.bot().widget(allOf(widgetOfType(Label.class), withText(text)));
+	    }
+	    else
+	    {
+	        itemToSelect = swtBotShell.bot().widget(allOf(widgetOfType(Label.class), withText(text)));
+	    }
 
-		Point itemToSelectLocation = syncExec((Result<Point>) itemToSelect::getLocation);
-		clickOnInternalWidget(itemToSelectLocation.x, itemToSelectLocation.y, itemToSelect);
-		return this;
+	    Point itemToSelectLocation = syncExec((Result<Point>) itemToSelect::getLocation);
+	    clickOnInternalWidget(itemToSelectLocation.x, itemToSelectLocation.y, itemToSelect);
+	    return this;
+	}
+
+	public void scrollToBottom(ScrolledComposite scrolledComposite)
+	{
+	    syncExec(() -> {
+	        scrolledComposite.setOrigin(0, scrolledComposite.getClientArea().height);
+	    });
+	}
+
+	public boolean isTargetPresent(String text)
+	{
+	    click();
+
+	    try
+	    {
+	        SWTBotShell swtBotShell = bot().shellWithId(LaunchBarWidgetIds.POPUP);
+	        ScrolledComposite scrolledComposite = swtBotShell.bot().widget(widgetOfType(ScrolledComposite.class));
+
+	        int numberOfItemsInScrolledComp = syncExec(() ->
+	            ((Composite) scrolledComposite.getChildren()[0]).getChildren().length
+	        );
+
+	        // Scroll to the bottom if there are many items
+	        if (numberOfItemsInScrolledComp > NUM_FOR_FILTER_POPUP)
+	        {
+	            scrollToBottom(swtBotShell.bot().widget(widgetOfType(ScrolledComposite.class)));
+	            swtBotShell.bot().text().setText(text);
+
+	            List<? extends Label> labels = swtBotShell.bot().widgets(widgetOfType(Label.class));
+	            for (Label label : labels)
+	            {
+	                String labelText = syncExec(label::getText);
+	                if (labelText.equals(text))
+	                {
+	                    return true;
+	                }
+	            }
+	            return false;
+	        }
+	        else
+	        {
+	            Widget itemToCheck = swtBotShell.bot().widget(withText(text));
+	            String labelText = syncExec(() -> ((Label) itemToCheck).getText());
+	            return labelText.equals(text);
+	        }
+	    }
+	    catch (WidgetNotFoundException e)
+	    {
+	        return false;
+	    }
+	    catch (Exception e)
+	    {
+	        e.printStackTrace();
+	        return false;
+	    }
 	}
 }
