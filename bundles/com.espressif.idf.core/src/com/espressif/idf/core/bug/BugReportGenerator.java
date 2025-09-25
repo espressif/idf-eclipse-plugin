@@ -118,7 +118,7 @@ public class BugReportGenerator
 			eimPath = System.getProperty("user.home"); //$NON-NLS-1$
 			if (!StringUtil.isEmpty(eimPath))
 			{
-				eimPath = eimPath + "/.local/share/.eim/logs"; //$NON-NLS-1$
+				eimPath = eimPath + "/.local/share/eim/logs"; //$NON-NLS-1$
 			}
 			break;
 		default:
