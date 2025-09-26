@@ -2,7 +2,6 @@ package com.espressif.idf.ui.test.operations;
 
 import static org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory.withPartName;
 
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
@@ -28,12 +27,16 @@ public class EnvSetupOperations
 			return;
 
 		Display.getDefault().syncExec(() -> {
-		    Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-		    // Maximize (Windows/Linux/macOS windowed)
-		    shell.setMaximized(true);
-		    try {
-		        shell.setFullScreen(true);
-		    } catch (Throwable ignore) {}
+			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+			// Maximize (Windows/Linux/macOS windowed)
+			shell.setMaximized(true);
+			try
+			{
+				shell.setFullScreen(true);
+			}
+			catch (Throwable ignore)
+			{
+			}
 		});
 
 		for (SWTBotView view : bot.views(withPartName("Welcome")))
