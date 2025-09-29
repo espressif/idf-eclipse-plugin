@@ -24,7 +24,9 @@
 			<unit id="org.eclipse.cdt.sdk.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.cdt.cmake.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.tm.terminal.control.feature.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.tm.terminal.connector.process" version="0.0.0"/>
 			<unit id="org.eclipse.tm.terminal.feature.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.tm.terminal.view.ui" version="0.0.0"/>
 			<unit id="org.eclipse.tm.terminal.view.feature.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.launchbar.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.epp.mpc.feature.group" version="0.0.0"/>
