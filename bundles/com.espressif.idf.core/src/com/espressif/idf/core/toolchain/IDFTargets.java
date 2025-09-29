@@ -7,6 +7,7 @@ package com.espressif.idf.core.toolchain;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Class to hold ESP-IDF target information including preview status
@@ -16,6 +17,13 @@ import java.util.List;
  */
 public class IDFTargets
 {
+	private static final Set<String> XTENSA_CHIPS = Set.of("esp32", "esp32s2", "esp32s3"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	private static final String XTENSA = "xtensa"; //$NON-NLS-1$
+	private static final String RISCV32 = "riscv32"; //$NON-NLS-1$
+	private static final String XTENSA_TOOLCHAIN_ID = XTENSA + "-%s-elf"; //$NON-NLS-1$
+	private static final String RISCV32_TOOLCHAIN_ID = RISCV32 + "-esp-elf"; //$NON-NLS-1$
+	private static final String XTENSA_UNIFIED_DIR = XTENSA + "-esp32-elf"; //$NON-NLS-1$
+	private static final String TOOLCHAIN_NAME = "toolchain-%s.cmake"; //$NON-NLS-1$
 	private List<IDFTarget> supportedTargets;
 	private List<IDFTarget> previewTargets;
 
@@ -130,20 +138,7 @@ public class IDFTargets
 		 */
 		public String getArchitecture()
 		{
-			switch (name)
-			{
-			case "esp32": //$NON-NLS-1$
-			case "esp32s2": //$NON-NLS-1$
-			case "esp32s3": //$NON-NLS-1$
-				return "xtensa"; //$NON-NLS-1$
-			case "esp32c2": //$NON-NLS-1$
-			case "esp32c3": //$NON-NLS-1$
-			case "esp32c6": //$NON-NLS-1$
-			case "esp32h2": //$NON-NLS-1$
-			case "esp32p4": //$NON-NLS-1$
-			default:
-				return "riscv32"; //$NON-NLS-1$
-			}
+			return XTENSA_CHIPS.contains(name) ? XTENSA : RISCV32;
 		}
 
 		/**
@@ -153,20 +148,7 @@ public class IDFTargets
 		 */
 		public String getToolchainId()
 		{
-			switch (name)
-			{
-			case "esp32": //$NON-NLS-1$
-			case "esp32s2": //$NON-NLS-1$
-			case "esp32s3": //$NON-NLS-1$
-				return "xtensa-" + name + "-elf"; //$NON-NLS-1$ //$NON-NLS-2$
-			case "esp32c2": //$NON-NLS-1$
-			case "esp32c3": //$NON-NLS-1$
-			case "esp32c6": //$NON-NLS-1$
-			case "esp32h2": //$NON-NLS-1$
-			case "esp32p4": //$NON-NLS-1$
-			default:
-				return "riscv32-esp-elf"; //$NON-NLS-1$
-			}
+			return XTENSA_CHIPS.contains(name) ? String.format(XTENSA_TOOLCHAIN_ID, name) : RISCV32_TOOLCHAIN_ID;
 		}
 
 		/**
@@ -205,56 +187,19 @@ public class IDFTargets
 		 */
 		private String getExecutableName()
 		{
-			switch (name)
-			{
-			case "esp32": //$NON-NLS-1$
-			case "esp32s2": //$NON-NLS-1$
-			case "esp32s3": //$NON-NLS-1$
-				return "xtensa-" + name + "-elf"; // Target-specific executable names //$NON-NLS-1$ //$NON-NLS-2$
-			case "esp32c2": //$NON-NLS-1$
-			case "esp32c3": //$NON-NLS-1$
-			case "esp32c6": //$NON-NLS-1$
-			case "esp32h2": //$NON-NLS-1$
-			case "esp32p4": //$NON-NLS-1$
-			default:
-				return "riscv32-esp-elf"; // Unified executable name //$NON-NLS-1$
-			}
+			return XTENSA_CHIPS.contains(name) ? String.format(XTENSA_TOOLCHAIN_ID, name)
+					: RISCV32_TOOLCHAIN_ID;
 		}
 
 		private String getTargetSpecificDirectoryName()
 		{
-			switch (name)
-			{
-			case "esp32": //$NON-NLS-1$
-			case "esp32s2": //$NON-NLS-1$
-			case "esp32s3": //$NON-NLS-1$
-				return "xtensa-" + name + "-elf"; // Target-specific directory names //$NON-NLS-1$ //$NON-NLS-2$
-			case "esp32c2": //$NON-NLS-1$
-			case "esp32c3": //$NON-NLS-1$
-			case "esp32c6": //$NON-NLS-1$
-			case "esp32h2": //$NON-NLS-1$
-			case "esp32p4": //$NON-NLS-1$
-			default:
-				return "riscv32-esp-elf"; // Same for both old and new //$NON-NLS-1$
-			}
+			return XTENSA_CHIPS.contains(name) ? String.format(XTENSA_TOOLCHAIN_ID, name)
+					: RISCV32_TOOLCHAIN_ID;
 		}
 
 		private String getUnifiedDirectoryName()
 		{
-			switch (name)
-			{
-			case "esp32": //$NON-NLS-1$
-			case "esp32s2": //$NON-NLS-1$
-			case "esp32s3": //$NON-NLS-1$
-				return "xtensa-esp-elf"; // Unified directory name  //$NON-NLS-1$
-			case "esp32c2": //$NON-NLS-1$
-			case "esp32c3": //$NON-NLS-1$
-			case "esp32c6": //$NON-NLS-1$
-			case "esp32h2": //$NON-NLS-1$
-			case "esp32p4": //$NON-NLS-1$
-			default:
-				return "riscv32-esp-elf"; //$NON-NLS-1$
-			}
+				return XTENSA_CHIPS.contains(name) ? XTENSA_UNIFIED_DIR : RISCV32_TOOLCHAIN_ID;
 		}
 
 		/**
@@ -264,7 +209,7 @@ public class IDFTargets
 		 */
 		public String getToolchainFileName()
 		{
-			return "toolchain-" + name + ".cmake"; //$NON-NLS-1$ //$NON-NLS-2$
+			return String.format(TOOLCHAIN_NAME, name);
 		}
 	}
 }
