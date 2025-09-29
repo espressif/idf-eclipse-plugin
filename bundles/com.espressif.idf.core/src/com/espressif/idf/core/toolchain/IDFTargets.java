@@ -7,13 +7,9 @@ package com.espressif.idf.core.toolchain;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
-import com.espressif.idf.core.toolchain.targets.Architecture;
-import com.espressif.idf.core.toolchain.targets.Target;
-import com.espressif.idf.core.toolchain.targets.TargetSpec;
-import com.espressif.idf.core.toolchain.targets.internal.DynamicTarget;
+import com.espressif.idf.core.toolchain.enums.Target;
 
 /**
  * Class to hold ESP-IDF target information including preview status
@@ -23,50 +19,28 @@ import com.espressif.idf.core.toolchain.targets.internal.DynamicTarget;
  */
 public class IDFTargets
 {
+	private List<IDFTarget> supportedTargets;
+	private List<IDFTarget> previewTargets;
 
-	private final List<IDFTarget> supportedTargets = new ArrayList<>();
-	private final List<IDFTarget> previewTargets = new ArrayList<>();
+	public IDFTargets()
+	{
+		this.supportedTargets = new ArrayList<>();
+		this.previewTargets = new ArrayList<>();
+	}
 
-	// ---------- Adders ----------
-
-	/** Strict for supported: unknown => throw (fail-fast). */
 	public void addSupportedTarget(String targetName)
 	{
-		Target known = Target.tryParse(targetName);
-		if (known == null)
-		{
-			throw new IllegalArgumentException("Unknown supported target: " + targetName); //$NON-NLS-1$
-		}
-		supportedTargets.add(new IDFTarget(known, false));
+		Target t = Target.fromString(targetName);
+		if (t != null)
+			supportedTargets.add(new IDFTarget(t, false));
 	}
 
-	/** Convenience overload for enum callers. */
-	public void addSupportedTarget(Target target)
-	{
-		supportedTargets.add(new IDFTarget(target, false));
-	}
-
-	/**
-	 * Lenient for preview: unknown => include as RISCV32 by default (PR goal).
-	 */
 	public void addPreviewTarget(String targetName)
 	{
-		TargetSpec spec = Target.tryParse(targetName);
-		if (spec == null)
-		{
-			spec = new DynamicTarget(targetName, Architecture.RISCV32);
-			// Optional: log a warning here if you have a logger
-		}
-		previewTargets.add(new IDFTarget(spec, true));
+		Target t = Target.fromString(targetName);
+		if (t != null)
+			previewTargets.add(new IDFTarget(t, true));
 	}
-
-	/** Convenience overload for enum callers. */
-	public void addPreviewTarget(Target target)
-	{
-		previewTargets.add(new IDFTarget(target, true));
-	}
-
-	// ---------- Queries ----------
 
 	public List<IDFTarget> getAllTargets()
 	{
@@ -87,17 +61,14 @@ public class IDFTargets
 
 	public boolean hasTarget(String targetName)
 	{
-		String key = targetName == null ? "" : targetName.toLowerCase(Locale.ROOT); //$NON-NLS-1$
-		return getAllTargets().stream().anyMatch(x -> x.getName().equals(key));
+		Target t = Target.fromString(targetName);
+		return t != null && getAllTargets().stream().anyMatch(x -> x.getTarget() == t);
 	}
 
-	/**
-	 * @return first match by name across supported+preview, or null.
-	 */
 	public IDFTarget getTarget(String targetName)
 	{
-		String key = targetName == null ? "" : targetName.toLowerCase(Locale.ROOT); //$NON-NLS-1$
-		return getAllTargets().stream().filter(x -> x.getName().equals(key)).findFirst().orElse(null);
+		Target t = Target.fromString(targetName);
+		return t == null ? null : getAllTargets().stream().filter(x -> x.getTarget() == t).findFirst().orElse(null);
 	}
 
 	public List<String> getAllTargetNames()
@@ -115,25 +86,23 @@ public class IDFTargets
 		return getPreviewTargets().stream().map(IDFTarget::getName).collect(Collectors.toList());
 	}
 
-	// ---------- Inner holder ----------
-
 	/**
-	 * Wrapper pairing a TargetSpec (enum or dynamic) with a preview flag.
+	 * Inner class representing a single IDF target
 	 */
 	public static class IDFTarget
 	{
-		private final TargetSpec spec;
+		private final Target target;
 		private final boolean isPreview;
 
-		public IDFTarget(TargetSpec spec, boolean isPreview)
+		public IDFTarget(Target target, boolean isPreview)
 		{
-			this.spec = spec;
+			this.target = target;
 			this.isPreview = isPreview;
 		}
 
-		public TargetSpec getSpec()
+		public String getName()
 		{
-			return spec;
+			return target.idfName();
 		}
 
 		public boolean isPreview()
@@ -141,42 +110,34 @@ public class IDFTargets
 			return isPreview;
 		}
 
-		// --- API mirroring your previous getters ---
-
-		/** e.g., "esp32c6" */
-		public String getName()
+		public Target getTarget()
 		{
-			return spec.idfName();
+			return target;
 		}
 
-		/** "xtensa" or "riscv32" */
 		public String getArchitecture()
 		{
-			return spec.architectureId();
+			return target.architectureId();
 		}
 
-		/** e.g., "xtensa-esp32-elf" or "riscv32-esp-elf" */
 		public String getToolchainId()
 		{
-			return spec.toolchainId();
+			return target.toolchainId();
 		}
 
-		/** Regex for compiler path ending in "-gcc(.exe)" matching legacy/unified layouts. */
 		public String getCompilerPattern()
 		{
-			return spec.compilerPattern();
+			return target.compilerPattern();
 		}
 
-		/** Regex for debugger executable (gdb). */
 		public String getDebuggerPattern()
 		{
-			return spec.debuggerPattern();
+			return target.debuggerPattern();
 		}
 
-		/** e.g., "toolchain-esp32c6.cmake" */
 		public String getToolchainFileName()
 		{
-			return spec.toolchainFileName();
+			return target.toolchainFileName();
 		}
 	}
 }
