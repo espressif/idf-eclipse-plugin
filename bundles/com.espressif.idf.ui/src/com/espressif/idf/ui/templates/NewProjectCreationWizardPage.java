@@ -32,8 +32,8 @@ import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import org.eclipse.ui.internal.ide.dialogs.ProjectContentsLocationArea;
 import org.eclipse.ui.internal.ide.dialogs.ProjectContentsLocationArea.IErrorMessageReporter;
 
-import com.espressif.idf.core.configparser.EspConfigParser;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.toolchain.IDFTargets;
 import com.espressif.idf.core.util.IDFUtil;
 
 /**
@@ -77,9 +77,9 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 		mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		Label label = new Label(mainComposite, SWT.NONE);
 		label.setText(Messages.NewProjectTargetSelection_Label);
-		EspConfigParser parser = new EspConfigParser();
+		IDFTargets idfTargets = new IDFTargets();
 		targetCombo = new Combo(mainComposite, SWT.READ_ONLY);
-		targetCombo.setItems(parser.getTargets().toArray(new String[0]));
+		targetCombo.setItems(idfTargets.getAllTargets().stream().map(t -> t.getName()).toArray(String[]::new));
 		targetCombo.select(0);
 		targetCombo.setToolTipText(Messages.NewProjectTargetSelection_Tooltip);
 	}
