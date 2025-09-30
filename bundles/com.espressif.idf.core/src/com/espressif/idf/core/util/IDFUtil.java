@@ -43,7 +43,6 @@ import org.osgi.service.prefs.BackingStoreException;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
-import com.espressif.idf.core.IDFCorePreferenceConstants;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.ProcessBuilderFactory;
@@ -212,6 +211,30 @@ public class IDFUtil
 		return findCommandFromBuildEnvPath(IDFConstants.PYTHON_CMD);
 
 	}
+	
+	public static String getIDFPythonEnvPath(String idfPyEnvPath)
+	{
+		idfPyEnvPath = idfPyEnvPath.strip();
+		if (!StringUtil.isEmpty(idfPyEnvPath))
+		{
+
+			if (Platform.getOS().equals(Platform.OS_WIN32))
+			{
+				idfPyEnvPath = idfPyEnvPath + "/" + "Scripts"; //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			else
+			{
+				idfPyEnvPath = idfPyEnvPath + "/" + "bin"; //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			java.nio.file.Path commandPath = findCommand(IDFConstants.PYTHON_CMD, idfPyEnvPath);
+			if (commandPath != null)
+			{
+				return commandPath.toFile().getAbsolutePath();
+			}
+		}
+		return findCommandFromBuildEnvPath(IDFConstants.PYTHON_CMD);
+
+	}
 
 	public static boolean checkIfIdfSupportsSpaces()
 	{
@@ -229,17 +252,8 @@ public class IDFUtil
 
 	public static String getPythonExecutable()
 	{
-		IPath pythonPath = new SystemExecutableFinder().find(IDFConstants.PYTHON3_CMD); // look for python3
-		if (pythonPath == null)
-		{
-			pythonPath = new SystemExecutableFinder().find(IDFConstants.PYTHON_CMD); // look for python
-		}
-		if (pythonPath != null)
-		{
-			return pythonPath.toOSString();
-		}
-
-		return IDFConstants.PYTHON_CMD;
+		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+		return idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PYTHON_EXE_PATH);
 	}
 
 	/**
@@ -779,7 +793,7 @@ public class IDFUtil
 				arguments.add("whereis"); //$NON-NLS-1$
 				arguments.add("git"); //$NON-NLS-1$
 
-				Map<String, String> environment = new HashMap<>(getSystemEnv());
+				Map<String, String> environment = new HashMap<>(System.getenv());
 
 				IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT,
 						environment);
@@ -847,43 +861,7 @@ public class IDFUtil
 		return resolvedPath.toString();
 
 	}
-
-	public static Map<String, String> getSystemEnv()
-	{
-		Map<String, String> env = new HashMap<>(System.getenv());
-
-		String idfToolsPath = Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
-				IDFCorePreferenceConstants.IDF_TOOLS_PATH, IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT, null);
-		env.put(IDFCorePreferenceConstants.IDF_TOOLS_PATH, idfToolsPath);
-
-		// Merge Homebrew bin paths into PATH
-		String existingPath = env.getOrDefault("PATH", ""); //$NON-NLS-1$ //$NON-NLS-2$
-		StringBuilder newPath = new StringBuilder();
-
-		String[] brewPaths = { "/usr/local/bin", "/opt/homebrew/bin" }; //$NON-NLS-1$ //$NON-NLS-2$
-
-		for (String brewPath : brewPaths)
-		{
-			if (Files.exists(Paths.get(brewPath)) && !existingPath.contains(brewPath))
-			{
-				newPath.append(brewPath).append(":"); //$NON-NLS-1$
-			}
-		}
-
-		// Append the original PATH at the end
-		newPath.append(existingPath);
-		env.put("PATH", newPath.toString()); //$NON-NLS-1$
-
-		return env;
-	}
-
-	public static String getIDFToolsPathFromPreferences()
-	{
-		String idfToolsPath = Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
-				IDFCorePreferenceConstants.IDF_TOOLS_PATH, IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT, null);
-		return idfToolsPath;
-	}
-
+	
 	public static void closeWelcomePage(IWorkbenchWindow activeww)
 	{
 		Display.getDefault().syncExec(() -> {
