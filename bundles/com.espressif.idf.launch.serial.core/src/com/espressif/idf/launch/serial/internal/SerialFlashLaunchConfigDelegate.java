@@ -225,6 +225,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		map.put(ITerminalsConnectorConstants.PROP_ENCODING, configuration.getAttribute(
 				IDFLaunchConstants.SERIAL_MONITOR_ENCODING, WorkbenchEncoding.getWorkbenchDefaultEncoding()));
 		map.put(ITerminalsConnectorConstants.PROP_FORCE_NEW, Boolean.FALSE);
+		map.put(SerialSettings.ENCRYPTION_ATTR, IDFUtil.isFlashEncrypted());
 		new SerialLauncherDelegate().execute(map, null);
 	}
 
