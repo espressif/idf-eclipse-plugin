@@ -132,6 +132,8 @@ public class ExportIDFTools
 			addGitToEnvironment(environment, gitExePath);
 		}
 		
+		IDFUtil.cleanUpSystemEnvironment(environment);
+		
 		final ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 		try
 		{
