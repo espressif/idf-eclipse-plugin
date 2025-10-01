@@ -5,13 +5,20 @@
 
 package com.espressif.idf.ui.test.executable.cases.project;
 
+import static org.eclipse.swtbot.swt.finder.waits.Conditions.widgetIsEnabled;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Optional;
 
 import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -20,9 +27,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
 import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
-import static org.eclipse.swtbot.swt.finder.waits.Conditions.*;
-import static org.junit.Assert.assertTrue;
-
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 import com.espressif.idf.ui.test.operations.EnvSetupOperations;
 import com.espressif.idf.ui.test.operations.ProjectTestOperations;
@@ -63,20 +67,22 @@ public class IDFProjectDebugProcessTest
 	@Test
 	public void givenNewProjectCreatedWhenFlashedAndDebuggedThenDebuggingWorks() throws Exception
 	{
-		if (SystemUtils.IS_OS_LINUX) //temporary solution until new ESP boards arrive for Windows
+		if (SystemUtils.IS_OS_LINUX) // temporary solution until new ESP boards arrive for Windows
 		{
 			Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 			Fixture.givenProjectNameIs("NewProjecDebugTest");
 			Fixture.whenNewProjectIsSelected();
 			Fixture.whenTurnOffOpenSerialMonitorAfterFlashingInLaunchConfig();
-			Fixture.whenProjectIsBuiltUsingContextMenu();
 			Fixture.whenSelectLaunchTargetSerialPort();
+			Fixture.whenProjectIsBuiltUsingContextMenu();
 			Fixture.whenFlashProject();
 			Fixture.thenVerifyFlashDoneSuccessfully();
 			Fixture.whenSelectDebugConfig();
 			Fixture.whenSelectLaunchTargetBoard();
 //			Fixture.whenDebugProject();
 //			Fixture.whenSwitchPerspective();
+//			Fixture.checkIfOpenOCDandGDBprocessesArePresent();
+//			Fixture.whenDebugStoppedUsingContextMenu();
 		}
 		else
 		{
@@ -155,6 +161,7 @@ public class IDFProjectDebugProcessTest
 		{
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Confirm Perspective Switch", 20000);
 			bot.button("Switch").click();
+			bot.sleep(10000);
 		}
 
 		private static void whenTurnOffOpenSerialMonitorAfterFlashingInLaunchConfig() throws Exception
@@ -165,8 +172,9 @@ public class IDFProjectDebugProcessTest
 			bot.cTabItem("Main").show();
 			bot.cTabItem("Main").setFocus();
 			SWTBotCheckBox checkBox = bot.checkBox("Open Serial Monitor After Flashing");
-			if (checkBox.isChecked()) {
-			checkBox.click();
+			if (checkBox.isChecked())
+			{
+				checkBox.click();
 			}
 			bot.button("OK").click();
 		}
@@ -193,10 +201,58 @@ public class IDFProjectDebugProcessTest
 			bot.waitUntil(widgetIsEnabled(bot.button("Run")), 5000);
 			bot.button("Run").click();
 		}
-		
+
 		private static void thenVerifyFlashDoneSuccessfully() throws Exception
 		{
 			ProjectTestOperations.waitForProjectFlash(bot);
+		}
+
+		private static SWTBotTreeItem fetchProjectFromDebugView()
+		{
+			SWTBotView debugView = bot.viewByTitle("Debug");
+			debugView.show();
+			debugView.setFocus();
+			SWTBotTreeItem[] items = debugView.bot().tree().getAllItems();
+			Optional<SWTBotTreeItem> project = Arrays.asList(items).stream()
+					.filter(i -> i.getText().equals(projectName + "Debug [ESP-IDF GDB OpenOCD Debugging]")).findFirst();
+			if (project.isPresent())
+			{
+				return project.get();
+			}
+
+			return null;
+		}
+
+		private static boolean checkifOpenOCDandGDBprocessesArePresent()
+		{
+			SWTBotTreeItem projectItem = fetchProjectFromDebugView();
+			if (projectItem != null)
+			{
+				projectItem.select();
+
+				boolean openOCDexe = ProjectTestOperations.isFileAbsent(projectItem, "openocd.exe");
+				boolean GDBexe = ProjectTestOperations.isFileAbsent(projectItem, "riscv32-esp-elf-gdb.exe");
+				if (openOCDexe || GDBexe)
+				{
+					return false;
+				}
+				return true;
+			}
+			return false;
+		}
+
+		private static void checkIfOpenOCDandGDBprocessesArePresent() throws IOException
+		{
+			assertTrue("Debug process was not successfully started", checkifOpenOCDandGDBprocessesArePresent());
+		}
+
+		private static void whenDebugStoppedUsingContextMenu() throws IOException
+		{
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName + "Debug [ESP-IDF GDB OpenOCD Debugging]",
+					bot, "Terminate/Disconnect All");
+			bot.sleep(10000);
+			ProjectTestOperations.findInConsole(bot, "IDF Process Console", "dropped 'gdb'");
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 		}
 
 		private static void cleanTestEnv()
