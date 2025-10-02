@@ -22,7 +22,7 @@ public class IDFTargets
 	private static final String RISCV32 = "riscv32"; //$NON-NLS-1$
 	private static final String XTENSA_TOOLCHAIN_ID = XTENSA + "-%s-elf"; //$NON-NLS-1$
 	private static final String RISCV32_TOOLCHAIN_ID = RISCV32 + "-esp-elf"; //$NON-NLS-1$
-	private static final String XTENSA_UNIFIED_DIR = XTENSA + "-esp32-elf"; //$NON-NLS-1$
+	private static final String XTENSA_UNIFIED_DIR = XTENSA + "-esp-elf"; //$NON-NLS-1$
 	private static final String TOOLCHAIN_NAME = "toolchain-%s.cmake"; //$NON-NLS-1$
 	private List<IDFTarget> supportedTargets;
 	private List<IDFTarget> previewTargets;
