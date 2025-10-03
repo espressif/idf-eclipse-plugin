@@ -58,6 +58,12 @@ public class DefaultBoardProvider
 	{
 		List<Board> boardsList = this.espConfigParser.getBoardsForTarget(targetName);
 		String[] boards = boardsList.stream().map(Board::name).toArray(String[]::new);
+		
+		if (boards.length == 0)
+		{
+			return EspTarget.enumOf(targetName).board;
+		}
+		
 		return boards[getIndexOfDefaultBoard(targetName, boards)];
 	}
 
