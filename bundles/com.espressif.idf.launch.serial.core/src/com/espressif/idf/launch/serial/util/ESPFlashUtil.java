@@ -30,6 +30,7 @@ import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.configparser.EspConfigParser;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.variable.UartDynamicVariable;
 
 public class ESPFlashUtil
 {
@@ -75,7 +76,8 @@ public class ESPFlashUtil
 				.generateVariableExpression(IDFDynamicVariables.BUILD_DIR.name(), null));
 		commands.add("-p"); //$NON-NLS-1$
 		commands.add(serialPort);
-		commands.add(IDFConstants.FLASH_CMD);
+		commands.add(VariablesPlugin.getDefault().getStringVariableManager()
+				.generateVariableExpression(UartDynamicVariable.FLASH_COMMAND.getValue(), null));
 
 		return String.join(" ", commands); //$NON-NLS-1$
 	}

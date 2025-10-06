@@ -717,37 +717,80 @@ public class IDFUtil
 
 	public static String getCurrentTarget()
 	{
-		IProject project = null;
+		IProject project = getProjectFromActiveLaunchConfig();
+		if (project == null)
+		{
+			Logger.log(Messages.IDFUtil_CantFindProjectMsg);
+			return null;
+		}
+		return new SDKConfigJsonReader(project).getValue("IDF_TARGET"); //$NON-NLS-1$
+	}
+
+	public static boolean isFlashEncrypted()
+	{
+		ILaunchConfiguration configuration;
 		try
 		{
-			ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
-			ILaunchConfiguration activeConfig = launchBarManager.getActiveLaunchConfiguration();
-			if (activeConfig == null || activeConfig.getMappedResources() == null)
-			{
-				Logger.log(Messages.IDFUtil_CantFindProjectMsg);
-				return StringUtil.EMPTY;
-			}
-			project = activeConfig.getMappedResources()[0].getProject();
-			Logger.log("Project:: " + project); //$NON-NLS-1$
+			configuration = getActiveLaunchConfiguration();
+
+			return configuration != null
+					&& configuration.getAttribute(IDFLaunchConstants.FLASH_ENCRYPTION_ENABLED, false);
 		}
 		catch (CoreException e)
 		{
 			Logger.log(e);
 		}
-		return new SDKConfigJsonReader(project).getValue("IDF_TARGET"); //$NON-NLS-1$
+
+		return false;
 	}
 
-	public static IProject getProjectFromActiveLaunchConfig() throws CoreException
+	/**
+	 * Returns the active project from the currently selected launch configuration.
+	 */
+	public static IProject getProjectFromActiveLaunchConfig()
 	{
-		final ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
-		ILaunchConfiguration launchConfiguration = launchBarManager.getActiveLaunchConfiguration();
-		IResource[] mappedResources = launchConfiguration.getMappedResources();
-		if (mappedResources != null && mappedResources[0].getProject() != null)
+		try
 		{
-			return mappedResources[0].getProject();
+			ILaunchConfiguration activeConfig = getActiveLaunchConfiguration();
+			if (activeConfig == null)
+			{
+				return null;
+			}
+
+			IResource[] resources = activeConfig.getMappedResources();
+			if (resources == null || resources.length == 0)
+			{
+				Logger.log("No mapped resources in active launch configuration."); //$NON-NLS-1$
+				return null;
+			}
+
+			IProject project = resources[0].getProject();
+			Logger.log("Active project: " + project); //$NON-NLS-1$
+			return project;
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+			return null;
+		}
+	}
+
+	private static ILaunchConfiguration getActiveLaunchConfiguration() throws CoreException
+	{
+		ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
+		if (launchBarManager == null)
+		{
+			Logger.log("LaunchBarManager service not found."); //$NON-NLS-1$
+			return null;
 		}
 
-		return null;
+		ILaunchConfiguration activeConfig = launchBarManager.getActiveLaunchConfiguration();
+		if (activeConfig == null)
+		{
+			Logger.log("No active launch configuration."); //$NON-NLS-1$
+			return null;
+		}
+		return activeConfig;
 	}
 
 	public static String getGitExecutablePathFromSystem()
