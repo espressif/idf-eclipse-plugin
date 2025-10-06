@@ -70,6 +70,12 @@ public class LspService
 		InstanceScope.INSTANCE.getNode(qualifier).put(ClangdMetadata.Predefined.clangdPath.identifer(), clangdPath);
 	}
 
+	public void updateQueryDriver()
+	{
+		String qualifier = configuration.qualifier();
+		InstanceScope.INSTANCE.getNode(qualifier).put(ClangdMetadata.Predefined.queryDriver.identifer(), "**"); //$NON-NLS-1$
+	}
+
 	public void updateCompileCommandsDir(String buildDir)
 	{
 		String qualifier = configuration.qualifier();
