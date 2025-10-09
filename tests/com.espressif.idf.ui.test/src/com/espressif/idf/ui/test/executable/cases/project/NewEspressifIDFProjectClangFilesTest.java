@@ -356,7 +356,7 @@ public class NewEspressifIDFProjectClangFilesTest
 
 		private static void setupAutoSave() throws Exception
 		{
-			bot.menu("Window").menu("Preferences").click();
+			bot.menu("Window").menu("Preferences...").click();
 			SWTBotShell prefrencesShell = bot.shell("Preferences");
 			prefrencesShell.bot().tree().getTreeItem("C/C++").select();
 			prefrencesShell.bot().tree().getTreeItem("C/C++").expand();
@@ -441,7 +441,7 @@ public class NewEspressifIDFProjectClangFilesTest
 
 		private static void whenOpenClangdPreferences() throws Exception
 		{
-			bot.menu("Window").menu("Preferences").click();
+			bot.menu("Window").menu("Preferences...").click();
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Preferences", 10000);
 			SWTBotShell prefrencesShell = bot.shell("Preferences");
 			prefrencesShell.bot().tree().getTreeItem("C/C++").select();

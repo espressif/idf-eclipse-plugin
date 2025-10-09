@@ -47,7 +47,7 @@ public class EnvSetupOperations
 		bot.table().select("C/C++");
 		bot.button("Open").click();
 
-		bot.menu("Window").menu("Preferences").click();
+		bot.menu("Window").menu("Preferences...").click();
 		SWTBotShell prefrencesShell = bot.shell("Preferences");
 
 		prefrencesShell.bot().tree().getTreeItem("General").select();
