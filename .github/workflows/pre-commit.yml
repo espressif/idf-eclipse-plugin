@@ -1,4 +1,4 @@
-name: Precommit Hook
+name: Conventional Commits Check
 
 on:
     pull_request:
@@ -10,15 +10,72 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: 3.9  
 
     - name: Install pre-commit
       run: pip install pre-commit
 
-    - name: Run pre-commit hook
-      run: pre-commit run --all-files
+    - name: Validate commit messages
+      run: |
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          COMMITS=$(git log --oneline $BASE_SHA..$HEAD_SHA)
+        else
+          COMMITS=$(git log --oneline -1)
+        fi
+        
+        FAILED_COMMITS=()
+        while IFS= read -r commit_line; do
+          if [ -n "$commit_line" ]; then
+            COMMIT_MSG=$(echo "$commit_line" | cut -d' ' -f2-)
+            COMMIT_HASH=$(echo "$commit_line" | cut -d' ' -f1)
+            
+            # Create temporary commit message file for pre-commit validation
+            echo "$COMMIT_MSG" > /tmp/commit_msg
+            
+            # Run the conventional commit linter
+            if ! pre-commit run conventional-precommit-linter --hook-stage commit-msg --commit-msg-filename /tmp/commit_msg; then
+              FAILED_COMMITS+=("$commit_line")
+            fi
+            
+            rm -f /tmp/commit_msg
+          fi
+        done <<< "$COMMITS"
+        
+        if [ ${#FAILED_COMMITS[@]} -gt 0 ]; then
+          echo "Conventional commit check failed!"
+          echo "Invalid commits:"
+          for commit in "${FAILED_COMMITS[@]}"; do
+            echo "  - $commit"
+          done
+          echo ""
+          echo "Required format: type(scope): description"
+          echo ""
+          echo "Valid types: feat, fix, docs, style, refactor, perf, test, chore, ci, build, revert"
+          echo ""
+          echo "Examples for ESP-IDF Eclipse Plugin:"
+          echo "  feat: add ESP32-S3 target support"
+          echo "  fix: resolve serial monitor connection issue"
+          echo "  docs: update installation guide for macOS"
+          echo "  chore: update ESP-IDF version to 5.3"
+          echo "  feat(debug): add JTAG debugging support"
+          echo "  fix(flash): resolve flashing timeout on Windows"
+          echo "  test: add unit tests for toolchain manager"
+          echo "  ci: update GitHub Actions runners"
+          echo "  build: update Maven dependencies"
+          echo "  refactor(ui): simplify project creation wizard"
+          echo ""
+          echo "To fix commits, you can:"
+          echo "  1. Use 'git commit --amend' for the last commit"
+          echo "  2. Use 'git rebase -i HEAD~n' to edit multiple commits"
+          echo "  3. Use 'git reset --soft HEAD~n' and recommit"
+          exit 1
+        fi
