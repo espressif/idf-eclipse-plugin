@@ -1,0 +1,127 @@
+name: Bump Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      new_version:
+        description: 'New version to bump to (e.g., 3.7.0)'
+        required: true
+        type: string
+      create_pr:
+        description: 'Create a pull request with the changes'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+
+    - name: Setup Git
+      run: |
+        git config --local user.email "kondal.kolipaka@espressif.com"
+        git config --local user.name "Kondal Kolipaka"
+
+    - name: Validate and get current version
+      id: version
+      run: |
+        if [[ ! "${{ github.event.inputs.new_version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "Error: Version must be in format X.Y.Z (e.g., 3.7.0)"
+          exit 1
+        fi
+        
+        CURRENT_VERSION=$(grep -o 'espressif-ide-release-version>[^<]*' releng/com.espressif.idf.configuration/pom.xml | cut -d'>' -f2)
+        echo "current=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+        echo "new=${{ github.event.inputs.new_version }}" >> $GITHUB_OUTPUT
+        echo "Current: $CURRENT_VERSION → New: ${{ github.event.inputs.new_version }}"
+
+    - name: Update version in files
+      run: |
+        CURRENT_VERSION="${{ steps.version.outputs.current }}"
+        NEW_VERSION="${{ steps.version.outputs.new }}"
+        
+        sed -i "s/Bundle-Version: ${CURRENT_VERSION}\.qualifier/Bundle-Version: ${NEW_VERSION}.qualifier/g" bundles/com.espressif.idf.branding/META-INF/MANIFEST.MF
+        sed -i "s/version=\"${CURRENT_VERSION}\.qualifier\"/version=\"${NEW_VERSION}.qualifier\"/g" features/com.espressif.idf.feature/feature.xml
+        sed -i "s/<espressif-ide-release-version>${CURRENT_VERSION}<\/espressif-ide-release-version>/<espressif-ide-release-version>${NEW_VERSION}<\/espressif-ide-release-version>/g" releng/com.espressif.idf.configuration/pom.xml
+        sed -i "s/version=\"${CURRENT_VERSION}\"/version=\"${NEW_VERSION}\"/g" releng/com.espressif.idf.product/idf.product
+
+    - name: Verify changes
+      run: |
+        NEW_VERSION="${{ steps.version.outputs.new }}"
+        
+        for file in "bundles/com.espressif.idf.branding/META-INF/MANIFEST.MF:Bundle-Version: ${NEW_VERSION}.qualifier" \
+                    "features/com.espressif.idf.feature/feature.xml:version=\"${NEW_VERSION}.qualifier\"" \
+                    "releng/com.espressif.idf.configuration/pom.xml:<espressif-ide-release-version>${NEW_VERSION}</espressif-ide-release-version>" \
+                    "releng/com.espressif.idf.product/idf.product:version=\"${NEW_VERSION}\""; do
+          IFS=':' read -r filepath pattern <<< "$file"
+          if ! grep -q "$pattern" "$filepath"; then
+            echo "✗ Failed to update $filepath"
+            exit 1
+          fi
+          echo "✓ Updated $filepath"
+        done
+
+    - name: Create Pull Request
+      if: github.event.inputs.create_pr == 'true'
+      run: |
+        NEW_VERSION="${{ steps.version.outputs.new }}"
+        BRANCH_NAME="bump-version-${NEW_VERSION}"
+        
+        git checkout -b "$BRANCH_NAME"
+        git add bundles/com.espressif.idf.branding/META-INF/MANIFEST.MF features/com.espressif.idf.feature/feature.xml releng/com.espressif.idf.configuration/pom.xml releng/com.espressif.idf.product/idf.product
+        git commit -m "chore: bump version to v${NEW_VERSION}
+
+        - Updated Bundle-Version in MANIFEST.MF
+        - Updated version in feature.xml  
+        - Updated espressif-ide-release-version in pom.xml
+        - Updated version in idf.product
+        
+        Automated by GitHub Actions workflow"
+        
+        git push origin "$BRANCH_NAME"
+        
+        gh pr create \
+          --title "chore: bump version to v${NEW_VERSION}" \
+          --body "This PR automatically bumps the version to v${NEW_VERSION}.
+
+        **Files updated:**
+        - \`bundles/com.espressif.idf.branding/META-INF/MANIFEST.MF\`
+        - \`features/com.espressif.idf.feature/feature.xml\`
+        - \`releng/com.espressif.idf.configuration/pom.xml\`
+        - \`releng/com.espressif.idf.product/idf.product\`
+
+        **Changes:**
+        - Bundle-Version: \`${NEW_VERSION}.qualifier\`
+        - Feature version: \`${NEW_VERSION}.qualifier\`
+        - Release version: \`${NEW_VERSION}\`
+        - Product version: \`${NEW_VERSION}\`
+
+        This PR was created automatically by the GitHub Actions workflow." \
+          --head "$BRANCH_NAME" \
+          --base "master"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Commit directly to master
+      if: github.event.inputs.create_pr == 'false'
+      run: |
+        NEW_VERSION="${{ steps.version.outputs.new }}"
+        
+        git add bundles/com.espressif.idf.branding/META-INF/MANIFEST.MF features/com.espressif.idf.feature/feature.xml releng/com.espressif.idf.configuration/pom.xml releng/com.espressif.idf.product/idf.product
+        git commit -m "chore: bump version to v${NEW_VERSION}
+
+        - Updated Bundle-Version in MANIFEST.MF
+        - Updated version in feature.xml
+        - Updated espressif-ide-release-version in pom.xml
+        - Updated version in idf.product
+        
+        Automated by GitHub Actions workflow"
+        
+        git push origin master
