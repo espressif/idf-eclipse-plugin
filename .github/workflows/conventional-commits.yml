@@ -1,0 +1,114 @@
+name: Conventional Commits Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [master]
+
+jobs:
+  check-commits:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Validate commit messages
+      run: |
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          COMMITS=$(git log --oneline $BASE_SHA..$HEAD_SHA)
+        else
+          COMMITS=$(git log --oneline -1)
+        fi
+        
+        FAILED_COMMITS=()
+        while IFS= read -r commit_line; do
+          if [ -n "$commit_line" ]; then
+            COMMIT_MSG=$(echo "$commit_line" | cut -d' ' -f2-)
+            if ! echo "$COMMIT_MSG" | grep -qE "^(feat|fix|docs|style|refactor|perf|test|chore|ci|build|revert)(\(.+\))?: .+"; then
+              FAILED_COMMITS+=("$commit_line")
+            fi
+          fi
+        done <<< "$COMMITS"
+        
+        if [ ${#FAILED_COMMITS[@]} -gt 0 ]; then
+          echo "Conventional commit check failed!"
+          echo "Invalid commits:"
+          for commit in "${FAILED_COMMITS[@]}"; do
+            echo "  - $commit"
+          done
+          echo ""
+          echo "Required format: type(scope): description"
+          echo "Valid types: feat, fix, docs, style, refactor, perf, test, chore, ci, build, revert"
+          exit 1
+        fi
+
+    - name: Comment on PR
+      if: github.event_name == 'pull_request' && failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+          
+          const botComment = comments.find(comment => 
+            comment.user.type === 'Bot' && 
+            comment.body.includes('Conventional Commit Check Failed')
+          );
+          
+          const commentBody = `## Conventional Commit Check Failed
+          
+          Some commits in this PR do not follow the [conventional commit](https://www.conventionalcommits.org/) format.
+          
+          **Required format:** \`type(scope): description\`
+          
+          **Valid types:**
+          - \`feat\`: A new feature
+          - \`fix\`: A bug fix
+          - \`docs\`: Documentation only changes
+          - \`style\`: Changes that do not affect the meaning of the code
+          - \`refactor\`: A code change that neither fixes a bug nor adds a feature
+          - \`perf\`: A code change that improves performance
+          - \`test\`: Adding missing tests or correcting existing tests
+          - \`chore\`: Changes to the build process or auxiliary tools
+          - \`ci\`: Changes to CI configuration files and scripts
+          - \`build\`: Changes that affect the build system or external dependencies
+          - \`revert\`: Reverts a previous commit
+          
+          **Examples:**
+          - \`feat: add ESP32-S3 target support\`
+          - \`fix: resolve serial monitor connection issue\`
+          - \`docs: update installation guide for macOS\`
+          - \`chore: update ESP-IDF version to 5.3\`
+          - \`feat(debug): add JTAG debugging support\`
+          - \`fix(flash): resolve flashing timeout on Windows\`
+          - \`test: add unit tests for toolchain manager\`
+          - \`ci: update GitHub Actions runners\`
+          - \`build: update Maven dependencies\`
+          - \`refactor(ui): simplify project creation wizard\`
+          
+          Please update your commit messages to follow this format.`;
+          
+          if (botComment) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+              body: commentBody
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: commentBody
+            });
+          }
