@@ -1,7 +1,4 @@
-# This workflow will build a Java project with Maven
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
-
-name: Java CI with Maven 
+name: Java CI with Maven
 
 on:
   push:
@@ -10,142 +7,155 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
-
-    runs-on:
-      - self-hosted
-      - eclipse
-      - BrnoUBU0004
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Clone IDF Release From Github
-      uses: actions/checkout@v2
-      with:
-        repository: espressif/esp-idf
-        path: dependencies/idf-tools
-        submodules: 'true'
-        ref: release/v5.4
-
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-          python-version: '3.10'
-
-    - name: Set up Maven
-      uses: stCarolas/setup-maven@v5
-      with:
-        maven-version: 3.9.6
-   
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-    
-    - name: Build with Maven
-      run: export NO_AT_BRIDGE=1 && mvn clean verify -Djarsigner.skip=true -DskipTests=false -DtestWorkspace=/opt/actions-runner/_work/workspace
-
-    - name: Publish Test Reports
-      if: ${{ always() }}
-      uses: phoenix-actions/test-reporting@v12
-      with:
-        name: Linux Test Reports
-        path:
-          tests/*/*/*/TEST-*.xml
-        reporter: java-junit
-  
-  build_macos:
+  build_and_publish_macos:
     runs-on: macos-latest
+    outputs:
+      version: ${{ steps.extract_version.outputs.VERSION }}
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
 
-    - name: Build with Maven
-      run: mvn clean verify -Djarsigner.skip=true
+      - name: Build with Maven
+        run: mvn clean verify -Djarsigner.skip=true
 
-    - name: Extract version number
-      id: extract_version
-      run: |
-        # List all files and extract the version number from the file names
-        version=$(ls releng/com.espressif.idf.product/target/products/Espressif-IDE-*.tar.gz | sed -E 's/.*Espressif-IDE-([0-9]+\.[0-9]+\.[0-9]+)-.*/\1/' | head -n 1)
-        echo "VERSION=${version}" >> $GITHUB_ENV
-  
-    - name: Upload build artifacts
-      if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: com.espressif.idf.update-${{ env.VERSION }}
-        path: releng/com.espressif.idf.update/target/repository
+      - name: Extract version number
+        id: extract_version
+        run: |
+          version=$(ls releng/com.espressif.idf.product/target/products/Espressif-IDE-*.tar.gz | sed -E 's/.*Espressif-IDE-([0-9]+\.[0-9]+\.[0-9]+)-.*/\1/' | head -n 1)
+          echo "VERSION=$version" >> $GITHUB_ENV
+          echo "VERSION=$version" >> $GITHUB_OUTPUT
 
-    - name: Upload Windows x86_64 artifact
-      if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: Espressif-IDE-${{ env.VERSION }}-win32
-        path: releng/com.espressif.idf.product/target/products/Espressif-IDE-${{ env.VERSION }}-win32.win32.x86_64.zip
-  
-    - name: Upload Linux x86_64 artifact
-      if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: Espressif-IDE-${{ env.VERSION }}-linux.gtk.x86_64
-        path: releng/com.espressif.idf.product/target/products/Espressif-IDE-${{ env.VERSION }}-linux.gtk.x86_64.tar.gz
-  
-    - name: Upload Linux ARM64 artifact
-      if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: Espressif-IDE-${{ env.VERSION }}-linux.gtk.aarch64
-        path: releng/com.espressif.idf.product/target/products/Espressif-IDE-${{ env.VERSION }}-linux.gtk.aarch64.tar.gz
-  
-    - name: Codesign Espressif-IDE
-      env: 
-        MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
-        MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
-      run: |
-        echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
-        /usr/bin/security create-keychain -p espressif build.keychain
-        /usr/bin/security default-keychain -s build.keychain
-        /usr/bin/security unlock-keychain -p espressif build.keychain
-        /usr/bin/security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
-        /usr/bin/security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k espressif build.keychain
-        
-        echo "codesigning espressif-ide-macosx.cocoa.x86_64"
-        /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app -v
-        /usr/bin/codesign -v -vvv --deep $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app
+      - name: Upload build artifacts (update site)
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: com.espressif.idf.update-${{ env.VERSION }}
+          path: releng/com.espressif.idf.update/target/repository
 
-        echo "codesigning espressif-ide-macosx.cocoa.aarch64"
-        /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/aarch64/Espressif-IDE.app -v
-        /usr/bin/codesign -v -vvv --deep $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/aarch64/Espressif-IDE.app
-        
-        echo "Creating dmg for espressif-ide-macosx.cocoa.x86_64"
-        $PWD/releng/ide-dmg-builder/ide-dmg-builder.sh
-        /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg -v
-        /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
-      
-        echo "Creating dmg for espressif-ide-macosx.cocoa.aarch64"
-        $PWD/releng/ide-dmg-builder/ide-dmg-builder-aarch64.sh
-        /usr/bin/codesign --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg -v
-        /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
-      
-    - name: Upload espressif-ide-macosx.cocoa.x86_64 dmg
-      if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: Espressif-IDE-${{ env.VERSION }}-macosx.cocoa.x86_64
-        path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
+      - name: Upload Windows x86_64 artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Espressif-IDE-${{ env.VERSION }}-win32
+          path: releng/com.espressif.idf.product/target/products/Espressif-IDE-${{ env.VERSION }}-win32.win32.x86_64.zip
 
-    - name: Upload espressif-ide-macosx.cocoa.aarch64 dmg
-      if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: Espressif-IDE-${{ env.VERSION }}-macosx.cocoa.aarch64
-        path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
+      - name: Upload Linux x86_64 artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Espressif-IDE-${{ env.VERSION }}-linux.gtk.x86_64
+          path: releng/com.espressif.idf.product/target/products/Espressif-IDE-${{ env.VERSION }}-linux.gtk.x86_64.tar.gz
+
+      - name: Upload Linux ARM64 artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Espressif-IDE-${{ env.VERSION }}-linux.gtk.aarch64
+          path: releng/com.espressif.idf.product/target/products/Espressif-IDE-${{ env.VERSION }}-linux.gtk.aarch64.tar.gz
+
+      - name: Codesign Espressif-IDE
+        env:
+          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+          MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+        run: |
+          echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
+          /usr/bin/security create-keychain -p espressif build.keychain
+          /usr/bin/security default-keychain -s build.keychain
+          /usr/bin/security unlock-keychain -p espressif build.keychain
+          /usr/bin/security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
+          /usr/bin/security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k espressif build.keychain
+
+          echo "codesigning espressif-ide-macosx.cocoa.x86_64"
+          /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app -v
+          /usr/bin/codesign -v -vvv --deep $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app
+
+          echo "codesigning espressif-ide-macosx.cocoa.aarch64"
+          /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/aarch64/Espressif-IDE.app -v
+          /usr/bin/codesign -v -vvv --deep $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/aarch64/Espressif-IDE.app
+
+          echo "Creating dmg for espressif-ide-macosx.cocoa.x86_64"
+          $PWD/releng/ide-dmg-builder/ide-dmg-builder.sh
+          /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg -v
+          /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
+
+          echo "Creating dmg for espressif-ide-macosx.cocoa.aarch64"
+          $PWD/releng/ide-dmg-builder/ide-dmg-builder-aarch64.sh
+          /usr/bin/codesign --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg -v
+          /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
+
+      - name: Upload espressif-ide-macosx.cocoa.x86_64 dmg
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Espressif-IDE-${{ env.VERSION }}-macosx.cocoa.x86_64
+          path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
+
+      - name: Upload espressif-ide-macosx.cocoa.aarch64 dmg
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Espressif-IDE-${{ env.VERSION }}-macosx.cocoa.aarch64
+          path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
+
+  build_and_test:
+    strategy:
+      matrix:
+        include:
+          - os: linux
+            runner: [self-hosted, eclipse, BrnoUBU0004]
+            testWorkspace: /opt/actions-runner/_work/workspace
+            reportName: Linux Test Reports
+          - os: windows
+            runner: [self-hosted, eclipseUpd, BrnoWIN0007]
+            testWorkspace: C:/actions-runner/_work/workspace
+            reportName: Windows Test Reports
+      fail-fast: false
+
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone IDF Release From Github
+        uses: actions/checkout@v4
+        with:
+          repository: espressif/esp-idf
+          path: dependencies/idf-tools
+          submodules: 'true'
+          ref: release/v5.4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Set up Maven
+        uses: stCarolas/setup-maven@v5
+        with:
+          maven-version: 3.9.6
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Set NO_AT_BRIDGE
+        if: runner.os == 'linux'
+        run: export NO_AT_BRIDGE=1
+      - name: Run Maven
+        run: mvn verify "-Djarsigner.skip=true" "-DskipTests=false" "-DtestWorkspace=${{ matrix.testWorkspace }}"
+
+      - name: Publish Test Reports
+        if: ${{ always() }}
+        uses: phoenix-actions/test-reporting@v12
+        with:
+          name: ${{ matrix.reportName }}
+          path: tests/*/*/*/TEST-*.xml
+          reporter: java-junit
