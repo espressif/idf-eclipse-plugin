@@ -900,13 +900,9 @@ public class IDFUtil
 		env.put(IDFCorePreferenceConstants.IDF_TOOLS_PATH, idfToolsPath);
 
 		// Merge Homebrew bin paths into PATH
-		String keyPath = "PATH"; //$NON-NLS-1$
+		// Windows may use "Path" while Unix uses "PATH"
+		String keyPath = env.containsKey("PATH") ? "PATH" : "Path"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		String existingPath = env.getOrDefault(keyPath, ""); //$NON-NLS-1$
-		if (existingPath.isEmpty())
-		{
-			keyPath = "Path"; //$NON-NLS-1$
-			existingPath = env.getOrDefault(keyPath, ""); //$NON-NLS-1$
-		}
 		StringBuilder newPath = new StringBuilder();
 
 		String[] brewPaths = { "/usr/local/bin", "/opt/homebrew/bin" }; //$NON-NLS-1$ //$NON-NLS-2$
