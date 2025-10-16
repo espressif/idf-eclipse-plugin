@@ -170,22 +170,22 @@ jobs:
         shell: pwsh
         run: |
          if (-not $env:ALIAS) { throw "ALIAS secret is empty. It must point to the PrivateKeyEntry alias." }
-         # Ask keytool for JUST this alias to avoid secret-masking & parsing issues
+
          $out = & "${env:JAVA_HOME}\bin\keytool.exe" -list -v `
           -keystore "$PWD\signing.jks" `
           -storepass $env:JKS_PASS `
-          -alias $env:ALIAS 2>&1
+          -alias "$env:ALIAS" 2>&1
 
          if ($LASTEXITCODE -ne 0) {
-          Write-Host $out
-         throw "Alias '$($env:ALIAS)' not found in keystore (or wrong store password)."
+          $out | Write-Host
+          throw "Alias '$($env:ALIAS)' not found in keystore (or wrong store password)."
          }
-
-         # Print a small excerpt for debugging
-         ($out -split "`n") | Select-String -Pattern 'Alias name:|Entry type:|Certificate chain length' | ForEach-Object { $_.Line } | Write-Host
-
-         if ($out -notmatch 'Entry type:\s*PrivateKeyEntry') {
-          throw "Alias '$($env:ALIAS)' is not a PrivateKeyEntry (likely a trustedCertEntry)."
+         # Show a small excerpt (masking may hide values; that’s fine)
+         $out | Select-String -Pattern 'Alias name:|Entry type:|Certificate chain length' | ForEach-Object { $_.Line } | Write-Host
+         # IMPORTANT: treat output as ONE string before regex testing
+         $outText = ($out | Out-String)
+         if ($outText -notmatch 'Entry type:\s*PrivateKeyEntry') {
+           throw "Alias '$($env:ALIAS)' is not a PrivateKeyEntry (likely a trustedCertEntry)."
          }
 
       - name: Convert JKS to PFX
