@@ -162,50 +162,71 @@ jobs:
 
       - name: Decode base64-encoded JKS
         run: |
-          echo "$env:JKS_B64" | Out-File -FilePath encoded.b64 -Encoding ASCII
-          certutil -decode encoded.b64 mykeystore.jks
-          Remove-Item encoded.b64
+          # Restore JKS from secret
+          [IO.File]::WriteAllBytes("signing.jks",[Convert]::FromBase64String($env:JKS_B64))
+          if (-not (Test-Path "$PWD\signing.jks")) { throw "signing.jks not created" }
+
+      - name: Verify JKS contains a PrivateKeyEntry
+        shell: pwsh
+        run: |
+         if (-not $env:ALIAS) { throw "ALIAS secret is empty. It must point to the PrivateKeyEntry alias." }
+         $out = & "${env:JAVA_HOME}\bin\keytool.exe" -list -v -keystore signing.jks -storepass $env:JKS_PASS
+         # Show the entry for the alias (log masking will hide secrets)
+         Write-Host $out | Select-String -Pattern "Alias name: $env:ALIAS" -Context 0,8
+         # Hard-check the entry type for the alias
+         $aliasBlock = ($out -split "Alias name:") | Where-Object { $_ -match "^\s*$($env:ALIAS)\b" }
+         if (-not $aliasBlock) { throw "Alias '$env:ALIAS' not found in signing.jks" }
+         if ($aliasBlock -notmatch "Entry type:\s*PrivateKeyEntry") {
+           throw "Alias '$env:ALIAS' is not a PrivateKeyEntry (likely a trustedCertEntry). cannot export a private key from this JKS."
+         }
 
       - name: Convert JKS to PFX
         shell: pwsh
         run: |
-            & "${env:JAVA_HOME}\bin\keytool.exe" -importkeystore `
-            -srckeystore mykeystore.jks `
-            -srcstorepass $env:JKS_PASS `
-            -srcalias $env:ALIAS `
-            -srckeypass $env:JKS_PASS `
-            -destkeystore cert.pfx `
-            -deststoretype PKCS12 `
-            -deststorepass $env:PFX_PASS `
-            -destkeypass $env:PFX_PASS
+         & "${env:JAVA_HOME}\bin\keytool.exe" -importkeystore `
+          -srckeystore "$PWD\signing.jks" `
+          -srcstorepass $env:JKS_PASS `
+          -srcalias $env:ALIAS `
+          -srckeypass $env:JKS_PASS `  
+          -destkeystore "$PWD\cert.pfx" `
+          -deststoretype PKCS12 `
+          -deststorepass $env:PFX_PASS `
+          -destkeypass $env:PFX_PASS
+         if (-not (Test-Path "$PWD\cert.pfx")) { throw "cert.pfx not created" }
+
+      - name: Prove PFX has a private key (fail fast)
+        shell: pwsh
+        run: |
+         $dump = certutil -p $env:PFX_PASS -dump "$PWD\cert.pfx"
+         if ($dump -notmatch 'Private key is present:\s*Yes') {
+           Write-Host $dump
+           throw "Exported PFX lacks a private key. Check alias/passwords; your JKS may be a truststore."
+         }
 
       - name: Inspect the PFX file
         shell: pwsh
         run: |
           certutil -p $env:PFX_PASS -dump cert.pfx
 
+
       - name: Sign Windows Executable
         shell: pwsh
         run: |
-          $exe = Get-ChildItem -Recurse extracted\Espressif-IDE\espressif-ide.exe | Select-Object -First 1
-          if (-not $exe) { throw "espressif-ide.exe not found under extracted\Espressif-IDE" }
+         $exe = Get-ChildItem -File -Recurse "$PWD\extracted\Espressif-IDE\espressif-ide.exe" | Select-Object -First 1
+         if (-not $exe) { throw "espressif-ide.exe not found under extracted\Espressif-IDE" }
 
-          $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits" -Recurse -Filter signtool.exe |
-                Sort-Object FullName | Select-Object -First 1
-          
-          if (-not $signtool) { throw "signtool.exe not found in Windows Kits" }
+         $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits" -Recurse -Filter signtool.exe |
+                    Sort-Object FullName | Select-Object -First 1
+         if (-not $signtool) { throw "signtool.exe not found in Windows Kits" }
 
-          if (-not (Test-Path "$PWD\cert.pfx")) { throw "cert.pfx not found in $PWD" }
-
-          & $signtool.FullName sign `
-            /debug `
-            /v `
-            /f cert.pfx `
-            /p $env:PFX_PASS `
-            /tr http://timestamp.digicert.com `
-            /td sha256 `
-            /fd sha256 `
-            "$($exe.FullName)"
+         & $signtool.FullName sign `
+          /debug /v `
+          /f "$PWD\cert.pfx" `
+          /p $env:PFX_PASS `
+          /tr http://timestamp.digicert.com `
+          /td sha256 `
+          /fd sha256 `
+          "$($exe.FullName)"
 
       - name: Verify Signature
         run: |
