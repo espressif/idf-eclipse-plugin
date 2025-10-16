@@ -2,7 +2,7 @@
 <?pde version="3.8"?>
 <target name="com.espressif.idf.target" sequenceNumber="25">
 	<locations>
-		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="https://download.eclipse.org/eclipse/updates/4.37"/>
 			<unit id="org.eclipse.equinox.sdk.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.rcp.feature.group" version="0.0.0"/>
@@ -16,7 +16,7 @@
 			<unit id="org.eclipse.platform.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.pde.feature.group" version="0.0.0"/>
 		</location>
-		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="https://download.eclipse.org/releases/2025-09/"/>
 			<unit id="org.eclipse.cdt.autotools.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.cdt.feature.group" version="0.0.0"/>
@@ -110,6 +110,10 @@
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="https://download.eclipse.org/swtchart/releases/1.0.0/repository/"/>
 			<unit id="org.eclipse.swtchart.feature.feature.group" version="1.0.0.202412021530"/>
+		</location>
+		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<repository location="https://azuredownloads-g3ahgwb5b8bkbxhd.b01.azurefd.net/github-copilot/"/>
+			<unit id="com.microsoft.copilot.eclipse.feature.feature.group" version="0.0.0"/>
 		</location>
 	</locations>
 </target>
