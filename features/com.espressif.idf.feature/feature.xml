@@ -101,6 +101,8 @@ You may add additional accurate notices of copyright ownership.
       <update label="ESP-IDF Eclipse Plugin Update Site" url="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/"/>
    </url>
 
+   <includes id="com.microsoft.copilot.eclipse.feature" version="0.0.0"/>
+
    <requires>
       <import plugin="org.eclipse.cdt"/>
    </requires>
