@@ -181,7 +181,8 @@ jobs:
         shell: pwsh
         run: |
           $exe = Get-ChildItem -Recurse extracted\Espressif-IDE\espressif-ide.exe | Select-Object -First 1
-          & "C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x86\signtool.exe" sign `
+          $signtool = Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits" -Recurse -Name "signtool.exe" | Select-Object -First 1
+          & "C:\Program Files (x86)\Windows Kits\$signtool" sign `
             /f cert.pfx `
             /p $env:PFX_PASS `
             /tr http://timestamp.digicert.com `
@@ -192,7 +193,8 @@ jobs:
       - name: Verify Signature
         run: |
          $exe = Get-ChildItem -Recurse extracted\Espressif-IDE\espressif-ide.exe | Select-Object -First 1
-         & "C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x86\signtool.exe" verify `
+         $signtool = Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits" -Recurse -Name "signtool.exe" | Select-Object -First 1
+         & "C:\Program Files (x86)\Windows Kits\$signtool" verify `
          /pa `
          $exe.FullName
 
