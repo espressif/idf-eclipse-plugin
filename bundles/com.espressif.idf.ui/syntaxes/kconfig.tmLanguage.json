@@ -1,0 +1,133 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Kconfig",
+  "fileTypes": ["Kconfig", "Kconfig.projbuild", "Kconfig.in"],
+  "patterns": [
+    {
+      "include": "#lineComment"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#stringsValues"
+    },
+    {
+      "include": "#types"
+    },
+    {
+      "include": "#modifiers"
+    },
+    {
+      "include": "#constants"
+    },
+    {
+      "include": "#operators"
+    },
+    {
+      "include": "#numbers"
+    }
+  ],
+  "repository": {
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.kconfig",
+          "match": "\\b(config|choice|endchoice|menuconfig|endmenu|if|endif|source|comment|menu|endmenu)\\b"
+        },
+        {
+          "name": "keyword.other.kconfig",
+          "match": "\\b(help|prompt|default|depends|select|imply|range|visible|optional)\\b"
+        }
+      ]
+    },
+    "strings": {
+      "begin": "^(\\s*)(menu|mainmenu)",
+      "end": "\n",
+      "name": "variable.language.kconfig",
+      "patterns": [
+        {
+          "name": "constant.character.escape.kconfig",
+          "match": "\\\\."
+        },
+        {
+          "name": "string.quoted.double.kconfig",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.kconfig",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "stringsValues": {
+      "name": "string.quoted.double.kconfig",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.kconfig",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "support.type.kconfig",
+          "match": "\\b(bool|tristate|int|hex|string)\\b"
+        }
+      ]
+    },
+    "modifiers": {
+      "patterns": [
+        {
+          "name": "support.function.kconfig",
+          "match": "\\b(default|depends|select|imply|range|help|prompt)\\b"
+        }
+      ]
+    },
+    "constants": {
+      "patterns": [
+        {
+          "name": "constant.language.kconfig",
+          "match": "\\b(y|n|m)\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.kconfig",
+          "match": "(=|!=|<|>|<=|>=)"
+        }
+      ]
+    },
+    "lineComment": {
+      "name": "comment.line.number-sign.kconfig",
+      "begin": "#",
+      "end": "$",
+      "patterns": [
+        {
+          "name": "constant.character.escape.kconfig",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.kconfig",
+          "match": "\\b(0x[0-9a-fA-F]+|[0-9]+)\\b"
+        }
+      ]
+    }
+  },
+  "scopeName": "source.kconfig"
+}

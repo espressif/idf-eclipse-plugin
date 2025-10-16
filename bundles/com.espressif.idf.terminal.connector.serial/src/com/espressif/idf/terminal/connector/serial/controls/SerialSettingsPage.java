@@ -101,7 +101,30 @@ public class SerialSettingsPage extends AbstractSettingsPage
 
 		projectCombo = new Combo(comp, SWT.NONE);
 		projectCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		Optional<IProject> optProject = Optional.ofNullable(EclipseUtil.getSelectedIDFProjectInExplorer());
+		
+		// Safely get selected IDF project with error handling
+		IProject selectedProject = null;
+		try {
+			selectedProject = EclipseUtil.getSelectedIDFProjectInExplorer();
+		} catch (NoSuchMethodError e) {
+			// Fallback: try to get any selected project
+			try {
+				selectedProject = EclipseUtil.getSelectedProjectInExplorer();
+				if (selectedProject != null) {
+					try {
+						if (!selectedProject.hasNature(IDFProjectNature.ID)) {
+							selectedProject = null; // Not an IDF project
+						}
+					} catch (CoreException ce) {
+						selectedProject = null;
+					}
+				}
+			} catch (Exception ex) {
+				// If all else fails, selectedProject remains null
+			}
+		}
+		
+		Optional<IProject> optProject = Optional.ofNullable(selectedProject);
 		optProject.ifPresent(project -> projectCombo.setText(project.getName()));
 		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 		for (IProject project : projects)

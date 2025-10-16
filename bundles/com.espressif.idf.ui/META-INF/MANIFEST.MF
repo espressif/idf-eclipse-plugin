@@ -13,6 +13,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.cdt.cmake.ui,
  org.eclipse.swt;visibility:=reexport,
  org.eclipse.ui;visibility:=reexport,
+ org.eclipse.ui.workbench,
  org.eclipse.jface,
  org.eclipse.cdt.core.native,
  org.eclipse.cdt.core;bundle-version="9.0.0",
@@ -33,6 +34,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.nebula.widgets.xviewer;bundle-version="1.1.0",
  org.eclipse.nebula.widgets.xviewer.core;bundle-version="1.0.0",
  org.eclipse.text,
+ org.eclipse.jface.text,
+ org.eclipse.ui.genericeditor,
+ org.eclipse.ui.editors,
  org.eclipse.cdt.native.serial,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.intro,
@@ -45,7 +49,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.freemarker.freemarker,
  org.eclipse.tools.templates.freemarker,
  org.eclipse.cdt.lsp;bundle-version="3.0.0",
- org.eclipse.cdt.lsp.clangd;bundle-version="3.0.0"
+ org.eclipse.cdt.lsp.clangd;bundle-version="3.0.0",
+ org.eclipse.tm4e.registry,
+ org.eclipse.tm4e.languageconfiguration
 Automatic-Module-Name: com.espressif.idf.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-17
