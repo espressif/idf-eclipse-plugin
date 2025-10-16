@@ -173,22 +173,39 @@ jobs:
             -srckeystore mykeystore.jks `
             -srcstorepass $env:JKS_PASS `
             -srcalias $env:ALIAS `
+            -srckeypass $env:JKS_PASS `
             -destkeystore cert.pfx `
             -deststoretype PKCS12 `
-            -deststorepass $env:PFX_PASS
+            -deststorepass $env:PFX_PASS `
+            -destkeypass $env:PFX_PASS
+
+      - name: Inspect the PFX file
+        shell: pwsh
+        run: |
+          certutil -p $env:PFX_PASS -dump cert.pfx
 
       - name: Sign Windows Executable
         shell: pwsh
         run: |
           $exe = Get-ChildItem -Recurse extracted\Espressif-IDE\espressif-ide.exe | Select-Object -First 1
-          $signtool = Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits" -Recurse -Name "signtool.exe" | Select-Object -First 1
-          & "C:\Program Files (x86)\Windows Kits\$signtool" sign `
+          if (-not $exe) { throw "espressif-ide.exe not found under extracted\Espressif-IDE" }
+
+          $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits" -Recurse -Filter signtool.exe |
+                Sort-Object FullName | Select-Object -First 1
+          
+          if (-not $signtool) { throw "signtool.exe not found in Windows Kits" }
+
+          if (-not (Test-Path "$PWD\cert.pfx")) { throw "cert.pfx not found in $PWD" }
+
+          & $signtool.FullName sign `
+            /debug `
+            /v `
             /f cert.pfx `
             /p $env:PFX_PASS `
             /tr http://timestamp.digicert.com `
             /td sha256 `
             /fd sha256 `
-            $exe.FullName
+            "$($exe.FullName)"
 
       - name: Verify Signature
         run: |
