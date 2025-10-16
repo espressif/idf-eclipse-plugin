@@ -7,6 +7,7 @@
 			<unit id="org.eclipse.equinox.sdk.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.rcp.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.test.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.terminal.feature.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.equinox.p2.core.feature.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.equinox.p2.discovery.feature.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.equinox.p2.extras.feature.feature.group" version="0.0.0"/>

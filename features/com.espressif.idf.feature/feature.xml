@@ -102,6 +102,7 @@ You may add additional accurate notices of copyright ownership.
    </url>
 
    <includes id="com.microsoft.copilot.eclipse.feature" version="0.0.0"/>
+   <includes id="org.eclipse.terminal.feature" version="0.0.0"/>
 
    <requires>
       <import plugin="org.eclipse.cdt"/>
