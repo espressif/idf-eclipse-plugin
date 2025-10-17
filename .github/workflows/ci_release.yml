@@ -191,15 +191,23 @@ jobs:
       - name: Convert JKS to PFX
         shell: pwsh
         run: |
-          & "${env:JAVA_HOME}\bin\keytool.exe" -importkeystore `
-          -srckeystore "$PWD\signing.jks" `
-          -srcstorepass $env:JKS_PASS `
-          -srcalias $env:ALIAS `
-          -srckeypass $env:JKS_PASS `  
-          -destkeystore "$PWD\cert.pfx" `
-          -deststoretype PKCS12 `
-          -deststorepass $env:PFX_PASS `
-          -destkeypass $env:PFX_PASS
+          if (($env:JKS_PASS).Length -lt 6) { throw "JKS_PASS must be at least 6 characters." }
+          if (($env:PFX_PASS).Length -lt 6) { throw "PFX_PASS must be at least 6 characters." }
+          
+          $kt = Join-Path $env:JAVA_HOME 'bin\keytool.exe'
+
+          $args = @(
+           '-importkeystore',
+           '-srckeystore',  "$PWD\signing.jks",
+           '-srcstorepass', $env:JKS_PASS,
+           '-srcalias',     $env:ALIAS,
+           '-srckeypass',   $env:JKS_PASS, 
+           '-destkeystore', "$PWD\cert.pfx",
+           '-deststoretype','PKCS12',
+           '-deststorepass',$env:PFX_PASS,
+           '-destkeypass',  $env:PFX_PASS
+          )
+          & $kt @args
           if (-not (Test-Path "$PWD\cert.pfx")) { throw "cert.pfx not created" }
 
       - name: Prove PFX has a private key (fail fast)
