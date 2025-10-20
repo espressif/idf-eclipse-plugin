@@ -41,7 +41,7 @@ public class TerminalViewTest
 		File outputFile = tempFile.toFile();
 		outputFile.deleteOnExit(); // ensure cleanup after JVM exits
 
-		bot.toolbarButtonWithTooltip("Open a Terminal").click();
+		bot.toolbarButtonWithTooltip("Open a Terminal (Ctrl+Alt+Shift+T)").click();
 		bot.comboBox().setSelection("ESP-IDF Terminal");
 		bot.button("OK").click();
 		SWTBotView terminalView = bot.viewByTitle("Terminal");
