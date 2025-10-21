@@ -11,8 +11,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
+import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCanvas;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarButton;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,7 +43,30 @@ public class TerminalViewTest
 		File outputFile = tempFile.toFile();
 		outputFile.deleteOnExit(); // ensure cleanup after JVM exits
 
-		bot.toolbarButtonWithTooltip("Open a Terminal (Ctrl+Alt+Shift+T)").click();
+		String[] tooltips = { "Open a Terminal (Ctrl+Alt+Shift+T)", "Open a Terminal (Shift+Ctrl+Alt+T)",
+				"Open a Terminal" };
+
+		SWTBotToolbarButton openTerminalButton = null;
+
+		for (String tooltip : tooltips)
+		{
+			try
+			{
+				openTerminalButton = bot.toolbarButtonWithTooltip(tooltip);
+				break; // stop at the first one found
+			}
+			catch (WidgetNotFoundException ignored)
+			{
+				// try next tooltip
+			}
+		}
+
+		if (openTerminalButton == null)
+		{
+			throw new WidgetNotFoundException("Toolbar button 'Open a Terminal' not found with any known tooltip");
+		}
+
+		openTerminalButton.click();
 		bot.comboBox().setSelection("ESP-IDF Terminal");
 		bot.button("OK").click();
 		SWTBotView terminalView = bot.viewByTitle("Terminal");
