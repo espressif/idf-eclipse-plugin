@@ -25,10 +25,10 @@ import com.espressif.idf.ui.test.operations.EnvSetupOperations;
 public class TerminalViewTest
 {
 
-	private SWTWorkbenchBot bot;
+	private static SWTWorkbenchBot bot;
 
 	@BeforeClass
-	public void setup() throws Exception
+	public static void setup() throws Exception
 	{
 
 		bot = new SWTWorkbenchBot();
