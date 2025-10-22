@@ -15,6 +15,7 @@ import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCanvas;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarButton;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +34,20 @@ public class TerminalViewTest
 
 		bot = new SWTWorkbenchBot();
 		EnvSetupOperations.setupEspressifEnv(bot);
+	}
+
+	@AfterClass
+	public static void cleanup() throws Exception
+	{
+		try
+		{
+			SWTBotView terminalView = bot.viewByTitle("Terminal");
+			terminalView.close();
+		}
+		catch (WidgetNotFoundException ignored)
+		{
+		}
+
 	}
 
 	@Test
