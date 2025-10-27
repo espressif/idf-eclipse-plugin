@@ -27,22 +27,17 @@ import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.ComboBoxCellEditor;
 import org.eclipse.jface.viewers.ICellModifier;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
-import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -53,7 +48,6 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -488,6 +482,7 @@ public class NvsCsvEditorPage
 		cellEditors[2] = new ComboBoxCellEditor(csvTable, NvsTableDataService.getEncodings(StringUtil.EMPTY),
 				SWT.READ_ONLY);
 		cellEditors[3] = new TextCellEditor(csvTable);
+		ColumnViewerToolTipSupport.enableFor(tableViewer);
 		tableViewer.setCellEditors(cellEditors);
 		tableViewer.setCellModifier(new ICellModifier()
 		{
@@ -637,41 +632,6 @@ public class NvsCsvEditorPage
 		csvTable.setLinesVisible(true);
 		csvTable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		((GridData) csvTable.getLayoutData()).widthHint = 1000; // Keep hint as a minimum
-
-		csvTable.addMouseTrackListener(new MouseTrackAdapter()
-		{
-			Shell errorToolTip;
-
-			@Override
-			public void mouseHover(MouseEvent event)
-			{
-				ViewerCell item = tableViewer.getCell(new Point(event.x, event.y));
-				if (item != null)
-				{
-					if (errorToolTip != null && !errorToolTip.isDisposed())
-						errorToolTip.dispose();
-					errorToolTip = new Shell(mainControl.getShell(), SWT.ON_TOP | SWT.TOOL);
-					errorToolTip.setLayout(new FillLayout());
-					Label label = new Label(errorToolTip, SWT.NONE);
-					label.setForeground(mainControl.getShell().getDisplay().getSystemColor(SWT.COLOR_INFO_FOREGROUND));
-					label.setBackground(mainControl.getShell().getDisplay().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
-					label.setText(new NvsBeanValidator().validateBean((NvsTableBean) item.getElement(),
-							item.getColumnIndex()));
-
-					Point size = errorToolTip.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-					Rectangle rect = item.getBounds();
-					Point pt = csvTable.toDisplay(rect.x, rect.y);
-					errorToolTip.setBounds(pt.x, pt.y, size.x, size.y);
-					errorToolTip.setVisible(true);
-					csvTable.addMouseMoveListener(e -> {
-						if (errorToolTip != null && !errorToolTip.isDisposed())
-						{
-							errorToolTip.dispose();
-						}
-					});
-				}
-			}
-		});
 	}
 
 	private void getGeneratePartitionAction()

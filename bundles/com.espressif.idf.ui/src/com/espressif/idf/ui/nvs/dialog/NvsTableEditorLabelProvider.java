@@ -1,79 +1,76 @@
-/*******************************************************************************
- * Copyright 2023 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
- * Use is subject to license terms.
- *******************************************************************************/
-
 package com.espressif.idf.ui.nvs.dialog;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.CellLabelProvider;
-import org.eclipse.jface.viewers.ITableColorProvider;
-import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 
 import com.espressif.idf.core.build.NvsTableBean;
 import com.espressif.idf.core.util.NvsBeanValidator;
+import com.espressif.idf.core.util.StringUtil;
 
-public class NvsTableEditorLabelProvider extends CellLabelProvider implements ITableLabelProvider, ITableColorProvider
+public class NvsTableEditorLabelProvider extends CellLabelProvider
 {
 
-	@Override
-	public Color getForeground(Object element, int columnIndex)
-	{
-		String status = new NvsBeanValidator().validateBean((NvsTableBean) element, columnIndex);
-		if (!status.isBlank())
-		{
-			return Display.getCurrent().getSystemColor(SWT.COLOR_RED);
-		}
-
-		return null;
-	}
-
-	@Override
-	public Color getBackground(Object element, int columnIndex)
-	{
-		return null;
-	}
-
-	@Override
-	public Image getColumnImage(Object element, int columnIndex)
-	{
-		String status = new NvsBeanValidator().validateBean((NvsTableBean) element, columnIndex);
-		if (!status.isBlank())
-		{
-			return JFaceResources.getImage(Dialog.DLG_IMG_MESSAGE_ERROR);
-		}
-		return null;
-	}
-
-	@Override
-	public String getColumnText(Object element, int columnIndex)
-	{
-		NvsTableBean bean = (NvsTableBean) element;
-		switch (columnIndex)
-		{
-		case 0:
-			return bean.getKey();
-		case 1:
-			return bean.getType();
-		case 2:
-			return bean.getEncoding();
-		case 3:
-			return bean.getValue();
-		default:
-			break;
-		}
-		return null;
-	}
+	private final NvsBeanValidator validator = new NvsBeanValidator();
 
 	@Override
 	public void update(ViewerCell cell)
 	{
+		NvsTableBean bean = (NvsTableBean) cell.getElement();
+		int columnIndex = cell.getColumnIndex();
+
+		switch (columnIndex)
+		{
+		case 0:
+			cell.setText(bean.getKey());
+			break;
+		case 1:
+			cell.setText(bean.getType());
+			break;
+		case 2:
+			cell.setText(bean.getEncoding());
+			break;
+		case 3:
+			cell.setText(bean.getValue());
+			break;
+		default:
+			cell.setText(StringUtil.EMPTY);
+			break;
+		}
+
+		String cellStatus = validator.validateBean(bean, columnIndex);
+		if (!cellStatus.isBlank())
+		{
+			cell.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+			cell.setImage(JFaceResources.getImage(Dialog.DLG_IMG_MESSAGE_ERROR));
+		}
+		else
+		{
+			cell.setForeground(null);
+			cell.setImage(null);
+		}
+
+		cell.setBackground(null);
 	}
 
+	@Override
+	public String getToolTipText(Object element)
+	{
+		StringBuilder tooltip = new StringBuilder();
+		NvsTableBean bean = (NvsTableBean) element;
+
+		for (int col = 0; col < 4; col++)
+		{
+			String status = validator.validateBean(bean, col);
+			if (!status.isBlank())
+			{
+				tooltip.append("Column ").append(col).append(": ").append(status).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			}
+		}
+
+		return tooltip.isEmpty() ? null : tooltip.toString().trim();
+	}
 }
