@@ -98,33 +98,8 @@ public class NvsCsvEditorPage
 		SIZE_ERROR, ENCRYPTION_PATH_ERROR;
 	}
 
-	private enum ErrorListenerMap
-	{
-		INSTANCE;
-
-		private EnumMap<GeneratePartitionValidationError, String> validationErrors = new EnumMap<>(
-				GeneratePartitionValidationError.class);
-		private NvsCsvEditorPage page;
-
-		void setPage(NvsCsvEditorPage page)
-		{
-			this.page = page;
-		}
-
-		public void put(GeneratePartitionValidationError key, String errMsg)
-		{
-			validationErrors.put(key, errMsg);
-			page.setGenerationButtonStatus();
-			page.updateErrorMessage();
-		}
-
-		public void remove(GeneratePartitionValidationError key)
-		{
-			validationErrors.remove(key);
-			page.setGenerationButtonStatus();
-			page.updateErrorMessage();
-		}
-	}
+	private final EnumMap<GeneratePartitionValidationError, String> validationErrors = new EnumMap<>(
+			GeneratePartitionValidationError.class);
 
 	public NvsCsvEditorPage(Composite parent, IFile csvFile, Consumer<Boolean> dirtyStateListener)
 	{
@@ -133,8 +108,6 @@ public class NvsCsvEditorPage
 
 		mainControl = new Composite(parent, SWT.NONE);
 		mainControl.setLayout(new GridLayout(1, false));
-
-		ErrorListenerMap.INSTANCE.setPage(this);
 	}
 
 	/**
@@ -270,7 +243,6 @@ public class NvsCsvEditorPage
 	public void updateErrorMessage()
 	{
 		String newErrorMessage = StringUtil.EMPTY;
-		EnumMap<GeneratePartitionValidationError, String> validationErrors = ErrorListenerMap.INSTANCE.validationErrors;
 
 		if (saveErrorMsg == null)
 		{
@@ -325,7 +297,7 @@ public class NvsCsvEditorPage
 				}
 				else
 				{
-					ErrorListenerMap.INSTANCE.remove(GeneratePartitionValidationError.ENCRYPTION_PATH_ERROR);
+					validationErrors.remove(GeneratePartitionValidationError.ENCRYPTION_PATH_ERROR);
 				}
 				markDirty();
 			}
@@ -442,7 +414,7 @@ public class NvsCsvEditorPage
 				if (generateEncryptionKeyCheckBox.getSelection())
 				{
 					canBeDisposedList.forEach(t -> t.setEnabled(false));
-					ErrorListenerMap.INSTANCE.remove(GeneratePartitionValidationError.ENCRYPTION_PATH_ERROR);
+					validationErrors.remove(GeneratePartitionValidationError.ENCRYPTION_PATH_ERROR);
 					errorIconLabel.setImage(null); // Hide error when disabled
 					errorIconLabel.setToolTipText(null);
 				}
@@ -739,7 +711,7 @@ public class NvsCsvEditorPage
 	public void setGenerationButtonStatus()
 	{
 		if (generateButton != null)
-			generateButton.setEnabled(ErrorListenerMap.INSTANCE.validationErrors.isEmpty());
+			generateButton.setEnabled(validationErrors.isEmpty());
 	}
 
 	private String validateEncKeyPath()
@@ -749,11 +721,11 @@ public class NvsCsvEditorPage
 		if (encryptAction.getSelection() && !generateEncryptionKeyCheckBox.getSelection()
 				&& !new File(encKeyPath).canRead())
 		{
-			ErrorListenerMap.INSTANCE.put(GeneratePartitionValidationError.ENCRYPTION_PATH_ERROR,
+			validationErrors.put(GeneratePartitionValidationError.ENCRYPTION_PATH_ERROR,
 					Messages.NvsEditorDialog_EncKeyCantBeReadErrMsg);
 			return Messages.NvsEditorDialog_EncKeyCantBeReadErrMsg;
 		}
-		ErrorListenerMap.INSTANCE.remove(GeneratePartitionValidationError.ENCRYPTION_PATH_ERROR);
+		validationErrors.remove(GeneratePartitionValidationError.ENCRYPTION_PATH_ERROR);
 
 		return StringUtil.EMPTY;
 	}
@@ -767,17 +739,17 @@ public class NvsCsvEditorPage
 		}
 		catch (NumberFormatException e)
 		{
-			ErrorListenerMap.INSTANCE.put(GeneratePartitionValidationError.SIZE_ERROR,
+			validationErrors.put(GeneratePartitionValidationError.SIZE_ERROR,
 					Messages.NvsEditorDialog_SizeValidationDecodedErr + e.getMessage());
 			return Messages.NvsEditorDialog_SizeValidationDecodedErr + e.getMessage();
 		}
 		if (decodedSize < 4096 || decodedSize % 4096 != 0)
 		{
-			ErrorListenerMap.INSTANCE.put(GeneratePartitionValidationError.SIZE_ERROR,
+			validationErrors.put(GeneratePartitionValidationError.SIZE_ERROR,
 					Messages.NvsEditorDialog_WrongSizeFormatErrMsg);
 			return Messages.NvsEditorDialog_WrongSizeFormatErrMsg;
 		}
-		ErrorListenerMap.INSTANCE.remove(GeneratePartitionValidationError.SIZE_ERROR);
+		validationErrors.remove(GeneratePartitionValidationError.SIZE_ERROR);
 		return StringUtil.EMPTY;
 	}
 
