@@ -57,7 +57,6 @@ import com.espressif.idf.core.util.NvsBeanValidator;
 import com.espressif.idf.core.util.NvsPartitionGenerator;
 import com.espressif.idf.core.util.NvsTableDataService;
 import com.espressif.idf.core.util.StringUtil;
-import com.espressif.idf.ui.EclipseUtil;
 
 /**
  * Manages the UI controls and logic for the NVS CSV Editor. This class is instantiated by NvsEditor and contains the UI
@@ -742,8 +741,7 @@ public class NvsCsvEditorPage
 
 		try
 		{
-			EclipseUtil.getSelectedProjectInExplorer().refreshLocal(IResource.DEPTH_INFINITE,
-					new NullProgressMonitor());
+			csvFile.getProject().refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 		}
 		catch (CoreException e)
 		{
