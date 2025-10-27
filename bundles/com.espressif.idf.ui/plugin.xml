@@ -639,6 +639,13 @@
 			id="com.espressif.idf.ui.editor.idfsize"
 			name="%editor.name">
 		</editor>
+  <editor
+        class="com.espressif.idf.ui.nvs.dialog.NvsEditor"
+        default="false"
+        icon="icons/ESP-IDF_NVS_Table_Editor.png"
+        id="com.espressif.idf.ui.nvs.nvsEditor"
+        name="%command.name.nvsTableEditor">
+  </editor>
 	</extension>
 	<extension
 		point="org.eclipse.cdt.launch.coreBuildTab">
