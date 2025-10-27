@@ -33,17 +33,21 @@ public class NvsEditorHandler extends AbstractHandler
 			new NvsTableDataService().saveCsv(csvFile, new ArrayList<>());
 		}
 
-		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-		if (page != null)
+		var window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		if (window != null)
 		{
-			try
+			IWorkbenchPage page = window.getActivePage();
+			if (page != null)
 			{
-				FileEditorInput input = new FileEditorInput(csvFile);
-				page.openEditor(input, NvsEditor.ID);
-			}
-			catch (PartInitException e)
-			{
-				Logger.log(e);
+				try
+				{
+					FileEditorInput input = new FileEditorInput(csvFile);
+					page.openEditor(input, NvsEditor.ID);
+				}
+				catch (PartInitException e)
+				{
+					Logger.log(e);
+				}
 			}
 		}
 
