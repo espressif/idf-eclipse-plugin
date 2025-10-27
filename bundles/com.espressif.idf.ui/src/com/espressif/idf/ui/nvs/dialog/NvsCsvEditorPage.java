@@ -25,10 +25,10 @@ import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ComboBoxCellEditor;
 import org.eclipse.jface.viewers.ICellModifier;
-import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.viewers.ViewerCell;
@@ -467,12 +467,7 @@ public class NvsCsvEditorPage
 	private void createTableViewer()
 	{
 		tableViewer = new TableViewer(csvTable);
-		tableViewer.setContentProvider((IStructuredContentProvider) input -> {
-			@SuppressWarnings("unchecked")
-			List<NvsTableBean> list = (List<NvsTableBean>) input;
-			return list.toArray();
-		});
-
+		tableViewer.setContentProvider(ArrayContentProvider.getInstance());
 		try
 		{
 			List<NvsTableBean> list = new NvsTableDataService().parseCsv(Paths.get(csvFile.getLocationURI()));
