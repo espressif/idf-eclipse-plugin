@@ -17,9 +17,13 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -51,6 +55,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
+import org.osgi.service.prefs.BackingStoreException;
 
 import com.espressif.idf.core.build.NvsTableBean;
 import com.espressif.idf.core.logging.Logger;
@@ -65,6 +70,15 @@ import com.espressif.idf.core.util.StringUtil;
  */
 public class NvsCsvEditorPage
 {
+	// --- Preference Constants ---
+	private static final String PLUGIN_ID = "com.espressif.idf.core"; //$NON-NLS-1$
+
+	private static final String PREF_PARTITION_SIZE = "nvsPartitionSize"; //$NON-NLS-1$
+	private static final String PREF_ENCRYPT_ENABLED = "nvsEncryptEnabled"; //$NON-NLS-1$
+	private static final String PREF_GENERATE_KEY_ENABLED = "nvsGenerateKeyEnabled"; //$NON-NLS-1$
+	private static final String PREF_ENCRYPTION_KEY_PATH = "nvsEncryptionKeyPath"; //$NON-NLS-1$
+	// --- End of Preference Constants ---
+
 	private static final String DEFAULT_PARTITION_SIZE = "0x3000"; //$NON-NLS-1$
 	private Composite mainControl;
 	private IFile csvFile;
@@ -124,6 +138,9 @@ public class NvsCsvEditorPage
 		createTable(group);
 		createToolButtonBar(group);
 		createTableViewer();
+
+		// Load saved preferences
+		loadPreferences();
 
 		// Initial setup
 		setMessage(Messages.NvsEditorDialog_DefaultMessage, IMessageProvider.INFORMATION);
@@ -250,6 +267,7 @@ public class NvsCsvEditorPage
 			Logger.log(e);
 		}
 		dirtyStateListener.accept(false);
+		savePreferences();
 		return true;
 	}
 
@@ -448,7 +466,6 @@ public class NvsCsvEditorPage
 				validateGenerationState();
 			}
 		});
-		generateEncryptionKeyCheckBox.setSelection(true);
 	}
 
 	private void createSizeOfPartitionLable(Composite parent)
@@ -466,7 +483,6 @@ public class NvsCsvEditorPage
 		sizeText = new Text(sizeComposite, SWT.BORDER);
 		sizeText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		sizeText.setMessage(Messages.NvsEditorDialog_DefaultSizeMsg);
-		sizeText.setText(DEFAULT_PARTITION_SIZE);
 		ControlDecoration deco = new ControlDecoration(sizeText, SWT.RIGHT);
 		Image image = FieldDecorationRegistry.getDefault().getFieldDecoration(FieldDecorationRegistry.DEC_ERROR)
 				.getImage();
@@ -913,5 +929,57 @@ public class NvsCsvEditorPage
 		csvTable.select(csvTable.getItemCount() - 1);
 		tableViewer.refresh();
 		markDirty();
+	}
+
+	// ========================================================================
+	// Preference Handling Methods
+	// ========================================================================
+
+	/**
+	 * Returns the preference node for the current project.
+	 */
+	private IEclipsePreferences getProjectPreferences()
+	{
+		IProject project = csvFile.getProject();
+		IScopeContext projectScope = new ProjectScope(project);
+		return projectScope.getNode(PLUGIN_ID);
+	}
+
+	/**
+	 * Loads settings from the project's preferences and applies them to the UI.
+	 */
+	private void loadPreferences()
+	{
+		IEclipsePreferences prefs = getProjectPreferences();
+
+		// Load and set values, using your class defaults as fallbacks
+		sizeText.setText(prefs.get(PREF_PARTITION_SIZE, DEFAULT_PARTITION_SIZE));
+		encryptAction.setSelection(prefs.getBoolean(PREF_ENCRYPT_ENABLED, false));
+		generateEncryptionKeyCheckBox.setSelection(prefs.getBoolean(PREF_GENERATE_KEY_ENABLED, true));
+		encryptionKeyText.setText(prefs.get(PREF_ENCRYPTION_KEY_PATH, StringUtil.EMPTY));
+	}
+
+	/**
+	 * Saves the current UI settings to the project's preferences.
+	 */
+	private void savePreferences()
+	{
+		IEclipsePreferences prefs = getProjectPreferences();
+
+		// Store the current values
+		prefs.put(PREF_PARTITION_SIZE, sizeText.getText());
+		prefs.putBoolean(PREF_ENCRYPT_ENABLED, encryptAction.getSelection());
+		prefs.putBoolean(PREF_GENERATE_KEY_ENABLED, generateEncryptionKeyCheckBox.getSelection());
+		prefs.put(PREF_ENCRYPTION_KEY_PATH, encryptionKeyText.getText());
+
+		try
+		{
+			// Flush the changes to disk
+			prefs.flush();
+		}
+		catch (BackingStoreException e)
+		{
+			Logger.log(e);
+		}
 	}
 }
