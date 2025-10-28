@@ -411,7 +411,7 @@ public class NvsCsvEditorPage
 			public void widgetSelected(SelectionEvent event)
 			{
 				FileDialog dlg = new FileDialog(mainControl.getShell(), SWT.OPEN);
-				dlg.setFilterPath(csvFile.getProject().getLocationURI().toString());
+				dlg.setFilterPath(csvFile.getProject().getLocation().toString());
 				dlg.setFilterExtensions(new String[] { "*.bin", "*" }); //$NON-NLS-1$ //$NON-NLS-2$
 				dlg.setText(Messages.NvsEditorDialog_EncrPartitionKeyDlgTxt);
 				String dir = dlg.open();
