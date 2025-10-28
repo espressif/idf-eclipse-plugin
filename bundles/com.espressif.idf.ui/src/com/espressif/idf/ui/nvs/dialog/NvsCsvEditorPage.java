@@ -45,6 +45,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -126,7 +127,7 @@ public class NvsCsvEditorPage
 
 		// Initial setup
 		setMessage(Messages.NvsEditorDialog_DefaultMessage, IMessageProvider.INFORMATION);
-		encryptAction.notifyListeners(SWT.Selection, null);
+		encryptAction.notifyListeners(SWT.Selection, new Event());
 		validateGenerationState(); // Set initial button state
 	}
 
@@ -316,7 +317,7 @@ public class NvsCsvEditorPage
 				Stream.of(encryptionComposite.getChildren()).forEach(t -> t.setEnabled(encryptAction.getSelection()));
 				if (encryptAction.getSelection())
 				{
-					generateEncryptionKeyCheckBox.notifyListeners(SWT.Selection, null);
+					generateEncryptionKeyCheckBox.notifyListeners(SWT.Selection, new Event());
 				}
 				markDirty();
 				validateGenerationState();
@@ -441,7 +442,7 @@ public class NvsCsvEditorPage
 				else
 				{
 					canBeDisposedList.forEach(t -> t.setEnabled(true));
-					encryptionKeyText.notifyListeners(SWT.Modify, null);
+					encryptionKeyText.notifyListeners(SWT.Modify, new Event());
 				}
 				markDirty();
 				validateGenerationState();
