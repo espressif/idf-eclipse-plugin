@@ -248,7 +248,8 @@ public class NvsCsvEditorPage
 		{
 			Logger.log(e);
 		}
-		return true; // Save was successful
+		dirtyStateListener.accept(false);
+		return true;
 	}
 
 	/**
