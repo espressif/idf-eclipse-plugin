@@ -464,7 +464,7 @@ public class NvsCsvEditorPage
 		sizeText = new Text(sizeComposite, SWT.BORDER);
 		sizeText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		sizeText.setMessage(Messages.NvsEditorDialog_DefaultSizeMsg);
-
+		sizeText.setText(DEFAULT_PARTITION_SIZE);
 		ControlDecoration deco = new ControlDecoration(sizeText, SWT.RIGHT);
 		Image image = FieldDecorationRegistry.getDefault().getFieldDecoration(FieldDecorationRegistry.DEC_ERROR)
 				.getImage();
