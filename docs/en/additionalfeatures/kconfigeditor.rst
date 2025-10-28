@@ -135,16 +135,6 @@ Here's an example of a complete KConfig entry with syntax highlighting:
         help
             Maximum number of concurrent WiFi connections supported.
 
-Preferences
------------
-
-KConfig Editor preferences can be configured in **Eclipse > Preferences > General > Editors > Text Editors**:
-
-- **Syntax Highlighting**: Enable/disable syntax coloring
-- **Content Assist**: Configure auto-completion settings
-- **Indentation**: Adjust indentation rules and tab settings
-- **Bracket Matching**: Enable/disable bracket highlighting
-
 References
 ----------
 
