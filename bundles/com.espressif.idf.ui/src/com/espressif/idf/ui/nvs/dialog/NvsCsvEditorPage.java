@@ -64,7 +64,7 @@ import com.espressif.idf.core.util.StringUtil;
  */
 public class NvsCsvEditorPage
 {
-
+	private static final String DEFAULT_PARTITION_SIZE = "0x3000"; //$NON-NLS-1$
 	private Composite mainControl;
 	private IFile csvFile;
 	private Consumer<Boolean> dirtyStateListener;
@@ -127,8 +127,34 @@ public class NvsCsvEditorPage
 		// Initial setup
 		setMessage(Messages.NvsEditorDialog_DefaultMessage, IMessageProvider.INFORMATION);
 		encryptAction.notifyListeners(SWT.Selection, null);
-		generateButton.setEnabled(false);
-		setErrorMessage(null);
+		validateGenerationState(); // Set initial button state
+	}
+
+	/**
+	 * Runs all validation checks for the "Generate Partition" action, updates the error map, and sets the button and
+	 * error message status.
+	 */
+	private void validateGenerationState()
+	{
+		// 1. Start with a clean slate
+		validationErrors.clear();
+
+		// 2. Run all individual validation checks
+		String sizeError = validateSize();
+		if (!sizeError.isBlank())
+		{
+			validationErrors.put(GeneratePartitionValidationError.SIZE_ERROR, sizeError);
+		}
+
+		String encKeyError = validateEncKeyPath();
+		if (!encKeyError.isBlank())
+		{
+			validationErrors.put(GeneratePartitionValidationError.ENCRYPTION_PATH_ERROR, encKeyError);
+		}
+
+		// 3. Update all dependent UI from one single place
+		setGenerationButtonStatus();
+		updateErrorMessage();
 	}
 
 	/**
@@ -188,9 +214,7 @@ public class NvsCsvEditorPage
 	}
 
 	/**
-	 * Called by NvsEditor's doSave() to perform the save logic.
-	 * 
-	 * @return true if save was successful, false otherwise.
+	 * Called by NvsEditor's doSave() to perform the save logic. * @return true if save was successful, false otherwise.
 	 */
 	public boolean getSaveAction()
 	{
@@ -205,7 +229,16 @@ public class NvsCsvEditorPage
 		}
 
 		new NvsTableDataService().saveCsv(csvFile, beansToSave);
-		setMessage(Messages.NvsTableEditorDialog_SaveInfoMsg, IMessageProvider.INFORMATION);
+
+		String baseMessage = Messages.NvsTableEditorDialog_SaveInfoMsg;
+		String status = statusText.getText();
+
+		if (status != null && !status.isBlank())
+		{
+			baseMessage = baseMessage + StringUtil.LINE_SEPARATOR + status;
+		}
+
+		setMessage(baseMessage, IMessageProvider.INFORMATION);
 		Logger.log(Messages.NvsTableEditorDialog_SaveInfoMsg);
 		try
 		{
@@ -244,8 +277,9 @@ public class NvsCsvEditorPage
 		}
 		if (!validationErrors.isEmpty())
 		{
-			newErrorMessage = newErrorMessage.isBlank() ? newErrorMessage
-					: newErrorMessage.concat(StringUtil.LINE_SEPARATOR).concat(" "); //$NON-NLS-1$
+			if (newErrorMessage != null && !newErrorMessage.isBlank())
+				newErrorMessage = newErrorMessage.concat(StringUtil.LINE_SEPARATOR).concat(" "); //$NON-NLS-1$
+
 			List<String> valuesArr = new ArrayList<>();
 			for (Entry<GeneratePartitionValidationError, String> errorEntry : validationErrors.entrySet())
 			{
@@ -256,7 +290,6 @@ public class NvsCsvEditorPage
 
 		}
 
-		newErrorMessage = newErrorMessage.isBlank() ? null : newErrorMessage;
 		setErrorMessage(newErrorMessage);
 	}
 
@@ -284,11 +317,8 @@ public class NvsCsvEditorPage
 				{
 					generateEncryptionKeyCheckBox.notifyListeners(SWT.Selection, null);
 				}
-				else
-				{
-					validationErrors.remove(GeneratePartitionValidationError.ENCRYPTION_PATH_ERROR);
-				}
 				markDirty();
+				validateGenerationState();
 			}
 
 		});
@@ -370,6 +400,7 @@ public class NvsCsvEditorPage
 				errorIconLabel.setToolTipText(errMsg);
 			}
 			markDirty();
+			validateGenerationState();
 		});
 
 		encyptionKeyBrowseButton.addSelectionListener(new SelectionAdapter()
@@ -403,7 +434,6 @@ public class NvsCsvEditorPage
 				if (generateEncryptionKeyCheckBox.getSelection())
 				{
 					canBeDisposedList.forEach(t -> t.setEnabled(false));
-					validationErrors.remove(GeneratePartitionValidationError.ENCRYPTION_PATH_ERROR);
 					errorIconLabel.setImage(null); // Hide error when disabled
 					errorIconLabel.setToolTipText(null);
 				}
@@ -413,6 +443,7 @@ public class NvsCsvEditorPage
 					encryptionKeyText.notifyListeners(SWT.Modify, null);
 				}
 				markDirty();
+				validateGenerationState();
 			}
 		});
 		generateEncryptionKeyCheckBox.setSelection(true);
@@ -429,10 +460,11 @@ public class NvsCsvEditorPage
 
 		Label sizeOfPartitionLbl = new Label(sizeComposite, SWT.NONE);
 		sizeOfPartitionLbl.setText(Messages.NvsTableEditorSizeOfPartitionLblMsg);
-		sizeOfPartitionLbl.setLayoutData(new GridData(GridData.FILL_BOTH));
+		sizeOfPartitionLbl.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		sizeText = new Text(sizeComposite, SWT.BORDER);
-		sizeText.setLayoutData(new GridData(GridData.FILL_BOTH));
+		sizeText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		sizeText.setMessage(Messages.NvsEditorDialog_DefaultSizeMsg);
+
 		ControlDecoration deco = new ControlDecoration(sizeText, SWT.RIGHT);
 		Image image = FieldDecorationRegistry.getDefault().getFieldDecoration(FieldDecorationRegistry.DEC_ERROR)
 				.getImage();
@@ -449,6 +481,7 @@ public class NvsCsvEditorPage
 				deco.setDescriptionText(errMsg);
 			}
 			markDirty();
+			validateGenerationState();
 		});
 
 	}
@@ -723,20 +756,25 @@ public class NvsCsvEditorPage
 
 	private void getGeneratePartitionAction()
 	{
-		String errorMsg = validateSize();
-		errorMsg = errorMsg.isBlank() ? validateEncKeyPath() : errorMsg;
+		validateGenerationState();
 
-		if (errorMsg.isEmpty())
+		if (validationErrors.isEmpty())
 		{
 			String infoMsg = NvsPartitionGenerator.generateNvsPartititon(encryptAction.getSelection(), getEncKeyPath(),
 					sizeText.getText(), csvFile);
+
+			String status = statusText != null ? statusText.getText() : null;
+			if (status != null && !status.isBlank())
+			{
+				infoMsg = infoMsg + StringUtil.LINE_SEPARATOR + status.trim();
+			}
+
 			setMessage(infoMsg, IMessageProvider.INFORMATION);
 			Logger.log(infoMsg);
 		}
 		else
 		{
-			setMessage(errorMsg, IMessageProvider.ERROR);
-			Logger.log(errorMsg);
+			Logger.log("NVS Partition Generation failed validation."); //$NON-NLS-1$
 		}
 
 		try
@@ -762,35 +800,27 @@ public class NvsCsvEditorPage
 		if (encryptAction.getSelection() && !generateEncryptionKeyCheckBox.getSelection()
 				&& !new File(encKeyPath).canRead())
 		{
-			validationErrors.put(GeneratePartitionValidationError.ENCRYPTION_PATH_ERROR,
-					Messages.NvsEditorDialog_EncKeyCantBeReadErrMsg);
 			return Messages.NvsEditorDialog_EncKeyCantBeReadErrMsg;
 		}
-		validationErrors.remove(GeneratePartitionValidationError.ENCRYPTION_PATH_ERROR);
 
 		return StringUtil.EMPTY;
 	}
 
 	private String validateSize()
 	{
-		Long decodedSize = 0l;
+		Long decodedSize = 0L;
 		try
 		{
 			decodedSize = Long.decode(sizeText.getText());
 		}
 		catch (NumberFormatException e)
 		{
-			validationErrors.put(GeneratePartitionValidationError.SIZE_ERROR,
-					Messages.NvsEditorDialog_SizeValidationDecodedErr + e.getMessage());
 			return Messages.NvsEditorDialog_SizeValidationDecodedErr + e.getMessage();
 		}
 		if (decodedSize < 4096 || decodedSize % 4096 != 0)
 		{
-			validationErrors.put(GeneratePartitionValidationError.SIZE_ERROR,
-					Messages.NvsEditorDialog_WrongSizeFormatErrMsg);
 			return Messages.NvsEditorDialog_WrongSizeFormatErrMsg;
 		}
-		validationErrors.remove(GeneratePartitionValidationError.SIZE_ERROR);
 		return StringUtil.EMPTY;
 	}
 
