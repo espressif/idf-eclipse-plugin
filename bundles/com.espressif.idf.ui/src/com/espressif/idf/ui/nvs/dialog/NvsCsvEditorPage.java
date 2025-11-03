@@ -624,6 +624,10 @@ public class NvsCsvEditorPage
 
 			protected boolean canEdit(Object element)
 			{
+				if (tableViewer.getElementAt(0).equals(element))
+				{
+					return false;
+				}
 				return true;
 			}
 
@@ -711,6 +715,10 @@ public class NvsCsvEditorPage
 
 			protected boolean canEdit(Object element)
 			{
+				if (tableViewer.getElementAt(0).equals(element))
+				{
+					return false;
+				}
 				return true;
 			}
 
@@ -788,6 +796,10 @@ public class NvsCsvEditorPage
 
 			protected boolean canEdit(Object element)
 			{
+				if (tableViewer.getElementAt(0).equals(element))
+				{
+					return false;
+				}
 				return true;
 			}
 
