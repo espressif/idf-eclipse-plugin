@@ -276,6 +276,10 @@ public class NvsCsvEditorPage
 	 */
 	public void markDirty()
 	{
+		@SuppressWarnings("unchecked")
+		List<NvsTableBean> beansToSave = (List<NvsTableBean>) tableViewer.getInput();
+		validateBeansBeforeSaving(beansToSave);
+		updateErrorMessage();
 		dirtyStateListener.accept(true);
 	}
 
@@ -534,6 +538,17 @@ public class NvsCsvEditorPage
 			{
 				return bean.getKey();
 			}
+
+			@Override
+			public String getToolTipText(Object element)
+			{
+				if (tableViewer.getElementAt(0).equals(element))
+				{
+
+					return Messages.NvsEditorDialog_FirstRowIsFixedInfoMsg;
+				}
+				return super.getToolTipText(element);
+			}
 		});
 		colKey.setEditingSupport(new EditingSupport(tableViewer)
 		{
@@ -577,6 +592,28 @@ public class NvsCsvEditorPage
 			{
 				return bean.getType();
 			}
+
+			@Override
+			public String getToolTipText(Object element)
+			{
+				if (tableViewer.getElementAt(0).equals(element))
+				{
+
+					return Messages.NvsEditorDialog_FirstRowIsFixedInfoMsg;
+				}
+				return super.getToolTipText(element);
+			}
+
+			@Override
+			public Color getBackground(Object element)
+			{
+				if (tableViewer.getElementAt(0).equals(element))
+				{
+					return Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_LIGHT_SHADOW);
+				}
+				return null;
+			}
+
 		});
 		colType.setEditingSupport(new EditingSupport(tableViewer)
 		{
@@ -587,11 +624,6 @@ public class NvsCsvEditorPage
 
 			protected boolean canEdit(Object element)
 			{
-				if (tableViewer.getElementAt(0).equals(element))
-				{
-					setMessage(Messages.NvsEditorDialog_FirstRowIsFixedInfoMsg, IMessageProvider.INFORMATION);
-					return false;
-				}
 				return true;
 			}
 
@@ -646,6 +678,27 @@ public class NvsCsvEditorPage
 			{
 				return bean.getEncoding();
 			}
+
+			@Override
+			public String getToolTipText(Object element)
+			{
+				if (tableViewer.getElementAt(0).equals(element))
+				{
+
+					return Messages.NvsEditorDialog_FirstRowIsFixedInfoMsg;
+				}
+				return super.getToolTipText(element);
+			}
+
+			@Override
+			public Color getBackground(Object element)
+			{
+				if (tableViewer.getElementAt(0).equals(element))
+				{
+					return Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_LIGHT_SHADOW);
+				}
+				return null;
+			}
 		});
 		colEncoding.setEditingSupport(new EditingSupport(tableViewer)
 		{
@@ -658,18 +711,7 @@ public class NvsCsvEditorPage
 
 			protected boolean canEdit(Object element)
 			{
-				if (tableViewer.getElementAt(0).equals(element))
-				{
-					setMessage(Messages.NvsEditorDialog_FirstRowIsFixedInfoMsg, IMessageProvider.INFORMATION);
-					return false;
-				}
-				NvsTableBean bean = (NvsTableBean) element;
-				boolean isCellEditable = !bean.getType().contentEquals("namespace"); //$NON-NLS-1$
-				if (!isCellEditable)
-				{
-					setMessage(Messages.NvsEditorDialog_NamespaceEditLimitationInfoMsg, IMessageProvider.INFORMATION);
-				}
-				return isCellEditable;
+				return true;
 			}
 
 			protected Object getValue(Object element)
@@ -715,6 +757,27 @@ public class NvsCsvEditorPage
 			{
 				return bean.getValue();
 			}
+
+			@Override
+			public String getToolTipText(Object element)
+			{
+				if (tableViewer.getElementAt(0).equals(element))
+				{
+
+					return Messages.NvsEditorDialog_FirstRowIsFixedInfoMsg;
+				}
+				return super.getToolTipText(element);
+			}
+
+			@Override
+			public Color getBackground(Object element)
+			{
+				if (tableViewer.getElementAt(0).equals(element))
+				{
+					return Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_LIGHT_SHADOW);
+				}
+				return null;
+			}
 		});
 		colValue.setEditingSupport(new EditingSupport(tableViewer)
 		{
@@ -725,18 +788,7 @@ public class NvsCsvEditorPage
 
 			protected boolean canEdit(Object element)
 			{
-				if (tableViewer.getElementAt(0).equals(element))
-				{
-					setMessage(Messages.NvsEditorDialog_FirstRowIsFixedInfoMsg, IMessageProvider.INFORMATION);
-					return false;
-				}
-				NvsTableBean bean = (NvsTableBean) element;
-				boolean isCellEditable = !bean.getType().contentEquals("namespace"); //$NON-NLS-1$
-				if (!isCellEditable)
-				{
-					setMessage(Messages.NvsEditorDialog_NamespaceEditLimitationInfoMsg, IMessageProvider.INFORMATION);
-				}
-				return isCellEditable;
+				return true;
 			}
 
 			protected Object getValue(Object element)

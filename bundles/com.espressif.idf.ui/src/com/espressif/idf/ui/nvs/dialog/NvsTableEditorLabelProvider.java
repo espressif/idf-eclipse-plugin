@@ -2,7 +2,7 @@ package com.espressif.idf.ui.nvs.dialog;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.jface.viewers.CellLabelProvider;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
@@ -10,7 +10,7 @@ import org.eclipse.swt.widgets.Display;
 import com.espressif.idf.core.build.NvsTableBean;
 import com.espressif.idf.core.util.NvsBeanValidator;
 
-public abstract class NvsTableEditorLabelProvider extends CellLabelProvider
+public abstract class NvsTableEditorLabelProvider extends ColumnLabelProvider
 {
 
 	protected NvsBeanValidator validator = new NvsBeanValidator();
@@ -45,7 +45,8 @@ public abstract class NvsTableEditorLabelProvider extends CellLabelProvider
 			cell.setForeground(null);
 			cell.setImage(null);
 		}
-		cell.setBackground(null);
+
+		cell.setBackground(getBackground(bean));
 	}
 
 	/**
