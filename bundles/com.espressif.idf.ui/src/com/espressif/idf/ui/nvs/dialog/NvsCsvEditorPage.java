@@ -2,7 +2,6 @@
  * Copyright 2025 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
-
 package com.espressif.idf.ui.nvs.dialog;
 
 import java.io.File;
@@ -33,7 +32,6 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.ComboBoxCellEditor;
-import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
@@ -87,8 +85,6 @@ public class NvsCsvEditorPage
 	private Text statusText;
 	private Table csvTable;
 	private TableViewer tableViewer;
-	@SuppressWarnings("nls")
-	private String[] columnNames = { "Key", "Type", "Encoding", "Value" };
 	private Text sizeText;
 
 	private Composite encryptionComposite;
@@ -105,6 +101,7 @@ public class NvsCsvEditorPage
 
 	private final EnumMap<GeneratePartitionValidationError, String> validationErrors = new EnumMap<>(
 			GeneratePartitionValidationError.class);
+	private final EnumMap<NvsColumn, CellEditor> cellEditors = new EnumMap<>(NvsColumn.class);
 
 	public NvsCsvEditorPage(Composite parent, IFile csvFile, Consumer<Boolean> dirtyStateListener)
 	{
@@ -514,307 +511,26 @@ public class NvsCsvEditorPage
 		tableViewer.setContentProvider(ArrayContentProvider.getInstance());
 		ColumnViewerToolTipSupport.enableFor(tableViewer);
 
-		final CellEditor[] cellEditors = new CellEditor[4];
-		cellEditors[0] = new TextCellEditor(csvTable);
-		cellEditors[1] = new ComboBoxCellEditor(csvTable, NvsTableDataService.getTypes(), SWT.READ_ONLY);
-		cellEditors[2] = new ComboBoxCellEditor(csvTable, NvsTableDataService.getEncodings(StringUtil.EMPTY),
-				SWT.READ_ONLY);
-		cellEditors[3] = new TextCellEditor(csvTable);
+		tableViewer.setColumnProperties(NvsColumn.getColumnProperties());
 
-		// --- Column 0: Key ---
-		TableViewerColumn colKey = new TableViewerColumn(tableViewer, SWT.NONE);
-		colKey.getColumn().setText(columnNames[0]);
-		colKey.getColumn().setWidth(100);
-		colKey.setLabelProvider(new NvsTableEditorLabelProvider()
+		cellEditors.put(NvsColumn.KEY, new TextCellEditor(csvTable));
+		cellEditors.put(NvsColumn.TYPE,
+				new ComboBoxCellEditor(csvTable, NvsTableDataService.getTypes(), SWT.READ_ONLY));
+		cellEditors.put(NvsColumn.ENCODING,
+				new ComboBoxCellEditor(csvTable, NvsTableDataService.getEncodings(StringUtil.EMPTY), SWT.READ_ONLY));
+		cellEditors.put(NvsColumn.VALUE, new TextCellEditor(csvTable));
+
+		NvsEditorSupportFactory supportFactory = new NvsEditorSupportFactory(tableViewer, cellEditors, this::markDirty);
+
+		for (NvsColumn column : NvsColumn.values())
 		{
-			@Override
-			public int getColumnIndex()
-			{
-				return 0;
-			}
+			TableViewerColumn tvColumn = new TableViewerColumn(tableViewer, SWT.NONE);
+			tvColumn.getColumn().setText(column.getDisplayName());
+			tvColumn.getColumn().setWidth(column.getDefaultWidth());
 
-			@Override
-			public String getColumnText(NvsTableBean bean)
-			{
-				return bean.getKey();
-			}
-
-			@Override
-			public String getToolTipText(Object element)
-			{
-				if (tableViewer.getElementAt(0).equals(element))
-				{
-
-					return Messages.NvsEditorDialog_FirstRowIsFixedInfoMsg;
-				}
-				return super.getToolTipText(element);
-			}
-		});
-		colKey.setEditingSupport(new EditingSupport(tableViewer)
-		{
-			protected CellEditor getCellEditor(Object element)
-			{
-				return cellEditors[0];
-			}
-
-			protected boolean canEdit(Object element)
-			{
-				return true;
-			}
-
-			protected Object getValue(Object element)
-			{
-				return ((NvsTableBean) element).getKey();
-			}
-
-			protected void setValue(Object element, Object value)
-			{
-				((NvsTableBean) element).setKey((String) value);
-				tableViewer.update(element, null);
-				markDirty();
-			}
-		});
-
-		// --- Column 1: Type ---
-		TableViewerColumn colType = new TableViewerColumn(tableViewer, SWT.NONE);
-		colType.getColumn().setText(columnNames[1]);
-		colType.getColumn().setWidth(100);
-		colType.setLabelProvider(new NvsTableEditorLabelProvider()
-		{
-			@Override
-			public int getColumnIndex()
-			{
-				return 1;
-			}
-
-			@Override
-			public String getColumnText(NvsTableBean bean)
-			{
-				return bean.getType();
-			}
-
-			@Override
-			public String getToolTipText(Object element)
-			{
-				if (tableViewer.getElementAt(0).equals(element))
-				{
-
-					return Messages.NvsEditorDialog_FirstRowIsFixedInfoMsg;
-				}
-				return super.getToolTipText(element);
-			}
-
-			@Override
-			public Color getBackground(Object element)
-			{
-				if (tableViewer.getElementAt(0).equals(element))
-				{
-					return Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_LIGHT_SHADOW);
-				}
-				return null;
-			}
-
-		});
-		colType.setEditingSupport(new EditingSupport(tableViewer)
-		{
-			protected CellEditor getCellEditor(Object element)
-			{
-				return cellEditors[1];
-			}
-
-			protected boolean canEdit(Object element)
-			{
-				if (tableViewer.getElementAt(0).equals(element))
-				{
-					return false;
-				}
-				return true;
-			}
-
-			protected Object getValue(Object element)
-			{
-				String stringValue = ((NvsTableBean) element).getType();
-				String[] choices = NvsTableDataService.getTypes();
-				for (int i = 0; i < choices.length; i++)
-				{
-					if (stringValue.equals(choices[i]))
-						return i;
-				}
-				return 0;
-			}
-
-			protected void setValue(Object element, Object value)
-			{
-				NvsTableBean bean = (NvsTableBean) element;
-				String newType = NvsTableDataService.getTypes()[(int) value];
-				if (newType.contentEquals(bean.getType()))
-				{
-					return;
-				}
-				bean.setType(newType);
-
-				String[] encodings = NvsTableDataService.getEncodings(bean.getType());
-				((ComboBoxCellEditor) cellEditors[2]).setItems(encodings);
-				if (encodings.length > 0)
-				{
-					bean.setEncoding(encodings[0]);
-				}
-
-				tableViewer.update(element, new String[] { columnNames[1], columnNames[2] });
-				markDirty();
-			}
-		});
-
-		// --- Column 2: Encoding ---
-		TableViewerColumn colEncoding = new TableViewerColumn(tableViewer, SWT.NONE);
-		colEncoding.getColumn().setText(columnNames[2]);
-		colEncoding.getColumn().setWidth(100);
-		colEncoding.setLabelProvider(new NvsTableEditorLabelProvider()
-		{
-			@Override
-			public int getColumnIndex()
-			{
-				return 2;
-			}
-
-			@Override
-			public String getColumnText(NvsTableBean bean)
-			{
-				return bean.getEncoding();
-			}
-
-			@Override
-			public String getToolTipText(Object element)
-			{
-				if (tableViewer.getElementAt(0).equals(element))
-				{
-
-					return Messages.NvsEditorDialog_FirstRowIsFixedInfoMsg;
-				}
-				return super.getToolTipText(element);
-			}
-
-			@Override
-			public Color getBackground(Object element)
-			{
-				if (tableViewer.getElementAt(0).equals(element))
-				{
-					return Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_LIGHT_SHADOW);
-				}
-				return null;
-			}
-		});
-		colEncoding.setEditingSupport(new EditingSupport(tableViewer)
-		{
-			protected CellEditor getCellEditor(Object element)
-			{
-				NvsTableBean bean = (NvsTableBean) element;
-				((ComboBoxCellEditor) cellEditors[2]).setItems(NvsTableDataService.getEncodings(bean.getType()));
-				return cellEditors[2];
-			}
-
-			protected boolean canEdit(Object element)
-			{
-				if (tableViewer.getElementAt(0).equals(element))
-				{
-					return false;
-				}
-				return true;
-			}
-
-			protected Object getValue(Object element)
-			{
-				NvsTableBean bean = (NvsTableBean) element;
-				String stringValue = bean.getEncoding();
-				String[] choices = NvsTableDataService.getEncodings(bean.getType());
-				for (int i = 0; i < choices.length; i++)
-				{
-					if (stringValue.equals(choices[i]))
-						return i;
-				}
-				return 0;
-			}
-
-			protected void setValue(Object element, Object value)
-			{
-				NvsTableBean bean = (NvsTableBean) element;
-				String[] encodings = NvsTableDataService.getEncodings(bean.getType());
-				if (encodings.length > (int) value)
-				{
-					bean.setEncoding(encodings[(int) value]);
-				}
-				tableViewer.update(element, null);
-				markDirty();
-			}
-		});
-
-		// --- Column 3: Value ---
-		TableViewerColumn colValue = new TableViewerColumn(tableViewer, SWT.NONE);
-		colValue.getColumn().setText(columnNames[3]);
-		colValue.getColumn().setWidth(150);
-		colValue.setLabelProvider(new NvsTableEditorLabelProvider()
-		{
-			@Override
-			public int getColumnIndex()
-			{
-				return 3;
-			}
-
-			@Override
-			public String getColumnText(NvsTableBean bean)
-			{
-				return bean.getValue();
-			}
-
-			@Override
-			public String getToolTipText(Object element)
-			{
-				if (tableViewer.getElementAt(0).equals(element))
-				{
-
-					return Messages.NvsEditorDialog_FirstRowIsFixedInfoMsg;
-				}
-				return super.getToolTipText(element);
-			}
-
-			@Override
-			public Color getBackground(Object element)
-			{
-				if (tableViewer.getElementAt(0).equals(element))
-				{
-					return Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_LIGHT_SHADOW);
-				}
-				return null;
-			}
-		});
-		colValue.setEditingSupport(new EditingSupport(tableViewer)
-		{
-			protected CellEditor getCellEditor(Object element)
-			{
-				return cellEditors[3];
-			}
-
-			protected boolean canEdit(Object element)
-			{
-				if (tableViewer.getElementAt(0).equals(element))
-				{
-					return false;
-				}
-				return true;
-			}
-
-			protected Object getValue(Object element)
-			{
-				return ((NvsTableBean) element).getValue();
-			}
-
-			protected void setValue(Object element, Object value)
-			{
-				((NvsTableBean) element).setValue((String) value);
-				tableViewer.update(element, null);
-				markDirty();
-			}
-		});
+			tvColumn.setLabelProvider(supportFactory.createLabelProvider(column));
+			tvColumn.setEditingSupport(supportFactory.createEditingSupport(column));
+		}
 
 		try
 		{
@@ -931,9 +647,9 @@ public class NvsCsvEditorPage
 
 		for (NvsTableBean bean : beansToSave)
 		{
-			for (int i = 0; i < columnNames.length; i++)
+			for (NvsColumn column : NvsColumn.values())
 			{
-				errorMsg = new NvsBeanValidator().validateBean(bean, i);
+				errorMsg = new NvsBeanValidator().validateBean(bean, column.getIndex());
 				if (!errorMsg.isBlank())
 				{
 					saveErrorMsg = errorMsg;
