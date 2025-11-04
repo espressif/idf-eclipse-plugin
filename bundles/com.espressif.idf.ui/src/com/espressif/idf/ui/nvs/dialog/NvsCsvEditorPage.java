@@ -2,6 +2,7 @@
  * Copyright 2025 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
+
 package com.espressif.idf.ui.nvs.dialog;
 
 import java.io.File;
@@ -16,13 +17,9 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -53,7 +50,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
-import org.osgi.service.prefs.BackingStoreException;
 
 import com.espressif.idf.core.build.NvsTableBean;
 import com.espressif.idf.core.logging.Logger;
@@ -68,16 +64,6 @@ import com.espressif.idf.core.util.StringUtil;
  */
 public class NvsCsvEditorPage
 {
-	// --- Preference Constants ---
-	private static final String PLUGIN_ID = "com.espressif.idf.core"; //$NON-NLS-1$
-
-	private static final String PREF_PARTITION_SIZE = "nvsPartitionSize"; //$NON-NLS-1$
-	private static final String PREF_ENCRYPT_ENABLED = "nvsEncryptEnabled"; //$NON-NLS-1$
-	private static final String PREF_GENERATE_KEY_ENABLED = "nvsGenerateKeyEnabled"; //$NON-NLS-1$
-	private static final String PREF_ENCRYPTION_KEY_PATH = "nvsEncryptionKeyPath"; //$NON-NLS-1$
-	// --- End of Preference Constants ---
-
-	private static final String DEFAULT_PARTITION_SIZE = "0x3000"; //$NON-NLS-1$
 	private Composite mainControl;
 	private IFile csvFile;
 	private Consumer<Boolean> dirtyStateListener;
@@ -85,8 +71,8 @@ public class NvsCsvEditorPage
 	private Text statusText;
 	private Table csvTable;
 	private TableViewer tableViewer;
-	private Text sizeText;
 
+	private Text sizeText;
 	private Composite encryptionComposite;
 	private Text encryptionKeyText;
 	private Button generateEncryptionKeyCheckBox;
@@ -101,7 +87,10 @@ public class NvsCsvEditorPage
 
 	private final EnumMap<GeneratePartitionValidationError, String> validationErrors = new EnumMap<>(
 			GeneratePartitionValidationError.class);
+
 	private final EnumMap<NvsColumn, CellEditor> cellEditors = new EnumMap<>(NvsColumn.class);
+
+	private NvsEditorPreferenceService preferenceService;
 
 	public NvsCsvEditorPage(Composite parent, IFile csvFile, Consumer<Boolean> dirtyStateListener)
 	{
@@ -110,6 +99,9 @@ public class NvsCsvEditorPage
 
 		mainControl = new Composite(parent, SWT.NONE);
 		mainControl.setLayout(new GridLayout(1, false));
+
+		// Initialize the preference service
+		this.preferenceService = new NvsEditorPreferenceService(csvFile.getProject());
 	}
 
 	/**
@@ -136,8 +128,8 @@ public class NvsCsvEditorPage
 		createToolButtonBar(group);
 		createTableViewer();
 
-		// Load saved preferences
-		loadPreferences();
+		// Load saved preferences using the new service
+		loadSettingsToUi();
 
 		// Initial setup
 		setMessage(Messages.NvsEditorDialog_DefaultMessage, IMessageProvider.INFORMATION);
@@ -264,7 +256,9 @@ public class NvsCsvEditorPage
 			Logger.log(e);
 		}
 		dirtyStateListener.accept(false);
-		savePreferences();
+
+		// Save preferences using the new service
+		saveSettingsFromUi();
 		return true;
 	}
 
@@ -507,12 +501,15 @@ public class NvsCsvEditorPage
 
 	private void createTableViewer()
 	{
+		NvsEditorSupportFactory supportFactory;
 		tableViewer = new TableViewer(csvTable);
 		tableViewer.setContentProvider(ArrayContentProvider.getInstance());
 		ColumnViewerToolTipSupport.enableFor(tableViewer);
 
+		// Use the NvsColumn enum to get column properties
 		tableViewer.setColumnProperties(NvsColumn.getColumnProperties());
 
+		// Populate the EnumMap with cell editors
 		cellEditors.put(NvsColumn.KEY, new TextCellEditor(csvTable));
 		cellEditors.put(NvsColumn.TYPE,
 				new ComboBoxCellEditor(csvTable, NvsTableDataService.getTypes(), SWT.READ_ONLY));
@@ -520,14 +517,17 @@ public class NvsCsvEditorPage
 				new ComboBoxCellEditor(csvTable, NvsTableDataService.getEncodings(StringUtil.EMPTY), SWT.READ_ONLY));
 		cellEditors.put(NvsColumn.VALUE, new TextCellEditor(csvTable));
 
-		NvsEditorSupportFactory supportFactory = new NvsEditorSupportFactory(tableViewer, cellEditors, this::markDirty);
+		// Initialize the factory, passing it the state it needs
+		supportFactory = new NvsEditorSupportFactory(tableViewer, cellEditors, this::markDirty);
 
+		// Loop through the enum values to create columns
 		for (NvsColumn column : NvsColumn.values())
 		{
 			TableViewerColumn tvColumn = new TableViewerColumn(tableViewer, SWT.NONE);
 			tvColumn.getColumn().setText(column.getDisplayName());
 			tvColumn.getColumn().setWidth(column.getDefaultWidth());
 
+			// Use the factory to create the providers
 			tvColumn.setLabelProvider(supportFactory.createLabelProvider(column));
 			tvColumn.setEditingSupport(supportFactory.createEditingSupport(column));
 		}
@@ -647,6 +647,7 @@ public class NvsCsvEditorPage
 
 		for (NvsTableBean bean : beansToSave)
 		{
+			// Loop through the enum, passing the type-safe index to the validator.
 			for (NvsColumn column : NvsColumn.values())
 			{
 				errorMsg = new NvsBeanValidator().validateBean(bean, column.getIndex());
@@ -711,55 +712,33 @@ public class NvsCsvEditorPage
 		markDirty();
 	}
 
-	// ========================================================================
-	// Preference Handling Methods
-	// ========================================================================
-
 	/**
-	 * Returns the preference node for the current project.
+	 * Loads settings from the service and applies them to the UI widgets.
 	 */
-	private IEclipsePreferences getProjectPreferences()
+	private void loadSettingsToUi()
 	{
-		IProject project = csvFile.getProject();
-		IScopeContext projectScope = new ProjectScope(project);
-		return projectScope.getNode(PLUGIN_ID);
+		NvsEditorSettings settings = preferenceService.loadSettings();
+
+		sizeText.setText(settings.partitionSize());
+		encryptAction.setSelection(settings.encryptEnabled());
+		generateEncryptionKeyCheckBox.setSelection(settings.generateKeyEnabled());
+		encryptionKeyText.setText(settings.encryptionKeyPath());
 	}
 
 	/**
-	 * Loads settings from the project's preferences and applies them to the UI.
+	 * Reads the current state of the UI widgets and saves it using the service.
 	 */
-	private void loadPreferences()
+	private void saveSettingsFromUi()
 	{
-		IEclipsePreferences prefs = getProjectPreferences();
+		// Read all values from the UI first
+		String partitionSize = sizeText.getText();
+		boolean encryptEnabled = encryptAction.getSelection();
+		boolean generateKeyEnabled = generateEncryptionKeyCheckBox.getSelection();
+		String encryptionKeyPath = encryptionKeyText.getText();
 
-		// Load and set values, using your class defaults as fallbacks
-		sizeText.setText(prefs.get(PREF_PARTITION_SIZE, DEFAULT_PARTITION_SIZE));
-		encryptAction.setSelection(prefs.getBoolean(PREF_ENCRYPT_ENABLED, false));
-		generateEncryptionKeyCheckBox.setSelection(prefs.getBoolean(PREF_GENERATE_KEY_ENABLED, true));
-		encryptionKeyText.setText(prefs.get(PREF_ENCRYPTION_KEY_PATH, StringUtil.EMPTY));
-	}
+		NvsEditorSettings settings = new NvsEditorSettings(partitionSize, encryptEnabled, generateKeyEnabled,
+				encryptionKeyPath);
 
-	/**
-	 * Saves the current UI settings to the project's preferences.
-	 */
-	private void savePreferences()
-	{
-		IEclipsePreferences prefs = getProjectPreferences();
-
-		// Store the current values
-		prefs.put(PREF_PARTITION_SIZE, sizeText.getText());
-		prefs.putBoolean(PREF_ENCRYPT_ENABLED, encryptAction.getSelection());
-		prefs.putBoolean(PREF_GENERATE_KEY_ENABLED, generateEncryptionKeyCheckBox.getSelection());
-		prefs.put(PREF_ENCRYPTION_KEY_PATH, encryptionKeyText.getText());
-
-		try
-		{
-			// Flush the changes to disk
-			prefs.flush();
-		}
-		catch (BackingStoreException e)
-		{
-			Logger.log(e);
-		}
+		preferenceService.saveSettings(settings);
 	}
 }
