@@ -909,10 +909,6 @@ public class IDFUtil
 	{
 		Map<String, String> env = new HashMap<>(System.getenv());
 
-		String idfToolsPath = Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
-				IDFCorePreferenceConstants.IDF_TOOLS_PATH, IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT, null);
-		env.put(IDFCorePreferenceConstants.IDF_TOOLS_PATH, idfToolsPath);
-
 		// Merge Homebrew bin paths into PATH
 		// Windows may use "Path" while Unix uses "PATH"
 		String keyPath = env.containsKey("PATH") ? "PATH" : "Path"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -935,14 +931,6 @@ public class IDFUtil
 
 		return env;
 	}
-
-	public static String getIDFToolsPathFromPreferences()
-	{
-		String idfToolsPath = Platform.getPreferencesService().getString(IDFCorePlugin.PLUGIN_ID,
-				IDFCorePreferenceConstants.IDF_TOOLS_PATH, IDFCorePreferenceConstants.IDF_TOOLS_PATH_DEFAULT, null);
-		return idfToolsPath;
-	}
-
 	
 	public static void closeWelcomePage(IWorkbenchWindow activeww)
 	{
