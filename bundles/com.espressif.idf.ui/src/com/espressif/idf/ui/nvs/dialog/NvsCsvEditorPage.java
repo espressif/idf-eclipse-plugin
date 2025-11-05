@@ -117,8 +117,8 @@ public class NvsCsvEditorPage
 		statusText.setLayoutData(gd);
 		statusText.setBackground(mainControl.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
 
-		createEnctyptionLable(mainControl);
-		createSizeOfPartitionLable(mainControl);
+		createEncryptionLabel(mainControl);
+		createSizeOfPartitionLabel(mainControl);
 
 		Group group = new Group(mainControl, SWT.NONE);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -359,7 +359,7 @@ public class NvsCsvEditorPage
 		generateButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(t -> getGeneratePartitionAction()));
 	}
 
-	private void createEnctyptionLable(Composite parent)
+	private void createEncryptionLabel(Composite parent)
 	{
 		encryptionComposite = encryptionComposite == null ? new Composite(parent, SWT.NONE) : encryptionComposite;
 		if (parent.getLayout() instanceof GridLayout)
@@ -463,7 +463,7 @@ public class NvsCsvEditorPage
 		});
 	}
 
-	private void createSizeOfPartitionLable(Composite parent)
+	private void createSizeOfPartitionLabel(Composite parent)
 	{
 		Composite sizeComposite = new Composite(parent, SWT.NONE);
 		if (parent.getLayout() instanceof GridLayout)
