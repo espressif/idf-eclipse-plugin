@@ -79,10 +79,7 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 		Assert.isNotNull(properties);
 
 		// Set the terminal tab title
-		String terminalTitle = getTerminalTitle();
-		if (terminalTitle != null && !properties.containsKey(ITerminalsConnectorConstants.PROP_TITLE)) {
-			properties.put(ITerminalsConnectorConstants.PROP_TITLE, terminalTitle);
-		}
+		setTerminalTitle(properties);
 
 		// If not configured, set the default encodings for the local terminal
 		if (!properties.containsKey(ITerminalsConnectorConstants.PROP_ENCODING)) {
@@ -166,13 +163,20 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 	}
 
 	/**
-	 * Returns the terminal title string.
+	 * Setting the terminal title.
 	 * <p>
+	 * @param properties 
 	 *
-	 * @return The terminal title string
+	 * @return void
 	 */
-	private String getTerminalTitle() {
-		return Messages.IDFConsoleLauncherDelegate_ESPIDFTerminal;
+	private void setTerminalTitle(Map<String, Object> properties) {
+		if (properties.containsKey(ITerminalsConnectorConstants.PROP_TITLE)) {
+			var projectName = properties.get(ITerminalsConnectorConstants.PROP_TITLE);
+			properties.put(ITerminalsConnectorConstants.PROP_TITLE,
+					String.format("%s (%s)", projectName, Messages.IDFConsoleLauncherDelegate_ESPIDFTerminal)); //$NON-NLS-1$
+		} else {
+			properties.put(ITerminalsConnectorConstants.PROP_TITLE, Messages.IDFConsoleLauncherDelegate_ESPIDFTerminal);
+		}
 	}
 
 	@Override
