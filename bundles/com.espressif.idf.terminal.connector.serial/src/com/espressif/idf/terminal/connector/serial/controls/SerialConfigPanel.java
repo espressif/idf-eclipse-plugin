@@ -26,17 +26,20 @@ import org.eclipse.tm.terminal.view.ui.panels.AbstractExtendedConfigurationPanel
 import com.espressif.idf.terminal.connector.serial.connector.SerialConnector;
 import com.espressif.idf.terminal.connector.serial.connector.SerialSettings;
 
-public class SerialConfigPanel extends AbstractExtendedConfigurationPanel {
+public class SerialConfigPanel extends AbstractExtendedConfigurationPanel
+{
 
 	private SerialSettings settings;
 	private SerialSettingsPage page;
 
-	public SerialConfigPanel(IConfigurationPanelContainer container) {
+	public SerialConfigPanel(IConfigurationPanelContainer container)
+	{
 		super(container);
 	}
 
 	@Override
-	public void setupPanel(Composite parent) {
+	public void setupPanel(Composite parent)
+	{
 		Composite panel = new Composite(parent, SWT.NONE);
 		panel.setLayout(new GridLayout());
 		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -53,8 +56,10 @@ public class SerialConfigPanel extends AbstractExtendedConfigurationPanel {
 	}
 
 	@Override
-	public void extractData(Map<String, Object> data) {
-		if (data == null) {
+	public void extractData(Map<String, Object> data)
+	{
+		if (data == null)
+		{
 			return;
 		}
 
@@ -62,38 +67,48 @@ public class SerialConfigPanel extends AbstractExtendedConfigurationPanel {
 		data.put(SerialSettings.PORT_NAME_ATTR, settings.getPortName());
 		data.put(SerialSettings.MONITOR_FILTER, settings.getFilterText());
 		data.put(SerialSettings.SELECTED_PROJECT_ATTR, settings.getProjectName());
+		data.put(SerialSettings.ENCRYPTION_ATTR, settings.getEncryptionOption());
 
-		if (getEncoding() != null) {
+		if (getEncoding() != null)
+		{
 			data.put(ITerminalsConnectorConstants.PROP_ENCODING, getEncoding());
 		}
 	}
 
 	@Override
-	public void setupData(Map<String, Object> data) {
-		if (data == null) {
+	public void setupData(Map<String, Object> data)
+	{
+		if (data == null)
+		{
 			return;
 		}
 
 		settings.setPortName((String) data.get(SerialSettings.PORT_NAME_ATTR));
 		settings.setFilterText((String) data.get(SerialSettings.MONITOR_FILTER));
-
+		Boolean encryptionValue = (Boolean) data.get(SerialSettings.ENCRYPTION_ATTR);
+		settings.setEncryptionOption(encryptionValue != null && encryptionValue);
 		String encoding = (String) data.get(ITerminalsConnectorConstants.PROP_ENCODING);
-		if (encoding != null) {
+		if (encoding != null)
+		{
 			setEncoding(encoding);
 		}
 	}
 
 	@Override
-	protected void saveSettingsForHost(boolean add) {
+	protected void saveSettingsForHost(boolean add)
+	{
 	}
 
 	@Override
-	protected void fillSettingsForHost(String host) {
+	protected void fillSettingsForHost(String host)
+	{
 	}
 
 	@Override
-	protected String getHostFromSettings() {
-		if (page != null) {
+	protected String getHostFromSettings()
+	{
+		if (page != null)
+		{
 			page.saveSettings();
 			return settings.getPortName();
 		}

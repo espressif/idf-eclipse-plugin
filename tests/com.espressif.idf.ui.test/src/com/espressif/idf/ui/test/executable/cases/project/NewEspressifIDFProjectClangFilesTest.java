@@ -4,9 +4,9 @@
 *******************************************************************************/
 package com.espressif.idf.ui.test.executable.cases.project;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,7 +14,6 @@ import java.nio.file.Paths;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
@@ -28,13 +27,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
-import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 import com.espressif.idf.ui.test.operations.EnvSetupOperations;
 import com.espressif.idf.ui.test.operations.ProjectTestOperations;
-import com.espressif.idf.ui.test.operations.selectors.LaunchBarConfigSelector;
 import com.espressif.idf.ui.test.operations.selectors.LaunchBarTargetSelector;
 
 /**
@@ -116,7 +113,8 @@ public class NewEspressifIDFProjectClangFilesTest
 	}
 
 	@Test
-	public void givenNewProjectsAreCreatedAndBuiltWhenPreferencesOpenedThenClangdArgumentMatchesExpected() throws Exception
+	public void givenNewProjectsAreCreatedAndBuiltWhenPreferencesOpenedThenClangdArgumentMatchesExpected()
+			throws Exception
 	{
 		Fixture.givenNewProjectIsCreated("NewProjectClangFilesTest4");
 		Fixture.whenProjectIsBuiltUsingContextMenu("NewProjectClangFilesTest4");
@@ -127,7 +125,8 @@ public class NewEspressifIDFProjectClangFilesTest
 	}
 
 	@Test
-	public void givenNewProjectIsCreatedWhenBuiltThenClangdDriversUpdateOnTargetWhenChangeTargetAndBuiltThenClangdDriversUpdateOnTargetChange() throws Exception
+	public void givenNewProjectIsCreatedWhenBuiltThenClangdDriversUpdateOnTargetWhenChangeTargetAndBuiltThenClangdDriversUpdateOnTargetChange()
+			throws Exception
 	{
 		Fixture.givenNewProjectIsCreated("NewProjectClangFilesTest6");
 		Fixture.whenProjectIsBuiltUsingContextMenu("NewProjectClangFilesTest6");
@@ -186,7 +185,7 @@ public class NewEspressifIDFProjectClangFilesTest
 			Fixture.closePreferencesDialog();
 		}
 
-		private static void whenNewProjectIsSelected( String projectName) throws Exception
+		private static void whenNewProjectIsSelected(String projectName) throws Exception
 		{
 			ProjectTestOperations.setupProject(projectName, category, subCategory, bot);
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
@@ -255,14 +254,17 @@ public class NewEspressifIDFProjectClangFilesTest
 
 		private static String getExpectedBuildFolderPATH(String projectName) throws IOException
 		{
-			try {
-			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-		    String buildFolder = IDFUtil.getBuildDir(project);
-			Path buildFolderPath = Paths.get(buildFolder);
-			return buildFolderPath.toAbsolutePath().toString();
-			   } catch (CoreException e) {
-			        throw new IOException("Failed to get build directory for project: " + projectName, e);
-			    }
+			try
+			{
+				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+				String buildFolder = IDFUtil.getBuildDir(project);
+				Path buildFolderPath = Paths.get(buildFolder);
+				return buildFolderPath.toAbsolutePath().toString();
+			}
+			catch (CoreException e)
+			{
+				throw new IOException("Failed to get build directory for project: " + projectName, e);
+			}
 		}
 
 		private static void thenClangdFileContentChecked() throws Exception
@@ -290,31 +292,32 @@ public class NewEspressifIDFProjectClangFilesTest
 			bot.cTabItem(".clang-format").activate();
 			assertTrue(ProjectTestOperations.checkExactMatchInTextEditor(
 					"""
-					# We'll use defaults from the LLVM style, but with some modifications so that it's close to the CDT K&R style.
-					BasedOnStyle: LLVM
-					UseTab: Always
-					IndentWidth: 4
-					TabWidth: 4
-					BreakConstructorInitializers: AfterColon
-					IndentAccessModifiers: false
-					AccessModifierOffset: -4
-					""",
+							# We'll use defaults from the LLVM style, but with some modifications so that it's close to the CDT K&R style.
+							BasedOnStyle: LLVM
+							UseTab: Always
+							IndentWidth: 4
+							TabWidth: 4
+							BreakConstructorInitializers: AfterColon
+							IndentAccessModifiers: false
+							AccessModifierOffset: -4
+							""",
 					bot));
 		}
 
 		private static void thenClangFormatContentEdited() throws Exception
 		{
 			SWTBotEditor textEditor = bot.activeEditor();
-			textEditor.toTextEditor().setText("""
-					# We'll use defaults from the LLVM style, but with some modifications so that it's close to the CDT K&R style.
-					BasedOnStyle: LLVM
-					UseTab: Always
-					IndentWidth: 0
-					TabWidth: 0
-					BreakConstructorInitializers: AfterColon
-					IndentAccessModifiers: false
-					AccessModifierOffset: -4
-					""");
+			textEditor.toTextEditor().setText(
+					"""
+							# We'll use defaults from the LLVM style, but with some modifications so that it's close to the CDT K&R style.
+							BasedOnStyle: LLVM
+							UseTab: Always
+							IndentWidth: 0
+							TabWidth: 0
+							BreakConstructorInitializers: AfterColon
+							IndentAccessModifiers: false
+							AccessModifierOffset: -4
+							""");
 		}
 
 		private static void addSpaceToMainFile() throws Exception
@@ -353,7 +356,7 @@ public class NewEspressifIDFProjectClangFilesTest
 
 		private static void setupAutoSave() throws Exception
 		{
-			bot.menu("Window").menu("Preferences").click();
+			bot.menu("Window").menu("Preferences...").click();
 			SWTBotShell prefrencesShell = bot.shell("Preferences");
 			prefrencesShell.bot().tree().getTreeItem("C/C++").select();
 			prefrencesShell.bot().tree().getTreeItem("C/C++").expand();
@@ -391,39 +394,43 @@ public class NewEspressifIDFProjectClangFilesTest
 			bot.shell("Save Resource").bot().button("Save").click();
 		}
 
-		private static String getExpectedBuildFolderPATHforClangdAdditionalArgument(String projectName) throws IOException
+		private static String getExpectedBuildFolderPATHforClangdAdditionalArgument(String projectName)
+				throws IOException
 		{
-			try {
-			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-		    String buildFolder = IDFUtil.getBuildDir(project);
-			Path buildFolderPath = Paths.get(buildFolder);
-			return "--compile-commands-dir=" + buildFolderPath.toAbsolutePath().toString();
-			   } catch (CoreException e) {
-			        throw new IOException("Failed to get build directory for project: " + projectName, e);
-			    }
+			try
+			{
+				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+				String buildFolder = IDFUtil.getBuildDir(project);
+				Path buildFolderPath = Paths.get(buildFolder);
+				return "--compile-commands-dir=" + buildFolderPath.toAbsolutePath().toString();
+			}
+			catch (CoreException e)
+			{
+				throw new IOException("Failed to get build directory for project: " + projectName, e);
+			}
 		}
 
 		private static String getXtensaToolchainPathBasedOnTheTargetConfigured() throws IOException
 		{
-		    String toolchain = IDFUtil.getToolchainExePathForActiveTarget();
+			String toolchain = IDFUtil.getToolchainExePathForActiveTarget();
 			Path toolchainPath = Paths.get(toolchain);
 			return toolchainPath.toAbsolutePath().toString();
 		}
 
 		private static void thenCompareActualClangdArgumentWithExpected(String projectName) throws IOException
-		{	
-		SWTBotShell prefrencesShell = bot.shell("Preferences");
-		String actualClangdPath = prefrencesShell.bot().textWithLabel("Additional").getText();
-		String expectedClangdPath = getExpectedBuildFolderPATHforClangdAdditionalArgument(projectName);
-		assertTrue(expectedClangdPath.equals(actualClangdPath));
+		{
+			SWTBotShell prefrencesShell = bot.shell("Preferences");
+			String actualClangdPath = prefrencesShell.bot().textWithLabel("Additional").getText();
+			String expectedClangdPath = getExpectedBuildFolderPATHforClangdAdditionalArgument(projectName);
+			assertTrue(expectedClangdPath.equals(actualClangdPath));
 		}
 
 		private static void thenCompareActualClangdDriversWithExpected(String projectName) throws IOException
-		{	
-		SWTBotShell prefrencesShell = bot.shell("Preferences");
-		String actualClangdPath = prefrencesShell.bot().textWithLabel("Drivers").getText();
-		String expectedClangdPath = getXtensaToolchainPathBasedOnTheTargetConfigured();
-		assertTrue(expectedClangdPath.equals(actualClangdPath));
+		{
+			SWTBotShell prefrencesShell = bot.shell("Preferences");
+			String actualDriversPath = prefrencesShell.bot().textWithLabel("Drivers").getText();
+			String expectedDriversPath = "**";
+			assertEquals(expectedDriversPath, actualDriversPath);
 		}
 
 		private static void whenProjectIsBuiltUsingContextMenu(String projectName) throws IOException
@@ -434,7 +441,7 @@ public class NewEspressifIDFProjectClangFilesTest
 
 		private static void whenOpenClangdPreferences() throws Exception
 		{
-			bot.menu("Window").menu("Preferences").click();
+			bot.menu("Window").menu("Preferences...").click();
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Preferences", 10000);
 			SWTBotShell prefrencesShell = bot.shell("Preferences");
 			prefrencesShell.bot().tree().getTreeItem("C/C++").select();
@@ -444,17 +451,19 @@ public class NewEspressifIDFProjectClangFilesTest
 			prefrencesShell.bot().tree().getTreeItem("C/C++").getNode("Editor (LSP)").getNode("clangd").select();
 		}
 
-		private static void closePreferencesDialog() {
-		    SWTBotShell preferencesShell = bot.shell("Preferences");
-		    preferencesShell.bot().button("Cancel").click(); // Or "Apply and Close"
-		    TestWidgetWaitUtility.waitWhileDialogIsVisible(bot, "Preferences", 10000);
+		private static void closePreferencesDialog()
+		{
+			SWTBotShell preferencesShell = bot.shell("Preferences");
+			preferencesShell.bot().button("Cancel").click(); // Or "Apply and Close"
+			TestWidgetWaitUtility.waitWhileDialogIsVisible(bot, "Preferences", 10000);
 		}
 
-		private static void closeTargetDialog() {
+		private static void closeTargetDialog()
+		{
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "IDF Launch Target Changed", 10000);
-		    SWTBotShell preferencesShell = bot.shell("IDF Launch Target Changed");
-		    preferencesShell.bot().button("Yes").click(); // Or "Apply and Close"
-		    TestWidgetWaitUtility.waitWhileDialogIsVisible(bot, "IDF Launch Target Changed", 10000);
+			SWTBotShell preferencesShell = bot.shell("IDF Launch Target Changed");
+			preferencesShell.bot().button("Yes").click(); // Or "Apply and Close"
+			TestWidgetWaitUtility.waitWhileDialogIsVisible(bot, "IDF Launch Target Changed", 10000);
 		}
 
 		private static void cleanTestEnv()

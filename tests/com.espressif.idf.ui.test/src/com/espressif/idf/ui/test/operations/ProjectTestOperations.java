@@ -52,6 +52,8 @@ public class ProjectTestOperations
 {
 
 	private static final String DEFAULT_PROJECT_BUILD_WAIT_PROPERTY = "default.project.build.wait";
+	
+	private static final String DEFAULT_FLASH_WAIT_PROPERTY = "default.project.flash.wait";
 
 	private static final Logger logger = LoggerFactory.getLogger(ProjectTestOperations.class);
 
@@ -86,8 +88,20 @@ public class ProjectTestOperations
 		SWTBotView consoleView = viewConsole("CDT Build Console", bot);
 		consoleView.show();
 		consoleView.setFocus();
+		try {
 		TestWidgetWaitUtility.waitUntilViewContains(bot, "Build complete", consoleView,
 				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_PROJECT_BUILD_WAIT_PROPERTY, 300000));
+		} catch (Exception e) {
+			throw new AssertionError("Project Build failed", e);
+		}
+	}
+
+	public static void waitForProjectFlash(SWTWorkbenchBot bot) throws IOException
+	{
+		SWTBotView view = bot.viewByPartName("Console");
+		view.setFocus();
+		TestWidgetWaitUtility.waitUntilViewContains(bot, "Hard resetting via RTS pin...", view,
+				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_FLASH_WAIT_PROPERTY, 120000));
 	}
 
 	public static void waitForProjectNewComponentInstalled(SWTWorkbenchBot bot) throws IOException
@@ -383,7 +397,33 @@ public class ProjectTestOperations
 		bot.button("Finish").click();
 		SWTBotShell shell1 = bot.shell("New IDF Project");
 		shell1.activate();
-		bot.checkBox("Run idf.py reconfigure after project creation to initialize the CMake build configuration").click();
+		bot.checkBox("Run idf.py reconfigure after project creation to initialize the CMake build configuration")
+				.click();
+		bot.textWithLabel("Project name:").setText(projectName);
+		bot.button("Finish").click();
+		TestWidgetWaitUtility.waitUntilViewContainsTheTreeItemWithName(projectName, bot.viewByTitle("Project Explorer"),
+				5000);
+	}
+
+	/**
+	 * Set up a project
+	 * 
+	 * @param projectName name of the project
+	 * @param category    category of the project
+	 * @param subCategory sub category of the project
+	 * @param bot         current SWT bot reference
+	 */
+	public static void setupProjectWithReconfigureCommand(String projectName, String category, String subCategory,
+			SWTWorkbenchBot bot)
+	{
+		bot.shell().activate().bot().menu("File").menu("New").menu("Project...").click();
+		SWTBotShell shell = bot.shell("New Project");
+		shell.activate();
+
+		bot.tree().expandNode(category).select(subCategory);
+		bot.button("Finish").click();
+		SWTBotShell shell1 = bot.shell("New IDF Project");
+		shell1.activate();
 		bot.textWithLabel("Project name:").setText(projectName);
 		bot.button("Finish").click();
 		TestWidgetWaitUtility.waitUntilViewContainsTheTreeItemWithName(projectName, bot.viewByTitle("Project Explorer"),
@@ -717,6 +757,15 @@ public class ProjectTestOperations
 		table.select(1);
 		bot.toolbarButton("Delete Selected").click();
 		bot.button("OK").click();
+	}
+
+	
+	public static void verifyTheConsoleOutput(SWTWorkbenchBot bot, String text) throws IOException
+	{
+		SWTBotView view = bot.viewByPartName("Console");
+		view.setFocus();
+		TestWidgetWaitUtility.waitUntilViewContains(bot, text, view,
+				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_FLASH_WAIT_PROPERTY, 120000));
 	}
 
 	public static void joinJobByName(String jobName)

@@ -18,4 +18,7 @@ public final class IDFLaunchConstants
 	public static final String OPEN_SERIAL_MONITOR = "OPEN_SERIAL_MONITOR"; //$NON-NLS-1$
 	public static final String SERIAL_MONITOR_ENCODING = "SERIAL_MONITOR_ENCODING"; //$NON-NLS-1$
 	public static final String BUILD_FOLDER_PATH = "com.espressif.idf.launch.serial.core.idfBuildFolderPath"; //$NON-NLS-1$
+	public static final String OPENOCD_USB_LOCATION = "OPENOCD_USB_ADAPTER_LOCATION"; //$NON-NLS-1$
+	public static final String FLASH_ENCRYPTION_ENABLED = "com.espressif.idf.launch.FLASH_ENCRYPTION_ENABLED"; //$NON-NLS-1$
+
 }

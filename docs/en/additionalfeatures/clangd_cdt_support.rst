@@ -59,9 +59,9 @@ If you are seeing the following error markers while navigating to the esp-idf co
 
 Please follow the steps below to fix it:
 
-1. Download the script for `fix_compile_commands.py <https://github.com/espressif/idf-eclipse-plugin/tree/master/resources/resources/fix_compile_commands/fix_compile_commands.py>`_.
+1. Download the script for `fix_compile_commands.py <https://github.com/espressif/idf-eclipse-plugin/tree/master/resources/fix_compile_commands/fix_compile_commands.py>`_.
 
-2. Invoke the script from the project post build step. Here is example for `CMakeLists.txt <https://github.com/espressif/idf-eclipse-plugin/blob/master/resources/resources/fix_compile_commands/CMakeLists.txt>`_:
+2. Invoke the script from the project post build step. Here is example for `CMakeLists.txt <https://github.com/espressif/idf-eclipse-plugin/blob/master/resources/fix_compile_commands/CMakeLists.txt>`_:
 
    .. code-block:: cmake
 

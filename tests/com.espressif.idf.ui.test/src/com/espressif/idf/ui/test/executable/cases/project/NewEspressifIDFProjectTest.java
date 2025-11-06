@@ -20,6 +20,8 @@ import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.waits.Conditions;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTable;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -177,6 +179,15 @@ public class NewEspressifIDFProjectTest
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.whenProjectPythonCleanUsingContextMenu();
 		Fixture.checkPythonCLeanCommandDeleteFolder();
+	}
+
+	@Test
+	public void givenMainCFileOpenedThenNoErrorsShouldBeInErrorLog() throws Exception
+	{
+		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+		Fixture.givenProjectNameIs("ErrorLogTestProject");
+		Fixture.whenNewProjectIsSelected();
+		Fixture.openMainCAndCheckIfNoExceptionInErrorLog();
 	}
 
 	private static class Fixture
@@ -389,6 +400,46 @@ public class NewEspressifIDFProjectTest
 		private static void checkIfProjectFullCleanedFilesInBuildFolder() throws IOException
 		{
 			assertTrue(ProjectTestOperations.findProjectFullCleanedFilesInBuildFolder(projectName, bot));
+		}
+
+		public static void openMainCAndCheckIfNoExceptionInErrorLog() throws Exception
+		{
+			// Ensure main.c exists
+			thenProjectHasTheFile("main.c", "/main");
+
+			// Open main.c in editor
+			// Open the file from Project Explorer
+			SWTBotView projectExplorer = bot.viewByTitle("Project Explorer");
+			projectExplorer.show();
+			projectExplorer.setFocus();
+
+			// Expand project and open main.c from /main
+			SWTBotTreeItem projectNode = projectExplorer.bot().tree().getTreeItem(projectName).expand();
+			SWTBotTreeItem mainFolder = projectNode.getNode("main").expand();
+			mainFolder.getNode("main.c").doubleClick();
+
+			// Now main.c is open, get the editor
+			SWTBotEditor editor = bot.editorByTitle("main.c");
+			editor.show();
+			editor.setFocus();
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
+
+			SWTBotView errorLogView = bot.viewByPartName("Problems");
+			errorLogView.show();
+
+			try
+			{
+
+				bot.waitUntil(Conditions.widgetIsEnabled(errorLogView.bot().table()));
+				SWTBotTable errorTable = errorLogView.bot().table();
+				boolean hasErrors = errorTable.containsItem("Exception");
+
+				assertTrue(!hasErrors);
+			}
+			catch (WidgetNotFoundException e)
+			{
+				// do nothing
+			}
 		}
 	}
 }

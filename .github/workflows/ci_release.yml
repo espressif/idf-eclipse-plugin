@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+\\.[0-9]+\\.[0-9]+-beta"
 
 env:
   ARCHIVE_PREFIX: com.espressif.idf.update-
@@ -18,7 +19,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v3
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -54,7 +55,7 @@ jobs:
             echo "codesigning espressif-ide-macosx.cocoa.x86_64"
             /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app -v
             /usr/bin/codesign -v -vvv --deep $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app
-    
+            
             echo "codesigning espressif-ide-macosx.cocoa.aarch64"
             /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/aarch64/Espressif-IDE.app -v
             /usr/bin/codesign -v -vvv --deep $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/aarch64/Espressif-IDE.app
@@ -161,37 +162,93 @@ jobs:
 
       - name: Decode base64-encoded JKS
         run: |
-          echo "$env:JKS_B64" | Out-File -FilePath encoded.b64 -Encoding ASCII
-          certutil -decode encoded.b64 mykeystore.jks
-          Remove-Item encoded.b64
+          # Restore JKS from secret
+          [IO.File]::WriteAllBytes("signing.jks",[Convert]::FromBase64String($env:JKS_B64))
+          if (-not (Test-Path "$PWD\signing.jks")) { throw "signing.jks not created" }
+
+      - name: Verify JKS contains a PrivateKeyEntry (robust)
+        shell: pwsh
+        run: |
+         if (-not $env:ALIAS) { throw "ALIAS secret is empty. It must point to the PrivateKeyEntry alias." }
+
+         $out = & "${env:JAVA_HOME}\bin\keytool.exe" -list -v `
+          -keystore "$PWD\signing.jks" `
+          -storepass $env:JKS_PASS `
+          -alias "$env:ALIAS" 2>&1
+
+         if ($LASTEXITCODE -ne 0) {
+          $out | Write-Host
+          throw "Alias '$($env:ALIAS)' not found in keystore (or wrong store password)."
+         }
+         # Show a small excerpt (masking may hide values; that’s fine)
+         $out | Select-String -Pattern 'Alias name:|Entry type:|Certificate chain length' | ForEach-Object { $_.Line } | Write-Host
+         # IMPORTANT: treat output as ONE string before regex testing
+         $outText = ($out | Out-String)
+         if ($outText -notmatch 'Entry type:\s*PrivateKeyEntry') {
+           throw "Alias '$($env:ALIAS)' is not a PrivateKeyEntry (likely a trustedCertEntry)."
+         }
 
       - name: Convert JKS to PFX
         shell: pwsh
         run: |
-            & "${env:JAVA_HOME}\bin\keytool.exe" -importkeystore `
-            -srckeystore mykeystore.jks `
-            -srcstorepass $env:JKS_PASS `
-            -srcalias $env:ALIAS `
-            -destkeystore cert.pfx `
-            -deststoretype PKCS12 `
-            -deststorepass $env:PFX_PASS
+          if (($env:JKS_PASS).Length -lt 6) { throw "JKS_PASS must be at least 6 characters." }
+          if (($env:PFX_PASS).Length -lt 6) { throw "PFX_PASS must be at least 6 characters." }
+          
+          $kt = Join-Path $env:JAVA_HOME 'bin\keytool.exe'
+
+          $args = @(
+           '-importkeystore',
+           '-srckeystore',  "$PWD\signing.jks",
+           '-srcstorepass', $env:JKS_PASS,
+           '-srcalias',     $env:ALIAS,
+           '-srckeypass',   $env:JKS_PASS, 
+           '-destkeystore', "$PWD\cert.pfx",
+           '-deststoretype','PKCS12',
+           '-deststorepass',$env:PFX_PASS,
+           '-destkeypass',  $env:PFX_PASS
+          )
+          & $kt @args
+          if (-not (Test-Path "$PWD\cert.pfx")) { throw "cert.pfx not created" }
+
+      - name: Prove PFX has a private key (fail fast)
+        shell: pwsh
+        run: |
+         $dump = certutil -p $env:PFX_PASS -dump "$PWD\cert.pfx"
+         if ($dump -notmatch 'Private key is present:\s*Yes') {
+           Write-Host $dump
+           throw "Exported PFX lacks a private key. Check alias/passwords; your JKS may be a truststore."
+         }
+
+      - name: Inspect the PFX file
+        shell: pwsh
+        run: |
+          certutil -p $env:PFX_PASS -dump cert.pfx
+
 
       - name: Sign Windows Executable
         shell: pwsh
         run: |
-          $exe = Get-ChildItem -Recurse extracted\Espressif-IDE\espressif-ide.exe | Select-Object -First 1
-          & "C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x86\signtool.exe" sign `
-            /f cert.pfx `
-            /p $env:PFX_PASS `
-            /tr http://timestamp.digicert.com `
-            /td sha256 `
-            /fd sha256 `
-            $exe.FullName
+         $exe = Get-ChildItem -File -Recurse "$PWD\extracted\Espressif-IDE\espressif-ide.exe" | Select-Object -First 1
+         if (-not $exe) { throw "espressif-ide.exe not found under extracted\Espressif-IDE" }
+
+         $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits" -Recurse -Filter signtool.exe |
+                    Sort-Object FullName | Select-Object -First 1
+         if (-not $signtool) { throw "signtool.exe not found in Windows Kits" }
+
+         & $signtool.FullName sign `
+          /debug /v `
+          /f "$PWD\cert.pfx" `
+          /p $env:PFX_PASS `
+          /tr http://timestamp.digicert.com `
+          /td sha256 `
+          /fd sha256 `
+          "$($exe.FullName)"
 
       - name: Verify Signature
         run: |
          $exe = Get-ChildItem -Recurse extracted\Espressif-IDE\espressif-ide.exe | Select-Object -First 1
-         & "C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x86\signtool.exe" verify `
+         $signtool = Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits" -Recurse -Name "signtool.exe" | Select-Object -First 1
+         & "C:\Program Files (x86)\Windows Kits\$signtool" verify `
          /pa `
          $exe.FullName
 
@@ -217,9 +274,9 @@ jobs:
    runs-on: macos-latest
    needs: windows-sign
    env:
-    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+     AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
    steps:
     - uses: actions/checkout@v3
 
@@ -235,13 +292,13 @@ jobs:
         name: espressif-ide-linux
         path: artifacts/linux
 
-    - name: Download macOS x86_64 dmg zip
+    - name: Download macOS x86_64 dmg
       uses: actions/download-artifact@v4
       with:
         name: espressif-ide-macosx-cocoa-x86_64
         path: artifacts/macos_x86
 
-    - name: Download macOS aarch64 dmg zip
+    - name: Download macOS aarch64 dmg
       uses: actions/download-artifact@v4
       with:
         name: espressif-ide-macosx.cocoa.aarch64
@@ -256,45 +313,75 @@ jobs:
     - name: Extract version from tag and prepare folder
       id: get_version
       run: |
-       if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
-            TAG="${GITHUB_REF##*/}"
-            VERSION="${TAG#v}"
-       else
-            VERSION="testing"
+        TAG="${GITHUB_REF##*/}"
+        VERSION="${TAG#v}"
+        if [[ "$TAG" == *"-beta"* ]]; then
+          IS_BETA="true"
+          UPLOAD_PATH="beta"
+          REDIRECT_PATH="beta"
+        else
+          IS_BETA="false"
+          UPLOAD_PATH="latest"
+          REDIRECT_PATH="latest"
         fi
-       echo "version=$VERSION" >> "$GITHUB_ENV"
-       echo "FOLDER=v${VERSION}" >> $GITHUB_ENV
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "IS_BETA=$IS_BETA" >> $GITHUB_ENV
+        echo "UPLOAD_PATH=$UPLOAD_PATH" >> $GITHUB_ENV
+        echo "REDIRECT_PATH=$REDIRECT_PATH" >> $GITHUB_ENV
+        echo "FOLDER=v$VERSION" >> $GITHUB_ENV
+        echo "TAG=$TAG" >> $GITHUB_ENV
 
     - name: Rename DMGs with version suffix
       run: |
-        mv artifacts/macos_x86/Espressif-IDE-macosx-cocoa-x86_64.dmg artifacts/macos_x86/Espressif-IDE-macosx-cocoa-x86_64-v${{ env.VERSION }}.dmg
-        mv artifacts/macos_arm/Espressif-IDE-macosx-cocoa-aarch64.dmg artifacts/macos_arm/Espressif-IDE-macosx-cocoa-aarch64-v${{ env.VERSION }}.dmg
+        VERSION="${{ env.VERSION }}"
+        mv artifacts/macos_x86/Espressif-IDE-macosx-cocoa-x86_64.dmg "artifacts/macos_x86/Espressif-IDE-macosx-cocoa-x86_64-v$VERSION.dmg"
+        mv artifacts/macos_arm/Espressif-IDE-macosx-cocoa-aarch64.dmg "artifacts/macos_arm/Espressif-IDE-macosx-cocoa-aarch64-v$VERSION.dmg"
 
-    - name: Compress the archives for upload
+    - name: Compress the update and win32 artifacts
       run: |
-        zip -r com.espressif.idf.update-v${{ env.VERSION }}.zip artifacts/update/*
-        zip -r Espressif-IDE-${{ env.VERSION }}-win32.win32.x86_64.zip artifacts/win32/*
+        VERSION="${{ env.VERSION }}"
+        zip -r "com.espressif.idf.update-v$VERSION.zip" artifacts/update/*
+        zip -r "Espressif-IDE-$VERSION-win32.win32.x86_64.zip" artifacts/win32/*
+
+    - name: Listing files for upload to verify and debug
+      run: |
+         VERSION="${{ env.VERSION }}"
+         ls  "com.espressif.idf.update-v$VERSION.zip"
+         ls "Espressif-IDE-$VERSION-win32.win32.x86_64.zip"
+         ls artifacts/macos_x86/*
+         ls artifacts/macos_arm/*
+         ls artifacts/linux/*
 
     - name: Upload build assets to dl.espressif.com
       run: |
-        aws s3 rm s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/latest --recursive
+        VERSION="${{ env.VERSION }}"
+        UPLOAD_PATH="${{ env.UPLOAD_PATH }}"
+        REDIRECT_PATH="${{ env.REDIRECT_PATH }}"
 
-        aws s3 cp --acl=public-read --recursive artifacts/linux/ s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/latest
-        aws s3 cp --acl=public-read ./releng/index.html s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/latest/
+        aws s3 rm "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/$UPLOAD_PATH" --recursive
 
-        aws s3 cp --acl=public-read --recursive artifacts/linux/ s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/v${{ env.VERSION }}
+        # Extract the update site from the versioned zip and upload its contents
+        TMP_UPDATE_DIR="update_site_tmp"
+        mkdir -p "$TMP_UPDATE_DIR"
+        unzip -q "com.espressif.idf.update-v$VERSION.zip" -d "$TMP_UPDATE_DIR"
+        echo "Contents of $TMP_UPDATE_DIR:"
+        ls -l "$TMP_UPDATE_DIR"
+        aws s3 cp --acl=public-read --recursive "$TMP_UPDATE_DIR/artifacts/update/" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/$UPLOAD_PATH"
+        aws s3 cp --acl=public-read --recursive "$TMP_UPDATE_DIR/artifacts/update/" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/v$VERSION"
+        aws s3 cp --acl=public-read ./releng/index.html "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/$UPLOAD_PATH/"
+        
+        aws s3 cp --acl=public-read "com.espressif.idf.update-v$VERSION.zip" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/"
+        aws s3 cp --acl=public-read --recursive artifacts/linux/ "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/"
+        aws s3 cp --acl=public-read "artifacts/macos_x86/Espressif-IDE-macosx-cocoa-x86_64-v$VERSION.dmg" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/"
+        aws s3 cp --acl=public-read "artifacts/macos_arm/Espressif-IDE-macosx-cocoa-aarch64-v$VERSION.dmg" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/"
+        aws s3 cp --acl=public-read "Espressif-IDE-$VERSION-win32.win32.x86_64.zip" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/"
 
-        aws s3 cp --acl=public-read com.espressif.idf.update-v${{ env.VERSION }}.zip s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/
-        aws s3 cp --acl=public-read artifacts/macos_x86/Espressif-IDE-macosx-cocoa-x86_64-v${{ env.VERSION }}.dmg s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
-        aws s3 cp --acl=public-read artifacts/macos_arm/Espressif-IDE-macosx-cocoa-aarch64-v${{ env.VERSION }}.dmg s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
-        aws s3 cp --acl=public-read Espressif-IDE-${{ env.VERSION }}-win32.win32.x86_64.zip s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/
+        aws cloudfront create-invalidation --distribution-id ${{ secrets.DL_DISTRIBUTION_ID }} --paths "/dl/idf-eclipse-plugin/updates/$UPLOAD_PATH/*"
 
-        aws cloudfront create-invalidation --distribution-id ${{ secrets.DL_DISTRIBUTION_ID }} --paths "/dl/idf-eclipse-plugin/updates/latest/*"
+        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-win32.win32.x86_64/$REDIRECT_PATH" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-$VERSION-win32.win32.x86_64.zip"
 
-        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin-test/ide/Espressif-IDE-win32.win32.x86_64/latest" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-${{ env.VERSION }}-win32.win32.x86_64.zip"
+        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-x86_64/$REDIRECT_PATH" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-x86_64-v$VERSION.dmg"
 
-        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin-test/ide/Espressif-IDE-macosx-cocoa-x86_64/latest" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-x86_64-v${{ env.VERSION }}.dmg"
+        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64/$REDIRECT_PATH" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64-v$VERSION.dmg"
 
-        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin-test/ide/Espressif-IDE-macosx-cocoa-aarch64/latest" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64-v${{ env.VERSION }}.dmg"
-
-        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin-test/ide/Espressif-IDE-linux.gtk.x86_64/latest" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-${{ env.VERSION }}-linux.gtk.x86_64.tar.gz"
+        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-linux.gtk.x86_64/$REDIRECT_PATH" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-$VERSION-linux.gtk.x86_64.tar.gz"

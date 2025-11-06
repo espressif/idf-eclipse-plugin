@@ -4,11 +4,13 @@
  *******************************************************************************/
 package com.espressif.idf.core;
 
+import java.util.List;
 import java.util.OptionalInt;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import com.espressif.idf.core.util.EspConfigParser;
+import com.espressif.idf.core.configparser.EspConfigParser;
+import com.espressif.idf.core.configparser.vo.Board;
 import com.espressif.idf.core.util.StringUtil;
 
 public class DefaultBoardProvider
@@ -54,8 +56,14 @@ public class DefaultBoardProvider
 
 	public String getDefaultBoard(String targetName)
 	{
-		var boardConfigMap = this.espConfigParser.getBoardsConfigs(targetName);
-		var boards = boardConfigMap.keySet().toArray(new String[0]);
+		List<Board> boardsList = this.espConfigParser.getBoardsForTarget(targetName);
+		String[] boards = boardsList.stream().map(Board::name).toArray(String[]::new);
+		
+		if (boards.length == 0)
+		{
+			return EspTarget.enumOf(targetName).board;
+		}
+		
 		return boards[getIndexOfDefaultBoard(targetName, boards)];
 	}
 

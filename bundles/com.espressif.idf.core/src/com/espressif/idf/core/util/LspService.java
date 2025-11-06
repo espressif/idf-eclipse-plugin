@@ -17,6 +17,7 @@ import org.eclipse.lsp4e.LanguageServiceAccessor;
 import org.eclipse.ui.PlatformUI;
 
 import com.espressif.idf.core.ILSPConstants;
+import com.espressif.idf.core.logging.Logger;
 
 @SuppressWarnings("restriction")
 public class LspService
@@ -47,25 +48,32 @@ public class LspService
 
 	public void updateAdditionalOptions(String additionalOptions)
 	{
+		if (additionalOptions == null)
+		{
+			Logger.log("Skipped updating additional options: value is null"); //$NON-NLS-1$
+			return;
+		}
 		String qualifier = configuration.qualifier();
 		InstanceScope.INSTANCE.getNode(qualifier).put(ClangdMetadata.Predefined.additionalOptions.identifer(),
 				additionalOptions);
 	}
 
-	public void updateLspQueryDrivers()
-	{
-		String qualifier = configuration.qualifier();
-		// By passing --query-driver argument to clangd helps to resolve the
-		// cross-compiler toolchain headers.
-		String toolchainPath = IDFUtil.getToolchainExePathForActiveTarget();
-		InstanceScope.INSTANCE.getNode(qualifier).put(ClangdMetadata.Predefined.queryDriver.identifer(), toolchainPath);
-	}
-
 	public void updateClangdPath()
 	{
+		String clangdPath = IDFUtil.findCommandFromBuildEnvPath(ILSPConstants.CLANGD_EXECUTABLE);
+		if (clangdPath == null)
+		{
+			Logger.log("clangd executable not found in build environment path. Skipping clangd path update."); //$NON-NLS-1$
+			return;
+		}
 		String qualifier = configuration.qualifier();
-		InstanceScope.INSTANCE.getNode(qualifier).put(ClangdMetadata.Predefined.clangdPath.identifer(),
-				IDFUtil.findCommandFromBuildEnvPath(ILSPConstants.CLANGD_EXECUTABLE));
+		InstanceScope.INSTANCE.getNode(qualifier).put(ClangdMetadata.Predefined.clangdPath.identifer(), clangdPath);
+	}
+
+	public void updateQueryDriver()
+	{
+		String qualifier = configuration.qualifier();
+		InstanceScope.INSTANCE.getNode(qualifier).put(ClangdMetadata.Predefined.queryDriver.identifer(), "**"); //$NON-NLS-1$
 	}
 
 	public void updateCompileCommandsDir(String buildDir)

@@ -9,9 +9,11 @@ import org.eclipse.core.variables.IDynamicVariableResolver;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 
+import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 
 public class UartVariableResolver implements IDynamicVariableResolver
@@ -34,6 +36,7 @@ public class UartVariableResolver implements IDynamicVariableResolver
 		return switch (enumVariable)
 		{
 		case SERIAL_PORT -> getSerialPort(); // $NON-NLS-1$
+		case FLASH_COMMAND -> IDFUtil.isFlashEncrypted() ? IDFConstants.FLASH_ENCRYPTED_CMD : IDFConstants.FLASH_CMD;
 		};
 	}
 

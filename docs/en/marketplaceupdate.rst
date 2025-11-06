@@ -10,7 +10,7 @@ The Espressif-IDE Eclipse Plugin can be installed using the update site URL, Ecl
 - :ref:`install_idf_eclipse_plugin_local_archive`
 - :ref:`upgradePlugins`
 - :ref:`upgradeEspressifIdeDependencies`
-
+- :ref:`troubleshooting_missing_items`
 
 .. _installUpdateSiteURL:
 
@@ -116,3 +116,27 @@ To resolve this:
 .. image:: ../../media/Resolve_update_error.png
 
 This will allow the installer to update or replace any conflicting components and continue the installation successfully.
+
+
+
+.. _troubleshooting_missing_items:
+
+Troubleshooting: "Cannot complete the install because one or more required items could not be found"
+-----------------------------------------------------------------------------------------------------
+
+
+This usually happens when the Eclipse Platform update site is not enabled.  
+To resolve this issue:
+
+1. Go to ``Help`` > ``Install New Software``.  
+2. Click **Manage**.  
+3. Make sure the option for the **Eclipse Platform - Latest Release Update Site** is enabled.  
+
+.. image:: ../../media/Resolve_update_error_2.png
+
+4. Apply the changes and close the dialog.  
+5. Then go to ``Help`` > ``Check for Updates`` and proceed with updating the IDE and its dependencies.  
+
+.. note::
+    Enabling the Eclipse Platform update site ensures that all required dependencies can be resolved during installation or upgrade.
+

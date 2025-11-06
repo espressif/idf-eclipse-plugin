@@ -26,6 +26,7 @@ import org.osgi.service.prefs.Preferences;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
+import com.espressif.idf.core.toolchain.IDFTargetsReader;
 import com.espressif.idf.core.tools.vo.IDFToolSet;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.LspService;
@@ -95,7 +96,10 @@ public class ToolsActivationJob extends ToolsJob
 
 		toolSetConfigurationManager.export(idfToolSet);
 		console.println("Tools Activated");
-		new LspService().updateClangdPath();
+		LspService lspService = new LspService();
+		lspService.updateClangdPath();
+		lspService.updateQueryDriver();
+		console.println(Messages.ClangdPreferences_UpdatedMsg);
 		Preferences scopedPreferenceStore = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 		scopedPreferenceStore.putBoolean(INSTALL_TOOLS_FLAG, true);
 		try
@@ -172,14 +176,10 @@ public class ToolsActivationJob extends ToolsJob
 
 	private void setUpToolChainsAndTargets()
 	{
-		IStatus status = loadTargetsAvailableFromIdfInCurrentToolSet();
-		if (status.getSeverity() == IStatus.ERROR)
-		{
-			Logger.log("Unable to get IDF targets from current toolset");
-			return;
-		}
+		// Get current active idf
+		String idfPath = IDFUtil.getIDFPath();
+		List<String> targets = IDFTargetsReader.readTargetsFromEspIdf(idfPath).getAllTargetNames();
 
-		List<String> targets = extractTargets(status.getMessage());
 		ESPToolChainManager espToolChainManager = new ESPToolChainManager();
 		espToolChainManager.removeLaunchTargetsNotPresent(targets);
 		espToolChainManager.removeCmakeToolChains();
