@@ -254,11 +254,9 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 			// This is the new part that rewrites the arguments for cmd.exe
 			String title = (String) properties.get(ITerminalsConnectorConstants.PROP_TITLE);
 			if (title != null && !title.isEmpty()) {
-				// Sanitize title to avoid issues with quotes
-				String safeTitle = title.replace("\"", "'");
+				String safeTitle = title.replaceAll("[\\r\\n\"&|<>^]", " ").trim();
 				arguments = "/c \"title " + safeTitle + " && cmd.exe\"";
 			}
-			// If no title is set, 'arguments' correctly remains "" (from line 254)
 		}
 
 		// Determine if a PTY will be used

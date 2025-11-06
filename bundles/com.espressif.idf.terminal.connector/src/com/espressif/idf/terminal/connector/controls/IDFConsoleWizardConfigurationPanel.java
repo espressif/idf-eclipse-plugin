@@ -108,7 +108,10 @@ public class IDFConsoleWizardConfigurationPanel extends AbstractExtendedConfigur
 		}
 
 		Optional<IProject> optProject = Optional.ofNullable(EclipseUtil.getSelectedIDFProjectInExplorer());
-		optProject.ifPresentOrElse(project -> projectCombo.setText(project.getName()), () -> projectCombo.select(0));
+		optProject.ifPresentOrElse(project -> projectCombo.setText(project.getName()), () -> {
+			if (projectCombo.getItemCount() > 0)
+				projectCombo.select(0);
+		});
 	}
 
 	@Override
