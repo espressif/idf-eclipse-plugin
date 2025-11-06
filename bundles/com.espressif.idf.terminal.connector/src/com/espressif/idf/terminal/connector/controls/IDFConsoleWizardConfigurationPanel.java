@@ -92,7 +92,7 @@ public class IDFConsoleWizardConfigurationPanel extends AbstractExtendedConfigur
 		panel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
 		Label projectLabel = new Label(panel, SWT.NONE);
-		projectLabel.setText("Project name:");
+		projectLabel.setText(Messages.IDFConsoleWizardConfigurationPanel_IDFConsoleWizardConfigurationPanel_ProjectLabel);
 
 		projectCombo = new Combo(panel, SWT.READ_ONLY);
 		projectCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
