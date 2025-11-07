@@ -250,12 +250,12 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 			arguments = "--no-rcs --no-globalrcs"; //$NON-NLS-1$
 		} else if (image.contains("powershell")) { //$NON-NLS-1$
 			arguments = "-NoProfile"; //$NON-NLS-1$
-		} else if (Platform.OS_WIN32.equals(Platform.getOS()) && image.contains("cmd.exe")) {
+		} else if (Platform.OS_WIN32.equals(Platform.getOS()) && image.contains("cmd.exe")) { //$NON-NLS-1$
 			// This is the new part that rewrites the arguments for cmd.exe
 			String title = (String) properties.get(ITerminalsConnectorConstants.PROP_TITLE);
 			if (title != null && !title.isEmpty()) {
-				String safeTitle = title.replaceAll("[\\r\\n\"&|<>^]", " ").trim();
-				arguments = "/c \"title " + safeTitle + " && cmd.exe\"";
+				String safeTitle = title.replaceAll("[\\r\\n\"&|<>^]", " ").trim(); //$NON-NLS-1$ //$NON-NLS-2$
+				arguments = "/c \"title " + safeTitle + " && cmd.exe\""; //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 
