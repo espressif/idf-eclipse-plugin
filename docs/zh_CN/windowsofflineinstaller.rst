@@ -1,1 +1,0 @@
-.. include:: ../en/windowsofflineinstaller.rst

@@ -9,8 +9,8 @@ The IDF-Eclipse plugin allows you to debug the core dump if any crash occurs on 
 
 To enable core dump debugging for a project:
 
-1. You need to enable it first in ``sdkconfig``. Launch the ``sdkconfig`` in the project root by double-clicking on it which will open the configuration editor.
-2. Click on the ``Core Dump`` from the settings on the left and select ``Data Destination`` as ``UART``.
+1. You need to enable it first in ``sdkconfig``. Open the ``sdkconfig`` in the project root by double-clicking on it, which will launch the configuration editor.
+2. Click ``Core Dump`` in the settings on the left, and set ``Data Destination`` as ``UART``.
 
 .. image:: ../../../media/CoreDumpDebugging/sdkconfig_editor.png
 
@@ -18,4 +18,4 @@ This enables core dump debugging. When you connect a serial monitor for the proj
 
 You can view the registers and stack trace, and even check the value of variables in the stack frame.
 
-To exit the debug session: simply press the ``stop`` button.
+To exit the debug session: simply click the ``stop`` button.

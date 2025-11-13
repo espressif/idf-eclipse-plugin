@@ -29,8 +29,6 @@ Windows
 
     For Windows users, Espressif-IDE is available with ESP-IDF as an offline installer.
 
-To download and install it, follow the instructions provided :ref:`here <windowsofflineinstaller>`. This guide will walk you through the installation process for Java, Git, CMake, ESP-IDF, IDF Tools, Device Drivers, and Espressif-IDE to help you get started.
-
 macOS/Linux
 ~~~~~~~~~~~~
 
@@ -103,5 +101,4 @@ References
     :maxdepth: 1
 
     Update Site Installation Guide <marketplaceupdate>
-    Windows Offline Installer <windowsofflineinstaller>
     Configure CDT Build Environment Variables <additionalfeatures/configureenvvariables>

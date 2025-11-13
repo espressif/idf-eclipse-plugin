@@ -29,8 +29,6 @@ Windows
 
     对于 Windows 用户，Espressif-IDE 提供带有 ESP-IDF 的离线安装包。
 
-请参阅 :ref:`此文 <windowsofflineinstaller>` 下载并安装 Espressif-IDE。该指南将引导你完成 Java、Git、CMake、ESP-IDF、IDF 工具、设备驱动以及 Espressif-IDE 的安装流程，帮助你快速入门。
-
 macOS/Linux
 ~~~~~~~~~~~
 
@@ -103,5 +101,4 @@ Espressif-IDE 提供了工具管理视图，可用来激活可用的 ESP-IDF 版
     :maxdepth: 1
 
     更新站点安装指南 <marketplaceupdate>
-    Windows 离线安装程序 <windowsofflineinstaller>
     配置 CDT 构建环境变量 <additionalfeatures/configureenvvariables>
