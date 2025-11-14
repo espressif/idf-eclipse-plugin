@@ -3,7 +3,7 @@
 Some tools are required as mandatory for the IDF and must be installed manually or must be selected when you are using the tools installation wizard on Linux and MAC and only selected recommended tools for windows these tools installation are mandatory and are selected with recommended tools.
 
 If you have these tools already present on your system you can skip the first step and continue from the second step.
-1. In case you want to manually install these tools to the system first please vist [this](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/linux-macos-setup.html) link to install them respective to your platform.
+1. In case you want to manually install these tools to the system first please visit [this](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/linux-macos-setup.html) link to install them respective to your platform.
 
 *Once you have installed the required tools you can move to the next step.
 The `PATH` in the IDE is independent of the system's `PATH` variable so we need to configure it.<br/>* 

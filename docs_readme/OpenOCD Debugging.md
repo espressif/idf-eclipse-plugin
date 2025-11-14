@@ -43,7 +43,7 @@ Let's take a look at some other options, that you need to check if they auto con
 Points 4 - 6 are shown below.
 ![](images/OpenOCDDebug_6.png)
 
-> **NOTE:**  Update the OpenOCD Config options based on the esp board you've choosen. Please check this here https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/jtag-debugging/tips-and-quirks.html#id1
+> **NOTE:**  Update the OpenOCD Config options based on the esp board you've chosen. Please check this here https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/jtag-debugging/tips-and-quirks.html#id1
 
 ## Startup Tab
 

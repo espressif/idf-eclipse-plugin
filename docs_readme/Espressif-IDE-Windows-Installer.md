@@ -13,7 +13,7 @@ The installer deploys the following components:
 - Espressif-IDE
 - Amazon Corretto OpenJDK
 
-As Installer bundles, all the required components and tools including stable esp-idf so people behind corporate firewalls can use the whole solution out-of-box. This also configures all the required build environment variables and tool paths as you launch the IDE. All you could do is to get started with your project direclty without manually configuring anything. This will give you a big boost to your productivity!
+As Installer bundles, all the required components and tools including stable esp-idf so people behind corporate firewalls can use the whole solution out-of-box. This also configures all the required build environment variables and tool paths as you launch the IDE. All you could do is to get started with your project directly without manually configuring anything. This will give you a big boost to your productivity!
 
 More details about the standard setup of toolchain for Windows can be found in the [windows-setup](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/windows-setup.html).
 

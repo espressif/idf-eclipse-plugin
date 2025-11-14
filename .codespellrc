@@ -1,0 +1,4 @@
+[codespell]
+skip = _build
+ignore-words-list = laf,OT,hart,EHEN,targetIn,dout,DOUT,oen,OEN,EMAC,emac,doubleClick,AfterAll
+write-changes = true

@@ -29,13 +29,13 @@ Fix: Window -> Preferences -> Plug-in Development -> API Baselines -> Missing AP
 
 ![image](https://github.com/espressif/idf-eclipse-plugin/assets/69584713/0a879d4f-99e2-4d5a-98ca-a745a6683752)
 
-Fix: in "Project Explorer" -> com.espressif.idf.tests -> com.espressif.idf.ui.test -> META-INF -> doubleclick MANIFEST.MF -> Dependencies -> Add... -> Type "slf4j.api" -> Add&Save. 
+Fix: in "Project Explorer" -> com.espressif.idf.tests -> com.espressif.idf.ui.test -> META-INF -> double-click MANIFEST.MF -> Dependencies -> Add... -> Type "slf4j.api" -> Add&Save. 
 
-* After importing project Eclipse might prompt a wizard to install `Maven Plugin Connectors` to resolve the idf-eclipse-plugins maven errors, make sure you install all of them. But, depending on the version(Eclipse / Extentions), an error may occur:
+* After importing project Eclipse might prompt a wizard to install `Maven Plugin Connectors` to resolve the idf-eclipse-plugins maven errors, make sure you install all of them. But, depending on the version(Eclipse / Extensions), an error may occur:
 
 ![image](https://github.com/espressif/idf-eclipse-plugin/assets/69584713/048196c9-8ac6-4f10-8095-596ab2ef05f2)
 
-Fix: check the error and delete one of the extention (usually Tycho) - Help -> Install New Software -> Already Installed -> select "Tycho" -> Uninstall. 
+Fix: check the error and delete one of the extension (usually Tycho) - Help -> Install New Software -> Already Installed -> select "Tycho" -> Uninstall. 
 
 * Run as -> SWTBot Test -> may lead to error: 
 
@@ -50,7 +50,7 @@ Fix: Uninstall SWTBot -> Install latest snapshot(04.04.2023): http://download.ec
 * Make changes locally on a specific local branch
 * Test with Maven Tycho using `$ mvn clean verify -Djarsigner.skip=true`
 * Submit a Pull Request(PR)
-* It is also recommended that you add or update a Functional Test if you are adding or updating a functionality in plugin. More details about adding SWTBot Funtional test can be found in the README.md in test folder in the repo.
+* It is also recommended that you add or update a Functional Test if you are adding or updating a functionality in plugin. More details about adding SWTBot Functional test can be found in the README.md in test folder in the repo.
 
 ## Coding Standards and guidelines
 * Code formatter https://github.com/espressif/idf-eclipse-plugin/blob/master/resources/espressif_eclipse_formatter.xml

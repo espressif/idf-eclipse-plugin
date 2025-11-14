@@ -22,6 +22,22 @@ jobs:
     - name: Install pre-commit
       run: pip install pre-commit
 
+    - name: Install codespell
+      run: pip install codespell
+    
+    - name: Run pre-commit checks
+      run: |
+        BASE_SHA=${{ github.event.pull_request.base.sha }}
+        HEAD_SHA=${{ github.event.pull_request.head.sha }}
+        CHANGED_FILES=$(git diff --name-only $BASE_SHA $HEAD_SHA | grep -E '\.(py|c|h|md|rst|yml)$' || true)
+        echo "Changed files:"
+        echo "$CHANGED_FILES" | tr ' ' '\n'
+        if [ -n "$CHANGED_FILES" ]; then
+          pre-commit run --files $CHANGED_FILES -v
+        else
+          echo "No matching files changed."
+        fi
+
     - name: Validate commit messages
       run: |
         if [ "${{ github.event_name }}" = "pull_request" ]; then
