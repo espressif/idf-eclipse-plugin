@@ -92,7 +92,8 @@ public class IDFConsoleWizardConfigurationPanel extends AbstractExtendedConfigur
 		panel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
 		Label projectLabel = new Label(panel, SWT.NONE);
-		projectLabel.setText(Messages.IDFConsoleWizardConfigurationPanel_IDFConsoleWizardConfigurationPanel_ProjectLabel);
+		projectLabel
+				.setText(Messages.IDFConsoleWizardConfigurationPanel_IDFConsoleWizardConfigurationPanel_ProjectLabel);
 
 		projectCombo = new Combo(panel, SWT.READ_ONLY);
 		projectCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -152,6 +153,17 @@ public class IDFConsoleWizardConfigurationPanel extends AbstractExtendedConfigur
 
 	@Override
 	public boolean isValid() {
+		if (projectCombo == null || projectCombo.isDisposed()) {
+			return false;
+		}
+
+		String selectedProject = projectCombo.getText();
+
+		if (selectedProject.isEmpty()) {
+
+			setMessage(Messages.IDFConsoleWizardConfigurationPanel_MissingProjectErrorMsg, SWT.ERROR);
+			return false;
+		}
 		return true;
 	}
 
