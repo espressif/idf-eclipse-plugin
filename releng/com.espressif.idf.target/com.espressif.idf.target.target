@@ -7,6 +7,7 @@
 			<unit id="org.eclipse.equinox.sdk.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.rcp.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.test.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.terminal.feature.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.equinox.p2.core.feature.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.equinox.p2.discovery.feature.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.equinox.p2.extras.feature.feature.group" version="0.0.0"/>
@@ -110,6 +111,10 @@
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="https://download.eclipse.org/swtchart/releases/1.0.0/repository/"/>
 			<unit id="org.eclipse.swtchart.feature.feature.group" version="1.0.0.202412021530"/>
+		</location>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<repository location="https://azuredownloads-g3ahgwb5b8bkbxhd.b01.azurefd.net/github-copilot/"/>
+			<unit id="com.microsoft.copilot.eclipse.feature.feature.group" version="0.0.0"/>
 		</location>
 	</locations>
 </target>
