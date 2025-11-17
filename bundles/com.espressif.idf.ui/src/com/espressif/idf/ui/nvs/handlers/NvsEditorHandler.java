@@ -7,11 +7,15 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.FileEditorInput;
 
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.NvsTableDataService;
 import com.espressif.idf.ui.EclipseUtil;
-import com.espressif.idf.ui.nvs.dialog.NvsEditorDialog;
+import com.espressif.idf.ui.nvs.dialog.NvsEditor;
 
 public class NvsEditorHandler extends AbstractHandler
 {
@@ -20,18 +24,33 @@ public class NvsEditorHandler extends AbstractHandler
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
-
 		IProject selectedProject = EclipseUtil.getSelectedProjectInExplorer();
 
 		IFile csvFile = selectedProject.getFile(NVS_CSV_NAME);
 		if (!csvFile.exists())
 		{
+			// Ensure the file exists before opening the editor
 			new NvsTableDataService().saveCsv(csvFile, new ArrayList<>());
 		}
-		NvsEditorDialog dialog = new NvsEditorDialog(Display.getDefault().getActiveShell());
-		dialog.setCsvFile(csvFile);
-		dialog.open();
+
+		var window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		if (window != null)
+		{
+			IWorkbenchPage page = window.getActivePage();
+			if (page != null)
+			{
+				try
+				{
+					FileEditorInput input = new FileEditorInput(csvFile);
+					page.openEditor(input, NvsEditor.ID);
+				}
+				catch (PartInitException e)
+				{
+					Logger.log(e);
+				}
+			}
+		}
+
 		return null;
 	}
-
 }

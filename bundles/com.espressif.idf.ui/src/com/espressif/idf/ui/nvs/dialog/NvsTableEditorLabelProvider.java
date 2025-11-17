@@ -1,79 +1,67 @@
-/*******************************************************************************
- * Copyright 2023 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
- * Use is subject to license terms.
- *******************************************************************************/
-
 package com.espressif.idf.ui.nvs.dialog;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.jface.viewers.CellLabelProvider;
-import org.eclipse.jface.viewers.ITableColorProvider;
-import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 
 import com.espressif.idf.core.build.NvsTableBean;
 import com.espressif.idf.core.util.NvsBeanValidator;
 
-public class NvsTableEditorLabelProvider extends CellLabelProvider implements ITableLabelProvider, ITableColorProvider
+public abstract class NvsTableEditorLabelProvider extends ColumnLabelProvider
 {
 
-	@Override
-	public Color getForeground(Object element, int columnIndex)
-	{
-		String status = new NvsBeanValidator().validateBean((NvsTableBean) element, columnIndex);
-		if (!status.isBlank())
-		{
-			return Display.getCurrent().getSystemColor(SWT.COLOR_RED);
-		}
+	protected NvsBeanValidator validator = new NvsBeanValidator();
 
-		return null;
-	}
+	/**
+	 * Subclasses must tell the provider which column index they are for (0, 1, 2, or 3).
+	 */
+	public abstract int getColumnIndex();
 
-	@Override
-	public Color getBackground(Object element, int columnIndex)
-	{
-		return null;
-	}
-
-	@Override
-	public Image getColumnImage(Object element, int columnIndex)
-	{
-		String status = new NvsBeanValidator().validateBean((NvsTableBean) element, columnIndex);
-		if (!status.isBlank())
-		{
-			return JFaceResources.getImage(Dialog.DLG_IMG_MESSAGE_ERROR);
-		}
-		return null;
-	}
-
-	@Override
-	public String getColumnText(Object element, int columnIndex)
-	{
-		NvsTableBean bean = (NvsTableBean) element;
-		switch (columnIndex)
-		{
-		case 0:
-			return bean.getKey();
-		case 1:
-			return bean.getType();
-		case 2:
-			return bean.getEncoding();
-		case 3:
-			return bean.getValue();
-		default:
-			break;
-		}
-		return null;
-	}
+	/**
+	 * Subclasses must provide the text for their specific column.
+	 */
+	public abstract String getColumnText(NvsTableBean bean);
 
 	@Override
 	public void update(ViewerCell cell)
 	{
+		NvsTableBean bean = (NvsTableBean) cell.getElement();
+
+		// 1. Set text (delegated to subclass)
+		cell.setText(getColumnText(bean));
+
+		// 2. Set color/image (uses column index from subclass)
+		String cellStatus = validator.validateBean(bean, getColumnIndex());
+		if (!cellStatus.isBlank())
+		{
+			cell.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+			cell.setImage(JFaceResources.getImage(Dialog.DLG_IMG_MESSAGE_ERROR));
+		}
+		else
+		{
+			cell.setForeground(null);
+			cell.setImage(null);
+		}
+
+		cell.setBackground(getBackground(bean));
 	}
 
+	/**
+	 * This method is called by ColumnViewerToolTipSupport *only* when the mouse is over this provider's column. It
+	 * provides the tooltip for ONLY this cell.
+	 */
+	@Override
+	public String getToolTipText(Object element)
+	{
+		NvsTableBean bean = (NvsTableBean) element;
+
+		// 1. Get validation status for this specific cell
+		String status = validator.validateBean(bean, getColumnIndex());
+
+		// 2. Return the validation message or null (no tooltip)
+		return status.isBlank() ? null : status;
+	}
 }
