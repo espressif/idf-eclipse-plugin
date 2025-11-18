@@ -133,8 +133,7 @@ public class IDFConsoleWizardConfigurationPanel extends AbstractExtendedConfigur
 
 		data.put(ITerminalsConnectorConstants.PROP_ENCODING, getEncoding());
 
-		// <-- this is the important part
-		if (projectCombo != null && !projectCombo.isDisposed()) {
+		if (projectCombo != null && !projectCombo.isDisposed() && !projectCombo.getText().isEmpty()) {
 			IProject p = ResourcesPlugin.getWorkspace().getRoot().getProject(projectCombo.getText());
 			if (p != null && p.exists() && p.getLocation() != null) {
 				data.put(ITerminalsConnectorConstants.PROP_PROCESS_WORKING_DIR, p.getLocation().toOSString());
@@ -153,17 +152,6 @@ public class IDFConsoleWizardConfigurationPanel extends AbstractExtendedConfigur
 
 	@Override
 	public boolean isValid() {
-		if (projectCombo == null || projectCombo.isDisposed()) {
-			return false;
-		}
-
-		String selectedProject = projectCombo.getText();
-
-		if (selectedProject.isEmpty()) {
-
-			setMessage(Messages.IDFConsoleWizardConfigurationPanel_MissingProjectErrorMsg, SWT.ERROR);
-			return false;
-		}
 		return true;
 	}
 
