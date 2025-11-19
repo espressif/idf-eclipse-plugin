@@ -13,32 +13,34 @@
 package com.espressif.idf.terminal.connector.controls;
 
 import java.util.Map;
+import java.util.Optional;
 
-import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.tm.terminal.view.core.interfaces.constants.ITerminalsConnectorConstants;
 import org.eclipse.tm.terminal.view.ui.interfaces.IConfigurationPanelContainer;
 import org.eclipse.tm.terminal.view.ui.panels.AbstractExtendedConfigurationPanel;
-import org.eclipse.ui.ISelectionService;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchEncoding;
-import org.osgi.framework.Bundle;
+
+import com.espressif.idf.core.IDFProjectNature;
+import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.ui.EclipseUtil;
 
 /**
  * IDF console wizard configuration panel implementation.
  */
 public class IDFConsoleWizardConfigurationPanel extends AbstractExtendedConfigurationPanel {
 
-	private Object resource;
+	private Combo projectCombo;
 
 	/**
 	 * Constructor.
@@ -55,6 +57,7 @@ public class IDFConsoleWizardConfigurationPanel extends AbstractExtendedConfigur
 		panel.setLayout(new GridLayout());
 		panel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
+		createProjectCombo(panel);
 		// Create the encoding selection combo
 		createEncodingUI(panel, false);
 
@@ -76,12 +79,40 @@ public class IDFConsoleWizardConfigurationPanel extends AbstractExtendedConfigur
 		layoutData.heightHint = 80;
 		label.setLayoutData(layoutData);
 
-		Bundle bundle = Platform.getBundle("org.eclipse.core.resources"); //$NON-NLS-1$
-		if (bundle != null && bundle.getState() != Bundle.UNINSTALLED && bundle.getState() != Bundle.STOPPING) {
-			resource = getSelectionResource();
+		setControl(panel);
+	}
+
+	private void createProjectCombo(Composite parent) {
+
+		Composite panel = new Composite(parent, SWT.NONE);
+		GridLayout layout = new GridLayout(2, false);
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		panel.setLayout(layout);
+		panel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+
+		Label projectLabel = new Label(panel, SWT.NONE);
+		projectLabel
+				.setText(Messages.IDFConsoleWizardConfigurationPanel_IDFConsoleWizardConfigurationPanel_ProjectLabel);
+
+		projectCombo = new Combo(panel, SWT.READ_ONLY);
+		projectCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+
+		for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
+			try {
+				if (project.hasNature(IDFProjectNature.ID)) {
+					projectCombo.add(project.getName());
+				}
+			} catch (CoreException e) {
+				Logger.log(e);
+			}
 		}
 
-		setControl(panel);
+		Optional<IProject> optProject = Optional.ofNullable(EclipseUtil.getSelectedIDFProjectInExplorer());
+		optProject.ifPresentOrElse(project -> projectCombo.setText(project.getName()), () -> {
+			if (projectCombo.getItemCount() > 0)
+				projectCombo.select(0);
+		});
 	}
 
 	@Override
@@ -96,19 +127,17 @@ public class IDFConsoleWizardConfigurationPanel extends AbstractExtendedConfigur
 
 	@Override
 	public void extractData(Map<String, Object> data) {
-		// set the terminal connector id for local terminal
+
 		data.put(ITerminalsConnectorConstants.PROP_TERMINAL_CONNECTOR_ID,
 				"com.espressif.idf.terminal.connector.espidfConnector"); //$NON-NLS-1$
 
-		// Store the encoding
 		data.put(ITerminalsConnectorConstants.PROP_ENCODING, getEncoding());
 
-		Bundle bundle = Platform.getBundle("org.eclipse.core.resources"); //$NON-NLS-1$
-		if (bundle != null && bundle.getState() != Bundle.UNINSTALLED && bundle.getState() != Bundle.STOPPING) {
-			// if we have a IResource selection use the location for working directory
-			if (resource instanceof org.eclipse.core.resources.IResource) {
-				String dir = ((org.eclipse.core.resources.IResource) resource).getProject().getLocation().toString();
-				data.put(ITerminalsConnectorConstants.PROP_PROCESS_WORKING_DIR, dir);
+		if (projectCombo != null && !projectCombo.isDisposed() && !projectCombo.getText().isEmpty()) {
+			IProject p = ResourcesPlugin.getWorkspace().getRoot().getProject(projectCombo.getText());
+			if (p != null && p.exists() && p.getLocation() != null) {
+				data.put(ITerminalsConnectorConstants.PROP_PROCESS_WORKING_DIR, p.getLocation().toOSString());
+				data.put(ITerminalsConnectorConstants.PROP_TITLE, p.getName());
 			}
 		}
 	}
@@ -146,26 +175,5 @@ public class IDFConsoleWizardConfigurationPanel extends AbstractExtendedConfigur
 	@Override
 	public boolean isWithHostList() {
 		return false;
-	}
-
-	/**
-	 * Returns the IResource from the current selection
-	 *
-	 * @return the IResource, or <code>null</code>.
-	 */
-	private org.eclipse.core.resources.IResource getSelectionResource() {
-		ISelectionService selectionService = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
-		ISelection selection = selectionService != null ? selectionService.getSelection() : StructuredSelection.EMPTY;
-
-		if (selection instanceof IStructuredSelection && !selection.isEmpty()) {
-			Object element = ((IStructuredSelection) selection).getFirstElement();
-			if (element instanceof org.eclipse.core.resources.IResource) {
-				return ((org.eclipse.core.resources.IResource) element);
-			}
-			if (element instanceof IAdaptable) {
-				return ((IAdaptable) element).getAdapter(org.eclipse.core.resources.IResource.class);
-			}
-		}
-		return null;
 	}
 }

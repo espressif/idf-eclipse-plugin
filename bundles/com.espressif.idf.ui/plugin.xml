@@ -721,8 +721,8 @@
         class="com.espressif.idf.ui.nvs.dialog.NvsEditor"
         default="false"
         icon="icons/ESP-IDF_NVS_Table_Editor.png"
-        id="com.espressif.idf.ui.nvs_table_editor"
-        name="NVS Table Editor">
+        id="com.espressif.idf.ui.nvs.nvsEditor"
+        name="%command.name.nvsTableEditor">
      <contentTypeBinding
            contentTypeId="com.espressif.idf.ui.nvs_editor_content_type">
      </contentTypeBinding>

@@ -91,7 +91,7 @@ public class NvsEditorDialog extends TitleAreaDialog
 	private enum ErrorListenerMap
 	{
 		INSTANCE;
-		
+
 		private EnumMap<GeneratePartitionValidationError, String> validationErrors = new EnumMap<>(
 				GeneratePartitionValidationError.class);
 		private NvsEditorDialog dialog;
@@ -115,8 +115,6 @@ public class NvsEditorDialog extends TitleAreaDialog
 			dialog.updateErrorMessage();
 		}
 	}
-
-
 
 	public NvsEditorDialog(Shell parentShell)
 	{
@@ -168,7 +166,7 @@ public class NvsEditorDialog extends TitleAreaDialog
 		encryptAction.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, false, false));
 		encryptAction.addSelectionListener(new SelectionAdapter()
 		{
-			
+
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
@@ -193,8 +191,7 @@ public class NvsEditorDialog extends TitleAreaDialog
 		Button deleteRowButton = new Button(userButtonComp, SWT.PUSH);
 		deleteRowButton.setText(Messages.NvsTableEditorDialog_DeleteSelectedAction);
 		deleteRowButton.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, false, false));
-		deleteRowButton
-				.addSelectionListener(SelectionListener.widgetSelectedAdapter(t -> getDeleteRowAction()));
+		deleteRowButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(t -> getDeleteRowAction()));
 
 		Button saveButton = new Button(userButtonComp, SWT.PUSH);
 		saveButton.setText(Messages.NvsTableEditorDialog_SaveAction);
@@ -204,8 +201,7 @@ public class NvsEditorDialog extends TitleAreaDialog
 		generateButton = new Button(userButtonComp, SWT.PUSH);
 		generateButton.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, false, false));
 		generateButton.setText(Messages.NvsTableEditorGeneratePartitionActionMsg);
-		generateButton.addSelectionListener(
-				SelectionListener.widgetSelectedAdapter(t -> getGeneratePartitionAction()));
+		generateButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(t -> getGeneratePartitionAction()));
 		encryptAction.notifyListeners(SWT.Selection, null);
 		generateButton.setEnabled(false);
 		setErrorMessage(null);
@@ -291,7 +287,6 @@ public class NvsEditorDialog extends TitleAreaDialog
 		Composite sizeComposite = new Composite(parent, SWT.NONE);
 		sizeComposite.setLayout(new GridLayout(2, false));
 
-
 		Label sizeOfPartitionLbl = new Label(sizeComposite, SWT.NONE);
 		sizeOfPartitionLbl.setText(Messages.NvsTableEditorSizeOfPartitionLblMsg);
 		sizeOfPartitionLbl.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -324,7 +319,7 @@ public class NvsEditorDialog extends TitleAreaDialog
 			List<NvsTableBean> list = (List<NvsTableBean>) input;
 			return list.toArray();
 		});
-		
+
 		try
 		{
 			List<NvsTableBean> list = new NvsTableDataService().parseCsv(Paths.get(csvFile.getLocationURI()));
@@ -335,7 +330,7 @@ public class NvsEditorDialog extends TitleAreaDialog
 		{
 			Logger.log(e);
 		}
-		tableViewer.setLabelProvider(new NvsTableEditorLabelProvider());
+		// tableViewer.setLabelProvider(new NvsTableEditorLabelProvider());
 
 		// Set cell editors
 		tableViewer.setColumnProperties(columnNames);
@@ -385,8 +380,7 @@ public class NvsEditorDialog extends TitleAreaDialog
 						break;
 					}
 					bean.setType(newType);
-					((ComboBoxCellEditor) cellEditors[2])
-							.setItems(NvsTableDataService.getEncodings(bean.getType()));
+					((ComboBoxCellEditor) cellEditors[2]).setItems(NvsTableDataService.getEncodings(bean.getType()));
 					tableViewer.getCellModifier().modify(element, columnNames[2], 0);
 					break;
 				case 2:
@@ -455,7 +449,7 @@ public class NvsEditorDialog extends TitleAreaDialog
 				if (tableViewer.getElementAt(0).equals(element))
 				{
 					if (!property.contentEquals(columnNames[0]))
-							setMessage(Messages.NvsEditorDialog_FirstRowIsFixedInfoMsg, IMessageProvider.INFORMATION);
+						setMessage(Messages.NvsEditorDialog_FirstRowIsFixedInfoMsg, IMessageProvider.INFORMATION);
 					return property.contentEquals(columnNames[0]);
 				}
 				NvsTableBean bean = (NvsTableBean) element;
@@ -466,7 +460,6 @@ public class NvsEditorDialog extends TitleAreaDialog
 				return isCellEditable;
 			}
 		});
-
 
 	}
 
@@ -574,7 +567,6 @@ public class NvsEditorDialog extends TitleAreaDialog
 
 		return StringUtil.EMPTY;
 	}
-
 
 	private String validateSize()
 	{
@@ -687,8 +679,7 @@ public class NvsEditorDialog extends TitleAreaDialog
 
 		if (selectedElement.equals(tableViewer.getElementAt(0)))
 		{
-			setMessage(Messages.NvsEditorDialog_FirstRowIsFixedInfoMsg,
-					IMessageProvider.INFORMATION);
+			setMessage(Messages.NvsEditorDialog_FirstRowIsFixedInfoMsg, IMessageProvider.INFORMATION);
 			return;
 		}
 		boolean confirmDelete = MessageDialog.openConfirm(getShell(),
@@ -712,7 +703,7 @@ public class NvsEditorDialog extends TitleAreaDialog
 		csvTable.select(csvTable.getItemCount() - 1);
 		tableViewer.refresh();
 	}
-	
+
 	@Override
 	protected void createButtonsForButtonBar(Composite parent)
 	{
