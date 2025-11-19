@@ -913,5 +913,10 @@
 			id="com.espressif.idf.ui.espLaunchScope"
 			name="Espressif Launch Scope">
 		</context>
+		<context
+			id="com.espressif.idf.ui.kconfig.editorContext"
+			name="KConfig Editor Context"
+			parentId="org.eclipse.ui.textEditorScope">
+		</context>
 	</extension>
 </plugin>
