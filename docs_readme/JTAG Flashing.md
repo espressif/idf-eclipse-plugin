@@ -28,4 +28,4 @@ After doing this, update the `OPENOCD_SCRIPT` environment variable in the eclips
 
 * Go to `Eclipse > Preferences > C/C++ > Build > Environment`
 * Edit `OPENOCD_SCRIPTS` variable by providing the right path to the `openocd/scripts` folder
-* As a result, the path to the OpenOCD scipts may look like this: `.../.espressif/tools/openocd-esp32/v0.10.0-esp32-20201202/openocd-esp32/share/openocd/scripts`
+* As a result, the path to the OpenOCD scripts may look like this: `.../.espressif/tools/openocd-esp32/v0.10.0-esp32-20201202/openocd-esp32/share/openocd/scripts`

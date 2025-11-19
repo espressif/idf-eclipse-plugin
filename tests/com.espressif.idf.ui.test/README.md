@@ -24,7 +24,7 @@ These files were added so they can be compared with the file being created by a 
 The configs directory contains the default-configs required for the tests they contain some configuration like build delay and some other UI awaiting delays can be added here as well, the idea is to keep only the default baseline configs here and if a functionality is taking some extensive UI operations that are not part of default operations, we can introduce another property file to contain those configurations. Currently this contains a setting for the build delay required and some absolute paths that are not relative to the repository or a central location we will try to update this once the CI for the automation is complete and the updated version of this document will contain isntructions on them. For now if your test needs to contain a property use this file and use the `**DefaultPropertyFetcher.java**` for fetching that property, for paths you can use the path on your own local env for the moment, also make sure to update these paths when you are trying to run the test.
 
 ### Test Classes
-Test cases themselves are to be placed in the `**com.espressif.idf.tests.exectuables.cases**` package. They can be further subdivided into their own packages in this package based upon the functionality they are testing for example at the time of writing this following packages are present that contain different test executable classes.
+Test cases themselves are to be placed in the `**com.espressif.idf.tests.executables.cases**` package. They can be further subdivided into their own packages in this package based upon the functionality they are testing for example at the time of writing this following packages are present that contain different test executable classes.
 ![](doc/images/test_executable_packages.png)
 
 
@@ -66,7 +66,7 @@ Make sure to click on `Validate Plug-ins` button to see if there are any issues 
 If there is no issue with your eclipse or SWTBot installation you should be able to run your test using the configuration.
 
 ### Using JUnit Runner Launch Config
-At times we need to debug the tests and for some issues in the SWTBot API you will get the exception of `WidgetNotFound` during debug which is because the SWTBot is dependent on UI focus a lot and during a test run if you are using the machine and the test instance of eclipse looses focus it gives that exception during debug we have to make sure that breakpoints are properly placed so that during UI interaction the test instance stays in focus. The SWTBot Runner config in eclipse for me prior to eclipse 2021-06 alway gave issues during debug so I had to use the JUnit Runner Launch Config.
+At times we need to debug the tests and for some issues in the SWTBot API you will get the exception of `WidgetNotFound` during debug which is because the SWTBot is dependent on UI focus a lot and during a test run if you are using the machine and the test instance of eclipse loses focus it gives that exception during debug we have to make sure that breakpoints are properly placed so that during UI interaction the test instance stays in focus. The SWTBot Runner config in eclipse for me prior to eclipse 2021-06 always gave issues during debug so I had to use the JUnit Runner Launch Config.
 
 You can generate this launch config simply by right clicking on your test class and from context menu select `Run As` in the sub menu select the option `JUnit Plug-in Test`.
 
@@ -77,5 +77,5 @@ This will start execution of your test but just like SWTBot there are a few thin
 Now from launch configurations in the Eclipse CDT Launchbar click on edit button next to the launch configuration name which is just added.
 ![](doc/images/launch_config_edit_junit.png)
 
-From the opened screen you can see some settings. First thing to make sure is that you use **JUnit4** from the `Test runner:` drop down. Alos make sure that `Run in UI thread` is unchecked.
+From the opened screen you can see some settings. First thing to make sure is that you use **JUnit4** from the `Test runner:` drop-down. Also make sure that `Run in UI thread` is unchecked.
 Now headover to the `Plug-ins` tab and follow the same configuration steps as you did for SWTBot Launch Config

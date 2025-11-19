@@ -57,7 +57,7 @@ Points 4 - 6 are shown below.
 .. image:: ../../media/OpenOCDDebug_6.png
 
 .. note::  
-    Update the OpenOCD Config options based on the esp board you've choosen. Please check this `here <https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/jtag-debugging/tips-and-quirks.html#id1>`_.
+    Update the OpenOCD Config options based on the esp board you've chosen. Please check this `here <https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/jtag-debugging/tips-and-quirks.html#id1>`_.
 
 Startup Tab
 -----------
