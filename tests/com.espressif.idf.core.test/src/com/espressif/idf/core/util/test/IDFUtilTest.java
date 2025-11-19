@@ -259,18 +259,21 @@ public class IDFUtilTest
 	}
 
 	@Test
-	public void testGetIDFExtraPaths_WhenIDFPathIsEmpty_ShouldReturnEmptyString()
+	void testGetIDFExtraPaths_WhenIDFPathIsEmpty_ShouldReturnEmptyString()
 	{
-		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
-				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn(""))) //$NON-NLS-1$
+		try (MockedStatic<IDFUtil> mockedStatic = mockStatic(IDFUtil.class, CALLS_REAL_METHODS))
 		{
+
+			mockedStatic.when(IDFUtil::getIDFPath).thenReturn(""); //$NON-NLS-1$
+
 			String result = IDFUtil.getIDFExtraPaths();
+
 			assertEquals("", result); //$NON-NLS-1$
 		}
 	}
 
 	@Test
-	public void testGetOpenOCDLocation_ShouldReturnOpenOCDScriptsLocationFromIdfEnvVar()
+	void testGetOpenOCDLocation_ShouldReturnOpenOCDScriptsLocationFromIdfEnvVar()
 	{
 		String openocdScriptsLoc = "openocd_path" + File.separator + "share" + File.separator + "openocd" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				+ File.separator + "scripts"; //$NON-NLS-1$

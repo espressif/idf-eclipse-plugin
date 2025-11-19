@@ -5,6 +5,7 @@ import static org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory.wi
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.ui.PlatformUI;
@@ -43,6 +44,17 @@ public class EnvSetupOperations
 		{
 			view.close();
 		}
+		
+		SWTBotEditor espIdfManagerView = bot.editorByTitle("ESP-IDF Manager");
+		espIdfManagerView.bot().radio(0).click();
+		
+		SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
+		consoleView.show();
+		consoleView.setFocus();
+		TestWidgetWaitUtility.waitUntilViewContains(bot, "Tools Setup complete", consoleView, 99000000);
+		bot.cTabItem("ESP-IDF Manager").activate();
+		bot.cTabItem("ESP-IDF Manager").close();
+		
 		bot.menu("Window").menu("Perspective").menu("Open Perspective").menu("Other...").click();
 		bot.table().select("C/C++");
 		bot.button("Open").click();
@@ -71,30 +83,6 @@ public class EnvSetupOperations
 		bot.text().setText("progress");
 		bot.button("Open").click();
 		bot.viewByTitle("Progress").show();
-
-		TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
-		bot.activeShell();
-
-		bot.menu("Espressif").menu("ESP-IDF Manager").click();
-		bot.activeShell().activate();
-		bot.button("Add ESP-IDF").click();
-		SWTBotShell espIdfConfigShell = bot.shell("ESP-IDF Configuration");
-		espIdfConfigShell.setFocus();
-		espIdfConfigShell.bot().checkBox("Use an existing ESP-IDF directory from file system").click();
-		espIdfConfigShell.bot().textWithLabel("Choose existing ESP-IDF directory:")
-				.setText(DefaultPropertyFetcher.getStringPropertyValue(ESP_IDF_PATH_PROPERTY, ""));
-		espIdfConfigShell.bot().textWithLabel("Git: ")
-				.setText(DefaultPropertyFetcher.getStringPropertyValue(GIT_PATH_PROPERTY, ""));
-		espIdfConfigShell.bot().textWithLabel("Python: ")
-				.setText(DefaultPropertyFetcher.getStringPropertyValue(PYTHON_PATH_PROPERTY, ""));
-		espIdfConfigShell.bot().button("Finish").click();
-
-		SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
-		consoleView.show();
-		consoleView.setFocus();
-		TestWidgetWaitUtility.waitUntilViewContains(bot, "Tools Activated", consoleView, 99000000);
-		bot.cTabItem("ESP-IDF Manager").activate();
-		bot.cTabItem("ESP-IDF Manager").close();
 		SETUP = true;
 	}
 
