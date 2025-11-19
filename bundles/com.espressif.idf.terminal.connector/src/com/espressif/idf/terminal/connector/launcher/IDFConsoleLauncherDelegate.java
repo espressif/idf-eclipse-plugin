@@ -18,24 +18,19 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.cdt.utils.pty.PTY;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
 import org.eclipse.tm.internal.terminal.provisional.api.ITerminalConnector;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalConnectorExtension;
@@ -51,8 +46,6 @@ import org.eclipse.tm.terminal.view.ui.interfaces.IMementoHandler;
 import org.eclipse.tm.terminal.view.ui.interfaces.IPreferenceKeys;
 import org.eclipse.tm.terminal.view.ui.internal.SettingsStore;
 import org.eclipse.tm.terminal.view.ui.launcher.AbstractLauncherDelegate;
-import org.eclipse.ui.ISelectionService;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchEncoding;
 import org.osgi.framework.Bundle;
 
@@ -61,7 +54,6 @@ import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.terminal.connector.activator.UIPlugin;
 import com.espressif.idf.terminal.connector.controls.IDFConsoleWizardConfigurationPanel;
-import com.espressif.idf.ui.EclipseUtil;
 
 /**
  * Serial launcher delegate implementation.
@@ -87,16 +79,14 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 		Assert.isNotNull(properties);
 
 		// Set the terminal tab title
-		String terminalTitle = getTerminalTitle();
-		if (terminalTitle != null) {
-			properties.put(ITerminalsConnectorConstants.PROP_TITLE, terminalTitle);
-		}
+		setTerminalTitle(properties);
 
 		// If not configured, set the default encodings for the local terminal
 		if (!properties.containsKey(ITerminalsConnectorConstants.PROP_ENCODING)) {
 			String encoding = null;
 			// Set the default encoding:
-			//     Default UTF-8 on Mac or Windows for Local, Preferences:Platform encoding otherwise
+			// Default UTF-8 on Mac or Windows for Local, Preferences:Platform encoding
+			// otherwise
 			if (Platform.OS_MACOSX.equals(Platform.getOS()) || Platform.OS_WIN32.equals(Platform.getOS())) {
 				encoding = "UTF-8"; //$NON-NLS-1$
 			} else {
@@ -112,112 +102,55 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 			properties.put(ITerminalsConnectorConstants.PROP_FORCE_NEW, Boolean.TRUE);
 		}
 
-		// Initialize the local terminal working directory.
+		// Initialize the local terminal working directory if not already set by the panel.
 		// By default, start the local terminal in the users home directory
-		String initialCwd = org.eclipse.tm.terminal.view.ui.activator.UIPlugin.getScopedPreferences()
-				.getString(IPreferenceKeys.PREF_LOCAL_TERMINAL_INITIAL_CWD);
-		String cwd = null;
-		if (initialCwd == null || IPreferenceKeys.PREF_INITIAL_CWD_USER_HOME.equals(initialCwd)
-				|| "".equals(initialCwd.trim())) { //$NON-NLS-1$
-			cwd = System.getProperty("user.home"); //$NON-NLS-1$
-		} else if (IPreferenceKeys.PREF_INITIAL_CWD_ECLIPSE_HOME.equals(initialCwd)) {
-			String eclipseHomeLocation = System.getProperty("eclipse.home.location"); //$NON-NLS-1$
-			if (eclipseHomeLocation != null) {
-				try {
-					URI uri = URIUtil.fromString(eclipseHomeLocation);
-					File f = URIUtil.toFile(uri);
-					cwd = f.getAbsolutePath();
-				} catch (URISyntaxException ex) {
-					/* ignored on purpose */ }
-			}
-		} else if (IPreferenceKeys.PREF_INITIAL_CWD_ECLIPSE_WS.equals(initialCwd)) {
-			Bundle bundle = Platform.getBundle("org.eclipse.core.resources"); //$NON-NLS-1$
-			if (bundle != null && bundle.getState() != Bundle.UNINSTALLED && bundle.getState() != Bundle.STOPPING) {
-				if (org.eclipse.core.resources.ResourcesPlugin.getWorkspace() != null
-						&& org.eclipse.core.resources.ResourcesPlugin.getWorkspace().getRoot() != null
-						&& org.eclipse.core.resources.ResourcesPlugin.getWorkspace().getRoot().getLocation() != null) {
-					cwd = org.eclipse.core.resources.ResourcesPlugin.getWorkspace().getRoot().getLocation()
-							.toOSString();
+		if (!properties.containsKey(ITerminalsConnectorConstants.PROP_PROCESS_WORKING_DIR)) {
+			String initialCwd = org.eclipse.tm.terminal.view.ui.activator.UIPlugin.getScopedPreferences()
+					.getString(IPreferenceKeys.PREF_LOCAL_TERMINAL_INITIAL_CWD);
+			String cwd = null;
+			if (initialCwd == null || IPreferenceKeys.PREF_INITIAL_CWD_USER_HOME.equals(initialCwd)
+					|| "".equals(initialCwd.trim())) { //$NON-NLS-1$
+				cwd = System.getProperty("user.home"); //$NON-NLS-1$
+			} else if (IPreferenceKeys.PREF_INITIAL_CWD_ECLIPSE_HOME.equals(initialCwd)) {
+				String eclipseHomeLocation = System.getProperty("eclipse.home.location"); //$NON-NLS-1$
+				if (eclipseHomeLocation != null) {
+					try {
+						URI uri = URIUtil.fromString(eclipseHomeLocation);
+						File f = URIUtil.toFile(uri);
+						cwd = f.getAbsolutePath();
+					} catch (URISyntaxException ex) {
+						/* ignored on purpose */ }
 				}
-			}
-		} else {
-			try {
-				// Resolve possible dynamic variables
-				IStringVariableManager vm = VariablesPlugin.getDefault().getStringVariableManager();
-				String resolved = vm.performStringSubstitution(initialCwd);
-
-				IPath p = new Path(resolved);
-				if (p.toFile().canRead() && p.toFile().isDirectory()) {
-					cwd = p.toOSString();
-				}
-			} catch (CoreException ex) {
-				if (Platform.inDebugMode()) {
-					UIPlugin.getDefault().getLog().log(ex.getStatus());
-				}
-			}
-		}
-
-		if (cwd != null && !"".equals(cwd)) { //$NON-NLS-1$
-			properties.put(ITerminalsConnectorConstants.PROP_PROCESS_WORKING_DIR, cwd);
-		}
-
-		// If the current selection resolved to an folder, default the working directory
-		// to that folder and update the terminal title
-		ISelectionService service = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
-		if ((service != null && service.getSelection() != null)
-				|| properties.containsKey(ITerminalsConnectorConstants.PROP_SELECTION)) {
-			ISelection selection = (ISelection) properties.get(ITerminalsConnectorConstants.PROP_SELECTION);
-			if (selection == null)
-				selection = service.getSelection();
-			if (selection instanceof IStructuredSelection && !selection.isEmpty()) {
-				String dir = null;
-				Iterator<?> iter = ((IStructuredSelection) selection).iterator();
-				while (iter.hasNext()) {
-					Object element = iter.next();
-
-					Bundle bundle = Platform.getBundle("org.eclipse.core.resources"); //$NON-NLS-1$
-					if (bundle != null && bundle.getState() != Bundle.UNINSTALLED
-							&& bundle.getState() != Bundle.STOPPING) {
-						// If the element is not an IResource, try to adapt to IResource
-						if (!(element instanceof org.eclipse.core.resources.IResource)) {
-							Object adapted = element instanceof IAdaptable
-									? ((IAdaptable) element).getAdapter(org.eclipse.core.resources.IResource.class)
-									: null;
-							if (adapted == null)
-								adapted = Platform.getAdapterManager().getAdapter(element,
-										org.eclipse.core.resources.IResource.class);
-							if (adapted != null)
-								element = adapted;
-						}
-
-						if (element instanceof org.eclipse.core.resources.IResource
-								&& ((org.eclipse.core.resources.IResource) element).exists()) {
-							IPath location = ((org.eclipse.core.resources.IResource) element).getLocation();
-							if (location == null)
-								continue;
-							if (location.toFile().isFile())
-								location = location.removeLastSegments(1);
-							if (location.toFile().isDirectory() && location.toFile().canRead()) {
-								dir = location.toFile().getAbsolutePath();
-								break;
-							}
-						}
-
-						if (element instanceof IPath || element instanceof File) {
-							File f = element instanceof IPath ? ((IPath) element).toFile() : (File) element;
-							if (f.isDirectory() && f.canRead()) {
-								dir = f.getAbsolutePath();
-								break;
-							}
-						}
+			} else if (IPreferenceKeys.PREF_INITIAL_CWD_ECLIPSE_WS.equals(initialCwd)) {
+				Bundle bundle = Platform.getBundle("org.eclipse.core.resources"); //$NON-NLS-1$
+				if (bundle != null && bundle.getState() != Bundle.UNINSTALLED && bundle.getState() != Bundle.STOPPING) {
+					if (org.eclipse.core.resources.ResourcesPlugin.getWorkspace() != null
+							&& org.eclipse.core.resources.ResourcesPlugin.getWorkspace().getRoot() != null
+							&& org.eclipse.core.resources.ResourcesPlugin.getWorkspace().getRoot()
+									.getLocation() != null) {
+						cwd = org.eclipse.core.resources.ResourcesPlugin.getWorkspace().getRoot().getLocation()
+								.toOSString();
 					}
 				}
-				if (dir != null) {
-					properties.put(ITerminalsConnectorConstants.PROP_PROCESS_WORKING_DIR, dir);
+			} else {
+				try {
+					// Resolve possible dynamic variables
+					IStringVariableManager vm = VariablesPlugin.getDefault().getStringVariableManager();
+					String resolved = vm.performStringSubstitution(initialCwd);
 
-					String basename = new Path(dir).lastSegment();
-					properties.put(ITerminalsConnectorConstants.PROP_TITLE, basename + " (" + terminalTitle + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+					IPath p = new Path(resolved);
+					if (p.toFile().canRead() && p.toFile().isDirectory()) {
+						cwd = p.toOSString();
+					}
+				} catch (CoreException ex) {
+					if (Platform.inDebugMode()) {
+						UIPlugin.getDefault().getLog().log(ex.getStatus());
+					}
 				}
+			}
+
+			if (cwd != null && !"".equals(cwd)) { //$NON-NLS-1$
+				properties.put(ITerminalsConnectorConstants.PROP_PROCESS_WORKING_DIR, cwd);
 			}
 		}
 
@@ -230,13 +163,20 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 	}
 
 	/**
-	 * Returns the terminal title string.
+	 * Setting the terminal title.
 	 * <p>
+	 * @param properties 
 	 *
-	 * @return The terminal title string
+	 * @return void
 	 */
-	private String getTerminalTitle() {
-		return Messages.IDFConsoleLauncherDelegate_ESPIDFTerminal;
+	private void setTerminalTitle(Map<String, Object> properties) {
+		if (properties.containsKey(ITerminalsConnectorConstants.PROP_TITLE)) {
+			var projectName = properties.get(ITerminalsConnectorConstants.PROP_TITLE);
+			properties.put(ITerminalsConnectorConstants.PROP_TITLE,
+					String.format("%s (%s)", projectName, Messages.IDFConsoleLauncherDelegate_ESPIDFTerminal)); //$NON-NLS-1$
+		} else {
+			properties.put(ITerminalsConnectorConstants.PROP_TITLE, Messages.IDFConsoleLauncherDelegate_ESPIDFTerminal);
+		}
 	}
 
 	@Override
@@ -310,6 +250,13 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 			arguments = "--no-rcs --no-globalrcs"; //$NON-NLS-1$
 		} else if (image.contains("powershell")) { //$NON-NLS-1$
 			arguments = "-NoProfile"; //$NON-NLS-1$
+		} else if (Platform.OS_WIN32.equals(Platform.getOS()) && image.contains("cmd.exe")) { //$NON-NLS-1$
+			// This is the new part that rewrites the arguments for cmd.exe
+			String title = (String) properties.get(ITerminalsConnectorConstants.PROP_TITLE);
+			if (title != null && !title.isEmpty()) {
+				String safeTitle = title.replaceAll("[\\r\\n\"&|<>^]", " ").trim(); //$NON-NLS-1$ //$NON-NLS-2$
+				arguments = "/c \"title " + safeTitle + " && cmd.exe\""; //$NON-NLS-1$ //$NON-NLS-2$
+			}
 		}
 
 		// Determine if a PTY will be used
@@ -408,11 +355,6 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 
 		Assert.isTrue(image != null || process != null);
 
-		String terminalWrkDir = getWorkingDir();
-		if (StringUtil.isEmpty(terminalWrkDir)) {
-			terminalWrkDir = workingDir;
-		}
-
 		// Construct the terminal settings store
 		ISettingsStore store = new SettingsStore();
 
@@ -426,7 +368,7 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 		processSettings.setLineSeparator(lineSeparator);
 		processSettings.setStdOutListeners(stdoutListeners);
 		processSettings.setStdErrListeners(stderrListeners);
-		processSettings.setWorkingDir(terminalWrkDir);
+		processSettings.setWorkingDir(workingDir);
 		processSettings.setEnvironment(envp);
 
 		if (properties.containsKey(ITerminalsConnectorConstants.PROP_PROCESS_MERGE_ENVIRONMENT)) {
@@ -447,19 +389,6 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 		}
 
 		return connector;
-	}
-
-	protected String getWorkingDir() {
-		Bundle bundle = Platform.getBundle("org.eclipse.core.resources"); //$NON-NLS-1$
-		if (bundle != null && bundle.getState() != Bundle.UNINSTALLED && bundle.getState() != Bundle.STOPPING) {
-			// if we have a IResource selection use the location for working directory
-			IResource resource = EclipseUtil.getSelectionResource();
-			if (resource instanceof IResource) {
-				String dir = ((IResource) resource).getProject().getLocation().toString();
-				return dir;
-			}
-		}
-		return IDFUtil.getIDFPath();
 	}
 
 }
