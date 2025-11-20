@@ -43,6 +43,7 @@ import com.espressif.idf.core.tools.util.ToolsUtility;
 import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.core.tools.vo.IdfInstalled;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.LspService;
 import com.espressif.idf.core.util.StringUtil;
 
 /**
@@ -150,6 +151,11 @@ public class SetupToolsInIde extends Job
 			copyOpenOcdRules();
 			monitor.worked(1);
 			
+			monitor.setTaskName("Applying Clangd Preferences"); //$NON-NLS-1$
+			log("Applying Clangd Preferences", IStatus.INFO); //$NON-NLS-1$
+			var lspService = new LspService();
+			lspService.updateClangdPath();
+			lspService.updateQueryDriver();
 			log("Tools Setup complete", IStatus.INFO); //$NON-NLS-1$
 			
 			return Status.OK_STATUS;
