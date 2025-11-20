@@ -1,5 +1,7 @@
 Debug Your Project
-===============================
+==================
+
+:link_to_translation:`zh_CN:[中文]`
 
 .. |debug_icon| image:: ../../media/icons/debug.png
    :height: 16px
@@ -7,10 +9,11 @@ Debug Your Project
 
 In most cases, only two things are required to start debugging an ESP-IDF project:
 
-1. Create a debug configuration
-2. Check whether the board in the created configuration corresponds to the board in use.
+1. Create a debug configuration.
+2. Check whether the board specified in the created configuration matches the board you are using.
 
-.. note::  
+.. note::
+
     If you're using Windows, you may need to install drivers using Zadig to run a debug session successfully. For detailed instructions, please refer to this `guide <https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/jtag-debugging/configure-ft2232h-jtag.html#configure-usb-drivers>`_.
 
 The fastest way to create a debug configuration is as follows:
