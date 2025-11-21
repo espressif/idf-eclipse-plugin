@@ -81,7 +81,7 @@
 			<unit id="org.eclipse.embedcdt.packs.feature.group" version="6.4.0.202307251916"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<repository location="https://download.eclipse.org/lsp4e/releases/0.27.10/"/>
+			<repository location="https://download.eclipse.org/lsp4e/releases/0.29.0/"/>
 			<unit id="org.eclipse.lsp4e" version="0.0.0"/>
 			<unit id="org.eclipse.lsp4e.debug" version="0.0.0"/>
 			<unit id="org.eclipse.lsp4j" version="0.0.0"/>
