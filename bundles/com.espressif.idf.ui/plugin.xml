@@ -639,6 +639,16 @@
 			id="com.espressif.idf.ui.editor.idfsize"
 			name="%editor.name">
 		</editor>
+		<editor
+			class="com.espressif.idf.ui.kconfig.KConfigEditor"
+			contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
+			default="true"
+			id="com.espressif.idf.ui.editor.kconfig"
+			name="KConfig Editor">
+			<contentTypeBinding
+				contentTypeId="com.espressif.idf.ui.kconfig.contentType">
+			</contentTypeBinding>
+		</editor>
 	</extension>
 	<extension
 		point="org.eclipse.cdt.launch.coreBuildTab">
@@ -845,6 +855,44 @@
         name="Partition Table"
         priority="normal">
   </content-type>
+  <content-type
+        base-type="org.eclipse.core.runtime.text"
+        file-patterns="Kconfig,Kconfig.projbuild,Kconfig.in"
+        id="com.espressif.idf.ui.kconfig.contentType"
+        name="KConfig"
+        priority="normal">
+  </content-type>
+  <file-association
+        content-type="com.espressif.idf.ui.kconfig.contentType"
+        file-extensions="Kconfig,Kconfig.projbuild,Kconfig.in">
+  </file-association>
+	</extension>
+	<extension
+		point="org.eclipse.tm4e.registry.grammars">
+		<grammar
+			contentTypeId="com.espressif.idf.ui.kconfig.contentType"
+			path="syntaxes/kconfig.tmLanguage.json"
+			scopeName="source.kconfig">
+		</grammar>
+		<scopeNameContentTypeBinding
+			contentTypeId="com.espressif.idf.ui.kconfig.contentType"
+			scopeName="source.kconfig">
+		</scopeNameContentTypeBinding>
+	</extension>
+	<extension
+		point="org.eclipse.tm4e.languageconfiguration.languageConfigurations">
+		<languageConfiguration
+			contentTypeId="com.espressif.idf.ui.kconfig.contentType"
+			path="kconfig-language-configuration.json">
+		</languageConfiguration>
+	</extension>
+	<extension
+		point="org.eclipse.ui.genericeditor.contentAssistProcessors">
+		<contentAssistProcessor
+			class="com.espressif.idf.ui.kconfig.KConfigContentAssistProcessor"
+			contentType="com.espressif.idf.ui.kconfig.contentType"
+			triggerCharacters=" ">
+		</contentAssistProcessor>
 	</extension>
 	<extension
 		point="org.eclipse.ltk.core.refactoring.renameParticipants">
@@ -864,6 +912,11 @@
 		<context
 			id="com.espressif.idf.ui.espLaunchScope"
 			name="Espressif Launch Scope">
+		</context>
+		<context
+			id="com.espressif.idf.ui.kconfig.editorContext"
+			name="KConfig Editor Context"
+			parentId="org.eclipse.ui.textEditorScope">
 		</context>
 	</extension>
 </plugin>
