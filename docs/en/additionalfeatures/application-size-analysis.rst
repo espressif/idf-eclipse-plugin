@@ -1,24 +1,27 @@
 ESP-IDF Application Size Analysis
-===================================
+=================================
 
-The Application Size Analysis editor provides a way to analyze the static memory footprint of your application. It has two sections:
+:link_to_translation:`zh_CN:[中文]`
 
-- The **Overview** section provides a summary of the application's memory usage;
-- The **Details** section includes in-depth details about components and per-symbol level memory information.
+The Application Size Analysis editor helps you examine your application's static memory usage. It has two sections:
 
-The **Details** table viewer also provides searching and sorting capabilities on various columns.
+- ``Overview``: Summarizes the application's memory usage.
+- ``Details``: Shows detailed component and per-symbol memory information, with search and sort features.
 
 To launch the Application Size Analysis editor:
 
 #. Right-click on the project.
-#. Select **ESP-IDF > Application Size Analysis** menu option to launch the editor.
+#. Select ``ESP-IDF: Application Size Analysis`` menu option to launch the editor.
 
-**Application Size Analysis - Overview**
-
-.. image:: ../../../media/sizeanalysis_overview.png
+.. figure:: ../../../media/sizeanalysis_overview.png
+   :align: center
    :alt: Application Size Analysis - Overview
 
-**Application Size Analysis - Details**
+   Application Size Analysis – Overview
 
-.. image:: ../../../media/sizeanalysis_details.png
+
+.. figure:: ../../../media/sizeanalysis_details.png
+   :align: center
    :alt: Application Size Analysis - Details
+
+   Application Size Analysis – Details
