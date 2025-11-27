@@ -4,7 +4,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 
 import org.apache.commons.lang3.SystemUtils;
@@ -80,16 +82,79 @@ public class IDFProjectToolsInstallationTest {
 
 		private static void verifyToolsPaths() {
 			idfToolsPath();
+			closeDialog();
+			idfPath();
+			closeDialog();
+			openOCDScripts();
+			closeDialog();
+			idfPythonEnvPath();
+			closeDialog();
+			pythonExePath();
+			closeDialog();
 		}
 
 		private static void idfToolsPath() {
 			bot.table().select("IDF_TOOLS_PATH");
 			bot.table().getTableItem("IDF_TOOLS_PATH").doubleClick();
-			bot.sleep(1000);
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Edit variable", 5000);
 
 			Path idfToolsPath = Paths.get(System.getProperty("user.home"), ".espressif", IDFConstants.TOOLS_FOLDER);
 			String actualPath = bot.textWithLabel("Value:").getText();
 			assertTrue(actualPath.equals(idfToolsPath.toString()));
+		}
+
+		private static void idfPath() {
+			bot.table().select("IDF_PATH");
+			bot.table().getTableItem("IDF_PATH").doubleClick();
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Edit variable", 5000);
+
+			Path idfPath = Paths.get(IDFUtil.getIDFPath());
+			String actualPath = bot.textWithLabel("Value:").getText();
+			assertTrue(actualPath.equals(idfPath.toString()));
+		}
+
+		private static void openOCDScripts() {
+			bot.table().select("OPENOCD_SCRIPTS");
+			bot.table().getTableItem("OPENOCD_SCRIPTS").doubleClick();
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Edit variable", 5000);
+
+			String actualPath = bot.textWithLabel("Value:").getText();
+			String home = System.getProperty("user.home").replace("\\", "/");
+			String pattern = "glob:" + home + "/.espressif/" + IDFConstants.TOOLS_FOLDER
+					+ "/openocd-esp32/*/openocd-esp32/share/openocd/scripts";
+
+			PathMatcher matcher = FileSystems.getDefault().getPathMatcher(pattern);
+			assertTrue(matcher.matches(Paths.get(actualPath)));
+		}
+
+		private static void idfPythonEnvPath() {
+			bot.table().select("IDF_PYTHON_ENV_PATH");
+			bot.table().getTableItem("IDF_PYTHON_ENV_PATH").doubleClick();
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Edit variable", 5000);
+
+			String actualPath = bot.textWithLabel("Value:").getText();
+			String home = System.getProperty("user.home").replace("\\", "/");
+			String pattern = "glob:" + home + "/.espressif/" + IDFConstants.TOOLS_FOLDER + "/python/*/venv";
+
+			PathMatcher matcher = FileSystems.getDefault().getPathMatcher(pattern);
+			assertTrue(matcher.matches(Paths.get(actualPath)));
+		}
+
+		private static void pythonExePath() {
+			bot.table().select("PYTHON_EXE_PATH");
+			bot.table().getTableItem("PYTHON_EXE_PATH").doubleClick();
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Edit variable", 5000);
+
+			String actualPath = bot.textWithLabel("Value:").getText();
+			String home = System.getProperty("user.home").replace("\\", "/");
+			String pattern = "glob:" + home + "/.espressif/" + IDFConstants.TOOLS_FOLDER + "/python/*/venv/bin/python";
+
+			PathMatcher matcher = FileSystems.getDefault().getPathMatcher(pattern);
+			assertTrue(matcher.matches(Paths.get(actualPath)));
+		}
+
+		private static void closeDialog() {
+			bot.button("OK").click();
 		}
 	}
 }
