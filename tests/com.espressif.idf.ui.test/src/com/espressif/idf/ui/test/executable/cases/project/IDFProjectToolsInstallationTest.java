@@ -91,6 +91,8 @@ public class IDFProjectToolsInstallationTest {
 			closeDialog();
 			pythonExePath();
 			closeDialog();
+			cmakeAndNinjaPath();
+			closeDialog();
 		}
 
 		private static void idfToolsPath() {
@@ -100,7 +102,7 @@ public class IDFProjectToolsInstallationTest {
 
 			Path idfToolsPath = Paths.get(System.getProperty("user.home"), ".espressif", IDFConstants.TOOLS_FOLDER);
 			String actualPath = bot.textWithLabel("Value:").getText();
-			assertTrue(actualPath.equals(idfToolsPath.toString()));
+			assertTrue("IDF_TOOLS_PATH mismatch", actualPath.equals(idfToolsPath.toString()));
 		}
 
 		private static void idfPath() {
@@ -110,7 +112,7 @@ public class IDFProjectToolsInstallationTest {
 
 			Path idfPath = Paths.get(IDFUtil.getIDFPath());
 			String actualPath = bot.textWithLabel("Value:").getText();
-			assertTrue(actualPath.equals(idfPath.toString()));
+			assertTrue("IDF_PATH mismatch", actualPath.equals(idfPath.toString()));
 		}
 
 		private static void openOCDScripts() {
@@ -124,7 +126,7 @@ public class IDFProjectToolsInstallationTest {
 					+ "/openocd-esp32/*/openocd-esp32/share/openocd/scripts";
 
 			PathMatcher matcher = FileSystems.getDefault().getPathMatcher(pattern);
-			assertTrue(matcher.matches(Paths.get(actualPath)));
+			assertTrue("OPENOCD_SCRIPTS mismatch", matcher.matches(Paths.get(actualPath)));
 		}
 
 		private static void idfPythonEnvPath() {
@@ -137,7 +139,7 @@ public class IDFProjectToolsInstallationTest {
 			String pattern = "glob:" + home + "/.espressif/" + IDFConstants.TOOLS_FOLDER + "/python/*/venv";
 
 			PathMatcher matcher = FileSystems.getDefault().getPathMatcher(pattern);
-			assertTrue(matcher.matches(Paths.get(actualPath)));
+			assertTrue("IDF_PYTHON_ENV_PATH mismatch", matcher.matches(Paths.get(actualPath)));
 		}
 
 		private static void pythonExePath() {
@@ -150,7 +152,17 @@ public class IDFProjectToolsInstallationTest {
 			String pattern = "glob:" + home + "/.espressif/" + IDFConstants.TOOLS_FOLDER + "/python/*/venv/bin/python";
 
 			PathMatcher matcher = FileSystems.getDefault().getPathMatcher(pattern);
-			assertTrue(matcher.matches(Paths.get(actualPath)));
+			assertTrue("PYTHON_EXE_PATH mismatch", matcher.matches(Paths.get(actualPath)));
+		}
+
+		private static void cmakeAndNinjaPath() {
+			bot.table().select("PATH");
+			bot.table().getTableItem("PATH").doubleClick();
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Edit variable", 5000);
+
+			String actualPath = bot.textWithLabel("Value:").getText();
+			assertTrue("cmake not found in the PATH", actualPath.contains("cmake"));
+			assertTrue("ninja not found in the PATH", actualPath.contains("ninja"));
 		}
 
 		private static void closeDialog() {
