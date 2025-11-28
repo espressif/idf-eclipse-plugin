@@ -2,8 +2,8 @@
 <introContent>
       <page
             id="root"
-            url="index.html"/>
+            url="http://org.eclipse.ui.intro/showPage?id=root" />
       <page
             id="standbyPageId"
-            url="index.html"/>
+            url="platform:/plugin/com.espessif.idf.ui/index.html"/>
 </introContent>
