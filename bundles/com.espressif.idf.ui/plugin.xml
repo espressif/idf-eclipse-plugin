@@ -801,7 +801,7 @@
 	<extension
 		point="org.eclipse.ui.intro">
 		<intro
-			class="org.eclipse.ui.intro.config.CustomizableIntroPart"
+			class="com.espressif.idf.ui.EspIntroPart"
 			icon="icons/espressif.png"
 			id="com.espressif.idf.ui.intro">
 		</intro>
