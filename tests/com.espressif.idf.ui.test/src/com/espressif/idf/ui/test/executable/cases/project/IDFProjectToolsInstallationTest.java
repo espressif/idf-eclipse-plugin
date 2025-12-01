@@ -44,7 +44,7 @@ public class IDFProjectToolsInstallationTest {
 	}
 
 	@Test
-	public void givenNewEnvironmentWhenOpenSbomThenSbomIsDisabled() throws Exception {
+	public void givenNewEnvironmentThenVerifyToolsPaths() throws Exception {
 		Fixture.verifyToolsPaths();
 	}
 
@@ -74,14 +74,14 @@ public class IDFProjectToolsInstallationTest {
 		private static void idfToolsPath() {
 			String actualPath = IDFUtil.getIDFToolsPath();
 			Path idfToolsPath = Paths.get(System.getProperty("user.home"), ".espressif", IDFConstants.TOOLS_FOLDER);
-			assertTrue("IDF_TOOLS_PATH mismatch", actualPath.equals(idfToolsPath.toString()));
+			assertTrue("IDF_TOOLS_PATH mismatch" + actualPath, actualPath.equals(idfToolsPath.toString()));
 		}
 
 		private static void idfPath() {
 			String actualPath = IDFUtil.getIDFPath();
 			String pattern = "glob:" + home + "/.espressif" + "/*/esp-idf";
 			PathMatcher matcher = FileSystems.getDefault().getPathMatcher(pattern);
-			assertTrue("IDF_PATH mismatch", matcher.matches(Paths.get(actualPath)));
+			assertTrue("IDF_PATH mismatch" + actualPath, matcher.matches(Paths.get(actualPath)));
 		}
 
 		private static void pythonExePath() {
@@ -102,7 +102,7 @@ public class IDFProjectToolsInstallationTest {
 					+ "/openocd-esp32/*/openocd-esp32/share/openocd/scripts";
 
 			PathMatcher matcher = FileSystems.getDefault().getPathMatcher(pattern);
-			assertTrue("OPENOCD_SCRIPTS mismatch", matcher.matches(Paths.get(actualPath)));
+			assertTrue("OPENOCD_SCRIPTS mismatch" + actualPath, matcher.matches(Paths.get(actualPath)));
 		}
 	}
 }
