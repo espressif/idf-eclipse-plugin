@@ -57,6 +57,7 @@ public class IDFEnvironmentVariables
 
 	public static final String SYSTEM_PATH = "SYSTEM_PATH"; //$NON-NLS-1$
 	
+	public static final String IDF_TOOLS_PATH = "IDF_TOOLS_PATH"; //$NON-NLS-1$
 	/**
 	 * @param variableName Environment variable Name
 	 * @return IEnvironmentVariable
