@@ -135,10 +135,7 @@ jobs:
     runs-on: windows-latest
     needs: macos-build
     env:
-      JKS_B64: ${{ secrets.JARSIGNER_REL_KEYSTORE_B64 }}
-      JKS_PASS: ${{ secrets.JARSIGNER_REL_STOREPASS }}
-      ALIAS: ${{ secrets.JARSIGNER_REL_ALIAS }}
-      PFX_PASS: ${{ secrets.JARSIGNER_REL_STOREPASS }}
+      ARTIFACTS_PATH: extracted/Espressif-IDE
     steps:
       - uses: actions/checkout@v3
 
@@ -147,7 +144,6 @@ jobs:
         with:
           name: espressif-ide-win32
           path: artifacts
-
 
       - name: Verify the downloaded file
         shell: pwsh
@@ -160,97 +156,47 @@ jobs:
           Expand-Archive -Path artifacts\*.zip -DestinationPath extracted -Force
           ls .\artifacts\*
 
-      - name: Decode base64-encoded JKS
-        run: |
-          # Restore JKS from secret
-          [IO.File]::WriteAllBytes("signing.jks",[Convert]::FromBase64String($env:JKS_B64))
-          if (-not (Test-Path "$PWD\signing.jks")) { throw "signing.jks not created" }
-
-      - name: Verify JKS contains a PrivateKeyEntry (robust)
+      - name: Install .NET 8 SDK and AzureSignTool
         shell: pwsh
         run: |
-         if (-not $env:ALIAS) { throw "ALIAS secret is empty. It must point to the PrivateKeyEntry alias." }
+          mkdir dotnet
+          cd dotnet
+          $dotnet_url="https://download.visualstudio.microsoft.com/download/pr/5af098e1-e433-4fda-84af-3f54fd27c108/6bd1c6e48e64e64871957289023ca590/dotnet-sdk-8.0.302-win-x64.zip"
+          Invoke-WebRequest -Uri $dotnet_url -OutFile dotnet-sdk-8.0.302-win-x64.zip
+          Expand-Archive -LiteralPath .\dotnet-sdk-8.0.302-win-x64.zip -DestinationPath .
+          $Env:DOTNET_ROOT="$($(Get-Location).Path)\dotnet-sdk-8.0.302-win-x64"
+          $Env:PATH="$Env:DOTNET_ROOT;$Env:PATH"
+          $Env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE=$true
+          dotnet tool install --global AzureSignTool
+          cd ..
 
-         $out = & "${env:JAVA_HOME}\bin\keytool.exe" -list -v `
-          -keystore "$PWD\signing.jks" `
-          -storepass $env:JKS_PASS `
-          -alias "$env:ALIAS" 2>&1
-
-         if ($LASTEXITCODE -ne 0) {
-          $out | Write-Host
-          throw "Alias '$($env:ALIAS)' not found in keystore (or wrong store password)."
-         }
-         # Show a small excerpt (masking may hide values; that’s fine)
-         $out | Select-String -Pattern 'Alias name:|Entry type:|Certificate chain length' | ForEach-Object { $_.Line } | Write-Host
-         # IMPORTANT: treat output as ONE string before regex testing
-         $outText = ($out | Out-String)
-         if ($outText -notmatch 'Entry type:\s*PrivateKeyEntry') {
-           throw "Alias '$($env:ALIAS)' is not a PrivateKeyEntry (likely a trustedCertEntry)."
-         }
-
-      - name: Convert JKS to PFX
+      - name: Sign EXE using AzureSignTool
         shell: pwsh
         run: |
-          if (($env:JKS_PASS).Length -lt 6) { throw "JKS_PASS must be at least 6 characters." }
-          if (($env:PFX_PASS).Length -lt 6) { throw "PFX_PASS must be at least 6 characters." }
+          $exePath = Join-Path $PWD "${{ env.ARTIFACTS_PATH }}\espressif-ide.exe"
+          if (-not (Test-Path $exePath)) { throw "espressif-ide.exe not found at $exePath" }
           
-          $kt = Join-Path $env:JAVA_HOME 'bin\keytool.exe'
-
-          $args = @(
-           '-importkeystore',
-           '-srckeystore',  "$PWD\signing.jks",
-           '-srcstorepass', $env:JKS_PASS,
-           '-srcalias',     $env:ALIAS,
-           '-srckeypass',   $env:JKS_PASS, 
-           '-destkeystore', "$PWD\cert.pfx",
-           '-deststoretype','PKCS12',
-           '-deststorepass',$env:PFX_PASS,
-           '-destkeypass',  $env:PFX_PASS
-          )
-          & $kt @args
-          if (-not (Test-Path "$PWD\cert.pfx")) { throw "cert.pfx not created" }
-
-      - name: Prove PFX has a private key (fail fast)
-        shell: pwsh
-        run: |
-         $dump = certutil -p $env:PFX_PASS -dump "$PWD\cert.pfx"
-         if ($dump -notmatch 'Private key is present:\s*Yes') {
-           Write-Host $dump
-           throw "Exported PFX lacks a private key. Check alias/passwords; your JKS may be a truststore."
-         }
-
-      - name: Inspect the PFX file
-        shell: pwsh
-        run: |
-          certutil -p $env:PFX_PASS -dump cert.pfx
-
-
-      - name: Sign Windows Executable
-        shell: pwsh
-        run: |
-         $exe = Get-ChildItem -File -Recurse "$PWD\extracted\Espressif-IDE\espressif-ide.exe" | Select-Object -First 1
-         if (-not $exe) { throw "espressif-ide.exe not found under extracted\Espressif-IDE" }
-
-         $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits" -Recurse -Filter signtool.exe |
-                    Sort-Object FullName | Select-Object -First 1
-         if (-not $signtool) { throw "signtool.exe not found in Windows Kits" }
-
-         & $signtool.FullName sign `
-          /debug /v `
-          /f "$PWD\cert.pfx" `
-          /p $env:PFX_PASS `
-          /tr http://timestamp.digicert.com `
-          /td sha256 `
-          /fd sha256 `
-          "$($exe.FullName)"
+          $Env:DOTNET_ROOT="$PWD\dotnet\dotnet-sdk-8.0.302-win-x64"
+          $Env:PATH="$Env:DOTNET_ROOT;$Env:PATH"
+          
+          AzureSignTool.exe sign `
+            -kvu "${{ secrets.AZURE_KEYVAULT_URI }}" `
+            -kvc "${{ secrets.AZURE_KEYVAULT_CERT_NAME }}" `
+            -kvi "${{ secrets.AZURE_CLIENT_ID }}" `
+            -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" `
+            --azure-key-vault-tenant-id "${{ secrets.AZURE_TENANT_ID }}" `
+            -tr http://timestamp.globalsign.com/tsa/advanced `
+            -td sha256 `
+            "$exePath"
 
       - name: Verify Signature
+        shell: pwsh
         run: |
-         $exe = Get-ChildItem -Recurse extracted\Espressif-IDE\espressif-ide.exe | Select-Object -First 1
+         $exePath = Join-Path $PWD "${{ env.ARTIFACTS_PATH }}\espressif-ide.exe"
          $signtool = Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits" -Recurse -Name "signtool.exe" | Select-Object -First 1
          & "C:\Program Files (x86)\Windows Kits\$signtool" verify `
          /pa `
-         $exe.FullName
+         "$exePath"
 
       - name: Removing original ZIP from extracted folder
         run: |
@@ -263,6 +209,7 @@ jobs:
           failOnError: false
 
       - name: Upload Signed Windows ZIP
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: espressif-ide-win32
