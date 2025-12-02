@@ -37,32 +37,20 @@ import com.espressif.idf.ui.test.operations.selectors.LaunchBarTargetSelector;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 
 public class IDFProjectLaunchTargetEditorFunctionalityTest {
+
 	@BeforeClass
-	public static void beforeTestClass() throws Exception
-	{
+	public static void beforeTestClass() throws Exception {
 		Fixture.loadEnv();
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("LaunchTargetEditorTest");
-		Fixture.whenNewProjectIsSelected();
+		Fixture.createProject();
 	}
 
 	@AfterClass
-	public static void afterEachTest()
-	{
-		try
-		{
-			Fixture.cleanTestEnv();
-		}
-		catch (Exception e)
-		{
-			System.err.println("Error during cleanup: " + e.getMessage());
-		}
+	public static void tearDown() {
+		Fixture.cleanupEnvironment();
 	}
 
 	@Test
-	public void givenANewProjectCreatedBuiltWhenSelectNewTargetWhenPopUpAppearsThenBuildFolderDeletedSuccessfully()
-			throws Exception
-	{	
+	public void shouldDeleteBuildFolderWhenChangingLaunchTargetOnBuiltProject() throws Exception {
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.whenChangeLaunchTarget();
 		Fixture.whenRefreshProject();
@@ -70,62 +58,36 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 	}
 
 	@Test
-	public void givenBNewProjectCreatedWhenCreateNewLaunchTargetThenProjectBuiltSuccessfully()
-			throws Exception
-	{
+	public void shouldBuildProjectWhenCreatingNewLaunchTargetAndDeleteItSuccessfully() throws Exception {
 		Fixture.whenCreateNewLaunchTarget();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
-	}
-
-	@Test
-	public void givenCNewProjectCreatedWhenDeleteSelectedLaunchTargetThenDeletedSuccessfully()
-			throws Exception
-	{
-		Fixture.whenProjectFullCleanUsingContextMenu();
+		Fixture.whenProjectFullCleaned();
 		Fixture.whenDeleteSelectedLaunchTarget();
 		Fixture.thenLaunchTargetDeletedSuccessfully();
 	}
 
-	private static class Fixture
-	{
+	private static class Fixture {
 		private static SWTWorkbenchBot bot;
-		private static String category;
-		private static String subCategory;
-		private static String projectName;
 
-		private static void loadEnv() throws Exception
-		{
+		private static String projectName = "Project";
+
+		static void loadEnv() throws Exception {
 			bot = WorkBenchSWTBot.getBot();
 			EnvSetupOperations.setupEspressifEnv(bot);
 			bot.sleep(1000);
-			ProjectTestOperations.deleteAllProjects(bot);
 		}
 
-		private static void givenNewEspressifIDFProjectIsSelected(String category, String subCategory)
-		{
-			Fixture.category = category;
-			Fixture.subCategory = subCategory;
+		private static void createProject() throws Exception {
+			ProjectTestOperations.setupProject(projectName, "EspressIf", "Espressif IDF Project", bot);
 		}
 
-		private static void givenProjectNameIs(String projectName)
-		{
-			Fixture.projectName = projectName;
-		}
-
-		private static void whenNewProjectIsSelected() throws Exception
-		{
-			ProjectTestOperations.setupProject(projectName, category, subCategory, bot);
-		}
-
-		private static void whenProjectIsBuiltUsingContextMenu() throws IOException
-		{
+		private static void whenProjectIsBuiltUsingContextMenu() throws IOException {
 			ProjectTestOperations.buildProjectUsingContextMenu(projectName, bot);
 			ProjectTestOperations.waitForProjectBuild(bot);
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
 		}
 
-		private static void whenChangeLaunchTarget() throws Exception
-		{
+		private static void whenChangeLaunchTarget() throws Exception {
 			LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
 			targetSelector.selectTarget("esp32c2");
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "IDF Launch Target Changed", 20000);
@@ -134,92 +96,85 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 			bot.button("Yes").click();
 		}
 
-		private static void whenSelectLaunchTarget() throws Exception
-		{
+		private static void whenSelectLaunchTarget() throws Exception {
 			LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
 			targetSelector.selectTarget("target");
 		}
 
-		private static void whenDeleteLaunchTarget() throws Exception
-		{
+		private static void whenDeleteLaunchTarget() throws Exception {
 			bot.sleep(500);
 			LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
 			targetSelector.clickEdit();
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "New ESP Target", 20000);
 			SWTBotShell shell = bot.shell("New ESP Target");
 			shell.setFocus();
-			bot.button("Delete").click();	
+			bot.button("Delete").click();
 		}
 
-		private static void whenDeleteSelectedLaunchTarget() throws Exception
-		{
+		private static void whenDeleteSelectedLaunchTarget() throws Exception {
 			whenSelectLaunchTarget();
 			whenDeleteLaunchTarget();
 		}
 
-		private static void thenLaunchTargetDeletedSuccessfully() throws Exception
-		{
+		private static void thenLaunchTargetDeletedSuccessfully() throws Exception {
 			bot.sleep(500);
 			LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
 			assertTrue("Launch Target was not deleted successfully!", !targetSelector.isTargetPresent("target"));
 		}
 
-		private static void selectNewLaunchTarget()
-		{
+		private static void selectNewLaunchTarget() {
 			LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
 			targetSelector.select("New Launch Target...");
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "New Launch Target", 20000);
 			assertTrue("'New Launch Target' dialog did not appear", bot.shell("New Launch Target").isActive());
 		}
 
-		private static void handleNewLaunchTargetDialog() throws Exception
-		{
+		private static void handleNewLaunchTargetDialog() throws Exception {
 			SWTBotShell shell = bot.shell("New Launch Target");
 			bot.table().select("ESP Target");
 			shell.setFocus();
 			bot.waitUntil(widgetIsEnabled(bot.button("Next >")), 5000);
 			bot.button("Next >").click();
-			TestWidgetWaitUtility.waitForDialogToAppear(bot, "New ESP Target",10000);
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "New ESP Target", 10000);
 		}
 
-		private static void handleNewEspTargetDialog() throws Exception
-		{
+		private static void handleNewEspTargetDialog() throws Exception {
 			bot.textWithLabel("Name:").setText("target");
 			bot.button("Finish").click();
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 		}
 
-		private static void whenCreateNewLaunchTarget() throws Exception
-		{
+		private static void whenCreateNewLaunchTarget() throws Exception {
 			selectNewLaunchTarget();
 			handleNewLaunchTargetDialog();
 			handleNewEspTargetDialog();
 		}
 
-		private static void whenRefreshProject() throws IOException
-		{
+		private static void whenRefreshProject() throws IOException {
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
 		}
 
-		private static void thenBuildFolderDeletedSuccessfully() throws Exception
-		{
-			assertTrue("Build folder was not deleted successfully!", ProjectTestOperations.findProjectFullCleanedFilesInBuildFolder(projectName, bot));
+		private static void thenBuildFolderDeletedSuccessfully() throws Exception {
+			assertTrue("Build folder was not deleted successfully!",
+					ProjectTestOperations.findProjectFullCleanedFilesInBuildFolder(projectName, bot));
 		}
 
-		private static void whenProjectFullCleanUsingContextMenu() throws IOException
-		{
+		private static void whenProjectFullCleaned() throws IOException {
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Project Full Clean");
 			ProjectTestOperations.joinJobByName(Messages.ProjectFullCleanCommandHandler_RunningFullcleanJobName);
 			ProjectTestOperations.findInConsole(bot, "Espressif IDF Tools Console", "Done");
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
+
+			bot.tree().getTreeItem(projectName).getNode("sdkconfig").select();
+			bot.tree().getTreeItem(projectName).getNode("sdkconfig").contextMenu("Delete").click();
+			bot.shell("Delete Resources").bot().button("OK").click();
+			TestWidgetWaitUtility.waitWhileDialogIsVisible(bot, "Delete Resources", 10000);
 		}
 
-		private static void cleanTestEnv()
-		{
+		static void cleanupEnvironment() {
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
 			ProjectTestOperations.closeAllProjects(bot);
 			ProjectTestOperations.deleteAllProjects(bot);
 		}
 	}
 }
-

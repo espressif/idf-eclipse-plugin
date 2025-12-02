@@ -11,7 +11,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -46,17 +46,9 @@ public class IDFProjectJTAGFlashTest
 		Fixture.loadEnv();
 	}
 
-	@After
-	public void afterEachTest()
-	{
-		try
-		{
-			Fixture.cleanTestEnv();
-		}
-		catch (Exception e)
-		{
-			System.err.println("Error during cleanup: " + e.getMessage());
-		}
+	@AfterClass
+	public static void tearDown() {
+		Fixture.cleanupEnvironment();
 	}
 
 	@Test
@@ -156,7 +148,7 @@ public class IDFProjectJTAGFlashTest
 			ProjectTestOperations.verifyTheConsoleOutput(bot, "** Flashing done for partition_table/partition-table.bin");
 		}
 
-		private static void cleanTestEnv()
+		private static void cleanupEnvironment()
 		{
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
 			ProjectTestOperations.closeAllProjects(bot);

@@ -14,7 +14,7 @@ import static org.junit.Assert.assertTrue;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -45,17 +45,9 @@ public class NewEspressifIDFProjectFlashProcessTest {
 		Fixture.loadEnv();
 	}
 
-	@After
-	public void afterEachTest()
-	{
-		try
-		{
-			Fixture.cleanTestEnv(); // Make sure test environment is always cleaned up
-		}
-		catch (Exception e)
-		{
-			System.err.println("Error during cleanup: " + e.getMessage());
-		}
+	@AfterClass
+	public static void tearDown() {
+		Fixture.cleanupEnvironment();
 	}
 
 
@@ -118,13 +110,6 @@ public class NewEspressifIDFProjectFlashProcessTest {
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
 		}
 
-		private static void cleanTestEnv()
-		{
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
-			ProjectTestOperations.closeAllProjects(bot);
-			ProjectTestOperations.deleteAllProjects(bot);
-		}
-
 		private static void whenSelectLaunchTargetSerialPort() throws Exception
 		{
 			LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
@@ -165,6 +150,12 @@ public class NewEspressifIDFProjectFlashProcessTest {
 		private static void thenVerifyFlashDoneSuccessfully() throws Exception
 		{
 			ProjectTestOperations.waitForProjectFlash(bot);
+		}
+
+		static void cleanupEnvironment() {
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
+			ProjectTestOperations.closeAllProjects(bot);
+			ProjectTestOperations.deleteAllProjects(bot);
 		}
 	}
 }

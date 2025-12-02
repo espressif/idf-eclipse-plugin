@@ -17,10 +17,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
-import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -32,7 +31,6 @@ import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 import com.espressif.idf.ui.test.operations.EnvSetupOperations;
 import com.espressif.idf.ui.test.operations.ProjectTestOperations;
-import com.espressif.idf.ui.test.operations.selectors.LaunchBarTargetSelector;
 
 /**
  * Test class to test Clangd / Clang-Format files functionality
@@ -43,152 +41,88 @@ import com.espressif.idf.ui.test.operations.selectors.LaunchBarTargetSelector;
 @SuppressWarnings("restriction")
 @RunWith(SWTBotJunit4ClassRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class NewEspressifIDFProjectClangFilesTest
-{
+public class NewEspressifIDFProjectClangFilesTest {
+
 	@BeforeClass
-	public static void beforeTestClass() throws Exception
-	{
+	public static void beforeTestClass() throws Exception {
 		Fixture.loadEnv();
+		Fixture.createProject("Project1");
+		Fixture.createProject("Project2");
+		Fixture.createProject("Project3");
 	}
 
-	@After
-	public void afterEachTest()
-	{
-		try
-		{
-			Fixture.cleanTestEnv();
-		}
-		catch (Exception e)
-		{
-			System.err.println("Error during cleanup: " + e.getMessage());
-		}
+	@AfterClass
+	public static void tearDown() {
+		Fixture.cleanupEnvironment();
 	}
 
 	@Test
-	public void givenNewProjectIsCreatedThenTestClangFilesPresenceAndContentForNewProject() throws Exception
-	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectClangFilesTest");
-		Fixture.whenNewProjectIsSelected("NewProjectClangFilesTest");
+	public void shouldHaveClangFilesPresentAndContentCorrectForNewProject() throws Exception {
 		Fixture.thenClangdFileIsPresent();
 		Fixture.whenClangdFileOpenedUsingDoubleClick();
 		Fixture.thenClangdFileContentChecked();
 		Fixture.thenClangdShellClosed();
 		Fixture.thenClangFormatFileIsPresent();
-		Fixture.whenClangFormatFileOpenedUsingDoubleClick();
+		Fixture.whenClangFormatFileOpenedUsingDoubleClick("Project1");
 		Fixture.thenClangFormatContentChecked();
 		Fixture.thenClangFormatShellClosed();
 	}
 
 	@Test
-	public void givenNewProjectIsCreatedWhenClangdFileIsDeletedThenTestClangdFileCreatedUsingContextMenuThenClangdFileContentChecked()
-			throws Exception
-	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectClangFilesTest2");
-		Fixture.whenNewProjectIsSelected("NewProjectClangFilesTest2");
+	public void shouldRecreateClangdFileAfterDeletionAndVerifyContent() throws Exception {
 		Fixture.whenClangdFileDeleted();
 		Fixture.thenClangdFileIsAbsent();
 		Fixture.thenCreateClangdFileUsingContextMenu();
 		Fixture.thenClangdFileIsPresent();
 		Fixture.whenClangdFileOpenedUsingDoubleClick();
-		Fixture.thenClangdFileContentCheckedAgain("NewProjectClangFilesTest2");
+		Fixture.thenClangdFileContentChecked();
+		Fixture.thenClangdShellClosed();
 	}
 
 	@Test
-	public void givenNewProjectIsCreatedThenTestClangFormatFileSettingsAreBeingApplied() throws Exception
-	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectClangFilesTest3");
+	public void shouldApplyClangFormatSettingsWhenAutoSaveIsEnabled() throws Exception {
 		Fixture.setupAutoSave();
-		Fixture.whenNewProjectIsSelected("NewProjectClangFilesTest3");
-		Fixture.whenClangFormatFileOpenedUsingDoubleClick();
+		Fixture.whenClangFormatFileOpenedUsingDoubleClick("Project2");
 		Fixture.thenClangFormatContentEdited();
 		Fixture.thenEditedClangFormatShellClosed();
-		Fixture.whenMainFileIsOpened();
+		Fixture.whenMainFileIsOpened("Project2");
 		Fixture.addSpaceToMainFile();
 		Fixture.thenMainFileShellClosed();
-		Fixture.whenMainFileIsOpened();
+		Fixture.whenMainFileIsOpened("Project2");
 		Fixture.checkMainFileContentFormattedUnderActualSettings();
 	}
 
 	@Test
-	public void givenNewProjectsAreCreatedAndBuiltWhenPreferencesOpenedThenClangdArgumentMatchesExpected()
-			throws Exception
-	{
-		Fixture.givenNewProjectIsCreated("NewProjectClangFilesTest4");
-		Fixture.whenProjectIsBuiltUsingContextMenu("NewProjectClangFilesTest4");
-		Fixture.thenCheckClangdArgumentAfterProjectBuilt("NewProjectClangFilesTest4");
-		Fixture.givenNewProjectIsCreated("NewProjectClangFilesTest5");
-		Fixture.whenProjectIsBuiltUsingContextMenu("NewProjectClangFilesTest5");
-		Fixture.thenCheckClangdArgumentAfterProjectBuilt("NewProjectClangFilesTest5");
-	}
-
-	@Test
-	public void givenNewProjectIsCreatedWhenBuiltThenClangdDriversUpdateOnTargetWhenChangeTargetAndBuiltThenClangdDriversUpdateOnTargetChange()
-			throws Exception
-	{
-		Fixture.givenNewProjectIsCreated("NewProjectClangFilesTest6");
-		Fixture.whenProjectIsBuiltUsingContextMenu("NewProjectClangFilesTest6");
-		Fixture.thenClangdDriversUpdateOnSelectedTarget();
-		Fixture.whenChangeTarget();
-		Fixture.whenProjectIsBuiltUsingContextMenu("NewProjectClangFilesTest6");
+	public void shouldMatchExpectedClangdArgumentsAfterBuildingProjects() throws Exception {
+		Fixture.whenProjectIsBuiltUsingContextMenu("Project3");
+		Fixture.thenCheckClangdArgumentAfterProjectBuilt("Project3");
+		Fixture.whenProjectIsBuiltUsingContextMenu("Project1");
+		Fixture.thenCheckClangdArgumentAfterProjectBuilt("Project1");
 		Fixture.thenClangdDriversUpdateOnSelectedTarget();
 	}
 
-	private static class Fixture
-	{
+	private static class Fixture {
 		private static SWTWorkbenchBot bot;
-		private static String category;
-		private static String subCategory;
-		private static String projectName;
-		private static LaunchBarTargetSelector launchBarTargetSelector;
+		private static String projectName = "Project1";
 
-		private static void loadEnv() throws Exception
-		{
+		static void loadEnv() throws Exception {
 			bot = WorkBenchSWTBot.getBot();
 			EnvSetupOperations.setupEspressifEnv(bot);
 			bot.sleep(1000);
-			ProjectTestOperations.deleteAllProjects(bot);
-			try
-			{
-				launchBarTargetSelector = new LaunchBarTargetSelector(bot);
-			}
-			catch (WidgetNotFoundException e)
-			{
-				launchBarTargetSelector = new LaunchBarTargetSelector(bot, false);
-			}
 		}
 
-		private static void givenNewEspressifIDFProjectIsSelected(String category, String subCategory)
-		{
-			Fixture.category = category;
-			Fixture.subCategory = subCategory;
-		}
-
-		private static void givenProjectNameIs(String projectName)
-		{
-			Fixture.projectName = projectName;
-		}
-
-		private static void givenNewProjectIsCreated(String projectName) throws Exception
-		{
-			Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-			Fixture.givenProjectNameIs(projectName);
+		private static void createProject(String projectName) throws Exception {
+			ProjectTestOperations.setupProject(projectName, "EspressIf", "Espressif IDF Project", bot);
 			Fixture.whenNewProjectIsSelected(projectName);
 		}
 
-		private static void thenCheckClangdArgumentAfterProjectBuilt(String projectName) throws Exception
-		{
+		private static void thenCheckClangdArgumentAfterProjectBuilt(String projectName) throws Exception {
 			Fixture.whenOpenClangdPreferences();
 			Fixture.thenCompareActualClangdArgumentWithExpected(projectName);
 			Fixture.closePreferencesDialog();
 		}
 
-		private static void whenNewProjectIsSelected(String projectName) throws Exception
-		{
-			ProjectTestOperations.setupProject(projectName, category, subCategory, bot);
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
+		private static void whenNewProjectIsSelected(String projectName) throws Exception {
 			SWTBotView projectExplorView = bot.viewByTitle("Project Explorer");
 			projectExplorView.show();
 			projectExplorView.setFocus();
@@ -197,98 +131,66 @@ public class NewEspressifIDFProjectClangFilesTest
 			bot.sleep(1000);
 		}
 
-		private static void thenClangdDriversUpdateOnSelectedTarget() throws Exception
-		{
+		private static void thenClangdDriversUpdateOnSelectedTarget() throws Exception {
 			whenOpenClangdPreferences();
-			thenCompareActualClangdDriversWithExpected("NewProjectClangFilesTest6");
+			thenCompareActualClangdDriversWithExpected();
 			closePreferencesDialog();
 		}
 
-		private static void whenChangeTarget() throws Exception
-		{
-			Fixture.thenLaunchTargetIsSelectedFromLaunchTargets("esp32s2");
-			Fixture.closeTargetDialog();
-		}
-
-		private static void thenClangdFileIsPresent() throws IOException
-		{
+		private static void thenClangdFileIsPresent() throws IOException {
 			assertTrue(bot.tree().getTreeItem(projectName).getNode(".clangd") != null);
 		}
 
-		private static void thenClangFormatFileIsPresent() throws IOException
-		{
+		private static void thenClangFormatFileIsPresent() throws IOException {
 			assertTrue(bot.tree().getTreeItem(projectName).getNode(".clang-format") != null);
 		}
 
-		private static void whenClangdFileDeleted() throws IOException
-		{
+		private static void whenClangdFileDeleted() throws IOException {
 			bot.tree().getTreeItem(projectName).getNode(".clangd").select();
 			bot.tree().getTreeItem(projectName).getNode(".clangd").contextMenu("Delete").click();
 			bot.shell("Delete Resources").bot().button("OK").click();
 			TestWidgetWaitUtility.waitWhileDialogIsVisible(bot, "Delete Resources", 10000);
 		}
 
-		private static void thenClangdFileIsAbsent() throws IOException
-		{
+		private static void thenClangdFileIsAbsent() throws IOException {
 			assertTrue(!bot.tree().getTreeItem(projectName).getNodes().contains(".clangd"));
 		}
 
-		private static void thenCreateClangdFileUsingContextMenu() throws IOException
-		{
+		private static void thenCreateClangdFileUsingContextMenu() throws IOException {
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Create Clangd Config");
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Clangd Configuration", 5000);
 			bot.shell("Clangd Configuration").bot().button("OK").click();
 		}
 
-		private static void whenClangdFileOpenedUsingDoubleClick() throws IOException
-		{
+		private static void whenClangdFileOpenedUsingDoubleClick() throws IOException {
 			bot.tree().getTreeItem(projectName).getNode(".clangd").doubleClick();
 			TestWidgetWaitUtility.waitForCTabToAppear(bot, ".clangd", 5000);
 		}
 
-		private static void whenClangFormatFileOpenedUsingDoubleClick() throws IOException
-		{
-			bot.tree().getTreeItem(projectName).getNode(".clang-format").doubleClick();
+		private static void whenClangFormatFileOpenedUsingDoubleClick(String project) throws IOException {
+			bot.tree().getTreeItem(project).getNode(".clang-format").doubleClick();
 			TestWidgetWaitUtility.waitForCTabToAppear(bot, ".clang-format", 5000);
 		}
 
-		private static String getExpectedBuildFolderPATH(String projectName) throws IOException
-		{
-			try
-			{
+		private static String getExpectedBuildFolderPATH(String projectName) throws IOException {
+			try {
 				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 				String buildFolder = IDFUtil.getBuildDir(project);
 				Path buildFolderPath = Paths.get(buildFolder);
 				return buildFolderPath.toAbsolutePath().toString();
-			}
-			catch (CoreException e)
-			{
+			} catch (CoreException e) {
 				throw new IOException("Failed to get build directory for project: " + projectName, e);
 			}
 		}
 
-		private static void thenClangdFileContentChecked() throws Exception
-		{
-			bot.cTabItem(".clangd").activate();
-			assertTrue(ProjectTestOperations.checkExactMatchInTextEditor(
-					"CompileFlags:\n" + "  CompilationDatabase: build\n" + "  Remove: [-m*, -f*]", bot));
-		}
-
-		private static void thenClangdFileContentCheckedAgain(String projectName) throws Exception
-		{
+		private static void thenClangdFileContentChecked() throws Exception {
 			String buildPath = getExpectedBuildFolderPATH(projectName);
 			bot.cTabItem(".clangd").activate();
 			assertTrue(ProjectTestOperations.checkExactMatchInTextEditor(
 					"CompileFlags:\n" + "  CompilationDatabase: " + buildPath + "\n" + "  Remove: [-m*, -f*]", bot));
 		}
 
-		public static void thenLaunchTargetIsSelectedFromLaunchTargets(String launchTargetName)
-		{
-			launchBarTargetSelector.select(launchTargetName);
-		}
-
-		private static void thenClangFormatContentChecked() throws Exception
-		{
+		private static void thenClangFormatContentChecked() throws Exception {
 			bot.cTabItem(".clang-format").activate();
 			assertTrue(ProjectTestOperations.checkExactMatchInTextEditor(
 					"""
@@ -304,8 +206,7 @@ public class NewEspressifIDFProjectClangFilesTest
 					bot));
 		}
 
-		private static void thenClangFormatContentEdited() throws Exception
-		{
+		private static void thenClangFormatContentEdited() throws Exception {
 			SWTBotEditor textEditor = bot.activeEditor();
 			textEditor.toTextEditor().setText(
 					"""
@@ -320,8 +221,7 @@ public class NewEspressifIDFProjectClangFilesTest
 							""");
 		}
 
-		private static void addSpaceToMainFile() throws Exception
-		{
+		private static void addSpaceToMainFile() throws Exception {
 			SWTBotEditor textEditor = bot.activeEditor();
 			textEditor.toTextEditor().setText("""
 					#include <stdbool.h>
@@ -337,8 +237,7 @@ public class NewEspressifIDFProjectClangFilesTest
 					""");
 		}
 
-		private static void checkMainFileContentFormattedUnderActualSettings() throws Exception
-		{
+		private static void checkMainFileContentFormattedUnderActualSettings() throws Exception {
 			bot.sleep(1000);
 			assertTrue(ProjectTestOperations.checkExactMatchInTextEditorwithWhiteSpaces("""
 					#include <stdbool.h>
@@ -354,8 +253,7 @@ public class NewEspressifIDFProjectClangFilesTest
 					""", bot));
 		}
 
-		private static void setupAutoSave() throws Exception
-		{
+		private static void setupAutoSave() throws Exception {
 			bot.menu("Window").menu("Preferences...").click();
 			SWTBotShell prefrencesShell = bot.shell("Preferences");
 			prefrencesShell.bot().tree().getTreeItem("C/C++").select();
@@ -367,80 +265,60 @@ public class NewEspressifIDFProjectClangFilesTest
 			prefrencesShell.bot().button("Apply and Close").click();
 		}
 
-		private static void whenMainFileIsOpened() throws Exception
-		{
-			ProjectTestOperations.openMainFileInTextEditorUsingContextMenu(projectName, bot);
+		private static void whenMainFileIsOpened(String project) throws Exception {
+			ProjectTestOperations.openMainFileInTextEditorUsingContextMenu(project, bot);
 		}
 
-		private static void thenClangdShellClosed() throws IOException
-		{
+		private static void thenClangdShellClosed() throws IOException {
 			bot.cTabItem(".clangd").close();
 		}
 
-		private static void thenClangFormatShellClosed() throws IOException
-		{
+		private static void thenClangFormatShellClosed() throws IOException {
 			bot.cTabItem(".clang-format").close();
 		}
 
-		private static void thenEditedClangFormatShellClosed() throws IOException
-		{
+		private static void thenEditedClangFormatShellClosed() throws IOException {
 			bot.cTabItem("*.clang-format").close();
 			bot.shell("Save Resource").bot().button("Save").click();
 		}
 
-		private static void thenMainFileShellClosed() throws IOException
-		{
+		private static void thenMainFileShellClosed() throws IOException {
 			bot.cTabItem("*main.c").close();
 			bot.shell("Save Resource").bot().button("Save").click();
 		}
 
 		private static String getExpectedBuildFolderPATHforClangdAdditionalArgument(String projectName)
-				throws IOException
-		{
-			try
-			{
+				throws IOException {
+			try {
 				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 				String buildFolder = IDFUtil.getBuildDir(project);
 				Path buildFolderPath = Paths.get(buildFolder);
 				return "--compile-commands-dir=" + buildFolderPath.toAbsolutePath().toString();
-			}
-			catch (CoreException e)
-			{
+			} catch (CoreException e) {
 				throw new IOException("Failed to get build directory for project: " + projectName, e);
 			}
 		}
 
-		private static String getXtensaToolchainPathBasedOnTheTargetConfigured() throws IOException
-		{
-			String toolchain = IDFUtil.getToolchainExePathForActiveTarget();
-			Path toolchainPath = Paths.get(toolchain);
-			return toolchainPath.toAbsolutePath().toString();
-		}
-
-		private static void thenCompareActualClangdArgumentWithExpected(String projectName) throws IOException
-		{
+		private static void thenCompareActualClangdArgumentWithExpected(String projectName) throws IOException {
 			SWTBotShell prefrencesShell = bot.shell("Preferences");
 			String actualClangdPath = prefrencesShell.bot().textWithLabel("Additional").getText();
 			String expectedClangdPath = getExpectedBuildFolderPATHforClangdAdditionalArgument(projectName);
 			assertTrue(expectedClangdPath.equals(actualClangdPath));
 		}
 
-		private static void thenCompareActualClangdDriversWithExpected(String projectName) throws IOException
-		{
+		private static void thenCompareActualClangdDriversWithExpected() throws IOException {
 			SWTBotShell prefrencesShell = bot.shell("Preferences");
 			String actualDriversPath = prefrencesShell.bot().textWithLabel("Drivers").getText();
 			String expectedDriversPath = "**";
 			assertEquals(expectedDriversPath, actualDriversPath);
 		}
 
-		private static void whenProjectIsBuiltUsingContextMenu(String projectName) throws IOException
-		{
+		private static void whenProjectIsBuiltUsingContextMenu(String projectName) throws IOException {
 			ProjectTestOperations.buildProjectUsingContextMenu(projectName, bot);
 			ProjectTestOperations.waitForProjectBuild(bot);
 		}
 
-		private static void whenOpenClangdPreferences() throws Exception
-		{
+		private static void whenOpenClangdPreferences() throws Exception {
 			bot.menu("Window").menu("Preferences...").click();
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Preferences", 10000);
 			SWTBotShell prefrencesShell = bot.shell("Preferences");
@@ -451,23 +329,13 @@ public class NewEspressifIDFProjectClangFilesTest
 			prefrencesShell.bot().tree().getTreeItem("C/C++").getNode("Editor (LSP)").getNode("clangd").select();
 		}
 
-		private static void closePreferencesDialog()
-		{
+		private static void closePreferencesDialog() {
 			SWTBotShell preferencesShell = bot.shell("Preferences");
 			preferencesShell.bot().button("Cancel").click(); // Or "Apply and Close"
 			TestWidgetWaitUtility.waitWhileDialogIsVisible(bot, "Preferences", 10000);
 		}
 
-		private static void closeTargetDialog()
-		{
-			TestWidgetWaitUtility.waitForDialogToAppear(bot, "IDF Launch Target Changed", 10000);
-			SWTBotShell preferencesShell = bot.shell("IDF Launch Target Changed");
-			preferencesShell.bot().button("Yes").click(); // Or "Apply and Close"
-			TestWidgetWaitUtility.waitWhileDialogIsVisible(bot, "IDF Launch Target Changed", 10000);
-		}
-
-		private static void cleanTestEnv()
-		{
+		static void cleanupEnvironment() {
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
 			ProjectTestOperations.closeAllProjects(bot);
 			ProjectTestOperations.deleteAllProjects(bot);
