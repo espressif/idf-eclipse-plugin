@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.intro.impl.util.ReopenUtil;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -76,6 +77,7 @@ public class InitializeToolsStartup implements IStartup
 	@Override
 	public void earlyStartup()
 	{
+		ReopenUtil.setReopenPreference(true);
 		OpenDialogListenerSupport.getSupport().addPropertyChangeListener(evt -> {
 			PopupDialog popupDialog = PopupDialog.valueOf(evt.getPropertyName());
 			switch (popupDialog)
