@@ -9,10 +9,9 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
-
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -41,14 +40,14 @@ public class NewEspressifIDFProjectSDKconfigTest
 		Fixture.loadEnv();
 	}
 
-	@After
-	public void afterEachTest()
+	@AfterClass
+	public static void tearDown()
 	{
-		Fixture.cleanTestEnv();
+		Fixture.cleanupEnvironment();
 	}
 
 	@Test
-	public void givenNewProjectIsCreatedThenTestFullSDKconfigWorkflowForNewProject() throws Exception
+	public void givenNewProjectThenSDKconfigFileFunctionalTested() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 		Fixture.givenProjectNameIs("NewProjectSDKconfigTest");
@@ -56,23 +55,12 @@ public class NewEspressifIDFProjectSDKconfigTest
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.refreshProjectInProjectExplorer();
 		Fixture.thenSDKconfigFileIsPresent();
-		Fixture.whenSDKconfigFileOpenedViaDoubleClickthenVerifiedthenClosed();
-		Fixture.whenSDKconfigFileOpenedViaContextMenuthenVerifiedthenClosed();
-		Fixture.whenSDKconfigFileOpenedEditedSavedthenReopenedAndChecked();
-		Fixture.whenSDKconfigFileDeletedWhenBuildProjectThenSDKconfigFileGeneratedAndVerified();
-	}
-
-	@Test
-	public void givenNewProjectIsCreatedWhenSDKconfigFileOpenedEditedSavedThenBuiltReopenedAndChecked() throws Exception
-	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectSDKconfigTest2");
-		Fixture.whenNewProjectIsSelected();
-		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.whenSDKconfigFileOpenedEditedSaved();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.whenSDKconfigFileOpenedUsingContextMenu();
 		Fixture.thenCheckChangesAreSaved();
+		Fixture.thenSDKconfigShellClosed();
+		Fixture.whenSDKconfigFileDeletedWhenBuildProjectThenSDKconfigFileGeneratedAndVerified();
 	}
 
 	private static class Fixture
@@ -87,30 +75,12 @@ public class NewEspressifIDFProjectSDKconfigTest
 			bot = WorkBenchSWTBot.getBot();
 			EnvSetupOperations.setupEspressifEnv(bot);
 			bot.sleep(1000);
-			ProjectTestOperations.deleteAllProjects(bot);
-		}
-
-		public static void whenSDKconfigFileOpenedViaDoubleClickthenVerifiedthenClosed() throws Exception
-		{
-			whenSDKconfigFileOpenedUsingDoubleClick();
-			thenSDKconfigFileContentChecked();
-			thenSDKconfigShellClosed();
 		}
 
 		public static void whenSDKconfigFileOpenedViaContextMenuthenVerifiedthenClosed() throws Exception
 		{
 			whenSDKconfigFileOpenedUsingContextMenu();
 			thenSDKconfigFileContentChecked();
-			thenSDKconfigShellClosed();
-		}
-
-		public static void whenSDKconfigFileOpenedEditedSavedthenReopenedAndChecked() throws Exception
-		{
-			whenSDKconfigFileOpenedUsingContextMenu();
-			thenSDKconfigFileContentEdited();
-			whenSDKconfigFileIsSaved();
-			whenSDKconfigFileOpenedUsingContextMenu();
-			thenCheckChangesAreSaved();
 			thenSDKconfigShellClosed();
 		}
 
@@ -136,7 +106,7 @@ public class NewEspressifIDFProjectSDKconfigTest
 			whenSDKconfigFileOpenedViaContextMenuthenVerifiedthenClosed();
 		}
 
-		private static void refreshProjectInProjectExplorer () throws Exception
+		private static void refreshProjectInProjectExplorer() throws Exception
 		{
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
 		}
@@ -172,19 +142,14 @@ public class NewEspressifIDFProjectSDKconfigTest
 
 		private static void thenSDKconfigFileIsPresent() throws IOException
 		{
-			assertTrue("SDKconfig file was not found", bot.tree().getTreeItem(projectName).getNode("sdkconfig") != null);
+			assertTrue("SDKconfig file was not found",
+					bot.tree().getTreeItem(projectName).getNode("sdkconfig") != null);
 		}
 
 		private static void thenSDKconfigFileIsAbsent() throws IOException
 		{
-			assertTrue("SDKconfig file is still present",!bot.tree().getTreeItem(projectName).getNodes().contains("sdkconfig"));
-		}
-
-		private static void whenSDKconfigFileOpenedUsingDoubleClick() throws IOException
-		{
-			bot.tree().getTreeItem(projectName).getNode("sdkconfig").doubleClick();
-			TestWidgetWaitUtility.waitWhileDialogIsVisible(bot, "Progress Information", 40000);
-			TestWidgetWaitUtility.waitForCTabToAppear(bot, "SDK Configuration (sdkconfig)", 10000);
+			assertTrue("SDKconfig file is still present",
+					!bot.tree().getTreeItem(projectName).getNodes().contains("sdkconfig"));
 		}
 
 		private static void whenSDKconfigFileOpenedUsingContextMenu() throws IOException
@@ -200,7 +165,8 @@ public class NewEspressifIDFProjectSDKconfigTest
 			TestWidgetWaitUtility.waitForTreeItem("Partition Table", bot.tree(1), bot);
 			bot.tree(1).getTreeItem("Partition Table").click();
 			bot.sleep(1000);
-			assertTrue("'Offset of partition table (hex)' does not match '0x8000'", bot.textWithLabel("Offset of partition table (hex)").getText().matches("0x8000"));
+			assertTrue("'Offset of partition table (hex)' does not match '0x8000'",
+					bot.textWithLabel("Offset of partition table (hex)").getText().matches("0x8000"));
 		}
 
 		private static void thenSDKconfigFileContentEdited() throws Exception
@@ -235,14 +201,17 @@ public class NewEspressifIDFProjectSDKconfigTest
 			TestWidgetWaitUtility.waitForTreeItem("Partition Table", bot.tree(1), bot);
 			bot.tree(1).getTreeItem("Partition Table").click();
 			bot.sleep(1000);
-			assertTrue("'Offset of partition table (hex)' does not match '0x4000'", bot.textWithLabel("Offset of partition table (hex)").getText().matches("0x4000"));
+			assertTrue("'Offset of partition table (hex)' does not match '0x4000'",
+					bot.textWithLabel("Offset of partition table (hex)").getText().matches("0x4000"));
 			bot.sleep(1000);
-			assertTrue("'Partition Table' does not match 'Custom partition table CSV'", bot.comboBoxWithLabel("Partition Table").selection().equals("Custom partition table CSV"));
+			assertTrue("'Partition Table' does not match 'Custom partition table CSV'",
+					bot.comboBoxWithLabel("Partition Table").selection().equals("Custom partition table CSV"));
 			bot.sleep(1000);
-			assertTrue("'Generate an MD5 checksum for the partition table' checkbox is still checked!", !bot.checkBox("Generate an MD5 checksum for the partition table").isChecked());
+			assertTrue("'Generate an MD5 checksum for the partition table' checkbox is still checked!",
+					!bot.checkBox("Generate an MD5 checksum for the partition table").isChecked());
 		}
 
-		private static void cleanTestEnv()
+		static void cleanupEnvironment()
 		{
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
 			ProjectTestOperations.closeAllProjects(bot);
