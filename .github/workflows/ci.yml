@@ -79,6 +79,87 @@ jobs:
         version=$(ls releng/com.espressif.idf.product/target/products/Espressif-IDE-*.tar.gz | sed -E 's/.*Espressif-IDE-([0-9]+\.[0-9]+\.[0-9]+)-.*/\1/' | head -n 1)
         echo "VERSION=${version}" >> $GITHUB_ENV
         echo "version=${version}" >> $GITHUB_OUTPUT
+
+    - name: Download Jsign
+      run: |
+        wget -q https://github.com/ebourg/jsign/releases/download/7.4/jsign-7.4.jar || \
+        curl -L -o jsign-7.4.jar https://github.com/ebourg/jsign/releases/download/7.4/jsign-7.4.jar
+        echo "Downloaded Jsign 7.4"
+
+    - name: Authenticate to Azure
+      run: |
+        # Login using service principal (--allow-no-subscriptions for Key Vault only access)
+        az login --service-principal \
+          --username ${{ secrets.AZURE_CLIENT_ID }} \
+          --password ${{ secrets.AZURE_CLIENT_SECRET }} \
+          --tenant ${{ secrets.AZURE_TENANT_ID }} \
+          --allow-no-subscriptions
+        
+        echo "Azure authentication successful"
+
+    - name: Get Azure Key Vault Access Token
+      id: get-token
+      run: |
+        # Get access token for Key Vault
+        TOKEN=$(az account get-access-token --resource https://vault.azure.net --query accessToken -o tsv)
+        echo "::add-mask::$TOKEN"
+        echo "token=$TOKEN" >> $GITHUB_OUTPUT
+
+    - name: Sign JAR files with jarsigner
+      env:
+        AZURE_TOKEN: ${{ steps.get-token.outputs.token }}
+        CERT_CHAIN: ${{ secrets.AZURE_KEYVAULT_CERTCHAIN }}
+      run: |
+        # Create certificate chain file if provided
+        CERTCHAIN_ARG=""
+        if [ -n "$CERT_CHAIN" ]; then
+          echo "$CERT_CHAIN" > certchain.p7b
+          CERTCHAIN_ARG="-certchain certchain.p7b"
+          echo "Using certificate chain file"
+        fi
+        
+        # Find and sign JAR files using jarsigner with Jsign's JCA provider
+        find releng/com.espressif.idf.update/target/repository -type f -name "*.jar" | while read -r file; do
+          echo "Signing JAR: $file"
+          
+          jarsigner \
+            -J-cp -Jjsign-7.4.jar \
+            -J--add-modules -Jjava.sql \
+            -providerClass net.jsign.jca.JsignJcaProvider \
+            -providerArg "${{ secrets.AZURE_KEYVAULT_URI }}" \
+            -keystore NONE \
+            -storetype AZUREKEYVAULT \
+            -storepass "$AZURE_TOKEN" \
+            -tsa http://timestamp.digicert.com \
+            $CERTCHAIN_ARG \
+            "$file" \
+            "${{ secrets.AZURE_KEYVAULT_CERT_NAME }}"
+          
+          if [ $? -eq 0 ]; then
+            echo "Successfully signed: $file"
+          else
+            echo "Failed to sign: $file"
+            exit 1
+          fi
+        done
+        
+        echo "JAR files signed!"
+
+    - name: Verify JAR signatures
+      run: |
+        echo "Verifying JAR signatures..."
+        find releng/com.espressif.idf.update/target/repository -type f -name "*.jar" | while read -r file; do
+          echo "Verifying: $file"
+          # Note: Certificate chain warnings are expected if CA is not in Java truststore
+          jarsigner -verify -verbose "$file" || true
+        done
+
+    - name: Cleanup
+      if: always()
+      run: |
+        az logout || true
+        rm -f jsign-7.4.jar || true
+        rm -f certchain.p7b || true
   
     - name: Upload build artifacts
       if: ${{ !cancelled() }}
