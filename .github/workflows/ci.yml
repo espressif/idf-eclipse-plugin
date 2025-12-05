@@ -57,6 +57,8 @@ jobs:
   
   build_macos:
     runs-on: macos-latest
+    outputs:
+      version: ${{ steps.extract_version.outputs.version }}
 
     steps:
     - uses: actions/checkout@v2
@@ -76,6 +78,88 @@ jobs:
         # List all files and extract the version number from the file names
         version=$(ls releng/com.espressif.idf.product/target/products/Espressif-IDE-*.tar.gz | sed -E 's/.*Espressif-IDE-([0-9]+\.[0-9]+\.[0-9]+)-.*/\1/' | head -n 1)
         echo "VERSION=${version}" >> $GITHUB_ENV
+        echo "version=${version}" >> $GITHUB_OUTPUT
+
+    - name: Download Jsign
+      run: |
+        wget -q https://github.com/ebourg/jsign/releases/download/7.4/jsign-7.4.jar || \
+        curl -L -o jsign-7.4.jar https://github.com/ebourg/jsign/releases/download/7.4/jsign-7.4.jar
+        echo "Downloaded Jsign 7.4"
+
+    - name: Authenticate to Azure
+      run: |
+        # Login using service principal (--allow-no-subscriptions for Key Vault only access)
+        az login --service-principal \
+          --username ${{ secrets.AZURE_CLIENT_ID }} \
+          --password ${{ secrets.AZURE_CLIENT_SECRET }} \
+          --tenant ${{ secrets.AZURE_TENANT_ID }} \
+          --allow-no-subscriptions
+        
+        echo "Azure authentication successful"
+
+    - name: Get Azure Key Vault Access Token
+      id: get-token
+      run: |
+        # Get access token for Key Vault
+        TOKEN=$(az account get-access-token --resource https://vault.azure.net --query accessToken -o tsv)
+        echo "::add-mask::$TOKEN"
+        echo "token=$TOKEN" >> $GITHUB_OUTPUT
+
+    - name: Sign JAR files with jarsigner
+      env:
+        AZURE_TOKEN: ${{ steps.get-token.outputs.token }}
+        CERT_CHAIN: ${{ secrets.AZURE_KEYVAULT_CERTCHAIN }}
+      run: |
+        # Create certificate chain file if provided
+        CERTCHAIN_ARG=""
+        if [ -n "$CERT_CHAIN" ]; then
+          echo "$CERT_CHAIN" > certchain.p7b
+          CERTCHAIN_ARG="-certchain certchain.p7b"
+          echo "Using certificate chain file"
+        fi
+        
+        # Find and sign JAR files using jarsigner with Jsign's JCA provider
+        find releng/com.espressif.idf.update/target/repository -type f -name "*.jar" | while read -r file; do
+          echo "Signing JAR: $file"
+          
+          jarsigner \
+            -J-cp -Jjsign-7.4.jar \
+            -J--add-modules -Jjava.sql \
+            -providerClass net.jsign.jca.JsignJcaProvider \
+            -providerArg "${{ secrets.AZURE_KEYVAULT_URI }}" \
+            -keystore NONE \
+            -storetype AZUREKEYVAULT \
+            -storepass "$AZURE_TOKEN" \
+            -tsa http://timestamp.digicert.com \
+            $CERTCHAIN_ARG \
+            "$file" \
+            "${{ secrets.AZURE_KEYVAULT_CERT_NAME }}"
+          
+          if [ $? -eq 0 ]; then
+            echo "Successfully signed: $file"
+          else
+            echo "Failed to sign: $file"
+            exit 1
+          fi
+        done
+        
+        echo "JAR files signed!"
+
+    - name: Verify JAR signatures
+      run: |
+        echo "Verifying JAR signatures..."
+        find releng/com.espressif.idf.update/target/repository -type f -name "*.jar" | while read -r file; do
+          echo "Verifying: $file"
+          # Note: Certificate chain warnings are expected if CA is not in Java truststore
+          jarsigner -verify -verbose "$file" || true
+        done
+
+    - name: Cleanup
+      if: always()
+      run: |
+        az logout || true
+        rm -f jsign-7.4.jar || true
+        rm -f certchain.p7b || true
   
     - name: Upload build artifacts
       if: ${{ !cancelled() }}
@@ -148,3 +232,83 @@ jobs:
       with:
         name: Espressif-IDE-${{ env.VERSION }}-macosx.cocoa.aarch64
         path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
+
+  windows-sign:
+    runs-on: windows-latest
+    needs: build_macos
+    env:
+      ARTIFACTS_PATH: extracted/Espressif-IDE
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download built artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: Espressif-IDE-${{ needs.build_macos.outputs.version }}-win32
+          path: artifacts
+
+      - name: Verify the downloaded file
+        shell: pwsh
+        run: |
+           ls .\artifacts\*
+
+      - name: Extract Windows ZIP
+        shell: pwsh
+        run: |
+          Expand-Archive -Path artifacts\*.zip -DestinationPath extracted -Force
+          ls .\artifacts\*
+
+      - name: Install .NET 8 SDK and AzureSignTool
+        shell: pwsh
+        run: |
+          mkdir dotnet
+          cd dotnet
+          $dotnet_url="https://download.visualstudio.microsoft.com/download/pr/5af098e1-e433-4fda-84af-3f54fd27c108/6bd1c6e48e64e64871957289023ca590/dotnet-sdk-8.0.302-win-x64.zip"
+          Invoke-WebRequest -Uri $dotnet_url -OutFile dotnet-sdk-8.0.302-win-x64.zip
+          Expand-Archive -LiteralPath .\dotnet-sdk-8.0.302-win-x64.zip -DestinationPath .
+          $Env:DOTNET_ROOT="$($(Get-Location).Path)\dotnet-sdk-8.0.302-win-x64"
+          $Env:PATH="$Env:DOTNET_ROOT;$Env:PATH"
+          $Env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE=$true
+          dotnet tool install --global AzureSignTool
+          cd ..
+
+      - name: Sign EXE using AzureSignTool
+        shell: pwsh
+        run: |
+          $exePath = Join-Path $PWD "${{ env.ARTIFACTS_PATH }}\espressif-ide.exe"
+          if (-not (Test-Path $exePath)) { throw "espressif-ide.exe not found at $exePath" }
+          
+          $Env:DOTNET_ROOT="$PWD\dotnet\dotnet-sdk-8.0.302-win-x64"
+          $Env:PATH="$Env:DOTNET_ROOT;$Env:PATH"
+          
+          AzureSignTool.exe sign `
+            -kvu "${{ secrets.AZURE_KEYVAULT_URI }}" `
+            -kvc "${{ secrets.AZURE_KEYVAULT_CERT_NAME }}" `
+            -kvi "${{ secrets.AZURE_CLIENT_ID }}" `
+            -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" `
+            --azure-key-vault-tenant-id "${{ secrets.AZURE_TENANT_ID }}" `
+            -tr http://timestamp.globalsign.com/tsa/advanced `
+            -td sha256 `
+            "$exePath"
+
+      - name: Verify Signature
+        shell: pwsh
+        run: |
+         $exePath = Join-Path $PWD "${{ env.ARTIFACTS_PATH }}\espressif-ide.exe"
+         $signtool = Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits" -Recurse -Name "signtool.exe" | Select-Object -First 1
+         & "C:\Program Files (x86)\Windows Kits\$signtool" verify `
+         /pa `
+         "$exePath"
+
+      - name: Removing original ZIP from extracted folder
+        run: |
+           Remove-Item -Force artifacts\*.zip
+
+      - name: Upload Signed Windows ZIP
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Espressif-IDE-${{ needs.build_macos.outputs.version }}-win32-signed
+          path: extracted/
+          overwrite: true
+          if-no-files-found: error
