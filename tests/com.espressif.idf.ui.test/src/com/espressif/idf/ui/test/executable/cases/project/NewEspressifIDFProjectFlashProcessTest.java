@@ -4,13 +4,13 @@
  *******************************************************************************/
 package com.espressif.idf.ui.test.executable.cases.project;
 
+import static org.eclipse.swtbot.swt.finder.waits.Conditions.widgetIsEnabled;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 
 import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
-import static org.eclipse.swtbot.swt.finder.waits.Conditions.*;
-import static org.junit.Assert.assertTrue;
-
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
@@ -38,7 +38,8 @@ import com.espressif.idf.ui.test.operations.selectors.LaunchBarTargetSelector;
 @RunWith(SWTBotJunit4ClassRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 
-public class NewEspressifIDFProjectFlashProcessTest {
+public class NewEspressifIDFProjectFlashProcessTest
+{
 	@BeforeClass
 	public static void beforeTestClass() throws Exception
 	{
@@ -46,16 +47,15 @@ public class NewEspressifIDFProjectFlashProcessTest {
 	}
 
 	@AfterClass
-	public static void tearDown() {
+	public static void tearDown()
+	{
 		Fixture.cleanupEnvironment();
 	}
 
-
 	@Test
-	public void givenNewProjectCreatedBuiltWhenSelectSerialPortWhenFlashThenCheckFlashedSuccessfully()
-			throws Exception
+	public void givenNewProjectCreatedBuiltWhenSelectSerialPortWhenFlashThenCheckFlashedSuccessfully() throws Exception
 	{
-		if (SystemUtils.IS_OS_LINUX) //temporary solution until new ESP boards arrive for Windows
+		if (SystemUtils.IS_OS_LINUX) // temporary solution until new ESP boards arrive for Windows
 		{
 			Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 			Fixture.givenProjectNameIs("NewProjectFlashTest");
@@ -121,7 +121,7 @@ public class NewEspressifIDFProjectFlashProcessTest {
 			shell.setFocus();
 			bot.button("Finish").click();
 		}
-		
+
 		private static void whenTurnOffOpenSerialMonitorAfterFlashingInLaunchConfig() throws Exception
 		{
 			LaunchBarConfigSelector configSelector = new LaunchBarConfigSelector(bot);
@@ -130,12 +130,13 @@ public class NewEspressifIDFProjectFlashProcessTest {
 			bot.cTabItem("Main").show();
 			bot.cTabItem("Main").setFocus();
 			SWTBotCheckBox checkBox = bot.checkBox("Open Serial Monitor After Flashing");
-			if (checkBox.isChecked()) {
-			checkBox.click();
+			if (checkBox.isChecked())
+			{
+				checkBox.click();
 			}
 			bot.button("OK").click();
 		}
-		
+
 		private static void whenFlashProject() throws IOException
 		{
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Run Configurations...");
@@ -146,13 +147,14 @@ public class NewEspressifIDFProjectFlashProcessTest {
 			bot.waitUntil(widgetIsEnabled(bot.button("Run")), 5000);
 			bot.button("Run").click();
 		}
-		
+
 		private static void thenVerifyFlashDoneSuccessfully() throws Exception
 		{
 			ProjectTestOperations.waitForProjectFlash(bot);
 		}
 
-		static void cleanupEnvironment() {
+		static void cleanupEnvironment()
+		{
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
 			ProjectTestOperations.closeAllProjects(bot);
 			ProjectTestOperations.deleteAllProjects(bot);

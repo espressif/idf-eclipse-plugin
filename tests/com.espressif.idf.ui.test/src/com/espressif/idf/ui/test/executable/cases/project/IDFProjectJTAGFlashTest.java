@@ -5,6 +5,9 @@
 
 package com.espressif.idf.ui.test.executable.cases.project;
 
+import static org.eclipse.swtbot.swt.finder.waits.Conditions.widgetIsEnabled;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 
 import org.apache.commons.lang3.SystemUtils;
@@ -19,9 +22,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
 import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
-import static org.eclipse.swtbot.swt.finder.waits.Conditions.*;
-import static org.junit.Assert.assertTrue;
-
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 import com.espressif.idf.ui.test.operations.EnvSetupOperations;
 import com.espressif.idf.ui.test.operations.ProjectTestOperations;
@@ -38,7 +38,7 @@ import com.espressif.idf.ui.test.operations.selectors.LaunchBarTargetSelector;
 @SuppressWarnings("restriction")
 @RunWith(SWTBotJunit4ClassRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class IDFProjectJTAGFlashTest 
+public class IDFProjectJTAGFlashTest
 {
 	@BeforeClass
 	public static void beforeTestClass() throws Exception
@@ -47,14 +47,15 @@ public class IDFProjectJTAGFlashTest
 	}
 
 	@AfterClass
-	public static void tearDown() {
+	public static void tearDown()
+	{
 		Fixture.cleanupEnvironment();
 	}
 
 	@Test
 	public void givenNewProjectCreatedWhenSelectJTAGflashWhenBuiltThenCheckFlashedSuccessfully() throws Exception
 	{
-		if (SystemUtils.IS_OS_LINUX) //temporary solution until new ESP boards arrive for Windows
+		if (SystemUtils.IS_OS_LINUX) // temporary solution until new ESP boards arrive for Windows
 		{
 			Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 			Fixture.givenProjectNameIs("NewProjectJTAGFlashTest");
@@ -145,7 +146,8 @@ public class IDFProjectJTAGFlashTest
 
 		private static void thenVerifyJTAGflashDone() throws Exception
 		{
-			ProjectTestOperations.verifyTheConsoleOutput(bot, "** Flashing done for partition_table/partition-table.bin");
+			ProjectTestOperations.verifyTheConsoleOutput(bot,
+					"** Flashing done for partition_table/partition-table.bin");
 		}
 
 		private static void cleanupEnvironment()
