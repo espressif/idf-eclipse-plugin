@@ -10,7 +10,8 @@ import java.io.IOException;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
-import org.junit.After;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -33,207 +34,184 @@ import com.espressif.idf.ui.test.operations.ProjectTestOperations;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class NewEspressifIDFProjectPartitionTableEditorTest
 {
+	private static final String BUILT_PROJECT = "Project1";
+	private static final String CLEAN_PROJECT = "Project2";
+
 	@BeforeClass
 	public static void beforeTestClass() throws Exception
 	{
 		Fixture.loadEnv();
+		Fixture.createBuiltProject(BUILT_PROJECT);
+		Fixture.createCleanProject(CLEAN_PROJECT);
 	}
 
-	@After
-	public void afterEachTest()
+	@AfterClass
+	public static void tearDown()
 	{
-		try
-		{
-			Fixture.cleanTestEnv(); // Make sure test environment is always cleaned up
-		}
-		catch (Exception e)
-		{
-			System.err.println("Error during cleanup: " + e.getMessage());
-		}
+		Fixture.cleanupEnvironment();
 	}
 
 	@Test
-	public void givenNewProjectCreatedNotBuiltWhenOpenEmptyPartitionTableEditorThenInformationPopUpMessage()
-			throws Exception
+	public void shouldShowInfoMessageWhenOpeningEditorOnUnbuiltProject() throws Exception
 	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectPartitionTableEditor1Test");
-		Fixture.whenNewProjectIsSelected();
-		Fixture.whenOpenEmptyPartitionTableEditor();
-		Fixture.ThenInformationMessagePopUp();
+		Fixture.fullClean(CLEAN_PROJECT);
+		Fixture.openEditorExpectingInfo(CLEAN_PROJECT);
+		Fixture.assertInfoPopupShown();
+		Fixture.confirmOk();
 	}
 
 	@Test
-	public void givenNewProjectCreatedBuiltWhenOpenPartitionTableEditorThenBuiltInPartitionTableDisplayed()
-			throws Exception
+	public void shouldDisplayBuiltInTableWhenProjectIsBuilt() throws Exception
 	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectPartitionTableEditor2Test");
-		Fixture.whenNewProjectIsSelected();
-		Fixture.whenProjectIsBuiltUsingContextMenu();
-		Fixture.whenOpenPartitionTableEditor();
-		Fixture.ThenBuiltInPartitionTableDisplayed();
+		Fixture.rebuild(CLEAN_PROJECT);
+		Fixture.openEditor(CLEAN_PROJECT);
+		Fixture.assertBuiltInTableVisible();
+		Fixture.closeEditor();
 	}
 
 	@Test
-	public void givenNewProjectCreatedBuiltWhenOpenPartitionTableEditorWhenAddRowThenCheckRowAdded() throws Exception
+	public void shouldAddRowToPartitionTable() throws Exception
 	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectPartitionTableEditor3Test");
-		Fixture.whenNewProjectIsSelected();
-		Fixture.whenProjectIsBuiltUsingContextMenu();
-		Fixture.whenOpenPartitionTableEditor();
-		Fixture.whenAddRowToPartitionTable();
-		Fixture.ThenCheckRowAdded();
+		Fixture.openEditor(BUILT_PROJECT);
+		Fixture.addRow();
+		Fixture.assertRowAdded();
+		Fixture.closeEditor();
 	}
 
 	@Test
-	public void givenNewProjectCreatedBuiltWhenOpenPartitionTableEditorWhenDeleteSelectedRowThenCheckRowDeleted()
-			throws Exception
+	public void shouldDeleteRowFromPartitionTable() throws Exception
 	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectPartitionTableEditor4Test");
-		Fixture.whenNewProjectIsSelected();
-		Fixture.whenProjectIsBuiltUsingContextMenu();
-		Fixture.whenOpenPartitionTableEditor();
-		Fixture.whenDeleteRowFromPartitionTable();
-		Fixture.ThenCheckRowDeleted();
+		Fixture.openEditor(BUILT_PROJECT);
+		Fixture.deleteRow();
+		Fixture.assertRowDeleted();
+		Fixture.closeEditor();
 	}
 
 	@Test
-	public void givenNewProjectCreatedBuiltWhenOpenPartitionTableEditorWhenDeleteSelectedRowWhenSaveAndQuitwhenReopenPartitionTableThenCheckChangesSaved()
-			throws Exception
+	public void shouldPersistChangesAfterSaveAndReopen() throws Exception
 	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectPartitionTableEditor5Test");
-		Fixture.whenNewProjectIsSelected();
-		Fixture.whenProjectIsBuiltUsingContextMenu();
-		Fixture.whenOpenPartitionTableEditor();
-		Fixture.whenDeleteRowFromPartitionTable();
-		Fixture.whenSaveAndQuit();
-		Fixture.whenOpenPartitionTableEditor();
-		Fixture.thenCheckChangesSaved();
-	}
+		Fixture.rebuild(CLEAN_PROJECT);
+		Fixture.openEditor(CLEAN_PROJECT);
+		Fixture.deleteRow();
+		Fixture.saveAndQuit();
 
-	@Test
-	public void givenNewProjectCreatedBuiltWhenOpenPartitionTableEditorWhenDeleteSelectedRowWhenSaveAndCancelwhenReopenPartitionTableThenCheckChangesSaved()
-			throws Exception
-	{
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("NewProjectPartitionTableEditor6Test");
-		Fixture.whenNewProjectIsSelected();
-		Fixture.whenProjectIsBuiltUsingContextMenu();
-		Fixture.whenOpenPartitionTableEditor();
-		Fixture.whenDeleteRowFromPartitionTable();
-		Fixture.whenSavePartitionTable();
-		Fixture.whenCancel();
-		Fixture.whenOpenPartitionTableEditor();
-		Fixture.thenCheckChangesSaved();
+		Fixture.openEditor(CLEAN_PROJECT);
+		Fixture.assertChangesPersisted();
+		Fixture.closeEditor();
+
+		Fixture.deletePartitionCsv(CLEAN_PROJECT);
 	}
 
 	private static class Fixture
 	{
-		private static SWTWorkbenchBot bot;
-		private static String category;
-		private static String subCategory;
-		private static String projectName;
 
-		private static void loadEnv() throws Exception
+		private static SWTWorkbenchBot bot;
+
+		static void loadEnv() throws Exception
 		{
 			bot = WorkBenchSWTBot.getBot();
 			EnvSetupOperations.setupEspressifEnv(bot);
 			bot.sleep(1000);
 		}
 
-		private static void givenNewEspressifIDFProjectIsSelected(String category, String subCategory)
+		private static void createCleanProject(String projectName) throws Exception
 		{
-			Fixture.category = category;
-			Fixture.subCategory = subCategory;
+			ProjectTestOperations.setupProject(projectName, "EspressIf", "Espressif IDF Project", bot);
 		}
 
-		private static void givenProjectNameIs(String projectName)
+		private static void createBuiltProject(String projectName) throws Exception
 		{
-			Fixture.projectName = projectName;
-		}
-
-		private static void whenNewProjectIsSelected() throws Exception
-		{
-			ProjectTestOperations.setupProject(projectName, category, subCategory, bot);
-		}
-
-		private static void whenProjectIsBuiltUsingContextMenu() throws IOException
-		{
+			ProjectTestOperations.setupProject(projectName, "EspressIf", "Espressif IDF Project", bot);
 			ProjectTestOperations.buildProjectUsingContextMenu(projectName, bot);
 			ProjectTestOperations.waitForProjectBuild(bot);
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
 		}
 
-		private static void whenOpenPartitionTableEditor() throws IOException
+		static void fullClean(String projectName) throws IOException
+		{
+			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Project Full Clean");
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
+		}
+
+		static void rebuild(String projectName) throws IOException
+		{
+			fullClean(projectName);
+			ProjectTestOperations.buildProjectUsingContextMenu(projectName, bot);
+			ProjectTestOperations.waitForProjectBuild(bot);
+		}
+
+		static void openEditor(String projectName) throws IOException
 		{
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Partition Table Editor");
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Partition Table Editor", 10000);
 		}
 
-		private static void whenOpenEmptyPartitionTableEditor() throws IOException
+		static void openEditorExpectingInfo(String projectName) throws IOException
 		{
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Partition Table Editor");
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Information", 10000);
 		}
 
-		private static void ThenInformationMessagePopUp() throws IOException
+		static void assertInfoPopupShown() throws IOException
 		{
 			assertTrue(ProjectTestOperations.checkShellContent(bot, "Information",
 					"Failed to get partition CSV file name from sdkconfig. Make sure your project is compiled and has sdkconfig."));
 		}
 
-		private static void ThenBuiltInPartitionTableDisplayed() throws IOException
+		static void assertBuiltInTableVisible() throws IOException
 		{
 			assertTrue(ProjectTestOperations.checkPartitionTableContent(bot));
 		}
 
-		private static void whenAddRowToPartitionTable() throws IOException
+		static void addRow()
 		{
 			bot.toolbarButton("Add Row").click();
 		}
 
-		private static void ThenCheckRowAdded() throws IOException
+		static void assertRowAdded() throws IOException
 		{
 			assertTrue(ProjectTestOperations.comparePartitionTableRows(bot, 1));
 		}
 
-		private static void whenDeleteRowFromPartitionTable() throws IOException
+		static void deleteRow() throws IOException
 		{
 			ProjectTestOperations.deletePartitionTableRow(bot);
 		}
 
-		private static void ThenCheckRowDeleted() throws IOException
+		static void assertRowDeleted() throws IOException
 		{
 			assertTrue(ProjectTestOperations.comparePartitionTableRows(bot, -1));
 		}
 
-		private static void whenSaveAndQuit() throws IOException
+		static void saveAndQuit()
 		{
 			bot.button("Save and Quit").click();
 			bot.button("OK").click();
 		}
 
-		private static void whenSavePartitionTable() throws IOException
-		{
-			bot.toolbarButton("Save").click();
-			bot.button("OK").click();
-		}
-
-		private static void whenCancel() throws IOException
+		static void closeEditor()
 		{
 			bot.button("Cancel").click();
 		}
 
-		private static void thenCheckChangesSaved() throws IOException
+		static void confirmOk()
+		{
+			bot.button("OK").click();
+		}
+
+		static void assertChangesPersisted() throws IOException
 		{
 			assertTrue(ProjectTestOperations.comparePartitionTableRows(bot, -1));
 		}
 
-		private static void cleanTestEnv()
+		static void deletePartitionCsv(String projectName)
+		{
+			SWTBotTreeItem csv = bot.tree().getTreeItem(projectName).getNode("partitions.csv");
+			csv.select();
+			csv.contextMenu("Delete").click();
+			bot.shell("Delete Resources").bot().button("OK").click();
+		}
+
+		static void cleanupEnvironment()
 		{
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
 			ProjectTestOperations.closeAllProjects(bot);
