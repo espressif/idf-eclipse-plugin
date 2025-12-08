@@ -36,33 +36,25 @@ import com.espressif.idf.ui.test.operations.selectors.LaunchBarTargetSelector;
 @RunWith(SWTBotJunit4ClassRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 
-public class IDFProjectLaunchTargetEditorFunctionalityTest {
+public class IDFProjectLaunchTargetEditorFunctionalityTest
+{
+
 	@BeforeClass
 	public static void beforeTestClass() throws Exception
 	{
 		Fixture.loadEnv();
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs("LaunchTargetEditorTest");
-		Fixture.whenNewProjectIsSelected();
+		Fixture.createProject();
 	}
 
 	@AfterClass
-	public static void afterEachTest()
+	public static void tearDown()
 	{
-		try
-		{
-			Fixture.cleanTestEnv();
-		}
-		catch (Exception e)
-		{
-			System.err.println("Error during cleanup: " + e.getMessage());
-		}
+		Fixture.cleanupEnvironment();
 	}
 
 	@Test
-	public void givenANewProjectCreatedBuiltWhenSelectNewTargetWhenPopUpAppearsThenBuildFolderDeletedSuccessfully()
-			throws Exception
-	{	
+	public void shouldDeleteBuildFolderWhenChangingLaunchTargetOnBuiltProject() throws Exception
+	{
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.whenChangeLaunchTarget();
 		Fixture.whenRefreshProject();
@@ -70,18 +62,11 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 	}
 
 	@Test
-	public void givenBNewProjectCreatedWhenCreateNewLaunchTargetThenProjectBuiltSuccessfully()
-			throws Exception
+	public void shouldBuildProjectWhenCreatingNewLaunchTargetAndDeleteItSuccessfully() throws Exception
 	{
 		Fixture.whenCreateNewLaunchTarget();
 		Fixture.whenProjectIsBuiltUsingContextMenu();
-	}
-
-	@Test
-	public void givenCNewProjectCreatedWhenDeleteSelectedLaunchTargetThenDeletedSuccessfully()
-			throws Exception
-	{
-		Fixture.whenProjectFullCleanUsingContextMenu();
+		Fixture.whenProjectFullCleaned();
 		Fixture.whenDeleteSelectedLaunchTarget();
 		Fixture.thenLaunchTargetDeletedSuccessfully();
 	}
@@ -89,32 +74,19 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 	private static class Fixture
 	{
 		private static SWTWorkbenchBot bot;
-		private static String category;
-		private static String subCategory;
-		private static String projectName;
 
-		private static void loadEnv() throws Exception
+		private static String projectName = "Project";
+
+		static void loadEnv() throws Exception
 		{
 			bot = WorkBenchSWTBot.getBot();
 			EnvSetupOperations.setupEspressifEnv(bot);
 			bot.sleep(1000);
-			ProjectTestOperations.deleteAllProjects(bot);
 		}
 
-		private static void givenNewEspressifIDFProjectIsSelected(String category, String subCategory)
+		private static void createProject() throws Exception
 		{
-			Fixture.category = category;
-			Fixture.subCategory = subCategory;
-		}
-
-		private static void givenProjectNameIs(String projectName)
-		{
-			Fixture.projectName = projectName;
-		}
-
-		private static void whenNewProjectIsSelected() throws Exception
-		{
-			ProjectTestOperations.setupProject(projectName, category, subCategory, bot);
+			ProjectTestOperations.setupProject(projectName, "EspressIf", "Espressif IDF Project", bot);
 		}
 
 		private static void whenProjectIsBuiltUsingContextMenu() throws IOException
@@ -148,7 +120,7 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "New ESP Target", 20000);
 			SWTBotShell shell = bot.shell("New ESP Target");
 			shell.setFocus();
-			bot.button("Delete").click();	
+			bot.button("Delete").click();
 		}
 
 		private static void whenDeleteSelectedLaunchTarget() throws Exception
@@ -179,7 +151,7 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 			shell.setFocus();
 			bot.waitUntil(widgetIsEnabled(bot.button("Next >")), 5000);
 			bot.button("Next >").click();
-			TestWidgetWaitUtility.waitForDialogToAppear(bot, "New ESP Target",10000);
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "New ESP Target", 10000);
 		}
 
 		private static void handleNewEspTargetDialog() throws Exception
@@ -203,18 +175,24 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 
 		private static void thenBuildFolderDeletedSuccessfully() throws Exception
 		{
-			assertTrue("Build folder was not deleted successfully!", ProjectTestOperations.findProjectFullCleanedFilesInBuildFolder(projectName, bot));
+			assertTrue("Build folder was not deleted successfully!",
+					ProjectTestOperations.findProjectFullCleanedFilesInBuildFolder(projectName, bot));
 		}
 
-		private static void whenProjectFullCleanUsingContextMenu() throws IOException
+		private static void whenProjectFullCleaned() throws IOException
 		{
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Project Full Clean");
 			ProjectTestOperations.joinJobByName(Messages.ProjectFullCleanCommandHandler_RunningFullcleanJobName);
 			ProjectTestOperations.findInConsole(bot, "Espressif IDF Tools Console", "Done");
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
+
+			bot.tree().getTreeItem(projectName).getNode("sdkconfig").select();
+			bot.tree().getTreeItem(projectName).getNode("sdkconfig").contextMenu("Delete").click();
+			bot.shell("Delete Resources").bot().button("OK").click();
+			TestWidgetWaitUtility.waitWhileDialogIsVisible(bot, "Delete Resources", 10000);
 		}
 
-		private static void cleanTestEnv()
+		static void cleanupEnvironment()
 		{
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
 			ProjectTestOperations.closeAllProjects(bot);
@@ -222,4 +200,3 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest {
 		}
 	}
 }
-
