@@ -108,6 +108,27 @@ jobs:
             jarsigner -verify -verbose "$file" || true
           done
 
+      - name: Regenerate P2 metadata after signing
+        env:
+          MAVEN_OPTS: "-Djdk.xml.maxGeneralEntitySizeLimit=0 -Djdk.xml.maxParameterEntitySizeLimit=0 -Djdk.xml.totalEntitySizeLimit=0 -Djdk.xml.entityExpansionLimit=0"
+        run: |
+          # Regenerate P2 metadata to update hashes for signed JARs
+          # This ensures the SHA-512 hashes in metadata match the signed JAR files
+          # Use Tycho's fix-artifacts-metadata goal to update metadata without rebuilding artifacts
+          REPO_DIR="releng/com.espressif.idf.update/target/repository"
+          
+          echo "Updating P2 metadata for signed JARs in $REPO_DIR..."
+          mvn -f releng/com.espressif.idf.update/pom.xml \
+            org.eclipse.tycho:tycho-p2-repository-plugin:fix-artifacts-metadata \
+            -DrepositoryPath="$REPO_DIR" \
+            -DskipTests=true || \
+          # Fallback: try without explicit path (auto-detect)
+          mvn -f releng/com.espressif.idf.update/pom.xml \
+            org.eclipse.tycho:tycho-p2-repository-plugin:fix-artifacts-metadata \
+            -DskipTests=true
+          
+          echo "P2 metadata updated with correct hashes for signed JARs"
+
       - name: Cleanup
         if: always()
         run: |
