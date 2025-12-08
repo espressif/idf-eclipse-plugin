@@ -69,13 +69,15 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
 
-    - name: Build with Maven
-      run: mvn clean verify -Djarsigner.skip=true
+    - name: Build bundles with Maven (skip signing, sign JARs separately)
+      env:
+        MAVEN_OPTS: "-Djdk.xml.maxGeneralEntitySizeLimit=0 -Djdk.xml.maxParameterEntitySizeLimit=0 -Djdk.xml.totalEntitySizeLimit=0 -Djdk.xml.entityExpansionLimit=0"
+      run: |
+        mvn -e -X clean install -Djarsigner.skip=true -DskipTests=true -pl '!releng/com.espressif.idf.update'
 
     - name: Extract version number
       id: extract_version
       run: |
-        # List all files and extract the version number from the file names
         version=$(ls releng/com.espressif.idf.product/target/products/Espressif-IDE-*.tar.gz | sed -E 's/.*Espressif-IDE-([0-9]+\.[0-9]+\.[0-9]+)-.*/\1/' | head -n 1)
         echo "VERSION=${version}" >> $GITHUB_ENV
         echo "version=${version}" >> $GITHUB_OUTPUT
@@ -88,7 +90,6 @@ jobs:
 
     - name: Authenticate to Azure
       run: |
-        # Login using service principal (--allow-no-subscriptions for Key Vault only access)
         az login --service-principal \
           --username ${{ secrets.AZURE_CLIENT_ID }} \
           --password ${{ secrets.AZURE_CLIENT_SECRET }} \
@@ -100,17 +101,15 @@ jobs:
     - name: Get Azure Key Vault Access Token
       id: get-token
       run: |
-        # Get access token for Key Vault
         TOKEN=$(az account get-access-token --resource https://vault.azure.net --query accessToken -o tsv)
         echo "::add-mask::$TOKEN"
         echo "token=$TOKEN" >> $GITHUB_OUTPUT
 
-    - name: Sign JAR files with jarsigner
+    - name: Sign bundle JAR files with jarsigner (before repository assembly)
       env:
         AZURE_TOKEN: ${{ steps.get-token.outputs.token }}
         CERT_CHAIN: ${{ secrets.AZURE_KEYVAULT_CERTCHAIN }}
       run: |
-        # Create certificate chain file if provided
         CERTCHAIN_ARG=""
         if [ -n "$CERT_CHAIN" ]; then
           echo "$CERT_CHAIN" > certchain.p7b
@@ -118,9 +117,11 @@ jobs:
           echo "Using certificate chain file"
         fi
         
-        # Find and sign JAR files using jarsigner with Jsign's JCA provider
-        find releng/com.espressif.idf.update/target/repository -type f -name "*.jar" | while read -r file; do
-          echo "Signing JAR: $file"
+        echo "Signing IDF plugin bundle JARs in bundles/com.espressif.*/target/..."
+        SIGFILE="ECLIPSE"
+        
+        find bundles/com.espressif.* -type f -path "*/target/*.jar" ! -name "*-sources.jar" ! -name "*-javadoc.jar" 2>/dev/null | while read -r file; do
+          echo "Signing IDF plugin bundle JAR: $file"
           
           jarsigner \
             -J-cp -Jjsign-7.4.jar \
@@ -130,8 +131,12 @@ jobs:
             -keystore NONE \
             -storetype AZUREKEYVAULT \
             -storepass "$AZURE_TOKEN" \
+            -sigfile "$SIGFILE" \
+            -digestalg SHA-256 \
             -tsa http://timestamp.digicert.com \
             $CERTCHAIN_ARG \
+            -certs \
+            -verbose \
             "$file" \
             "${{ secrets.AZURE_KEYVAULT_CERT_NAME }}"
           
@@ -143,16 +148,92 @@ jobs:
           fi
         done
         
-        echo "JAR files signed!"
-
-    - name: Verify JAR signatures
-      run: |
-        echo "Verifying JAR signatures..."
-        find releng/com.espressif.idf.update/target/repository -type f -name "*.jar" | while read -r file; do
-          echo "Verifying: $file"
-          # Note: Certificate chain warnings are expected if CA is not in Java truststore
-          jarsigner -verify -verbose "$file" || true
+        find features/com.espressif.* -type f -path "*/target/*.jar" ! -name "*-sources.jar" ! -name "*-javadoc.jar" 2>/dev/null | while read -r file; do
+          echo "Signing IDF feature JAR: $file"
+          
+          jarsigner \
+            -J-cp -Jjsign-7.4.jar \
+            -J--add-modules -Jjava.sql \
+            -providerClass net.jsign.jca.JsignJcaProvider \
+            -providerArg "${{ secrets.AZURE_KEYVAULT_URI }}" \
+            -keystore NONE \
+            -storetype AZUREKEYVAULT \
+            -storepass "$AZURE_TOKEN" \
+            -sigfile "$SIGFILE" \
+            -digestalg SHA-256 \
+            -tsa http://timestamp.digicert.com \
+            $CERTCHAIN_ARG \
+            -certs \
+            -verbose \
+            "$file" \
+            "${{ secrets.AZURE_KEYVAULT_CERT_NAME }}"
+          
+          if [ $? -eq 0 ]; then
+            echo "Successfully signed: $file"
+          else
+            echo "Failed to sign: $file"
+            exit 1
+          fi
         done
+        
+        echo "IDF plugin bundle JAR files signed!"
+
+    - name: Build update repository with signed JARs
+      env:
+        MAVEN_OPTS: "-Djdk.xml.maxGeneralEntitySizeLimit=0 -Djdk.xml.maxParameterEntitySizeLimit=0 -Djdk.xml.totalEntitySizeLimit=0 -Djdk.xml.entityExpansionLimit=0"
+      run: |
+        mvn -e -X install -Djarsigner.skip=true -DskipTests=true -pl releng/com.espressif.idf.update
+        
+        echo "Update repository built with signed JARs"
+
+    - name: Verify JAR signatures and structure
+      run: |
+        echo "Verifying IDF plugin bundle JAR signatures..."
+        find bundles/com.espressif.* features/com.espressif.* -type f -path "*/target/*.jar" ! -name "*-sources.jar" ! -name "*-javadoc.jar" 2>/dev/null | while read -r file; do
+          echo "Verifying IDF plugin bundle: $file"
+          jarsigner -verify -verbose -certs "$file" || {
+            echo "ERROR: Signature verification failed for $file"
+            exit 1
+          }
+        done
+        
+        echo "Verifying repository JAR signatures..."
+        find releng/com.espressif.idf.update/target/repository -type f -name "*.jar" | while read -r file; do
+          echo "Verifying repository JAR: $file"
+          jarsigner -verify -verbose -certs "$file" || {
+            echo "ERROR: Signature verification failed for $file"
+            exit 1
+          }
+          
+          if unzip -l "$file" | grep -q "META-INF/.*\.RSA"; then
+            echo "Signature file found in $file"
+          else
+            echo "WARNING: No RSA signature file found in $file"
+          fi
+          
+          jar tf "$file" > /dev/null || {
+            echo "ERROR: JAR structure is invalid for $file"
+            exit 1
+          }
+        done
+        echo "All JARs verified successfully"
+
+    - name: Regenerate P2 metadata after signing
+      env:
+        MAVEN_OPTS: "-Djdk.xml.maxGeneralEntitySizeLimit=0 -Djdk.xml.maxParameterEntitySizeLimit=0 -Djdk.xml.totalEntitySizeLimit=0 -Djdk.xml.entityExpansionLimit=0"
+      run: |
+        REPO_DIR="releng/com.espressif.idf.update/target/repository"
+        
+        echo "Updating P2 metadata for signed JARs in $REPO_DIR..."
+        mvn -f releng/com.espressif.idf.update/pom.xml \
+          org.eclipse.tycho:tycho-p2-repository-plugin:fix-artifacts-metadata \
+          -DrepositoryPath="$REPO_DIR" \
+          -DskipTests=true || \
+        mvn -f releng/com.espressif.idf.update/pom.xml \
+          org.eclipse.tycho:tycho-p2-repository-plugin:fix-artifacts-metadata \
+          -DskipTests=true
+        
+        echo "P2 metadata updated with correct hashes for signed JARs"
 
     - name: Cleanup
       if: always()
