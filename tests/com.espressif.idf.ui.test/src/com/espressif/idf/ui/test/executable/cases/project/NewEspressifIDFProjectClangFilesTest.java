@@ -5,6 +5,7 @@
 package com.espressif.idf.ui.test.executable.cases.project;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -150,14 +151,14 @@ public class NewEspressifIDFProjectClangFilesTest
 			closePreferencesDialog();
 		}
 
-		private static void thenClangdFileIsPresent(String projectName) throws IOException
+		private static void thenClangdFileIsPresent(String projectName)
 		{
-			assertTrue(bot.tree().getTreeItem(projectName).getNode(".clangd") != null);
+			assertNotNull(bot.tree().getTreeItem(projectName).getNode(".clangd"));
 		}
 
-		private static void thenClangFormatFileIsPresent(String projectName) throws IOException
+		private static void thenClangFormatFileIsPresent(String projectName)
 		{
-			assertTrue(bot.tree().getTreeItem(projectName).getNode(".clang-format") != null);
+			assertNotNull(bot.tree().getTreeItem(projectName).getNode(".clang-format"));
 		}
 
 		private static void whenClangdFileDeleted(String projectName) throws IOException
@@ -239,7 +240,7 @@ public class NewEspressifIDFProjectClangFilesTest
 					bot));
 		}
 
-		private static void thenClangFormatContentEdited() throws Exception
+		private static void thenClangFormatContentEdited()
 		{
 			SWTBotEditor textEditor = bot.activeEditor();
 			textEditor.toTextEditor().setText(
@@ -255,7 +256,7 @@ public class NewEspressifIDFProjectClangFilesTest
 							""");
 		}
 
-		private static void addSpaceToMainFile() throws Exception
+		private static void addSpaceToMainFile()
 		{
 			SWTBotEditor textEditor = bot.activeEditor();
 			textEditor.toTextEditor().setText("""
@@ -272,7 +273,7 @@ public class NewEspressifIDFProjectClangFilesTest
 					""");
 		}
 
-		private static void checkMainFileContentFormattedUnderActualSettings() throws Exception
+		private static void checkMainFileContentFormattedUnderActualSettings()
 		{
 			bot.sleep(1000);
 			assertTrue(ProjectTestOperations.checkExactMatchInTextEditorwithWhiteSpaces("""
@@ -302,28 +303,28 @@ public class NewEspressifIDFProjectClangFilesTest
 			prefrencesShell.bot().button("Apply and Close").click();
 		}
 
-		private static void whenMainFileIsOpened(String projectName) throws Exception
+		private static void whenMainFileIsOpened(String projectName)
 		{
 			ProjectTestOperations.openMainFileInTextEditorUsingContextMenu(projectName, bot);
 		}
 
-		private static void thenClangdShellClosed() throws IOException
+		private static void thenClangdShellClosed()
 		{
 			bot.cTabItem(".clangd").close();
 		}
 
-		private static void thenClangFormatShellClosed() throws IOException
+		private static void thenClangFormatShellClosed()
 		{
 			bot.cTabItem(".clang-format").close();
 		}
 
-		private static void thenEditedClangFormatShellClosed() throws IOException
+		private static void thenEditedClangFormatShellClosed()
 		{
 			bot.cTabItem("*.clang-format").close();
 			bot.shell("Save Resource").bot().button("Save").click();
 		}
 
-		private static void thenMainFileShellClosed() throws IOException
+		private static void thenMainFileShellClosed()
 		{
 			bot.cTabItem("*main.c").close();
 			bot.shell("Save Resource").bot().button("Save").click();
@@ -350,10 +351,10 @@ public class NewEspressifIDFProjectClangFilesTest
 			SWTBotShell prefrencesShell = bot.shell("Preferences");
 			String actualClangdPath = prefrencesShell.bot().textWithLabel("Additional").getText();
 			String expectedClangdPath = getExpectedBuildFolderPATHforClangdAdditionalArgument(projectName);
-			assertTrue(expectedClangdPath.equals(actualClangdPath));
+			assertEquals(expectedClangdPath, actualClangdPath);
 		}
 
-		private static void thenCompareActualClangdDriversWithExpected() throws IOException
+		private static void thenCompareActualClangdDriversWithExpected()
 		{
 			SWTBotShell prefrencesShell = bot.shell("Preferences");
 			String actualDriversPath = prefrencesShell.bot().textWithLabel("Drivers").getText();
