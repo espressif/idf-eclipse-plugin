@@ -72,28 +72,41 @@ jobs:
             echo "Using certificate chain file"
           fi
           
-          # Find and sign JAR files using jarsigner with Jsign's JCA provider
-          find releng/com.espressif.idf.update/target/repository -type f -name "*.jar" | while read -r file; do
-            echo "Signing JAR: $file"
-            
-            jarsigner \
-              -J-cp -Jjsign-7.4.jar \
-              -J--add-modules -Jjava.sql \
-              -providerClass net.jsign.jca.JsignJcaProvider \
-              -providerArg "${{ secrets.AZURE_KEYVAULT_URI }}" \
-              -keystore NONE \
-              -storetype AZUREKEYVAULT \
-              -storepass "$AZURE_TOKEN" \
-              -tsa http://timestamp.digicert.com \
-              $CERTCHAIN_ARG \
-              "$file" \
-              "${{ secrets.AZURE_KEYVAULT_CERT_NAME }}"
-            
-            if [ $? -eq 0 ]; then
-              echo "Successfully signed: $file"
+          REPO_DIR="releng/com.espressif.idf.update/target/repository"
+          SIGFILE="ECLIPSE"
+          
+          echo "Signing IDF plugin JARs in $REPO_DIR..."
+          echo "Only signing JARs matching com.espressif.* pattern..."
+          
+          find "$REPO_DIR" -type f -name "*.jar" | while read -r file; do
+            if [[ "$file" =~ (plugins|features)/com\.espressif\. ]]; then
+              echo "Signing IDF plugin/feature JAR: $file"
+              
+              jarsigner \
+                -J-cp -Jjsign-7.4.jar \
+                -J--add-modules -Jjava.sql \
+                -providerClass net.jsign.jca.JsignJcaProvider \
+                -providerArg "${{ secrets.AZURE_KEYVAULT_URI }}" \
+                -keystore NONE \
+                -storetype AZUREKEYVAULT \
+                -storepass "$AZURE_TOKEN" \
+                -sigfile "$SIGFILE" \
+                -digestalg SHA-256 \
+                -tsa http://timestamp.digicert.com \
+                $CERTCHAIN_ARG \
+                -certs \
+                -verbose \
+                "$file" \
+                "${{ secrets.AZURE_KEYVAULT_CERT_NAME }}"
+              
+              if [ $? -eq 0 ]; then
+                echo "Successfully signed: $file"
+              else
+                echo "Failed to sign: $file"
+                exit 1
+              fi
             else
-              echo "Failed to sign: $file"
-              exit 1
+              echo "Skipping non-IDF JAR: $file"
             fi
           done
           
@@ -112,9 +125,6 @@ jobs:
         env:
           MAVEN_OPTS: "-Djdk.xml.maxGeneralEntitySizeLimit=0 -Djdk.xml.maxParameterEntitySizeLimit=0 -Djdk.xml.totalEntitySizeLimit=0 -Djdk.xml.entityExpansionLimit=0"
         run: |
-          # Regenerate P2 metadata to update hashes for signed JARs
-          # This ensures the SHA-512 hashes in metadata match the signed JAR files
-          # Use Tycho's fix-artifacts-metadata goal to update metadata without rebuilding artifacts
           REPO_DIR="releng/com.espressif.idf.update/target/repository"
           
           echo "Updating P2 metadata for signed JARs in $REPO_DIR..."
@@ -122,7 +132,6 @@ jobs:
             org.eclipse.tycho:tycho-p2-repository-plugin:fix-artifacts-metadata \
             -DrepositoryPath="$REPO_DIR" \
             -DskipTests=true || \
-          # Fallback: try without explicit path (auto-detect)
           mvn -f releng/com.espressif.idf.update/pom.xml \
             org.eclipse.tycho:tycho-p2-repository-plugin:fix-artifacts-metadata \
             -DskipTests=true
