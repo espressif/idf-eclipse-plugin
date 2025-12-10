@@ -18,7 +18,6 @@ import org.eclipse.cdt.internal.core.envvar.EnvironmentVariableManager;
 import org.eclipse.cdt.managedbuilder.envvar.IBuildEnvironmentVariable;
 
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 
 /**
@@ -52,6 +51,12 @@ public class IDFEnvironmentVariables
 
 	public static final String IDF_CCACHE_ENABLE = "IDF_CCACHE_ENABLE"; //$NON-NLS-1$
 
+	public static final String ESP_IDF_EIM_ID = "ESP_IDF_EIM_ID"; //$NON-NLS-1$
+
+	public static final String EIM_PATH = "EIM_PATH"; //$NON-NLS-1$
+
+	public static final String SYSTEM_PATH = "SYSTEM_PATH"; //$NON-NLS-1$
+	
 	/**
 	 * @param variableName Environment variable Name
 	 * @return IEnvironmentVariable
@@ -129,16 +134,12 @@ public class IDFEnvironmentVariables
 		IEnvironmentVariableManager buildEnvironmentManager = CCorePlugin.getDefault().getBuildEnvironmentManager();
 		IEnvironmentVariable[] variables = buildEnvironmentManager.getVariables((ICConfigurationDescription) null,
 				true);
-		Map<String, String> envMap = IDFUtil.getSystemEnv();
+		Map<String, String> envMap = new HashMap<String, String>(System.getenv());
 		if (variables != null)
 		{
 			for (IEnvironmentVariable iEnvironmentVariable : variables)
 			{
 				String key = iEnvironmentVariable.getName();
-				if (key.equals(IDFCorePreferenceConstants.IDF_TOOLS_PATH))
-				{
-					continue;
-				}
 				String value = iEnvironmentVariable.getValue();
 				envMap.put(key, value);
 			}

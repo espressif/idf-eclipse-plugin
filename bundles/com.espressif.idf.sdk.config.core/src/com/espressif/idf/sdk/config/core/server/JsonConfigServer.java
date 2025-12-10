@@ -10,10 +10,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -24,6 +24,7 @@ import org.json.simple.parser.ParseException;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
@@ -92,69 +93,81 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 	public void start() throws IOException
 	{
 		IPath workingDir = project.getLocation();
-		Map<String, String> idfEnvMap = new IDFEnvironmentVariables().getSystemEnvMap();
-
-		// Disable buffering of output
-		idfEnvMap.put("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
-
+		Map<String, String> env = new HashMap<String, String>(System.getenv());
+		
+		prepEnvMap(env);
+		List<String> arguments = new ArrayList<>();
 		File idfPythonScriptFile = IDFUtil.getIDFPythonScriptFile();
 		if (!idfPythonScriptFile.exists())
 		{
 			throw new FileNotFoundException("File Not found:" + idfPythonScriptFile); //$NON-NLS-1$
 		}
 		
-		String pythonPath = IDFUtil.getIDFPythonEnvPath();
-
-		List<String> arguments = Collections.emptyList();
 		try
 		{
-			arguments = new ArrayList<String>(Arrays.asList(pythonPath, idfPythonScriptFile.getAbsolutePath(), "-B", //$NON-NLS-1$
-					IDFUtil.getBuildDir(project), "-DSDKCONFIG=".concat(file.getName()), IDFConstants.CONF_SERVER_CMD)); //$NON-NLS-1$
-		}
-		catch (CoreException e)
-		{
-			Logger.log(e);
-		}
-		Logger.log(arguments.toString());
-
-		ProcessBuilder processBuilder = new ProcessBuilder(arguments);
-		if (workingDir != null)
-		{
-			processBuilder.directory(workingDir.toFile());
-		}
-		Map<String, String> environment = processBuilder.environment();
-		environment.putAll(idfEnvMap);
-		environment.put("IDF_CCACHE_ENABLE", "false");
-
-		Logger.log(environment.toString());
-
-		String idfPath = environment.get("PATH"); //$NON-NLS-1$
-		String processPath = environment.get("Path"); //$NON-NLS-1$
-		if (!StringUtil.isEmpty(idfPath) && !StringUtil.isEmpty(processPath)) // if both exist!
-		{
-			idfPath = idfPath.concat(";").concat(processPath); //$NON-NLS-1$
-			environment.put("PATH", idfPath); //$NON-NLS-1$
-			environment.remove("Path");//$NON-NLS-1$
-		}
-
-		Logger.log(environment.toString());
-
-		// redirect error stream to input stream
-		processBuilder.redirectErrorStream(true);
-		String oldSdkconfigValue = StringUtil.EMPTY;
-		try
-		{
+			String pythonPath = IDFUtil.getIDFPythonEnvPath();
+			arguments.add(pythonPath);
+			arguments.add(idfPythonScriptFile.getAbsolutePath());
+			arguments.add("-B"); //$NON-NLS-1$
+			arguments.add(IDFUtil.getBuildDir(project));
+			arguments.add("-DSDKCONFIG=".concat(file.getName())); //$NON-NLS-1$
+			arguments.add(IDFConstants.CONF_SERVER_CMD);
+			Logger.log(arguments.toString());
+			
+			ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
+			
+			String oldSdkconfigValue = StringUtil.EMPTY;
 			oldSdkconfigValue = getCmakeCacheSdkconfigValue();
+			
+			
+			process = processRunner.run(arguments, workingDir, env);
+			runnable = new JsonConfigServerRunnable(process, this, project, oldSdkconfigValue);
+			Thread t = new Thread(runnable);
+			t.start();
 		}
-		catch (CoreException e)
+		catch (Exception e)
 		{
 			Logger.log(e);
 		}
-		process = processBuilder.start();
-		runnable = new JsonConfigServerRunnable(process, this, project, oldSdkconfigValue);
-		Thread t = new Thread(runnable);
-		t.start();
+	}
 
+	private void prepEnvMap(Map<String, String> env)
+	{
+		env.put("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
+		env.put("IDF_CCACHE_ENABLE", "false"); //$NON-NLS-1$ //$NON-NLS-2$
+		loadIdfPathWithSystemPath(env);
+	}
+	
+	private void loadIdfPathWithSystemPath(Map<String, String> systemEnv)
+	{
+		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
+		String idfExportPath = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.PATH);
+		String pathVar = "PATH"; // for Windows //$NON-NLS-1$
+		String pathEntry = systemEnv.get(pathVar); // $NON-NLS-1$
+		if (pathEntry == null)
+		{
+			pathVar = "Path"; //$NON-NLS-1$
+			pathEntry = systemEnv.get(pathVar);
+			if (pathEntry == null) // no idea
+			{
+				Logger.log(new Exception("No PATH found in the system environment variables")); //$NON-NLS-1$
+			}
+		}
+
+		if (!StringUtil.isEmpty(pathEntry))
+		{
+			idfExportPath = idfExportPath.replace("$PATH", pathEntry); // macOS //$NON-NLS-1$
+			idfExportPath = idfExportPath.replace("%PATH%", pathEntry); // Windows //$NON-NLS-1$
+		}
+		
+		systemEnv.put(pathVar, idfExportPath);
+		for (Entry<String, String> entry : idfEnvironmentVariables.getEnvMap().entrySet())
+		{
+			if (entry.getKey().equals(IDFEnvironmentVariables.PATH))
+				continue;
+
+			systemEnv.put(entry.getKey(), entry.getValue());
+		}
 	}
 
 	private String getCmakeCacheSdkconfigValue() throws CoreException

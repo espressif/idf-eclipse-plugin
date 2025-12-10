@@ -1,5 +1,8 @@
-Switch Between Languages in Espressif IDE
-==========================================
+Switch Between Languages in the IDE
+===================================
+
+:link_to_translation:`zh_CN:[中文]`
+
 Espressif IDE supports English and Chinese languages. You can switch between these languages using the following steps:
 
 1. Click on the ``Espressif`` menu from the menu bar.

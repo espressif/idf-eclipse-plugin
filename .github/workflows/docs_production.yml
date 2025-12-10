@@ -46,7 +46,7 @@ jobs:
         echo "PIP install requirements..."
         pip3 install --user -r ./docs/requirements.txt
         echo "Building the Docs..."
-        cd ./docs && build-docs -l en
+        cd ./docs && build-docs
         echo "Deploy the Docs..."
         export DOCS_BUILD_DIR=$GITHUB_WORKSPACE/docs/
         cd $GITHUB_WORKSPACE/docs

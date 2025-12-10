@@ -38,7 +38,7 @@ jobs:
         # Update the path to include them and run.
         cd ./docs
         PATH=/home/runner/.local/bin:$PATH pip3 install -r requirements.txt --prefer-binary
-        PATH=/home/runner/.local/bin:$PATH SPHINXOPTS="-W" build-docs -l en
+        PATH=/home/runner/.local/bin:$PATH SPHINXOPTS="-W" build-docs
     - name: Archive Docs
       uses: actions/upload-artifact@v4
       with:

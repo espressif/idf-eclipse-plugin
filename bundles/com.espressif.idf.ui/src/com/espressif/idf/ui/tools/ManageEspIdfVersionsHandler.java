@@ -1,24 +1,23 @@
 package com.espressif.idf.ui.tools;
 
-import java.io.File;
+import java.io.IOException;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.part.FileEditorInput;
 
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.tools.IToolsInstallationWizardConstants;
+import com.espressif.idf.core.tools.EimIdfConfiguratinParser;
+import com.espressif.idf.core.tools.exceptions.EimVersionMismatchException;
+import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.tools.manager.ESPIDFManagerEditor;
+import com.espressif.idf.ui.tools.manager.EimEditorInput;
 
 public class ManageEspIdfVersionsHandler extends AbstractHandler
 {
@@ -39,18 +38,28 @@ public class ManageEspIdfVersionsHandler extends AbstractHandler
 			{
 				IWorkbenchWindow activeww = EclipseHandler.getActiveWorkbenchWindow();
 				IDFUtil.closeWelcomePage(activeww);
-				
+
+				EimJson eimJson = new EimJson();
+
 				try
 				{
-					File inputFile = new File(toolSetConfigFilePath());
-					if (!inputFile.exists())
+					EimIdfConfiguratinParser eimIdfConfiguratinParser = new EimIdfConfiguratinParser();
+					eimJson = eimIdfConfiguratinParser.getEimJson(true);
+				}
+				catch (IOException | EimVersionMismatchException e)
+				{
+					Logger.log(e);
+					if (e instanceof EimVersionMismatchException)
 					{
-						inputFile.createNewFile();
+						EimVersionMismatchException eimEx = (EimVersionMismatchException) e;
+						MessageDialog.openError(Display.getDefault().getActiveShell(), eimEx.msgTitle(), eimEx.getMessage());
 					}
+				}
 
-					IFile iFile = ResourcesPlugin.getWorkspace().getRoot()
-							.getFile(new Path(inputFile.getAbsolutePath()));
-					IDE.openEditor(activeww.getActivePage(), new FileEditorInput(iFile), ESPIDFManagerEditor.EDITOR_ID);
+				try
+				{
+					IDE.openEditor(activeww.getActivePage(), new EimEditorInput(eimJson), ESPIDFManagerEditor.EDITOR_ID,
+							true);
 				}
 				catch (Exception e)
 				{
@@ -58,15 +67,5 @@ public class ManageEspIdfVersionsHandler extends AbstractHandler
 				}
 			}
 		});
-	}
-
-	private String toolSetConfigFilePath()
-	{
-		IPath path = ResourcesPlugin.getWorkspace().getRoot().getLocation();
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append(path.toOSString());
-		stringBuilder.append(File.separatorChar);
-		stringBuilder.append(IToolsInstallationWizardConstants.TOOL_SET_CONFIG_FILE);
-		return stringBuilder.toString();
 	}
 }

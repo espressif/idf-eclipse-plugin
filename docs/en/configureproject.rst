@@ -1,10 +1,13 @@
 Configure Your Project
-===============================
+======================
 
-Project configuration is stored in a single file called ``sdkconfig`` located in the root directory of the project. This configuration file can be modified using the ``SDK Configuration Editor``.
+:link_to_translation:`zh_CN:[中文]`
+
+Project configuration is stored in a single file called ``sdkconfig`` located in the root directory of the project. This configuration file can be modified using the SDK Configuration Editor.
 
 .. note::
-    sdkconfig file is generated only after the build. Hence, it is recommended to build the project once before configuring the project.
+
+    ``sdkconfig`` file is generated only after the build. Hence, it is recommended to build the project once before configuring the project.
 
 To launch the SDK Configuration Editor:
 
