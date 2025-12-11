@@ -64,7 +64,10 @@ public class IDFSizeDataManager
 	public JSONObject getIDFSizeOverview(IFile mapFile, String targetName) throws Exception
 	{
 		String pythonExecutablePath = preconditionsCheck();
-		List<String> commandArgs = getCommandArgs(pythonExecutablePath, mapFile, targetName);
+		List<String> espIdfSizePipShowArgs = getPipShowCommandArgs(pythonExecutablePath);
+		String pipShowOutput = getOutput(null, espIdfSizePipShowArgs);
+		boolean useNg = isNgArgSupported(pipShowOutput);
+		List<String> commandArgs = getCommandArgs(pythonExecutablePath, mapFile, useNg);
 		String detailsJsonOp = getOutput(mapFile, commandArgs);
 		detailsJsonOp = detailsJsonOp.replace("NaN", "0"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (!StringUtil.isEmpty(detailsJsonOp))
@@ -107,7 +110,7 @@ public class IDFSizeDataManager
 						String symbolName = symbolsKey.substring(key.length() + 1); // libnet80211.a:ieee80211_output.o
 
 						JSONObject symbolObj = (JSONObject) symbolJsonObj.get(symbolsKey);
-						
+
 						record.getChildren().add(getSizeRecord(symbolName, symbolObj));
 					}
 
@@ -121,44 +124,46 @@ public class IDFSizeDataManager
 	protected LibraryMemoryComponent getSizeRecord(String key, JSONObject object)
 	{
 		LibraryMemoryComponent library = new LibraryMemoryComponent();
-		String []keySplit = key.split("/");
-		String nameToSet = keySplit[keySplit.length-1] + " -> " + key; 
+		String[] keySplit = key.split("/");
+		String nameToSet = keySplit[keySplit.length - 1] + " -> " + key;
 		library.setName(nameToSet);
 		library.setAbbrevName((String) object.get("abbrev_name"));
-        library.setSize(getValue(object.get("size")));
-        library.setSizeDiff(getValue(object.get("size_diff")));
-        Map<String, MemoryType> memoryTypesMap = new LinkedHashMap<>();
-        JSONObject memoryTypesJson = (JSONObject) object.get("memory_types");
+		library.setSize(getValue(object.get("size")));
+		library.setSizeDiff(getValue(object.get("size_diff")));
+		Map<String, MemoryType> memoryTypesMap = new LinkedHashMap<>();
+		JSONObject memoryTypesJson = (JSONObject) object.get("memory_types");
 
-        for (Object memoryKeyObj : memoryTypesJson.keySet()) {
-            String memoryKey = (String) memoryKeyObj;
-            JSONObject memoryTypeJson = (JSONObject) memoryTypesJson.get(memoryKey);
+		for (Object memoryKeyObj : memoryTypesJson.keySet())
+		{
+			String memoryKey = (String) memoryKeyObj;
+			JSONObject memoryTypeJson = (JSONObject) memoryTypesJson.get(memoryKey);
 
-            MemoryType memoryType = new MemoryType();
-            memoryType.setSize(getValue(memoryTypeJson.get("size")));
-            memoryType.setSizeDiff(getValue(memoryTypeJson.get("size_diff")));
+			MemoryType memoryType = new MemoryType();
+			memoryType.setSize(getValue(memoryTypeJson.get("size")));
+			memoryType.setSizeDiff(getValue(memoryTypeJson.get("size_diff")));
 
-            JSONObject sectionsJson = (JSONObject) memoryTypeJson.get("sections");
-            Map<String, Section> sectionsMap = new LinkedHashMap<>();
+			JSONObject sectionsJson = (JSONObject) memoryTypeJson.get("sections");
+			Map<String, Section> sectionsMap = new LinkedHashMap<>();
 
-            for (Object sectionKeyObj : sectionsJson.keySet()) {
-                String sectionKey = (String) sectionKeyObj;
-                JSONObject sectionJson = (JSONObject) sectionsJson.get(sectionKey);
+			for (Object sectionKeyObj : sectionsJson.keySet())
+			{
+				String sectionKey = (String) sectionKeyObj;
+				JSONObject sectionJson = (JSONObject) sectionsJson.get(sectionKey);
 
-                Section section = new Section();
-                section.setSize(getValue(sectionJson.get("size")));
-                section.setSizeDiff(getValue(sectionJson.get("size_diff")));
-                section.setAbbrevName((String) sectionJson.get("abbrev_name"));
+				Section section = new Section();
+				section.setSize(getValue(sectionJson.get("size")));
+				section.setSizeDiff(getValue(sectionJson.get("size_diff")));
+				section.setAbbrevName((String) sectionJson.get("abbrev_name"));
 
-                sectionsMap.put(sectionKey, section);
-            }
+				sectionsMap.put(sectionKey, section);
+			}
 
-            memoryType.setSections(sectionsMap);
-            memoryTypesMap.put(memoryKey, memoryType);
-        }
+			memoryType.setSections(sectionsMap);
+			memoryTypesMap.put(memoryKey, memoryType);
+		}
 
-        library.setMemoryTypes(memoryTypesMap);
-        
+		library.setMemoryTypes(memoryTypesMap);
+
 		return library;
 	}
 
@@ -251,7 +256,7 @@ public class IDFSizeDataManager
 		{
 			return true;
 		}
-		
+
 		Version currentVersion = Version.parse(currentIDFVersion);
 		Version minVersion = Version.parse(minimumIDFVersion);
 		return currentVersion.compareTo(minVersion) >= 0;
@@ -269,16 +274,29 @@ public class IDFSizeDataManager
 		return arguments;
 	}
 
-	protected List<String> getCommandArgs(String pythonExecutablenPath, IFile file, String targetName)
+	protected List<String> getCommandArgs(String pythonExecutablenPath, IFile file, boolean useNg)
 	{
-		List<String> arguments = new ArrayList<String>();
+		List<String> arguments = new ArrayList<>();
 		arguments.add(pythonExecutablenPath);
 		arguments.add("-m"); //$NON-NLS-1$
 		arguments.add("esp_idf_size"); //$NON-NLS-1$
-		arguments.add("--ng"); //$NON-NLS-1$
+		if (useNg)
+			arguments.add("--ng"); //$NON-NLS-1$
 		arguments.add("--format"); //$NON-NLS-1$
 		arguments.add("json2"); //$NON-NLS-1$
 		arguments.add(file.getLocation().toOSString());
+
+		return arguments;
+	}
+
+	protected List<String> getPipShowCommandArgs(String pythonExecutablePath)
+	{
+		List<String> arguments = new ArrayList<>();
+		arguments.add(pythonExecutablePath);
+		arguments.add("-m"); //$NON-NLS-1$
+		arguments.add("pip"); //$NON-NLS-1$
+		arguments.add("show"); //$NON-NLS-1$
+		arguments.add("esp_idf_size"); //$NON-NLS-1$
 
 		return arguments;
 	}
@@ -303,6 +321,36 @@ public class IDFSizeDataManager
 			Logger.log(e);
 		}
 		return jsonObj;
+	}
+
+	protected boolean isNgArgSupported(String pipShowOutput)
+	{
+		if (pipShowOutput == null || pipShowOutput.isBlank())
+		{
+			return false;
+		}
+
+		return pipShowOutput.lines().map(String::trim).filter(line -> line.startsWith("Version:")).findFirst() //$NON-NLS-1$
+				.map(this::extractMajorVersion).map(major -> major < 2).orElse(false);
+	}
+
+	private Integer extractMajorVersion(String line)
+	{
+		try
+		{
+			var rawVersion = line.substring("Version:".length()).trim(); //$NON-NLS-1$
+
+			var dotIndex = rawVersion.indexOf('.');
+			var majorStr = (dotIndex != -1) ? rawVersion.substring(0, dotIndex) : rawVersion;
+
+			return Integer.parseInt(majorStr);
+		}
+		catch (
+				NumberFormatException
+				| IndexOutOfBoundsException e)
+		{
+			return null;
+		}
 	}
 
 }
