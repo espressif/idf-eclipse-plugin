@@ -129,7 +129,10 @@ public class TerminalViewTest
 		// Read the output from the temporary file
 		String output = new String(Files.readAllBytes(tempFile), StandardCharsets.UTF_8);
 
-		assertTrue("Output should contain 'IDF v'", output.contains("IDF v"));
+		assertTrue(
+				"Terminal output did not contain the expected version string.\n" + "Expected: substring 'IDF v'\n"
+						+ "Actual Output: \n[" + output + "]", // Embed the actual result here
+				output.contains("IDF v"));
 		// Optional: delete the temp file explicitly after test
 		Files.deleteIfExists(tempFile);
 	}
