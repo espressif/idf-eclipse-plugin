@@ -26,11 +26,13 @@ public class Messages extends NLS
 	public static String IDFSizeOverviewComposite_SwitchToPie;
 	public static String IDFSizeOverviewComposite_SwitchToBar;
 	public static String IDFSizeOverviewComposite_MemoryUsagePrefix;
+	public static String IDFSizeOverviewComposite_NoExpectedOutputMsg;
 	public static String IDFSizeEditorOverview;
 	public static String IDFSizeEditorDetails;
 	public static String IDFSizeEditorCharts;
 	public static String IDFSizeChartsComposite_SizeUnit;
 	public static String IDFSizeChartsComposite_MemoryParts;
+	public static String IDFSizeChartsComposite_NoMemoryDataAvailableLblMsg;
 	public static String IDFSizeChartsComposite_SizeTag;
 	public static String IDFSizeEditorVersionError;
 	public static String IDFSizeEditorVersionErrorDescription;
