@@ -16,6 +16,7 @@ package com.espressif.idf.terminal.connector.launcher;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -336,6 +337,13 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 		//Removing path, since we are using PATH
 		if (envMap.containsKey("PATH") && envMap.containsKey("Path")) { //$NON-NLS-1$ //$NON-NLS-2$
 			envMap.remove("Path"); //$NON-NLS-1$
+		}
+		// Adding esp-idf/tools in the path if it's missing (IEP-1668)
+		String idfToolsPath = Paths.get(IDFUtil.getIDFPath(), "tools").toAbsolutePath().toString(); //$NON-NLS-1$
+		String currentPath = envMap.get("PATH"); //$NON-NLS-1$
+
+		if (currentPath != null && !currentPath.contains(idfToolsPath)) {
+			envMap.put("PATH", currentPath + File.pathSeparator + idfToolsPath); //$NON-NLS-1$
 		}
 
 		for (String envKey : keySet) {
