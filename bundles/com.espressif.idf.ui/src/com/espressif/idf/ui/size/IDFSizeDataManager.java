@@ -46,7 +46,7 @@ public class IDFSizeDataManager
 	{
 		String pythonExecutablePath = preconditionsCheck();
 
-		List<String> arguments = getCommandArgsArchives(pythonExecutablePath, mapFile);
+		List<String> arguments = getIDFSizeCommandArgs(pythonExecutablePath, mapFile, "--archives"); //$NON-NLS-1$
 		String detailsJsonOp = getOutput(mapFile, arguments);
 		if (!StringUtil.isEmpty(detailsJsonOp))
 		{
@@ -57,21 +57,18 @@ public class IDFSizeDataManager
 				return convertToViewerModel(archivesJsonObj, symbolJsonObj);
 			}
 		}
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 
 	}
 
-	public JSONObject getIDFSizeOverview(IFile mapFile, String targetName) throws Exception
+	public JSONObject getIDFSizeOverview(IFile mapFile) throws Exception
 	{
 		String pythonExecutablePath = preconditionsCheck();
-		List<String> espIdfSizePipShowArgs = getPipShowCommandArgs(pythonExecutablePath);
-		String pipShowOutput = getOutput(null, espIdfSizePipShowArgs);
-		boolean useNg = isNgArgSupported(pipShowOutput);
-		List<String> commandArgs = getCommandArgs(pythonExecutablePath, mapFile, useNg);
+		List<String> commandArgs = getIDFSizeCommandArgs(pythonExecutablePath, mapFile);
 		String detailsJsonOp = getOutput(mapFile, commandArgs);
-		detailsJsonOp = detailsJsonOp.replace("NaN", "0"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (!StringUtil.isEmpty(detailsJsonOp))
 		{
+			detailsJsonOp = detailsJsonOp.replace("NaN", "0"); //$NON-NLS-1$ //$NON-NLS-2$
 			return getJSON(detailsJsonOp);
 		}
 		return null;
@@ -174,7 +171,7 @@ public class IDFSizeDataManager
 
 	private JSONObject getSymbolDetails(String pythonExecutablePath, IFile mapFile)
 	{
-		List<String> arguments = getCommandArgsSymbolDetails(pythonExecutablePath, mapFile);
+		List<String> arguments = getIDFSizeCommandArgs(pythonExecutablePath, mapFile, "--file"); //$NON-NLS-1$
 		String symbolsJsonOp = getOutput(mapFile, arguments);
 		if (!StringUtil.isEmpty(symbolsJsonOp))
 		{
@@ -219,13 +216,16 @@ public class IDFSizeDataManager
 		}
 	}
 
-	protected List<String> getCommandArgsArchives(String pythonExecutablenPath, IFile file)
+	protected List<String> getIDFSizeCommandArgs(String pythonExecutablePath, IFile file, String... additionalFlags)
 	{
-		List<String> arguments = new ArrayList<String>();
-		arguments.add(pythonExecutablenPath);
+		List<String> arguments = new ArrayList<>();
+		arguments.add(pythonExecutablePath);
 		arguments.add(IDFUtil.getIDFSizeScriptFile().getAbsolutePath());
 		arguments.add(file.getLocation().toOSString());
-		arguments.add("--archives"); //$NON-NLS-1$
+		if (additionalFlags != null)
+		{
+			Collections.addAll(arguments, additionalFlags);
+		}
 		arguments.addAll(addJsonParseCommand());
 
 		return arguments;
@@ -262,44 +262,6 @@ public class IDFSizeDataManager
 		return currentVersion.compareTo(minVersion) >= 0;
 	}
 
-	protected List<String> getCommandArgsSymbolDetails(String pythonExecutablenPath, IFile file)
-	{
-		List<String> arguments = new ArrayList<String>();
-		arguments.add(pythonExecutablenPath);
-		arguments.add(IDFUtil.getIDFSizeScriptFile().getAbsolutePath());
-		arguments.add(file.getLocation().toOSString());
-		arguments.add("--file"); //$NON-NLS-1$
-		arguments.addAll(addJsonParseCommand());
-
-		return arguments;
-	}
-
-	protected List<String> getCommandArgs(String pythonExecutablenPath, IFile file, boolean useNg)
-	{
-		List<String> arguments = new ArrayList<>();
-		arguments.add(pythonExecutablenPath);
-		arguments.add("-m"); //$NON-NLS-1$
-		arguments.add("esp_idf_size"); //$NON-NLS-1$
-		if (useNg)
-			arguments.add("--ng"); //$NON-NLS-1$
-		arguments.add("--format"); //$NON-NLS-1$
-		arguments.add("json2"); //$NON-NLS-1$
-		arguments.add(file.getLocation().toOSString());
-
-		return arguments;
-	}
-
-	protected List<String> getPipShowCommandArgs(String pythonExecutablePath)
-	{
-		List<String> arguments = new ArrayList<>();
-		arguments.add(pythonExecutablePath);
-		arguments.add("-m"); //$NON-NLS-1$
-		arguments.add("pip"); //$NON-NLS-1$
-		arguments.add("show"); //$NON-NLS-1$
-		arguments.add("esp_idf_size"); //$NON-NLS-1$
-
-		return arguments;
-	}
 
 	protected JSONObject getJSON(String jsonOutput)
 	{
@@ -321,36 +283,6 @@ public class IDFSizeDataManager
 			Logger.log(e);
 		}
 		return jsonObj;
-	}
-
-	protected boolean isNgArgSupported(String pipShowOutput)
-	{
-		if (pipShowOutput == null || pipShowOutput.isBlank())
-		{
-			return false;
-		}
-
-		return pipShowOutput.lines().map(String::trim).filter(line -> line.startsWith("Version:")).findFirst() //$NON-NLS-1$
-				.map(this::extractMajorVersion).map(major -> major < 2).orElse(false);
-	}
-
-	private Integer extractMajorVersion(String line)
-	{
-		try
-		{
-			var rawVersion = line.substring("Version:".length()).trim(); //$NON-NLS-1$
-
-			var dotIndex = rawVersion.indexOf('.');
-			var majorStr = (dotIndex != -1) ? rawVersion.substring(0, dotIndex) : rawVersion;
-
-			return Integer.parseInt(majorStr);
-		}
-		catch (
-				NumberFormatException
-				| IndexOutOfBoundsException e)
-		{
-			return null;
-		}
 	}
 
 }
