@@ -1,6 +1,8 @@
 KConfig Editor
 ==============
 
+:link_to_translation:`zh_CN:[中文]`
+
 The KConfig Editor provides enhanced editing capabilities for ESP-IDF configuration files, including syntax highlighting, content assist, and intelligent editing features. It supports all KConfig file types used in ESP-IDF projects.
 
 Supported File Types
@@ -8,8 +10,8 @@ Supported File Types
 
 The KConfig Editor automatically recognizes and provides enhanced editing for the following file types:
 
-- ``Kconfig`` - Main configuration files
-- ``Kconfig.projbuild`` - Project-specific configuration files  
+- ``Kconfig`` – Main configuration files
+- ``Kconfig.projbuild`` – Project-specific configuration files
 
 Features
 --------
@@ -19,11 +21,11 @@ Syntax Highlighting
 
 The editor provides comprehensive syntax highlighting for all KConfig language constructs:
 
-- **Keywords**: ``config``, ``menuconfig``, ``choice``, ``menu``, ``endmenu``, ``endchoice``
-- **Types**: ``bool``, ``tristate``, ``string``, ``hex``, ``int``
-- **Properties**: ``default``, ``depends``, ``select``, ``help``, ``prompt``
-- **Values**: ``y``, ``n``, ``m``, string literals, hexadecimal and integer values
-- **Comments**: Line comments starting with ``#``
+- **Keywords**: ``config``, ``menuconfig``, ``choice``, ``menu``, ``endmenu``, ``endchoice``.
+- **Types**: ``bool``, ``tristate``, ``string``, ``hex``, ``int``.
+- **Properties**: ``default``, ``depends``, ``select``, ``help``, ``prompt``.
+- **Values**: ``y``, ``n``, ``m``, string literals, hexadecimal and integer values.
+- **Comments**: Line comments starting with ``#``.
 
 Content Assist
 ~~~~~~~~~~~~~~
@@ -31,18 +33,18 @@ Content Assist
 Intelligent content proposals are available when editing KConfig files:
 
 - **Main Keywords**: Proposals for ``config``, ``menuconfig``, ``choice``, ``menu``, etc.
-- **Types**: Suggestions for ``bool``, ``tristate``, ``string``, ``hex``, ``int``
-- **Properties**: Auto-completion for ``default``, ``depends``, ``select``, ``help``, ``prompt``
-- **Values**: Context-aware suggestions for ``y``, ``n``, ``m``, and string values
+- **Types**: Suggestions for ``bool``, ``tristate``, ``string``, ``hex``, ``int``.
+- **Properties**: Auto-completion for ``default``, ``depends``, ``select``, ``help``, ``prompt``.
+- **Values**: Context-aware suggestions for ``y``, ``n``, ``m``, and string values.
 
-Auto-closing Pairs
+Auto-Closing Pairs
 ~~~~~~~~~~~~~~~~~~
 
 The editor automatically handles bracket and quote pairing:
 
-- **Parentheses**: Automatically closes ``(`` with ``)``
-- **Quotes**: Automatically closes ``"`` with ``"``
-- **Smart Cursor Positioning**: Cursor stays in the optimal position for continued typing
+- **Parentheses**: Automatically closes ``(`` with ``)``.
+- **Quotes**: Automatically closes ``"`` with ``"``.
+- **Smart Cursor Positioning**: Cursor stays in the optimal position for continued typing.
 
 Example of auto-closing pairs:
 
@@ -62,28 +64,28 @@ Smart Indentation
 
 The editor provides intelligent indentation rules for KConfig structure:
 
-- **Increase Indent**: After ``menu``, ``config``, ``menuconfig``, ``choice``, ``help``, ``comment``
-- **Decrease Indent**: After ``endmenu``, ``endchoice``, ``endif``
-- **Consistent Formatting**: Maintains proper KConfig file structure
+- **Increase Indent**: After ``menu``, ``config``, ``menuconfig``, ``choice``, ``help``, ``comment``.
+- **Decrease Indent**: After ``endmenu``, ``endchoice``, ``endif``.
+- **Consistent Formatting**: Maintains proper KConfig file structure.
 
 Bracket Matching
 ~~~~~~~~~~~~~~~~
 
 Visual highlighting of matching bracket pairs:
 
-- **Menu Blocks**: ``menu`` and ``endmenu`` pairs
-- **Choice Blocks**: ``choice`` and ``endchoice`` pairs
-- **Parentheses**: ``(`` and ``)`` pairs
-- **Quotes**: ``"`` and ``"`` pairs
+- **Menu Blocks**: ``menu`` and ``endmenu`` pairs.
+- **Choice Blocks**: ``choice`` and ``endchoice`` pairs.
+- **Parentheses**: ``(`` and ``)`` pairs.
+- **Quotes**: ``"`` and ``"`` pairs.
 
 Code Folding
 ~~~~~~~~~~~~
 
 Support for folding KConfig blocks:
 
-- **Menu Sections**: Fold/unfold menu blocks
-- **Choice Sections**: Fold/unfold choice blocks
-- **Comment Regions**: Fold/unfold comment sections
+- **Menu Sections**: Fold/unfold menu blocks.
+- **Choice Sections**: Fold/unfold choice blocks.
+- **Comment Regions**: Fold/unfold comment sections.
 
 Usage
 -----
@@ -93,9 +95,9 @@ Opening KConfig Files
 
 KConfig files are automatically opened with the enhanced editor when:
 
-1. Double-clicking on any ``Kconfig`` or ``Kconfig.projbuild`` file in the Project Explorer
-2. Right-clicking and selecting "Open With > KConfig Editor"
-3. Opening files from the File menu
+1. Double-clicking on any ``Kconfig`` or ``Kconfig.projbuild`` file in the Project Explorer.
+2. Right-clicking and selecting ``Open With`` > ``KConfig Editor``.
+3. Opening files from the ``File`` menu.
 
 The editor will automatically detect the file type and apply the appropriate syntax highlighting and features.
 
@@ -104,10 +106,10 @@ Editing KConfig Files
 
 When editing KConfig files, you can take advantage of:
 
-- **Content Assist**: Press ``Ctrl+Space`` to trigger content proposals
-- **Auto-completion**: Type partial keywords and press ``Tab`` to complete
-- **Bracket Navigation**: Use ``Ctrl+Shift+P`` to jump between matching brackets
-- **Code Folding**: Click the fold icons in the editor gutter to collapse/expand sections
+- **Content Assist**: Press ``Ctrl+Space`` to trigger content proposals.
+- **Auto-completion**: Type partial keywords and press ``Tab`` to complete.
+- **Bracket Navigation**: Use ``Ctrl+Shift+P`` to jump between matching brackets.
+- **Code Folding**: Click the fold icons in the editor gutter to collapse/expand sections.
 
 Example KConfig Entry
 ~~~~~~~~~~~~~~~~~~~~~
@@ -141,4 +143,3 @@ References
 - `ESP-IDF KConfig Language Reference <https://docs.espressif.com/projects/esp-idf-kconfig/en/latest/kconfiglib/language.html>`_
 - `KConfig Language Documentation <https://www.kernel.org/doc/Documentation/kbuild/kconfig-language.txt>`_
 - `Eclipse TM4E Documentation <https://github.com/eclipse/tm4e>`_
-

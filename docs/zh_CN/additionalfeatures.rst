@@ -8,6 +8,7 @@
 
     LSP C/C++ 编辑器 <additionalfeatures/lspeditor>
     CMake 编辑器 <additionalfeatures/cmakeeditor>
+    KConfig 编辑器 <additionalfeatures/kconfigeditor>
     ESP-IDF 应用程序大小分析 <additionalfeatures/application-size-analysis>
     ESP-IDF 终端 <additionalfeatures/esp-terminal>
     安装 ESP-IDF 组件 <additionalfeatures/install-esp-components>
