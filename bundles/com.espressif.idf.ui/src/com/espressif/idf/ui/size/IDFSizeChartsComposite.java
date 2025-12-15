@@ -149,6 +149,25 @@ public class IDFSizeChartsComposite
 		for (var child : chartComp.getChildren())
 			child.dispose();
 
+		// Defensive check: Handle unexpected empty data gracefully to prevent UI crash.
+		if (overviewJson == null || overviewJson.isEmpty() || !overviewJson.containsKey(IDFSizeConstants.LAYOUT))
+		{
+			Label errorLabel = new Label(chartComp, SWT.WRAP | SWT.CENTER);
+			errorLabel.setText(
+					Messages.IDFSizeChartsComposite_NoMemoryDataAvailableLblMsg);
+			errorLabel.setForeground(chartComp.getDisplay().getSystemColor(SWT.COLOR_RED));
+
+			// Center the error message across the 2-column grid
+			GridData gd = new GridData(SWT.CENTER, SWT.CENTER, true, true);
+			gd.horizontalSpan = 2;
+			errorLabel.setLayoutData(gd);
+
+			// Refresh layout and return to avoid crash
+			chartComp.layout(true, true);
+			scrollable.setMinSize(chartComp.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+			return;
+		}
+
 		JSONArray layoutArray = (JSONArray) overviewJson.get(IDFSizeConstants.LAYOUT);
 		for (Object obj : layoutArray)
 		{
@@ -206,7 +225,7 @@ public class IDFSizeChartsComposite
 		for (int i = 0; i < dataset.getRowCount(); i++)
 		{
 			String rowKey = dataset.getRowKey(i).toString();
-			if (rowKey.startsWith("Free"))
+			if (rowKey.startsWith("Free")) //$NON-NLS-1$
 			{
 				labelColorMap.putIfAbsent(rowKey, Color.GREEN);
 			}
@@ -245,7 +264,7 @@ public class IDFSizeChartsComposite
 
 		for (String key : dataset.getKeys())
 		{
-			if (key.startsWith("Free"))
+			if (key.startsWith("Free")) //$NON-NLS-1$
 			{
 				labelColorMap.putIfAbsent(key, Color.GREEN);
 			}
@@ -302,7 +321,7 @@ public class IDFSizeChartsComposite
 	{
 		try
 		{
-			return new IDFSizeDataManager().getIDFSizeOverview(file, targetName);
+			return new IDFSizeDataManager().getIDFSizeOverview(file);
 		}
 		catch (Exception e)
 		{

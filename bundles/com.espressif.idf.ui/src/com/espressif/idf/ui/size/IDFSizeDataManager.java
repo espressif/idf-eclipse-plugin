@@ -46,7 +46,7 @@ public class IDFSizeDataManager
 	{
 		String pythonExecutablePath = preconditionsCheck();
 
-		List<String> arguments = getCommandArgsArchives(pythonExecutablePath, mapFile);
+		List<String> arguments = getIDFSizeCommandArgs(pythonExecutablePath, mapFile, "--archives"); //$NON-NLS-1$
 		String detailsJsonOp = getOutput(mapFile, arguments);
 		if (!StringUtil.isEmpty(detailsJsonOp))
 		{
@@ -57,18 +57,18 @@ public class IDFSizeDataManager
 				return convertToViewerModel(archivesJsonObj, symbolJsonObj);
 			}
 		}
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 
 	}
 
-	public JSONObject getIDFSizeOverview(IFile mapFile, String targetName) throws Exception
+	public JSONObject getIDFSizeOverview(IFile mapFile) throws Exception
 	{
 		String pythonExecutablePath = preconditionsCheck();
-		List<String> commandArgs = getCommandArgs(pythonExecutablePath, mapFile, targetName);
+		List<String> commandArgs = getIDFSizeCommandArgs(pythonExecutablePath, mapFile);
 		String detailsJsonOp = getOutput(mapFile, commandArgs);
-		detailsJsonOp = detailsJsonOp.replace("NaN", "0"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (!StringUtil.isEmpty(detailsJsonOp))
 		{
+			detailsJsonOp = detailsJsonOp.replace("NaN", "0"); //$NON-NLS-1$ //$NON-NLS-2$
 			return getJSON(detailsJsonOp);
 		}
 		return null;
@@ -107,7 +107,7 @@ public class IDFSizeDataManager
 						String symbolName = symbolsKey.substring(key.length() + 1); // libnet80211.a:ieee80211_output.o
 
 						JSONObject symbolObj = (JSONObject) symbolJsonObj.get(symbolsKey);
-						
+
 						record.getChildren().add(getSizeRecord(symbolName, symbolObj));
 					}
 
@@ -121,44 +121,46 @@ public class IDFSizeDataManager
 	protected LibraryMemoryComponent getSizeRecord(String key, JSONObject object)
 	{
 		LibraryMemoryComponent library = new LibraryMemoryComponent();
-		String []keySplit = key.split("/");
-		String nameToSet = keySplit[keySplit.length-1] + " -> " + key; 
+		String[] keySplit = key.split("/");
+		String nameToSet = keySplit[keySplit.length - 1] + " -> " + key;
 		library.setName(nameToSet);
 		library.setAbbrevName((String) object.get("abbrev_name"));
-        library.setSize(getValue(object.get("size")));
-        library.setSizeDiff(getValue(object.get("size_diff")));
-        Map<String, MemoryType> memoryTypesMap = new LinkedHashMap<>();
-        JSONObject memoryTypesJson = (JSONObject) object.get("memory_types");
+		library.setSize(getValue(object.get("size")));
+		library.setSizeDiff(getValue(object.get("size_diff")));
+		Map<String, MemoryType> memoryTypesMap = new LinkedHashMap<>();
+		JSONObject memoryTypesJson = (JSONObject) object.get("memory_types");
 
-        for (Object memoryKeyObj : memoryTypesJson.keySet()) {
-            String memoryKey = (String) memoryKeyObj;
-            JSONObject memoryTypeJson = (JSONObject) memoryTypesJson.get(memoryKey);
+		for (Object memoryKeyObj : memoryTypesJson.keySet())
+		{
+			String memoryKey = (String) memoryKeyObj;
+			JSONObject memoryTypeJson = (JSONObject) memoryTypesJson.get(memoryKey);
 
-            MemoryType memoryType = new MemoryType();
-            memoryType.setSize(getValue(memoryTypeJson.get("size")));
-            memoryType.setSizeDiff(getValue(memoryTypeJson.get("size_diff")));
+			MemoryType memoryType = new MemoryType();
+			memoryType.setSize(getValue(memoryTypeJson.get("size")));
+			memoryType.setSizeDiff(getValue(memoryTypeJson.get("size_diff")));
 
-            JSONObject sectionsJson = (JSONObject) memoryTypeJson.get("sections");
-            Map<String, Section> sectionsMap = new LinkedHashMap<>();
+			JSONObject sectionsJson = (JSONObject) memoryTypeJson.get("sections");
+			Map<String, Section> sectionsMap = new LinkedHashMap<>();
 
-            for (Object sectionKeyObj : sectionsJson.keySet()) {
-                String sectionKey = (String) sectionKeyObj;
-                JSONObject sectionJson = (JSONObject) sectionsJson.get(sectionKey);
+			for (Object sectionKeyObj : sectionsJson.keySet())
+			{
+				String sectionKey = (String) sectionKeyObj;
+				JSONObject sectionJson = (JSONObject) sectionsJson.get(sectionKey);
 
-                Section section = new Section();
-                section.setSize(getValue(sectionJson.get("size")));
-                section.setSizeDiff(getValue(sectionJson.get("size_diff")));
-                section.setAbbrevName((String) sectionJson.get("abbrev_name"));
+				Section section = new Section();
+				section.setSize(getValue(sectionJson.get("size")));
+				section.setSizeDiff(getValue(sectionJson.get("size_diff")));
+				section.setAbbrevName((String) sectionJson.get("abbrev_name"));
 
-                sectionsMap.put(sectionKey, section);
-            }
+				sectionsMap.put(sectionKey, section);
+			}
 
-            memoryType.setSections(sectionsMap);
-            memoryTypesMap.put(memoryKey, memoryType);
-        }
+			memoryType.setSections(sectionsMap);
+			memoryTypesMap.put(memoryKey, memoryType);
+		}
 
-        library.setMemoryTypes(memoryTypesMap);
-        
+		library.setMemoryTypes(memoryTypesMap);
+
 		return library;
 	}
 
@@ -169,7 +171,7 @@ public class IDFSizeDataManager
 
 	private JSONObject getSymbolDetails(String pythonExecutablePath, IFile mapFile)
 	{
-		List<String> arguments = getCommandArgsSymbolDetails(pythonExecutablePath, mapFile);
+		List<String> arguments = getIDFSizeCommandArgs(pythonExecutablePath, mapFile, "--file"); //$NON-NLS-1$
 		String symbolsJsonOp = getOutput(mapFile, arguments);
 		if (!StringUtil.isEmpty(symbolsJsonOp))
 		{
@@ -214,13 +216,16 @@ public class IDFSizeDataManager
 		}
 	}
 
-	protected List<String> getCommandArgsArchives(String pythonExecutablenPath, IFile file)
+	protected List<String> getIDFSizeCommandArgs(String pythonExecutablePath, IFile file, String... additionalFlags)
 	{
-		List<String> arguments = new ArrayList<String>();
-		arguments.add(pythonExecutablenPath);
+		List<String> arguments = new ArrayList<>();
+		arguments.add(pythonExecutablePath);
 		arguments.add(IDFUtil.getIDFSizeScriptFile().getAbsolutePath());
 		arguments.add(file.getLocation().toOSString());
-		arguments.add("--archives"); //$NON-NLS-1$
+		if (additionalFlags != null)
+		{
+			Collections.addAll(arguments, additionalFlags);
+		}
 		arguments.addAll(addJsonParseCommand());
 
 		return arguments;
@@ -251,37 +256,12 @@ public class IDFSizeDataManager
 		{
 			return true;
 		}
-		
+
 		Version currentVersion = Version.parse(currentIDFVersion);
 		Version minVersion = Version.parse(minimumIDFVersion);
 		return currentVersion.compareTo(minVersion) >= 0;
 	}
 
-	protected List<String> getCommandArgsSymbolDetails(String pythonExecutablenPath, IFile file)
-	{
-		List<String> arguments = new ArrayList<String>();
-		arguments.add(pythonExecutablenPath);
-		arguments.add(IDFUtil.getIDFSizeScriptFile().getAbsolutePath());
-		arguments.add(file.getLocation().toOSString());
-		arguments.add("--file"); //$NON-NLS-1$
-		arguments.addAll(addJsonParseCommand());
-
-		return arguments;
-	}
-
-	protected List<String> getCommandArgs(String pythonExecutablenPath, IFile file, String targetName)
-	{
-		List<String> arguments = new ArrayList<String>();
-		arguments.add(pythonExecutablenPath);
-		arguments.add("-m"); //$NON-NLS-1$
-		arguments.add("esp_idf_size"); //$NON-NLS-1$
-		arguments.add("--ng"); //$NON-NLS-1$
-		arguments.add("--format"); //$NON-NLS-1$
-		arguments.add("json2"); //$NON-NLS-1$
-		arguments.add(file.getLocation().toOSString());
-
-		return arguments;
-	}
 
 	protected JSONObject getJSON(String jsonOutput)
 	{

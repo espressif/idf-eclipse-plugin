@@ -99,7 +99,7 @@ public class IDFSizeOverviewComposite
 		table.setLinesVisible(true);
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 
-		String[] columns = { "Region", "Used", "Free", "Total", "Usage" };
+		String[] columns = { "Region", "Used", "Free", "Total", "Usage" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		for (String colName : columns)
 		{
 			TableColumn col = new TableColumn(table, SWT.NONE);
@@ -119,7 +119,17 @@ public class IDFSizeOverviewComposite
 	{
 		table.removeAll();
 
-		JSONArray layout = (JSONArray) overviewJson.get("layout");
+		// Defensive check: Handle unexpected empty data gracefully to prevent UI crash.
+		if (overviewJson == null || overviewJson.isEmpty() || !overviewJson.containsKey("layout")) //$NON-NLS-1$
+		{
+			TableItem errorItem = new TableItem(table, SWT.NONE);
+			errorItem.setText(0,
+					Messages.IDFSizeOverviewComposite_NoExpectedOutputMsg);
+			errorItem.setForeground(0, table.getDisplay().getSystemColor(SWT.COLOR_RED));
+			return;
+		}
+
+		JSONArray layout = (JSONArray) overviewJson.get("layout"); //$NON-NLS-1$
 		long grandUsed = 0;
 		long grandFree = 0;
 
@@ -127,16 +137,16 @@ public class IDFSizeOverviewComposite
 		for (Object obj : layout)
 		{
 			JSONObject section = (JSONObject) obj;
-			String name = (String) section.get("name");
-			long used = (long) section.get("used");
-			long free = (long) section.get("free");
-			long total = (long) section.get("total");
+			String name = (String) section.get("name"); //$NON-NLS-1$
+			long used = (long) section.get("used"); //$NON-NLS-1$
+			long free = (long) section.get("free"); //$NON-NLS-1$
+			long total = (long) section.get("total"); //$NON-NLS-1$
 
 			grandUsed += used;
 			grandFree += free;
 
 			TableItem item = new TableItem(table, SWT.NONE);
-			item.setText(new String[] { name, formatMemory(used), formatMemory(free), formatMemory(total), "" // progress
+			item.setText(new String[] { name, formatMemory(used), formatMemory(free), formatMemory(total), "" // progress //$NON-NLS-1$
 																												// bar
 																												// will
 																												// go
@@ -150,8 +160,8 @@ public class IDFSizeOverviewComposite
 
 		// Total row
 		TableItem totalRow = new TableItem(table, SWT.NONE);
-		totalRow.setText(new String[] { "Total:", formatMemory(grandUsed), formatMemory(grandFree),
-				formatMemory(grandUsed + grandFree), "" });
+		totalRow.setText(new String[] { "Total:", formatMemory(grandUsed), formatMemory(grandFree), //$NON-NLS-1$
+				formatMemory(grandUsed + grandFree), "" }); //$NON-NLS-1$
 		for (int i = 0; i < 5; i++)
 		{
 			applyBoldToColumn(totalRow, i);
@@ -206,7 +216,7 @@ public class IDFSizeOverviewComposite
 	private String getUsagePercent(long used, long total)
 	{
 		if (total == 0)
-			return "-";
+			return "-"; //$NON-NLS-1$
 		double percent = (double) used / total * 100;
 		return String.format("%.1f%%", percent); //$NON-NLS-1$
 	}
@@ -228,7 +238,7 @@ public class IDFSizeOverviewComposite
 	{
 		try
 		{
-			return new IDFSizeDataManager().getIDFSizeOverview(file, targetName);
+			return new IDFSizeDataManager().getIDFSizeOverview(file);
 		}
 		catch (Exception e)
 		{
