@@ -16,11 +16,7 @@ package com.espressif.idf.terminal.connector.launcher;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.cdt.utils.pty.PTY;
 import org.eclipse.core.runtime.Assert;
@@ -49,9 +45,6 @@ import org.eclipse.tm.terminal.view.ui.launcher.AbstractLauncherDelegate;
 import org.eclipse.ui.WorkbenchEncoding;
 import org.osgi.framework.Bundle;
 
-import com.espressif.idf.core.IDFEnvironmentVariables;
-import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.terminal.connector.activator.UIPlugin;
 import com.espressif.idf.terminal.connector.controls.IDFConsoleWizardConfigurationPanel;
 
@@ -196,11 +189,7 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 	private final File defaultShell() {
 		String shell = null;
 		if (Platform.OS_WIN32.equals(Platform.getOS())) {
-			if (System.getenv("ComSpec") != null && !"".equals(System.getenv("ComSpec").trim())) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				shell = System.getenv("ComSpec").trim(); //$NON-NLS-1$
-			} else {
-				shell = "cmd.exe"; //$NON-NLS-1$
-			}
+			shell = "powershell.exe"; //$NON-NLS-1$
 		}
 		if (shell == null) {
 			shell = org.eclipse.tm.terminal.view.ui.activator.UIPlugin.getScopedPreferences()
@@ -221,12 +210,13 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 	public ITerminalConnector createTerminalConnector(Map<String, Object> properties) {
 		Assert.isNotNull(properties);
 
-		// Check for the terminal connector id
+		// 1. Check for the terminal connector id
 		String connectorId = (String) properties.get(ITerminalsConnectorConstants.PROP_TERMINAL_CONNECTOR_ID);
-		if (connectorId == null)
+		if (connectorId == null) {
 			connectorId = ESP_IDF_CONSOLE_CONNECTOR_ID;
+		}
 
-		// Extract the process properties using defaults
+		// 2. Extract the process image (shell)
 		String image;
 		if (!properties.containsKey(ITerminalsConnectorConstants.PROP_PROCESS_PATH)
 				|| properties.get(ITerminalsConnectorConstants.PROP_PROCESS_PATH) == null) {
@@ -236,30 +226,7 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 			image = (String) properties.get(ITerminalsConnectorConstants.PROP_PROCESS_PATH);
 		}
 
-		String arguments = (String) properties.get(ITerminalsConnectorConstants.PROP_PROCESS_ARGS);
-		if (arguments == null && !Platform.OS_WIN32.equals(Platform.getOS())) {
-			arguments = org.eclipse.tm.terminal.view.ui.activator.UIPlugin.getScopedPreferences()
-					.getString(IPreferenceKeys.PREF_LOCAL_TERMINAL_DEFAULT_SHELL_UNIX_ARGS);
-		}
-
-		// Avoding profiles to isolate PATH enviroment
-		arguments = ""; //$NON-NLS-1$
-		if (image.contains("bash")) { //$NON-NLS-1$
-			arguments = "--noprofile --norc"; //$NON-NLS-1$
-		} else if (image.contains("zsh")) { //$NON-NLS-1$
-			arguments = "--no-rcs --no-globalrcs"; //$NON-NLS-1$
-		} else if (image.contains("powershell")) { //$NON-NLS-1$
-			arguments = "-NoProfile"; //$NON-NLS-1$
-		} else if (Platform.OS_WIN32.equals(Platform.getOS()) && image.contains("cmd.exe")) { //$NON-NLS-1$
-			// This is the new part that rewrites the arguments for cmd.exe
-			String title = (String) properties.get(ITerminalsConnectorConstants.PROP_TITLE);
-			if (title != null && !title.isEmpty()) {
-				String safeTitle = title.replaceAll("[\\r\\n\"&|<>^]", " ").trim(); //$NON-NLS-1$ //$NON-NLS-2$
-				arguments = "/c \"title " + safeTitle + " && cmd.exe\""; //$NON-NLS-1$ //$NON-NLS-2$
-			}
-		}
-
-		// Determine if a PTY will be used
+		// 3. Determine PTY and Echo settings
 		boolean isUsingPTY = (properties.get(ITerminalsConnectorConstants.PROP_PROCESS_OBJ) == null
 				&& PTY.isSupported(PTY.Mode.TERMINAL))
 				|| properties.get(ITerminalsConnectorConstants.PROP_PTY_OBJ) instanceof PTY;
@@ -275,10 +242,10 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 			localEcho = ((Boolean) properties.get(ITerminalsConnectorConstants.PROP_LOCAL_ECHO)).booleanValue();
 		}
 
+		// 4. Determine Line Separator
 		String lineSeparator = null;
 		if (!properties.containsKey(ITerminalsConnectorConstants.PROP_LINE_SEPARATOR)
 				|| !(properties.get(ITerminalsConnectorConstants.PROP_LINE_SEPARATOR) instanceof String)) {
-			// No line separator will be set if a PTY is used
 			if (!isUsingPTY) {
 				lineSeparator = Platform.OS_WIN32.equals(Platform.getOS()) ? ILineSeparatorConstants.LINE_SEPARATOR_CRLF
 						: ILineSeparatorConstants.LINE_SEPARATOR_LF;
@@ -287,6 +254,7 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 			lineSeparator = (String) properties.get(ITerminalsConnectorConstants.PROP_LINE_SEPARATOR);
 		}
 
+		// 5. Extract other properties
 		Process process = (Process) properties.get(ITerminalsConnectorConstants.PROP_PROCESS_OBJ);
 		PTY pty = (PTY) properties.get(ITerminalsConnectorConstants.PROP_PTY_OBJ);
 		ITerminalServiceOutputStreamMonitorListener[] stdoutListeners = (ITerminalServiceOutputStreamMonitorListener[]) properties
@@ -295,73 +263,12 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 				.get(ITerminalsConnectorConstants.PROP_STDERR_LISTENERS);
 		String workingDir = (String) properties.get(ITerminalsConnectorConstants.PROP_PROCESS_WORKING_DIR);
 
-		String[] envp = null;
-		if (properties.containsKey(ITerminalsConnectorConstants.PROP_PROCESS_ENVIRONMENT)
-				&& properties.get(ITerminalsConnectorConstants.PROP_PROCESS_ENVIRONMENT) != null
-				&& properties.get(ITerminalsConnectorConstants.PROP_PROCESS_ENVIRONMENT) instanceof String[]) {
-			envp = (String[]) properties.get(ITerminalsConnectorConstants.PROP_PROCESS_ENVIRONMENT);
-		}
-
-		// Set the ECLIPSE_HOME and ECLIPSE_WORKSPACE environment variables
-		List<String> envpList = new ArrayList<>();
-		if (envp != null)
-			envpList.addAll(Arrays.asList(envp));
-
-		// ECLIPSE_HOME
-		String eclipseHomeLocation = System.getProperty("eclipse.home.location"); //$NON-NLS-1$
-		if (eclipseHomeLocation != null) {
-			try {
-				URI uri = URIUtil.fromString(eclipseHomeLocation);
-				File f = URIUtil.toFile(uri);
-				envpList.add("ECLIPSE_HOME=" + f.getAbsolutePath()); //$NON-NLS-1$
-			} catch (URISyntaxException e) {
-				/* ignored on purpose */ }
-		}
-
-		// ECLIPSE_WORKSPACE
-		Bundle bundle = Platform.getBundle("org.eclipse.core.resources"); //$NON-NLS-1$
-		if (bundle != null && bundle.getState() != Bundle.UNINSTALLED && bundle.getState() != Bundle.STOPPING) {
-			if (org.eclipse.core.resources.ResourcesPlugin.getWorkspace() != null
-					&& org.eclipse.core.resources.ResourcesPlugin.getWorkspace().getRoot() != null
-					&& org.eclipse.core.resources.ResourcesPlugin.getWorkspace().getRoot().getLocation() != null) {
-				envpList.add("ECLIPSE_WORKSPACE=" + org.eclipse.core.resources.ResourcesPlugin.getWorkspace().getRoot() //$NON-NLS-1$
-						.getLocation().toOSString());
-			}
-		}
-
-		//Set CDT build environment variables
-		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
-		Set<String> keySet = envMap.keySet();
-
-		//Removing path, since we are using PATH
-		if (envMap.containsKey("PATH") && envMap.containsKey("Path")) { //$NON-NLS-1$ //$NON-NLS-2$
-			envMap.remove("Path"); //$NON-NLS-1$
-		}
-
-		for (String envKey : keySet) {
-			String envValue = envMap.get(envKey);
-			if (envKey.equals("PATH")) //$NON-NLS-1$
-			{
-				String idfExtraPaths = IDFUtil.getIDFExtraPaths();
-				if (!StringUtil.isEmpty(idfExtraPaths)) {
-					envValue = idfExtraPaths + ":" + envValue; //$NON-NLS-1$
-				}
-			}
-			envpList.add(envKey + "=" + envValue); //$NON-NLS-1$
-		}
-
-		// Convert back into a string array
-		envp = envpList.toArray(new String[envpList.size()]);
-
 		Assert.isTrue(image != null || process != null);
 
-		// Construct the terminal settings store
+		// 6. Construct and Save Settings
 		ISettingsStore store = new SettingsStore();
-
-		// Construct the process settings
 		ProcessSettings processSettings = new ProcessSettings();
 		processSettings.setImage(image);
-		processSettings.setArguments(arguments);
 		processSettings.setProcess(process);
 		processSettings.setPTY(pty);
 		processSettings.setLocalEcho(localEcho);
@@ -369,22 +276,18 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 		processSettings.setStdOutListeners(stdoutListeners);
 		processSettings.setStdErrListeners(stderrListeners);
 		processSettings.setWorkingDir(workingDir);
-		processSettings.setEnvironment(envp);
 
 		if (properties.containsKey(ITerminalsConnectorConstants.PROP_PROCESS_MERGE_ENVIRONMENT)) {
 			Object value = properties.get(ITerminalsConnectorConstants.PROP_PROCESS_MERGE_ENVIRONMENT);
 			processSettings
-					.setMergeWithNativeEnvironment(value instanceof Boolean ? ((Boolean) value).booleanValue() : false);
+					.setMergeWithNativeEnvironment(value instanceof Boolean boolValue && boolValue.booleanValue());
 		}
-		// And save the settings to the store
 		processSettings.save(store);
 
-		// Construct the terminal connector instance
+		// 7. Create Connector
 		ITerminalConnector connector = TerminalConnectorExtension.makeTerminalConnector(connectorId);
 		if (connector != null) {
-			// Apply default settings
 			connector.setDefaultSettings();
-			// And load the real settings
 			connector.load(store);
 		}
 

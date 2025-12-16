@@ -100,7 +100,8 @@ public class SetupToolsInIde extends Job
 		List<String> arguemnts = new ArrayList<>();
 		Map<String, String> env = new HashMap<>(System.getenv());
 		addGitToEnvironment(env, eimJson.getGitPath());
-		arguemnts = ToolsUtility.getExportScriptCommand(idfInstalled.getActivationScript());
+		var activationScriptPath = idfInstalled.getActivationScript();
+		arguemnts = ToolsUtility.getExportScriptCommand(activationScriptPath);
 		final ProcessBuilderFactory processBuilderFactory = new ProcessBuilderFactory();
 		try
 		{
@@ -133,6 +134,7 @@ public class SetupToolsInIde extends Job
 			monitor.setTaskName("Processing output from activation script"); //$NON-NLS-1$
 			log("Processing output from activation script", IStatus.INFO); //$NON-NLS-1$
 			envVarsFromActivationScriptMap = parseEnvKeys(activationScriptOutput);
+			envVarsFromActivationScriptMap.put("ESP_IDF_ACTIVATION_SCRIPT", activationScriptPath);
 			monitor.worked(1);
 			
 			monitor.setTaskName("Setting up IDE environment"); //$NON-NLS-1$
