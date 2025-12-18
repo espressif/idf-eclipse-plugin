@@ -13,7 +13,7 @@
 <plugin>
 
 <!-- Terminal connector contributions -->
-   <extension point="org.eclipse.tm.terminal.control.connectors">
+   <extension point="org.eclipse.terminal.control.connectors">
       <connector
             name="%SerialConnector.label" 
             id="com.espressif.idf.terminal.connector.serial.SerialConnector"
@@ -21,7 +21,7 @@
    </extension>
    
 <!-- Terminal launcher delegate contributions -->
-   <extension point="org.eclipse.tm.terminal.view.ui.launcherDelegates">
+   <extension point="org.eclipse.terminal.view.ui.launcherDelegates">
       <delegate
             class="com.espressif.idf.terminal.connector.serial.launcher.SerialLauncherDelegate"
             id="com.espressif.idf.terminal.connector.serial.launcher.serial"

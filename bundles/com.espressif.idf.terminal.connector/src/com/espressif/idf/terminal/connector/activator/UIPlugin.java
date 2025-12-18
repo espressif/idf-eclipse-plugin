@@ -12,12 +12,13 @@
  *******************************************************************************/
 package com.espressif.idf.terminal.connector.activator;
 
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.tm.terminal.view.core.preferences.ScopedEclipsePreferences;
-import org.eclipse.tm.terminal.view.core.tracing.TraceHandler;
+import org.eclipse.terminal.view.ui.internal.TraceHandler;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -27,7 +28,7 @@ public class UIPlugin extends AbstractUIPlugin {
 	// The shared instance
 	private static UIPlugin plugin;
 	// The scoped preferences instance
-	private static volatile ScopedEclipsePreferences scopedPreferences;
+	private static volatile ScopedPreferenceStore scopedPreferences;
 	// The trace handler instance
 	private static volatile TraceHandler traceHandler;
 
@@ -59,9 +60,9 @@ public class UIPlugin extends AbstractUIPlugin {
 	/**
 	 * Return the scoped preferences for this plug-in.
 	 */
-	public static ScopedEclipsePreferences getScopedPreferences() {
+	public static ScopedPreferenceStore getScopedPreferences() {
 		if (scopedPreferences == null) {
-			scopedPreferences = new ScopedEclipsePreferences(getUniqueIdentifier());
+			scopedPreferences = new ScopedPreferenceStore(InstanceScope.INSTANCE, getUniqueIdentifier());
 		}
 		return scopedPreferences;
 	}
