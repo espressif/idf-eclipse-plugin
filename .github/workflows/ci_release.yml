@@ -234,6 +234,13 @@ jobs:
         with:
           name: espressif-ide-linux
           path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
+      
+      - name: Upload linux arm64 rcp
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: espressif-ide-linux-arm64
+          path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-linux.gtk.aarch64.tar.gz
 
 
   windows-sign:
@@ -344,6 +351,12 @@ jobs:
         name: espressif-ide-linux
         path: artifacts/linux
 
+    - name: Download built linux arm64 artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: espressif-ide-linux-arm64
+        path: artifacts/linux_arm64
+
     - name: Download macOS x86_64 dmg
       uses: actions/download-artifact@v4
       with:
@@ -403,6 +416,7 @@ jobs:
          ls artifacts/macos_x86/*
          ls artifacts/macos_arm/*
          ls artifacts/linux/*
+         ls artifacts/linux_arm64/*
 
     - name: Upload build assets to dl.espressif.com
       run: |
@@ -424,6 +438,7 @@ jobs:
         
         aws s3 cp --acl=public-read "com.espressif.idf.update-v$VERSION.zip" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/"
         aws s3 cp --acl=public-read --recursive artifacts/linux/ "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/"
+        aws s3 cp --acl=public-read --recursive artifacts/linux_arm64/ "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/"
         aws s3 cp --acl=public-read "artifacts/macos_x86/Espressif-IDE-macosx-cocoa-x86_64-v$VERSION.dmg" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/"
         aws s3 cp --acl=public-read "artifacts/macos_arm/Espressif-IDE-macosx-cocoa-aarch64-v$VERSION.dmg" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/"
         aws s3 cp --acl=public-read "Espressif-IDE-$VERSION-win32.win32.x86_64.zip" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/"
@@ -437,3 +452,5 @@ jobs:
         aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64/$REDIRECT_PATH" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-macosx-cocoa-aarch64-v$VERSION.dmg"
 
         aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-linux.gtk.x86_64/$REDIRECT_PATH" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-$VERSION-linux.gtk.x86_64.tar.gz"
+
+        aws s3api put-object --acl=public-read --bucket espdldata --key "dl/idf-eclipse-plugin/ide/Espressif-IDE-linux.gtk.aarch64/$REDIRECT_PATH" --website-redirect-location "/dl/idf-eclipse-plugin/ide/Espressif-IDE-$VERSION-linux.gtk.aarch64.tar.gz"
