@@ -25,4 +25,3 @@ Bundle-Localization: plugin
 Export-Package: com.espressif.idf.terminal.connector.activator;x-internal:=true,
  com.espressif.idf.terminal.connector.controls,
  com.espressif.idf.terminal.connector.launcher
-Automatic-Module-Name: org.eclipse.tm.terminal.connector.local
