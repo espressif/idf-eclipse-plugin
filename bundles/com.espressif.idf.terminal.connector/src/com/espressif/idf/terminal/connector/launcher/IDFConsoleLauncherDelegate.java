@@ -61,6 +61,7 @@ import com.espressif.idf.terminal.connector.controls.IDFConsoleWizardConfigurati
  */
 public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 
+	private static final String ORG_ECLIPSE_TERMINAL_VIEW_UI = "org.eclipse.terminal.view.ui"; //$NON-NLS-1$
 	private static final String ESP_IDF_CONSOLE_CONNECTOR_ID = "com.espressif.idf.terminal.connector.espidfConnector"; //$NON-NLS-1$
 	private final IMementoHandler mementoHandler = new IDFConsoleMementoHandler();
 
@@ -106,7 +107,7 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 		// Initialize the local terminal working directory if not already set by the panel.
 		// By default, start the local terminal in the users home directory
 		if (!properties.containsKey(ITerminalsConnectorConstants.PROP_PROCESS_WORKING_DIR)) {
-			String initialCwd = Platform.getPreferencesService().getString("org.eclipse.terminal.view.ui", //$NON-NLS-1$
+			String initialCwd = Platform.getPreferencesService().getString(ORG_ECLIPSE_TERMINAL_VIEW_UI,
 					IPreferenceKeys.PREF_LOCAL_TERMINAL_INITIAL_CWD, null, null);
 			String cwd = null;
 			if (initialCwd == null || IPreferenceKeys.PREF_INITIAL_CWD_USER_HOME.equals(initialCwd)
@@ -204,7 +205,7 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 			}
 		}
 		if (shell == null) {
-			shell = Platform.getPreferencesService().getString("org.eclipse.terminal.view.ui", //$NON-NLS-1$
+			shell = Platform.getPreferencesService().getString(ORG_ECLIPSE_TERMINAL_VIEW_UI,
 					IPreferenceKeys.PREF_LOCAL_TERMINAL_DEFAULT_SHELL_UNIX, null, null);
 			if (shell == null || "".equals(shell)) { //$NON-NLS-1$
 				if (System.getenv("SHELL") != null && !"".equals(System.getenv("SHELL").trim())) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -239,7 +240,7 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 
 		String arguments = (String) properties.get(ITerminalsConnectorConstants.PROP_PROCESS_ARGS);
 		if (arguments == null && !Platform.OS_WIN32.equals(Platform.getOS())) {
-			arguments = Platform.getPreferencesService().getString("org.eclipse.terminal.view.ui", //$NON-NLS-1$
+			arguments = Platform.getPreferencesService().getString(ORG_ECLIPSE_TERMINAL_VIEW_UI,
 					IPreferenceKeys.PREF_LOCAL_TERMINAL_DEFAULT_SHELL_UNIX_ARGS, null, null);
 		}
 
