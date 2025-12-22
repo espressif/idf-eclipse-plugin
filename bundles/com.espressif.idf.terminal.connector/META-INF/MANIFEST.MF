@@ -12,17 +12,16 @@ Require-Bundle: org.eclipse.cdt.core;resolution:=optional,
  org.eclipse.core.runtime,
  org.eclipse.core.variables,
  org.eclipse.debug.ui;resolution:=optional,
- org.eclipse.tm.terminal.connector.process,
- org.eclipse.tm.terminal.control,
  org.eclipse.ui,
  com.espressif.idf.core,
- org.eclipse.tm.terminal.view.ui,
- org.eclipse.tm.terminal.view.core,
- com.espressif.idf.ui
+ com.espressif.idf.ui,
+ org.eclipse.terminal.view.ui;bundle-version="[1.0.0,2.0.0)",
+ org.eclipse.terminal.view.core;bundle-version="[1.0.0,2.0.0)",
+ org.eclipse.terminal.connector.process;bundle-version="[1.0.0,2.0.0)",
+ org.eclipse.terminal.control;bundle-version="[1.0.0,2.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Export-Package: com.espressif.idf.terminal.connector.activator;x-internal:=true,
  com.espressif.idf.terminal.connector.controls,
  com.espressif.idf.terminal.connector.launcher
-Automatic-Module-Name: org.eclipse.tm.terminal.connector.local

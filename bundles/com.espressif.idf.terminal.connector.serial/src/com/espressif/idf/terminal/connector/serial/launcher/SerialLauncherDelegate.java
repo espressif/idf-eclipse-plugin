@@ -13,20 +13,20 @@
 package com.espressif.idf.terminal.connector.serial.launcher;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
-import org.eclipse.tm.internal.terminal.provisional.api.ITerminalConnector;
-import org.eclipse.tm.internal.terminal.provisional.api.TerminalConnectorExtension;
-import org.eclipse.tm.terminal.view.core.TerminalServiceFactory;
-import org.eclipse.tm.terminal.view.core.interfaces.ITerminalService;
-import org.eclipse.tm.terminal.view.core.interfaces.ITerminalService.Done;
-import org.eclipse.tm.terminal.view.core.interfaces.constants.ITerminalsConnectorConstants;
-import org.eclipse.tm.terminal.view.ui.interfaces.IConfigurationPanel;
-import org.eclipse.tm.terminal.view.ui.interfaces.IConfigurationPanelContainer;
-import org.eclipse.tm.terminal.view.ui.internal.SettingsStore;
-import org.eclipse.tm.terminal.view.ui.launcher.AbstractLauncherDelegate;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.terminal.connector.ISettingsStore;
+import org.eclipse.terminal.connector.ITerminalConnector;
+import org.eclipse.terminal.connector.InMemorySettingsStore;
+import org.eclipse.terminal.connector.TerminalConnectorExtension;
+import org.eclipse.terminal.view.core.ITerminalsConnectorConstants;
+import org.eclipse.terminal.view.ui.launcher.AbstractLauncherDelegate;
+import org.eclipse.terminal.view.ui.launcher.IConfigurationPanel;
+import org.eclipse.terminal.view.ui.launcher.IConfigurationPanelContainer;
 
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.terminal.connector.serial.connector.SerialSettings;
 import com.espressif.idf.terminal.connector.serial.controls.SerialConfigPanel;
 
@@ -65,11 +65,19 @@ public class SerialLauncherDelegate extends AbstractLauncherDelegate
 		Boolean encryptionOption = (Boolean) properties.get(SerialSettings.ENCRYPTION_ATTR);
 		settings.setEncryptionOption(encryptionOption != null && encryptionOption);
 		// Construct the terminal settings store
-		ISettingsStore store = new SettingsStore();
+		ISettingsStore store = new InMemorySettingsStore();
 		settings.save(store);
 
 		// Construct the terminal connector instance
-		ITerminalConnector connector = TerminalConnectorExtension.makeTerminalConnector(connectorId);
+		ITerminalConnector connector = null;
+		try
+		{
+			connector = TerminalConnectorExtension.makeTerminalConnector(connectorId);
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
 		if (connector != null)
 		{
 			// Apply default settings
@@ -82,7 +90,7 @@ public class SerialLauncherDelegate extends AbstractLauncherDelegate
 	}
 
 	@Override
-	public void execute(Map<String, Object> properties, Done done)
+	public CompletableFuture<?> execute(Map<String, Object> properties)
 	{
 		Assert.isNotNull(properties);
 
@@ -98,11 +106,13 @@ public class SerialLauncherDelegate extends AbstractLauncherDelegate
 		}
 
 		// Get the terminal service
-		ITerminalService terminal = TerminalServiceFactory.getService();
-		// If not available, we cannot fulfill this request
-		if (terminal != null)
+		try
 		{
-			terminal.openConsole(properties, done);
+			return getTerminalService().openConsole(properties);
+		}
+		catch (RuntimeException e)
+		{
+			return CompletableFuture.failedFuture(e);
 		}
 	}
 

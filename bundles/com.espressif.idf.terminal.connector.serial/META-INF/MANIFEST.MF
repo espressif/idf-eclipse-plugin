@@ -8,9 +8,6 @@ Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.core.expressions;bundle-version="3.4.400",
  org.eclipse.core.runtime;bundle-version="3.8.0",
  org.eclipse.equinox.security;bundle-version="1.1.100",
- org.eclipse.tm.terminal.view.core;bundle-version="4.5.0";resolution:=optional,
- org.eclipse.tm.terminal.view.ui;bundle-version="4.5.0";resolution:=optional,
- org.eclipse.tm.terminal.control;bundle-version="4.5.0",
  org.eclipse.ui;bundle-version="3.8.0",
  org.eclipse.cdt.native.serial;bundle-version="1.0.0",
  org.eclipse.debug.core,
@@ -18,7 +15,10 @@ Require-Bundle: org.eclipse.core.expressions;bundle-version="3.4.400",
  com.espressif.idf.ui,
  com.espressif.idf.serial.monitor,
  org.eclipse.cdt.core.native,
- org.eclipse.ui.console
+ org.eclipse.ui.console,
+ org.eclipse.terminal.view.core;bundle-version="[1.0.0,2.0.0)",
+ org.eclipse.terminal.view.ui;bundle-version="[1.0.0,2.0.0)",
+ org.eclipse.terminal.control;bundle-version="[1.0.0,2.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin

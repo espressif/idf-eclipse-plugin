@@ -33,9 +33,9 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.tm.internal.terminal.provisional.api.AbstractSettingsPage;
-import org.eclipse.tm.terminal.view.ui.interfaces.IConfigurationPanel;
-import org.eclipse.tm.terminal.view.ui.interfaces.IConfigurationPanelContainer;
+import org.eclipse.terminal.connector.AbstractSettingsPage;
+import org.eclipse.terminal.view.ui.launcher.IConfigurationPanel;
+import org.eclipse.terminal.view.ui.launcher.IConfigurationPanelContainer;
 import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFProjectNature;
@@ -101,29 +101,40 @@ public class SerialSettingsPage extends AbstractSettingsPage
 
 		projectCombo = new Combo(comp, SWT.NONE);
 		projectCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
+
 		// Safely get selected IDF project with error handling
 		IProject selectedProject = null;
-		try {
+		try
+		{
 			selectedProject = EclipseUtil.getSelectedIDFProjectInExplorer();
-		} catch (NoSuchMethodError e) {
+		}
+		catch (NoSuchMethodError e)
+		{
 			// Fallback: try to get any selected project
-			try {
+			try
+			{
 				selectedProject = EclipseUtil.getSelectedProjectInExplorer();
-				if (selectedProject != null) {
-					try {
-						if (!selectedProject.hasNature(IDFProjectNature.ID)) {
+				if (selectedProject != null)
+				{
+					try
+					{
+						if (!selectedProject.hasNature(IDFProjectNature.ID))
+						{
 							selectedProject = null; // Not an IDF project
 						}
-					} catch (CoreException ce) {
+					}
+					catch (CoreException ce)
+					{
 						selectedProject = null;
 					}
 				}
-			} catch (Exception ex) {
+			}
+			catch (Exception ex)
+			{
 				// If all else fails, selectedProject remains null
 			}
 		}
-		
+
 		Optional<IProject> optProject = Optional.ofNullable(selectedProject);
 		optProject.ifPresent(project -> projectCombo.setText(project.getName()));
 		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();

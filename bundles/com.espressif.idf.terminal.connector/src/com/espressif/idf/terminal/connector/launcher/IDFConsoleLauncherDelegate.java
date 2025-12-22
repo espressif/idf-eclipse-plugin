@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.cdt.utils.pty.PTY;
 import org.eclipse.core.runtime.Assert;
@@ -32,25 +33,24 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
-import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
-import org.eclipse.tm.internal.terminal.provisional.api.ITerminalConnector;
-import org.eclipse.tm.internal.terminal.provisional.api.TerminalConnectorExtension;
-import org.eclipse.tm.terminal.connector.process.ProcessSettings;
-import org.eclipse.tm.terminal.view.core.TerminalServiceFactory;
-import org.eclipse.tm.terminal.view.core.interfaces.ITerminalService;
-import org.eclipse.tm.terminal.view.core.interfaces.ITerminalServiceOutputStreamMonitorListener;
-import org.eclipse.tm.terminal.view.core.interfaces.constants.ILineSeparatorConstants;
-import org.eclipse.tm.terminal.view.core.interfaces.constants.ITerminalsConnectorConstants;
-import org.eclipse.tm.terminal.view.ui.interfaces.IConfigurationPanel;
-import org.eclipse.tm.terminal.view.ui.interfaces.IConfigurationPanelContainer;
-import org.eclipse.tm.terminal.view.ui.interfaces.IMementoHandler;
-import org.eclipse.tm.terminal.view.ui.interfaces.IPreferenceKeys;
-import org.eclipse.tm.terminal.view.ui.internal.SettingsStore;
-import org.eclipse.tm.terminal.view.ui.launcher.AbstractLauncherDelegate;
+import org.eclipse.terminal.connector.ISettingsStore;
+import org.eclipse.terminal.connector.ITerminalConnector;
+import org.eclipse.terminal.connector.InMemorySettingsStore;
+import org.eclipse.terminal.connector.TerminalConnectorExtension;
+import org.eclipse.terminal.connector.process.ProcessSettings;
+import org.eclipse.terminal.view.core.ILineSeparatorConstants;
+import org.eclipse.terminal.view.core.ITerminalServiceOutputStreamMonitorListener;
+import org.eclipse.terminal.view.core.ITerminalsConnectorConstants;
+import org.eclipse.terminal.view.ui.IMementoHandler;
+import org.eclipse.terminal.view.ui.IPreferenceKeys;
+import org.eclipse.terminal.view.ui.launcher.AbstractLauncherDelegate;
+import org.eclipse.terminal.view.ui.launcher.IConfigurationPanel;
+import org.eclipse.terminal.view.ui.launcher.IConfigurationPanelContainer;
 import org.eclipse.ui.WorkbenchEncoding;
 import org.osgi.framework.Bundle;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.terminal.connector.activator.UIPlugin;
@@ -59,9 +59,9 @@ import com.espressif.idf.terminal.connector.controls.IDFConsoleWizardConfigurati
 /**
  * Serial launcher delegate implementation.
  */
-@SuppressWarnings("restriction")
 public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 
+	private static final String ORG_ECLIPSE_TERMINAL_VIEW_UI = "org.eclipse.terminal.view.ui"; //$NON-NLS-1$
 	private static final String ESP_IDF_CONSOLE_CONNECTOR_ID = "com.espressif.idf.terminal.connector.espidfConnector"; //$NON-NLS-1$
 	private final IMementoHandler mementoHandler = new IDFConsoleMementoHandler();
 
@@ -76,7 +76,8 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 	}
 
 	@Override
-	public void execute(Map<String, Object> properties, ITerminalService.Done done) {
+	public CompletableFuture<?> execute(Map<String, Object> properties) {
+
 		Assert.isNotNull(properties);
 
 		// Set the terminal tab title
@@ -106,8 +107,8 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 		// Initialize the local terminal working directory if not already set by the panel.
 		// By default, start the local terminal in the users home directory
 		if (!properties.containsKey(ITerminalsConnectorConstants.PROP_PROCESS_WORKING_DIR)) {
-			String initialCwd = org.eclipse.tm.terminal.view.ui.activator.UIPlugin.getScopedPreferences()
-					.getString(IPreferenceKeys.PREF_LOCAL_TERMINAL_INITIAL_CWD);
+			String initialCwd = Platform.getPreferencesService().getString(ORG_ECLIPSE_TERMINAL_VIEW_UI,
+					IPreferenceKeys.PREF_LOCAL_TERMINAL_INITIAL_CWD, null, null);
 			String cwd = null;
 			if (initialCwd == null || IPreferenceKeys.PREF_INITIAL_CWD_USER_HOME.equals(initialCwd)
 					|| "".equals(initialCwd.trim())) { //$NON-NLS-1$
@@ -156,10 +157,10 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 		}
 
 		// Get the terminal service
-		ITerminalService terminal = TerminalServiceFactory.getService();
-		// If not available, we cannot fulfill this request
-		if (terminal != null) {
-			terminal.openConsole(properties, done);
+		try {
+			return getTerminalService().openConsole(properties);
+		} catch (RuntimeException e) {
+			return CompletableFuture.failedFuture(e);
 		}
 	}
 
@@ -204,8 +205,8 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 			}
 		}
 		if (shell == null) {
-			shell = org.eclipse.tm.terminal.view.ui.activator.UIPlugin.getScopedPreferences()
-					.getString(IPreferenceKeys.PREF_LOCAL_TERMINAL_DEFAULT_SHELL_UNIX);
+			shell = Platform.getPreferencesService().getString(ORG_ECLIPSE_TERMINAL_VIEW_UI,
+					IPreferenceKeys.PREF_LOCAL_TERMINAL_DEFAULT_SHELL_UNIX, null, null);
 			if (shell == null || "".equals(shell)) { //$NON-NLS-1$
 				if (System.getenv("SHELL") != null && !"".equals(System.getenv("SHELL").trim())) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					shell = System.getenv("SHELL").trim(); //$NON-NLS-1$
@@ -239,8 +240,8 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 
 		String arguments = (String) properties.get(ITerminalsConnectorConstants.PROP_PROCESS_ARGS);
 		if (arguments == null && !Platform.OS_WIN32.equals(Platform.getOS())) {
-			arguments = org.eclipse.tm.terminal.view.ui.activator.UIPlugin.getScopedPreferences()
-					.getString(IPreferenceKeys.PREF_LOCAL_TERMINAL_DEFAULT_SHELL_UNIX_ARGS);
+			arguments = Platform.getPreferencesService().getString(ORG_ECLIPSE_TERMINAL_VIEW_UI,
+					IPreferenceKeys.PREF_LOCAL_TERMINAL_DEFAULT_SHELL_UNIX_ARGS, null, null);
 		}
 
 		// Avoding profiles to isolate PATH enviroment
@@ -364,7 +365,7 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 		Assert.isTrue(image != null || process != null);
 
 		// Construct the terminal settings store
-		ISettingsStore store = new SettingsStore();
+		ISettingsStore store = new InMemorySettingsStore();
 
 		// Construct the process settings
 		ProcessSettings processSettings = new ProcessSettings();
@@ -388,7 +389,12 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 		processSettings.save(store);
 
 		// Construct the terminal connector instance
-		ITerminalConnector connector = TerminalConnectorExtension.makeTerminalConnector(connectorId);
+		ITerminalConnector connector = null;
+		try {
+			connector = TerminalConnectorExtension.makeTerminalConnector(connectorId);
+		} catch (CoreException e) {
+			Logger.log(e);
+		}
 		if (connector != null) {
 			// Apply default settings
 			connector.setDefaultSettings();

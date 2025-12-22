@@ -15,7 +15,7 @@ package com.espressif.idf.terminal.connector.serial.connector;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
+import org.eclipse.terminal.connector.ISettingsStore;
 
 import com.espressif.idf.core.util.StringUtil;
 

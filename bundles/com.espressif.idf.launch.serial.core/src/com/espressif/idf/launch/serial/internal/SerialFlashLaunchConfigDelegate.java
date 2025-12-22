@@ -51,7 +51,7 @@ import org.eclipse.launchbar.core.target.launch.ITargetedLaunch;
 import org.eclipse.launchbar.ui.internal.Activator;
 import org.eclipse.launchbar.ui.target.ILaunchTargetUIManager;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.tm.terminal.view.core.interfaces.constants.ITerminalsConnectorConstants;
+import org.eclipse.terminal.view.core.ITerminalsConnectorConstants;
 import org.eclipse.ui.WorkbenchEncoding;
 
 import com.espressif.idf.core.IDFCorePlugin;
@@ -226,7 +226,7 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 				IDFLaunchConstants.SERIAL_MONITOR_ENCODING, WorkbenchEncoding.getWorkbenchDefaultEncoding()));
 		map.put(ITerminalsConnectorConstants.PROP_FORCE_NEW, Boolean.FALSE);
 		map.put(SerialSettings.ENCRYPTION_ATTR, IDFUtil.isFlashEncrypted());
-		new SerialLauncherDelegate().execute(map, null);
+		new SerialLauncherDelegate().execute(map);
 	}
 
 	private boolean checkIfPortIsEmpty(ILaunchConfiguration configuration)
