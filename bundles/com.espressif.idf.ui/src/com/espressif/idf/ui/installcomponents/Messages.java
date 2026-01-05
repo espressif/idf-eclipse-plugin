@@ -20,6 +20,8 @@ public class Messages extends NLS
 	public static String InstallComponents_OpenReadmeButton;
 	public static String InstallComponents_InstallButton;
 	public static String InstallComponents_InstallButtonAlreadyAdded;
+	public static String InstallComponentsEditor_SearchComponentMsg;
+
 	static
 	{
 		// initialize resource bundle
