@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
+import org.eclipse.terminal.connector.TerminalState;
 
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.serial.monitor.handlers.SerialMonitorHandler;

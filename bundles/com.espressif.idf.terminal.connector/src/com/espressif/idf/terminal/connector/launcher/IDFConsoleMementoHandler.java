@@ -15,7 +15,7 @@ package com.espressif.idf.terminal.connector.launcher;
 import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.tm.terminal.view.ui.interfaces.IMementoHandler;
+import org.eclipse.terminal.view.ui.IMementoHandler;
 import org.eclipse.ui.IMemento;
 
 /**

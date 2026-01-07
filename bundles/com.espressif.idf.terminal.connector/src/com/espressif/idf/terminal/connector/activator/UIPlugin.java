@@ -13,10 +13,7 @@
 package com.espressif.idf.terminal.connector.activator;
 
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.tm.terminal.view.core.preferences.ScopedEclipsePreferences;
-import org.eclipse.tm.terminal.view.core.tracing.TraceHandler;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -26,16 +23,7 @@ import org.osgi.framework.BundleContext;
 public class UIPlugin extends AbstractUIPlugin {
 	// The shared instance
 	private static UIPlugin plugin;
-	// The scoped preferences instance
-	private static volatile ScopedEclipsePreferences scopedPreferences;
-	// The trace handler instance
-	private static volatile TraceHandler traceHandler;
 
-	/**
-	 * The constructor
-	 */
-	public UIPlugin() {
-	}
 
 	/**
 	 * Returns the shared instance
@@ -44,38 +32,6 @@ public class UIPlugin extends AbstractUIPlugin {
 	 */
 	public static UIPlugin getDefault() {
 		return plugin;
-	}
-
-	/**
-	 * Convenience method which returns the unique identifier of this plug-in.
-	 */
-	public static String getUniqueIdentifier() {
-		if (getDefault() != null && getDefault().getBundle() != null) {
-			return getDefault().getBundle().getSymbolicName();
-		}
-		return "com.espressif.idf.terminal.connector"; //$NON-NLS-1$
-	}
-
-	/**
-	 * Return the scoped preferences for this plug-in.
-	 */
-	public static ScopedEclipsePreferences getScopedPreferences() {
-		if (scopedPreferences == null) {
-			scopedPreferences = new ScopedEclipsePreferences(getUniqueIdentifier());
-		}
-		return scopedPreferences;
-	}
-
-	/**
-	 * Returns the bundles trace handler.
-	 *
-	 * @return The bundles trace handler.
-	 */
-	public static TraceHandler getTraceHandler() {
-		if (traceHandler == null) {
-			traceHandler = new TraceHandler(getUniqueIdentifier());
-		}
-		return traceHandler;
 	}
 
 	@Override
@@ -87,15 +43,9 @@ public class UIPlugin extends AbstractUIPlugin {
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
-		scopedPreferences = null;
-		traceHandler = null;
 		super.stop(context);
 	}
 
-	@Override
-	protected void initializeImageRegistry(ImageRegistry registry) {
-		super.initializeImageRegistry(registry);
-	}
 
 	/**
 	 * Loads the image registered under the specified key from the image
