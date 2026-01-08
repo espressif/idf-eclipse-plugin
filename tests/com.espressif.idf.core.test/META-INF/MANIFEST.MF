@@ -10,6 +10,7 @@ Require-Bundle: com.espressif.idf.core;bundle-version="1.0.1",
  org.eclipse.launchbar.core,
  org.eclipse.jface,
  junit-jupiter-api;bundle-version="5.14.1",
+ junit-jupiter-engine;bundle-version="5.14.1",
  junit-jupiter-params;bundle-version="5.14.1",
  org.mockito.mockito-core
 Bundle-ClassPath: .,
