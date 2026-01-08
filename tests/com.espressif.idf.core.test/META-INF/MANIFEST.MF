@@ -9,6 +9,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: com.espressif.idf.core;bundle-version="1.0.1",
  org.eclipse.launchbar.core,
  org.eclipse.jface,
+ junit-jupiter-api;bundle-version="5.14.1",
+ junit-jupiter-params;bundle-version="5.14.1",
  org.mockito.mockito-core
 Bundle-ClassPath: .,
  lib/commons-collections4-4.4.jar,
@@ -68,6 +70,4 @@ Export-Package: com.espressif.idf.core.test,
 Import-Package: org.eclipse.cdt.core.envvar,
  org.eclipse.core.runtime,
  org.eclipse.core.runtime.jobs,
- org.eclipse.core.variables,
- org.junit.jupiter.api;version="[5.14.0,6.0.0)",
- org.junit.jupiter.params;version="[5.14.0,6.0.0)"
+ org.eclipse.core.variables
