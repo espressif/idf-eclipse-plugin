@@ -11,4 +11,5 @@ Require-Bundle: org.eclipse.swtbot.go;bundle-version="2.7.0",
  com.espressif.idf.ui;bundle-version="1.0.1"
 Bundle-ActivationPolicy: lazy
 Import-Package: com.espressif.idf.core.util,
+ org.apache.commons.io,
  org.eclipse.launchbar.ui.controls.internal
