@@ -6,17 +6,14 @@ Bundle-Version: 1.0.1.qualifier
 Bundle-Vendor: %Bundle-Vendor
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.13.0",
- org.eclipse.debug.core;bundle-version="3.11.0",
  org.eclipse.launchbar.core;bundle-version="2.2.0",
  org.eclipse.cdt.core;bundle-version="6.4.0",
  org.eclipse.cdt.debug.core;bundle-version="8.3.0",
  org.eclipse.cdt.native.serial;bundle-version="1.1.0",
  org.eclipse.core.variables,
- com.espressif.idf.core,
  com.espressif.idf.ui,
  com.espressif.idf.terminal.connector.serial,
  org.eclipse.launchbar.ui,
- org.eclipse.embedcdt.core,
  org.eclipse.terminal.view.core;bundle-version="[1.0.0,2.0.0)"
 Export-Package: com.espressif.idf.launch.serial,
  com.espressif.idf.launch.serial.core,
@@ -25,4 +22,3 @@ Export-Package: com.espressif.idf.launch.serial,
 Bundle-Activator: com.espressif.idf.launch.serial.internal.Activator
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: org.eclipse.cdt.launch.serial.core
-Import-Package: org.eclipse.cdt.dsf.gdb

@@ -7,13 +7,9 @@ Bundle-Activator: com.espressif.idf.terminal.connector.activator.UIPlugin
 Bundle-Vendor: %Bundle-Vendor
 Import-Package: org.eclipse.cdt.utils.pty;mandatory:=native
 Require-Bundle: org.eclipse.cdt.core;resolution:=optional,
- org.eclipse.core.expressions,
- org.eclipse.core.resources;resolution:=optional,
  org.eclipse.core.runtime,
  org.eclipse.core.variables,
  org.eclipse.debug.ui;resolution:=optional,
- org.eclipse.ui,
- com.espressif.idf.core,
  com.espressif.idf.ui,
  org.eclipse.terminal.view.ui;bundle-version="[1.0.0,2.0.0)",
  org.eclipse.terminal.view.core;bundle-version="[1.0.0,2.0.0)",

@@ -5,17 +5,10 @@ Bundle-SymbolicName: com.espressif.idf.terminal.connector.serial;singleton:=true
 Bundle-Version: 1.0.1.qualifier
 Bundle-Activator: com.espressif.idf.terminal.connector.serial.activator.Activator
 Bundle-Vendor: %providerName
-Require-Bundle: org.eclipse.core.expressions;bundle-version="3.4.400",
- org.eclipse.core.runtime;bundle-version="3.8.0",
- org.eclipse.equinox.security;bundle-version="1.1.100",
- org.eclipse.ui;bundle-version="3.8.0",
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.8.0",
  org.eclipse.cdt.native.serial;bundle-version="1.0.0",
- org.eclipse.debug.core,
- com.espressif.idf.core,
  com.espressif.idf.ui,
  com.espressif.idf.serial.monitor,
- org.eclipse.cdt.core.native,
- org.eclipse.ui.console,
  org.eclipse.terminal.view.core;bundle-version="[1.0.0,2.0.0)",
  org.eclipse.terminal.view.ui;bundle-version="[1.0.0,2.0.0)",
  org.eclipse.terminal.control;bundle-version="[1.0.0,2.0.0)"
@@ -27,7 +20,7 @@ Export-Package: com.espressif.idf.terminal.connector.serial.activator;x-internal
  com.espressif.idf.terminal.connector.serial.controls,
  com.espressif.idf.terminal.connector.serial.launcher,
  com.espressif.idf.terminal.connector.serial.nls;x-internal:=true
-Import-Package: org.slf4j
 Bundle-ClassPath: .,
  lib/javax.websocket-client-api-1.1.jar,
  lib/Java-WebSocket-1.5.2.jar
+Import-Package: org.eclipse.ui.console

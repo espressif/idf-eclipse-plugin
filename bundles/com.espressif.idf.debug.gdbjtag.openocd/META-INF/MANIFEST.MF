@@ -12,28 +12,18 @@ Require-Bundle: org.eclipse.cdt.core;bundle-version="6.2.0",
  org.eclipse.cdt.debug.gdbjtag.ui;bundle-version="8.0.0",
  org.eclipse.cdt.dsf;bundle-version="2.8.0",
  org.eclipse.cdt.dsf.gdb;bundle-version="5.2.0",
- org.eclipse.cdt.dsf.gdb.ui;bundle-version="2.6.0",
  org.eclipse.cdt.launch;bundle-version="9.1.0",
- org.eclipse.cdt.managedbuilder.core;bundle-version="8.4.0",
  org.eclipse.core.runtime;bundle-version="3.12.0",
  org.eclipse.core.variables;bundle-version="3.3.0",
- org.eclipse.debug.core;bundle-version="3.10.100",
  org.eclipse.debug.ui;bundle-version="3.11.202",
- org.eclipse.ui;bundle-version="3.108.1",
  org.eclipse.ui.ide;bundle-version="3.12.3",
- org.eclipse.core.resources,
- com.espressif.idf.core,
- org.eclipse.cdt.build.gcc.core,
  com.espressif.idf.launch.serial.core;bundle-version="1.0.0",
  com.espressif.idf.ui;bundle-version="1.0.0",
  org.eclipse.cdt.debug.ui,
- com.espressif.idf.launch.serial.ui,
  org.eclipse.launchbar.ui,
- org.eclipse.embedcdt.core,
  org.eclipse.embedcdt.debug.gdbjtag.core,
  org.eclipse.embedcdt.ui,
- org.eclipse.ui.console,
- org.eclipse.text
+ org.eclipse.ui.console
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: %bundle.vendor
 Bundle-ActivationPolicy: lazy
@@ -43,4 +33,6 @@ Export-Package: com.espressif.idf.debug.gdbjtag.openocd,
  com.espressif.idf.debug.gdbjtag.openocd.preferences,
  com.espressif.idf.debug.gdbjtag.openocd.ui
 Import-Package: com.espressif.idf.swt.custom,
- org.eclipse.embedcdt.debug.gdbjtag.ui
+ org.eclipse.core.expressions,
+ org.eclipse.embedcdt.debug.gdbjtag.ui,
+ org.eclipse.jface.text

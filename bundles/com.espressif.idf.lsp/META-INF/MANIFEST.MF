@@ -8,7 +8,6 @@ Export-Package: com.espressif.idf.lsp,
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.cdt.lsp.clangd,
- org.eclipse.core.resources,
  org.eclipse.cdt.lsp,
  com.espressif.idf.core,
  org.eclipse.cdt.core
