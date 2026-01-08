@@ -7,11 +7,9 @@ Bundle-Vendor: Espressif Systems
 Automatic-Module-Name: com.espressif.idf.core.test
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: com.espressif.idf.core;bundle-version="1.0.1",
- junit-jupiter-api,
  org.eclipse.launchbar.core,
  org.eclipse.jface,
- org.mockito.mockito-core,
- junit-jupiter-params
+ org.mockito.mockito-core
 Bundle-ClassPath: .,
  lib/commons-collections4-4.4.jar,
  lib/commons-io-2.9.0.jar,
@@ -70,4 +68,6 @@ Export-Package: com.espressif.idf.core.test,
 Import-Package: org.eclipse.cdt.core.envvar,
  org.eclipse.core.runtime,
  org.eclipse.core.runtime.jobs,
- org.eclipse.core.variables
+ org.eclipse.core.variables,
+ org.junit.jupiter.api;version="[6.0.0,7.0.0)",
+ org.junit.jupiter.params;version="[6.0.0,7.0.0)"
