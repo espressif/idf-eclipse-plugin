@@ -69,5 +69,5 @@ Import-Package: org.eclipse.cdt.core.envvar,
  org.eclipse.core.runtime,
  org.eclipse.core.runtime.jobs,
  org.eclipse.core.variables,
- org.junit.jupiter.api;version="[6.0.0,7.0.0)",
- org.junit.jupiter.params;version="[6.0.0,7.0.0)"
+ org.junit.jupiter.api;version="[5.14.0,6.0.0)",
+ org.junit.jupiter.params;version="[5.14.0,6.0.0)"
