@@ -22,7 +22,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.cdt.lsp.clangd,
  org.eclipse.cdt.lsp;bundle-version="3.0.0",
  org.eclipse.lsp4e;bundle-version="0.18.18",
- org.eclipse.lsp4j;bundle-version="0.24.0"
+ org.eclipse.lsp4j;bundle-version="0.24.0",
+ com.sun.jna
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: com.espressif.idf.core
 Bundle-ActivationPolicy: lazy
@@ -60,8 +61,6 @@ Bundle-ClassPath: .,
  lib/commons-text-1.10.0.jar,
  lib/commons-compress-1.21.jar,
  lib/xz-1.9.jar
-Import-Package: com.sun.jna;version="[5.18.0,6.0.0)",
- com.sun.jna.win32;version="[5.18.0,6.0.0)",
- org.eclipse.cdt.debug.core.launch,
+Import-Package: org.eclipse.cdt.debug.core.launch,
  org.eclipse.embedcdt.core,
  org.eclipse.ui.console
