@@ -20,4 +20,17 @@
 			<version>1.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-surefire-plugin</artifactId>
+                <configuration>
+                    <providerHint>junit5</providerHint>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
+
