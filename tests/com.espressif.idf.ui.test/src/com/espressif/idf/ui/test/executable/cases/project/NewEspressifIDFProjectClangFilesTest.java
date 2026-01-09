@@ -84,7 +84,7 @@ public class NewEspressifIDFProjectClangFilesTest
 		Fixture.thenClangdShellClosed();
 	}
 
-	@Test // !
+	@Test
 	public void shouldApplyClangFormatSettingsWhenAutoSaveIsEnabled() throws Exception
 	{
 		Fixture.setupAutoSave();
@@ -98,6 +98,7 @@ public class NewEspressifIDFProjectClangFilesTest
 		Fixture.checkMainFileContentFormattedUnderActualSettings();
 	}
 
+	@Test
 	public void shouldMatchExpectedClangdArgumentsAfterBuildingProjects() throws Exception
 	{
 		Fixture.whenProjectIsBuiltUsingContextMenu(CLEAN_PROJECT2);
