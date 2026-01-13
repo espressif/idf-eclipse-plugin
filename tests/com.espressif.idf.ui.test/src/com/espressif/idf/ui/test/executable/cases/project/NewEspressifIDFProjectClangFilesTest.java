@@ -4,6 +4,7 @@
 *******************************************************************************/
 package com.espressif.idf.ui.test.executable.cases.project;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -25,6 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
+import com.espressif.idf.core.ILSPConstants;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
@@ -351,15 +353,15 @@ public class NewEspressifIDFProjectClangFilesTest
 			SWTBotShell prefrencesShell = bot.shell("Preferences");
 			String actualClangdPath = prefrencesShell.bot().textWithLabel("Additional").getText();
 			String expectedClangdPath = getExpectedBuildFolderPATHforClangdAdditionalArgument(projectName);
-			assertTrue(expectedClangdPath.equals(actualClangdPath));
+			assertEquals(expectedClangdPath, actualClangdPath);
 		}
 
 		private static void thenCompareActualClangdDriversWithExpected() throws IOException
 		{
 			SWTBotShell prefrencesShell = bot.shell("Preferences");
 			String actualClangdPath = prefrencesShell.bot().textWithLabel("Path").getText();
-			String expectedClangdPath = "bin";
-			assertTrue(actualClangdPath.contains(expectedClangdPath));
+			String expectedClangdPath = IDFUtil.findCommandFromBuildEnvPath(ILSPConstants.CLANGD_EXECUTABLE);
+			assertEquals(actualClangdPath, expectedClangdPath);
 		}
 
 		private static void whenProjectIsBuiltUsingContextMenu(String projectName) throws IOException
