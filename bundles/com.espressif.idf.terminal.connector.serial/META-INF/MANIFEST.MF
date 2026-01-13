@@ -23,4 +23,5 @@ Export-Package: com.espressif.idf.terminal.connector.serial.activator;x-internal
 Bundle-ClassPath: .,
  lib/javax.websocket-client-api-1.1.jar,
  lib/Java-WebSocket-1.5.2.jar
-Import-Package: org.eclipse.ui.console
+Import-Package: org.eclipse.ui.console,
+ org.slf4j;version="[2.0.0,3.0.0)"
