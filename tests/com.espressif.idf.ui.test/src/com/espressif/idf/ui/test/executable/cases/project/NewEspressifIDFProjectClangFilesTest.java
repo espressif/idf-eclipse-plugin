@@ -30,6 +30,7 @@ import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 import com.espressif.idf.ui.test.operations.EnvSetupOperations;
 import com.espressif.idf.ui.test.operations.ProjectTestOperations;
+import com.espressif.idf.ui.test.operations.selectors.LaunchBarConfigSelector;
 
 /**
  * Test class to test Clangd / Clang-Format files functionality
@@ -103,6 +104,7 @@ public class NewEspressifIDFProjectClangFilesTest
 	{
 		Fixture.whenProjectIsBuiltUsingContextMenu(CLEAN_PROJECT2);
 		Fixture.thenCheckClangdArgumentAfterProjectBuilt(CLEAN_PROJECT2);
+		Fixture.whenSelectProjectInLaunchConfig();
 		Fixture.whenProjectIsBuiltUsingContextMenu(CLEAN_PROJECT1);
 		Fixture.thenCheckClangdArgumentAfterProjectBuilt(CLEAN_PROJECT1);
 		Fixture.thenClangdDriversUpdateOnSelectedTarget();
@@ -147,13 +149,6 @@ public class NewEspressifIDFProjectClangFilesTest
 			bot.tree().getTreeItem(projectName).select();
 			bot.tree().getTreeItem(projectName).expand();
 			bot.sleep(1000);
-		}
-
-		private static void thenClangdPathUpdateOnSelectedTarget() throws Exception
-		{
-			whenOpenClangdPreferences();
-			thenCompareActualClangdDriversWithExpected();
-			closePreferencesDialog();
 		}
 
 		private static void thenClangdFileIsPresent(String projectName) throws IOException
@@ -390,6 +385,12 @@ public class NewEspressifIDFProjectClangFilesTest
 			SWTBotShell preferencesShell = bot.shell("Preferences");
 			preferencesShell.bot().button("Cancel").click();
 			TestWidgetWaitUtility.waitWhileDialogIsVisible(bot, "Preferences", 10000);
+		}
+
+		private static void whenSelectProjectInLaunchConfig() throws Exception
+		{
+			LaunchBarConfigSelector configSelector = new LaunchBarConfigSelector(bot);
+			configSelector.select(CLEAN_PROJECT1);
 		}
 
 		static void cleanupEnvironment()
