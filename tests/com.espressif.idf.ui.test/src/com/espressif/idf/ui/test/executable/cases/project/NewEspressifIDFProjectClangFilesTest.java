@@ -361,7 +361,7 @@ public class NewEspressifIDFProjectClangFilesTest
 			SWTBotShell prefrencesShell = bot.shell("Preferences");
 			String actualClangdPath = prefrencesShell.bot().textWithLabel("Path").getText();
 			String expectedClangdPath = IDFUtil.findCommandFromBuildEnvPath(ILSPConstants.CLANGD_EXECUTABLE);
-			assertEquals(actualClangdPath, expectedClangdPath);
+			assertEquals(expectedClangdPath, actualClangdPath);
 		}
 
 		private static void whenProjectIsBuiltUsingContextMenu(String projectName) throws IOException
