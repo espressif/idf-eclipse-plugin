@@ -11,9 +11,10 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
@@ -72,25 +73,39 @@ public class InstallComponentsEditor extends MultiPageEditorPart
 	private void createComponentsInstallPage() throws IOException
 	{
 		Composite parent = new Composite(getContainer(), SWT.NONE);
-		parent.setLayout(new FillLayout(SWT.VERTICAL));
-		ScrolledComposite scrolledComposite = new ScrolledComposite(parent,
-				SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER | SWT.FILL);
-		scrolledComposite.setLayout(new FillLayout(SWT.VERTICAL));
+
+		GridLayout mainLayout = new GridLayout(1, false);
+		mainLayout.marginWidth = 10;
+		mainLayout.marginHeight = 10;
+		mainLayout.verticalSpacing = 10;
+		parent.setLayout(mainLayout);
+
+		Text searchText = new Text(parent, SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL | SWT.BORDER);
+		searchText.setMessage(Messages.InstallComponentsEditor_SearchComponentMsg);
+		searchText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+
+		searchText.addModifyListener(e -> installComponentsCompositePage.filterComponents(searchText.getText()));
+
+		ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		scrolledComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
+		scrolledComposite.setLayout(new GridLayout());
 		scrolledComposite.setAlwaysShowScrollBars(true);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
-		scrolledComposite.addListener(SWT.Resize, event -> {
-			int width = scrolledComposite.getClientArea().width;
-			scrolledComposite.setMinSize(parent.computeSize(width, SWT.DEFAULT, true));
-		});
+
 		Composite subContainer = new Composite(scrolledComposite, SWT.NONE);
 		GridLayout gridLayout = new GridLayout(4, true);
 		subContainer.setLayout(gridLayout);
 
-		
 		installComponentsCompositePage.createControls(subContainer);
-
 		scrolledComposite.setContent(subContainer);
+		scrolledComposite.setMinSize(subContainer.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+
+		scrolledComposite.addListener(SWT.Resize, event -> {
+			int width = scrolledComposite.getClientArea().width;
+			scrolledComposite.setMinSize(subContainer.computeSize(width, SWT.DEFAULT));
+		});
 
 		int index = addPage(parent);
 		setPageText(index, "Install Components"); //$NON-NLS-1$
