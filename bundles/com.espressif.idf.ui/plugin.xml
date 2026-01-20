@@ -654,6 +654,9 @@
 			class="com.espressif.idf.ui.EspressifGeneralStartup"/>
 		<startup
 			class="com.espressif.idf.ui.tools.EspressifToolStartup"/>
+  <startup
+        class="com.espressif.idf.ui.ListenerStartup">
+  </startup>
 	</extension>
 	<extension
 		id="com.espressif.idf.ui.extension.locale.support"
