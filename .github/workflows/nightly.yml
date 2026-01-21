@@ -5,6 +5,10 @@ name: Nightly builds
 
 on:
   schedule:
+	workflow_dispatch:
+	  pull_request:
+	    branches:
+	      - master  # or the target branch of your PR
     - cron: "0 0 * * *"
 
 jobs:
