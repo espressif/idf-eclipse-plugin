@@ -4,11 +4,15 @@
 name: Nightly builds
 
 on:
+  # Manual trigger for testing
+  workflow_dispatch:
+
+  # Automatic trigger on PRs (Remove this block after testing!)
+  pull_request:
+    branches:
+      - master
+
   schedule:
-	workflow_dispatch:
-	  pull_request:
-	    branches:
-	      - master  # or the target branch of your PR
     - cron: "0 0 * * *"
 
 jobs:
