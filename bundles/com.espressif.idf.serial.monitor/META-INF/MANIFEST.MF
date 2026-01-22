@@ -6,10 +6,8 @@ Bundle-Version: 1.0.1.qualifier
 Bundle-Activator: com.espressif.idf.serial.monitor.SerialMonitorBundle
 Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.core.runtime,
- com.espressif.idf.core,
  com.espressif.idf.ui,
  org.eclipse.ui.console;bundle-version="3.9.0",
- org.eclipse.ui,
  org.eclipse.embedcdt.ui,
  org.eclipse.embedcdt.debug.gdbjtag.core
 Bundle-RequiredExecutionEnvironment: JavaSE-17
