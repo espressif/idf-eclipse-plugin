@@ -87,8 +87,8 @@ public class EimButtonLaunchListener extends SelectionAdapter
 		{
 			try
 			{
-				Process process = eimLoader.launchEim(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH));
-				eimLoader.waitForEimClosure(process, EimButtonLaunchListener.this::refreshAfterEimClose);
+				long eimPid = eimLoader.launchEim(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH));
+				eimLoader.waitForEimClosure(eimPid, EimButtonLaunchListener.this::refreshAfterEimClose);
 			}
 			catch (IOException e)
 			{
@@ -194,12 +194,12 @@ public class EimButtonLaunchListener extends SelectionAdapter
 				}
 			}
 			
-			Process process;
+			long pidEim = -1;
 			try
 			{
 				idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, appToLaunch);
-				process = eimLoader.launchEim(appToLaunch);
-				eimLoader.waitForEimClosure(process, EimButtonLaunchListener.this::refreshAfterEimClose);
+				pidEim = eimLoader.launchEim(appToLaunch);
+				eimLoader.waitForEimClosure(pidEim, EimButtonLaunchListener.this::refreshAfterEimClose);
 			}
 			catch (IOException e)
 			{

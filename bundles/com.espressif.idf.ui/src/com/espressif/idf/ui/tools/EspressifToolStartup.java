@@ -376,7 +376,7 @@ public class EspressifToolStartup implements IStartup
 				}
 			});
 
-			Process process = null;
+			long eimPid = -1;
 			String appToLaunch = filePath;
 			try
 			{
@@ -386,7 +386,7 @@ public class EspressifToolStartup implements IStartup
 				}
 
 				idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, appToLaunch);
-				process = eimLoader.launchEim(appToLaunch);
+				eimPid = eimLoader.launchEim(appToLaunch);
 			}
 			catch (
 					IOException
@@ -395,7 +395,7 @@ public class EspressifToolStartup implements IStartup
 				Logger.log(e);
 			}
 
-			eimLoader.waitForEimClosure(process, () -> {
+			eimLoader.waitForEimClosure(eimPid, () -> {
 				if (toolInitializer.isOldEspIdfConfigPresent() && !toolInitializer.isOldConfigExported())
 				{
 					Logger.log("Old configuration found and not converted");
