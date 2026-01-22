@@ -9,29 +9,104 @@ on:
 
 jobs:
   build:
-
     runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v2
-   
-    - name: Set up JDK 17
+
+    - name: Set up JDK 21
       uses: actions/setup-java@v2
       with:
-        java-version: '17'
+        java-version: '21'
         distribution: 'temurin'
-   
+
     - name: Build with Maven
       run: |
-        export JARSIGNER_KEYSTORE_B64=${{secrets.JARSIGNER_REL_KEYSTORE_B64}}
-        export JARSIGNER_STOREPASS=${{secrets.JARSIGNER_REL_STOREPASS}}
-        export JARSIGNER_ALIAS=${{secrets.JARSIGNER_REL_ALIAS}}
-        KEYSTORE_FILE="${PWD}/{{secrets.JARSIGNER_KEYSTORE}}"
-        echo "${KEYSTORE_FILE}"
-        printf "%s" "${JARSIGNER_KEYSTORE_B64}" | base64 -d > "${KEYSTORE_FILE}"
-        mvn -e -X clean install -Djarsigner.keystore="${KEYSTORE_FILE}" -Djarsigner.alias="${JARSIGNER_ALIAS}" -Djarsigner.storepass="${JARSIGNER_STOREPASS}" -DskipTests=true
-        rm -v "${KEYSTORE_FILE}"
-    
+        # We skip local signing because we will use Azure Cloud Signing next
+        mvn -e -X clean install -Djarsigner.skip=true -DskipTests=true
+
+    - name: Download Jsign
+      run: |
+        wget -q https://github.com/ebourg/jsign/releases/download/7.4/jsign-7.4.jar || \
+        curl -L -o jsign-7.4.jar https://github.com/ebourg/jsign/releases/download/7.4/jsign-7.4.jar
+        echo "Downloaded Jsign 7.4"
+
+    - name: Authenticate to Azure
+      run: |
+        az login --service-principal \
+          --username ${{ secrets.AZURE_CLIENT_ID }} \
+          --password ${{ secrets.AZURE_CLIENT_SECRET }} \
+          --tenant ${{ secrets.AZURE_TENANT_ID }} \
+          --allow-no-subscriptions
+
+    - name: Get Azure Key Vault Access Token
+      id: get-token
+      run: |
+        TOKEN=$(az account get-access-token --resource https://vault.azure.net --query accessToken -o tsv)
+        echo "::add-mask::$TOKEN"
+        echo "token=$TOKEN" >> $GITHUB_OUTPUT
+
+    - name: Sign JAR files with Azure Key Vault
+      env:
+        AZURE_TOKEN: ${{ steps.get-token.outputs.token }}
+        CERT_CHAIN: ${{ secrets.AZURE_KEYVAULT_CERTCHAIN }}
+      run: |
+        # Setup Certificate Chain
+        CERTCHAIN_ARG=""
+        if [ -n "$CERT_CHAIN" ]; then
+          echo "$CERT_CHAIN" > certchain.p7b
+          CERTCHAIN_ARG="-certchain certchain.p7b"
+        fi
+        
+        REPO_DIR="releng/com.espressif.idf.update/target/repository"
+        SIGFILE="ECLIPSE"
+        
+        echo "Signing IDF plugin JARs in $REPO_DIR..."
+        
+        # Find and sign specific Espressif JARs
+        find "$REPO_DIR" -type f -name "*.jar" | while read -r file; do
+          if [[ "$file" =~ (plugins|features)/com\.espressif\. ]]; then
+            echo "Signing: $file"
+            
+            jarsigner \
+              -J-cp -Jjsign-7.4.jar \
+              -J--add-modules -Jjava.sql \
+              -providerClass net.jsign.jca.JsignJcaProvider \
+              -providerArg "${{ secrets.AZURE_KEYVAULT_URI }}" \
+              -keystore NONE \
+              -storetype AZUREKEYVAULT \
+              -storepass "$AZURE_TOKEN" \
+              -sigfile "$SIGFILE" \
+              -digestalg SHA-256 \
+              -tsa http://timestamp.digicert.com \
+              $CERTCHAIN_ARG \
+              -certs \
+              -verbose \
+              "$file" \
+              "${{ secrets.AZURE_KEYVAULT_CERT_NAME }}"
+            
+            if [ $? -ne 0 ]; then
+              echo "Failed to sign: $file"
+              exit 1
+            fi
+          fi
+        done
+
+    - name: Regenerate P2 Metadata
+      run: |
+        # Signing changes file checksums, so we must fix the P2 metadata
+        mvn -f releng/com.espressif.idf.update/pom.xml \
+          org.eclipse.tycho:tycho-p2-repository-plugin:fix-artifacts-metadata \
+          -DrepositoryPath="releng/com.espressif.idf.update/target/repository" \
+          -DskipTests=true
+
+    - name: Cleanup
+      if: always()
+      run: |
+        az logout || true
+        rm -f jsign-7.4.jar || true
+        rm -f certchain.p7b || true
+
     - name: Codesign Espressif-IDE
       env: 
         MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
@@ -61,7 +136,7 @@ jobs:
         $PWD/releng/ide-dmg-builder/ide-dmg-builder-aarch64.sh
         /usr/bin/codesign --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg -v
         /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
-    
+
     - name: Notarization of Espressif-IDE dmg files
       env: 
         NOTARIZATION_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
