@@ -28,6 +28,7 @@ import com.espressif.idf.core.tools.EimIdfConfiguratinParser;
 import com.espressif.idf.core.tools.EimLoader;
 import com.espressif.idf.core.tools.ToolInitializer;
 import com.espressif.idf.core.tools.exceptions.EimVersionMismatchException;
+import com.espressif.idf.core.tools.launch.LaunchResult;
 import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.handlers.EclipseHandler;
@@ -87,8 +88,8 @@ public class EimButtonLaunchListener extends SelectionAdapter
 		{
 			try
 			{
-				long eimPid = eimLoader.launchEim(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH));
-				eimLoader.waitForEimClosure(eimPid, EimButtonLaunchListener.this::refreshAfterEimClose);
+				var launchResult = eimLoader.launchEimWithResult(idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH));
+				eimLoader.waitForEimClosure(launchResult, EimButtonLaunchListener.this::refreshAfterEimClose);
 			}
 			catch (IOException e)
 			{
@@ -194,12 +195,12 @@ public class EimButtonLaunchListener extends SelectionAdapter
 				}
 			}
 			
-			long pidEim = -1;
+			
 			try
 			{
 				idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, appToLaunch);
-				pidEim = eimLoader.launchEim(appToLaunch);
-				eimLoader.waitForEimClosure(pidEim, EimButtonLaunchListener.this::refreshAfterEimClose);
+				LaunchResult launchResult = eimLoader.launchEimWithResult(appToLaunch);
+				eimLoader.waitForEimClosure(launchResult, EimButtonLaunchListener.this::refreshAfterEimClose);
 			}
 			catch (IOException e)
 			{

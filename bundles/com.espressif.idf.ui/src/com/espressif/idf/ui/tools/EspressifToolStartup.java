@@ -49,6 +49,8 @@ import com.espressif.idf.ui.tools.manager.ESPIDFManagerEditor;
 import com.espressif.idf.ui.tools.manager.EimEditorInput;
 import com.espressif.idf.ui.tools.watcher.EimJsonUiChangeHandler;
 
+import com.espressif.idf.core.tools.launch.LaunchResult;
+
 /**
  * Startup class to handle the tools
  * 
@@ -376,7 +378,7 @@ public class EspressifToolStartup implements IStartup
 				}
 			});
 
-			long eimPid = -1;
+			LaunchResult launchResult = null;
 			String appToLaunch = filePath;
 			try
 			{
@@ -386,7 +388,7 @@ public class EspressifToolStartup implements IStartup
 				}
 
 				idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, appToLaunch);
-				eimPid = eimLoader.launchEim(appToLaunch);
+				launchResult = eimLoader.launchEimWithResult(appToLaunch);
 			}
 			catch (
 					IOException
@@ -395,7 +397,7 @@ public class EspressifToolStartup implements IStartup
 				Logger.log(e);
 			}
 
-			eimLoader.waitForEimClosure(eimPid, () -> {
+			eimLoader.waitForEimClosure(launchResult, () -> {
 				if (toolInitializer.isOldEspIdfConfigPresent() && !toolInitializer.isOldConfigExported())
 				{
 					Logger.log("Old configuration found and not converted");
