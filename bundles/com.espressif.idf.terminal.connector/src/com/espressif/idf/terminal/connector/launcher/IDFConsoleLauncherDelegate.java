@@ -24,6 +24,7 @@ import org.eclipse.terminal.connector.InMemorySettingsStore;
 import org.eclipse.terminal.connector.TerminalConnectorExtension;
 import org.eclipse.terminal.connector.process.ProcessSettings;
 import org.eclipse.terminal.view.core.ITerminalsConnectorConstants;
+import org.eclipse.terminal.view.ui.IMementoHandler;
 import org.eclipse.terminal.view.ui.launcher.AbstractLauncherDelegate;
 import org.eclipse.terminal.view.ui.launcher.IConfigurationPanel;
 import org.eclipse.terminal.view.ui.launcher.IConfigurationPanelContainer;
@@ -35,6 +36,7 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 
 	private static final String CONNECTOR_ID = "com.espressif.idf.terminal.connector.espidfConnector"; //$NON-NLS-1$
 	private static final String TERMINAL_TITLE_LABEL = "ESP-IDF Terminal"; //$NON-NLS-1$
+	private IMementoHandler mementoHandler = new IDFConsoleMementoHandler();
 
 	@Override
 	public boolean needsUserConfiguration() {
@@ -84,6 +86,14 @@ public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 			Logger.log(e);
 		}
 		return null;
+	}
+
+	@Override
+	public <T> T getAdapter(Class<T> adapter) {
+		if (IMementoHandler.class.equals(adapter)) {
+			return adapter.cast(mementoHandler);
+		}
+		return super.getAdapter(adapter);
 	}
 
 	private String getShellExecutable() {
