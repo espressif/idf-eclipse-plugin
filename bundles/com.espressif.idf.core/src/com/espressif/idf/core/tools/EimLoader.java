@@ -13,20 +13,19 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -35,6 +34,8 @@ import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.tools.launch.EimLaunchService;
+import com.espressif.idf.core.tools.launch.LaunchResult;
 import com.espressif.idf.core.tools.watcher.EimJsonWatchService;
 import com.espressif.idf.core.util.StringUtil;
 import com.google.gson.JsonArray;
@@ -42,8 +43,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 /**
- * This class is responsible for downloading and launching the EIM. 
- * The clients using this must take care of UI refreshes and pausing any listeners.
+ * This class is responsible for downloading and launching the EIM. The clients using this must take care of UI
+ * refreshes and pausing any listeners.
+ * 
  * @author Ali Azam Rana <ali.azamrana@espressif.com>
  *
  */
@@ -52,27 +54,33 @@ public class EimLoader
 	private static final String URL_JSON = "https://dl.espressif.com/dl/eim/eim_unified_release.json"; //$NON-NLS-1$
 	private static final Path DOWNLOAD_DIR = Paths.get(System.getProperty("java.io.tmpdir"), "eim_gui"); //$NON-NLS-1$ //$NON-NLS-2$
 
-	private String os;
-	private String arch;
-	private DownloadListener listener;
-	private MessageConsoleStream standardConsoleStream;
-	private MessageConsoleStream errorConsoleStream;
-	private Display display;
-	private long windowsPid;
+	private final String os;
+	private final String arch;
+	private final DownloadListener listener;
+	private final MessageConsoleStream standardConsoleStream;
+	private final MessageConsoleStream errorConsoleStream;
+	private final Display display;
 
-	public EimLoader(DownloadListener listener, MessageConsoleStream standardConsoleStream, MessageConsoleStream errorConsoleStream, Display display)
+	private final EimLaunchService launchService;
+
+	private volatile LaunchResult lastLaunchResult;
+
+	public EimLoader(DownloadListener listener, MessageConsoleStream standardConsoleStream,
+			MessageConsoleStream errorConsoleStream, Display display)
 	{
-		os = Platform.getOS();
-		arch = Platform.getOSArch();
+		this.os = org.eclipse.core.runtime.Platform.getOS();
+		this.arch = org.eclipse.core.runtime.Platform.getOSArch();
 		this.listener = listener;
 		this.standardConsoleStream = standardConsoleStream;
 		this.errorConsoleStream = errorConsoleStream;
 		this.display = display;
+
+		this.launchService = new EimLaunchService(display, standardConsoleStream, errorConsoleStream);
 	}
-	
+
 	private void logMessage(String message)
 	{
-		display.asyncExec(()->{
+		display.asyncExec(() -> {
 			try
 			{
 				standardConsoleStream.write(message);
@@ -83,13 +91,13 @@ public class EimLoader
 				logError(e.getMessage());
 			}
 		});
-		
+
 		Logger.log(message);
 	}
-	
+
 	private void logError(String message)
 	{
-		display.asyncExec(()->{
+		display.asyncExec(() -> {
 			try
 			{
 				errorConsoleStream.write(message);
@@ -99,80 +107,66 @@ public class EimLoader
 				Logger.log(e);
 			}
 		});
-		
+
 		Logger.log(message);
 	}
-	
-	public Process launchEim(String eimPath) throws IOException
+
+	/**
+	 * Launches the eim and return {@link com.espressif.idf.core.tools.launch.LaunchResult}.
+	 */
+	public LaunchResult launchEimWithResult(String eimPath) throws IOException
 	{
-		if (!Files.exists(Paths.get(eimPath)))
-			throw new FileNotFoundException("EIM path not found: " + eimPath); //$NON-NLS-1$
+		LaunchResult result = launchService.launch(eimPath);
+		this.lastLaunchResult = result;
 
-		String os = Platform.getOS();
-		List<String> command;
-
-		if (os.equals(Platform.OS_WIN32))
-		{
-			String escapedPathForPowershell = eimPath.replace("'", "''"); //$NON-NLS-1$ //$NON-NLS-2$
-			String powershellCmd = String.format(
-					"Start-Process -FilePath '%s' -PassThru | " //$NON-NLS-1$
-					+ "Select-Object -ExpandProperty Id", //$NON-NLS-1$
-					escapedPathForPowershell);
-
-			command = List.of("powershell.exe",  //$NON-NLS-1$
-					"-Command", powershellCmd); //$NON-NLS-1$
-		}
-		else if (os.equals(Platform.OS_MACOSX))
-		{
-			command = List.of("open", "-W",  "-a", eimPath);  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-		}
-		else if (os.equals(Platform.OS_LINUX))
-		{
-			command = List.of("bash", "-c", "\"" + eimPath + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		}
-		else
-		{
-			throw new UnsupportedOperationException("Unsupported OS: " + os); //$NON-NLS-1$
-		}
-		
-		Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
-		if (os.equals(Platform.OS_WIN32))
-		{
-			// store the PID returned by powershell query to a variable
-			storePid(process);
-		}
-
-		logMessage("Launched EIM application: " + eimPath + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
-
-		return process;
+		logMessage("Launched EIM application: " + eimPath + " (pid=" + result.pid().orElse(-1) + ")\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return result;
 	}
-	
-	private void storePid(Process powershellProcess)
+
+	public void waitForEimClosure(LaunchResult launchResult, Runnable callback)
 	{
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(powershellProcess.getInputStream())))
+		Job waitJob = new Job("Wait for EIM Closure") //$NON-NLS-1$
 		{
-			String line;
-			while ((line = reader.readLine()) != null)
+			@Override
+			protected IStatus run(IProgressMonitor monitor)
 			{
-				line = line.trim();
-				if (!line.isEmpty())
-				{
+				return launchService.waitForExit(launchResult, monitor);
+			}
+		};
+		waitJob.setSystem(true);
+
+		waitJob.addJobChangeListener(new JobChangeAdapter()
+		{
+			@Override
+			public void aboutToRun(IJobChangeEvent event)
+			{
+				EimJsonWatchService.getInstance().pauseListeners();
+			}
+
+			@Override
+			public void done(IJobChangeEvent event)
+			{
+				Display.getDefault().asyncExec(() -> {
 					try
 					{
-						windowsPid = Long.parseLong(line);
-						
+						standardConsoleStream.write("EIM has been closed.\n"); //$NON-NLS-1$
 					}
-					catch (NumberFormatException ignored)
+					catch (IOException e)
 					{
-						// skipping invalid lines
+						Logger.log(e);
 					}
+				});
+
+				if (callback != null)
+				{
+					callback.run();
 				}
+
+				EimJsonWatchService.getInstance().unpauseListeners();
 			}
-		}
-		catch (IOException e)
-		{
-			Logger.log(e);
-		}
+		});
+
+		waitJob.schedule();
 	}
 
 	public String installAndLaunchDmg(Path dmgPath) throws IOException, InterruptedException
@@ -219,35 +213,6 @@ public class EimLoader
 		new IDFEnvironmentVariables().addEnvVariable(IDFEnvironmentVariables.EIM_PATH, eimPath);
 		return eimPath;
 	}
-	
-	private String readProcessOutput(Process p) throws IOException
-	{
-	    try (BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream())))
-	    {
-	        StringBuilder sb = new StringBuilder();
-	        String line;
-	        while ((line = br.readLine()) != null) sb.append(line).append(System.lineSeparator());
-	        return sb.toString();
-	    }
-	}
-
-	private String parseVolumePath(InputStream mountOut) throws IOException
-	{
-	    try (BufferedReader reader = new BufferedReader(new InputStreamReader(mountOut)))
-	    {
-	        String line;
-	        while ((line = reader.readLine()) != null)
-	        {
-	            if (line.contains("/Volumes/")) //$NON-NLS-1$
-	            {
-	                for (String part : line.split("\t")) //$NON-NLS-1$
-	                    if (part.startsWith("/Volumes/")) return part.trim(); //$NON-NLS-1$
-	            }
-	        }
-	    }
-	    return null;
-	}
-
 
 	public void downloadEim(IProgressMonitor monitor)
 	{
@@ -273,9 +238,10 @@ public class EimLoader
 			Path downloadPath = DOWNLOAD_DIR.resolve(name);
 
 			downloadFile(downloadUrl, downloadPath, listener, monitor);
+
 			Path eimPath = Paths.get(EimConstants.USER_EIM_DIR);
 			Files.createDirectories(eimPath);
-			
+
 			if (name.endsWith(".zip")) //$NON-NLS-1$
 			{
 				Path extracted = unzip(downloadPath, eimPath);
@@ -283,139 +249,28 @@ public class EimLoader
 			}
 			else if (name.endsWith(".exe")) //$NON-NLS-1$
 			{
-				eimPath = Paths.get(eimPath.toString(), name);
-				Files.copy(downloadPath, eimPath, StandardCopyOption.REPLACE_EXISTING);
-				listener.onCompleted(eimPath.toString());
+				Path exePath = Paths.get(eimPath.toString(), name);
+				Files.copy(downloadPath, exePath, StandardCopyOption.REPLACE_EXISTING);
+				listener.onCompleted(exePath.toString());
 			}
-			else 
+			else
 			{
 				listener.onCompleted(downloadPath.toAbsolutePath().toString());
 			}
 		}
-		catch (IOException e)
+		catch (IOException | URISyntaxException e)
 		{
 			listener.onError("Download failed", e); //$NON-NLS-1$
-		} finally
+		}
+		finally
 		{
 			monitor.done();
 		}
-
-	}
-	
-	private IStatus waitForProcessWindows()
-	{
-		while (isWindowsProcessAlive(windowsPid))
-		{
-			try
-			{
-				Thread.sleep(1000);
-			}
-			catch (InterruptedException e)
-			{
-				Logger.log(e);
-			}
-		}
-		
-		return Status.OK_STATUS;
-	}
-	
-	private boolean isWindowsProcessAlive(long pid)
-	{
-		try
-		{
-			Process check = new ProcessBuilder("cmd.exe",  //$NON-NLS-1$
-					"/c",  //$NON-NLS-1$
-					"tasklist", //$NON-NLS-1$
-					"/FI", //$NON-NLS-1$
-					"\"PID eq " + pid + "\"").redirectErrorStream(true).start(); //$NON-NLS-1$ //$NON-NLS-2$
-			try (BufferedReader reader = new BufferedReader(new InputStreamReader(check.getInputStream())))
-			{
-				String line;
-				while ((line = reader.readLine()) != null)
-				{
-					if (line.contains(String.valueOf(windowsPid)))
-					{
-						return true;
-					}
-				}
-			}
-		}
-		catch (IOException e)
-		{
-			Logger.log(e);
-		}
-		
-		return false;
-	}
-	
-	private IStatus waitForProcess(Process process)
-	{
-		try
-		{
-			process.waitFor();
-			return Status.OK_STATUS;
-		}
-		catch (InterruptedException e)
-		{
-			return Status.CANCEL_STATUS;
-		}
-		catch (Exception e)
-		{
-			Logger.log(e);
-			return Status.error(e.getMessage());
-		}
-	}
-	
-	public void waitForEimClosure(Process process, Runnable callback)
-	{
-		Job waitJob = new Job("Wait for EIM Closure") //$NON-NLS-1$
-		{
-			@Override
-			protected IStatus run(IProgressMonitor monitor)
-			{
-				return os.equals(Platform.OS_WIN32) ? waitForProcessWindows() : waitForProcess(process);
-			}
-		};
-		waitJob.setSystem(true);
-		
-		
-		waitJob.addJobChangeListener(new JobChangeAdapter()
-		{
-			@Override
-			public void aboutToRun(IJobChangeEvent event) 
-			{
-				EimJsonWatchService.getInstance().pauseListeners();
-			}
-			
-			@Override
-			public void done(IJobChangeEvent event)
-			{
-				Display.getDefault().asyncExec(() -> {
-					try
-					{
-						standardConsoleStream.write("EIM has been closed.\n"); //$NON-NLS-1$
-					}
-					catch (IOException e)
-					{
-						Logger.log(e);
-					}
-				});
-				
-				if (callback != null)
-				{
-					callback.run();
-				}
-				
-				EimJsonWatchService.getInstance().unpauseListeners();
-			}
-		});
-		
-		waitJob.schedule();
 	}
 
-	private JsonObject fetchJson() throws IOException
+	private JsonObject fetchJson() throws IOException, URISyntaxException
 	{
-		URL url = new URL(URL_JSON);
+		URL url = new URI(URL_JSON).toURL();
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestProperty("accept", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
 		connection.setConnectTimeout(10000);
@@ -427,43 +282,20 @@ public class EimLoader
 		}
 	}
 
-	private void cleanupDownloadDirectory()
-	{
-	    try
-	    {
-	        Files.list(DOWNLOAD_DIR)
-	             .filter(Files::isRegularFile)
-	             .forEach(path -> {
-	                 try
-	                 {
-	                     Files.deleteIfExists(path);
-	                 }
-	                 catch (IOException e)
-	                 {
-	                     Logger.log("Failed to delete old download: " + path); //$NON-NLS-1$
-	                 }
-	             });
-	    }
-	    catch (IOException e)
-	    {
-	        Logger.log("Failed to clean up download directory: " + e.getMessage()); //$NON-NLS-1$
-	    }
-	}
-	
 	private Optional<JsonObject> findMatchingAsset(JsonArray assets)
 	{
 		String osToken = switch (os)
 		{
-		case Platform.OS_WIN32 -> "windows"; //$NON-NLS-1$
-		case Platform.OS_MACOSX -> "macos"; //$NON-NLS-1$
-		case Platform.OS_LINUX -> "linux"; //$NON-NLS-1$
+		case org.eclipse.core.runtime.Platform.OS_WIN32 -> "windows"; //$NON-NLS-1$
+		case org.eclipse.core.runtime.Platform.OS_MACOSX -> "macos"; //$NON-NLS-1$
+		case org.eclipse.core.runtime.Platform.OS_LINUX -> "linux"; //$NON-NLS-1$
 		default -> StringUtil.EMPTY;
 		};
 
 		String archToken = switch (arch)
 		{
-		case Platform.ARCH_X86_64 -> "x64"; //$NON-NLS-1$
-		case Platform.ARCH_AARCH64, "arm64" -> "aarch64"; //$NON-NLS-1$ //$NON-NLS-2$
+		case org.eclipse.core.runtime.Platform.ARCH_X86_64 -> "x64"; //$NON-NLS-1$
+		case org.eclipse.core.runtime.Platform.ARCH_AARCH64, "arm64" -> "aarch64"; //$NON-NLS-1$ //$NON-NLS-2$
 		default -> StringUtil.EMPTY;
 		};
 
@@ -483,9 +315,9 @@ public class EimLoader
 	}
 
 	private void downloadFile(String fileURL, Path targetPath, DownloadListener listener, IProgressMonitor monitor)
-			throws IOException
+			throws IOException, URISyntaxException
 	{
-		URL url = new URL(fileURL);
+		URL url = new URI(fileURL).toURL();
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setConnectTimeout(10000);
 		connection.setReadTimeout(10000);
@@ -495,7 +327,6 @@ public class EimLoader
 
 		try (InputStream in = connection.getInputStream(); OutputStream out = Files.newOutputStream(targetPath))
 		{
-
 			byte[] buffer = new byte[8192];
 			int bytesRead;
 			long totalRead = 0;
@@ -516,6 +347,27 @@ public class EimLoader
 					}
 				}
 			}
+		}
+	}
+
+	private void cleanupDownloadDirectory()
+	{
+		try
+		{
+			Files.list(DOWNLOAD_DIR).filter(Files::isRegularFile).forEach(path -> {
+				try
+				{
+					Files.deleteIfExists(path);
+				}
+				catch (IOException e)
+				{
+					Logger.log("Failed to delete old download: " + path); //$NON-NLS-1$
+				}
+			});
+		}
+		catch (IOException e)
+		{
+			Logger.log("Failed to clean up download directory: " + e.getMessage()); //$NON-NLS-1$
 		}
 	}
 
@@ -549,4 +401,33 @@ public class EimLoader
 		return firstExecutable != null ? firstExecutable : destDir;
 	}
 
+	private String readProcessOutput(Process p) throws IOException
+	{
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream())))
+		{
+			StringBuilder sb = new StringBuilder();
+			String line;
+			while ((line = br.readLine()) != null)
+				sb.append(line).append(System.lineSeparator());
+			return sb.toString();
+		}
+	}
+
+	private String parseVolumePath(InputStream mountOut) throws IOException
+	{
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(mountOut)))
+		{
+			String line;
+			while ((line = reader.readLine()) != null)
+			{
+				if (line.contains("/Volumes/")) //$NON-NLS-1$
+				{
+					for (String part : line.split("\t")) //$NON-NLS-1$
+						if (part.startsWith("/Volumes/")) //$NON-NLS-1$
+							return part.trim();
+				}
+			}
+		}
+		return null;
+	}
 }
