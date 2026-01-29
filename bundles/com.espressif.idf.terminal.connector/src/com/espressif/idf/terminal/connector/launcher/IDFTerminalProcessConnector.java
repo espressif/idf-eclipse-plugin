@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.terminal.connector.ITerminalControl;
 import org.eclipse.terminal.connector.process.ProcessConnector;
 
+import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.EimConstants;
 import com.google.gson.JsonElement;
@@ -74,7 +75,7 @@ public class IDFTerminalProcessConnector extends ProcessConnector {
 		try (var reader = Files.newBufferedReader(path)) {
 			var root = JsonParser.parseReader(reader).getAsJsonObject();
 
-			var selectedId = root.get(KEY_SELECTED_ID).getAsString();
+			var selectedId = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.ESP_IDF_EIM_ID);
 			var installed = root.getAsJsonArray(KEY_INSTALLED);
 
 			return StreamSupport.stream(installed.spliterator(), false).map(JsonElement::getAsJsonObject)
