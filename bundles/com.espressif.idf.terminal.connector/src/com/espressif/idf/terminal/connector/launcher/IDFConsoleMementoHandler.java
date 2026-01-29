@@ -31,6 +31,8 @@ public class IDFConsoleMementoHandler implements IMementoHandler {
 
 	@Override
 	public void restoreState(IMemento memento, Map<String, Object> properties) {
+		Assert.isTrue("org.eclipse.tm.terminal.view.ui.TerminalsView".equals(memento.getID()), //$NON-NLS-1$
+				Messages.IDFConsoleMementoHandler_TerminalNameOutdatedMsg);
 		Assert.isNotNull(memento);
 		Assert.isNotNull(properties);
 	}
