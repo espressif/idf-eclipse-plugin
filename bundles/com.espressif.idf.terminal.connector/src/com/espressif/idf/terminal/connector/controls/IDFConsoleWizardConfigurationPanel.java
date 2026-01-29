@@ -12,6 +12,8 @@
  *******************************************************************************/
 package com.espressif.idf.terminal.connector.controls;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -19,20 +21,31 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.terminal.view.core.ITerminalsConnectorConstants;
 import org.eclipse.terminal.view.ui.launcher.AbstractExtendedConfigurationPanel;
 import org.eclipse.terminal.view.ui.launcher.IConfigurationPanelContainer;
 import org.eclipse.ui.WorkbenchEncoding;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
 import com.espressif.idf.core.IDFProjectNature;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.terminal.connector.controls.themes.EspressifDarkTheme;
+import com.espressif.idf.terminal.connector.controls.themes.EspressifLightTheme;
+import com.espressif.idf.terminal.connector.controls.themes.ITerminalTheme;
+import com.espressif.idf.terminal.connector.controls.themes.PowerShellTheme;
+import com.espressif.idf.terminal.connector.controls.themes.ResetTheme;
 import com.espressif.idf.ui.EclipseUtil;
 
 /**
@@ -40,15 +53,24 @@ import com.espressif.idf.ui.EclipseUtil;
  */
 public class IDFConsoleWizardConfigurationPanel extends AbstractExtendedConfigurationPanel {
 
+	private static final String PREF_THEME_SELECTION = "IDF_CONSOLE_THEME_SELECTION"; //$NON-NLS-1$
+	private static final String TERMINAL_PREF_NODE = "org.eclipse.terminal.control"; //$NON-NLS-1$
+
 	private Combo projectCombo;
+	private final List<ITerminalTheme> themes = new ArrayList<>();
+	private final List<Button> themeButtons = new ArrayList<>();
 
 	/**
 	 * Constructor.
-	 *
 	 * @param container The configuration panel container or <code>null</code>.
 	 */
 	public IDFConsoleWizardConfigurationPanel(IConfigurationPanelContainer container) {
 		super(container);
+
+		themes.add(new ResetTheme());
+		themes.add(new EspressifLightTheme());
+		themes.add(new EspressifDarkTheme());
+		themes.add(new PowerShellTheme());
 	}
 
 	@Override
@@ -58,11 +80,10 @@ public class IDFConsoleWizardConfigurationPanel extends AbstractExtendedConfigur
 		panel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		createProjectCombo(panel);
-		// Create the encoding selection combo
 		createEncodingUI(panel, false);
+		createThemeUI(panel);
 
-		// Set the default encoding:
-		//     Default UTF-8 on Mac or Windows for Local, Preferences:Platform encoding otherwise
+		// Set the default encoding based on OS
 		if (Platform.OS_MACOSX.equals(Platform.getOS()) || Platform.OS_WIN32.equals(Platform.getOS())) {
 			setEncoding("UTF-8"); //$NON-NLS-1$
 		} else {
@@ -71,8 +92,7 @@ public class IDFConsoleWizardConfigurationPanel extends AbstractExtendedConfigur
 				setEncoding(encoding);
 		}
 
-		// Fill the rest of the panel with a label to be able to
-		// set a height and width hint for the dialog
+		// Fill the rest of the panel with a spacer
 		Label label = new Label(panel, SWT.HORIZONTAL);
 		GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
 		layoutData.widthHint = 300;
@@ -82,8 +102,126 @@ public class IDFConsoleWizardConfigurationPanel extends AbstractExtendedConfigur
 		setControl(panel);
 	}
 
-	private void createProjectCombo(Composite parent) {
+	/**
+	 * Dynamically creates radio buttons for each loaded ITerminalTheme strategy.
+	 */
+	private void createThemeUI(Composite parent) {
+		Group group = new Group(parent, SWT.NONE);
+		group.setText("Terminal Color Presets");
+		group.setLayout(new GridLayout(1, false));
+		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
+		themeButtons.clear();
+
+		for (ITerminalTheme theme : themes) {
+			Button btn = new Button(group, SWT.RADIO);
+			btn.setText(theme.getLabel());
+			btn.setData(theme);
+			themeButtons.add(btn);
+		}
+
+		Label noteLabel = new Label(group, SWT.WRAP);
+		noteLabel.setText("Note: This setting applies globally to all Terminal views in the workspace.");
+		noteLabel.setFont(JFaceResources.getFontRegistry().getItalic(JFaceResources.DIALOG_FONT));
+		GridData noteData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		noteData.verticalIndent = 5;
+		noteLabel.setLayoutData(noteData);
+	}
+
+	@Override
+	public void extractData(Map<String, Object> data) {
+		data.put(ITerminalsConnectorConstants.PROP_TERMINAL_CONNECTOR_ID,
+				"com.espressif.idf.terminal.connector.espidfConnector"); //$NON-NLS-1$
+
+		data.put(ITerminalsConnectorConstants.PROP_ENCODING, getEncoding());
+
+		if (projectCombo != null && !projectCombo.isDisposed() && !projectCombo.getText().isEmpty()) {
+			IProject p = ResourcesPlugin.getWorkspace().getRoot().getProject(projectCombo.getText());
+			if (p != null && p.exists() && p.getLocation() != null) {
+				data.put(ITerminalsConnectorConstants.PROP_PROCESS_WORKING_DIR, p.getLocation().toOSString());
+				data.put(ITerminalsConnectorConstants.PROP_TITLE, p.getName());
+			}
+		}
+
+		for (Button btn : themeButtons) {
+			if (btn != null && !btn.isDisposed() && btn.getSelection()) {
+				ITerminalTheme strategy = (ITerminalTheme) btn.getData();
+				if (strategy != null) {
+					applyThemeStrategy(strategy);
+				}
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Instantiates the Preference Store and delegates the coloring logic 
+	 * to the selected strategy.
+	 */
+	private void applyThemeStrategy(ITerminalTheme theme) {
+		IPreferenceStore store = new ScopedPreferenceStore(InstanceScope.INSTANCE, TERMINAL_PREF_NODE);
+
+		theme.apply(store);
+
+		if (store instanceof ScopedPreferenceStore preferenceStore) {
+			try {
+				preferenceStore.save();
+			} catch (Exception ex) {
+				Logger.log(ex);
+			}
+		}
+	}
+
+	@Override
+	public void doSaveWidgetValues(IDialogSettings settings, String idPrefix) {
+		// Save encoding settings
+		doSaveEncodingsWidgetValues(settings, idPrefix);
+
+		// Save selected theme ID
+		if (settings != null) {
+			for (Button btn : themeButtons) {
+				if (btn.getSelection()) {
+					ITerminalTheme theme = (ITerminalTheme) btn.getData();
+					settings.put(PREF_THEME_SELECTION, theme.getId());
+					break;
+				}
+			}
+		}
+	}
+
+	@Override
+	public void doRestoreWidgetValues(IDialogSettings settings, String idPrefix) {
+		doRestoreEncodingsWidgetValues(settings, idPrefix);
+
+		// Restore theme selection
+		if (settings != null) {
+			String savedId = settings.get(PREF_THEME_SELECTION);
+
+			boolean found = false;
+			// Iterate over buttons to find the one matching the saved ID
+			for (Button btn : themeButtons) {
+				ITerminalTheme theme = (ITerminalTheme) btn.getData();
+				if (theme.getId().equals(savedId)) {
+					btn.setSelection(true);
+					found = true;
+				} else {
+					btn.setSelection(false);
+				}
+			}
+
+			// Fallback: If no setting saved (or ID not found), select the first one (Restore Defaults)
+			if (!found && !themeButtons.isEmpty()) {
+				themeButtons.get(0).setSelection(true);
+			}
+		} else {
+			// No settings at all? Default to the first option
+			if (!themeButtons.isEmpty()) {
+				themeButtons.get(0).setSelection(true);
+			}
+		}
+	}
+
+	private void createProjectCombo(Composite parent) {
 		Composite panel = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout(2, false);
 		layout.marginHeight = 0;
@@ -119,27 +257,9 @@ public class IDFConsoleWizardConfigurationPanel extends AbstractExtendedConfigur
 	public void setupData(Map<String, Object> data) {
 		if (data == null)
 			return;
-
 		String value = (String) data.get(ITerminalsConnectorConstants.PROP_ENCODING);
 		if (value != null)
 			setEncoding(value);
-	}
-
-	@Override
-	public void extractData(Map<String, Object> data) {
-
-		data.put(ITerminalsConnectorConstants.PROP_TERMINAL_CONNECTOR_ID,
-				"com.espressif.idf.terminal.connector.espidfConnector"); //$NON-NLS-1$
-
-		data.put(ITerminalsConnectorConstants.PROP_ENCODING, getEncoding());
-
-		if (projectCombo != null && !projectCombo.isDisposed() && !projectCombo.getText().isEmpty()) {
-			IProject p = ResourcesPlugin.getWorkspace().getRoot().getProject(projectCombo.getText());
-			if (p != null && p.exists() && p.getLocation() != null) {
-				data.put(ITerminalsConnectorConstants.PROP_PROCESS_WORKING_DIR, p.getLocation().toOSString());
-				data.put(ITerminalsConnectorConstants.PROP_TITLE, p.getName());
-			}
-		}
 	}
 
 	@Override
@@ -153,18 +273,6 @@ public class IDFConsoleWizardConfigurationPanel extends AbstractExtendedConfigur
 	@Override
 	public boolean isValid() {
 		return true;
-	}
-
-	@Override
-	public void doSaveWidgetValues(IDialogSettings settings, String idPrefix) {
-		// Save the encodings widget values
-		doSaveEncodingsWidgetValues(settings, idPrefix);
-	}
-
-	@Override
-	public void doRestoreWidgetValues(IDialogSettings settings, String idPrefix) {
-		// Restore the encodings widget values
-		doRestoreEncodingsWidgetValues(settings, idPrefix);
 	}
 
 	@Override
