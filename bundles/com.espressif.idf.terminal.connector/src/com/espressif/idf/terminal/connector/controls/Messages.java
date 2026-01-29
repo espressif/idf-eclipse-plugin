@@ -14,4 +14,6 @@ public class Messages extends NLS {
 
 	public static String IDFConsoleWizardConfigurationPanel_MissingProjectErrorMsg;
 	public static String IDFConsoleWizardConfigurationPanel_IDFConsoleWizardConfigurationPanel_ProjectLabel;
+	public static String IDFConsoleWizardConfigurationPanel_TerminalColorPresetsLbl;
+	public static String IDFConsoleWizardConfigurationPanel_TerminalColorPresetsNote;
 }

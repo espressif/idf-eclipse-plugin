@@ -35,7 +35,7 @@ import com.espressif.idf.terminal.connector.controls.IDFConsoleWizardConfigurati
 public class IDFConsoleLauncherDelegate extends AbstractLauncherDelegate {
 
 	private static final String CONNECTOR_ID = "com.espressif.idf.terminal.connector.espidfConnector"; //$NON-NLS-1$
-	private static final String TERMINAL_TITLE_LABEL = "ESP-IDF Terminal"; //$NON-NLS-1$
+	private static final String TERMINAL_TITLE_LABEL = Messages.IDFConsoleLauncherDelegate_TerminalTitle;
 	private IMementoHandler mementoHandler = new IDFConsoleMementoHandler();
 
 	@Override

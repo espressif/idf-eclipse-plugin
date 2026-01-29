@@ -43,7 +43,7 @@ public class CustomTheme implements ITerminalTheme {
 	 * Helper to set a color.
 	 */
 	protected void set(TerminalColor color, int r, int g, int b) {
-		colorMap.put(color, r + "," + g + "," + b);
+		colorMap.put(color, r + "," + g + "," + b); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override

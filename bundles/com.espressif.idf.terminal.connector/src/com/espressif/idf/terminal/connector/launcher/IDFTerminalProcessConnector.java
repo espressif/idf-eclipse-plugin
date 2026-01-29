@@ -26,7 +26,6 @@ import com.google.gson.JsonParser;
 
 public class IDFTerminalProcessConnector extends ProcessConnector {
 
-	private static final String KEY_SELECTED_ID = "idfSelectedId"; //$NON-NLS-1$
 	private static final String KEY_INSTALLED = "idfInstalled"; //$NON-NLS-1$
 	private static final String KEY_ID = "id"; //$NON-NLS-1$
 	private static final String KEY_SCRIPT = "activationScript"; //$NON-NLS-1$
@@ -76,10 +75,19 @@ public class IDFTerminalProcessConnector extends ProcessConnector {
 			var root = JsonParser.parseReader(reader).getAsJsonObject();
 
 			var selectedId = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.ESP_IDF_EIM_ID);
-			var installed = root.getAsJsonArray(KEY_INSTALLED);
+			if (selectedId == null) {
+				return Optional.empty();
+			}
+
+			if (!root.has(KEY_INSTALLED) || !root.get(KEY_INSTALLED).isJsonArray()) {
+				return Optional.empty();
+			}
+			var installed = root.get(KEY_INSTALLED).getAsJsonArray();
 
 			return StreamSupport.stream(installed.spliterator(), false).map(JsonElement::getAsJsonObject)
+					.filter(item -> item.has(KEY_ID) && !item.get(KEY_ID).isJsonNull())
 					.filter(item -> selectedId.equals(item.get(KEY_ID).getAsString()))
+					.filter(item -> item.has(KEY_SCRIPT) && !item.get(KEY_SCRIPT).isJsonNull())
 					.map(item -> item.get(KEY_SCRIPT).getAsString()).findFirst();
 
 		} catch (IOException | IllegalStateException | JsonParseException e) {

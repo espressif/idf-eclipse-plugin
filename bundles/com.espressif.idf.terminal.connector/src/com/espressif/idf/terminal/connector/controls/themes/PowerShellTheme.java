@@ -5,7 +5,7 @@ import org.eclipse.terminal.model.TerminalColor;
 public class PowerShellTheme extends CustomTheme {
 
 	public PowerShellTheme() {
-		super("POWERSHELL", "PowerShell Optimized (Blue/Contrast)");
+		super("POWERSHELL", Messages.PowerShellTheme_Name); //$NON-NLS-1$
 	}
 
 	@Override

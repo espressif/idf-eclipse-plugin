@@ -5,7 +5,7 @@ import org.eclipse.terminal.model.TerminalColor;
 public class EspressifLightTheme extends CustomTheme {
 
 	public EspressifLightTheme() {
-		super("LIGHT", "Espressif White (Light)");
+		super("LIGHT", Messages.EspressifLightTheme_Name); //$NON-NLS-1$
 	}
 
 	@Override

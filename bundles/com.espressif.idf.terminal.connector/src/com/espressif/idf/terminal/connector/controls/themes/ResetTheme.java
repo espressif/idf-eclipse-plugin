@@ -6,12 +6,12 @@ import org.eclipse.terminal.model.TerminalColor;
 public class ResetTheme implements ITerminalTheme {
 	@Override
 	public String getId() {
-		return "DEFAULT";
+		return "DEFAULT"; //$NON-NLS-1$
 	}
 
 	@Override
 	public String getLabel() {
-		return "Eclipse Standard (Restore Defaults)";
+		return Messages.ResetTheme_Name;
 	}
 
 	@Override

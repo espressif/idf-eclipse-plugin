@@ -5,7 +5,7 @@ import org.eclipse.terminal.model.TerminalColor;
 public class EspressifDarkTheme extends CustomTheme {
 
 	public EspressifDarkTheme() {
-		super("DARK", "Espressif Dark");
+		super("DARK", Messages.EspressifDarkTheme_Name); //$NON-NLS-1$
 	}
 
 	@Override

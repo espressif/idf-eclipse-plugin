@@ -107,7 +107,7 @@ public class IDFConsoleWizardConfigurationPanel extends AbstractExtendedConfigur
 	 */
 	private void createThemeUI(Composite parent) {
 		Group group = new Group(parent, SWT.NONE);
-		group.setText("Terminal Color Presets");
+		group.setText(Messages.IDFConsoleWizardConfigurationPanel_TerminalColorPresetsLbl);
 		group.setLayout(new GridLayout(1, false));
 		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
@@ -121,7 +121,7 @@ public class IDFConsoleWizardConfigurationPanel extends AbstractExtendedConfigur
 		}
 
 		Label noteLabel = new Label(group, SWT.WRAP);
-		noteLabel.setText("Note: This setting applies globally to all Terminal views in the workspace.");
+		noteLabel.setText(Messages.IDFConsoleWizardConfigurationPanel_TerminalColorPresetsNote);
 		noteLabel.setFont(JFaceResources.getFontRegistry().getItalic(JFaceResources.DIALOG_FONT));
 		GridData noteData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		noteData.verticalIndent = 5;
