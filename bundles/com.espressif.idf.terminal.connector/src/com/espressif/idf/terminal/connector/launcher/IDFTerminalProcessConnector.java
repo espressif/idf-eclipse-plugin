@@ -46,13 +46,7 @@ public class IDFTerminalProcessConnector extends ProcessConnector {
 	}
 
 	private String buildActivationCommand(String scriptPath) {
-		if (Platform.OS_WIN32.equals(Platform.getOS())) {
-			// Windows (PowerShell): Remove-Module fixes the PSReadLine color/white-screen issue
-			return "Remove-Module PSReadLine -ErrorAction SilentlyContinue; . \"" + scriptPath + "\"\r\n"; //$NON-NLS-1$ //$NON-NLS-2$
-		} else {
-			// Linux / macOS (Bash/Zsh)
-			return ". \"" + scriptPath + "\"\r\n"; //$NON-NLS-1$ //$NON-NLS-2$
-		}
+		return ". \"" + scriptPath + "\"\r\n"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	private void sendCommand(OutputStream out, String command) {
