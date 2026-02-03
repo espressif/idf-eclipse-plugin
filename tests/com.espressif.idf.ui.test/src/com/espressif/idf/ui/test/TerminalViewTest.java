@@ -126,10 +126,21 @@ public class TerminalViewTest
 		// Wait for the command to execute
 		bot.sleep(5000);
 
-		// Read the output from the temporary file
-		String output = new String(Files.readAllBytes(tempFile), StandardCharsets.UTF_8);
+		// Read raw bytes first
+		byte[] bytes = Files.readAllBytes(tempFile);
+		String output;
 
-		assertTrue("Output should contain 'IDF v'", output.contains("IDF v"));
+		// Check for UTF-16LE BOM (0xFF, 0xFE)
+		if (bytes.length >= 2 && (bytes[0] & 0xFF) == 0xFF && (bytes[1] & 0xFF) == 0xFE)
+		{
+			output = new String(bytes, StandardCharsets.UTF_16LE);
+		}
+		else
+		{
+			output = new String(bytes, StandardCharsets.UTF_8);
+		}
+
+		assertTrue("Output did not contain 'IDF v'. Actual output was:\n" + output, output.contains("IDF v"));
 		// Optional: delete the temp file explicitly after test
 		Files.deleteIfExists(tempFile);
 	}

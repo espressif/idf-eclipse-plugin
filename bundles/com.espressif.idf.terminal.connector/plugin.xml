@@ -6,7 +6,7 @@
 <!-- uses process connector -->
    <extension point="org.eclipse.terminal.control.connectors">
       <connector
-            class="org.eclipse.terminal.connector.process.ProcessConnector"
+            class="com.espressif.idf.terminal.connector.launcher.IDFTerminalProcessConnector"
             hidden="true"
             id="com.espressif.idf.terminal.connector.espidfConnector"
             name="%TerminalConnector.local"/>
