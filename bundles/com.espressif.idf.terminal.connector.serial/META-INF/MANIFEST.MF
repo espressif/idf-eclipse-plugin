@@ -9,7 +9,7 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.8.0",
  org.eclipse.cdt.native.serial;bundle-version="1.0.0",
  com.espressif.idf.ui,
  com.espressif.idf.serial.monitor,
- org.eclipse.terminal.view.core;bundle-version="[1.0.0,2.0.0)",
+ org.eclipse.terminal.view.core,
  org.eclipse.terminal.view.ui;bundle-version="[1.0.0,2.0.0)",
  org.eclipse.terminal.control;bundle-version="[1.0.0,2.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
