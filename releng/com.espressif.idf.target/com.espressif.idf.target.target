@@ -23,6 +23,7 @@
 			<unit id="org.eclipse.cdt.sdk.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.cdt.cmake.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.terminal.feature.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.terminal.view.core" version="0.0.0"/>
 			<unit id="org.apache.commons.logging" version="0.0.0"/>
 			<unit id="org.eclipse.launchbar.feature.group" version="0.0.0"/>
 			<unit id="org.eclipse.epp.mpc.feature.group" version="0.0.0"/>
