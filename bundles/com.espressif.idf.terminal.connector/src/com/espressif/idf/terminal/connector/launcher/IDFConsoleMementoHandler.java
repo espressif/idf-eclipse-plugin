@@ -23,17 +23,23 @@ import org.eclipse.ui.IMemento;
  */
 public class IDFConsoleMementoHandler implements IMementoHandler {
 
+	private static final String TERMINALS_VIEW_ID = "org.eclipse.terminal.view.ui.TerminalsView"; //$NON-NLS-1$
+	private static final String PROPERTY_ID = "id"; //$NON-NLS-1$
+
 	@Override
 	public void saveState(IMemento memento, Map<String, Object> properties) {
 		Assert.isNotNull(memento);
 		Assert.isNotNull(properties);
 	}
 
+
 	@Override
 	public void restoreState(IMemento memento, Map<String, Object> properties) {
 		Assert.isNotNull(memento);
 		Assert.isNotNull(properties);
-		Assert.isTrue("org.eclipse.tm.terminal.view.ui.TerminalsView".equals(memento.getID()), //$NON-NLS-1$
-				Messages.IDFConsoleMementoHandler_TerminalNameOutdatedMsg);
+
+		Object terminalId = properties.get(PROPERTY_ID);
+
+		Assert.isTrue(TERMINALS_VIEW_ID.equals(terminalId), Messages.IDFConsoleMementoHandler_TerminalNameOutdatedMsg);
 	}
 }
