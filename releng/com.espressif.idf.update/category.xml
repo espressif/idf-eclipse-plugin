@@ -30,9 +30,6 @@
    <feature id="org.eclipse.tm4e.language_pack.feature">
       <category name="com.espressif.idf"/>
    </feature>
-   <feature id="org.eclipse.justj.openjdk.hotspot.jre.full">
-      <category name="com.espressif.idf.dependencies"/>
-   </feature>
    <feature id="org.eclipse.terminal.feature">
       <category name="com.espressif.idf.dependencies"/>
    </feature>
