@@ -33,6 +33,12 @@
    <feature id="org.eclipse.justj.openjdk.hotspot.jre.full">
       <category name="com.espressif.idf.dependencies"/>
    </feature>
+   <feature id="org.eclipse.terminal.feature">
+      <category name="com.espressif.idf.dependencies"/>
+   </feature>
+   <feature id="org.eclipse.launchbar">
+      <category name="com.espressif.idf.dependencies"/>
+   </feature>
    <bundle id="org.eclipse.embedcdt.templates.core">
       <category name="com.espressif.idf"/>
    </bundle>
