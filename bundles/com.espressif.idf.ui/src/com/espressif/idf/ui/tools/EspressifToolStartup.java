@@ -72,13 +72,7 @@ public class EspressifToolStartup implements IStartup
 	@Override
 	public void earlyStartup()
 	{
-		IIntroPart introPart = PlatformUI.getWorkbench().getIntroManager().getIntro();
-
-		if (introPart != null)
-		{
-			PlatformUI.getWorkbench().getIntroManager().showIntro(PlatformUI.getWorkbench().getActiveWorkbenchWindow(),
-					false);
-		}
+		restoreIntroPage();
 		preferences = org.eclipse.core.runtime.preferences.InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 		toolInitializer = new ToolInitializer(preferences);
 		standardConsoleStream = getConsoleStream(false);
@@ -134,6 +128,20 @@ public class EspressifToolStartup implements IStartup
 			toolInitializer.findAndSetEimPath();
 		}
 
+	}
+
+	private void restoreIntroPage()
+	{
+		Display.getDefault().asyncExec(() -> {
+			IIntroPart introPart = PlatformUI.getWorkbench().getIntroManager().getIntro();
+
+			if (introPart != null)
+			{
+				PlatformUI.getWorkbench().getIntroManager().closeIntro(introPart);
+				PlatformUI.getWorkbench().getIntroManager()
+						.showIntro(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), false);
+			}
+		});
 	}
 
 	private boolean checkIfEimPathMacOsIsInApplications()
