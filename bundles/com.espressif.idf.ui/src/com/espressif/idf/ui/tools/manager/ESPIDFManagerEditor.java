@@ -57,7 +57,7 @@ public class ESPIDFManagerEditor extends EditorPart
 
 		if (input instanceof EimEditorInput eimInput)
 		{
-			ESPIDFMainTablePage espidfMainTablePage = ESPIDFMainTablePage.getInstance(eimInput.getEimJson());
+			ESPIDFMainTablePage espidfMainTablePage = new ESPIDFMainTablePage(eimInput.getEimJson());
 			espidfMainTablePage.createPage(parent);
 			if (eimInput.isFirstStartup())
 			{
