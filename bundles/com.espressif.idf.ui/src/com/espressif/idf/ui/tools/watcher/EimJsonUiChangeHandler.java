@@ -99,7 +99,7 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 						{
 							Logger.log(e);
 						}
-						ESPIDFMainTablePage.getInstance(eimJson).refreshEditorUI();
+						new ESPIDFMainTablePage(eimJson).refreshEditorUI();
 					});
 				}
 			}
@@ -124,7 +124,7 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 		SetupToolsInIde setupToolsInIde = new SetupToolsInIde(eimJson.getIdfInstalled().get(0), eimJson,
 				getConsoleStream(true), getConsoleStream(false));
 		SetupToolsJobListener toolsActivationJobListener = new SetupToolsJobListener(
-				ESPIDFMainTablePage.getInstance(eimJson), setupToolsInIde);
+				new ESPIDFMainTablePage(eimJson), setupToolsInIde);
 		setupToolsInIde.addJobChangeListener(toolsActivationJobListener);
 		setupToolsInIde.schedule();
 	}
