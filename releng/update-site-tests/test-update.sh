@@ -62,11 +62,6 @@ echo "Installing stable plugin..."
   -application org.eclipse.equinox.p2.director \
   -repository "$STABLE_REPO" \
   -installIU "$FEATURE_ID" \
-  -destination "$ECLIPSE_HOME" \
-  -profile SDKProfile \
-  -bundlepool "$WORKDIR/p2" \
-  -profileProperties org.eclipse.update.install.features=true \
-  -roaming \
   -consoleLog \
   | tee "$LOGDIR/stable-install.log"
 
