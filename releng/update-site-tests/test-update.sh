@@ -47,7 +47,7 @@ echo "Extracting stable plugin..."
 mkdir -p "$WORKDIR/stable-repo"
 unzip -q "$WORKDIR/stable.zip" -d "$WORKDIR/stable-repo"
 
-STABLE_REPO="file://$WORKDIR/stable-repo"
+STABLE_REPO="file://$WORKDIR/stable-repo/artifacts/update"
 
 ############################################
 # STEP 3: INSTALL STABLE PLUGIN
