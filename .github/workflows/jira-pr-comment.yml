@@ -1,0 +1,92 @@
+---
+# FILE: .github/workflows/jira-pr-comment.yml
+#
+# This GitHub Actions workflow automatically adds a PR link comment to the corresponding Jira ticket.
+# It extracts the Jira issue key from the PR title (format: EIM-12345: description) and posts a comment.
+#
+# Error Handling:
+# - If no issue key is found in the PR title, the workflow skips silently (no failure)
+# - If the Jira issue doesn't exist or API fails, the workflow logs a warning but doesn't fail
+# - This ensures developers are never blocked by Jira integration issues
+
+name: 🔗 Add PR Link to Jira
+
+run-name: >
+  Add PR Link to Jira - PR #${{ github.event.pull_request.number }}
+
+on:
+  pull_request:
+    types: [opened, reopened]
+
+jobs:
+  add-pr-comment-to-jira:
+    name: Add PR Comment to Jira
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract Jira Issue Key from PR Title
+        id: extract
+        run: |
+          TITLE="${{ github.event.pull_request.title }}"
+          echo "PR Title: $TITLE"
+
+          # Match pattern: EIM-12345: description
+          if [[ "$TITLE" =~ ^(EIM-[0-9]+): ]]; then
+            ISSUE_KEY="${BASH_REMATCH[1]}"
+            echo "Found Jira issue key: $ISSUE_KEY"
+            echo "issue_key=$ISSUE_KEY" >> $GITHUB_OUTPUT
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "No Jira issue key found in PR title. Expected format: EIM-12345: description"
+            echo "Skipping Jira comment..."
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Add PR Comment to Jira Issue
+        if: steps.extract.outputs.found == 'true'
+        env:
+          JIRA_USER: ${{ secrets.JIRA_USER }}
+          JIRA_PASS: ${{ secrets.JIRA_PASS }}
+          JIRA_URL: ${{ secrets.JIRA_URL }}
+          ISSUE_KEY: ${{ steps.extract.outputs.issue_key }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          echo "Adding comment to Jira issue: $ISSUE_KEY"
+          echo "PR URL: $PR_URL"
+
+          # Handle JIRA_PASS format - it may have "token:" prefix (per espressif/sync-jira-actions convention)
+          # If prefixed with "token:", use Bearer token auth; otherwise use Basic Auth
+          if [[ "$JIRA_PASS" == token:* ]]; then
+            # Strip "token:" prefix and use Bearer token authentication
+            TOKEN="${JIRA_PASS#token:}"
+            AUTH_HEADER="Authorization: Bearer $TOKEN"
+            echo "Using Bearer token authentication"
+          else
+            # Use Basic Auth with username:password
+            AUTH_HEADER="Authorization: Basic $(echo -n "$JIRA_USER:$JIRA_PASS" | base64)"
+            echo "Using Basic authentication"
+          fi
+
+          # Make the API call and capture the response
+          HTTP_RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "$AUTH_HEADER" \
+            -d "{\"body\": \"PR: $PR_URL\"}" \
+            "$JIRA_URL/rest/api/2/issue/$ISSUE_KEY/comment")
+
+          # Extract HTTP status code (last line) and response body
+          HTTP_STATUS=$(echo "$HTTP_RESPONSE" | tail -n 1)
+          RESPONSE_BODY=$(echo "$HTTP_RESPONSE" | sed '$d')
+
+          echo "Jira API Response Status: $HTTP_STATUS"
+
+          # Check if the request was successful
+          if [[ "$HTTP_STATUS" -ge 200 && "$HTTP_STATUS" -lt 300 ]]; then
+            echo "Successfully added PR comment to Jira issue $ISSUE_KEY"
+          else
+            echo "::warning::Failed to add comment to Jira issue $ISSUE_KEY (HTTP $HTTP_STATUS)"
+            echo "This could mean the issue doesn't exist or there's an authentication problem."
+            echo "Response: $RESPONSE_BODY"
+            # Don't fail the workflow - just warn
+            echo "Continuing without failing the workflow..."
+          fi
