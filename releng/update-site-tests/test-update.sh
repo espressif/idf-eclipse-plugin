@@ -7,7 +7,10 @@ set -e
 ############################################
 
 # Eclipse download
-ECLIPSE_URL="https://ftp.osuosl.org/pub/eclipse/technology/epp/downloads/release/2025-09/R/eclipse-cpp-2025-09-R-linux-gtk-x86_64.tar.gz"
+ECLIPSE_URL="https://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/2025-09/R/eclipse-cpp-2025-09-R-linux-gtk-x86_64.tar.gz"
+
+# Eclipse release repository
+ECLIPSE_RELEASE_REPO="https://download.eclipse.org/releases/2025-09"
 
 # Stable plugin zip
 STABLE_ZIP_URL="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/com.espressif.idf.update-v4.0.0.zip"
@@ -71,7 +74,7 @@ echo "Installing stable plugin..."
   -data "$WORKDIR/workspace" \
   -configuration "$WORKDIR/configuration" \
   -application org.eclipse.equinox.p2.director \
-  -repository "$STABLE_REPO" \
+  -repository "$STABLE_REPO,$ECLIPSE_RELEASE_REPO" \
   -installIU "$FEATURE_ID" \
   -consoleLog \
   | tee "$LOGDIR/stable-install.log"
@@ -94,12 +97,8 @@ echo "Installing RC plugin..."
   -data "$WORKDIR/workspace" \
   -configuration "$WORKDIR/configuration" \
   -application org.eclipse.equinox.p2.director \
-  -repository "$RC_REPO" \
+  -repository "$RC_REPO,$ECLIPSE_RELEASE_REPO" \
   -installIU "$FEATURE_ID" \
-  -destination "$ECLIPSE_HOME" \
-  -profile SDKProfile \
-  -bundlepool "$WORKDIR/p2" \
-  -roaming \
   -consoleLog \
   | tee "$LOGDIR/rc-install.log"
 
