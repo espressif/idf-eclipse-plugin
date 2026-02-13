@@ -2,11 +2,6 @@
 set -x
 set -e
 
-echo "Cleaning previous workdir and logs..."
-rm -rf "$WORKDIR"
-rm -rf "$LOGDIR"
-mkdir -p "$WORKDIR" "$LOGDIR"
-
 ############################################
 # CONFIGURATION
 ############################################
@@ -27,6 +22,10 @@ FEATURE_ID="com.espressif.idf.feature.feature.group"
 WORKDIR="${WORKDIR:-$PWD/releng/update-site-tests/workdir}"
 LOGDIR="${LOGDIR:-$PWD/releng/update-site-tests/logs}"
 REPORT="${REPORT_FILE:-$PWD/releng/update-site-tests/report.txt}"
+
+echo "Cleaning previous workdir and logs..."
+rm -rf "${WORKDIR:?}"
+rm -rf "${LOGDIR:?}"
 
 mkdir -p "$WORKDIR" "$LOGDIR"
 
