@@ -2,7 +2,7 @@
 # FILE: .github/workflows/jira-pr-comment.yml
 #
 # This GitHub Actions workflow automatically adds a PR link comment to the corresponding Jira ticket.
-# It extracts the Jira issue key from the PR title (format: EIM-12345: description) and posts a comment.
+# It extracts the Jira issue key from the PR title (format: IEP-12345: description) and posts a comment.
 #
 # Error Handling:
 # - If no issue key is found in the PR title, the workflow skips silently (no failure)
@@ -29,14 +29,14 @@ jobs:
           TITLE="${{ github.event.pull_request.title }}"
           echo "PR Title: $TITLE"
 
-          # Match pattern: EIM-12345: description
-          if [[ "$TITLE" =~ ^(EIM-[0-9]+): ]]; then
+          # Match pattern: IEP-12345: description
+          if [[ "$TITLE" =~ ^(IEP-[0-9]+): ]]; then
             ISSUE_KEY="${BASH_REMATCH[1]}"
             echo "Found Jira issue key: $ISSUE_KEY"
             echo "issue_key=$ISSUE_KEY" >> $GITHUB_OUTPUT
             echo "found=true" >> $GITHUB_OUTPUT
           else
-            echo "No Jira issue key found in PR title. Expected format: EIM-12345: description"
+            echo "No Jira issue key found in PR title. Expected format: IEP-12345: description"
             echo "Skipping Jira comment..."
             echo "found=false" >> $GITHUB_OUTPUT
           fi
