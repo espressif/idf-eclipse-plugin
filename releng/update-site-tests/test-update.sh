@@ -99,6 +99,7 @@ echo "Installing RC plugin..."
   -application org.eclipse.equinox.p2.director \
   -repository "$RC_REPO,$ECLIPSE_RELEASE_REPO" \
   -installIU "$FEATURE_ID" \
+  -updateIU "$FEATURE_ID" \
   -consoleLog \
   | tee "$LOGDIR/rc-install.log"
 
