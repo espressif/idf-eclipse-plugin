@@ -7,7 +7,7 @@ set -e
 ############################################
 
 # Eclipse download
-ECLIPSE_URL="https://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/2025-09/R/eclipse-cpp-2025-09-R-linux-gtk-x86_64.tar.gz"
+ECLIPSE_URL="https://ftp.osuosl.org/pub/eclipse/technology/epp/downloads/release/2025-09/R/eclipse-cpp-2025-09-R-linux-gtk-x86_64.tar.gz"
 
 # Eclipse release repository
 ECLIPSE_RELEASE_REPO="https://download.eclipse.org/releases/2025-09"
