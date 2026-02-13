@@ -2,6 +2,11 @@
 set -x
 set -e
 
+echo "Cleaning previous workdir and logs..."
+rm -rf "$WORKDIR"
+rm -rf "$LOGDIR"
+mkdir -p "$WORKDIR" "$LOGDIR"
+
 ############################################
 # CONFIGURATION
 ############################################
