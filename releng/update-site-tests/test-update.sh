@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 set -e
 
 ############################################
@@ -49,6 +50,12 @@ unzip -q "$WORKDIR/stable.zip" -d "$WORKDIR/stable-repo"
 
 STABLE_REPO="file://$WORKDIR/stable-repo/artifacts/update"
 
+echo "Listing installed roots before stable:"
+"$ECLIPSE_HOME/eclipse" \
+  -nosplash \
+  -application org.eclipse.equinox.p2.director \
+  -listInstalledRoots \
+  -consoleLog
 ############################################
 # STEP 3: INSTALL STABLE PLUGIN
 ############################################
