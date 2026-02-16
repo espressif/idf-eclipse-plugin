@@ -88,6 +88,15 @@ if [ $STABLE_EXIT -ne 0 ]; then
 fi
 echo "✅ Stable plugin installed successfully"
 
+echo "=== Installed IUs before RC install ==="
+"$ECLIPSE_HOME/eclipse" \
+  -nosplash \
+  -application org.eclipse.equinox.p2.director \
+  -listInstalledIUs \
+  -destination "$ECLIPSE_HOME" \
+  -profile SDKProfile \
+  | tee "$LOGDIR/diagnostic-before-RC.log"
+
 ############################################
 # STEP 4: INSTALL RC PLUGIN
 ############################################
@@ -112,6 +121,15 @@ if [ $RC_EXIT -ne 0 ]; then
     exit 1
 fi
 echo "✅ RC plugin installed successfully"
+
+echo "=== Installed IUs after RC install ==="
+"$ECLIPSE_HOME/eclipse" \
+  -nosplash \
+  -application org.eclipse.equinox.p2.director \
+  -listInstalledIUs \
+  -destination "$ECLIPSE_HOME" \
+  -profile SDKProfile \
+  | tee "$LOGDIR/diagnostic-after-RC.log"
 
 ############################################
 # STEP 5: CHECK FOR CONFLICTS IN LOGS
