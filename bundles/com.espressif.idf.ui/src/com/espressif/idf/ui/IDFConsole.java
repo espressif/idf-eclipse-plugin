@@ -9,6 +9,7 @@ import java.net.URL;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
@@ -41,7 +42,6 @@ public class IDFConsole
 		msgConsole.setCarriageReturnAsControlCharacter(handleControlChars);
 		msgConsole.clearConsole();
 		MessageConsoleStream console = msgConsole.newMessageStream();
-		msgConsole.activate();
 
 		// Open console view so that users can see the output
 		Display.getDefault().asyncExec(new Runnable()
@@ -90,7 +90,7 @@ public class IDFConsole
 		try
 		{
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-					.showView(IConsoleConstants.ID_CONSOLE_VIEW);
+					.showView(IConsoleConstants.ID_CONSOLE_VIEW, null, IWorkbenchPage.VIEW_VISIBLE);
 		}
 		catch (PartInitException e)
 		{
