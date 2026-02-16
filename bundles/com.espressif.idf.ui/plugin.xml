@@ -723,13 +723,6 @@
 			id="com.espressif.idf.ui.installComponents"
 			name="%editor.name.1">
 		</editor>
-		<editor
-			class="com.espressif.idf.ui.tools.manager.ESPIDFManagerEditor"
-			default="false"
-			icon="icons/ESP-IDFManageToolsInstallation.png"
-			id="com.espressif.idf.ui.manageespidf"
-			name="%editor.espidf.manager.name">
-		</editor>
   <editor
         class="com.espressif.idf.ui.nvs.dialog.NvsEditor"
         default="false"
@@ -782,6 +775,15 @@
 			name="%build_hints.name"
 			restorable="true">
 		</view>
+	    <view
+	    	allowMultiple="false"
+	  		category="com.espressif.idf.ui.category"
+	        class="com.espressif.idf.ui.tools.manager.ESPIDFManagerView"
+	        icon="icons/ESP-IDFManageToolsInstallation.png"
+	        id="com.espressif.idf.ui.manageespidf"
+	        name="%editor.espidf.manager.name"
+	        restorable="true">
+	    </view>
 	</extension>
 	<extension
 		point="org.eclipse.ui.intro">

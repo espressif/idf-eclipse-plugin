@@ -1,7 +1,3 @@
-/*******************************************************************************
- * Copyright 2024 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
- * Use is subject to license terms.
- *******************************************************************************/
 package com.espressif.idf.ui.tools.manager.pages;
 
 import java.awt.Desktop;
@@ -9,6 +5,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.resource.JFaceResources;
@@ -35,6 +32,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.console.MessageConsoleStream;
+import org.osgi.service.prefs.BackingStoreException;
 
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.EimConstants;
@@ -53,7 +51,9 @@ import com.espressif.idf.ui.tools.SetupToolsJobListener;
 
 public class ESPIDFMainTablePage
 {
-
+	// Preference Constants
+	private static final String PREF_SORT_COL = "EspIdfManager_SortCol"; //$NON-NLS-1$
+	private static final String PREF_SORT_DIR = "EspIdfManager_SortDir"; //$NON-NLS-1$
 	private static final String HTTPS_DL_ESPRESSIF_COM_DL_ESP_IDF_SUPPORT_PERIODS_SVG = "https://dl.espressif.com/dl/esp-idf/support-periods.svg"; //$NON-NLS-1$
 
 	private record IdfRow(IdfInstalled original, boolean isActive, String version, String name, String path)
@@ -74,6 +74,9 @@ public class ESPIDFMainTablePage
 
 	private final IDFConsole idfConsole = new IDFConsole();
 	private IdfInstalled currentInstallingNode = null;
+
+	// Access to Eclipse Preferences
+	private final IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 
 	public ESPIDFMainTablePage(EimJson eimJson)
 	{
@@ -98,6 +101,13 @@ public class ESPIDFMainTablePage
 		}
 
 		return container;
+	}
+
+	// ... (setFocus and createHeader methods remain unchanged) ...
+
+	public void setFocus()
+	{
+		tableViewer.getControl().setFocus();
 	}
 
 	private void createHeader(Composite parent)
@@ -125,6 +135,7 @@ public class ESPIDFMainTablePage
 		eimLaunchBtn.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
 		eimLaunchBtn.addSelectionListener(new EimButtonLaunchListener(this, Display.getDefault(),
 				getConsoleStream(false), getConsoleStream(true)));
+
 	}
 
 	private void createMainContent(Composite parent)
@@ -147,9 +158,23 @@ public class ESPIDFMainTablePage
 		table.addListener(SWT.MeasureItem, e -> e.height = 28);
 
 		tableViewer.setContentProvider(ArrayContentProvider.getInstance());
+
+		// --- 1. Restore Sorting Preference ---
+		// Default to Column 1 (Version) and DOWN if no preference exists
+		int savedCol = prefs.getInt(PREF_SORT_COL, 1);
+		int savedDir = prefs.getInt(PREF_SORT_DIR, SWT.DOWN);
+
+		comparator.restoreState(savedCol, savedDir);
 		tableViewer.setComparator(comparator);
 
 		createColumns(tableViewer, tableLayout);
+
+		// --- 2. Apply Visual Sort Indicator ---
+		if (savedCol >= 0 && savedCol < table.getColumnCount())
+		{
+			table.setSortColumn(table.getColumn(savedCol));
+			table.setSortDirection(savedDir);
+		}
 
 		// --- Buttons ---
 		var buttonComp = new Composite(group, SWT.NONE);
@@ -166,9 +191,9 @@ public class ESPIDFMainTablePage
 		tableViewer.addDoubleClickListener(event -> {
 			var idf = getSelectedIdf();
 			if (idf != null && !idf.equals(currentInstallingNode) && !ToolsUtility.isIdfInstalledActive(idf))
-				{
-					performToolsSetup(idf);
-				}
+			{
+				performToolsSetup(idf);
+			}
 
 		});
 
@@ -179,14 +204,12 @@ public class ESPIDFMainTablePage
 			{
 				if (e.widget == btnActivate)
 				{
-					// Activate depends on SELECTION
 					var idf = getSelectedIdf();
 					if (idf != null)
 						performToolsSetup(idf);
 				}
 				else if (e.widget == btnReinstall)
 				{
-					// Update Environment depends on ACTIVE STATUS (ignores selection)
 					performUpdateOnActiveIdf();
 				}
 			}
@@ -197,12 +220,13 @@ public class ESPIDFMainTablePage
 		updateButtonState();
 	}
 
+	// ... (performUpdateOnActiveIdf and createActionButton remain unchanged) ...
+
 	private void performUpdateOnActiveIdf()
 	{
 		if (tableViewer.getInput() instanceof List<?> list)
 		{
-			list.stream().filter(IdfRow.class::isInstance).map(o -> (IdfRow) o).filter(
-					IdfRow::isActive)
+			list.stream().filter(IdfRow.class::isInstance).map(o -> (IdfRow) o).filter(IdfRow::isActive)
 
 					.findFirst().ifPresent(row -> performToolsSetup(row.original()));
 		}
@@ -218,6 +242,8 @@ public class ESPIDFMainTablePage
 		btn.setLayoutData(gd);
 		return btn;
 	}
+
+	// ... (createColumns unchanged but createCol modified below) ...
 
 	private void createColumns(TableViewer viewer, TableColumnLayout layout)
 	{
@@ -285,8 +311,12 @@ public class ESPIDFMainTablePage
 		col.setLabelProvider(labelProvider);
 		layout.setColumnData(col.getColumn(), new ColumnWeightData(weight, 100, true));
 		col.getColumn().addListener(SWT.Selection, e -> {
+			// Update Comparator
 			comparator.setColumn(sortIndex);
+			// Update UI
 			updateSortIndicator(col.getColumn());
+			// Save State
+			saveSortState();
 		});
 	}
 
@@ -297,6 +327,23 @@ public class ESPIDFMainTablePage
 		table.setSortDirection(comparator.getDirection());
 		tableViewer.refresh();
 	}
+
+	private void saveSortState()
+	{
+		prefs.putInt(PREF_SORT_COL, comparator.getPropertyIndex());
+		prefs.putInt(PREF_SORT_DIR, comparator.getDirection());
+		try
+		{
+			prefs.flush();
+		}
+		catch (BackingStoreException e)
+		{
+			Logger.log(e.toString());
+		}
+	}
+
+	// ... (updateButtonState, hasActiveIdf, getSelectedIdf, performToolsSetup, refreshEditorUI,
+	// updateLaunchButtonState, setupInitialEspIdf, getConsoleStream remain unchanged) ...
 
 	private void updateButtonState()
 	{
@@ -312,7 +359,6 @@ public class ESPIDFMainTablePage
 			return;
 		}
 
-		// 1. Activate Button Logic: Linked to SELECTION
 		var selected = getSelectedIdf();
 		if (selected == null)
 		{
@@ -320,12 +366,9 @@ public class ESPIDFMainTablePage
 		}
 		else
 		{
-			// Can only activate if it is NOT currently active
 			btnActivate.setEnabled(!ToolsUtility.isIdfInstalledActive(selected));
 		}
 
-		// 2. Update Button Logic: Linked to GLOBAL STATE (Always enabled if an active ID exists)
-		// We do not care what is selected; we only care if there is an active IDF to update.
 		btnReinstall.setEnabled(hasActiveIdf());
 	}
 
@@ -448,6 +491,18 @@ public class ESPIDFMainTablePage
 		private int propertyIndex = 0;
 		private int direction = SWT.DOWN;
 
+		/**
+		 * Used to set initial state from preferences without toggling
+		 */
+		public void restoreState(int column, int dir)
+		{
+			this.propertyIndex = column;
+			this.direction = dir;
+		}
+
+		/**
+		 * Standard toggle behavior for click events
+		 */
 		public void setColumn(int column)
 		{
 			if (column == this.propertyIndex)
@@ -464,6 +519,11 @@ public class ESPIDFMainTablePage
 		public int getDirection()
 		{
 			return direction;
+		}
+
+		public int getPropertyIndex()
+		{
+			return propertyIndex;
 		}
 
 		@Override
