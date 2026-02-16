@@ -71,11 +71,13 @@ echo "Installing stable plugin..."
 "$ECLIPSE_HOME/eclipse" \
   -nosplash \
   -clean \
-  -data "$WORKDIR/workspace" \
-  -configuration "$WORKDIR/configuration" \
   -application org.eclipse.equinox.p2.director \
   -repository "$STABLE_REPO,$ECLIPSE_RELEASE_REPO" \
   -installIU "$FEATURE_ID" \
+  -destination "$ECLIPSE_HOME" \
+  -profile SDKProfile \
+  -bundlepool "$WORKDIR/p2" \
+  -roaming \
   -consoleLog \
   | tee "$LOGDIR/stable-install.log"
 
@@ -94,12 +96,13 @@ echo "Installing RC plugin..."
 "$ECLIPSE_HOME/eclipse" \
   -nosplash \
   -clean \
-  -data "$WORKDIR/workspace" \
-  -configuration "$WORKDIR/configuration" \
   -application org.eclipse.equinox.p2.director \
   -repository "$RC_REPO,$ECLIPSE_RELEASE_REPO" \
   -installIU "$FEATURE_ID" \
-  -updateIU "$FEATURE_ID" \
+  -destination "$ECLIPSE_HOME" \
+  -profile SDKProfile \
+  -bundlepool "$WORKDIR/p2" \
+  -roaming \
   -consoleLog \
   | tee "$LOGDIR/rc-install.log"
 
