@@ -48,8 +48,9 @@ jobs:
 
     - name: Run Eclipse Update Site Test
       run: |
+        chmod +x releng/update-site-tests/detect-latest-eclipse.sh
         chmod +x releng/update-site-tests/test-update.sh
-        releng/update-site-tests/test-update.sh
+        releng/update-site-tests/detect-latest-eclipse.sh
       env:
         LOGDIR: ${{ github.workspace }}/releng/update-site-tests/logs
         REPORT_FILE: ${{ github.workspace }}/releng/update-site-tests/report.txt

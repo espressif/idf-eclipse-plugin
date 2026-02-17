@@ -4,8 +4,10 @@ set -e
 set -o pipefail
 
 # CONFIGURATION
-ECLIPSE_URL="https://ftp.osuosl.org/pub/eclipse/technology/epp/downloads/release/2025-09/R/eclipse-cpp-2025-09-R-linux-gtk-x86_64.tar.gz"
-ECLIPSE_RELEASE_REPO="https://download.eclipse.org/releases/2025-09"
+ECLIPSE_URL="${ECLIPSE_URL:?ECLIPSE_URL not set}"
+LATEST_ECLIPSE_RELEASE="${LATEST_ECLIPSE_RELEASE:?LATEST_ECLIPSE_RELEASE not set}"
+
+ECLIPSE_RELEASE_REPO="https://download.eclipse.org/releases/$LATEST_ECLIPSE_RELEASE"
 STABLE_ZIP_URL="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/com.espressif.idf.update-v4.0.0.zip"
 RC_REPO="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/"
 FEATURE_ID="com.espressif.idf.feature.feature.group"
@@ -87,9 +89,9 @@ echo "✅ Release Candidate update installed successfully"
 STEP_SUMMARY+=("Step 4: Release Candidate update installed successfully - ✅")
 
 # STEP 5: EXTRACT INSTALLED VERSIONS
-STABLE_VERSION=$(grep -Eo "Installing com.espressif.idf.feature.feature.group [0-9\.]+" "$LOGDIR/stable-install.log" | awk '{print $3}')
-RC_VERSION=$(grep -Eo "Installing com.espressif.idf.feature.feature.group [0-9\.]+" "$LOGDIR/rc-installation-verify.log" | awk '{print $3}')
-UNINSTALL_VERSION=$(grep -Eo "Uninstalling com.espressif.idf.feature.feature.group [0-9\.]+" "$LOGDIR/rc-installation-verify.log" | awk '{print $3}')
+STABLE_VERSION=$(grep -Eo "Installing $FEATURE_ID [0-9\.]+" "$LOGDIR/stable-install.log" | awk '{print $3}')
+RC_VERSION=$(grep -Eo "Installing $FEATURE_ID [0-9\.]+" "$LOGDIR/rc-installation-verify.log" | awk '{print $3}')
+UNINSTALL_VERSION=$(grep -Eo "Installing $FEATURE_ID [0-9\.]+" "$LOGDIR/rc-installation-verify.log" | awk '{print $3}')
 
 echo "✅ Versions summary:"
 echo "  Stable installed: $STABLE_VERSION"
@@ -114,7 +116,7 @@ fi
 
 # STEP 7: CAPTURE INSTALLED ROOTS
 echo "Capturing installed roots..."
-"$ECLIPSE_HOME/eclipse" \
+if !"$ECLIPSE_HOME/eclipse" \
   -nosplash \
   -application org.eclipse.equinox.p2.director \
   -listInstalledRoots \
@@ -122,27 +124,46 @@ echo "Capturing installed roots..."
   -profile SDKProfile \
   -consoleLog \
   | tee "$LOGDIR/installed-roots.txt"
-
+then
+  STEP_SUMMARY+=("Step 6: Installed roots captured - ❌ FAILED")
+  echo "❌ Installed roots captured failed"
+  exit 1
+fi
 echo "✅ Installed roots captured"
 STEP_SUMMARY+=("Step 6: Installed roots captured - ✅")
 
 # STEP 8: GENERATE REPORT
 {
-    echo "Espressif IDE Upgrade Test Report"
-    echo "================================"
+    echo "ESP Eclipse Plug-in 'Update Site Test' Report"
+    echo "=============================================="
+    echo ""
+
+    echo "Summary:"
+    for step in "${STEP_SUMMARY[@]}"; do
+        echo "  - $step"
+    done
+
+    echo ""
+    echo "Environment:"
+    echo "  - Eclipse Version: $LATEST_ECLIPSE_RELEASE"
+    echo "  - Eclipse URL: $ECLIPSE_URL"
+    echo "  - Release Repo: $ECLIPSE_RELEASE_REPO"
+
+    echo ""
+    echo "Versions Summary:"
+    echo "  - Stable installed: $STABLE_VERSION"
+    echo "  - RC update applied: $RC_VERSION"
+    echo "  - RC update replaced: $UNINSTALL_VERSION"
+
+    echo ""
+    echo "Conflict Status: $CONFLICT_STATUS"
+    echo "Conflict Details:"
+    cat "$CONFLICT_FILE"
+
     echo ""
     echo "Installed Roots:"
     cat "$LOGDIR/installed-roots.txt"
-    echo ""
-    echo "Versions Summary:"
-    echo "  Stable installed: $STABLE_VERSION"
-    echo "  RC update applied: $RC_VERSION"
-    echo "  RC update replaced: $UNINSTALL_VERSION"
+
     echo ""
     echo "Logs directory: $LOGDIR"
 } > "$REPORT"
-
-echo "================================="
-echo "✅ Updape Site test completed successfully"
-echo "Report available at: $REPORT"
-echo "================================="
