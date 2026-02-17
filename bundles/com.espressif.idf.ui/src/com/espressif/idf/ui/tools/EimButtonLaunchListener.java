@@ -32,7 +32,7 @@ import com.espressif.idf.core.tools.launch.LaunchResult;
 import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.handlers.EclipseHandler;
-import com.espressif.idf.ui.tools.manager.ESPIDFManagerView;
+import com.espressif.idf.ui.tools.manager.ESPIDFManagerEditor;
 import com.espressif.idf.ui.tools.manager.EimEditorInput;
 import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
 
@@ -129,7 +129,7 @@ public class EimButtonLaunchListener extends SelectionAdapter
 			{
 				EimIdfConfiguratinParser eimIdfConfiguratinParser = new EimIdfConfiguratinParser();
 				EimJson eimJson = eimIdfConfiguratinParser.getEimJson(true);
-				IDE.openEditor(activeww.getActivePage(), new EimEditorInput(eimJson), ESPIDFManagerView.VIEW_ID,
+				IDE.openEditor(activeww.getActivePage(), new EimEditorInput(eimJson), ESPIDFManagerEditor.EDITOR_ID,
 						true);
 			}
 			catch (PartInitException| EimVersionMismatchException | IOException e)

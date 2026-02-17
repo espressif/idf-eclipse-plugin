@@ -37,7 +37,6 @@ import com.espressif.idf.core.tools.EimConstants;
 import com.espressif.idf.core.tools.EimLoader;
 import com.espressif.idf.core.tools.ToolInitializer;
 import com.espressif.idf.core.tools.exceptions.EimVersionMismatchException;
-import com.espressif.idf.core.tools.launch.LaunchResult;
 import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.core.tools.watcher.EimJsonWatchService;
 import com.espressif.idf.core.util.IDFUtil;
@@ -46,9 +45,11 @@ import com.espressif.idf.ui.GlobalModalLock;
 import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.handlers.EclipseHandler;
-import com.espressif.idf.ui.tools.manager.ESPIDFManagerView;
+import com.espressif.idf.ui.tools.manager.ESPIDFManagerEditor;
 import com.espressif.idf.ui.tools.manager.EimEditorInput;
 import com.espressif.idf.ui.tools.watcher.EimJsonUiChangeHandler;
+
+import com.espressif.idf.core.tools.launch.LaunchResult;
 
 /**
  * Startup class to handle the tools
@@ -235,7 +236,7 @@ public class EspressifToolStartup implements IStartup
 					IEditorReference[] editors = page.getEditorReferences();
 					for (IEditorReference editorRef : editors)
 					{
-						if (ESPIDFManagerView.VIEW_ID.equals(editorRef.getId()))
+						if (ESPIDFManagerEditor.EDITOR_ID.equals(editorRef.getId()))
 						{
 							IEditorPart editor = editorRef.getEditor(false);
 							if (editor != null)
@@ -332,7 +333,7 @@ public class EspressifToolStartup implements IStartup
 			{
 				EimEditorInput input = new EimEditorInput(eimJson);
 				input.setFirstStartup(true);
-				IDE.openEditor(window.getActivePage(), input, ESPIDFManagerView.VIEW_ID);
+				IDE.openEditor(window.getActivePage(), input, ESPIDFManagerEditor.EDITOR_ID);
 				IDFUtil.closeWelcomePage(window);
 			}
 			catch (PartInitException e)
