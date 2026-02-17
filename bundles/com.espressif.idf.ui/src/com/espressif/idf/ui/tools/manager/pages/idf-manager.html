@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP-IDF Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .guide-section {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .guide-text {
+            color: white;
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin: 0;
+            text-align: center;
+        }
+
+        .guide-text strong {
+            color: #ffd700;
+            font-weight: 600;
+        }
+
+        .guide-link {
+            color: #ffd700;
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.5);
+            transition: all 0.2s ease;
+        }
+
+        .guide-link:hover {
+            color: #fff;
+            border-bottom-color: #fff;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card.active {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            border: 2px solid #4ade80;
+        }
+
+        .card.active::before {
+            transform: scaleX(1);
+            background: #4ade80;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge.active {
+            background: #10b981;
+            color: white;
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+        }
+
+        .badge.active::before {
+            content: '●';
+            margin-right: 6px;
+            font-size: 1.2em;
+        }
+
+        .card-content {
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 0.95em;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #6b7280;
+            min-width: 80px;
+            margin-right: 10px;
+        }
+
+        .info-value {
+            color: #1f2937;
+            word-break: break-word;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-secondary:disabled {
+            border-color: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f3f4f6;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-icon:hover:not(:disabled) {
+            background: #e5e7eb;
+            border-color: #d1d5db;
+        }
+
+        .btn-icon:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            position: relative;
+            color: transparent !important;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 16px;
+            height: 16px;
+            margin: -8px 0 0 -8px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+        }
+
+        .empty-state h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 ESP-IDF Manager</h1>
+            <p>Manage and activate your ESP-IDF installations</p>
+        </div>
+        <div class="guide-section">
+            <p class="guide-text">
+                Select the version of ESP-IDF you want to use. Click the <strong>Activate</strong> button next to the version you want. 
+                For help in choosing the correct version, visit the 
+                <a href="https://dl.espressif.com/dl/esp-idf/support-periods.svg" target="_blank" class="guide-link">ESP-IDF Version Guide</a>.
+            </p>
+        </div>
+        <div id="cardsContainer" class="cards-container"></div>
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <h2>No ESP-IDF installations found</h2>
+            <p>Launch ESP-IDF Installation Manager(EIM) to install ESP-IDF versions</p>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript bridge functions
+        function updateCards(data) {
+            console.log('updateCards called with data:', data);
+            const container = document.getElementById('cardsContainer');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (!container) {
+                console.error('cardsContainer element not found!');
+                return;
+            }
+            
+            if (!data || data.length === 0) {
+                console.log('No data, showing empty state');
+                container.style.display = 'none';
+                if (emptyState) {
+                    emptyState.style.display = 'block';
+                }
+                return;
+            }
+            
+            console.log('Updating cards with ' + data.length + ' items');
+            container.style.display = 'grid';
+            if (emptyState) {
+                emptyState.style.display = 'none';
+            }
+            container.innerHTML = '';
+            
+            data.forEach((idf, index) => {
+                const card = createCard(idf, index);
+                container.appendChild(card);
+            });
+        }
+
+        function createCard(idf, index) {
+            const card = document.createElement('div');
+            card.className = 'card fade-in';
+            card.style.animationDelay = `${index * 0.1}s`;
+            if (idf.active) {
+                card.classList.add('active');
+            }
+            
+            card.innerHTML = `
+                <div class="card-header">
+                    <h3 style="margin: 0; font-size: 1.3em; color: #1f2937;">${escapeHtml(idf.name || 'ESP-IDF')}</h3>
+                    ${idf.active ? '<span class="badge active">Active</span>' : ''}
+                </div>
+                <div class="card-content">
+                    <div class="info-row">
+                        <span class="info-label">Version:</span>
+                        <span class="info-value">${escapeHtml(idf.version || 'Unknown')}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Path:</span>
+                        <span class="info-value">${escapeHtml(idf.path || '')}</span>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <button class="btn btn-primary" 
+                            onclick="handleActivate('${idf.id}')" 
+                            ${idf.active || idf.activating ? 'disabled' : ''}
+                            id="btn-activate-${idf.id}">
+                        ${idf.activating ? '<span class="loading"></span>' : (idf.active ? 'Active' : 'Activate')}
+                    </button>
+                    <button class="btn btn-icon" 
+                            onclick="handleReload('${idf.id}')" 
+                            ${!idf.active || idf.activating ? 'disabled' : ''}
+                            title="Reload from disk"
+                            id="btn-reload-${idf.id}">
+                        🔄
+                    </button>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function handleActivate(id) {
+            const btn = document.getElementById(`btn-activate-${id}`);
+            if (btn && !btn.disabled) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="loading"></span>';
+                // Disable all activate buttons
+                document.querySelectorAll('.btn-primary').forEach(b => {
+                    if (b.id !== btn.id) b.disabled = true;
+                });
+                // Call Java function
+                try {
+                    if (typeof javaActivate === 'function') {
+                        javaActivate(id);
+                    }
+                } catch (e) {
+                    console.error('Error calling javaActivate:', e);
+                }
+            }
+        }
+
+        function handleReload(id) {
+            const btn = document.getElementById(`btn-reload-${id}`);
+            if (btn && !btn.disabled) {
+                btn.disabled = true;
+                // Call Java function
+                try {
+                    if (typeof javaReload === 'function') {
+                        javaReload(id);
+                    }
+                } catch (e) {
+                    console.error('Error calling javaReload:', e);
+                }
+            }
+        }
+
+        // Expose functions globally for Java to call
+        window.updateCards = updateCards;
+        window.handleActivate = handleActivate;
+        window.handleReload = handleReload;
+    </script>
+</body>
+</html>

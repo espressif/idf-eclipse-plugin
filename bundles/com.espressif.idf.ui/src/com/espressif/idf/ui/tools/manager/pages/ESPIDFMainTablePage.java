@@ -4,26 +4,25 @@
  *******************************************************************************/
 package com.espressif.idf.ui.tools.manager.pages;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.layout.TableColumnLayout;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.ColumnWeightData;
-import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerCell;
-import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.TableEditor;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.BrowserFunction;
+import org.eclipse.swt.browser.ProgressEvent;
+import org.eclipse.swt.browser.ProgressListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -31,10 +30,9 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Link;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.console.MessageConsoleStream;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.logging.Logger;
@@ -61,24 +59,13 @@ import com.espressif.idf.ui.tools.SetupToolsJobListener;
 public class ESPIDFMainTablePage
 {
 	private Composite container;
-	private TableViewer tableViewer;
-	private ColumnViewerComparator comparator;
-	private TableViewerColumn versionColumn;
-	private TableViewerColumn locationColumn;
-	private TableViewerColumn activateColumn;
-	private TableViewerColumn removeColumn;
-	private TableViewerColumn nameColumn;
 	private Button eimLaunchBtn;
-
-	private TableColumnLayout tableColumnLayout;
-	private Composite tableComposite;
+	private Browser browser;
 	private List<IdfInstalled> idfInstalledList;
 	private static EimJson eimJson;
 	private EimIdfConfiguratinParser eimIdfConfiguratinParser;
 	private ToolInitializer toolInitializer;
-
-	private static final String RELOAD_ICON = "icons/tools/reload.png"; //$NON-NLS-1$
-	private static final String IDF_TOOL_SET_BTN_KEY = "IDFToolSet"; //$NON-NLS-1$
+	private Map<String, Boolean> activatingStates = new HashMap<>();
 
 	private static ESPIDFMainTablePage espidfMainTablePage;
 
@@ -104,34 +91,20 @@ public class ESPIDFMainTablePage
 	{
 		idfInstalledList = eimJson != null ? eimJson.getIdfInstalled() : null;
 		container = new Composite(composite, SWT.NONE);
-		final int numColumns = 2;
+		final int numColumns = 1;
 		GridLayout gridLayout = new GridLayout(numColumns, false);
 		container.setLayout(gridLayout);
-		createButtonAndGuideLink(container);
-		createIdfTable(container);
+		createEimLaunchButton(container);
+		createIdfWebView(container);
 		return container;
 	}
 
-	private void createButtonAndGuideLink(Composite composite)
+	private void createEimLaunchButton(Composite composite)
 	{
-		Link guideLink = new Link(composite, SWT.WRAP);
-		guideLink.setText(Messages.IDFGuideLinkLabel_Text);
-		guideLink.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
-		guideLink.addListener(SWT.Selection, e -> {
-			try
-			{
-				java.awt.Desktop.getDesktop()
-						.browse(new java.net.URI("https://dl.espressif.com/dl/esp-idf/support-periods.svg")); //$NON-NLS-1$
-			}
-			catch (Exception ex)
-			{
-				Logger.log(ex);
-			}
-		});
-
 		eimLaunchBtn = new Button(composite, SWT.PUSH);
 		eimLaunchBtn.setText(
 				!toolInitializer.isEimInstalled() ? Messages.EIMButtonDownloadText : Messages.EIMButtonLaunchText);
+		eimLaunchBtn.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false));
 		eimLaunchBtn.addSelectionListener(new EimButtonLaunchListener(espidfMainTablePage, Display.getDefault(),
 				getConsoleStream(false), getConsoleStream(true)));
 	}
@@ -156,371 +129,409 @@ public class ESPIDFMainTablePage
 
 	public void refreshEditorUI()
 	{
-		if (container == null)
+		if (container == null || container.isDisposed())
 			return;
-		for (TableItem item : tableViewer.getTable().getItems())
-		{
-			String EDITOR_KEY = "action_editor"; //$NON-NLS-1$
-			String EDITOR_KEY_LAST = "action_editor_last"; //$NON-NLS-1$
-			TableEditor editorFirst = (TableEditor) item.getData(EDITOR_KEY);
-			TableEditor editorLast = (TableEditor) item.getData(EDITOR_KEY_LAST);
-			if (editorFirst != null)
-			{
-				if (editorFirst.getEditor() != null && !editorFirst.getEditor().isDisposed())
-				{
-					editorFirst.getEditor().dispose(); // Dispose the button composite
-				}
-				editorFirst.dispose(); // Dispose the editor itself
-				item.setData(EDITOR_KEY, null); // Clear the stored editor reference
-			}
 
-			if (editorLast != null)
-			{
-				if (editorLast.getEditor() != null && !editorLast.getEditor().isDisposed())
-				{
-					editorLast.getEditor().dispose();
-				}
+		Display.getDefault().asyncExec(() -> {
+			if (container.isDisposed() || browser == null || browser.isDisposed())
+				return;
 
-				editorLast.dispose();
-				item.setData(EDITOR_KEY_LAST, null);
-			}
-		}
-		try
-		{
 			try
 			{
-				eimJson = eimIdfConfiguratinParser.getEimJson(true);
+				try
+				{
+					eimJson = eimIdfConfiguratinParser.getEimJson(true);
+				}
+				catch (EimVersionMismatchException e)
+				{
+					Logger.log(e);
+					MessageDialog.openError(Display.getDefault().getActiveShell(), e.msgTitle(), e.getMessage());
+					return;
+				}
+				// eimJson is null if EIM was closed before tool installation completed
+				if (eimJson == null)
+				{
+					return;
+				}
 			}
-			catch (EimVersionMismatchException e)
+			catch (IOException e)
 			{
 				Logger.log(e);
-				MessageDialog.openError(Display.getDefault().getActiveShell(), e.msgTitle(), e.getMessage());
-			}
-			// eimJson is null if EIM was closed before tool installation completed
-			if (eimJson == null)
-			{
 				return;
 			}
-		}
-		catch (IOException e)
-		{
-			Logger.log(e);
-		}
 
-		idfInstalledList = eimJson.getIdfInstalled();
-		setupColumns();
-		tableViewer.setInput(idfInstalledList);
-		tableViewer.getControl().requestLayout();
-		tableViewer.refresh();
-		eimLaunchBtn.setText(
-				!toolInitializer.isEimInstalled() ? Messages.EIMButtonDownloadText : Messages.EIMButtonLaunchText);
-		container.redraw();
+			idfInstalledList = eimJson.getIdfInstalled();
+			updateWebView();
+			eimLaunchBtn.setText(
+					!toolInitializer.isEimInstalled() ? Messages.EIMButtonDownloadText : Messages.EIMButtonLaunchText);
+		});
 	}
 
-	private Composite createIdfTable(Composite parent)
+	private void createIdfWebView(Composite parent)
 	{
 		Group idfToolsGroup = new Group(parent, SWT.SHADOW_ETCHED_IN);
 		idfToolsGroup.setText("IDF Tools"); //$NON-NLS-1$
-		idfToolsGroup.setLayout(new GridLayout(2, false));
+		idfToolsGroup.setLayout(new FillLayout());
 		idfToolsGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 
-		// Composite for the TableViewer, with TableColumnLayout
-		tableComposite = new Composite(idfToolsGroup, SWT.NONE);
-		tableComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		tableColumnLayout = new TableColumnLayout();
-		tableComposite.setLayout(tableColumnLayout);
-		tableViewer = new TableViewer(tableComposite, SWT.BORDER | SWT.H_SCROLL);
-		tableViewer.setContentProvider(ArrayContentProvider.getInstance());
-
-		Table table = tableViewer.getTable();
-		table.setHeaderVisible(true);
-		table.setLinesVisible(true);
-		table.addListener(SWT.MeasureItem, event -> {
-			event.height = 25;
-		});
-		comparator = new ColumnViewerComparator();
-		tableViewer.setComparator(comparator);
-		setupColumns();
-		table.addListener(SWT.MeasureItem, e -> {
-			e.height = 30;
-		});
-
-		tableViewer.setInput(idfInstalledList);
-		table.layout();
-		// Composite for the "Add" button
-		Composite buttonComposite = new Composite(idfToolsGroup, SWT.NONE);
-		GridData buttonCompositeGridData = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
-		buttonCompositeGridData.verticalAlignment = SWT.TOP; // Aligns the button composite at the top
-		buttonComposite.setLayoutData(buttonCompositeGridData);
-		buttonComposite.setLayout(new GridLayout(1, true));
-
-		return idfToolsGroup;
-	}
-
-	private void disposeColumns()
-	{
-		if (activateColumn != null && activateColumn.getColumn() != null)
+		try
 		{
-			activateColumn.getColumn().dispose();
-		}
-
-		if (versionColumn != null && versionColumn.getColumn() != null)
-		{
-			versionColumn.getColumn().dispose();
-		}
-
-		if (locationColumn != null && locationColumn.getColumn() != null)
-		{
-			locationColumn.getColumn().dispose();
-		}
-
-		if (removeColumn != null && removeColumn.getColumn() != null)
-		{
-			removeColumn.getColumn().dispose();
-		}
-
-		if (nameColumn != null && nameColumn.getColumn() != null)
-		{
-			nameColumn.getColumn().dispose();
-		}
-	}
-
-	private void setupColumns()
-	{
-		disposeColumns();
-		int colIndex = 0;
-
-		activateColumn = new TableViewerColumn(tableViewer, SWT.NONE);
-		activateColumn.getColumn().setText(Messages.EspIdfManagerActivateCol);
-		activateColumn.setLabelProvider(new IdfManagerTableColumnLabelProvider());
-		tableColumnLayout.setColumnData(activateColumn.getColumn(), new ColumnWeightData(2, 5, true));
-
-		versionColumn = new TableViewerColumn(tableViewer, SWT.NONE);
-		versionColumn.getColumn().setText(Messages.EspIdfManagerVersionCol);
-		versionColumn.setLabelProvider(new IdfManagerTableColumnLabelProvider());
-		setComparatorForCols(versionColumn, colIndex++);
-		tableColumnLayout.setColumnData(versionColumn.getColumn(), new ColumnWeightData(3, 50, true));
-
-		nameColumn = new TableViewerColumn(tableViewer, SWT.NONE);
-		nameColumn.getColumn().setText(Messages.EspIdfManagerNameCol);
-		nameColumn.setLabelProvider(new IdfManagerTableColumnLabelProvider());
-		setComparatorForCols(nameColumn, colIndex++);
-		tableColumnLayout.setColumnData(nameColumn.getColumn(), new ColumnWeightData(3, 50, true));
-
-		locationColumn = new TableViewerColumn(tableViewer, SWT.NONE);
-		locationColumn.getColumn().setText(Messages.EspIdfManagerLocationCol);
-		locationColumn.setLabelProvider(new IdfManagerTableColumnLabelProvider());
-		setComparatorForCols(locationColumn, colIndex++);
-		tableColumnLayout.setColumnData(locationColumn.getColumn(), new ColumnWeightData(10, 100, true));
-
-		removeColumn = new TableViewerColumn(tableViewer, SWT.NONE);
-		removeColumn.setLabelProvider(new IdfManagerTableColumnLabelProvider());
-		tableColumnLayout.setColumnData(removeColumn.getColumn(), new ColumnWeightData(3, 100, true));
-	}
-
-	private void setComparatorForCols(TableViewerColumn column, int colIndex)
-	{
-		column.getColumn().addSelectionListener(new SelectionAdapter()
-		{
-			@Override
-			public void widgetSelected(SelectionEvent e)
+			browser = new Browser(idfToolsGroup, SWT.NONE);
+			
+			// Add progress listener to wait for page to load
+			final boolean[] isUsingSetText = new boolean[1];
+			browser.addProgressListener(new ProgressListener()
 			{
-				comparator.setColumn(colIndex);
-				int direction = tableViewer.getTable().getSortDirection();
-				if (tableViewer.getTable().getSortColumn() == column.getColumn())
+				@Override
+				public void changed(ProgressEvent event)
 				{
-					direction = direction == SWT.UP ? SWT.DOWN : SWT.UP;
-				}
-				else
-				{
-					direction = SWT.DOWN;
+					// Page loading progress changed
 				}
 
-				tableViewer.getTable().setSortDirection(direction);
-				tableViewer.getTable().setSortColumn(column.getColumn());
-				tableViewer.refresh();
+				@Override
+				public void completed(ProgressEvent event)
+				{
+					// Page finished loading, now setup bridge and update view
+					Display.getDefault().asyncExec(() -> {
+						if (!browser.isDisposed())
+						{
+							setupJavaScriptBridge();
+							// Small delay to ensure JavaScript is ready
+							Display.getDefault().timerExec(100, () -> {
+								if (!browser.isDisposed())
+								{
+									updateWebView();
+								}
+							});
+						}
+					});
+				}
+			});
+			
+			loadHtmlContent(isUsingSetText);
+			
+			// If we used setText, the progress listener won't fire, so setup immediately
+			if (isUsingSetText[0])
+			{
+				Display.getDefault().timerExec(200, () -> {
+					if (!browser.isDisposed())
+					{
+						setupJavaScriptBridge();
+						Display.getDefault().timerExec(100, () -> {
+							if (!browser.isDisposed())
+							{
+								updateWebView();
+							}
+						});
+					}
+				});
 			}
-		});
-
+		}
+		catch (Exception e)
+		{
+			Logger.log("Failed to create browser widget: " + e.getMessage()); //$NON-NLS-1$
+			Logger.log(e);
+		}
 	}
 
-	private class IdfManagerTableColumnLabelProvider extends ColumnLabelProvider
+	private void loadHtmlContent(boolean[] isUsingSetText)
 	{
-		private Color activeBackgroundColor;
-
-		private IdfManagerTableColumnLabelProvider()
+		try
 		{
-			super();
-			this.activeBackgroundColor = new Color(Display.getCurrent(), 144, 238, 144);
-		}
-
-		@Override
-		public Color getBackground(Object element)
-		{
-			if (element instanceof IdfInstalled)
+			Bundle bundle = FrameworkUtil.getBundle(ESPIDFMainTablePage.class);
+			// Try multiple paths to find the HTML file
+			URL htmlUrl = FileLocator.find(bundle, new Path("idf-manager.html"), null); //$NON-NLS-1$
+			
+			if (htmlUrl == null)
 			{
-				IdfInstalled idfInstalled = (IdfInstalled) element;
-				if (ToolsUtility.isIdfInstalledActive(idfInstalled))
+				htmlUrl = FileLocator.find(bundle, new Path("src/com/espressif/idf/ui/tools/manager/pages/idf-manager.html"), null); //$NON-NLS-1$
+			}
+			
+			if (htmlUrl == null)
+			{
+				// Try as resource entry
+				htmlUrl = bundle.getEntry("idf-manager.html"); //$NON-NLS-1$
+			}
+
+			if (htmlUrl != null)
+			{
+				try
 				{
-					// Return the green color for active rows
-					return activeBackgroundColor;
+					URL fileUrl = FileLocator.toFileURL(htmlUrl);
+					Logger.log("Loading HTML from URL: " + fileUrl.toString()); //$NON-NLS-1$
+					browser.setUrl(fileUrl.toString());
 				}
-			}
-			return null;
-		}
-
-		@Override
-		public void update(ViewerCell cell)
-		{
-			int totalCols = tableViewer.getTable().getColumnCount();
-			boolean isLastCol = cell.getColumnIndex() == (totalCols - 1);
-			boolean isFirstCol = cell.getColumnIndex() == 0;
-			if (isFirstCol)
-			{
-				createButtonsForFirstCol(cell);
-			}
-			else if (isLastCol)
-			{
-				createButtonsForLastCol(cell);
+				catch (Exception e)
+				{
+					Logger.log("Failed to convert URL to file URL, using text content: " + e.getMessage()); //$NON-NLS-1$
+					// Fallback to text content
+					String htmlContent = loadHtmlFromResource();
+					if (htmlContent != null && !htmlContent.isEmpty())
+					{
+						browser.setText(htmlContent);
+						isUsingSetText[0] = true;
+					}
+					else
+					{
+						browser.setText(getEmbeddedHtml());
+						isUsingSetText[0] = true;
+					}
+				}
 			}
 			else
 			{
-				updateDataIntoCells(cell);
-			}
-
-			Color color = getBackground(cell.getElement());
-			if (color != null)
-			{
-				cell.setBackground(color);
-			}
-		}
-
-		private void updateDataIntoCells(ViewerCell cell)
-		{
-			if ((!(cell.getElement() instanceof IdfInstalled)) && cell.getElement() == null)
-				return;
-
-			IdfInstalled idfInstalled = (IdfInstalled) cell.getElement();
-			switch (cell.getColumnIndex())
-			{
-			case 0:
-				break;
-			case 1:
-				cell.setText(getIdfVersion(idfInstalled));
-				break;
-			case 2:
-				cell.setText(idfInstalled.getName());
-				break;
-			case 3:
-				cell.setText(idfInstalled.getPath());
-				break;
-			case 4:
-				break;
+				Logger.log("HTML URL not found, loading from resource stream"); //$NON-NLS-1$
+				// Fallback: load HTML as string from resource
+				String htmlContent = loadHtmlFromResource();
+				if (htmlContent != null && !htmlContent.isEmpty())
+				{
+					browser.setText(htmlContent);
+					isUsingSetText[0] = true;
+				}
+				else
+				{
+					Logger.log("Using embedded HTML fallback"); //$NON-NLS-1$
+					// Ultimate fallback: embedded HTML
+					browser.setText(getEmbeddedHtml());
+					isUsingSetText[0] = true;
+				}
 			}
 		}
-
-		private String getIdfVersion(IdfInstalled idfInstalled)
+		catch (Exception e)
 		{
-			String version = ToolsUtility.getIdfVersion(idfInstalled, eimJson.getGitPath());
-			return version;
+			Logger.log("Error loading HTML content: " + e.getMessage()); //$NON-NLS-1$
+			Logger.log(e);
+			String htmlContent = loadHtmlFromResource();
+			if (htmlContent != null && !htmlContent.isEmpty())
+			{
+				browser.setText(htmlContent);
+			}
+			else
+			{
+				browser.setText(getEmbeddedHtml());
+			}
+		}
+	}
+
+	private String loadHtmlFromResource()
+	{
+		try
+		{
+			Bundle bundle = FrameworkUtil.getBundle(ESPIDFMainTablePage.class);
+			InputStream inputStream = null;
+			
+			// Try different paths
+			URL entry = bundle.getEntry("idf-manager.html"); //$NON-NLS-1$
+			if (entry != null)
+			{
+				inputStream = entry.openStream();
+			}
+			
+			if (inputStream == null)
+			{
+				entry = bundle.getEntry("src/com/espressif/idf/ui/tools/manager/pages/idf-manager.html"); //$NON-NLS-1$
+				if (entry != null)
+				{
+					inputStream = entry.openStream();
+				}
+			}
+
+			if (inputStream != null)
+			{
+				try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"))) //$NON-NLS-1$
+				{
+					return reader.lines().collect(Collectors.joining("\n")); //$NON-NLS-1$
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			Logger.log("Error reading HTML resource: " + e.getMessage()); //$NON-NLS-1$
+			Logger.log(e);
+		}
+		return null;
+	}
+	
+	private String getEmbeddedHtml()
+	{
+		// Return a minimal HTML that will be replaced by updateWebView
+		// This is a fallback if the HTML file cannot be loaded
+		return "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>ESP-IDF Manager</title><style>body{font-family:Arial,sans-serif;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;color:#333}.container{max-width:1200px;margin:0 auto}.header{text-align:center;color:white;margin-bottom:30px}.guide-section{background:rgba(255,255,255,0.15);border-radius:12px;padding:20px;margin-bottom:25px}.guide-text{color:white;font-size:0.95em;line-height:1.6;margin:0;text-align:center}.guide-link{color:#ffd700;text-decoration:none;font-weight:600}.cards-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:25px}.card{background:white;border-radius:16px;padding:25px;box-shadow:0 10px 30px rgba(0,0,0,0.2)}.empty-state{text-align:center;padding:60px 20px;color:white}</style></head><body><div class='container'><div class='header'><h1>🚀 ESP-IDF Manager</h1><p>Manage and activate your ESP-IDF installations</p></div><div class='guide-section'><p class='guide-text'>Select the version of ESP-IDF you want to use. Click the <strong>Activate</strong> button next to the version you want. For help in choosing the correct version, visit the <a href='https://dl.espressif.com/dl/esp-idf/support-periods.svg' target='_blank' class='guide-link'>ESP-IDF Version Guide</a>.</p></div><div id='cardsContainer' class='cards-container'></div><div id='emptyState' class='empty-state' style='display:none'><h2>No ESP-IDF installations found</h2><p>Launch ESP-IDF Installation Manager(EIM) to install ESP-IDF versions</p></div></div><script>function updateCards(data){var c=document.getElementById('cardsContainer');var e=document.getElementById('emptyState');if(!data||data.length===0){if(c)c.style.display='none';if(e)e.style.display='block';return;}if(c){c.style.display='grid';c.innerHTML='';data.forEach(function(idf,i){var card=document.createElement('div');card.className='card';card.innerHTML='<h3>'+idf.name+'</h3><p>Version: '+idf.version+'</p><p>Path: '+idf.path+'</p><button onclick=\"handleActivate(\\''+idf.id+'\\')\" '+(idf.active||idf.activating?'disabled':'')+'>'+(idf.active?'Active':idf.activating?'Activating...':'Activate')+'</button>';c.appendChild(card);});}if(e)e.style.display='none';}function handleActivate(id){try{if(typeof javaActivate==='function')javaActivate(id);}catch(e){console.error(e);}}function handleReload(id){try{if(typeof javaReload==='function')javaReload(id);}catch(e){console.error(e);}}</script></body></html>"; //$NON-NLS-1$
+	}
+
+	private void setupJavaScriptBridge()
+	{
+		// Activate function
+		new BrowserFunction(browser, "javaActivate") //$NON-NLS-1$
+		{
+			@Override
+			public Object function(Object[] arguments)
+			{
+				if (arguments != null && arguments.length > 0 && arguments[0] instanceof String)
+				{
+					String idfId = (String) arguments[0];
+					handleActivate(idfId);
+				}
+				return null;
+			}
+		};
+
+		// Reload function
+		new BrowserFunction(browser, "javaReload") //$NON-NLS-1$
+		{
+			@Override
+			public Object function(Object[] arguments)
+			{
+				if (arguments != null && arguments.length > 0 && arguments[0] instanceof String)
+				{
+					String idfId = (String) arguments[0];
+					handleReload(idfId);
+				}
+				return null;
+			}
+		};
+	}
+
+	private void handleActivate(String idfId)
+	{
+		if (idfInstalledList == null)
+			return;
+
+		IdfInstalled targetIdf = idfInstalledList.stream().filter(idf -> idf.getId().equals(idfId)).findFirst()
+				.orElse(null);
+
+		if (targetIdf != null && !ToolsUtility.isIdfInstalledActive(targetIdf))
+		{
+			activatingStates.put(idfId, true);
+			updateWebView(); // Update UI to show loading state
+
+			SetupToolsInIde setupToolsInIde = new SetupToolsInIde(targetIdf, eimJson, getConsoleStream(true),
+					getConsoleStream(false));
+			SetupToolsJobListener toolsActivationJobListener = new SetupToolsJobListener(ESPIDFMainTablePage.this,
+					setupToolsInIde);
+			setupToolsInIde.addJobChangeListener(toolsActivationJobListener);
+			setupToolsInIde.schedule();
+		}
+	}
+
+	private void handleReload(String idfId)
+	{
+		if (idfInstalledList == null)
+			return;
+
+		IdfInstalled targetIdf = idfInstalledList.stream().filter(idf -> idf.getId().equals(idfId)).findFirst()
+				.orElse(null);
+
+		if (targetIdf != null && ToolsUtility.isIdfInstalledActive(targetIdf))
+		{
+			activatingStates.put(idfId, true);
+			updateWebView(); // Update UI to show loading state
+
+			SetupToolsInIde setupToolsInIde = new SetupToolsInIde(targetIdf, eimJson, getConsoleStream(true),
+					getConsoleStream(false));
+			SetupToolsJobListener toolsActivationJobListener = new SetupToolsJobListener(ESPIDFMainTablePage.this,
+					setupToolsInIde);
+			setupToolsInIde.addJobChangeListener(toolsActivationJobListener);
+			setupToolsInIde.schedule();
+		}
+	}
+
+	private void updateWebView()
+	{
+		if (browser == null || browser.isDisposed())
+		{
+			Logger.log("Browser is null or disposed, cannot update web view"); //$NON-NLS-1$
+			return;
 		}
 
-		private void createButtonsForFirstCol(ViewerCell cell)
+		if (idfInstalledList == null)
 		{
-			TableItem item = (TableItem) cell.getItem();
-
-			// using a unique key to store the editor to avoid creating multiple editors for the same cell
-			String EDITOR_KEY = "action_editor"; //$NON-NLS-1$
-			if (item.getData(EDITOR_KEY) != null)
-			{
-				return; // This cell already has an editor
-			}
-			TableEditor editor = new TableEditor(tableViewer.getTable());
-			Composite buttonComposite = new Composite(tableViewer.getTable(), SWT.NONE);
-			buttonComposite.setLayout(new FillLayout());
-			item.setData(EDITOR_KEY, editor);
-			IdfInstalled idfInstalled = (IdfInstalled) cell.getElement();
-			Button setActiveButton = new Button(buttonComposite, SWT.RADIO);
-			setActiveButton.setSelection(ToolsUtility.isIdfInstalledActive(idfInstalled));
-			setActiveButton.setData(IDF_TOOL_SET_BTN_KEY, idfInstalled);
-			setActiveButton.addListener(SWT.Selection, e -> {
-				Button btn = (Button) e.widget;
-				SetupToolsInIde setupToolsInIde = new SetupToolsInIde(idfInstalled, eimJson, getConsoleStream(true),
-						getConsoleStream(false));
-				SetupToolsJobListener toolsActivationJobListener = new SetupToolsJobListener(ESPIDFMainTablePage.this,
-						setupToolsInIde);
-				setupToolsInIde.addJobChangeListener(toolsActivationJobListener);
-				setupToolsInIde.schedule();
-				btn.setEnabled(false);
-			});
-
-			editor.grabHorizontal = true;
-			editor.setEditor(buttonComposite, item, cell.getColumnIndex());
+			Logger.log("idfInstalledList is null, showing empty state"); //$NON-NLS-1$
+			// Show empty state
+			String script = "if (typeof updateCards === 'function') { updateCards([]); }"; //$NON-NLS-1$
+			browser.execute(script);
+			return;
 		}
 
-		private void createButtonsForLastCol(ViewerCell cell)
+		try
 		{
-			TableItem item = (TableItem) cell.getItem();
-			Rectangle cellBounds = cell.getBounds();
-			// using a unique key to store the editor to avoid creating multiple editors for the same cell
-			String EDITOR_KEY = "action_editor_last"; //$NON-NLS-1$
-			if (item.getData(EDITOR_KEY) != null)
+			// Convert IdfInstalled list to JSON
+			String jsonData = convertToJson(idfInstalledList);
+			Logger.log("Updating web view with " + idfInstalledList.size() + " IDF installations"); //$NON-NLS-1$ //$NON-NLS-2$
+			Logger.log("JSON data: " + jsonData); //$NON-NLS-1$
+			
+			// Call JavaScript function to update cards
+			String script = "try { " + //$NON-NLS-1$
+					"console.log('Executing updateCards with data'); " + //$NON-NLS-1$
+					"if (typeof updateCards === 'function') { " + //$NON-NLS-1$
+					"updateCards(" + jsonData + "); " + //$NON-NLS-1$
+					"} else { " + //$NON-NLS-1$
+					"console.error('updateCards function not found'); " + //$NON-NLS-1$
+					"} " + //$NON-NLS-1$
+					"} catch(e) { console.error('Error in updateCards:', e); }"; //$NON-NLS-1$
+			boolean executed = browser.execute(script);
+			if (!executed)
 			{
-				return; // This cell already has an editor
-			}
-			TableEditor editor = new TableEditor(tableViewer.getTable());
-			Composite buttonComposite = new Composite(tableViewer.getTable(), SWT.NONE);
-			FillLayout fillLayout = new FillLayout(SWT.HORIZONTAL);
-			buttonComposite.setLayout(fillLayout);
-			buttonComposite.redraw();
-			item.setData(EDITOR_KEY, editor);
-			IdfInstalled idfInstalled = (IdfInstalled) cell.getElement();
-
-			int buttonHeight = Math.min(cellBounds.height - 6, 30);
-
-			if (ToolsUtility.isIdfInstalledActive(idfInstalled))
-			{
-				Button reloadButton = new Button(buttonComposite, SWT.PUSH | SWT.FLAT);
-				reloadButton.pack();
-				reloadButton.setData(IDF_TOOL_SET_BTN_KEY, idfInstalled);
-				reloadButton.setImage(UIPlugin.getImage(RELOAD_ICON));
-				reloadButton.setToolTipText(Messages.EspIdfManagerReloadBtnToolTip);
-				reloadButton.addListener(SWT.Selection, e -> {
-					Button btn = (Button) e.widget;
-					IdfInstalled selectedToolSet = (IdfInstalled) btn.getData(IDF_TOOL_SET_BTN_KEY);
-					SetupToolsInIde setupToolsInIde = new SetupToolsInIde(selectedToolSet, eimJson,
-							getConsoleStream(true), getConsoleStream(false));
-					SetupToolsJobListener toolsActivationJobListener = new SetupToolsJobListener(
-							ESPIDFMainTablePage.this, setupToolsInIde);
-					setupToolsInIde.addJobChangeListener(toolsActivationJobListener);
-					setupToolsInIde.schedule();
+				Logger.log("Failed to execute JavaScript - browser may not be ready"); //$NON-NLS-1$
+				// Retry after a short delay
+				Display.getDefault().timerExec(500, () -> {
+					if (!browser.isDisposed())
+					{
+						updateWebView();
+					}
 				});
-
-				reloadButton.setSize(cellBounds.width, buttonHeight);
-				reloadButton.addListener(SWT.Paint, e -> e.gc.drawRectangle(reloadButton.getBounds()));
-				reloadButton.redraw();
 			}
-
-			editor.grabHorizontal = true;
-			editor.grabVertical = true;
-			editor.horizontalAlignment = SWT.CENTER;
-			editor.verticalAlignment = SWT.CENTER;
-			editor.setEditor(buttonComposite, item, cell.getColumnIndex());
-			buttonComposite.layout(true, true);
-			buttonComposite.redraw();
-			editor.layout();
-			tableViewer.getTable().layout(true, true);
 		}
-
-		@Override
-		public void dispose()
+		catch (Exception e)
 		{
-			if (this.activeBackgroundColor != null && !this.activeBackgroundColor.isDisposed())
-			{
-				this.activeBackgroundColor.dispose();
-			}
-			super.dispose();
+			Logger.log("Error updating web view: " + e.getMessage()); //$NON-NLS-1$
+			Logger.log(e);
 		}
+	}
+
+	private String convertToJson(List<IdfInstalled> idfList)
+	{
+		if (idfList == null || idfList.isEmpty())
+		{
+			return "[]"; //$NON-NLS-1$
+		}
+		
+		StringBuilder json = new StringBuilder("[");
+		for (int i = 0; i < idfList.size(); i++)
+		{
+			IdfInstalled idf = idfList.get(i);
+			if (i > 0)
+				json.append(",");
+
+			boolean isActive = ToolsUtility.isIdfInstalledActive(idf);
+			boolean isActivating = activatingStates.getOrDefault(idf.getId(), false);
+			String version = ToolsUtility.getIdfVersion(idf, eimJson != null ? eimJson.getGitPath() : null);
+
+			json.append("{");
+			json.append("\"id\":\"").append(escapeJson(idf.getId())).append("\",");
+			json.append("\"name\":\"").append(escapeJson(idf.getName() != null ? idf.getName() : "Unknown")).append("\","); //$NON-NLS-1$ //$NON-NLS-2$
+			json.append("\"version\":\"").append(escapeJson(version != null ? version : "Unknown")).append("\","); //$NON-NLS-1$ //$NON-NLS-2$
+			json.append("\"path\":\"").append(escapeJson(idf.getPath() != null ? idf.getPath() : "")).append("\","); //$NON-NLS-1$ //$NON-NLS-2$
+			json.append("\"active\":").append(isActive).append(",");
+			json.append("\"activating\":").append(isActivating);
+			json.append("}");
+		}
+		json.append("]");
+		return json.toString();
+	}
+
+	private String escapeJson(String str)
+	{
+		if (str == null)
+			return "";
+		return str.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r")
+				.replace("\t", "\\t");
+	}
+
+	public void resetAllActivatingStates()
+	{
+		activatingStates.clear();
+		updateWebView();
 	}
 
 	private MessageConsoleStream getConsoleStream(boolean errorStream)
@@ -528,62 +539,5 @@ public class ESPIDFMainTablePage
 		IDFConsole idfConsole = new IDFConsole();
 		return idfConsole.getConsoleStream(Messages.IDFToolsHandler_ToolsManagerConsole, null, errorStream, true);
 	}
-
-	private class ColumnViewerComparator extends ViewerComparator
-	{
-		private int propertyIndex;
-		private static final int DESCENDING = 1;
-		private int direction = 0;
-
-		public ColumnViewerComparator()
-		{
-			this.propertyIndex = 0;
-			direction = DESCENDING;
-		}
-
-		public void setColumn(int column)
-		{
-			if (column == this.propertyIndex)
-			{
-				// If the same column is clicked again, toggle the direction
-				direction = 1 - direction;
-			}
-			else
-			{
-				// Else, sort the new column in ascending order
-				this.propertyIndex = column;
-				direction = DESCENDING;
-			}
-		}
-
-		@Override
-		public int compare(Viewer viewer, Object e1, Object e2)
-		{
-			IdfInstalled p1 = (IdfInstalled) e1;
-			IdfInstalled p2 = (IdfInstalled) e2;
-			int rc = 0;
-			switch (propertyIndex)
-			{
-			case 0:
-				rc = p1.getName().compareTo(p2.getName());
-				break;
-			case 1:
-				rc = p1.getPath().compareTo(p2.getPath());
-				break;
-			case 2:
-				Boolean p1State = ToolsUtility.isIdfInstalledActive(p1);
-				Boolean p2State = ToolsUtility.isIdfInstalledActive(p2);
-				rc = p1State.compareTo(p2State);
-				break;
-			default:
-				break;
-			}
-			if (direction == DESCENDING)
-			{
-				rc = -rc;
-			}
-			return rc;
-		}
-
-	}
 }
+
