@@ -23,6 +23,8 @@ rm -rf "${LOGDIR:?}"
 
 mkdir -p "$WORKDIR" "$LOGDIR"
 
+STEP_SUMMARY=()
+
 ############################################
 # STEP 1: DOWNLOAD AND EXTRACT ECLIPSE
 ############################################
@@ -32,6 +34,7 @@ wget -q "$ECLIPSE_URL" -O "$WORKDIR/eclipse.tar.gz"
 tar -xzf "$WORKDIR/eclipse.tar.gz" -C "$WORKDIR"
 ECLIPSE_HOME=$(find "$WORKDIR" -maxdepth 1 -type d -name "eclipse*" | head -n1)
 echo "Eclipse installed at: $ECLIPSE_HOME"
+STEP_SUMMARY+=("Step 1: Eclipse downloaded and extracted - ✅")
 
 ############################################
 # STEP 2: DOWNLOAD AND UNZIP STABLE PLUGIN
@@ -45,6 +48,7 @@ mkdir -p "$WORKDIR/stable-repo"
 unzip -q "$WORKDIR/stable.zip" -d "$WORKDIR/stable-repo"
 
 STABLE_REPO="file://$WORKDIR/stable-repo/artifacts/update"
+STEP_SUMMARY+=("Step 2: Stable plugin downloaded and unzipped - ✅")
 
 ############################################
 # STEP 3: INSTALL STABLE PLUGIN
@@ -63,11 +67,13 @@ if ! "$ECLIPSE_HOME/eclipse" \
   -consoleLog \
   | tee "$LOGDIR/stable-install.log"
 then
+ STEP_SUMMARY+=("Step 3: Stable plugin installation - ❌ FAILED")
   echo "❌ Stable plugin installation failed"
   exit 1
 fi
 
 echo "✅ Stable plugin installed successfully"
+STEP_SUMMARY+=("Step 3: Stable plugin installed successfully - ✅")
 
 ############################################
 # STEP 4: INSTALL RC UPDATE
@@ -87,25 +93,52 @@ if ! "$ECLIPSE_HOME/eclipse" \
   -consoleLog \
   | tee "$LOGDIR/rc-installation-verify.log"
 then
+  STEP_SUMMARY+=("Step 4: Release Candidate update installation - ❌ FAILED")
   echo "❌ Release Candidate update failed"
   exit 1
 fi
 
 echo "✅ Release Candidate update installed successfully"
+STEP_SUMMARY+=("Step 4: Release Candidate update installed successfully - ✅")
 
 ############################################
 # STEP 5: CHECK FOR CONFLICTS
 ############################################
 
 echo "Checking logs for conflicts..."
-if grep -Ei "conflict|cannot complete|missing requirement" "$LOGDIR"/*.log; then
-    echo "❌ Conflict detected in logs"
-    exit 1
+ERROR_PATTERNS="conflict|cannot complete|missing requirement"
+CONFLICT_FILE="$LOGDIR/conflicts-detected.txt"
+
+if grep -Ei "$ERROR_PATTERNS" "$LOGDIR"/*.log > "$CONFLICT_FILE"; then
+    echo "❌ Conflicts detected"
+    STEP_SUMMARY+=("Step 5: Conflict check - ❌ conflicts found")
+    CONFLICT_STATUS="FAILED"
+else
+    echo "✅ No conflicts detected"
+    echo "No conflicts found." > "$CONFLICT_FILE"
+    STEP_SUMMARY+=("Step 5: Conflict check - ✅")
+    CONFLICT_STATUS="PASSED"
 fi
-echo "✅ No conflicts detected"
 
 ############################################
-# STEP 6: GENERATE REPORT
+# STEP 6: CAPTURE INSTALLED ROOTS
+############################################
+
+echo "Capturing installed roots..."
+"$ECLIPSE_HOME/eclipse" \
+  -nosplash \
+  -application org.eclipse.equinox.p2.director \
+  -listInstalledRoots \
+  -destination "$ECLIPSE_HOME" \
+  -profile SDKProfile \
+  -consoleLog \
+  | tee "$LOGDIR/installed-roots.txt"
+
+echo "✅ Installed roots captured"
+STEP_SUMMARY+=("Step 6: Installed roots captured - ✅")
+
+############################################
+# STEP 7: GENERATE REPORT
 ############################################
 
 {
