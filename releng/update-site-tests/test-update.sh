@@ -51,9 +51,8 @@ STABLE_REPO="file://$WORKDIR/stable-repo/artifacts/update"
 ############################################
 
 echo "Installing stable plugin..."
-"$ECLIPSE_HOME/eclipse" \
+if ! "$ECLIPSE_HOME/eclipse" \
   -nosplash \
-  -clean \
   -application org.eclipse.equinox.p2.director \
   -repository "$STABLE_REPO,$ECLIPSE_RELEASE_REPO" \
   -installIU "$FEATURE_ID" \
@@ -63,32 +62,36 @@ echo "Installing stable plugin..."
   -roaming \
   -consoleLog \
   | tee "$LOGDIR/stable-install.log"
+then
+  echo "❌ Stable plugin installation failed"
+  exit 1
+fi
 
 echo "✅ Stable plugin installed successfully"
 
 ############################################
-# STEP 4: VERIFY RC UPDATE (DRY RUN)
+# STEP 4: INSTALL RC UPDATE
 ############################################
 
-echo "Verifying RC upgrade plan (dry-run)..."
+echo "Installing Release Candidate update..."
 if ! "$ECLIPSE_HOME/eclipse" \
   -nosplash \
   -application org.eclipse.equinox.p2.director \
   -repository "$RC_REPO,$ECLIPSE_RELEASE_REPO" \
+  -uninstallIU "$FEATURE_ID" \
   -installIU "$FEATURE_ID" \
   -destination "$ECLIPSE_HOME" \
   -profile SDKProfile \
   -bundlepool "$WORKDIR/p2" \
   -roaming \
-  -verifyOnly \
   -consoleLog \
-  | tee "$LOGDIR/rc-dry-run-verify.log"
+  | tee "$LOGDIR/rc-installation-verify.log"
 then
-  echo "❌ RC upgrade verification failed"
+  echo "❌ Release Candidate update failed"
   exit 1
 fi
 
-echo "✅ RC upgrade plan is valid"
+echo "✅ Release Candidate update installed successfully"
 
 ############################################
 # STEP 5: CHECK FOR CONFLICTS
