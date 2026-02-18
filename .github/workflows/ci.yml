@@ -148,3 +148,42 @@ jobs:
       with:
         name: Espressif-IDE-${{ env.VERSION }}-macosx.cocoa.aarch64
         path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
+
+  upload_update_site:
+    needs: [build_linux, build_macos]
+    runs-on: [self-hosted, eclipse, BrnoUBU0004]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download update-site artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: com.espressif.idf.update-4.2.0
+          path: releng/update-site-tests/artifacts
+
+      - name: Find RC zip and set RC_ZIP
+        run: |
+          ls -la releng/update-site-tests/artifacts
+          ZIP=$(find releng/update-site-tests/artifacts -name "*.zip" | head -n 1)
+          test -n "$ZIP" || { echo "❌ No RC update-site .zip found"; exit 1; }
+          echo "✅ RC update-site artifact found: $ZIP"
+          echo "RC_ZIP=$ZIP" >> "$GITHUB_ENV"
+
+      - name: Run Eclipse Update Site Test
+        run: |
+          chmod +x releng/update-site-tests/detect-latest-eclipse.sh
+          chmod +x releng/update-site-tests/test-update.sh
+          releng/update-site-tests/detect-latest-eclipse.sh
+        env:
+          LOGDIR: ${{ github.workspace }}/releng/update-site-tests/logs
+          REPORT_FILE: ${{ github.workspace }}/releng/update-site-tests/report.txt
+
+      - name: Upload Eclipse Update Site Test Logs and Report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: eclipse-update-site-test-logs
+          path: |
+            releng/update-site-tests/logs
+            releng/update-site-tests/report.txt

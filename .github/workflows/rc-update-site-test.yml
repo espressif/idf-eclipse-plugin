@@ -2,7 +2,7 @@ name: RC Update Site Test
 
 on:
   workflow_run:
-    workflows: ["Java CI with Maven"]
+    workflows: ["Java CI with Maven "]
     types: [completed]
 
 jobs:
