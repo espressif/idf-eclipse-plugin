@@ -464,10 +464,8 @@ public class ESPIDFMainTablePage
 
 	public void setupInitialEspIdf()
 	{
-		if (tableViewer.getInput() instanceof List<?> list && !list.isEmpty())
-		{
-			var prefs = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
-			if (!prefs.getBoolean(EimConstants.INSTALL_TOOLS_FLAG, false))
+		if (tableViewer.getInput() instanceof List<?> list && !list.isEmpty()
+				&& !prefs.getBoolean(EimConstants.INSTALL_TOOLS_FLAG, false))
 			{
 				Object first = list.get(0);
 				if (first instanceof IdfRow selectedRaw)
@@ -475,7 +473,7 @@ public class ESPIDFMainTablePage
 					performToolsSetup(selectedRaw.original());
 				}
 			}
-		}
+
 	}
 
 	private MessageConsoleStream getConsoleStream(boolean errorStream)
