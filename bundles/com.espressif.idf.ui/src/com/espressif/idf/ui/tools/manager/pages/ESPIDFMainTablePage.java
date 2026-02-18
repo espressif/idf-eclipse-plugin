@@ -4,8 +4,6 @@
  *******************************************************************************/
 package com.espressif.idf.ui.tools.manager.pages;
 
-import java.awt.Desktop;
-import java.net.URI;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -23,6 +21,7 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
@@ -33,7 +32,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.console.MessageConsoleStream;
 import org.osgi.service.prefs.BackingStoreException;
@@ -63,7 +61,6 @@ import com.espressif.idf.ui.tools.SetupToolsJobListener;
 public class ESPIDFMainTablePage
 {
 
-	private static final String HTTPS_DL_ESPRESSIF_COM_DL_ESP_IDF_SUPPORT_PERIODS_SVG = "https://dl.espressif.com/dl/esp-idf/support-periods.svg"; //$NON-NLS-1$
 	private static final String PREF_SORT_COL = "EspIdfManager_SortCol"; //$NON-NLS-1$
 	private static final String PREF_SORT_DIR = "EspIdfManager_SortDir"; //$NON-NLS-1$
 	private final IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
@@ -118,21 +115,10 @@ public class ESPIDFMainTablePage
 		headerComp.setLayout(new GridLayout(1, false));
 		headerComp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
-		var guideLink = new Link(headerComp, SWT.WRAP);
-		guideLink.setText(Messages.IDFGuideLinkLabel_Text);
-		guideLink.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		guideLink.addListener(SWT.Selection, e -> {
-			try
-			{
-				Desktop.getDesktop().browse(new URI(HTTPS_DL_ESPRESSIF_COM_DL_ESP_IDF_SUPPORT_PERIODS_SVG));
-			}
-			catch (Exception ex)
-			{
-				Logger.log(ex.toString());
-			}
-		});
-
-
+		CLabel infoLabel = new CLabel(headerComp, SWT.NONE);
+		infoLabel.setImage(headerComp.getDisplay().getSystemImage(SWT.ICON_INFORMATION));
+		infoLabel.setText(Messages.IDFGuideLinkLabel_Text);
+		infoLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 	}
 
 	private void createMainContent(Composite parent)
