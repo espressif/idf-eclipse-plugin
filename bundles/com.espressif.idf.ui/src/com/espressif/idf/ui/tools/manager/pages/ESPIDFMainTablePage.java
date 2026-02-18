@@ -10,8 +10,6 @@ import java.util.concurrent.CompletableFuture;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.layout.TableColumnLayout;
-import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
@@ -93,8 +91,6 @@ public class ESPIDFMainTablePage
 
 	public Composite createPage(Composite parent)
 	{
-		new LocalResourceManager(JFaceResources.getResources(), parent);
-
 		container = new Composite(parent, SWT.NONE);
 		container.setLayout(new GridLayout(1, false));
 
@@ -117,14 +113,14 @@ public class ESPIDFMainTablePage
 
 		CLabel infoLabel = new CLabel(headerComp, SWT.NONE);
 		infoLabel.setImage(headerComp.getDisplay().getSystemImage(SWT.ICON_INFORMATION));
-		infoLabel.setText(Messages.IDFGuideLinkLabel_Text);
+		infoLabel.setText(Messages.IDFInfoLabel_Text);
 		infoLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 	}
 
 	private void createMainContent(Composite parent)
 	{
 		var group = new Group(parent, SWT.NONE);
-		group.setText("Installed IDF Versions");
+		group.setText(Messages.ESPIDFMainTablePage_MainContentGroupLbl);
 		group.setLayout(new GridLayout(2, false));
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
@@ -166,9 +162,9 @@ public class ESPIDFMainTablePage
 		eimLaunchBtn.addSelectionListener(new EimButtonLaunchListener(this, Display.getDefault(),
 				getConsoleStream(false), getConsoleStream(true)));
 
-		btnActivate = createActionButton(buttonComp, "Activate Selected", "Set this version as the active ESP-IDF");
-		btnReinstall = createActionButton(buttonComp, "Refresh Environment",
-				"Refresh toolchains, Python virtual environment, and IDE settings for the CURRENTLY ACTIVE version");
+		btnActivate = createActionButton(buttonComp, Messages.ESPIDFMainTablePage_ActiveBtnName, Messages.ESPIDFMainTablePage_ActiveBtnTooltip);
+		btnReinstall = createActionButton(buttonComp, Messages.ESPIDFMainTablePage_RefreshEnvBtnName,
+				Messages.ESPIDFMainTablePage_RefreshEnvBtnTooltip);
 
 		// --- Listeners ---
 		tableViewer.addSelectionChangedListener(event -> updateButtonState());
@@ -231,15 +227,15 @@ public class ESPIDFMainTablePage
 
 	private void createColumns(TableViewer viewer, TableColumnLayout layout)
 	{
-		createCol(viewer, layout, "Status", 15, 0, new ColumnLabelProvider()
+		createCol(viewer, layout, Messages.ESPIDFMainTablePage_StatusColumnName, 15, 0, new ColumnLabelProvider()
 		{
 			@Override
 			public String getText(Object element)
 			{
 				var row = (IdfRow) element;
 				if (row.original().equals(currentInstallingNode))
-					return "Setting up...";
-				return row.isActive() ? "\u2713 Active" : StringUtil.EMPTY; //$NON-NLS-1$
+					return Messages.ESPIDFMainTablePage_SettingUpLbl;
+				return row.isActive() ? Messages.ESPIDFMainTablePage_ActiveLbl : StringUtil.EMPTY;
 			}
 
 			@Override
@@ -350,7 +346,6 @@ public class ESPIDFMainTablePage
 			btnActivate.setEnabled(!ToolsUtility.isIdfInstalledActive(selected));
 		}
 
-		// 2. Update Button Logic: Linked to GLOBAL STATE (Always enabled if an active ID exists)
 		// We do not care what is selected; we only care if there is an active IDF to update.
 		btnReinstall.setEnabled(hasActiveIdf());
 	}
