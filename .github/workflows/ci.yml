@@ -43,26 +43,8 @@ jobs:
         distribution: 'temurin'    
         cache: 'maven'
 
-    # - name: Build with Maven
-    #   run: export NO_AT_BRIDGE=1 && mvn clean verify -Djarsigner.skip=true -DskipTests=false -DtestWorkspace=/opt/actions-runner/_work/workspace
-
-    - name: Run Eclipse Update Site Test
-      run: |
-        chmod +x releng/update-site-tests/detect-latest-eclipse.sh
-        chmod +x releng/update-site-tests/test-update.sh
-        releng/update-site-tests/detect-latest-eclipse.sh
-      env:
-        LOGDIR: ${{ github.workspace }}/releng/update-site-tests/logs
-        REPORT_FILE: ${{ github.workspace }}/releng/update-site-tests/report.txt
-
-    - name: Upload Eclipse Upgrade Logs and Report
-      if: ${{ always() }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: eclipse-update-site-test-logs
-        path: |
-          releng/update-site-tests/logs
-          releng/update-site-tests/report.txt
+    - name: Build with Maven
+      run: export NO_AT_BRIDGE=1 && mvn clean verify -Djarsigner.skip=true -DskipTests=false -DtestWorkspace=/opt/actions-runner/_work/workspace
 
     - name: Publish Test Reports
       if: ${{ always() }}

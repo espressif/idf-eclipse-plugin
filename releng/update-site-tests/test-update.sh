@@ -6,10 +6,10 @@ set -o pipefail
 # CONFIGURATION
 ECLIPSE_URL="${ECLIPSE_URL:?ECLIPSE_URL not set}"
 LATEST_ECLIPSE_RELEASE="${LATEST_ECLIPSE_RELEASE:?LATEST_ECLIPSE_RELEASE not set}"
+RC_ZIP="${RC_ZIP:?RC_ZIP not set}"
 
 ECLIPSE_RELEASE_REPO="https://download.eclipse.org/releases/$LATEST_ECLIPSE_RELEASE"
-STABLE_ZIP_URL="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/com.espressif.idf.update-v4.0.0.zip"
-RC_REPO="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/"
+STABLE_PLUGIN_RELEASE_REPO="https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/"
 FEATURE_ID="com.espressif.idf.feature.feature.group"
 
 WORKDIR="${WORKDIR:-$PWD/releng/update-site-tests/workdir}"
@@ -32,23 +32,20 @@ ECLIPSE_HOME=$(find "$WORKDIR" -maxdepth 1 -type d -name "eclipse*" | head -n1)
 echo "Eclipse installed at: $ECLIPSE_HOME"
 STEP_SUMMARY+=("Step 1: Eclipse downloaded and extracted - ✅")
 
-# STEP 2: DOWNLOAD AND UNZIP STABLE PLUGIN
-echo "Downloading stable plugin zip..."
-wget -q "$STABLE_ZIP_URL" -O "$WORKDIR/stable.zip"
+# STEP 2: UNZIP RC
+mkdir -p "$WORKDIR/rc-repo"
+unzip -q "$RC_ZIP" -d "$WORKDIR/rc-repo"
 
-echo "Extracting stable plugin..."
-mkdir -p "$WORKDIR/stable-repo"
-unzip -q "$WORKDIR/stable.zip" -d "$WORKDIR/stable-repo"
+RC_REPO="file://$WORKDIR/rc-repo/com.espressif.idf.update-*"
 
-STABLE_REPO="file://$WORKDIR/stable-repo/artifacts/update"
-STEP_SUMMARY+=("Step 2: Stable plugin downloaded and unzipped - ✅")
+STEP_SUMMARY+=("Step 2: RC unzipped - ✅")
 
-# STEP 3: INSTALL STABLE PLUGIN
-echo "Installing stable plugin..."
+# STEP 3: INSTALL PLUGIN STABLE RELEASE
+echo "Installing plugin stable release..."
 if ! "$ECLIPSE_HOME/eclipse" \
   -nosplash \
   -application org.eclipse.equinox.p2.director \
-  -repository "$STABLE_REPO,$ECLIPSE_RELEASE_REPO" \
+  -repository "$STABLE_PLUGIN_RELEASE_REPO,$ECLIPSE_RELEASE_REPO" \
   -installIU "$FEATURE_ID" \
   -destination "$ECLIPSE_HOME" \
   -profile SDKProfile \
@@ -57,13 +54,13 @@ if ! "$ECLIPSE_HOME/eclipse" \
   -consoleLog \
   | tee "$LOGDIR/stable-install.log"
 then
- STEP_SUMMARY+=("Step 3: Stable plugin installation - ❌ FAILED")
-  echo "❌ Stable plugin installation failed"
+ STEP_SUMMARY+=("Step 3: Plugin stable release installation - ❌ FAILED")
+  echo "❌ Plugin stable release installation failed"
   exit 1
 fi
 
-echo "✅ Stable plugin installed successfully"
-STEP_SUMMARY+=("Step 3: Stable plugin installed successfully - ✅")
+echo "✅ Plugin stable release installed successfully"
+STEP_SUMMARY+=("Step 3: Plugin stable release installed successfully - ✅")
 
 # STEP 4: INSTALL RC UPDATE
 echo "Installing Release Candidate update..."
@@ -116,7 +113,7 @@ fi
 
 # STEP 7: CAPTURE INSTALLED ROOTS
 echo "Capturing installed roots..."
-if !"$ECLIPSE_HOME/eclipse" \
+if ! "$ECLIPSE_HOME/eclipse" \
   -nosplash \
   -application org.eclipse.equinox.p2.director \
   -listInstalledRoots \
