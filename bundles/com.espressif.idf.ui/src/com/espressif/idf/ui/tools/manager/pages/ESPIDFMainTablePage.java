@@ -9,6 +9,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.resource.JFaceResources;
@@ -35,6 +36,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.console.MessageConsoleStream;
+import org.osgi.service.prefs.BackingStoreException;
 
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.EimConstants;
@@ -51,10 +53,20 @@ import com.espressif.idf.ui.tools.EimButtonLaunchListener;
 import com.espressif.idf.ui.tools.Messages;
 import com.espressif.idf.ui.tools.SetupToolsJobListener;
 
+/**
+ * Main UI class for all listing and interacting with the tools
+ * 
+ * @author Ali Azam Rana
+ * @author Denys Almazov
+ *
+ */
 public class ESPIDFMainTablePage
 {
 
 	private static final String HTTPS_DL_ESPRESSIF_COM_DL_ESP_IDF_SUPPORT_PERIODS_SVG = "https://dl.espressif.com/dl/esp-idf/support-periods.svg"; //$NON-NLS-1$
+	private static final String PREF_SORT_COL = "EspIdfManager_SortCol"; //$NON-NLS-1$
+	private static final String PREF_SORT_DIR = "EspIdfManager_SortDir"; //$NON-NLS-1$
+	private final IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 
 	private record IdfRow(IdfInstalled original, boolean isActive, String version, String name, String path)
 	{
@@ -103,7 +115,7 @@ public class ESPIDFMainTablePage
 	private void createHeader(Composite parent)
 	{
 		var headerComp = new Composite(parent, SWT.NONE);
-		headerComp.setLayout(new GridLayout(2, false));
+		headerComp.setLayout(new GridLayout(1, false));
 		headerComp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
 		var guideLink = new Link(headerComp, SWT.WRAP);
@@ -120,16 +132,12 @@ public class ESPIDFMainTablePage
 			}
 		});
 
-		eimLaunchBtn = new Button(headerComp, SWT.PUSH);
-		updateLaunchButtonState();
-		eimLaunchBtn.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
-		eimLaunchBtn.addSelectionListener(new EimButtonLaunchListener(this, Display.getDefault(),
-				getConsoleStream(false), getConsoleStream(true)));
+
 	}
 
 	private void createMainContent(Composite parent)
 	{
-		var group = new Group(parent, SWT.SHADOW_ETCHED_IN);
+		var group = new Group(parent, SWT.NONE);
 		group.setText("Installed IDF Versions");
 		group.setLayout(new GridLayout(2, false));
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -147,17 +155,33 @@ public class ESPIDFMainTablePage
 		table.addListener(SWT.MeasureItem, e -> e.height = 28);
 
 		tableViewer.setContentProvider(ArrayContentProvider.getInstance());
+
+		int savedCol = prefs.getInt(PREF_SORT_COL, 1);
+		int savedDir = prefs.getInt(PREF_SORT_DIR, SWT.DOWN);
+
+		comparator.restoreState(savedCol, savedDir);
 		tableViewer.setComparator(comparator);
 
 		createColumns(tableViewer, tableLayout);
+		if (savedCol >= 0 && savedCol < table.getColumnCount())
+		{
+			table.setSortColumn(table.getColumn(savedCol));
+			table.setSortDirection(savedDir);
+		}
 
 		// --- Buttons ---
 		var buttonComp = new Composite(group, SWT.NONE);
 		buttonComp.setLayout(new GridLayout(1, true));
 		buttonComp.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
 
-		btnActivate = createActionButton(buttonComp, "Activate", "Set this version as the active ESP-IDF");
-		btnReinstall = createActionButton(buttonComp, "Update Environment",
+		eimLaunchBtn = createActionButton(buttonComp, StringUtil.EMPTY, StringUtil.EMPTY);
+		updateLaunchButtonState();
+
+		eimLaunchBtn.addSelectionListener(new EimButtonLaunchListener(this, Display.getDefault(),
+				getConsoleStream(false), getConsoleStream(true)));
+
+		btnActivate = createActionButton(buttonComp, "Activate Selected", "Set this version as the active ESP-IDF");
+		btnReinstall = createActionButton(buttonComp, "Refresh Environment",
 				"Refresh toolchains, Python virtual environment, and IDE settings for the CURRENTLY ACTIVE version");
 
 		// --- Listeners ---
@@ -287,7 +311,22 @@ public class ESPIDFMainTablePage
 		col.getColumn().addListener(SWT.Selection, e -> {
 			comparator.setColumn(sortIndex);
 			updateSortIndicator(col.getColumn());
+			saveSortState();
 		});
+	}
+
+	private void saveSortState()
+	{
+		prefs.putInt(PREF_SORT_COL, comparator.getPropertyIndex());
+		prefs.putInt(PREF_SORT_DIR, comparator.getDirection());
+		try
+		{
+			prefs.flush();
+		}
+		catch (BackingStoreException e)
+		{
+			Logger.log(e.toString());
+		}
 	}
 
 	private void updateSortIndicator(TableColumn column)
@@ -297,6 +336,7 @@ public class ESPIDFMainTablePage
 		table.setSortDirection(comparator.getDirection());
 		tableViewer.refresh();
 	}
+	
 
 	private void updateButtonState()
 	{
@@ -459,6 +499,17 @@ public class ESPIDFMainTablePage
 				this.propertyIndex = column;
 				direction = SWT.DOWN;
 			}
+		}
+
+		public int getPropertyIndex()
+		{
+			return propertyIndex;
+		}
+
+		public void restoreState(int column, int dir)
+		{
+			this.propertyIndex = column;
+			this.direction = dir;
 		}
 
 		public int getDirection()
