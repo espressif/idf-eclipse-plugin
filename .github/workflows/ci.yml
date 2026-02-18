@@ -151,6 +151,7 @@ jobs:
 
   upload_update_site:
     needs: [build_linux, build_macos]
+    if: ${{ always() }}
     runs-on: [self-hosted, eclipse, BrnoUBU0004]
 
     steps:
@@ -161,14 +162,14 @@ jobs:
         with:
           name: com.espressif.idf.update-4.2.0
           path: releng/update-site-tests/artifacts
-
-      - name: Find RC zip and set RC_ZIP
+      
+      - name: Set RC_REPO (p2 repo directory)
         run: |
           ls -la releng/update-site-tests/artifacts
-          ZIP=$(find releng/update-site-tests/artifacts -name "*.zip" | head -n 1)
-          test -n "$ZIP" || { echo "❌ No RC update-site .zip found"; exit 1; }
-          echo "✅ RC update-site artifact found: $ZIP"
-          echo "RC_ZIP=$ZIP" >> "$GITHUB_ENV"
+          RC_DIR="${{ github.workspace }}/releng/update-site-tests/artifacts"
+          test -f "$RC_DIR/artifacts.jar" -o -f "$RC_DIR/artifacts.xml.xz" || { echo "❌ Not a p2 repo: $RC_DIR"; exit 1; }
+          echo "✅ RC p2 repo found: $RC_DIR"
+          echo "RC_REPO=file://$RC_DIR" >> "$GITHUB_ENV"
 
       - name: Run Eclipse Update Site Test
         run: |
