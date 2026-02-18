@@ -1,0 +1,45 @@
+name: RC Update Site Test
+
+on:
+  workflow_run:
+    workflows: ["Java CI with Maven "]
+    types: [completed]
+
+jobs:
+  rc_test:
+    runs-on: [self-hosted, eclipse, BrnoUBU0004]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download update-site artifact from triggering run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          mkdir -p releng/update-site-tests/artifacts
+          gh run download "$RUN_ID" -R "$GITHUB_REPOSITORY" -p "com.espressif.idf.update-*" -D releng/update-site-tests/artifacts
+          ls -la releng/update-site-tests/artifacts
+          ZIP=$(find releng/update-site-tests/artifacts -name "*.zip" | head -n 1)
+          test -n "$ZIP" || { echo "❌ No RC update-site artifact found"; exit 1; }
+          echo "✅ RC update-site artifact found: $ZIP"
+          echo "RC_ZIP=$ZIP" >> "$GITHUB_ENV"
+
+      - name: Run Eclipse Update Site Test
+        run: |
+          chmod +x releng/update-site-tests/detect-latest-eclipse.sh
+          chmod +x releng/update-site-tests/test-update.sh
+          releng/update-site-tests/detect-latest-eclipse.sh
+        env:
+          LOGDIR: ${{ github.workspace }}/releng/update-site-tests/logs
+          REPORT_FILE: ${{ github.workspace }}/releng/update-site-tests/report.txt
+
+      - name: Upload Eclipse Update Site Test Logs and Report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: eclipse-update-site-test-logs
+          path: |
+            releng/update-site-tests/logs
+            releng/update-site-tests/report.txt
+
