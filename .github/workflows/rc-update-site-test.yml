@@ -7,7 +7,6 @@ on:
 
 jobs:
   rc_test:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: [self-hosted, eclipse, BrnoUBU0004]
 
     steps:
