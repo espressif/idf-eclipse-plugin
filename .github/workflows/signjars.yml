@@ -1,0 +1,99 @@
+name: Sign jars and internal native libraries
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Codesign JARs and Internal Native Libraries
+      env: 
+        MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+        MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+      run: |
+        # Step 1: Decode and import the certificate into a keychain
+        echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
+        /usr/bin/security create-keychain -p espressif build.keychain
+        /usr/bin/security default-keychain -s build.keychain
+        /usr/bin/security unlock-keychain -p espressif build.keychain
+        /usr/bin/security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
+        /usr/bin/security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k espressif build.keychain
+
+        # Step 2: Define the directory containing the JARs and native libraries and the temp directory for signed JARs
+        LIB_DIR="${PWD}/BUNDLES/com.espressif.idf.launch.serial.ui/libs"
+        SIGNED_JARS_DIR="${RUNNER_TEMP}/signed-jars"  # Use GitHub's RUNNER_TEMP for storing signed JARs
+        mkdir -p "$SIGNED_JARS_DIR"
+
+        # Step 3: Extract, sign native libraries, repackage, and sign the JARs with Apple codesign
+        for jar in "${LIB_DIR}"/*.jar; do
+          echo "Processing JAR file: ${jar}"
+
+          # Check if the JAR exists
+          if [ -f "$jar" ]; then
+            echo "JAR file found: ${jar}"
+          else
+            echo "JAR file not found: ${jar}"
+            continue
+          fi
+
+          # Create a temporary directory to extract the JAR contents
+          TEMP_DIR=$(mktemp -d)
+          unzip -q "$jar" -d "$TEMP_DIR"
+
+          # Find and sign all .jnilib and .dylib files in the extracted JAR directory
+          find "$TEMP_DIR" -name "*.jnilib" -o -name "*.dylib" | while read lib; do
+            echo "Signing native library: ${lib}"
+            /usr/bin/codesign -vvvv --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" --timestamp --deep "$lib"
+          done
+
+          # Repackage the signed JAR
+          pushd "$TEMP_DIR"
+          zip -r "${SIGNED_JARS_DIR}/$(basename "$jar")" *  # Save signed JAR to the temporary signed directory
+          popd
+
+          # Sign the entire JAR with Apple codesign, using the same entitlements
+          echo "Signing repackaged JAR: ${SIGNED_JARS_DIR}/$(basename "$jar")"
+          /usr/bin/codesign -vvvv --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --force --deep --options runtime --timestamp -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" "${SIGNED_JARS_DIR}/$(basename "$jar")"
+
+          # Verify the signed JAR
+          echo "Verifying signed JAR: ${SIGNED_JARS_DIR}/$(basename "$jar")"
+          /usr/bin/codesign -dvv "${SIGNED_JARS_DIR}/$(basename "$jar")"
+
+          # Clean up extracted directory (but leave the signed JAR in SIGNED_JARS_DIR)
+          rm -rf "$TEMP_DIR"
+        done
+    
+    - name: Verify Signed JAR Files Before Upload
+      run: |
+        for jar in ${{ runner.temp }}/signed-jars/*; do
+          echo "Verifying signed JAR: ${jar}"
+          /usr/bin/codesign -dvv "${jar}"
+        done
+
+    - name: Display Signed JAR Files
+      run: |
+        echo "Displaying the signed JAR directory:"
+        ls -al ${{ runner.temp }}/signed-jars/
+        echo "Listing all files in the signed JAR directory:"
+        find ${{ runner.temp }}/signed-jars/ -type f
+
+    - name: Upload Signed JAR Files
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: signed-jar-files
+        path: ${{ runner.temp }}/signed-jars/*
