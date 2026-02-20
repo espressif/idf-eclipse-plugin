@@ -134,7 +134,6 @@ public class ESPIDFMainTablePage
 		var table = tableViewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
-		table.addListener(SWT.MeasureItem, e -> e.height = 28);
 
 		tableViewer.setContentProvider(ArrayContentProvider.getInstance());
 
@@ -220,7 +219,7 @@ public class ESPIDFMainTablePage
 		btn.setText(text);
 		btn.setToolTipText(tooltip);
 		var gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		gd.widthHint = 140;
+		gd.widthHint = 160;
 		btn.setLayoutData(gd);
 		return btn;
 	}
