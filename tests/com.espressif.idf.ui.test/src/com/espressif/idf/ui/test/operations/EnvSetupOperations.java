@@ -10,7 +10,6 @@ import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.ui.PlatformUI;
 
-import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 
 public class EnvSetupOperations
@@ -46,7 +45,7 @@ public class EnvSetupOperations
 		}
 		
 		SWTBotEditor espIdfManagerView = bot.editorByTitle("ESP-IDF Manager");
-		espIdfManagerView.bot().radio(0).click();
+		espIdfManagerView.bot().table().doubleClick(0, 0);
 		
 		SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");
 		consoleView.show();

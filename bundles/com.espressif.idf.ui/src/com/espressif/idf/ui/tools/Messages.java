@@ -22,7 +22,7 @@ public class Messages extends NLS
 	public static String EspIdfManagerActivateCol;
 	public static String EspIdfManagerNameCol;
 	public static String EspIdfManagerReloadBtnToolTip;
-	public static String IDFGuideLinkLabel_Text;
+	public static String IDFInfoLabel_Text;
 	public static String EIMButtonDownloadText;
 	public static String EIMButtonLaunchText;
 	
@@ -32,6 +32,22 @@ public class Messages extends NLS
 	public static String EimJsonChangedMsgDetail;
 	public static String EimJsonStateChangedMsgDetail;
 	
+	public static String ESPIDFMainTablePage_ActiveBtnName;
+
+	public static String ESPIDFMainTablePage_ActiveBtnTooltip;
+
+	public static String ESPIDFMainTablePage_ActiveLbl;
+
+	public static String ESPIDFMainTablePage_MainContentGroupLbl;
+
+	public static String ESPIDFMainTablePage_RefreshEnvBtnName;
+
+	public static String ESPIDFMainTablePage_RefreshEnvBtnTooltip;
+
+	public static String ESPIDFMainTablePage_SettingUpLbl;
+
+	public static String ESPIDFMainTablePage_StatusColumnName;
+
 	public static String MsgYes;
 	public static String MsgNo;
 	
