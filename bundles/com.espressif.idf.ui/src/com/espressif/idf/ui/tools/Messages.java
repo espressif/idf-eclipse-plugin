@@ -38,6 +38,8 @@ public class Messages extends NLS
 
 	public static String ESPIDFMainTablePage_ActiveLbl;
 
+	public static String ESPIDFMainTablePage_EIMButtonTooltip;
+
 	public static String ESPIDFMainTablePage_MainContentGroupLbl;
 
 	public static String ESPIDFMainTablePage_RefreshEnvBtnName;
