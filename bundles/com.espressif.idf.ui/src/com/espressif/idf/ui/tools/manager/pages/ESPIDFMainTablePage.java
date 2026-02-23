@@ -438,6 +438,8 @@ public class ESPIDFMainTablePage
 		{
 			boolean installed = toolInitializer.isEimInstalled();
 			eimLaunchBtn.setText(installed ? Messages.EIMButtonLaunchText : Messages.EIMButtonDownloadText);
+			eimLaunchBtn.setToolTipText(
+					Messages.ESPIDFMainTablePage_EIMButtonTooltip);
 			eimLaunchBtn.getParent().layout();
 		}
 	}
