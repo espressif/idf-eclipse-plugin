@@ -51,6 +51,7 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 		IProject project = descriptor.getAdapter(IProject.class);
 		workingCopy.setMappedResources(new IResource[] { project });
 		workingCopy.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, project.getName());
+		workingCopy.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, "${default_app}");
 		workingCopy.doSave();
 	}
 

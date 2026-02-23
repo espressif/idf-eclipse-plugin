@@ -90,7 +90,7 @@ public class CMakeMainTab2 extends GenericMainTab
 	private boolean isFlashOverJtag;
 	private boolean isJtagFlashAvailable;
 	private Text fProjText;
-	private Text fProgText; // <-- ADDED for C/C++ Application
+	private Text fProgText;
 	private IProject selectedProject;
 	private Composite mainComposite;
 	private EnumMap<FlashInterface, List<Composite>> switchComposites = new EnumMap<>(FlashInterface.class);
@@ -146,7 +146,6 @@ public class CMakeMainTab2 extends GenericMainTab
 		argumentField.setVisible(false);
 	}
 
-	// <-- ADDED: Method to create the C/C++ Application UI block
 	protected void createExeFileGroup(Composite parent)
 	{
 		Group group = new Group(parent, SWT.NONE);
@@ -178,7 +177,6 @@ public class CMakeMainTab2 extends GenericMainTab
 		});
 	}
 
-	// <-- ADDED: Your default option method to populate the field
 	protected void updateProgramFromConfig(ILaunchConfiguration config)
 	{
 		if (fProgText != null)
@@ -486,6 +484,7 @@ public class CMakeMainTab2 extends GenericMainTab
 		{
 			initializeCProject(selectedProject, configuration);
 		}
+
 		try
 		{
 			configuration.doSave();
@@ -615,12 +614,10 @@ public class CMakeMainTab2 extends GenericMainTab
 
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, fProjText.getText());
 
-			// <-- ADDED: Save the Application path to the configuration
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME,
 					fProgText.getText().isBlank() ? DefaultPreferences.PROGRAM_APP_DEFAULT : fProgText.getText());
 
 			wc.setAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, isFlashOverJtag);
-			// For the case, when user wants to edit arguments line somehow and save changes
 
 			wc.setAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS, jtagArgumentsField.getText());
 			wc.setAttribute(IDFLaunchConstants.ATTR_SERIAL_FLASH_ARGUMENTS, uartAgrumentsField.getText());
@@ -646,7 +643,6 @@ public class CMakeMainTab2 extends GenericMainTab
 		updateStartSerialMonitorGroup(configuration);
 		updateProjetFromConfig(configuration);
 
-		// <-- ADDED: Load the Application path from the configuration
 		updateProgramFromConfig(configuration);
 
 		updateFlashOverStatus(configuration);
