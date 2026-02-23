@@ -16,15 +16,20 @@ import com.espressif.idf.launch.serial.ui.internal.Activator;
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
  */
-public class IDFLaunchDescriptorLabelProvider extends DefaultDescriptorLabelProvider {
+public class IDFLaunchDescriptorLabelProvider extends DefaultDescriptorLabelProvider
+{
 
 	@Override
-	public Image getImage(Object element) {
-		if (element instanceof ILaunchDescriptor) {
+	public Image getImage(Object element)
+	{
+		if (element instanceof ILaunchDescriptor)
+		{
 			ILaunchDescriptorType type = ((ILaunchDescriptor) element).getType();
-			if (type instanceof IDFLaunchDescriptorType) {
+			if (type instanceof IDFLaunchDescriptorType)
+			{
 				Image image = Activator.getImage("icons/c_app.gif"); //$NON-NLS-1$
-				if (image != null) {
+				if (image != null)
+				{
 					return image;
 				}
 			}

@@ -28,12 +28,22 @@
 			delegate="com.espressif.idf.debug.gdbjtag.openocd.dsf.LaunchConfigurationDelegate"
 			delegateDescription="%launchDelegate.jtagDsf.description"
 			id="com.espressif.idf.debug.gdbjtag.openocd.core.dsfLaunchDelegate"
-			modes="debug,run"
+			modes="debug"
 			name="%launchDelegate.jtagDsf.name"
 			sourceLocatorId="org.eclipse.cdt.debug.core.sourceLocator"
 			sourcePathComputerId="org.eclipse.cdt.debug.core.sourcePathComputer"
-			type="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationType">
+			type="com.espressif.idf.launch.serial.launchConfigurationType">
 		</launchDelegate>
+  <launchDelegate
+        delegate="com.espressif.idf.debug.gdbjtag.openocd.dsf.LaunchConfigurationDelegate"
+        delegateDescription="%launchDelegate.jtagDsf.description"
+        id="com.espressif.idf.debug.gdbjtag.openocd.core.dsfLaunchDelegate2"
+        modes="debug"
+        name="%launchDelegate.jtagDsf.name"
+        sourceLocatorId="org.eclipse.cdt.debug.core.sourceLocator"
+        sourcePathComputerId="org.eclipse.cdt.debug.core.sourcePathComputer"
+        type="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationType">
+  </launchDelegate>
 	</extension>
 
 	<extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">

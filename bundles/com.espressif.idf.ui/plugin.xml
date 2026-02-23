@@ -536,21 +536,6 @@
      </activeWhen>
   </handler>
   <handler
-        class="com.espressif.idf.ui.handlers.RunActionHandler"
-        commandId="org.eclipse.launchbar.ui.command.launchActive">
-     <activeWhen>
-        <with
-              variable="activeContexts">
-           <iterate
-                 operator="or">
-              <equals
-                    value="com.espressif.idf.ui.espLaunchScope">
-              </equals>
-           </iterate>
-        </with>
-     </activeWhen>
-  </handler>
-  <handler
         class="com.espressif.idf.ui.handlers.IdfReconfigureHandler"
         commandId="com.espressif.idf.ui.reconfigure">
   </handler>

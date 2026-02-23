@@ -24,11 +24,14 @@ import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
 import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.EnvironmentTab;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
-import org.eclipse.debug.ui.ILaunchConfigurationTab;
+import org.eclipse.debug.ui.sourcelookup.SourceLookupTab;
 import org.eclipse.launchbar.ui.internal.LaunchBarLaunchConfigDialog;
 
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.debug.gdbjtag.openocd.ui.TabDebugger;
+import com.espressif.idf.debug.gdbjtag.openocd.ui.TabStartup;
+import com.espressif.idf.debug.gdbjtag.openocd.ui.TabSvdTarget;
 
 @SuppressWarnings("restriction")
 public class SerialFlashLaunchConfigTabGroup extends AbstractLaunchConfigurationTabGroup
@@ -37,14 +40,17 @@ public class SerialFlashLaunchConfigTabGroup extends AbstractLaunchConfiguration
 	@Override
 	public void createTabs(ILaunchConfigurationDialog dialog, String mode)
 	{
+		TabStartup tabStartup = new TabStartup();
 		if (dialog instanceof LaunchBarLaunchConfigDialog)
 		{
-			setTabs(new ILaunchConfigurationTab[] { new CMakeMainTab2(), new EnvironmentTab(), new CommonTab() });
+			setTabs(new CMakeMainTab2(), new EnvironmentTab(), new CommonTab(), new TabDebugger(tabStartup), tabStartup,
+					new SourceLookupTab(), new TabSvdTarget());
 		}
 		else
 		{
-			setTabs(new ILaunchConfigurationTab[] { new CoreBuildTab(), new CMakeMainTab2(), new EnvironmentTab(),
-					new CommonTab() });
+			setTabs(new CoreBuildTab(), new CMakeMainTab2(), new EnvironmentTab(), new CommonTab(),
+					new TabDebugger(tabStartup), tabStartup, new SourceLookupTab(), new TabSvdTarget());
+
 		}
 
 	}

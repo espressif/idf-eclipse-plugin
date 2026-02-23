@@ -118,7 +118,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 	// ------------------------------------------------------------------------
 
-	protected TabDebugger(TabStartup tabStartup)
+	public TabDebugger(TabStartup tabStartup)
 	{
 		super();
 		fDefaultPreferences = Activator.getInstance().getDefaultPreferences();
@@ -897,10 +897,8 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 								DefaultPreferences.GDB_SERVER_TELNET_PORT_NUMBER_DEFAULT)));
 				fGdbServerTclPort.setText(configuration.getAttribute(ConfigurationAttributes.GDB_SERVER_TCL_PORT_NUMBER,
 						DefaultPreferences.GDB_SERVER_TCL_PORT_NUMBER_DEFAULT));
-
-				// Other options
 				fGdbServerOtherOptions.setText(configuration.getAttribute(ConfigurationAttributes.GDB_SERVER_OTHER,
-						fGdbServerOtherOptions.getText()));
+						DefaultPreferences.GDB_SERVER_OTHER_DEFAULT));
 
 				// Allocate server console
 				if (EclipseUtils.isWindows())
@@ -927,9 +925,8 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 				fDoStartGdbClient.setSelection(
 						configuration.getAttribute(ConfigurationAttributes.DO_START_GDB_CLIENT, booleanDefault));
 
-				// Executable
 				String gdbCommandAttr = configuration.getAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME,
-						fGdbClientExecutable.getText());
+						DefaultPreferences.GDB_CLIENT_EXECUTABLE_DYNAMIC_DEFAULT);
 				fGdbClientExecutable.setText(gdbCommandAttr);
 
 				// Other options
@@ -1049,9 +1046,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 	}
 
 	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.debug.ui.AbstractLaunchConfigurationTab#getId()
+	 * (non-Javadoc) * @see org.eclipse.debug.ui.AbstractLaunchConfigurationTab#getId()
 	 */
 	@Override
 	public String getId()
@@ -1375,8 +1370,6 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 			configuration.setAttribute(ConfigurationAttributes.GDB_SERVER_OTHER,
 					DefaultPreferences.GDB_SERVER_OTHER_DEFAULT);
-			configuration.setAttribute(defaultString, defaultBoolean);
-
 		}
 
 		// GDB client setup

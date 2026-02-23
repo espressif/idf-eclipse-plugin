@@ -59,6 +59,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
@@ -73,6 +74,7 @@ import com.espressif.idf.core.util.DfuCommandsUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.core.variable.JtagDynamicVariable;
 import com.espressif.idf.core.variable.OpenocdDynamicVariable;
+import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 import com.espressif.idf.swt.custom.StyledInfoText;
 import com.espressif.idf.swt.custom.TextWithButton;
@@ -88,6 +90,7 @@ public class CMakeMainTab2 extends GenericMainTab
 	private boolean isFlashOverJtag;
 	private boolean isJtagFlashAvailable;
 	private Text fProjText;
+	private Text fProgText; // <-- ADDED for C/C++ Application
 	private IProject selectedProject;
 	private Composite mainComposite;
 	private EnumMap<FlashInterface, List<Composite>> switchComposites = new EnumMap<>(FlashInterface.class);
@@ -131,12 +134,69 @@ public class CMakeMainTab2 extends GenericMainTab
 		createJtagFlashButton(mainComposite);
 		createOpenSerialMonitorGroup(mainComposite);
 		createProjectGroup(mainComposite, 0);
+
+		// <-- ADDED: Insert the Exe File Group right after the Project Group
+		createExeFileGroup(mainComposite);
+
 		createUartComposite(mainComposite);
 		createJtagflashComposite(mainComposite);
 		createDfuArgumentField(mainComposite);
 
 		argumentField = new Text(parent, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
 		argumentField.setVisible(false);
+	}
+
+	// <-- ADDED: Method to create the C/C++ Application UI block
+	protected void createExeFileGroup(Composite parent)
+	{
+		Group group = new Group(parent, SWT.NONE);
+		group.setText(LaunchMessages.CMainTab_C_Application);
+		GridLayout layout = new GridLayout(2, false);
+		group.setLayout(layout);
+		group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		fProgText = new Text(group, SWT.SINGLE | SWT.BORDER);
+		fProgText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		fProgText.addModifyListener(e -> updateLaunchConfigurationDialog());
+
+		Button browseForBinaryButton = createPushButton(group, LaunchMessages.Launch_common_Browse_2, null);
+		browseForBinaryButton.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent evt)
+			{
+				FileDialog dialog = new FileDialog(getShell(), SWT.NONE);
+				dialog.setText(LaunchMessages.CMainTab2_Application_Selection);
+				dialog.setFileName(fProgText.getText());
+				String text = dialog.open();
+				if (text != null)
+				{
+					fProgText.setText(text);
+				}
+				updateLaunchConfigurationDialog();
+			}
+		});
+	}
+
+	// <-- ADDED: Your default option method to populate the field
+	protected void updateProgramFromConfig(ILaunchConfiguration config)
+	{
+		if (fProgText != null)
+		{
+			String programName = StringUtil.EMPTY;
+			try
+			{
+				programName = config.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME,
+						DefaultPreferences.PROGRAM_APP_DEFAULT);
+				programName = programName.isBlank() ? DefaultPreferences.PROGRAM_APP_DEFAULT : programName;
+			}
+			catch (CoreException ce)
+			{
+				Logger.log(ce);
+			}
+
+			fProgText.setText(programName);
+		}
 	}
 
 	@Override
@@ -554,6 +614,11 @@ public class CMakeMainTab2 extends GenericMainTab
 			}
 
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, fProjText.getText());
+
+			// <-- ADDED: Save the Application path to the configuration
+			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME,
+					fProgText.getText().isBlank() ? DefaultPreferences.PROGRAM_APP_DEFAULT : fProgText.getText());
+
 			wc.setAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, isFlashOverJtag);
 			// For the case, when user wants to edit arguments line somehow and save changes
 
@@ -580,6 +645,10 @@ public class CMakeMainTab2 extends GenericMainTab
 		updateFlashEncryptionGroup(configuration);
 		updateStartSerialMonitorGroup(configuration);
 		updateProjetFromConfig(configuration);
+
+		// <-- ADDED: Load the Application path from the configuration
+		updateProgramFromConfig(configuration);
+
 		updateFlashOverStatus(configuration);
 		updateArgumentsWithDefaultFlashCommand(configuration);
 		switchUI(FlashInterface.values()[flashOverComboButton.getSelectionIndex()]);

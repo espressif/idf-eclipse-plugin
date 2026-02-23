@@ -16,21 +16,14 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.dialogs.PageChangingEvent;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.ILaunchDescriptor;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
-import org.eclipse.launchbar.ui.NewLaunchConfigWizard;
-import org.eclipse.launchbar.ui.NewLaunchConfigWizardDialog;
-import org.eclipse.launchbar.ui.internal.dialogs.NewLaunchConfigEditPage;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.tools.templates.core.IGenerator;
 import org.eclipse.tools.templates.ui.TemplateWizard;
 import org.eclipse.ui.IViewPart;
@@ -136,8 +129,6 @@ public class NewIDFProjectWizard extends TemplateWizard
 
 					// this ensures that the configuration exists
 					launchBarManager.getActiveLaunchConfiguration();
-
-					createDefaultDebugConfig();
 					launchBarManager.setActiveLaunchDescriptor(desc);
 				}
 			}
@@ -189,38 +180,6 @@ public class NewIDFProjectWizard extends TemplateWizard
 		{
 			Logger.log(e);
 		}
-	}
-
-	private void createDefaultDebugConfig()
-	{
-		Shell activeShell = Display.getDefault().getActiveShell();
-
-		NewLaunchConfigWizard wizard = new NewLaunchConfigWizard();
-		WizardDialog dialog = new NewLaunchConfigWizardDialog(activeShell, wizard);
-		dialog.create();
-
-		NewLaunchConfigEditPage editPage = (NewLaunchConfigEditPage) wizard.getPage(NEW_LAUNCH_CONFIG_EDIT_PAGE);
-		ILaunchConfigurationType debugLaunchConfigType = DebugPlugin.getDefault().getLaunchManager()
-				.getLaunchConfigurationType(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE);
-		editPage.setLaunchConfigType(debugLaunchConfigType);
-
-		PageChangingEvent pageChangingEvent = new PageChangingEvent(wizard, wizard.getStartingPage(), editPage);
-		editPage.handlePageChanging(pageChangingEvent);
-		wizard.performFinish();
-
-		try
-		{
-			String originalName = wizard.getWorkingCopy().getName();
-			int configPartIndex = originalName.lastIndexOf("Configuration"); //$NON-NLS-1$
-			String debugConfigName = configPartIndex != -1 ? originalName.substring(0, configPartIndex) + "Debug" //$NON-NLS-1$
-					: originalName;
-			wizard.getWorkingCopy().copy(debugConfigName).doSave();
-		}
-		catch (CoreException e)
-		{
-			Logger.log(e);
-		}
-		wizard.dispose();
 	}
 
 	@Override
