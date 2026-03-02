@@ -155,8 +155,8 @@ public class ESPIDFMainTablePage
 		buttonComp.setLayout(new GridLayout(1, true));
 		buttonComp.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
 
-		eimLaunchBtn = createActionButton(buttonComp, StringUtil.EMPTY, StringUtil.EMPTY);
-		updateLaunchButtonState();
+		eimLaunchBtn = createActionButton(buttonComp, Messages.EIMButtonLaunchText,
+				Messages.ESPIDFMainTablePage_EIMButtonTooltip);
 
 		eimLaunchBtn.addSelectionListener(new EimButtonLaunchListener(this, Display.getDefault(),
 				getConsoleStream(false), getConsoleStream(true)));
@@ -422,7 +422,6 @@ public class ESPIDFMainTablePage
 			{
 				Logger.log(e.toString());
 			}
-			updateLaunchButtonState();
 			tableViewer.setInput(rows);
 			tableViewer.setSelection(currentSelection);
 			updateButtonState();
@@ -432,17 +431,7 @@ public class ESPIDFMainTablePage
 		});
 	}
 
-	private void updateLaunchButtonState()
-	{
-		if (eimLaunchBtn != null && !eimLaunchBtn.isDisposed())
-		{
-			boolean installed = toolInitializer.isEimInstalled();
-			eimLaunchBtn.setText(installed ? Messages.EIMButtonLaunchText : Messages.EIMButtonDownloadText);
-			eimLaunchBtn.setToolTipText(
-					Messages.ESPIDFMainTablePage_EIMButtonTooltip);
-			eimLaunchBtn.getParent().layout();
-		}
-	}
+
 
 	public void setupInitialEspIdf()
 	{
