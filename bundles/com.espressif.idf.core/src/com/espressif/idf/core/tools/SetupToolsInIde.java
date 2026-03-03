@@ -146,11 +146,6 @@ public class SetupToolsInIde extends Job
 			setUpToolChainsAndTargets(false);
 			monitor.worked(1);
 			
-			monitor.setTaskName("Copying OpenOCD Rules"); //$NON-NLS-1$
-			log("Copying OpenOCD Rules", IStatus.INFO); //$NON-NLS-1$
-			copyOpenOcdRules();
-			monitor.worked(1);
-			
 			monitor.setTaskName("Applying Clangd Preferences"); //$NON-NLS-1$
 			log("Applying Clangd Preferences", IStatus.INFO); //$NON-NLS-1$
 			var lspService = new LspService();
@@ -164,66 +159,6 @@ public class SetupToolsInIde extends Job
 		{
 			Logger.log(e);
 			return IDFCorePlugin.errorStatus(e.getMessage(), e);
-		}
-	}
-	
-	private void copyOpenOcdRules()
-	{
-		if (Platform.getOS().equals(Platform.OS_LINUX)
-				&& !IDFUtil.getOpenOCDLocation().equalsIgnoreCase(StringUtil.EMPTY))
-		{
-			log(Messages.InstallToolsHandler_CopyingOpenOCDRules, IStatus.OK);
-			// Copy the rules to the idf
-			StringBuilder pathToRules = new StringBuilder();
-			pathToRules.append(IDFUtil.getOpenOCDLocation());
-			pathToRules.append("/../share/openocd/contrib/60-openocd.rules"); //$NON-NLS-1$
-			File rulesFile = new File(pathToRules.toString());
-			if (rulesFile.exists())
-			{
-				java.nio.file.Path source = Paths.get(pathToRules.toString());
-				java.nio.file.Path target = Paths.get("/etc/udev/rules.d/60-openocd.rules"); //$NON-NLS-1$
-				log(String.format(Messages.InstallToolsHandler_OpenOCDRulesCopyPaths, source.toString(),
-						target.toString()), IStatus.OK);
-
-				Display.getDefault().syncExec(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						try
-						{
-							if (target.toFile().exists())
-							{
-								MessageBox messageBox = new MessageBox(Display.getDefault().getActiveShell(),
-										SWT.ICON_WARNING | SWT.YES | SWT.NO);
-								messageBox.setText(Messages.InstallToolsHandler_OpenOCDRulesCopyWarning);
-								messageBox.setMessage(Messages.InstallToolsHandler_OpenOCDRulesCopyWarningMessage);
-								int response = messageBox.open();
-								if (response == SWT.YES)
-								{
-									Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-								}
-								else
-								{
-									log(Messages.InstallToolsHandler_OpenOCDRulesNotCopied, IStatus.ERROR);
-									return;
-								}
-							}
-							else
-							{
-								Files.copy(source, target);
-							}
-
-							log(Messages.InstallToolsHandler_OpenOCDRulesCopied, IStatus.OK);
-						}
-						catch (IOException e)
-						{
-							Logger.log(e);
-							log(Messages.InstallToolsHandler_OpenOCDRulesCopyError, IStatus.ERROR);
-						}
-					}
-				});
-			}
 		}
 	}
 	
