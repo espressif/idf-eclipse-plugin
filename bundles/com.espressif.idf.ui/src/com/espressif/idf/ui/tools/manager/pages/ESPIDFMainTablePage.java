@@ -219,7 +219,6 @@ public class ESPIDFMainTablePage
 		btn.setText(text);
 		btn.setToolTipText(tooltip);
 		var gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		gd.widthHint = 160;
 		btn.setLayoutData(gd);
 		return btn;
 	}
