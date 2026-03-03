@@ -37,33 +37,27 @@ import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.allOf;
  */
 @SuppressWarnings("restriction")
 @SWTBotWidget(clasz = CSelector.class, preferredName = "cselector")
-public class LaunchBarTargetSelector extends AbstractSWTBotControl<CSelector>
-{
+public class LaunchBarTargetSelector extends AbstractSWTBotControl<CSelector> {
 
 	private static final int NUM_FOR_FILTER_POPUP = 7;
 
-	public LaunchBarTargetSelector(TargetSelector targetSelector) throws WidgetNotFoundException
-	{
+	public LaunchBarTargetSelector(TargetSelector targetSelector) throws WidgetNotFoundException {
 		super(targetSelector);
 	}
 
-	public LaunchBarTargetSelector(SWTBot bot)
-	{
+	public LaunchBarTargetSelector(SWTBot bot) {
 		this(bot.widget(WidgetMatcherFactory.withTooltip("Launch Target: OK")));
 	}
 
-	public LaunchBarTargetSelector(SWTBot bot, boolean exec)
-	{
+	public LaunchBarTargetSelector(SWTBot bot, boolean exec) {
 		this(bot.widget(WidgetMatcherFactory.widgetOfType(TargetSelector.class)));
 	}
 
-	public SWTBot bot()
-	{
+	public SWTBot bot() {
 		return new SWTBot(widget);
 	}
 
-	public void click(int x, int y)
-	{
+	public void click(int x, int y) {
 		notify(SWT.MouseEnter);
 		notify(SWT.MouseMove);
 		notify(SWT.Activate);
@@ -72,27 +66,23 @@ public class LaunchBarTargetSelector extends AbstractSWTBotControl<CSelector>
 		notify(SWT.MouseUp, createMouseEvent(x, y, 1, SWT.BUTTON1, 1));
 	}
 
-    public void clickEdit()
-	{
+	public void clickEdit() {
 		bot().canvasWithId(LaunchBarWidgetIds.EDIT).click(); // $NON-NLS-1$
 	}
 
-	private void clickOnInternalWidget(int x, int y, Widget internalWidget)
-	{
+	private void clickOnInternalWidget(int x, int y, Widget internalWidget) {
 		notify(SWT.MouseDown, createMouseEvent(x, y, 1, SWT.NONE, 1), internalWidget);
 		notify(SWT.MouseUp, createMouseEvent(x, y, 1, SWT.BUTTON1, 1), internalWidget);
 	}
 
 	@Override
-	public LaunchBarTargetSelector click()
-	{
+	public LaunchBarTargetSelector click() {
 		Point size = syncExec((Result<Point>) () -> widget.getSize());
 		click(size.x / 2, size.y / 2);
 		return this;
 	}
 
-	public LaunchBarTargetSelector select(String text)
-	{
+	public LaunchBarTargetSelector select(String text) {
 		click();
 		Label itemToSelect = bot().shellWithId(LaunchBarWidgetIds.POPUP).bot().widget(withText(text));
 		Point itemToSelectLocation = syncExec((Result<Point>) () -> itemToSelect.getLocation());
@@ -100,82 +90,83 @@ public class LaunchBarTargetSelector extends AbstractSWTBotControl<CSelector>
 		return this;
 	}
 
-	public LaunchBarTargetSelector selectTarget(String text)
-	{
-	    click();
-	    SWTBotShell swtBotShell = bot().shellWithId(LaunchBarWidgetIds.POPUP);
-	    ScrolledComposite scrolledComposite = swtBotShell.bot().widget(widgetOfType(ScrolledComposite.class));
-	    int numberOfItemsInScrolledComp = syncExec(
-	            () -> ((Composite) scrolledComposite.getChildren()[0]).getChildren().length);
-	    Label itemToSelect;
+	public LaunchBarTargetSelector selectTarget(String text) {
+		click();
+		SWTBotShell swtBotShell = bot().shellWithId(LaunchBarWidgetIds.POPUP);
+		ScrolledComposite scrolledComposite = swtBotShell.bot().widget(widgetOfType(ScrolledComposite.class));
 
-	    if (numberOfItemsInScrolledComp > NUM_FOR_FILTER_POPUP)
-	    {
-	        swtBotShell.bot().text().setText(text);
-	        itemToSelect = swtBotShell.bot().widget(allOf(widgetOfType(Label.class), withText(text)));
-	    }
-	    else
-	    {
-	        itemToSelect = swtBotShell.bot().widget(allOf(widgetOfType(Label.class), withText(text)));
-	    }
+		int numberOfItemsInScrolledComp = syncExec(
+				() -> ((Composite) scrolledComposite.getChildren()[0]).getChildren().length);
 
-	    Point itemToSelectLocation = syncExec((Result<Point>) itemToSelect::getLocation);
-	    clickOnInternalWidget(itemToSelectLocation.x, itemToSelectLocation.y, itemToSelect);
-	    return this;
+		// If popup is "long" (no filter) we may need to scroll to reach items near the
+		// bottom.
+		if (numberOfItemsInScrolledComp <= NUM_FOR_FILTER_POPUP) {
+			scrollToBottom(scrolledComposite);
+		}
+
+		Label itemToSelect;
+
+		if (numberOfItemsInScrolledComp > NUM_FOR_FILTER_POPUP) {
+			// Filter pop-up: typing should bring the item into view, no need to scroll.
+			swtBotShell.bot().text().setText(text);
+			itemToSelect = swtBotShell.bot().widget(allOf(widgetOfType(Label.class), withText(text)));
+		} else {
+			// Non-filter pop-up: try to find it; if not found (still off-screen), scroll
+			// and retry.
+			try {
+				itemToSelect = swtBotShell.bot().widget(allOf(widgetOfType(Label.class), withText(text)));
+			} catch (Exception firstTryFailed) {
+				scrollToBottom(scrolledComposite);
+				itemToSelect = swtBotShell.bot().widget(allOf(widgetOfType(Label.class), withText(text)));
+			}
+		}
+
+		// Ensure selection is visible and coordinates are updated after scrolling
+		Point itemToSelectLocation = syncExec((Result<Point>) itemToSelect::getLocation);
+		clickOnInternalWidget(itemToSelectLocation.x, itemToSelectLocation.y, itemToSelect);
+
+		return this;
 	}
 
-	public void scrollToBottom(ScrolledComposite scrolledComposite)
-	{
-	    syncExec(() -> {
-	        scrolledComposite.setOrigin(0, scrolledComposite.getClientArea().height);
-	    });
+	public void scrollToBottom(ScrolledComposite scrolledComposite) {
+		syncExec(() -> {
+			scrolledComposite.setOrigin(0, scrolledComposite.getClientArea().height);
+		});
 	}
 
-	public boolean isTargetPresent(String text)
-	{
-	    click();
+	public boolean isTargetPresent(String text) {
+		click();
 
-	    try
-	    {
-	        SWTBotShell swtBotShell = bot().shellWithId(LaunchBarWidgetIds.POPUP);
-	        ScrolledComposite scrolledComposite = swtBotShell.bot().widget(widgetOfType(ScrolledComposite.class));
+		try {
+			SWTBotShell swtBotShell = bot().shellWithId(LaunchBarWidgetIds.POPUP);
+			ScrolledComposite scrolledComposite = swtBotShell.bot().widget(widgetOfType(ScrolledComposite.class));
 
-	        int numberOfItemsInScrolledComp = syncExec(() ->
-	            ((Composite) scrolledComposite.getChildren()[0]).getChildren().length
-	        );
+			int numberOfItemsInScrolledComp = syncExec(
+					() -> ((Composite) scrolledComposite.getChildren()[0]).getChildren().length);
 
-	        // Scroll to the bottom if there are many items
-	        if (numberOfItemsInScrolledComp > NUM_FOR_FILTER_POPUP)
-	        {
-	            scrollToBottom(swtBotShell.bot().widget(widgetOfType(ScrolledComposite.class)));
-	            swtBotShell.bot().text().setText(text);
+			// Scroll to the bottom if there are many items
+			if (numberOfItemsInScrolledComp > NUM_FOR_FILTER_POPUP) {
+				scrollToBottom(swtBotShell.bot().widget(widgetOfType(ScrolledComposite.class)));
+				swtBotShell.bot().text().setText(text);
 
-	            List<? extends Label> labels = swtBotShell.bot().widgets(widgetOfType(Label.class));
-	            for (Label label : labels)
-	            {
-	                String labelText = syncExec(label::getText);
-	                if (labelText.equals(text))
-	                {
-	                    return true;
-	                }
-	            }
-	            return false;
-	        }
-	        else
-	        {
-	            Widget itemToCheck = swtBotShell.bot().widget(withText(text));
-	            String labelText = syncExec(() -> ((Label) itemToCheck).getText());
-	            return labelText.equals(text);
-	        }
-	    }
-	    catch (WidgetNotFoundException e)
-	    {
-	        return false;
-	    }
-	    catch (Exception e)
-	    {
-	        e.printStackTrace();
-	        return false;
-	    }
+				List<? extends Label> labels = swtBotShell.bot().widgets(widgetOfType(Label.class));
+				for (Label label : labels) {
+					String labelText = syncExec(label::getText);
+					if (labelText.equals(text)) {
+						return true;
+					}
+				}
+				return false;
+			} else {
+				Widget itemToCheck = swtBotShell.bot().widget(withText(text));
+				String labelText = syncExec(() -> ((Label) itemToCheck).getText());
+				return labelText.equals(text);
+			}
+		} catch (WidgetNotFoundException e) {
+			return false;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 }
