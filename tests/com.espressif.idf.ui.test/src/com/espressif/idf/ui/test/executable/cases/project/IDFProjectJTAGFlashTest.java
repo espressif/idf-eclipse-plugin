@@ -125,9 +125,11 @@ public class IDFProjectJTAGFlashTest
 		{
 			LaunchBarConfigSelector configSelector = new LaunchBarConfigSelector(bot);
 			configSelector.clickEdit();
+
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Edit Configuration", 20000);
-			bot.cTabItem("Main").show();
-			bot.cTabItem("Main").setFocus();
+
+			bot.tabItem("Main").activate();
+
 			bot.comboBoxWithLabel("Flash over:").setSelection("JTAG");
 			bot.button("OK").click();
 		}

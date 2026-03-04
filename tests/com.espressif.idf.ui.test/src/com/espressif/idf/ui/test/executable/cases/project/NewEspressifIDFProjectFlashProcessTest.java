@@ -126,14 +126,17 @@ public class NewEspressifIDFProjectFlashProcessTest
 		{
 			LaunchBarConfigSelector configSelector = new LaunchBarConfigSelector(bot);
 			configSelector.clickEdit();
+
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Edit Configuration", 20000);
-			bot.cTabItem("Main").show();
-			bot.cTabItem("Main").setFocus();
+
+			bot.tabItem("Main").activate();
+
 			SWTBotCheckBox checkBox = bot.checkBox("Open Serial Monitor After Flashing");
 			if (checkBox.isChecked())
 			{
 				checkBox.click();
 			}
+
 			bot.button("OK").click();
 		}
 
