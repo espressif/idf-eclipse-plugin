@@ -1,5 +1,7 @@
 package com.espressif.idf.core.tools.vo;
 
+import java.util.Objects;
+
 import com.google.gson.annotations.Expose;
 
 public class IdfInstalled
@@ -75,6 +77,23 @@ public class IdfInstalled
 	public void setPython(String python)
 	{
 		this.python = python;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null || getClass() != obj.getClass())
+			return false;
+		IdfInstalled that = (IdfInstalled) obj;
+		return Objects.equals(id, that.id);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(id);
 	}
 
 }
