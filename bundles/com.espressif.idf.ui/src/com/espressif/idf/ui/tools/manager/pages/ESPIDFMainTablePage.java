@@ -14,6 +14,7 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
@@ -430,20 +431,24 @@ public class ESPIDFMainTablePage
 		});
 	}
 
-
-
 	public void setupInitialEspIdf()
 	{
-		if (tableViewer.getInput() instanceof List<?> list && !list.isEmpty()
-				&& !prefs.getBoolean(EimConstants.INSTALL_TOOLS_FLAG, false))
-			{
-				Object first = list.get(0);
-				if (first instanceof IdfRow selectedRaw)
-				{
-					performToolsSetup(selectedRaw.original());
-				}
-			}
+		if (container == null || container.isDisposed() || tableViewer == null
+				|| prefs.getBoolean(EimConstants.INSTALL_TOOLS_FLAG, false))
+		{
+			return;
+		}
 
+		if (tableViewer.getTable().getItemCount() == 0)
+		{
+			return;
+		}
+
+		if (tableViewer.getElementAt(0) instanceof IdfRow firstIdf)
+		{
+			tableViewer.setSelection(new StructuredSelection(firstIdf), true);
+			performToolsSetup(firstIdf.original());
+		}
 	}
 
 	private MessageConsoleStream getConsoleStream(boolean errorStream)
