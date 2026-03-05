@@ -118,7 +118,7 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 
 	// ------------------------------------------------------------------------
 
-	protected TabDebugger(TabStartup tabStartup)
+	public TabDebugger()
 	{
 		super();
 		fDefaultPreferences = Activator.getInstance().getDefaultPreferences();
