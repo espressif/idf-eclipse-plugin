@@ -128,7 +128,7 @@ public class IDFProjectJTAGFlashTest
 
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Edit Configuration", 20000);
 
-			bot.tabItem("Main").activate();
+			bot.cTabItem("Main").activate();
 
 			bot.comboBoxWithLabel("Flash over:").setSelection("JTAG");
 			bot.button("OK").click();
