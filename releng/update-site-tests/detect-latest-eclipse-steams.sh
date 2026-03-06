@@ -10,13 +10,44 @@ ESP_IDE_BASE="https://dl.espressif.com/dl/idf-eclipse-plugin/ide"
 echo "Fetching Eclipse release list from $RELEASE_XML"
 XML="$(curl -fsSL "$RELEASE_XML")"
 
-ECLIPSE_R_RELEASE="$(
+has_r_dir() {
+  local stream="$1"
+  local dir_url="$EPP_BASE/$stream/"
+
+  curl -fsSL "$dir_url" | grep -qE 'href="R/"|>R/'
+}
+
+select_stable_r_stream() {
+  local stream="$1"
+  local url="$EPP_BASE/$stream/R/eclipse-cpp-$stream-R-linux-gtk-x86_64.tar.gz"
+  local p2="https://download.eclipse.org/releases/$stream"
+
+  echo "Checking stream directory for official R/: $stream"
+  if ! has_r_dir "$stream"; then
+    echo "⚠️ No official R/ directory found for $stream"
+    return 1
+  fi
+
+  echo "Checking stable archive URL: $url"
+  if ! curl -fsI "$url" >/dev/null; then
+    echo "⚠️ R/ exists but archive is not reachable for $stream"
+    return 1
+  fi
+
+  ECLIPSE_R_RELEASE="$stream"
+  ECLIPSE_R_URL="$url"
+  ECLIPSE_R_P2="$p2"
+  return 0
+}
+
+mapfile -t ECLIPSE_R_RELEASES < <(
   printf '%s\n' "$XML" \
     | grep -oE '[0-9]{4}-[0-9]{2}/R([^A-Za-z0-9]|$)' \
     | sed -E 's|/R([^A-Za-z0-9].*)?$||' \
     | sort -r \
-    | head -n1
-)"
+    | uniq \
+    | head -n 2
+)
 
 # Latest milestone - optional
 ECLIPSE_M_RELEASE="$(
@@ -26,7 +57,7 @@ ECLIPSE_M_RELEASE="$(
     | head -n1 || true
 )"
 
-# Latest RC  - optional
+# Latest RC - optional
 ECLIPSE_RC_RELEASE="$(
   printf '%s\n' "$XML" \
     | grep -oE '[0-9]{4}-[0-9]{2}/RC[0-9]+' \
@@ -50,24 +81,40 @@ if [[ -n "${ECLIPSE_CASE3_STREAM:-}" ]]; then
 else
   echo "⚠️ No milestone or RC detected. Case 3 will be skipped."
 fi
-# -----------------------------------------------
 
-if [[ -z "${ECLIPSE_R_RELEASE:-}" ]]; then
-  echo "❌ Could not detect latest /R release"
+if [[ "${#ECLIPSE_R_RELEASES[@]}" -eq 0 ]]; then
+  echo "❌ Could not detect any /R release"
   exit 1
 fi
 
+LATEST_R="${ECLIPSE_R_RELEASES[0]}"
+PREVIOUS_R="${ECLIPSE_R_RELEASES[1]:-}"
+
 if [[ -z "${ECLIPSE_M_RELEASE:-}" ]]; then
-  echo "⚠️ No latest milestone detected. (/M*)."
+  echo "⚠️ No latest milestone detected (/M*)."
 fi
 
 if [[ -z "${ECLIPSE_RC_RELEASE:-}" ]]; then
-  echo "⚠️ No latest RC detected. (/RC*)."
+  echo "⚠️ No latest RC detected (/RC*)."
 fi
 
-# Build URLs
-ECLIPSE_R_URL="$EPP_BASE/$ECLIPSE_R_RELEASE/R/eclipse-cpp-$ECLIPSE_R_RELEASE-R-linux-gtk-x86_64.tar.gz"
-ECLIPSE_R_P2="https://download.eclipse.org/releases/$ECLIPSE_R_RELEASE"
+ECLIPSE_R_RELEASE=""
+ECLIPSE_R_URL=""
+ECLIPSE_R_P2=""
+
+echo "Trying latest stable R stream: $LATEST_R"
+if ! select_stable_r_stream "$LATEST_R"; then
+  if [[ -n "${PREVIOUS_R:-}" ]]; then
+    echo "Trying previous stable R stream: $PREVIOUS_R"
+    if ! select_stable_r_stream "$PREVIOUS_R"; then
+      echo "❌ Neither latest R nor previous R has a usable official archive"
+      exit 1
+    fi
+  else
+    echo "❌ No previous R stream found to fall back to"
+    exit 1
+  fi
+fi
 
 ECLIPSE_M_URL=""
 ECLIPSE_M_P2=""
@@ -77,11 +124,6 @@ if [[ -n "${ECLIPSE_M_RELEASE:-}" ]]; then
   M_TAG="${ECLIPSE_M_RELEASE#*/}"      # M2
   ECLIPSE_M_URL="$EPP_BASE/$STREAM/$M_TAG/eclipse-cpp-$STREAM-$M_TAG-linux-gtk-x86_64.tar.gz"
   ECLIPSE_M_P2="https://download.eclipse.org/releases/$STREAM"
-fi
-
-# Verify URLs exist
-if ! curl -fsI "$ECLIPSE_R_URL" >/dev/null; then
-  echo "⚠️ Could not verify Eclipse archive URL. Continuing anyway."
 fi
 
 # Verify Case 3 URL exists - if unreachable, skip Case 3
@@ -114,7 +156,6 @@ ESP_IDE_VERSION="${ESP_IDE_TAG#v}"
 ESPRESSIF_IDE_URL="$ESP_IDE_BASE/Espressif-IDE-${ESP_IDE_VERSION}-linux.gtk.x86_64.tar.gz"
 
 echo "Verifying Espressif-IDE archive exists..."
-
 if ! curl -sfI "$ESPRESSIF_IDE_URL" >/dev/null; then
   echo "⚠️ Could not verify Espressif-IDE archive URL. Continuing anyway."
 fi
