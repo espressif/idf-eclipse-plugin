@@ -10,26 +10,26 @@ ESP_IDE_BASE="https://dl.espressif.com/dl/idf-eclipse-plugin/ide"
 echo "Fetching Eclipse release list from $RELEASE_XML"
 XML="$(curl -fsSL "$RELEASE_XML")"
 
-TOKENS="$(printf '%s\n' "$XML" | tr ' ' '\n' | sed '/^$/d')"
-
 ECLIPSE_R_RELEASE="$(
-  printf '%s\n' "$TOKENS" \
-    | grep -E '^[0-9]{4}-[0-9]{2}/R$' \
-    | sed 's|/R||' \
+  printf '%s\n' "$XML" \
+    | grep -oE '[0-9]{4}-[0-9]{2}/R([^A-Za-z0-9]|$)' \
+    | sed -E 's|/R([^A-Za-z0-9].*)?$||' \
     | sort -r \
     | head -n1
 )"
 
+# Latest milestone - optional
 ECLIPSE_M_RELEASE="$(
-  printf '%s\n' "$TOKENS" \
-    | grep -E '^[0-9]{4}-[0-9]{2}/M[0-9]+$' \
+  printf '%s\n' "$XML" \
+    | grep -oE '[0-9]{4}-[0-9]{2}/M[0-9]+' \
     | sort -r \
     | head -n1 || true
 )"
 
+# Latest RC  - optional
 ECLIPSE_RC_RELEASE="$(
-  printf '%s\n' "$TOKENS" \
-    | grep -E '^[0-9]{4}-[0-9]{2}/RC[0-9]+$' \
+  printf '%s\n' "$XML" \
+    | grep -oE '[0-9]{4}-[0-9]{2}/RC[0-9]+' \
     | sort -r \
     | head -n1 || true
 )"
@@ -57,11 +57,29 @@ if [[ -z "${ECLIPSE_R_RELEASE:-}" ]]; then
   exit 1
 fi
 
-# Build URLs (stable)
+if [[ -z "${ECLIPSE_M_RELEASE:-}" ]]; then
+  echo "⚠️ No latest milestone detected. (/M*)."
+fi
+
+if [[ -z "${ECLIPSE_RC_RELEASE:-}" ]]; then
+  echo "⚠️ No latest RC detected. (/RC*)."
+fi
+
+# Build URLs
 ECLIPSE_R_URL="$EPP_BASE/$ECLIPSE_R_RELEASE/R/eclipse-cpp-$ECLIPSE_R_RELEASE-R-linux-gtk-x86_64.tar.gz"
 ECLIPSE_R_P2="https://download.eclipse.org/releases/$ECLIPSE_R_RELEASE"
 
-# Verify URLs exist (stable) - non-fatal
+ECLIPSE_M_URL=""
+ECLIPSE_M_P2=""
+
+if [[ -n "${ECLIPSE_M_RELEASE:-}" ]]; then
+  STREAM="${ECLIPSE_M_RELEASE%/*}"     # 2026-03
+  M_TAG="${ECLIPSE_M_RELEASE#*/}"      # M2
+  ECLIPSE_M_URL="$EPP_BASE/$STREAM/$M_TAG/eclipse-cpp-$STREAM-$M_TAG-linux-gtk-x86_64.tar.gz"
+  ECLIPSE_M_P2="https://download.eclipse.org/releases/$STREAM"
+fi
+
+# Verify URLs exist
 if ! curl -fsI "$ECLIPSE_R_URL" >/dev/null; then
   echo "⚠️ Could not verify Eclipse archive URL. Continuing anyway."
 fi
@@ -96,6 +114,7 @@ ESP_IDE_VERSION="${ESP_IDE_TAG#v}"
 ESPRESSIF_IDE_URL="$ESP_IDE_BASE/Espressif-IDE-${ESP_IDE_VERSION}-linux.gtk.x86_64.tar.gz"
 
 echo "Verifying Espressif-IDE archive exists..."
+
 if ! curl -sfI "$ESPRESSIF_IDE_URL" >/dev/null; then
   echo "⚠️ Could not verify Espressif-IDE archive URL. Continuing anyway."
 fi
