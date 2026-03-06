@@ -562,10 +562,10 @@
 			name="%category.name">
 		</category>
 		<wizard
-			canFinishEarly="true"
+			canFinishEarly="false"
 			category="com.espressif.idf.ui.new.wizard.category"
-			class="com.espressif.idf.ui.wizard.NewIdfProjectMainWizard"
-			hasPages="false"
+			class="com.espressif.idf.ui.wizard.NewIDFProjectWizard"
+			hasPages="true"
 			icon="icons/espressif_idf_project.png"
 			id="com.espressif.idf.ui.new.project.wizard"
 			name="%wizard.name"
@@ -575,10 +575,10 @@
 			</description>
 		</wizard>
 		<wizard
-			canFinishEarly="true"
+			canFinishEarly="false"
 			category="com.espressif.idf.ui.new.wizard.category"
-			class="com.espressif.idf.ui.wizard.NewComponentMainWizard"
-			hasPages="false"
+			class="com.espressif.idf.ui.wizard.NewComponentWizard"
+			hasPages="true"
 			icon="icons/Espressif_IDF_Component.png"
 			id="com.espressif.idf.ui.component.wizard"
 			name="%wizard.name.1"

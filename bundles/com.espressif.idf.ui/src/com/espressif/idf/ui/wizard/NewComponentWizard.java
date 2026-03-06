@@ -13,6 +13,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.ui.handlers.NewProjectHandlerUtil;
 
 @SuppressWarnings("restriction")
 public class NewComponentWizard extends Wizard implements INewWizard
@@ -33,6 +34,13 @@ public class NewComponentWizard extends Wizard implements INewWizard
 	@Override
 	public void addPages()
 	{
+		var errorMsg = NewProjectHandlerUtil.getErrorMessage();
+		if (errorMsg.isEmpty())
+		{
+			addPage(new ToolsMissingWizardPage(errorMsg));
+			return;
+		}
+		
 		mainPage = new NewComponentWizardPage(selection);
 		addPage(mainPage);
 	}

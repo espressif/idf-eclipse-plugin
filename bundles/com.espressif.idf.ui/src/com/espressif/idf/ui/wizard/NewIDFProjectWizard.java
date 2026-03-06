@@ -7,6 +7,7 @@ package com.espressif.idf.ui.wizard;
 import java.io.File;
 
 import org.eclipse.cdt.debug.internal.core.InternalDebugCoreMessages;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -35,7 +36,6 @@ import org.eclipse.tools.templates.core.IGenerator;
 import org.eclipse.tools.templates.ui.TemplateWizard;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
 import com.espressif.idf.core.IDFConstants;
@@ -54,6 +54,7 @@ import com.espressif.idf.ui.templates.IDFProjectGenerator;
 import com.espressif.idf.ui.templates.ITemplateNode;
 import com.espressif.idf.ui.templates.NewProjectCreationWizardPage;
 import com.espressif.idf.ui.templates.TemplatesManager;
+import com.espressif.idf.ui.tools.ManageEspIdfVersionsHandler;
 
 /**
  * Creates a wizard for creating a new IDF project resource in the workspace.
@@ -67,8 +68,6 @@ public class NewIDFProjectWizard extends TemplateWizard
 	public static final String TARGET_SWITCH_JOB = "TARGET SWITCH JOB"; //$NON-NLS-1$
 	private NewProjectCreationWizardPage projectCreationWizardPage;
 	private IProject project;
-	private MessageConsole console;
-
 	public NewIDFProjectWizard()
 	{
 		IDialogSettings workbenchSettings = IDEWorkbenchPlugin.getDefault().getDialogSettings();
@@ -83,8 +82,10 @@ public class NewIDFProjectWizard extends TemplateWizard
 	@Override
 	public void addPages()
 	{
-		if (!NewProjectHandlerUtil.installToolsCheck())
+		var errorMsg = NewProjectHandlerUtil.getErrorMessage();
+		if (errorMsg.isEmpty())
 		{
+			addPage(new ToolsMissingWizardPage(errorMsg));
 			return;
 		}
 		super.addPages();
@@ -107,6 +108,19 @@ public class NewIDFProjectWizard extends TemplateWizard
 	@Override
 	public boolean performFinish()
 	{
+		if (getContainer().getCurrentPage() instanceof ToolsMissingWizardPage)
+		{
+			try
+			{
+				new ManageEspIdfVersionsHandler().execute(null);
+			}
+			catch (ExecutionException e)
+			{
+				Logger.log(e);
+			}
+			return true;
+		}
+
 		boolean performFinish = super.performFinish();
 		if (performFinish)
 		{
