@@ -103,7 +103,6 @@ install_iu () {
       -application org.eclipse.equinox.p2.director \
       -repository "$repo" \
       -installIU "$FEATURE_ID" \
-      "${P2_DEST_ARGS[@]}" \
       -consoleLog
   else
     "$LAUNCHER" \
@@ -128,7 +127,6 @@ replace_iu () {
       -repository "$repo" \
       -uninstallIU "$FEATURE_ID" \
       -installIU "$FEATURE_ID" \
-      "${P2_DEST_ARGS[@]}" \
       -consoleLog
   else
     "$LAUNCHER" \
@@ -152,7 +150,6 @@ list_ius () {
       -data "$WORKSPACE_DIR" \
       -application org.eclipse.equinox.p2.director \
       -list \
-      "${P2_DEST_ARGS[@]}" \
       -consoleLog \
       > "$LOGDIR/$out" 2>&1 || true
   else
