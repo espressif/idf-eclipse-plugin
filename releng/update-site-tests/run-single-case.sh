@@ -66,8 +66,21 @@ else
 fi
 echo "Using launcher: $LAUNCHER"
 
+JAVA_LAUNCHER=""
+EQUINOX_LAUNCHER_JAR=""
+
+if [[ "$BASE_PRODUCT" == "espressif-ide" ]]; then
+  EQUINOX_LAUNCHER_JAR="$(find "$ECLIPSE_HOME/plugins" -maxdepth 1 -name 'org.eclipse.equinox.launcher_*.jar' | head -n1 || true)"
+  [[ -n "$EQUINOX_LAUNCHER_JAR" ]] || { echo "❌ Equinox launcher jar not found under $ECLIPSE_HOME/plugins"; exit 1; }
+
+  JAVA_LAUNCHER=( java -jar "$EQUINOX_LAUNCHER_JAR" )
+  echo "Using Equinox launcher jar for Espressif-IDE: $EQUINOX_LAUNCHER_JAR"
+fi
+
 # Common director flags: IMPORTANT to keep same destination/profile/bundlepool across steps
 P2_DEST_ARGS=( -destination "$ECLIPSE_HOME" -profile SDKProfile -bundlepool "$WORKDIR/p2" -roaming )
+WORKSPACE_DIR="$WORKDIR/workspace"
+mkdir -p "$WORKSPACE_DIR"
 
 build_repo_list() {
   local primary="$1"
@@ -81,47 +94,100 @@ build_repo_list() {
 
 install_iu () {
   local repo="$1"
-  "$LAUNCHER" \
-    -nosplash \
-    -application org.eclipse.equinox.p2.director \
-    -repository "$repo" \
-    -installIU "$FEATURE_ID" \
-    "${P2_DEST_ARGS[@]}" \
-    -consoleLog
+
+  if [[ "$BASE_PRODUCT" == "espressif-ide" ]]; then
+    "${JAVA_LAUNCHER[@]}" \
+      -clean \
+      -nosplash \
+      -data "$WORKSPACE_DIR" \
+      -application org.eclipse.equinox.p2.director \
+      -repository "$repo" \
+      -installIU "$FEATURE_ID" \
+      "${P2_DEST_ARGS[@]}" \
+      -consoleLog
+  else
+    "$LAUNCHER" \
+      -nosplash \
+      -application org.eclipse.equinox.p2.director \
+      -repository "$repo" \
+      -installIU "$FEATURE_ID" \
+      "${P2_DEST_ARGS[@]}" \
+      -consoleLog
+  fi
 }
 
 replace_iu () {
   local repo="$1"
-  "$LAUNCHER" \
-    -nosplash \
-    -application org.eclipse.equinox.p2.director \
-    -repository "$repo" \
-    -uninstallIU "$FEATURE_ID" \
-    -installIU "$FEATURE_ID" \
-    "${P2_DEST_ARGS[@]}" \
-    -consoleLog
+
+  if [[ "$BASE_PRODUCT" == "espressif-ide" ]]; then
+    "${JAVA_LAUNCHER[@]}" \
+      -clean \
+      -nosplash \
+      -data "$WORKSPACE_DIR" \
+      -application org.eclipse.equinox.p2.director \
+      -repository "$repo" \
+      -uninstallIU "$FEATURE_ID" \
+      -installIU "$FEATURE_ID" \
+      "${P2_DEST_ARGS[@]}" \
+      -consoleLog
+  else
+    "$LAUNCHER" \
+      -nosplash \
+      -application org.eclipse.equinox.p2.director \
+      -repository "$repo" \
+      -uninstallIU "$FEATURE_ID" \
+      -installIU "$FEATURE_ID" \
+      "${P2_DEST_ARGS[@]}" \
+      -consoleLog
+  fi
 }
 
 list_ius () {
   local out="$1"
-  "$LAUNCHER" \
-    -nosplash \
-    -application org.eclipse.equinox.p2.director \
-    -list \
-    "${P2_DEST_ARGS[@]}" \
-    -consoleLog \
-    > "$LOGDIR/$out" 2>&1 || true
+
+  if [[ "$BASE_PRODUCT" == "espressif-ide" ]]; then
+    "${JAVA_LAUNCHER[@]}" \
+      -clean \
+      -nosplash \
+      -data "$WORKSPACE_DIR" \
+      -application org.eclipse.equinox.p2.director \
+      -list \
+      "${P2_DEST_ARGS[@]}" \
+      -consoleLog \
+      > "$LOGDIR/$out" 2>&1 || true
+  else
+    "$LAUNCHER" \
+      -nosplash \
+      -application org.eclipse.equinox.p2.director \
+      -list \
+      "${P2_DEST_ARGS[@]}" \
+      -consoleLog \
+      > "$LOGDIR/$out" 2>&1 || true
+  fi
 }
 
 list_roots () {
   local out="$1"
-  "$LAUNCHER" \
-    -nosplash \
-    -application org.eclipse.equinox.p2.director \
-    -listInstalledRoots \
-    "${P2_DEST_ARGS[@]}" \
-    -consoleLog \
-    > "$LOGDIR/$out" 2>&1 || true
+
+  if [[ "$BASE_PRODUCT" == "espressif-ide" ]]; then
+    "${JAVA_LAUNCHER[@]}" \
+      -clean \
+      -nosplash \
+      -data "$WORKSPACE_DIR" \
+      -application org.eclipse.equinox.p2.director \
+      -listInstalledRoots \
+      "${P2_DEST_ARGS[@]}" \
+      -consoleLog \
+      > "$LOGDIR/$out" 2>&1 || true
+  else
+    "$LAUNCHER" \
+      -nosplash \
+      -application org.eclipse.equinox.p2.director \
+      -listInstalledRoots \
+      "${P2_DEST_ARGS[@]}" \
+      -consoleLog \
+      > "$LOGDIR/$out" 2>&1 || true
+  fi
 }
 
 # --- Step A: install stable ---
