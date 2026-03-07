@@ -62,7 +62,6 @@ public class IDFUtil
 	{
 	}
 
-	private static Boolean idfSupportsSpaces;
 
 	/**
 	 * @return sysviewtrace_proc.py file path based on the IDF_PATH defined in the environment variables
@@ -234,20 +233,6 @@ public class IDFUtil
 		}
 		return findCommandFromBuildEnvPath(IDFConstants.PYTHON_CMD);
 
-	}
-
-	public static boolean checkIfIdfSupportsSpaces()
-	{
-
-		if (idfSupportsSpaces != null)
-		{
-			return idfSupportsSpaces;
-		}
-		String version = getEspIdfVersion();
-		Pattern p = Pattern.compile("([0-9][.][0-9])"); //$NON-NLS-1$
-		Matcher m = p.matcher(version);
-		idfSupportsSpaces = m.find() && Double.parseDouble(m.group(0)) >= 5.0;
-		return idfSupportsSpaces;
 	}
 
 	public static String getPythonExecutable()
