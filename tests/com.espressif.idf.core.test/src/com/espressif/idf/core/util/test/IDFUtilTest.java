@@ -191,48 +191,6 @@ public class IDFUtilTest
 	}
 
 	@Test
-	public void testCheckIfIdfSupportsSpaces_VersionAbove5_ShouldReturnTrue()
-	{
-		try (MockedStatic<IDFUtil> mocked = mockStatic(IDFUtil.class, CALLS_REAL_METHODS))
-		{
-			mocked.when(IDFUtil::getEspIdfVersion).thenReturn("5.1.0"); //$NON-NLS-1$
-
-			boolean result = IDFUtil.checkIfIdfSupportsSpaces();
-
-			assertTrue(result);
-		}
-	}
-
-	@Test
-	public void testCheckIfIdfSupportsSpaces_VersionBelow5_ShouldReturnFalse()
-	{
-		try (MockedStatic<IDFUtil> mocked = mockStatic(IDFUtil.class, CALLS_REAL_METHODS))
-		{
-			mocked.when(IDFUtil::getEspIdfVersion).thenReturn("4.4.3"); //$NON-NLS-1$
-
-			boolean result = IDFUtil.checkIfIdfSupportsSpaces();
-
-			assertFalse(result);
-		}
-	}
-
-	@Test
-	public void testCheckIfIdfSupportsSpaces_CachesResultAfterFirstCall() throws Exception
-	{
-		try (MockedStatic<IDFUtil> mocked = mockStatic(IDFUtil.class, CALLS_REAL_METHODS))
-		{
-			mocked.when(IDFUtil::getEspIdfVersion).thenReturn("5.0.0"); //$NON-NLS-1$
-
-			boolean firstCall = IDFUtil.checkIfIdfSupportsSpaces();
-			assert (firstCall);
-
-			mocked.when(IDFUtil::getEspIdfVersion).thenReturn("4.0.0"); // should not affect result //$NON-NLS-1$
-			boolean secondCall = IDFUtil.checkIfIdfSupportsSpaces();
-			assertTrue(secondCall); // result is cached
-		}
-	}
-
-	@Test
 	public void testGetLineSeparatorValue_ShouldReturnLineSeparator()
 	{
 		String expected = System.getProperty("line.separator"); //$NON-NLS-1$

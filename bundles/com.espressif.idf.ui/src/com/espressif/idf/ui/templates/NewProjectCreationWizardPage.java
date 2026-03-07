@@ -244,30 +244,11 @@ public class NewProjectCreationWizardPage extends AbstractTemplatesSelectionPage
 	{
 		IWorkspace workspace = IDEWorkbenchPlugin.getPluginWorkspace();
 
-		String worspaceLocation = workspace.getRoot().getLocation().toOSString();
-		if (!useDefaults())
-		{
-			worspaceLocation = locationArea.getProjectLocation();
-		}
-
-		if (!IDFUtil.checkIfIdfSupportsSpaces() && worspaceLocation.contains(" ")) //$NON-NLS-1$
-		{
-			setErrorMessage(
-					com.espressif.idf.ui.wizard.Messages.WizardNewProjectCreationPage_WorkspaceLocCantIncludeSpaceErr);
-			return false;
-		}
-
 		String projectFieldContents = getProjectNameFieldValue();
 		if (projectFieldContents.equals("")) //$NON-NLS-1$
 		{
 			setErrorMessage(null);
 			setMessage(IDEWorkbenchMessages.WizardNewProjectCreationPage_projectNameEmpty);
-			return false;
-		}
-
-		if (!IDFUtil.checkIfIdfSupportsSpaces() && projectFieldContents.contains(" ")) //$NON-NLS-1$
-		{
-			setErrorMessage(com.espressif.idf.ui.wizard.Messages.WizardNewProjectCreationPage_NameCantIncludeSpaceErr);
 			return false;
 		}
 
