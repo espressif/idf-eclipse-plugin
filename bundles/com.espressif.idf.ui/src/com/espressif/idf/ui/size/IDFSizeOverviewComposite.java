@@ -4,6 +4,9 @@
  *******************************************************************************/
 package com.espressif.idf.ui.size;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
@@ -35,6 +38,7 @@ public class IDFSizeOverviewComposite
 	private Table table;
 	private JSONObject overviewJson;
 	private Font boldFont;
+	private List<TableEditor> tableEditors = new ArrayList<>();
 
 	private enum MemoryUnit
 	{
@@ -113,10 +117,28 @@ public class IDFSizeOverviewComposite
 		// Bold header
 		Font headerFont = applyBold(table.getFont());
 		table.setFont(headerFont);
+		parent.addDisposeListener(e -> {
+			if (boldFont != null && !boldFont.isDisposed())
+			{
+				boldFont.dispose();
+			}
+		});
 	}
 
 	private void populateTable()
 	{
+		if (table == null || table.isDisposed()) return;
+		
+		for (TableEditor editor : tableEditors)
+		{
+			if (editor.getEditor() != null && !editor.getEditor().isDisposed())
+			{
+				editor.getEditor().dispose(); 
+			}
+			editor.dispose(); 
+		}
+		tableEditors.clear();
+		
 		table.removeAll();
 
 		// Defensive check: Handle unexpected empty data gracefully to prevent UI crash.
@@ -175,6 +197,7 @@ public class IDFSizeOverviewComposite
 			return;
 
 		TableEditor editor = new TableEditor(table);
+		tableEditors.add(editor);
 		editor.grabHorizontal = true;
 		editor.grabVertical = true;
 		editor.horizontalAlignment = SWT.FILL;
