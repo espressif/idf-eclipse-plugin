@@ -150,7 +150,15 @@ public class IDFSizeAnalysisEditor extends MultiPageEditorPart
 
 		// Apply bold style to default system font
 		FontDescriptor boldFontDescriptor = FontDescriptor.createFrom(title.getFont()).setStyle(SWT.BOLD);
-		title.setFont(boldFontDescriptor.createFont(parent.getDisplay()));
+		Font boldFont = boldFontDescriptor.createFont(parent.getDisplay());
+		title.setFont(boldFont);
+		
+		title.addDisposeListener(e -> {
+			if (boldFont != null && !boldFont.isDisposed())
+			{
+				boldFont.dispose();
+			}
+		});
 
 		// Subtext explanation
 		Label explanation = new Label(parent, SWT.CENTER | SWT.WRAP);

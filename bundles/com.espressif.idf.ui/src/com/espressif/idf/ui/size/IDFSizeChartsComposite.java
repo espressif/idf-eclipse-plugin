@@ -146,6 +146,11 @@ public class IDFSizeChartsComposite
 
 	private void plotCharts()
 	{
+		if (chartComp == null || chartComp.isDisposed()) 
+		{
+			return;
+		}
+		
 		for (var child : chartComp.getChildren())
 			child.dispose();
 
@@ -310,6 +315,12 @@ public class IDFSizeChartsComposite
 			Image swtImg = new Image(parent.getDisplay(), imgData);
 			Label imgLabel = new Label(parent, SWT.NONE);
 			imgLabel.setImage(swtImg);
+			imgLabel.addDisposeListener(e -> {
+				if (swtImg != null && !swtImg.isDisposed())
+				{
+					swtImg.dispose();
+				}
+			});
 		}
 		catch (Exception e)
 		{
