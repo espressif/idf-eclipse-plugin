@@ -1,9 +1,7 @@
 package com.espressif.idf.core.util.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
@@ -14,7 +12,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -26,7 +23,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedConstruction;
@@ -40,13 +36,13 @@ import com.espressif.idf.core.toolchain.ESPToolChainManager;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.SDKConfigJsonReader;
 
-public class IDFUtilTest
+class IDFUtilTest
 {
 	@TempDir
 	File tempDir;
 
 	@Test
-	public void testGetIdfSysviewTraceScriptFile_ShouldReturnValidScriptFile()
+	void testGetIdfSysviewTraceScriptFile_ShouldReturnValidScriptFile()
 	{
 		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
 				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
@@ -61,7 +57,7 @@ public class IDFUtilTest
 	}
 
 	@Test
-	public void testGetIDFPythonScriptFile_ShouldReturnValidScriptFile()
+	void testGetIDFPythonScriptFile_ShouldReturnValidScriptFile()
 	{
 		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
 				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
@@ -76,7 +72,7 @@ public class IDFUtilTest
 	}
 
 	@Test
-	public void testGetIDFPythonScriptFile_WithArgument_ShouldReturnValidScriptFile()
+	void testGetIDFPythonScriptFile_WithArgument_ShouldReturnValidScriptFile()
 	{
 		String idfPath = "esp_idf_path"; //$NON-NLS-1$
 
@@ -87,7 +83,7 @@ public class IDFUtilTest
 	}
 
 	@Test
-	public void testGetIDFMonitorPythonScriptFile_ShouldReturnValidScriptFile()
+	void testGetIDFMonitorPythonScriptFile_ShouldReturnValidScriptFile()
 	{
 		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
 				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
@@ -102,7 +98,7 @@ public class IDFUtilTest
 	}
 
 	@Test
-	public void testGetIDFToolsScriptFile_ShouldReturnValidScriptFile()
+	void testGetIDFToolsScriptFile_ShouldReturnValidScriptFile()
 	{
 		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
 				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
@@ -117,7 +113,7 @@ public class IDFUtilTest
 	}
 
 	@Test
-	public void testGetIDFToolsScriptFile_WithArgument_ShouldReturnValidScriptFile()
+	void testGetIDFToolsScriptFile_WithArgument_ShouldReturnValidScriptFile()
 	{
 		String inputPath = "custom_idf_path"; //$NON-NLS-1$
 		File result = IDFUtil.getIDFToolsScriptFile(inputPath);
@@ -129,7 +125,7 @@ public class IDFUtilTest
 	}
 
 	@Test
-	public void testGetIDFMonitorScriptFile_ShouldReturnValidScriptFile()
+	void testGetIDFMonitorScriptFile_ShouldReturnValidScriptFile()
 	{
 		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
 				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
@@ -143,7 +139,7 @@ public class IDFUtilTest
 	}
 
 	@Test
-	public void testGetIDFSizeScriptFile_ShouldReturnValidScriptFile()
+	void testGetIDFSizeScriptFile_ShouldReturnValidScriptFile()
 	{
 		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
 				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
@@ -157,7 +153,7 @@ public class IDFUtilTest
 	}
 
 	@Test
-	public void testGetIDFToolsJsonFileForInstallation_ShouldReturnValidScriptFile()
+	void testGetIDFToolsJsonFileForInstallation_ShouldReturnValidScriptFile()
 	{
 		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
 				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
@@ -171,7 +167,7 @@ public class IDFUtilTest
 	}
 
 	@Test
-	public void testGetIDFPath_ShouldReturnIDFPathSpecifiedInIDFEnvironmentVariables()
+	void testGetIDFPath_ShouldReturnIDFPathSpecifiedInIDFEnvironmentVariables()
 	{
 		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
 				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
@@ -182,16 +178,8 @@ public class IDFUtilTest
 		}
 	}
 
-	@AfterEach
-	public void resetCachedFlag() throws Exception
-	{
-		Field f = IDFUtil.class.getDeclaredField("idfSupportsSpaces"); //$NON-NLS-1$
-		f.setAccessible(true);
-		f.set(null, null); // reset static cached value
-	}
-
 	@Test
-	public void testGetLineSeparatorValue_ShouldReturnLineSeparator()
+	void testGetLineSeparatorValue_ShouldReturnLineSeparator()
 	{
 		String expected = System.getProperty("line.separator"); //$NON-NLS-1$
 		String result = IDFUtil.getLineSeparatorValue();
@@ -199,7 +187,7 @@ public class IDFUtilTest
 	}
 
 	@Test
-	public void testGetIDFExtraPaths_WhenIDFPathIsSet_ShouldReturnExpectedPaths()
+	void testGetIDFExtraPaths_WhenIDFPathIsSet_ShouldReturnExpectedPaths()
 	{
 		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
 				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
@@ -341,7 +329,7 @@ public class IDFUtilTest
 	}
 
 	@Test
-	public void testGetEspToolScriptFile_ShouldReturnValidScriptFile()
+	void testGetEspToolScriptFile_ShouldReturnValidScriptFile()
 	{
 		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
 				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
@@ -357,7 +345,7 @@ public class IDFUtilTest
 	}
 
 	@Test
-	public void testGetEspCoreDumpScriptFile_ShouldReturnValidScriptFile()
+	void testGetEspCoreDumpScriptFile_ShouldReturnValidScriptFile()
 	{
 		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
 				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
@@ -372,7 +360,7 @@ public class IDFUtilTest
 	}
 
 	@Test
-	public void testGetNvsGeneratorScriptPath_ShouldReturnValidScriptPath()
+	void testGetNvsGeneratorScriptPath_ShouldReturnValidScriptPath()
 	{
 		try (MockedConstruction<IDFEnvironmentVariables> mocked = mockConstruction(IDFEnvironmentVariables.class,
 				(mock, context) -> when(mock.getEnvValue(IDFEnvironmentVariables.IDF_PATH)).thenReturn("esp_idf_path"))) //$NON-NLS-1$
