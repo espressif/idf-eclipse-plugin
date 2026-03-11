@@ -82,7 +82,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: com.espressif.idf.update-${{ env.VERSION }}
-        path: releng/com.espressif.idf.update/target/repository
+        path: releng/com.espressif.idf.update/target/composite-repo
 
     - name: Upload Windows x86_64 artifact
       if: ${{ !cancelled() }}
