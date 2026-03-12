@@ -37,6 +37,6 @@ public class ToolsMissingWizardPage extends WizardPage
 
 		setControl(container);
 
-		setPageComplete(true);
+		setPageComplete(false);
 	}
 }
