@@ -22,18 +22,18 @@ Steps
 1.  Right-click on a project in the Project Explorer.
 2.  Click on the ``ESP-IDF: NVS Table Editor`` menu option.
 
-    .. image:: https://user-images.githubusercontent.com/24419842/216114697-9f231211-f5dd-431b-9432-93ecc656cfec.png
+    .. image:: ../../../media/NvsEditor/nvs_1.png
        :alt: NVS Table Editor menu option
 
 3.  Make desired changes to the CSV data.
 4.  Save changes by clicking the ``Save`` button. If everything is correct, you will see an information message at the top of the dialog:
 
-    .. image:: https://user-images.githubusercontent.com/24419842/216115906-9bb4fe55-293b-4c6b-8d22-0aa3520581ab.png
+    .. image:: ../../../media/NvsEditor/nvs_2.png
        :alt: Save confirmation in NVS Table Editor
 
 5.  Generate the partition binary. Choose ``Encrypt`` to encrypt the binary, and disable the ``Generate Key`` option if you want to use your own key. An information message will appear at the top of the dialog showing the result of the generated binaries. Hover over the message to view the full content if it is truncated:
 
-    .. image:: https://user-images.githubusercontent.com/24419842/216117261-9bee798a-3a9e-4be5-9466-fc9d3847834b.png
+    .. image:: ../../../media/NvsEditor/nvs_3.png
        :alt: Binary generation result in NVS Table Editor
 
     .. note:: 
