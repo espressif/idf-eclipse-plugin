@@ -39,7 +39,7 @@ public class NewProjectHandlerUtil
 	public static boolean installToolsCheck()
 	{
 		String errorMessage = getErrorMessage();
-		if (!errorMessage.isEmpty())
+		if (!StringUtil.isEmpty(errorMessage))
 		{
 			showMessage(errorMessage);
 			return false;
