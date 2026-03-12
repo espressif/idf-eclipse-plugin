@@ -35,7 +35,7 @@ public class NewComponentWizard extends Wizard implements INewWizard
 	public void addPages()
 	{
 		var errorMsg = NewProjectHandlerUtil.getErrorMessage();
-		if (errorMsg.isEmpty())
+		if (!errorMsg.isEmpty())
 		{
 			addPage(new ToolsMissingWizardPage(errorMsg));
 			return;

@@ -83,7 +83,7 @@ public class NewIDFProjectWizard extends TemplateWizard
 	public void addPages()
 	{
 		var errorMsg = NewProjectHandlerUtil.getErrorMessage();
-		if (errorMsg.isEmpty())
+		if (!errorMsg.isEmpty())
 		{
 			addPage(new ToolsMissingWizardPage(errorMsg));
 			return;
