@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright 2026 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.ui.wizard;
 
 import java.nio.file.Files;

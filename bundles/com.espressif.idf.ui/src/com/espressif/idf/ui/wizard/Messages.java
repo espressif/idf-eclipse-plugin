@@ -44,6 +44,10 @@ public class Messages extends NLS
 	public static String NewComponentWizardPage_ProjectNameLbl;
 	public static String IdfReconfigureJobName;
 
+	public static String ToolsMissingWizardPage_MainText;
+	public static String ToolsMissingWizardPage_PagaName;
+	public static String ToolsMissingWizardPage_Title;
+
 	static
 	{
 		// initialize resource bundle
