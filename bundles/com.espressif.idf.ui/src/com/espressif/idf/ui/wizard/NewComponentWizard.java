@@ -48,6 +48,10 @@ public class NewComponentWizard extends Wizard implements INewWizard
 	@Override
 	public boolean performFinish()
 	{
+		if (mainPage == null)
+		{
+			return false;
+		}
 		String message = mainPage.createIdfComponent();
 		try
 		{
