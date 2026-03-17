@@ -260,7 +260,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		toolChainFile = getToolChainFile();
 
 		Instant start = Instant.now();
-		if (!checkLaunchTarget(console) || !checkSpacesSupport(project, console) || !checkToolChainFile(console))
+		if (!checkLaunchTarget(console) || !checkToolChainFile(console))
 		{
 			return new IProject[0];
 		}
@@ -516,26 +516,6 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 				| CoreException e)
 		{
 			Logger.log(e);
-		}
-		return true;
-	}
-
-	private boolean checkSpacesSupport(IProject project, IConsole console)
-	{
-		if (!IDFUtil.checkIfIdfSupportsSpaces() && project.getLocation().toOSString().contains(" ")) //$NON-NLS-1$
-		{
-			try
-			{
-				console.getErrorStream()
-						.write("Project path can’t include space " + project.getLocation().toOSString()); //$NON-NLS-1$
-			}
-			catch (
-					IOException
-					| CoreException e)
-			{
-				Logger.log(e);
-			}
-			return false;
 		}
 		return true;
 	}
