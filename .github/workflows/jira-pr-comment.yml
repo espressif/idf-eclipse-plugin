@@ -22,15 +22,17 @@ jobs:
   add-pr-comment-to-jira:
     name: Add PR Comment to Jira
     runs-on: ubuntu-latest
+    permissions: {}
     steps:
       - name: Extract Jira Issue Key from PR Title
         id: extract
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          TITLE="${{ github.event.pull_request.title }}"
-          echo "PR Title: $TITLE"
+          echo "PR Title: $PR_TITLE"
 
           # Match pattern: IEP-12345: description
-          if [[ "$TITLE" =~ ^(IEP-[0-9]+): ]]; then
+          if [[ "$PR_TITLE" =~ ^(IEP-[0-9]+): ]]; then
             ISSUE_KEY="${BASH_REMATCH[1]}"
             echo "Found Jira issue key: $ISSUE_KEY"
             echo "issue_key=$ISSUE_KEY" >> $GITHUB_OUTPUT
