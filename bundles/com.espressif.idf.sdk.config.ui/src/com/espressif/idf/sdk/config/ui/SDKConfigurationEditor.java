@@ -251,16 +251,14 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		layout.marginWidth = 0;
 		parent.setLayout(layout);
 
-		GridData layoutData = new GridData();
-		layoutData.grabExcessVerticalSpace = true;
-		layoutData.verticalAlignment = GridData.FILL;
-
 		Group treeComposite = new Group(parent, SWT.V_SCROLL | SWT.TOP);
 		layout = new GridLayout();
 		layout.numColumns = 1;
 		layout.marginWidth = 0;
 		layout.marginHeight = 2;
 		treeComposite.setLayout(layout);
+		GridData layoutData = new GridData(SWT.FILL, SWT.FILL, false, true);
+		layoutData.widthHint = 250;
 		treeComposite.setLayoutData(layoutData);
 
 		FilteredTree transfersTree = createFilteredTree(treeComposite);
