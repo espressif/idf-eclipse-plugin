@@ -6,11 +6,13 @@ package com.espressif.idf.core.util.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +22,7 @@ import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.api.Assumptions;
 
 import com.espressif.idf.core.build.ReHintPair;
 import com.espressif.idf.core.util.HintsUtil;
@@ -94,6 +97,40 @@ class HintsUtilTest
 
 		assertNotNull(reHintsList);
 		assertEquals(new ArrayList<>(), reHintsList);
+	}
+
+	@Test
+	void resolveHintsYmlFile_prefers_aggregated_hints_under_build_directory() throws IOException
+	{
+		File buildDir = Files.createTempDirectory("idf-build").toFile();
+		File aggregated = new File(buildDir, "hints.yml");
+		try (InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("hints.yml");
+				FileOutputStream fos = new FileOutputStream(aggregated))
+		{
+			fos.write(inputStream.readAllBytes());
+		}
+		File resolved = HintsUtil.resolveHintsYmlFile(buildDir.toPath());
+		assertEquals(aggregated.getCanonicalFile(), resolved.getCanonicalFile());
+	}
+
+	@Test
+	void resolveHintsYmlFile_falls_back_to_legacy_path_when_build_dir_has_no_hints() throws IOException
+	{
+		File buildDir = Files.createTempDirectory("idf-build-empty").toFile();
+		File legacy = new File(HintsUtil.getHintsYmlPath());
+		Assumptions.assumeTrue(legacy.isFile());
+		File resolved = HintsUtil.resolveHintsYmlFile(buildDir.toPath());
+		assertEquals(legacy.getCanonicalFile(), resolved.getCanonicalFile());
+	}
+
+	@Test
+	void resolveHintsYmlFile_without_build_dir_matches_legacy_when_present() throws IOException
+	{
+		File legacy = new File(HintsUtil.getHintsYmlPath());
+		Assumptions.assumeTrue(legacy.isFile());
+		File resolved = HintsUtil.resolveHintsYmlFile(null);
+		assertTrue(resolved.isFile());
+		assertEquals(legacy.getCanonicalFile(), resolved.getCanonicalFile());
 	}
 
 }

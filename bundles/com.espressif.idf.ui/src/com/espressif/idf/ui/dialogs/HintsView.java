@@ -6,6 +6,7 @@ package com.espressif.idf.ui.dialogs;
 
 import java.io.File;
 import java.text.MessageFormat;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +33,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import com.espressif.idf.core.build.ReHintPair;
 import com.espressif.idf.core.util.HintsUtil;
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 
 public class HintsView extends ViewPart
@@ -54,12 +56,14 @@ public class HintsView extends ViewPart
 		container.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		GridLayout layout = new GridLayout(1, true);
 		container.setLayout(layout);
-		reHintsList = HintsUtil.getReHintsList(new File(HintsUtil.getHintsYmlPath()));
+		Path buildDir = IDFUtil.getActiveProjectBuildDirPath();
+		File hintsYml = HintsUtil.resolveHintsYmlFile(buildDir);
+		reHintsList = HintsUtil.getReHintsList(hintsYml);
 		if (reHintsList.isEmpty())
 		{
 			CLabel errorField = new CLabel(container, SWT.H_SCROLL);
 			errorField.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK));
-			errorField.setText(MessageFormat.format(Messages.HintsYmlNotFoundErrMsg, HintsUtil.getHintsYmlPath()));
+			errorField.setText(MessageFormat.format(Messages.HintsYmlNotFoundErrMsg, hintsYml.getPath()));
 			return;
 		}
 		createSearchField(container);

@@ -31,6 +31,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import com.espressif.idf.core.build.ReHintPair;
 import com.espressif.idf.core.util.HintsUtil;
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 
 public class BuildView extends ViewPart
@@ -64,9 +65,10 @@ public class BuildView extends ViewPart
 		container.setLayout(layout);
 		if (reHintsPairs.isEmpty())
 		{
-			if (!new File(HintsUtil.getHintsYmlPath()).exists())
+			File hintsYml = HintsUtil.resolveHintsYmlFile(IDFUtil.getActiveProjectBuildDirPath());
+			if (!hintsYml.exists())
 			{
-				createNoHintsYmlLabel();
+				createNoHintsYmlLabel(hintsYml);
 			}
 			else
 			{
@@ -85,11 +87,11 @@ public class BuildView extends ViewPart
 		infoField.setText(Messages.BuildView_NoAvailableHintsMsg);
 	}
 
-	private void createNoHintsYmlLabel()
+	private void createNoHintsYmlLabel(File hintsYml)
 	{
 		CLabel errorField = new CLabel(container, SWT.H_SCROLL);
 		errorField.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK));
-		errorField.setText(MessageFormat.format(Messages.HintsYmlNotFoundErrMsg, HintsUtil.getHintsYmlPath()));
+		errorField.setText(MessageFormat.format(Messages.HintsYmlNotFoundErrMsg, hintsYml.getPath()));
 	}
 
 	private void createHintsViewer(Composite container)
