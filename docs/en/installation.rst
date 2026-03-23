@@ -49,7 +49,7 @@ Follow these steps inside the Espressif-IDE to install the ESP-IDF and related t
 
     .. image:: ../../media/ToolsManager/ESP-IDF_Manager_Editor_Screen.png
 
-2.  Click the ``Launch EIM`` or ``Download & Launch EIM`` button if you have not downloaded and installed EIM.
+2.  Click the ``Manage ESP-IDF Versions`` button if you have not downloaded and installed EIM.
 
     You will see the progress of download and installation in the console. Once the EIM is launched, you can use it to install the ESP-IDF and related tools.
 
@@ -63,7 +63,7 @@ Follow these steps inside the Espressif-IDE to install the ESP-IDF and related t
 
 You can add as many versions of ESP-IDF as you want via EIM, but only one version can be set as active, and that version will be used to compile and index projects in your workspace. This feature helps you switch between versions in the workspace easily.
 
-To activate any specific version, simply click the radio button next to it in the ``Active`` column.
+To activate a specific version of ESP-IDF, double-click on the corresponding row. Alternatively, you can select the row and click ``Activate Selected``.
 
 The refresh button in the last column for the active ESP-IDF version can be used to reload any changes in the ESP-IDF directory you made.
 
