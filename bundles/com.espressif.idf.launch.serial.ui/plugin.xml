@@ -24,11 +24,6 @@
    </extension>
    <extension
          point="org.eclipse.launchbar.ui.launchBarUIContributions">
-      <buildTabGroup
-            launchConfigType="com.espressif.idf.launch.serial.launchConfigurationType"
-            launchDescriptorType="com.espressif.idf.launch.serial.core.idf.descriptorType"
-            tabGroup="org.eclipse.cdt.launch.internal.corebuild.CoreBuildTabGroup">
-      </buildTabGroup>
       <descriptorUI
             descriptorTypeId="com.espressif.idf.launch.serial.core.idf.descriptorType"
             labelProvider="com.espressif.idf.launch.serial.ui.IDFLaunchDescriptorLabelProvider">
@@ -64,6 +59,42 @@
             name="BUILD_DIR"
             resolver="com.espressif.idf.launch.serial.ui.BuildFolderVariableResolver">
       </variable>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabs">
+      <tab
+            class="org.eclipse.cdt.launch.ui.corebuild.CoreBuildTab"
+            group="com.espressif.idf.launch.serial.ui.launchConfigurationTabGroup"
+            id="org.eclipse.cdt.cdi.launch.buildSettingsTab"
+            name="Core Build Tab">
+      </tab>
+      <tab
+            class="com.espressif.idf.launch.serial.ui.internal.CMakeMainTab2"
+            group="com.espressif.idf.launch.serial.ui.launchConfigurationTabGroup"
+            id="com.espressif.idf.launch.serial.ui.mainTab"
+            name="Main Tab">
+         <placement
+               after="org.eclipse.cdt.cdi.launch.buildSettingsTab">
+         </placement>
+      </tab>
+      <tab
+            class="org.eclipse.debug.ui.EnvironmentTab"
+            group="com.espressif.idf.launch.serial.ui.launchConfigurationTabGroup"
+            id="org.eclipse.debug.ui.environmentTab"
+            name="Environment Tab">
+         <placement
+               after="com.espressif.idf.launch.serial.ui.mainTab">
+         </placement>
+      </tab>
+      <tab
+            class="org.eclipse.debug.ui.CommonTab"
+            group="com.espressif.idf.launch.serial.ui.launchConfigurationTabGroup"
+            id="org.eclipse.debug.ui.commonTab"
+            name="Common Tab">
+         <placement
+               after="org.eclipse.debug.ui.environmentTab">
+         </placement>
+      </tab>
    </extension>
 
 </plugin>
