@@ -1,0 +1,81 @@
+name: ESP Eclipse Plug-in Update Site Test
+
+on:
+  push:
+    paths:
+      - 'releng/update-site-tests/**'
+      - '.github/workflows/update-site-tests.yml'
+  pull_request:
+    paths:
+      - 'releng/update-site-tests/**'
+      - '.github/workflows/update-site-tests.yml'
+  schedule:
+    # Runs every day at 00:00 UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-site-tests:
+    runs-on: [self-hosted, eclipse, BrnoUBU0004]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Make scripts executable
+        run: |
+          chmod +x releng/update-site-tests/*.sh
+
+      - name: Run update-site test cases
+        run: |
+          cd releng/update-site-tests
+          ./run-all-cases.sh
+
+      - name: Publish workflow summary
+        if: always()
+        shell: bash
+        run: |
+          echo "# ESP Eclipse Plug-in Update Site Tests" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Test case | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+
+          for case_dir in releng/update-site-tests/out/*; do
+            [ -d "$case_dir" ] || continue
+            case_name="$(basename "$case_dir")"
+            runlog="$case_dir/logs/run.log"
+
+            if [ ! -f "$runlog" ]; then
+              echo "| $case_name | ⚠️ No log found |" >> "$GITHUB_STEP_SUMMARY"
+              continue
+            fi
+
+            if grep -q "STATUS: PASSED" "$runlog"; then
+              status="✅ Passed"
+            elif grep -q "STATUS: FAILED" "$runlog"; then
+              status="❌ Failed"
+            elif grep -q "STATUS: SKIPPED" "$runlog"; then
+              reason="$(grep -m1 'SKIP_REASON:' "$runlog" | sed 's/SKIP_REASON: //')"
+
+              if [ -n "$reason" ]; then
+                status="⏭️ Skipped ($reason)"
+              else
+                status="⏭️ Skipped"
+              fi
+
+              else
+                status="⚠️ Unknown"
+              fi
+
+            echo "| $case_name | $status |" >> "$GITHUB_STEP_SUMMARY"
+          done
+
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Full logs are available in workflow artifacts." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Update Site Test Results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: eclipse-update-site-test-results
+          path: releng/update-site-tests/out

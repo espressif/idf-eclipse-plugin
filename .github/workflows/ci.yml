@@ -58,7 +58,7 @@ jobs:
         path:
           tests/*/*/*/TEST-*.xml
         reporter: java-junit
-  
+
   build_macos:
     runs-on: macos-latest
 
