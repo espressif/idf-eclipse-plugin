@@ -40,7 +40,7 @@ After meeting the above requirements, you can proceed to build and flash via DFU
 3. Select a suitable IDF target for DFU.
 4. When using the build command, an extra file (``dfu.bin``) will be created, which can be used later for flashing.
 
-.. image:: https://user-images.githubusercontent.com/24419842/226182180-286099d3-9c1c-4394-abb0-212d43054529.png
+.. image:: ../../../media/dfu/dfu_1.png
    :alt: DFU actions
 
 Additional information, including common errors and known issues, is available `here <https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/dfu.html#usb-drivers-windows-only>`_.
