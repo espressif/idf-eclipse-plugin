@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.Platform;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.vo.IdfInstalled;
+import com.espressif.idf.core.util.StringUtil;
 
 /**
  * Utility class for Tools Management operations
@@ -27,7 +28,7 @@ public class ToolsUtility
 	public static String getIdfVersion(IdfInstalled idfInstalled, String gitPath)
 	{
 		String activationScript = idfInstalled.getActivationScript();
-		String espIdfVersion = null;
+		String espIdfVersion = StringUtil.EMPTY;
 
 		try
 		{
@@ -47,9 +48,9 @@ public class ToolsUtility
 				String line;
 				while ((line = reader.readLine()) != null)
 				{
-					if (line.startsWith("ESP_IDF_VERSION=")) //$NON-NLS-1$
+					if (line.startsWith("ESP_IDF_VERSION=") && line.split("=").length >= 2) //$NON-NLS-1$ //$NON-NLS-2$
 					{
-						espIdfVersion = line.split("=")[1]; //$NON-NLS-1$
+						espIdfVersion = line.split("=")[1].trim(); //$NON-NLS-1$
 						break;
 					}
 				}

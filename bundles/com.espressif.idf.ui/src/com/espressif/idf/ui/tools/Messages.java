@@ -50,6 +50,12 @@ public class Messages extends NLS
 
 	public static String ESPIDFMainTablePage_StatusColumnName;
 
+	public static String ESPIDFMainTablePage_VersionDetectionFailedMsg;
+
+	public static String ESPIDFMainTablePage_VersionErrorToolTip;
+
+	public static String ESPIDFMainTablePage_VersionToolTip;
+
 	public static String MsgYes;
 	public static String MsgNo;
 	

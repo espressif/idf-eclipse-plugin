@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -32,6 +33,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.MessageConsoleStream;
 import org.osgi.service.prefs.BackingStoreException;
 
@@ -259,7 +262,34 @@ public class ESPIDFMainTablePage
 			@Override
 			public String getText(Object e)
 			{
-				return ((IdfRow) e).version();
+				var version = ((IdfRow) e).version();
+				if (StringUtil.isEmpty(version))
+				{
+					return Messages.ESPIDFMainTablePage_VersionDetectionFailedMsg;
+				}
+				return version;
+			}
+
+			@Override
+			public Image getImage(Object element)
+			{
+				if (StringUtil.isEmpty(((IdfRow) element).version()))
+				{
+					return PlatformUI.getWorkbench().getSharedImages()
+							.getImage(ISharedImages.IMG_OBJS_WARN_TSK);
+				}
+				return super.getImage(element);
+			}
+
+			@Override
+			public String getToolTipText(Object element)
+			{
+				var version = ((IdfRow) element).version();
+				if (StringUtil.isEmpty(version))
+				{
+					return Messages.ESPIDFMainTablePage_VersionErrorToolTip;
+				}
+				return Messages.ESPIDFMainTablePage_VersionToolTip + version;
 			}
 		});
 
@@ -280,6 +310,8 @@ public class ESPIDFMainTablePage
 				return ((IdfRow) e).path();
 			}
 		});
+
+		ColumnViewerToolTipSupport.enableFor(viewer);
 	}
 
 	private void createCol(TableViewer viewer, TableColumnLayout layout, String title, int weight, int sortIndex,
