@@ -262,7 +262,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		treeComposite.setLayoutData(layoutData);
 
 		FilteredTree transfersTree = createFilteredTree(treeComposite);
-		transfersTree.setLayoutData(new GridData(GridData.FILL_BOTH));
+		transfersTree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		treeViewer = transfersTree.getViewer();
 
@@ -273,11 +273,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		treeViewer.setUseHashlookup(true);
 
 		// layout the tree viewer below the text field
-		layoutData = new GridData();
-		layoutData.grabExcessHorizontalSpace = true;
-		layoutData.grabExcessVerticalSpace = true;
-		layoutData.verticalAlignment = GridData.FILL;
-		treeViewer.getControl().setLayoutData(layoutData);
+		treeViewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		hookListeners();
 
