@@ -64,6 +64,24 @@ public class HintsUtil
 				+ File.separator + "hints.yml"; //$NON-NLS-1$
 	}
 
+	public static File resolveHintsYmlFile(Path buildDirectory)
+	{
+		File legacy = new File(getHintsYmlPath());
+		if (buildDirectory != null)
+		{
+			File aggregated = buildDirectory.resolve("hints.yml").toFile(); //$NON-NLS-1$
+			if (aggregated.isFile())
+			{
+				return aggregated;
+			}
+		}
+		if (legacy.isFile())
+		{
+			return legacy;
+		}
+		return buildDirectory != null ? buildDirectory.resolve("hints.yml").toFile() : legacy; //$NON-NLS-1$
+	}
+
 	public static String getOpenocdHintsYmlPath()
 	{
 		String openOCDScriptPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS);

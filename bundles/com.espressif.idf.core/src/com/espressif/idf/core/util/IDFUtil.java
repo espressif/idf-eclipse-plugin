@@ -743,6 +743,23 @@ public class IDFUtil
 		return false;
 	}
 
+	public static java.nio.file.Path getActiveProjectBuildDirPath()
+	{
+		try
+		{
+			IProject project = getProjectFromActiveLaunchConfig();
+			if (project != null)
+			{
+				return Paths.get(getBuildDir(project));
+			}
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+		return null;
+	}
+
 	/**
 	 * Returns the active project from the currently selected launch configuration.
 	 */
@@ -823,8 +840,7 @@ public class IDFUtil
 
 				Map<String, String> environment = new HashMap<>(System.getenv());
 
-				IStatus status = processRunner.runInBackground(arguments, org.eclipse.core.runtime.Path.ROOT,
-						environment);
+				IStatus status = processRunner.runInBackground(arguments, Path.ROOT, environment);
 				if (status == null)
 				{
 					Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status can't be null", null)); //$NON-NLS-1$

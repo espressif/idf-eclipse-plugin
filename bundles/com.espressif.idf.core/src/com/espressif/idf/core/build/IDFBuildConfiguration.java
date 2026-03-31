@@ -397,7 +397,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 					IDFCorePreferenceConstants.AUTOMATE_BUILD_HINTS_DEFAULT_STATUS, null);
 			IConsoleParser[] consoleParsers = buildHintsStatus
 					? new IConsoleParser[] { epm, new StatusParser(),
-							new EspIdfErrorParser(HintsUtil.getReHintsList(new File(HintsUtil.getHintsYmlPath()))) }
+							new EspIdfErrorParser(HintsUtil
+									.getReHintsList(HintsUtil.resolveHintsYmlFile(buildDir))) }
 					: new IConsoleParser[] { epm, new StatusParser() };
 			watchProcess(consoleParsers, monitor);
 
