@@ -23,6 +23,7 @@ public class KConfigMenuItem
 	private String type;
 	private String id;
 	private boolean isMenuConfig;
+	private boolean isDefault;
 
 	public KConfigMenuItem(KConfigMenuItem parent)
 	{
@@ -173,5 +174,21 @@ public class KConfigMenuItem
 		return visibleJsonMap.get(configKey) != null ? (boolean) visibleJsonMap.get(configKey) : false;
 	}
 
+	public boolean isDefault()
+	{
+		return isDefault;
+	}
 
+	public void setDefault(boolean isDefault)
+	{
+		this.isDefault = isDefault;
+	}
+
+	public void updateDefaultState(JSONObject defaultsJsonMap)
+	{
+		if (defaultsJsonMap != null && defaultsJsonMap.containsKey(getId()))
+		{
+			this.isDefault = (boolean) defaultsJsonMap.get(getId());
+		}
+	}
 }

@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,6 +67,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
 import org.eclipse.ui.progress.IProgressService;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
@@ -90,7 +92,6 @@ import com.espressif.idf.ui.dialogs.HelpPopupDialog;
  * SDK Configuration editor which represents the UI for the all sdkconfig fields
  * 
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
- *
  */
 @SuppressWarnings("unchecked")
 public class SDKConfigurationEditor extends MultiPageEditorPart
@@ -102,6 +103,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	private static final String ICONS_INFO_OBJ_GIF = "icons/help.gif"; //$NON-NLS-1$
 
 	private static final String ICONS_SDK_TOOL_CONFIG_PNG = "icons/sdk_tool_config.png"; //$NON-NLS-1$
+
+	private static final String ICONS_SDK_RESET_ACTION_PNG = "icons/reset.png"; //$NON-NLS-1$
 
 	private TreeViewer treeViewer;
 
@@ -471,8 +474,23 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	{
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put(IJsonServerConfig.VERSION, 2);
-		jsonObject.put(IJsonServerConfig.SET, modifiedJsonMap);
-		jsonObject.put(IJsonServerConfig.SAVE, null);
+
+		if (!modifiedJsonMap.isEmpty())
+		{
+			jsonObject.put(IJsonServerConfig.SET, modifiedJsonMap);
+
+			for (Object key : modifiedJsonMap.keySet())
+			{
+				valuesJsonMap.put(key, modifiedJsonMap.get(key));
+			}
+		}
+		else
+		{
+			jsonObject.put(IJsonServerConfig.SET, new JSONObject());
+		}
+
+		String filePath = getFile().getLocation().toOSString();
+		jsonObject.put(IJsonServerConfig.SAVE, filePath);
 
 		String command = jsonObject.toJSONString();
 		configServer.execute(command, CommandType.SAVE);
@@ -590,11 +608,43 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			control.dispose();
 		}
 
-		updateUIComposite.setLayout((new GridLayout(3, false)));
+		updateUIComposite.setLayout((new GridLayout(4, false)));
 		updateUIComposite.setText(selectedElement.getTitle());
 		GridData updateCompsiteGD = new GridData(SWT.FILL, SWT.FILL, true, true);
 		updateCompsiteGD.verticalIndent = 10;
 		updateUIComposite.setLayoutData(updateCompsiteGD);
+
+
+		Button resetGroupButton = new Button(updateUIComposite, SWT.PUSH);
+		resetGroupButton.setText("Reset Menu Defaults");
+
+		GridData resetGD = new GridData(SWT.END, SWT.CENTER, false, false, 4, 1);
+		resetGroupButton.setLayoutData(resetGD);
+		resetGroupButton.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				boolean confirm = MessageDialog.openConfirm(Display.getDefault().getActiveShell(),
+						"Reset Menu Configurations", "This action will reset all configurations under '"
+								+ selectedElement.getTitle() + "' to their default values. Continue?");
+
+				if (confirm)
+				{
+					List<String> childIds = new ArrayList<>();
+					collectAllChildIds(selectedElement, childIds);
+
+					if (!childIds.isEmpty())
+					{
+						executeResetChildrenCommand(childIds);
+					}
+					else if (selectedElement.getId() != null)
+					{
+						executeResetCommand(selectedElement.getId());
+					}
+				}
+			}
+		});
 
 		renderMenuItems(selectedElement);
 
@@ -605,6 +655,48 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		sc.setShowFocusedControl(true);
 
 		updateUIComposite.layout(true);
+	}
+
+	/**
+	 * Recursively collects all configuration IDs for a menu and its sub-menus
+	 */
+	private void collectAllChildIds(KConfigMenuItem item, List<String> childIds)
+	{
+		if (item == null || item.getChildren() == null)
+		{
+			return;
+		}
+		for (KConfigMenuItem child : item.getChildren())
+		{
+			if (child.getId() != null && !child.getId().isEmpty())
+			{
+				childIds.add(child.getId());
+			}
+			collectAllChildIds(child, childIds);
+		}
+	}
+
+	protected void addResetButton(KConfigMenuItem kConfigMenuItem)
+	{
+		Label resetIcon = new Label(updateUIComposite, SWT.NONE);
+
+		resetIcon.setImage(SDKConfigUIPlugin.getImage(ICONS_SDK_RESET_ACTION_PNG));
+		resetIcon.setToolTipText("Reset '" + kConfigMenuItem.getTitle() + "' to default value");
+
+		GridData gridData = new GridData(SWT.END, SWT.CENTER, false, false);
+		resetIcon.setLayoutData(gridData);
+
+		resetIcon.addListener(SWT.MouseUp, new Listener()
+		{
+			@Override
+			public void handleEvent(Event event)
+			{
+				if (kConfigMenuItem.getId() != null)
+				{
+					executeResetCommand(kConfigMenuItem.getId());
+				}
+			}
+		});
 	}
 
 	protected void renderMenuItems(KConfigMenuItem selectedElement)
@@ -635,7 +727,9 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 					textControl.setText(newConfigValue != null ? (String) newConfigValue : (String) configValue);
 				}
 				textControl.addModifyListener(addModifyListener(configKey, textControl));
+
 				addTooltipImage(kConfigMenuItem);
+				addResetButton(kConfigMenuItem);
 
 			}
 			else if (isVisible && type.equals(IJsonServerConfig.HEX_TYPE))
@@ -656,7 +750,9 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 				}
 				textControl.addModifyListener(addModifyListener(configKey, textControl));
+
 				addTooltipImage(kConfigMenuItem);
+				addResetButton(kConfigMenuItem);
 			}
 			else if (kConfigMenuItem.isMenuConfig())
 			{
@@ -703,7 +799,9 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 				}
 				text.addModifyListener(addModifyListener(configKey, text));
+
 				addTooltipImage(kConfigMenuItem);
+				addResetButton(kConfigMenuItem);
 
 			}
 			else if (isVisible && type.equals(IJsonServerConfig.MENU_TYPE))
@@ -722,8 +820,6 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 					labelName.setText(kConfigMenuItem.getTitle());
 
 					Combo choiceCombo = new Combo(updateUIComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
-					choiceCombo.setLayoutData(new GridData(SWT.NONE, SWT.NONE, false, false, 1, 1));
-
 					GridData gridData = new GridData();
 					gridData.widthHint = 250;
 					choiceCombo.setLayoutData(gridData);
@@ -762,7 +858,9 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 							}
 						}
 					});
+
 					addTooltipImage(kConfigMenuItem);
+					addResetButton(kConfigMenuItem);
 				}
 			}
 
@@ -780,7 +878,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	{
 		Button button = new Button(updateUIComposite, SWT.CHECK);
 		button.setText(kConfigMenuItem.getTitle());
-		button.setLayoutData(new GridData(SWT.NONE, SWT.NONE, false, false, 2, 1));
+
+		button.setLayoutData(new GridData(SWT.NONE, SWT.CENTER, false, false, 2, 1));
 		button.setToolTipText(helpInfo);
 		if (configValue != null)
 		{
@@ -797,7 +896,10 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			}
 
 		});
+
 		addTooltipImage(kConfigMenuItem);
+		addResetButton(kConfigMenuItem);
+
 		return button;
 	}
 
@@ -882,12 +984,70 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		isDirty = true;
 		editorDirtyStateChanged();
 
+		for (Object key : jsonObj.keySet())
+		{
+			valuesJsonMap.put(key, jsonObj.get(key));
+		}
+
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put(IJsonServerConfig.VERSION, 2);
 		jsonObject.put(IJsonServerConfig.SET, jsonObj);
 
 		String command = jsonObject.toJSONString();
 		configServer.execute(command, CommandType.SET);
+	}
+
+	protected void executeResetCommand(String idToReset)
+	{
+		long version = configServer.getOutput().getVersion();
+		if (version >= 3)
+		{
+			isDirty = true;
+			editorDirtyStateChanged();
+
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put(IJsonServerConfig.VERSION, 3);
+
+			JSONArray resetArray = new JSONArray();
+			resetArray.add(idToReset);
+			jsonObject.put(IJsonServerConfig.RESET, resetArray);
+
+			String command = jsonObject.toJSONString();
+			configServer.execute(command, CommandType.RESET);
+		}
+		else
+		{
+			MessageDialog.openWarning(Display.getDefault().getActiveShell(), "Unsupported Operation",
+					"Your current ESP-IDF version does not support partial SDK reset.");
+		}
+	}
+
+	protected void executeResetChildrenCommand(List<String> idsToReset)
+	{
+		long version = configServer.getOutput().getVersion();
+		if (version >= 3)
+		{
+			if (idsToReset == null || idsToReset.isEmpty())
+				return;
+
+			isDirty = true;
+			editorDirtyStateChanged();
+
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put(IJsonServerConfig.VERSION, 3);
+
+			JSONArray resetArray = new JSONArray();
+			resetArray.addAll(idsToReset);
+			jsonObject.put(IJsonServerConfig.RESET, resetArray);
+
+			String command = jsonObject.toJSONString();
+			configServer.execute(command, CommandType.RESET);
+		}
+		else
+		{
+			MessageDialog.openWarning(Display.getDefault().getActiveShell(), "Unsupported Operation",
+					"Your current ESP-IDF version does not support partial SDK reset.");
+		}
 	}
 
 	@Override
@@ -905,9 +1065,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	}
 
 	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.espressif.idf.sdk.config.core.server.IMessageHandlerListener#notifyRequestServed(java.lang.String)
+	 * (non-Javadoc) * @see
+	 * com.espressif.idf.sdk.config.core.server.IMessageHandlerListener#notifyRequestServed(java.lang.String)
 	 */
 	@Override
 	public void notifyRequestServed(String message, CommandType type)
@@ -920,22 +1079,33 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		{
 			try
 			{
-				// reset the modified map
-				if (type == CommandType.LOAD)
+				if (type == CommandType.LOAD || type == CommandType.RESET)
 				{
 					modifiedJsonMap.clear();
-					isDirty = false;
-					editorDirtyStateChanged();
+					isDirty = (type == CommandType.RESET);
+
+					Display.getDefault().asyncExec(this::editorDirtyStateChanged);
 				}
 
-				// fetch the latest values
+				if (type == CommandType.SAVE)
+				{
+					Display.getDefault().asyncExec(() -> {
+						try
+						{
+							getFile().refreshLocal(org.eclipse.core.resources.IResource.DEPTH_ZERO,
+									new NullProgressMonitor());
+						}
+						catch (CoreException e)
+						{
+							Logger.log(SDKConfigUIPlugin.getDefault(), e);
+						}
+					});
+				}
+
 				update();
 
-				// Update in UI thread
-				Display.getDefault().asyncExec(new Runnable()
+				Display.getDefault().asyncExec(() ->
 				{
-					@Override
-					public void run()
 					{
 						if (!treeViewer.getControl().isDisposed())
 						{
@@ -991,7 +1161,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		String buildFolder = StringUtil.EMPTY;
 		try
 		{
-			buildFolder = IDFUtil.getBuildDir(project);
+			IDFUtil.getBuildDir(project);
 		}
 		catch (CoreException e)
 		{
@@ -1028,5 +1198,4 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		}
 		return Optional.empty();
 	}
-
 }

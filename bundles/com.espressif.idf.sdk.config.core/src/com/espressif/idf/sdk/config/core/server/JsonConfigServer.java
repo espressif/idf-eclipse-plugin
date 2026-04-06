@@ -53,6 +53,24 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 		this.file = file;
 	}
 
+	public void resetElementById(String id)
+	{
+		String resetRequest = String.format("{\"version\": 3, \"reset\": [\"%s\"]}", id);
+		execute(resetRequest, CommandType.RESET);
+	}
+
+	public void resetElementChildren(List<String> children)
+	{
+		if (children == null || children.isEmpty())
+		{
+			return;
+		}
+
+		String joinedIds = String.join("\", \"", children);
+		String resetRequest = String.format("{\"version\": 3, \"reset\": [\"%s\"]}", joinedIds);
+		execute(resetRequest, CommandType.RESET);
+	}
+
 	@Override
 	public void addListener(IMessageHandlerListener listener)
 	{

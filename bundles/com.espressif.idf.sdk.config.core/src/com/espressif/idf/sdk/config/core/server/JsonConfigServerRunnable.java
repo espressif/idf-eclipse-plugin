@@ -200,26 +200,22 @@ public class JsonConfigServerRunnable implements Runnable
 	{
 		String jsonOutput = new JsonConfigProcessor().getInitialOutput(output);
 		if (StringUtil.isEmpty(jsonOutput))
-		{
 			return false;
-		}
+
 		try
 		{
 			JSONObject jsonObj = (JSONObject) new JSONParser().parse(jsonOutput);
 			if (jsonObj != null)
 			{
-				if (jsonObj.get(IJsonServerConfig.VISIBLE) != null && jsonObj.get(IJsonServerConfig.VALUES) != null
-						&& jsonObj.get(IJsonServerConfig.RANGES) != null)
-				{
-					return true;
-				}
+				// Check for the new version key and the mandatory data maps
+				return jsonObj.containsKey(IJsonServerConfig.VERSION) && jsonObj.containsKey(IJsonServerConfig.VALUES)
+						&& jsonObj.containsKey("defaults"); //$NON-NLS-1$
 			}
 		}
 		catch (ParseException e)
 		{
 			return false;
 		}
-
 		return false;
 	}
 

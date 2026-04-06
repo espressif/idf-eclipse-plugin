@@ -16,6 +16,7 @@ public interface IJsonServerConfig
 	String VISIBLE = "visible"; //$NON-NLS-1$
 	String RANGES = "ranges"; //$NON-NLS-1$
 	String VERSION = "version"; //$NON-NLS-1$
+	String DEFAULTS = "defaults"; //$NON-NLS-1$
 
 	// data types
 	String HEX_TYPE = "hex"; //$NON-NLS-1$
@@ -29,6 +30,7 @@ public interface IJsonServerConfig
 	String SET = "set"; //$NON-NLS-1$
 	String SAVE = "save"; //$NON-NLS-1$
 	String LOAD = "load"; //$NON-NLS-1$
+	String RESET = "reset"; //$NON-NLS-1$
 	
 	String COMPONENT_CONFIG_TITLE = "Component config"; //$NON-NLS-1$
 	
