@@ -207,9 +207,7 @@ public class JsonConfigServerRunnable implements Runnable
 			JSONObject jsonObj = (JSONObject) new JSONParser().parse(jsonOutput);
 			if (jsonObj != null)
 			{
-				// Check for the new version key and the mandatory data maps
-				return jsonObj.containsKey(IJsonServerConfig.VERSION) && jsonObj.containsKey(IJsonServerConfig.VALUES)
-						&& jsonObj.containsKey("defaults"); //$NON-NLS-1$
+				return jsonObj.containsKey(IJsonServerConfig.VERSION) && jsonObj.containsKey(IJsonServerConfig.VALUES);
 			}
 		}
 		catch (ParseException e)

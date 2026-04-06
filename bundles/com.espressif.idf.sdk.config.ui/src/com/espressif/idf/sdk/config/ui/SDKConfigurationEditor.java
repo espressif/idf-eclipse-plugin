@@ -37,6 +37,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -473,7 +474,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	public void doSave(IProgressMonitor monitor)
 	{
 		JSONObject jsonObject = new JSONObject();
-		jsonObject.put(IJsonServerConfig.VERSION, 2);
+		var version = configServer.getOutput().getVersion();
+		jsonObject.put(IJsonServerConfig.VERSION, version);
 
 		if (!modifiedJsonMap.isEmpty())
 		{
@@ -615,36 +617,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		updateUIComposite.setLayoutData(updateCompsiteGD);
 
 
-		Button resetGroupButton = new Button(updateUIComposite, SWT.PUSH);
-		resetGroupButton.setText("Reset Menu Defaults");
-
-		GridData resetGD = new GridData(SWT.END, SWT.CENTER, false, false, 4, 1);
-		resetGroupButton.setLayoutData(resetGD);
-		resetGroupButton.addSelectionListener(new SelectionAdapter()
-		{
-			@Override
-			public void widgetSelected(SelectionEvent e)
-			{
-				boolean confirm = MessageDialog.openConfirm(Display.getDefault().getActiveShell(),
-						"Reset Menu Configurations", "This action will reset all configurations under '"
-								+ selectedElement.getTitle() + "' to their default values. Continue?");
-
-				if (confirm)
-				{
-					List<String> childIds = new ArrayList<>();
-					collectAllChildIds(selectedElement, childIds);
-
-					if (!childIds.isEmpty())
-					{
-						executeResetChildrenCommand(childIds);
-					}
-					else if (selectedElement.getId() != null)
-					{
-						executeResetCommand(selectedElement.getId());
-					}
-				}
-			}
-		});
+		addResetMenuButton(selectedElement);
 
 		renderMenuItems(selectedElement);
 
@@ -655,6 +628,90 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		sc.setShowFocusedControl(true);
 
 		updateUIComposite.layout(true);
+	}
+
+	private boolean isResetSupported()
+	{
+		return configServer.getOutput().getVersion() >= 3;
+	}
+
+	private void addResetMenuButton(KConfigMenuItem selectedElement)
+	{
+		Composite resetGroupBtnComposite = new Composite(updateUIComposite, SWT.NONE);
+		resetGroupBtnComposite.setLayout(new FillLayout());
+		resetGroupBtnComposite.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false, 4, 1));
+
+		Button resetGroupButton = new Button(resetGroupBtnComposite, SWT.PUSH);
+		resetGroupButton.setText("Reset Menu Defaults");
+
+		resetGroupButton.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				handleResetMenuAction(selectedElement);
+			}
+		});
+
+		applyResetSupportState(resetGroupBtnComposite, resetGroupButton, null);
+	}
+
+	private void handleResetMenuAction(KConfigMenuItem selectedElement)
+		{
+		boolean confirm = MessageDialog.openConfirm(Display.getDefault().getActiveShell(), "Reset Menu Configurations",
+				"This action will reset all configurations under '" + selectedElement.getTitle()
+						+ "' to their default values. Continue?");
+
+		if (!confirm)
+			return;
+
+		List<String> childIds = new ArrayList<>();
+		collectAllChildIds(selectedElement, childIds);
+
+		if (!childIds.isEmpty())
+		{
+			executeResetChildrenCommand(childIds);
+		}
+		else if (selectedElement.getId() != null)
+			{
+			executeResetCommand(selectedElement.getId());
+		}
+	}
+
+	protected void addResetButton(KConfigMenuItem kConfigMenuItem)
+	{
+		Composite resetIconComposite = new Composite(updateUIComposite, SWT.NONE);
+		resetIconComposite.setLayout(new FillLayout());
+
+		resetIconComposite.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
+
+		Label resetIcon = new Label(resetIconComposite, SWT.NONE);
+		resetIcon.setImage(SDKConfigUIPlugin.getImage(ICONS_SDK_RESET_ACTION_PNG));
+
+		resetIcon.addListener(SWT.MouseUp, event -> {
+			if (kConfigMenuItem.getId() != null)
+				{
+				executeResetCommand(kConfigMenuItem.getId());
+			}
+		});
+
+		String activeTooltip = "Reset '" + kConfigMenuItem.getTitle() + "' to default value";
+		applyResetSupportState(resetIconComposite, resetIcon, activeTooltip);
+	}
+
+	private void applyResetSupportState(Composite wrapper, Control innerControl, String activeTooltip)
+	{
+		if (!isResetSupported())
+		{
+			innerControl.setEnabled(false);
+			innerControl.setToolTipText(null);
+			wrapper.setToolTipText("Reset action is not available for this esp-idf version");
+		}
+		else
+		{
+			innerControl.setEnabled(true);
+			innerControl.setToolTipText(activeTooltip);
+		}
 	}
 
 	/**
@@ -674,29 +731,6 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			}
 			collectAllChildIds(child, childIds);
 		}
-	}
-
-	protected void addResetButton(KConfigMenuItem kConfigMenuItem)
-	{
-		Label resetIcon = new Label(updateUIComposite, SWT.NONE);
-
-		resetIcon.setImage(SDKConfigUIPlugin.getImage(ICONS_SDK_RESET_ACTION_PNG));
-		resetIcon.setToolTipText("Reset '" + kConfigMenuItem.getTitle() + "' to default value");
-
-		GridData gridData = new GridData(SWT.END, SWT.CENTER, false, false);
-		resetIcon.setLayoutData(gridData);
-
-		resetIcon.addListener(SWT.MouseUp, new Listener()
-		{
-			@Override
-			public void handleEvent(Event event)
-			{
-				if (kConfigMenuItem.getId() != null)
-				{
-					executeResetCommand(kConfigMenuItem.getId());
-				}
-			}
-		});
 	}
 
 	protected void renderMenuItems(KConfigMenuItem selectedElement)
@@ -990,7 +1024,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		}
 
 		JSONObject jsonObject = new JSONObject();
-		jsonObject.put(IJsonServerConfig.VERSION, 2);
+		var version = configServer.getOutput().getVersion();
+		jsonObject.put(IJsonServerConfig.VERSION, version);
 		jsonObject.put(IJsonServerConfig.SET, jsonObj);
 
 		String command = jsonObject.toJSONString();
@@ -1015,11 +1050,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			String command = jsonObject.toJSONString();
 			configServer.execute(command, CommandType.RESET);
 		}
-		else
-		{
-			MessageDialog.openWarning(Display.getDefault().getActiveShell(), "Unsupported Operation",
-					"Your current ESP-IDF version does not support partial SDK reset.");
-		}
+
 	}
 
 	protected void executeResetChildrenCommand(List<String> idsToReset)
@@ -1042,11 +1073,6 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 			String command = jsonObject.toJSONString();
 			configServer.execute(command, CommandType.RESET);
-		}
-		else
-		{
-			MessageDialog.openWarning(Display.getDefault().getActiveShell(), "Unsupported Operation",
-					"Your current ESP-IDF version does not support partial SDK reset.");
 		}
 	}
 
