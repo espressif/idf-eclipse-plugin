@@ -26,31 +26,18 @@ import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.PageChangedEvent;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
@@ -67,7 +54,6 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
 import org.eclipse.ui.progress.IProgressService;
-import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
@@ -87,7 +73,6 @@ import com.espressif.idf.sdk.config.core.server.IMessageHandlerListener;
 import com.espressif.idf.sdk.config.core.server.JsonConfigProcessor;
 import com.espressif.idf.sdk.config.core.server.JsonConfigServer;
 import com.espressif.idf.ui.IDFConsole;
-import com.espressif.idf.ui.dialogs.HelpPopupDialog;
 
 /**
  * SDK Configuration editor which represents the UI for the all sdkconfig fields
@@ -100,12 +85,6 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 {
 
 	public static String EDITOR_ID = "com.espressif.idf.sdk.config.ui.editor"; //$NON-NLS-1$
-
-	private static final String ICONS_INFO_OBJ_GIF = "icons/help.gif"; //$NON-NLS-1$
-
-	private static final String ICONS_SDK_TOOL_CONFIG_PNG = "icons/sdk_tool_config.png"; //$NON-NLS-1$
-
-	private static final String ICONS_SDK_RESET_ACTION_PNG = "icons/reset.png"; //$NON-NLS-1$
 
 	private TreeViewer treeViewer;
 
@@ -131,8 +110,6 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	 * Captures only text field changes
 	 */
 	private JSONObject modifiedJsonMap = new JSONObject();
-
-	private HelpPopupDialog infoDialog;
 
 	private CommandType type;
 
@@ -228,7 +205,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		try
 		{
 			TextEditor editor = new TextEditor();
-			Object control = ((AbstractTextEditor) editor).getAdapter(Control.class);
+			Object control = (editor).getAdapter(Control.class);
 			if (control instanceof StyledText)
 			{
 				((StyledText) control).setEditable(false);
@@ -374,7 +351,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	 * @throws IOException
 	 * @throws ParseException
 	 */
-	protected void initConfigServer(IProject project) throws IOException, ParseException
+	protected void initConfigServer(IProject project) throws IOException
 	{
 
 		// Create console
@@ -406,7 +383,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		}
 	}
 
-	protected void update() throws ParseException
+	protected void update()
 	{
 		JsonConfigProcessor jsonProcessor = new JsonConfigProcessor();
 		String response = jsonProcessor.getInitialOutput(serverMessage);
@@ -429,7 +406,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	 * @return
 	 * @throws IOException
 	 */
-	private boolean isReady(int maxAttempts, long sleepInterval, JsonConfigProcessor jsonProcessor) throws IOException
+	private boolean isReady(int maxAttempts, long sleepInterval, JsonConfigProcessor jsonProcessor)
 	{
 		int waitCount = 0;
 		while (serverMessage == null || jsonProcessor.getInitialOutput(serverMessage) == null)
@@ -481,7 +458,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		{
 			jsonObject.put(IJsonServerConfig.SET, modifiedJsonMap);
 
-			for (Object key : modifiedJsonMap.keySet())
+			for (Object key : modifiedJsonMap.entrySet())
 			{
 				valuesJsonMap.put(key, modifiedJsonMap.get(key));
 			}
@@ -560,20 +537,14 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 	protected void hookListeners()
 	{
-		treeViewer.addSelectionChangedListener(new ISelectionChangedListener()
+		treeViewer.addSelectionChangedListener(event ->
 		{
-			@Override
-			public void selectionChanged(SelectionChangedEvent event)
+			if (event.getSelection() instanceof IStructuredSelection)
 			{
-				if (event.getSelection() instanceof IStructuredSelection)
-				{
-					KConfigMenuItem selectedElement = (KConfigMenuItem) event.getStructuredSelection()
-							.getFirstElement();
-					updateUI(selectedElement);
+				KConfigMenuItem selectedElement = (KConfigMenuItem) event.getStructuredSelection().getFirstElement();
+				updateUI(selectedElement);
 
-				}
 			}
-
 		});
 	}
 
@@ -582,7 +553,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	{
 		PatternFilter patternFilter = new SDKConfigurationFilter();
 		int style = SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER;
-		FilteredTree transfersTree = new FilteredTree(group, style, patternFilter, true)
+		return new FilteredTree(group, style, patternFilter, true)
 		{
 			@Override
 			protected TreeViewer doCreateTreeViewer(Composite parent, int style)
@@ -590,7 +561,6 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				return new TreeViewer(parent, style);
 			}
 		};
-		return transfersTree;
 	}
 
 	private void updateUI(KConfigMenuItem selectedElement)
@@ -603,23 +573,61 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 		this.selectedElement = selectedElement;
 
-		// dispose old elements
-		Control[] updateUICompositeControls = updateUIComposite.getChildren();
-		for (Control control : updateUICompositeControls)
+		for (Control control : updateUIComposite.getChildren())
 		{
 			control.dispose();
 		}
 
 		updateUIComposite.setLayout((new GridLayout(4, false)));
 		updateUIComposite.setText(selectedElement.getTitle());
+
 		GridData updateCompsiteGD = new GridData(SWT.FILL, SWT.FILL, true, true);
 		updateCompsiteGD.verticalIndent = 10;
 		updateUIComposite.setLayoutData(updateCompsiteGD);
 
+		ConfigActionHandler handler = new ConfigActionHandler()
+		{
+			@Override
+			public void onCommandExecuted(JSONObject jsonMap)
+			{
+				executeCommand(jsonMap);
+			}
 
-		addResetMenuButton(selectedElement);
+			@Override
+			public void onTextModified(String key, Object value)
+			{
+				isDirty = true;
+				editorDirtyStateChanged();
+				modifiedJsonMap.put(key, value);
+			}
 
-		renderMenuItems(selectedElement);
+			@Override
+			public void onResetRequested(String key)
+			{
+				executeResetCommand(key);
+			}
+
+			@Override
+			public void onMenuResetRequested(KConfigMenuItem menu)
+			{
+				List<String> childIds = new ArrayList<>();
+				collectAllChildIds(menu, childIds);
+
+				if (!childIds.isEmpty())
+				{
+					executeResetChildrenCommand(childIds);
+				}
+				else if (menu.getId() != null)
+				{
+					executeResetCommand(menu.getId());
+				}
+			}
+		};
+
+		ConfigUIRenderer renderer = new ConfigUIRenderer(updateUIComposite, valuesJsonMap, visibleJsonMap,
+				modifiedJsonMap, rangesJsonMap, isResetSupported(), handler);
+
+		renderer.renderFullMenu(selectedElement);
 
 		sc.setContent(updateUIComposite);
 		sc.setExpandHorizontal(true);
@@ -629,89 +637,9 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 		updateUIComposite.layout(true);
 	}
-
 	private boolean isResetSupported()
 	{
 		return configServer.getOutput().getVersion() >= 3;
-	}
-
-	private void addResetMenuButton(KConfigMenuItem selectedElement)
-	{
-		Composite resetGroupBtnComposite = new Composite(updateUIComposite, SWT.NONE);
-		resetGroupBtnComposite.setLayout(new FillLayout());
-		resetGroupBtnComposite.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false, 4, 1));
-
-		Button resetGroupButton = new Button(resetGroupBtnComposite, SWT.PUSH);
-		resetGroupButton.setText("Reset Menu Defaults");
-
-		resetGroupButton.addSelectionListener(new SelectionAdapter()
-		{
-			@Override
-			public void widgetSelected(SelectionEvent e)
-			{
-				handleResetMenuAction(selectedElement);
-			}
-		});
-
-		applyResetSupportState(resetGroupBtnComposite, resetGroupButton, null);
-	}
-
-	private void handleResetMenuAction(KConfigMenuItem selectedElement)
-		{
-		boolean confirm = MessageDialog.openConfirm(Display.getDefault().getActiveShell(), "Reset Menu Configurations",
-				"This action will reset all configurations under '" + selectedElement.getTitle()
-						+ "' to their default values. Continue?");
-
-		if (!confirm)
-			return;
-
-		List<String> childIds = new ArrayList<>();
-		collectAllChildIds(selectedElement, childIds);
-
-		if (!childIds.isEmpty())
-		{
-			executeResetChildrenCommand(childIds);
-		}
-		else if (selectedElement.getId() != null)
-			{
-			executeResetCommand(selectedElement.getId());
-		}
-	}
-
-	protected void addResetButton(KConfigMenuItem kConfigMenuItem)
-	{
-		Composite resetIconComposite = new Composite(updateUIComposite, SWT.NONE);
-		resetIconComposite.setLayout(new FillLayout());
-
-		resetIconComposite.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
-
-		Label resetIcon = new Label(resetIconComposite, SWT.NONE);
-		resetIcon.setImage(SDKConfigUIPlugin.getImage(ICONS_SDK_RESET_ACTION_PNG));
-
-		resetIcon.addListener(SWT.MouseUp, event -> {
-			if (kConfigMenuItem.getId() != null)
-				{
-				executeResetCommand(kConfigMenuItem.getId());
-			}
-		});
-
-		String activeTooltip = "Reset '" + kConfigMenuItem.getTitle() + "' to default value";
-		applyResetSupportState(resetIconComposite, resetIcon, activeTooltip);
-	}
-
-	private void applyResetSupportState(Composite wrapper, Control innerControl, String activeTooltip)
-	{
-		if (!isResetSupported())
-		{
-			innerControl.setEnabled(false);
-			innerControl.setToolTipText(null);
-			wrapper.setToolTipText("Reset action is not available for this esp-idf version");
-		}
-		else
-		{
-			innerControl.setEnabled(true);
-			innerControl.setToolTipText(activeTooltip);
-		}
 	}
 
 	/**
@@ -733,292 +661,12 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		}
 	}
 
-	protected void renderMenuItems(KConfigMenuItem selectedElement)
-	{
-		// add children here
-		List<KConfigMenuItem> children = selectedElement.getChildren();
-		for (KConfigMenuItem kConfigMenuItem : children)
-		{
-			String type = kConfigMenuItem.getType();
-			String configKey = kConfigMenuItem.getId();
-			Object configValue = valuesJsonMap.get(configKey);
-			boolean isVisible = (visibleJsonMap.get(configKey) != null ? (boolean) visibleJsonMap.get(configKey)
-					: false);
-			Object newConfigValue = modifiedJsonMap.get(configKey);
-			String helpInfo = kConfigMenuItem.getHelp();
-			if (isVisible && type.equals(IJsonServerConfig.STRING_TYPE))
-			{
-				Label labelName = new Label(updateUIComposite, SWT.NONE);
-				labelName.setText(kConfigMenuItem.getTitle());
-
-				Text textControl = new Text(updateUIComposite, SWT.SINGLE | SWT.BORDER);
-				GridData gridData = new GridData();
-				gridData.widthHint = 250;
-				textControl.setLayoutData(gridData);
-				textControl.setToolTipText(helpInfo);
-				if (configValue != null)
-				{
-					textControl.setText(newConfigValue != null ? (String) newConfigValue : (String) configValue);
-				}
-				textControl.addModifyListener(addModifyListener(configKey, textControl));
-
-				addTooltipImage(kConfigMenuItem);
-				addResetButton(kConfigMenuItem);
-
-			}
-			else if (isVisible && type.equals(IJsonServerConfig.HEX_TYPE))
-			{
-				Label labelName = new Label(updateUIComposite, SWT.NONE);
-				labelName.setText(kConfigMenuItem.getTitle().concat(" (hex)"));
-
-				Text textControl = new Text(updateUIComposite, SWT.SINGLE | SWT.BORDER);
-				GridData gridData = new GridData();
-				gridData.widthHint = 250;
-				textControl.setLayoutData(gridData);
-				textControl.setToolTipText(helpInfo);
-				if (configValue != null)
-				{
-					String hexText = newConfigValue != null ? Long.toHexString((long) newConfigValue)
-							: Long.toHexString((long) configValue);
-					textControl.setText("0x" + hexText.toUpperCase());
-
-				}
-				textControl.addModifyListener(addModifyListener(configKey, textControl));
-
-				addTooltipImage(kConfigMenuItem);
-				addResetButton(kConfigMenuItem);
-			}
-			else if (kConfigMenuItem.isMenuConfig())
-			{
-				Button button = createCheckBox(kConfigMenuItem, configKey, configValue, helpInfo);
-				button.addSelectionListener(new SelectionAdapter()
-				{
-					@Override
-					public void widgetSelected(SelectionEvent e)
-					{
-						renderMenuItems(kConfigMenuItem);
-					}
-
-				});
-				if (kConfigMenuItem.hasChildren())
-				{
-					button.setImage(SDKConfigUIPlugin.getImage(ICONS_SDK_TOOL_CONFIG_PNG));
-				}
-
-				if (button.getSelection())
-				{
-					renderMenuItems(kConfigMenuItem);
-				}
-
-			}
-			else if (isVisible && type.equals(IJsonServerConfig.BOOL_TYPE))
-			{
-				createCheckBox(kConfigMenuItem, configKey, configValue, helpInfo);
-			}
-
-			else if (isVisible && type.equals(IJsonServerConfig.INT_TYPE))
-			{
-				Label labelName = new Label(updateUIComposite, SWT.NONE);
-				labelName.setText(kConfigMenuItem.getTitle());
-
-				Text text = new Text(updateUIComposite, SWT.SINGLE | SWT.BORDER);
-				GridData gridData = new GridData();
-				gridData.widthHint = 250;
-				text.setLayoutData(gridData);
-				text.setToolTipText(helpInfo);
-
-				if (configValue != null)
-				{
-					text.setText(newConfigValue != null ? String.valueOf(newConfigValue) : String.valueOf(configValue));
-
-				}
-				text.addModifyListener(addModifyListener(configKey, text));
-
-				addTooltipImage(kConfigMenuItem);
-				addResetButton(kConfigMenuItem);
-
-			}
-			else if (isVisible && type.equals(IJsonServerConfig.MENU_TYPE))
-			{
-				renderMenuItems(kConfigMenuItem);
-			}
-			else if (type.equals(IJsonServerConfig.CHOICE_TYPE))
-			{
-				Logger.logTrace(SDKConfigUIPlugin.getDefault(),
-						"Config key >" + configKey + " visiblity status >" + isVisible); //$NON-NLS-1$ //$NON-NLS-2$
-
-				if (isExist(visibleJsonMap, configKey))
-				{
-					List<KConfigMenuItem> choiceItems = kConfigMenuItem.getChildren();
-					Label labelName = new Label(updateUIComposite, SWT.NONE);
-					labelName.setText(kConfigMenuItem.getTitle());
-
-					Combo choiceCombo = new Combo(updateUIComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
-					GridData gridData = new GridData();
-					gridData.widthHint = 250;
-					choiceCombo.setLayoutData(gridData);
-
-					int index = 0;
-					for (KConfigMenuItem item : choiceItems)
-					{
-						String localConfigKey = item.getId();
-						if (isExist(visibleJsonMap, localConfigKey))
-						{
-							choiceCombo.add(item.getTitle());
-							choiceCombo.setData(item.getTitle(), localConfigKey);
-
-							// Check if this selected?
-							if (isExist(valuesJsonMap, localConfigKey))
-							{
-								choiceCombo.select(index);
-							}
-							index++;
-						}
-
-					}
-
-					choiceCombo.addSelectionListener(new SelectionAdapter()
-					{
-						@Override
-						public void widgetSelected(SelectionEvent e)
-						{
-							Object key = choiceCombo.getData(choiceCombo.getText());
-							if (key != null)
-							{
-								JSONObject jsonObj = new JSONObject();
-								jsonObj.put(key, true);
-								executeCommand(jsonObj);
-
-							}
-						}
-					});
-
-					addTooltipImage(kConfigMenuItem);
-					addResetButton(kConfigMenuItem);
-				}
-			}
-
-			// kConfigMenuItem has children?
-			if (!type.equals(IJsonServerConfig.CHOICE_TYPE) && !type.equals(IJsonServerConfig.MENU_TYPE)
-					&& kConfigMenuItem.hasChildren())
-			{
-				renderMenuItems(kConfigMenuItem);
-			}
-		}
-	}
-
-	private Button createCheckBox(KConfigMenuItem kConfigMenuItem, String configKey, Object configValue,
-			String helpInfo)
-	{
-		Button button = new Button(updateUIComposite, SWT.CHECK);
-		button.setText(kConfigMenuItem.getTitle());
-
-		button.setLayoutData(new GridData(SWT.NONE, SWT.CENTER, false, false, 2, 1));
-		button.setToolTipText(helpInfo);
-		if (configValue != null)
-		{
-			button.setSelection((boolean) configValue);
-		}
-		button.addSelectionListener(new SelectionAdapter()
-		{
-			@Override
-			public void widgetSelected(SelectionEvent e)
-			{
-				JSONObject jsonObj = new JSONObject();
-				jsonObj.put(configKey, button.getSelection());
-				executeCommand(jsonObj);
-			}
-
-		});
-
-		addTooltipImage(kConfigMenuItem);
-		addResetButton(kConfigMenuItem);
-
-		return button;
-	}
-
-	protected boolean isExist(JSONObject jsonMap, String key)
-	{
-		return jsonMap.get(key) != null ? (boolean) jsonMap.get(key) : false;
-	}
-
-	protected void addTooltipImage(KConfigMenuItem kConfigMenuItem)
-	{
-		Label labelName = new Label(updateUIComposite, SWT.NONE);
-		labelName.setImage(SDKConfigUIPlugin.getImage(ICONS_INFO_OBJ_GIF));
-		labelName.addListener(SWT.MouseUp, getMouseClickListener(kConfigMenuItem));
-		labelName.setToolTipText(Messages.SDKConfigurationEditor_Help);
-	}
-
-	private Listener getMouseClickListener(KConfigMenuItem kConfigMenuItem)
-	{
-		return new Listener()
-		{
-			@Override
-			public void handleEvent(Event event)
-			{
-				String help = kConfigMenuItem.getHelp();
-				String title = kConfigMenuItem.getTitle();
-				String configKey = kConfigMenuItem.getId();
-
-				// frame message
-				StringBuilder message = new StringBuilder();
-				message.append(title);
-				message.append("\n\n"); //$NON-NLS-1$
-				message.append(help);
-
-				// get range info
-				Object range = rangesJsonMap.get(configKey);
-				if (range != null)
-				{
-					message.append("\n\n"); //$NON-NLS-1$
-					message.append("Range Information:"); //$NON-NLS-1$
-					message.append("\n"); //$NON-NLS-1$
-					message.append(range.toString());
-				}
-
-				if (StringUtil.isEmpty(help))
-				{
-					String msg = MessageFormat.format(Messages.SDKConfigurationEditor_NoHelpAvailable, configKey);
-					Logger.log(SDKConfigUIPlugin.getDefault(), msg);
-					return;
-				}
-				Shell activeShell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-				if (infoDialog != null)
-				{
-					infoDialog.close();
-				}
-				infoDialog = new HelpPopupDialog(activeShell, Messages.SDKConfigurationEditor_Help + " > " + configKey, //$NON-NLS-1$
-						message.toString()); // $NON-NLS-2$
-				infoDialog.open();
-
-			}
-		};
-	}
-
-	protected ModifyListener addModifyListener(String configKey, Text textControl)
-	{
-		return new ModifyListener()
-		{
-			@Override
-			public void modifyText(ModifyEvent e)
-			{
-				String text = textControl.getText().toLowerCase();
-				boolean isHex = text.startsWith("0x");
-				isDirty = true;
-				editorDirtyStateChanged();
-				modifiedJsonMap.put(configKey,
-						isHex ? Long.parseLong(text.substring(2), 16) : textControl.getText().trim());
-			}
-		};
-	}
-
 	protected void executeCommand(JSONObject jsonObj)
 	{
 		isDirty = true;
 		editorDirtyStateChanged();
 
-		for (Object key : jsonObj.keySet())
+		for (Object key : jsonObj.entrySet())
 		{
 			valuesJsonMap.put(key, jsonObj.get(key));
 		}
@@ -1103,9 +751,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 		if (selectedElement != null)
 		{
-			try
-			{
-				if (type == CommandType.LOAD || type == CommandType.RESET)
+			if (type == CommandType.LOAD || type == CommandType.RESET)
 				{
 					modifiedJsonMap.clear();
 					isDirty = (type == CommandType.RESET);
@@ -1132,20 +778,12 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 				Display.getDefault().asyncExec(() ->
 				{
+					if (!treeViewer.getControl().isDisposed())
 					{
-						if (!treeViewer.getControl().isDisposed())
-						{
-							treeViewer.refresh();
-							updateUI(selectedElement);
-						}
+						treeViewer.refresh();
+						updateUI(selectedElement);
 					}
 				});
-			}
-			catch (ParseException e1)
-			{
-				Logger.log(SDKConfigUIPlugin.getDefault(), e1);
-			}
-
 		}
 	}
 
@@ -1167,7 +805,6 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 				{
 					doSave(new NullProgressMonitor());
 				}
-				return;
 			}
 		}
 
