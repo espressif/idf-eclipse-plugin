@@ -11,6 +11,8 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -747,15 +749,26 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 		if (selectedElement != null)
 		{
-			if (type == CommandType.LOAD || type == CommandType.RESET)
+			if (type == CommandType.LOAD)
+			{
+				modifiedJsonMap.clear();
+				Display.getDefault().asyncExec(this::editorDirtyStateChanged);
+			}
+			else if (type == CommandType.RESET)
+			{
+				Pattern pattern = Pattern.compile("Reset\\s+([A-Za-z0-9_]+)\\s+to default value");
+			    Matcher matcher = pattern.matcher(serverMessage);
+				while (matcher.find())
 				{
-					modifiedJsonMap.clear();
-					isDirty = (type == CommandType.RESET);
-
-					Display.getDefault().asyncExec(this::editorDirtyStateChanged);
+					String resetKey = matcher.group(1);
+					modifiedJsonMap.remove(resetKey);
 				}
 
-				if (type == CommandType.SAVE)
+				isDirty = true;
+				Display.getDefault().asyncExec(this::editorDirtyStateChanged);
+			}
+
+			else if (type == CommandType.SAVE)
 				{
 					Display.getDefault().asyncExec(() -> {
 						try
