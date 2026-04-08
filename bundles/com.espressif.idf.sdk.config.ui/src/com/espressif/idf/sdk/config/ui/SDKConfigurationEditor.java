@@ -115,6 +115,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 	private ScrolledComposite sc;
 
+	private static final int MIN_VERSION_FOR_RESET = 3;
+
 	public SDKConfigurationEditor()
 	{
 		super();
@@ -636,7 +638,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	}
 	private boolean isResetSupported()
 	{
-		return configServer.getOutput().getVersion() >= 3;
+		return configServer.getOutput().getVersion() >= MIN_VERSION_FOR_RESET;
 	}
 
 	/**
@@ -677,13 +679,13 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	protected void executeResetCommand(String idToReset)
 	{
 		long version = configServer.getOutput().getVersion();
-		if (version >= 3)
+		if (version >= MIN_VERSION_FOR_RESET)
 		{
 			isDirty = true;
 			editorDirtyStateChanged();
 
 			JSONObject jsonObject = new JSONObject();
-			jsonObject.put(IJsonServerConfig.VERSION, 3);
+			jsonObject.put(IJsonServerConfig.VERSION, version);
 
 			JSONArray resetArray = new JSONArray();
 			resetArray.add(idToReset);
@@ -698,7 +700,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	protected void executeResetChildrenCommand(List<String> idsToReset)
 	{
 		long version = configServer.getOutput().getVersion();
-		if (version >= 3)
+		if (version >= MIN_VERSION_FOR_RESET)
 		{
 			if (idsToReset == null || idsToReset.isEmpty())
 				return;
@@ -707,7 +709,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			editorDirtyStateChanged();
 
 			JSONObject jsonObject = new JSONObject();
-			jsonObject.put(IJsonServerConfig.VERSION, 3);
+			jsonObject.put(IJsonServerConfig.VERSION, version);
 
 			JSONArray resetArray = new JSONArray();
 			resetArray.addAll(idsToReset);
