@@ -458,10 +458,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		{
 			jsonObject.put(IJsonServerConfig.SET, modifiedJsonMap);
 
-			for (Object key : modifiedJsonMap.entrySet())
-			{
-				valuesJsonMap.put(key, modifiedJsonMap.get(key));
-			}
+			valuesJsonMap.putAll(modifiedJsonMap);
 		}
 		else
 		{
@@ -666,10 +663,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		isDirty = true;
 		editorDirtyStateChanged();
 
-		for (Object key : jsonObj.entrySet())
-		{
-			valuesJsonMap.put(key, jsonObj.get(key));
-		}
+		valuesJsonMap.putAll(jsonObj);
 
 		JSONObject jsonObject = new JSONObject();
 		var version = configServer.getOutput().getVersion();
