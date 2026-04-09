@@ -101,10 +101,10 @@ public class ESPIDFMainTablePage
 		createHeader(container);
 		createMainContent(container);
 
-		if (eimJson != null)
-		{
-			refreshEditorUI();
-		}
+		// Always refresh the UI to reload the latest EIM configuration from disk.
+		// This ensures the list is populated even when the editor is opened 
+		// before any ESP-IDF has been installed (when eimJson might be null).
+		refreshEditorUI();
 
 		return container;
 	}
@@ -418,12 +418,12 @@ public class ESPIDFMainTablePage
 		setupJob.schedule();
 	}
 
-	public void refreshEditorUI()
+	public CompletableFuture<Void> refreshEditorUI()
 	{
 		if (container == null || container.isDisposed())
-			return;
+			return CompletableFuture.completedFuture(null);
 
-		CompletableFuture.supplyAsync(() -> {
+		return CompletableFuture.supplyAsync(() -> {
 			try
 			{
 				var newJson = configParser.getEimJson(true);
