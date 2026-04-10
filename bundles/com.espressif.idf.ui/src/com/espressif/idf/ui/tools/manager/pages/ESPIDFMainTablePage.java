@@ -101,10 +101,10 @@ public class ESPIDFMainTablePage
 		createHeader(container);
 		createMainContent(container);
 
-		// Always refresh the UI to reload the latest EIM configuration from disk.
-		// This ensures the list is populated even when the editor is opened 
-		// before any ESP-IDF has been installed (when eimJson might be null).
-		refreshEditorUI();
+		if (eimJson != null)
+		{
+			refreshEditorUI();
+		}
 
 		return container;
 	}
