@@ -40,8 +40,7 @@ public class ConfigUIRenderer
 		public RenderContext(KConfigMenuItem item, JSONObject visibleMap, JSONObject valuesMap, JSONObject modifiedMap)
 		{
 			this(item, item.getId(), valuesMap.get(item.getId()), modifiedMap.get(item.getId()),
-					Boolean.TRUE.equals(visibleMap.get(item.getId())),
-					item.getHelp());
+					Boolean.TRUE.equals(visibleMap.get(item.getId())), item.getHelp());
 		}
 	}
 
@@ -96,7 +95,6 @@ public class ConfigUIRenderer
 			}
 		}
 	}
-
 
 	private void renderString(RenderContext ctx)
 	{
@@ -278,12 +276,19 @@ public class ConfigUIRenderer
 
 	private void addResetButton(RenderContext ctx)
 	{
+		if (!isResetSupported)
+		{
+			new Label(parent, SWT.NONE).setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
+			return;
+		}
+
 		var resetIconComposite = new Composite(parent, SWT.NONE);
 		resetIconComposite.setLayout(new FillLayout());
 		resetIconComposite.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
 
 		var resetIcon = new Label(resetIconComposite, SWT.NONE);
 		resetIcon.setImage(SDKConfigUIPlugin.getImage(ICONS_SDK_RESET_ACTION_PNG));
+		resetIcon.setToolTipText("Reset '" + ctx.item().getTitle() + "' to default value");
 
 		resetIcon.addListener(SWT.MouseUp, event -> {
 			if (ctx.configKey() != null)
@@ -291,18 +296,6 @@ public class ConfigUIRenderer
 				actionHandler.onResetRequested(ctx.configKey());
 			}
 		});
-
-		if (!isResetSupported)
-		{
-			resetIcon.setEnabled(false);
-			resetIcon.setToolTipText(null);
-			resetIconComposite.setToolTipText("Reset action is not available for this esp-idf version");
-		}
-		else
-		{
-			resetIcon.setEnabled(true);
-			resetIcon.setToolTipText("Reset '" + ctx.item().getTitle() + "' to default value");
-		}
 	}
 
 	public void renderFullMenu(KConfigMenuItem selectedElement)
@@ -313,21 +306,25 @@ public class ConfigUIRenderer
 
 	private void addResetMenuButton(KConfigMenuItem selectedElement)
 	{
-		var resetGroupBtnComposite = new Composite(parent, SWT.NONE);
-		resetGroupBtnComposite.setLayout(new FillLayout());
-		resetGroupBtnComposite.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false, 4, 1));
+		if (!isResetSupported)
+		{
+			return;
+		}
 
-		var resetGroupButton = new Button(resetGroupBtnComposite, SWT.PUSH);
+		var resetGroupButton = new Button(parent, SWT.PUSH);
 		resetGroupButton.setText("Reset Menu Defaults");
+		resetGroupButton.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false, 4, 1));
+		resetGroupButton.setToolTipText("Reset all settings in this menu");
 
 		resetGroupButton.addSelectionListener(new SelectionAdapter()
+
 		{
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				boolean confirm = MessageDialog.openConfirm(parent.getShell(),
-						"Reset Menu Configurations", "This action will reset all configurations under '"
-								+ selectedElement.getTitle() + "' to their default values. Continue?");
+				boolean confirm = MessageDialog.openConfirm(parent.getShell(), "Reset Menu Configurations",
+						"This action will reset all configurations under '" + selectedElement.getTitle()
+								+ "' to their default values. Continue?");
 
 				if (confirm)
 				{
@@ -335,15 +332,5 @@ public class ConfigUIRenderer
 				}
 			}
 		});
-
-		if (!isResetSupported)
-		{
-			resetGroupBtnComposite.setToolTipText("Reset action is not available for this esp-idf version");
-			resetGroupButton.setEnabled(false);
-		}
-		else
-		{
-			resetGroupButton.setToolTipText("Reset all settings in this menu");
-		}
 	}
 }
