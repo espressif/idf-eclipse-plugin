@@ -58,6 +58,7 @@ public class NewEspressifIDFProjectFlashProcessTest {
 			Fixture.whenNewProjectIsSelected();
 			Fixture.whenTurnOffOpenSerialMonitorAfterFlashingInLaunchConfig();
 			Fixture.whenBuildAndFlashForAllTargetsSequentially();
+			Fixture.whenChangeLaunchTargetBackToESP32();
 		} else {
 			assertTrue(true);
 		}
@@ -129,6 +130,16 @@ public class NewEspressifIDFProjectFlashProcessTest {
 			}
 
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
+		}
+
+		private static void whenChangeLaunchTargetBackToESP32() throws Exception {
+				LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
+				targetSelector.selectTarget("esp32");
+				TestWidgetWaitUtility.waitForDialogToAppear(bot, "IDF Launch Target Changed", 20000);
+				SWTBotShell shell = bot.shell("IDF Launch Target Changed");
+				shell.setFocus();
+				bot.button("Yes").click();
+				TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
 		}
 
 		private static void whenProjectIsBuiltUsingContextMenu() throws IOException {
