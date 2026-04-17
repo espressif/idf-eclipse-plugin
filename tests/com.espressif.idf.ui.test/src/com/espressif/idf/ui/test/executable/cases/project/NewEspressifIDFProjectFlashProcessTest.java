@@ -75,7 +75,6 @@ public class NewEspressifIDFProjectFlashProcessTest {
 				new TargetPort("esp32c61", "/dev/ttyUSB0 CP2102N USB to UART Bridge Controller"),
 				new TargetPort("esp32c5", "/dev/ttyUSB2 CP2102N USB to UART Bridge Controller"),
 				new TargetPort("esp32h2", "/dev/ttyUSB3 CP2102N USB to UART Bridge Controller"),
-				new TargetPort("esp32с6", "/dev/ttyUSB4 CP2102N USB to UART Bridge Controller"),
 				new TargetPort("esp32s2", "/dev/ttyUSB5 CP2102N USB to UART Bridge Controller"),
 				new TargetPort("esp32s3", "/dev/ttyUSB6 CP2102N USB to UART Bridge Controller"),
 				new TargetPort("esp32c3", "/dev/ttyUSB7 CP2102N USB to UART Bridge Controller")
