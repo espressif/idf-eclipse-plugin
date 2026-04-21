@@ -418,12 +418,12 @@ public class ESPIDFMainTablePage
 		setupJob.schedule();
 	}
 
-	public void refreshEditorUI()
+	public CompletableFuture<Void> refreshEditorUI()
 	{
 		if (container == null || container.isDisposed())
-			return;
+			return CompletableFuture.completedFuture(null);
 
-		CompletableFuture.supplyAsync(() -> {
+		return CompletableFuture.supplyAsync(() -> {
 			try
 			{
 				var newJson = configParser.getEimJson(true);
