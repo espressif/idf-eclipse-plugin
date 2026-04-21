@@ -10,7 +10,6 @@ import org.eclipse.cdt.debug.internal.core.InternalDebugCoreMessages;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -36,6 +35,7 @@ import org.eclipse.tools.templates.core.IGenerator;
 import org.eclipse.tools.templates.ui.TemplateWizard;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
 import com.espressif.idf.core.IDFConstants;
@@ -122,21 +122,30 @@ public class NewIDFProjectWizard extends TemplateWizard
 		}
 
 		boolean performFinish = super.performFinish();
-		if (performFinish)
+		if (!performFinish)
 		{
-			IWorkbenchPage page = EclipseHandler.getActiveWorkbenchWindow().getActivePage();
-			IViewPart viewPart = page.findView("org.eclipse.ui.navigator.ProjectExplorer"); //$NON-NLS-1$
-			if (viewPart != null)
-			{
-				ISelectionProvider selProvider = viewPart.getSite().getSelectionProvider();
-				String projectName = projectCreationWizardPage.getProjectName();
-				project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-				selProvider.setSelection(new StructuredSelection(project));
-				updateClangFiles(project);
-			}
+			return false;
 		}
 
+		project = projectCreationWizardPage.getProjectHandle();
+		IWorkbenchWindow window = EclipseHandler.getActiveWorkbenchWindow();
+		if (window != null)
+		{
+			IWorkbenchPage page = window.getActivePage();
+			if (page != null)
+			{
+				IViewPart viewPart = page.findView("org.eclipse.ui.navigator.ProjectExplorer"); //$NON-NLS-1$
+				if (viewPart != null)
+				{
+					ISelectionProvider selProvider = viewPart.getSite().getSelectionProvider();
+					selProvider.setSelection(new StructuredSelection(project));
+				}
+			}
+		}
+		updateClangFiles(project);
+
 		final String target = projectCreationWizardPage.getSelectedTarget();
+		final IProject projectToReconfigure = project;
 		this.getShell().addDisposeListener(event -> {
 			ILaunchBarManager launchBarManager = UIPlugin.getService(ILaunchBarManager.class);
 			TargetSwitchJob targetSwtichJob = new TargetSwitchJob(target);
@@ -161,14 +170,14 @@ public class NewIDFProjectWizard extends TemplateWizard
 			}
 			if (projectCreationWizardPage.isRunIdfReconfigureEnabled())
 			{
-				runIdfReconfigureCommandJob(target);
+				runIdfReconfigureCommandJob(target, projectToReconfigure);
 
 			}
 		});
-		return performFinish;
+		return true;
 	}
 
-	private void runIdfReconfigureCommandJob(final String target)
+	private void runIdfReconfigureCommandJob(final String target, final IProject projectToReconfigure)
 	{
 		Job job = new Job(Messages.IdfReconfigureJobName)
 		{
@@ -177,7 +186,7 @@ public class NewIDFProjectWizard extends TemplateWizard
 			{
 				IdfCommandExecutor executor = new IdfCommandExecutor(target,
 						ConsoleManager.getConsole("CDT Build Console")); //$NON-NLS-1$
-				IStatus status = executor.executeReconfigure(project);
+				IStatus status = executor.executeReconfigure(projectToReconfigure);
 				try
 				{
 					IDEWorkbenchPlugin.getPluginWorkspace().getRoot().refreshLocal(IResource.DEPTH_INFINITE, null);

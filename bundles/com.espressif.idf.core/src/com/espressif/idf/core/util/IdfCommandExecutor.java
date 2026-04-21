@@ -47,6 +47,14 @@ public class IdfCommandExecutor
 
 	public IStatus executeReconfigure(IProject project)
 	{
+		if (project == null)
+		{
+			return IDFCorePlugin.errorStatus("Cannot run CMake reconfigure: no project.", null); //$NON-NLS-1$
+		}
+		if (project.getLocation() == null)
+		{
+			return IDFCorePlugin.errorStatus("Cannot run CMake reconfigure: project has no location.", null); //$NON-NLS-1$
+		}
 		console.activate();
 		return runIdfReconfigureCommand(project);
 	}
