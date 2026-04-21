@@ -34,7 +34,7 @@ jobs:
     - name: Install ESP-IDF via eim		
       uses: espressif/install-esp-idf-action@v1
       with:
-        version: 'v5.4'
+        version: 'v5.5.4'
 
     - name: Set up Maven
       uses: stCarolas/setup-maven@v5
