@@ -10,7 +10,10 @@ on:
     paths:
     - 'docs/**'
     - '.github/workflows/docs_production.yml'
- 
+
+permissions:
+  contents: read
+
 jobs:
 
   deploy-prod-docs:

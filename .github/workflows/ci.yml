@@ -14,8 +14,9 @@ on:
      - release/**
 
 permissions:
-    contents: read
-    checks: write
+  contents: read
+  checks: write
+  actions: write
 
 jobs:
   build_linux:

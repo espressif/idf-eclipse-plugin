@@ -1,8 +1,11 @@
 name: Conventional Commits Check
 
 on:
-    pull_request:
-        branches: [ master ]
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
 
 jobs:
   precommit:

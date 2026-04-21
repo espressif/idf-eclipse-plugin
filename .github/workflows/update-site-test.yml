@@ -14,6 +14,9 @@ on:
     - cron: '0 0 * * *'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   update-site-tests:
     runs-on: [self-hosted, eclipse, BrnoUBU0004]

@@ -14,8 +14,8 @@ on:
      - release/**
 
 permissions:
-     contents: read
-     checks: write
+  contents: read
+  checks: write
 
 jobs:
   build_windows:

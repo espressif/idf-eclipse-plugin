@@ -6,6 +6,10 @@ on:
       - "v[0-9]+.[0-9]+.[0-9]+"
       - "v[0-9]+.[0-9]+.[0-9]+-beta.*"
 
+permissions:
+  contents: read
+  actions: write
+
 env:
   ARCHIVE_PREFIX: com.espressif.idf.update-
   ARCHIVE_SUFFIX: -SNAPSHOT.zip

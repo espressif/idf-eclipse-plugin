@@ -5,8 +5,9 @@ on:
     types: [opened, edited]
 
 permissions:
-  issues: write
   contents: read
+  issues: write
+  actions: write
 
 jobs:
   sync_issues_to_jira:
