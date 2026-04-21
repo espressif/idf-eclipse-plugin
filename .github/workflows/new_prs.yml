@@ -6,6 +6,10 @@ on:
   schedule:
     - cron: "0 * * * *"
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   sync_prs_to_jira:
     name: Sync PRs to Jira

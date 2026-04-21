@@ -3,6 +3,11 @@ on:
   workflow_run:
     workflows: [CI]
     types: [completed]
+
+permissions:
+  actions: read
+  issues: write
+
 jobs:
   pr_comment:
     if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'

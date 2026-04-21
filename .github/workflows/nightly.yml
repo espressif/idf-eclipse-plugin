@@ -7,6 +7,10 @@ on:
   schedule:
     - cron: "0 0 * * *"
 
+permissions:
+  contents: read
+  actions: write
+
 jobs:
   build:
     runs-on: macos-latest
