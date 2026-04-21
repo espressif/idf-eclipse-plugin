@@ -93,7 +93,6 @@ import com.espressif.idf.core.util.StringUtil;
 public class IDFBuildConfiguration extends CBuildConfiguration
 {
 
-	private static final ActiveLaunchConfigurationProvider LAUNCH_CONFIG_PROVIDER = new ActiveLaunchConfigurationProvider();
 	private static final String NINJA = "Ninja"; //$NON-NLS-1$
 	protected static final String COMPILE_COMMANDS_JSON = "compile_commands.json"; //$NON-NLS-1$
 	protected static final String COMPONENTS = "components"; //$NON-NLS-1$
@@ -190,16 +189,29 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	{
 		try
 		{
-			ILaunchConfiguration configuration = LAUNCH_CONFIG_PROVIDER.getActiveLaunchConfiguration();
-			if (configuration != null
-					&& configuration.getType().getIdentifier().equals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
+			ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
+			ILaunchConfiguration configuration = null;
+
+			if (launchBarManager != null)
+			{
+				configuration = launchBarManager.getActiveLaunchConfiguration();
+			}
+
+			if (configuration == null)
+			{
+				Logger.log("Warning: Launch Bar not ready. Falling back to default properties for " + name); //$NON-NLS-1$
+				return super.getProperty(name);
+			}
+
+			if (configuration.getType().getIdentifier().equals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
 			{
 				configuration = new LaunchUtil(DebugPlugin.getDefault().getLaunchManager())
 						.getBoundConfiguration(configuration);
 			}
-			String property = configuration == null ? StringUtil.EMPTY
-					: configuration.getAttribute(name, StringUtil.EMPTY);
+
+			String property = configuration.getAttribute(name, StringUtil.EMPTY);
 			property = property.isBlank() ? getSettings().get(name, StringUtil.EMPTY) : property;
+
 			return property;
 		}
 		catch (CoreException e)

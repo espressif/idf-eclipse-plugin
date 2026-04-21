@@ -21,13 +21,13 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
-import com.espressif.idf.core.build.ActiveLaunchConfigurationProvider;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 
@@ -36,8 +36,7 @@ public class IdfCommandExecutor
 
 	private final String target;
 	private final MessageConsole console;
-	private static final String CMAKE_ARGUMENTS = "cmake.arguments"; //$NON-NLS-1$
-	private static final ActiveLaunchConfigurationProvider LAUNCH_CONFIG_PROVIDER = new ActiveLaunchConfigurationProvider();
+
 
 	public IdfCommandExecutor(String target, MessageConsole console)
 	{
@@ -100,7 +99,14 @@ public class IdfCommandExecutor
 	{
 		try
 		{
-			ILaunchConfiguration configuration = LAUNCH_CONFIG_PROVIDER.getActiveLaunchConfiguration();
+			ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
+			ILaunchConfiguration configuration = null;
+
+			if (launchBarManager != null)
+			{
+				configuration = launchBarManager.getActiveLaunchConfiguration();
+			}
+
 			if (configuration != null
 					&& configuration.getType().getIdentifier().equals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
 			{

@@ -63,6 +63,7 @@ Bundle-ClassPath: .,
  lib/commons-compress-1.21.jar,
  lib/xz-1.9.jar
 Import-Package: org.apache.commons.logging,
+ org.eclipse.cdt.debug.core,
  org.eclipse.cdt.debug.core.launch,
  org.eclipse.embedcdt.core,
  org.eclipse.ui.console
