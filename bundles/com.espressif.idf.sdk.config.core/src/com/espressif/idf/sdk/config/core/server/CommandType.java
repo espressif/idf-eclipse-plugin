@@ -29,6 +29,8 @@ public enum CommandType
 	 */
 	SET,
 	
+	RESET,
+
 	/**
 	 * To represent server connection is closed
 	 */

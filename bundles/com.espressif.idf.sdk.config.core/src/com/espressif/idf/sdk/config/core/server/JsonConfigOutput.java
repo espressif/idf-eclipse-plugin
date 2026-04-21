@@ -24,6 +24,14 @@ public class JsonConfigOutput implements IJsonConfigOutput
 	private JSONObject valuesJsonMap;
 	private JSONObject visibleJsonMap;
 	private JSONObject rangesJsonMap;
+	private JSONObject defaultsJsonMap;
+	private long version = 1;
+
+	@Override
+	public long getVersion()
+	{
+		return version;
+	}
 
 	@Override
 	public JSONObject getValuesJsonMap()
@@ -56,12 +64,18 @@ public class JsonConfigOutput implements IJsonConfigOutput
 		JSONObject jsonObj = (JSONObject) parser.parse(response);
 		if (jsonObj != null)
 		{
+			if (jsonObj.containsKey(IJsonServerConfig.VERSION))
+			{
+				version = (long) jsonObj.get(IJsonServerConfig.VERSION);
+			}
+
 			if (isUpdate)
 			{
 				// newly updated values and visible items
 				JSONObject visibleJson = (JSONObject) jsonObj.get(IJsonServerConfig.VISIBLE);
 				JSONObject valuesJson = (JSONObject) jsonObj.get(IJsonServerConfig.VALUES);
 				JSONObject rangesJson = (JSONObject) jsonObj.get(IJsonServerConfig.RANGES);
+				JSONObject defaultsJson = (JSONObject) jsonObj.get(IJsonServerConfig.DEFAULTS);
 
 				// Updated visible items
 				Set<String> newVisibleKeyset = visibleJson.keySet();
@@ -89,9 +103,15 @@ public class JsonConfigOutput implements IJsonConfigOutput
 				valuesJsonMap = (JSONObject) jsonObj.get(IJsonServerConfig.VALUES);
 				visibleJsonMap = (JSONObject) jsonObj.get(IJsonServerConfig.VISIBLE);
 				rangesJsonMap = (JSONObject) jsonObj.get(IJsonServerConfig.RANGES);
+				defaultsJsonMap = (JSONObject) jsonObj.get(IJsonServerConfig.DEFAULTS);
 			}
 		}
 
+	}
+
+	public JSONObject getDefaultsJsonMap()
+	{
+		return defaultsJsonMap;
 	}
 
 }

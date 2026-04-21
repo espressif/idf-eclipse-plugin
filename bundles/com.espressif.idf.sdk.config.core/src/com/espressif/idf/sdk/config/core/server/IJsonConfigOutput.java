@@ -27,4 +27,8 @@ public interface IJsonConfigOutput
 	 */
 	public JSONObject getRangesJsonMap();
 
+	public JSONObject getDefaultsJsonMap();
+
+	public long getVersion();
+
 }
