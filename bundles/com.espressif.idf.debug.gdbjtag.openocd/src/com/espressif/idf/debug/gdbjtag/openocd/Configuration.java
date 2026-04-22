@@ -16,6 +16,8 @@ package com.espressif.idf.debug.gdbjtag.openocd;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
 import org.eclipse.cdt.debug.gdbjtag.core.IGDBJtagConstants;
@@ -89,10 +91,16 @@ public class Configuration
 				return null;
 
 			String executable = getGdbServerCommand(configuration, null);
-			if (executable == null || executable.length() == 0)
+			if (executable == null || executable.isEmpty())
 				return null;
 
+
 			lst.add(executable);
+
+			boolean useModernSyntax = useModernPortSyntax(executable);
+			String fmtGdbPort = useModernSyntax ? "gdb port %d" : "gdb_port %d"; //$NON-NLS-1$ //$NON-NLS-2$
+			String fmtTelnetPort = useModernSyntax ? "telnet port %d" : "telnet_port %d"; //$NON-NLS-1$ //$NON-NLS-2$
+			String fmtTclPort = useModernSyntax ? "tcl port %d" : "tcl_port %d"; //$NON-NLS-1$ //$NON-NLS-2$
 
 			int port = PortChecker
 					.getAvailablePort(DefaultPreferences.GDB_SERVER_GDB_PORT_NUMBER_DEFAULT);
@@ -102,21 +110,21 @@ public class Configuration
 			configurationWorkingCopy.doSave();
 			
 			lst.add("-c"); //$NON-NLS-1$
-			lst.add("gdb_port " + port); //$NON-NLS-1$
+			lst.add(String.format(fmtGdbPort, port));
 
 			port = PortChecker
 					.getAvailablePort(configuration.getAttribute(ConfigurationAttributes.GDB_SERVER_TELNET_PORT_NUMBER,
 							DefaultPreferences.GDB_SERVER_TELNET_PORT_NUMBER_DEFAULT));
 
 			lst.add("-c"); //$NON-NLS-1$
-			lst.add("telnet_port " + port); //$NON-NLS-1$
+			lst.add(String.format(fmtTelnetPort, port));
 
 			port = PortChecker.getAvailablePort(
 					Integer.parseInt(configuration.getAttribute(ConfigurationAttributes.GDB_SERVER_TCL_PORT_NUMBER,
 							DefaultPreferences.GDB_SERVER_TCL_PORT_NUMBER_DEFAULT)));
 
 			lst.add("-c"); //$NON-NLS-1$
-			lst.add("tcl_port " + port); //$NON-NLS-1$
+			lst.add(String.format(fmtTclPort, port));
 
 			String other = configuration
 					.getAttribute(ConfigurationAttributes.GDB_SERVER_OTHER, DefaultPreferences.GDB_SERVER_OTHER_DEFAULT)
@@ -322,4 +330,34 @@ public class Configuration
 	}
 
 	// ------------------------------------------------------------------------
+
+	private static boolean useModernPortSyntax(String executablePath)
+	{
+		if (executablePath == null)
+		{
+			return false;
+		}
+
+		Pattern pattern = Pattern.compile("v(\\d+)\\.(\\d+)\\.\\d+-esp32-\\d{8}"); //$NON-NLS-1$
+		Matcher matcher = pattern.matcher(executablePath);
+
+		if (matcher.find())
+		{
+			try
+			{
+				int major = Integer.parseInt(matcher.group(1));
+				int minor = Integer.parseInt(matcher.group(2));
+
+				if (major > 0 || (major == 0 && minor >= 12))
+				{
+					return true;
+				}
+			}
+			catch (NumberFormatException e)
+			{
+				Activator.log(e);
+			}
+		}
+		return false;
+	}
 }
