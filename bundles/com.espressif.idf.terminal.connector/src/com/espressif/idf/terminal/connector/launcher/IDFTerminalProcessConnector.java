@@ -9,17 +9,15 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.terminal.connector.ITerminalControl;
 import org.eclipse.terminal.connector.process.ProcessConnector;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.tools.EimConstants;
+import com.espressif.idf.core.tools.EimIdfJsonPathResolver;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -59,14 +57,7 @@ public class IDFTerminalProcessConnector extends ProcessConnector {
 	}
 
 	private Optional<String> getActivationScriptPath() {
-		var envPath = Objects.equals(Platform.getOS(), Platform.OS_WIN32) ? EimConstants.EIM_WIN_PATH
-				: EimConstants.EIM_POSIX_PATH;
-
-		if (envPath == null) {
-			return Optional.empty();
-		}
-
-		var path = Path.of(envPath);
+		var path = new EimIdfJsonPathResolver().resolveEimIdfJsonFile();
 		if (!Files.exists(path)) {
 			return Optional.empty();
 		}

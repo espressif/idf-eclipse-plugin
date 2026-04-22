@@ -9,26 +9,26 @@ import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.eclipse.core.runtime.Platform;
-
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.EimConstants;
+import com.espressif.idf.core.tools.EimIdfJsonPathResolver;
 
 /**
  * eim_idf.json watch service. The service will only watch for changes. Any handling must be done by the listeners to
  * this service.
  * 
  * @author Ali Azam Rana <ali.azamrana@espressif.com>
+ *
  */
 public class EimJsonWatchService extends Thread
 {
@@ -41,29 +41,40 @@ public class EimJsonWatchService extends Thread
 
 	private EimJsonWatchService() throws IOException
 	{
-		String directoryPathString = Platform.getOS().equals(Platform.OS_WIN32) ? EimConstants.EIM_WIN_DIR
-				: EimConstants.EIM_POSIX_DIR;
-
-		watchDirectoryPath = Paths.get(directoryPathString);
+		EimIdfJsonPathResolver r = new EimIdfJsonPathResolver();
+		Path json = r.resolveEimIdfJsonFile();
+		Path def = r.getDefaultEimIdfJsonFile();
+		if (json.getParent() == null)
+		{
+			throw new IOException("Invalid eim_idf.json path"); //$NON-NLS-1$
+		}
+		watchDirectoryPath = json.getParent();
+		if (json.toAbsolutePath().normalize().equals(def.toAbsolutePath().normalize()))
+		{
+			if (!Files.exists(watchDirectoryPath))
+			{
+				Files.createDirectories(watchDirectoryPath);
+			}
+		}
 		if (!Files.exists(watchDirectoryPath))
 		{
-			Files.createDirectories(watchDirectoryPath);
+			throw new IOException("Directory for eim_idf.json does not exist: " + watchDirectoryPath); //$NON-NLS-1$
 		}
 		watchService = FileSystems.getDefault().newWatchService();
 		watchDirectoryPath.register(watchService, StandardWatchEventKinds.ENTRY_CREATE,
 				StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
 
-		Logger.log("Watcher added to the directory: " + directoryPathString); //$NON-NLS-1$
+		Logger.log("Watcher added to the directory: " + watchDirectoryPath); //$NON-NLS-1$
 		setName("EimJsonWatchService"); //$NON-NLS-1$
 		setDaemon(true);
 		start();
 	}
 
-	private static class Holder
-	{
-		private static EimJsonWatchService INSTANCE;
+	private static EimJsonWatchService INSTANCE;
 
-		static
+	public static synchronized EimJsonWatchService getInstance()
+	{
+		if (INSTANCE == null)
 		{
 			try
 			{
@@ -75,11 +86,53 @@ public class EimJsonWatchService extends Thread
 				Logger.log(e);
 			}
 		}
+		return INSTANCE;
 	}
 
-	public static EimJsonWatchService getInstance()
+	public static synchronized void restartAfterEimIdfPathChange()
 	{
-		return Holder.INSTANCE;
+		EimJsonWatchService old = INSTANCE;
+		List<EimJsonChangeListener> toCopy = (old == null) ? new ArrayList<>() : new ArrayList<>(old.eimJsonChangeListeners);
+		if (old != null)
+		{
+			old.requestStop();
+		}
+		INSTANCE = null;
+		try
+		{
+			EimJsonWatchService fresh = new EimJsonWatchService();
+			for (EimJsonChangeListener l : toCopy)
+			{
+				fresh.addEimJsonChangeListener(l);
+			}
+			INSTANCE = fresh;
+		}
+		catch (IOException e)
+		{
+			Logger.log("Failed to restart EimJsonWatchService"); //$NON-NLS-1$
+			Logger.log(e);
+		}
+	}
+
+	private void requestStop()
+	{
+		running = false;
+		try
+		{
+			watchService.close();
+		}
+		catch (IOException e)
+		{
+			Logger.log(e);
+		}
+		try
+		{
+			join(10_000);
+		}
+		catch (InterruptedException e)
+		{
+			Thread.currentThread().interrupt();
+		}
 	}
 
 	public void addEimJsonChangeListener(EimJsonChangeListener listener)
@@ -97,9 +150,21 @@ public class EimJsonWatchService extends Thread
 
 	public static void withPausedListeners(Runnable task)
 	{
-		EimJsonWatchService watchService = getInstance();
-		boolean wasPaused = watchService.paused;
-		watchService.pauseListeners();
+		EimJsonWatchService watch = getInstance();
+		if (watch == null)
+		{
+			try
+			{
+				task.run();
+			}
+			catch (Exception e)
+			{
+				Logger.log(e);
+			}
+			return;
+		}
+		boolean wasPaused = watch.paused;
+		watch.pauseListeners();
 
 		try
 		{
@@ -111,7 +176,7 @@ public class EimJsonWatchService extends Thread
 		} finally
 		{
 			if (!wasPaused)
-				watchService.unpauseListeners();
+				watch.unpauseListeners();
 		}
 	}
 
