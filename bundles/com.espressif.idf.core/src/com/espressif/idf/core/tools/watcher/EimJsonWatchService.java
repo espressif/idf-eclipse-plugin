@@ -93,11 +93,6 @@ public class EimJsonWatchService extends Thread
 	{
 		EimJsonWatchService old = INSTANCE;
 		List<EimJsonChangeListener> toCopy = (old == null) ? new ArrayList<>() : new ArrayList<>(old.eimJsonChangeListeners);
-		if (old != null)
-		{
-			old.requestStop();
-		}
-		INSTANCE = null;
 		try
 		{
 			EimJsonWatchService fresh = new EimJsonWatchService();
@@ -106,6 +101,10 @@ public class EimJsonWatchService extends Thread
 				fresh.addEimJsonChangeListener(l);
 			}
 			INSTANCE = fresh;
+			if (old != null)
+			{
+				old.requestStop();
+			}
 		}
 		catch (IOException e)
 		{

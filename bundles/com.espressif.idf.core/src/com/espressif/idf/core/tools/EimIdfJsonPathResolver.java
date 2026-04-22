@@ -32,7 +32,9 @@ public class EimIdfJsonPathResolver
 		if (custom != null && !custom.isEmpty())
 		{
 			Path p = Paths.get(custom);
-			if (Files.exists(p))
+			if (p.getFileName() != null
+					&& p.getFileName().toString().equals(EimConstants.EIM_JSON)
+					&& Files.isRegularFile(p))
 			{
 				return p;
 			}

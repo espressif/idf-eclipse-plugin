@@ -76,7 +76,7 @@ The refresh button in the last column for the active ESP-IDF version can be used
 .. _eim-idf-json-path:
 
 ``eim_idf.json`` path
-^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~
 
 EIM stores your ESP-IDF installs in a file named ``eim_idf.json``. By default it is here: **Windows** — ``C:\\Espressif\\tools\\eim_idf.json``; **Linux / macOS** — ``~/.espressif/tools/eim_idf.json``.
 

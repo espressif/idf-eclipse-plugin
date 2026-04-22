@@ -76,11 +76,11 @@ Espressif-IDE 提供了工具管理视图，可用来激活可用的 ESP-IDF 版
 .. _eim-idf-json-path:
 
 ``eim_idf.json`` 路径
-^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~
 
 EIM 用 ``eim_idf.json`` 保存你的 ESP-IDF 安装信息。默认路径为：**Windows** — ``C:\\Espressif\\tools\\eim_idf.json``；**Linux / macOS** — ``~/.espressif/tools/eim_idf.json``。
 
-若将 ESP-IDF 或工具装到**自定义目录**，EIM 可能把 ``eim_idf.json`` 写在该目录结构下。IDE 默认只查找上述位置，**无法自动发现**时，请打开 **窗口** > **首选项** > **Espressif** > **ESP-IDF 安装管理器设置**，用 **浏览**（或手填）指定 **eim_idf.json 文件路径**（文件名须为 ``eim_idf.json``）。留空则仅用默认路径。更多说明见 `EIM 文档 <https://docs.espressif.com/projects/idf-im-ui/en/latest/cli_commands.html>`__。
+若将 ESP-IDF 或工具装到\ **自定义目录**\ ，EIM 可能把 ``eim_idf.json`` 写在该目录结构下。IDE 默认只查找上述位置，\ **无法自动发现**\ 时，请打开 **窗口** > **首选项** > **Espressif** > **ESP-IDF 安装管理器设置**\ ，用 **浏览**\ （或手填）指定 **eim_idf.json 文件路径**\ （文件名须为 ``eim_idf.json``）。留空则仅用默认路径。更多说明见 `EIM 文档 <https://docs.espressif.com/projects/idf-im-ui/en/latest/cli_commands.html>`__。
 
 .. _esp-idf-tools-migration:
 

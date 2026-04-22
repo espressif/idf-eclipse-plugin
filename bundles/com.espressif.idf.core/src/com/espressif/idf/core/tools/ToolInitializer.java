@@ -62,7 +62,8 @@ public class ToolInitializer
 	
 	public boolean isEimIdfJsonPresent()
 	{
-		return Files.exists(new EimIdfJsonPathResolver().resolveEimIdfJsonFile());
+		Path path = new EimIdfJsonPathResolver().resolveEimIdfJsonFile();
+		return Files.isRegularFile(path) && Files.isReadable(path);
 	}
 
 	public EimJson loadEimJson() throws EimVersionMismatchException
