@@ -48,10 +48,31 @@ public class EimIdfJsonPathResolverTest
 	}
 
 	@Test
-	void nonexistent_custom_falls_back_to_default()
+	void nonexistent_custom_falls_back_to_default(@TempDir Path tempDir)
 	{
+		Path missing = tempDir.resolve("missing").resolve("eim_idf.json");
 		EimIdfJsonPathResolver r = new EimIdfJsonPathResolver();
-		Path result = r.resolveEimIdfJsonFileFromPreferenceString("/no/such/path/eim_idf.json");
+		Path result = r.resolveEimIdfJsonFileFromPreferenceString(missing.toString());
+		Assertions.assertEquals(r.getDefaultEimIdfJsonFile(), result);
+	}
+
+	@Test
+	void wrong_basename_falls_back_to_default(@TempDir Path tempDir) throws IOException
+	{
+		Path other = tempDir.resolve("other.json");
+		Files.createFile(other);
+		EimIdfJsonPathResolver r = new EimIdfJsonPathResolver();
+		Path result = r.resolveEimIdfJsonFileFromPreferenceString(other.toString());
+		Assertions.assertEquals(r.getDefaultEimIdfJsonFile(), result);
+	}
+
+	@Test
+	void path_that_is_not_regular_file_falls_back(@TempDir Path tempDir) throws IOException
+	{
+		Path asDir = tempDir.resolve("eim_idf.json");
+		Files.createDirectories(asDir);
+		EimIdfJsonPathResolver r = new EimIdfJsonPathResolver();
+		Path result = r.resolveEimIdfJsonFileFromPreferenceString(asDir.toString());
 		Assertions.assertEquals(r.getDefaultEimIdfJsonFile(), result);
 	}
 }
