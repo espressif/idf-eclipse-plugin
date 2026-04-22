@@ -73,6 +73,15 @@ The refresh button in the last column for the active ESP-IDF version can be used
 
 .. image:: ../../media/ToolsManager/ESP-IDF_Manager_Changed_Installation_Message.png
 
+.. _eim-idf-json-path:
+
+``eim_idf.json`` path
+^^^^^^^^^^^^^^^^^^^^^
+
+EIM stores your ESP-IDF installs in a file named ``eim_idf.json``. By default it is here: **Windows** — ``C:\\Espressif\\tools\\eim_idf.json``; **Linux / macOS** — ``~/.espressif/tools/eim_idf.json``.
+
+If you installed ESP-IDF or tools to a **custom location**, EIM may write ``eim_idf.json`` under that layout instead. The IDE only checks the default path above, so it will **not** see your setup until you point it at the real file: **Window** > **Preferences** > **Espressif** > **ESP-IDF Installation Manager settings** — use **Browse** (or type the path) for **Path for eim_idf.json file**; the file name must be ``eim_idf.json``. Leave empty to use the default only. More detail: `EIM documentation <https://docs.espressif.com/projects/idf-im-ui/en/latest/cli_commands.html>`__.
+
 .. _esp-idf-tools-migration:
 
 Old-to-New Workspace Migration
