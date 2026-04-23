@@ -18,12 +18,10 @@ package com.espressif.idf.launch.serial.ui.internal;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.util.IDFUtil;
 
 public class SerialFlashLaunchConfigTabGroup extends AbstractLaunchConfigurationTabGroup
 {
@@ -31,16 +29,7 @@ public class SerialFlashLaunchConfigTabGroup extends AbstractLaunchConfiguration
 	@Override
 	public void createTabs(ILaunchConfigurationDialog dialog, String mode)
 	{
-
 		setTabs();
-
-	}
-
-	@Override
-	public void performApply(ILaunchConfigurationWorkingCopy configuration)
-	{
-		super.performApply(configuration);
-		IDFUtil.updateProjectBuildFolder(configuration);
 	}
 
 	@Override
