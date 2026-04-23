@@ -22,6 +22,7 @@ import org.osgi.service.prefs.Preferences;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
+import com.espressif.idf.core.SystemExecutableFinder;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.exceptions.EimVersionMismatchException;
 import com.espressif.idf.core.tools.vo.EimJson;
@@ -48,16 +49,63 @@ public class ToolInitializer
 
 	public boolean isEimInstalled()
 	{
+		if (!StringUtil.isEmpty(findEimOnSystemPath()))
+		{
+			return true;
+		}
+
 		String eimExePathEnv = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH);
 		boolean exists = !StringUtil.isEmpty(eimExePathEnv) && Files.exists(Paths.get(eimExePathEnv));
 		if (!exists)
 		{
-	        // Fallback: check in user home .espressif/eim_gui folder
-	        Path defaultEimPath = getDefaultEimPath();
-	        if (defaultEimPath != null)
-	        	exists = Files.exists(defaultEimPath);
+			// Fallback: well-known install locations (e.g. user home .espressif/eim_gui, /Applications on macOS)
+			Path defaultEimPath = getDefaultEimPath();
+			if (defaultEimPath != null)
+			{
+				exists = Files.exists(defaultEimPath);
+			}
 		}
 		return exists;
+	}
+
+	/**
+	 * Looks for an {@code eim} executable on the process {@code PATH}, using the same rules as other tools in this
+	 * plugin ({@link SystemExecutableFinder}: PATHEXT on Windows, plain name on Linux/macOS).
+	 *
+	 * @return absolute path to the executable, or empty if not found
+	 */
+	private String findEimOnSystemPath()
+	{
+		IPath eimPath = new SystemExecutableFinder().find("eim"); //$NON-NLS-1$
+		return eimPath != null ? eimPath.toOSString() : StringUtil.EMPTY;
+	}
+
+	/**
+	 * Resolves the EIM executable path: <strong>system {@code PATH} first</strong>, then {@code eimPath} from
+	 * {@code eim_idf.json} when the path exists on disk, then {@link #getDefaultEimPath()}.
+	 *
+	 * @param eimJson parsed JSON or {@code null}
+	 * @return resolved absolute path string, or empty if nothing could be resolved
+	 */
+	public String resolveEimExecutablePath(EimJson eimJson)
+	{
+		String fromPath = findEimOnSystemPath();
+		if (!StringUtil.isEmpty(fromPath))
+		{
+			return fromPath;
+		}
+
+		if (eimJson != null && !StringUtil.isEmpty(eimJson.getEimPath()))
+		{
+			String jsonPath = eimJson.getEimPath();
+			if (Files.exists(Paths.get(jsonPath)))
+			{
+				return jsonPath;
+			}
+		}
+
+		Path defaultEimPath = getDefaultEimPath();
+		return defaultEimPath != null ? defaultEimPath.toString() : StringUtil.EMPTY;
 	}
 	
 	public boolean isEimIdfJsonPresent()
@@ -162,10 +210,11 @@ public class ToolInitializer
 	
 	public void findAndSetEimPath()
 	{
-        Path defaultEimPath = getDefaultEimPath();
-        
-        if (defaultEimPath != null)
-        	setEimPathInEnvVar(defaultEimPath.toString());
+		String resolved = resolveEimExecutablePath(null);
+		if (!StringUtil.isEmpty(resolved))
+		{
+			setEimPathInEnvVar(resolved);
+		}
 	}
 	
 	private void setEimPathInEnvVar(String eimPath)
