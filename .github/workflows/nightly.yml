@@ -6,6 +6,10 @@ name: Nightly builds
 on:
   schedule:
     - cron: "0 0 * * *"
+  pull_request:
+    branches:
+      - master
+      - release/**
 
 permissions:
   contents: read
@@ -122,6 +126,7 @@ jobs:
         /usr/bin/security unlock-keychain -p espressif build.keychain
         /usr/bin/security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
         /usr/bin/security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k espressif build.keychain
+        /usr/bin/security list-keychains -d user -s build.keychain $(security list-keychains -d user | sed s/\"//g)
         
         echo "codesigning espressif-ide-macosx.cocoa.x86_64"
         /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app -v
