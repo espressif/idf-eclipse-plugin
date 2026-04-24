@@ -128,6 +128,11 @@ jobs:
         /usr/bin/security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k espressif build.keychain
         /usr/bin/security list-keychains -d user -s build.keychain $(security list-keychains -d user | sed s/\"//g)
 
+        curl -fsSL https://www.apple.com/certificateauthority/DeveloperIDCA.cer -o DeveloperIDCA.cer
+        curl -fsSL https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer -o DeveloperIDG2CA.cer
+        /usr/bin/security import DeveloperIDCA.cer -k build.keychain -T /usr/bin/codesign || true
+        /usr/bin/security import DeveloperIDG2CA.cer -k build.keychain -T /usr/bin/codesign || true
+
         echo "---- Identities visible to codesign in build.keychain ----"
         /usr/bin/security find-identity -v -p codesigning build.keychain || true
         /usr/bin/security find-identity -v build.keychain || true
