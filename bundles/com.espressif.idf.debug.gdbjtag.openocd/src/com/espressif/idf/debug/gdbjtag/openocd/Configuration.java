@@ -14,8 +14,11 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,7 +29,9 @@ import org.eclipse.cdt.dsf.gdb.IGdbDebugPreferenceConstants;
 import org.eclipse.cdt.dsf.gdb.internal.GdbPlugin;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.embedcdt.core.EclipseUtils;
@@ -333,31 +338,55 @@ public class Configuration
 
 	private static boolean useModernPortSyntax(String executablePath)
 	{
-		if (executablePath == null)
+		if (executablePath == null || executablePath.isEmpty())
 		{
 			return false;
 		}
+		Pattern outputPattern = Pattern.compile("(?:Open On-Chip Debugger |v)(?<major>\\d+)\\.(?<minor>\\d+)"); //$NON-NLS-1$
 
-		Pattern pattern = Pattern.compile("v(\\d+)\\.(\\d+)\\.\\d+-esp32-\\d{8}"); //$NON-NLS-1$
-		Matcher matcher = pattern.matcher(executablePath);
-
-		if (matcher.find())
+		try
 		{
+			ProcessBuilder pb = new ProcessBuilder(executablePath, "--version"); //$NON-NLS-1$
+			pb.redirectErrorStream(true);
+			Process process = pb.start();
+
 			try
 			{
-				int major = Integer.parseInt(matcher.group(1));
-				int minor = Integer.parseInt(matcher.group(2));
-
-				if (major > 0 || (major == 0 && minor >= 12))
+				try (BufferedReader reader = process.inputReader())
 				{
-					return true;
+					return reader.lines().map(outputPattern::matcher).filter(Matcher::find).findFirst().map(matcher -> {
+						int major = Integer.parseInt(matcher.group("major")); //$NON-NLS-1$
+						int minor = Integer.parseInt(matcher.group("minor")); //$NON-NLS-1$
+						return major > 0 || (major == 0 && minor >= 12);
+					}).orElse(false);
+				}
+			} finally
+			{
+				if (process.isAlive())
+				{
+					process.destroy();
+
+					if (!process.waitFor(500, TimeUnit.MILLISECONDS))
+					{
+						process.destroyForcibly();
+					}
 				}
 			}
-			catch (NumberFormatException e)
-			{
-				Activator.log(e);
-			}
 		}
+		catch (
+				IOException
+				| NumberFormatException e)
+		{
+			Activator.log(new CoreException(new Status(IStatus.WARNING, Activator.PLUGIN_ID,
+					"Failed to execute or parse OpenOCD version fallback for path: " + executablePath, e))); //$NON-NLS-1$
+		}
+		catch (InterruptedException e)
+		{
+			Thread.currentThread().interrupt();
+			Activator.log(new CoreException(new Status(IStatus.WARNING, Activator.PLUGIN_ID,
+					"Thread was interrupted while waiting for OpenOCD process to exit.", e))); //$NON-NLS-1$
+		}
+
 		return false;
 	}
 }
