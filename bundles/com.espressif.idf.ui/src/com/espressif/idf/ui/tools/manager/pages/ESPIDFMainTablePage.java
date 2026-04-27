@@ -426,12 +426,12 @@ public class ESPIDFMainTablePage
 		if (container == null || container.isDisposed())
 			return;
 
-		Job refreshJob = new Job("Refreshing ESP-IDF Environments")
+		Job refreshJob = new Job(Messages.ESPIDFMainTablePage_RefreshingIdfJobName)
 		{
 			@Override
 			protected IStatus run(IProgressMonitor monitor)
 			{
-				monitor.beginTask("Scanning configurations...", IProgressMonitor.UNKNOWN);
+				monitor.beginTask(Messages.ESPIDFMainTablePage_ScanningProcessTaskName, IProgressMonitor.UNKNOWN);
 
 				try
 				{
@@ -442,7 +442,7 @@ public class ESPIDFMainTablePage
 					{
 						var gitPath = newJson.getGitPath();
 
-						monitor.subTask("Detecting ESP-IDF versions...");
+						monitor.subTask(Messages.ESPIDFMainTablePage_DetectingEspIdfSubTaskName);
 
 						try (var executor = Executors.newVirtualThreadPerTaskExecutor())
 						{
@@ -474,7 +474,7 @@ public class ESPIDFMainTablePage
 				catch (Exception e)
 				{
 					Logger.log(e);
-					return new Status(IStatus.ERROR, UIPlugin.PLUGIN_ID, "Failed to refresh ESP-IDF environments", e);
+					return new Status(IStatus.ERROR, UIPlugin.PLUGIN_ID, Messages.ESPIDFMainTablePage_FailderRefreshMsg, e);
 				} finally
 				{
 					monitor.done();
