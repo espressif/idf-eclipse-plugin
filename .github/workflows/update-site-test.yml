@@ -5,25 +5,43 @@ on:
     paths:
       - 'releng/update-site-tests/**'
       - '.github/workflows/update-site-tests.yml'
+
   pull_request:
     paths:
       - 'releng/update-site-tests/**'
       - '.github/workflows/update-site-tests.yml'
+
   schedule:
     # Runs every day at 00:00 UTC
     - cron: '0 0 * * *'
+
   workflow_dispatch:
+
+  workflow_run:
+    workflows: ["Espressif-IDE Cross-platform Release"]
+    types:
+      - completed
 
 permissions:
   contents: read
 
 jobs:
   update-site-tests:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: [self-hosted, eclipse, BrnoUBU0004]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Print trigger info
+        run: |
+          echo "Event: ${{ github.event_name }}"
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            echo "Triggered by workflow: ${{ github.event.workflow_run.name }}"
+            echo "Conclusion: ${{ github.event.workflow_run.conclusion }}"
+            echo "Head branch: ${{ github.event.workflow_run.head_branch }}"
+          fi
 
       - name: Make scripts executable
         run: |
