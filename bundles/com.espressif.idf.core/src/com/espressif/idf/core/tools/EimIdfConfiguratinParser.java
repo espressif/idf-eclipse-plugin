@@ -3,8 +3,7 @@ package com.espressif.idf.core.tools;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-
-import org.eclipse.core.runtime.Platform;
+import java.nio.file.Path;
 
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.exceptions.EimVersionMismatchException;
@@ -25,9 +24,8 @@ public class EimIdfConfiguratinParser
 
 	private void load() throws IOException, EimVersionMismatchException
 	{
-		String path = Platform.getOS().equals(Platform.OS_WIN32) ? EimConstants.EIM_WIN_PATH
-				: EimConstants.EIM_POSIX_PATH;
-
+		Path jsonPath = new EimIdfJsonPathResolver().resolveEimIdfJsonFile();
+		String path = jsonPath.toString();
 		File file = new File(path);
 		if (!file.exists())
 		{

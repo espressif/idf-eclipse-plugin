@@ -62,9 +62,8 @@ public class ToolInitializer
 	
 	public boolean isEimIdfJsonPresent()
 	{
-		String path = Platform.getOS().equals(Platform.OS_WIN32) ? EimConstants.EIM_WIN_PATH
-				: EimConstants.EIM_POSIX_PATH;
-		return new File(path).exists();
+		Path path = new EimIdfJsonPathResolver().resolveEimIdfJsonFile();
+		return Files.isRegularFile(path) && Files.isReadable(path);
 	}
 
 	public EimJson loadEimJson() throws EimVersionMismatchException

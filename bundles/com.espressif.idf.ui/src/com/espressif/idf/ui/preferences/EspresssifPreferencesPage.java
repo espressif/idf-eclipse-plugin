@@ -1,14 +1,21 @@
 package com.espressif.idf.ui.preferences;
 
+import java.nio.file.Paths;
+import java.util.Objects;
+
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -19,6 +26,8 @@ import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFCorePreferenceConstants;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.tools.EimConstants;
+import com.espressif.idf.core.tools.watcher.EimJsonWatchService;
 
 public class EspresssifPreferencesPage extends PreferencePage implements IWorkbenchPreferencePage
 {
@@ -39,6 +48,7 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 	private Combo gitAssetsCombo;
 	private Combo pythonWheelCombo;
 	private Button automateClangdFormatCreationBtn;
+	private Text eimIdfJsonPathText;
 
 	public EspresssifPreferencesPage()
 	{
@@ -76,7 +86,51 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		addBuildSettings(mainComposite);
 
 		addClangdSettings(mainComposite);
+
+		addEimSettings(mainComposite);
 		return mainComposite;
+	}
+
+	private void addEimSettings(Composite mainComposite)
+	{
+		Group eimGroup = new Group(mainComposite, SWT.SHADOW_ETCHED_IN);
+		eimGroup.setText(Messages.EspresssifPreferencesPage_EimSettingsGroupName);
+		eimGroup.setLayout(new GridLayout(3, false));
+
+		Label eimPathLabel = new Label(eimGroup, SWT.None);
+		eimPathLabel.setText(Messages.EspresssifPreferencesPage_EimIdfJsonPathLabel);
+		eimIdfJsonPathText = new Text(eimGroup, SWT.SINGLE | SWT.BORDER);
+		GridData eimPathTextData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		eimPathTextData.widthHint = 500;
+		eimIdfJsonPathText.setLayoutData(eimPathTextData);
+		eimIdfJsonPathText.setText(getPreferenceStore().getString(IDFCorePreferenceConstants.EIM_IDF_JSON_PATH));
+		eimIdfJsonPathText.setToolTipText(Messages.EspresssifPreferencesPage_EimIdfJsonPathTooltip);
+		eimIdfJsonPathText.setMessage("Leave empty to use the default value."); //$NON-NLS-1$
+		Button eimPathBrowse = new Button(eimGroup, SWT.PUSH);
+		eimPathBrowse.setText(Messages.EspresssifPreferencesPage_EimIdfJsonPathBrowse);
+		eimPathBrowse.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				FileDialog d = new FileDialog(eimIdfJsonPathText.getShell(), SWT.OPEN);
+				d.setFileName(EimConstants.EIM_JSON);
+				String s = d.open();
+				if (s != null)
+				{
+					if (!Paths.get(s).getFileName().toString().equals(EimConstants.EIM_JSON))
+					{
+						MessageDialog.openError(eimPathBrowse.getShell(),
+								Messages.EspresssifPreferencesPage_EimSettingsGroupName,
+								Messages.EspresssifPreferencesPage_EimIdfJsonPathInvalid);
+					}
+					else
+					{
+						eimIdfJsonPathText.setText(s);
+					}
+				}
+			}
+		});
 	}
 
 	private void addClangdSettings(Composite mainComposite)
@@ -195,6 +249,21 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 
 			getPreferenceStore().setValue(IDFCorePreferenceConstants.AUTOMATE_CLANGD_FORMAT_FILE,
 					automateClangdFormatCreationBtn.getSelection());
+
+			String eimIdf = eimIdfJsonPathText.getText().trim();
+			if (!eimIdf.isEmpty()
+					&& !Paths.get(eimIdf).getFileName().toString().equals(EimConstants.EIM_JSON))
+			{
+				MessageDialog.openError(getShell(), Messages.EspresssifPreferencesPage_EimSettingsGroupName,
+						Messages.EspresssifPreferencesPage_EimIdfJsonPathInvalid);
+				return false;
+			}
+			String prevEim = getPreferenceStore().getString(IDFCorePreferenceConstants.EIM_IDF_JSON_PATH);
+			getPreferenceStore().setValue(IDFCorePreferenceConstants.EIM_IDF_JSON_PATH, eimIdf);
+			if (!Objects.equals(prevEim, eimIdf))
+			{
+				EimJsonWatchService.restartAfterEimIdfPathChange();
+			}
 		}
 		catch (Exception e)
 		{
@@ -218,6 +287,8 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 				.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.HIDE_ERRORS_IDF_COMPONENTS));
 		automateClangdFormatCreationBtn
 				.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.AUTOMATE_CLANGD_FORMAT_FILE));
+		eimIdfJsonPathText
+				.setText(getPreferenceStore().getDefaultString(IDFCorePreferenceConstants.EIM_IDF_JSON_PATH));
 		gitAssetsCombo.setText(gitAssetsCombo.getItem(0));
 		pythonWheelCombo.setText(pythonWheelCombo.getItem(0));
 	}
@@ -235,5 +306,6 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 				IDFCorePreferenceConstants.HIDE_ERRORS_IDF_COMPONENTS_DEFAULT_STATUS);
 		getPreferenceStore().setDefault(IDFCorePreferenceConstants.AUTOMATE_CLANGD_FORMAT_FILE,
 				IDFCorePreferenceConstants.AUTOMATE_CLANGD_FORMAT_FILE_DEFAULT);
+		getPreferenceStore().setDefault(IDFCorePreferenceConstants.EIM_IDF_JSON_PATH, ""); //$NON-NLS-1$
 	}
 }

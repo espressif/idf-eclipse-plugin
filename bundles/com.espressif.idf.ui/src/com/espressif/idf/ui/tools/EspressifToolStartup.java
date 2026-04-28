@@ -79,7 +79,11 @@ public class EspressifToolStartup implements IStartup
 		eimLoader = new EimLoader(new StartupClassDownloadEimDownloadListener(), standardConsoleStream,
 				errorConsoleStream, Display.getDefault());
 		eimJsonUiChangeHandler = new EimJsonUiChangeHandler(preferences);
-		EimJsonWatchService.getInstance().addEimJsonChangeListener(eimJsonUiChangeHandler);
+		EimJsonWatchService w = EimJsonWatchService.getInstance();
+		if (w != null)
+		{
+			w.addEimJsonChangeListener(eimJsonUiChangeHandler);
+		}
 
 		if (!toolInitializer.isEimInstalled() && !toolInitializer.isEimIdfJsonPresent())
 		{
