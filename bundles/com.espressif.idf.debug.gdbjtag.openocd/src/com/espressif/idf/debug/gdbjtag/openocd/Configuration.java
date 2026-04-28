@@ -14,8 +14,13 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
 import org.eclipse.cdt.debug.gdbjtag.core.IGDBJtagConstants;
@@ -24,7 +29,9 @@ import org.eclipse.cdt.dsf.gdb.IGdbDebugPreferenceConstants;
 import org.eclipse.cdt.dsf.gdb.internal.GdbPlugin;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.embedcdt.core.EclipseUtils;
@@ -89,10 +96,16 @@ public class Configuration
 				return null;
 
 			String executable = getGdbServerCommand(configuration, null);
-			if (executable == null || executable.length() == 0)
+			if (executable == null || executable.isEmpty())
 				return null;
 
+
 			lst.add(executable);
+
+			boolean useModernSyntax = useModernPortSyntax(executable);
+			String fmtGdbPort = useModernSyntax ? "gdb port %d" : "gdb_port %d"; //$NON-NLS-1$ //$NON-NLS-2$
+			String fmtTelnetPort = useModernSyntax ? "telnet port %d" : "telnet_port %d"; //$NON-NLS-1$ //$NON-NLS-2$
+			String fmtTclPort = useModernSyntax ? "tcl port %d" : "tcl_port %d"; //$NON-NLS-1$ //$NON-NLS-2$
 
 			int port = PortChecker
 					.getAvailablePort(DefaultPreferences.GDB_SERVER_GDB_PORT_NUMBER_DEFAULT);
@@ -102,21 +115,21 @@ public class Configuration
 			configurationWorkingCopy.doSave();
 			
 			lst.add("-c"); //$NON-NLS-1$
-			lst.add("gdb_port " + port); //$NON-NLS-1$
+			lst.add(String.format(fmtGdbPort, port));
 
 			port = PortChecker
 					.getAvailablePort(configuration.getAttribute(ConfigurationAttributes.GDB_SERVER_TELNET_PORT_NUMBER,
 							DefaultPreferences.GDB_SERVER_TELNET_PORT_NUMBER_DEFAULT));
 
 			lst.add("-c"); //$NON-NLS-1$
-			lst.add("telnet_port " + port); //$NON-NLS-1$
+			lst.add(String.format(fmtTelnetPort, port));
 
 			port = PortChecker.getAvailablePort(
 					Integer.parseInt(configuration.getAttribute(ConfigurationAttributes.GDB_SERVER_TCL_PORT_NUMBER,
 							DefaultPreferences.GDB_SERVER_TCL_PORT_NUMBER_DEFAULT)));
 
 			lst.add("-c"); //$NON-NLS-1$
-			lst.add("tcl_port " + port); //$NON-NLS-1$
+			lst.add(String.format(fmtTclPort, port));
 
 			String other = configuration
 					.getAttribute(ConfigurationAttributes.GDB_SERVER_OTHER, DefaultPreferences.GDB_SERVER_OTHER_DEFAULT)
@@ -322,4 +335,56 @@ public class Configuration
 	}
 
 	// ------------------------------------------------------------------------
+
+	private static boolean useModernPortSyntax(String executablePath)
+	{
+		if (executablePath == null || executablePath.isEmpty())
+		{
+			return false;
+		}
+		Pattern outputPattern = Pattern.compile("(?:Open On-Chip Debugger |v)(?<major>\\d+)\\.(?<minor>\\d+)"); //$NON-NLS-1$
+
+		try
+		{
+			ProcessBuilder pb = new ProcessBuilder(executablePath, "--version"); //$NON-NLS-1$
+			pb.redirectErrorStream(true);
+			Process process = pb.start();
+
+			try
+			{
+				if (!process.waitFor(2, TimeUnit.SECONDS))
+				{
+					return false;
+				}
+
+				try (BufferedReader reader = process.inputReader())
+				{
+					return reader.lines().map(outputPattern::matcher).filter(Matcher::find).findFirst().map(matcher -> {
+						int major = Integer.parseInt(matcher.group("major")); //$NON-NLS-1$
+						int minor = Integer.parseInt(matcher.group("minor")); //$NON-NLS-1$
+						return major > 0 || (major == 0 && minor >= 12);
+					}).orElse(false);
+				}
+			} finally
+			{
+				if (process.isAlive())
+				{
+					process.destroyForcibly();
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			Activator.log(new CoreException(new Status(IStatus.WARNING, Activator.PLUGIN_ID,
+					"Failed to execute or parse OpenOCD version fallback for path: " + executablePath, e))); //$NON-NLS-1$
+			return false;
+		}
+		catch (InterruptedException e)
+		{
+			Thread.currentThread().interrupt();
+			Activator.log(new CoreException(new Status(IStatus.WARNING, Activator.PLUGIN_ID,
+					"Thread was interrupted while waiting for OpenOCD process to exit.", e))); //$NON-NLS-1$
+			return false;
+		}
+	}
 }
