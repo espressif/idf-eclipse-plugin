@@ -273,6 +273,24 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 		setDefaults();
 	}
 
+	/**
+	 * Helper method to safely append text to the infoArea from any thread. Checks for widget disposal to prevent
+	 * SWTExceptions.
+	 */
+	private void appendToInfoArea(final String text)
+	{
+		if (display == null || display.isDisposed())
+		{
+			return;
+		}
+		display.asyncExec(() -> {
+			if (infoArea != null && !infoArea.isDisposed())
+			{
+				infoArea.append(text);
+			}
+		});
+	}
+
 	private void setDefaults()
 	{
 		if (launchTarget == null)
@@ -471,10 +489,9 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 			EspToolCommands espToolCommands = new EspToolCommands();
 
 			String message = String.format(Messages.TargetPortUpdatingMessage, serialPort);
-			display.asyncExec(() -> {
-				if (infoArea != null && !infoArea.isDisposed())
-					infoArea.append(System.lineSeparator() + message);
-			});
+
+			appendToInfoArea(System.lineSeparator() + message);
+
 			try
 			{
 				Process chipInfoProcess = espToolCommands.chipInformation(serialPort);
@@ -484,31 +501,30 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 				String readLine;
 				while ((readLine = bufferedReader.readLine()) != null)
 				{
-					display.asyncExec(() -> infoArea.append(".")); //$NON-NLS-1$
+					appendToInfoArea("."); //$NON-NLS-1$
+
 					chipInfo.append(readLine);
 					chipInfo.append(System.lineSeparator());
 				}
 				String chipType = extractChipFromChipInfoOutput(chipInfo.toString());
-				display.asyncExec(() -> {
-					if (StringUtil.isEmpty(chipType))
-					{
-						if (infoArea != null && !infoArea.isDisposed())
-							infoArea.setText(infoArea.getText() + System.lineSeparator()
-									+ String.format(Messages.TargetPortNotFoundMessage, serialPort));
-					}
-					else
-					{
-						infoArea.append(System.lineSeparator());
-						infoArea.append(String.format(Messages.TargetPortFoundMessage, serialPort, chipType));
-					}
-				});
+
+				if (StringUtil.isEmpty(chipType))
+				{
+					appendToInfoArea(
+							System.lineSeparator() + String.format(Messages.TargetPortNotFoundMessage, serialPort));
+				}
+				else
+				{
+					appendToInfoArea(System.lineSeparator()
+							+ String.format(Messages.TargetPortFoundMessage, serialPort, chipType));
+				}
 			}
 			catch (Exception e)
 			{
 				Logger.log(e);
 			}
 
-			display.asyncExec(() -> infoArea.append(System.lineSeparator()));
+			appendToInfoArea(System.lineSeparator());
 
 			return Status.OK_STATUS;
 		}
