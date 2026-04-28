@@ -105,6 +105,7 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		eimIdfJsonPathText.setLayoutData(eimPathTextData);
 		eimIdfJsonPathText.setText(getPreferenceStore().getString(IDFCorePreferenceConstants.EIM_IDF_JSON_PATH));
 		eimIdfJsonPathText.setToolTipText(Messages.EspresssifPreferencesPage_EimIdfJsonPathTooltip);
+		eimIdfJsonPathText.setMessage("Leave empty to use the default value."); //$NON-NLS-1$
 		Button eimPathBrowse = new Button(eimGroup, SWT.PUSH);
 		eimPathBrowse.setText(Messages.EspresssifPreferencesPage_EimIdfJsonPathBrowse);
 		eimPathBrowse.addSelectionListener(new SelectionAdapter()
