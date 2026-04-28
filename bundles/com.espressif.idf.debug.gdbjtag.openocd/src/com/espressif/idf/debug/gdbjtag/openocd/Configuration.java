@@ -352,6 +352,11 @@ public class Configuration
 
 			try
 			{
+				if (!process.waitFor(2, TimeUnit.SECONDS))
+				{
+					return false;
+				}
+
 				try (BufferedReader reader = process.inputReader())
 				{
 					return reader.lines().map(outputPattern::matcher).filter(Matcher::find).findFirst().map(matcher -> {
@@ -364,29 +369,22 @@ public class Configuration
 			{
 				if (process.isAlive())
 				{
-					process.destroy();
-
-					if (!process.waitFor(500, TimeUnit.MILLISECONDS))
-					{
-						process.destroyForcibly();
-					}
+					process.destroyForcibly();
 				}
 			}
 		}
-		catch (
-				IOException
-				| NumberFormatException e)
+		catch (IOException e)
 		{
 			Activator.log(new CoreException(new Status(IStatus.WARNING, Activator.PLUGIN_ID,
 					"Failed to execute or parse OpenOCD version fallback for path: " + executablePath, e))); //$NON-NLS-1$
+			return false;
 		}
 		catch (InterruptedException e)
 		{
 			Thread.currentThread().interrupt();
 			Activator.log(new CoreException(new Status(IStatus.WARNING, Activator.PLUGIN_ID,
 					"Thread was interrupted while waiting for OpenOCD process to exit.", e))); //$NON-NLS-1$
+			return false;
 		}
-
-		return false;
 	}
 }
