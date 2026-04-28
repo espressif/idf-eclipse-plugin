@@ -38,13 +38,21 @@ public class Messages extends NLS
 
 	public static String ESPIDFMainTablePage_ActiveLbl;
 
+	public static String ESPIDFMainTablePage_DetectingEspIdfSubTaskName;
+
 	public static String ESPIDFMainTablePage_EIMButtonTooltip;
+
+	public static String ESPIDFMainTablePage_FailderRefreshMsg;
 
 	public static String ESPIDFMainTablePage_MainContentGroupLbl;
 
 	public static String ESPIDFMainTablePage_RefreshEnvBtnName;
 
 	public static String ESPIDFMainTablePage_RefreshEnvBtnTooltip;
+
+	public static String ESPIDFMainTablePage_RefreshingIdfJobName;
+
+	public static String ESPIDFMainTablePage_ScanningProcessTaskName;
 
 	public static String ESPIDFMainTablePage_SettingUpLbl;
 

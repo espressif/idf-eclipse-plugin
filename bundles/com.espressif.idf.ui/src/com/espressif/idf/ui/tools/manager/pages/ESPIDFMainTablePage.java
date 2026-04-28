@@ -6,7 +6,12 @@ package com.espressif.idf.ui.tools.manager.pages;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.layout.TableColumnLayout;
@@ -81,8 +86,6 @@ public class ESPIDFMainTablePage
 	private EimJson eimJson;
 
 	private final EimIdfConfiguratinParser configParser;
-	private final ToolInitializer toolInitializer;
-
 	private final IDFConsole idfConsole = new IDFConsole();
 	private IdfInstalled currentInstallingNode = null;
 
@@ -90,7 +93,7 @@ public class ESPIDFMainTablePage
 	{
 		this.eimJson = eimJson;
 		this.configParser = new EimIdfConfiguratinParser();
-		this.toolInitializer = new ToolInitializer(InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID));
+		new ToolInitializer(InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID));
 	}
 
 	public Composite createPage(Composite parent)
@@ -423,44 +426,62 @@ public class ESPIDFMainTablePage
 		if (container == null || container.isDisposed())
 			return;
 
-		CompletableFuture.supplyAsync(() -> {
-			try
+		Job refreshJob = new Job(Messages.ESPIDFMainTablePage_RefreshingIdfJobName)
+		{
+			@Override
+			protected IStatus run(IProgressMonitor monitor)
 			{
-				var newJson = configParser.getEimJson(true);
-				if (newJson != null && newJson.getIdfInstalled() != null)
+				monitor.beginTask(Messages.ESPIDFMainTablePage_ScanningProcessTaskName, IProgressMonitor.UNKNOWN);
+
+				try
 				{
-					var gitPath = newJson.getGitPath();
-					return newJson.getIdfInstalled().stream()
-							.map(idf -> new IdfRow(idf, ToolsUtility.isIdfInstalledActive(idf),
-									ToolsUtility.getIdfVersion(idf, gitPath), idf.getName(), idf.getPath()))
-							.toList();
+					var newJson = configParser.getEimJson(true);
+					List<IdfRow> rows = List.of();
+
+					if (newJson != null && newJson.getIdfInstalled() != null)
+					{
+						var gitPath = newJson.getGitPath();
+
+						monitor.subTask(Messages.ESPIDFMainTablePage_DetectingEspIdfSubTaskName);
+
+						try (var executor = Executors.newVirtualThreadPerTaskExecutor())
+						{
+							var futures = newJson.getIdfInstalled().stream().map(idf -> CompletableFuture.supplyAsync(
+									() -> new IdfRow(idf, ToolsUtility.isIdfInstalledActive(idf),
+											ToolsUtility.getIdfVersion(idf, gitPath), idf.getName(), idf.getPath()),
+									executor)).toList();
+
+							rows = futures.stream().map(CompletableFuture::join).toList();
+						}
+					}
+
+					final List<IdfRow> finalRows = rows;
+
+					Display.getDefault().asyncExec(() -> {
+						if (container.isDisposed())
+							return;
+
+						var currentSelection = tableViewer.getSelection();
+						currentInstallingNode = null;
+
+						tableViewer.setInput(finalRows);
+						tableViewer.setSelection(currentSelection);
+						updateButtonState();
+					});
+
+					return Status.OK_STATUS;
 				}
-				return List.<IdfRow>of();
+				catch (Exception e)
+				{
+					Logger.log(e);
+					return new Status(IStatus.ERROR, UIPlugin.PLUGIN_ID, Messages.ESPIDFMainTablePage_FailderRefreshMsg, e);
+				} finally
+				{
+					monitor.done();
+				}
 			}
-			catch (Exception e)
-			{
-				throw new RuntimeException(e);
-			}
-		}).thenAcceptAsync(rows -> {
-			if (container.isDisposed())
-				return;
-			var currentSelection = tableViewer.getSelection();
-			this.currentInstallingNode = null;
-			try
-			{
-				this.eimJson = configParser.getEimJson(false);
-			}
-			catch (Exception e)
-			{
-				Logger.log(e.toString());
-			}
-			tableViewer.setInput(rows);
-			tableViewer.setSelection(currentSelection);
-			updateButtonState();
-		}, Display.getDefault()::asyncExec).exceptionally(ex -> {
-			Logger.log(ex.getCause() != null ? ex.getCause().toString() : ex.toString());
-			return null;
-		});
+		};
+		refreshJob.schedule();
 	}
 
 	public void setupInitialEspIdf()
