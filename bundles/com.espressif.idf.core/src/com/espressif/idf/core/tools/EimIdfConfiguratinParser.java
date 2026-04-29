@@ -40,7 +40,7 @@ public class EimIdfConfiguratinParser
 			eimJson = gson.fromJson(fileReader, EimJson.class);
 		}
 		
-		if (Double.parseDouble(eimJson.getVersion()) < Double.parseDouble(EimConstants.EIM_JSON_VALID_VERSION))
+		if (Double.parseDouble(eimJson.getVersion()) > Double.parseDouble(EimConstants.EIM_JSON_VALID_VERSION))
 		{
 			throw new EimVersionMismatchException(EimConstants.EIM_JSON_VALID_VERSION, eimJson.getVersion());
 		}
