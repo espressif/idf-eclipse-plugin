@@ -115,15 +115,11 @@ public class EspressifToolStartup implements IStartup
 			promptUserToOpenToolManager(eimJson);
 		}
 
-		// Set EimPath on every startup to ensure proper path in configurations
-		if (eimJson != null)
+		// Set EimPath on every startup: system PATH first, then eim_idf.json, then default locations
+		String resolvedEimPath = toolInitializer.resolveEimExecutablePath(eimJson);
+		if (!StringUtil.isEmpty(resolvedEimPath))
 		{
-			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, eimJson.getEimPath());
-		}
-		else
-		{
-			// Fail-safe call to ensure if the eim is in Applications or user.home it is setup in env vars
-			toolInitializer.findAndSetEimPath();
+			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, resolvedEimPath);
 		}
 
 	}
@@ -163,22 +159,15 @@ public class EspressifToolStartup implements IStartup
 	{
 		try
 		{
-			// if eim json is present it means that it contains the updated path and we use that else we fallback to
-			// finding eim in default paths
-			Path eimPath;
-			String eimPathEnvVar = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH);
-			if (eimJson != null)
+			// Same resolution order as workspace EIM_PATH: PATH, then eim_idf.json, then defaults
+			String resolved = toolInitializer.resolveEimExecutablePath(eimJson);
+			if (StringUtil.isEmpty(resolved))
 			{
-				eimPath = Paths.get(eimJson.getEimPath());
+				Logger.log("Cannot export old config: EIM executable path could not be resolved."); //$NON-NLS-1$
+				writeToErrorConsoleStream(Messages.OldConfigExportCompleteFailMsg);
+				return;
 			}
-			else if (!StringUtil.isEmpty(eimPathEnvVar))
-			{
-				eimPath = Paths.get(eimPathEnvVar);
-			}
-			else
-			{
-				eimPath = toolInitializer.getDefaultEimPath();
-			}
+			Path eimPath = Paths.get(resolved);
 
 			IStatus status = toolInitializer.exportOldConfig(eimPath);
 			Logger.log("Tools Conversion Process Message: ");
