@@ -36,6 +36,7 @@ import org.osgi.framework.BundleContext;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.build.IDFLaunchConstants;
+import com.espressif.idf.core.util.OpenOcdVersionManager;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
 
@@ -226,9 +227,12 @@ public class GdbServerBackend extends GnuMcuGdbServerBackend {
 		if (activeLaunchTarget != null)
 		{
 			String openocdLoc = activeLaunchTarget.getAttribute(IDFLaunchConstants.OPENOCD_USB_LOCATION, (String) null);
-			if (openocdLoc != null) {
-				envMap.put(IDFLaunchConstants.OPENOCD_USB_LOCATION, openocdLoc);
-			}
+			if (openocdLoc != null && commandLineArray != null && commandLineArray.length > 0
+					&& supportsAdapterUsbCommand(commandLineArray[0]))
+				{
+					envMap.put(IDFLaunchConstants.OPENOCD_USB_LOCATION, openocdLoc);
+				}
+
 		}
 
 		// Convert back to envp
@@ -238,5 +242,10 @@ public class GdbServerBackend extends GnuMcuGdbServerBackend {
 		}
 
 		return DebugUtils.exec(commandLineArray, envList.toArray(new String[0]), dir);
+	}
+
+	private boolean supportsAdapterUsbCommand(String executablePath)
+	{
+		return OpenOcdVersionManager.getVersion(executablePath).isBuildDateAtLeast(0, 12, 20260424);
 	}
 }
