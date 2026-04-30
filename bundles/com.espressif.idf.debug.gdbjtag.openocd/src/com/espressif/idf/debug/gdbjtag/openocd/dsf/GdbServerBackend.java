@@ -228,7 +228,7 @@ public class GdbServerBackend extends GnuMcuGdbServerBackend {
 		{
 			String openocdLoc = activeLaunchTarget.getAttribute(IDFLaunchConstants.OPENOCD_USB_LOCATION, (String) null);
 			if (openocdLoc != null && commandLineArray != null && commandLineArray.length > 0
-					&& supportsAdapterUsbCommand(commandLineArray[0]))
+					&& !supportsAdapterUsbCommand(commandLineArray[0]))
 				{
 					envMap.put(IDFLaunchConstants.OPENOCD_USB_LOCATION, openocdLoc);
 				}
