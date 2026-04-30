@@ -14,13 +14,8 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
 import org.eclipse.cdt.debug.gdbjtag.core.IGDBJtagConstants;
@@ -29,15 +24,17 @@ import org.eclipse.cdt.dsf.gdb.IGdbDebugPreferenceConstants;
 import org.eclipse.cdt.dsf.gdb.internal.GdbPlugin;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.embedcdt.core.EclipseUtils;
 import org.eclipse.embedcdt.core.StringUtils;
 import org.eclipse.embedcdt.debug.gdbjtag.core.DebugUtils;
+import org.eclipse.launchbar.core.ILaunchBarManager;
+import org.eclipse.launchbar.core.target.ILaunchTarget;
 
+import com.espressif.idf.core.build.IDFLaunchConstants;
+import com.espressif.idf.core.util.OpenOcdVersionManager;
 import com.espressif.idf.core.util.PortChecker;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
@@ -114,6 +111,19 @@ public class Configuration
 			configurationWorkingCopy.setAttribute(IGDBJtagConstants.ATTR_PORT_NUMBER,  port);
 			configurationWorkingCopy.doSave();
 			
+			ILaunchTarget activeLaunchTarget = Activator.getService(ILaunchBarManager.class).getActiveLaunchTarget();
+			if (activeLaunchTarget != null)
+			{
+				String openocdLoc = activeLaunchTarget.getAttribute(IDFLaunchConstants.OPENOCD_USB_LOCATION,
+						(String) null);
+
+				if (openocdLoc != null && supportsAdapterUsbCommand(executable))
+				{
+					lst.add("-c");
+					lst.add(String.format("adapter usb location %s", openocdLoc));
+				}
+			}
+
 			lst.add("-c"); //$NON-NLS-1$
 			lst.add(String.format(fmtGdbPort, port));
 
@@ -336,55 +346,13 @@ public class Configuration
 
 	// ------------------------------------------------------------------------
 
+	private static boolean supportsAdapterUsbCommand(String executablePath)
+	{
+		return OpenOcdVersionManager.getVersion(executablePath).isBuildDateAtLeast(0, 12, 20260424);
+	}
+
 	private static boolean useModernPortSyntax(String executablePath)
 	{
-		if (executablePath == null || executablePath.isEmpty())
-		{
-			return false;
-		}
-		Pattern outputPattern = Pattern.compile("(?:Open On-Chip Debugger |v)(?<major>\\d+)\\.(?<minor>\\d+)"); //$NON-NLS-1$
-
-		try
-		{
-			ProcessBuilder pb = new ProcessBuilder(executablePath, "--version"); //$NON-NLS-1$
-			pb.redirectErrorStream(true);
-			Process process = pb.start();
-
-			try
-			{
-				if (!process.waitFor(2, TimeUnit.SECONDS))
-				{
-					return false;
-				}
-
-				try (BufferedReader reader = process.inputReader())
-				{
-					return reader.lines().map(outputPattern::matcher).filter(Matcher::find).findFirst().map(matcher -> {
-						int major = Integer.parseInt(matcher.group("major")); //$NON-NLS-1$
-						int minor = Integer.parseInt(matcher.group("minor")); //$NON-NLS-1$
-						return major > 0 || (major == 0 && minor >= 12);
-					}).orElse(false);
-				}
-			} finally
-			{
-				if (process.isAlive())
-				{
-					process.destroyForcibly();
-				}
-			}
-		}
-		catch (IOException e)
-		{
-			Activator.log(new CoreException(new Status(IStatus.WARNING, Activator.PLUGIN_ID,
-					"Failed to execute or parse OpenOCD version fallback for path: " + executablePath, e))); //$NON-NLS-1$
-			return false;
-		}
-		catch (InterruptedException e)
-		{
-			Thread.currentThread().interrupt();
-			Activator.log(new CoreException(new Status(IStatus.WARNING, Activator.PLUGIN_ID,
-					"Thread was interrupted while waiting for OpenOCD process to exit.", e))); //$NON-NLS-1$
-			return false;
-		}
+		return OpenOcdVersionManager.getVersion(executablePath).isAtLeast(0, 12);
 	}
 }
