@@ -14,14 +14,16 @@
 -->
 
 <plugin>
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            id="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationType"
+            modes="debug,run"
+            name="%launchConfig.name"
+            public="true">
+      </launchConfigurationType>
+   </extension>
 
-	<extension point="org.eclipse.debug.core.launchConfigurationTypes">
-		<launchConfigurationType
-			id="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationType"
-			modes="debug,run"
-			name="%launchConfig.name"
-			public="true" />
-	</extension>
 
 	<extension point="org.eclipse.debug.core.launchDelegates">
 		<launchDelegate
@@ -34,6 +36,16 @@
 			sourcePathComputerId="org.eclipse.cdt.debug.core.sourcePathComputer"
 			type="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationType">
 		</launchDelegate>
+  <launchDelegate
+        delegate="com.espressif.idf.debug.gdbjtag.openocd.dsf.LaunchConfigurationDelegate"
+        delegateDescription="%launchDelegate.jtagDsf.description"
+        id="com.espressif.idf.debug.gdbjtag.openocd.core.dsfLaunchDelegate.unified"
+        modes="debug"
+        name="%launchDelegate.jtagDsf.name"
+        sourceLocatorId="org.eclipse.cdt.debug.core.sourceLocator"
+        sourcePathComputerId="org.eclipse.cdt.debug.core.sourcePathComputer"
+        type="com.espressif.idf.launch.serial.launchConfigurationType">
+  </launchDelegate>
 	</extension>
 
 	<extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
@@ -175,67 +187,130 @@
           plugin="com.espressif.idf.debug.gdbjtag.openocd">
     </statusHandler>
  </extension>
- <extension
-       point="org.eclipse.debug.ui.launchConfigurationTabs">
+ <extension point="org.eclipse.debug.ui.launchConfigurationTabs">
+    
+    <!-- LEGACY LAYOUT: Main Tab -->
     <tab
           class="com.espressif.idf.debug.gdbjtag.openocd.ui.TabMain"
           group="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationTabGroup"
           id="org.eclipse.cdt.cdi.launch.mainTab"
           name="Main">
     </tab>
+
+    <!-- LEGACY LAYOUT: Debugger Tab -->
     <tab
           class="com.espressif.idf.debug.gdbjtag.openocd.ui.TabDebugger"
           group="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationTabGroup"
           id="com.espressif.idf.debug.gdbjtag.openocd.ui.debuggertab"
           name="Debugger">
-       <placement
-             after="org.eclipse.cdt.cdi.launch.mainTab">
-       </placement>
+       <placement after="org.eclipse.cdt.cdi.launch.mainTab" />
     </tab>
+
+    <!-- LEGACY LAYOUT: Startup Tab -->
     <tab
           class="com.espressif.idf.debug.gdbjtag.openocd.ui.TabStartup"
           group="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationTabGroup"
           id="com.espressif.idf.debug.gdbjtag.openocd.ui.startuptab"
           name="Startup">
-       <placement
-             after="com.espressif.idf.debug.gdbjtag.openocd.ui.debuggertab">
-       </placement>
+       <placement after="com.espressif.idf.debug.gdbjtag.openocd.ui.debuggertab" />
     </tab>
+
+    <!-- LEGACY LAYOUT: Source Lookup Tab -->
     <tab
           class="org.eclipse.debug.ui.sourcelookup.SourceLookupTab"
           group="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationTabGroup"
-          id="org.eclipse.debug.ui.sourceLookupTab"
+          id= "org.eclipse.debug.ui.sourceLookupTab"
           name="SourceLookupTab">
-       <placement
-             after="com.espressif.idf.debug.gdbjtag.openocd.ui.startuptab">
-       </placement>
+       <placement after="com.espressif.idf.debug.gdbjtag.openocd.ui.startuptab" />
     </tab>
+
+    <!-- LEGACY LAYOUT: Common Tab -->
+
+    <!-- 5. Common Tab -->
     <tab
-          class="org.eclipse.debug.ui.CommonTab"
-          group="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationTabGroup"
-          id="org.eclipse.debug.ui.commonTab"
-          name="CommonTab">
-       <placement
-             after="org.eclipse.debug.ui.sourceLookupTab">
-       </placement>
+         class="org.eclipse.debug.ui.CommonTab"
+         group="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationTabGroup"
+         id="org.eclipse.debug.ui.commonTab"
+         name="CommonTab">
+       	 <placement after="org.eclipse.debug.ui.sourceLookupTab" />
     </tab>
+
+    <!-- LEGACY LAYOUT: SVD Target Tab -->
     <tab
           class="com.espressif.idf.debug.gdbjtag.openocd.ui.TabSvdTarget"
           group="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationTabGroup"
           id="org.eclipse.embedcdt.debug.gdbjtag.ui.svdtab"
           name="TabSvdTarget">
-       <placement
-             after="org.eclipse.debug.ui.commonTab">
-       </placement>
+       <placement after="org.eclipse.debug.ui.commonTab" />
     </tab>
+
+</extension>
+<extension point="org.eclipse.debug.ui.launchConfigurationTabs">
+    <!-- 1. Main Tab -->
     <tab
-          class="com.espressif.idf.debug.gdbjtag.openocd.ui.TabDebugger"
-          group="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationTabGroup"
-          id="com.espressif.idf.debug.gdbjtag.openocd.ui.debuggertab"
-          name="Debugger">
-       <placement
-             after="org.eclipse.cdt.cdi.launch.mainTab">
-       </placement>
+          class="com.espressif.idf.debug.gdbjtag.openocd.ui.TabMain"
+          group="com.espressif.idf.launch.serial.ui.launchConfigurationTabGroup"
+          id="org.eclipse.cdt.cdi.launch.mainTab"
+          name="Main">
+       <associatedDelegate delegate="com.espressif.idf.debug.gdbjtag.openocd.core.dsfLaunchDelegate.unified" />
     </tab>
- </extension>
+
+    <!-- 2. Debugger Tab -->
+    <tab
+        class="com.espressif.idf.debug.gdbjtag.openocd.ui.TabDebugger"
+        group="com.espressif.idf.launch.serial.ui.launchConfigurationTabGroup"
+        id="com.espressif.idf.debug.gdbjtag.openocd.ui.debuggertab"
+        name="Debugger">
+        <placement after="org.eclipse.cdt.cdi.launch.mainTab" />
+        <associatedDelegate delegate="com.espressif.idf.debug.gdbjtag.openocd.core.dsfLaunchDelegate.unified" />
+    </tab>
+
+    <!-- 3. Startup Tab -->
+    <tab
+        class="com.espressif.idf.debug.gdbjtag.openocd.ui.TabStartup"
+        group="com.espressif.idf.launch.serial.ui.launchConfigurationTabGroup"
+        id="com.espressif.idf.debug.gdbjtag.openocd.ui.startuptab"
+        name="Startup">
+        <placement after="com.espressif.idf.debug.gdbjtag.openocd.ui.debuggertab" />
+        <associatedDelegate delegate="com.espressif.idf.debug.gdbjtag.openocd.core.dsfLaunchDelegate.unified" />
+    </tab>
+
+    <!-- 4. Source Lookup Tab -->
+    <tab
+        class="org.eclipse.debug.ui.sourcelookup.SourceLookupTab"
+        group="com.espressif.idf.launch.serial.ui.launchConfigurationTabGroup"
+        id="org.eclipse.debug.ui.sourceLookupTab"
+        name="SourceLookupTab">
+        <placement after="com.espressif.idf.debug.gdbjtag.openocd.ui.startuptab" />
+        <associatedDelegate delegate="com.espressif.idf.debug.gdbjtag.openocd.core.dsfLaunchDelegate.unified" />
+    </tab>
+    
+    <!-- 5. Common Tab -->
+    <tab
+         class="org.eclipse.debug.ui.CommonTab"
+         group="com.espressif.idf.launch.serial.ui.launchConfigurationTabGroup"
+         id="org.eclipse.debug.ui.commonTab"
+         name="CommonTab">
+       	 <placement after="org.eclipse.debug.ui.sourceLookupTab" />
+       	 <associatedDelegate delegate="com.espressif.idf.debug.gdbjtag.openocd.core.dsfLaunchDelegate.unified" />
+    </tab>
+
+    <!-- 6. Svd Target Tab -->
+    <tab
+        class="com.espressif.idf.debug.gdbjtag.openocd.ui.TabSvdTarget"
+        group="com.espressif.idf.launch.serial.ui.launchConfigurationTabGroup"
+        id="org.eclipse.embedcdt.debug.gdbjtag.ui.svdtab"
+        name="TabSvdTarget">
+        <placement after="org.eclipse.debug.ui.commonTab" />
+        <associatedDelegate delegate="com.espressif.idf.debug.gdbjtag.openocd.core.dsfLaunchDelegate.unified" />
+    </tab>
+
+</extension>
+<extension
+      point="com.espressif.idf.core.launchDefaultsContributor">
+   <contributor
+         class="com.espressif.idf.debug.gdbjtag.openocd.preferences.OpenOCDDefaultsInjector">
+   </contributor>
+</extension>
+
 </plugin>

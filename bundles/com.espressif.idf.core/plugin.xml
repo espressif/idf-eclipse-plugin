@@ -2,6 +2,7 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension-point id="com.espressif.idf.core.toolchain" name="esptoolchain" schema="schema/com.espressif.idf.core.toolchain.exsd"/>
+   <extension-point id="com.espressif.idf.core.launchDefaultsContributor" name="Launch Defaults Contributor" schema="schema/launchDefaultsContributor.exsd"/>
    <extension
          id="idfNature"
          name="IDF Nature"
