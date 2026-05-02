@@ -60,41 +60,47 @@
             resolver="com.espressif.idf.launch.serial.ui.BuildFolderVariableResolver">
       </variable>
    </extension>
-   <extension
-         point="org.eclipse.debug.ui.launchConfigurationTabs">
-      <tab
-            class="org.eclipse.cdt.launch.ui.corebuild.CoreBuildTab"
-            group="com.espressif.idf.launch.serial.ui.launchConfigurationTabGroup"
-            id="org.eclipse.cdt.cdi.launch.buildSettingsTab"
-            name="Core Build Tab">
-      </tab>
-      <tab
-            class="com.espressif.idf.launch.serial.ui.internal.CMakeMainTab2"
-            group="com.espressif.idf.launch.serial.ui.launchConfigurationTabGroup"
-            id="com.espressif.idf.launch.serial.ui.mainTab"
-            name="Main Tab">
-         <placement
-               after="org.eclipse.cdt.cdi.launch.buildSettingsTab">
-         </placement>
-      </tab>
-      <tab
-            class="org.eclipse.debug.ui.EnvironmentTab"
-            group="com.espressif.idf.launch.serial.ui.launchConfigurationTabGroup"
-            id="org.eclipse.debug.ui.environmentTab"
-            name="Environment Tab">
-         <placement
-               after="com.espressif.idf.launch.serial.ui.mainTab">
-         </placement>
-      </tab>
-      <tab
-            class="org.eclipse.debug.ui.CommonTab"
-            group="com.espressif.idf.launch.serial.ui.launchConfigurationTabGroup"
-            id="org.eclipse.debug.ui.commonTab"
-            name="Common Tab">
-         <placement
-               after="org.eclipse.debug.ui.environmentTab">
-         </placement>
-      </tab>
-   </extension>
+   <extension point="org.eclipse.debug.ui.launchConfigurationTabs">
+	    <!-- 1. Core Build Tab -->
+	    <tab
+	        class="org.eclipse.cdt.launch.ui.corebuild.CoreBuildTab"
+	        group="com.espressif.idf.launch.serial.ui.launchConfigurationTabGroup"
+	        id="org.eclipse.cdt.cdi.launch.buildSettingsTab"
+	        name="Core Build Tab">
+	        <associatedDelegate delegate="com.espressif.idf.launch.serial.core.launchDelegate2" />
+	    </tab>
+	
+	    <!-- 2. Main Tab -->
+	    <tab
+	        class="com.espressif.idf.launch.serial.ui.internal.CMakeMainTab2"
+	        group="com.espressif.idf.launch.serial.ui.launchConfigurationTabGroup"
+	        id="com.espressif.idf.launch.serial.ui.mainTab"
+	        name="Main Tab">
+	        <placement after="org.eclipse.cdt.cdi.launch.buildSettingsTab" />
+	        <associatedDelegate delegate="com.espressif.idf.launch.serial.core.launchDelegate2" />
+	    </tab>
+	
+	    <!-- 3. Environment Tab -->
+	    <tab
+	        class="org.eclipse.debug.ui.EnvironmentTab"
+	        group="com.espressif.idf.launch.serial.ui.launchConfigurationTabGroup"
+	        id="org.eclipse.debug.ui.environmentTab"
+	        name="Environment Tab">
+	        <placement after="com.espressif.idf.launch.serial.ui.mainTab" />
+	        <associatedDelegate delegate="com.espressif.idf.launch.serial.core.launchDelegate2" />
+	    </tab>
+	
+	    <!-- 4. Common Tab -->
+	    <tab
+	        class="org.eclipse.debug.ui.CommonTab"
+	        group="com.espressif.idf.launch.serial.ui.launchConfigurationTabGroup"
+	        id="org.eclipse.debug.ui.commonTab"
+	        name="Common Tab">
+	        <placement after="org.eclipse.debug.ui.environmentTab" />
+         <associatedDelegate
+               delegate="com.espressif.idf.launch.serial.core.launchDelegate2">
+         </associatedDelegate>
+	    </tab>
+	</extension>
 
 </plugin>
