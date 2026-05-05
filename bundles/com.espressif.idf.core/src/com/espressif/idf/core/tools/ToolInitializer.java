@@ -49,23 +49,7 @@ public class ToolInitializer
 
 	public boolean isEimInstalled()
 	{
-		if (!StringUtil.isEmpty(findEimOnSystemPath()))
-		{
-			return true;
-		}
-
-		String eimExePathEnv = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH);
-		boolean exists = !StringUtil.isEmpty(eimExePathEnv) && Files.exists(Paths.get(eimExePathEnv));
-		if (!exists)
-		{
-			// Fallback: well-known install locations (e.g. user home .espressif/eim_gui, /Applications on macOS)
-			Path defaultEimPath = getDefaultEimPath();
-			if (defaultEimPath != null)
-			{
-				exists = Files.exists(defaultEimPath);
-			}
-		}
-		return exists;
+		return !StringUtil.isEmpty(resolveEimExecutablePath(null));
 	}
 
 	/**
@@ -82,7 +66,8 @@ public class ToolInitializer
 
 	/**
 	 * Resolves the EIM executable path: <strong>system {@code PATH} first</strong>, then {@code eimPath} from
-	 * {@code eim_idf.json} when the path exists on disk, then {@link #getDefaultEimPath()}.
+	 * {@code eim_idf.json} when the path exists on disk, then {@code EIM_PATH} env variable, then
+	 * {@link #getDefaultEimPath()} (existence-checked).
 	 *
 	 * @param eimJson parsed JSON or {@code null}
 	 * @return resolved absolute path string, or empty if nothing could be resolved
@@ -104,8 +89,19 @@ public class ToolInitializer
 			}
 		}
 
+		String eimExePathEnv = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH);
+		if (!StringUtil.isEmpty(eimExePathEnv) && Files.exists(Paths.get(eimExePathEnv)))
+		{
+			return eimExePathEnv;
+		}
+
 		Path defaultEimPath = getDefaultEimPath();
-		return defaultEimPath != null ? defaultEimPath.toString() : StringUtil.EMPTY;
+		if (defaultEimPath != null && Files.exists(defaultEimPath))
+		{
+			return defaultEimPath.toString();
+		}
+
+		return StringUtil.EMPTY;
 	}
 	
 	public boolean isEimIdfJsonPresent()
@@ -208,17 +204,4 @@ public class ToolInitializer
         return defaultEimPath;
 	}
 	
-	public void findAndSetEimPath()
-	{
-		String resolved = resolveEimExecutablePath(null);
-		if (!StringUtil.isEmpty(resolved))
-		{
-			setEimPathInEnvVar(resolved);
-		}
-	}
-	
-	private void setEimPathInEnvVar(String eimPath)
-	{
-		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, eimPath);
-	}
 }
