@@ -2,6 +2,7 @@
 <?pde version="3.5"?>
 
 <product name="Espressif-IDE" uid="com.espressif.idf.product" id="com.espressif.idf.branding.idf" application="org.eclipse.ui.ide.workbench" version="4.3.0" type="mixed" includeLaunchers="true" autoIncludeRequirements="true">
+
    <aboutInfo>
       <image path="/com.espressif.idf.branding/icons/alt_about.png"/>
       <text>
@@ -78,6 +79,7 @@
       <feature id="org.eclipse.nebula.widgets.xviewer.feature" installMode="root"/>
       <feature id="org.eclipse.cdt.lsp.feature" installMode="root"/>
       <feature id="org.eclipse.tm4e.feature" installMode="root"/>
+      <feature id="org.eclipse.epp.mpc" installMode="root"/>
    </features>
 
    <configurations>
