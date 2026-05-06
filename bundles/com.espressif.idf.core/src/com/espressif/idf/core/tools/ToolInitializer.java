@@ -182,26 +182,50 @@ public class ToolInitializer
 	public Path getDefaultEimPath()
 	{
 		String userHome = System.getProperty("user.home"); //$NON-NLS-1$
-        Path defaultEimPath;
-        String os = Platform.getOS(); 
-        if (os.equals(Platform.OS_WIN32))
-        {
-            defaultEimPath = Paths.get(userHome, ".espressif", "eim_gui", //$NON-NLS-1$//$NON-NLS-2$ 
-            		"eim.exe"); //$NON-NLS-1$
-        }
-        else if (os.equals(Platform.OS_MACOSX))
-        {
-            defaultEimPath = Paths.get("/Applications", //$NON-NLS-1$
-            		"eim.app", "Contents", //$NON-NLS-1$//$NON-NLS-2$
-            		"MacOS", "eim"); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-        else
-        {
-            defaultEimPath = Paths.get(userHome, ".espressif",  //$NON-NLS-1$
-            		"eim_gui", "eim");  //$NON-NLS-1$//$NON-NLS-2$
-        }
-        
-        return defaultEimPath;
+		Path defaultEimPath;
+		String os = Platform.getOS();
+		if (os.equals(Platform.OS_WIN32))
+		{
+			defaultEimPath = Paths.get(userHome, ".espressif", "eim_gui", //$NON-NLS-1$//$NON-NLS-2$
+					"eim.exe"); //$NON-NLS-1$
+			if (!Files.exists(defaultEimPath))
+			{
+				Path eimGuiDir = Paths.get(userHome, ".espressif", "eim_gui"); //$NON-NLS-1$ //$NON-NLS-2$
+				if (Files.isDirectory(eimGuiDir))
+				{
+					try (var entries = Files.list(eimGuiDir))
+					{
+						Path found = entries
+								.filter(Files::isRegularFile)
+								.filter(p -> p.getFileName().toString().toLowerCase().startsWith("eim") //$NON-NLS-1$
+										&& p.getFileName().toString().toLowerCase().endsWith(".exe")) //$NON-NLS-1$
+								.findFirst()
+								.orElse(null);
+						if (found != null)
+						{
+							return found;
+						}
+					}
+					catch (IOException e)
+					{
+						Logger.log(e);
+					}
+				}
+			}
+		}
+		else if (os.equals(Platform.OS_MACOSX))
+		{
+			defaultEimPath = Paths.get("/Applications", //$NON-NLS-1$
+					"eim.app", "Contents", //$NON-NLS-1$//$NON-NLS-2$
+					"MacOS", "eim"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		else
+		{
+			defaultEimPath = Paths.get(userHome, ".espressif", //$NON-NLS-1$
+					"eim_gui", "eim"); //$NON-NLS-1$//$NON-NLS-2$
+		}
+
+		return defaultEimPath;
 	}
 	
 }
