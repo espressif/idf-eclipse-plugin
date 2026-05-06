@@ -22,14 +22,7 @@ To begin, navigate to the section below corresponding to your operating system, 
 
 Please note that the Espressif-IDE requires that you install ESP-IDF via Espressif Installation Manager (EIM) to manage the ESP-IDF versions and tools. For detailed documentation on using the EIM, please refer to the `official guide <https://docs.espressif.com/projects/idf-im-ui/en/latest/>`_.
 
-Windows
-~~~~~~~~
-
-.. note::
-
-    For Windows users, Espressif-IDE is available with ESP-IDF as an offline installer.
-
-macOS/Linux
+Windows/macOS/Linux
 ~~~~~~~~~~~~
 
 Download the Espressif-IDE for your respective operating system from the :ref:`download section <downloads>`. After downloading, launch the IDE and proceed to :ref:`install the necessary ESP-IDF and related tools <esp-idf-tools-installation>`. Please ensure that Java, Python, and Git are installed as prerequisites and are available in the system path before launching the IDE.
