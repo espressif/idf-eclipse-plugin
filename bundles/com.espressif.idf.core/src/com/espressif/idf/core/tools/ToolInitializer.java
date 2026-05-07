@@ -22,6 +22,7 @@ import org.osgi.service.prefs.Preferences;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
+import com.espressif.idf.core.SystemExecutableFinder;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.exceptions.EimVersionMismatchException;
 import com.espressif.idf.core.tools.vo.EimJson;
@@ -48,16 +49,59 @@ public class ToolInitializer
 
 	public boolean isEimInstalled()
 	{
-		String eimExePathEnv = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH);
-		boolean exists = !StringUtil.isEmpty(eimExePathEnv) && Files.exists(Paths.get(eimExePathEnv));
-		if (!exists)
+		return !StringUtil.isEmpty(resolveEimExecutablePath(null));
+	}
+
+	/**
+	 * Looks for an {@code eim} executable on the process {@code PATH}, using the same rules as other tools in this
+	 * plugin ({@link SystemExecutableFinder}: PATHEXT on Windows, plain name on Linux/macOS).
+	 *
+	 * @return absolute path to the executable, or empty if not found
+	 */
+	private String findEimOnSystemPath()
+	{
+		IPath eimPath = new SystemExecutableFinder().find("eim"); //$NON-NLS-1$
+		return eimPath != null ? eimPath.toOSString() : StringUtil.EMPTY;
+	}
+
+	/**
+	 * Resolves the EIM executable path: <strong>system {@code PATH} first</strong>, then {@code eimPath} from
+	 * {@code eim_idf.json} when the path exists on disk, then {@code EIM_PATH} env variable, then
+	 * {@link #getDefaultEimPath()} (existence-checked).
+	 *
+	 * @param eimJson parsed JSON or {@code null}
+	 * @return resolved absolute path string, or empty if nothing could be resolved
+	 */
+	public String resolveEimExecutablePath(EimJson eimJson)
+	{
+		String fromPath = findEimOnSystemPath();
+		if (!StringUtil.isEmpty(fromPath))
 		{
-	        // Fallback: check in user home .espressif/eim_gui folder
-	        Path defaultEimPath = getDefaultEimPath();
-	        if (defaultEimPath != null)
-	        	exists = Files.exists(defaultEimPath);
+			return fromPath;
 		}
-		return exists;
+
+		if (eimJson != null && !StringUtil.isEmpty(eimJson.getEimPath()))
+		{
+			String jsonPath = eimJson.getEimPath();
+			if (Files.exists(Paths.get(jsonPath)))
+			{
+				return jsonPath;
+			}
+		}
+
+		String eimExePathEnv = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH);
+		if (!StringUtil.isEmpty(eimExePathEnv) && Files.exists(Paths.get(eimExePathEnv)))
+		{
+			return eimExePathEnv;
+		}
+
+		Path defaultEimPath = getDefaultEimPath();
+		if (defaultEimPath != null && Files.exists(defaultEimPath))
+		{
+			return defaultEimPath.toString();
+		}
+
+		return StringUtil.EMPTY;
 	}
 	
 	public boolean isEimIdfJsonPresent()
@@ -138,38 +182,50 @@ public class ToolInitializer
 	public Path getDefaultEimPath()
 	{
 		String userHome = System.getProperty("user.home"); //$NON-NLS-1$
-        Path defaultEimPath;
-        String os = Platform.getOS(); 
-        if (os.equals(Platform.OS_WIN32))
-        {
-            defaultEimPath = Paths.get(userHome, ".espressif", "eim_gui", //$NON-NLS-1$//$NON-NLS-2$ 
-            		"eim.exe"); //$NON-NLS-1$
-        }
-        else if (os.equals(Platform.OS_MACOSX))
-        {
-            defaultEimPath = Paths.get("/Applications", //$NON-NLS-1$
-            		"eim.app", "Contents", //$NON-NLS-1$//$NON-NLS-2$
-            		"MacOS", "eim"); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-        else
-        {
-            defaultEimPath = Paths.get(userHome, ".espressif",  //$NON-NLS-1$
-            		"eim_gui", "eim");  //$NON-NLS-1$//$NON-NLS-2$
-        }
-        
-        return defaultEimPath;
+		Path defaultEimPath;
+		String os = Platform.getOS();
+		if (os.equals(Platform.OS_WIN32))
+		{
+			defaultEimPath = Paths.get(userHome, ".espressif", "eim_gui", //$NON-NLS-1$//$NON-NLS-2$
+					"eim.exe"); //$NON-NLS-1$
+			if (!Files.exists(defaultEimPath))
+			{
+				Path eimGuiDir = Paths.get(userHome, ".espressif", "eim_gui"); //$NON-NLS-1$ //$NON-NLS-2$
+				if (Files.isDirectory(eimGuiDir))
+				{
+					try (var entries = Files.list(eimGuiDir))
+					{
+						Path found = entries
+								.filter(Files::isRegularFile)
+								.filter(p -> p.getFileName().toString().toLowerCase().startsWith("eim") //$NON-NLS-1$
+										&& p.getFileName().toString().toLowerCase().endsWith(".exe")) //$NON-NLS-1$
+								.findFirst()
+								.orElse(null);
+						if (found != null)
+						{
+							return found;
+						}
+					}
+					catch (IOException e)
+					{
+						Logger.log(e);
+					}
+				}
+			}
+		}
+		else if (os.equals(Platform.OS_MACOSX))
+		{
+			defaultEimPath = Paths.get("/Applications", //$NON-NLS-1$
+					"eim.app", "Contents", //$NON-NLS-1$//$NON-NLS-2$
+					"MacOS", "eim"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		else
+		{
+			defaultEimPath = Paths.get(userHome, ".espressif", //$NON-NLS-1$
+					"eim_gui", "eim"); //$NON-NLS-1$//$NON-NLS-2$
+		}
+
+		return defaultEimPath;
 	}
 	
-	public void findAndSetEimPath()
-	{
-        Path defaultEimPath = getDefaultEimPath();
-        
-        if (defaultEimPath != null)
-        	setEimPathInEnvVar(defaultEimPath.toString());
-	}
-	
-	private void setEimPathInEnvVar(String eimPath)
-	{
-		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, eimPath);
-	}
 }
