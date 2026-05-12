@@ -904,4 +904,21 @@
 			parentId="org.eclipse.ui.textEditorScope">
 		</context>
 	</extension>
+	<extension
+		point="org.eclipse.terminal.control.connectors">
+		<connector
+			class="com.espressif.idf.ui.tools.eim.terminal.EimCliTerminalConnector"
+			hidden="true"
+			id="com.espressif.idf.ui.eimCliTerminalConnector"
+			name="EIM CLI">
+		</connector>
+	</extension>
+	<extension
+		point="org.eclipse.terminal.view.ui.launcherDelegates">
+		<delegate
+			class="com.espressif.idf.ui.tools.eim.terminal.EimCliTerminalLauncherDelegate"
+			id="com.espressif.idf.ui.launcher.eimCliTerminal"
+			label="EIM CLI Wizard">
+		</delegate>
+	</extension>
 </plugin>

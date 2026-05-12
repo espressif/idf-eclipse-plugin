@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
@@ -65,9 +66,14 @@ public class ToolInitializer
 	}
 
 	/**
-	 * Resolves the EIM executable path: <strong>system {@code PATH} first</strong>, then {@code eimPath} from
-	 * {@code eim_idf.json} when the path exists on disk, then {@code EIM_PATH} env variable, then
-	 * {@link #getDefaultEimPath()} (existence-checked).
+	 * Resolves the EIM executable path using priority-based resolution:
+	 * <ol>
+	 * <li>System {@code PATH}</li>
+	 * <li>{@code eimPath} from {@code eim_idf.json} (when the path exists on disk)</li>
+	 * <li>{@code EIM_PATH} env variable (existence-checked)</li>
+	 * <li>Default GUI install location (existence-checked)</li>
+	 * <li>Default CLI install location (existence-checked)</li>
+	 * </ol>
 	 *
 	 * @param eimJson parsed JSON or {@code null}
 	 * @return resolved absolute path string, or empty if nothing could be resolved
@@ -99,6 +105,12 @@ public class ToolInitializer
 		if (defaultEimPath != null && Files.exists(defaultEimPath))
 		{
 			return defaultEimPath.toString();
+		}
+
+		Path cliEimPath = getDefaultCliEimPath();
+		if (cliEimPath != null && Files.exists(cliEimPath))
+		{
+			return cliEimPath.toString();
 		}
 
 		return StringUtil.EMPTY;
@@ -226,5 +238,55 @@ public class ToolInitializer
 
 		return defaultEimPath;
 	}
-	
+
+	/**
+	 * Returns the default CLI EIM binary path per platform. Unlike the GUI path, this points to the CLI-only install
+	 * directory ({@code ~/.espressif/eim/}).
+	 */
+	public Path getDefaultCliEimPath()
+	{
+		String userHome = System.getProperty("user.home"); //$NON-NLS-1$
+		String os = Platform.getOS();
+		if (os.equals(Platform.OS_WIN32))
+		{
+			return Paths.get(userHome, ".espressif", "eim", "eim.exe"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
+		return Paths.get(userHome, ".espressif", "eim", "eim"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+
+	/**
+	 * Checks whether the EIM binary at the given path supports GUI mode by running {@code eim gui --help} and checking
+	 * for a successful exit code. This is used to determine whether to launch EIM as a GUI application or in CLI/wizard
+	 * mode.
+	 *
+	 * @param eimPath absolute path to the EIM executable
+	 * @return {@code true} if the binary supports the {@code gui} subcommand, {@code false} otherwise
+	 */
+	public boolean isEimGuiCapable(String eimPath)
+	{
+		if (StringUtil.isEmpty(eimPath))
+		{
+			return false;
+		}
+
+		try
+		{
+			ProcessBuilder pb = new ProcessBuilder(eimPath, "gui", "--help"); //$NON-NLS-1$ //$NON-NLS-2$
+			pb.redirectErrorStream(true);
+			Process process = pb.start();
+			boolean finished = process.waitFor(5, TimeUnit.SECONDS);
+			if (!finished)
+			{
+				process.destroyForcibly();
+				return false;
+			}
+			return process.exitValue() == 0;
+		}
+		catch (IOException | InterruptedException e)
+		{
+			Logger.log("EIM does not support the gui subcommand, falling back to CLI mode."); //$NON-NLS-1$
+			return false;
+		}
+	}
+
 }

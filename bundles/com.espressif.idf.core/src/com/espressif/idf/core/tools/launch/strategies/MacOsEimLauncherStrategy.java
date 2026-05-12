@@ -62,6 +62,11 @@ public final class MacOsEimLauncherStrategy extends AbstractLoggingLauncherStrat
 	@Override
 	public LaunchResult launch(String eimPath) throws IOException
 	{
+		if (!isAppBundle(eimPath))
+		{
+			return launchCliDirect(eimPath);
+		}
+
 		String appBundlePath = deriveAppBundlePath(eimPath);
 		String execPath = deriveExecPath(eimPath, appBundlePath);
 		String bundleId = readBundleId(appBundlePath);
@@ -106,6 +111,41 @@ public final class MacOsEimLauncherStrategy extends AbstractLoggingLauncherStrat
 		// - we can wait for closure using pgrep -f execPath
 		return LaunchResult.ofNoPid(execPath,
 				"osascript exit=" + exit + "\n" + out); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	private LaunchResult launchCliDirect(String eimPath) throws IOException
+	{
+		String quotedPath = ProcessUtils.bashSingleQuote(eimPath);
+		String bashCmd = "nohup " + quotedPath + " > /dev/null 2>&1 & echo $!"; //$NON-NLS-1$ //$NON-NLS-2$
+
+		Process launcher = new ProcessBuilder("bash", "-lc", bashCmd) //$NON-NLS-1$ //$NON-NLS-2$
+				.redirectErrorStream(true).start();
+
+		String out = ProcessUtils.readAll(launcher.getInputStream());
+		Long pid = ProcessUtils.parseFirstLongLine(out);
+
+		if (pid == null)
+		{
+			Logger.log("macOS CLI launcher output was:\n" + out); //$NON-NLS-1$
+			throw new IOException("No PID found in launcher output. Output was:\n" + out); //$NON-NLS-1$
+		}
+
+		return LaunchResult.ofPid(pid.longValue(), eimPath, out);
+	}
+
+	private boolean isAppBundle(String eimPath)
+	{
+		Path p = Paths.get(eimPath).toAbsolutePath().normalize();
+		while (p != null)
+		{
+			String name = p.getFileName() != null ? p.getFileName().toString() : ""; //$NON-NLS-1$
+			if (name.endsWith(".app")) //$NON-NLS-1$
+			{
+				return true;
+			}
+			p = p.getParent();
+		}
+		return false;
 	}
 
 	@Override
