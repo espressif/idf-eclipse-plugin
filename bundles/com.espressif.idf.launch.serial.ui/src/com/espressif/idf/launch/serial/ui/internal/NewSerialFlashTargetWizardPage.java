@@ -531,7 +531,6 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 				String readLine;
 				while ((readLine = bufferedReader.readLine()) != null)
 				{
-					appendToInfoArea("."); //$NON-NLS-1$
 					if (isOutputDetailed)
 					{
 						appendToInfoArea(readLine + System.lineSeparator());
