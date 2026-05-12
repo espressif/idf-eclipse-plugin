@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
@@ -41,6 +42,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -82,6 +84,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 	private Combo fBoardCombo;
 	private Combo fFlashVoltage;
 	private String previousBoard = null;
+	protected boolean isOutputDetailed;
 
 	public NewSerialFlashTargetWizardPage(ILaunchTarget launchTarget)
 	{
@@ -175,8 +178,13 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 				}
 				display.asyncExec(() -> {
 					fBoardCombo.setItems(boardDisplayNames.toArray(new String[0]));
+					if (boardDisplayNames.isEmpty())
+						setMessage(Messages.NewSerialFlashTargetWizardPage_NoBoardsDetectedWarningMsg,
+								IMessageProvider.WARNING);
+
 					if (!boardDisplayNames.isEmpty())
 					{
+						setMessage(null);
 						int defaultIdx = 0;
 						if (jsonHolder[0] == null)
 						{
@@ -265,12 +273,34 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 			Activator.log(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
 					Messages.NewSerialFlashTargetWizardPage_Fetching, e));
 		}
+		createInfoAreaGroup(comp);
+		setDefaults();
+	}
 
-		infoArea = new Text(comp, SWT.BORDER | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
-		GridData infoAreaGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
+	private void createInfoAreaGroup(Composite parentComp)
+	{
+		Group infoAreaGroup = new Group(parentComp, SWT.BORDER);
+		infoAreaGroup.setText(Messages.NewSerialFlashTargetWizardPage_TargetOutputGroupName);
+		infoAreaGroup.setLayout(new GridLayout(1, false));
+		infoAreaGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+
+		Button detailedOutputCheckbox = new Button(infoAreaGroup, SWT.CHECK);
+		detailedOutputCheckbox.setText(Messages.NewSerialFlashTargetWizardPage_EnableDetailedOutputCheckboxName);
+		detailedOutputCheckbox.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+
+		infoArea = new Text(infoAreaGroup, SWT.BORDER | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+		GridData infoAreaGridData = new GridData(SWT.FILL, SWT.FILL, true, true);
 		infoAreaGridData.heightHint = 100;
 		infoArea.setLayoutData(infoAreaGridData);
-		setDefaults();
+
+		detailedOutputCheckbox.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				isOutputDetailed = detailedOutputCheckbox.getSelection();
+			}
+		});
 	}
 
 	/**
@@ -332,7 +362,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 
 	private void setDefaultSerialPort()
 	{
-		if (serialPortCombo.getItemCount() < 0 || launchTarget == null)
+		if (serialPortCombo.getItemCount() == 0 || launchTarget == null)
 		{
 			return;
 		}
@@ -502,22 +532,33 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 				while ((readLine = bufferedReader.readLine()) != null)
 				{
 					appendToInfoArea("."); //$NON-NLS-1$
+					if (isOutputDetailed)
+					{
+						appendToInfoArea(readLine + System.lineSeparator());
+					}
+					else
+					{
+						appendToInfoArea("."); //$NON-NLS-1$
+						chipInfo.append(readLine).append(System.lineSeparator());
+					}
 
-					chipInfo.append(readLine);
-					chipInfo.append(System.lineSeparator());
 				}
 				String chipType = extractChipFromChipInfoOutput(chipInfo.toString());
 
-				if (StringUtil.isEmpty(chipType))
+				if (!isOutputDetailed)
 				{
-					appendToInfoArea(
-							System.lineSeparator() + String.format(Messages.TargetPortNotFoundMessage, serialPort));
+					if (StringUtil.isEmpty(chipType))
+					{
+						appendToInfoArea(
+								System.lineSeparator() + String.format(Messages.TargetPortNotFoundMessage, serialPort));
+					}
+					else
+					{
+						appendToInfoArea(System.lineSeparator()
+								+ String.format(Messages.TargetPortFoundMessage, serialPort, chipType));
+					}
 				}
-				else
-				{
-					appendToInfoArea(System.lineSeparator()
-							+ String.format(Messages.TargetPortFoundMessage, serialPort, chipType));
-				}
+
 			}
 			catch (Exception e)
 			{
