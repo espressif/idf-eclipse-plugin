@@ -531,7 +531,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 
 		private String extractChipFromChipInfoOutput(String chipInfoOutput)
 		{
-			Pattern pattern = Pattern.compile("Chip is (ESP32[^\\s]*)"); //$NON-NLS-1$
+			Pattern pattern = Pattern.compile("(?:Chip is|Chip type:)\\s+(ESP32[^\\s]*)", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$
 			Matcher matcher = pattern.matcher(chipInfoOutput);
 			if (matcher.find())
 			{
