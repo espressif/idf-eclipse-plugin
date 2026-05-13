@@ -30,6 +30,7 @@ import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.StringUtil;
 
 public class NewSerialFlashTargetWizard extends LaunchTargetWizard
@@ -71,6 +72,7 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard
 
 		wc.save();
 		storeLastUsedSerialPort();
+		storeDetailedOutputCheckboxStatus();
 
 		// adding the target later to trigger LaunchBarListener with proper wc attributes
 		Job job = new Job(Messages.AddingTargetJobName)
@@ -85,6 +87,22 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard
 		};
 		job.schedule();
 		return true;
+	}
+
+	private void storeDetailedOutputCheckboxStatus()
+	{
+		Preferences preferences = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
+		preferences.putBoolean(NewSerialFlashTargetWizardPage.PREF_ENABLE_DETAILED_OUTPUT,
+				page.isOutputDetailedChecked());
+
+		try
+		{
+			preferences.flush();
+		}
+		catch (BackingStoreException e)
+		{
+			Logger.log(e);
+		}
 	}
 
 	private void setOpenOCDAdaptorLocation(ILaunchTargetWorkingCopy wc)
@@ -113,7 +131,7 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard
 		}
 		catch (BackingStoreException e)
 		{
-			e.printStackTrace();
+			Logger.log(e);
 		}
 	}
 

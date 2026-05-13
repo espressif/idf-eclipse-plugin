@@ -33,6 +33,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.wizard.WizardPage;
@@ -84,7 +86,14 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 	private Combo fBoardCombo;
 	private Combo fFlashVoltage;
 	private String previousBoard = null;
+
 	protected boolean isOutputDetailed;
+	public static final String PREF_ENABLE_DETAILED_OUTPUT = Activator.PLUGIN_ID + ".enableDetailedOutput"; //$NON-NLS-1$
+
+	public boolean isOutputDetailedChecked()
+	{
+		return isOutputDetailed;
+	}
 
 	public NewSerialFlashTargetWizardPage(ILaunchTarget launchTarget)
 	{
@@ -287,6 +296,10 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 		Button detailedOutputCheckbox = new Button(infoAreaGroup, SWT.CHECK);
 		detailedOutputCheckbox.setText(Messages.NewSerialFlashTargetWizardPage_EnableDetailedOutputCheckboxName);
 		detailedOutputCheckbox.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+
+		IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
+		isOutputDetailed = preferences.getBoolean(PREF_ENABLE_DETAILED_OUTPUT, false);
+		detailedOutputCheckbox.setSelection(isOutputDetailed);
 
 		infoArea = new Text(infoAreaGroup, SWT.BORDER | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
 		GridData infoAreaGridData = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -616,5 +629,4 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 		}
 		return boardDisplayNames;
 	}
-
 }
