@@ -36,7 +36,7 @@ public final class EimGuiOrCliLauncher
 	{
 		if (toolInitializer.isEimGuiCapable(eimPath))
 		{
-			LaunchResult launchResult = eimLoader.launchEimWithResult(eimPath);
+			LaunchResult launchResult = eimLoader.launchEimWithResult(eimPath, "gui"); //$NON-NLS-1$
 			eimLoader.waitForEimClosure(launchResult, afterEimClosed);
 			return;
 		}

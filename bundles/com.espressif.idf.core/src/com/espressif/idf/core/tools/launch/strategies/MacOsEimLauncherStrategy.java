@@ -37,8 +37,9 @@ public final class MacOsEimLauncherStrategy extends AbstractLoggingLauncherStrat
 	private static final String MACOS_LAUNCH_AND_PID_APPLESCRIPT = """
 			set appPath to system attribute "APP_PATH"
 			set bundleId to system attribute "BUNDLE_ID"
+			set openArgs to system attribute "OPEN_ARGS"
 
-			do shell script "open -a " & quoted form of appPath
+			do shell script "open -a " & quoted form of appPath & openArgs
 
 			tell application "System Events"
 				repeat 300 times
@@ -62,19 +63,28 @@ public final class MacOsEimLauncherStrategy extends AbstractLoggingLauncherStrat
 	@Override
 	public LaunchResult launch(String eimPath) throws IOException
 	{
+		return launch(eimPath, new String[0]);
+	}
+
+	@Override
+	public LaunchResult launch(String eimPath, String... args) throws IOException
+	{
 		if (!isAppBundle(eimPath))
 		{
-			return launchCliDirect(eimPath);
+			return launchCliDirect(eimPath, args);
 		}
 
 		String appBundlePath = deriveAppBundlePath(eimPath);
 		String execPath = deriveExecPath(eimPath, appBundlePath);
 		String bundleId = readBundleId(appBundlePath);
 
+		String argsForOpen = (args != null && args.length > 0) ? " --args " + String.join(" ", args) : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
 		ProcessBuilder pb = new ProcessBuilder("osascript", "-"); //$NON-NLS-1$ //$NON-NLS-2$
 		pb.redirectErrorStream(true);
 		pb.environment().put("APP_PATH", appBundlePath); //$NON-NLS-1$
 		pb.environment().put("BUNDLE_ID", bundleId); //$NON-NLS-1$
+		pb.environment().put("OPEN_ARGS", argsForOpen); //$NON-NLS-1$
 
 		Process p = pb.start();
 		try (OutputStream stdin = p.getOutputStream())
@@ -99,24 +109,21 @@ public final class MacOsEimLauncherStrategy extends AbstractLoggingLauncherStrat
 		Logger.log("BUNDLE_ID=" + bundleId); //$NON-NLS-1$
 		Logger.log("Launcher output was:\n" + out); //$NON-NLS-1$
 
-		// If osascript failed or returned no pid, we fall back to execPath polling.
 		Long pid = ProcessUtils.parseFirstLongLine(out);
 		if (exit == 0 && pid != null)
 		{
 			return LaunchResult.ofPid(pid.longValue(), execPath, out);
 		}
 
-		// Fallback (still "successfully launched" from user perspective):
-		// - we already attempted "open -a"
-		// - we can wait for closure using pgrep -f execPath
 		return LaunchResult.ofNoPid(execPath,
 				"osascript exit=" + exit + "\n" + out); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	private LaunchResult launchCliDirect(String eimPath) throws IOException
+	private LaunchResult launchCliDirect(String eimPath, String... args) throws IOException
 	{
 		String quotedPath = ProcessUtils.bashSingleQuote(eimPath);
-		String bashCmd = "nohup " + quotedPath + " > /dev/null 2>&1 & echo $!"; //$NON-NLS-1$ //$NON-NLS-2$
+		String argsStr = (args != null && args.length > 0) ? " " + String.join(" ", args) : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		String bashCmd = "nohup " + quotedPath + argsStr + " > /dev/null 2>&1 & echo $!"; //$NON-NLS-1$ //$NON-NLS-2$
 
 		Process launcher = new ProcessBuilder("bash", "-lc", bashCmd) //$NON-NLS-1$ //$NON-NLS-2$
 				.redirectErrorStream(true).start();

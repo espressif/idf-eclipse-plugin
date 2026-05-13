@@ -34,11 +34,18 @@ public final class LinuxEimLauncherStrategy extends AbstractLoggingLauncherStrat
 	@Override
 	public LaunchResult launch(String eimPath) throws IOException
 	{
+		return launch(eimPath, new String[0]);
+	}
+
+	@Override
+	public LaunchResult launch(String eimPath, String... args) throws IOException
+	{
 		if (!Files.exists(Paths.get(eimPath)))
 			throw new IOException("EIM path not found: " + eimPath); //$NON-NLS-1$
 
 		String quotedPath = ProcessUtils.bashSingleQuote(eimPath);
-		String bashCmd = "nohup " + quotedPath + " > /dev/null 2>&1 & echo $!"; //$NON-NLS-1$ //$NON-NLS-2$
+		String argsStr = (args != null && args.length > 0) ? " " + String.join(" ", args) : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		String bashCmd = "nohup " + quotedPath + argsStr + " > /dev/null 2>&1 & echo $!"; //$NON-NLS-1$ //$NON-NLS-2$
 
 		List<String> command = List.of("bash", "-lc", bashCmd); //$NON-NLS-1$ //$NON-NLS-2$
 		Process launcher = new ProcessBuilder(command).redirectErrorStream(true).start();
