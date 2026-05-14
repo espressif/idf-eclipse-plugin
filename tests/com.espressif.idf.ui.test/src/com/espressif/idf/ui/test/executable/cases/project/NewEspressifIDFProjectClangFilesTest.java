@@ -122,6 +122,15 @@ public class NewEspressifIDFProjectClangFilesTest
 			bot.sleep(1000);
 		}
 
+		private static void assertTextEqualsNormalized(String message, String expected, String actual)
+		{
+			// Standardize all line endings to \n and trim outer whitespace
+			String normalizedExpected = expected.replace("\r\n", "\n").replace("\r", "\n").trim();
+			String normalizedActual = actual.replace("\r\n", "\n").replace("\r", "\n").trim();
+
+			assertEquals(message, normalizedExpected, normalizedActual);
+		}
+
 		private static void thenClangdDriversUpdateOnSelectedTarget() throws Exception
 		{
 			whenOpenClangdPreferences();
@@ -218,7 +227,7 @@ public class NewEspressifIDFProjectClangFilesTest
 			String actualText = bot.activeEditor().toTextEditor().getText();
 			String expectedText = "CompileFlags:\n  CompilationDatabase: build\n  Remove: [-m*, -f*]";
 
-			assertEquals("Clangd file content did not match", expectedText, actualText);
+			assertTextEqualsNormalized("Clangd file content did not match", expectedText, actualText);
 		}
 
 		private static void thenClangdFileContentChecked(String projectName) throws Exception
@@ -229,7 +238,7 @@ public class NewEspressifIDFProjectClangFilesTest
 			String actualText = bot.activeEditor().toTextEditor().getText();
 			String expectedText = "CompileFlags:\n  CompilationDatabase: " + buildPath + "\n  Remove: [-m*, -f*]";
 
-			assertEquals("Clangd file content with build path did not match", expectedText, actualText);
+			assertTextEqualsNormalized("Clangd file content with build path did not match", expectedText, actualText);
 		}
 
 		private static void thenClangFormatContentChecked() throws Exception
@@ -249,7 +258,7 @@ public class NewEspressifIDFProjectClangFilesTest
 					""";
 
 			// Using trim() to avoid mismatch purely due to trailing spaces/newlines from text block processing
-			assertEquals("ClangFormat content did not match", expectedText.trim(), actualText.trim());
+			assertTextEqualsNormalized("ClangFormat content did not match", expectedText.trim(), actualText.trim());
 		}
 
 		private static void thenClangFormatContentEdited() throws Exception
@@ -302,7 +311,8 @@ public class NewEspressifIDFProjectClangFilesTest
 					}
 					""";
 
-			assertEquals("Formatted main file content did not match", expectedText.trim(), actualText.trim());
+			assertTextEqualsNormalized("Formatted main file content did not match", expectedText.trim(),
+					actualText.trim());
 		}
 
 		private static void setupAutoSave() throws Exception
