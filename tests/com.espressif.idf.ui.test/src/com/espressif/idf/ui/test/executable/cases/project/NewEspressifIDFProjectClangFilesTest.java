@@ -66,7 +66,7 @@ public class NewEspressifIDFProjectClangFilesTest
 	{
 		Fixture.thenClangdFileIsPresent(CLEAN_PROJECT1);
 		Fixture.whenClangdFileOpenedUsingDoubleClick(CLEAN_PROJECT1);
-		Fixture.thenClangFormatContentChecked();
+		Fixture.thenClangdFileContentChecked(CLEAN_PROJECT1);
 		Fixture.thenClangdShellClosed();
 		Fixture.thenClangFormatFileIsPresent(CLEAN_PROJECT1);
 		Fixture.whenClangFormatFileOpenedUsingDoubleClick(CLEAN_PROJECT1);
