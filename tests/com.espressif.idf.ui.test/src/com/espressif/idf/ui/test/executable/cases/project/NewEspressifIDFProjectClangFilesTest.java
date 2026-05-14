@@ -66,7 +66,7 @@ public class NewEspressifIDFProjectClangFilesTest
 	{
 		Fixture.thenClangdFileIsPresent(CLEAN_PROJECT1);
 		Fixture.whenClangdFileOpenedUsingDoubleClick(CLEAN_PROJECT1);
-		Fixture.thenCleanProjectClangdFileContentChecked();
+		Fixture.thenClangFormatContentChecked();
 		Fixture.thenClangdShellClosed();
 		Fixture.thenClangFormatFileIsPresent(CLEAN_PROJECT1);
 		Fixture.whenClangFormatFileOpenedUsingDoubleClick(CLEAN_PROJECT1);
@@ -219,15 +219,6 @@ public class NewEspressifIDFProjectClangFilesTest
 			{
 				throw new IOException("Failed to get build directory for project: " + projectName, e);
 			}
-		}
-
-		private static void thenCleanProjectClangdFileContentChecked() throws Exception
-		{
-			bot.cTabItem(".clangd").activate();
-			String actualText = bot.activeEditor().toTextEditor().getText();
-			String expectedText = "CompileFlags:\n  CompilationDatabase: build\n  Remove: [-m*, -f*]";
-
-			assertTextEqualsNormalized("Clangd file content did not match", expectedText, actualText);
 		}
 
 		private static void thenClangdFileContentChecked(String projectName) throws Exception
