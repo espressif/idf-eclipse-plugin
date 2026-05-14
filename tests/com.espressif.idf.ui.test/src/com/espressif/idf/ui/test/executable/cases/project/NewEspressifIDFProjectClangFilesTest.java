@@ -5,7 +5,6 @@
 package com.espressif.idf.ui.test.executable.cases.project;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -155,12 +154,14 @@ public class NewEspressifIDFProjectClangFilesTest
 
 		private static void thenClangdFileIsPresent(String projectName) throws IOException
 		{
-			assertTrue(bot.tree().getTreeItem(projectName).getNode(".clangd") != null);
+			boolean isPresent = bot.tree().getTreeItem(projectName).getNodes().contains(".clangd");
+			assertEquals("The .clangd file should be present", true, isPresent);
 		}
 
 		private static void thenClangFormatFileIsPresent(String projectName) throws IOException
 		{
-			assertTrue(bot.tree().getTreeItem(projectName).getNode(".clang-format") != null);
+			boolean isPresent = bot.tree().getTreeItem(projectName).getNodes().contains(".clang-format");
+			assertEquals("The .clang-format file should be present", true, isPresent);
 		}
 
 		private static void whenClangdFileDeleted(String projectName) throws IOException
@@ -173,7 +174,8 @@ public class NewEspressifIDFProjectClangFilesTest
 
 		private static void thenClangdFileIsAbsent(String projectName) throws IOException
 		{
-			assertTrue(!bot.tree().getTreeItem(projectName).getNodes().contains(".clangd"));
+			boolean isPresent = bot.tree().getTreeItem(projectName).getNodes().contains(".clangd");
+			assertEquals("The .clangd file should be absent", false, isPresent);
 		}
 
 		private static void thenCreateClangdFileUsingContextMenu(String projectName) throws IOException
@@ -213,33 +215,41 @@ public class NewEspressifIDFProjectClangFilesTest
 		private static void thenCleanProjectClangdFileContentChecked() throws Exception
 		{
 			bot.cTabItem(".clangd").activate();
-			assertTrue(ProjectTestOperations.checkExactMatchInTextEditor(
-					"CompileFlags:\n" + "  CompilationDatabase: build\n" + "  Remove: [-m*, -f*]", bot));
+			String actualText = bot.activeEditor().toTextEditor().getText();
+			String expectedText = "CompileFlags:\n  CompilationDatabase: build\n  Remove: [-m*, -f*]";
+
+			assertEquals("Clangd file content did not match", expectedText, actualText);
 		}
 
 		private static void thenClangdFileContentChecked(String projectName) throws Exception
 		{
 			String buildPath = getExpectedBuildFolderPATH(projectName);
 			bot.cTabItem(".clangd").activate();
-			assertTrue(ProjectTestOperations.checkExactMatchInTextEditor(
-					"CompileFlags:\n" + "  CompilationDatabase: " + buildPath + "\n" + "  Remove: [-m*, -f*]", bot));
+
+			String actualText = bot.activeEditor().toTextEditor().getText();
+			String expectedText = "CompileFlags:\n  CompilationDatabase: " + buildPath + "\n  Remove: [-m*, -f*]";
+
+			assertEquals("Clangd file content with build path did not match", expectedText, actualText);
 		}
 
 		private static void thenClangFormatContentChecked() throws Exception
 		{
 			bot.cTabItem(".clang-format").activate();
-			assertTrue(ProjectTestOperations.checkExactMatchInTextEditor(
-					"""
-							# We'll use defaults from the LLVM style, but with some modifications so that it's close to the CDT K&R style.
-							BasedOnStyle: LLVM
-							UseTab: Always
-							IndentWidth: 4
-							TabWidth: 4
-							BreakConstructorInitializers: AfterColon
-							IndentAccessModifiers: false
-							AccessModifierOffset: -4
-							""",
-					bot));
+
+			String actualText = bot.activeEditor().toTextEditor().getText();
+			String expectedText = """
+					# We'll use defaults from the LLVM style, but with some modifications so that it's close to the CDT K&R style.
+					BasedOnStyle: LLVM
+					UseTab: Always
+					IndentWidth: 4
+					TabWidth: 4
+					BreakConstructorInitializers: AfterColon
+					IndentAccessModifiers: false
+					AccessModifierOffset: -4
+					""";
+
+			// Using trim() to avoid mismatch purely due to trailing spaces/newlines from text block processing
+			assertEquals("ClangFormat content did not match", expectedText.trim(), actualText.trim());
 		}
 
 		private static void thenClangFormatContentEdited() throws Exception
@@ -278,7 +288,8 @@ public class NewEspressifIDFProjectClangFilesTest
 		private static void checkMainFileContentFormattedUnderActualSettings() throws Exception
 		{
 			bot.sleep(1000);
-			assertTrue(ProjectTestOperations.checkExactMatchInTextEditorwithWhiteSpaces("""
+			String actualText = bot.activeEditor().toTextEditor().getText();
+			String expectedText = """
 					#include <stdbool.h>
 					#include <stdio.h>
 					#include <unistd.h>
@@ -289,7 +300,9 @@ public class NewEspressifIDFProjectClangFilesTest
 					sleep(1);
 					}
 					}
-					""", bot));
+					""";
+
+			assertEquals("Formatted main file content did not match", expectedText.trim(), actualText.trim());
 		}
 
 		private static void setupAutoSave() throws Exception
