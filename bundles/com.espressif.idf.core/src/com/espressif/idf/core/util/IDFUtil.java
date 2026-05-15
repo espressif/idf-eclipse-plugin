@@ -583,7 +583,7 @@ public class IDFUtil
 		try
 		{
 			IProject project = CoreBuildLaunchConfigDelegate.getProject(configuration);
-			if (project == null)
+			if (project == null || !project.exists())
 			{
 				return;
 			}
