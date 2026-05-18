@@ -86,7 +86,7 @@
 			<unit id="org.eclipse.swtchart.feature.feature.group" version="1.0.0.202412021530"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<repository location="https://download.eclipse.org/lsp4e/releases/0.30.0/"/>
+			<repository location="https://download.eclipse.org/lsp4e/releases/0.30.5/"/>
 			<unit id="org.eclipse.lsp4e" version="0.0.0"/>
 			<unit id="org.eclipse.lsp4e.debug" version="0.0.0"/>
 			<unit id="org.eclipse.lsp4j" version="0.0.0"/>
