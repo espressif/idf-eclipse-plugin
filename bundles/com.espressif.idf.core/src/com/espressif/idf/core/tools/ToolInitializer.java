@@ -6,6 +6,7 @@ package com.espressif.idf.core.tools;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -275,6 +276,8 @@ public class ToolInitializer
 			Logger.log("Checking if EIM supports GUI mode with command: " + String.join(" ", pb.command())); //$NON-NLS-1$ //$NON-NLS-2$
 			pb.redirectErrorStream(true);
 			Process process = pb.start();
+			// Drain stdout so the process doesn't block
+			process.getInputStream().transferTo(OutputStream.nullOutputStream());
 			boolean finished = process.waitFor(5, TimeUnit.SECONDS);
 			if (!finished)
 			{
