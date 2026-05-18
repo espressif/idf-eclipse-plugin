@@ -36,11 +36,13 @@ public final class EimGuiOrCliLauncher
 	{
 		if (toolInitializer.isEimGuiCapable(eimPath))
 		{
+			Logger.log("EIM binary supports GUI mode, launching GUI"); //$NON-NLS-1$
 			LaunchResult launchResult = eimLoader.launchEimWithResult(eimPath, "gui"); //$NON-NLS-1$
 			eimLoader.waitForEimClosure(launchResult, afterEimClosed);
 			return;
 		}
-
+		
+		Logger.log("EIM binary does not support GUI mode, launching CLI terminal"); //$NON-NLS-1$
 		EimJsonWatchService.getInstance().pauseListeners();
 		display.syncExec(() -> {
 			try

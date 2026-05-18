@@ -272,6 +272,7 @@ public class ToolInitializer
 		try
 		{
 			ProcessBuilder pb = new ProcessBuilder(eimPath, "gui", "--help"); //$NON-NLS-1$ //$NON-NLS-2$
+			Logger.log("Checking if EIM supports GUI mode with command: " + String.join(" ", pb.command())); //$NON-NLS-1$ //$NON-NLS-2$
 			pb.redirectErrorStream(true);
 			Process process = pb.start();
 			boolean finished = process.waitFor(5, TimeUnit.SECONDS);
