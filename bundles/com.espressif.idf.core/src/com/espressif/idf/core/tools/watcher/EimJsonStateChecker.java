@@ -6,11 +6,10 @@ package com.espressif.idf.core.tools.watcher;
 
 import java.io.File;
 
-import org.eclipse.core.runtime.Platform;
 import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.tools.EimConstants;
+import com.espressif.idf.core.tools.EimIdfJsonPathResolver;
 
 /**
  * Checks if eim_idf.json was changed while Eclipse was not running. Stores and compares last seen timestamp to file
@@ -62,6 +61,6 @@ public class EimJsonStateChecker
 
 	private String getEimJsonPath()
 	{
-		return Platform.getOS().equals(Platform.OS_WIN32) ? EimConstants.EIM_WIN_PATH : EimConstants.EIM_POSIX_PATH;
+		return new EimIdfJsonPathResolver().resolveEimIdfJsonFile().toString();
 	}
 }

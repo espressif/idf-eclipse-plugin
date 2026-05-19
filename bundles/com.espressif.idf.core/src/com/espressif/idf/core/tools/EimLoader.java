@@ -140,7 +140,11 @@ public class EimLoader
 			@Override
 			public void aboutToRun(IJobChangeEvent event)
 			{
-				EimJsonWatchService.getInstance().pauseListeners();
+				EimJsonWatchService ws = EimJsonWatchService.getInstance();
+				if (ws != null)
+				{
+					ws.pauseListeners();
+				}
 			}
 
 			@Override
@@ -162,7 +166,11 @@ public class EimLoader
 					callback.run();
 				}
 
-				EimJsonWatchService.getInstance().unpauseListeners();
+				EimJsonWatchService ws2 = EimJsonWatchService.getInstance();
+				if (ws2 != null)
+				{
+					ws2.unpauseListeners();
+				}
 			}
 		});
 

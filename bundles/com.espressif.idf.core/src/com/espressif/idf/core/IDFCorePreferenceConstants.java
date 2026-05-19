@@ -25,6 +25,7 @@ public class IDFCorePreferenceConstants
 	public static final String AUTOMATE_BUILD_HINTS_STATUS = "automateHintsStatus"; //$NON-NLS-1$
 	public static final String HIDE_ERRORS_IDF_COMPONENTS = "hideErrorsOnIdfDerivedFiles"; //$NON-NLS-1$
 	public static final String AUTOMATE_CLANGD_FORMAT_FILE = "automateClangFormatFileCreation"; //$NON-NLS-1$
+	public static final String EIM_IDF_JSON_PATH = "eimIdfJsonPath"; //$NON-NLS-1$
 	public static final boolean AUTOMATE_CLANGD_FORMAT_FILE_DEFAULT = true;
 	public static final boolean CMAKE_CCACHE_DEFAULT_STATUS = true;
 	public static final boolean AUTOMATE_BUILD_HINTS_DEFAULT_STATUS = true;
