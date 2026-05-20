@@ -29,13 +29,21 @@ public final class EimCliTerminalConnector extends ProcessConnector
 	 */
 	static final String SETTINGS_KEY_EIM_PATH = "eim.cli.executable"; //$NON-NLS-1$
 
+	/**
+	 * Key for the extra PATH prefix (colon/semicolon-separated directories) that must be exported inside the shell
+	 * session so that EIM subprocesses (git, python, cmake checks) can find tools installed via package managers.
+	 */
+	static final String SETTINGS_KEY_PATH_PREFIX = "eim.cli.path.prefix"; //$NON-NLS-1$
+
 	private String eimExecutablePath;
+	private String pathPrefix;
 
 	@Override
 	public void load(ISettingsStore store)
 	{
 		super.load(store);
 		eimExecutablePath = store.get(SETTINGS_KEY_EIM_PATH, null);
+		pathPrefix = store.get(SETTINGS_KEY_PATH_PREFIX, null);
 	}
 
 	@Override
@@ -76,26 +84,49 @@ public final class EimCliTerminalConnector extends ProcessConnector
 
 	private void sendEimCommand(OutputStream out)
 	{
-		String command;
-		if (Platform.OS_WIN32.equals(Platform.getOS()))
-		{
-			String escaped = eimExecutablePath.replace("'", "''"); //$NON-NLS-1$ //$NON-NLS-2$
-			command = "& '" + escaped + "' wizard; exit\r\n"; //$NON-NLS-1$ //$NON-NLS-2$
-		}
-		else
-		{
-			String quoted = "'" + eimExecutablePath.replace("'", "'\\''") + "'"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			command = quoted + " wizard; exit\r\n"; //$NON-NLS-1$
-		}
 		try
 		{
-			out.write(command.getBytes(StandardCharsets.UTF_8));
+			if (Platform.OS_WIN32.equals(Platform.getOS()))
+			{
+				sendWindowsCommands(out);
+			}
+			else
+			{
+				sendPosixCommands(out);
+			}
 			out.flush();
-			Logger.log("EIM CLI terminal sent command: " + command.trim()); //$NON-NLS-1$
 		}
 		catch (IOException e)
 		{
 			Logger.log(e);
 		}
+	}
+
+	private void sendPosixCommands(OutputStream out) throws IOException
+	{
+		if (pathPrefix != null && !pathPrefix.isBlank())
+		{
+			String exportCmd = "export PATH=\"" + pathPrefix + ":$PATH\"\r\n"; //$NON-NLS-1$ //$NON-NLS-2$
+			out.write(exportCmd.getBytes(StandardCharsets.UTF_8));
+			Logger.log("EIM CLI terminal PATH export: " + exportCmd.trim()); //$NON-NLS-1$
+		}
+		String quoted = "'" + eimExecutablePath.replace("'", "'\\''") + "'"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		String command = quoted + " wizard; exit\r\n"; //$NON-NLS-1$
+		out.write(command.getBytes(StandardCharsets.UTF_8));
+		Logger.log("EIM CLI terminal sent command: " + command.trim()); //$NON-NLS-1$
+	}
+
+	private void sendWindowsCommands(OutputStream out) throws IOException
+	{
+		if (pathPrefix != null && !pathPrefix.isBlank())
+		{
+			String envCmd = "$env:PATH = \"" + pathPrefix + ";\" + $env:PATH\r\n"; //$NON-NLS-1$ //$NON-NLS-2$
+			out.write(envCmd.getBytes(StandardCharsets.UTF_8));
+			Logger.log("EIM CLI terminal PATH update: " + envCmd.trim()); //$NON-NLS-1$
+		}
+		String escaped = eimExecutablePath.replace("'", "''"); //$NON-NLS-1$ //$NON-NLS-2$
+		String command = "& '" + escaped + "' wizard; exit\r\n"; //$NON-NLS-1$ //$NON-NLS-2$
+		out.write(command.getBytes(StandardCharsets.UTF_8));
+		Logger.log("EIM CLI terminal sent command: " + command.trim()); //$NON-NLS-1$
 	}
 }

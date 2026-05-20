@@ -122,14 +122,22 @@ public final class EimCliTerminalLauncherDelegate extends AbstractLauncherDelega
 
 		// Build a merged environment: System.getenv() + CDT build env + package-manager PATH entries
 		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
+		String pathPrefix = computePackageManagerPathPrefix(envMap);
 		enrichPathWithPackageManagers(envMap);
+
+		// Ensure TERM is set so interactive CLI tools (arrow-key menus, coloured output) work correctly
+		if (!envMap.containsKey("TERM")) //$NON-NLS-1$
+		{
+			envMap.put("TERM", "xterm-256color"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+
 		String[] envArray = envMap.entrySet().stream()
 				.map(e -> e.getKey() + "=" + e.getValue()) //$NON-NLS-1$
 				.toArray(String[]::new);
 		processSettings.setEnvironment(envArray);
 		processSettings.setMergeWithNativeEnvironment(false);
 
-		// Launch a login shell so user profiles (.zprofile, .bash_profile) are sourced
+		// Launch an interactive login shell so user profiles are sourced and terminal capabilities are enabled
 		String os = Platform.getOS();
 		if (Platform.OS_WIN32.equals(os))
 		{
@@ -138,7 +146,7 @@ public final class EimCliTerminalLauncherDelegate extends AbstractLauncherDelega
 		else
 		{
 			processSettings.setImage(resolvePosixShell());
-			processSettings.setArguments("-l"); //$NON-NLS-1$
+			processSettings.setArguments("-li"); //$NON-NLS-1$
 		}
 
 		try
@@ -148,8 +156,8 @@ public final class EimCliTerminalLauncherDelegate extends AbstractLauncherDelega
 			{
 				ISettingsStore store = new InMemorySettingsStore();
 				processSettings.save(store);
-				// Round-trip the EIM path so EimCliTerminalConnector.load() can read it
 				store.put(EimCliTerminalConnector.SETTINGS_KEY_EIM_PATH, eimPath);
+				store.put(EimCliTerminalConnector.SETTINGS_KEY_PATH_PREFIX, pathPrefix);
 				connector.setDefaultSettings();
 				connector.load(store);
 				return connector;
@@ -163,48 +171,73 @@ public final class EimCliTerminalLauncherDelegate extends AbstractLauncherDelega
 	}
 
 	/**
-	 * Prepends well-known package-manager bin directories to PATH so tools like git, python, cmake are visible to EIM.
-	 * Directories are only added if they exist on disk and are not already present in PATH.
+	 * Computes a path-separator-joined string of existing package manager bin directories that should be prepended to
+	 * PATH inside the shell session. This prefix is sent as an {@code export PATH=...} command to guarantee it survives
+	 * login shell profile sourcing (e.g. macOS {@code path_helper} in {@code /etc/zprofile}).
 	 */
-	private static void enrichPathWithPackageManagers(Map<String, String> envMap)
+	private static String computePackageManagerPathPrefix(Map<String, String> envMap)
 	{
 		String os = Platform.getOS();
 		String home = System.getProperty("user.home"); //$NON-NLS-1$
+		List<String> extraDirs = getPackageManagerDirs(os, home);
+
+		String pathKey = "PATH"; //$NON-NLS-1$
+		for (String key : envMap.keySet())
+		{
+			if (key.equalsIgnoreCase(pathKey))
+			{
+				pathKey = key;
+				break;
+			}
+		}
+		String existing = envMap.getOrDefault(pathKey, ""); //$NON-NLS-1$
+		String sep = java.io.File.pathSeparator;
+		Set<String> currentEntries = new LinkedHashSet<>(List.of(existing.split(sep)));
+
+		StringBuilder sb = new StringBuilder();
+		for (String dir : extraDirs)
+		{
+			if (!currentEntries.contains(dir) && Files.isDirectory(Path.of(dir)))
+			{
+				if (sb.length() > 0)
+				{
+					sb.append(sep);
+				}
+				sb.append(dir);
+			}
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * Returns the list of well-known package manager bin directories for the current OS.
+	 */
+	private static List<String> getPackageManagerDirs(String os, String home)
+	{
 		List<String> extraDirs = new ArrayList<>();
 
 		if (Platform.OS_MACOSX.equals(os))
 		{
-			// Homebrew Apple Silicon
 			extraDirs.add("/opt/homebrew/bin"); //$NON-NLS-1$
 			extraDirs.add("/opt/homebrew/sbin"); //$NON-NLS-1$
-			// Homebrew Intel
 			extraDirs.add("/usr/local/bin"); //$NON-NLS-1$
 			extraDirs.add("/usr/local/sbin"); //$NON-NLS-1$
-			// MacPorts
 			extraDirs.add("/opt/local/bin"); //$NON-NLS-1$
 			extraDirs.add("/opt/local/sbin"); //$NON-NLS-1$
 		}
 		else if (Platform.OS_LINUX.equals(os))
 		{
-			// apt / pacman / dnf — install to standard system paths; ensure they are present
 			extraDirs.add("/usr/local/bin"); //$NON-NLS-1$
 			extraDirs.add("/usr/bin"); //$NON-NLS-1$
-			// pip / pipx user-local installs
 			if (home != null)
 			{
 				extraDirs.add(home + "/.local/bin"); //$NON-NLS-1$
 			}
-			// Snap packages
 			extraDirs.add("/snap/bin"); //$NON-NLS-1$
-			// Flatpak exports
 			extraDirs.add("/var/lib/flatpak/exports/bin"); //$NON-NLS-1$
 			if (home != null)
 			{
 				extraDirs.add(home + "/.local/share/flatpak/exports/bin"); //$NON-NLS-1$
-			}
-			// Nix package manager
-			if (home != null)
-			{
 				extraDirs.add(home + "/.nix-profile/bin"); //$NON-NLS-1$
 			}
 			extraDirs.add("/nix/var/nix/profiles/default/bin"); //$NON-NLS-1$
@@ -214,10 +247,8 @@ public final class EimCliTerminalLauncherDelegate extends AbstractLauncherDelega
 			String localAppData = System.getenv("LOCALAPPDATA"); //$NON-NLS-1$
 			if (localAppData != null)
 			{
-				// WinGet shim links
 				extraDirs.add(localAppData + "\\Microsoft\\WinGet\\Links"); //$NON-NLS-1$
 			}
-			// Chocolatey
 			String chocoInstall = System.getenv("ChocolateyInstall"); //$NON-NLS-1$
 			if (chocoInstall != null && !chocoInstall.isBlank())
 			{
@@ -227,19 +258,30 @@ public final class EimCliTerminalLauncherDelegate extends AbstractLauncherDelega
 			{
 				extraDirs.add("C:\\ProgramData\\chocolatey\\bin"); //$NON-NLS-1$
 			}
-			// Scoop
 			if (home != null)
 			{
 				extraDirs.add(home + "\\scoop\\shims"); //$NON-NLS-1$
 			}
 		}
 
+		return extraDirs;
+	}
+
+	/**
+	 * Prepends well-known package-manager bin directories to PATH so tools like git, python, cmake are visible to EIM.
+	 * Directories are only added if they exist on disk and are not already present in PATH.
+	 */
+	private static void enrichPathWithPackageManagers(Map<String, String> envMap)
+	{
+		String os = Platform.getOS();
+		String home = System.getProperty("user.home"); //$NON-NLS-1$
+		List<String> extraDirs = getPackageManagerDirs(os, home);
+
 		if (extraDirs.isEmpty())
 		{
 			return;
 		}
 
-		// Find the PATH key (case-insensitive for Windows where it can be "Path" or "PATH")
 		String pathKey = "PATH"; //$NON-NLS-1$
 		for (String key : envMap.keySet())
 		{
