@@ -16,7 +16,6 @@ package com.espressif.idf.debug.gdbjtag.openocd.dsf;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -42,6 +41,7 @@ import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.ISourceLocator;
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuLaunch;
 
+import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
 import com.espressif.idf.debug.gdbjtag.openocd.ConfigurationAttributes;
@@ -263,9 +263,19 @@ public class Launch extends GnuMcuLaunch
 	@Override
 	public void terminate() throws DebugException
 	{
-		super.terminate();
-		
 		LaunchProcessDictionary.getInstance().killAllProcessesInLaunch(getLaunchConfiguration().getName());
+
+		try
+		{
+			if (!this.isTerminated())
+			{
+				super.terminate();
+			}
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+		}
 	}
 	
 	@Override
@@ -284,28 +294,25 @@ public class Launch extends GnuMcuLaunch
 	@Override
 	public IProcess[] getProcesses()
 	{
-		List<IProcess> processes = new ArrayList<>();
-	    if (openOcdServerProcess != null) {
-	        processes.add(openOcdServerProcess);
-	    }
-	    if (gdbIProcess != null) {
-	        processes.add(gdbIProcess);
-	    }
-	    return processes.toArray(new IProcess[0]);
+		var processes = new ArrayList<IProcess>();
+		if (openOcdServerProcess != null)
+			processes.add(openOcdServerProcess);
+		if (gdbIProcess != null)
+			processes.add(gdbIProcess);
+		return processes.toArray(IProcess[]::new);
 	}
-	
+
 	private void cleanUpOldLaunchProcesses() throws CoreException
 	{
-		IProcess serverIProcess = LaunchProcessDictionary.getInstance().getProcessFromDictionary(getLaunchConfiguration().getName(), SERVER_PROC_KEY);
+		var dict = LaunchProcessDictionary.getInstance();
+		var launchName = getLaunchConfiguration().getName();
+
+		var serverIProcess = dict.getProcessFromDictionary(launchName, SERVER_PROC_KEY);
 		if (serverIProcess != null && !serverIProcess.isTerminated())
-		{
 			serverIProcess.terminate();
-		}
-		
-		IProcess gdbIProcess = LaunchProcessDictionary.getInstance().getProcessFromDictionary(getLaunchConfiguration().getName(), GDB_PROC_KEY);
-		if(gdbIProcess != null && !gdbIProcess.isTerminated())
-		{
+
+		var gdbIProcess = dict.getProcessFromDictionary(launchName, GDB_PROC_KEY);
+		if (gdbIProcess != null && !gdbIProcess.isTerminated())
 			gdbIProcess.terminate();
-		}
 	}
 }

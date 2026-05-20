@@ -15,14 +15,12 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd.dsf;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.cdt.dsf.concurrent.DataRequestMonitor;
 import org.eclipse.cdt.dsf.concurrent.ImmediateExecutor;
@@ -47,21 +45,18 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.ISourceLocator;
-import org.eclipse.embedcdt.core.StringUtils;
 import org.eclipse.embedcdt.debug.gdbjtag.core.DebugUtils;
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.AbstractGnuMcuLaunchConfigurationDelegate;
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuServerServicesLaunchSequence;
 
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
-import com.espressif.idf.debug.gdbjtag.openocd.ui.Messages;
 
 /**
  * This class is referred in the plugin.xml as an "org.eclipse.debug.core.launchDelegates" extension point.
@@ -156,24 +151,15 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 	@Override
 	protected String getGDBVersion(ILaunchConfiguration config) throws CoreException
 	{
-
-		String gdbClientCommand = Configuration.getGdbClientCommand(config, null);
-		String version = getGDBVersion(config, gdbClientCommand);
-		if (Activator.getInstance().isDebugging())
-		{
-			System.out.println("openocd.LaunchConfigurationDelegate.getGDBVersion " + version);
-		}
-		return version;
+		var gdbClientCommand = Configuration.getGdbClientCommand(config, null);
+		return getGDBVersion(config, gdbClientCommand);
 	}
 
 	private String getGDBVersion(final ILaunchConfiguration configuration, String gdbClientCommand) throws CoreException
 	{
+		String[] cmdArray = { gdbClientCommand, "--version" };
+		Process process;
 
-		String[] cmdArray = new String[2];
-		cmdArray[0] = gdbClientCommand;
-		cmdArray[1] = "--version";
-
-		final Process process;
 		try
 		{
 			process = ProcessFactory.getFactory().exec(cmdArray, DebugUtils.getLaunchEnvironment(configuration));
@@ -181,85 +167,39 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		catch (IOException e)
 		{
 			throw new DebugException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, DebugException.REQUEST_FAILED,
-					"Error while launching command: " + StringUtils.join(cmdArray, " "), e.getCause()));//$NON-NLS-2$
+					"Error launching command", e.getCause()));
 		}
 
-		// Start a timeout job to make sure we don't get stuck waiting for
-		// an answer from a gdb that is hanging
-		// Bug 376203
-		Job timeoutJob = new Job("GDB version timeout job") //$NON-NLS-1$
-		{
-			{
-				setSystem(true);
-			}
-
-			@Override
-			protected IStatus run(IProgressMonitor arg)
-			{
-				// Took too long. Kill the gdb process and
-				// let things clean up.
-				process.destroy();
-				return Status.OK_STATUS;
-			}
-		};
-		timeoutJob.schedule(10000);
-
-		InputStream stream = null;
-		StringBuilder cmdOutput = new StringBuilder(200);
+		String cmdOutput = "";
 		try
 		{
-			stream = process.getInputStream();
-			Reader r = new InputStreamReader(stream);
-			BufferedReader reader = new BufferedReader(r);
+			boolean finishedOnTime = process.waitFor(10, TimeUnit.SECONDS);
 
-			String line;
-			while ((line = reader.readLine()) != null)
+			if (!finishedOnTime)
 			{
-				cmdOutput.append(line);
-				cmdOutput.append('\n'); // $NON-NLS-1$
+				process.destroyForcibly();
+				throw new DebugException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, DebugException.REQUEST_FAILED,
+						"GDB version request timed out.", null));
 			}
+
+			cmdOutput = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+
 		}
-		catch (IOException e)
+		catch (
+				InterruptedException
+				| IOException e)
 		{
+			process.destroyForcibly();
 			throw new DebugException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, DebugException.REQUEST_FAILED,
-					"Error reading GDB STDOUT after sending: " + StringUtils.join(cmdArray, " ") + ", response: "
-							+ cmdOutput,
-					e.getCause()));// $NON-NLS-1$
-		} finally
-		{
-			// If we get here we are obviously not stuck so we can cancel the
-			// timeout job.
-			// Note that it may already have executed, but that is not a
-			// problem.
-			timeoutJob.cancel();
-
-			// Cleanup to avoid leaking pipes
-			// Close the stream we used, and then destroy the process
-			// Bug 345164
-			if (stream != null)
-			{
-				try
-				{
-					stream.close();
-				}
-				catch (IOException e)
-				{
-				}
-			}
-			process.destroy();
+					"Error reading GDB STDOUT", e));
 		}
 
-		String gdbVersion = LaunchUtils.getGDBVersionFromText(cmdOutput.toString());
+		String gdbVersion = LaunchUtils.getGDBVersionFromText(cmdOutput);
 		if (gdbVersion == null || gdbVersion.isEmpty())
 		{
-			String errorMessage = process.exitValue() == STATUS_DLL_NOT_FOUND ? Messages.DllNotFound_ExceptionMessage
-					: cmdOutput.toString();
 			throw new DebugException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, DebugException.REQUEST_FAILED,
-					"Could not determine GDB version after sending: " + StringUtils.join(cmdArray, " ")
-							+ ", response: \n" + errorMessage + "\nERROR CODE:" + process.exitValue(),
-					null));// $NON-NLS-1$ // $NON-NLS-2$
+					"Could not determine GDB version", null));
 		}
-
 		return gdbVersion;
 	}
 
@@ -270,31 +210,53 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		launch(config, mode, launch, monitor);
 	}
 
-	/**
-	 * After Launch.initialise(), call here to effectively launch.
-	 *
-	 * The main reason for this is the custom launchDebugSession().
-	 */
 	@Override
 	public void launch(ILaunchConfiguration config, String mode, ILaunch launch, IProgressMonitor monitor)
 			throws CoreException
 	{
+		org.eclipse.cdt.launch.LaunchUtils.enableActivity("org.eclipse.cdt.debug.dsfgdbActivity", true);
 
-		if (Activator.getInstance().isDebugging())
-		{
-			System.out.println(
-					"openocd.LaunchConfigurationDelegate.launch(" + config.getName() + "," + mode + ") " + this);
-		}
+		var finalMonitor = monitor == null ? new NullProgressMonitor() : monitor;
+		var launchName = config.getName();
+		var mainLaunchThread = Thread.currentThread();
 
-		org.eclipse.cdt.launch.LaunchUtils.enableActivity("org.eclipse.cdt.debug.dsfgdbActivity", true); //$NON-NLS-1$
-		if (monitor == null)
-		{
-			monitor = new NullProgressMonitor();
-		}
+		var cancelWatcher = Thread.ofVirtual().name("CancelWatcher-" + launchName).start(() -> {
+			try
+			{
+				while (!finalMonitor.isCanceled() && !launch.isTerminated())
+				{
+					Thread.sleep(200);
+				}
 
-		if (mode.equals(ILaunchManager.DEBUG_MODE) || mode.equals(ILaunchManager.RUN_MODE))
+				if (!launch.isTerminated() && launch.canTerminate())
+				{
+					try
+					{
+						launch.terminate();
+					}
+					catch (Exception ignore)
+					{
+					}
+				}
+
+				mainLaunchThread.interrupt();
+			}
+			catch (InterruptedException e)
+			{
+				Thread.currentThread().interrupt();
+			}
+		});
+
+		try
 		{
-			launchDebugger(config, launch, monitor);
+			if (mode.equals(ILaunchManager.DEBUG_MODE) || mode.equals(ILaunchManager.RUN_MODE))
+			{
+				launchDebugger(config, launch, finalMonitor);
+			}
+		} finally
+		{
+			cancelWatcher.interrupt();
+			Thread.interrupted();
 		}
 	}
 
@@ -766,6 +728,33 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		}
 
 		return new GnuMcuServerServicesLaunchSequence(session, (GdbLaunch) launch, progressMonitor);
+	}
+
+	@Override
+	protected void cleanupLaunch(final ILaunch launch)
+	{
+		try
+		{
+			LaunchProcessDictionary.getInstance().killAllProcessesInLaunch(launch.getLaunchConfiguration().getName());
+		}
+		catch (Exception ignore)
+		{
+		}
+
+		Thread.ofVirtual().name("LaunchCleanup-" + launch.getLaunchConfiguration().getName()).start(() -> {
+			try
+			{
+				LaunchConfigurationDelegate.super.cleanupLaunch(launch);
+			}
+			catch (Exception ignore)
+			{
+			}
+
+			if (!launch.isTerminated())
+			{
+				DebugPlugin.getDefault().getLaunchManager().removeLaunch(launch);
+			}
+		});
 	}
 
 	// ------------------------------------------------------------------------

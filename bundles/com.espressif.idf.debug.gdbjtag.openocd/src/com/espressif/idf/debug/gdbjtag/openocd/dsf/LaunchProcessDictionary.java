@@ -1,73 +1,63 @@
 package com.espressif.idf.debug.gdbjtag.openocd.dsf;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IProcess;
 
 public class LaunchProcessDictionary
 {
-	private static LaunchProcessDictionary instance;
-	
-	private Map<String, Map<String, IProcess>> processDictionary;
-	
+	private static final LaunchProcessDictionary instance = new LaunchProcessDictionary();
+
+	private final Map<String, Map<String, IProcess>> processDictionary = new ConcurrentHashMap<>();
+
 	private LaunchProcessDictionary()
 	{
-		processDictionary = new HashMap<>();
-	}
-	
-	public static LaunchProcessDictionary getInstance()
-	{
-		if(instance == null)
-			instance = new LaunchProcessDictionary();
-		
-		return instance;
-	}
-	
-	public void addProcessToDictionary(String launchName, String procName, IProcess process)
-	{
-		if (!processDictionary.containsKey(launchName))
-		{
-			Map<String, IProcess> processMap = new HashMap<>();
-			processMap.put(procName, process);
-			processDictionary.put(launchName, processMap);
-			return;
-		}
-		
-		Map<String, IProcess> processMap = processDictionary.get(launchName);
-		processMap.put(procName, process);
-		processDictionary.put(launchName, processMap);
-	}
-	
-	public IProcess getProcessFromDictionary(String launchName, String procName)
-	{
-		if (!processDictionary.containsKey(launchName))
-		{
-			return null;
-		}
-		
-		return processDictionary.get(launchName).get(procName);
-	}
-	
-	public void killAllProcessesInLaunch(String launchName)
-	{
-		if(!processDictionary.containsKey(launchName))
-		{
-			return;
-		}
-		
-		for (IProcess process : processDictionary.get(launchName).values())
-		{
-			try
-			{
-				process.terminate();
-			}
-			catch (DebugException e)
-			{
-				e.printStackTrace();
-			}
-		}
 	}
 
+	public static LaunchProcessDictionary getInstance()
+	{
+		return instance;
+	}
+
+	public void addProcessToDictionary(String launchName, String procName, IProcess process)
+	{
+		processDictionary.computeIfAbsent(launchName, k -> new ConcurrentHashMap<>()).put(procName, process);
+	}
+
+	public IProcess getProcessFromDictionary(String launchName, String procName)
+	{
+		var processMap = processDictionary.get(launchName);
+		return processMap != null ? processMap.get(procName) : null;
+	}
+
+	public void killAllProcessesInLaunch(String launchName)
+	{
+		var processMap = processDictionary.remove(launchName);
+
+		if (processMap == null)
+			return;
+
+		for (var process : processMap.values())
+		{
+			if (process != null && !process.isTerminated())
+			{
+
+				Optional.ofNullable(process.getAdapter(Process.class)).map(Process::toHandle)
+						.ifPresent(ProcessHandle::destroyForcibly);
+
+				Thread.ofVirtual().name("AsyncTerminator-" + process.getLabel()).start(() -> {
+					try
+					{
+						process.terminate();
+					}
+					catch (DebugException ignore)
+					{
+					}
+				});
+			}
+		}
+	}
 }
