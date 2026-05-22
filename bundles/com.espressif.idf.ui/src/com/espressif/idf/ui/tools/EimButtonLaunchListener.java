@@ -87,8 +87,8 @@ public class EimButtonLaunchListener extends SelectionAdapter
 		{
 			try
 			{
-				EimGuiOrCliLauncher.launch(toolInitializer, eimLoader,
-						idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.EIM_PATH), standardConsoleStream,
+				String resolvedEimPath = toolInitializer.resolveEimExecutablePath(null);
+				EimGuiOrCliLauncher.launch(toolInitializer, eimLoader, resolvedEimPath, standardConsoleStream,
 						display, EimButtonLaunchListener.this::refreshAfterEimClose);
 			}
 			catch (IOException e)

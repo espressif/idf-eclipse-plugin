@@ -29,7 +29,6 @@ import org.eclipse.terminal.view.ui.launcher.AbstractLauncherDelegate;
 import org.eclipse.terminal.view.ui.launcher.IConfigurationPanel;
 import org.eclipse.terminal.view.ui.launcher.IConfigurationPanelContainer;
 
-import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.ui.tools.Messages;
 
@@ -120,10 +119,18 @@ public final class EimCliTerminalLauncherDelegate extends AbstractLauncherDelega
 		String userHome = System.getProperty("user.home"); //$NON-NLS-1$
 		processSettings.setWorkingDir(userHome != null && !userHome.isBlank() ? userHome : "."); //$NON-NLS-1$
 
-		// Build a merged environment: System.getenv() + CDT build env + package-manager PATH entries
-		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
+		// Use ONLY the native system environment (no CDT/IDF toolchain variables) so EIM's
+		// prerequisite checks (Python SSL, git, cmake) use system-installed tools, not IDF-bundled ones
+		Map<String, String> envMap = new java.util.HashMap<>(System.getenv());
 		String pathPrefix = computePackageManagerPathPrefix(envMap);
 		enrichPathWithPackageManagers(envMap);
+
+		// Remove IDF-specific env vars that could pollute EIM's subprocess checks
+		envMap.remove("IDF_PATH"); //$NON-NLS-1$
+		envMap.remove("IDF_TOOLS_PATH"); //$NON-NLS-1$
+		envMap.remove("IDF_PYTHON_ENV_PATH"); //$NON-NLS-1$
+		envMap.remove("PYTHONPATH"); //$NON-NLS-1$
+		envMap.remove("PYTHONHOME"); //$NON-NLS-1$
 
 		// Ensure TERM is set so interactive CLI tools (arrow-key menus, coloured output) work correctly
 		if (!envMap.containsKey("TERM")) //$NON-NLS-1$

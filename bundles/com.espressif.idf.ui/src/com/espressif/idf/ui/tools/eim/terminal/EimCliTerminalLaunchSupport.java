@@ -43,6 +43,10 @@ public final class EimCliTerminalLaunchSupport
 		if (StringUtil.isEmpty(eimExecutablePath) || onComplete == null)
 		{
 			Logger.log("EIM CLI terminal launch skipped: missing path or callback"); //$NON-NLS-1$
+			if (onComplete != null)
+			{
+				Display.getDefault().asyncExec(onComplete);
+			}
 			return CompletableFuture.completedFuture(null);
 		}
 

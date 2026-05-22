@@ -34,6 +34,12 @@ public final class EimGuiOrCliLauncher
 	public static void launch(ToolInitializer toolInitializer, EimLoader eimLoader, String eimPath,
 			MessageConsoleStream standardConsoleStream, Display display, Runnable afterEimClosed) throws IOException
 	{
+		if (eimPath == null || eimPath.isBlank())
+		{
+			Logger.log("EIM launch aborted: path is null or empty"); //$NON-NLS-1$
+			return;
+		}
+
 		if (toolInitializer.isEimGuiCapable(eimPath))
 		{
 			Logger.log("EIM binary supports GUI mode, launching GUI"); //$NON-NLS-1$
@@ -41,7 +47,7 @@ public final class EimGuiOrCliLauncher
 			eimLoader.waitForEimClosure(launchResult, afterEimClosed);
 			return;
 		}
-		
+
 		Logger.log("EIM binary does not support GUI mode, launching CLI terminal"); //$NON-NLS-1$
 		EimJsonWatchService.getInstance().pauseListeners();
 		display.syncExec(() -> {
