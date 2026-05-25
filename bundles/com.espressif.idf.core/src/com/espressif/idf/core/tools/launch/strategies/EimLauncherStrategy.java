@@ -20,5 +20,7 @@ public interface EimLauncherStrategy
 {
 	LaunchResult launch(String eimPath) throws IOException;
 
+	LaunchResult launch(String eimPath, String... args) throws IOException;
+
 	IStatus waitForExit(LaunchResult launchResult, IProgressMonitor monitor);
 }

@@ -45,11 +45,10 @@ import com.espressif.idf.ui.GlobalModalLock;
 import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.handlers.EclipseHandler;
+import com.espressif.idf.ui.tools.EimGuiOrCliLauncher;
 import com.espressif.idf.ui.tools.manager.ESPIDFManagerEditor;
 import com.espressif.idf.ui.tools.manager.EimEditorInput;
 import com.espressif.idf.ui.tools.watcher.EimJsonUiChangeHandler;
-
-import com.espressif.idf.core.tools.launch.LaunchResult;
 
 /**
  * Startup class to handle the tools
@@ -371,7 +370,6 @@ public class EspressifToolStartup implements IStartup
 				}
 			});
 
-			LaunchResult launchResult = null;
 			String appToLaunch = filePath;
 			try
 			{
@@ -381,33 +379,31 @@ public class EspressifToolStartup implements IStartup
 				}
 
 				idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, appToLaunch);
-				launchResult = eimLoader.launchEimWithResult(appToLaunch);
+				EimGuiOrCliLauncher.launch(toolInitializer, eimLoader, appToLaunch, standardConsoleStream,
+						Display.getDefault(), () -> {
+							if (toolInitializer.isOldEspIdfConfigPresent() && !toolInitializer.isOldConfigExported())
+							{
+								Logger.log("Old configuration found and not converted");
+								handleOldConfigExport();
+							}
+							try
+							{
+								eimJson = toolInitializer.loadEimJson();
+							}
+							catch (EimVersionMismatchException e)
+							{
+								Logger.log(e);
+								MessageDialog.openError(Display.getDefault().getActiveShell(), e.msgTitle(),
+										e.getMessage());
+								return;
+							}
+							openEspIdfManager(eimJson);
+						});
 			}
-			catch (
-					IOException
-					| InterruptedException e)
+			catch (IOException | InterruptedException e)
 			{
 				Logger.log(e);
 			}
-
-			eimLoader.waitForEimClosure(launchResult, () -> {
-				if (toolInitializer.isOldEspIdfConfigPresent() && !toolInitializer.isOldConfigExported())
-				{
-					Logger.log("Old configuration found and not converted");
-					handleOldConfigExport();
-				}
-				try
-				{
-					eimJson = toolInitializer.loadEimJson();
-				}
-				catch (EimVersionMismatchException e)
-				{
-					Logger.log(e);
-					MessageDialog.openError(Display.getDefault().getActiveShell(), e.msgTitle(), e.getMessage());
-					return;
-				}
-				openEspIdfManager(eimJson);
-			});
 		}
 
 		@Override

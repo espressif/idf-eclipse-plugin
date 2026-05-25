@@ -6,11 +6,13 @@ package com.espressif.idf.core.tools;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
@@ -65,9 +67,88 @@ public class ToolInitializer
 	}
 
 	/**
-	 * Resolves the EIM executable path: <strong>system {@code PATH} first</strong>, then {@code eimPath} from
-	 * {@code eim_idf.json} when the path exists on disk, then {@code EIM_PATH} env variable, then
-	 * {@link #getDefaultEimPath()} (existence-checked).
+	 * Probes well-known package manager bin directories for the {@code eim} executable. GUI-launched Eclipse processes
+	 * on macOS/Linux often have a minimal PATH that excludes directories like {@code /opt/homebrew/bin}, so this method
+	 * checks those locations directly regardless of the JVM's process PATH.
+	 *
+	 * @return absolute path to the executable, or empty if not found in any known location
+	 */
+	private String findEimInPackageManagerPaths()
+	{
+		String os = Platform.getOS();
+		String home = System.getProperty("user.home"); //$NON-NLS-1$
+		boolean isWindows = Platform.OS_WIN32.equals(os);
+		String execName = isWindows ? "eim.exe" : "eim"; //$NON-NLS-1$ //$NON-NLS-2$
+
+		List<String> candidateDirs = new ArrayList<>();
+
+		if (Platform.OS_MACOSX.equals(os))
+		{
+			candidateDirs.add("/opt/homebrew/bin"); //$NON-NLS-1$
+			candidateDirs.add("/usr/local/bin"); //$NON-NLS-1$
+			candidateDirs.add("/opt/local/bin"); //$NON-NLS-1$
+		}
+		else if (Platform.OS_LINUX.equals(os))
+		{
+			candidateDirs.add("/usr/local/bin"); //$NON-NLS-1$
+			candidateDirs.add("/usr/bin"); //$NON-NLS-1$
+			if (home != null)
+			{
+				candidateDirs.add(home + "/.local/bin"); //$NON-NLS-1$
+			}
+			candidateDirs.add("/snap/bin"); //$NON-NLS-1$
+			candidateDirs.add("/var/lib/flatpak/exports/bin"); //$NON-NLS-1$
+			if (home != null)
+			{
+				candidateDirs.add(home + "/.local/share/flatpak/exports/bin"); //$NON-NLS-1$
+				candidateDirs.add(home + "/.nix-profile/bin"); //$NON-NLS-1$
+			}
+			candidateDirs.add("/nix/var/nix/profiles/default/bin"); //$NON-NLS-1$
+		}
+		else if (isWindows)
+		{
+			String localAppData = System.getenv("LOCALAPPDATA"); //$NON-NLS-1$
+			if (localAppData != null)
+			{
+				candidateDirs.add(localAppData + "\\Microsoft\\WinGet\\Links"); //$NON-NLS-1$
+			}
+			String chocoInstall = System.getenv("ChocolateyInstall"); //$NON-NLS-1$
+			if (chocoInstall != null && !chocoInstall.isBlank())
+			{
+				candidateDirs.add(chocoInstall + "\\bin"); //$NON-NLS-1$
+			}
+			else
+			{
+				candidateDirs.add("C:\\ProgramData\\chocolatey\\bin"); //$NON-NLS-1$
+			}
+			if (home != null)
+			{
+				candidateDirs.add(home + "\\scoop\\shims"); //$NON-NLS-1$
+			}
+		}
+
+		for (String dir : candidateDirs)
+		{
+			Path candidate = Paths.get(dir, execName);
+			if (Files.isRegularFile(candidate) && Files.isExecutable(candidate))
+			{
+				return candidate.toString();
+			}
+		}
+
+		return StringUtil.EMPTY;
+	}
+
+	/**
+	 * Resolves the EIM executable path using priority-based resolution:
+	 * <ol>
+	 * <li>System {@code PATH}</li>
+	 * <li>Well-known package manager directories (Homebrew, MacPorts, WinGet, Chocolatey, Scoop, etc.)</li>
+	 * <li>{@code eimPath} from {@code eim_idf.json} (when the path exists on disk)</li>
+	 * <li>{@code EIM_PATH} env variable (existence-checked)</li>
+	 * <li>Default GUI install location (existence-checked)</li>
+	 * <li>Default CLI install location (existence-checked)</li>
+	 * </ol>
 	 *
 	 * @param eimJson parsed JSON or {@code null}
 	 * @return resolved absolute path string, or empty if nothing could be resolved
@@ -78,6 +159,12 @@ public class ToolInitializer
 		if (!StringUtil.isEmpty(fromPath))
 		{
 			return fromPath;
+		}
+
+		String fromPkgMgr = findEimInPackageManagerPaths();
+		if (!StringUtil.isEmpty(fromPkgMgr))
+		{
+			return fromPkgMgr;
 		}
 
 		if (eimJson != null && !StringUtil.isEmpty(eimJson.getEimPath()))
@@ -99,6 +186,12 @@ public class ToolInitializer
 		if (defaultEimPath != null && Files.exists(defaultEimPath))
 		{
 			return defaultEimPath.toString();
+		}
+
+		Path cliEimPath = getDefaultCliEimPath();
+		if (cliEimPath != null && Files.exists(cliEimPath))
+		{
+			return cliEimPath.toString();
 		}
 
 		return StringUtil.EMPTY;
@@ -226,5 +319,58 @@ public class ToolInitializer
 
 		return defaultEimPath;
 	}
-	
+
+	/**
+	 * Returns the default CLI EIM binary path per platform. Unlike the GUI path, this points to the CLI-only install
+	 * directory ({@code ~/.espressif/eim/}).
+	 */
+	public Path getDefaultCliEimPath()
+	{
+		String userHome = System.getProperty("user.home"); //$NON-NLS-1$
+		String os = Platform.getOS();
+		if (os.equals(Platform.OS_WIN32))
+		{
+			return Paths.get(userHome, ".espressif", "eim", "eim.exe"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
+		return Paths.get(userHome, ".espressif", "eim", "eim"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+
+	/**
+	 * Checks whether the EIM binary at the given path supports GUI mode by running {@code eim gui --help} and checking
+	 * for a successful exit code. This is used to determine whether to launch EIM as a GUI application or in CLI/wizard
+	 * mode.
+	 *
+	 * @param eimPath absolute path to the EIM executable
+	 * @return {@code true} if the binary supports the {@code gui} subcommand, {@code false} otherwise
+	 */
+	public boolean isEimGuiCapable(String eimPath)
+	{
+		if (StringUtil.isEmpty(eimPath))
+		{
+			return false;
+		}
+
+		try
+		{
+			ProcessBuilder pb = new ProcessBuilder(eimPath, "gui", "--help"); //$NON-NLS-1$ //$NON-NLS-2$
+			Logger.log("Checking if EIM supports GUI mode with command: " + String.join(" ", pb.command())); //$NON-NLS-1$ //$NON-NLS-2$
+			pb.redirectErrorStream(true);
+			Process process = pb.start();
+			// Drain stdout so the process doesn't block
+			process.getInputStream().transferTo(OutputStream.nullOutputStream());
+			boolean finished = process.waitFor(5, TimeUnit.SECONDS);
+			if (!finished)
+			{
+				process.destroyForcibly();
+				return false;
+			}
+			return process.exitValue() == 0;
+		}
+		catch (IOException | InterruptedException e)
+		{
+			Logger.log("EIM does not support the gui subcommand, falling back to CLI mode."); //$NON-NLS-1$
+			return false;
+		}
+	}
+
 }

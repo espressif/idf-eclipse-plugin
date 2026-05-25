@@ -66,6 +66,10 @@ public class Messages extends NLS
 
 	public static String MsgYes;
 	public static String MsgNo;
+
+	public static String EimCliTerminalWizardTitle;
+	public static String EimCliTerminalOpeningWizard;
+	public static String EimCliTerminalWizardCompleted;
 	
 	static
 	{

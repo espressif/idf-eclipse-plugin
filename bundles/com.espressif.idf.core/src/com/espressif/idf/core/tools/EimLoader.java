@@ -116,10 +116,18 @@ public class EimLoader
 	 */
 	public LaunchResult launchEimWithResult(String eimPath) throws IOException
 	{
-		LaunchResult result = launchService.launch(eimPath);
+		return launchEimWithResult(eimPath, new String[0]);
+	}
+
+	/**
+	 * Launches EIM with optional arguments (e.g. "gui") and returns the {@link com.espressif.idf.core.tools.launch.LaunchResult}.
+	 */
+	public LaunchResult launchEimWithResult(String eimPath, String... args) throws IOException
+	{
+		LaunchResult result = launchService.launch(eimPath, args);
 		this.lastLaunchResult = result;
 
-		logMessage("Launched EIM application: " + eimPath + " (pid=" + result.pid().orElse(-1) + ")\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		logMessage("Launched EIM application: " + eimPath + " " + String.join(" ", args) + " (pid=" + result.pid().orElse(-1) + ")\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		return result;
 	}
 

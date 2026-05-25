@@ -34,13 +34,20 @@ public final class WindowsEimLauncherStrategy extends AbstractLoggingLauncherStr
 	@Override
 	public LaunchResult launch(String eimPath) throws IOException
 	{
+		return launch(eimPath, new String[0]);
+	}
+
+	@Override
+	public LaunchResult launch(String eimPath, String... args) throws IOException
+	{
 		if (!Files.exists(Paths.get(eimPath)))
 			throw new IOException("EIM path not found: " + eimPath); //$NON-NLS-1$
 
 		String escapedPathForPowershell = eimPath.replace("'", "''"); //$NON-NLS-1$ //$NON-NLS-2$
+		String argsStr = (args != null && args.length > 0) ? " -ArgumentList '" + String.join(" ", args) + "'" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		String powershellCmd = String.format(
-				"Start-Process -FilePath '%s' -PassThru | Select-Object -ExpandProperty Id", //$NON-NLS-1$
-				escapedPathForPowershell);
+				"Start-Process -FilePath '%s'%s -PassThru | Select-Object -ExpandProperty Id", //$NON-NLS-1$
+				escapedPathForPowershell, argsStr);
 
 		List<String> command = List.of("powershell.exe", "-Command", powershellCmd); //$NON-NLS-1$ //$NON-NLS-2$
 		Process launcher = new ProcessBuilder(command).redirectErrorStream(true).start();
