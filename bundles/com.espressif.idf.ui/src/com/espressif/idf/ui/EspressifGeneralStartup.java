@@ -48,6 +48,7 @@ public class EspressifGeneralStartup implements IStartup
     {
         hookDialogListeners();
         hookLaunchBarListeners();
+		checkEimJsonOfflineChanges();
     }
 
     private void hookDialogListeners()
