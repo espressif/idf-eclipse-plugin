@@ -52,9 +52,8 @@ public class IDFTerminalProcessConnector extends ProcessConnector {
 			// We delay unpausing the listeners for a generous 20-second buffer to safely bypass 
 			// these file changes while the terminal initializes.
 
-			CompletableFuture.runAsync(() -> {
-				watchService.unpauseListeners();
-			}, CompletableFuture.delayedExecutor(20, TimeUnit.SECONDS));
+			CompletableFuture.runAsync(watchService::unpauseListeners,
+					CompletableFuture.delayedExecutor(20, TimeUnit.SECONDS));
 		}
 	}
 
