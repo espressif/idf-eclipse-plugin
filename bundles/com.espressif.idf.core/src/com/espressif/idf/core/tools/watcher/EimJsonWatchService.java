@@ -65,6 +65,21 @@ public class EimJsonWatchService extends Thread
 		watchDirectoryPath.register(watchService, StandardWatchEventKinds.ENTRY_CREATE,
 				StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
 
+		Path fullPath = watchDirectoryPath.resolve(EimConstants.EIM_JSON);
+		if (Files.exists(fullPath))
+		{
+			try
+			{
+				lastFileSize = Files.size(fullPath);
+				lastFileHash = computeHash(fullPath);
+			}
+			catch (Exception e)
+			{
+				Logger.log("Could not establish initial baseline for eim_idf.json watcher"); //$NON-NLS-1$
+				Logger.log(e);
+			}
+		}
+
 		Logger.log("Watcher added to the directory: " + watchDirectoryPath); //$NON-NLS-1$
 		setName("EimJsonWatchService"); //$NON-NLS-1$
 		setDaemon(true);

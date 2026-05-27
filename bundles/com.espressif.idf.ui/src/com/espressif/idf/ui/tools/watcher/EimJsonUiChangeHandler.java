@@ -110,7 +110,7 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 		}
 
 		EimJsonStateChecker checker = new EimJsonStateChecker(preferences);
-		checker.updateLastSeenTimestamp();
+		checker.updateLastSeenState();
 	}
 
 	private void loadEimJson() throws IOException, EimVersionMismatchException

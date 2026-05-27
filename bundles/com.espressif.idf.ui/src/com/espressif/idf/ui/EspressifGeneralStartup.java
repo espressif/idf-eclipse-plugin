@@ -10,6 +10,8 @@ import java.util.List;
 
 import org.eclipse.cdt.cmake.core.internal.Activator;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -23,8 +25,10 @@ import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.resources.OpenDialogListenerSupport;
 import com.espressif.idf.core.resources.PopupDialog;
 import com.espressif.idf.core.resources.ResourceChangeListener;
+import com.espressif.idf.core.tools.watcher.EimJsonStateChecker;
 import com.espressif.idf.ui.dialogs.BuildView;
 import com.espressif.idf.ui.dialogs.MessageLinkDialog;
+import com.espressif.idf.ui.tools.watcher.EimJsonUiChangeHandler;
 
 /**
  * General Startup class for handling 
@@ -138,4 +142,20 @@ public class EspressifGeneralStartup implements IStartup
                             "https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/partition-tables.html?highlight=partitions%20csv#creating-custom-tables"));
         });
     }
+
+	private void checkEimJsonOfflineChanges()
+	{
+		IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode("com.espressif.idf.core");
+
+		EimJsonStateChecker checker = new EimJsonStateChecker(prefs);
+
+		if (checker.wasModifiedSinceLastRun())
+		{
+			Logger.log("eim_idf.json was modified while Eclipse was offline. Prompting user..."); //$NON-NLS-1$
+
+			EimJsonUiChangeHandler uiHandler = new EimJsonUiChangeHandler(prefs);
+
+			Display.getDefault().asyncExec(uiHandler::displayMessageToUser);
+		}
+	}
 }
