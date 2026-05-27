@@ -83,6 +83,8 @@ public class EimJsonStateChecker
 
 				preferences.putLong(PREF_LAST_SEEN_SIZE, size);
 				preferences.put(PREF_LAST_SEEN_HASH, hash);
+
+				preferences.flush();
 			}
 			catch (Exception e)
 			{

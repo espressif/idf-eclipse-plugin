@@ -146,7 +146,7 @@ public class EspressifGeneralStartup implements IStartup
 
 	private void checkEimJsonOfflineChanges()
 	{
-		IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode("com.espressif.idf.core");
+		IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 
 		EimJsonStateChecker checker = new EimJsonStateChecker(prefs);
 
