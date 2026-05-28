@@ -8,9 +8,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,12 +22,8 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.espressif.idf.core.IDFConstants;
@@ -78,7 +71,11 @@ public class SetupToolsInIde extends Job
 	public void rollback()
 	{
 		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
-		
+		if (existingEnvVarsInIdeForRollback == null)
+		{
+			Logger.log("Attempt to rollback failed because existing env vars are null"); //$NON-NLS-1$
+			return;
+		}
 		for (Entry<String, String> entry : existingEnvVarsInIdeForRollback.entrySet())
 		{
 			idfEnvironmentVariables.addEnvVariable(entry.getKey(), entry.getValue());
@@ -98,10 +95,9 @@ public class SetupToolsInIde extends Job
 	{
 		monitor.beginTask("Setting up tools in IDE", 7); //$NON-NLS-1$
 		monitor.worked(1);
-		List<String> arguemnts = new ArrayList<>();
 		Map<String, String> env = new HashMap<>(System.getenv());
 		addGitToEnvironment(env, eimJson.getGitPath());
-		arguemnts = ToolsUtility.getExportScriptCommand(idfInstalled.getActivationScript());
+		List<String> arguemnts = ToolsUtility.getExportScriptCommand(idfInstalled.getActivationScript());
 		final ProcessBuilderFactory processBuilderFactory = new ProcessBuilderFactory();
 		try
 		{

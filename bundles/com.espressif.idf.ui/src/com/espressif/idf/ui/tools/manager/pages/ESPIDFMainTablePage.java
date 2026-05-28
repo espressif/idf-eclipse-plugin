@@ -440,6 +440,7 @@ public class ESPIDFMainTablePage
 
 					if (newJson != null && newJson.getIdfInstalled() != null)
 					{
+						eimJson = newJson;
 						var gitPath = newJson.getGitPath();
 
 						monitor.subTask(Messages.ESPIDFMainTablePage_DetectingEspIdfSubTaskName);
