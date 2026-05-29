@@ -51,6 +51,8 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 	@Override
 	public void onJsonFileChanged(Path file, boolean paused)
 	{
+		EimJsonStateChecker checker = new EimJsonStateChecker(preferences);
+		checker.updateLastSeenState();
 		if (paused)
 		{
 			Logger.log("Listener is paused");
@@ -108,9 +110,6 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 				Logger.log(e);
 			}
 		}
-
-		EimJsonStateChecker checker = new EimJsonStateChecker(preferences);
-		checker.updateLastSeenState();
 	}
 
 	private void loadEimJson() throws IOException, EimVersionMismatchException
