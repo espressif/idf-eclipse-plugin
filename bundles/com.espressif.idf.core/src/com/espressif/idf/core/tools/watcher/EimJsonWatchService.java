@@ -39,6 +39,7 @@ public class EimJsonWatchService extends Thread
 	private volatile boolean paused = false;
 	private volatile long lastFileSize = -1;
 	private volatile byte[] lastFileHash = null;
+	private final Object stateLock = new Object();
 
 	private EimJsonWatchService() throws IOException
 	{
@@ -197,14 +198,20 @@ public class EimJsonWatchService extends Thread
 
 	public void pauseListeners()
 	{
-		Logger.log("Listeners are paused"); //$NON-NLS-1$
-		paused = true;
+		synchronized (stateLock)
+		{
+			Logger.log("Listeners are paused"); //$NON-NLS-1$
+			paused = true;
+		}
 	}
 
 	public void unpauseListeners()
 	{
-		Logger.log("Listeners are resumed"); //$NON-NLS-1$
-		paused = false;
+		synchronized (stateLock)
+		{
+			Logger.log("Listeners are resumed"); //$NON-NLS-1$
+			paused = false;
+		}
 	}
 
 	@Override
@@ -267,7 +274,10 @@ public class EimJsonWatchService extends Thread
 						{
 							for (EimJsonChangeListener listener : eimJsonChangeListeners)
 							{
-								listener.onJsonFileChanged(fullPath, paused);
+								synchronized (stateLock)
+								{
+									listener.onJsonFileChanged(fullPath, paused);
+								}
 							}
 						}
 					}
