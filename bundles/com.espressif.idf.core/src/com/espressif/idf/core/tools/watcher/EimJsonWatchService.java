@@ -13,8 +13,8 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -37,7 +37,8 @@ public class EimJsonWatchService extends Thread
 	private final List<EimJsonChangeListener> eimJsonChangeListeners = new CopyOnWriteArrayList<>();
 	private volatile boolean running = true;
 	private volatile boolean paused = false;
-	private volatile Instant lastModifiedTime;
+	private volatile long lastFileSize = -1;
+	private volatile byte[] lastFileHash = null;
 
 	private EimJsonWatchService() throws IOException
 	{
@@ -63,6 +64,21 @@ public class EimJsonWatchService extends Thread
 		watchService = FileSystems.getDefault().newWatchService();
 		watchDirectoryPath.register(watchService, StandardWatchEventKinds.ENTRY_CREATE,
 				StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
+
+		Path fullPath = watchDirectoryPath.resolve(EimConstants.EIM_JSON);
+		if (Files.exists(fullPath))
+		{
+			try
+			{
+				lastFileSize = Files.size(fullPath);
+				lastFileHash = computeHash(fullPath);
+			}
+			catch (Exception e)
+			{
+				Logger.log("Could not establish initial baseline for eim_idf.json watcher"); //$NON-NLS-1$
+				Logger.log(e);
+			}
+		}
 
 		Logger.log("Watcher added to the directory: " + watchDirectoryPath); //$NON-NLS-1$
 		setName("EimJsonWatchService"); //$NON-NLS-1$
@@ -225,19 +241,34 @@ public class EimJsonWatchService extends Thread
 					Path fullPath = watchDirectoryPath.resolve(path);
 					try
 					{
-						Instant currentModified = Files.getLastModifiedTime(fullPath).toInstant()
-								.truncatedTo(ChronoUnit.SECONDS);
+						long currentSize = Files.size(fullPath);
+						boolean sizeChanged = (lastFileSize != currentSize);
 
-						if (lastModifiedTime != null && currentModified.compareTo(lastModifiedTime) <= 0)
+						boolean contentChanged = false;
+
+						if (sizeChanged)
 						{
-							continue; // skip duplicate or same-second event
+							contentChanged = true;
+							lastFileHash = computeHash(fullPath);
+						}
+						else
+						{
+							byte[] currentHash = computeHash(fullPath);
+							if (lastFileHash == null || !MessageDigest.isEqual(lastFileHash, currentHash))
+							{
+								contentChanged = true;
+								lastFileHash = currentHash;
+							}
 						}
 
-						lastModifiedTime = currentModified;
+						lastFileSize = currentSize;
 
-						for (EimJsonChangeListener listener : eimJsonChangeListeners)
+						if (contentChanged)
 						{
-							listener.onJsonFileChanged(fullPath, paused);
+							for (EimJsonChangeListener listener : eimJsonChangeListeners)
+							{
+								listener.onJsonFileChanged(fullPath, paused);
+							}
 						}
 					}
 					catch (IOException e)
@@ -278,5 +309,19 @@ public class EimJsonWatchService extends Thread
 	{
 		running = false;
 		interrupt();
+	}
+
+	private byte[] computeHash(Path filePath) throws IOException
+	{
+		try
+		{
+			MessageDigest digest = MessageDigest.getInstance("SHA-256"); //$NON-NLS-1$
+			byte[] fileBytes = Files.readAllBytes(filePath);
+			return digest.digest(fileBytes);
+		}
+		catch (NoSuchAlgorithmException e)
+		{
+			throw new RuntimeException("SHA-256 algorithm not available", e); //$NON-NLS-1$
+		}
 	}
 }

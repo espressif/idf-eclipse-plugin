@@ -8,8 +8,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 
 import org.eclipse.terminal.connector.ITerminalControl;
@@ -18,6 +19,7 @@ import org.eclipse.terminal.connector.process.ProcessConnector;
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.EimIdfJsonPathResolver;
+import com.espressif.idf.core.tools.watcher.EimJsonWatchService;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -30,17 +32,29 @@ public class IDFTerminalProcessConnector extends ProcessConnector {
 
 	@Override
 	public void connect(ITerminalControl control) {
-		super.connect(control);
+		var watchService = EimJsonWatchService.getInstance();
 
-		var process = getProcess();
-		if (process == null) {
-			return;
+		if (watchService != null) {
+			watchService.pauseListeners();
 		}
 
-		getActivationScriptPath().ifPresentOrElse(
-				scriptPath -> sendCommand(process.getOutputStream(), buildActivationCommand(scriptPath)),
-				() -> sendCommand(process.getOutputStream(), "# Error: ESP-IDF activation script is missing.\r\n") //$NON-NLS-1$
-		);
+		super.connect(control);
+		var process = getProcess();
+
+		if (process != null) {
+			getActivationScriptPath().ifPresentOrElse(
+					scriptPath -> sendCommand(process.getOutputStream(), buildActivationCommand(scriptPath)),
+					() -> sendCommand(process.getOutputStream(), "# Error: ESP-IDF activation script is missing.\r\n")); //$NON-NLS-1$
+		}
+
+		if (watchService != null) {
+			// TODO: The activation script unexpectedly modifies eim_idf.json on startup. 
+			// We delay unpausing the listeners for a generous 20-second buffer to safely bypass 
+			// these file changes while the terminal initializes.
+
+			CompletableFuture.runAsync(watchService::unpauseListeners,
+					CompletableFuture.delayedExecutor(20, TimeUnit.SECONDS));
+		}
 	}
 
 	private String buildActivationCommand(String scriptPath) {
