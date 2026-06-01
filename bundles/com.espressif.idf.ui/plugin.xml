@@ -916,9 +916,10 @@
 	<extension
 		point="org.eclipse.terminal.view.ui.launcherDelegates">
 		<delegate
-			class="com.espressif.idf.ui.tools.eim.terminal.EimCliTerminalLauncherDelegate"
-			id="com.espressif.idf.ui.launcher.eimCliTerminal"
-			label="EIM CLI Wizard">
+        class="com.espressif.idf.ui.tools.eim.terminal.EimCliTerminalLauncherDelegate"
+        hidden="true"
+        id="com.espressif.idf.ui.launcher.eimCliTerminal"
+        label="EIM CLI Wizard">
 		</delegate>
 	</extension>
 </plugin>
