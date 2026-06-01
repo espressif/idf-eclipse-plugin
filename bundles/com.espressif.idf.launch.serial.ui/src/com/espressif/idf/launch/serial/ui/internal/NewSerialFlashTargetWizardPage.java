@@ -86,6 +86,8 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 	private Combo fBoardCombo;
 	private Combo fFlashVoltage;
 	private String previousBoard = null;
+	// Board combo display name -> serial_number from esp_detect_config.py
+	private final Map<String, String> boardSerialByDisplayName = new HashMap<>();
 
 	protected boolean isOutputDetailed;
 	public static final String PREF_ENABLE_DETAILED_OUTPUT = Activator.PLUGIN_ID + ".enableDetailedOutput"; //$NON-NLS-1$
@@ -145,6 +147,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 				Shell shell = display.getActiveShell();
 				final List<String> boardDisplayNames = new ArrayList<>();
 				final String[] jsonHolder = new String[1];
+				boardSerialByDisplayName.clear();
 				try
 				{
 					ProgressMonitorDialog dialog = new ProgressMonitorDialog(shell);
@@ -610,6 +613,11 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 		return null;
 	}
 
+	public String getSelectedBoardSerialNumber()
+	{
+		return boardSerialByDisplayName.get(fBoardCombo.getText());
+	}
+
 	/**
 	 * Returns a list of display names for boards matching the selected target. Each display name is formatted as
 	 * "<name> [<location>]".
@@ -624,7 +632,13 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 			{
 				String name = (String) board.get("name"); //$NON-NLS-1$
 				String location = (String) board.get("location"); //$NON-NLS-1$
-				boardDisplayNames.add(String.format("%s [%s]", name, location)); //$NON-NLS-1$
+				String serialNumber = (String) board.get("serial_number"); //$NON-NLS-1$
+				String displayName = String.format("%s [%s]", name, location); //$NON-NLS-1$
+				boardDisplayNames.add(displayName);
+				if (!StringUtil.isEmpty(serialNumber))
+				{
+					boardSerialByDisplayName.put(displayName, serialNumber);
+				}
 			}
 		}
 		return boardDisplayNames;

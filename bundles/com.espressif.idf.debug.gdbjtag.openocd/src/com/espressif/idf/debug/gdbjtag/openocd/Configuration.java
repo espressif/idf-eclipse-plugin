@@ -122,6 +122,16 @@ public class Configuration
 					lst.add("-c");
 					lst.add(String.format("adapter usb location %s", openocdLoc));
 				}
+
+				// Pin adapter by serial from esp_detect_config.py (OpenOCD >= v0.12.0-esp32-20260304).
+				String adapterSerial = activeLaunchTarget.getAttribute(IDFLaunchConstants.OPENOCD_ADAPTER_SERIAL,
+						(String) null);
+				if (adapterSerial != null && !adapterSerial.isEmpty()
+						&& OpenOcdVersionManager.supportsSerialFromDetectConfig(executable))
+				{
+					lst.add("-c");
+					lst.add(String.format("adapter serial %s", adapterSerial));
+				}
 			}
 
 			lst.add("-c"); //$NON-NLS-1$

@@ -27,6 +27,22 @@ public class OpenOcdVersionManager
 	private static final Pattern VERSION_PATTERN = Pattern.compile(
 			"(?i)(?:Open On-Chip Debugger\\s+|v)(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?(?:-[a-z0-9]+-(?<build>\\d+))?"); //$NON-NLS-1$
 
+	// OpenOCD >= v0.12.0-esp32-20260424: `adapter usb location` command.
+	private static final int ADAPTER_USB_LOCATION_MIN_BUILD = 20260424;
+
+	// OpenOCD >= v0.12.0-esp32-20260304: `adapter serial` command.
+	private static final int ADAPTER_SERIAL_FROM_DETECT_MIN_BUILD = 20260304;
+
+	public static boolean supportsAdapterUsbLocationCommand(String executablePath)
+	{
+		return getVersion(executablePath).isBuildDateAtLeast(0, 12, ADAPTER_USB_LOCATION_MIN_BUILD);
+	}
+
+	public static boolean supportsSerialFromDetectConfig(String executablePath)
+	{
+		return getVersion(executablePath).isBuildDateAtLeast(0, 12, ADAPTER_SERIAL_FROM_DETECT_MIN_BUILD);
+	}
+
 	public static class OpenOcdVersion
 	{
 		public final int major;
