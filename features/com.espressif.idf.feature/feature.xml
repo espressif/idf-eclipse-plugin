@@ -103,6 +103,16 @@ You may add additional accurate notices of copyright ownership.
 
    <requires>
       <import plugin="org.eclipse.cdt"/>
+      <import feature="org.eclipse.tm4e.feature"/>
+      <import feature="org.eclipse.tm4e.language_pack.feature"/>
+      <import feature="org.eclipse.swtchart.feature"/>
+      <import plugin="org.eclipse.lsp4e"/>
+      <import feature="org.eclipse.cdt.lsp.feature" version="3.5.0.202603041744"/>
+      <import feature="org.eclipse.embedcdt" version="6.4.0.202307251916"/>
+      <import feature="org.eclipse.embedcdt.debug.gdbjtag" version="6.4.0.202307251916"/>
+      <import feature="org.eclipse.launchbar" version="12.4.0.202512101642"/>
+      <import feature="org.eclipse.nebula.widgets.xviewer.feature" version="1.1.0.202601240135"/>
+      <import feature="org.eclipse.terminal.feature" version="1.0.200.v20260226-0920"/>
    </requires>
 
    <plugin
