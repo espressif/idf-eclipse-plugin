@@ -26,7 +26,7 @@ jobs:
       run:
         shell: bash
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         submodules: true
     - uses: actions/setup-python@v5
@@ -44,7 +44,7 @@ jobs:
         PATH=/home/runner/.local/bin:$PATH pip3 install -r requirements.txt --prefer-binary
         PATH=/home/runner/.local/bin:$PATH SPHINXOPTS="-W" build-docs
     - name: Archive Docs
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: docs
         path: docs

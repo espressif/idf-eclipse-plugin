@@ -16,10 +16,10 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v6
 
     - name: Set up JDK 21
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v5
       with:
         java-version: '21'
         distribution: 'temurin'
@@ -168,35 +168,35 @@ jobs:
 
     - name: Upload Espressif-IDE-macosx-cocoa-x86_64.dmg
       if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: espressif-ide-macosx-cocoa-x86_64
         path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
 
     - name: Upload Espressif-IDE-macosx-cocoa-aarch64.dmg
       if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: espressif-ide-macosx.cocoa.aarch64
         path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
 
     - name: Upload build artifacts
       if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: com.espressif.idf.update
         path: releng/com.espressif.idf.update/target/repository
         
     - name: Upload windows rcp
       if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: espressif-ide-win32
         path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-win32.win32.x86_64.zip
 
     - name: Upload linux rcp
       if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: espressif-ide-linux
         path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-linux.gtk.x86_64.tar.gz

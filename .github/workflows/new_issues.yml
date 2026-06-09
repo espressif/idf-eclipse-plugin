@@ -14,7 +14,7 @@ jobs:
     name: Sync issues to Jira
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v6
       - name: Sync GitHub issues to Jira project
         uses: espressif/github-actions/sync_issues_to_jira@master
         env:
