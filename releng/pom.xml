@@ -14,6 +14,5 @@
     <module>com.espressif.idf.target</module>
     <module>com.espressif.idf.product</module>
     <module>com.espressif.idf.update.offline</module>
-    <module>com.espressif.idf.update.offline1</module>
   </modules>
 </project>
