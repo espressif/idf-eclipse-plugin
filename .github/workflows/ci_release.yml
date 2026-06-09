@@ -218,12 +218,19 @@ jobs:
            name: espressif-ide-macosx.cocoa.aarch64
            path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
       
-      - name: Upload build artifacts
+      - name: Upload online update site
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: com.espressif.idf.update
           path: releng/com.espressif.idf.update/target/repository
+      
+      - name: Upload offline update site
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: com.espressif.idf.update.offline
+          path: releng/com.espressif.idf.update.offline/target/repository
               
       - name: Upload windows rcp
         if: ${{ !cancelled() }}
@@ -373,11 +380,17 @@ jobs:
         name: espressif-ide-macosx.cocoa.aarch64
         path: artifacts/macos_arm
 
-    - name: Download update site zip
+    - name: Download online update site zip
       uses: actions/download-artifact@v4
       with:
         name: com.espressif.idf.update
         path: artifacts/update
+
+    - name: Download offline update site
+      uses: actions/download-artifact@v4
+      with:
+        name: com.espressif.idf.update.offline
+        path: artifacts/update_offline
 
     - name: Extract version from tag and prepare folder
       id: get_version
@@ -410,6 +423,7 @@ jobs:
       run: |
         VERSION="${{ env.VERSION }}"
         zip -r "com.espressif.idf.update-v$VERSION.zip" artifacts/update/*
+        zip -r "Espressif-IDE-Offline-Update-v$VERSION.zip" artifacts/update_offline/*
         zip -r "Espressif-IDE-$VERSION-win32.win32.x86_64.zip" artifacts/win32/*
 
     - name: Listing files for upload to verify and debug
@@ -441,6 +455,7 @@ jobs:
         aws s3 cp --acl=public-read ./releng/index.html "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/$UPLOAD_PATH/"
         
         aws s3 cp --acl=public-read "com.espressif.idf.update-v$VERSION.zip" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/"
+        aws s3 cp --acl=public-read "Espressif-IDE-Offline-Update-v$VERSION.zip" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/"
         aws s3 cp --acl=public-read --recursive artifacts/linux/ "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/"
         aws s3 cp --acl=public-read --recursive artifacts/linux_arm64/ "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/"
         aws s3 cp --acl=public-read "artifacts/macos_x86/Espressif-IDE-macosx-cocoa-x86_64-v$VERSION.dmg" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/ide/"

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature id="com.espressif.idf.feature">
+      <category name="com.espressif.idf"/>
+   </feature>
+   
+   <feature id="org.eclipse.rcp">
+      <category name="com.espressif.idf.platform"/>
+   </feature>
+   <feature id="org.eclipse.platform">
+      <category name="com.espressif.idf.platform"/>
+   </feature>
+   <feature id="org.eclipse.equinox.p2.user.ui">
+      <category name="com.espressif.idf.platform"/>
+   </feature>
+
+   <category-def name="com.espressif.idf" label="ESP-IDF Eclipse Plugin"/>
+   <category-def name="com.espressif.idf.platform" label="Eclipse Platform Core Updates"/>
+</site>
