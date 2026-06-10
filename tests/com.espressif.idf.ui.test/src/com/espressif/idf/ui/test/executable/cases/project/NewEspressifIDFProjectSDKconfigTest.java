@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.ui.test.executable.cases.project;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -11,6 +12,8 @@ import java.io.IOException;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -159,27 +162,73 @@ public class NewEspressifIDFProjectSDKconfigTest
 			TestWidgetWaitUtility.waitForCTabToAppear(bot, "SDK Configuration (sdkconfig)", 10000);
 		}
 
-		private static void thenSDKconfigFileContentChecked() throws Exception
+		private static void openPartitionTableSettings() throws Exception
 		{
 			bot.cTabItem("SDK Configuration (sdkconfig)").activate();
 			TestWidgetWaitUtility.waitForTreeItem("Partition Table", bot.tree(1), bot);
 			bot.tree(1).getTreeItem("Partition Table").click();
 			bot.sleep(1000);
-			assertTrue("'Offset of partition table (hex)' does not match '0x8000'",
-					bot.textWithLabel("Offset of partition table (hex)").getText().matches("0x8000"));
+		}
+
+		private static void setPartitionTableOffset(String hexValue)
+		{
+			SWTBotText offsetField = bot.textWithLabel("Offset of partition table (hex)");
+			offsetField.setFocus();
+			offsetField.selectAll();
+			offsetField.setText(hexValue);
+			bot.sleep(500);
+
+			if (!offsetField.getText().equalsIgnoreCase(hexValue))
+			{
+				offsetField.setFocus();
+				offsetField.selectAll();
+				offsetField.typeText(hexValue);
+				bot.sleep(500);
+			}
+		}
+
+		private static void waitForPartitionTableOffset(String hexValue) throws Exception
+		{
+			bot.waitUntil(new DefaultCondition()
+			{
+				@Override
+				public boolean test() throws Exception
+				{
+					return bot.textWithLabel("Offset of partition table (hex)").getText()
+							.equalsIgnoreCase(hexValue);
+				}
+
+				@Override
+				public String getFailureMessage()
+				{
+					return "Partition table offset did not become " + hexValue;
+				}
+			}, 15000, 500);
+		}
+
+		private static void assertPartitionTableOffset(String expectedHexValue)
+		{
+			String actual = bot.textWithLabel("Offset of partition table (hex)").getText();
+			assertEquals("'Offset of partition table (hex)' does not match '" + expectedHexValue + "'",
+					expectedHexValue.toLowerCase(), actual.toLowerCase());
+		}
+
+		private static void thenSDKconfigFileContentChecked() throws Exception
+		{
+			openPartitionTableSettings();
+			waitForPartitionTableOffset("0x8000");
+			assertPartitionTableOffset("0x8000");
 		}
 
 		private static void thenSDKconfigFileContentEdited() throws Exception
 		{
-			bot.cTabItem("SDK Configuration (sdkconfig)").activate();
-			TestWidgetWaitUtility.waitForTreeItem("Partition Table", bot.tree(1), bot);
-			bot.tree(1).getTreeItem("Partition Table").click();
-			bot.sleep(1000);
-			bot.textWithLabel("Offset of partition table (hex)").setText("0x4000");
-			bot.sleep(1000);
+			openPartitionTableSettings();
+			setPartitionTableOffset("0x4000");
+			waitForPartitionTableOffset("0x4000");
 			bot.comboBoxWithLabel("Partition Table").setSelection("Custom partition table CSV");
 			bot.sleep(1000);
 			bot.checkBox("Generate an MD5 checksum for the partition table").click();
+			bot.sleep(500);
 		}
 
 		private static void thenSDKconfigShellClosed() throws IOException
@@ -193,16 +242,15 @@ public class NewEspressifIDFProjectSDKconfigTest
 			bot.cTabItem("*SDK Configuration (sdkconfig)").close();
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Save Resource", 10000);
 			bot.shell("Save Resource").bot().button("Save").click();
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
+			bot.sleep(1000);
 		}
 
 		private static void thenCheckChangesAreSaved() throws Exception
 		{
-			bot.cTabItem("SDK Configuration (sdkconfig)").activate();
-			TestWidgetWaitUtility.waitForTreeItem("Partition Table", bot.tree(1), bot);
-			bot.tree(1).getTreeItem("Partition Table").click();
-			bot.sleep(1000);
-			assertTrue("'Offset of partition table (hex)' does not match '0x4000'",
-					bot.textWithLabel("Offset of partition table (hex)").getText().matches("0x4000"));
+			openPartitionTableSettings();
+			waitForPartitionTableOffset("0x4000");
+			assertPartitionTableOffset("0x4000");
 			bot.sleep(1000);
 			assertTrue("'Partition Table' does not match 'Custom partition table CSV'",
 					bot.comboBoxWithLabel("Partition Table").selection().equals("Custom partition table CSV"));
