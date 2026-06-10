@@ -6,10 +6,12 @@
     
     repos:
       - repo: https://github.com/espressif/conventional-precommit-linter
-        rev: v1.2.1
+        rev: v1.7.0
         hooks:
           - id: conventional-precommit-linter
             stages: [commit-msg]
+            args:
+              - --types=feat,fix,docs,style,refactor,perf,test,chore,ci,build,revert
 
       - repo: https://github.com/codespell-project/codespell
         rev: v2.4.1
