@@ -11,6 +11,11 @@
 - :ref:`install_idf_eclipse_plugin_marketplace`
 - :ref:`install_idf_eclipse_plugin_local_archive`
 
+正式发布版本提供两种更新站点：
+
+- **在线更新站点** — 仅包含 ESP-IDF Eclipse 插件特性（feature）。安装时，p2 会从引用的 Eclipse 更新站点解析依赖项（Eclipse Platform、Embed CDT、LSP4E 等）。需要互联网连接。
+- **离线更新站点** — 将 ESP-IDF Eclipse 插件及其依赖项一并打包，可在无网络环境中安装。适用于隔离网络或受限环境。
+
 .. _installUpdateSiteURL:
 
 使用更新站点 URL 安装 IDF 插件
@@ -25,7 +30,11 @@
     * 在 ``Location`` 一栏，填写插件更新站点的 URL.（`稳定版 <https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/>`_）
     * 点击 ``Add``。
 
-3.  全选列表中的组件并继续安装。
+3.  在列表中选择 ``ESP-IDF Eclipse Plugin``，然后继续安装。p2 会从 Eclipse 发布版本及其他引用的更新站点解析所需依赖项。
+
+.. note::
+
+    在线更新站点需要互联网连接。依赖项不会包含在站点本身中，而是在安装过程中从 Eclipse Platform、Nebula 和 SWTChart 等仓库获取。
 
 若要添加测试版和每日构建版插件，可以使用以下的更新站点 URL：
 
@@ -57,15 +66,24 @@
 通过本地压缩包安装 IDF Eclipse 插件
 -----------------------------------
 
-要通过本地压缩包安装 ESP-IDF Eclipse 插件，请按以下步骤操作：
+从 `GitHub Releases <https://github.com/espressif/idf-eclipse-plugin/releases>`_ 或 `dl.espressif.com <https://dl.espressif.com/dl/idf-eclipse-plugin/updates/>`_ 下载更新站点压缩包。
 
-1. 点击 `此处 <https://github.com/espressif/idf-eclipse-plugin/releases>`_ 下载 IDF Eclipse 插件的最新更新站点压缩包。
-2. 在 Eclipse 中，进入 ``Help`` > ``Install New Software``。
-3. 点击 ``Add`` 按钮。
-4. 在 ``Add Repository`` 对话框中，选择 ``Archive`` 并选择文件 ``com.espressif.idf.update-vxxxxxxx.zip``。
-5. 点击 ``Add``。
-6. 在列表中选择 ``Espressif IDF``，然后继续安装。
-7. 完成安装后重启 Eclipse。
+根据使用环境选择合适的压缩包：
+
+在线更新站点压缩包（``com.espressif.idf.update-vX.Y.Z.zip``）
+    与在线更新站点 URL 内容相同。安装时需要互联网连接以解析依赖项。
+
+离线更新站点压缩包（``Espressif-IDE-Offline-Update-vX.Y.Z.zip``）
+    自包含压缩包，适用于无网络环境。包含 ESP-IDF Eclipse 插件及其打包的依赖项。
+
+通过任一压缩包安装的步骤：
+
+1. 在 Eclipse 中，进入 ``Help`` > ``Install New Software``。
+2. 点击 ``Add`` 按钮。
+3. 在 ``Add Repository`` 对话框中，选择 ``Archive`` 并选择已下载的 ``.zip`` 文件。
+4. 点击 ``Add``。
+5. 在列表中选择 ``ESP-IDF Eclipse Plugin``，然后继续安装。
+6. 完成安装后重启 Eclipse。
 
 .. _upgradePlugins:
 
@@ -118,19 +136,26 @@
 故障排查
 --------
 
-如果在安装过程中遇到错误提示 ``Cannot complete the install because one or more required items could not be found.``，通常是因为未启用 Eclipse 更新站点。
+如果在安装过程中遇到错误提示 ``Cannot complete the install because one or more required items could not be found.``，请尝试以下方法：
 
-解决方法：
+**在线更新站点 URL 或在线压缩包（``com.espressif.idf.update-vX.Y.Z.zip``）**
 
-1.  进入 ``Help`` > ``Install New Software``。  
-2.  点击 ``Manage``。  
-3.  确保已启用 ``Eclipse Platform - Latest Release Update Site`` 选项。
+通常表示所需的依赖更新站点未启用，或 IDE 无法通过网络访问这些站点。
+
+1.  确认 IDE 可以访问互联网。
+2.  进入 ``Help`` > ``Install New Software``。
+3.  点击 ``Manage``。
+4.  确保已启用 ``Eclipse Platform - Latest Release Update Site`` 选项。
 
     .. image:: ../../media/Resolve_update_error_2.png
 
-4.  应用更改并关闭对话框。
-5.  前往 ``Help`` > ``Check for Updates``，继续更新 IDE 及其依赖项。  
+5.  应用更改并关闭对话框。
+6.  前往 ``Help`` > ``Check for Updates``，继续更新 IDE 及其依赖项。
 
 .. note::
 
-    启用 Eclipse Platform 更新站点可确保在安装或升级过程中解析所有必要的依赖项。
+    启用 Eclipse Platform 更新站点可确保从在线更新站点安装或升级时正确解析所有必要的依赖项。
+
+**离线压缩包（``Espressif-IDE-Offline-Update-vX.Y.Z.zip``）**
+
+若从离线压缩包安装仍然失败，请确认已下载与 Espressif-IDE 或 Eclipse 版本匹配的离线压缩包，且下载过程中文件未损坏。

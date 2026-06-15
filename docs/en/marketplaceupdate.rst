@@ -11,6 +11,11 @@ The Espressif-IDE Eclipse Plugin can be installed using the following three meth
 - :ref:`install_idf_eclipse_plugin_marketplace`
 - :ref:`install_idf_eclipse_plugin_local_archive`
 
+Release builds publish two kinds of update sites:
+
+- **Online update site** — contains the ESP-IDF Eclipse Plugin feature only. Dependencies (Eclipse Platform, Embed CDT, LSP4E, and others) are resolved from referenced Eclipse update sites during installation. An internet connection is required.
+- **Offline update site** — bundles the ESP-IDF Eclipse Plugin and its dependencies for installation without network access. Use this archive in air-gapped or restricted environments.
+
 .. _installUpdateSiteURL:
 
 Installing IDF Plugin Using the Update Site URL
@@ -25,7 +30,11 @@ You can install the IDF Eclipse plugin into an existing Eclipse CDT/Espressif-ID
     * Enter ``Location`` of the repository. (`Stable release <https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/>`_)
     * Click ``Add``.
 
-3.  Select all items from the list and proceed with the installation.
+3.  Select ``ESP-IDF Eclipse Plugin`` from the list and proceed with the installation. p2 resolves required dependencies from the Eclipse release train and other referenced update sites.
+
+.. note::
+
+    The online update site requires an internet connection. Dependencies are not bundled in the site itself; they are fetched from Eclipse Platform, Nebula, and SWTChart repositories during installation.
 
 For adding beta and nightly builds, you can use the following update site URLs:
 
@@ -57,15 +66,24 @@ To install the ESP-IDF Eclipse Plugin from the Eclipse Marketplace, follow these
 Installing IDF Eclipse Plugin from Local Archive
 ------------------------------------------------
 
-To install the ESP-IDF Eclipse Plugin from a local archive, follow these steps:
+Download update site archives from `GitHub Releases <https://github.com/espressif/idf-eclipse-plugin/releases>`_ or from `dl.espressif.com <https://dl.espressif.com/dl/idf-eclipse-plugin/updates/>`_.
 
-1. Download the latest update site archive for the IDF Eclipse Plugin from `here <https://github.com/espressif/idf-eclipse-plugin/releases>`_.
-2. In Eclipse, go to ``Help`` > ``Install New Software``.
-3. Click the ``Add`` button.
-4. In the ``Add Repository`` dialog, select ``Archive`` and choose the file ``com.espressif.idf.update-vxxxxxxx.zip``.
-5. Click ``Add``.
-6. Select ``Espressif IDF`` from the list and continue with the installation.
-7. After the installation is complete, restart Eclipse.
+Choose the archive that matches your environment:
+
+Online update site archive (``com.espressif.idf.update-vX.Y.Z.zip``)
+    Same content as the online update site URL. Requires an internet connection to resolve dependencies during installation.
+
+Offline update site archive (``Espressif-IDE-Offline-Update-vX.Y.Z.zip``)
+    Self-contained archive for environments without network access. Includes the ESP-IDF Eclipse Plugin and its bundled dependencies.
+
+To install from either archive:
+
+1. In Eclipse, go to ``Help`` > ``Install New Software``.
+2. Click the ``Add`` button.
+3. In the ``Add Repository`` dialog, select ``Archive`` and choose the downloaded ``.zip`` file.
+4. Click ``Add``.
+5. Select ``ESP-IDF Eclipse Plugin`` from the list and continue with the installation.
+6. After the installation is complete, restart Eclipse.
 
 .. _upgradePlugins:
 
@@ -76,7 +94,7 @@ If you are installing the IDF Eclipse Plugin for the first time, follow these st
 
 1. Go to ``Window`` > ``Preferences`` > ``Install/Update`` > ``Available Software Sites``.
 2. Click ``Add``.
-3. Enter the `URL <https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/>`_ of the new repository: .
+3. Enter the `URL <https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/>`_ of the new repository.
 4. Click ``Ok``.
 
 If you have already installed the IDF Eclipse Plugin using the update site URL, you can upgrade to the latest version with the following steps:
@@ -118,19 +136,26 @@ This ensures that the installer can update or replace any conflicting components
 Troubleshooting
 ---------------
 
-If you encounter the error ``Cannot complete the install because one or more required items could not be found.`` during installation, it usually means that the Eclipse Platform update site is not enabled.
+If you encounter the error ``Cannot complete the install because one or more required items could not be found.`` during installation, try the following:
 
-To resolve this issue:
+**Online update site URL or online archive (``com.espressif.idf.update-vX.Y.Z.zip``)**
 
-1.  Go to ``Help`` > ``Install New Software``.  
-2.  Click ``Manage``.  
-3.  Make sure the option for the ``Eclipse Platform - Latest Release Update Site`` is enabled.  
+This usually means that a required dependency update site is not enabled or the IDE cannot reach it over the network.
+
+1.  Confirm that the IDE has internet access.
+2.  Go to ``Help`` > ``Install New Software``.
+3.  Click ``Manage``.
+4.  Make sure the option for the ``Eclipse Platform - Latest Release Update Site`` is enabled.
 
     .. image:: ../../media/Resolve_update_error_2.png
 
-4.  Apply the changes and close the dialog.  
-5.  Then go to ``Help`` > ``Check for Updates`` and proceed with updating the IDE and its dependencies.  
+5.  Apply the changes and close the dialog.
+6.  Then go to ``Help`` > ``Check for Updates`` and proceed with updating the IDE and its dependencies.
 
 .. note::
 
-    Enabling the Eclipse Platform update site ensures that all required dependencies are properly resolved during installation or upgrade.
+    Enabling the Eclipse Platform update site ensures that all required dependencies are properly resolved during installation or upgrade from the online update site.
+
+**Offline archive (``Espressif-IDE-Offline-Update-vX.Y.Z.zip``)**
+
+If installation from the offline archive still fails, verify that you downloaded the matching offline archive for your Espressif-IDE or Eclipse version and that the archive was not corrupted during download.
