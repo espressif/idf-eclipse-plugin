@@ -3,6 +3,9 @@
    <feature id="com.espressif.idf.feature">
       <category name="com.espressif.idf"/>
    </feature>
+   <feature id="com.cthing.cmakeed.feature">
+      <category name="com.espressif.idf"/>
+   </feature>
    
    <feature id="org.eclipse.rcp">
       <category name="com.espressif.idf.platform"/>
