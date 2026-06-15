@@ -25,8 +25,10 @@ import org.eclipse.ui.IStartup;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.intro.IIntroPart;
 import org.osgi.service.prefs.Preferences;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
@@ -37,6 +39,7 @@ import com.espressif.idf.core.tools.EimConstants;
 import com.espressif.idf.core.tools.EimLoader;
 import com.espressif.idf.core.tools.ToolInitializer;
 import com.espressif.idf.core.tools.exceptions.EimVersionMismatchException;
+import com.espressif.idf.core.tools.launch.LaunchResult;
 import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.core.tools.watcher.EimJsonWatchService;
 import com.espressif.idf.core.util.IDFUtil;
@@ -70,6 +73,7 @@ public class EspressifToolStartup implements IStartup
 	@Override
 	public void earlyStartup()
 	{
+		restoreIntroPage();
 		preferences = org.eclipse.core.runtime.preferences.InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 		toolInitializer = new ToolInitializer(preferences);
 		standardConsoleStream = getConsoleStream(false);
@@ -125,6 +129,20 @@ public class EspressifToolStartup implements IStartup
 			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, resolvedEimPath);
 		}
 
+	}
+
+	private void restoreIntroPage()
+	{
+		Display.getDefault().asyncExec(() -> {
+			IIntroPart introPart = PlatformUI.getWorkbench().getIntroManager().getIntro();
+
+			if (introPart != null)
+			{
+				PlatformUI.getWorkbench().getIntroManager().closeIntro(introPart);
+				PlatformUI.getWorkbench().getIntroManager()
+						.showIntro(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), false);
+			}
+		});
 	}
 
 	private boolean checkIfEimPathMacOsIsInApplications()
