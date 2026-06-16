@@ -34,7 +34,7 @@
 
 .. note::
 
-    在线更新站点需要互联网连接。依赖项不会包含在站点本身中，而是在安装过程中从 Eclipse Platform、Nebula 和 SWTChart 等仓库获取。
+    使用在线更新站点时需要连接网络。站点本身不包含依赖项，而是在安装过程中从 Eclipse Platform、Nebula 和 SWTChart 等仓库获取。
 
 若要添加测试版和每日构建版插件，可以使用以下的更新站点 URL：
 
