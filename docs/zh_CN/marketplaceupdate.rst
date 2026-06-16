@@ -27,7 +27,7 @@
 2.  点击 ``Add``，在弹出窗口中：
 
     * 在 ``Name`` 一栏填写 ``Espressif IDF Plugin for Eclipse``。
-    * 在 ``Location`` 一栏，填写插件更新站点的 URL.（`稳定版 <https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/>`_）
+    * 在 ``Location`` 一栏，填写插件更新站点的 URL（`稳定版 <https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/>`_）。
     * 点击 ``Add``。
 
 3.  在列表中选择 ``ESP-IDF Eclipse Plugin``，然后继续安装。p2 会从 Eclipse 发布版本及其他引用的更新站点解析所需依赖项。
