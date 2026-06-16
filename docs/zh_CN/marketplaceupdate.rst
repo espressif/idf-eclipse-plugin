@@ -13,7 +13,7 @@
 
 正式发布版本提供两种更新站点：
 
-- **在线更新站点** — 仅包含 ESP-IDF Eclipse 插件特性（feature）。安装时，p2 会从引用的 Eclipse 更新站点解析依赖项（Eclipse Platform、Embed CDT、LSP4E 等）。需要互联网连接。
+- **在线更新站点** — 仅包含 ESP-IDF Eclipse 插件的 feature 包。所需依赖项（Eclipse Platform、Embed CDT、LSP4E 等）将从引用的 Eclipse 更新站点解析。需要互联网连接。
 - **离线更新站点** — 将 ESP-IDF Eclipse 插件及其依赖项一并打包，可在无网络环境中安装。适用于隔离网络或受限环境。
 
 .. _installUpdateSiteURL:
