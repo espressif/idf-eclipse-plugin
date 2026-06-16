@@ -156,6 +156,6 @@ This usually means that a required dependency update site is not enabled or the 
 
     Enabling the Eclipse Platform update site ensures that all required dependencies are properly resolved during installation or upgrade from the online update site.
 
-**Offline archive (``Espressif-IDE-Offline-Update-vX.Y.Z.zip``)**
+**Offline archive** (``Espressif-IDE-Offline-Update-vX.Y.Z.zip``)
 
 If installation from the offline archive still fails, verify that you downloaded the matching offline archive for your Espressif-IDE or Eclipse version and that the archive was not corrupted during download.
