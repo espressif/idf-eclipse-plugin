@@ -138,7 +138,7 @@
 
 如果在安装过程中遇到错误提示 ``Cannot complete the install because one or more required items could not be found.``，请尝试以下方法：
 
-**在线更新站点 URL 或在线压缩包（``com.espressif.idf.update-vX.Y.Z.zip``）**
+**在线更新站点 URL 或在线压缩包** （``com.espressif.idf.update-vX.Y.Z.zip``）
 
 通常表示所需的依赖更新站点未启用，或 IDE 无法通过网络访问这些站点。
 
