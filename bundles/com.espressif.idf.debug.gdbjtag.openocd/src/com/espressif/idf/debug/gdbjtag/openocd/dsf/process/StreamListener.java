@@ -39,10 +39,6 @@ public class StreamListener implements IStreamListener
 {
 	private static final String OPENOCD_FAQ_LINK = "https://github.com/espressif/openocd-esp32/wiki/Troubleshooting-FAQ"; //$NON-NLS-1$
 
-	// OpenOCD reports this low-level TCL error when the board configuration file (which registers the
-	// "program_esp_bins" command) was not loaded, i.e. no board was selected for the debug target.
-	private static final String PROGRAM_ESP_BINS_ERROR_MARKER = "invalid command name \"program_esp_bins\""; //$NON-NLS-1$
-
 	private IOConsoleOutputStream fConsoleErrorOutputStream;
 	private IOConsoleOutputStream fConsoleOutputStream;
 
@@ -51,7 +47,6 @@ public class StreamListener implements IStreamListener
 
 	private IdfProcessConsole idfProcessConsole;
 	private boolean fStreamClosed = false;
-	private boolean fBoardNotSelectedReported = false;
 	private List<ReHintPair> reHintsList;
 
 	private final PrintWriter fileWriter;
@@ -123,11 +118,7 @@ public class StreamListener implements IStreamListener
 
 			try
 			{
-				if (line.contains(PROGRAM_ESP_BINS_ERROR_MARKER))
-				{
-					reportBoardNotSelected();
-				}
-				else if (line.startsWith("Error:") && fConsoleErrorOutputStream != null) //$NON-NLS-1$
+				if (line.startsWith("Error:") && fConsoleErrorOutputStream != null) //$NON-NLS-1$
 				{
 					fConsoleErrorOutputStream.write((line + System.lineSeparator()).getBytes());
 					fConsoleErrorOutputStream.flush();
@@ -170,33 +161,6 @@ public class StreamListener implements IStreamListener
 				Logger.log(e);
 			}
 		});
-	}
-
-	/**
-	 * Replaces the raw OpenOCD {@code invalid command name "program_esp_bins"} error with a short, actionable message
-	 * explaining that a board has to be selected for the debug target, followed by a clickable link that opens the
-	 * launch target editor. The message is reported only once per launch so the console is not flooded by the repeated
-	 * low-level TCL errors.
-	 *
-	 * @throws IOException if writing to the console streams fails
-	 */
-	private void reportBoardNotSelected() throws IOException
-	{
-		if (fBoardNotSelectedReported || fConsoleErrorOutputStream == null)
-		{
-			return;
-		}
-		fBoardNotSelectedReported = true;
-		fConsoleErrorOutputStream
-				.write((Messages.OpenOCDConsole_BoardNotSelectedMessage + System.lineSeparator()).getBytes());
-		fConsoleErrorOutputStream.flush();
-
-		// The link text is turned into a clickable hyperlink by IdfProcessConsole, which opens the launch target editor.
-		if (fConsoleOutputStream != null)
-		{
-			fConsoleOutputStream.write((Messages.OpenOCDConsole_EditTargetLink + System.lineSeparator()).getBytes());
-			fConsoleOutputStream.flush();
-		}
 	}
 
 	public void closeStreams()

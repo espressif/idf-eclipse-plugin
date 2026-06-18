@@ -63,6 +63,7 @@ import com.espressif.idf.core.util.DfuCommandsUtil;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.RecheckConfigsHelper;
 import com.espressif.idf.core.util.StringUtil;
+import com.espressif.idf.core.variable.JtagVariableResolver;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 import com.espressif.idf.terminal.connector.serial.connector.SerialSettings;
 import com.espressif.idf.terminal.connector.serial.launcher.SerialLauncherDelegate;
@@ -105,6 +106,13 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 		}
 		if (ESPFlashUtil.isJtag())
 		{
+			// Abort early with a clear message when no board is selected. Otherwise OpenOCD would run without a board
+			// configuration and fail with the cryptic "invalid command name \"program_esp_bins\"" error.
+			if (!isBoardConfigured(configuration))
+			{
+				showBoardNotSelectedMessage(configuration);
+				return;
+			}
 			ESPFlashUtil.flashOverJtag(configuration, launch);
 			return;
 		}
@@ -262,6 +270,52 @@ public class SerialFlashLaunchConfigDelegate extends CoreBuildGenericLaunchConfi
 			boolean isYes = MessageDialog.openConfirm(Display.getDefault().getActiveShell(),
 					com.espressif.idf.launch.serial.internal.Messages.SerialPortNotFoundTitle,
 					com.espressif.idf.launch.serial.internal.Messages.SerialPortNotFoundMsg);
+			if (isYes)
+			{
+				ILaunchTargetUIManager targetUIManager = Activator.getService(ILaunchTargetUIManager.class);
+				ILaunchTargetManager launchTargetManager = Activator.getService(ILaunchTargetManager.class);
+				targetUIManager.editLaunchTarget(launchTargetManager.getDefaultLaunchTarget(configuration));
+			}
+		});
+	}
+
+	/**
+	 * Determines whether a board configuration is available for JTAG flashing. A board is considered configured when it
+	 * is resolvable from the active launch target, or when the (possibly manually edited) resolved JTAG flash arguments
+	 * already reference a board configuration file.
+	 *
+	 * @param configuration the launch configuration
+	 * @return {@code true} if a board configuration is available, {@code false} otherwise
+	 */
+	private boolean isBoardConfigured(ILaunchConfiguration configuration)
+	{
+		if (JtagVariableResolver.isBoardConfigResolvable())
+		{
+			return true;
+		}
+
+		// Fall back to inspecting the resolved JTAG flash arguments for a manually configured board file.
+		try
+		{
+			String arguments = configuration.getAttribute(IDFLaunchConstants.ATTR_JTAG_FLASH_ARGUMENTS,
+					StringUtil.EMPTY);
+			String resolved = VariablesPlugin.getDefault().getStringVariableManager()
+					.performStringSubstitution(arguments);
+			return resolved != null && resolved.contains("board/"); //$NON-NLS-1$
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+		return false;
+	}
+
+	private static void showBoardNotSelectedMessage(ILaunchConfiguration configuration)
+	{
+		Display.getDefault().asyncExec(() -> {
+			boolean isYes = MessageDialog.openConfirm(Display.getDefault().getActiveShell(),
+					com.espressif.idf.launch.serial.internal.Messages.BoardNotSelectedTitle,
+					com.espressif.idf.launch.serial.internal.Messages.BoardNotSelectedMsg);
 			if (isYes)
 			{
 				ILaunchTargetUIManager targetUIManager = Activator.getService(ILaunchTargetUIManager.class);

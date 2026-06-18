@@ -15,9 +15,6 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.launchbar.core.ILaunchBarManager;
-import org.eclipse.launchbar.core.target.ILaunchTarget;
-import org.eclipse.launchbar.ui.target.ILaunchTargetUIManager;
 import org.eclipse.swt.program.Program;
 import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.IOConsole;
@@ -28,8 +25,6 @@ import org.eclipse.ui.console.PatternMatchEvent;
 import org.eclipse.ui.console.TextConsole;
 
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.debug.gdbjtag.openocd.Activator;
-import com.espressif.idf.debug.gdbjtag.openocd.ui.Messages;
 
 /**
  * Idf process console created for customization of the process output to filter and color code
@@ -49,7 +44,6 @@ public class IdfProcessConsole extends IOConsole implements IPropertyChangeListe
 	private IOConsoleInputStream inputStream;
 	
 	private URLPatternMatchListener urlPatternMatchListener;
-	private EditTargetPatternMatchListener editTargetPatternMatchListener;
 
 	public IdfProcessConsole(Charset charset)
 	{
@@ -59,7 +53,6 @@ public class IdfProcessConsole extends IOConsole implements IPropertyChangeListe
 		errorStream = newOutputStream();
 		warnStream = newOutputStream();
 		urlPatternMatchListener = new URLPatternMatchListener(this);
-		editTargetPatternMatchListener = new EditTargetPatternMatchListener(this);
 	}
 
 	@Override
@@ -93,7 +86,6 @@ public class IdfProcessConsole extends IOConsole implements IPropertyChangeListe
 		});
 		
 		addPatternMatchListener(urlPatternMatchListener);
-		addPatternMatchListener(editTargetPatternMatchListener);
 	}
 
 	@Override
@@ -281,103 +273,6 @@ public class IdfProcessConsole extends IOConsole implements IPropertyChangeListe
 		public void disconnect()
 		{
 			
-		}
-
-		@Override
-		public int getCompilerFlags()
-		{
-			return 0;
-		}
-
-		@Override
-		public String getLineQualifier()
-		{
-			return null;
-		}
-	}
-
-	/**
-	 * Turns the {@link Messages#OpenOCDConsole_EditTargetLink} text printed in the console into a hyperlink that opens
-	 * the launch target editor, so the user can select a board for the active debug target.
-	 */
-	private class EditTargetPatternMatchListener implements IPatternMatchListener
-	{
-		private IdfProcessConsole idfProcessConsole;
-
-		public EditTargetPatternMatchListener(IdfProcessConsole idfProcessConsole)
-		{
-			this.idfProcessConsole = idfProcessConsole;
-		}
-
-		@Override
-		public String getPattern()
-		{
-			return Pattern.quote(Messages.OpenOCDConsole_EditTargetLink);
-		}
-
-		@Override
-		public void matchFound(PatternMatchEvent event)
-		{
-			try
-			{
-				int offset = event.getOffset();
-				int length = event.getLength();
-				IHyperlink link = new IHyperlink()
-				{
-					@Override
-					public void linkActivated()
-					{
-						editActiveLaunchTarget();
-					}
-
-					@Override
-					public void linkExited()
-					{
-					}
-
-					@Override
-					public void linkEntered()
-					{
-					}
-				};
-				idfProcessConsole.addHyperlink(link, offset, length);
-			}
-			catch (Exception e)
-			{
-				Logger.log(e);
-			}
-		}
-
-		private void editActiveLaunchTarget()
-		{
-			try
-			{
-				ILaunchBarManager launchBarManager = Activator.getService(ILaunchBarManager.class);
-				ILaunchTargetUIManager targetUIManager = Activator.getService(ILaunchTargetUIManager.class);
-				if (launchBarManager == null || targetUIManager == null)
-				{
-					return;
-				}
-				ILaunchTarget target = launchBarManager.getActiveLaunchTarget();
-				if (target != null)
-				{
-					targetUIManager.editLaunchTarget(target);
-				}
-			}
-			catch (Exception e)
-			{
-				Logger.log(e);
-			}
-		}
-
-		@Override
-		public void connect(TextConsole console)
-		{
-		}
-
-		@Override
-		public void disconnect()
-		{
 		}
 
 		@Override

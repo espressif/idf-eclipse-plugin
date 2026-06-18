@@ -63,8 +63,6 @@ public class Messages
 	public static String TabDebugger_SettingTargetJob;
 
 	public static String OpenOCDConsole_ErrorGuideMessage;
-	public static String OpenOCDConsole_BoardNotSelectedMessage;
-	public static String OpenOCDConsole_EditTargetLink;
 
 	public static String TabDebugger_noConfigOptions;
 	public static String TabDebugger_noGdbClientExe;
@@ -76,6 +74,9 @@ public class Messages
 	public static String ServerTimeoutErrorDialog_title;
 	public static String ServerTimeoutErrorDialog_message;
 	public static String ServerTimeoutErrorDialog_customAreaMessage;
+
+	public static String BoardNotSelectedDialog_title;
+	public static String BoardNotSelectedDialog_message;
 
 	// ------------------------------------------------------------------------
 

@@ -24,6 +24,8 @@ public class Messages extends NLS
 	public static String SerialFlashLaunch_Resume;
 	public static String SerialPortNotFoundTitle;
 	public static String SerialPortNotFoundMsg;
+	public static String BoardNotSelectedTitle;
+	public static String BoardNotSelectedMsg;
 	static
 	{
 		// initialize resource bundle

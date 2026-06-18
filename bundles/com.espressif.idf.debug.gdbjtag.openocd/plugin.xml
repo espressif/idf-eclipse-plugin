@@ -174,6 +174,12 @@
           id="com.espressif.idf.debug.gdbjtag.openocd.openocdStatusHandler"
           plugin="com.espressif.idf.debug.gdbjtag.openocd">
     </statusHandler>
+    <statusHandler
+          class="com.espressif.idf.debug.gdbjtag.openocd.ui.BoardNotSelectedStatusHandler"
+          code="6001"
+          id="com.espressif.idf.debug.gdbjtag.openocd.boardNotSelectedStatusHandler"
+          plugin="com.espressif.idf.debug.gdbjtag.openocd">
+    </statusHandler>
  </extension>
  <extension
        point="org.eclipse.debug.ui.launchConfigurationTabs">
