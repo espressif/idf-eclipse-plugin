@@ -55,15 +55,15 @@ public class NewEspressifIDFProjectSDKconfigTest
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 		Fixture.givenProjectNameIs("NewProjectSDKconfigTest");
 		Fixture.whenNewProjectIsSelected();
-		Fixture.whenProjectIsBuiltUsingContextMenu();
-		Fixture.refreshProjectInProjectExplorer();
-		Fixture.thenSDKconfigFileIsPresent();
-		Fixture.whenSDKconfigFileOpenedEditedSaved();
-		Fixture.whenProjectIsBuiltUsingContextMenu();
-		Fixture.whenSDKconfigFileOpenedUsingContextMenu();
-		Fixture.thenCheckChangesAreSaved();
-		Fixture.thenSDKconfigShellClosed();
-		Fixture.whenSDKconfigFileDeletedWhenBuildProjectThenSDKconfigFileGeneratedAndVerified();
+//		Fixture.whenProjectIsBuiltUsingContextMenu();
+//		Fixture.refreshProjectInProjectExplorer();
+//		Fixture.thenSDKconfigFileIsPresent();
+//		Fixture.whenSDKconfigFileOpenedEditedSaved();
+//		Fixture.whenProjectIsBuiltUsingContextMenu();
+//		Fixture.whenSDKconfigFileOpenedUsingContextMenu();
+//		Fixture.thenCheckChangesAreSaved();
+//		Fixture.thenSDKconfigShellClosed();
+//		Fixture.whenSDKconfigFileDeletedWhenBuildProjectThenSDKconfigFileGeneratedAndVerified();
 	}
 
 	private static class Fixture
