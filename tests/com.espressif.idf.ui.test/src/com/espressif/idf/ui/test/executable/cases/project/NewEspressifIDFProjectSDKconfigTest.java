@@ -17,6 +17,7 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -50,20 +51,21 @@ public class NewEspressifIDFProjectSDKconfigTest
 	}
 
 	@Test
+	@Ignore("TODO: Improve timeouts and delays to make this test more stable")
 	public void givenNewProjectThenSDKconfigFileFunctionalTested() throws Exception
 	{
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 		Fixture.givenProjectNameIs("NewProjectSDKconfigTest");
 		Fixture.whenNewProjectIsSelected();
-//		Fixture.whenProjectIsBuiltUsingContextMenu();
-//		Fixture.refreshProjectInProjectExplorer();
-//		Fixture.thenSDKconfigFileIsPresent();
-//		Fixture.whenSDKconfigFileOpenedEditedSaved();
-//		Fixture.whenProjectIsBuiltUsingContextMenu();
-//		Fixture.whenSDKconfigFileOpenedUsingContextMenu();
-//		Fixture.thenCheckChangesAreSaved();
-//		Fixture.thenSDKconfigShellClosed();
-//		Fixture.whenSDKconfigFileDeletedWhenBuildProjectThenSDKconfigFileGeneratedAndVerified();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.refreshProjectInProjectExplorer();
+		Fixture.thenSDKconfigFileIsPresent();
+		Fixture.whenSDKconfigFileOpenedEditedSaved();
+		Fixture.whenProjectIsBuiltUsingContextMenu();
+		Fixture.whenSDKconfigFileOpenedUsingContextMenu();
+		Fixture.thenCheckChangesAreSaved();
+		Fixture.thenSDKconfigShellClosed();
+		Fixture.whenSDKconfigFileDeletedWhenBuildProjectThenSDKconfigFileGeneratedAndVerified();
 	}
 
 	private static class Fixture
