@@ -228,14 +228,5 @@
              after="org.eclipse.debug.ui.commonTab">
        </placement>
     </tab>
-    <tab
-          class="com.espressif.idf.debug.gdbjtag.openocd.ui.TabDebugger"
-          group="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationTabGroup"
-          id="com.espressif.idf.debug.gdbjtag.openocd.ui.debuggertab"
-          name="Debugger">
-       <placement
-             after="org.eclipse.cdt.cdi.launch.mainTab">
-       </placement>
-    </tab>
  </extension>
 </plugin>

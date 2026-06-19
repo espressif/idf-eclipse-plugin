@@ -42,6 +42,8 @@ public class Activator extends AbstractUIPlugin {
 	// The plug-in ID
 	public static final String PLUGIN_ID = "com.espressif.idf.debug.gdbjtag.openocd"; //$NON-NLS-1$
 	public static final String GDB_SERVER_LAUNCH_TIMEOUT = "fGdbServerLaunchTimeout"; //$NON-NLS-1$
+	/** Must match {@code plugin.xml} statusHandler code for {@code OpenocdStatusHandler}. */
+	public static final int OPENOCD_STARTUP_TIMEOUT_STATUS = 5012;
 	
 	@Override
 	protected void initializeDefaultPreferences(IPreferenceStore preferenceStore)

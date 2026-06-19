@@ -104,13 +104,9 @@ public class Configuration
 			String fmtTelnetPort = useModernSyntax ? "telnet port %d" : "telnet_port %d"; //$NON-NLS-1$ //$NON-NLS-2$
 			String fmtTclPort = useModernSyntax ? "tcl port %d" : "tcl_port %d"; //$NON-NLS-1$ //$NON-NLS-2$
 
-			int port = PortChecker
-					.getAvailablePort(DefaultPreferences.GDB_SERVER_GDB_PORT_NUMBER_DEFAULT);
-			
-			ILaunchConfigurationWorkingCopy configurationWorkingCopy = configuration.getWorkingCopy();
-			configurationWorkingCopy.setAttribute(IGDBJtagConstants.ATTR_PORT_NUMBER,  port);
-			configurationWorkingCopy.doSave();
-			
+			int port = configuration.getAttribute(IGDBJtagConstants.ATTR_PORT_NUMBER,
+					DefaultPreferences.GDB_SERVER_GDB_PORT_NUMBER_DEFAULT);
+
 			ILaunchTarget activeLaunchTarget = Activator.getService(ILaunchBarManager.class).getActiveLaunchTarget();
 			if (activeLaunchTarget != null)
 			{
@@ -127,16 +123,14 @@ public class Configuration
 			lst.add("-c"); //$NON-NLS-1$
 			lst.add(String.format(fmtGdbPort, port));
 
-			port = PortChecker
-					.getAvailablePort(configuration.getAttribute(ConfigurationAttributes.GDB_SERVER_TELNET_PORT_NUMBER,
-							DefaultPreferences.GDB_SERVER_TELNET_PORT_NUMBER_DEFAULT));
+			port = configuration.getAttribute(ConfigurationAttributes.GDB_SERVER_TELNET_PORT_NUMBER,
+					DefaultPreferences.GDB_SERVER_TELNET_PORT_NUMBER_DEFAULT);
 
 			lst.add("-c"); //$NON-NLS-1$
 			lst.add(String.format(fmtTelnetPort, port));
 
-			port = PortChecker.getAvailablePort(
-					Integer.parseInt(configuration.getAttribute(ConfigurationAttributes.GDB_SERVER_TCL_PORT_NUMBER,
-							DefaultPreferences.GDB_SERVER_TCL_PORT_NUMBER_DEFAULT)));
+			port = Integer.parseInt(configuration.getAttribute(ConfigurationAttributes.GDB_SERVER_TCL_PORT_NUMBER,
+					DefaultPreferences.GDB_SERVER_TCL_PORT_NUMBER_DEFAULT));
 
 			lst.add("-c"); //$NON-NLS-1$
 			lst.add(String.format(fmtTclPort, port));
@@ -342,6 +336,26 @@ public class Configuration
 
 		return config.getAttribute(ConfigurationAttributes.DO_START_GDB_CLIENT,
 				DefaultPreferences.DO_START_GDB_CLIENT_DEFAULT);
+	}
+
+	/**
+	 * Assigns free OpenOCD ports on an in-memory working copy (no {@code doSave()}).
+	 * Must be called once per launch before the server command line is built.
+	 */
+	public static void allocateServerPorts(ILaunchConfigurationWorkingCopy configuration) throws CoreException
+	{
+		int gdbPort = PortChecker.getAvailablePort(DefaultPreferences.GDB_SERVER_GDB_PORT_NUMBER_DEFAULT);
+		configuration.setAttribute(IGDBJtagConstants.ATTR_PORT_NUMBER, gdbPort);
+
+		int telnetPort = PortChecker.getAvailablePort(configuration.getAttribute(
+				ConfigurationAttributes.GDB_SERVER_TELNET_PORT_NUMBER,
+				DefaultPreferences.GDB_SERVER_TELNET_PORT_NUMBER_DEFAULT));
+		configuration.setAttribute(ConfigurationAttributes.GDB_SERVER_TELNET_PORT_NUMBER, telnetPort);
+
+		int tclPort = PortChecker.getAvailablePort(Integer.parseInt(configuration.getAttribute(
+				ConfigurationAttributes.GDB_SERVER_TCL_PORT_NUMBER,
+				DefaultPreferences.GDB_SERVER_TCL_PORT_NUMBER_DEFAULT)));
+		configuration.setAttribute(ConfigurationAttributes.GDB_SERVER_TCL_PORT_NUMBER, String.valueOf(tclPort));
 	}
 
 	// ------------------------------------------------------------------------
