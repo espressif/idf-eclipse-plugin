@@ -347,9 +347,19 @@ public class IDFUtil
 	{
 		String openOCDScriptPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS);
 		if (StringUtil.isEmpty(openOCDScriptPath))
+		{
 			return StringUtil.EMPTY;
-		// .../openocd-esp32/share/openocd/scripts -> up 3 -> .../openocd-esp32, then /bin
-		return Paths.get(openOCDScriptPath).resolve("../../../bin").normalize().toString(); //$NON-NLS-1$
+		}
+		try
+		{
+			// .../openocd-esp32/share/openocd/scripts -> up 3 -> .../openocd-esp32, then /bin
+			return Paths.get(openOCDScriptPath).resolve("../../../bin").normalize().toString(); //$NON-NLS-1$
+		}
+		catch (InvalidPathException e)
+		{
+			Logger.log(e);
+			return StringUtil.EMPTY;
+		}
 	}
 
 	/**
