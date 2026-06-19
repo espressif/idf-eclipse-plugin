@@ -2,6 +2,8 @@ package com.espressif.idf.debug.gdbjtag.openocd.dsf;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -14,6 +16,7 @@ import org.eclipse.cdt.dsf.gdb.launching.GdbLaunch;
 import org.eclipse.cdt.dsf.gdb.service.IGDBBackend;
 import org.eclipse.cdt.dsf.service.DsfServicesTracker;
 import org.eclipse.cdt.dsf.service.DsfSession;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
@@ -295,47 +298,112 @@ public class LaunchProcessDictionary
 		}
 
 		ProcessHandle handle = ProcessHandle.of(pid).orElse(null);
-		if (handle != null && handle.isAlive())
+		if (handle == null)
 		{
-			handle.destroy();
+			return;
+		}
+
+		// Snapshot the whole process tree up front. Once a process dies its
+		// parent/child links are gone, and on Windows children are never killed
+		// together with the parent. An orphaned openocd would keep holding the
+		// JTAG/USB adapter and break the next debug session.
+		List<ProcessHandle> tree = new ArrayList<>();
+		handle.descendants().forEach(tree::add);
+		tree.add(handle);
+
+		// Cross-platform termination via the JVM: destroy() maps to SIGTERM /
+		// TerminateProcess, destroyForcibly() to SIGKILL / TerminateProcess.
+		destroyTree(tree, false);
+		if (isAnyAlive(tree))
+		{
+			destroyTree(tree, true);
+		}
+
+		// Last resort: OS-native tree kill for anything ProcessHandle missed.
+		if (isAnyAlive(tree))
+		{
+			killTreeViaOsCommand(pid);
+		}
+
+		if (isAnyAlive(tree))
+		{
+			Logger.log(new Exception("Debug process tree (root pid " + pid + ") still alive after forced termination")); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+	}
+
+	private void destroyTree(List<ProcessHandle> tree, boolean forcibly)
+	{
+		for (ProcessHandle ph : tree)
+		{
+			if (!ph.isAlive())
+			{
+				continue;
+			}
+			if (forcibly)
+			{
+				ph.destroyForcibly();
+			}
+			else
+			{
+				ph.destroy();
+			}
+		}
+
+		for (ProcessHandle ph : tree)
+		{
 			try
 			{
-				handle.onExit().get(PROCESS_DESTROY_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+				ph.onExit().get(PROCESS_DESTROY_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 			}
 			catch (TimeoutException e)
 			{
-				handle.destroyForcibly();
-				try
-				{
-					handle.onExit().get(PROCESS_DESTROY_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-				}
-				catch (Exception ex)
-				{
-					Logger.log(ex);
-				}
+				// Escalation is handled by the caller (destroyForcibly / OS fallback).
 			}
-			catch (Exception e)
+			catch (InterruptedException e)
+			{
+				Thread.currentThread().interrupt();
+				return;
+			}
+			catch (ExecutionException e)
 			{
 				Logger.log(e);
 			}
 		}
+	}
 
-		if (handle != null && handle.isAlive())
+	private boolean isAnyAlive(List<ProcessHandle> tree)
+	{
+		for (ProcessHandle ph : tree)
 		{
-			try
+			if (ph.isAlive())
 			{
-				Process killProcess = Runtime.getRuntime().exec(new String[] { "kill", "-9", Long.toString(pid) }); //$NON-NLS-1$ //$NON-NLS-2$
-				killProcess.waitFor(2, TimeUnit.SECONDS);
-			}
-			catch (Exception e)
-			{
-				Logger.log(e);
+				return true;
 			}
 		}
+		return false;
+	}
 
-		if (handle != null && handle.isAlive())
+	private void killTreeViaOsCommand(long pid)
+	{
+		String[] command;
+		if (Platform.OS_WIN32.equals(Platform.getOS()))
 		{
-			Logger.log(new Exception("Debug process (pid " + pid + ") still alive after forced termination")); //$NON-NLS-1$ //$NON-NLS-2$
+			// /T terminates the process tree, /F forces it.
+			command = new String[] { "taskkill", "/F", "/T", "/PID", Long.toString(pid) }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		}
+		else
+		{
+			command = new String[] { "kill", "-9", Long.toString(pid) }; //$NON-NLS-1$ //$NON-NLS-2$
+		}
+
+		try
+		{
+			Process killProcess = Runtime.getRuntime().exec(command);
+			killProcess.waitFor(2, TimeUnit.SECONDS);
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
 		}
 	}
 
