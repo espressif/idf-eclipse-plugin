@@ -66,6 +66,7 @@ import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuServerServicesLaunchSeq
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
+import com.espressif.idf.debug.gdbjtag.openocd.ConfigurationAttributes;
 import com.espressif.idf.debug.gdbjtag.openocd.ui.Messages;
 
 @SuppressWarnings("restriction")
@@ -129,6 +130,7 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 		LaunchOptions options = pendingLaunchOptions.get();
 		if (options != null && options.isOpenOcdOnly())
 		{
+			wc.setAttribute(ConfigurationAttributes.DO_START_GDB_CLIENT, false);
 			launch.setDoStartGdbClient(false);
 		}
 		else
