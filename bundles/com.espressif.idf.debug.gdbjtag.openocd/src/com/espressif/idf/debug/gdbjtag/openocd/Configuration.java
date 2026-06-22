@@ -344,7 +344,8 @@ public class Configuration
 	 */
 	public static void allocateServerPorts(ILaunchConfigurationWorkingCopy configuration) throws CoreException
 	{
-		int gdbPort = PortChecker.getAvailablePort(DefaultPreferences.GDB_SERVER_GDB_PORT_NUMBER_DEFAULT);
+		int gdbPort = PortChecker.getAvailablePort(configuration.getAttribute(IGDBJtagConstants.ATTR_PORT_NUMBER,
+				DefaultPreferences.GDB_SERVER_GDB_PORT_NUMBER_DEFAULT));
 		configuration.setAttribute(IGDBJtagConstants.ATTR_PORT_NUMBER, gdbPort);
 
 		int telnetPort = PortChecker.getAvailablePort(configuration.getAttribute(
