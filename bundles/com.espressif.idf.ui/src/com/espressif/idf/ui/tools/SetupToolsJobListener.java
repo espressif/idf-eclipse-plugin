@@ -79,6 +79,7 @@ public class SetupToolsJobListener extends JobChangeAdapter
 		Display.getDefault().asyncExec(() -> {
 			if (espidfMainTablePage != null)
 			{
+				espidfMainTablePage.clearInstallingState();
 				espidfMainTablePage.refreshEditorUI();
 			}
 		});

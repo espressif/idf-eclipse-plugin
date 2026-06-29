@@ -32,9 +32,9 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
+import com.espressif.idf.core.tools.eimjson.model.EimConfigModel;
+import com.espressif.idf.core.tools.eimjson.model.EimInstallationModel;
 import com.espressif.idf.core.tools.util.ToolsUtility;
-import com.espressif.idf.core.tools.vo.EimJson;
-import com.espressif.idf.core.tools.vo.IdfInstalled;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.LspService;
 import com.espressif.idf.core.util.StringUtil;
@@ -46,18 +46,19 @@ import com.espressif.idf.core.util.StringUtil;
  */
 public class SetupToolsInIde extends Job
 {
-	private EimJson eimJson;
-	private IdfInstalled idfInstalled;
+	private EimConfigModel config;
+	private EimInstallationModel installation;
 	private MessageConsoleStream errorConsoleStream;
 	private MessageConsoleStream standardConsoleStream;
 	private Map<String, String> envVarsFromActivationScriptMap;
 	private Map<String, String> existingEnvVarsInIdeForRollback;
 	
-	public SetupToolsInIde(IdfInstalled idfInstalled, EimJson eimJson, MessageConsoleStream errorConsoleStream, MessageConsoleStream standardConsoleStream)
+	public SetupToolsInIde(EimInstallationModel installation, EimConfigModel config,
+			MessageConsoleStream errorConsoleStream, MessageConsoleStream standardConsoleStream)
 	{
 		super("Tools Setup"); //$NON-NLS-1$
-		this.idfInstalled = idfInstalled;
-		this.eimJson = eimJson;
+		this.installation = installation;
+		this.config = config;
 		this.errorConsoleStream = errorConsoleStream;
 		this.standardConsoleStream = standardConsoleStream;
 	}
@@ -96,8 +97,15 @@ public class SetupToolsInIde extends Job
 		monitor.beginTask("Setting up tools in IDE", 7); //$NON-NLS-1$
 		monitor.worked(1);
 		Map<String, String> env = new HashMap<>(System.getenv());
-		addGitToEnvironment(env, eimJson.getGitPath());
-		List<String> arguemnts = ToolsUtility.getExportScriptCommand(idfInstalled.getActivationScript());
+		addGitToEnvironment(env, config.getGitPath());
+		var activationScriptOpt = installation.getActivationScript();
+		if (activationScriptOpt.isEmpty())
+		{
+			log("Activation script path is missing", IStatus.ERROR); //$NON-NLS-1$
+			return IDFCorePlugin.errorStatus("Activation script path is missing", null); //$NON-NLS-1$
+		}
+		String activationScript = activationScriptOpt.get();
+		List<String> arguemnts = ToolsUtility.getExportScriptCommand(activationScript);
 		final ProcessBuilderFactory processBuilderFactory = new ProcessBuilderFactory();
 		try
 		{
@@ -177,7 +185,8 @@ public class SetupToolsInIde extends Job
 		List<String> arguments = new ArrayList<String>();
 		arguments.add(rollback
 				? existingEnvVarsInIdeForRollback.get(IDFEnvironmentVariables.PYTHON_EXE_PATH)
-				: idfInstalled.getPython());
+				: installation.getPython().orElseThrow(
+						() -> new IllegalStateException("Python path is missing for installation"))); //$NON-NLS-1$
 		arguments
 				.add(IDFUtil
 						.getIDFPythonScriptFile(
@@ -243,7 +252,7 @@ public class SetupToolsInIde extends Job
 	{
 		env.put("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
 		loadIdfPathWithSystemPath(env);
-		addGitToEnvironment(env, eimJson.getGitPath());
+		addGitToEnvironment(env, config.getGitPath());
 	}
 	
 	private void loadIdfPathWithSystemPath(Map<String, String> systemEnv)
@@ -320,9 +329,11 @@ public class SetupToolsInIde extends Job
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER, "1"); //$NON-NLS-1$
 		// IDF_MAINTAINER=1 to be able to build with the clang toolchain
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_MAINTAINER, "1"); //$NON-NLS-1$
-		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.ESP_IDF_EIM_ID, idfInstalled.getId());
+		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.ESP_IDF_EIM_ID, installation.getId());
 		
-		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PYTHON_EXE_PATH, idfInstalled.getPython());
+		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PYTHON_EXE_PATH,
+				installation.getPython().orElseThrow(
+						() -> new IllegalStateException("Python path is missing for installation"))); //$NON-NLS-1$
 		
 		
 		

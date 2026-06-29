@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -48,15 +49,19 @@ import com.espressif.idf.core.tools.EimConstants;
 import com.espressif.idf.core.tools.EimIdfConfiguratinParser;
 import com.espressif.idf.core.tools.SetupToolsInIde;
 import com.espressif.idf.core.tools.ToolInitializer;
+import com.espressif.idf.core.tools.eimjson.model.EimConfigModel;
+import com.espressif.idf.core.tools.eimjson.model.EimInstallationModel;
+import com.espressif.idf.core.tools.eimjson.presentation.EimInstallationPresentation;
+import com.espressif.idf.core.tools.eimjson.presentation.EimInstallationPresentationRenderer;
+import com.espressif.idf.core.tools.eimjson.presentation.EimInstallationPresentationRendererFactory;
 import com.espressif.idf.core.tools.util.ToolsUtility;
-import com.espressif.idf.core.tools.vo.EimJson;
-import com.espressif.idf.core.tools.vo.IdfInstalled;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.tools.EimButtonLaunchListener;
 import com.espressif.idf.ui.tools.Messages;
 import com.espressif.idf.ui.tools.SetupToolsJobListener;
+import com.espressif.idf.ui.tools.manager.render.EimInstallationStatusSwtMapper;
 
 /**
  * Main UI class for all listing and interacting with the tools
@@ -72,7 +77,8 @@ public class ESPIDFMainTablePage
 	private static final String PREF_SORT_DIR = "EspIdfManager_SortDir"; //$NON-NLS-1$
 	private final IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID);
 
-	private record IdfRow(IdfInstalled original, boolean isActive, String version, String name, String path)
+	private record IdfRow(EimInstallationModel installation, EimInstallationPresentation presentation,
+			boolean isActive, String version, String name, String path)
 	{
 	}
 
@@ -83,15 +89,15 @@ public class ESPIDFMainTablePage
 	private Button eimLaunchBtn;
 
 	private final IdViewerComparator comparator = new IdViewerComparator();
-	private EimJson eimJson;
+	private EimConfigModel eimConfigModel;
+	private EimInstallationPresentationRenderer presentationRenderer;
 
 	private final EimIdfConfiguratinParser configParser;
 	private final IDFConsole idfConsole = new IDFConsole();
-	private IdfInstalled currentInstallingNode = null;
+	private String currentInstallingId = null;
 
-	public ESPIDFMainTablePage(EimJson eimJson)
+	public ESPIDFMainTablePage()
 	{
-		this.eimJson = eimJson;
 		this.configParser = new EimIdfConfiguratinParser();
 		new ToolInitializer(InstanceScope.INSTANCE.getNode(UIPlugin.PLUGIN_ID));
 	}
@@ -103,11 +109,7 @@ public class ESPIDFMainTablePage
 
 		createHeader(container);
 		createMainContent(container);
-
-		if (eimJson != null)
-		{
-			refreshEditorUI();
-		}
+		refreshEditorUI();
 
 		return container;
 	}
@@ -176,11 +178,12 @@ public class ESPIDFMainTablePage
 		tableViewer.addSelectionChangedListener(event -> updateButtonState());
 
 		tableViewer.addDoubleClickListener(event -> {
-			var idf = getSelectedIdf();
-			if (idf != null && !idf.equals(currentInstallingNode) && !ToolsUtility.isIdfInstalledActive(idf))
-				{
-					performToolsSetup(idf);
-				}
+			var idf = getSelectedInstallation();
+			if (idf != null && !idf.getId().equals(currentInstallingId) && idf.isActivatable()
+					&& !ToolsUtility.isIdfInstalledActive(idf))
+			{
+				performToolsSetup(idf);
+			}
 
 		});
 
@@ -191,8 +194,7 @@ public class ESPIDFMainTablePage
 			{
 				if (e.widget == btnActivate)
 				{
-					// Activate depends on SELECTION
-					var idf = getSelectedIdf();
+					var idf = getSelectedInstallation();
 					if (idf != null)
 						performToolsSetup(idf);
 				}
@@ -216,7 +218,7 @@ public class ESPIDFMainTablePage
 			list.stream().filter(IdfRow.class::isInstance).map(o -> (IdfRow) o).filter(
 					IdfRow::isActive)
 
-					.findFirst().ifPresent(row -> performToolsSetup(row.original()));
+					.findFirst().ifPresent(row -> performToolsSetup(row.installation()));
 		}
 	}
 
@@ -235,22 +237,26 @@ public class ESPIDFMainTablePage
 		createCol(viewer, layout, Messages.ESPIDFMainTablePage_StatusColumnName, 15, 0, new ColumnLabelProvider()
 		{
 			@Override
+			public void update(ViewerCell cell)
+			{
+				IdfRow row = (IdfRow) cell.getElement();
+				EimInstallationPresentation presentation = resolvePresentation(row);
+				cell.setText(presentation.getStatusText());
+				cell.setForeground(EimInstallationStatusSwtMapper.foreground(presentation,
+						cell.getControl().getDisplay()));
+			}
+
+			@Override
 			public String getText(Object element)
 			{
-				var row = (IdfRow) element;
-				if (row.original().equals(currentInstallingNode))
-					return Messages.ESPIDFMainTablePage_SettingUpLbl;
-				return row.isActive() ? Messages.ESPIDFMainTablePage_ActiveLbl : StringUtil.EMPTY;
+				return resolvePresentation((IdfRow) element).getStatusText();
 			}
 
 			@Override
 			public Color getForeground(Object element)
 			{
-				var row = (IdfRow) element;
-				if (row.original().equals(currentInstallingNode))
-					return Display.getDefault().getSystemColor(SWT.COLOR_DARK_YELLOW);
-				return row.isActive() ? Display.getDefault().getSystemColor(SWT.COLOR_DARK_GREEN)
-						: Display.getDefault().getSystemColor(SWT.COLOR_GRAY);
+				return EimInstallationStatusSwtMapper.foreground(resolvePresentation((IdfRow) element),
+						Display.getDefault());
 			}
 
 			@Override
@@ -359,7 +365,7 @@ public class ESPIDFMainTablePage
 		if (btnActivate == null || btnActivate.isDisposed())
 			return;
 
-		boolean isInstalling = (currentInstallingNode != null);
+		boolean isInstalling = (currentInstallingId != null);
 
 		if (isInstalling)
 		{
@@ -368,16 +374,14 @@ public class ESPIDFMainTablePage
 			return;
 		}
 
-		// 1. Activate Button Logic: Linked to SELECTION
-		var selected = getSelectedIdf();
+		var selected = getSelectedRow();
 		if (selected == null)
 		{
 			btnActivate.setEnabled(false);
 		}
 		else
 		{
-			// Can only activate if it is NOT currently active
-			btnActivate.setEnabled(!ToolsUtility.isIdfInstalledActive(selected));
+			btnActivate.setEnabled(selected.presentation().isActivateEnabled() && selected.installation().isActivatable());
 		}
 
 		// We do not care what is selected; we only care if there is an active IDF to update.
@@ -393,30 +397,64 @@ public class ESPIDFMainTablePage
 		return false;
 	}
 
-	private IdfInstalled getSelectedIdf()
+	private IdfRow getSelectedRow()
 	{
 		var selection = (IStructuredSelection) tableViewer.getSelection();
 		if (selection.isEmpty())
 			return null;
 		Object first = selection.getFirstElement();
-		if (first instanceof IdfRow firstRow)
+		if (first instanceof IdfRow row)
 		{
-			return firstRow.original();
-		}
-		else if (first instanceof IdfInstalled rawInstalled)
-		{
-			return rawInstalled;
+			return row;
 		}
 		return null;
 	}
 
-	private void performToolsSetup(IdfInstalled idf)
+	private EimInstallationModel getSelectedInstallation()
 	{
-		this.currentInstallingNode = idf;
+		var row = getSelectedRow();
+		return row != null ? row.installation() : null;
+	}
+
+	public void clearInstallingState()
+	{
+		currentInstallingId = null;
+		if (tableViewer != null && !tableViewer.getControl().isDisposed())
+		{
+			tableViewer.refresh();
+		}
+		updateButtonState();
+	}
+
+	/**
+	 * Status column presentation: while {@link #currentInstallingId} is set, show
+	 * in-progress state without baking it into {@link IdfRow}. Full reload keeps
+	 * steady-state presentation in each row.
+	 */
+	private EimInstallationPresentation resolvePresentation(IdfRow row)
+	{
+		if (presentationRenderer != null && currentInstallingId != null
+				&& currentInstallingId.equals(row.installation().getId()))
+		{
+			return presentationRenderer.render(row.installation(), row.isActive(), true);
+		}
+		return row.presentation();
+	}
+
+	private void performToolsSetup(EimInstallationModel installation)
+	{
+		if (eimConfigModel == null)
+		{
+			Logger.log("Cannot activate ESP-IDF: eim_idf.json is not loaded"); //$NON-NLS-1$
+			return;
+		}
+
+		this.currentInstallingId = installation.getId();
 		tableViewer.refresh();
 		updateButtonState();
 
-		var setupJob = new SetupToolsInIde(idf, eimJson, getConsoleStream(true), getConsoleStream(false));
+		var setupJob = new SetupToolsInIde(installation, eimConfigModel, getConsoleStream(true),
+				getConsoleStream(false));
 		setupJob.addJobChangeListener(new SetupToolsJobListener(this, setupJob));
 		setupJob.schedule();
 	}
@@ -435,22 +473,30 @@ public class ESPIDFMainTablePage
 
 				try
 				{
-					var newJson = configParser.getEimJson(true);
+					eimConfigModel = configParser.getConfigModel(true);
+					presentationRenderer = eimConfigModel != null
+							? EimInstallationPresentationRendererFactory
+									.forSchema(eimConfigModel.getSchemaVersion())
+							: null;
+
 					List<IdfRow> rows = List.of();
 
-					if (newJson != null && newJson.getIdfInstalled() != null)
+					if (eimConfigModel != null && eimConfigModel.getInstallations() != null
+							&& presentationRenderer != null)
 					{
-						eimJson = newJson;
-						var gitPath = newJson.getGitPath();
-
 						monitor.subTask(Messages.ESPIDFMainTablePage_DetectingEspIdfSubTaskName);
 
+						final EimInstallationPresentationRenderer renderer = presentationRenderer;
 						try (var executor = Executors.newVirtualThreadPerTaskExecutor())
 						{
-							var futures = newJson.getIdfInstalled().stream().map(idf -> CompletableFuture.supplyAsync(
-									() -> new IdfRow(idf, ToolsUtility.isIdfInstalledActive(idf),
-											ToolsUtility.getIdfVersion(idf, gitPath), idf.getName(), idf.getPath()),
-									executor)).toList();
+							var futures = eimConfigModel.getInstallations().stream()
+									.map(idf -> CompletableFuture.supplyAsync(() -> {
+										boolean isActive = ToolsUtility.isIdfInstalledActive(idf);
+										var presentation = renderer.render(idf, isActive, false);
+										String detectedVersion = ToolsUtility.getIdfVersion(idf);
+										return new IdfRow(idf, presentation, isActive, detectedVersion,
+												idf.getName(), idf.getPath());
+									}, executor)).toList();
 
 							rows = futures.stream().map(CompletableFuture::join).toList();
 						}
@@ -463,7 +509,6 @@ public class ESPIDFMainTablePage
 							return;
 
 						var currentSelection = tableViewer.getSelection();
-						currentInstallingNode = null;
 
 						tableViewer.setInput(finalRows);
 						tableViewer.setSelection(currentSelection);
@@ -500,8 +545,12 @@ public class ESPIDFMainTablePage
 
 		if (tableViewer.getElementAt(0) instanceof IdfRow firstIdf)
 		{
+			if (!firstIdf.installation().isActivatable())
+			{
+				return;
+			}
 			tableViewer.setSelection(new StructuredSelection(firstIdf), true);
-			performToolsSetup(firstIdf.original());
+			performToolsSetup(firstIdf.installation());
 		}
 	}
 
@@ -551,7 +600,8 @@ public class ESPIDFMainTablePage
 			var r2 = (IdfRow) e2;
 			int rc = switch (propertyIndex)
 			{
-			case 0 -> Boolean.compare(r1.isActive(), r2.isActive());
+			case 0 -> resolvePresentation(r1).getStatusText()
+					.compareToIgnoreCase(resolvePresentation(r2).getStatusText());
 			case 1 -> r1.version().compareToIgnoreCase(r2.version());
 			case 2 -> r1.name().compareToIgnoreCase(r2.name());
 			case 3 -> r1.path().compareToIgnoreCase(r2.path());

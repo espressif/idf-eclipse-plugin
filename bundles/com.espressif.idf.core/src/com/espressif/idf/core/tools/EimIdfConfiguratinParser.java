@@ -1,56 +1,39 @@
+/*******************************************************************************
+ * Copyright 2026 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Use is subject to license terms.
+ *******************************************************************************/
 package com.espressif.idf.core.tools;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Path;
 
-import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.tools.eimjson.EimIdfJsonLoader;
+import com.espressif.idf.core.tools.eimjson.model.EimConfigModel;
 import com.espressif.idf.core.tools.exceptions.EimVersionMismatchException;
-import com.espressif.idf.core.tools.vo.EimJson;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
+/**
+ * Loads {@code eim_idf.json}. Delegates version detection and parsing to
+ * {@link EimIdfJsonLoader}.
+ */
 public class EimIdfConfiguratinParser
 {
-	private EimJson eimJson;
-	private Gson gson;
+	private final EimIdfJsonLoader loader = new EimIdfJsonLoader();
+	private EimConfigModel configModel;
 
 	public EimIdfConfiguratinParser()
 	{
-		gson = new GsonBuilder().setPrettyPrinting().enableComplexMapKeySerialization()
-				.excludeFieldsWithoutExposeAnnotation().create();
 	}
 
 	private void load() throws IOException, EimVersionMismatchException
 	{
-		Path jsonPath = new EimIdfJsonPathResolver().resolveEimIdfJsonFile();
-		String path = jsonPath.toString();
-		File file = new File(path);
-		if (!file.exists())
-		{
-			Logger.log("EIM config file not found: " + path); //$NON-NLS-1$
-			return;
-		}
-
-		try (FileReader fileReader = new FileReader(file))
-		{
-			eimJson = gson.fromJson(fileReader, EimJson.class);
-		}
-		
-		if (Double.parseDouble(eimJson.getVersion()) > Double.parseDouble(EimConstants.EIM_JSON_VALID_VERSION))
-		{
-			throw new EimVersionMismatchException(EimConstants.EIM_JSON_VALID_VERSION, eimJson.getVersion());
-		}
+		configModel = loader.loadDefault();
 	}
 
-	public EimJson getEimJson(boolean reload) throws IOException, EimVersionMismatchException
+	public EimConfigModel getConfigModel(boolean reload) throws IOException, EimVersionMismatchException
 	{
-		if (reload || eimJson == null)
+		if (reload || configModel == null)
 		{
 			load();
 		}
-
-		return eimJson;
+		return configModel;
 	}
 }

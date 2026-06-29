@@ -36,8 +36,8 @@ import com.espressif.idf.core.tools.DownloadListener;
 import com.espressif.idf.core.tools.EimConstants;
 import com.espressif.idf.core.tools.EimLoader;
 import com.espressif.idf.core.tools.ToolInitializer;
+import com.espressif.idf.core.tools.eimjson.model.EimConfigModel;
 import com.espressif.idf.core.tools.exceptions.EimVersionMismatchException;
-import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.core.tools.watcher.EimJsonWatchService;
 import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
@@ -61,7 +61,7 @@ public class EspressifToolStartup implements IStartup
 	private EimJsonUiChangeHandler eimJsonUiChangeHandler;
 	private ToolInitializer toolInitializer;
 	private Preferences preferences;
-	private EimJson eimJson;
+	private EimConfigModel eimConfig;
 	private EimLoader eimLoader;
 	private MessageConsoleStream standardConsoleStream;
 	private MessageConsoleStream errorConsoleStream;
@@ -93,7 +93,7 @@ public class EspressifToolStartup implements IStartup
 
 		try
 		{
-			eimJson = toolInitializer.loadEimJson();
+			eimConfig = toolInitializer.loadEimConfig();
 		}
 		catch (EimVersionMismatchException e)
 		{
@@ -115,11 +115,11 @@ public class EspressifToolStartup implements IStartup
 		}
 		else if (toolInitializer.isEimIdfJsonPresent() && !toolInitializer.isEspIdfSet())
 		{
-			promptUserToOpenToolManager(eimJson);
+			promptUserToOpenToolManager();
 		}
 
 		// Set EimPath on every startup: system PATH first, then eim_idf.json, then default locations
-		String resolvedEimPath = toolInitializer.resolveEimExecutablePath(eimJson);
+		String resolvedEimPath = toolInitializer.resolveEimExecutablePath(eimConfig);
 		if (!StringUtil.isEmpty(resolvedEimPath))
 		{
 			idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.EIM_PATH, resolvedEimPath);
@@ -163,7 +163,7 @@ public class EspressifToolStartup implements IStartup
 		try
 		{
 			// Same resolution order as workspace EIM_PATH: PATH, then eim_idf.json, then defaults
-			String resolved = toolInitializer.resolveEimExecutablePath(eimJson);
+			String resolved = toolInitializer.resolveEimExecutablePath(eimConfig);
 			if (StringUtil.isEmpty(resolved))
 			{
 				Logger.log("Cannot export old config: EIM executable path could not be resolved."); //$NON-NLS-1$
@@ -281,7 +281,7 @@ public class EspressifToolStartup implements IStartup
 		return idfConsole.getConsoleStream("EIM Launch Console", null, errorStream);
 	}
 
-	private void promptUserToOpenToolManager(EimJson eimJson)
+	private void promptUserToOpenToolManager()
 	{
 		Display.getDefault().syncExec(() -> {
 			String testRunValue = System.getProperty("testRun");
@@ -289,7 +289,7 @@ public class EspressifToolStartup implements IStartup
 
 			if (!StringUtil.isEmpty(testRunValue) && Boolean.parseBoolean(testRunValue))
 			{
-				openEspIdfManager(eimJson);
+				openEspIdfManager();
 				return;
 			}
 
@@ -301,7 +301,7 @@ public class EspressifToolStartup implements IStartup
 			GlobalModalLock.showModal(messageBox::open, response -> {
 				if (response == SWT.YES)
 				{
-					openEspIdfManager(eimJson);
+					openEspIdfManager();
 				}
 			});
 		});
@@ -317,13 +317,13 @@ public class EspressifToolStartup implements IStartup
 		});
 	}
 
-	private void openEspIdfManager(EimJson eimJson)
+	private void openEspIdfManager()
 	{
 		Display.getDefault().asyncExec(() -> {
 			IWorkbenchWindow window = EclipseHandler.getActiveWorkbenchWindow();
 			try
 			{
-				EimEditorInput input = new EimEditorInput(eimJson);
+				EimEditorInput input = new EimEditorInput();
 				input.setFirstStartup(true);
 				IDE.openEditor(window.getActivePage(), input, ESPIDFManagerEditor.EDITOR_ID);
 				IDFUtil.closeWelcomePage(window);
@@ -388,7 +388,7 @@ public class EspressifToolStartup implements IStartup
 							}
 							try
 							{
-								eimJson = toolInitializer.loadEimJson();
+								eimConfig = toolInitializer.loadEimConfig();
 							}
 							catch (EimVersionMismatchException e)
 							{
@@ -397,7 +397,7 @@ public class EspressifToolStartup implements IStartup
 										e.getMessage());
 								return;
 							}
-							openEspIdfManager(eimJson);
+							openEspIdfManager();
 						});
 			}
 			catch (IOException | InterruptedException e)

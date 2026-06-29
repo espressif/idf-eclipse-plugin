@@ -7,7 +7,10 @@ package com.espressif.idf.ui.tools.manager;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
@@ -23,6 +26,31 @@ import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
 public class ESPIDFManagerEditor extends EditorPart
 {
 	public static final String EDITOR_ID = "com.espressif.idf.ui.manageespidf";
+
+	private ESPIDFMainTablePage tablePage;
+
+	/** Returns the table page of an already-open manager editor, if any. */
+	public static ESPIDFMainTablePage findOpenTablePage(IWorkbenchPage workbenchPage)
+	{
+		if (workbenchPage == null)
+		{
+			return null;
+		}
+		for (IEditorReference ref : workbenchPage.getEditorReferences())
+		{
+			IEditorPart editor = ref.getEditor(false);
+			if (editor instanceof ESPIDFManagerEditor manager)
+			{
+				return manager.tablePage;
+			}
+		}
+		return null;
+	}
+
+	public ESPIDFMainTablePage getTablePage()
+	{
+		return tablePage;
+	}
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException
@@ -57,11 +85,11 @@ public class ESPIDFManagerEditor extends EditorPart
 
 		if (input instanceof EimEditorInput eimInput)
 		{
-			ESPIDFMainTablePage espidfMainTablePage = new ESPIDFMainTablePage(eimInput.getEimJson());
-			espidfMainTablePage.createPage(parent);
+			tablePage = new ESPIDFMainTablePage();
+			tablePage.createPage(parent);
 			if (eimInput.isFirstStartup())
 			{
-				espidfMainTablePage.setupInitialEspIdf();
+				tablePage.setupInitialEspIdf();
 			}
 		}
 		else

@@ -4,28 +4,18 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPersistableElement;
 
-import com.espressif.idf.core.tools.vo.EimJson;
-
 public class EimEditorInput implements IEditorInput
 {
-	private EimJson eimJson;
 	private boolean firstStartup;
-	private String FILE_NAME = "idf_eim.json"; //$NON-NLS-1$
+	private final String fileName = "idf_eim.json"; //$NON-NLS-1$
 
-	public EimEditorInput(EimJson eimJson)
+	public EimEditorInput()
 	{
-		this.eimJson = eimJson;
-	}
-
-	public EimJson getEimJson()
-	{
-		return eimJson;
 	}
 
 	@Override
 	public <T> T getAdapter(Class<T> adapter)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -81,13 +71,13 @@ public class EimEditorInput implements IEditorInput
 			return false;
 		}
 		EimEditorInput that = (EimEditorInput) obj;
-		return FILE_NAME.equals(that.FILE_NAME);
+		return fileName.equals(that.fileName);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return FILE_NAME.hashCode();
+		return fileName.hashCode();
 	}
 
 }
