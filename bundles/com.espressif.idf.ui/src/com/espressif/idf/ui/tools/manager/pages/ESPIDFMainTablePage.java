@@ -5,7 +5,9 @@
 package com.espressif.idf.ui.tools.manager.pages;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -53,7 +55,6 @@ import com.espressif.idf.core.tools.eimjson.model.EimConfigModel;
 import com.espressif.idf.core.tools.eimjson.model.EimInstallationModel;
 import com.espressif.idf.core.tools.eimjson.presentation.EimInstallationPresentation;
 import com.espressif.idf.core.tools.eimjson.presentation.EimInstallationPresentationRenderer;
-import com.espressif.idf.core.tools.eimjson.presentation.EimInstallationPresentationRendererFactory;
 import com.espressif.idf.core.tools.util.ToolsUtility;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.ui.IDFConsole;
@@ -90,11 +91,26 @@ public class ESPIDFMainTablePage
 
 	private final IdViewerComparator comparator = new IdViewerComparator();
 	private EimConfigModel eimConfigModel;
-	private EimInstallationPresentationRenderer presentationRenderer;
 
 	private final EimIdfConfiguratinParser configParser;
 	private final IDFConsole idfConsole = new IDFConsole();
 	private String currentInstallingId = null;
+
+	/**
+	 * Detected ESP-IDF version per installation id. Version detection spawns a subprocess, so results
+	 * are cached and reused across activations and across manager close/reopen within the same IDE
+	 * session. The cache is {@code static} so it survives the page being disposed when the editor is
+	 * closed; it is invalidated via {@link #invalidateVersionCache()} when {@code eim_idf.json}
+	 * changes, and starts empty on each IDE launch (so changes made while the IDE was closed are
+	 * detected fresh on first open).
+	 */
+	private static final Map<String, String> versionCache = new ConcurrentHashMap<>();
+
+	/** Drops cached ESP-IDF versions so the next refresh re-detects them. Called when {@code eim_idf.json} changes. */
+	public static void invalidateVersionCache()
+	{
+		versionCache.clear();
+	}
 
 	public ESPIDFMainTablePage()
 	{
@@ -109,7 +125,9 @@ public class ESPIDFMainTablePage
 
 		createHeader(container);
 		createMainContent(container);
-		refreshEditorUI();
+		// Reuse cached versions on (re)open; the cache is invalidated when eim_idf.json changes and is
+		// empty on a fresh IDE launch, so this only re-detects when there is something new to detect.
+		refreshEditorUI(false);
 
 		return container;
 	}
@@ -433,10 +451,9 @@ public class ESPIDFMainTablePage
 	 */
 	private EimInstallationPresentation resolvePresentation(IdfRow row)
 	{
-		if (presentationRenderer != null && currentInstallingId != null
-				&& currentInstallingId.equals(row.installation().getId()))
+		if (currentInstallingId != null && currentInstallingId.equals(row.installation().getId()))
 		{
-			return presentationRenderer.render(row.installation(), row.isActive(), true);
+			return EimInstallationPresentationRenderer.render(row.installation(), row.isActive(), true);
 		}
 		return row.presentation();
 	}
@@ -461,8 +478,27 @@ public class ESPIDFMainTablePage
 
 	public void refreshEditorUI()
 	{
+		// Default refresh (table open, eim_idf.json change): (re)detect ESP-IDF versions.
+		refreshEditorUI(true);
+	}
+
+	/**
+	 * Refreshes the table.
+	 *
+	 * @param redetectVersions when {@code true}, the version cache is dropped and every row's ESP-IDF
+	 *            version is detected again (used on table open and {@code eim_idf.json} changes). When
+	 *            {@code false}, cached versions are reused and only the active state is recomputed
+	 *            (used after an activation, which does not change installed versions).
+	 */
+	public void refreshEditorUI(boolean redetectVersions)
+	{
 		if (container == null || container.isDisposed())
 			return;
+
+		if (redetectVersions)
+		{
+			versionCache.clear();
+		}
 
 		Job refreshJob = new Job(Messages.ESPIDFMainTablePage_RefreshingIdfJobName)
 		{
@@ -474,26 +510,24 @@ public class ESPIDFMainTablePage
 				try
 				{
 					eimConfigModel = configParser.getConfigModel(true);
-					presentationRenderer = eimConfigModel != null
-							? EimInstallationPresentationRendererFactory
-									.forSchema(eimConfigModel.getSchemaVersion())
-							: null;
 
 					List<IdfRow> rows = List.of();
 
-					if (eimConfigModel != null && eimConfigModel.getInstallations() != null
-							&& presentationRenderer != null)
+					if (eimConfigModel != null && eimConfigModel.getInstallations() != null)
 					{
 						monitor.subTask(Messages.ESPIDFMainTablePage_DetectingEspIdfSubTaskName);
 
-						final EimInstallationPresentationRenderer renderer = presentationRenderer;
 						try (var executor = Executors.newVirtualThreadPerTaskExecutor())
 						{
 							var futures = eimConfigModel.getInstallations().stream()
 									.map(idf -> CompletableFuture.supplyAsync(() -> {
 										boolean isActive = ToolsUtility.isIdfInstalledActive(idf);
-										var presentation = renderer.render(idf, isActive, false);
-										String detectedVersion = ToolsUtility.getIdfVersion(idf);
+										var presentation = EimInstallationPresentationRenderer.render(idf, isActive,
+												false);
+										// Detect the version only when it is not already cached; on an
+										// activation the cache is warm, so no subprocess is spawned.
+										String detectedVersion = versionCache.computeIfAbsent(idf.getId(),
+												id -> ToolsUtility.getIdfVersion(idf));
 										return new IdfRow(idf, presentation, isActive, detectedVersion,
 												idf.getName(), idf.getPath());
 									}, executor)).toList();

@@ -46,6 +46,10 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 	@Override
 	public void onJsonFileChanged(Path file, boolean paused)
 	{
+		// eim_idf.json changed: drop cached ESP-IDF versions so they are re-detected on next open,
+		// even if the manager is currently closed.
+		ESPIDFMainTablePage.invalidateVersionCache();
+
 		EimJsonStateChecker checker = new EimJsonStateChecker(preferences);
 		checker.updateLastSeenState();
 		if (paused)
@@ -119,7 +123,9 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 		ESPIDFMainTablePage page = ESPIDFManagerEditor.findOpenTablePage(activeww.getActivePage());
 		if (page != null)
 		{
-			page.refreshEditorUI();
+			// The version cache was already invalidated in onJsonFileChanged, so a cache-reusing
+			// refresh re-detects the changed versions without an extra full re-detect pass.
+			page.refreshEditorUI(false);
 		}
 	}
 }

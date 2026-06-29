@@ -12,20 +12,19 @@ import java.nio.file.Path;
 
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.tools.EimIdfJsonPathResolver;
-import com.espressif.idf.core.tools.eimjson.adapter.EimConfigAdapter;
-import com.espressif.idf.core.tools.eimjson.adapter.EimConfigAdapterFactory;
 import com.espressif.idf.core.tools.eimjson.model.EimConfigModel;
-import com.espressif.idf.core.tools.eimjson.schema.v3.EimJsonV3;
 import com.espressif.idf.core.tools.exceptions.EimVersionMismatchException;
-import com.espressif.idf.core.tools.vo.EimJson;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.GsonBuilder;
 
 /**
- * Single entry point for loading {@code eim_idf.json}: detects schema version,
- * delegates to the matching adapter, returns the neutral domain model.
+ * Single entry point for loading {@code eim_idf.json}.
+ * <p>
+ * {@code eim_idf.json} changes are additive, so one tolerant {@link EimConfigModel} parses every
+ * known schema: Gson ignores unknown fields and leaves missing ones {@code null} (defaulted in the
+ * model). {@link EimJsonVersion#parse(String)} only guards against files newer than this build.
  */
 public final class EimIdfJsonLoader
 {
@@ -51,9 +50,12 @@ public final class EimIdfJsonLoader
 			JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
 			String versionField = root.has("version") ? root.get("version").getAsString() : null; //$NON-NLS-1$ //$NON-NLS-2$
 			EimJsonVersion version = EimJsonVersion.parse(versionField);
-			EimConfigAdapter adapter = EimConfigAdapterFactory.forVersion(version);
-			Object raw = parseRaw(root, version);
-			return adapter.toModel(raw);
+			EimConfigModel model = gson.fromJson(root, EimConfigModel.class);
+			if (model != null)
+			{
+				model.setSchemaVersion(version);
+			}
+			return model;
 		}
 	}
 
@@ -61,14 +63,5 @@ public final class EimIdfJsonLoader
 	{
 		Path path = new EimIdfJsonPathResolver().resolveEimIdfJsonFile();
 		return load(path);
-	}
-
-	private Object parseRaw(JsonObject root, EimJsonVersion version)
-	{
-		return switch (version)
-		{
-			case V2 -> gson.fromJson(root, EimJson.class);
-			case V3 -> gson.fromJson(root, EimJsonV3.class);
-		};
 	}
 }

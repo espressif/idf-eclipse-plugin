@@ -21,7 +21,7 @@ import com.espressif.idf.core.tools.eimjson.InstallationStatus;
 import com.espressif.idf.core.tools.eimjson.model.EimConfigModel;
 import com.espressif.idf.core.tools.eimjson.model.EimInstallationModel;
 import com.espressif.idf.core.tools.eimjson.presentation.EimInstallationPresentation;
-import com.espressif.idf.core.tools.eimjson.presentation.EimInstallationPresentationRendererFactory;
+import com.espressif.idf.core.tools.eimjson.presentation.EimInstallationPresentationRenderer;
 
 class EimIdfJsonLoaderTest
 {
@@ -80,8 +80,7 @@ class EimIdfJsonLoaderTest
 		assertEquals(InstallationStatus.BROKEN, inst.getStatus());
 		assertFalse(inst.isActivatable());
 
-		var renderer = EimInstallationPresentationRendererFactory.forSchema(EimJsonVersion.V3);
-		EimInstallationPresentation presentation = renderer.render(inst, false, false);
+		EimInstallationPresentation presentation = EimInstallationPresentationRenderer.render(inst, false, false);
 		assertEquals(EimInstallationPresentation.StatusKind.BROKEN, presentation.getStatusKind());
 		assertFalse(presentation.isActivateEnabled());
 	}

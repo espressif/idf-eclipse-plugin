@@ -4,23 +4,62 @@
  *******************************************************************************/
 package com.espressif.idf.core.tools.eimjson.model;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import com.espressif.idf.core.tools.eimjson.EimJsonVersion;
+import com.google.gson.annotations.Expose;
 
 /**
- * Version-neutral view of the full {@code eim_idf.json} document.
+ * The full {@code eim_idf.json} document.
+ * <p>
+ * Deserialized directly by Gson. The schema evolves additively, so this single DTO parses every
+ * known version; {@link EimJsonVersion} is only used as a forward-compatibility guard in
+ * {@link com.espressif.idf.core.tools.eimjson.EimIdfJsonLoader} and is stored here for reference.
  */
-public interface EimConfigModel
+public class EimConfigModel
 {
-	EimJsonVersion getSchemaVersion();
+	@Expose
+	private String version;
+	@Expose
+	private String eimPath;
+	@Expose
+	private String gitPath;
+	@Expose
+	private String idfSelectedId;
+	@Expose
+	private List<EimInstallationModel> idfInstalled = Collections.emptyList();
 
-	String getGitPath();
+	private transient EimJsonVersion schemaVersion;
 
-	Optional<String> getEimPath();
+	public EimJsonVersion getSchemaVersion()
+	{
+		return schemaVersion;
+	}
 
-	String getIdfSelectedId();
+	public void setSchemaVersion(EimJsonVersion schemaVersion)
+	{
+		this.schemaVersion = schemaVersion;
+	}
 
-	List<EimInstallationModel> getInstallations();
+	public String getGitPath()
+	{
+		return gitPath;
+	}
+
+	public Optional<String> getEimPath()
+	{
+		return Optional.ofNullable(eimPath);
+	}
+
+	public String getIdfSelectedId()
+	{
+		return idfSelectedId;
+	}
+
+	public List<EimInstallationModel> getInstallations()
+	{
+		return idfInstalled != null ? idfInstalled : Collections.emptyList();
+	}
 }

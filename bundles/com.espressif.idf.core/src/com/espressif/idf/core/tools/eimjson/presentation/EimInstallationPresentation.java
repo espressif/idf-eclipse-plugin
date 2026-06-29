@@ -7,7 +7,7 @@ package com.espressif.idf.core.tools.eimjson.presentation;
 /**
  * UI-neutral presentation hints for one installation row (text + interaction flags).
  * SWT-specific colours are resolved in the UI renderer layer.
- * Label text and status mapping live in {@link DefaultEimInstallationPresentationRenderer}.
+ * Label text and status mapping live in {@link EimInstallationPresentationRenderer}.
  */
 public final class EimInstallationPresentation
 {

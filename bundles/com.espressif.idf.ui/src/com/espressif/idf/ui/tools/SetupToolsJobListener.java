@@ -80,7 +80,7 @@ public class SetupToolsJobListener extends JobChangeAdapter
 			if (espidfMainTablePage != null)
 			{
 				espidfMainTablePage.clearInstallingState();
-				espidfMainTablePage.refreshEditorUI();
+				espidfMainTablePage.refreshEditorUI(false);
 			}
 		});
 		OpenDialogListenerSupport.getSupport().firePropertyChange(PopupDialog.ENABLE_LAUNCHBAR_EVENTS.name(), null,
