@@ -110,7 +110,7 @@ public class SetupToolsInIde extends Job
 		try
 		{
 			monitor.setTaskName("Running Activation Script"); //$NON-NLS-1$
-			IStatus status = processBuilderFactory.runInBackground(arguemnts, Path.ROOT, System.getenv());
+			IStatus status = processBuilderFactory.runInBackground(arguemnts, Path.ROOT, env);
 			if (status == null)
 			{
 				Logger.log(IDFCorePlugin.getPlugin(), IDFCorePlugin.errorStatus("Status returned null from activation script process", null)); //$NON-NLS-1$
