@@ -50,8 +50,6 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 		// even if the manager is currently closed.
 		ESPIDFMainTablePage.invalidateVersionCache();
 
-		EimJsonStateChecker checker = new EimJsonStateChecker(preferences);
-		checker.updateLastSeenState();
 		if (paused)
 		{
 			Logger.log("Listener is paused");
@@ -83,16 +81,23 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 			try
 			{
 				validateConfig();
-				Display.getDefault().asyncExec(this::launchEspIdfManager);
+				Display.getDefault().asyncExec(() -> {
+					if (launchEspIdfManager())
+					{
+						new EimJsonStateChecker(preferences).updateLastSeenState();
+					}
+				});
 			}
 			catch (IOException e)
 			{
 				Logger.log(e);
+				return;
 			}
 		}
-
-		EimJsonStateChecker checker = new EimJsonStateChecker(preferences);
-		checker.updateLastSeenState();
+		else
+		{
+			new EimJsonStateChecker(preferences).updateLastSeenState();
+		}
 	}
 
 	private void validateConfig() throws IOException, EimVersionMismatchException
@@ -100,13 +105,13 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 		new EimIdfConfiguratinParser().getConfigModel(true);
 	}
 
-	private void launchEspIdfManager()
+	private boolean launchEspIdfManager()
 	{
 		IWorkbenchWindow activeww = EclipseHandler.getActiveWorkbenchWindow();
 		if (activeww == null || activeww.getActivePage() == null)
 		{
 			Logger.log("Cannot open ESP-IDF Manager. No active workbench window or active page.");
-			return;
+			return false;
 		}
 
 		try
@@ -117,15 +122,19 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 		{
 			Logger.log("Failed to open ESP-IDF Manager Editor.");
 			Logger.log(e);
-			return;
+			return false;
 		}
 
 		ESPIDFMainTablePage page = ESPIDFManagerEditor.findOpenTablePage(activeww.getActivePage());
-		if (page != null)
+		if (page == null)
 		{
-			// The version cache was already invalidated in onJsonFileChanged, so a cache-reusing
-			// refresh re-detects the changed versions without an extra full re-detect pass.
-			page.refreshEditorUI(false);
+			Logger.log("ESP-IDF Manager opened but table page was not found."); //$NON-NLS-1$
+			return false;
 		}
+
+		// The version cache was already invalidated in onJsonFileChanged, so a cache-reusing
+		// refresh re-detects the changed versions without an extra full re-detect pass.
+		page.refreshEditorUI(false);
+		return true;
 	}
 }
