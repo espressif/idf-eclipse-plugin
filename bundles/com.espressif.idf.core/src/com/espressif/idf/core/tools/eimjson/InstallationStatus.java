@@ -51,6 +51,6 @@ public enum InstallationStatus
 				return status;
 			}
 		}
-		return FINISHED;
+		return BROKEN;
 	}
 }
