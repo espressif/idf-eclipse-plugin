@@ -72,6 +72,6 @@ public class EimInstallationModel
 	/** True when the IDE may run the activation script and wire toolchains. */
 	public boolean isActivatable()
 	{
-		return getStatus().isActivatable() && getActivationScript().isPresent();
+		return getStatus().isActivatable() && getActivationScript().isPresent() && getPython().isPresent();
 	}
 }
