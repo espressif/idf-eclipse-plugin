@@ -84,7 +84,7 @@ public class SetupToolsInIde extends Job
 		IDFUtil.updateEspressifPrefPageOpenocdPath();
 		try
 		{
-			setUpToolChainsAndTargets(true);
+			setUpToolChainsAndTargets(true, null);
 		}
 		catch (Exception e)
 		{
@@ -104,7 +104,14 @@ public class SetupToolsInIde extends Job
 			log("Activation script path is missing", IStatus.ERROR); //$NON-NLS-1$
 			return IDFCorePlugin.errorStatus("Activation script path is missing", null); //$NON-NLS-1$
 		}
+		var pythonOpt = installation.getPython();
+		if (pythonOpt.isEmpty())
+		{
+			log("Python path is missing for installation", IStatus.ERROR); //$NON-NLS-1$
+			return IDFCorePlugin.errorStatus("Python path is missing for installation", null); //$NON-NLS-1$
+		}
 		String activationScript = activationScriptOpt.get();
+		String pythonPath = pythonOpt.get();
 		List<String> arguemnts = ToolsUtility.getExportScriptCommand(activationScript);
 		final ProcessBuilderFactory processBuilderFactory = new ProcessBuilderFactory();
 		try
@@ -142,12 +149,12 @@ public class SetupToolsInIde extends Job
 			
 			monitor.setTaskName("Setting up IDE environment"); //$NON-NLS-1$
 			log("Setting up IDE environment variables", IStatus.INFO); //$NON-NLS-1$
-			setupEnvVarsInEclipse();
+			setupEnvVarsInEclipse(pythonPath);
 			monitor.worked(1);
 
 			monitor.setTaskName("Setting up toolchains"); //$NON-NLS-1$
 			log("Setting up toolchains", IStatus.INFO); //$NON-NLS-1$
-			setUpToolChainsAndTargets(false);
+			setUpToolChainsAndTargets(false, pythonPath);
 			monitor.worked(1);
 			
 			monitor.setTaskName("Applying Clangd Preferences"); //$NON-NLS-1$
@@ -180,13 +187,12 @@ public class SetupToolsInIde extends Job
 		return path;
 	}
 	
-	private IStatus loadTargetsAvailableFromIdfInCurrentToolSet(boolean rollback)
+	private IStatus loadTargetsAvailableFromIdfInCurrentToolSet(boolean rollback, String pythonPath)
 	{
 		List<String> arguments = new ArrayList<String>();
 		arguments.add(rollback
 				? existingEnvVarsInIdeForRollback.get(IDFEnvironmentVariables.PYTHON_EXE_PATH)
-				: installation.getPython().orElseThrow(
-						() -> new IllegalStateException("Python path is missing for installation"))); //$NON-NLS-1$
+				: pythonPath);
 		arguments
 				.add(IDFUtil
 						.getIDFPythonScriptFile(
@@ -285,9 +291,9 @@ public class SetupToolsInIde extends Job
 		}
 	}
 	
-	private void setUpToolChainsAndTargets(boolean rollback)
+	private void setUpToolChainsAndTargets(boolean rollback, String pythonPath)
 	{
-		IStatus status = loadTargetsAvailableFromIdfInCurrentToolSet(rollback);
+		IStatus status = loadTargetsAvailableFromIdfInCurrentToolSet(rollback, pythonPath);
 		if (status.getSeverity() == IStatus.ERROR)
 		{
 			Logger.log("Unable to get IDF targets from current toolset"); //$NON-NLS-1$
@@ -314,7 +320,7 @@ public class SetupToolsInIde extends Job
 		return targets;
 	}
 	
-	private void setupEnvVarsInEclipse()
+	private void setupEnvVarsInEclipse(String pythonPath)
 	{
 		createExistingBackup();
 		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
@@ -322,21 +328,17 @@ public class SetupToolsInIde extends Job
 		{
 			idfEnvironmentVariables.addEnvVariable(entry.getKey(), entry.getValue());
 		}
-		
+
 		String path = getUpdatedPathWithSystemPath();
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PATH, path);
-		
+
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_COMPONENT_MANAGER, "1"); //$NON-NLS-1$
 		// IDF_MAINTAINER=1 to be able to build with the clang toolchain
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.IDF_MAINTAINER, "1"); //$NON-NLS-1$
 		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.ESP_IDF_EIM_ID, installation.getId());
-		
-		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PYTHON_EXE_PATH,
-				installation.getPython().orElseThrow(
-						() -> new IllegalStateException("Python path is missing for installation"))); //$NON-NLS-1$
-		
-		
-		
+
+		idfEnvironmentVariables.addEnvVariable(IDFEnvironmentVariables.PYTHON_EXE_PATH, pythonPath);
+
 		IDFUtil.updateEspressifPrefPageOpenocdPath();
 	}
 
