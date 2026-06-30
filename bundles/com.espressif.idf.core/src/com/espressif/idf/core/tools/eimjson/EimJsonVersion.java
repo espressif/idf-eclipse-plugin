@@ -36,7 +36,17 @@ public enum EimJsonVersion
 			return V2;
 		}
 
-		double found = parseVersionNumber(raw);
+		final double found;
+
+		try
+		{
+			found = parseVersionNumber(raw);
+		}
+		catch (NumberFormatException e)
+		{
+			throw new EimVersionMismatchException(SUPPORTED_MAX, raw);
+		}
+
 		double maxSupported = parseVersionNumber(SUPPORTED_MAX);
 		if (found > maxSupported)
 		{
