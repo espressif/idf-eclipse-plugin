@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -26,8 +27,8 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.SystemExecutableFinder;
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.tools.exceptions.EimVersionMismatchException;
 import com.espressif.idf.core.tools.eimjson.model.EimConfigModel;
+import com.espressif.idf.core.tools.exceptions.EimVersionMismatchException;
 import com.espressif.idf.core.util.StringUtil;
 
 /**
@@ -170,9 +171,20 @@ public class ToolInitializer
 		if (config != null)
 		{
 			var eimPath = config.getEimPath();
-			if (eimPath.isPresent() && Files.exists(Paths.get(eimPath.get())))
+			if (eimPath.isPresent())
 			{
-				return eimPath.get();
+				try
+				{
+					if (Files.exists(Paths.get(eimPath.get())))
+					{
+						return eimPath.get();
+					}
+					Logger.log("eimPath from eim_idf.json does not exist: " + eimPath.get()); //$NON-NLS-1$
+				}
+				catch (InvalidPathException e)
+				{
+					Logger.log("Ignoring invalid eimPath from eim_idf.json: " + eimPath.get()); //$NON-NLS-1$
+				}
 			}
 		}
 
