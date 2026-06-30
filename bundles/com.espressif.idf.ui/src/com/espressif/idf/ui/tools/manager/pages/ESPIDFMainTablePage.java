@@ -95,6 +95,7 @@ public class ESPIDFMainTablePage
 	private final EimIdfConfiguratinParser configParser;
 	private final IDFConsole idfConsole = new IDFConsole();
 	private String currentInstallingId = null;
+	private boolean initialSetupPending;
 
 	/**
 	 * Detected ESP-IDF version per installation id. Version detection spawns a subprocess, so results
@@ -110,6 +111,15 @@ public class ESPIDFMainTablePage
 	public static void invalidateVersionCache()
 	{
 		versionCache.clear();
+	}
+
+	/**
+	 * Runs {@link #setupInitialEspIdf()} once after the next {@link #refreshEditorUI(boolean)} completes
+	 * and the table has been populated. Use when the manager is opened before any ESP-IDF is active.
+	 */
+	public void scheduleInitialSetupAfterRefresh()
+	{
+		initialSetupPending = true;
 	}
 
 	public ESPIDFMainTablePage()
@@ -537,6 +547,11 @@ public class ESPIDFMainTablePage
 					}
 
 					final List<IdfRow> finalRows = rows;
+					final boolean runInitialSetup = initialSetupPending;
+					if (runInitialSetup)
+					{
+						initialSetupPending = false;
+					}
 
 					Display.getDefault().asyncExec(() -> {
 						if (container.isDisposed())
@@ -547,6 +562,11 @@ public class ESPIDFMainTablePage
 						tableViewer.setInput(finalRows);
 						tableViewer.setSelection(currentSelection);
 						updateButtonState();
+
+						if (runInitialSetup)
+						{
+							setupInitialEspIdf();
+						}
 					});
 
 					return Status.OK_STATUS;

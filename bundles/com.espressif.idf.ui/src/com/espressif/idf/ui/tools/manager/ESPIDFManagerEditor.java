@@ -86,11 +86,11 @@ public class ESPIDFManagerEditor extends EditorPart
 		if (input instanceof EimEditorInput eimInput)
 		{
 			tablePage = new ESPIDFMainTablePage();
-			tablePage.createPage(parent);
 			if (eimInput.isFirstStartup())
 			{
-				tablePage.setupInitialEspIdf();
+				tablePage.scheduleInitialSetupAfterRefresh();
 			}
+			tablePage.createPage(parent);
 		}
 		else
 		{
