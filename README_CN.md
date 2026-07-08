@@ -68,7 +68,7 @@ ESP-IDF Eclipse 插件支持 `macOS`、`Windows` 和 `Linux` 操作系统。
 
 IDF Eclipse 插件的运行环境要求如下。
 
-* **Java 17 及以上**：点击<a href= "https://www.oracle.com/technetwork/java/javase/downloads/index.html">这里</a>下载并安装 Java SE.。
+* **Java 21 及以上**：点击<a href= "https://www.oracle.com/technetwork/java/javase/downloads/index.html">这里</a>下载并安装 Java SE.。
 * **Python 3.6 及以上**：点击<a href="https://www.python.org/downloads/">这里</a>下载并安装 Python。
 * **Eclipse IDE C/C++ 开发工具 2023-03**：点击<a href= "https://www.eclipse.org/downloads/packages/release/2023-03/r/eclipse-ide-cc-developers">这里</a>下载并安装 Eclipse CDT 安装包。
 * **Git**：点击<a href ="https://git-scm.com/downloads">这里</a>获得最新 Git。

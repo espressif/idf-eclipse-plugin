@@ -6,6 +6,6 @@ Bundle-Version: 1.0.1.qualifier
 Bundle-Activator: com.espressif.idf.help.HelpActivator
 Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.core.runtime
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: com.espressif.idf.help
 Bundle-ActivationPolicy: lazy

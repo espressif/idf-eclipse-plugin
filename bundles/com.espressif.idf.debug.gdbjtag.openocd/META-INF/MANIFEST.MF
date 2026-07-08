@@ -24,7 +24,7 @@ Require-Bundle: org.eclipse.cdt.core;bundle-version="6.2.0",
  org.eclipse.embedcdt.debug.gdbjtag.core,
  org.eclipse.embedcdt.ui,
  org.eclipse.ui.console
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-Vendor: %bundle.vendor
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
