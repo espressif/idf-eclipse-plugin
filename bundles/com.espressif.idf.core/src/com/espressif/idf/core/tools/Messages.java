@@ -10,6 +10,13 @@ public class Messages extends NLS
 	
 	public static String EimVersionMismatchExceptionMessage;
 	public static String EimVersionMismatchExceptionMessageTitle;
+
+	public static String EimInstallationStatusActive;
+	public static String EimInstallationStatusSettingUp;
+	public static String EimInstallationStatusInProgress;
+	public static String EimInstallationStatusFailed;
+	public static String EimInstallationStatusBeingRepaired;
+	public static String EimInstallationStatusBroken;
 	
 	static
 	{

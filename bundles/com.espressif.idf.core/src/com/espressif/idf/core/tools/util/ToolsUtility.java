@@ -14,7 +14,7 @@ import org.eclipse.core.runtime.Platform;
 
 import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.tools.vo.IdfInstalled;
+import com.espressif.idf.core.tools.eimjson.model.EimInstallationModel;
 import com.espressif.idf.core.util.StringUtil;
 
 /**
@@ -25,9 +25,14 @@ import com.espressif.idf.core.util.StringUtil;
  */
 public class ToolsUtility
 {
-	public static String getIdfVersion(IdfInstalled idfInstalled, String gitPath)
+	public static String getIdfVersion(EimInstallationModel installation)
 	{
-		String activationScript = idfInstalled.getActivationScript();
+		return installation.getActivationScript().map(ToolsUtility::readIdfVersionFromScript)
+				.orElse(StringUtil.EMPTY);
+	}
+
+	private static String readIdfVersionFromScript(String activationScript)
+	{
 		String espIdfVersion = StringUtil.EMPTY;
 
 		try
@@ -93,10 +98,10 @@ public class ToolsUtility
 		return command;
 	}
 	
-	public static boolean isIdfInstalledActive(IdfInstalled idfInstalled)
+	public static boolean isIdfInstalledActive(EimInstallationModel installation)
 	{
 		IDFEnvironmentVariables idfEnvironmentVariables = new IDFEnvironmentVariables();
 		String espIdfIdEim = idfEnvironmentVariables.getEnvValue(IDFEnvironmentVariables.ESP_IDF_EIM_ID);
-		return idfInstalled.getId().equals(espIdfIdEim);
+		return installation.getId().equals(espIdfIdEim);
 	}
 }

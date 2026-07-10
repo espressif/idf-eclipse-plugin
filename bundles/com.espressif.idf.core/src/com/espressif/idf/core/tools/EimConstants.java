@@ -29,5 +29,4 @@ public interface EimConstants
 
 	String USER_EIM_CLI_DIR = Paths.get(System.getProperty("user.home"), ".espressif", "eim").toString(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-	String EIM_JSON_VALID_VERSION = "2.0"; //$NON-NLS-1$
 }

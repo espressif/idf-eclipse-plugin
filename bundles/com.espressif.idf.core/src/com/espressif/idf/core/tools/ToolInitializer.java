@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -26,8 +27,8 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.SystemExecutableFinder;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.tools.eimjson.model.EimConfigModel;
 import com.espressif.idf.core.tools.exceptions.EimVersionMismatchException;
-import com.espressif.idf.core.tools.vo.EimJson;
 import com.espressif.idf.core.util.StringUtil;
 
 /**
@@ -150,10 +151,10 @@ public class ToolInitializer
 	 * <li>Default CLI install location (existence-checked)</li>
 	 * </ol>
 	 *
-	 * @param eimJson parsed JSON or {@code null}
+	 * @param config parsed JSON model or {@code null}
 	 * @return resolved absolute path string, or empty if nothing could be resolved
 	 */
-	public String resolveEimExecutablePath(EimJson eimJson)
+	public String resolveEimExecutablePath(EimConfigModel config)
 	{
 		String fromPath = findEimOnSystemPath();
 		if (!StringUtil.isEmpty(fromPath))
@@ -167,12 +168,23 @@ public class ToolInitializer
 			return fromPkgMgr;
 		}
 
-		if (eimJson != null && !StringUtil.isEmpty(eimJson.getEimPath()))
+		if (config != null)
 		{
-			String jsonPath = eimJson.getEimPath();
-			if (Files.exists(Paths.get(jsonPath)))
+			var eimPath = config.getEimPath();
+			if (eimPath.isPresent())
 			{
-				return jsonPath;
+				try
+				{
+					if (Files.exists(Paths.get(eimPath.get())))
+					{
+						return eimPath.get();
+					}
+					Logger.log("eimPath from eim_idf.json does not exist: " + eimPath.get()); //$NON-NLS-1$
+				}
+				catch (InvalidPathException e)
+				{
+					Logger.log("Ignoring invalid eimPath from eim_idf.json: " + eimPath.get()); //$NON-NLS-1$
+				}
 			}
 		}
 
@@ -203,11 +215,11 @@ public class ToolInitializer
 		return Files.isRegularFile(path) && Files.isReadable(path);
 	}
 
-	public EimJson loadEimJson() throws EimVersionMismatchException
+	public EimConfigModel loadEimConfig() throws EimVersionMismatchException
 	{
 		try
 		{
-			return parser.getEimJson(true);
+			return parser.getConfigModel(true);
 		}
 		catch (IOException e)
 		{

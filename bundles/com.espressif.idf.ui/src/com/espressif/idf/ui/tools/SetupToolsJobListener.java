@@ -79,7 +79,8 @@ public class SetupToolsJobListener extends JobChangeAdapter
 		Display.getDefault().asyncExec(() -> {
 			if (espidfMainTablePage != null)
 			{
-				espidfMainTablePage.refreshEditorUI();
+				espidfMainTablePage.clearInstallingState();
+				espidfMainTablePage.refreshEditorUI(false);
 			}
 		});
 		OpenDialogListenerSupport.getSupport().firePropertyChange(PopupDialog.ENABLE_LAUNCHBAR_EVENTS.name(), null,
