@@ -6,8 +6,10 @@ package com.espressif.idf.core.tools.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,8 +64,18 @@ public class ToolsUtility
 			return StringUtil.EMPTY;
 		}
 
-		Path versionCMakeFile = Path.of(idfPath, "tools", "cmake", "version.cmake"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		return parseVersionCMake(versionCMakeFile);
+		try
+		{
+			Path versionCMakeFile = Path.of(idfPath, "tools", "cmake", "version.cmake"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			return parseVersionCMake(versionCMakeFile);
+
+		}
+		catch (InvalidPathException e)
+		{
+			Logger.log(e);
+			return StringUtil.EMPTY;
+		}
+
 	}
 
 	/**
@@ -96,7 +108,7 @@ public class ToolsUtility
 
 			return major + "." + minor + "." + patch; //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		catch (Exception e)
+		catch (IOException e)
 		{
 			Logger.log(e);
 			return StringUtil.EMPTY;
