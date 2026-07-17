@@ -201,8 +201,9 @@ public class ProjectTestOperations
 	 *
 	 * @param bot     current SWT bot reference
 	 * @param timeout how long to wait for the dialog in milliseconds
+	 * @return {@code true} if the dialog was found and dismissed
 	 */
-	public static void acceptDebugPerspectiveSwitchIfPresent(SWTWorkbenchBot bot, long timeout)
+	public static boolean acceptDebugPerspectiveSwitchIfPresent(SWTWorkbenchBot bot, long timeout)
 	{
 		try
 		{
@@ -213,7 +214,7 @@ public class ProjectTestOperations
 
 			try
 			{
-				SWTBotCheckBox remember = bot.checkBox("Remember my decision");
+				SWTBotCheckBox remember = shell.bot().checkBox("Remember my decision");
 				if (!remember.isChecked())
 				{
 					remember.click();
@@ -225,17 +226,21 @@ public class ProjectTestOperations
 
 			try
 			{
-				bot.button("Switch").click();
+				shell.bot().button("Switch").click();
 			}
 			catch (WidgetNotFoundException e)
 			{
-				bot.button("Yes").click();
+				shell.bot().button("Yes").click();
 			}
-			bot.sleep(1000);
+
+			// Give the Debug perspective time to finish opening before further toolbar clicks.
+			bot.sleep(2000);
+			return true;
 		}
 		catch (Exception ignored)
 		{
 			// Perspective switch may already be remembered / suppressed.
+			return false;
 		}
 	}
 
@@ -248,8 +253,9 @@ public class ProjectTestOperations
 	}
 
 	/**
-	 * Waits until OpenOCD/GDB shows a successful debug start, then dismisses the Debug
-	 * perspective switch dialog that appears when the target suspends at the breakpoint.
+	 * Waits until GDB has suspended at a breakpoint (not merely OpenOCD "Target halted" during
+	 * reset), dismisses the Debug perspective switch dialog, then waits until the Debug toolbar
+	 * is ready for stepping.
 	 *
 	 * @param bot current SWT bot reference
 	 * @throws IOException if property lookup fails
@@ -258,11 +264,14 @@ public class ProjectTestOperations
 	{
 		long timeout = DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_FLASH_WAIT_PROPERTY, 120000);
 		long deadline = System.currentTimeMillis() + timeout;
+		boolean perspectiveHandled = false;
 
 		while (System.currentTimeMillis() < deadline)
 		{
-			// Dialog can appear as soon as GDB hits the breakpoint and blocks further UI.
-			acceptDebugPerspectiveSwitchIfPresent(bot, 1000);
+			if (!perspectiveHandled)
+			{
+				perspectiveHandled = acceptDebugPerspectiveSwitchIfPresent(bot, 1000);
+			}
 
 			try
 			{
@@ -275,15 +284,19 @@ public class ProjectTestOperations
 					consoleText = "";
 				}
 
-				boolean started = consoleText.toLowerCase().contains("listening on port 3333")
-						|| consoleText.contains("Target halted")
-						|| consoleText.contains("hit Temporary breakpoint")
-						|| consoleText.contains("hit Breakpoint");
+				// Require an actual GDB breakpoint hit. "Target halted" alone appears during
+				// OpenOCD reset and is too early — acting on it causes flaky teardown.
+				boolean suspendedAtBreakpoint = consoleText.contains("hit Temporary breakpoint")
+						|| consoleText.contains("hit Breakpoint")
+						|| consoleText.contains("hit breakpoint");
 
-				if (started)
+				if (suspendedAtBreakpoint)
 				{
-					// Perspective switch is triggered by suspend — wait for it explicitly.
-					acceptDebugPerspectiveSwitchIfPresent(bot, 30000);
+					if (!perspectiveHandled)
+					{
+						perspectiveHandled = acceptDebugPerspectiveSwitchIfPresent(bot, 30000);
+					}
+					waitForDebugStepActionsAvailable(bot, 30000);
 					return;
 				}
 			}
@@ -296,7 +309,65 @@ public class ProjectTestOperations
 		}
 
 		throw new AssertionError(
-				"Debug session did not start within timeout (expected OpenOCD/GDB halt or Listening on port 3333)");
+				"Debug session did not suspend at a breakpoint within timeout (expected 'hit Temporary breakpoint' / 'hit Breakpoint')");
+	}
+
+	/**
+	 * Waits until Debug perspective step actions are available (session is alive and UI ready).
+	 *
+	 * @param bot     current SWT bot reference
+	 * @param timeout timeout in milliseconds
+	 */
+	public static void waitForDebugStepActionsAvailable(SWTWorkbenchBot bot, long timeout)
+	{
+		bot.waitUntil(new DefaultCondition()
+		{
+			@Override
+			public boolean test() throws Exception
+			{
+				return isToolbarButtonPresent(bot, "Step Over (F6)") || isToolbarButtonPresent(bot, "Step Over");
+			}
+
+			@Override
+			public String getFailureMessage()
+			{
+				return "Debug Step Over action not available — debug session may have terminated or Debug perspective did not finish loading";
+			}
+		}, timeout, 500);
+	}
+
+	private static boolean isToolbarButtonPresent(SWTWorkbenchBot bot, String tooltip)
+	{
+		try
+		{
+			bot.toolbarButtonWithTooltip(tooltip);
+			return true;
+		}
+		catch (WidgetNotFoundException e)
+		{
+			return false;
+		}
+	}
+
+	/**
+	 * Returns {@code true} if an active (non-terminated) Eclipse launch still exists.
+	 */
+	public static boolean hasActiveLaunch()
+	{
+		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+		ILaunch[] launches = launchManager.getLaunches();
+		if (launches == null)
+		{
+			return false;
+		}
+		for (ILaunch launch : launches)
+		{
+			if (launch != null && !launch.isTerminated())
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
