@@ -191,21 +191,38 @@ public class ProjectTestOperations
 
 		bot.waitUntil(Conditions.widgetIsEnabled(bot.button("Debug")), 5000);
 		bot.button("Debug").click();
-		acceptDebugPerspectiveSwitchIfPresent(bot);
+		// Dialog usually appears later, when GDB suspends — also handled in waitForDebugSessionStarted.
+		acceptDebugPerspectiveSwitchIfPresent(bot, 5000);
 	}
 
 	/**
-	 * Accepts the Eclipse "Confirm Perspective Switch" dialog when it appears after starting a debug session.
+	 * Accepts the Eclipse "Confirm Perspective Switch" dialog when it appears after the debug
+	 * session suspends. Checks "Remember my decision" so CI is less likely to see it again.
 	 *
-	 * @param bot current SWT bot reference
+	 * @param bot     current SWT bot reference
+	 * @param timeout how long to wait for the dialog in milliseconds
 	 */
-	public static void acceptDebugPerspectiveSwitchIfPresent(SWTWorkbenchBot bot)
+	public static void acceptDebugPerspectiveSwitchIfPresent(SWTWorkbenchBot bot, long timeout)
 	{
 		try
 		{
-			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Confirm Perspective Switch", 15000);
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Confirm Perspective Switch", timeout);
 			SWTBotShell shell = bot.shell("Confirm Perspective Switch");
+			shell.activate();
 			shell.setFocus();
+
+			try
+			{
+				SWTBotCheckBox remember = bot.checkBox("Remember my decision");
+				if (!remember.isChecked())
+				{
+					remember.click();
+				}
+			}
+			catch (WidgetNotFoundException ignored)
+			{
+			}
+
 			try
 			{
 				bot.button("Switch").click();
@@ -214,6 +231,7 @@ public class ProjectTestOperations
 			{
 				bot.button("Yes").click();
 			}
+			bot.sleep(1000);
 		}
 		catch (Exception ignored)
 		{
@@ -222,17 +240,63 @@ public class ProjectTestOperations
 	}
 
 	/**
-	 * Waits until the Console view shows a successful OpenOCD / GDB debug session start.
+	 * @see #acceptDebugPerspectiveSwitchIfPresent(SWTWorkbenchBot, long)
+	 */
+	public static void acceptDebugPerspectiveSwitchIfPresent(SWTWorkbenchBot bot)
+	{
+		acceptDebugPerspectiveSwitchIfPresent(bot, 30000);
+	}
+
+	/**
+	 * Waits until OpenOCD/GDB shows a successful debug start, then dismisses the Debug
+	 * perspective switch dialog that appears when the target suspends at the breakpoint.
 	 *
 	 * @param bot current SWT bot reference
 	 * @throws IOException if property lookup fails
 	 */
 	public static void waitForDebugSessionStarted(SWTWorkbenchBot bot) throws IOException
 	{
-		SWTBotView view = bot.viewByPartName("Console");
-		view.setFocus();
-		TestWidgetWaitUtility.waitUntilViewContains(bot, "Listening on port 3333", view,
-				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_FLASH_WAIT_PROPERTY, 120000));
+		long timeout = DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_FLASH_WAIT_PROPERTY, 120000);
+		long deadline = System.currentTimeMillis() + timeout;
+
+		while (System.currentTimeMillis() < deadline)
+		{
+			// Dialog can appear as soon as GDB hits the breakpoint and blocks further UI.
+			acceptDebugPerspectiveSwitchIfPresent(bot, 1000);
+
+			try
+			{
+				SWTBotView view = bot.viewByPartName("Console");
+				view.show();
+				view.setFocus();
+				String consoleText = view.bot().styledText().getText();
+				if (consoleText == null)
+				{
+					consoleText = "";
+				}
+
+				boolean started = consoleText.toLowerCase().contains("listening on port 3333")
+						|| consoleText.contains("Target halted")
+						|| consoleText.contains("hit Temporary breakpoint")
+						|| consoleText.contains("hit Breakpoint");
+
+				if (started)
+				{
+					// Perspective switch is triggered by suspend — wait for it explicitly.
+					acceptDebugPerspectiveSwitchIfPresent(bot, 30000);
+					return;
+				}
+			}
+			catch (Exception e)
+			{
+				logger.debug("Waiting for debug console output: {}", e.getMessage());
+			}
+
+			bot.sleep(1000);
+		}
+
+		throw new AssertionError(
+				"Debug session did not start within timeout (expected OpenOCD/GDB halt or Listening on port 3333)");
 	}
 
 	/**
