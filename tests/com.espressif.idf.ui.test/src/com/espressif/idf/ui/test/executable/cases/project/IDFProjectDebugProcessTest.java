@@ -371,6 +371,8 @@ public class IDFProjectDebugProcessTest
 		private static void thenVerifyDebugSessionStarted() throws Exception
 		{
 			ProjectTestOperations.waitForDebugSessionStarted(bot);
+			// Extra safety: dialog can linger if it appeared after the wait loop exited.
+			ProjectTestOperations.acceptDebugPerspectiveSwitchIfPresent(bot, 5000);
 		}
 
 		private static void thenVerifyNoFatalOpenOcdErrors()
@@ -382,6 +384,7 @@ public class IDFProjectDebugProcessTest
 
 		private static void whenStepOver()
 		{
+			ProjectTestOperations.acceptDebugPerspectiveSwitchIfPresent(bot, 3000);
 			try
 			{
 				bot.toolbarButtonWithTooltip("Step Over (F6)").click();
