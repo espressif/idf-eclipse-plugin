@@ -28,6 +28,7 @@ import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory;
+import org.eclipse.swtbot.swt.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
@@ -147,13 +148,49 @@ public class ProjectTestOperations
 	}
 
 	/**
-	 * Starts debugging via the Launch Bar Launch button and accepts the Debug perspective switch if prompted.
+	 * Starts debugging via Project Explorer context menu: Debug As → Debug Configurations...,
+	 * selects the ESP-IDF OpenOCD debug config, clicks Debug, and accepts the perspective switch if prompted.
 	 *
-	 * @param bot current SWT bot reference
+	 * @param projectName project whose debug configuration should be launched
+	 * @param bot         current SWT bot reference
 	 */
-	public static void startDebuggingUsingLaunchBar(SWTWorkbenchBot bot)
+	public static void startDebuggingUsingContextMenu(String projectName, SWTWorkbenchBot bot)
 	{
-		bot.toolbarButtonWithTooltip("Launch").click();
+		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
+		if (projectItem == null)
+		{
+			throw new WidgetNotFoundException("Project not found in Project Explorer: " + projectName);
+		}
+
+		projectItem.select();
+		projectItem.contextMenu("Debug As").menu("Debug Configurations...").click();
+
+		TestWidgetWaitUtility.waitForDialogToAppear(bot, "Debug Configurations", 10000);
+
+		bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").select();
+		bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").expand();
+
+		String primaryDebugConfig = projectName + " Debug";
+		String fallbackDebugConfig = projectName + " Configuration";
+		try
+		{
+			bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").getNode(primaryDebugConfig).select();
+		}
+		catch (WidgetNotFoundException e)
+		{
+			try
+			{
+				bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").getNode(fallbackDebugConfig).select();
+			}
+			catch (WidgetNotFoundException e2)
+			{
+				// Last resort: use the first child config under the OpenOCD type.
+				bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").getNode(0).select();
+			}
+		}
+
+		bot.waitUntil(Conditions.widgetIsEnabled(bot.button("Debug")), 5000);
+		bot.button("Debug").click();
 		acceptDebugPerspectiveSwitchIfPresent(bot);
 	}
 

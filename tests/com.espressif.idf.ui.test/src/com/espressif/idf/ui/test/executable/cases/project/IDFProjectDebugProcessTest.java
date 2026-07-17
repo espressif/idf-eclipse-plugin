@@ -7,15 +7,10 @@ package com.espressif.idf.ui.test.executable.cases.project;
 import static org.eclipse.swtbot.swt.finder.waits.Conditions.widgetIsEnabled;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -100,11 +95,10 @@ public class IDFProjectDebugProcessTest
 		Fixture.whenNewProjectIsSelected();
 		Fixture.whenTurnOffOpenSerialMonitorAfterFlashingInLaunchConfig();
 
-		String esp32SerialPort = Fixture.whenDetectEsp32UartSerialPortFromNewEspTargetDialog();
+		String esp32SerialPort = Fixture.whenDetectAndSelectEsp32UartSerialPort();
 		assumeTrue("Skipping debug test: no ESP32 UART target detected from Serial Port auto-detection",
 				esp32SerialPort != null);
 
-		Fixture.whenSelectLaunchTargetSerialPort(esp32SerialPort);
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.whenFlashProject();
 		Fixture.thenVerifyFlashDoneSuccessfully();
@@ -113,7 +107,7 @@ public class IDFProjectDebugProcessTest
 				Fixture.whenSelectEsp32EthernetKitBoard());
 
 		Fixture.whenSwitchToDebugModeAndSelectDebugConfig();
-		Fixture.whenStartDebugging();
+		Fixture.whenStartDebuggingUsingContextMenu();
 		Fixture.thenVerifyDebugSessionStarted();
 		Fixture.thenVerifyNoFatalOpenOcdErrors();
 		Fixture.whenStepOver();
@@ -172,30 +166,12 @@ public class IDFProjectDebugProcessTest
 		}
 
 		/**
-		 * Uses the same New ESP Target serial-port auto-detection as
-		 * {@code NewEspressifIDFProjectFlashProcessTest}, then returns the first port mapped to esp32.
+		 * Opens New ESP Target, scans serial ports with detailed output, and stops as soon as
+		 * an esp32 chip is detected. Finishes the dialog with that port selected.
+		 *
+		 * @return the selected ESP32 serial port, or {@code null} if none was found
 		 */
-		private static String whenDetectEsp32UartSerialPortFromNewEspTargetDialog() throws Exception
-		{
-			TargetPort[] detectedTargets = whenCollectDetectedTargetsFromNewEspTargetDialog();
-
-			assumeFalse("Skipping hardware debug test: no ESP targets were detected from Serial Port auto-detection",
-					detectedTargets.length == 0);
-
-			for (TargetPort targetPort : detectedTargets)
-			{
-				if (ESP32_TARGET.equals(targetPort.target))
-				{
-					System.out.println("Using ESP32 UART port for flash: " + targetPort.port);
-					return targetPort.port;
-				}
-			}
-
-			System.out.println("No esp32 target among detected ports");
-			return null;
-		}
-
-		private static TargetPort[] whenCollectDetectedTargetsFromNewEspTargetDialog() throws Exception
+		private static String whenDetectAndSelectEsp32UartSerialPort() throws Exception
 		{
 			LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
 			targetSelector.clickEdit();
@@ -214,8 +190,6 @@ public class IDFProjectDebugProcessTest
 			SWTBotCombo serialPortCombo = bot.comboBoxWithLabel("Serial Port:");
 			String[] serialPorts = serialPortCombo.items();
 
-			List<TargetPort> detectedTargets = new ArrayList<>();
-
 			for (String serialPort : serialPorts)
 			{
 				if (serialPort == null || serialPort.trim().isEmpty())
@@ -226,7 +200,6 @@ public class IDFProjectDebugProcessTest
 				System.out.println("Checking serial port: " + serialPort);
 
 				String outputBeforeSelection = readTargetDetectionOutput();
-
 				serialPortCombo.setSelection(serialPort);
 
 				// Wait for target auto-detection output to be printed.
@@ -234,7 +207,6 @@ public class IDFProjectDebugProcessTest
 
 				String outputAfterSelection = readTargetDetectionOutput();
 				String newOutput = getNewOutputPart(outputBeforeSelection, outputAfterSelection);
-
 				String detectedTarget = extractTargetFromDetectionOutput(newOutput);
 
 				if (detectedTarget == null || detectedTarget.trim().isEmpty())
@@ -244,50 +216,21 @@ public class IDFProjectDebugProcessTest
 				}
 
 				System.out.println("Detected ESP target: " + detectedTarget + " on port: " + serialPort);
-				detectedTargets.add(new TargetPort(detectedTarget, serialPort));
+
+				if (ESP32_TARGET.equals(detectedTarget))
+				{
+					System.out.println("ESP32 UART port found — stopping discovery and applying: " + serialPort);
+					TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
+					shell.setFocus();
+					bot.button("Finish").click();
+					TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
+					return serialPort;
+				}
 			}
 
+			System.out.println("No esp32 target among detected ports");
 			bot.button("Cancel").click();
-
-			List<TargetPort> uniqueTargets = keepFirstPortPerTarget(detectedTargets);
-			return uniqueTargets.toArray(new TargetPort[0]);
-		}
-
-		private static List<TargetPort> keepFirstPortPerTarget(List<TargetPort> targets)
-		{
-			Map<String, TargetPort> uniqueTargets = new LinkedHashMap<>();
-
-			for (TargetPort targetPort : targets)
-			{
-				uniqueTargets.putIfAbsent(targetPort.target, targetPort);
-			}
-
-			return new ArrayList<>(uniqueTargets.values());
-		}
-
-		private static void whenSelectLaunchTargetSerialPort(String portPrefixOrExact) throws Exception
-		{
-			LaunchBarTargetSelector targetSelector = new LaunchBarTargetSelector(bot);
-			targetSelector.clickEdit();
-
-			TestWidgetWaitUtility.waitForDialogToAppear(bot, "New ESP Target", 20000);
-
-			SWTBotShell shell = bot.shell("New ESP Target");
-			shell.setFocus();
-
-			SWTBotCheckBox detailedOutput = bot.checkBox("Enable detailed output");
-			if (!detailedOutput.isChecked())
-			{
-				detailedOutput.click();
-			}
-
-			SWTBotCombo serialPortCombo = bot.comboBoxWithLabel("Serial Port:");
-			selectComboItemByExactOrPrefix(serialPortCombo, portPrefixOrExact);
-
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
-			shell.setFocus();
-			bot.button("Finish").click();
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
+			return null;
 		}
 
 		/**
@@ -420,9 +363,9 @@ public class IDFProjectDebugProcessTest
 			}
 		}
 
-		private static void whenStartDebugging()
+		private static void whenStartDebuggingUsingContextMenu()
 		{
-			ProjectTestOperations.startDebuggingUsingLaunchBar(bot);
+			ProjectTestOperations.startDebuggingUsingContextMenu(projectName, bot);
 		}
 
 		private static void thenVerifyDebugSessionStarted() throws Exception
@@ -511,33 +454,6 @@ public class IDFProjectDebugProcessTest
 			{
 				// Final safety net in case UI cleanup left OpenOCD/GDB running.
 				ProjectTestOperations.killDebugProcesses();
-			}
-		}
-
-		private static void selectComboItemByExactOrPrefix(SWTBotCombo combo, String portPrefixOrExact)
-		{
-			try
-			{
-				combo.setSelection(portPrefixOrExact);
-			}
-			catch (Exception ignored)
-			{
-				String[] items = combo.items();
-				String match = null;
-				for (String item : items)
-				{
-					if (item != null && item.startsWith(portPrefixOrExact))
-					{
-						match = item;
-						break;
-					}
-				}
-				if (match == null)
-				{
-					throw new AssertionError("No serial port matched: " + portPrefixOrExact + " ; available="
-							+ String.join(", ", items));
-				}
-				combo.setSelection(match);
 			}
 		}
 
@@ -664,18 +580,6 @@ public class IDFProjectDebugProcessTest
 			catch (Exception e)
 			{
 				return "";
-			}
-		}
-
-		private static class TargetPort
-		{
-			final String target;
-			final String port;
-
-			TargetPort(String target, String port)
-			{
-				this.target = target;
-				this.port = port;
 			}
 		}
 	}
