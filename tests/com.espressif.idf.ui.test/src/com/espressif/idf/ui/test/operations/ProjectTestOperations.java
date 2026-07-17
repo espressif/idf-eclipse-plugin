@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -17,6 +18,10 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
@@ -139,6 +144,179 @@ public class ProjectTestOperations
 			bot.button("Close").click();
 		}
 
+	}
+
+	/**
+	 * Starts debugging via the Launch Bar Launch button and accepts the Debug perspective switch if prompted.
+	 *
+	 * @param bot current SWT bot reference
+	 */
+	public static void startDebuggingUsingLaunchBar(SWTWorkbenchBot bot)
+	{
+		bot.toolbarButtonWithTooltip("Launch").click();
+		acceptDebugPerspectiveSwitchIfPresent(bot);
+	}
+
+	/**
+	 * Accepts the Eclipse "Confirm Perspective Switch" dialog when it appears after starting a debug session.
+	 *
+	 * @param bot current SWT bot reference
+	 */
+	public static void acceptDebugPerspectiveSwitchIfPresent(SWTWorkbenchBot bot)
+	{
+		try
+		{
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Confirm Perspective Switch", 15000);
+			SWTBotShell shell = bot.shell("Confirm Perspective Switch");
+			shell.setFocus();
+			try
+			{
+				bot.button("Switch").click();
+			}
+			catch (WidgetNotFoundException e)
+			{
+				bot.button("Yes").click();
+			}
+		}
+		catch (Exception ignored)
+		{
+			// Perspective switch may already be remembered / suppressed.
+		}
+	}
+
+	/**
+	 * Waits until the Console view shows a successful OpenOCD / GDB debug session start.
+	 *
+	 * @param bot current SWT bot reference
+	 * @throws IOException if property lookup fails
+	 */
+	public static void waitForDebugSessionStarted(SWTWorkbenchBot bot) throws IOException
+	{
+		SWTBotView view = bot.viewByPartName("Console");
+		view.setFocus();
+		TestWidgetWaitUtility.waitUntilViewContains(bot, "Listening on port 3333", view,
+				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_FLASH_WAIT_PROPERTY, 120000));
+	}
+
+	/**
+	 * Stops the active launch / debug session using the Launch Bar Stop button.
+	 *
+	 * @param bot current SWT bot reference
+	 */
+	public static void stopLaunchUsingLaunchBar(SWTWorkbenchBot bot)
+	{
+		try
+		{
+			bot.toolbarButtonWithTooltip("Stop").click();
+			bot.sleep(2000);
+		}
+		catch (WidgetNotFoundException e)
+		{
+			logger.warn("Stop button not found while trying to stop launch/debug session");
+		}
+	}
+
+	/**
+	 * Best-effort cleanup of an active debug session: Launch Bar Stop, terminate all
+	 * Eclipse launches, then force-kill leftover OpenOCD / GDB processes. Safe to call
+	 * from {@code @After} / {@code @AfterClass} even when the test failed or hung mid-session.
+	 *
+	 * @param bot current SWT bot reference (may be {@code null} if UI is unavailable)
+	 */
+	public static void stopDebugSessionAndKillProcesses(SWTWorkbenchBot bot)
+	{
+		if (bot != null)
+		{
+			try
+			{
+				stopLaunchUsingLaunchBar(bot);
+			}
+			catch (Exception e)
+			{
+				logger.warn("Failed to stop launch via Launch Bar during debug cleanup", e);
+			}
+
+			try
+			{
+				bot.toolbarButtonWithTooltip("Terminate").click();
+				bot.sleep(1000);
+			}
+			catch (Exception ignored)
+			{
+				// Terminate toolbar button is only present in the Debug perspective.
+			}
+		}
+
+		try
+		{
+			terminateAllLaunches();
+		}
+		catch (Exception e)
+		{
+			logger.warn("Failed to terminate Eclipse launches during debug cleanup", e);
+		}
+
+		killDebugProcesses();
+	}
+
+	/**
+	 * Terminates every non-terminated launch registered with the Eclipse debug framework.
+	 */
+	public static void terminateAllLaunches()
+	{
+		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+		ILaunch[] launches = launchManager.getLaunches();
+		if (launches == null)
+		{
+			return;
+		}
+
+		for (ILaunch launch : launches)
+		{
+			if (launch == null || launch.isTerminated())
+			{
+				continue;
+			}
+			try
+			{
+				launch.terminate();
+			}
+			catch (DebugException e)
+			{
+				logger.warn("Failed to terminate launch: " + launch, e);
+			}
+		}
+	}
+
+	/**
+	 * Force-terminates OpenOCD and ESP GDB processes left behind by a debug session.
+	 * Mirrors the VS Code UI-test {@code killDebugProcesses} helper. Exit status from
+	 * {@code pkill} when no process matches is ignored.
+	 */
+	public static void killDebugProcesses()
+	{
+		String[] patterns = new String[] { "openocd", "xtensa-esp.*-gdb", "riscv32-esp.*-gdb" };
+		for (String pattern : patterns)
+		{
+			try
+			{
+				Process process = new ProcessBuilder("pkill", "-f", pattern).redirectErrorStream(true).start();
+				process.waitFor(5, TimeUnit.SECONDS);
+			}
+			catch (Exception e)
+			{
+				logger.debug("pkill for pattern '{}' skipped or failed: {}", pattern, e.getMessage());
+			}
+		}
+
+		try
+		{
+			Thread.sleep(1500);
+		}
+		catch (InterruptedException e)
+		{
+			Thread.currentThread().interrupt();
+		}
 	}
 
 	public static void openProjectComponentYMLFileInTextEditorUsingContextMenu(String projectName, SWTWorkbenchBot bot)
