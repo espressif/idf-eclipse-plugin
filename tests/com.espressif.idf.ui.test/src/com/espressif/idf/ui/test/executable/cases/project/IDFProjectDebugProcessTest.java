@@ -371,8 +371,6 @@ public class IDFProjectDebugProcessTest
 		private static void thenVerifyDebugSessionStarted() throws Exception
 		{
 			ProjectTestOperations.waitForDebugSessionStarted(bot);
-			// Extra safety: dialog can linger if it appeared after the wait loop exited.
-			ProjectTestOperations.acceptDebugPerspectiveSwitchIfPresent(bot, 5000);
 		}
 
 		private static void thenVerifyNoFatalOpenOcdErrors()
@@ -380,11 +378,15 @@ public class IDFProjectDebugProcessTest
 			String consoleText = readConsoleText();
 			assertFalse("Fatal OpenOCD error detected during debug session.\nConsole:\n" + consoleText,
 					DEBUG_FATAL_ERROR_PATTERN.matcher(consoleText).find());
+			assertFalse("Debug session already shut down before assertions.\nConsole:\n" + consoleText,
+					consoleText.contains("shutdown command invoked")
+							|| consoleText.contains("dropped 'gdb' connection"));
+			assertTrue("Expected an active debug launch after suspend", ProjectTestOperations.hasActiveLaunch());
 		}
 
 		private static void whenStepOver()
 		{
-			ProjectTestOperations.acceptDebugPerspectiveSwitchIfPresent(bot, 3000);
+			ProjectTestOperations.waitForDebugStepActionsAvailable(bot, 15000);
 			try
 			{
 				bot.toolbarButtonWithTooltip("Step Over (F6)").click();
@@ -392,7 +394,6 @@ public class IDFProjectDebugProcessTest
 			}
 			catch (WidgetNotFoundException e)
 			{
-				// Some Eclipse versions use a slightly different tooltip.
 				bot.toolbarButtonWithTooltip("Step Over").click();
 				bot.sleep(3000);
 			}
@@ -403,17 +404,10 @@ public class IDFProjectDebugProcessTest
 			String consoleText = readConsoleText();
 			assertFalse("Fatal OpenOCD error after Step Over.\nConsole:\n" + consoleText,
 					DEBUG_FATAL_ERROR_PATTERN.matcher(consoleText).find());
-
-			boolean stopAvailable = true;
-			try
-			{
-				bot.toolbarButtonWithTooltip("Stop");
-			}
-			catch (WidgetNotFoundException e)
-			{
-				stopAvailable = false;
-			}
-			assertTrue("Debug/launch session appears to have ended (Stop button missing)", stopAvailable);
+			assertFalse("Debug session terminated unexpectedly after Step Over.\nConsole:\n" + consoleText,
+					consoleText.contains("shutdown command invoked"));
+			assertTrue("Debug launch terminated unexpectedly after Step Over",
+					ProjectTestOperations.hasActiveLaunch());
 		}
 
 		private static void whenStopDebugging()
