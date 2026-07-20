@@ -256,13 +256,19 @@ public class ProjectTestOperations
 	 * Waits until GDB has suspended at a breakpoint (not merely OpenOCD "Target halted" during
 	 * reset), dismisses the Debug perspective switch dialog, then waits until the Debug toolbar
 	 * is ready for stepping.
+	 * <p>
+	 * Breakpoint output is usually on the <b>IDF Process Console</b> page of the Console view —
+	 * not whatever console page happens to be selected.
 	 *
 	 * @param bot current SWT bot reference
 	 * @throws IOException if property lookup fails
 	 */
 	public static void waitForDebugSessionStarted(SWTWorkbenchBot bot) throws IOException
 	{
-		long timeout = DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_FLASH_WAIT_PROPERTY, 120000);
+		// Prefer a bounded debug timeout; the shared flash wait property is often hours-long.
+		long timeout = Math.min(
+				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_FLASH_WAIT_PROPERTY, 120000),
+				180000);
 		long deadline = System.currentTimeMillis() + timeout;
 		boolean perspectiveHandled = false;
 
@@ -273,43 +279,95 @@ public class ProjectTestOperations
 				perspectiveHandled = acceptDebugPerspectiveSwitchIfPresent(bot, 1000);
 			}
 
-			try
+			String consoleText = readDebugRelatedConsoleText(bot);
+
+			if (consoleText.contains("shutdown command invoked")
+					|| consoleText.contains("dropped 'gdb' connection"))
 			{
-				SWTBotView view = bot.viewByPartName("Console");
-				view.show();
-				view.setFocus();
-				String consoleText = view.bot().styledText().getText();
-				if (consoleText == null)
-				{
-					consoleText = "";
-				}
-
-				// Require an actual GDB breakpoint hit. "Target halted" alone appears during
-				// OpenOCD reset and is too early — acting on it causes flaky teardown.
-				boolean suspendedAtBreakpoint = consoleText.contains("hit Temporary breakpoint")
-						|| consoleText.contains("hit Breakpoint")
-						|| consoleText.contains("hit breakpoint");
-
-				if (suspendedAtBreakpoint)
-				{
-					if (!perspectiveHandled)
-					{
-						perspectiveHandled = acceptDebugPerspectiveSwitchIfPresent(bot, 30000);
-					}
-					waitForDebugStepActionsAvailable(bot, 30000);
-					return;
-				}
+				throw new AssertionError(
+						"Debug session shut down before a breakpoint suspend was observed.\nConsole:\n"
+								+ consoleText);
 			}
-			catch (Exception e)
+
+			if (isSuspendedAtBreakpoint(consoleText))
 			{
-				logger.debug("Waiting for debug console output: {}", e.getMessage());
+				if (!perspectiveHandled)
+				{
+					perspectiveHandled = acceptDebugPerspectiveSwitchIfPresent(bot, 30000);
+				}
+				waitForDebugStepActionsAvailable(bot, 30000);
+				return;
 			}
 
 			bot.sleep(1000);
 		}
 
+		String lastConsole = readDebugRelatedConsoleText(bot);
 		throw new AssertionError(
-				"Debug session did not suspend at a breakpoint within timeout (expected 'hit Temporary breakpoint' / 'hit Breakpoint')");
+				"Debug session did not suspend at a breakpoint within timeout (expected 'hit Temporary breakpoint' / 'hit Breakpoint' on IDF Process Console).\nLast console text:\n"
+						+ lastConsole);
+	}
+
+	/**
+	 * Reads console text from the pages where OpenOCD/GDB output typically appears.
+	 */
+	public static String readDebugRelatedConsoleText(SWTWorkbenchBot bot)
+	{
+		StringBuilder combined = new StringBuilder();
+		String[] consolePages = new String[] { "IDF Process Console", "ESP-IDF Console" };
+
+		for (String consolePage : consolePages)
+		{
+			try
+			{
+				SWTBotView view = viewConsole(consolePage, bot);
+				view.show();
+				view.setFocus();
+				String text = view.bot().styledText().getText();
+				if (text != null && !text.isEmpty())
+				{
+					combined.append(text).append('\n');
+					if (isSuspendedAtBreakpoint(text))
+					{
+						return text;
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				logger.debug("Could not read console '{}': {}", consolePage, e.getMessage());
+			}
+		}
+
+		try
+		{
+			SWTBotView view = bot.viewByPartName("Console");
+			view.show();
+			view.setFocus();
+			String text = view.bot().styledText().getText();
+			if (text != null)
+			{
+				combined.append(text);
+			}
+		}
+		catch (Exception e)
+		{
+			logger.debug("Could not read default Console view: {}", e.getMessage());
+		}
+
+		return combined.toString();
+	}
+
+	private static boolean isSuspendedAtBreakpoint(String consoleText)
+	{
+		if (consoleText == null || consoleText.isEmpty())
+		{
+			return false;
+		}
+		return consoleText.contains("hit Temporary breakpoint")
+				|| consoleText.contains("hit Breakpoint")
+				|| consoleText.contains("hit breakpoint")
+				|| (consoleText.contains("Temporary breakpoint") && consoleText.contains("app_main"));
 	}
 
 	/**
@@ -326,6 +384,11 @@ public class ProjectTestOperations
 			@Override
 			public boolean test() throws Exception
 			{
+				if (!hasActiveLaunch())
+				{
+					throw new AssertionError(
+							"Debug launch terminated before Step Over became available (OpenOCD/GDB already stopped)");
+				}
 				return isToolbarButtonPresent(workbenchBot, "Step Over (F6)")
 						|| isToolbarButtonPresent(workbenchBot, "Step Over");
 			}
@@ -391,36 +454,14 @@ public class ProjectTestOperations
 	}
 
 	/**
-	 * Best-effort cleanup of an active debug session: Launch Bar Stop, terminate all
-	 * Eclipse launches, then force-kill leftover OpenOCD / GDB processes. Safe to call
-	 * from {@code @After} / {@code @AfterClass} even when the test failed or hung mid-session.
+	 * Best-effort cleanup of an active debug session via the debug API and process kill.
+	 * Avoids clicking Launch Bar Stop / Debug Terminate toolbars — those tooltips are ambiguous
+	 * under SWTBot and can race with an active session during perspective changes.
 	 *
 	 * @param bot current SWT bot reference (may be {@code null} if UI is unavailable)
 	 */
 	public static void stopDebugSessionAndKillProcesses(SWTWorkbenchBot bot)
 	{
-		if (bot != null)
-		{
-			try
-			{
-				stopLaunchUsingLaunchBar(bot);
-			}
-			catch (Exception e)
-			{
-				logger.warn("Failed to stop launch via Launch Bar during debug cleanup", e);
-			}
-
-			try
-			{
-				bot.toolbarButtonWithTooltip("Terminate").click();
-				bot.sleep(1000);
-			}
-			catch (Exception ignored)
-			{
-				// Terminate toolbar button is only present in the Debug perspective.
-			}
-		}
-
 		try
 		{
 			terminateAllLaunches();
