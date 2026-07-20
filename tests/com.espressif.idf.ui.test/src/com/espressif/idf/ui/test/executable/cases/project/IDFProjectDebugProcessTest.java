@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
-import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
@@ -35,7 +34,6 @@ import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 import com.espressif.idf.ui.test.operations.EnvSetupOperations;
 import com.espressif.idf.ui.test.operations.ProjectTestOperations;
 import com.espressif.idf.ui.test.operations.selectors.LaunchBarConfigSelector;
-import com.espressif.idf.ui.test.operations.selectors.LaunchBarModeSelector;
 import com.espressif.idf.ui.test.operations.selectors.LaunchBarTargetSelector;
 
 /**
@@ -106,7 +104,9 @@ public class IDFProjectDebugProcessTest
 		assumeTrue("Skipping debug test: ESP32-ETHERNET-KIT board not detected",
 				Fixture.whenSelectEsp32EthernetKitBoard());
 
-		Fixture.whenSwitchToDebugModeAndSelectDebugConfig();
+		// Start debug only via Debug As — do not flip Launch Bar mode/config first.
+		// LaunchBarListener toggles RUN↔DEBUG on descriptor changes and can terminate
+		// an active OpenOCD session when the Debug perspective opens.
 		Fixture.whenStartDebuggingUsingContextMenu();
 		Fixture.thenVerifyDebugSessionStarted();
 		Fixture.thenVerifyNoFatalOpenOcdErrors();
@@ -315,54 +315,6 @@ public class IDFProjectDebugProcessTest
 			ProjectTestOperations.waitForProjectFlash(bot);
 		}
 
-		private static void whenSwitchToDebugModeAndSelectDebugConfig() throws Exception
-		{
-			LaunchBarModeSelector modeSelector;
-			try
-			{
-				modeSelector = new LaunchBarModeSelector(bot);
-			}
-			catch (WidgetNotFoundException e)
-			{
-				modeSelector = new LaunchBarModeSelector(bot, false);
-			}
-			modeSelector.select("Debug");
-			bot.sleep(1000);
-
-			LaunchBarConfigSelector configSelector = new LaunchBarConfigSelector(bot);
-			String primaryDebugConfig = projectName + " Debug";
-			String fallbackDebugConfig = projectName + " Configuration";
-
-			if (!trySelectLaunchConfig(configSelector, primaryDebugConfig)
-					&& !trySelectLaunchConfig(configSelector, fallbackDebugConfig))
-			{
-				System.out.println("Debug config not found in Launch Bar; creating via Debug Configurations...");
-				ProjectTestOperations.createDebugConfiguration(projectName, bot);
-				bot.sleep(1000);
-
-				assumeTrue("Could not select a debug launch configuration for project: " + projectName,
-						trySelectLaunchConfig(configSelector, primaryDebugConfig)
-								|| trySelectLaunchConfig(configSelector, fallbackDebugConfig)
-								|| trySelectLaunchConfig(configSelector, projectName));
-			}
-
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
-		}
-
-		private static boolean trySelectLaunchConfig(LaunchBarConfigSelector configSelector, String configName)
-		{
-			try
-			{
-				configSelector.select(configName);
-				System.out.println("Selected launch configuration: " + configName);
-				return true;
-			}
-			catch (WidgetNotFoundException e)
-			{
-				return false;
-			}
-		}
-
 		private static void whenStartDebuggingUsingContextMenu()
 		{
 			ProjectTestOperations.startDebuggingUsingContextMenu(projectName, bot);
@@ -375,7 +327,7 @@ public class IDFProjectDebugProcessTest
 
 		private static void thenVerifyNoFatalOpenOcdErrors()
 		{
-			String consoleText = readConsoleText();
+			String consoleText = ProjectTestOperations.readDebugRelatedConsoleText(bot);
 			assertFalse("Fatal OpenOCD error detected during debug session.\nConsole:\n" + consoleText,
 					DEBUG_FATAL_ERROR_PATTERN.matcher(consoleText).find());
 			assertFalse("Debug session already shut down before assertions.\nConsole:\n" + consoleText,
@@ -401,7 +353,7 @@ public class IDFProjectDebugProcessTest
 
 		private static void thenVerifyDebugSessionStillActive()
 		{
-			String consoleText = readConsoleText();
+			String consoleText = ProjectTestOperations.readDebugRelatedConsoleText(bot);
 			assertFalse("Fatal OpenOCD error after Step Over.\nConsole:\n" + consoleText,
 					DEBUG_FATAL_ERROR_PATTERN.matcher(consoleText).find());
 			assertFalse("Debug session terminated unexpectedly after Step Over.\nConsole:\n" + consoleText,
@@ -413,7 +365,7 @@ public class IDFProjectDebugProcessTest
 		private static void whenStopDebugging()
 		{
 			stopDebugSessionAndKillProcesses();
-			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
+			bot.sleep(2000);
 		}
 
 		private static void stopDebugSessionAndKillProcesses()
@@ -433,14 +385,6 @@ public class IDFProjectDebugProcessTest
 
 			try
 			{
-				TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
-			}
-			catch (Exception ignored)
-			{
-			}
-
-			try
-			{
 				ProjectTestOperations.closeAllProjects(bot);
 				ProjectTestOperations.deleteAllProjects(bot);
 			}
@@ -449,7 +393,6 @@ public class IDFProjectDebugProcessTest
 			}
 			finally
 			{
-				// Final safety net in case UI cleanup left OpenOCD/GDB running.
 				ProjectTestOperations.killDebugProcesses();
 			}
 		}
@@ -563,21 +506,6 @@ public class IDFProjectDebugProcessTest
 				return "esp32";
 			}
 			return null;
-		}
-
-		private static String readConsoleText()
-		{
-			try
-			{
-				SWTBotView view = bot.viewByPartName("Console");
-				view.show();
-				view.setFocus();
-				return view.bot().styledText().getText();
-			}
-			catch (Exception e)
-			{
-				return "";
-			}
 		}
 	}
 }
