@@ -320,12 +320,14 @@ public class ProjectTestOperations
 	 */
 	public static void waitForDebugStepActionsAvailable(SWTWorkbenchBot bot, long timeout)
 	{
-		bot.waitUntil(new DefaultCondition()
+		final SWTWorkbenchBot workbenchBot = bot;
+		workbenchBot.waitUntil(new DefaultCondition()
 		{
 			@Override
 			public boolean test() throws Exception
 			{
-				return isToolbarButtonPresent(bot, "Step Over (F6)") || isToolbarButtonPresent(bot, "Step Over");
+				return isToolbarButtonPresent(workbenchBot, "Step Over (F6)")
+						|| isToolbarButtonPresent(workbenchBot, "Step Over");
 			}
 
 			@Override
