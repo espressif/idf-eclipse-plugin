@@ -479,6 +479,7 @@ public class ProjectTestOperations
 				}
 				// Ready when the thread can step, or the toolbar button is already visible.
 				return canStepOverInDebugModel()
+						|| isToolbarButtonPresent(workbenchBot, "Step &Over (F6)")
 						|| isToolbarButtonPresent(workbenchBot, "Step Over (F6)")
 						|| isToolbarButtonPresent(workbenchBot, "Step Over");
 			}
@@ -508,6 +509,15 @@ public class ProjectTestOperations
 
 	private static boolean clickToolbarStepOver(SWTWorkbenchBot bot)
 	{
+		try
+		{
+			bot.toolbarButtonWithTooltip("Step &Over (F6)").click();
+			return true;
+		}
+		catch (WidgetNotFoundException ignored)
+		{
+		}
+
 		try
 		{
 			bot.toolbarButtonWithTooltip("Step Over (F6)").click();
