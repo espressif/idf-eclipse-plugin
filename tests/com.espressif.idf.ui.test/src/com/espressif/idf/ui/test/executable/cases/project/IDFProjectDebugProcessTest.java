@@ -359,7 +359,6 @@ public class IDFProjectDebugProcessTest
 		{
 			try
 			{
-				// Leave Debug UI before the shared project cleanup used by other UI tests.
 				ProjectTestOperations.leaveDebugUi(bot);
 			}
 			catch (Exception e)
@@ -367,37 +366,41 @@ public class IDFProjectDebugProcessTest
 				System.err.println("leaveDebugUi failed: " + e.getMessage());
 			}
 
+			// Delete via workspace API first — UI deleteAllProjects calls WaitUtils.waitForJobs()
+			// which times out for ~5 minutes when Language Server jobs never go idle after debug,
+			// leaving NewProjectDebugProcessTest in the workspace for the next test class.
 			try
 			{
-				TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
+				ProjectTestOperations.cancelJobsThatBlockWorkbenchIdle();
+				ProjectTestOperations.deleteAllProjectsViaWorkspaceApi();
 			}
 			catch (Exception e)
 			{
-				System.err.println("waitForOperationsInProgressToFinishAsync failed: " + e.getMessage());
-				ProjectTestOperations.cancelJobsThatBlockWorkbenchIdle();
+				System.err.println("deleteAllProjectsViaWorkspaceApi failed: " + e.getMessage());
 			}
 
 			try
 			{
 				ProjectTestOperations.closeAllProjects(bot);
+			}
+			catch (Exception e)
+			{
+				System.err.println("closeAllProjects failed: " + e.getMessage());
+			}
+
+			try
+			{
+				ProjectTestOperations.cancelJobsThatBlockWorkbenchIdle();
 				ProjectTestOperations.deleteAllProjects(bot);
 			}
 			catch (Exception e)
 			{
-				// deleteAllProjects → WaitUtils.waitForJobs can still time out if LSP respawns.
-				System.err.println("close/delete projects failed, retrying after cancelling jobs: " + e.getMessage());
-				ProjectTestOperations.cancelJobsThatBlockWorkbenchIdle();
-				try
-				{
-					ProjectTestOperations.closeAllProjects(bot);
-					ProjectTestOperations.deleteAllProjects(bot);
-				}
-				catch (Exception e2)
-				{
-					System.err.println("project cleanup still failed: " + e2.getMessage());
-					e2.printStackTrace();
-				}
+				System.err.println("UI deleteAllProjects failed (expected if jobs never idle): " + e.getMessage());
+				ProjectTestOperations.deleteAllProjectsViaWorkspaceApi();
 			}
+
+			ProjectTestOperations.openCCppPerspective(bot);
+			ProjectTestOperations.killDebugProcesses();
 		}
 
 		private static String getNewOutputPart(String outputBeforeSelection, String outputAfterSelection)
