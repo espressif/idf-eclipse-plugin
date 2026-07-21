@@ -27,7 +27,6 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
@@ -451,12 +450,13 @@ public class ProjectTestOperations
 	}
 
 	/**
-	 * Waits until a suspended debug thread can step over, then performs Step Over via the
-	 * debug model (preferred). Falls back to Run menu / F6 / toolbar when needed.
+	 * Performs Step Over using the Debug toolbar button, or Project Explorer context menu
+	 * {@code Step Over} on the project. Does not use keyboard shortcuts.
 	 *
-	 * @param bot current SWT bot reference
+	 * @param projectName project to use for the context-menu fallback
+	 * @param bot         current SWT bot reference
 	 */
-	public static void performDebugStepOver(SWTWorkbenchBot bot)
+	public static void performDebugStepOver(String projectName, SWTWorkbenchBot bot)
 	{
 		acceptDebugPerspectiveSwitchIfPresent(bot, 2000);
 		openDebugPerspective(bot);
@@ -477,50 +477,41 @@ public class ProjectTestOperations
 					throw new AssertionError(
 							"Debug launch terminated before Step Over became available (OpenOCD/GDB already stopped)");
 				}
+				// Ready when the thread can step, or the toolbar button is already visible.
 				return canStepOverInDebugModel()
 						|| isToolbarButtonPresent(workbenchBot, "Step Over (F6)")
-						|| isToolbarButtonPresent(workbenchBot, "Step Over")
-						|| isRunMenuStepOverPresent(workbenchBot);
+						|| isToolbarButtonPresent(workbenchBot, "Step Over");
 			}
 
 			@Override
 			public String getFailureMessage()
 			{
-				return "Debug Step Over action not available — debug session may have terminated or Debug perspective did not finish loading";
+				return "Debug Step Over not ready — debug session may have terminated or is not suspended";
 			}
 		}, 30000, 500);
 
-		if (stepOverViaDebugModel())
+		if (clickToolbarStepOver(bot))
 		{
 			bot.sleep(3000);
 			return;
 		}
 
-		try
+		if (clickProjectContextMenuStepOver(projectName, bot))
 		{
-			bot.menu("Run").menu("Step Over").click();
 			bot.sleep(3000);
 			return;
 		}
-		catch (WidgetNotFoundException ignored)
-		{
-		}
 
-		try
-		{
-			bot.menu("Run").menu("Step Over (F6)").click();
-			bot.sleep(3000);
-			return;
-		}
-		catch (WidgetNotFoundException ignored)
-		{
-		}
+		throw new AssertionError(
+				"Failed to perform Step Over via toolbar button or Project Explorer context menu");
+	}
 
+	private static boolean clickToolbarStepOver(SWTWorkbenchBot bot)
+	{
 		try
 		{
 			bot.toolbarButtonWithTooltip("Step Over (F6)").click();
-			bot.sleep(3000);
-			return;
+			return true;
 		}
 		catch (WidgetNotFoundException ignored)
 		{
@@ -529,43 +520,39 @@ public class ProjectTestOperations
 		try
 		{
 			bot.toolbarButtonWithTooltip("Step Over").click();
-			bot.sleep(3000);
-			return;
+			return true;
 		}
 		catch (WidgetNotFoundException ignored)
 		{
-		}
-
-		try
-		{
-			bot.activeShell().pressShortcut(SWT.NONE, SWT.F6);
-			bot.sleep(3000);
-			return;
-		}
-		catch (Exception e)
-		{
-			throw new AssertionError("Failed to perform Step Over via debug model, menu, toolbar, or F6", e);
+			return false;
 		}
 	}
 
-	private static boolean isRunMenuStepOverPresent(SWTWorkbenchBot bot)
+	private static boolean clickProjectContextMenuStepOver(String projectName, SWTWorkbenchBot bot)
 	{
 		try
 		{
-			bot.menu("Run").menu("Step Over");
-			return true;
-		}
-		catch (WidgetNotFoundException e)
-		{
-			try
-			{
-				bot.menu("Run").menu("Step Over (F6)");
-				return true;
-			}
-			catch (WidgetNotFoundException e2)
+			SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
+			if (projectItem == null)
 			{
 				return false;
 			}
+			projectItem.select();
+			try
+			{
+				projectItem.contextMenu("Step Over").click();
+				return true;
+			}
+			catch (WidgetNotFoundException e)
+			{
+				projectItem.contextMenu("Step Over (F6)").click();
+				return true;
+			}
+		}
+		catch (Exception e)
+		{
+			logger.debug("Project context menu Step Over failed: {}", e.getMessage());
+			return false;
 		}
 	}
 
@@ -612,56 +599,6 @@ public class ProjectTestOperations
 				catch (DebugException e)
 				{
 					logger.debug("canStepOverInDebugModel: {}", e.getMessage());
-				}
-			}
-		}
-		return false;
-	}
-
-	private static boolean stepOverViaDebugModel()
-	{
-		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-		ILaunch[] launches = launchManager.getLaunches();
-		if (launches == null)
-		{
-			return false;
-		}
-
-		for (ILaunch launch : launches)
-		{
-			if (launch == null || launch.isTerminated())
-			{
-				continue;
-			}
-			IDebugTarget[] targets = launch.getDebugTargets();
-			if (targets == null)
-			{
-				continue;
-			}
-			for (IDebugTarget target : targets)
-			{
-				if (target == null || target.isTerminated())
-				{
-					continue;
-				}
-				try
-				{
-					if (!target.hasThreads())
-					{
-						continue;
-					}
-					for (IThread thread : target.getThreads())
-					{
-						if (thread != null && thread.isSuspended() && thread.canStepOver())
-						{
-							thread.stepOver();
-							return true;
-						}
-					}
-				}
-				catch (DebugException e)
-				{
-					logger.warn("stepOverViaDebugModel failed: {}", e.getMessage());
 				}
 			}
 		}

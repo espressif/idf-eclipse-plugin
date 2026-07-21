@@ -87,14 +87,14 @@ public class IDFProjectDebugProcessTest
 		Fixture.whenTurnOffOpenSerialMonitorAfterFlashingInLaunchConfig();
 
 		String esp32SerialPort = Fixture.whenDetectAndSelectEsp32UartSerialPort();
-		assumeTrue("Skipping debug test: no ESP32 UART target detected from Serial Port auto-detection",
+		assertTrue("No ESP32 UART target detected from Serial Port auto-detection",
 				esp32SerialPort != null);
 
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.whenFlashProject();
 		Fixture.thenVerifyFlashDoneSuccessfully();
 
-		assumeTrue("Skipping debug test: ESP32-ETHERNET-KIT board not detected",
+		assertTrue("ESP32-ETHERNET-KIT board not detected in New ESP Target Board combo",
 				Fixture.whenSelectEsp32EthernetKitBoard());
 
 		// Start debug only via Debug As — do not flip Launch Bar mode/config first.
@@ -331,7 +331,7 @@ public class IDFProjectDebugProcessTest
 
 		private static void whenStepOver()
 		{
-			ProjectTestOperations.performDebugStepOver(bot);
+			ProjectTestOperations.performDebugStepOver(projectName, bot);
 		}
 
 		private static void thenVerifyDebugSessionStillActive()
