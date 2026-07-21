@@ -21,7 +21,6 @@ import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCombo;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -72,16 +71,8 @@ public class IDFProjectDebugProcessTest
 	@AfterClass
 	public static void tearDown()
 	{
-		Fixture.cleanupEnvironment();
-	}
-
-	@After
-	public void afterEachTest()
-	{
-		// Always stop OpenOCD/GDB even when an assertion failed mid-test, then leave Debug
-		// perspective so later suites still start on C/C++ (runs before @AfterClass cleanup).
-		Fixture.stopDebugSessionAndKillProcesses();
-		Fixture.openCCppPerspective();
+		// Must not hang: a stuck @AfterClass blocks every later UI test in the same session.
+		Fixture.forceCleanWorkbench();
 	}
 
 	@Test
@@ -340,17 +331,7 @@ public class IDFProjectDebugProcessTest
 
 		private static void whenStepOver()
 		{
-			ProjectTestOperations.waitForDebugStepActionsAvailable(bot, 15000);
-			try
-			{
-				bot.toolbarButtonWithTooltip("Step Over (F6)").click();
-				bot.sleep(3000);
-			}
-			catch (WidgetNotFoundException e)
-			{
-				bot.toolbarButtonWithTooltip("Step Over").click();
-				bot.sleep(3000);
-			}
+			ProjectTestOperations.performDebugStepOver(bot);
 		}
 
 		private static void thenVerifyDebugSessionStillActive()
@@ -375,38 +356,14 @@ public class IDFProjectDebugProcessTest
 			ProjectTestOperations.stopDebugSessionAndKillProcesses(bot);
 		}
 
-		private static void openCCppPerspective()
+		private static void forceCleanWorkbench()
 		{
 			try
 			{
-				ProjectTestOperations.openCCppPerspective(bot);
+				ProjectTestOperations.forceCleanWorkbenchAfterDebugTest(bot);
 			}
 			catch (Exception ignored)
 			{
-			}
-		}
-
-		private static void cleanupEnvironment()
-		{
-			try
-			{
-				stopDebugSessionAndKillProcesses();
-			}
-			catch (Exception ignored)
-			{
-			}
-
-			try
-			{
-				ProjectTestOperations.closeAllProjects(bot);
-				ProjectTestOperations.deleteAllProjects(bot);
-			}
-			catch (Exception ignored)
-			{
-			}
-			finally
-			{
-				ProjectTestOperations.killDebugProcesses();
 			}
 		}
 
