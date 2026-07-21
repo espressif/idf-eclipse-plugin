@@ -861,10 +861,17 @@ public class ProjectTestOperations
 					}
 					IPerspectiveDescriptor descriptor = workbench.getPerspectiveRegistry()
 							.findPerspectiveWithId(CDT_PERSPECTIVE_ID);
-					if (descriptor != null)
+					if (descriptor == null)
 					{
-						page.setPerspective(descriptor);
+						logger.warn("C/C++ perspective id not found: {}", CDT_PERSPECTIVE_ID);
+						return;
 					}
+					IPerspectiveDescriptor current = page.getPerspective();
+					if (current != null && DEBUG_PERSPECTIVE_ID.equals(current.getId()))
+					{
+						page.closePerspective(current, false, false);
+					}
+					page.setPerspective(descriptor);
 				}
 			});
 			if (bot != null)
