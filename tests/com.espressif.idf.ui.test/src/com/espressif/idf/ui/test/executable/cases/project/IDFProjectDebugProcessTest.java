@@ -71,8 +71,7 @@ public class IDFProjectDebugProcessTest
 	@AfterClass
 	public static void tearDown()
 	{
-		// Must not hang: a stuck @AfterClass blocks every later UI test in the same session.
-		Fixture.forceCleanWorkbench();
+		Fixture.cleanupEnvironment();
 	}
 
 	@Test
@@ -356,14 +355,48 @@ public class IDFProjectDebugProcessTest
 			ProjectTestOperations.stopDebugSessionAndKillProcesses(bot);
 		}
 
-		private static void forceCleanWorkbench()
+		private static void cleanupEnvironment()
 		{
 			try
 			{
-				ProjectTestOperations.forceCleanWorkbenchAfterDebugTest(bot);
+				// Leave Debug UI before the shared project cleanup used by other UI tests.
+				ProjectTestOperations.leaveDebugUi(bot);
 			}
-			catch (Exception ignored)
+			catch (Exception e)
 			{
+				System.err.println("leaveDebugUi failed: " + e.getMessage());
+			}
+
+			try
+			{
+				TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
+			}
+			catch (Exception e)
+			{
+				System.err.println("waitForOperationsInProgressToFinishAsync failed: " + e.getMessage());
+				ProjectTestOperations.cancelJobsThatBlockWorkbenchIdle();
+			}
+
+			try
+			{
+				ProjectTestOperations.closeAllProjects(bot);
+				ProjectTestOperations.deleteAllProjects(bot);
+			}
+			catch (Exception e)
+			{
+				// deleteAllProjects → WaitUtils.waitForJobs can still time out if LSP respawns.
+				System.err.println("close/delete projects failed, retrying after cancelling jobs: " + e.getMessage());
+				ProjectTestOperations.cancelJobsThatBlockWorkbenchIdle();
+				try
+				{
+					ProjectTestOperations.closeAllProjects(bot);
+					ProjectTestOperations.deleteAllProjects(bot);
+				}
+				catch (Exception e2)
+				{
+					System.err.println("project cleanup still failed: " + e2.getMessage());
+					e2.printStackTrace();
+				}
 			}
 		}
 

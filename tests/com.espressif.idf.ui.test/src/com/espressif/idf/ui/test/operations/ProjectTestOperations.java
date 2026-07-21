@@ -213,7 +213,7 @@ public class ProjectTestOperations
 
 	/**
 	 * Accepts the Eclipse "Confirm Perspective Switch" dialog when it appears after the debug
-	 * session suspends. Checks "Remember my decision" so CI is less likely to see it again.
+	 * session suspends. Does not check "Remember my decision" so later UI tests are not affected.
 	 *
 	 * @param bot     current SWT bot reference
 	 * @param timeout how long to wait for the dialog in milliseconds
@@ -231,7 +231,8 @@ public class ProjectTestOperations
 			try
 			{
 				SWTBotCheckBox remember = shell.bot().checkBox("Remember my decision");
-				if (!remember.isChecked())
+				// Do not persist the decision — it poisons later UI tests in the same workbench.
+				if (remember.isChecked())
 				{
 					remember.click();
 				}
@@ -707,6 +708,110 @@ public class ProjectTestOperations
 	}
 
 	/**
+	 * Leaves the Debug UI before shared project cleanup: terminate OpenOCD/GDB, close editors,
+	 * switch to C/C++, close Debug-related views, and cancel background jobs that would otherwise
+	 * keep {@link WaitUtils#waitForJobs()} from returning (Language Server / indexer), which
+	 * poisons later UI tests' {@code deleteAllProjects}.
+	 *
+	 * @param bot current SWT bot reference
+	 */
+	public static void leaveDebugUi(SWTWorkbenchBot bot)
+	{
+		stopDebugSessionAndKillProcesses(bot);
+		closeAllEditorsViaApi();
+		openCCppPerspective(bot);
+		closeDebugRelatedViews(bot);
+		cancelJobsThatBlockWorkbenchIdle();
+		if (bot != null)
+		{
+			try
+			{
+				closeSecondaryShells(bot);
+				focusMainWindow(bot.shells());
+			}
+			catch (Exception e)
+			{
+				logger.warn("leaveDebugUi: could not focus main window", e);
+			}
+		}
+	}
+
+	/**
+	 * Cancels long-running CDT/LSP/refresh jobs that prevent {@code Job.getJobManager().isIdle()}
+	 * after a hardware debug session. Safe to call from {@code @AfterClass}.
+	 */
+	public static void cancelJobsThatBlockWorkbenchIdle()
+	{
+		Job[] jobs = Job.getJobManager().find(null);
+		if (jobs == null)
+		{
+			return;
+		}
+
+		for (Job job : jobs)
+		{
+			if (job == null || job.getState() == Job.NONE)
+			{
+				continue;
+			}
+
+			String name = job.getName();
+			if (name == null)
+			{
+				continue;
+			}
+
+			String lower = name.toLowerCase(Locale.ENGLISH);
+			if (lower.contains("language server") || lower.contains("clangd") || lower.contains("indexer")
+					|| lower.contains("c/c++") || lower.contains("cdt ") || lower.contains("reconcil")
+					|| lower.contains("refresh") || lower.contains("building workspace")
+					|| lower.contains("updating") || lower.contains("decorate")
+					|| lower.contains("openocd") || lower.contains("gdb"))
+			{
+				logger.info("Cancelling job that may block workbench idle: {}", name);
+				job.cancel();
+			}
+		}
+
+		try
+		{
+			Thread.sleep(2000);
+		}
+		catch (InterruptedException e)
+		{
+			Thread.currentThread().interrupt();
+		}
+	}
+
+	/**
+	 * Best-effort close of views typically opened by the Debug perspective.
+	 *
+	 * @param bot current SWT bot reference
+	 */
+	public static void closeDebugRelatedViews(SWTWorkbenchBot bot)
+	{
+		if (bot == null)
+		{
+			return;
+		}
+
+		String[] viewTitles = new String[] { "Debug", "Breakpoints", "Variables", "Expressions",
+				"Registers", "Memory", "Disassembly", "Modules", "Signals", "Executables" };
+
+		for (String title : viewTitles)
+		{
+			try
+			{
+				SWTBotView view = bot.viewByTitle(title);
+				view.close();
+			}
+			catch (Exception ignored)
+			{
+			}
+		}
+	}
+
+	/**
 	 * Best-effort cleanup of an active debug session via the debug API and process kill.
 	 * Avoids clicking Launch Bar Stop / Debug Terminate toolbars — those tooltips are ambiguous
 	 * under SWTBot and can race with an active session during perspective changes.
@@ -776,9 +881,9 @@ public class ProjectTestOperations
 
 	/**
 	 * Force-cleans workbench state after a debug test (including timeout/failure).
-	 * Uses only Platform/debug APIs — no menus, perspective dialogs, or
-	 * {@code WaitUtils.waitForJobs()} — so cleanup cannot hang the Surefire session
-	 * and poison later UI tests.
+	 * Stops debug processes, returns to C/C++, then deletes projects. Project deletion
+	 * runs on the calling thread (not the UI thread) — {@code syncExec} +
+	 * {@code IProject.delete} can deadlock / silently no-op under SWTBot.
 	 *
 	 * @param bot current SWT bot reference (may be {@code null})
 	 */
@@ -835,6 +940,21 @@ public class ProjectTestOperations
 			logger.warn("forceClean: deleteAllProjectsViaWorkspaceApi failed", e);
 		}
 
+		// Fallback used by every other UI test — UI delete if workspace API left anything.
+		if (bot != null && workspaceHasProjects())
+		{
+			try
+			{
+				logger.warn("forceClean: projects still present after workspace API delete; falling back to UI delete");
+				closeAllProjects(bot);
+				deleteAllProjects(bot);
+			}
+			catch (Exception e)
+			{
+				logger.warn("forceClean: UI project cleanup failed", e);
+			}
+		}
+
 		killDebugProcesses();
 	}
 
@@ -859,49 +979,67 @@ public class ProjectTestOperations
 	}
 
 	/**
-	 * Deletes every workspace project via the resources API (no Project Explorer UI,
-	 * no {@code WaitUtils.waitForJobs()}). Safe for {@code @AfterClass} cleanup.
+	 * Deletes every workspace project via the resources API on the <em>calling</em> thread
+	 * (no UI {@code syncExec}). Safe for {@code @AfterClass} cleanup.
 	 */
 	public static void deleteAllProjectsViaWorkspaceApi()
 	{
-		UIThreadRunnable.syncExec(new VoidResult()
+		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		if (projects == null)
 		{
-			@Override
-			public void run()
+			return;
+		}
+
+		for (IProject project : projects)
+		{
+			if (project == null || !project.exists())
 			{
-				IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-				if (projects == null)
+				continue;
+			}
+
+			String name = project.getName();
+			try
+			{
+				if (project.isOpen())
 				{
-					return;
-				}
-				for (IProject project : projects)
-				{
-					if (project == null || !project.exists())
-					{
-						continue;
-					}
-					try
-					{
-						if (project.isOpen())
-						{
-							project.close(null);
-						}
-					}
-					catch (CoreException e)
-					{
-						logger.debug("Could not close project {}: {}", project.getName(), e.getMessage());
-					}
-					try
-					{
-						project.delete(true, true, null);
-					}
-					catch (CoreException e)
-					{
-						logger.warn("Could not delete project {}: {}", project.getName(), e.getMessage());
-					}
+					project.close(null);
 				}
 			}
-		});
+			catch (CoreException e)
+			{
+				logger.warn("Could not close project {}: {}", name, e.getMessage());
+			}
+
+			try
+			{
+				if (project.exists())
+				{
+					project.delete(IResource.ALWAYS_DELETE_PROJECT_CONTENT | IResource.FORCE, null);
+					logger.info("Deleted workspace project {}", name);
+				}
+			}
+			catch (CoreException e)
+			{
+				logger.warn("Could not delete project {}: {}", name, e.getMessage());
+			}
+		}
+	}
+
+	private static boolean workspaceHasProjects()
+	{
+		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		if (projects == null)
+		{
+			return false;
+		}
+		for (IProject project : projects)
+		{
+			if (project != null && project.exists())
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
