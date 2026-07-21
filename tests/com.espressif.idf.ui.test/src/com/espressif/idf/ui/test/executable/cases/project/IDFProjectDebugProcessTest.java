@@ -37,8 +37,8 @@ import com.espressif.idf.ui.test.operations.selectors.LaunchBarConfigSelector;
 import com.espressif.idf.ui.test.operations.selectors.LaunchBarTargetSelector;
 
 /**
- * Hardware E2E test: create → build → UART flash (ESP32) → switch to debug config with
- * ESP32-ETHERNET-KIT → start debugging and verify the session.
+ * Hardware E2E test: create → build → UART flash (ESP32) → select ESP32-ETHERNET-KIT →
+ * start OpenOCD/GDB debugging via Debug As and verify the session (Step Over).
  * <p>
  * Mirrors the VS Code hardware debug flow from {@code project-hardware-e2e-test.ts}.
  *
@@ -78,8 +78,10 @@ public class IDFProjectDebugProcessTest
 	@After
 	public void afterEachTest()
 	{
-		// Always stop OpenOCD/GDB even when an assertion failed mid-test.
+		// Always stop OpenOCD/GDB even when an assertion failed mid-test, then leave Debug
+		// perspective so later suites still start on C/C++ (runs before @AfterClass cleanup).
 		Fixture.stopDebugSessionAndKillProcesses();
+		Fixture.openCCppPerspective();
 	}
 
 	@Test
@@ -371,6 +373,17 @@ public class IDFProjectDebugProcessTest
 		private static void stopDebugSessionAndKillProcesses()
 		{
 			ProjectTestOperations.stopDebugSessionAndKillProcesses(bot);
+		}
+
+		private static void openCCppPerspective()
+		{
+			try
+			{
+				ProjectTestOperations.openCCppPerspective(bot);
+			}
+			catch (Exception ignored)
+			{
+			}
 		}
 
 		private static void cleanupEnvironment()

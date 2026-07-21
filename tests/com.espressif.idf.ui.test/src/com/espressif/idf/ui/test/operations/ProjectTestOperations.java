@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -22,6 +23,9 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.core.model.IDebugTarget;
+import org.eclipse.debug.core.model.IStackFrame;
+import org.eclipse.debug.core.model.IThread;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
@@ -253,12 +257,12 @@ public class ProjectTestOperations
 	}
 
 	/**
-	 * Waits until GDB has suspended at a breakpoint (not merely OpenOCD "Target halted" during
+	 * Waits until GDB has suspended at {@code app_main} (not merely OpenOCD "Target halted" during
 	 * reset), dismisses the Debug perspective switch dialog, then waits until the Debug toolbar
 	 * is ready for stepping.
 	 * <p>
-	 * Breakpoint output is usually on the <b>IDF Process Console</b> page of the Console view —
-	 * not whatever console page happens to be selected.
+	 * Prefers the Eclipse debug model / Debug view over console-page switching. Repeatedly opening
+	 * "Display Selected Console" leaves the dropdown open and stalls the UI under SWTBot.
 	 *
 	 * @param bot current SWT bot reference
 	 * @throws IOException if property lookup fails
@@ -279,7 +283,8 @@ public class ProjectTestOperations
 				perspectiveHandled = acceptDebugPerspectiveSwitchIfPresent(bot, 1000);
 			}
 
-			String consoleText = readDebugRelatedConsoleText(bot);
+			// Do not flip Console pages while polling — that opens a sticky dropdown menu.
+			String consoleText = readVisibleConsoleText(bot);
 
 			if (consoleText.contains("shutdown command invoked")
 					|| consoleText.contains("dropped 'gdb' connection"))
@@ -289,7 +294,7 @@ public class ProjectTestOperations
 								+ consoleText);
 			}
 
-			if (isSuspendedAtBreakpoint(consoleText))
+			if (isSuspendedAtBreakpoint(bot, consoleText))
 			{
 				if (!perspectiveHandled)
 				{
@@ -302,63 +307,51 @@ public class ProjectTestOperations
 			bot.sleep(1000);
 		}
 
-		String lastConsole = readDebugRelatedConsoleText(bot);
+		String lastConsole = readVisibleConsoleText(bot);
 		throw new AssertionError(
-				"Debug session did not suspend at a breakpoint within timeout (expected 'hit Temporary breakpoint' / 'hit Breakpoint' on IDF Process Console).\nLast console text:\n"
+				"Debug session did not suspend at app_main within timeout (debug model, Debug view, or visible console).\nLast console text:\n"
 						+ lastConsole);
 	}
 
 	/**
-	 * Reads console text from the pages where OpenOCD/GDB output typically appears.
+	 * Reads text from the Console view page that is currently visible (no console-page switching).
+	 * Switching via "Display Selected Console" leaves a sticky dropdown open under SWTBot and
+	 * stalls the debug wait loop.
 	 */
-	public static String readDebugRelatedConsoleText(SWTWorkbenchBot bot)
+	public static String readVisibleConsoleText(SWTWorkbenchBot bot)
 	{
-		StringBuilder combined = new StringBuilder();
-		String[] consolePages = new String[] { "IDF Process Console", "ESP-IDF Console" };
-
-		for (String consolePage : consolePages)
-		{
-			try
-			{
-				SWTBotView view = viewConsole(consolePage, bot);
-				view.show();
-				view.setFocus();
-				String text = view.bot().styledText().getText();
-				if (text != null && !text.isEmpty())
-				{
-					combined.append(text).append('\n');
-					if (isSuspendedAtBreakpoint(text))
-					{
-						return text;
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				logger.debug("Could not read console '{}': {}", consolePage, e.getMessage());
-			}
-		}
-
 		try
 		{
 			SWTBotView view = bot.viewByPartName("Console");
 			view.show();
 			view.setFocus();
 			String text = view.bot().styledText().getText();
-			if (text != null)
-			{
-				combined.append(text);
-			}
+			return text != null ? text : "";
 		}
 		catch (Exception e)
 		{
-			logger.debug("Could not read default Console view: {}", e.getMessage());
+			logger.debug("Could not read visible Console view: {}", e.getMessage());
+			return "";
 		}
-
-		return combined.toString();
 	}
 
-	private static boolean isSuspendedAtBreakpoint(String consoleText)
+	/**
+	 * Reads console text used for debug assertions from the currently visible Console page only.
+	 */
+	public static String readDebugRelatedConsoleText(SWTWorkbenchBot bot)
+	{
+		return readVisibleConsoleText(bot);
+	}
+
+	private static boolean isSuspendedAtBreakpoint(SWTWorkbenchBot bot, String consoleText)
+	{
+		// Prefer debug model / Debug view — avoid depending on console-page selection.
+		return isSuspendedAtAppMainInDebugModel()
+				|| isSuspendedAtAppMainInDebugView(bot)
+				|| isSuspendedAtBreakpointInConsole(consoleText);
+	}
+
+	private static boolean isSuspendedAtBreakpointInConsole(String consoleText)
 	{
 		if (consoleText == null || consoleText.isEmpty())
 		{
@@ -368,6 +361,126 @@ public class ProjectTestOperations
 				|| consoleText.contains("hit Breakpoint")
 				|| consoleText.contains("hit breakpoint")
 				|| (consoleText.contains("Temporary breakpoint") && consoleText.contains("app_main"));
+	}
+
+	/**
+	 * True when an active debug target has a suspended thread whose stack includes {@code app_main}.
+	 * Prefer this over OpenOCD console text — GDB often suspends in the UI without printing
+	 * {@code hit Temporary breakpoint} on the IDF Process Console.
+	 */
+	public static boolean isSuspendedAtAppMainInDebugModel()
+	{
+		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+		ILaunch[] launches = launchManager.getLaunches();
+		if (launches == null)
+		{
+			return false;
+		}
+
+		for (ILaunch launch : launches)
+		{
+			if (launch == null || launch.isTerminated())
+			{
+				continue;
+			}
+
+			IDebugTarget[] targets = launch.getDebugTargets();
+			if (targets == null)
+			{
+				continue;
+			}
+
+			for (IDebugTarget target : targets)
+			{
+				if (target == null || target.isTerminated())
+				{
+					continue;
+				}
+
+				try
+				{
+					if (!target.hasThreads())
+					{
+						continue;
+					}
+					for (IThread thread : target.getThreads())
+					{
+						if (thread == null || !thread.isSuspended() || !thread.hasStackFrames())
+						{
+							continue;
+						}
+						for (IStackFrame frame : thread.getStackFrames())
+						{
+							if (frame == null)
+							{
+								continue;
+							}
+							String name = frame.getName();
+							if (name != null && name.toLowerCase(Locale.ENGLISH).contains("app_main"))
+							{
+								return true;
+							}
+						}
+					}
+				}
+				catch (DebugException e)
+				{
+					logger.debug("Could not inspect debug model for app_main suspend: {}", e.getMessage());
+				}
+			}
+		}
+		return false;
+	}
+
+	private static boolean isSuspendedAtAppMainInDebugView(SWTWorkbenchBot bot)
+	{
+		try
+		{
+			SWTBotView view = bot.viewByTitle("Debug");
+			view.show();
+			return debugTreeContainsAppMainSuspend(view.bot().tree().getAllItems(), 0);
+		}
+		catch (Exception e)
+		{
+			logger.debug("Could not inspect Debug view for app_main suspend: {}", e.getMessage());
+			return false;
+		}
+	}
+
+	private static boolean debugTreeContainsAppMainSuspend(SWTBotTreeItem[] items, int depth)
+	{
+		if (items == null || depth > 8)
+		{
+			return false;
+		}
+
+		for (SWTBotTreeItem item : items)
+		{
+			String text = item.getText();
+			if (text != null)
+			{
+				String lower = text.toLowerCase(Locale.ENGLISH);
+				boolean hasAppMain = lower.contains("app_main");
+				if (hasAppMain && (lower.contains("breakpoint") || lower.contains("suspended")
+						|| lower.contains("main.c")))
+				{
+					return true;
+				}
+			}
+
+			try
+			{
+				item.expand();
+				if (debugTreeContainsAppMainSuspend(item.getItems(), depth + 1))
+				{
+					return true;
+				}
+			}
+			catch (Exception ignored)
+			{
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -472,6 +585,33 @@ public class ProjectTestOperations
 		}
 
 		killDebugProcesses();
+	}
+
+	/**
+	 * Switches the workbench back to the C/C++ perspective (same path as env setup).
+	 * Best-effort — safe to call from {@code @After} even if already on C/C++.
+	 *
+	 * @param bot current SWT bot reference
+	 */
+	public static void openCCppPerspective(SWTWorkbenchBot bot)
+	{
+		if (bot == null)
+		{
+			return;
+		}
+
+		try
+		{
+			bot.menu("Window").menu("Perspective").menu("Open Perspective").menu("Other...").click();
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Open Perspective", 10000);
+			bot.table().select("C/C++");
+			bot.button("Open").click();
+			bot.sleep(1000);
+		}
+		catch (Exception e)
+		{
+			logger.warn("Failed to switch back to C/C++ perspective", e);
+		}
 	}
 
 	/**
