@@ -310,11 +310,15 @@ public class IDFProjectDebugProcessTest
 		private static void whenStartDebuggingUsingContextMenu()
 		{
 			ProjectTestOperations.startDebuggingUsingContextMenu(projectName, bot);
+			// Give OpenOCD/GDB and perspective-switch UI time to appear.
+			bot.sleep(3000);
 		}
 
 		private static void thenVerifyDebugSessionStarted() throws Exception
 		{
 			ProjectTestOperations.waitForDebugSessionStarted(bot);
+			// Settle Debug perspective / toolbar after suspend at app_main.
+			bot.sleep(3000);
 		}
 
 		private static void thenVerifyNoFatalOpenOcdErrors()
@@ -330,7 +334,9 @@ public class IDFProjectDebugProcessTest
 
 		private static void whenStepOver()
 		{
+			bot.sleep(2000);
 			ProjectTestOperations.performDebugStepOver(projectName, bot);
+			bot.sleep(2000);
 		}
 
 		private static void thenVerifyDebugSessionStillActive()
