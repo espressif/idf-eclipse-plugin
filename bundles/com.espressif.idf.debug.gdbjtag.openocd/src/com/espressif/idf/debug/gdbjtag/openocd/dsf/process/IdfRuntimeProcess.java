@@ -10,6 +10,7 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.Map;
 
 import org.eclipse.cdt.dsf.gdb.launching.GDBProcess;
+import org.eclipse.cdt.dsf.mi.service.command.AbstractCLIProcess;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
@@ -75,8 +76,56 @@ public class IdfRuntimeProcess extends GDBProcess
 	@Override
 	public void terminate() throws DebugException
 	{
-		super.terminate();
-		streamsProxy.kill();
+		forceTerminateWithoutWait();
+	}
+
+	/**
+	 * Stops monitors and marks the process terminated without blocking on
+	 * {@link org.eclipse.cdt.dsf.mi.service.command.MIBackendCLIProcess#waitFor()}.
+	 */
+	public void forceTerminateWithoutWait()
+	{
+		if (isTerminated())
+		{
+			return;
+		}
+
+		killStreamMonitors();
+
+		Process process = getSystemProcess();
+		if (process instanceof AbstractCLIProcess cliProcess)
+		{
+			// Closes the GDB MI pipes so the "GDB CLI ... output Job" reader threads
+			// stop, even while gdb/openocd are stuck (e.g. a core-reset loop). Covers
+			// both MIBackendCLIProcess and GDBBackendCLIProcess.
+			cliProcess.destroy();
+			cliProcess.dispose();
+		}
+		else if (process != null)
+		{
+			process.destroy();
+			if (process.isAlive())
+			{
+				process.destroyForcibly();
+			}
+		}
+
+		// Do not call terminated() here. Destroying/disposing the system process
+		// unblocks RuntimeProcess.ProcessMonitorThread, which marks this IProcess
+		// terminated exactly once. Calling terminated() ourselves races with that
+		// thread and triggers NullPointerException in RuntimeProcess.terminated().
+	}
+
+	/**
+	 * Stops console stream monitors without waiting for the OS process to exit.
+	 * Required when OpenOCD/GDB are stuck (e.g. during target reset loops).
+	 */
+	public void killStreamMonitors()
+	{
+		if (streamsProxy != null)
+		{
+			streamsProxy.kill();
+		}
 	}
 
 	private <T> T getAttributeSafe(AttributeGetter<T> getter, String attribute, T defaultValue)

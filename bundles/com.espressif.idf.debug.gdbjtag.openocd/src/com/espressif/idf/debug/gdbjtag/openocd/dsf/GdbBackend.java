@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.cdt.core.model.ICProject;
 import org.eclipse.cdt.core.parser.util.StringUtil;
@@ -53,7 +54,6 @@ import org.eclipse.cdt.dsf.concurrent.IDsfStatusConstants;
 import org.eclipse.cdt.dsf.concurrent.ImmediateRequestMonitor;
 import org.eclipse.cdt.dsf.concurrent.RequestMonitor;
 import org.eclipse.cdt.dsf.concurrent.Sequence;
-import org.eclipse.cdt.dsf.concurrent.Sequence.Step;
 import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
 import org.eclipse.cdt.dsf.gdb.IGdbDebugPreferenceConstants;
 import org.eclipse.cdt.dsf.gdb.internal.GdbPlugin;
@@ -61,11 +61,8 @@ import org.eclipse.cdt.dsf.gdb.launching.LaunchUtils;
 import org.eclipse.cdt.dsf.gdb.service.IGDBBackend;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
 import org.eclipse.cdt.dsf.gdb.service.command.GDBControl.InitializationShutdownStep;
-import org.eclipse.cdt.dsf.gdb.service.command.GDBControl.InitializationShutdownStep.Direction;
 import org.eclipse.cdt.dsf.mi.service.IMIBackend;
 import org.eclipse.cdt.dsf.mi.service.IMIBackend2;
-import org.eclipse.cdt.dsf.mi.service.IMIBackend.BackendStateChangedEvent;
-import org.eclipse.cdt.dsf.mi.service.IMIBackend.State;
 import org.eclipse.cdt.dsf.mi.service.command.events.MIStoppedEvent;
 import org.eclipse.cdt.dsf.service.AbstractDsfService;
 import org.eclipse.cdt.dsf.service.DsfServiceEventHandler;
@@ -86,6 +83,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
@@ -109,6 +107,7 @@ import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
  * 
  * This class is taken from {@link GnuMcuGdbBackend}
  */
+@SuppressWarnings("restriction")
 public class GdbBackend extends AbstractDsfService implements IGDBBackend, IMIBackend2 {
 
 	private final ILaunchConfiguration fLaunchConfiguration;
@@ -570,8 +569,24 @@ public class GdbBackend extends AbstractDsfService implements IGDBBackend, IMIBa
 		}
 
 		// destroy() should be supported even if it's not spawner.
-		if (getState() == State.STARTED) {
+		if (getState() == State.STARTED && fProcess != null)
+		{
 			fProcess.destroy();
+			if (fProcess.isAlive())
+			{
+				try
+				{
+					if (!fProcess.waitFor(2, TimeUnit.SECONDS))
+					{
+						fProcess.destroyForcibly();
+					}
+				}
+				catch (InterruptedException e)
+				{
+					Thread.currentThread().interrupt();
+					fProcess.destroyForcibly();
+				}
+			}
 		}
 	}
 
@@ -618,11 +633,7 @@ public class GdbBackend extends AbstractDsfService implements IGDBBackend, IMIBa
 				System.out.println("GDBProcessStep.initialise()");
 			}
 
-			class GDBLaunchMonitor {
-				boolean fLaunched = false;
-				boolean fTimedOut = false;
-			}
-			final GDBLaunchMonitor fGDBLaunchMonitor = new GDBLaunchMonitor();
+			final AtomicBoolean isFinished = new AtomicBoolean(false);
 
 			final RequestMonitor gdbLaunchRequestMonitor = new RequestMonitor(getExecutor(), requestMonitor) {
 				@Override
@@ -630,9 +641,8 @@ public class GdbBackend extends AbstractDsfService implements IGDBBackend, IMIBa
 					if (Activator.getInstance().isDebugging()) {
 						System.out.println("GDBProcessStep.initialise() handleCompleted()");
 					}
-
-					if (!fGDBLaunchMonitor.fTimedOut) {
-						fGDBLaunchMonitor.fLaunched = true;
+					if (isFinished.compareAndSet(false, true))
+					{
 						if (!isSuccess()) {
 							requestMonitor.setStatus(getStatus());
 						}
@@ -662,6 +672,11 @@ public class GdbBackend extends AbstractDsfService implements IGDBBackend, IMIBa
 
 					try {
 						fProcess = launchGDBProcess();
+						ILaunch launch = (ILaunch) getSession().getModelAdapter(ILaunch.class);
+						if (launch != null && fProcess != null)
+						{
+							LaunchProcessDictionary.getInstance().registerBackendProcess(launch, "gdb", fProcess); //$NON-NLS-1$
+						}
 						// Need to do this on the executor for thread-safety
 						getExecutor().submit(new DsfRunnable() {
 							@Override
@@ -679,8 +694,8 @@ public class GdbBackend extends AbstractDsfService implements IGDBBackend, IMIBa
 						return Status.OK_STATUS;
 					}
 
+					final StringBuilder errorBuilder = new StringBuilder();
 					BufferedReader inputReader = null;
-					BufferedReader errorReader = null;
 					boolean success = false;
 					try {
 						// Read initial GDB prompt
@@ -696,32 +711,52 @@ public class GdbBackend extends AbstractDsfService implements IGDBBackend, IMIBa
 
 						// Failed to read initial prompt, check for error
 						if (!success) {
-							errorReader = new BufferedReader(new InputStreamReader(getMIErrorStream()));
-							String errorInfo = errorReader.readLine();
-							if (errorInfo == null) {
+							Thread errorDrainThread = new Thread(new Runnable()
+							{
+								@Override
+								public void run()
+								{
+									try (BufferedReader errReader = new BufferedReader(
+											new InputStreamReader(getMIErrorStream())))
+									{
+										String errLine;
+										while ((errLine = errReader.readLine()) != null)
+										{
+											errorBuilder.append(errLine).append("\n");
+										}
+									}
+									catch (IOException e)
+									{
+										// Stream closed or error, safely ignore
+									}
+								}
+							}, "GDB Error Stream Drain");
+							errorDrainThread.setDaemon(true);
+							errorDrainThread.start();
+							errorDrainThread.join(1000);
+
+							String errorInfo = errorBuilder.toString().trim();
+
+							if (errorInfo.isEmpty())
+							{
 								errorInfo = "GDB prompt not read"; //$NON-NLS-1$
 							}
 							gdbLaunchRequestMonitor
 									.setStatus(new Status(IStatus.ERROR, GdbPlugin.PLUGIN_ID, -1, errorInfo, null));
 						}
-					} catch (IOException e) {
+					}
+					catch (Exception e)
+					{
 						success = false;
 						gdbLaunchRequestMonitor.setStatus(
 								new Status(IStatus.ERROR, GdbPlugin.PLUGIN_ID, -1, "Error reading GDB output", e)); //$NON-NLS-1$
-					}
-
-					// In the case of failure, close the MI streams so
-					// they are not leaked.
-					if (!success) {
-						if (inputReader != null) {
+					} finally
+					{
+						// In the case of failure, close the MI stream so it is not leaked.
+						if (!success && inputReader != null)
+						{
 							try {
 								inputReader.close();
-							} catch (IOException e) {
-							}
-						}
-						if (errorReader != null) {
-							try {
-								errorReader.close();
 							} catch (IOException e) {
 							}
 						}
@@ -736,10 +771,8 @@ public class GdbBackend extends AbstractDsfService implements IGDBBackend, IMIBa
 			getExecutor().schedule(new Runnable() {
 				@Override
 				public void run() {
-					// Only process the event if we have not finished yet (hit
-					// the breakpoint).
-					if (!fGDBLaunchMonitor.fLaunched) {
-						fGDBLaunchMonitor.fTimedOut = true;
+					if (isFinished.compareAndSet(false, true))
+					{
 						Thread jobThread = startGdbJob.getThread();
 						if (jobThread != null) {
 							jobThread.interrupt();
@@ -785,7 +818,8 @@ public class GdbBackend extends AbstractDsfService implements IGDBBackend, IMIBa
 							public void run() {
 								destroy();
 
-								if (fMonitorJob.fMonitorExited) {
+								if (fMonitorJob != null && fMonitorJob.isMonitorExited())
+								{
 									// Now that we have destroyed the process,
 									// and that the monitoring thread was
 									// killed,
@@ -917,70 +951,86 @@ public class GdbBackend extends AbstractDsfService implements IGDBBackend, IMIBa
 	 * the associated runtime process.
 	 */
 	private class MonitorJob extends Job {
-		boolean fMonitorExited = false;
-		DsfRunnable fMonitorStarted;
-		Process fMonProcess;
+		private volatile boolean fMonitorExited = false;
+		private final DsfRunnable fMonitorStarted;
+		private final Process fMonProcess;
+		private final Object fLock = new Object();
 
-		@Override
-		protected IStatus run(IProgressMonitor monitor) {
-			synchronized (fMonProcess) {
-				getExecutor().submit(fMonitorStarted);
-				try {
-					fMonProcess.waitFor();
-					fGDBExitValue = fMonProcess.exitValue();
-
-					if (Activator.getInstance().isDebugging()) {
-						System.out.println("MonitorJob.run() exitValue() " + fGDBExitValue);
-					}
-					
-					if(fProcess.isAlive() && Activator.getInstance().isDebugging())
-					{
-						// Need to do this on the executor for thread-safety
-						getExecutor().submit(new DsfRunnable() {
-							@Override
-							public void run() {
-
-								if (Activator.getInstance().isDebugging()) {
-									System.out.println("MonitorJob.run() run() ");
-								}
-
-								destroy();
-								fBackendState = State.TERMINATED;
-
-								if (Activator.getInstance().isDebugging()) {
-									System.out.println(
-											"MonitorJob.run() run() dispatchEvent(BackendStateChangedEvent, TERMINATED)");
-								}
-								getSession().dispatchEvent(
-										new BackendStateChangedEvent(getSession().getId(), getId(), State.TERMINATED),
-										getProperties());
-							}
-						});
-					}
-					
-				} catch (InterruptedException ie) {
-					// clear interrupted state
-					Thread.interrupted();
-				}
-
-				fMonitorExited = true;
-			}
-			return Status.OK_STATUS;
-		}
-
-		MonitorJob(Process process, DsfRunnable monitorStarted) {
+		MonitorJob(Process process, DsfRunnable monitorStarted)
+		{
 			super("GDB process monitor job."); //$NON-NLS-1$
 			fMonProcess = process;
 			fMonitorStarted = monitorStarted;
 			setSystem(true);
 		}
 
+		@Override
+		protected IStatus run(IProgressMonitor monitor)
+		{
+			getExecutor().submit(fMonitorStarted);
+			try
+			{
+				fMonProcess.waitFor();
+				fGDBExitValue = fMonProcess.exitValue();
+
+				if (Activator.getInstance().isDebugging())
+				{
+					System.out.println("MonitorJob.run() exitValue() " + fGDBExitValue);
+				}
+
+
+				getExecutor().submit(new DsfRunnable()
+				{
+					@Override
+					public void run()
+					{
+
+						if (Activator.getInstance().isDebugging())
+						{
+							System.out.println("MonitorJob.run() run() ");
+						}
+
+						destroy();
+						fBackendState = State.TERMINATED;
+
+						if (Activator.getInstance().isDebugging())
+						{
+							System.out.println(
+									"MonitorJob.run() run() dispatchEvent(BackendStateChangedEvent, TERMINATED)");
+						}
+						getSession().dispatchEvent(
+								new BackendStateChangedEvent(getSession().getId(), getId(), State.TERMINATED),
+								getProperties());
+					}
+				});
+
+			}
+			catch (InterruptedException ie)
+			{
+				Thread.interrupted();
+			} finally
+			{
+				synchronized (fLock)
+				{
+					fMonitorExited = true;
+				}
+			}
+			return Status.OK_STATUS;
+		}
+
 		void kill() {
-			synchronized (fMonProcess) {
-				if (!fMonitorExited) {
+			synchronized (fLock)
+			{
+				if (!fMonitorExited && getThread() != null)
+				{
 					getThread().interrupt();
 				}
 			}
+		}
+
+		public boolean isMonitorExited()
+		{
+			return fMonitorExited;
 		}
 	}
 

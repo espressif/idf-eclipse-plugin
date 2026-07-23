@@ -104,9 +104,7 @@ public class AppLvlTracingHandler extends AbstractHandler
 				if (!DebugUtils.isLaunchConfigurationStarted(config)) {
 					LaunchConfigurationDelegate debugDelegate = (LaunchConfigurationDelegate) config
 							.getPreferredLaunchDelegate(ICDTLaunchConfigurationConstants.DEBUGGER_MODE_RUN);
-					debugDelegate.ignoreGdbClient();
-					config.launch(ICDTLaunchConfigurationConstants.DEBUGGER_MODE_RUN, null, false);
-					debugDelegate.doNotIngoreGdbClient();
+					debugDelegate.runOpenOcdOnlyLaunch(config, ICDTLaunchConfigurationConstants.DEBUGGER_MODE_RUN, null);
 				}
 			}
 		};

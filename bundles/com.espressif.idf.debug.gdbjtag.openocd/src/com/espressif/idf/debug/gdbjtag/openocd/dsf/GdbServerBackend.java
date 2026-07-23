@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.embedcdt.core.StringUtils;
 import org.eclipse.embedcdt.debug.gdbjtag.core.DebugUtils;
@@ -241,7 +242,13 @@ public class GdbServerBackend extends GnuMcuGdbServerBackend {
 			envList.add(entry.getKey() + "=" + entry.getValue());
 		}
 
-		return DebugUtils.exec(commandLineArray, envList.toArray(new String[0]), dir);
+		Process process = DebugUtils.exec(commandLineArray, envList.toArray(new String[0]), dir);
+		ILaunch launch = (ILaunch) getSession().getModelAdapter(ILaunch.class);
+		if (launch != null)
+		{
+			LaunchProcessDictionary.getInstance().registerBackendProcess(launch, "openocd", process); //$NON-NLS-1$
+		}
+		return process;
 	}
 
 	private boolean supportsAdapterUsbCommand(String executablePath)
