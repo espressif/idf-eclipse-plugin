@@ -92,6 +92,13 @@ jobs:
         name: com.espressif.idf.update-${{ env.VERSION }}
         path: releng/com.espressif.idf.update/target/repository
 
+    - name: Upload offline update site artifacts
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: com.espressif.idf.update.offline-${{ env.VERSION }}
+        path: releng/com.espressif.idf.update.offline/target/repository
+
     - name: Upload Windows x86_64 artifact
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v4
