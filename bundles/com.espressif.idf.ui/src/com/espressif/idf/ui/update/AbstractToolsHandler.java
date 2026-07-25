@@ -5,7 +5,6 @@
 package com.espressif.idf.ui.update;
 
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -141,7 +140,7 @@ public abstract class AbstractToolsHandler extends AbstractHandler
 			console.println(cmdMsg);
 			Logger.log(cmdMsg);
 
-			Map<String, String> environment = new HashMap<>(System.getenv());
+			Map<String, String> environment = new IDFEnvironmentVariables().getSystemEnvMap();
 			Logger.log(environment.toString());
 			environment.put("PYTHONUNBUFFERED", "1"); //$NON-NLS-1$ //$NON-NLS-2$
 			
