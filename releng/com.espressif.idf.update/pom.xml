@@ -11,4 +11,63 @@
 		<artifactId>com.espressif.idf.releng</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
+
+	<properties>
+		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>create-composite-repo</id>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<property name="eclipse.site" value="https://download.eclipse.org/releases/2025-12/"/>
+								<property name="composite.dir" value="${project.build.directory}/composite-repo"/>
+
+								<mkdir dir="${composite.dir}/artifacts/update"/>
+
+								<copy todir="${composite.dir}/artifacts/update">
+									<fileset dir="${project.build.directory}/repository"/>
+								</copy>
+
+								<echo file="${composite.dir}/compositeContent.xml"><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<?compositeMetadataRepository version='1.0.0'?>
+<repository name='Espressif IDE Update Site' type='org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository' version='1.0.0'>
+  <properties size='1'>
+    <property name='p2.timestamp' value='${maven.build.timestamp}'/>
+  </properties>
+  <children size='2'>
+    <child location='artifacts/update/'/>
+    <child location='${eclipse.site}'/>
+  </children>
+</repository>
+]]></echo>
+
+								<echo file="${composite.dir}/compositeArtifacts.xml"><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<?compositeArtifactRepository version='1.0.0'?>
+<repository name='Espressif IDE Update Site' type='org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository' version='1.0.0'>
+  <properties size='1'>
+    <property name='p2.timestamp' value='${maven.build.timestamp}'/>
+  </properties>
+  <children size='2'>
+    <child location='artifacts/update/'/>
+    <child location='${eclipse.site}'/>
+  </children>
+</repository>
+]]></echo>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>
