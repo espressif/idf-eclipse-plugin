@@ -96,7 +96,7 @@ Full walkthrough in the [official documentation](https://docs.espressif.com/proj
 
 ## Building from Source
 
-**Prerequisites:** Java 17+ and Maven 3.9+
+**Prerequisites:** Java 21+ and Maven 3.9+
 
 ```bash
 git clone https://github.com/espressif/idf-eclipse-plugin.git

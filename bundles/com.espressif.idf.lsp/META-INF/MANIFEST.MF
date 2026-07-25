@@ -11,7 +11,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.cdt.lsp,
  com.espressif.idf.core,
  org.eclipse.cdt.core
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: com.espressif.idf.lsp
 Bundle-ActivationPolicy: lazy
 Bundle-Name: ESP-IDF LSP Plugin
