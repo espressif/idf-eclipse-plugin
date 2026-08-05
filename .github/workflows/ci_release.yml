@@ -20,10 +20,10 @@ jobs:
     outputs:
       version: ${{ steps.get_version.outputs.version }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -206,42 +206,42 @@ jobs:
         
       - name: Upload Espressif-IDE-macosx-cocoa-x86_64.dmg
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: espressif-ide-macosx-cocoa-x86_64
           path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
       
       - name: Upload Espressif-IDE-macosx-cocoa-aarch64.dmg
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
            name: espressif-ide-macosx.cocoa.aarch64
            path: releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
       
       - name: Upload build artifacts
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: com.espressif.idf.update
           path: releng/com.espressif.idf.update/target/repository
               
       - name: Upload windows rcp
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: espressif-ide-win32
           path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-win32.win32.x86_64.zip
       
       - name: Upload linux rcp
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: espressif-ide-linux
           path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
       
       - name: Upload linux arm64 rcp
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: espressif-ide-linux-arm64
           path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-linux.gtk.aarch64.tar.gz
@@ -253,10 +253,10 @@ jobs:
     env:
       ARTIFACTS_PATH: extracted/Espressif-IDE
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
 
       - name: Download built artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: espressif-ide-win32
           path: artifacts
@@ -326,7 +326,7 @@ jobs:
 
       - name: Upload Signed Windows ZIP
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: espressif-ide-win32
           path: extracted/
@@ -341,40 +341,40 @@ jobs:
      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
    steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
 
     - name: Download built windows artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: espressif-ide-win32
         path: artifacts/win32
 
     - name: Download built linux artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: espressif-ide-linux
         path: artifacts/linux
 
     - name: Download built linux arm64 artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: espressif-ide-linux-arm64
         path: artifacts/linux_arm64
 
     - name: Download macOS x86_64 dmg
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: espressif-ide-macosx-cocoa-x86_64
         path: artifacts/macos_x86
 
     - name: Download macOS aarch64 dmg
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: espressif-ide-macosx.cocoa.aarch64
         path: artifacts/macos_arm
 
     - name: Download update site zip
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: com.espressif.idf.update
         path: artifacts/update
