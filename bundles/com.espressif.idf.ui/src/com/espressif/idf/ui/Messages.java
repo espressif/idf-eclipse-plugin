@@ -8,6 +8,8 @@ public class Messages extends NLS
 	public static String LaunchBarListener_TargetDontMatch_Msg;
 	public static String LaunchBarListener_TargetChanged_Msg;
 	public static String LaunchBarListener_TargetChanged_Title;
+	public static String TelemetryNotice_Title;
+	public static String TelemetryNotice_Message;
 	static
 	{
 		// initialize resource bundle

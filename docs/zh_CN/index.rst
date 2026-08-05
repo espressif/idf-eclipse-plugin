@@ -56,4 +56,5 @@ Espressif-IDE 是基于 `Eclipse CDT <https://github.com/eclipse-cdt/>`_ 的集�
     其他 IDE 功能 <additionalfeatures>
     故障排查 <troubleshooting>
     常见问题 <faqs>
+    遥测数据 <telemetry>
     下载 <downloads>

@@ -56,4 +56,5 @@ Contents
     Additional IDE Features <additionalfeatures>
     Troubleshooting <troubleshooting>
     FAQs <faqs>
+    Telemetry <telemetry>
     Downloads <downloads>
