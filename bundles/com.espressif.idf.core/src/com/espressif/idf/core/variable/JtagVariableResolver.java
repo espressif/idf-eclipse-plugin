@@ -68,6 +68,23 @@ public class JtagVariableResolver implements IDynamicVariableResolver
 
 	private String generatePartOfConfigOptionsForBoard()
 	{
+		var result = new StringBuilder();
+		for (Object config : resolveBoardConfigFiles())
+		{
+			result.append(String.format("-f %s ", config)); //$NON-NLS-1$
+		}
+		return result.toString();
+	}
+
+	/**
+	 * Resolves the OpenOCD board configuration files for the active launch target. These config files register the
+	 * board-specific OpenOCD commands (e.g. {@code program_esp_bins}). An empty result means no usable board is
+	 * selected for the active target.
+	 *
+	 * @return the list of board config files, never {@code null}
+	 */
+	private List<String> resolveBoardConfigFiles()
+	{
 		var parser = new EspConfigParser();
 		ILaunchTarget activeILaunchTarget = getActiveLaunchTarget().orElseGet(() -> ILaunchTarget.NULL_TARGET);
 		var targetName = activeILaunchTarget.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY);
@@ -76,17 +93,20 @@ public class JtagVariableResolver implements IDynamicVariableResolver
 		int idx = board.lastIndexOf(" [usb://"); //$NON-NLS-1$
 		String boardKey = (idx != -1) ? board.substring(0, idx) : board;
 		List<Board> boards = parser.getBoardsForTarget(targetName);
-		List<String> boardConfigs = boards.stream().filter(b -> b.name().equals(boardKey)).findFirst()
-				.map(Board::config_files).orElse(List.of());
-		var result = new StringBuilder();
-		if (boardConfigs != null)
-		{
-			for (Object config : boardConfigs)
-			{
-				result.append(String.format("-f %s ", config)); //$NON-NLS-1$
-			}
-		}
-		return result.toString();
+		return boards.stream().filter(b -> b.name().equals(boardKey)).findFirst().map(Board::config_files)
+				.orElse(List.of());
+	}
+
+	/**
+	 * Checks whether a board configuration is resolvable for the active launch target. When this returns
+	 * {@code false}, OpenOCD would start without a board configuration and board-specific commands such as
+	 * {@code program_esp_bins} would not be available, so the debug session cannot succeed.
+	 *
+	 * @return {@code true} if a board is selected and its OpenOCD config files were found, {@code false} otherwise
+	 */
+	public static boolean isBoardConfigResolvable()
+	{
+		return !new JtagVariableResolver().resolveBoardConfigFiles().isEmpty();
 	}
 
 }

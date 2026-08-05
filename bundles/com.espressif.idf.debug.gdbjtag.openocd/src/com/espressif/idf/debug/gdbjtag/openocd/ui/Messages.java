@@ -75,6 +75,9 @@ public class Messages
 	public static String ServerTimeoutErrorDialog_message;
 	public static String ServerTimeoutErrorDialog_customAreaMessage;
 
+	public static String BoardNotSelectedDialog_title;
+	public static String BoardNotSelectedDialog_message;
+
 	// ------------------------------------------------------------------------
 
 	static

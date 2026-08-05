@@ -57,6 +57,7 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.core.IStatusHandler;
 import org.eclipse.debug.core.model.ISourceLocator;
 import org.eclipse.embedcdt.core.StringUtils;
 import org.eclipse.embedcdt.debug.gdbjtag.core.DebugUtils;
@@ -64,6 +65,7 @@ import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.AbstractGnuMcuLaunchConfigura
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuServerServicesLaunchSequence;
 
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.variable.JtagVariableResolver;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
 import com.espressif.idf.debug.gdbjtag.openocd.ConfigurationAttributes;
@@ -79,6 +81,12 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 	private static final int COMPLETE_INIT_TIMEOUT_MS = 60_000;
 
 	private static final ThreadLocal<LaunchOptions> pendingLaunchOptions = new ThreadLocal<>();
+
+	/**
+	 * Status code used to route the "no board selected" failure through {@code BoardNotSelectedStatusHandler}. It must
+	 * match the {@code code} of the corresponding {@code statusHandler} extension in plugin.xml.
+	 */
+	public static final int BOARD_NOT_SELECTED_STATUS_CODE = 6001;
 
 	ILaunchConfiguration fConfig = null;
 	@SuppressWarnings("unused")
@@ -606,8 +614,52 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 			if (configOptions.isEmpty())
 				throw new CoreException(
 						new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Missing mandatory configuration."));
+
+			// Abort early with a clear, actionable message when no board is selected for the active target. Otherwise
+			// OpenOCD would start without a board configuration and fail later with the cryptic
+			// "invalid command name \"program_esp_bins\"" error.
+			if (!isBoardConfigured(config))
+			{
+				IStatus status = new Status(IStatus.OK, Activator.PLUGIN_ID, BOARD_NOT_SELECTED_STATUS_CODE,
+						"No board is selected for the debug target.", null); //$NON-NLS-1$
+				IStatusHandler handler = DebugPlugin.getDefault().getStatusHandler(status);
+				if (handler != null)
+				{
+					handler.handleStatus(status, null);
+				}
+				throw new DebugException(Status.OK_STATUS);
+			}
 		}
 		return super.checkBinaryDetails(config);
+	}
+
+	/**
+	 * Determines whether a board configuration is available for the given launch configuration. A board is considered
+	 * configured when it is resolvable from the active launch target, or when the (possibly manually edited) resolved
+	 * Config options already reference a board configuration file. Without either, OpenOCD would start without the
+	 * board-specific commands (e.g. {@code program_esp_bins}) and the debug session would fail.
+	 *
+	 * @param config the debug launch configuration
+	 * @return {@code true} if a board configuration is available, {@code false} otherwise
+	 */
+	private boolean isBoardConfigured(ILaunchConfiguration config)
+	{
+		if (JtagVariableResolver.isBoardConfigResolvable())
+		{
+			return true;
+		}
+
+		// Fall back to inspecting the resolved Config options for a manually configured board file.
+		try
+		{
+			String resolvedOptions = Configuration.resolveAll(Configuration.getGdbServerOtherConfig(config), config);
+			return resolvedOptions != null && resolvedOptions.contains("board/"); //$NON-NLS-1$
+		}
+		catch (CoreException e)
+		{
+			Activator.log(e);
+		}
+		return false;
 	}
 
 	@Override
