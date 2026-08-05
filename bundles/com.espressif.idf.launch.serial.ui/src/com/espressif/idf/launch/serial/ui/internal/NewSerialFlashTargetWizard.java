@@ -69,6 +69,7 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard
 		wc.setAttribute(LaunchBarTargetConstants.FLASH_VOLTAGE, page.getVoltage());
 
 		setOpenOCDAdaptorLocation(wc);
+		setOpenOCDAdapterSerial(wc);
 
 		wc.save();
 		storeLastUsedSerialPort();
@@ -116,6 +117,19 @@ public class NewSerialFlashTargetWizard extends LaunchTargetWizard
 		{
 			usbLocation = usbLocation.substring("usb://".length()); //$NON-NLS-1$
 			wc.setAttribute(IDFLaunchConstants.OPENOCD_USB_LOCATION, usbLocation);
+		}
+	}
+
+	private void setOpenOCDAdapterSerial(ILaunchTargetWorkingCopy wc)
+	{
+		String serial = page.getSelectedBoardSerialNumber();
+		if (StringUtil.isEmpty(serial))
+		{
+			wc.setAttribute(IDFLaunchConstants.OPENOCD_ADAPTER_SERIAL, null); // nullify existing one
+		}
+		else
+		{
+			wc.setAttribute(IDFLaunchConstants.OPENOCD_ADAPTER_SERIAL, serial);
 		}
 	}
 
