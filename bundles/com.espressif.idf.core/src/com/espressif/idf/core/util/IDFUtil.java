@@ -346,14 +346,20 @@ public class IDFUtil
 	public static String getOpenOCDLocation()
 	{
 		String openOCDScriptPath = new IDFEnvironmentVariables().getEnvValue(IDFEnvironmentVariables.OPENOCD_SCRIPTS);
-		if (!StringUtil.isEmpty(openOCDScriptPath))
+		if (StringUtil.isEmpty(openOCDScriptPath))
 		{
-			return openOCDScriptPath
-					.replace(File.separator + "share" + File.separator + "openocd" + File.separator + "scripts", "") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-					+ File.separator + "bin"; //$NON-NLS-1$
+			return StringUtil.EMPTY;
 		}
-
-		return StringUtil.EMPTY;
+		try
+		{
+			// .../openocd-esp32/share/openocd/scripts -> up 3 -> .../openocd-esp32, then /bin
+			return Paths.get(openOCDScriptPath).resolve("../../../bin").normalize().toString(); //$NON-NLS-1$
+		}
+		catch (InvalidPathException e)
+		{
+			Logger.log(e);
+			return StringUtil.EMPTY;
+		}
 	}
 
 	/**
