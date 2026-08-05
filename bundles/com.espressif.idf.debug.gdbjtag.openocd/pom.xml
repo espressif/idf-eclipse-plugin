@@ -18,7 +18,6 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>ilg.gnumcueclipse</groupId>
 	<artifactId>com.espressif.idf.debug.gdbjtag.openocd</artifactId>
 	<version>1.0.1-SNAPSHOT</version>
 	<packaging>eclipse-plugin</packaging>
@@ -28,12 +27,4 @@
 		<artifactId>com.espressif.idf.bundles</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
-
-	<dependencies>
-		<dependency>
-			<groupId>com.espressif.idf</groupId>
-			<artifactId>com.espressif.idf.core</artifactId>
-			<version>1.0.1-SNAPSHOT</version>
-		</dependency>
-	</dependencies>
 </project>
