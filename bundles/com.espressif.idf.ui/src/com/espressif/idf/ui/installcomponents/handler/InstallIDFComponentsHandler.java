@@ -39,7 +39,7 @@ import com.google.gson.stream.JsonReader;
  */
 public class InstallIDFComponentsHandler extends AbstractHandler
 {
-	private static final String API_URL = "https://api.components.espressif.com/components"; //$NON-NLS-1$
+	private static final String API_URL = "https://components.espressif.com/api/components"; //$NON-NLS-1$
 	private static int TOTAL_RECORDS_TO_FETCH = 100;
 
 	@Override
