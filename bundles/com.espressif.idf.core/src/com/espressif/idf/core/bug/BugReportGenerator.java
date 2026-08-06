@@ -61,6 +61,7 @@ public class BugReportGenerator
 
 	private static final String ECLIPSE_LOG_FILE_NAME = ".log"; //$NON-NLS-1$
 	private static final String ECLIPSE_METADATA_DIRECTORY = ".metadata"; //$NON-NLS-1$
+	private static final String IDE_LOG_REPORT_NAME_PREFIX = "ide_error_log"; //$NON-NLS-1$
 	private static final String UNKNOWN = "Unknown"; //$NON-NLS-1$
 	private static final String BUG_REPORT_DIRECTORY_PREFIX = "bug_report_"; //$NON-NLS-1$
 	private File bugReportDirectory;
@@ -189,6 +190,16 @@ public class BugReportGenerator
 		return logFiles;
 	}
 
+	// Eclipse stores the IDE error log as ".log" (hidden on macOS/Linux); rename so it stays visible in the report.
+	public static String getReportLogFileName(String metadataFileName)
+	{
+		if (metadataFileName.startsWith(".")) //$NON-NLS-1$
+		{
+			return IDE_LOG_REPORT_NAME_PREFIX + metadataFileName;
+		}
+		return metadataFileName;
+	}
+
 	private File createBasicSystemInfoFile() throws IOException
 	{
 		String osName = System.getProperty("os.name", UNKNOWN); //$NON-NLS-1$
@@ -282,7 +293,8 @@ public class BugReportGenerator
 
 			for (File logFile : metadataLogsFile)
 			{
-				FileUtil.copyFile(logFile, new File(ideLogDir.getAbsolutePath() + File.separator + logFile.getName()));
+				FileUtil.copyFile(logFile, new File(
+						ideLogDir.getAbsolutePath() + File.separator + getReportLogFileName(logFile.getName())));
 			}
 			File eimLogPath = getEimLogPath();
 			Logger.log("EIM log path: " + eimLogPath.getAbsolutePath()); //$NON-NLS-1$
