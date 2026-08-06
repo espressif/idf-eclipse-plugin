@@ -1,12 +1,15 @@
 /*******************************************************************************
- * Copyright 2021 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
+ * Copyright 2021-2026 Espressif Systems (Shanghai) PTE LTD. All rights reserved.
  * Use is subject to license terms.
  *******************************************************************************/
 package com.espressif.idf.ui.handlers;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -41,6 +44,8 @@ import com.espressif.idf.ui.tracing.heaptracing.HeapTracingAnalysisEditor;
  */
 public class HeapDumpAnalysisHandler extends AbstractHandler
 {
+	private static final Pattern CORE_SUFFIX = Pattern.compile("(?i)^(.+\\.svdat)_core\\d+$"); //$NON-NLS-1$
+	private static final String FILE_URL_PREFIX = "file://"; //$NON-NLS-1$
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
@@ -52,35 +57,89 @@ public class HeapDumpAnalysisHandler extends AbstractHandler
 			messageConsoleStream.println("App Context Null"); //$NON-NLS-1$
 			return null;
 		}
-		
-		// get the selected dumpFile
+
 		IResource dumpFile = EclipseHandler.getSelectedResource((IEvaluationContext) event.getApplicationContext());
 		IProject selectedProject = dumpFile.getProject();
 		IFile elfSymbolsFile = selectedProject.getFolder("build").getFile(selectedProject.getName().concat(".elf")); //$NON-NLS-1$ //$NON-NLS-2$
 
-		List<String> commands = new ArrayList<String>();
+		List<String> commands = new ArrayList<>();
 		commands.add(IDFUtil.getIDFPythonEnvPath());
 		commands.add(IDFUtil.getIDFSysviewTraceScriptFile().getAbsolutePath());
 		commands.add("-j"); //$NON-NLS-1$
 		commands.add("-b"); //$NON-NLS-1$
 		commands.add(elfSymbolsFile.getRawLocation().toOSString());
-		commands.add("file://".concat(dumpFile.getRawLocation().toString())); //$NON-NLS-1$
+		commands.addAll(resolveTraceSources(dumpFile));
+
 		messageConsoleStream.println("Commands Prepared"); //$NON-NLS-1$
 		for (String command : commands)
 		{
 			messageConsoleStream.print(command);
 			messageConsoleStream.print(" "); //$NON-NLS-1$
 		}
-		
+
 		Map<String, String> envMap = new IDFEnvironmentVariables().getSystemEnvMap();
 		Path pathToProject = new Path(selectedProject.getLocation().toString());
 		String jsonOutput = runCommand(commands, pathToProject, envMap);
-		FileUtil.writeFile(selectedProject, "build/dump.json", jsonOutput, false); //$NON-NLS-1$
 		messageConsoleStream.println();
 		messageConsoleStream.println(jsonOutput);
 
+		if (!isJsonOutput(jsonOutput))
+		{
+			Logger.log("Heap dump analysis failed; skipping editor launch"); //$NON-NLS-1$
+			return null;
+		}
+
+		FileUtil.writeFile(selectedProject, "build/dump.json", jsonOutput, false); //$NON-NLS-1$
 		launchEditor(selectedProject.getFile("build/dump.json")); //$NON-NLS-1$
 		return null;
+	}
+
+	/**
+	 * Prefer OpenOCD per-core dumps ({@code *.svdat_core0}, {@code *_core1}, …) when present. Passing those with a
+	 * {@code file://} URL avoids the Windows multicore-split bug in {@code sysviewtrace_proc.py}. Falls back to the
+	 * selected file when no core siblings exist.
+	 */
+	static List<String> resolveTraceSources(IResource dumpFile)
+	{
+		File selected = dumpFile.getRawLocation().toFile();
+		File directory = selected.getParentFile();
+		String baseName = stripCoreSuffix(selected.getName());
+
+		List<String> coreSources = new ArrayList<>();
+		for (int core = 0;; core++)
+		{
+			File coreFile = new File(directory, baseName + "_core" + core); //$NON-NLS-1$
+			if (!coreFile.isFile())
+			{
+				break;
+			}
+			coreSources.add(toFileUrl(coreFile));
+		}
+
+		if (!coreSources.isEmpty())
+		{
+			return coreSources;
+		}
+
+		List<String> single = new ArrayList<>(1);
+		single.add(toFileUrl(selected));
+		return single;
+	}
+
+	private static String stripCoreSuffix(String fileName)
+	{
+		Matcher matcher = CORE_SUFFIX.matcher(fileName);
+		return matcher.matches() ? matcher.group(1) : fileName;
+	}
+
+	private static String toFileUrl(File file)
+	{
+		return FILE_URL_PREFIX + file.getAbsolutePath().replace('\\', '/');
+	}
+
+	private static boolean isJsonOutput(String output)
+	{
+		return output != null && output.trim().startsWith("{"); //$NON-NLS-1$
 	}
 
 	private void launchEditor(IFile jsonDumpFile)
@@ -117,7 +176,6 @@ public class HeapDumpAnalysisHandler extends AbstractHandler
 				return IDFCorePlugin.errorStatus("Status can't be null", null).toString(); //$NON-NLS-1$
 			}
 
-			// process export command output
 			exportCmdOp = status.getMessage();
 			Logger.log(exportCmdOp);
 		}
