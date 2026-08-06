@@ -17,8 +17,12 @@ public class Messages extends NLS
 	public static String EspresssifPreferencesPage_EimIdfJsonPathInvalid;
 	public static String EspresssifPreferencesPage_EnableCCache;
 	public static String EspresssifPreferencesPage_IDFSpecificPrefs;
+	public static String EspresssifPreferencesPage_PrivacyGroupName;
 	public static String EspresssifPreferencesPage_SearchHintsCheckBtn;
 	public static String EspresssifPreferencesPage_SearchHintsTooltip;
+	public static String EspresssifPreferencesPage_TelemetryBtn;
+	public static String EspresssifPreferencesPage_TelemetryDescription;
+	public static String EspresssifPreferencesPage_TelemetryTooltip;
 	public static String GDBServerTimeoutPage_TimeoutField;
 	public static String SerialMonitorPage_Field_NumberOfLines;
 	public static String SerialMonitorPage_Field_NumberOfCharsInLine;

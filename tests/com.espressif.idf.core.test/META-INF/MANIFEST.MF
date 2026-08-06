@@ -11,7 +11,8 @@ Require-Bundle: com.espressif.idf.core;bundle-version="1.0.1",
  org.eclipse.jface,
  junit-jupiter-api;bundle-version="5.14.1",
  junit-jupiter-params;bundle-version="5.14.1",
- org.mockito.mockito-core
+ org.mockito.mockito-core,
+ com.google.gson
 Bundle-ClassPath: .,
  lib/commons-collections4-4.4.jar,
  lib/commons-io-2.9.0.jar,

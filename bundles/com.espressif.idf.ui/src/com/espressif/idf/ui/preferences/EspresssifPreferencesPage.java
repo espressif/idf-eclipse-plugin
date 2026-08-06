@@ -26,6 +26,7 @@ import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFCorePreferenceConstants;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.telemetry.TelemetryPreferences;
 import com.espressif.idf.core.tools.EimConstants;
 import com.espressif.idf.core.tools.watcher.EimJsonWatchService;
 
@@ -49,6 +50,7 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 	private Combo pythonWheelCombo;
 	private Button automateClangdFormatCreationBtn;
 	private Text eimIdfJsonPathText;
+	private Button telemetryBtn;
 
 	public EspresssifPreferencesPage()
 	{
@@ -88,7 +90,29 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		addClangdSettings(mainComposite);
 
 		addEimSettings(mainComposite);
+
+		addPrivacySettings(mainComposite);
 		return mainComposite;
+	}
+
+	private void addPrivacySettings(Composite mainComposite)
+	{
+		Group privacyGroup = new Group(mainComposite, SWT.SHADOW_ETCHED_IN);
+		privacyGroup.setText(Messages.EspresssifPreferencesPage_PrivacyGroupName);
+		privacyGroup.setLayout(new GridLayout(1, false));
+		privacyGroup.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+
+		telemetryBtn = new Button(privacyGroup, SWT.CHECK);
+		telemetryBtn.setText(Messages.EspresssifPreferencesPage_TelemetryBtn);
+		telemetryBtn.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		telemetryBtn.setToolTipText(Messages.EspresssifPreferencesPage_TelemetryTooltip);
+		telemetryBtn.setSelection(TelemetryPreferences.isEnabledByPreference());
+
+		Label telemetryDescription = new Label(privacyGroup, SWT.WRAP);
+		telemetryDescription.setText(Messages.EspresssifPreferencesPage_TelemetryDescription);
+		GridData descriptionData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		descriptionData.widthHint = convertWidthInCharsToPixels(80);
+		telemetryDescription.setLayoutData(descriptionData);
 	}
 
 	private void addEimSettings(Composite mainComposite)
@@ -250,6 +274,8 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 			getPreferenceStore().setValue(IDFCorePreferenceConstants.AUTOMATE_CLANGD_FORMAT_FILE,
 					automateClangdFormatCreationBtn.getSelection());
 
+			TelemetryPreferences.setEnabled(telemetryBtn.getSelection());
+
 			String eimIdf = eimIdfJsonPathText.getText().trim();
 			if (!eimIdf.isEmpty()
 					&& !Paths.get(eimIdf).getFileName().toString().equals(EimConstants.EIM_JSON))
@@ -289,6 +315,7 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 				.setSelection(getPreferenceStore().getBoolean(IDFCorePreferenceConstants.AUTOMATE_CLANGD_FORMAT_FILE));
 		eimIdfJsonPathText
 				.setText(getPreferenceStore().getDefaultString(IDFCorePreferenceConstants.EIM_IDF_JSON_PATH));
+		telemetryBtn.setSelection(getPreferenceStore().getDefaultBoolean(IDFCorePreferenceConstants.TELEMETRY_ENABLED));
 		gitAssetsCombo.setText(gitAssetsCombo.getItem(0));
 		pythonWheelCombo.setText(pythonWheelCombo.getItem(0));
 	}
@@ -307,5 +334,7 @@ public class EspresssifPreferencesPage extends PreferencePage implements IWorkbe
 		getPreferenceStore().setDefault(IDFCorePreferenceConstants.AUTOMATE_CLANGD_FORMAT_FILE,
 				IDFCorePreferenceConstants.AUTOMATE_CLANGD_FORMAT_FILE_DEFAULT);
 		getPreferenceStore().setDefault(IDFCorePreferenceConstants.EIM_IDF_JSON_PATH, ""); //$NON-NLS-1$
+		getPreferenceStore().setDefault(IDFCorePreferenceConstants.TELEMETRY_ENABLED,
+				IDFCorePreferenceConstants.TELEMETRY_ENABLED_DEFAULT);
 	}
 }
