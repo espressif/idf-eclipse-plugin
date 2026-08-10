@@ -127,6 +127,44 @@ class EimZipExtractorTest
 		assertEquals("eim_v..0", Files.readString(eim));
 	}
 
+	@Test
+	void prefersLaunchPathFromCurrentArchiveOverPreexistingFiles() throws Exception
+	{
+		Path dest = tempDir.resolve("update");
+		Files.createDirectories(dest);
+		Files.writeString(dest.resolve("eim"), "old-stable-eim");
+		Files.writeString(dest.resolve("eim_v0.16.0"), "old-versioned");
+
+		Path zip = tempDir.resolve("new-only-versioned.zip");
+		writeSingleFileZip(zip, "eim_v0.17.4", "new-binary");
+
+		Path launchPath = EimZipExtractor.extract(zip, dest);
+
+		assertEquals(dest.resolve("eim_v0.17.4"), launchPath);
+		assertEquals("new-binary", Files.readString(launchPath));
+		assertEquals("old-stable-eim", Files.readString(dest.resolve("eim")));
+		assertEquals("old-versioned", Files.readString(dest.resolve("eim_v0.16.0")));
+	}
+
+	@Test
+	void doesNotRepairPreexistingEimWhenNotInCurrentArchive() throws Exception
+	{
+		Path dest = tempDir.resolve("leftover-symlink-payload");
+		Files.createDirectories(dest);
+		Files.writeString(dest.resolve("eim_v0.16.0"), "old-binary");
+		Path eim = dest.resolve("eim");
+		Files.writeString(eim, "eim_v0.16.0");
+
+		Path zip = tempDir.resolve("new-version-only.zip");
+		writeSingleFileZip(zip, "eim_v0.17.4", "new-binary");
+
+		Path launchPath = EimZipExtractor.extract(zip, dest);
+
+		assertEquals(dest.resolve("eim_v0.17.4"), launchPath);
+		assertFalse(Files.isSymbolicLink(eim));
+		assertEquals("eim_v0.16.0", Files.readString(eim));
+	}
+
 	private static void writeSingleFileZip(Path zipPath, String entryName, String payload) throws IOException
 	{
 		try (OutputStream out = Files.newOutputStream(zipPath); ZipOutputStream zos = new ZipOutputStream(out))

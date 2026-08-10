@@ -10,9 +10,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -30,6 +32,9 @@ import com.espressif.idf.core.logging.Logger;
  * recreates a real symlink (or copies the target if symlinks are unsupported).
  * <p>
  * Older packages ship only a plain {@code eim} binary — left unchanged.
+ * <p>
+ * Launch-path selection considers only files from the current archive, so leftover binaries in
+ * {@code destDir} from a previous install are not chosen.
  */
 public final class EimZipExtractor
 {
@@ -45,11 +50,13 @@ public final class EimZipExtractor
 
 	/**
 	 * Extracts {@code zipPath} into {@code destDir} and returns the preferred EIM launch path
-	 * ({@code eim} / {@code eim.exe} when present, otherwise a versioned {@code eim_v*} binary).
+	 * ({@code eim} / {@code eim.exe} when present in this archive, otherwise a versioned
+	 * {@code eim_v*} binary from this archive).
 	 */
 	public static Path extract(Path zipPath, Path destDir) throws IOException
 	{
 		Files.createDirectories(destDir);
+		Set<Path> extractedFiles = new LinkedHashSet<>();
 		Path firstRegularFile = null;
 
 		try (InputStream fileIn = Files.newInputStream(zipPath); ZipInputStream zis = new ZipInputStream(fileIn))
@@ -71,6 +78,7 @@ public final class EimZipExtractor
 
 				Files.createDirectories(newPath.getParent());
 				Files.copy(zis, newPath, StandardCopyOption.REPLACE_EXISTING);
+				extractedFiles.add(newPath);
 				if (shouldMarkExecutable(newPath))
 				{
 					newPath.toFile().setExecutable(true);
@@ -82,18 +90,28 @@ public final class EimZipExtractor
 			}
 		}
 
-		repairMaterializedEimSymlink(destDir);
-		return resolvePreferredLaunchPath(destDir, firstRegularFile);
+		repairMaterializedEimSymlink(destDir, extractedFiles);
+		return resolvePreferredLaunchPath(destDir, extractedFiles, firstRegularFile);
 	}
 
 	/**
-	 * If {@code eim} is a tiny text file whose content names an existing sibling binary (the usual
-	 * result of extracting a ZIP symlink with {@link ZipInputStream}), replace it with a real
-	 * symlink or a copy of that target.
+	 * If {@code eim} was extracted from this archive as a tiny text file whose content names an
+	 * existing sibling binary (the usual result of extracting a ZIP symlink with
+	 * {@link ZipInputStream}), replace it with a real symlink or a copy of that target.
 	 */
 	public static void repairMaterializedEimSymlink(Path destDir) throws IOException
 	{
-		Path eim = destDir.resolve("eim"); //$NON-NLS-1$
+		Path eim = destDir.resolve("eim").normalize(); //$NON-NLS-1$
+		repairMaterializedEimSymlink(destDir, Set.of(eim));
+	}
+
+	static void repairMaterializedEimSymlink(Path destDir, Collection<Path> extractedFromArchive) throws IOException
+	{
+		Path eim = destDir.resolve("eim").normalize(); //$NON-NLS-1$
+		if (!extractedFromArchive.contains(eim))
+		{
+			return;
+		}
 		if (!Files.isRegularFile(eim) || Files.isSymbolicLink(eim))
 		{
 			return;
@@ -206,21 +224,22 @@ public final class EimZipExtractor
 		return false;
 	}
 
-	private static Path resolvePreferredLaunchPath(Path destDir, Path firstRegularFile) throws IOException
+	private static Path resolvePreferredLaunchPath(Path destDir, Collection<Path> extractedFromArchive,
+			Path firstRegularFile)
 	{
-		Path stableEim = destDir.resolve("eim"); //$NON-NLS-1$
-		if (Files.exists(stableEim))
+		Path stableEim = destDir.resolve("eim").normalize(); //$NON-NLS-1$
+		if (extractedFromArchive.contains(stableEim) && Files.exists(stableEim))
 		{
 			return stableEim;
 		}
 
-		Path stableEimExe = destDir.resolve("eim.exe"); //$NON-NLS-1$
-		if (Files.exists(stableEimExe))
+		Path stableEimExe = destDir.resolve("eim.exe").normalize(); //$NON-NLS-1$
+		if (extractedFromArchive.contains(stableEimExe) && Files.exists(stableEimExe))
 		{
 			return stableEimExe;
 		}
 
-		Optional<Path> versioned = findVersionedEimBinary(destDir);
+		Optional<Path> versioned = findVersionedEimBinary(extractedFromArchive);
 		if (versioned.isPresent())
 		{
 			return versioned.get();
@@ -229,14 +248,10 @@ public final class EimZipExtractor
 		return firstRegularFile != null ? firstRegularFile : destDir;
 	}
 
-	private static Optional<Path> findVersionedEimBinary(Path destDir) throws IOException
+	private static Optional<Path> findVersionedEimBinary(Collection<Path> extractedFromArchive)
 	{
-		try (Stream<Path> entries = Files.list(destDir))
-		{
-			return entries.filter(Files::isRegularFile)
-					.filter(p -> p.getFileName().toString().matches("(?i)eim_v.+")) //$NON-NLS-1$
-					.sorted(Comparator.comparing(p -> p.getFileName().toString()))
-					.findFirst();
-		}
+		return extractedFromArchive.stream().filter(Files::isRegularFile)
+				.filter(p -> p.getFileName().toString().matches("(?i)eim_v.+")) //$NON-NLS-1$
+				.sorted(Comparator.comparing(p -> p.getFileName().toString())).findFirst();
 	}
 }
