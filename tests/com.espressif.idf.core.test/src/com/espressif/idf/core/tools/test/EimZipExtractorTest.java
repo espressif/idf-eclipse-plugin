@@ -108,6 +108,25 @@ class EimZipExtractorTest
 		assertTrue(EimZipExtractor.looksLikeMaterializedSymlinkPayload(eim, dest));
 	}
 
+	@Test
+	void rejectsUnsafeSymlinkTargetNamesInDetectionAndRepair() throws Exception
+	{
+		Path dest = tempDir.resolve("probe-unsafe");
+		Files.createDirectories(dest);
+		Files.writeString(dest.resolve("eim_v..0"), "real-binary");
+
+		Path eim = dest.resolve("eim");
+		Files.writeString(eim, "eim_v..0");
+
+		assertFalse(EimZipExtractor.isSafeSymlinkTargetName("eim_v..0"));
+		assertFalse(EimZipExtractor.isSafeSymlinkTargetName("eim\r_v0.17.4"));
+		assertFalse(EimZipExtractor.looksLikeMaterializedSymlinkPayload(eim, dest));
+
+		EimZipExtractor.repairMaterializedEimSymlink(dest);
+		assertFalse(Files.isSymbolicLink(eim));
+		assertEquals("eim_v..0", Files.readString(eim));
+	}
+
 	private static void writeSingleFileZip(Path zipPath, String entryName, String payload) throws IOException
 	{
 		try (OutputStream out = Files.newOutputStream(zipPath); ZipOutputStream zos = new ZipOutputStream(out))

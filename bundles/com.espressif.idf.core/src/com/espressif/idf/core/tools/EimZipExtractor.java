@@ -112,8 +112,7 @@ public final class EimZipExtractor
 		}
 
 		String target = new String(bytes, StandardCharsets.UTF_8).trim();
-		if (target.isEmpty() || target.contains("\n") || target.contains("\r") || target.contains("/") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				|| target.contains("\\") || target.contains("..")) //$NON-NLS-1$ //$NON-NLS-2$
+		if (!isSafeSymlinkTargetName(target))
 		{
 			return;
 		}
@@ -161,13 +160,23 @@ public final class EimZipExtractor
 			return false;
 		}
 		String target = new String(bytes, StandardCharsets.UTF_8).trim();
-		if (target.isEmpty() || target.contains("\n") || target.contains("/") || target.contains("\\")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		if (!isSafeSymlinkTargetName(target))
 		{
 			return false;
 		}
 		Path targetPath = destDir.resolve(target).normalize();
 		return targetPath.startsWith(destDir.normalize()) && Files.isRegularFile(targetPath)
 				&& looksLikeEimBinaryName(targetPath.getFileName().toString());
+	}
+
+	/**
+	 * Shared validation for ZIP-symlink payloads: reject empty names, path separators, parent
+	 * references, and stray newlines so detection and repair stay aligned.
+	 */
+	public static boolean isSafeSymlinkTargetName(String target)
+	{
+		return !target.isEmpty() && !target.contains("\n") && !target.contains("\r") //$NON-NLS-1$ //$NON-NLS-2$
+				&& !target.contains("/") && !target.contains("\\") && !target.contains(".."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	private static boolean shouldMarkExecutable(Path extractedFile)
