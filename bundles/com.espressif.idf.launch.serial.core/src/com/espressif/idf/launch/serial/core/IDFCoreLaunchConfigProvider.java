@@ -8,8 +8,6 @@ import org.eclipse.cdt.debug.core.launch.CoreBuildGenericLaunchConfigProvider;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -17,9 +15,8 @@ import org.eclipse.launchbar.core.ILaunchDescriptor;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 
 import com.espressif.idf.core.build.IDFLaunchConstants;
-import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.core.util.ILaunchDefaultsContributor;
+import com.espressif.idf.core.util.LaunchDefaults;
 import com.espressif.idf.core.util.LaunchUtil;
 
 public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigProvider
@@ -79,24 +76,7 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 					ICDTLaunchConfigurationConstants.BUILD_BEFORE_LAUNCH_USE_WORKSPACE_SETTING);
 		}
 
-		IConfigurationElement[] elements = Platform.getExtensionRegistry()
-				.getConfigurationElementsFor("com.espressif.idf.core.launchDefaultsContributor"); //$NON-NLS-1$
-
-		for (IConfigurationElement element : elements)
-		{
-			try
-			{
-				Object obj = element.createExecutableExtension("class"); //$NON-NLS-1$
-				if (obj instanceof ILaunchDefaultsContributor launchDefaultsContributor)
-				{
-					launchDefaultsContributor.applyDefaults(workingCopy);
-				}
-			}
-			catch (CoreException e)
-			{
-				Logger.log(e);
-			}
-		}
+		LaunchDefaults.apply(workingCopy);
 
 		workingCopy.doSave();
 	}

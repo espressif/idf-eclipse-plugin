@@ -19,7 +19,7 @@ Please navigate through each tab and configure project specific settings.
 
 .. note::
 
-    Most of the settings are auto-configured by the plugin.
+    Most of the settings are auto-configured by the plugin. You can leave a text field empty to use that default; empty fields show ``(keep empty for default)``. Each **Main**, **Debugger**, **Startup**, and **SVD** tab (and the Run **Main** tab) has a **Restore defaults** button that fills that tab with the built-in values.
 
 .. image:: ../../media/OpenOCDDebug_4.png
 
@@ -38,7 +38,7 @@ Main Tab
 
 1. Enter the ``Name`` of this configuration, the default name is "{project_name} Configuration".
 2. On the ``Main`` tab below, under ``Project:``, press ``Browse`` button and select the project if it's not selected or you want to change it.
-3. In the next line, ``C/C++ Application:`` should be a relative path to the elf file, for example, ``build/hello_world.elf`` for ``hello_world`` project. If the elf file is not there, then likely this project has not been build yet. After building the project, the elf file will appear there. However, you can change it by pressing ``Browse`` button.
+3. In the next line, ``C/C++ Application:`` should be a relative path to the elf file, for example, ``build/hello_world.elf`` for ``hello_world`` project. If the elf file is not there, then likely this project has not been build yet. After building the project, the elf file will appear there. However, you can change it by pressing ``Browse`` button. You can also leave this field empty to use the default application (``${default_app}``).
 
 The last section on the ``Main`` tab is ``Build (if required) before launching``. If you don't want to build the project each time you click the ``Debug`` button, then select ``Disable auto build``.
 
@@ -49,7 +49,7 @@ Points 1–3 are shown below.
 Debugger Tab
 ------------
 
-In the ``Debugger`` tab, all parameters are automatically configured to start debugging, you just need to check if the ``Config options`` line is appropriate for your board. It automatically adjusts based on ``Flash voltage`` and ``Board`` options. If you expand the list of boards, only those that match the selected ``Target`` will appear. So, for example, if the selected target is ``esp32``, you will not see ``ESP32-S2-KALUGA-1`` in the list. To make it appear, you need to change the target to ``esp32s2`` first. The second option in the Debugger tab is ``GDB executable``, which also depends on the selected target and is automatically configured based on it.
+In the ``Debugger`` tab, all parameters are automatically configured to start debugging, you just need to check if the ``Config options`` line is appropriate for your board. It automatically adjusts based on ``Flash voltage`` and ``Board`` options. If you expand the list of boards, only those that match the selected ``Target`` will appear. So, for example, if the selected target is ``esp32``, you will not see ``ESP32-S2-KALUGA-1`` in the list. To make it appear, you need to change the target to ``esp32s2`` first. The second option in the Debugger tab is ``GDB executable``, which also depends on the selected target and is automatically configured based on it. You can leave OpenOCD path, ports, config options, and GDB fields empty to keep the plugin defaults.
 
 Let's take a look at some other options, that you need to check if they auto-configured correctly for you:
 

@@ -44,8 +44,10 @@ import org.eclipse.swt.widgets.Link;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.LaunchAttributes;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
+import com.espressif.idf.swt.custom.LaunchTabControls;
 import com.espressif.idf.ui.EclipseUtil;
 
 public class TabMain extends CMainTab2
@@ -58,6 +60,23 @@ public class TabMain extends CMainTab2
 	{
 		super((Activator.getInstance().getDefaultPreferences().getTabMainCheckProgram() ? 0
 				: CMainTab2.DONT_CHECK_PROGRAM) | CMainTab2.INCLUDE_BUILD_SETTINGS);
+	}
+
+	@Override
+	public void createControl(Composite parent)
+	{
+		super.createControl(parent);
+		LaunchTabControls.applyEmptyDefaultHint(fProgText);
+		LaunchTabControls.addRestoreDefaultsButtonToTab(getControl(), this::restoreDefaults);
+	}
+
+	private void restoreDefaults()
+	{
+		if (fProgText != null)
+		{
+			fProgText.setText(DefaultPreferences.PROGRAM_APP_DEFAULT);
+		}
+		scheduleUpdateJob();
 	}
 
 	/**
@@ -137,9 +156,7 @@ public class TabMain extends CMainTab2
 			String programName = EMPTY_STRING;
 			try
 			{
-				programName = config.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME,
-						DefaultPreferences.PROGRAM_APP_DEFAULT);
-				programName = programName.isBlank() ? DefaultPreferences.PROGRAM_APP_DEFAULT : programName;
+				programName = LaunchAttributes.getStoredString(config, ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME);
 			}
 			catch (CoreException ce)
 			{
@@ -285,8 +302,8 @@ public class TabMain extends CMainTab2
 		}
 
 		config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, fProjText.getText());
-		config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME,
-				fProgText.getText().isBlank() ? DefaultPreferences.PROGRAM_APP_DEFAULT : fProgText.getText());
+		LaunchAttributes.setOrClearString(config, ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME,
+				fProgText.getText());
 		if (fCoreText != null)
 		{
 			config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_COREFILE_PATH, fCoreText.getText());

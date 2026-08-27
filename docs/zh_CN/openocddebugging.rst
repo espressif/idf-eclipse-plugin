@@ -19,7 +19,7 @@ ESP-IDF GDB OpenOCD 调试
 
 .. note::
 
-    插件能自动配置大多数设置。
+    插件能自动配置大多数设置。文本字段可以留空以使用默认值；留空时会显示 ``(keep empty for default)``（留空则使用默认值）。**Main**、**Debugger**、**Startup** 和 **SVD** 标签页（以及运行配置的 **Main** 标签页）均提供 **Restore defaults** 按钮，用于将该标签页恢复为内置默认值。
 
 .. image:: ../../media/OpenOCDDebug_4.png
 
@@ -38,7 +38,7 @@ Main 标签页
 
 1. 输入此配置的 ``Name``，默认名称为 "{project_name} Configuration"。
 2. 在 ``Main`` 标签页中，找到 ``Project:`` 一栏，点击 ``Browse`` 按钮来选择或更改当前项目。
-3. 下一行的 ``C/C++ Application:`` 是指向 elf 文件的相对路径，例如 ``build/hello_world.elf``，对应 ``hello_world`` 项目。若不存在 elf 文件，则此项目可能尚未构建。构建项目后，该 elf 文件会出现，也可以点击 ``Browse`` 按钮进行更改。
+3. 下一行的 ``C/C++ Application:`` 是指向 elf 文件的相对路径，例如 ``build/hello_world.elf``，对应 ``hello_world`` 项目。若不存在 elf 文件，则此项目可能尚未构建。构建项目后，该 elf 文件会出现，也可以点击 ``Browse`` 按钮进行更改。也可以将该字段留空，以使用默认应用程序（``${default_app}``）。
 
 ``Main`` 标签页中的最后一栏是 ``Build (if required) before launching``。如果不想在每次点击 ``Debug`` 按钮时都构建项目，则选择 ``Disable auto build`` 选项。
 
@@ -49,7 +49,7 @@ Main 标签页
 Debugger 标签页
 ---------------
 
-在 ``Debugger`` 标签页中，所有参数都会自动配置以开始调试，你只需检查 ``Config options`` 是否适用于你的开发板即可。该选项会根据 ``Flash voltage`` 和 ``Board`` 选项自动调整。展开开发板列表时，只会显示与所选 ``Target`` 相匹配的条目。举例来说，如果所选目标芯片是 ``esp32``，列表中不会显示 ``ESP32-S2-KALUGA-1``。若希望显示该开发版，需要先将目标芯片改为 ``esp32s2``。``Debugger`` 标签页中的第二个选项是 ``GDB executable``，该选项同样依赖于所选目标芯片，并会根据目标自动进行配置
+在 ``Debugger`` 标签页中，所有参数都会自动配置以开始调试，你只需检查 ``Config options`` 是否适用于你的开发板即可。该选项会根据 ``Flash voltage`` 和 ``Board`` 选项自动调整。展开开发板列表时，只会显示与所选 ``Target`` 相匹配的条目。举例来说，如果所选目标芯片是 ``esp32``，列表中不会显示 ``ESP32-S2-KALUGA-1``。若希望显示该开发版，需要先将目标芯片改为 ``esp32s2``。``Debugger`` 标签页中的第二个选项是 ``GDB executable``，该选项同样依赖于所选目标芯片，并会根据目标自动进行配置。OpenOCD 路径、端口、配置选项和 GDB 相关字段均可留空，以使用插件默认值。
 
 还有一些其他选项，建议检查这些选项是否已自动正确配置：
 
