@@ -30,6 +30,7 @@ import org.osgi.framework.BundleContext;
 
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.ConfigurationAttributes;
 import com.espressif.idf.debug.gdbjtag.openocd.IIDFGDBJtagConstants;
@@ -58,7 +59,7 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService
 	@Override
 	public IStatus addGdbInitCommandsCommands(List<String> commandsList)
 	{
-		String otherInits = CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.GDB_CLIENT_OTHER_COMMANDS,
+		String otherInits = getStringAttribute(ConfigurationAttributes.GDB_CLIENT_OTHER_COMMANDS,
 				DefaultPreferences.GDB_CLIENT_OTHER_COMMANDS_DEFAULT).trim();
 
 		otherInits = DebugUtils.resolveAll(otherInits, fAttributes);
@@ -127,7 +128,7 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService
 		{
 
 			String commandStr = DefaultPreferences.DO_FIRST_RESET_COMMAND;
-			String resetType = CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.FIRST_RESET_TYPE,
+			String resetType = getStringAttribute(ConfigurationAttributes.FIRST_RESET_TYPE,
 					DefaultPreferences.FIRST_RESET_TYPE_DEFAULT);
 			commandsList.add(commandStr + resetType);
 
@@ -137,7 +138,7 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService
 			commandsList.add(commandStr);
 		}
 
-		String otherInits = CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.OTHER_INIT_COMMANDS,
+		String otherInits = getStringAttribute(ConfigurationAttributes.OTHER_INIT_COMMANDS,
 				DefaultPreferences.OTHER_INIT_COMMANDS_DEFAULT).trim();
 
 		otherInits = otherInits.replace(DefaultPreferences.IDF_TARGET_CPU_WATCHPOINT_NUM,
@@ -169,7 +170,7 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService
 					DefaultPreferences.DO_SECOND_RESET_DEFAULT))
 			{
 				String commandStr = DefaultPreferences.DO_SECOND_RESET_COMMAND;
-				String resetType = CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.SECOND_RESET_TYPE,
+				String resetType = getStringAttribute(ConfigurationAttributes.SECOND_RESET_TYPE,
 						DefaultPreferences.SECOND_RESET_TYPE_DEFAULT);
 				commandsList.add(commandStr + resetType);
 
@@ -194,7 +195,7 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService
 			}
 		}
 
-		String userCmd = CDebugUtils.getAttribute(fAttributes, ConfigurationAttributes.OTHER_RUN_COMMANDS,
+		String userCmd = getStringAttribute(ConfigurationAttributes.OTHER_RUN_COMMANDS,
 				DefaultPreferences.OTHER_RUN_COMMANDS_DEFAULT).trim();
 
 		userCmd = DebugUtils.resolveAll(userCmd, fAttributes);
@@ -219,6 +220,12 @@ public class DebuggerCommands extends GnuMcuDebuggerCommandsService
 		}
 
 		return Status.OK_STATUS;
+	}
+
+	private String getStringAttribute(String key, String defaultValue)
+	{
+		String value = CDebugUtils.getAttribute(fAttributes, key, defaultValue);
+		return StringUtil.isEmpty(value) ? defaultValue : value;
 	}
 
 	// ------------------------------------------------------------------------

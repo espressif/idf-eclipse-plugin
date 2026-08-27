@@ -51,19 +51,21 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.views.navigator.ResourceComparator;
 
+import com.espressif.idf.core.util.LaunchAttributes;
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.ConfigurationAttributes;
 import com.espressif.idf.debug.gdbjtag.openocd.IIDFGDBJtagConstants;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.PersistentPreferences;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
+import com.espressif.idf.swt.custom.LaunchTabControls;
 
 public class TabStartup extends AbstractLaunchConfigurationTab {
 
@@ -185,27 +187,9 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 		createRunOptionGroup(comp);
 		createRunGroup(comp);
 
-		Link restoreDefaults;
-		{
-			restoreDefaults = new Link(comp, SWT.NONE);
-			restoreDefaults.setText(Messages.getString("DebuggerTab.restoreDefaults_Link"));
-			restoreDefaults.setToolTipText(Messages.getString("DebuggerTab.restoreDefaults_ToolTipText"));
-
-			GridData gd = new GridData();
-			gd.grabExcessHorizontalSpace = true;
-			gd.horizontalAlignment = SWT.RIGHT;
-			gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns;
-			restoreDefaults.setLayoutData(gd);
-		}
-
-		// --------------------------------------------------------------------
-
-		restoreDefaults.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(final SelectionEvent event) {
-				initializeFromDefaults();
-				scheduleUpdateJob();
-			}
+		LaunchTabControls.addRestoreDefaultsButton(comp, () -> {
+			initializeFromDefaults();
+			scheduleUpdateJob();
 		});
 		
 	}
@@ -311,6 +295,7 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 			GridData gd = new GridData();
 			gd.widthHint = 30;
 			fFirstResetType.setLayoutData(gd);
+			LaunchTabControls.applyEmptyDefaultHint(fFirstResetType);
 		}
 
 		{
@@ -319,6 +304,7 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 			GridData gd = new GridData(GridData.FILL_BOTH);
 			gd.heightHint = 60;
 			fInitCommands.setLayoutData(gd);
+			LaunchTabControls.applyEmptyDefaultHint(fInitCommands);
 		}
 
 		{
@@ -720,6 +706,7 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 			GridData gd = new GridData();
 			gd.widthHint = 30;
 			fSecondResetType.setLayoutData(gd);
+			LaunchTabControls.applyEmptyDefaultHint(fSecondResetType);
 
 			fSecondResetWarning = new Label(comp, SWT.NONE);
 			fSecondResetWarning.setText(Messages.getString("StartupTab.secondResetWarning_Text"));
@@ -735,6 +722,7 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 			gd.heightHint = 60;
 			gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns;
 			fRunCommands.setLayoutData(gd);
+			LaunchTabControls.applyEmptyDefaultHint(fRunCommands);
 		}
 
 		{
@@ -748,6 +736,7 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 			gd.widthHint = 100;
 			gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
 			fPcRegister.setLayoutData(gd);
+			LaunchTabControls.applyEmptyDefaultHint(fPcRegister);
 		}
 
 		{
@@ -760,6 +749,7 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 			gd.widthHint = 100;
 			gd.horizontalSpan = ((GridLayout) comp.getLayout()).numColumns - 1;
 			fStopAt.setLayoutData(gd);
+			LaunchTabControls.applyEmptyDefaultHint(fStopAt);
 		}
 
 		{
@@ -898,21 +888,6 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 			setErrorMessage(null);
 		}
 
-		if (fSetPcRegister.getSelection()) {
-			if (fPcRegister.getText().trim().length() == 0) {
-				setErrorMessage(Messages.getString("StartupTab.pcRegister_not_specified"));
-				return false;
-			}
-		} else {
-			setErrorMessage(null);
-		}
-		if (fSetStopAt.getSelection()) {
-			if (fStopAt.getText().trim().length() == 0) {
-				setErrorMessage(Messages.getString("StartupTab.stopAt_not_specified"));
-			}
-		} else {
-			setErrorMessage(null);
-		}
 		return true;
 	}
 
@@ -930,16 +905,17 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 		}
 
 		try {
-			String stringDefault;
 			boolean booleanDefault;
 
 			// OpenOCD Commands
 			{
 				if (fDoFlashBeforeStart != null) {
 					fDoFlashBeforeStart
-					.setSelection(configuration.getAttribute(ConfigurationAttributes.DO_FLASH_BEFORE_START, true));
+					.setSelection(configuration.getAttribute(ConfigurationAttributes.DO_FLASH_BEFORE_START,
+							DefaultPreferences.DO_FLASH_BEFORE_START_DEFAULT));
 				}
-				fEnableVerboseOutput.setSelection(configuration.getAttribute(ConfigurationAttributes.ENABLE_VERBOSE_OUTPUT, false));
+				fEnableVerboseOutput.setSelection(configuration.getAttribute(
+						ConfigurationAttributes.ENABLE_VERBOSE_OUTPUT, DefaultPreferences.ENABLE_VERBOSE_OUTPUT_DEFAULT));
 			}
 
 			// Initialisation Commands
@@ -950,9 +926,8 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 						configuration.getAttribute(ConfigurationAttributes.DO_FIRST_RESET, booleanDefault));
 
 				// Reset type
-				stringDefault = fPersistentPreferences.getOpenOCDInitialResetType();
-				fFirstResetType
-						.setText(configuration.getAttribute(ConfigurationAttributes.FIRST_RESET_TYPE, stringDefault));
+				fFirstResetType.setText(
+						LaunchAttributes.getStoredString(configuration, ConfigurationAttributes.FIRST_RESET_TYPE));
 
 				// Enable semihosting
 				booleanDefault = fPersistentPreferences.getOpenOCDEnableSemihosting();
@@ -960,9 +935,8 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 						configuration.getAttribute(ConfigurationAttributes.ENABLE_SEMIHOSTING, booleanDefault));
 
 				// Other commands
-				stringDefault = fPersistentPreferences.getOpenOCDInitOther();
 				fInitCommands.setText(
-						configuration.getAttribute(ConfigurationAttributes.OTHER_INIT_COMMANDS, stringDefault));
+						LaunchAttributes.getStoredString(configuration, ConfigurationAttributes.OTHER_INIT_COMMANDS));
 			}
 
 			// Load Symbols & Image
@@ -974,10 +948,10 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 								IGDBJtagConstants.DEFAULT_USE_PROJ_BINARY_FOR_SYMBOLS));
 				fUseFileForSymbols.setSelection(configuration.getAttribute(IGDBJtagConstants.ATTR_USE_FILE_FOR_SYMBOLS,
 						IGDBJtagConstants.DEFAULT_USE_FILE_FOR_SYMBOLS));
-				fSymbolsFileName.setText(configuration.getAttribute(IGDBJtagConstants.ATTR_SYMBOLS_FILE_NAME,
-						IGDBJtagConstants.DEFAULT_SYMBOLS_FILE_NAME));
-				fSymbolsOffset.setText(configuration.getAttribute(IGDBJtagConstants.ATTR_SYMBOLS_OFFSET,
-						IGDBJtagConstants.DEFAULT_SYMBOLS_OFFSET));
+				fSymbolsFileName.setText(LaunchAttributes.getStoredString(configuration,
+						IGDBJtagConstants.ATTR_SYMBOLS_FILE_NAME));
+				fSymbolsOffset.setText(LaunchAttributes.getStoredString(configuration,
+						IGDBJtagConstants.ATTR_SYMBOLS_OFFSET));
 
 				fLoadExecutable.setSelection(configuration.getAttribute(IGDBJtagConstants.ATTR_LOAD_IMAGE,
 						IIDFGDBJtagConstants.DEFAULT_LOAD_IMAGE));
@@ -986,10 +960,10 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 								IGDBJtagConstants.DEFAULT_USE_PROJ_BINARY_FOR_IMAGE));
 				fUseFileForImage.setSelection(configuration.getAttribute(IGDBJtagConstants.ATTR_USE_FILE_FOR_IMAGE,
 						IGDBJtagConstants.DEFAULT_USE_FILE_FOR_IMAGE));
-				fImageFileName.setText(configuration.getAttribute(IGDBJtagConstants.ATTR_IMAGE_FILE_NAME,
-						IGDBJtagConstants.DEFAULT_IMAGE_FILE_NAME));
-				fImageOffset.setText(configuration.getAttribute(IGDBJtagConstants.ATTR_IMAGE_OFFSET,
-						IGDBJtagConstants.DEFAULT_IMAGE_OFFSET));
+				fImageFileName.setText(LaunchAttributes.getStoredString(configuration,
+						IGDBJtagConstants.ATTR_IMAGE_FILE_NAME));
+				fImageOffset.setText(LaunchAttributes.getStoredString(configuration,
+						IGDBJtagConstants.ATTR_IMAGE_OFFSET));
 
 				String programName = CDebugUtils.getProgramName(configuration);
 				if (programName != null) {
@@ -1022,24 +996,21 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 						configuration.getAttribute(ConfigurationAttributes.DO_SECOND_RESET, booleanDefault));
 
 				// Pre-run reset type
-				stringDefault = fPersistentPreferences.getOpenOCDPreRunResetType();
-				fSecondResetType
-						.setText(configuration.getAttribute(ConfigurationAttributes.SECOND_RESET_TYPE, stringDefault));
+				fSecondResetType.setText(
+						LaunchAttributes.getStoredString(configuration, ConfigurationAttributes.SECOND_RESET_TYPE));
 
 				// Other commands
-				stringDefault = fPersistentPreferences.getOpenOCDPreRunOther();
-				fRunCommands
-						.setText(configuration.getAttribute(ConfigurationAttributes.OTHER_RUN_COMMANDS, stringDefault));
+				fRunCommands.setText(
+						LaunchAttributes.getStoredString(configuration, ConfigurationAttributes.OTHER_RUN_COMMANDS));
 
 				fSetPcRegister.setSelection(configuration.getAttribute(IGDBJtagConstants.ATTR_SET_PC_REGISTER,
 						IGDBJtagConstants.DEFAULT_SET_PC_REGISTER));
-				fPcRegister.setText(configuration.getAttribute(IGDBJtagConstants.ATTR_PC_REGISTER,
-						IGDBJtagConstants.DEFAULT_PC_REGISTER));
+				fPcRegister.setText(
+						LaunchAttributes.getStoredString(configuration, IGDBJtagConstants.ATTR_PC_REGISTER));
 
 				fSetStopAt.setSelection(configuration.getAttribute(IGDBJtagConstants.ATTR_SET_STOP_AT,
 						DefaultPreferences.DO_STOP_AT_DEFAULT));
-				fStopAt.setText(configuration.getAttribute(IGDBJtagConstants.ATTR_STOP_AT,
-						DefaultPreferences.STOP_AT_NAME_DEFAULT));
+				fStopAt.setText(LaunchAttributes.getStoredString(configuration, IGDBJtagConstants.ATTR_STOP_AT));
 
 				// Do continue
 				fDoContinue.setSelection(configuration.getAttribute(ConfigurationAttributes.DO_CONTINUE,
@@ -1071,6 +1042,11 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 		if (Activator.getInstance().isDebugging()) {
 			System.out.println("openocd.TabStartup.initializeFromDefaults()");
 		}
+
+		if (fDoFlashBeforeStart != null) {
+			fDoFlashBeforeStart.setSelection(DefaultPreferences.DO_FLASH_BEFORE_START_DEFAULT);
+		}
+		fEnableVerboseOutput.setSelection(DefaultPreferences.ENABLE_VERBOSE_OUTPUT_DEFAULT);
 
 		// Initialisation Commands
 		{
@@ -1189,13 +1165,17 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 
 			// First reset type
 			stringValue = fFirstResetType.getText().trim();
-			configuration.setAttribute(ConfigurationAttributes.FIRST_RESET_TYPE, stringValue);
-			fPersistentPreferences.putOpenOCDInitialResetType(stringValue);
+			LaunchAttributes.setOrClearString(configuration, ConfigurationAttributes.FIRST_RESET_TYPE, stringValue);
+			if (!StringUtil.isEmpty(stringValue)) {
+				fPersistentPreferences.putOpenOCDInitialResetType(stringValue);
+			}
 
 			// Other commands
 			stringValue = fInitCommands.getText().trim();
-			configuration.setAttribute(ConfigurationAttributes.OTHER_INIT_COMMANDS, stringValue);
-			fPersistentPreferences.putOpenOCDInitOther(stringValue);
+			LaunchAttributes.setOrClearString(configuration, ConfigurationAttributes.OTHER_INIT_COMMANDS, stringValue);
+			if (!StringUtil.isEmpty(stringValue)) {
+				fPersistentPreferences.putOpenOCDInitOther(stringValue);
+			}
 
 			// Enable semihosting
 			booleanValue = fEnableSemihosting.getSelection();
@@ -1209,17 +1189,21 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 			configuration.setAttribute(IGDBJtagConstants.ATTR_USE_PROJ_BINARY_FOR_SYMBOLS,
 					fUseProjectBinaryForSymbols.getSelection());
 			configuration.setAttribute(IGDBJtagConstants.ATTR_USE_FILE_FOR_SYMBOLS, fUseFileForSymbols.getSelection());
-			configuration.setAttribute(IGDBJtagConstants.ATTR_SYMBOLS_FILE_NAME, fSymbolsFileName.getText().trim());
+			LaunchAttributes.setOrClearString(configuration, IGDBJtagConstants.ATTR_SYMBOLS_FILE_NAME,
+					fSymbolsFileName.getText().trim());
 
-			configuration.setAttribute(IGDBJtagConstants.ATTR_SYMBOLS_OFFSET, fSymbolsOffset.getText());
+			LaunchAttributes.setOrClearString(configuration, IGDBJtagConstants.ATTR_SYMBOLS_OFFSET,
+					fSymbolsOffset.getText());
 
 			configuration.setAttribute(IGDBJtagConstants.ATTR_LOAD_IMAGE, fLoadExecutable.getSelection());
 			configuration.setAttribute(IGDBJtagConstants.ATTR_USE_PROJ_BINARY_FOR_IMAGE,
 					fUseProjectBinaryForImage.getSelection());
 			configuration.setAttribute(IGDBJtagConstants.ATTR_USE_FILE_FOR_IMAGE, fUseFileForImage.getSelection());
-			configuration.setAttribute(IGDBJtagConstants.ATTR_IMAGE_FILE_NAME, fImageFileName.getText().trim());
+			LaunchAttributes.setOrClearString(configuration, IGDBJtagConstants.ATTR_IMAGE_FILE_NAME,
+					fImageFileName.getText().trim());
 
-			configuration.setAttribute(IGDBJtagConstants.ATTR_IMAGE_OFFSET, fImageOffset.getText());
+			LaunchAttributes.setOrClearString(configuration, IGDBJtagConstants.ATTR_IMAGE_OFFSET,
+					fImageOffset.getText());
 		}
 
 		// Runtime Options
@@ -1238,18 +1222,22 @@ public class TabStartup extends AbstractLaunchConfigurationTab {
 
 			// reset type
 			stringValue = fSecondResetType.getText().trim();
-			configuration.setAttribute(ConfigurationAttributes.SECOND_RESET_TYPE, stringValue);
-			fPersistentPreferences.putOpenOCDPreRunResetType(stringValue);
+			LaunchAttributes.setOrClearString(configuration, ConfigurationAttributes.SECOND_RESET_TYPE, stringValue);
+			if (!StringUtil.isEmpty(stringValue)) {
+				fPersistentPreferences.putOpenOCDPreRunResetType(stringValue);
+			}
 
 			// Other commands
 			stringValue = fRunCommands.getText().trim();
-			configuration.setAttribute(ConfigurationAttributes.OTHER_RUN_COMMANDS, stringValue);
-			fPersistentPreferences.putOpenOCDPreRunOther(stringValue);
+			LaunchAttributes.setOrClearString(configuration, ConfigurationAttributes.OTHER_RUN_COMMANDS, stringValue);
+			if (!StringUtil.isEmpty(stringValue)) {
+				fPersistentPreferences.putOpenOCDPreRunOther(stringValue);
+			}
 
 			configuration.setAttribute(IGDBJtagConstants.ATTR_SET_PC_REGISTER, fSetPcRegister.getSelection());
-			configuration.setAttribute(IGDBJtagConstants.ATTR_PC_REGISTER, fPcRegister.getText());
+			LaunchAttributes.setOrClearString(configuration, IGDBJtagConstants.ATTR_PC_REGISTER, fPcRegister.getText());
 			configuration.setAttribute(IGDBJtagConstants.ATTR_SET_STOP_AT, fSetStopAt.getSelection());
-			configuration.setAttribute(IGDBJtagConstants.ATTR_STOP_AT, fStopAt.getText());
+			LaunchAttributes.setOrClearString(configuration, IGDBJtagConstants.ATTR_STOP_AT, fStopAt.getText());
 
 			// Continue
 			configuration.setAttribute(ConfigurationAttributes.DO_CONTINUE, fDoContinue.getSelection());

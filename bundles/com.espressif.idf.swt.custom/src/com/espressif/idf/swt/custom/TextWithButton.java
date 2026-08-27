@@ -140,6 +140,11 @@ public class TextWithButton
 
 	}
 
+	public void setMessage(String message)
+	{
+		text.setMessage(message);
+	}
+
 	public void setEnabled(boolean enabled)
 	{
 		text.setEnabled(enabled);

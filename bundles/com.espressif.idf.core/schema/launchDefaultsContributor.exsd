@@ -6,7 +6,7 @@
          <meta.schema plugin="com.espressif.idf.core" id="launchDefaultsContributor" name="Launch Defaults Contributor"/>
       </appinfo>
       <documentation>
-         [Enter description of this extension point.]
+         Contributors supply default values for launch configuration attributes that are missing or empty. Implementations must not overwrite attributes the user already set. Called when a configuration is created and when an existing configuration is launched.
       </documentation>
    </annotation>
 

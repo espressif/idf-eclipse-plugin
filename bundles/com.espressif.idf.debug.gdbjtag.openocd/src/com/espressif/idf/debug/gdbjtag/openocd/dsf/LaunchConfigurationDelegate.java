@@ -65,6 +65,7 @@ import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.AbstractGnuMcuLaunchConfigura
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuServerServicesLaunchSequence;
 
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.LaunchDefaults;
 import com.espressif.idf.core.variable.JtagVariableResolver;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
@@ -127,6 +128,7 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 			throws CoreException
 	{
 		ILaunchConfigurationWorkingCopy wc = configuration.getWorkingCopy();
+		LaunchDefaults.apply(wc);
 		if (Configuration.getDoStartGdbServer(wc))
 		{
 			Configuration.allocateServerPorts(wc);

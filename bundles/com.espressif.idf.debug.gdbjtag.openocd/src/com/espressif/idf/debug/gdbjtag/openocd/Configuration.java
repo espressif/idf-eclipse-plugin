@@ -20,11 +20,8 @@ import java.util.List;
 import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
 import org.eclipse.cdt.debug.gdbjtag.core.IGDBJtagConstants;
 import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
-import org.eclipse.cdt.dsf.gdb.IGdbDebugPreferenceConstants;
-import org.eclipse.cdt.dsf.gdb.internal.GdbPlugin;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.embedcdt.core.EclipseUtils;
@@ -34,8 +31,10 @@ import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 
 import com.espressif.idf.core.build.IDFLaunchConstants;
+import com.espressif.idf.core.util.LaunchAttributes;
 import com.espressif.idf.core.util.OpenOcdVersionManager;
 import com.espressif.idf.core.util.PortChecker;
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
 
@@ -51,13 +50,13 @@ public class Configuration
 		try
 		{
 
-			if (executable == null)
+			if (StringUtil.isEmpty(executable))
 			{
 				if (!configuration.getAttribute(ConfigurationAttributes.DO_START_GDB_SERVER,
 						DefaultPreferences.DO_START_GDB_SERVER_DEFAULT))
 					return null;
 
-				executable = configuration.getAttribute(ConfigurationAttributes.GDB_SERVER_EXECUTABLE,
+				executable = LaunchAttributes.getString(configuration, ConfigurationAttributes.GDB_SERVER_EXECUTABLE,
 						DefaultPreferences.GDB_SERVER_EXECUTABLE_DEFAULT);
 				// executable = Utils.escapeWhitespaces(executable).trim();
 			}
@@ -139,14 +138,16 @@ public class Configuration
 			lst.add("-c"); //$NON-NLS-1$
 			lst.add(String.format(fmtTelnetPort, port));
 
-			port = Integer.parseInt(configuration.getAttribute(ConfigurationAttributes.GDB_SERVER_TCL_PORT_NUMBER,
+			port = Integer.parseInt(LaunchAttributes.getString(configuration,
+					ConfigurationAttributes.GDB_SERVER_TCL_PORT_NUMBER,
 					DefaultPreferences.GDB_SERVER_TCL_PORT_NUMBER_DEFAULT));
 
 			lst.add("-c"); //$NON-NLS-1$
 			lst.add(String.format(fmtTclPort, port));
 
-			String other = configuration
-					.getAttribute(ConfigurationAttributes.GDB_SERVER_OTHER, DefaultPreferences.GDB_SERVER_OTHER_DEFAULT)
+			String other = LaunchAttributes
+					.getString(configuration, ConfigurationAttributes.GDB_SERVER_OTHER,
+							DefaultPreferences.GDB_SERVER_OTHER_DEFAULT)
 					.trim();
 			other = resolveAll(other, configuration);
 
@@ -182,7 +183,8 @@ public class Configuration
 
 	private static boolean isVerboseOutputEnabled(ILaunchConfiguration configuration) throws CoreException
 	{
-		return configuration.getAttribute(ConfigurationAttributes.ENABLE_VERBOSE_OUTPUT, false);
+		return configuration.getAttribute(ConfigurationAttributes.ENABLE_VERBOSE_OUTPUT,
+				DefaultPreferences.ENABLE_VERBOSE_OUTPUT_DEFAULT);
 	}
 
 	public static String getGdbServerCommandName(ILaunchConfiguration config)
@@ -195,8 +197,8 @@ public class Configuration
 	public static String getGdbServerOtherConfig(ILaunchConfiguration config) throws CoreException
 	{
 
-		return config
-				.getAttribute(ConfigurationAttributes.GDB_SERVER_OTHER, DefaultPreferences.GDB_SERVER_OTHER_DEFAULT)
+		return LaunchAttributes
+				.getString(config, ConfigurationAttributes.GDB_SERVER_OTHER, DefaultPreferences.GDB_SERVER_OTHER_DEFAULT)
 				.trim();
 	}
 
@@ -208,14 +210,10 @@ public class Configuration
 		try
 		{
 
-			if (executable == null)
+			if (StringUtil.isEmpty(executable))
 			{
-				String defaultGdbCommand = Platform.getPreferencesService().getString(GdbPlugin.PLUGIN_ID,
-						IGdbDebugPreferenceConstants.PREF_DEFAULT_GDB_COMMAND,
-						IGDBLaunchConfigurationConstants.DEBUGGER_DEBUG_NAME_DEFAULT, null);
-
-				executable = configuration.getAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME,
-						defaultGdbCommand);
+				executable = LaunchAttributes.getString(configuration, IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME,
+						DefaultPreferences.GDB_CLIENT_EXECUTABLE_DYNAMIC_DEFAULT);
 			}
 
 			executable = resolveAll(executable, configuration);
@@ -232,7 +230,8 @@ public class Configuration
 
 	public static boolean getDoFlashBeforeStart(ILaunchConfiguration configuration) throws CoreException
 	{
-		return configuration.getAttribute(ConfigurationAttributes.DO_FLASH_BEFORE_START, false);
+		return configuration.getAttribute(ConfigurationAttributes.DO_FLASH_BEFORE_START,
+				DefaultPreferences.DO_FLASH_BEFORE_START_DEFAULT);
 	}
 
 	public static String[] getGdbClientCommandLineArray(ILaunchConfiguration configuration)
@@ -257,7 +256,7 @@ public class Configuration
 		String other;
 		try
 		{
-			other = configuration.getAttribute(ConfigurationAttributes.GDB_CLIENT_OTHER_OPTIONS,
+			other = LaunchAttributes.getString(configuration, ConfigurationAttributes.GDB_CLIENT_OTHER_OPTIONS,
 					DefaultPreferences.GDB_CLIENT_OTHER_OPTIONS_DEFAULT).trim();
 
 			other = DebugUtils.resolveAll(other, configuration.getAttributes());
@@ -363,7 +362,7 @@ public class Configuration
 				DefaultPreferences.GDB_SERVER_TELNET_PORT_NUMBER_DEFAULT));
 		configuration.setAttribute(ConfigurationAttributes.GDB_SERVER_TELNET_PORT_NUMBER, telnetPort);
 
-		int tclPort = PortChecker.getAvailablePort(Integer.parseInt(configuration.getAttribute(
+		int tclPort = PortChecker.getAvailablePort(Integer.parseInt(LaunchAttributes.getString(configuration,
 				ConfigurationAttributes.GDB_SERVER_TCL_PORT_NUMBER,
 				DefaultPreferences.GDB_SERVER_TCL_PORT_NUMBER_DEFAULT)));
 		configuration.setAttribute(ConfigurationAttributes.GDB_SERVER_TCL_PORT_NUMBER, String.valueOf(tclPort));
