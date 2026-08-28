@@ -730,8 +730,9 @@ public class EspIdfManagerTest {
 					espIdfEimId != null && !espIdfEimId.isBlank());
 			assertPathEquals("IDF_PATH must point to the active ESP-IDF installation shown in ESP-IDF Manager", //$NON-NLS-1$
 					activeInstallationLocation, idfPath);
-			assertEquals("ESP_IDF_VERSION must match the active version shown in ESP-IDF Manager", //$NON-NLS-1$
-					activeInstallationTableVersion, espIdfVersion);
+			assertTrue("ESP-IDF Manager version must include CDT ESP_IDF_VERSION. Manager: "
+					+ activeInstallationTableVersion + ", ESP_IDF_VERSION: " + espIdfVersion, //$NON-NLS-1$ //$NON-NLS-2$
+					activeInstallationTableVersion.contains(espIdfVersion));
 
 			Path idfPathOnDisk = Paths.get(idfPath);
 			Path pythonEnvPathOnDisk = Paths.get(idfPythonEnvPath);
