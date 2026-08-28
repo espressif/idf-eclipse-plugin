@@ -327,9 +327,6 @@ public class EspIdfManagerTest {
 
 		private static SWTWorkbenchBot bot;
 		private static Map<String, String> originalEnvironmentVariables;
-		private static int eimLaunchMarkerCountBeforeAction;
-		private static int eimCliOpeningCountBeforeAction;
-		private static int eimCliCompletedCountBeforeAction;
 		private static int terminalTabCountBeforeAction;
 		private static String activeInstallationLocation;
 		private static String activeInstallationTableVersion;
@@ -557,11 +554,6 @@ public class EspIdfManagerTest {
 		}
 
 		static void whenManageEspIdfVersionsIsClicked() {
-			SWTBotView toolsConsole = ProjectTestOperations.viewConsole(Messages.IDFToolsHandler_ToolsManagerConsole, bot);
-			String consoleText = getConsoleText(toolsConsole);
-			eimLaunchMarkerCountBeforeAction = countOccurrences(consoleText, EIM_LAUNCH_CONSOLE_MARKER);
-			eimCliOpeningCountBeforeAction = countOccurrences(consoleText, Messages.EimCliTerminalOpeningWizard);
-			eimCliCompletedCountBeforeAction = countOccurrences(consoleText, Messages.EimCliTerminalWizardCompleted);
 			terminalTabCountBeforeAction = getTerminalTabCount();
 			bot.editorByTitle(Messages.EspIdfEditorTitle).bot().button(Messages.EIMButtonLaunchText).click();
 		}
@@ -757,28 +749,16 @@ public class EspIdfManagerTest {
 
 		static void thenEimLaunchIsReportedInConsoleAndProcessIsStopped() {
 			SWTBotView toolsConsole = ProjectTestOperations.viewConsole(Messages.IDFToolsHandler_ToolsManagerConsole, bot);
-			toolsConsole.bot().waitUntil(new DefaultCondition() {
-				@Override
-				public boolean test() throws Exception {
-					String text = getConsoleText(toolsConsole);
-					return countOccurrences(text, EIM_LAUNCH_CONSOLE_MARKER) > eimLaunchMarkerCountBeforeAction;
-				}
+			TestWidgetWaitUtility.waitUntilViewContains(bot, EIM_LAUNCH_CONSOLE_MARKER, toolsConsole, CONSOLE_WAIT_TIMEOUT_MS);
 
-				@Override
-				public String getFailureMessage() {
-					return "Expected Manage ESP-IDF Versions to launch EIM"; //$NON-NLS-1$
-				}
-			}, 60_000L, 500);
-
-			String newConsoleOutput = textFromNthOccurrence(getConsoleText(toolsConsole), EIM_LAUNCH_CONSOLE_MARKER,
-					eimLaunchMarkerCountBeforeAction + 1);
+			String consoleText = getConsoleText(toolsConsole);
 			Pattern pidPattern = Pattern.compile("Launched EIM application:.*\\(pid=(\\d+)\\)"); //$NON-NLS-1$
-			Matcher matcher = pidPattern.matcher(newConsoleOutput);
+			Matcher matcher = pidPattern.matcher(consoleText);
 			long launchedPid = -1;
 			while (matcher.find()) {
 				launchedPid = Long.parseLong(matcher.group(1));
 			}
-			assertTrue("Expected a pid in the new EIM launch console output: " + newConsoleOutput, launchedPid > 0); //$NON-NLS-1$
+			assertTrue("Expected a pid in the EIM launch console output: " + consoleText, launchedPid > 0); //$NON-NLS-1$
 
 			ProcessHandle.of(launchedPid).ifPresent(process -> {
 				process.destroy();
@@ -956,29 +936,6 @@ public class EspIdfManagerTest {
 			return consoleView.bot().styledText().getText();
 		}
 
-		private static int countOccurrences(String text, String needle) {
-			int count = 0;
-			int index = 0;
-			while ((index = text.indexOf(needle, index)) != -1) {
-				count++;
-				index += needle.length();
-			}
-			return count;
-		}
-
-		private static String textFromNthOccurrence(String text, String needle, int occurrenceNumber) {
-			int fromIndex = 0;
-			int found = -1;
-			for (int i = 0; i < occurrenceNumber; i++) {
-				found = text.indexOf(needle, fromIndex);
-				if (found < 0) {
-					return ""; //$NON-NLS-1$
-				}
-				fromIndex = found + needle.length();
-			}
-			return text.substring(found);
-		}
-
 		private static void readActiveInstallationDetails(SWTBotTable table) {
 			activeInstallationLocation = null;
 			activeInstallationTableVersion = null;
@@ -1084,18 +1041,8 @@ public class EspIdfManagerTest {
 			/*
 			 * Verify that EimGuiOrCliLauncher selected CLI mode.
 			 */
-			toolsConsole.bot().waitUntil(new DefaultCondition() {
-				@Override
-				public boolean test() throws Exception {
-					return countOccurrences(getConsoleText(toolsConsole),
-							Messages.EimCliTerminalOpeningWizard) > eimCliOpeningCountBeforeAction;
-				}
-
-				@Override
-				public String getFailureMessage() {
-					return "Expected Manage ESP-IDF Versions to launch EIM in CLI mode"; //$NON-NLS-1$
-				}
-			}, 60_000L, 500);
+			TestWidgetWaitUtility.waitUntilViewContains(bot, Messages.EimCliTerminalOpeningWizard, toolsConsole,
+					CONSOLE_WAIT_TIMEOUT_MS);
 
 			/*
 			 * Wait for a NEW terminal tab.
@@ -1113,7 +1060,7 @@ public class EspIdfManagerTest {
 				public String getFailureMessage() {
 					return "Expected EIM CLI to open a new Eclipse Terminal tab"; //$NON-NLS-1$
 				}
-			}, 60_000L, 500);
+			}, CONSOLE_WAIT_TIMEOUT_MS, 500);
 
 			SWTBotView terminalView = bot.viewByTitle(TERMINAL_VIEW_TITLE);
 
@@ -1144,18 +1091,8 @@ public class EspIdfManagerTest {
 			 * Closing the terminal terminates the shell/EIM process. Production code then
 			 * invokes its completion callback.
 			 */
-			toolsConsole.bot().waitUntil(new DefaultCondition() {
-				@Override
-				public boolean test() throws Exception {
-					return countOccurrences(getConsoleText(toolsConsole),
-							Messages.EimCliTerminalWizardCompleted) > eimCliCompletedCountBeforeAction;
-				}
-
-				@Override
-				public String getFailureMessage() {
-					return "Expected EIM CLI completion callback after closing terminal"; //$NON-NLS-1$
-				}
-			}, 30_000L, 500);
+			TestWidgetWaitUtility.waitUntilViewContains(bot, Messages.EimCliTerminalWizardCompleted, toolsConsole,
+					30_000L);
 		}
 
 		static void closeEimCliTerminalIfOpen() {
