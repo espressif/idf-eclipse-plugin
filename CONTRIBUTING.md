@@ -6,7 +6,7 @@
 * Click on `Set as Active Target Platform` and wait for a couple of mins to download and configure your environment with the idf required plugins
   
 ## Setting up an Eclipse Development Manually
-* Install `Java SE`(Java 17 and above) from https://www.oracle.com/technetwork/java/javase/downloads/index.html
+* Install `Java SE`(Java 21 and above) from https://www.oracle.com/technetwork/java/javase/downloads/index.html
 * Install `Eclipse for RCP and RAP Developers` package (Eclipse 2023-03 and above) from https://www.eclipse.org/downloads/packages/
 * Install `Eclipse CDT` plugins in the eclipse https://download.eclipse.org/tools/cdt/releases/latest/ (Choose compatible CDT version based on the Eclipse Release)
 * Install `Eclipse C/C++ OpenOCD Debugging` package from https://download.eclipse.org/embed-cdt/updates/v6/
