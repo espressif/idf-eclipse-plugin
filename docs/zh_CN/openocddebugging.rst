@@ -19,7 +19,7 @@ ESP-IDF GDB OpenOCD 调试
 
 .. note::
 
-    插件能自动配置大多数设置。文本字段可以留空以使用默认值；留空时会显示 ``(keep empty for default)``（留空则使用默认值）。**Main**、**Debugger**、**Startup** 和 **SVD** 标签页（以及运行配置的 **Main** 标签页）均提供 **Restore defaults** 按钮，用于将该标签页恢复为内置默认值。
+    插件能自动配置大多数设置。文本字段可以留空以使用默认值；留空时会显示 ``(keep empty for default)``\ （留空则使用默认值）。**Main**、**Debugger**、**Startup** 和 **SVD** 标签页（以及运行配置的 **Main** 标签页）均提供 **Restore defaults** 按钮，用于将该标签页恢复为内置默认值。
 
 .. image:: ../../media/OpenOCDDebug_4.png
 
