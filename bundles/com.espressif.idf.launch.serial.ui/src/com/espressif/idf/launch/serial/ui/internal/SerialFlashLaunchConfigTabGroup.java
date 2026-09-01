@@ -18,10 +18,12 @@ package com.espressif.idf.launch.serial.ui.internal;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.LaunchDefaults;
 
 public class SerialFlashLaunchConfigTabGroup extends AbstractLaunchConfigurationTabGroup
 {
@@ -30,6 +32,17 @@ public class SerialFlashLaunchConfigTabGroup extends AbstractLaunchConfiguration
 	public void createTabs(ILaunchConfigurationDialog dialog, String mode)
 	{
 		setTabs();
+	}
+
+	@Override
+	public void setDefaults(ILaunchConfigurationWorkingCopy configuration)
+	{
+		// This configuration type is shared by run and debug, but the dialog only visits the tabs associated with the
+		// mode the configuration is created in. Seed the contributed defaults for both modes here so the attributes of
+		// the other mode are present instead of showing up empty the first time it is edited.
+		LaunchDefaults.apply(configuration);
+
+		super.setDefaults(configuration);
 	}
 
 	@Override
