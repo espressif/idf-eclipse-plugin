@@ -67,6 +67,7 @@ public class ProjectTestOperations
 	 */
 	public static void buildProjectUsingContextMenu(String projectName, SWTWorkbenchBot bot)
 	{
+		TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
 		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
 		if (projectItem != null)
 		{
