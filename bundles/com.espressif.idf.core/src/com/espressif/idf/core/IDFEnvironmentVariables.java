@@ -134,6 +134,7 @@ public class IDFEnvironmentVariables
 		IEnvironmentVariableManager buildEnvironmentManager = CCorePlugin.getDefault().getBuildEnvironmentManager();
 		IEnvironmentVariable[] variables = buildEnvironmentManager.getVariables((ICConfigurationDescription) null,
 				true);
+
 		Map<String, String> envMap = new HashMap<String, String>(System.getenv());
 		if (variables != null)
 		{

@@ -83,6 +83,9 @@ public class DefaultPreferences extends org.eclipse.embedcdt.debug.gdbjtag.core.
 
 	public static final boolean DO_CONTINUE_DEFAULT = true;
 
+	public static final boolean DO_FLASH_BEFORE_START_DEFAULT = true;
+	public static final boolean ENABLE_VERBOSE_OUTPUT_DEFAULT = false;
+
 	// ------------------------------------------------------------------------
 
 	// Debugger commands
