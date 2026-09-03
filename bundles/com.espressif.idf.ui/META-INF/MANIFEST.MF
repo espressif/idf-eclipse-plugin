@@ -44,6 +44,7 @@ Export-Package: com.espressif.idf.ui,
  com.espressif.idf.ui.dialogs,
  com.espressif.idf.ui.handlers,
  com.espressif.idf.ui.preferences,
+ com.espressif.idf.ui.tools,
  com.espressif.idf.ui.tracing,
  com.espressif.idf.ui.update
 Bundle-ClassPath: .,
