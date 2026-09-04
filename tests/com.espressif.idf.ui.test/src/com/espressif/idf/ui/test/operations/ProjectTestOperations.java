@@ -34,7 +34,6 @@ import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable;
 import org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory;
-import org.eclipse.swtbot.swt.finder.results.Result;
 import org.eclipse.swtbot.swt.finder.results.VoidResult;
 import org.eclipse.swtbot.swt.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
@@ -44,7 +43,6 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotLabel;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTable;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarDropDownButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
@@ -54,7 +52,6 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.handlers.IHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +76,11 @@ public class ProjectTestOperations
 	private static final String CDT_PERSPECTIVE_ID = "org.eclipse.cdt.ui.CPerspective";
 
 	private static final String DEBUG_PERSPECTIVE_ID = "org.eclipse.debug.ui.DebugPerspective";
+
+	private static final String STEP_OVER_TOOLTIP = "Step &Over (F6)";
+
+	private static final String[] STEP_OVER_CONTEXT_MENU_LABELS = { "Step Over (F6)", "Step Over", "Step &Over (F6)",
+			"Step &Over" };
 
 	private static final Logger logger = LoggerFactory.getLogger(ProjectTestOperations.class);
 
@@ -398,13 +400,10 @@ public class ProjectTestOperations
 	}
 
 	/**
-	 * Performs Step Over via debug model API, Debug toolbar / Run menu, Debug view context menu,
-	 * or Project Explorer fallback. Does not use keyboard shortcuts.
-	 * <p>
-	 * FreeRTOS threads often show {@code Running} while halted, so readiness is based on an
-	 * {@code app_main} stack frame (or a visible Step Over control), not {@code isSuspended()} alone.
+	 * Performs Step Over from the Debug UI: the workbench toolbar button
+	 * {@code Step &Over (F6)}, or right-click on the suspended thread in the Debug view.
 	 *
-	 * @param projectName project to use for the context-menu fallback
+	 * @param projectName unused; kept for call-site compatibility
 	 * @param bot         current SWT bot reference
 	 */
 	public static void performDebugStepOver(String projectName, SWTWorkbenchBot bot)
@@ -433,21 +432,18 @@ public class ProjectTestOperations
 								"Debug launch terminated before Step Over became available (OpenOCD/GDB already stopped)");
 					}
 					acceptDebugPerspectiveSwitchIfPresent(workbenchBot, 200);
-					// FreeRTOS: app_main frame is enough; isSuspended()/canStepOver() are often false.
-					return findThreadWithAppMainFrame() != null
-							|| canStepOverInDebugModel()
-							|| isStepOverToolbarPresent(workbenchBot);
+					return isStepOverToolbarPresent(workbenchBot)
+							|| findDebugThreadItem(workbenchBot) != null
+							|| findThreadWithAppMainFrame() != null;
 				}
 
 				@Override
 				public String getFailureMessage()
 				{
-					return "Debug Step Over not ready within timeout — no app_main stack frame, "
-							+ "canStepOver=false, and Step Over toolbar not found. "
-							+ "Launch active=" + hasActiveLaunch()
-							+ ", app_main frame=" + (findThreadWithAppMainFrame() != null)
-							+ ", canStepOver=" + canStepOverInDebugModel()
-							+ ", stepOverToolbar=" + isStepOverToolbarPresent(workbenchBot);
+					return "Debug Step Over not ready within timeout — Step Over toolbar not found "
+							+ "and no thread in the Debug view. Launch active=" + hasActiveLaunch()
+							+ ", stepOverToolbar=" + isStepOverToolbarPresent(workbenchBot)
+							+ ", debugThread=" + (findDebugThreadItem(workbenchBot) != null);
 				}
 			}, 60000, 500);
 		}
@@ -459,8 +455,7 @@ public class ProjectTestOperations
 			{
 				throw new AssertionError(
 						"Debug Step Over not ready within timeout (empty wait failure). Launch active="
-								+ hasActiveLaunch() + ", app_main frame="
-								+ (findThreadWithAppMainFrame() != null),
+								+ hasActiveLaunch(),
 						e);
 			}
 			throw e;
@@ -468,22 +463,7 @@ public class ProjectTestOperations
 
 		bot.sleep(1500);
 
-		if (stepOverViaDebugModel())
-		{
-			bot.sleep(3000);
-			return;
-		}
-		if (stepOverViaDebugCommand())
-		{
-			bot.sleep(3000);
-			return;
-		}
 		if (clickToolbarStepOver(bot))
-		{
-			bot.sleep(3000);
-			return;
-		}
-		if (clickRunMenuStepOver(bot))
 		{
 			bot.sleep(3000);
 			return;
@@ -493,17 +473,12 @@ public class ProjectTestOperations
 			bot.sleep(3000);
 			return;
 		}
-		if (clickProjectContextMenuStepOver(projectName, bot))
-		{
-			bot.sleep(3000);
-			return;
-		}
 
 		throw new AssertionError(
-				"Failed to perform Step Over (debug API, command, toolbar, Run menu, Debug view, "
-						+ "and Project Explorer all failed). Launch active=" + hasActiveLaunch()
-						+ ", app_main frame=" + (findThreadWithAppMainFrame() != null)
-						+ ", canStepOver=" + canStepOverInDebugModel());
+				"Failed to perform Step Over (toolbar button 'Step &Over (F6)' and Debug view "
+						+ "thread context menu both failed). Launch active=" + hasActiveLaunch()
+						+ ", stepOverToolbar=" + isStepOverToolbarPresent(bot)
+						+ ", debugThread=" + (findDebugThreadItem(bot) != null));
 	}
 
 	private static IThread findThreadWithAppMainFrame()
@@ -567,213 +542,67 @@ public class ProjectTestOperations
 		return null;
 	}
 
-	private static boolean stepOverViaDebugModel()
-	{
-		IThread appMainThread = findThreadWithAppMainFrame();
-		if (appMainThread != null)
-		{
-			try
-			{
-				if (appMainThread.canStepOver())
-				{
-					appMainThread.stepOver();
-					return true;
-				}
-			}
-			catch (DebugException e)
-			{
-				logger.debug("stepOverViaDebugModel(app_main): {}", e.getMessage());
-			}
-		}
-
-		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-		ILaunch[] launches = launchManager.getLaunches();
-		if (launches == null)
-		{
-			return false;
-		}
-		for (ILaunch launch : launches)
-		{
-			if (launch == null || launch.isTerminated())
-			{
-				continue;
-			}
-			IDebugTarget[] targets = launch.getDebugTargets();
-			if (targets == null)
-			{
-				continue;
-			}
-			for (IDebugTarget target : targets)
-			{
-				if (target == null || target.isTerminated())
-				{
-					continue;
-				}
-				try
-				{
-					if (!target.hasThreads())
-					{
-						continue;
-					}
-					for (IThread thread : target.getThreads())
-					{
-						if (thread != null && thread.canStepOver())
-						{
-							thread.stepOver();
-							return true;
-						}
-					}
-				}
-				catch (DebugException e)
-				{
-					logger.debug("stepOverViaDebugModel: {}", e.getMessage());
-				}
-			}
-		}
-		return false;
-	}
-
-	private static boolean stepOverViaDebugCommand()
-	{
-		try
-		{
-			Boolean ok = UIThreadRunnable.syncExec(new Result<Boolean>()
-			{
-				@Override
-				public Boolean run()
-				{
-					try
-					{
-						IHandlerService handlers = PlatformUI.getWorkbench().getService(IHandlerService.class);
-						if (handlers == null)
-						{
-							return Boolean.FALSE;
-						}
-						handlers.executeCommand("org.eclipse.debug.ui.commands.StepOver", null);
-						return Boolean.TRUE;
-					}
-					catch (Exception e)
-					{
-						logger.debug("stepOverViaDebugCommand: {}", e.getMessage());
-						return Boolean.FALSE;
-					}
-				}
-			});
-			return Boolean.TRUE.equals(ok);
-		}
-		catch (Exception e)
-		{
-			logger.debug("stepOverViaDebugCommand failed: {}", e.getMessage());
-			return false;
-		}
-	}
-
 	private static boolean isStepOverToolbarPresent(SWTWorkbenchBot bot)
 	{
-		return findStepOverToolbarButton(bot) != null
-				|| isToolbarButtonPresent(bot, "Step &Over (F6)")
-				|| isToolbarButtonPresent(bot, "Step Over (F6)")
-				|| isToolbarButtonPresent(bot, "Step Over");
-	}
-
-	private static SWTBotToolbarButton findStepOverToolbarButton(SWTWorkbenchBot bot)
-	{
 		try
 		{
-			for (SWTBotToolbarButton button : bot.toolbarButtons())
-			{
-				String tip = button.getToolTipText();
-				if (tip != null && tip.toLowerCase(Locale.ENGLISH).contains("step over"))
-				{
-					return button;
-				}
-			}
+			bot.toolbarButtonWithTooltip(STEP_OVER_TOOLTIP);
+			return true;
 		}
-		catch (Exception e)
+		catch (WidgetNotFoundException e)
 		{
-			logger.debug("findStepOverToolbarButton: {}", e.getMessage());
+			return false;
 		}
-		return null;
 	}
 
 	private static boolean clickToolbarStepOver(SWTWorkbenchBot bot)
 	{
-		SWTBotToolbarButton matched = findStepOverToolbarButton(bot);
-		if (matched != null)
+		try
 		{
-			try
-			{
-				matched.click();
-				return true;
-			}
-			catch (Exception e)
-			{
-				logger.debug("Matched Step Over toolbar click failed: {}", e.getMessage());
-			}
+			bot.toolbarButtonWithTooltip(STEP_OVER_TOOLTIP).click();
+			return true;
 		}
-
-		String[] tooltips = { "Step &Over (F6)", "Step Over (F6)", "Step Over", "Step Over (F6) (Alt+Shift+O)" };
-		for (String tooltip : tooltips)
+		catch (WidgetNotFoundException e)
 		{
-			try
-			{
-				bot.toolbarButtonWithTooltip(tooltip).click();
-				return true;
-			}
-			catch (WidgetNotFoundException ignored)
-			{
-			}
+			logger.debug("Step Over toolbar click failed: {}", e.getMessage());
+			return false;
 		}
-		return false;
 	}
 
-	private static boolean clickRunMenuStepOver(SWTWorkbenchBot bot)
-	{
-		String[] labels = { "Step Over (F6)", "Step &Over (F6)", "Step Over", "Step &Over" };
-		for (String label : labels)
-		{
-			try
-			{
-				bot.menu("Run").menu(label).click();
-				return true;
-			}
-			catch (WidgetNotFoundException ignored)
-			{
-			}
-			catch (Exception e)
-			{
-				logger.debug("Run menu Step Over ({}) failed: {}", label, e.getMessage());
-			}
-		}
-		return false;
-	}
-
+	/**
+	 * Right-clicks the suspended thread in the Debug view and selects {@code Step Over (F6)}.
+	 */
 	private static boolean clickDebugViewStepOver(SWTWorkbenchBot bot)
 	{
 		try
 		{
-			SWTBotView debugView = bot.viewByPartName("Debug");
-			debugView.show();
-			debugView.setFocus();
-			bot.sleep(1000);
-			SWTBotTree tree = debugView.bot().tree();
-			SWTBotTreeItem appMain = findTreeItemContaining(tree.getAllItems(), "app_main");
-			if (appMain == null)
+			SWTBotView debugView = findDebugView(bot);
+			if (debugView == null)
 			{
 				return false;
 			}
-			appMain.select();
+			debugView.show();
+			debugView.setFocus();
+			bot.sleep(1000);
+			SWTBotTreeItem thread = findDebugThreadItem(bot);
+			if (thread == null)
+			{
+				return false;
+			}
+			thread.select();
 			bot.sleep(500);
-			try
+			for (String label : STEP_OVER_CONTEXT_MENU_LABELS)
 			{
-				appMain.contextMenu("Step Over").click();
-				return true;
+				try
+				{
+					thread.contextMenu(label).click();
+					return true;
+				}
+				catch (WidgetNotFoundException ignored)
+				{
+				}
 			}
-			catch (WidgetNotFoundException e)
-			{
-				appMain.contextMenu("Step Over (F6)").click();
-				return true;
-			}
+			return false;
 		}
 		catch (Exception e)
 		{
@@ -782,13 +611,57 @@ public class ProjectTestOperations
 		}
 	}
 
-	private static SWTBotTreeItem findTreeItemContaining(SWTBotTreeItem[] items, String text)
+	private static SWTBotView findDebugView(SWTWorkbenchBot bot)
+	{
+		try
+		{
+			for (SWTBotView view : bot.views())
+			{
+				if (view != null && "Debug".equals(view.getTitle()))
+				{
+					return view;
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			logger.debug("findDebugView: {}", e.getMessage());
+		}
+		return null;
+	}
+
+	private static SWTBotTreeItem findDebugThreadItem(SWTWorkbenchBot bot)
+	{
+		try
+		{
+			SWTBotView debugView = findDebugView(bot);
+			if (debugView == null)
+			{
+				return null;
+			}
+			debugView.show();
+			SWTBotTree tree = debugView.bot().tree();
+			SWTBotTreeItem[] roots = tree.getAllItems();
+			SWTBotTreeItem mainThread = findThreadItem(roots, true);
+			if (mainThread != null)
+			{
+				return mainThread;
+			}
+			return findThreadItem(roots, false);
+		}
+		catch (Exception e)
+		{
+			logger.debug("findDebugThreadItem: {}", e.getMessage());
+			return null;
+		}
+	}
+
+	private static SWTBotTreeItem findThreadItem(SWTBotTreeItem[] items, boolean mainOnly)
 	{
 		if (items == null)
 		{
 			return null;
 		}
-		String needle = text.toLowerCase(Locale.ENGLISH);
 		for (SWTBotTreeItem item : items)
 		{
 			if (item == null)
@@ -796,9 +669,15 @@ public class ProjectTestOperations
 				continue;
 			}
 			String label = item.getText();
-			if (label != null && label.toLowerCase(Locale.ENGLISH).contains(needle))
+			if (label != null)
 			{
-				return item;
+				String lower = label.toLowerCase(Locale.ENGLISH);
+				boolean isThread = lower.contains("thread #") || lower.startsWith("thread ");
+				boolean isMain = lower.contains("[main]") || lower.contains("name: main");
+				if (isThread && (!mainOnly || isMain))
+				{
+					return item;
+				}
 			}
 			try
 			{
@@ -807,104 +686,13 @@ public class ProjectTestOperations
 			catch (Exception ignored)
 			{
 			}
-			SWTBotTreeItem nested = findTreeItemContaining(item.getItems(), text);
+			SWTBotTreeItem nested = findThreadItem(item.getItems(), mainOnly);
 			if (nested != null)
 			{
 				return nested;
 			}
 		}
 		return null;
-	}
-
-	private static boolean clickProjectContextMenuStepOver(String projectName, SWTWorkbenchBot bot)
-	{
-		try
-		{
-			SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
-			if (projectItem == null)
-			{
-				return false;
-			}
-			projectItem.select();
-			try
-			{
-				projectItem.contextMenu("Step Over").click();
-				return true;
-			}
-			catch (WidgetNotFoundException e)
-			{
-				projectItem.contextMenu("Step Over (F6)").click();
-				return true;
-			}
-		}
-		catch (Exception e)
-		{
-			logger.debug("Project context menu Step Over failed: {}", e.getMessage());
-			return false;
-		}
-	}
-
-	private static boolean canStepOverInDebugModel()
-	{
-		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-		ILaunch[] launches = launchManager.getLaunches();
-		if (launches == null)
-		{
-			return false;
-		}
-
-		for (ILaunch launch : launches)
-		{
-			if (launch == null || launch.isTerminated())
-			{
-				continue;
-			}
-			IDebugTarget[] targets = launch.getDebugTargets();
-			if (targets == null)
-			{
-				continue;
-			}
-			for (IDebugTarget target : targets)
-			{
-				if (target == null || target.isTerminated())
-				{
-					continue;
-				}
-				try
-				{
-					if (!target.hasThreads())
-					{
-						continue;
-					}
-					for (IThread thread : target.getThreads())
-					{
-						// Do not require isSuspended() — FreeRTOS often reports Running while halted.
-						if (thread != null && thread.canStepOver())
-						{
-							return true;
-						}
-					}
-				}
-				catch (DebugException e)
-				{
-					logger.debug("canStepOverInDebugModel: {}", e.getMessage());
-				}
-			}
-		}
-		return false;
-	}
-
-	private static boolean isToolbarButtonPresent(SWTWorkbenchBot bot, String tooltip)
-	{
-		try
-		{
-			bot.toolbarButtonWithTooltip(tooltip);
-			return true;
-		}
-		catch (WidgetNotFoundException e)
-		{
-			return false;
-		}
 	}
 
 	/**
