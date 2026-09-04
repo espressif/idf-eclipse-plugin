@@ -8,21 +8,34 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.core.model.IDebugTarget;
+import org.eclipse.debug.core.model.IStackFrame;
+import org.eclipse.debug.core.model.IThread;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
+import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable;
 import org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory;
+import org.eclipse.swtbot.swt.finder.results.VoidResult;
+import org.eclipse.swtbot.swt.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
@@ -34,6 +47,11 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarDropDownButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.eclipse.ui.IPageLayout;
+import org.eclipse.ui.IPerspectiveDescriptor;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +72,15 @@ public class ProjectTestOperations
 	private static final String DEFAULT_PROJECT_BUILD_WAIT_PROPERTY = "default.project.build.wait";
 	
 	private static final String DEFAULT_FLASH_WAIT_PROPERTY = "default.project.flash.wait";
+
+	private static final String CDT_PERSPECTIVE_ID = "org.eclipse.cdt.ui.CPerspective";
+
+	private static final String DEBUG_PERSPECTIVE_ID = "org.eclipse.debug.ui.DebugPerspective";
+
+	private static final String STEP_OVER_TOOLTIP = "Step &Over (F6)";
+
+	private static final String[] STEP_OVER_CONTEXT_MENU_LABELS = { "Step Over (F6)", "Step Over", "Step &Over (F6)",
+			"Step &Over" };
 
 	private static final Logger logger = LoggerFactory.getLogger(ProjectTestOperations.class);
 
@@ -139,6 +166,1013 @@ public class ProjectTestOperations
 			bot.button("Close").click();
 		}
 
+	}
+
+	/**
+	 * Starts debugging via Project Explorer context menu: Debug As → Debug Configurations...,
+	 * selects the ESP-IDF OpenOCD debug config, clicks Debug, and accepts the perspective switch if prompted.
+	 *
+	 * @param projectName project whose debug configuration should be launched
+	 * @param bot         current SWT bot reference
+	 */
+	public static void startDebuggingUsingContextMenu(String projectName, SWTWorkbenchBot bot)
+	{
+		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
+		if (projectItem == null)
+		{
+			throw new WidgetNotFoundException("Project not found in Project Explorer: " + projectName);
+		}
+
+		projectItem.select();
+		projectItem.contextMenu("Debug As").menu("Debug Configurations...").click();
+
+		TestWidgetWaitUtility.waitForDialogToAppear(bot, "Debug Configurations", 10000);
+
+		bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").select();
+		bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").expand();
+
+		String primaryDebugConfig = projectName + " Debug";
+		String fallbackDebugConfig = projectName + " Configuration";
+		try
+		{
+			bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").getNode(primaryDebugConfig).select();
+		}
+		catch (WidgetNotFoundException e)
+		{
+			try
+			{
+				bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").getNode(fallbackDebugConfig).select();
+			}
+			catch (WidgetNotFoundException e2)
+			{
+				// Last resort: use the first child config under the OpenOCD type.
+				bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").getNode(0).select();
+			}
+		}
+
+		bot.waitUntil(Conditions.widgetIsEnabled(bot.button("Debug")), 5000);
+		bot.button("Debug").click();
+		// Dialog usually appears later, when GDB suspends — also handled in waitForDebugSessionStarted.
+		acceptDebugPerspectiveSwitchIfPresent(bot, 5000);
+	}
+
+	/**
+	 * Accepts the Eclipse "Confirm Perspective Switch" dialog when it appears after the debug
+	 * session suspends. Does not check "Remember my decision" so later UI tests are not affected.
+	 *
+	 * @param bot     current SWT bot reference
+	 * @param timeout how long to wait for the dialog in milliseconds
+	 * @return {@code true} if the dialog was found and dismissed
+	 */
+	public static boolean acceptDebugPerspectiveSwitchIfPresent(SWTWorkbenchBot bot, long timeout)
+	{
+		try
+		{
+			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Confirm Perspective Switch", timeout);
+			SWTBotShell shell = bot.shell("Confirm Perspective Switch");
+			shell.activate();
+			shell.setFocus();
+
+			try
+			{
+				SWTBotCheckBox remember = shell.bot().checkBox("Remember my decision");
+				// Do not persist the decision — it poisons later UI tests in the same workbench.
+				if (remember.isChecked())
+				{
+					remember.click();
+				}
+			}
+			catch (WidgetNotFoundException ignored)
+			{
+			}
+
+			try
+			{
+				shell.bot().button("Switch").click();
+			}
+			catch (WidgetNotFoundException e)
+			{
+				shell.bot().button("Yes").click();
+			}
+
+			// Give the Debug perspective time to finish opening before further toolbar clicks.
+			bot.sleep(2000);
+			return true;
+		}
+		catch (Exception ignored)
+		{
+			// Perspective switch may already be remembered / suppressed.
+			return false;
+		}
+	}
+
+	/**
+	 * @see #acceptDebugPerspectiveSwitchIfPresent(SWTWorkbenchBot, long)
+	 */
+	public static void acceptDebugPerspectiveSwitchIfPresent(SWTWorkbenchBot bot)
+	{
+		acceptDebugPerspectiveSwitchIfPresent(bot, 30000);
+	}
+
+	/**
+	 * Waits until GDB has suspended at {@code app_main} (not merely OpenOCD "Target halted" during
+	 * reset) and opens the Debug perspective. Does not require the Step Over toolbar button —
+	 * that control is often missing/unreliable under SWTBot even when the session is suspended.
+	 * <p>
+	 * Prefers the Eclipse debug model over console-page switching. Repeatedly opening
+	 * "Display Selected Console" leaves the dropdown open and stalls the UI under SWTBot.
+	 *
+	 * @param bot current SWT bot reference
+	 * @throws IOException if property lookup fails
+	 */
+	public static void waitForDebugSessionStarted(SWTWorkbenchBot bot) throws IOException
+	{
+		// Prefer a bounded debug timeout; the shared flash wait property is often hours-long.
+		long timeout = Math.min(
+				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_FLASH_WAIT_PROPERTY, 120000),
+				180000);
+		long deadline = System.currentTimeMillis() + timeout;
+		boolean perspectiveHandled = false;
+
+		while (System.currentTimeMillis() < deadline)
+		{
+			if (!perspectiveHandled)
+			{
+				perspectiveHandled = acceptDebugPerspectiveSwitchIfPresent(bot, 1000);
+			}
+
+			// Do not flip Console pages while polling — that opens a sticky dropdown menu.
+			String consoleText = readVisibleConsoleText(bot);
+
+			if (consoleText.contains("shutdown command invoked")
+					|| consoleText.contains("dropped 'gdb' connection"))
+			{
+				throw new AssertionError(
+						"Debug session shut down before a breakpoint suspend was observed.\nConsole:\n"
+								+ consoleText);
+			}
+
+			if (isSuspendedAtBreakpoint(bot, consoleText))
+			{
+				if (!perspectiveHandled)
+				{
+					perspectiveHandled = acceptDebugPerspectiveSwitchIfPresent(bot, 30000);
+				}
+				openDebugPerspective(bot);
+				if (!hasActiveLaunch())
+				{
+					throw new AssertionError(
+							"Debug launch terminated immediately after suspend at app_main.\nConsole:\n"
+									+ consoleText);
+				}
+				return;
+			}
+
+			bot.sleep(1000);
+		}
+
+		String lastConsole = readVisibleConsoleText(bot);
+		throw new AssertionError(
+				"Debug session did not suspend at app_main within timeout (debug model or visible console).\nLast console text:\n"
+						+ lastConsole);
+	}
+
+	/**
+	 * Reads text from the Console view page that is currently visible (no console-page switching).
+	 * Switching via "Display Selected Console" leaves a sticky dropdown open under SWTBot and
+	 * stalls the debug wait loop.
+	 */
+	public static String readVisibleConsoleText(SWTWorkbenchBot bot)
+	{
+		try
+		{
+			SWTBotView view = bot.viewByPartName("Console");
+			view.show();
+			view.setFocus();
+			String text = view.bot().styledText().getText();
+			return text != null ? text : "";
+		}
+		catch (Exception e)
+		{
+			logger.debug("Could not read visible Console view: {}", e.getMessage());
+			return "";
+		}
+	}
+
+	/**
+	 * Reads console text used for debug assertions from the currently visible Console page only.
+	 */
+	public static String readDebugRelatedConsoleText(SWTWorkbenchBot bot)
+	{
+		return readVisibleConsoleText(bot);
+	}
+
+	private static boolean isSuspendedAtBreakpoint(SWTWorkbenchBot bot, String consoleText)
+	{
+		// Prefer the debug model only while polling. Expanding the Debug view tree every
+		// second can leave SWTBot stuck if a Surefire timeout interrupts mid-expand.
+		return isSuspendedAtAppMainInDebugModel() || isSuspendedAtBreakpointInConsole(consoleText);
+	}
+
+	private static boolean isSuspendedAtBreakpointInConsole(String consoleText)
+	{
+		if (consoleText == null || consoleText.isEmpty())
+		{
+			return false;
+		}
+		return consoleText.contains("hit Temporary breakpoint")
+				|| consoleText.contains("hit Breakpoint")
+				|| consoleText.contains("hit breakpoint")
+				|| (consoleText.contains("Temporary breakpoint") && consoleText.contains("app_main"));
+	}
+
+	/**
+	 * True when an active debug target has a thread whose stack includes {@code app_main}.
+	 * Prefer this over OpenOCD console text — GDB often suspends in the UI without printing
+	 * {@code hit Temporary breakpoint} on the IDF Process Console.
+	 * <p>
+	 * FreeRTOS-aware GDB often reports the main thread as {@code Running} even while the CPU is
+	 * halted at {@code app_main}; do not require {@link IThread#isSuspended()}.
+	 */
+	public static boolean isSuspendedAtAppMainInDebugModel()
+	{
+		return findThreadWithAppMainFrame() != null;
+	}
+
+	/**
+	 * Performs Step Over from the Debug UI: the workbench toolbar button
+	 * {@code Step &Over (F6)}, or right-click on the suspended thread in the Debug view.
+	 *
+	 * @param projectName unused; kept for call-site compatibility
+	 * @param bot         current SWT bot reference
+	 */
+	public static void performDebugStepOver(String projectName, SWTWorkbenchBot bot)
+	{
+		acceptDebugPerspectiveSwitchIfPresent(bot, 2000);
+		openDebugPerspective(bot);
+		// Let Debug perspective / toolbar finish loading before probing Step Over controls.
+		bot.sleep(3000);
+
+		if (!hasActiveLaunch())
+		{
+			throw new AssertionError("Cannot Step Over — no active debug launch");
+		}
+
+		final SWTWorkbenchBot workbenchBot = bot;
+		try
+		{
+			workbenchBot.waitUntil(new DefaultCondition()
+			{
+				@Override
+				public boolean test() throws Exception
+				{
+					if (!hasActiveLaunch())
+					{
+						throw new AssertionError(
+								"Debug launch terminated before Step Over became available (OpenOCD/GDB already stopped)");
+					}
+					acceptDebugPerspectiveSwitchIfPresent(workbenchBot, 200);
+					return isStepOverToolbarPresent(workbenchBot)
+							|| findDebugThreadItem(workbenchBot) != null
+							|| findThreadWithAppMainFrame() != null;
+				}
+
+				@Override
+				public String getFailureMessage()
+				{
+					return "Debug Step Over not ready within timeout — Step Over toolbar not found "
+							+ "and no thread in the Debug view. Launch active=" + hasActiveLaunch()
+							+ ", stepOverToolbar=" + isStepOverToolbarPresent(workbenchBot)
+							+ ", debugThread=" + (findDebugThreadItem(workbenchBot) != null);
+				}
+			}, 60000, 500);
+		}
+		catch (AssertionError e)
+		{
+			// Ensure CI always shows a non-empty reason (some runners truncate blank AssertionError).
+			String detail = e.getMessage();
+			if (detail == null || detail.trim().isEmpty())
+			{
+				throw new AssertionError(
+						"Debug Step Over not ready within timeout (empty wait failure). Launch active="
+								+ hasActiveLaunch(),
+						e);
+			}
+			throw e;
+		}
+
+		bot.sleep(1500);
+
+		if (clickToolbarStepOver(bot))
+		{
+			bot.sleep(3000);
+			return;
+		}
+		if (clickDebugViewStepOver(bot))
+		{
+			bot.sleep(3000);
+			return;
+		}
+
+		throw new AssertionError(
+				"Failed to perform Step Over (toolbar button 'Step &Over (F6)' and Debug view "
+						+ "thread context menu both failed). Launch active=" + hasActiveLaunch()
+						+ ", stepOverToolbar=" + isStepOverToolbarPresent(bot)
+						+ ", debugThread=" + (findDebugThreadItem(bot) != null));
+	}
+
+	private static IThread findThreadWithAppMainFrame()
+	{
+		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+		ILaunch[] launches = launchManager.getLaunches();
+		if (launches == null)
+		{
+			return null;
+		}
+
+		for (ILaunch launch : launches)
+		{
+			if (launch == null || launch.isTerminated())
+			{
+				continue;
+			}
+			IDebugTarget[] targets = launch.getDebugTargets();
+			if (targets == null)
+			{
+				continue;
+			}
+			for (IDebugTarget target : targets)
+			{
+				if (target == null || target.isTerminated())
+				{
+					continue;
+				}
+				try
+				{
+					if (!target.hasThreads())
+					{
+						continue;
+					}
+					for (IThread thread : target.getThreads())
+					{
+						if (thread == null || thread.isTerminated() || !thread.hasStackFrames())
+						{
+							continue;
+						}
+						for (IStackFrame frame : thread.getStackFrames())
+						{
+							if (frame == null)
+							{
+								continue;
+							}
+							String name = frame.getName();
+							if (name != null && name.toLowerCase(Locale.ENGLISH).contains("app_main"))
+							{
+								return thread;
+							}
+						}
+					}
+				}
+				catch (DebugException e)
+				{
+					logger.debug("findThreadWithAppMainFrame: {}", e.getMessage());
+				}
+			}
+		}
+		return null;
+	}
+
+	private static boolean isStepOverToolbarPresent(SWTWorkbenchBot bot)
+	{
+		try
+		{
+			bot.toolbarButtonWithTooltip(STEP_OVER_TOOLTIP);
+			return true;
+		}
+		catch (WidgetNotFoundException e)
+		{
+			return false;
+		}
+	}
+
+	private static boolean clickToolbarStepOver(SWTWorkbenchBot bot)
+	{
+		try
+		{
+			bot.toolbarButtonWithTooltip(STEP_OVER_TOOLTIP).click();
+			return true;
+		}
+		catch (WidgetNotFoundException e)
+		{
+			logger.debug("Step Over toolbar click failed: {}", e.getMessage());
+			return false;
+		}
+	}
+
+	/**
+	 * Right-clicks the suspended thread in the Debug view and selects {@code Step Over (F6)}.
+	 */
+	private static boolean clickDebugViewStepOver(SWTWorkbenchBot bot)
+	{
+		try
+		{
+			SWTBotView debugView = findDebugView(bot);
+			if (debugView == null)
+			{
+				return false;
+			}
+			debugView.show();
+			debugView.setFocus();
+			bot.sleep(1000);
+			SWTBotTreeItem thread = findDebugThreadItem(bot);
+			if (thread == null)
+			{
+				return false;
+			}
+			thread.select();
+			bot.sleep(500);
+			for (String label : STEP_OVER_CONTEXT_MENU_LABELS)
+			{
+				try
+				{
+					thread.contextMenu(label).click();
+					return true;
+				}
+				catch (WidgetNotFoundException ignored)
+				{
+				}
+			}
+			return false;
+		}
+		catch (Exception e)
+		{
+			logger.debug("Debug view Step Over failed: {}", e.getMessage());
+			return false;
+		}
+	}
+
+	private static SWTBotView findDebugView(SWTWorkbenchBot bot)
+	{
+		try
+		{
+			for (SWTBotView view : bot.views())
+			{
+				if (view != null && "Debug".equals(view.getTitle()))
+				{
+					return view;
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			logger.debug("findDebugView: {}", e.getMessage());
+		}
+		return null;
+	}
+
+	private static SWTBotTreeItem findDebugThreadItem(SWTWorkbenchBot bot)
+	{
+		try
+		{
+			SWTBotView debugView = findDebugView(bot);
+			if (debugView == null)
+			{
+				return null;
+			}
+			debugView.show();
+			SWTBotTree tree = debugView.bot().tree();
+			SWTBotTreeItem[] roots = tree.getAllItems();
+			SWTBotTreeItem mainThread = findThreadItem(roots, true);
+			if (mainThread != null)
+			{
+				return mainThread;
+			}
+			return findThreadItem(roots, false);
+		}
+		catch (Exception e)
+		{
+			logger.debug("findDebugThreadItem: {}", e.getMessage());
+			return null;
+		}
+	}
+
+	private static SWTBotTreeItem findThreadItem(SWTBotTreeItem[] items, boolean mainOnly)
+	{
+		if (items == null)
+		{
+			return null;
+		}
+		for (SWTBotTreeItem item : items)
+		{
+			if (item == null)
+			{
+				continue;
+			}
+			String label = item.getText();
+			if (label != null)
+			{
+				String lower = label.toLowerCase(Locale.ENGLISH);
+				boolean isThread = lower.contains("thread #") || lower.startsWith("thread ");
+				boolean isMain = lower.contains("[main]") || lower.contains("name: main");
+				if (isThread && (!mainOnly || isMain))
+				{
+					return item;
+				}
+			}
+			try
+			{
+				item.expand();
+			}
+			catch (Exception ignored)
+			{
+			}
+			SWTBotTreeItem nested = findThreadItem(item.getItems(), mainOnly);
+			if (nested != null)
+			{
+				return nested;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Opens the Eclipse Debug perspective via Platform UI API (no menus/dialogs).
+	 *
+	 * @param bot current SWT bot reference (may be {@code null})
+	 */
+	public static void openDebugPerspective(SWTWorkbenchBot bot)
+	{
+		try
+		{
+			UIThreadRunnable.syncExec(new VoidResult()
+			{
+				@Override
+				public void run()
+				{
+					IWorkbench workbench = PlatformUI.getWorkbench();
+					IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
+					if (window == null || window.getActivePage() == null)
+					{
+						return;
+					}
+					IPerspectiveDescriptor descriptor = workbench.getPerspectiveRegistry()
+							.findPerspectiveWithId(DEBUG_PERSPECTIVE_ID);
+					if (descriptor != null)
+					{
+						window.getActivePage().setPerspective(descriptor);
+					}
+				}
+			});
+			if (bot != null)
+			{
+				bot.sleep(1000);
+			}
+		}
+		catch (Exception e)
+		{
+			logger.warn("Failed to open Debug perspective", e);
+		}
+	}
+
+	/**
+	 * Returns {@code true} if an active (non-terminated) Eclipse launch still exists.
+	 */
+	public static boolean hasActiveLaunch()
+	{
+		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+		ILaunch[] launches = launchManager.getLaunches();
+		if (launches == null)
+		{
+			return false;
+		}
+		for (ILaunch launch : launches)
+		{
+			if (launch != null && !launch.isTerminated())
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Stops the active launch / debug session using the Launch Bar Stop button.
+	 *
+	 * @param bot current SWT bot reference
+	 */
+	public static void stopLaunchUsingLaunchBar(SWTWorkbenchBot bot)
+	{
+		try
+		{
+			bot.toolbarButtonWithTooltip("Stop").click();
+			bot.sleep(2000);
+		}
+		catch (WidgetNotFoundException e)
+		{
+			logger.warn("Stop button not found while trying to stop launch/debug session");
+		}
+	}
+
+	/**
+	 * Leaves the Debug UI before shared project cleanup: terminate OpenOCD/GDB, close editors,
+	 * switch to C/C++, close Debug-related views, and cancel background jobs that would otherwise
+	 * keep {@link WaitUtils#waitForJobs()} from returning (Language Server / indexer), which
+	 * poisons later UI tests' {@code deleteAllProjects}.
+	 *
+	 * @param bot current SWT bot reference
+	 */
+	public static void leaveDebugUi(SWTWorkbenchBot bot)
+	{
+		stopDebugSessionAndKillProcesses(bot);
+		closeAllEditorsViaApi();
+		openCCppPerspective(bot);
+		closeDebugRelatedViews(bot);
+		cancelJobsThatBlockWorkbenchIdle();
+		if (bot != null)
+		{
+			try
+			{
+				closeSecondaryShells(bot);
+				focusMainWindow(bot.shells());
+			}
+			catch (Exception e)
+			{
+				logger.warn("leaveDebugUi: could not focus main window", e);
+			}
+		}
+	}
+
+	/**
+	 * Cancels long-running CDT/LSP/refresh jobs that prevent {@code Job.getJobManager().isIdle()}
+	 * after a hardware debug session. Safe to call from {@code @AfterClass}.
+	 */
+	public static void cancelJobsThatBlockWorkbenchIdle()
+	{
+		Job[] jobs = Job.getJobManager().find(null);
+		if (jobs == null)
+		{
+			return;
+		}
+
+		for (Job job : jobs)
+		{
+			if (job == null || job.getState() == Job.NONE)
+			{
+				continue;
+			}
+
+			String name = job.getName();
+			if (name == null)
+			{
+				continue;
+			}
+
+			String lower = name.toLowerCase(Locale.ENGLISH);
+			if (lower.contains("language server") || lower.contains("clangd") || lower.contains("indexer")
+					|| lower.contains("c/c++") || lower.contains("cdt ") || lower.contains("reconcil")
+					|| lower.contains("refresh") || lower.contains("building workspace")
+					|| lower.contains("updating") || lower.contains("decorate")
+					|| lower.contains("openocd") || lower.contains("gdb"))
+			{
+				logger.info("Cancelling job that may block workbench idle: {}", name);
+				job.cancel();
+			}
+		}
+
+		try
+		{
+			Thread.sleep(2000);
+		}
+		catch (InterruptedException e)
+		{
+			Thread.currentThread().interrupt();
+		}
+	}
+
+	/**
+	 * Best-effort close of views typically opened by the Debug perspective.
+	 *
+	 * @param bot current SWT bot reference
+	 */
+	public static void closeDebugRelatedViews(SWTWorkbenchBot bot)
+	{
+		if (bot == null)
+		{
+			return;
+		}
+
+		String[] viewTitles = new String[] { "Debug", "Breakpoints", "Variables", "Expressions",
+				"Registers", "Memory", "Disassembly", "Modules", "Signals", "Executables" };
+
+		for (String title : viewTitles)
+		{
+			try
+			{
+				SWTBotView view = bot.viewByTitle(title);
+				view.close();
+			}
+			catch (Exception ignored)
+			{
+			}
+		}
+	}
+
+	/**
+	 * Best-effort cleanup of an active debug session via the debug API and process kill.
+	 * Avoids clicking Launch Bar Stop / Debug Terminate toolbars — those tooltips are ambiguous
+	 * under SWTBot and can race with an active session during perspective changes.
+	 *
+	 * @param bot current SWT bot reference (may be {@code null} if UI is unavailable)
+	 */
+	public static void stopDebugSessionAndKillProcesses(SWTWorkbenchBot bot)
+	{
+		try
+		{
+			terminateAllLaunches();
+		}
+		catch (Exception e)
+		{
+			logger.warn("Failed to terminate Eclipse launches during debug cleanup", e);
+		}
+
+		killDebugProcesses();
+	}
+
+	/**
+	 * Switches the workbench back to the C/C++ perspective via the Platform UI API.
+	 * Avoids Window → Perspective menus / "Open Perspective" dialogs, which can leave a
+	 * modal shell open under SWTBot and block {@code @AfterClass} cleanup.
+	 *
+	 * @param bot current SWT bot reference (unused; kept for call-site consistency)
+	 */
+	public static void openCCppPerspective(SWTWorkbenchBot bot)
+	{
+		try
+		{
+			UIThreadRunnable.syncExec(new VoidResult()
+			{
+				@Override
+				public void run()
+				{
+					IWorkbench workbench = PlatformUI.getWorkbench();
+					IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
+					if (window == null)
+					{
+						return;
+					}
+					IWorkbenchPage page = window.getActivePage();
+					if (page == null)
+					{
+						return;
+					}
+					IPerspectiveDescriptor descriptor = workbench.getPerspectiveRegistry()
+							.findPerspectiveWithId(CDT_PERSPECTIVE_ID);
+					if (descriptor == null)
+					{
+						logger.warn("C/C++ perspective id not found: {}", CDT_PERSPECTIVE_ID);
+						return;
+					}
+					IPerspectiveDescriptor current = page.getPerspective();
+					if (current != null && DEBUG_PERSPECTIVE_ID.equals(current.getId()))
+					{
+						page.closePerspective(current, false, false);
+					}
+					page.setPerspective(descriptor);
+				}
+			});
+			if (bot != null)
+			{
+				closeSecondaryShells(bot);
+				focusMainWindow(bot.shells());
+			}
+		}
+		catch (Exception e)
+		{
+			logger.warn("Failed to switch back to C/C++ perspective", e);
+		}
+	}
+
+	/**
+	 * Force-cleans workbench state after a debug test (including timeout/failure).
+	 * Stops debug processes, returns to C/C++, then deletes projects. Project deletion
+	 * runs on the calling thread (not the UI thread) — {@code syncExec} +
+	 * {@code IProject.delete} can deadlock / silently no-op under SWTBot.
+	 *
+	 * @param bot current SWT bot reference (may be {@code null})
+	 */
+	public static void forceCleanWorkbenchAfterDebugTest(SWTWorkbenchBot bot)
+	{
+		try
+		{
+			terminateAllLaunches();
+		}
+		catch (Exception e)
+		{
+			logger.warn("forceClean: terminateAllLaunches failed", e);
+		}
+
+		killDebugProcesses();
+
+		try
+		{
+			openCCppPerspective(bot);
+		}
+		catch (Exception e)
+		{
+			logger.warn("forceClean: openCCppPerspective failed", e);
+		}
+
+		try
+		{
+			if (bot != null)
+			{
+				closeSecondaryShells(bot);
+				focusMainWindow(bot.shells());
+			}
+		}
+		catch (Exception e)
+		{
+			logger.warn("forceClean: closeSecondaryShells failed", e);
+		}
+
+		try
+		{
+			closeAllEditorsViaApi();
+		}
+		catch (Exception e)
+		{
+			logger.warn("forceClean: closeAllEditorsViaApi failed", e);
+		}
+
+		try
+		{
+			deleteAllProjectsViaWorkspaceApi();
+		}
+		catch (Exception e)
+		{
+			logger.warn("forceClean: deleteAllProjectsViaWorkspaceApi failed", e);
+		}
+
+		// Fallback used by every other UI test — UI delete if workspace API left anything.
+		if (bot != null && workspaceHasProjects())
+		{
+			try
+			{
+				logger.warn("forceClean: projects still present after workspace API delete; falling back to UI delete");
+				closeAllProjects(bot);
+				deleteAllProjects(bot);
+			}
+			catch (Exception e)
+			{
+				logger.warn("forceClean: UI project cleanup failed", e);
+			}
+		}
+
+		killDebugProcesses();
+	}
+
+	/**
+	 * Closes all open editors without prompting (UI-thread API).
+	 */
+	public static void closeAllEditorsViaApi()
+	{
+		UIThreadRunnable.syncExec(new VoidResult()
+		{
+			@Override
+			public void run()
+			{
+				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+				if (window == null || window.getActivePage() == null)
+				{
+					return;
+				}
+				window.getActivePage().closeAllEditors(false);
+			}
+		});
+	}
+
+	/**
+	 * Deletes every workspace project via the resources API on the <em>calling</em> thread
+	 * (no UI {@code syncExec}). Safe for {@code @AfterClass} cleanup.
+	 */
+	public static void deleteAllProjectsViaWorkspaceApi()
+	{
+		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		if (projects == null)
+		{
+			return;
+		}
+
+		for (IProject project : projects)
+		{
+			if (project == null || !project.exists())
+			{
+				continue;
+			}
+
+			String name = project.getName();
+			try
+			{
+				if (project.isOpen())
+				{
+					project.close(null);
+				}
+			}
+			catch (CoreException e)
+			{
+				logger.warn("Could not close project {}: {}", name, e.getMessage());
+			}
+
+			try
+			{
+				if (project.exists())
+				{
+					project.delete(IResource.ALWAYS_DELETE_PROJECT_CONTENT | IResource.FORCE, null);
+					logger.info("Deleted workspace project {}", name);
+				}
+			}
+			catch (CoreException e)
+			{
+				logger.warn("Could not delete project {}: {}", name, e.getMessage());
+			}
+		}
+	}
+
+	private static boolean workspaceHasProjects()
+	{
+		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		if (projects == null)
+		{
+			return false;
+		}
+		for (IProject project : projects)
+		{
+			if (project != null && project.exists())
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Terminates every non-terminated launch registered with the Eclipse debug framework.
+	 */
+	public static void terminateAllLaunches()
+	{
+		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+		ILaunch[] launches = launchManager.getLaunches();
+		if (launches == null)
+		{
+			return;
+		}
+
+		for (ILaunch launch : launches)
+		{
+			if (launch == null || launch.isTerminated())
+			{
+				continue;
+			}
+			try
+			{
+				launch.terminate();
+			}
+			catch (DebugException e)
+			{
+				logger.warn("Failed to terminate launch: " + launch, e);
+			}
+		}
+	}
+
+	/**
+	 * Force-terminates OpenOCD and ESP GDB processes left behind by a debug session.
+	 * Mirrors the VS Code UI-test {@code killDebugProcesses} helper. Exit status from
+	 * {@code pkill} when no process matches is ignored.
+	 */
+	public static void killDebugProcesses()
+	{
+		String[] patterns = new String[] { "openocd", "xtensa-esp.*-gdb", "riscv32-esp.*-gdb" };
+		for (String pattern : patterns)
+		{
+			try
+			{
+				Process process = new ProcessBuilder("pkill", "-f", pattern).redirectErrorStream(true).start();
+				process.waitFor(5, TimeUnit.SECONDS);
+			}
+			catch (Exception e)
+			{
+				logger.debug("pkill for pattern '{}' skipped or failed: {}", pattern, e.getMessage());
+			}
+		}
+
+		try
+		{
+			Thread.sleep(1500);
+		}
+		catch (InterruptedException e)
+		{
+			Thread.currentThread().interrupt();
+		}
 	}
 
 	public static void openProjectComponentYMLFileInTextEditorUsingContextMenu(String projectName, SWTWorkbenchBot bot)
@@ -690,13 +1724,22 @@ public class ProjectTestOperations
 
 	public static void launchCommandUsingContextMenu(String projectName, SWTWorkbenchBot bot, String contextMenuLabel)
 	{
+		// After a Debug-perspective test, Project Explorer / focus may still be on Debug UI —
+		// restore C/C++ and focus the main window so the context menu actually opens the dialog.
+		openCCppPerspective(bot);
+		focusMainWindow(bot.shells());
+
 		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
-		if (projectItem != null)
+		if (projectItem == null)
 		{
-			projectItem.select();
-			projectItem.contextMenu(contextMenuLabel).click();
+			throw new WidgetNotFoundException("Project not found in Project Explorer: " + projectName);
 		}
-		WaitUtils.waitForJobs();
+		projectItem.select();
+		projectItem.contextMenu(contextMenuLabel).click();
+		// Do not WaitUtils.waitForJobs() here. For dialogs like "Run Configurations" the shell
+		// appears immediately while background jobs (e.g. Language Server) may keep running;
+		// waiting for idle first makes the caller's waitForDialogToAppear miss a visible dialog
+		// or time out for the wrong reason. Callers that need jobs to finish should wait themselves.
 	}
 
 	public static void findInConsole(SWTWorkbenchBot bot, String consoleName, String findText) throws IOException
