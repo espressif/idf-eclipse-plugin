@@ -12,6 +12,7 @@ import java.util.Map;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainFile;
 import org.eclipse.cdt.cmake.core.ICMakeToolChainManager;
 import org.eclipse.cdt.core.CCorePlugin;
+import org.eclipse.cdt.core.build.CBuildConfigUtils;
 import org.eclipse.cdt.core.build.CBuildConfiguration;
 import org.eclipse.cdt.core.build.ICBuildConfiguration;
 import org.eclipse.cdt.core.build.ICBuildConfigurationManager;
@@ -21,10 +22,8 @@ import org.eclipse.core.resources.IBuildConfiguration;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 
-import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.logging.Logger;
 
 /**
@@ -49,8 +48,6 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 	public synchronized ICBuildConfiguration getCBuildConfiguration(IBuildConfiguration config, String name)
 			throws CoreException
 	{
-		ILaunchBarManager barManager = IDFCorePlugin.getService(ILaunchBarManager.class);
-		ILaunchTarget target = barManager != null ? barManager.getActiveLaunchTarget() : null;
 		if (config.getName().equals(IBuildConfiguration.DEFAULT_CONFIG_NAME))
 		{
 			Logger.log("Default config name is not supported"); //$NON-NLS-1$
@@ -69,7 +66,7 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 		{
 			// toolchain changed
 			return new IDFBuildConfiguration(config, name, tcFile.getToolChain(), tcFile, cmakeConfig.getLaunchMode(),
-					target);
+					cmakeConfig.getLaunchTarget());
 		}
 		else
 		{
@@ -105,18 +102,9 @@ public class IDFBuildConfigurationProvider implements ICBuildConfigurationProvid
 			}
 		}
 
-		// Let's generate build artifacts directly under the build folder so that CLI and eclipse IDF will be in sync
-		String name = ICBuildConfiguration.TOOLCHAIN_ID;
-		IBuildConfiguration buildConfig;
-		if (configManager.hasConfiguration(this, project, name))
-		{
-			buildConfig = project.getBuildConfig(ID + '/' + name);
-		}
-		else
-		{
-			buildConfig = configManager.createBuildConfiguration(this, project, name, monitor);
-
-		}
+		String name = getCBuildConfigName(project, "idf", toolChain, launchMode, launchTarget); //$NON-NLS-1$
+		IBuildConfiguration buildConfig = CBuildConfigUtils.createBuildConfiguration(this, project, name, configManager,
+				monitor);
 
 		CBuildConfiguration cmakeConfig = new IDFBuildConfiguration(buildConfig, name, toolChain, file, launchMode,
 				launchTarget);
