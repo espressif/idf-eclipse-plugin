@@ -17,6 +17,9 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunchMode;
+import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
@@ -37,6 +40,7 @@ import org.eclipse.ui.IPageLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.ui.test.common.configs.DefaultPropertyFetcher;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 import com.espressif.idf.ui.test.common.utility.WaitUtils;
@@ -58,6 +62,37 @@ public class ProjectTestOperations
 	private static final Logger logger = LoggerFactory.getLogger(ProjectTestOperations.class);
 
 	private static final int DELETE_PROJECT_TIMEOUT = 240000;
+
+	/**
+	 * Selects the launch mode in the Launch Bar.
+	 * <p>
+	 * The active mode is workbench state shared by every test class in the run, and the ESP-IDF Application launch
+	 * configuration exposes different tabs per mode. A test that depends on a mode has to select it, and a test that
+	 * changes it has to restore it.
+	 * </p>
+	 *
+	 * @param launchMode launch mode identifier, as defined in {@link org.eclipse.debug.core.ILaunchManager}
+	 * @param bot        current SWT bot reference
+	 */
+	public static void selectLaunchMode(String launchMode, SWTWorkbenchBot bot)
+	{
+		ILaunchMode mode = DebugPlugin.getDefault().getLaunchManager().getLaunchMode(launchMode);
+		if (mode == null)
+		{
+			throw new AssertionError("Unknown launch mode: " + launchMode);
+		}
+
+		try
+		{
+			IDFCorePlugin.getService(ILaunchBarManager.class).setActiveLaunchMode(mode);
+		}
+		catch (CoreException e)
+		{
+			throw new AssertionError("Unable to select the " + launchMode + " launch mode", e);
+		}
+
+		TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
+	}
 
 	/**
 	 * Build a project using the context menu by right clicking on the project
