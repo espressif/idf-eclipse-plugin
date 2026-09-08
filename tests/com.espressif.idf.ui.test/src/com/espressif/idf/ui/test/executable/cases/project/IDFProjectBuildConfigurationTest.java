@@ -9,9 +9,7 @@ import static org.junit.Assert.assertNotEquals;
 import org.eclipse.core.resources.IBuildConfiguration;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
@@ -20,7 +18,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.build.IDFBuildConfigurationProvider;
 import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
@@ -48,6 +45,9 @@ public class IDFProjectBuildConfigurationTest
 	@AfterClass
 	public static void tearDown()
 	{
+		// The active mode is shared by the whole workbench, so it has to go back to the default before the next test
+		// class runs. Otherwise every later test edits and launches the ESP-IDF Application configuration in Debug.
+		ProjectTestOperations.selectLaunchMode(ILaunchManager.RUN_MODE, bot);
 		TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);
 		ProjectTestOperations.closeAllProjects(bot);
 		ProjectTestOperations.deleteAllProjects(bot);
@@ -88,16 +88,7 @@ public class IDFProjectBuildConfigurationTest
 
 		private static void whenLaunchModeIsSelected(String launchMode)
 		{
-			ILaunchBarManager launchBarManager = IDFCorePlugin.getService(ILaunchBarManager.class);
-			try
-			{
-				launchBarManager
-						.setActiveLaunchMode(DebugPlugin.getDefault().getLaunchManager().getLaunchMode(launchMode));
-			}
-			catch (Exception e)
-			{
-				throw new AssertionError("Unable to select the " + launchMode + " launch mode", e); //$NON-NLS-1$ //$NON-NLS-2$
-			}
+			ProjectTestOperations.selectLaunchMode(launchMode, bot);
 		}
 
 		private static String thenCoreBuildConfigurationIsAssigned(String launchMode)
