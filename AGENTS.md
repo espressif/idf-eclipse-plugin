@@ -10,7 +10,7 @@ This document provides AI coding agents with the rules and context needed to wor
   mvn clean verify -Djarsigner.skip=true
   ```
 
-- **Prerequisites:** Java 17+, Maven 3.9+.
+- **Prerequisites:** Java 21+, Maven 3.9+.
 - **Layout:** Plugin source under `bundles/`, tests under `tests/`, release engineering under `releng/`, user documentation under `docs/`.
 
 ### Repository structure
@@ -80,7 +80,7 @@ ALWAYS read these files first to understand the bundle's structure and dependenc
 ### Adding a new plugin (bundle)
 
 1. Create the plugin project under `bundles/` following existing naming (`com.espressif.idf.<name>`).
-2. Configure `META-INF/MANIFEST.MF` — set `Bundle-SymbolicName` (with `singleton:=true` if it has `plugin.xml` extensions), `Bundle-RequiredExecutionEnvironment: JavaSE-17`, and declare dependencies via `Require-Bundle` or `Import-Package`.
+2. Configure `META-INF/MANIFEST.MF` — set `Bundle-SymbolicName` (with `singleton:=true` if it has `plugin.xml` extensions), `Bundle-RequiredExecutionEnvironment: JavaSE-21`, and declare dependencies via `Require-Bundle` or `Import-Package`.
 3. Configure `build.properties` — include `META-INF/`, `.`, `plugin.xml`, and any resource folders in `bin.includes`.
 4. Add the module to [bundles/pom.xml](bundles/pom.xml).
 5. Add the plugin to [features/com.espressif.idf.feature/feature.xml](features/com.espressif.idf.feature/feature.xml).

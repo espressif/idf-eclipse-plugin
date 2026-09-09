@@ -16,7 +16,7 @@ Require-Bundle: org.eclipse.cdt.core;resolution:=optional,
  org.eclipse.terminal.connector.process;bundle-version="[1.0.0,2.0.0)",
  org.eclipse.terminal.control;bundle-version="[1.0.0,2.0.0)",
  com.google.gson
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Export-Package: com.espressif.idf.terminal.connector.activator;x-internal:=true,
