@@ -291,10 +291,12 @@
     </tab>
     
     <!-- 5. Common Tab -->
+    <!-- Contributed tabs are registered per group under their id, so this declaration needs an id of its own to
+         coexist with the Run mode Common tab of com.espressif.idf.launch.serial.ui instead of replacing it. -->
     <tab
          class="org.eclipse.debug.ui.CommonTab"
          group="com.espressif.idf.launch.serial.ui.launchConfigurationTabGroup"
-         id="org.eclipse.debug.ui.commonTab"
+         id="com.espressif.idf.debug.gdbjtag.openocd.ui.commonTab"
          name="CommonTab">
        	 <placement after="org.eclipse.debug.ui.sourceLookupTab" />
        	 <associatedDelegate delegate="com.espressif.idf.debug.gdbjtag.openocd.core.dsfLaunchDelegate.unified" />
