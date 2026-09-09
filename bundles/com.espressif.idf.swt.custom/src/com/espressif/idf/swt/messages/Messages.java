@@ -7,6 +7,8 @@ public class Messages extends NLS
 	private static final String BUNDLE_NAME = Messages.class.getPackageName() + ".messages"; //$NON-NLS-1$
 	public static String styledTextInfoDefaultMsg;
 	public static String styledTextRestoreDefaultsLinkMsg;
+	public static String keepEmptyForDefault;
+	public static String restoreDefaultsButtonToolTip;
 
 	static
 	{

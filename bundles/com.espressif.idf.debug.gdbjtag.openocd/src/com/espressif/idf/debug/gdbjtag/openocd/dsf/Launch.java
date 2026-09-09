@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.RejectedExecutionException;
 
-import org.eclipse.cdt.debug.gdbjtag.core.IGDBJtagConstants;
-import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
 import org.eclipse.cdt.dsf.gdb.internal.GdbPlugin;
 import org.eclipse.cdt.dsf.gdb.launching.GdbLaunch;
 import org.eclipse.cdt.dsf.service.DsfServicesTracker;
@@ -41,11 +39,10 @@ import org.eclipse.debug.core.model.ISourceLocator;
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuLaunch;
 
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.LaunchDefaults;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
-import com.espressif.idf.debug.gdbjtag.openocd.ConfigurationAttributes;
 import com.espressif.idf.debug.gdbjtag.openocd.dsf.process.CustomIdfProcessFactory;
-import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
 
 @SuppressWarnings("restriction")
 public class Launch extends GnuMcuLaunch
@@ -125,24 +122,7 @@ public class Launch extends GnuMcuLaunch
 	protected void provideDefaults(ILaunchConfigurationWorkingCopy config) throws CoreException
 	{
 		super.provideDefaults(config);
-
-		if (!config.hasAttribute(IGDBJtagConstants.ATTR_IP_ADDRESS))
-			config.setAttribute(IGDBJtagConstants.ATTR_IP_ADDRESS, "localhost");
-
-		if (!config.hasAttribute(IGDBJtagConstants.ATTR_JTAG_DEVICE_ID))
-			config.setAttribute(IGDBJtagConstants.ATTR_JTAG_DEVICE_ID, ConfigurationAttributes.JTAG_DEVICE);
-
-		if (!config.hasAttribute(IGDBJtagConstants.ATTR_PORT_NUMBER))
-			config.setAttribute(IGDBJtagConstants.ATTR_PORT_NUMBER,
-					DefaultPreferences.GDB_SERVER_GDB_PORT_NUMBER_DEFAULT);
-
-		if (!config.hasAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME))
-			config.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME,
-					Activator.getInstance().getDefaultPreferences().getGdbClientExecutable());
-
-		if (Configuration.getDoStartGdbServer(config))
-			config.setAttribute(IGDBJtagConstants.ATTR_PORT_NUMBER, DefaultPreferences.GDB_SERVER_GDB_PORT_NUMBER_DEFAULT);
-
+		LaunchDefaults.apply(config);
 		config.setAttribute(DebugPlugin.ATTR_PROCESS_FACTORY_ID, CustomIdfProcessFactory.ID);
 	}
 

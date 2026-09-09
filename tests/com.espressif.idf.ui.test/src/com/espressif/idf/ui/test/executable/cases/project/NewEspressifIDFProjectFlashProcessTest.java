@@ -19,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.SystemUtils;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
@@ -66,6 +67,7 @@ public class NewEspressifIDFProjectFlashProcessTest
 	{
 //		assumeTrue("Linux only", SystemUtils.IS_OS_LINUX);
 
+		Fixture.givenRunLaunchModeIsSelected();
 		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
 		Fixture.givenProjectNameIs("NewProjectFlashTest");
 		Fixture.whenNewProjectIsSelected();
@@ -218,6 +220,15 @@ public class NewEspressifIDFProjectFlashProcessTest
 			EnvSetupOperations.setupEspressifEnv(bot);
 			bot.sleep(1000);
 			ProjectTestOperations.deleteAllProjects(bot);
+		}
+
+		/**
+		 * Flashing over UART is a Run mode activity: the Main tab holding the serial options is only contributed to
+		 * the ESP-IDF Application configuration in Run mode, and in Debug mode the OpenOCD tabs take its place.
+		 */
+		private static void givenRunLaunchModeIsSelected()
+		{
+			ProjectTestOperations.selectLaunchMode(ILaunchManager.RUN_MODE, bot);
 		}
 
 		private static void givenNewEspressifIDFProjectIsSelected(String category, String subCategory)

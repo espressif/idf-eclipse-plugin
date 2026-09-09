@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
+import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.ui.PlatformUI;
 
@@ -45,6 +46,21 @@ public class EnvSetupOperations
 		}
 		
 		SWTBotEditor espIdfManagerView = bot.editorByTitle("ESP-IDF Manager");
+		// The manager fills its table from an asynchronous refresh job, so it can still be empty here
+		espIdfManagerView.bot().waitUntil(new DefaultCondition()
+		{
+			@Override
+			public boolean test() throws Exception
+			{
+				return espIdfManagerView.bot().table().rowCount() > 0;
+			}
+
+			@Override
+			public String getFailureMessage()
+			{
+				return "No ESP-IDF installation was listed in the ESP-IDF Manager";
+			}
+		}, 300000, 1000);
 		espIdfManagerView.bot().table().doubleClick(0, 0);
 		
 		SWTBotView consoleView = bot.viewById("org.eclipse.ui.console.ConsoleView");

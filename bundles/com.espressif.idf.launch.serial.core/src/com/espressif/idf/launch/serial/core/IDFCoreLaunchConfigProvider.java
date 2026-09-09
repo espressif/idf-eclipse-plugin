@@ -16,6 +16,7 @@ import org.eclipse.launchbar.core.target.ILaunchTarget;
 
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.LaunchDefaults;
 import com.espressif.idf.core.util.LaunchUtil;
 
 public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigProvider
@@ -50,9 +51,32 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 
 		// Set the project
 		IProject project = descriptor.getAdapter(IProject.class);
-		workingCopy.setMappedResources(new IResource[] { project });
-		workingCopy.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, project.getName());
-		workingCopy.doSave();
+		if (project != null && project.exists())
+		{
+			workingCopy.setMappedResources(new IResource[] { project });
+			workingCopy.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, project.getName());
+
+			org.eclipse.cdt.core.model.ICProject cProject = org.eclipse.cdt.core.CCorePlugin.getDefault().getCoreModel()
+					.create(project);
+			if (cProject != null && cProject.exists())
+			{
+				org.eclipse.cdt.core.settings.model.ICProjectDescription projDes = org.eclipse.cdt.core.CCorePlugin
+						.getDefault().getProjectDescription(cProject.getProject());
+
+				if (projDes != null && projDes.getActiveConfiguration() != null)
+				{
+					String buildConfigID = projDes.getActiveConfiguration().getId();
+					workingCopy.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_BUILD_CONFIG_ID,
+							buildConfigID);
+				}
+			}
+
+			// 3. Ensure Build Before Launch is enabled
+			workingCopy.setAttribute(ICDTLaunchConfigurationConstants.ATTR_BUILD_BEFORE_LAUNCH,
+					ICDTLaunchConfigurationConstants.BUILD_BEFORE_LAUNCH_USE_WORKSPACE_SETTING);
+		}
+
+		LaunchDefaults.apply(workingCopy);
 	}
 
 	@Override

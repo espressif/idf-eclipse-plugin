@@ -6,7 +6,6 @@ package com.espressif.idf.ui.wizard;
 
 import java.io.File;
 
-import org.eclipse.cdt.debug.internal.core.InternalDebugCoreMessages;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -14,24 +13,13 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.dialogs.PageChangingEvent;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.launchbar.core.ILaunchBarManager;
-import org.eclipse.launchbar.core.ILaunchDescriptor;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 import org.eclipse.launchbar.core.target.ILaunchTargetManager;
-import org.eclipse.launchbar.ui.NewLaunchConfigWizard;
-import org.eclipse.launchbar.ui.NewLaunchConfigWizardDialog;
-import org.eclipse.launchbar.ui.internal.dialogs.NewLaunchConfigEditPage;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.tools.templates.core.IGenerator;
 import org.eclipse.tools.templates.ui.TemplateWizard;
 import org.eclipse.ui.IViewPart;
@@ -39,14 +27,13 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
 import com.espressif.idf.core.IDFConstants;
-import com.espressif.idf.core.LaunchBarTargetConstants;
-import com.espressif.idf.core.build.IDFLaunchConstants;
+import com.espressif.idf.core.build.IDFBuildConfigurationSetup;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.ClangFormatFileHandler;
 import com.espressif.idf.core.util.ClangdConfigFileHandler;
 import com.espressif.idf.core.util.ConsoleManager;
 import com.espressif.idf.core.util.IdfCommandExecutor;
-import com.espressif.idf.core.util.LaunchUtil;
+import com.espressif.idf.core.util.LaunchTargetHelper;
 import com.espressif.idf.ui.UIPlugin;
 import com.espressif.idf.ui.handlers.EclipseHandler;
 import com.espressif.idf.ui.handlers.NewProjectHandlerUtil;
@@ -64,10 +51,9 @@ import com.espressif.idf.ui.tools.ManageEspIdfVersionsHandler;
 @SuppressWarnings("restriction")
 public class NewIDFProjectWizard extends TemplateWizard
 {
-	private static final String NEW_LAUNCH_CONFIG_EDIT_PAGE = "NewLaunchConfigEditPage"; //$NON-NLS-1$
-	public static final String TARGET_SWITCH_JOB = "TARGET SWITCH JOB"; //$NON-NLS-1$
 	private NewProjectCreationWizardPage projectCreationWizardPage;
 	private IProject project;
+
 	public NewIDFProjectWizard()
 	{
 		IDialogSettings workbenchSettings = IDEWorkbenchPlugin.getDefault().getDialogSettings();
@@ -124,13 +110,13 @@ public class NewIDFProjectWizard extends TemplateWizard
 		boolean performFinish = super.performFinish();
 		if (performFinish)
 		{
+			project = ResourcesPlugin.getWorkspace().getRoot()
+					.getProject(projectCreationWizardPage.getProjectName());
 			IWorkbenchPage page = EclipseHandler.getActiveWorkbenchWindow().getActivePage();
 			IViewPart viewPart = page.findView("org.eclipse.ui.navigator.ProjectExplorer"); //$NON-NLS-1$
 			if (viewPart != null)
 			{
 				ISelectionProvider selProvider = viewPart.getSite().getSelectionProvider();
-				String projectName = projectCreationWizardPage.getProjectName();
-				project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 				selProvider.setSelection(new StructuredSelection(project));
 				updateClangFiles(project);
 			}
@@ -138,34 +124,40 @@ public class NewIDFProjectWizard extends TemplateWizard
 
 		final String target = projectCreationWizardPage.getSelectedTarget();
 		this.getShell().addDisposeListener(event -> {
-			ILaunchBarManager launchBarManager = UIPlugin.getService(ILaunchBarManager.class);
-			TargetSwitchJob targetSwtichJob = new TargetSwitchJob(target);
-			targetSwtichJob.schedule();
-			try
-			{
-				ILaunchDescriptor desc = launchBarManager.getActiveLaunchDescriptor();
-				if (new LaunchUtil(DebugPlugin.getDefault().getLaunchManager()).findAppropriateLaunchConfig(desc,
-						IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE) == null)
-				{
-
-					// this ensures that the configuration exists
-					launchBarManager.getActiveLaunchConfiguration();
-
-					createDefaultDebugConfig();
-					launchBarManager.setActiveLaunchDescriptor(desc);
-				}
-			}
-			catch (CoreException e)
-			{
-				Logger.log(e);
-			}
+			IDFBuildConfigurationSetup.schedule(project, activateLaunchTarget(target));
 			if (projectCreationWizardPage.isRunIdfReconfigureEnabled())
 			{
 				runIdfReconfigureCommandJob(target);
-
 			}
 		});
 		return performFinish;
+	}
+
+	/**
+	 * Selects the chip chosen in the wizard in the Launch Bar. The Launch Bar keeps the target of the previously active
+	 * project when a new descriptor has no remembered target of its own, so the choice has to be applied explicitly.
+	 *
+	 * @param idfTargetName ESP-IDF target selected in the wizard
+	 * @return the matching launch target, or {@code null} when none is registered for that chip
+	 */
+	private ILaunchTarget activateLaunchTarget(String idfTargetName)
+	{
+		ILaunchTargetManager launchTargetManager = UIPlugin.getService(ILaunchTargetManager.class);
+		ILaunchTarget launchTarget = LaunchTargetHelper.findLaunchTargetByName(launchTargetManager, idfTargetName);
+		if (launchTarget == null)
+		{
+			return null;
+		}
+
+		try
+		{
+			UIPlugin.getService(ILaunchBarManager.class).setActiveLaunchTarget(launchTarget);
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+		return launchTarget;
 	}
 
 	private void runIdfReconfigureCommandJob(final String target)
@@ -205,38 +197,6 @@ public class NewIDFProjectWizard extends TemplateWizard
 		}
 	}
 
-	private void createDefaultDebugConfig()
-	{
-		Shell activeShell = Display.getDefault().getActiveShell();
-
-		NewLaunchConfigWizard wizard = new NewLaunchConfigWizard();
-		WizardDialog dialog = new NewLaunchConfigWizardDialog(activeShell, wizard);
-		dialog.create();
-
-		NewLaunchConfigEditPage editPage = (NewLaunchConfigEditPage) wizard.getPage(NEW_LAUNCH_CONFIG_EDIT_PAGE);
-		ILaunchConfigurationType debugLaunchConfigType = DebugPlugin.getDefault().getLaunchManager()
-				.getLaunchConfigurationType(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE);
-		editPage.setLaunchConfigType(debugLaunchConfigType);
-
-		PageChangingEvent pageChangingEvent = new PageChangingEvent(wizard, wizard.getStartingPage(), editPage);
-		editPage.handlePageChanging(pageChangingEvent);
-		wizard.performFinish();
-
-		try
-		{
-			String originalName = wizard.getWorkingCopy().getName();
-			int configPartIndex = originalName.lastIndexOf("Configuration"); //$NON-NLS-1$
-			String debugConfigName = configPartIndex != -1 ? originalName.substring(0, configPartIndex) + "Debug" //$NON-NLS-1$
-					: originalName;
-			wizard.getWorkingCopy().copy(debugConfigName).doSave();
-		}
-		catch (CoreException e)
-		{
-			Logger.log(e);
-		}
-		wizard.dispose();
-	}
-
 	@Override
 	protected IGenerator getGenerator()
 	{
@@ -257,81 +217,5 @@ public class NewIDFProjectWizard extends TemplateWizard
 			generator.setLocationURI(projectCreationWizardPage.getLocationURI());
 		}
 		return generator;
-	}
-
-	private class TargetSwitchJob extends Job
-	{
-		private ILaunchBarManager launchBarManager;
-		private String target;
-
-		public TargetSwitchJob(String target)
-		{
-			super(TARGET_SWITCH_JOB);
-			this.target = target;
-			launchBarManager = UIPlugin.getService(ILaunchBarManager.class);
-		}
-
-		private Job findInternalJob()
-		{
-			for (Job job : Job.getJobManager().find(null))
-			{
-				if (job.getName().equals(InternalDebugCoreMessages.CoreBuildLaunchBarTracker_Job))
-				{
-					return job;
-				}
-			}
-
-			return null;
-		}
-
-		@Override
-		protected IStatus run(IProgressMonitor monitor)
-		{
-			Job job = findInternalJob();
-			if (job != null)
-			{
-				try
-				{
-					job.join();
-				}
-				catch (InterruptedException e1)
-				{
-					Logger.log(e1);
-				}
-			}
-
-			Display.getDefault().syncExec(() -> {
-				ILaunchTarget launchTarget = findSuitableTargetForSelectedTargetString();
-				try
-				{
-					launchBarManager.setActiveLaunchTarget(launchTarget);
-				}
-				catch (CoreException e)
-				{
-					Logger.log(e);
-				}
-			});
-
-			return Status.OK_STATUS;
-
-		}
-
-		private ILaunchTarget findSuitableTargetForSelectedTargetString()
-		{
-			ILaunchTargetManager launchTargetManager = UIPlugin.getService(ILaunchTargetManager.class);
-			ILaunchTarget[] targets = launchTargetManager
-					.getLaunchTargetsOfType(IDFLaunchConstants.ESP_LAUNCH_TARGET_TYPE);
-
-			for (ILaunchTarget iLaunchTarget : targets)
-			{
-				String idfTarget = iLaunchTarget.getAttribute(LaunchBarTargetConstants.TARGET, null);
-				if (idfTarget.contentEquals(target))
-				{
-					return iLaunchTarget;
-				}
-			}
-
-			return null;
-		}
 	}
 }
