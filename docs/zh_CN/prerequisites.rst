@@ -21,7 +21,7 @@
 
 运行 Espressif-IDE 的最低要求如下：
 
-- `Java 21 <https://www.oracle.com/cn/java/technologies/downloads/>`_ 及以上
+- `Java 25 <https://www.oracle.com/cn/java/technologies/downloads/>`_ 及以上
 - `Python 3.12 <https://www.python.org/downloads/>`_ 及以上
 - `Git <https://git-scm.com/downloads>`_
 - `ESP-IDF 依赖项 <https://docs.espressif.com/projects/esp-idf/zh_CN/latest/esp32/get-started/linux-macos-setup.html#get-started-prerequisites>`_，取决于所使用的操作系统
