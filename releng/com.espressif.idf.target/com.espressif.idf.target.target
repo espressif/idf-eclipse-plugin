@@ -58,10 +58,10 @@
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="https://download.eclipse.org/embed-cdt/updates/v6/"/>
-			<unit id="org.eclipse.embedcdt.debug.gdbjtag.feature.group" version="6.4.0.202307251916"/>
-			<unit id="org.eclipse.embedcdt.debug.gdbjtag.openocd.feature.group" version="6.4.0.202307251916"/>
-			<unit id="org.eclipse.embedcdt.feature.group" version="6.4.0.202307251916"/>
-			<unit id="org.eclipse.embedcdt.packs.feature.group" version="6.4.0.202307251916"/>
+			<unit id="org.eclipse.embedcdt.debug.gdbjtag.feature.group" version="6.8.0.202608251538"/>
+			<unit id="org.eclipse.embedcdt.debug.gdbjtag.openocd.feature.group" version="6.8.0.202608251538"/>
+			<unit id="org.eclipse.embedcdt.feature.group" version="6.8.0.202608251538"/>
+			<unit id="org.eclipse.embedcdt.packs.feature.group" version="6.8.0.202608251538"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="https://download.eclipse.org/tm4e/releases/0.18.0/"/>
