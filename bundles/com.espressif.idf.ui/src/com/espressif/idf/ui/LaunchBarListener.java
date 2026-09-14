@@ -5,6 +5,8 @@
 package com.espressif.idf.ui;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -18,7 +20,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.ILaunchMode;
@@ -35,7 +36,6 @@ import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.core.util.LaunchUtil;
 import com.espressif.idf.core.util.SDKConfigJsonReader;
 import com.espressif.idf.core.util.StringUtil;
 
@@ -72,7 +72,6 @@ public class LaunchBarListener implements ILaunchBarListener
 					setMode(launchBarManager, ILaunchManager.RUN_MODE);
 					setMode(launchBarManager, ILaunchManager.DEBUG_MODE);
 				}
-				updateProjectBuildFolderBasedOnActiveConfig(activeLaunchConfiguration);
 			}
 		}
 		catch (CoreException e)
@@ -166,6 +165,24 @@ public class LaunchBarListener implements ILaunchBarListener
 
 	private void deleteBuildFolder(IResource project, File buildLocation)
 	{
+		Path projectPath;
+		Path buildPath;
+		try
+		{
+			projectPath = project.getLocation().toFile().toPath().toRealPath();
+			buildPath = buildLocation.toPath().toRealPath();
+		}
+		catch (IOException e)
+		{
+			Logger.log(e);
+			return;
+		}
+		if (buildPath.equals(projectPath) || !buildPath.startsWith(projectPath))
+		{
+			Logger.log("Skipping automatic deletion of unsafe build directory " + buildPath); //$NON-NLS-1$
+			return;
+		}
+
 		IWorkspaceRunnable runnable = new IWorkspaceRunnable()
 		{
 
@@ -238,28 +255,6 @@ public class LaunchBarListener implements ILaunchBarListener
 			{
 				launchBarManager.setActiveLaunchMode(runMode.get());
 			}
-
-		}
-		catch (CoreException e)
-		{
-			Logger.log(e);
-		}
-	}
-
-	private void updateProjectBuildFolderBasedOnActiveConfig(ILaunchConfiguration configuration)
-	{
-		if (configuration == null)
-		{
-			return;
-		}
-		try
-		{
-			if (configuration.getType().getIdentifier().equals(IDFLaunchConstants.DEBUG_LAUNCH_CONFIG_TYPE))
-			{
-				configuration = new LaunchUtil(DebugPlugin.getDefault().getLaunchManager())
-						.getBoundConfiguration(configuration);
-			}
-			IDFUtil.updateProjectBuildFolder(configuration.getWorkingCopy());
 
 		}
 		catch (CoreException e)

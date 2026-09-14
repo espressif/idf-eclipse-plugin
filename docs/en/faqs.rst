@@ -174,15 +174,19 @@ IDF Eclipse plugin uses CMake commands to build the project, so it's possible to
 How do I build multiple configurations in Espressif-IDE?
 --------------------------------------------------------
 
+Duplicate the launch configuration and set a different ``Build folder location`` for each one. Select the configuration in the **Launch Bar** so that build, ``sdkconfig``, flash, and debug use that folder.
+
 1. Create a new project.
 2. Open the ``Launch Configuration`` dialog.
-3. Navigate to the ``Build Settings`` tab and enter ``-B build_release`` in the ``Additional CMake Arguments`` section. Here, ``build_release`` is the name of the build folder.
+3. Navigate to the ``Build Settings`` tab and enter ``build_release`` in the ``Build folder location`` field. Here, ``build_release`` is a relative path under the project.
 4. Click the ``OK`` button to save the configuration.
 5. Reopen the ``Launch Configuration`` dialog.
 6. Click the ``Duplicate`` button at the bottom left corner.
-7. Navigate to the ``Build Settings`` tab and update the ``Additional CMake Arguments`` section to ``-B build_dev``. Here, ``build_dev`` is the name of the build folder.
+7. Navigate to the ``Build Settings`` tab and set ``Build folder location`` to ``build_dev``. Here, ``build_dev`` is a relative path under the project.
 8. Click the ``OK`` button to save the configuration.
-9. Click the ``Build`` icon from the toolbar (the leftmost icon) for the selected configuration. This will build the project and create a build folder for that configuration. Repeat the same process for the other configuration by selecting it from the dropdown.
+9. Select a configuration from the Launch Bar dropdown, then click the ``Build`` icon from the toolbar (the leftmost icon). This builds into that configuration's folder. Repeat for the other configuration.
+
+Leave ``Build folder location`` blank to use ``project/build``. Absolute paths are also supported.
 
 Can I use my old C/C++ editor formatter file (.xml) as a ``.clang-format`` file?
 --------------------------------------------------------------------------------

@@ -123,6 +123,7 @@ public class CMakeBuildTab2 extends CommonBuildTab
 		buildFolderText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		buildFolderText.setMessage(Messages.CMakeBuildTab2_BuildFolderTextMsg);
 		buildFolderText.setToolTipText(Messages.CMakeBuildTab2_BuildFolderTextToolTip);
+		buildFolderText.addModifyListener(e -> updateLaunchConfigurationDialog());
 
 		// Browse button to select a folder
 		Button browseButton = createPushButton(buildFolderComp, LaunchMessages.Launch_common_Browse_1, null); // $NON-NLS-1$

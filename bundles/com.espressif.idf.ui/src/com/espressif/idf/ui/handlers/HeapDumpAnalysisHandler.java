@@ -33,6 +33,7 @@ import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.FileUtil;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.ProjectDescriptionReader;
 import com.espressif.idf.ui.IDFConsole;
 import com.espressif.idf.ui.tracing.heaptracing.HeapTracingAnalysisEditor;
 
@@ -60,14 +61,19 @@ public class HeapDumpAnalysisHandler extends AbstractHandler
 
 		IResource dumpFile = EclipseHandler.getSelectedResource((IEvaluationContext) event.getApplicationContext());
 		IProject selectedProject = dumpFile.getProject();
-		IFile elfSymbolsFile = selectedProject.getFolder("build").getFile(selectedProject.getName().concat(".elf")); //$NON-NLS-1$ //$NON-NLS-2$
+		File elfSymbolsFile = new ProjectDescriptionReader(selectedProject).getAppElfFileLocation();
+		if (elfSymbolsFile == null || !elfSymbolsFile.isFile())
+		{
+			messageConsoleStream.println("Could not find the application ELF file"); //$NON-NLS-1$
+			return null;
+		}
 
 		List<String> commands = new ArrayList<>();
 		commands.add(IDFUtil.getIDFPythonEnvPath());
 		commands.add(IDFUtil.getIDFSysviewTraceScriptFile().getAbsolutePath());
 		commands.add("-j"); //$NON-NLS-1$
 		commands.add("-b"); //$NON-NLS-1$
-		commands.add(elfSymbolsFile.getRawLocation().toOSString());
+		commands.add(elfSymbolsFile.getAbsolutePath());
 		commands.addAll(resolveTraceSources(dumpFile));
 
 		messageConsoleStream.println("Commands Prepared"); //$NON-NLS-1$

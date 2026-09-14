@@ -10,11 +10,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
@@ -22,7 +20,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -117,6 +114,8 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 	private ScrolledComposite sc;
 
+	private String buildDirectory;
+
 	private static final int MIN_VERSION_FOR_RESET = 3;
 
 	public SDKConfigurationEditor()
@@ -134,22 +133,14 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 
 		IWorkbench workbench = PlatformUI.getWorkbench();
 		IProgressService progressService = workbench.getProgressService();
-		// remember current build folder for the project IEP-1250
-		final String buildFolder = getCurrentBuildFolder();
 
 		final IRunnableWithProgress runnable = monitor -> {
 			monitor.beginTask(Messages.SDKConfigurationEditor_LaunchSDKConfigEditor, 3);
 
 			try
 			{
-				// if sdkconfig is located in the build folder then temporary setting this folder as build folder on the
-				// project level IEP-1250
-				if (isSdkConfigLocatedInBuildFolder())
-				{
-					IDFUtil.setBuildDir(project, getSdkConfigParentFolderOpt().get().getLocation().toOSString());
-				}
 				// 1. Getting kconfig_menus.json
-				final String configMenuJsonPath = new SDKConfigUtil().getConfigMenuFilePath(project);
+				final String configMenuJsonPath = new SDKConfigUtil().getConfigMenuFilePath(buildDirectory);
 				if (configMenuJsonPath == null || !new File(configMenuJsonPath).exists())
 				{
 					Display.getDefault().asyncExec(() -> {
@@ -170,8 +161,6 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 			}
 			catch (Exception x)
 			{
-				// rollback build folder if something went wrong
-				rollbackBuildFolder(buildFolder);
 				throw new InvocationTargetException(x, x.getMessage());
 			}
 		};
@@ -196,9 +185,6 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		// 3. Build the UI
 		createDesignPage();
 		createSourcePage();
-
-		// rollback build folder after UI is built
-		rollbackBuildFolder(buildFolder);
 	}
 
 	/**
@@ -252,7 +238,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		treeViewer = transfersTree.getViewer();
 
 		// Create the tree viewer as a child of the composite parent
-		treeViewer.setContentProvider(new ConfigContentProvider(project, getFile()));
+		treeViewer.setContentProvider(new ConfigContentProvider(project, getFile(), buildDirectory));
 		treeViewer.setLabelProvider(new ConfigLabelProvider());
 
 		treeViewer.setUseHashlookup(true);
@@ -362,7 +348,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		MessageConsoleStream console = new IDFConsole().getConsoleStream("JSON Configuration Server Console", null, //$NON-NLS-1$
 				false);
 
-		configServer = ConfigServerManager.INSTANCE.getServer(project, getFile());
+		configServer = ConfigServerManager.INSTANCE.getServer(project, getFile(), buildDirectory);
 
 		// register the editor with the server to notify about the events
 		configServer.addListener(this);
@@ -444,7 +430,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		{
 			configServer.destroy();
 		}
-		ConfigServerManager.INSTANCE.deleteServer(project, getFile());
+		ConfigServerManager.INSTANCE.deleteServer(project, getFile(), buildDirectory);
 		super.dispose();
 	}
 
@@ -507,6 +493,14 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		super.init(site, editorInput);
 
 		this.project = getProject();
+		try
+		{
+			this.buildDirectory = resolveBuildDirectory(project, ((IFileEditorInput) editorInput).getFile());
+		}
+		catch (CoreException e)
+		{
+			throw new PartInitException(e.getMessage(), e);
+		}
 	}
 
 	/*
@@ -523,7 +517,7 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 	 */
 	public KConfigMenuItem getInitalInput()
 	{
-		KConfigMenuProcessor jsonReader = new KConfigMenuProcessor(project);
+		KConfigMenuProcessor jsonReader = new KConfigMenuProcessor(buildDirectory);
 		try
 		{
 			return jsonReader.reader();
@@ -828,46 +822,22 @@ public class SDKConfigurationEditor extends MultiPageEditorPart
 		return System.getProperty(option);
 	}
 
-	private String getCurrentBuildFolder()
+	static String resolveBuildDirectory(IProject project, IFile sdkConfigFile) throws CoreException
 	{
-		String buildFolder = StringUtil.EMPTY;
-		try
+		IPath sdkConfigLocation = sdkConfigFile.getLocation();
+		if (sdkConfigLocation != null)
 		{
-			IDFUtil.getBuildDir(project);
+			File sdkConfigParent = sdkConfigLocation.toFile().getParentFile();
+			if (sdkConfigParent != null)
+			{
+				File configMenuFile = new File(new File(sdkConfigParent, IDFConstants.CONFIG_FOLDER),
+						IDFConstants.KCONFIG_MENUS_JSON);
+				if (configMenuFile.isFile())
+				{
+					return sdkConfigParent.toPath().toAbsolutePath().normalize().toString();
+				}
+			}
 		}
-		catch (CoreException e)
-		{
-			Logger.log(e);
-		}
-		return buildFolder;
-	}
-
-	private void rollbackBuildFolder(String buildFolder)
-	{
-		try
-		{
-			IDFUtil.setBuildDir(project, buildFolder);
-		}
-		catch (CoreException e)
-		{
-			Logger.log(e);
-		}
-	}
-
-	private boolean isSdkConfigLocatedInBuildFolder()
-	{
-		Optional<IContainer> sdkConfigParentOpt = getSdkConfigParentFolderOpt();
-		return sdkConfigParentOpt.isPresent() && sdkConfigParentOpt.get().exists(Path
-				.fromPortableString(IDFConstants.CONFIG_FOLDER + IPath.SEPARATOR + IDFConstants.KCONFIG_MENUS_JSON));
-	}
-
-	private Optional<IContainer> getSdkConfigParentFolderOpt()
-	{
-		if (getEditorInput() instanceof IFileEditorInput editorInput)
-		{
-			IFile sdkConfigFile = editorInput.getFile();
-			return Optional.ofNullable(sdkConfigFile.getParent());
-		}
-		return Optional.empty();
+		return new File(IDFUtil.getBuildDir(project)).toPath().toAbsolutePath().normalize().toString();
 	}
 }

@@ -55,7 +55,8 @@ public class LoadSdkConfigHandler extends AbstractHandler
 		
 		try
 		{
-			JsonConfigServer server = ConfigServerManager.INSTANCE.getServer(project, file);
+			String buildDirectory = SDKConfigurationEditor.resolveBuildDirectory(project, file);
+			JsonConfigServer server = ConfigServerManager.INSTANCE.getServer(project, file, buildDirectory);
 			// load changes
 			JSONObject jsonObject = new JSONObject();
 			jsonObject.put(IJsonServerConfig.VERSION, 2);
