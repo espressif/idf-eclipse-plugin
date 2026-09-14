@@ -20,11 +20,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.QualifiedName;
 import org.yaml.snakeyaml.Yaml;
 
-import com.espressif.idf.core.IDFConstants;
-import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.ILSPConstants;
 
 /**
@@ -53,8 +50,7 @@ public class ClangdConfigFileHandler
 				compileFlags = new LinkedHashMap<>();
 				data.put("CompileFlags", compileFlags); //$NON-NLS-1$
 			}
-			updateCompileFlagsSection(compileFlags, project.getPersistentProperty(
-					new QualifiedName(IDFCorePlugin.PLUGIN_ID, IDFConstants.BUILD_DIR_PROPERTY)));
+			updateCompileFlagsSection(compileFlags, IDFUtil.getBuildDir(project));
 
 			// Write updated clangd back to file
 			try (Writer writer = new FileWriter(file, StandardCharsets.UTF_8))

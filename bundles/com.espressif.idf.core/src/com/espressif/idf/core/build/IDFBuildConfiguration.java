@@ -53,14 +53,12 @@ import org.eclipse.cdt.internal.core.model.BinaryRunner;
 import org.eclipse.cdt.internal.core.model.CModelManager;
 import org.eclipse.core.resources.IBuildConfiguration;
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
@@ -70,7 +68,6 @@ import org.eclipse.debug.core.ILaunchMode;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 
-import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFCorePreferenceConstants;
 import com.espressif.idf.core.IDFEnvironmentVariables;
@@ -137,20 +134,19 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 	public IContainer getBuildContainer() throws CoreException
 	{
 		IProject project = getProject();
-		IFolder buildRootFolder = project.getFolder(IDFConstants.BUILD_FOLDER);
-
-		IProgressMonitor monitor = new NullProgressMonitor();
-		if (!buildRootFolder.exists())
+		IPath projectLocation = project.getLocation();
+		IPath buildDirectory = getBuildContainerPath();
+		if (projectLocation.isPrefixOf(buildDirectory))
 		{
-			buildRootFolder.create(IResource.FORCE | IResource.DERIVED, true, monitor);
+			IPath relativePath = buildDirectory.makeRelativeTo(projectLocation);
+			return relativePath.isEmpty() ? project : project.getFolder(relativePath);
 		}
-
-		return buildRootFolder;
+		return project;
 	}
 
 	public IPath getBuildContainerPath() throws CoreException
 	{
-		org.eclipse.core.runtime.Path path = new org.eclipse.core.runtime.Path(IDFUtil.getBuildDir(getProject()));
+		IPath path = BuildDirectoryResolver.resolve(getProject());
 		if (!path.toFile().exists())
 		{
 			path.toFile().mkdirs();
@@ -224,7 +220,8 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 
 	private IBinary[] getBuildOutput(final IBinaryContainer binaries, final IPath outputPath) throws CoreException
 	{
-		return Arrays.stream(binaries.getBinaries()).filter(b -> b.isExecutable() && outputPath.isPrefixOf(b.getPath()))
+		return Arrays.stream(binaries.getBinaries())
+				.filter(b -> b.isExecutable() && b.getLocation() != null && outputPath.isPrefixOf(b.getLocation()))
 				.toArray(IBinary[]::new);
 	}
 

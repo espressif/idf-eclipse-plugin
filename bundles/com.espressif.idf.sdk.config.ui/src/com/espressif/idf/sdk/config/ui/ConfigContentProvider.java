@@ -29,13 +29,15 @@ public class ConfigContentProvider extends TreeNodeContentProvider
 {
 	private static Object[] EMPTY_ARRAY = new Object[0];
 	protected TreeViewer viewer;
-	private IProject project;
-	private IFile file;
-	
-	public ConfigContentProvider(IProject project, IFile file)
+	private final IProject project;
+	private final IFile file;
+	private final String buildDirectory;
+
+	public ConfigContentProvider(IProject project, IFile file, String buildDirectory)
 	{
 		this.project = project;
 		this.file = file;
+		this.buildDirectory = buildDirectory;
 	}
 
 	/*
@@ -92,22 +94,23 @@ public class ConfigContentProvider extends TreeNodeContentProvider
 
 	private List<KConfigMenuItem> getMenuItems(List<KConfigMenuItem> children) throws IOException
 	{
-		
-		JsonConfigServer configServer = ConfigServerManager.INSTANCE.getServer(project, file);
+		JsonConfigServer configServer = ConfigServerManager.INSTANCE.getServer(project, file, buildDirectory);
 		List<KConfigMenuItem> menuList = new ArrayList<KConfigMenuItem>();
 		for (KConfigMenuItem kConfigMenuItem : children)
 		{
 			if (kConfigMenuItem.getType() != null && kConfigMenuItem.getType().equals(IJsonServerConfig.MENU_TYPE))
 			{
 				JSONObject visibleJsonMap = configServer.getOutput().getVisibleJsonMap();
-				Logger.logTrace(SDKConfigUIPlugin.getDefault(), "item >" + kConfigMenuItem.getTitle() + " type >"+ kConfigMenuItem.getType()); //$NON-NLS-1$ //$NON-NLS-2$
-				
+				Logger.logTrace(SDKConfigUIPlugin.getDefault(),
+						"item >" + kConfigMenuItem.getTitle() + " type >" + kConfigMenuItem.getType()); //$NON-NLS-1$ //$NON-NLS-2$
+
 				boolean visible = kConfigMenuItem.isVisible(visibleJsonMap);
 				if (!kConfigMenuItem.isMenuConfig())
 				{
 					visible = true;
 				}
-				Logger.logTrace(SDKConfigUIPlugin.getDefault(), "visibility >" + kConfigMenuItem.isVisible(visibleJsonMap)); //$NON-NLS-1$
+				Logger.logTrace(SDKConfigUIPlugin.getDefault(),
+						"visibility >" + kConfigMenuItem.isVisible(visibleJsonMap)); //$NON-NLS-1$
 				if (visible)
 				{
 					menuList.add(kConfigMenuItem);

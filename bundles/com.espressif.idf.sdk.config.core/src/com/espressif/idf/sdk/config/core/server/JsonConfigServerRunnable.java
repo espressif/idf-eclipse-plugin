@@ -17,14 +17,11 @@ import java.text.MessageFormat;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.sdk.config.core.IJsonServerConfig;
 import com.espressif.idf.sdk.config.core.SDKConfigCorePlugin;
@@ -41,14 +38,15 @@ public class JsonConfigServerRunnable implements Runnable
 	private InputStream out;
 	private CommandType type;
 	private Process process;
-	private IProject project;
+	private String buildDirectory;
 	private String oldSdkconfigValue;
 	
-	public JsonConfigServerRunnable(Process process, JsonConfigServer configServer, IProject project, String oldSdkconfigValue)
+	public JsonConfigServerRunnable(Process process, JsonConfigServer configServer, String buildDirectory,
+			String oldSdkconfigValue)
 	{
 		this.process = process;
 		this.configServer = configServer;
-		this.project = project;
+		this.buildDirectory = buildDirectory;
 		this.oldSdkconfigValue = oldSdkconfigValue;
 	}
 
@@ -120,14 +118,7 @@ public class JsonConfigServerRunnable implements Runnable
 					builder.append(string);
 					if (string.contains("Server running")) //$NON-NLS-1$
 					{
-						try
-						{
-							replaceOldCmakeCache();
-						}
-						catch (CoreException e)
-						{
-							Logger.log(e);
-						}
+						replaceOldCmakeCache();
 					}
 				}
 
@@ -150,11 +141,11 @@ public class JsonConfigServerRunnable implements Runnable
 
 	}
 	
-	private void replaceOldCmakeCache() throws CoreException
+	private void replaceOldCmakeCache()
 	{
 		// SDKCONFIG:UNINITIALIZED=
 
-		File cmakeCacheFile = new File(IDFUtil.getBuildDir(project).concat("/CMakeCache.txt")); //$NON-NLS-1$
+		File cmakeCacheFile = new File(buildDirectory, "CMakeCache.txt"); //$NON-NLS-1$
 		if (cmakeCacheFile.exists() && !StringUtil.isEmpty(oldSdkconfigValue))
 		{
 			StringBuilder contentBuilder = new StringBuilder();

@@ -83,7 +83,7 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 	private void parseExtractedFileFromPythonScript() throws Exception
 	{
 		Logger.log("Converting coredump"); //$NON-NLS-1$
-		String coreDumpDestination = getCoreDumpFileFromBuildDir(GENERATED_CORE_ELF_NAME);
+		String coreDumpDestination = getCoreDumpStagingFilePath(GENERATED_CORE_ELF_NAME);
 
 		// espcoredump.py
 
@@ -222,7 +222,7 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 				String.valueOf(100));
 
 		createElement(dom, root, stringAttribute, "org.eclipse.cdt.launch.COREFILE_PATH", //$NON-NLS-1$
-				getCoreDumpFileFromBuildDir(GENERATED_CORE_ELF_NAME));
+				getCoreDumpStagingFilePath(GENERATED_CORE_ELF_NAME));
 
 		createElement(dom, root, stringAttribute, "org.eclipse.cdt.launch.DEBUGGER_ID", "gdb"); //$NON-NLS-1$ //$NON-NLS-2$
 		createElement(dom, root, stringAttribute, "org.eclipse.cdt.launch.DEBUGGER_START_MODE", "core"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -250,14 +250,18 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 		Transformer tr = TransformerFactory.newInstance().newTransformer();
 		tr.setOutputProperty(OutputKeys.INDENT, "yes"); //$NON-NLS-1$
 
-		String launchFile = getCoreDumpFileFromBuildDir(
+		String launchFile = getCoreDumpStagingFilePath(
 				String.format(CORE_DUMP_POSTMORTEM_LAUNCH_CONFIG, project.getName()));
 		tr.transform(new DOMSource(dom), new StreamResult(new File(launchFile)));
 		project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 
 	}
 
-	private String getCoreDumpFileFromBuildDir(String fileName)
+	/**
+	 * Keeps generated postmortem files in the project-local build folder. These are debugger staging files, not
+	 * ESP-IDF build outputs, so they must not be redirected to or create an external configured build directory.
+	 */
+	private String getCoreDumpStagingFilePath(String fileName)
 	{
 		IFolder buildRootFolder = project.getFolder(IDFConstants.BUILD_FOLDER);
 		StringBuilder coreDumpDestination = new StringBuilder();

@@ -12,8 +12,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
@@ -26,6 +24,7 @@ import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.IDFDynamicVariables;
 import com.espressif.idf.core.IDFEnvironmentVariables;
+import com.espressif.idf.core.build.BuildDirectoryResolver;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.configparser.EspConfigParser;
 import com.espressif.idf.core.logging.Logger;
@@ -108,16 +107,10 @@ public class ESPFlashUtil
 		try
 		{
 
-			String buildPath = configuration.getMappedResources()[0].getProject()
-					.getPersistentProperty(new QualifiedName(IDFCorePlugin.PLUGIN_ID, IDFConstants.BUILD_DIR_PROPERTY));
-			// converting to UNIX path so openocd could read it
-			buildPath = new Path(buildPath).toString();
+			String buildPath = BuildDirectoryResolver
+					.resolve(configuration.getMappedResources()[0].getProject(), configuration).toString();
 
-			buildPath = buildPath.isBlank() ? configuration.getMappedResources()[0].getProject()
-					.getFolder(IDFConstants.BUILD_FOLDER).getLocationURI().getPath() : buildPath;
-
-			char a = buildPath.charAt(2);
-			if (a == ':')
+			if (buildPath.length() > 2 && buildPath.charAt(0) == '/' && buildPath.charAt(2) == ':')
 			{
 				buildPath = buildPath.substring(1);
 			}

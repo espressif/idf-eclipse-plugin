@@ -51,6 +51,7 @@ import org.eclipse.ui.console.PatternMatchEvent;
 import org.eclipse.ui.console.TextConsole;
 import org.eclipse.ui.ide.IDE;
 
+import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.logging.Logger;
@@ -276,9 +277,15 @@ public class SbomCommandDialog extends TitleAreaDialog
 
 	private String buildProjectDescriptionPath()
 	{
-		return String.join(FileSystems.getDefault().getSeparator(),
-				Paths.get(selectedProject.getLocationURI()).toString(), "build", //$NON-NLS-1$
-				"project_description.json"); //$NON-NLS-1$
+		try
+		{
+			return Paths.get(IDFUtil.getBuildDir(selectedProject), IDFConstants.PROECT_DESCRIPTION_JSON).toString();
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+			return StringUtil.EMPTY;
+		}
 	}
 
 	private void runEspIdfSbomCommand()

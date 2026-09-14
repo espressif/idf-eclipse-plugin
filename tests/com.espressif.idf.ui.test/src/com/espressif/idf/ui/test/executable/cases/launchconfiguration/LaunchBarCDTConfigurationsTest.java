@@ -11,6 +11,10 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.ILaunchDescriptor;
 import org.eclipse.launchbar.core.internal.Activator;
@@ -27,6 +31,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
+import com.espressif.idf.core.build.IDFLaunchConstants;
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 import com.espressif.idf.ui.test.operations.EnvSetupOperations;
@@ -80,6 +86,25 @@ public class LaunchBarCDTConfigurationsTest
 		Fixture.thenLaunchTargetIsSelectedFromLaunchTargets("TestESP");
 	}
 
+	@Test
+	public void verifyCustomBuildFolderFollowsSelectedLaunchConfiguration() throws Exception
+	{
+		Fixture.whenActiveLaunchConfigurationUsesBuildFolder("build-release"); //$NON-NLS-1$
+		Fixture.thenResolvedBuildFolderIs("build-release"); //$NON-NLS-1$
+		Fixture.whenLaunchConfigurationIsDuplicatedWithBuildFolder("TestProject-dev", "build-dev"); //$NON-NLS-1$ //$NON-NLS-2$
+		try
+		{
+			Fixture.whenLaunchConfigurationIsSelected("TestProject-dev"); //$NON-NLS-1$
+			Fixture.thenResolvedBuildFolderIs("build-dev"); //$NON-NLS-1$
+			Fixture.whenLaunchConfigurationIsSelected("TestProject"); //$NON-NLS-1$
+			Fixture.thenResolvedBuildFolderIs("build-release"); //$NON-NLS-1$
+		}
+		finally
+		{
+			Fixture.deleteDuplicatedLaunchConfiguration();
+		}
+	}
+
 	private static class Fixture
 	{
 		private static SWTWorkbenchBot bot;
@@ -89,6 +114,7 @@ public class LaunchBarCDTConfigurationsTest
 		private static String projectName;
 		private static LaunchBarConfigSelector launchBarConfigSelector;
 		private static LaunchBarTargetSelector launchBarTargetSelector;
+		private static ILaunchConfiguration duplicateConfiguration;
 		private static final ILaunchTargetManager targetManager = Activator.getService(ILaunchTargetManager.class);
 		private static final ILaunchBarManager manager = Activator.getService(ILaunchBarManager.class);
 
@@ -179,6 +205,45 @@ public class LaunchBarCDTConfigurationsTest
 			bot.toolbarButtonWithTooltip("Build").click();
 			ProjectTestOperations.waitForProjectBuild(bot);
 //			TestWidgetWaitUtility.waitForOperationsInProgressToFinish(bot);
+		}
+
+		private static void whenActiveLaunchConfigurationUsesBuildFolder(String buildFolder) throws Exception
+		{
+			ILaunchConfiguration configuration = manager.getActiveLaunchConfiguration();
+			ILaunchConfigurationWorkingCopy workingCopy = configuration.getWorkingCopy();
+			workingCopy.setAttribute(IDFLaunchConstants.BUILD_FOLDER_PATH, buildFolder);
+			workingCopy.doSave();
+		}
+
+		private static void whenLaunchConfigurationIsDuplicatedWithBuildFolder(String name, String buildFolder)
+				throws Exception
+		{
+			ILaunchConfiguration configuration = manager.getActiveLaunchConfiguration();
+			ILaunchConfigurationWorkingCopy workingCopy = configuration.copy(name);
+			workingCopy.setAttribute(IDFLaunchConstants.BUILD_FOLDER_PATH, buildFolder);
+			duplicateConfiguration = workingCopy.doSave();
+			TestWidgetWaitUtility.waitForOperationsInProgressToFinishSync(bot);
+		}
+
+		private static void whenLaunchConfigurationIsSelected(String name)
+		{
+			launchBarConfigSelector.select(name);
+			bot.sleep(1000);
+		}
+
+		private static void deleteDuplicatedLaunchConfiguration() throws Exception
+		{
+			if (duplicateConfiguration != null && duplicateConfiguration.exists())
+			{
+				duplicateConfiguration.delete();
+				duplicateConfiguration = null;
+			}
+		}
+
+		private static void thenResolvedBuildFolderIs(String buildFolder) throws Exception
+		{
+			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+			assertEquals(project.getLocation().append(buildFolder).toOSString(), IDFUtil.getBuildDir(project));
 		}
 
 		public static void givenProjectNameIs(String projectName)

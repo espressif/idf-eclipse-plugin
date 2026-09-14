@@ -47,6 +47,7 @@ import com.espressif.idf.core.IDFEnvironmentVariables;
 import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.ProcessBuilderFactory;
 import com.espressif.idf.core.SystemExecutableFinder;
+import com.espressif.idf.core.build.BuildDirectoryResolver;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.toolchain.ESPToolChainManager;
@@ -548,14 +549,7 @@ public class IDFUtil
 	 */
 	public static String getBuildDir(IProject project) throws CoreException
 	{
-		String buildDirectory = project
-				.getPersistentProperty(new QualifiedName(IDFCorePlugin.PLUGIN_ID, IDFConstants.BUILD_DIR_PROPERTY));
-		if (StringUtil.isEmpty(buildDirectory))
-		{
-			buildDirectory = project.getFolder(IDFConstants.BUILD_FOLDER).getLocation().toOSString();
-		}
-
-		return buildDirectory;
+		return BuildDirectoryResolver.resolve(project).toOSString();
 	}
 
 	/**
@@ -564,7 +558,10 @@ public class IDFUtil
 	 * @param project
 	 * @param pathToBuildDir
 	 * @throws CoreException
+	 * @deprecated Build directories are configured per launch configuration using
+	 *             {@link IDFLaunchConstants#BUILD_FOLDER_PATH}.
 	 */
+	@Deprecated(forRemoval = true)
 	public static void setBuildDir(IProject project, String pathToBuildDir) throws CoreException
 	{
 		project.setPersistentProperty(new QualifiedName(IDFCorePlugin.PLUGIN_ID, IDFConstants.BUILD_DIR_PROPERTY),
@@ -583,7 +580,9 @@ public class IDFUtil
 	 *                      parameter cannot be {@code null}.
 	 * @throws CoreException If there is an issue with accessing the project or updating the build folder. This
 	 *                       exception is logged, but not rethrown.
+	 * @deprecated Runtime consumers resolve the build directory directly from the active launch configuration.
 	 */
+	@Deprecated(forRemoval = true)
 	public static void updateProjectBuildFolder(ILaunchConfigurationWorkingCopy configuration)
 	{
 		try
