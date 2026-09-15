@@ -33,9 +33,9 @@ import org.eclipse.swt.widgets.Display;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.LaunchBarTargetConstants;
+import com.espressif.idf.core.build.BuildDirectoryResolver;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.SDKConfigJsonReader;
 import com.espressif.idf.core.util.StringUtil;
 
@@ -130,11 +130,14 @@ public class LaunchBarListener implements ILaunchBarListener
 				// build folder exist?
 				if (project != null)
 				{
-					File buildLocation = new File(IDFUtil.getBuildDir((IProject) project));
+					// Resolve from the configuration already in hand: asking the Launch Bar again while it is
+					// switching targets can fall back to the default folder and hide the prompt (IEP-1521).
+					File buildLocation = BuildDirectoryResolver.resolve((IProject) project, activeConfig).toFile();
 					if (buildLocation.exists())
 					{
 						// get current target
-						String currentTarget = new SDKConfigJsonReader((IProject) project).getValue("IDF_TARGET"); //$NON-NLS-1$
+						String currentTarget = new SDKConfigJsonReader((IProject) project,
+								buildLocation.getAbsolutePath()).getValue("IDF_TARGET"); //$NON-NLS-1$
 
 						// If both are not same
 						if (currentTarget != null && !newTarget.equals(currentTarget))

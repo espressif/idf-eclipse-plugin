@@ -51,12 +51,21 @@ public class SDKConfigUtil
 	 */
 	public String getSDKConfigJsonFilePath(IProject project) throws Exception
 	{
-		String buildDir = IDFUtil.getBuildDir(project);
-		if (!new File(buildDir).exists())
+		return getSDKConfigJsonFilePath(IDFUtil.getBuildDir(project));
+	}
+
+	/**
+	 * @param buildDirectory
+	 * @return
+	 * @throws Exception
+	 */
+	public String getSDKConfigJsonFilePath(String buildDirectory) throws Exception
+	{
+		if (!new File(buildDirectory).exists())
 		{
-			throw new Exception("Build directory is not found: "+ buildDir); //$NON-NLS-1$
+			throw new Exception("Build directory is not found: " + buildDirectory); //$NON-NLS-1$
 		}
-		return new File(new File(buildDir, IDFConstants.CONFIG_FOLDER), IDFConstants.SDKCONFIG_JSON_FILE_NAME)
+		return new File(new File(buildDirectory, IDFConstants.CONFIG_FOLDER), IDFConstants.SDKCONFIG_JSON_FILE_NAME)
 				.getAbsolutePath();
 	}
 }
