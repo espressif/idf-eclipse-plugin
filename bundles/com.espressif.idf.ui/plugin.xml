@@ -881,6 +881,17 @@
 			triggerCharacters=" ">
 		</contentAssistProcessor>
 	</extension>
+	<!-- Lets CDT's ResourceRenameParticipant retarget these launch configurations at the renamed
+	     project instead of leaving them bound to the old one (bug 273502). -->
+	<extension
+		point="org.eclipse.cdt.launch.launchConfigAffinity">
+		<launchConfigTypeId
+			id="com.espressif.idf.launch.serial.launchConfigurationType">
+		</launchConfigTypeId>
+		<launchConfigTypeId
+			id="com.espressif.idf.debug.gdbjtag.openocd.launchConfigurationType">
+		</launchConfigTypeId>
+	</extension>
 	<extension
 		point="org.eclipse.ltk.core.refactoring.renameParticipants">
 		<renameParticipant

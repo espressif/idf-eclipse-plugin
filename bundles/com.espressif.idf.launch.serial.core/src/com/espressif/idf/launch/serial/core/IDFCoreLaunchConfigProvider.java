@@ -15,7 +15,6 @@ import org.eclipse.launchbar.core.ILaunchDescriptor;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
 
 import com.espressif.idf.core.build.IDFLaunchConstants;
-import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.LaunchUtil;
 
 public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigProvider
@@ -78,8 +77,6 @@ public class IDFCoreLaunchConfigProvider extends CoreBuildGenericLaunchConfigPro
 	@Override
 	public boolean launchConfigurationChanged(ILaunchConfiguration configuration) throws CoreException
 	{
-		IDFUtil.updateProjectBuildFolder(configuration.getWorkingCopy());
-
 		return false;
 	}
 

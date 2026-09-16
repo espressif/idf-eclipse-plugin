@@ -7,7 +7,6 @@ package com.espressif.idf.core.util;
 import java.io.File;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IPath;
 
 import com.espressif.idf.core.IDFConstants;
 
@@ -19,19 +18,30 @@ public class SDKConfigUtil
 {
 
 	/**
+	 * @param project project whose active build directory should be used
+	 * @return path to kconfig_menus.json
+	 * @throws Exception if the build directory does not exist
+	 * @deprecated Pass the already resolved build directory to keep multi-config operations scoped.
+	 */
+	@Deprecated(forRemoval = true)
+	public String getConfigMenuFilePath(IProject project) throws Exception
+	{
+		return getConfigMenuFilePath(IDFUtil.getBuildDir(project));
+	}
+
+	/**
 	 * @param buildDirectory
 	 * @return
 	 * @throws Exception
 	 */
-	public String getConfigMenuFilePath(IProject project) throws Exception
+	public String getConfigMenuFilePath(String buildDirectory) throws Exception
 	{
-		String buildDir = IDFUtil.getBuildDir(project);
-		if (!new File(buildDir).exists())
+		if (!new File(buildDirectory).exists())
 		{
-			throw new Exception("Build directory is not found: "+ buildDir); //$NON-NLS-1$
+			throw new Exception("Build directory is not found: " + buildDirectory); //$NON-NLS-1$
 		}
-		return new File(buildDir).getAbsolutePath() + IPath.SEPARATOR + IDFConstants.CONFIG_FOLDER
-				+ IPath.SEPARATOR + IDFConstants.KCONFIG_MENUS_JSON;
+		return new File(new File(buildDirectory, IDFConstants.CONFIG_FOLDER), IDFConstants.KCONFIG_MENUS_JSON)
+				.getAbsolutePath();
 	}
 
 	/**
@@ -46,7 +56,7 @@ public class SDKConfigUtil
 		{
 			throw new Exception("Build directory is not found: "+ buildDir); //$NON-NLS-1$
 		}
-		return new File(buildDir).getAbsolutePath() + IPath.SEPARATOR + IDFConstants.CONFIG_FOLDER
-				+ IPath.SEPARATOR + IDFConstants.SDKCONFIG_JSON_FILE_NAME;
+		return new File(new File(buildDir, IDFConstants.CONFIG_FOLDER), IDFConstants.SDKCONFIG_JSON_FILE_NAME)
+				.getAbsolutePath();
 	}
 }
