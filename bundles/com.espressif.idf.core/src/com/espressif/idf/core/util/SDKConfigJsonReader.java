@@ -23,21 +23,10 @@ import com.espressif.idf.core.logging.Logger;
 public class SDKConfigJsonReader
 {
 	private IProject project;
-	private String buildDirectory;
 
 	public SDKConfigJsonReader(IProject project)
 	{
-		this(project, null);
-	}
-
-	/**
-	 * @param project        project owning the configuration
-	 * @param buildDirectory build directory to read from, or <code>null</code> to resolve the project's active one
-	 */
-	public SDKConfigJsonReader(IProject project, String buildDirectory)
-	{
 		this.project = project;
-		this.buildDirectory = buildDirectory;
 	}
 
 	/**
@@ -65,9 +54,7 @@ public class SDKConfigJsonReader
 
 	protected JSONObject read() throws Exception
 	{
-		String sdkconfigJsonPath = StringUtil.isEmpty(buildDirectory)
-				? new SDKConfigUtil().getSDKConfigJsonFilePath(project)
-				: new SDKConfigUtil().getSDKConfigJsonFilePath(buildDirectory);
+		String sdkconfigJsonPath = new SDKConfigUtil().getSDKConfigJsonFilePath(project);
 		if (!new File(sdkconfigJsonPath).exists())
 		{
 			Logger.log(MessageFormat.format("sdkconfig.json file could not find {0}", sdkconfigJsonPath)); //$NON-NLS-1$
