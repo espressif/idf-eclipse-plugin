@@ -4,7 +4,6 @@
  *******************************************************************************/
 package com.espressif.idf.core.build;
 
-import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -86,21 +85,7 @@ public final class BuildDirectoryResolver
 
 	private static boolean belongsToProject(ILaunchConfiguration configuration, IProject project) throws CoreException
 	{
-		if (project == null || configuration == null)
-		{
-			return false;
-		}
-
-		IProject mappedProject = LaunchUtil.getMappedProject(configuration);
-		if (mappedProject != null)
-		{
-			return project.equals(mappedProject);
-		}
-
-		// A configuration may carry only the project name, for instance while the Launch Bar is switching targets.
-		// Without this the resolver would silently fall back to the default build folder.
-		return project.getName().equals(
-				configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, StringUtil.EMPTY));
+		return project != null && project.equals(LaunchUtil.getMappedProject(configuration));
 	}
 
 	private static IPath resolvePath(IProject project, String buildFolder)
