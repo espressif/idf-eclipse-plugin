@@ -9,8 +9,11 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -19,6 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
+import com.espressif.idf.core.util.SDKConfigJsonReader;
 import com.espressif.idf.ui.handlers.Messages;
 import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
@@ -53,12 +57,11 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest
 	}
 
 	@Test
-	public void shouldDeleteBuildFolderWhenChangingLaunchTargetOnBuiltProject() throws Exception
+	public void shouldSetProjectTargetWhenChangingLaunchTargetOnBuiltProject() throws Exception
 	{
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.whenChangeLaunchTarget();
-		Fixture.whenRefreshProject();
-		Fixture.thenBuildFolderDeletedSuccessfully();
+		Fixture.thenProjectTargetChangedSuccessfully();
 	}
 
 	@Test
@@ -73,6 +76,8 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest
 
 	private static class Fixture
 	{
+		private static final long SET_TARGET_WAIT_TIMEOUT_MS = 300000;
+
 		private static SWTWorkbenchBot bot;
 
 		private static String projectName = "Project";
@@ -168,15 +173,23 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest
 			handleNewEspTargetDialog();
 		}
 
-		private static void whenRefreshProject() throws IOException
+		private static void thenProjectTargetChangedSuccessfully()
 		{
-			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
-		}
+			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+			bot.waitUntil(new DefaultCondition()
+			{
+				@Override
+				public boolean test() throws Exception
+				{
+					return "esp32c2".equals(new SDKConfigJsonReader(project).getValue("IDF_TARGET"));
+				}
 
-		private static void thenBuildFolderDeletedSuccessfully() throws Exception
-		{
-			assertTrue("Build folder was not deleted successfully!",
-					ProjectTestOperations.findProjectFullCleanedFilesInBuildFolder(projectName, bot));
+				@Override
+				public String getFailureMessage()
+				{
+					return "Project target was not changed to esp32c2!";
+				}
+			}, SET_TARGET_WAIT_TIMEOUT_MS, 3000);
 		}
 
 		private static void whenProjectFullCleaned() throws IOException

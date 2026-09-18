@@ -50,22 +50,51 @@ public class IdfCommandExecutor
 		return runIdfReconfigureCommand(project);
 	}
 
+	public IStatus executeSetTarget(IProject project)
+	{
+		console.activate();
+		return runIdfSetTargetCommand(project);
+	}
+
 	private IStatus runIdfReconfigureCommand(IProject project)
 	{
-		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
 		List<String> arguments = prepareCmakeArguments(project);
-		Map<String, String> environment = new HashMap<>(new IDFEnvironmentVariables().getSystemEnvMap());
+		return runCommand(project, arguments);
+	}
 
+	private IStatus runIdfSetTargetCommand(IProject project)
+	{
 		try (MessageConsoleStream messageConsoleStream = console.newMessageStream())
 		{
-			messageConsoleStream.println(String.join(" ", arguments)); //$NON-NLS-1$
-			return runProcess(arguments, environment, processRunner, project, messageConsoleStream);
+			List<String> arguments = prepareSetTargetArguments(project);
+			return runCommand(project, arguments, messageConsoleStream);
 		}
-		catch (IOException e1)
+		catch (CoreException | IOException e)
 		{
-			Logger.log(e1);
-			return IDFCorePlugin.errorStatus(e1.getMessage(), e1);
+			Logger.log(e);
+			return IDFCorePlugin.errorStatus(e.getMessage(), e);
 		}
+	}
+
+	private IStatus runCommand(IProject project, List<String> arguments)
+	{
+		try (MessageConsoleStream messageConsoleStream = console.newMessageStream())
+		{
+			return runCommand(project, arguments, messageConsoleStream);
+		}
+		catch (IOException e)
+		{
+			Logger.log(e);
+			return IDFCorePlugin.errorStatus(e.getMessage(), e);
+		}
+	}
+
+	private IStatus runCommand(IProject project, List<String> arguments, MessageConsoleStream messageConsoleStream)
+	{
+		ProcessBuilderFactory processRunner = new ProcessBuilderFactory();
+		Map<String, String> environment = new HashMap<>(new IDFEnvironmentVariables().getSystemEnvMap());
+		messageConsoleStream.println(String.join(" ", arguments)); //$NON-NLS-1$
+		return runProcess(arguments, environment, processRunner, project, messageConsoleStream);
 	}
 
 	private List<String> prepareCmakeArguments(IProject project)
@@ -92,6 +121,18 @@ public class IdfCommandExecutor
 		{
 			Logger.log(e);
 		}
+		return arguments;
+	}
+
+	private List<String> prepareSetTargetArguments(IProject project) throws CoreException
+	{
+		List<String> arguments = new ArrayList<>();
+		arguments.add(IDFUtil.getIDFPythonEnvPath());
+		arguments.add(IDFUtil.getIDFPythonScriptFile().getAbsolutePath());
+		arguments.add("-B"); //$NON-NLS-1$
+		arguments.add(IDFUtil.getBuildDir(project));
+		arguments.add("set-target"); //$NON-NLS-1$
+		arguments.add(target);
 		return arguments;
 	}
 
@@ -138,16 +179,27 @@ public class IdfCommandExecutor
 			ProcessBuilderFactory processRunner, IProject project, MessageConsoleStream messageConsoleStream)
 	{
 		StringBuilder output = new StringBuilder();
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-				processRunner.run(arguments, project.getLocation(), environment).getInputStream())))
+		try
 		{
-			String line;
-			while ((line = reader.readLine()) != null)
+			Process process = processRunner.run(arguments, project.getLocation(), environment);
+			try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream())))
 			{
-				output.append(line).append(System.lineSeparator());
-				messageConsoleStream.println(line);
+				String line;
+				while ((line = reader.readLine()) != null)
+				{
+					output.append(line).append(System.lineSeparator());
+					messageConsoleStream.println(line);
+				}
 			}
-			return new Status(IStatus.OK, IDFCorePlugin.PLUGIN_ID, output.toString());
+			int exitCode = process.waitFor();
+			return new Status(exitCode == 0 ? IStatus.OK : IStatus.ERROR, IDFCorePlugin.PLUGIN_ID, exitCode,
+					output.toString(), null);
+		}
+		catch (InterruptedException e)
+		{
+			Thread.currentThread().interrupt();
+			Logger.log(e);
+			return IDFCorePlugin.errorStatus(e.getMessage(), e);
 		}
 		catch (Exception e)
 		{
