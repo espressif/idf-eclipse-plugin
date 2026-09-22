@@ -76,7 +76,7 @@ public class EnvSetupOperations
 
 		bot.toolbarButtonWithTooltip("Select and deselect filters to apply to the content in the tree").click();
 		bot.table().getTableItem(".* resources").uncheck();
-		bot.button("OK").click();
+		bot.button("Apply").click();
 
 		bot.menu("Window").menu("Show View").menu("Other...").click();
 		bot.text().setText("progress");
