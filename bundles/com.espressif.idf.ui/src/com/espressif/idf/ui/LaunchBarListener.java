@@ -185,6 +185,7 @@ public class LaunchBarListener implements ILaunchBarListener
 				return status;
 			}
 		};
+		job.setRule(project);
 		job.schedule();
 	}
 
