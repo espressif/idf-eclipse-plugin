@@ -96,6 +96,59 @@ public class ProjectTestOperations
 		}
 	}
 
+	/**
+	 * Waits for the build of the given project to be completed. The CDT build console keeps the output of the project
+	 * that was built last, so the console of the given project has to be displayed before its output is read,
+	 * otherwise the output of a previously built project is matched.
+	 *
+	 * @param projectName project that is being built
+	 * @param bot         current SWT bot reference
+	 * @throws IOException
+	 */
+	public static void waitForProjectBuild(String projectName, SWTWorkbenchBot bot) throws IOException
+	{
+		long buildWait = DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_PROJECT_BUILD_WAIT_PROPERTY, 300000);
+		SWTBotView consoleView = waitForConsole(MessageFormat.format("CDT Build Console [{0}]", projectName), bot,
+				buildWait);
+		try
+		{
+			TestWidgetWaitUtility.waitUntilViewContains(bot, "Build complete", consoleView, buildWait);
+		}
+		catch (Exception e)
+		{
+			throw new AssertionError("Project Build failed", e);
+		}
+	}
+
+	private static SWTBotView waitForConsole(String consoleName, SWTWorkbenchBot workbenchBot, long timeout)
+	{
+		SWTBotView[] consoleView = new SWTBotView[1];
+		workbenchBot.waitUntil(new DefaultCondition()
+		{
+			@Override
+			public boolean test() throws Exception
+			{
+				try
+				{
+					consoleView[0] = viewConsole(consoleName, workbenchBot);
+					return true;
+				}
+				catch (WidgetNotFoundException widgetNotFoundException)
+				{
+					return false;
+				}
+			}
+
+			@Override
+			public String getFailureMessage()
+			{
+				return MessageFormat.format("The console {0} was not displayed in time", consoleName);
+			}
+		}, timeout, 3000);
+
+		return consoleView[0];
+	}
+
 	public static void waitForProjectFlash(SWTWorkbenchBot bot) throws IOException
 	{
 		SWTBotView view = bot.viewByPartName("Console");

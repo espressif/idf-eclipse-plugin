@@ -164,7 +164,7 @@ These checks run automatically on PRs and MUST pass:
 | `pre-commit.yml` | Conventional commit message format on every commit; codespell on `*.py`, `*.c`, `*.h`, `*.md`, `*.rst`, `*.yml` |
 | `docs_build.yml` | Documentation builds without errors |
 
-The main CI builds with **JDK 21** and **Maven 3.9.6**, with **ESP-IDF v5.4** on the runner.
+The main CI builds with **JDK 25** and **Maven 3.9.6**, with **ESP-IDF v5.4** on the runner.
 
 ## Quality
 
