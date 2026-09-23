@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
+import com.espressif.idf.ui.Messages;
 import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 import com.espressif.idf.ui.test.operations.EnvSetupOperations;
@@ -79,6 +80,10 @@ public class NewEspressifIDFProjectFlashProcessTest
 		private static String category;
 		private static String subCategory;
 		private static String projectName;
+
+		private static final long SET_TARGET_SCHEDULE_TIMEOUT = 20000;
+
+		private static final long SET_TARGET_FINISH_TIMEOUT = 300000;
 
 		private static final Pattern[] TARGET_DETECTION_PATTERNS = new Pattern[] {
 				Pattern.compile("Connected to\\s+(ESP32[-A-Z0-9]*)\\b", Pattern.CASE_INSENSITIVE),
@@ -403,6 +408,9 @@ public class NewEspressifIDFProjectFlashProcessTest
 				shell.setFocus();
 
 				bot.button("Yes").click();
+
+				TestWidgetWaitUtility.waitForJobToFinish(bot, Messages.LaunchBarListener_SetTargetJobName,
+						SET_TARGET_SCHEDULE_TIMEOUT, SET_TARGET_FINISH_TIMEOUT);
 			}
 
 			TestWidgetWaitUtility.waitForOperationsInProgressToFinishAsync(bot);

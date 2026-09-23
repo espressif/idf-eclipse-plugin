@@ -5,10 +5,13 @@
 package com.espressif.idf.ui.test.executable.cases.project;
 
 import static org.eclipse.swtbot.swt.finder.waits.Conditions.widgetIsEnabled;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
@@ -19,9 +22,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
+import com.espressif.idf.core.util.SDKConfigJsonReader;
 import com.espressif.idf.ui.handlers.Messages;
 import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
+import com.espressif.idf.ui.test.common.utility.WaitUtils;
 import com.espressif.idf.ui.test.operations.EnvSetupOperations;
 import com.espressif.idf.ui.test.operations.ProjectTestOperations;
 import com.espressif.idf.ui.test.operations.selectors.LaunchBarTargetSelector;
@@ -53,12 +58,13 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest
 	}
 
 	@Test
-	public void shouldDeleteBuildFolderWhenChangingLaunchTargetOnBuiltProject() throws Exception
+	public void shouldSetProjectTargetWhenChangingLaunchTargetOnBuiltProject() throws Exception
 	{
 		Fixture.whenProjectIsBuiltUsingContextMenu();
 		Fixture.whenChangeLaunchTarget();
+		Fixture.whenSetTargetCommandCompletes();
 		Fixture.whenRefreshProject();
-		Fixture.thenBuildFolderDeletedSuccessfully();
+		Fixture.thenProjectTargetChangedSuccessfully();
 	}
 
 	@Test
@@ -173,10 +179,16 @@ public class IDFProjectLaunchTargetEditorFunctionalityTest
 			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Refresh");
 		}
 
-		private static void thenBuildFolderDeletedSuccessfully() throws Exception
+		private static void whenSetTargetCommandCompletes()
 		{
-			assertTrue("Build folder was not deleted successfully!",
-					ProjectTestOperations.findProjectFullCleanedFilesInBuildFolder(projectName, bot));
+			WaitUtils.waitForJobs();
+		}
+
+		private static void thenProjectTargetChangedSuccessfully()
+		{
+			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+			String target = new SDKConfigJsonReader(project).getValue("IDF_TARGET");
+			assertEquals("Project target was not changed successfully!", "esp32c2", target);
 		}
 
 		private static void whenProjectFullCleaned() throws IOException

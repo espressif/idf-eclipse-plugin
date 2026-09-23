@@ -13,11 +13,11 @@ import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
@@ -27,14 +27,15 @@ import org.eclipse.launchbar.core.ILaunchBarListener;
 import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.launchbar.core.ILaunchDescriptor;
 import org.eclipse.launchbar.core.target.ILaunchTarget;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
 
 import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.LaunchBarTargetConstants;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.ConsoleManager;
 import com.espressif.idf.core.util.IDFUtil;
+import com.espressif.idf.core.util.IdfCommandExecutor;
 import com.espressif.idf.core.util.LaunchUtil;
 import com.espressif.idf.core.util.SDKConfigJsonReader;
 import com.espressif.idf.core.util.StringUtil;
@@ -144,11 +145,10 @@ public class LaunchBarListener implements ILaunchBarListener
 									Messages.LaunchBarListener_TargetChanged_Title,
 									MessageFormat.format(Messages.LaunchBarListener_TargetChanged_Msg,
 											project.getName(), currentTarget, newTarget)),
-									isDelete -> {
-										if (isDelete)
+									isConfirmed -> {
+										if (isConfirmed)
 										{
-											deleteBuildFolder(project, buildLocation);
-
+											runSetTargetCommand((IProject) project, newTarget);
 										}
 									});
 						}
@@ -164,68 +164,29 @@ public class LaunchBarListener implements ILaunchBarListener
 		}
 	}
 
-	private void deleteBuildFolder(IResource project, File buildLocation)
+	private void runSetTargetCommand(IProject project, String newTarget)
 	{
-		IWorkspaceRunnable runnable = new IWorkspaceRunnable()
+		Job job = new Job(Messages.LaunchBarListener_SetTargetJobName)
 		{
-
 			@Override
-			public void run(IProgressMonitor monitor) throws CoreException
+			protected IStatus run(IProgressMonitor monitor)
 			{
-
-				monitor.beginTask("Deleting build folder...", 1); //$NON-NLS-1$
-				Logger.log("Deleting build folder " + buildLocation.getAbsolutePath()); //$NON-NLS-1$
-				deleteDirectory(buildLocation);
-				cleanSdkConfig(project);
-				project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+				IdfCommandExecutor executor = new IdfCommandExecutor(newTarget,
+						ConsoleManager.getConsole("ESP-IDF Console")); //$NON-NLS-1$
+				IStatus status = executor.executeSetTarget(project);
+				try
+				{
+					project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+				}
+				catch (CoreException e)
+				{
+					Logger.log(e);
+				}
+				return status;
 			}
-
 		};
-
-		// run workspace job
-		try
-		{
-			ResourcesPlugin.getWorkspace().run(runnable, new NullProgressMonitor());
-		}
-		catch (Exception e1)
-		{
-			Logger.log(IDFCorePlugin.getPlugin(), "Unable to delete the build folder", //$NON-NLS-1$
-					e1);
-		}
-	}
-
-	private boolean deleteDirectory(File directoryToBeDeleted)
-	{
-		File[] allContents = directoryToBeDeleted.listFiles();
-		if (allContents != null)
-		{
-			for (File file : allContents)
-			{
-				deleteDirectory(file);
-			}
-		}
-		return directoryToBeDeleted.getName().equals("build") || directoryToBeDeleted.delete(); //$NON-NLS-1$
-	}
-
-	private void cleanSdkConfig(IResource project)
-	{
-		File sdkconfig = new File(project.getLocation().toOSString(), "sdkconfig"); //$NON-NLS-1$
-		if (sdkconfig.exists())
-		{
-			File sdkconfigOld = new File(project.getLocation().toOSString(), "sdkconfig.old"); //$NON-NLS-1$
-			boolean isRenamed = sdkconfig.renameTo(sdkconfigOld);
-			Logger.log(NLS.bind("Renaming {0} status...{1}", sdkconfig.getAbsolutePath(), isRenamed)); //$NON-NLS-1$
-
-			if (!isRenamed) // sdkconfig.old might already exist
-			{
-				// delete sdkconfig.old file!
-				Logger.log(
-						NLS.bind("Deleting {0} status...{1}", sdkconfigOld.getAbsolutePath(), sdkconfigOld.delete())); //$NON-NLS-1$
-
-				// attempting one more time!
-				sdkconfig.renameTo(sdkconfigOld);
-			}
-		}
+		job.setRule(project);
+		job.schedule();
 	}
 
 	private void setMode(ILaunchBarManager launchBarManager, String mode)

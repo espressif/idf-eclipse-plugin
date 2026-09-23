@@ -7,6 +7,7 @@ package com.espressif.idf.ui.test.common.utility;
 import java.util.Arrays;
 import java.util.Optional;
 
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
@@ -110,6 +111,56 @@ public class TestWidgetWaitUtility
 				return "Operations taking longer to finish";
 			}
 		}, 99000000, 500);
+	}
+
+	/**
+	 * Waits for a background job with the given name to be scheduled and then to complete.
+	 * <p>
+	 * Jobs triggered from a modal dialog are scheduled once the dialog is closed, which happens after the button click
+	 * returns to the test thread. Polling for the job to appear first avoids racing that scheduling and reporting the
+	 * operation as finished while it has not even started.
+	 *
+	 * @param bot           current SWTWorkBenchBot reference
+	 * @param jobName       name of the job to wait for
+	 * @param appearTimeout time to wait in ms for the job to be scheduled, the job is considered already finished when
+	 *                      it does not show up
+	 * @param finishTimeout time to wait in ms for the job to complete before {@link WidgetNotFoundException} is thrown
+	 */
+	public static void waitForJobToFinish(SWTWorkbenchBot bot, String jobName, long appearTimeout, long finishTimeout)
+	{
+		long appearLimit = System.currentTimeMillis() + appearTimeout;
+		while (System.currentTimeMillis() < appearLimit && !isJobScheduled(jobName))
+		{
+			bot.sleep(200);
+		}
+
+		bot.waitWhile(new DefaultCondition()
+		{
+			@Override
+			public boolean test() throws Exception
+			{
+				return isJobScheduled(jobName);
+			}
+
+			@Override
+			public String getFailureMessage()
+			{
+				return "Job " + jobName + " did not finish in time.";
+			}
+		}, finishTimeout, 500);
+	}
+
+	private static boolean isJobScheduled(String jobName)
+	{
+		for (Job job : Job.getJobManager().find(null))
+		{
+			if (jobName.equals(job.getName()))
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
