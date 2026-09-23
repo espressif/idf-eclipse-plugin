@@ -4,6 +4,7 @@
  *******************************************************************************/
 package com.espressif.idf.ui.tracing;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
@@ -15,6 +16,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.Path;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -31,7 +35,8 @@ import com.google.gson.stream.JsonReader;
 public class TracingJsonParser
 {
 	private String jsonFilePath;
-	private IFile elfFilePath;
+	private File elfFile;
+	private IFile workspaceElfFile;
 	private Gson gson;
 	private int allocEventId;
 	private int freeEventId;
@@ -40,14 +45,23 @@ public class TracingJsonParser
 	private Map<String, AddressInfoVO> callersAddressMap;
 	private TracingCallerAddressDecoder tracingCallerAddressDecoder;
 
-	public TracingJsonParser(String jsonFilePath, IFile elfFilePath) throws FileNotFoundException
+	public TracingJsonParser(String jsonFilePath, File elfFile, IProject project) throws FileNotFoundException
 	{
 		this.jsonFilePath = jsonFilePath;
-		this.setElfFilePath(elfFilePath);
+		this.elfFile = elfFile;
 		gson = new GsonBuilder().registerTypeAdapter(ArrayList.class, new StreamEventsDeserializer()).create();
-		tracingCallerAddressDecoder = new TracingCallerAddressDecoder(elfFilePath.getRawLocation().toOSString(),
-				elfFilePath.getProject());
+		tracingCallerAddressDecoder = new TracingCallerAddressDecoder(elfFile.getAbsolutePath(), project);
 		loadJson();
+	}
+
+	/**
+	 * @deprecated Use {@link #TracingJsonParser(String, File, IProject)} for external build directories.
+	 */
+	@Deprecated(forRemoval = true)
+	public TracingJsonParser(String jsonFilePath, IFile elfFile) throws FileNotFoundException
+	{
+		this(jsonFilePath, elfFile.getRawLocation().toFile(), elfFile.getProject());
+		this.workspaceElfFile = elfFile;
 	}
 
 	private void loadJson() throws FileNotFoundException
@@ -170,14 +184,39 @@ public class TracingJsonParser
 		return detailsVOs;
 	}
 
-	public IFile getElfFilePath()
+	public File getElfFile()
 	{
-		return elfFilePath;
+		return elfFile;
 	}
 
-	public void setElfFilePath(IFile elfFilePath)
+	public void setElfFile(File elfFile)
 	{
-		this.elfFilePath = elfFilePath;
+		this.elfFile = elfFile;
+		this.workspaceElfFile = null;
+	}
+
+	/**
+	 * @deprecated Use {@link #getElfFile()} for external build directories.
+	 */
+	@Deprecated(forRemoval = true)
+	public IFile getElfFilePath()
+	{
+		if (workspaceElfFile == null && elfFile != null)
+		{
+			workspaceElfFile = ResourcesPlugin.getWorkspace().getRoot()
+					.getFileForLocation(Path.fromOSString(elfFile.getAbsolutePath()));
+		}
+		return workspaceElfFile;
+	}
+
+	/**
+	 * @deprecated Use {@link #setElfFile(File)} for external build directories.
+	 */
+	@Deprecated(forRemoval = true)
+	public void setElfFilePath(IFile elfFile)
+	{
+		this.workspaceElfFile = elfFile;
+		this.elfFile = elfFile == null ? null : elfFile.getRawLocation().toFile();
 	}
 
 	public Map<String, AddressInfoVO> getCallersAddressMap()

@@ -14,15 +14,8 @@
 
 package com.espressif.idf.debug.gdbjtag.openocd.ui;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
-
-import com.espressif.idf.core.logging.Logger;
-import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.core.util.LaunchUtil;
 
 public class TabGroupLaunchConfiguration extends AbstractLaunchConfigurationTabGroup
 {
@@ -31,22 +24,6 @@ public class TabGroupLaunchConfiguration extends AbstractLaunchConfigurationTabG
 	public void createTabs(ILaunchConfigurationDialog dialog, String mode)
 	{
 		setTabs();
-	}
-
-	@Override
-	public void performApply(ILaunchConfigurationWorkingCopy configuration)
-	{
-		super.performApply(configuration);
-		try
-		{
-			IDFUtil.updateProjectBuildFolder(new LaunchUtil(DebugPlugin.getDefault().getLaunchManager())
-					.getBoundConfiguration(configuration).getWorkingCopy());
-		}
-		catch (CoreException e)
-		{
-			Logger.log(e);
-		}
-
 	}
 
 }

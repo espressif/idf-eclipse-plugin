@@ -81,15 +81,15 @@ public class IDFSizeMemoryHandler extends AbstractHandler
 		IFile iFile = workspace.getRoot().getFileForLocation(mapFilePath);
 		if (mapFilePath.toFile().exists() && iFile == null) // file is located outside of the workspace
 		{
-			// create a link in the project/build/ folder to open file in eclipse editor
-			IFolder buildRootFolder = project.getFolder(IDFConstants.BUILD_FOLDER);
-			iFile = buildRootFolder.getFile(mapFilePath.lastSegment());
+			// Keep the editor bridge project-local; it is only a workspace link, not the configured build directory.
+			IFolder editorLinkFolder = project.getFolder(IDFConstants.BUILD_FOLDER);
+			iFile = editorLinkFolder.getFile(mapFilePath.lastSegment());
 			if (!iFile.exists())
 			{
 				IProgressMonitor monitor = new NullProgressMonitor();
-				if (!buildRootFolder.exists())
+				if (!editorLinkFolder.exists())
 				{
-					buildRootFolder.create(IResource.FORCE | IResource.DERIVED, true, monitor);
+					editorLinkFolder.create(IResource.FORCE | IResource.DERIVED, true, monitor);
 				}
 				iFile.createLink(mapFilePath, IResource.NONE, null);
 			}

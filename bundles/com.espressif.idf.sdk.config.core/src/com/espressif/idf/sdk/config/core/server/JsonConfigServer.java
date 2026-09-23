@@ -44,13 +44,37 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 	private JsonConfigOutput configOutput;
 	private Process process;
 	private IFile file;
+	private String buildDirectory;
 
+	/**
+	 * @deprecated Supply an explicit build directory to keep multi-config servers isolated.
+	 */
+	@Deprecated(forRemoval = true)
 	public JsonConfigServer(IProject project, IFile file)
+	{
+		this(project, file, resolveBuildDirectory(project));
+	}
+
+	public JsonConfigServer(IProject project, IFile file, String buildDirectory)
 	{
 		this.project = project;
 		listeners = new ArrayList<IMessageHandlerListener>();
 		configOutput = new JsonConfigOutput();
 		this.file = file;
+		this.buildDirectory = buildDirectory;
+	}
+
+	private static String resolveBuildDirectory(IProject project)
+	{
+		try
+		{
+			return IDFUtil.getBuildDir(project);
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+			return project.getFolder(IDFConstants.BUILD_FOLDER).getLocation().toOSString();
+		}
 	}
 
 	public void resetElementById(String id)
@@ -127,7 +151,7 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 			arguments.add(pythonPath);
 			arguments.add(idfPythonScriptFile.getAbsolutePath());
 			arguments.add("-B"); //$NON-NLS-1$
-			arguments.add(IDFUtil.getBuildDir(project));
+			arguments.add(buildDirectory);
 			arguments.add("-DSDKCONFIG=".concat(file.getName())); //$NON-NLS-1$
 			arguments.add(IDFConstants.CONF_SERVER_CMD);
 			Logger.log(arguments.toString());
@@ -139,7 +163,7 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 			
 			
 			process = processRunner.run(arguments, workingDir, env);
-			runnable = new JsonConfigServerRunnable(process, this, project, oldSdkconfigValue);
+			runnable = new JsonConfigServerRunnable(process, this, buildDirectory, oldSdkconfigValue);
 			Thread t = new Thread(runnable);
 			t.start();
 		}
@@ -188,9 +212,9 @@ public class JsonConfigServer implements IMessagesHandlerNotifier
 		}
 	}
 
-	private String getCmakeCacheSdkconfigValue() throws CoreException
+	private String getCmakeCacheSdkconfigValue()
 	{
-		File cmakeCacheFile = new File(IDFUtil.getBuildDir(project).concat("/CMakeCache.txt"));
+		File cmakeCacheFile = new File(buildDirectory, "CMakeCache.txt"); //$NON-NLS-1$
 		if (cmakeCacheFile.exists())
 		{
 			try (BufferedReader reader = new BufferedReader(new FileReader(cmakeCacheFile)))

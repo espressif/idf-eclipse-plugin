@@ -5,6 +5,8 @@
 
 package com.espressif.idf.ui.tracing.heaptracing;
 
+import java.io.File;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -36,7 +38,7 @@ public class HeapTracingAnalysisEditor extends MultiPageEditorPart
 	public static final String EDITOR_ID = "com.espressif.idf.ui.editor.heapTraceAnalysis"; //$NON-NLS-1$
 	private IProject project;
 	private IFile memoryDumpFile;
-	private IFile elfSymbolsFile;
+	private File elfSymbolsFile;
 	private TracingJsonParser tracingJsonParser;
 
 	@Override
@@ -47,15 +49,20 @@ public class HeapTracingAnalysisEditor extends MultiPageEditorPart
 		memoryDumpFile = editorInput.getFile();
 		project = memoryDumpFile.getProject();
 		setPartName(project.getName());
-		elfSymbolsFile = new ProjectDescriptionReader(project).getAppElfFile();
+		elfSymbolsFile = new ProjectDescriptionReader(project).getAppElfFileLocation();
+		if (elfSymbolsFile == null || !elfSymbolsFile.isFile())
+		{
+			throw new PartInitException(Messages.TracingAnalysisEditor_MissingElfFile);
+		}
 		try
 		{
 			tracingJsonParser = new TracingJsonParser(memoryDumpFile.getRawLocation().toOSString(),
-					this.elfSymbolsFile);
+					this.elfSymbolsFile, project);
 		}
-		catch (Exception execption)
+		catch (Exception exception)
 		{
-			Logger.log(execption);
+			Logger.log(exception);
+			throw new PartInitException(exception.getMessage(), exception);
 		}
 	}
 

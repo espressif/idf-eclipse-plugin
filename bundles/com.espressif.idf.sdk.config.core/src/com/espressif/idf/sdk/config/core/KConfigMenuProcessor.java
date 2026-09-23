@@ -17,6 +17,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.espressif.idf.core.util.IDFUtil;
 import com.espressif.idf.core.util.SDKConfigUtil;
 
 /**
@@ -26,8 +27,19 @@ import com.espressif.idf.core.util.SDKConfigUtil;
 public class KConfigMenuProcessor
 {
 
+	private String buildDirectory;
 	private IProject project;
 
+	public KConfigMenuProcessor(String buildDirectory)
+	{
+		this.buildDirectory = buildDirectory;
+	}
+
+	/**
+	 * @param project project whose active build directory should be used
+	 * @deprecated Pass an explicit build directory to keep multi-config operations scoped.
+	 */
+	@Deprecated(forRemoval = true)
 	public KConfigMenuProcessor(IProject project)
 	{
 		this.project = project;
@@ -41,9 +53,12 @@ public class KConfigMenuProcessor
 	 */
 	public KConfigMenuItem reader() throws Exception
 	{
-
+		if (buildDirectory == null)
+		{
+			buildDirectory = IDFUtil.getBuildDir(project);
+		}
 		SDKConfigUtil sdkConfigUtil = new SDKConfigUtil();
-		String menuConfigPath = sdkConfigUtil.getConfigMenuFilePath(project);
+		String menuConfigPath = sdkConfigUtil.getConfigMenuFilePath(buildDirectory);
 		if (!new File(menuConfigPath).exists())
 		{
 			throw new Exception(MessageFormat.format(Messages.KconfMenuJsonNotFound, menuConfigPath));

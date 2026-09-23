@@ -22,11 +22,18 @@ However, the following steps will guide you through the process of building the 
 Custom Build Directory
 ----------------------
 
-The IDE allows configuring a custom build directory for the project:
+The IDE stores ``Build folder location`` on each launch configuration. Select that configuration in the **Launch Bar** so that build, ``sdkconfig``, flash, and debug all use the same folder.
+
+To configure a custom build directory:
 
 1. Select a project and click on the ``Edit`` button for the launch configuration in the top toolbar to open the ``Edit Configuration`` window.
 2. Navigate to the ``Build Settings`` tab.
-3. In the ``Build folder location`` section, provide a custom build directory. The customized build directory path can be within the project or in any other location in the file system.
+3. In the ``Build folder location`` field, enter a path:
+
+   - Leave the field blank to use the default folder ``project/build``.
+   - A relative path is resolved under the project directory.
+   - An absolute path can point to any location in the file system.
+
 4. Click on ``Ok`` and build the project.
 
 .. note::

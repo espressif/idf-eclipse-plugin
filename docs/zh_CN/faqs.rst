@@ -174,15 +174,19 @@ IDF Eclipse 插件使用 CMake 命令来构建项目，因此可以通过构建�
 如何在 Espressif-IDE 中构建多个配置？
 ----------------------------------------
 
+复制启动配置，并为每个配置设置不同的 ``Build folder location``。在 **Launch Bar** 中选择该配置后，构建、``sdkconfig``、烧录和调试都会使用对应的文件夹。
+
 1. 创建一个新项目。
 2. 打开 ``Launch Configuration`` 对话框。
-3. 进入 ``Build Settings`` 选项卡，在 ``Additional CMake Arguments`` 中输入 ``-B build_release``。其中，``build_release`` 是构建文件夹的名称。
+3. 进入 ``Build Settings`` 选项卡，在 ``Build folder location`` 中输入 ``build_release``。其中，``build_release`` 是相对于项目目录的路径。
 4. 点击 ``OK`` 按钮保存该配置。
 5. 重新打开 ``Launch Configuration`` 对话框。
 6. 点击左下角的 ``Duplicate`` 按钮。
-7. 进入 ``Build Settings`` 选项卡，将 ``Additional CMake Arguments`` 更新为 ``-B build_dev``。其中，``build_dev`` 是构建文件夹的名称。
+7. 进入 ``Build Settings`` 选项卡，将 ``Build folder location`` 设置为 ``build_dev``。其中，``build_dev`` 是相对于项目目录的路径。
 8. 点击 ``OK`` 按钮保存该配置。
-9. 在工具栏中点击所选配置的 ``Build`` 图标（最左侧图标），这将为该配置构建项目并创建一个构建文件夹。然后在下拉菜单中选择另一配置，重复相同的步骤。
+9. 在 Launch Bar 下拉菜单中选择一个配置，然后点击工具栏中的 ``Build`` 图标（最左侧图标）。这将把项目构建到该配置对应的文件夹中。然后选择另一配置，重复相同的步骤。
+
+将 ``Build folder location`` 留空则使用 ``project/build``。也支持绝对路径。
 
 可以将我之前的 C/C++ 编辑器格式化文件 (.xml) 用作 ``.clang-format`` 文件吗？
 ----------------------------------------------------------------------------

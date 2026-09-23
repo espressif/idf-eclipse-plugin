@@ -6,7 +6,9 @@ import java.nio.file.Paths;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 
 import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.logging.Logger;
@@ -20,14 +22,25 @@ public class ProjectDescriptionReader
 		this.project = project;
 	}
 
+	/**
+	 * @return workspace file for the application ELF, or {@code null} when the configured build directory is external
+	 * @deprecated Use {@link #getAppElfFileLocation()} for custom directories outside the workspace.
+	 */
+	@Deprecated(forRemoval = true)
 	public IFile getAppElfFile()
 	{
-		IFile appElfFile = null;
+		File appElfFile = getAppElfFileLocation();
+		return appElfFile == null ? null
+				: ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(Path.fromOSString(appElfFile.getPath()));
+	}
+
+	public File getAppElfFileLocation()
+	{
+		File appElfFile = null;
 		try
 		{
 			String appElfFileName = getAppElfFileName();
-			appElfFile = appElfFileName.isEmpty() ? appElfFile
-					: project.getFolder(IDFConstants.BUILD_FOLDER).getFile(appElfFileName);
+			appElfFile = appElfFileName.isEmpty() ? appElfFile : new File(IDFUtil.getBuildDir(project), appElfFileName);
 		}
 		catch (Exception e)
 		{
@@ -54,7 +67,7 @@ public class ProjectDescriptionReader
 
 		return appElfFileName;
 	}
-	
+
 	public String getIdfPath()
 	{
 		String idfPath = StringUtil.EMPTY;
