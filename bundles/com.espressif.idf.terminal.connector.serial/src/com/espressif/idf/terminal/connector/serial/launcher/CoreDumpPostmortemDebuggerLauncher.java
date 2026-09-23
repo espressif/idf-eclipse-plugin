@@ -173,11 +173,7 @@ public class CoreDumpPostmortemDebuggerLauncher implements ISerialWebSocketEvent
 		coreDumpDestination.append(IPath.SEPARATOR);
 		coreDumpDestination.append(CORE_DUMP_FOLDER);
 
-		file = new File(coreDumpDestination.toString());
-		if (!file.exists())
-		{
-			Files.createDirectory(Paths.get(coreDumpDestination.toString()));
-		}
+		Files.createDirectories(Paths.get(coreDumpDestination.toString()));
 
 		coreDumpDestination.append(IPath.SEPARATOR);
 		coreDumpDestination.append(GENERATED_CORE_DUMP_NAME);
