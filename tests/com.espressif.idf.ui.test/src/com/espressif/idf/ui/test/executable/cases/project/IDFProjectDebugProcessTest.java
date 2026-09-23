@@ -290,7 +290,8 @@ public class IDFProjectDebugProcessTest
 
 		private static void whenFlashProject() throws IOException
 		{
-			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Run Configurations...");
+			ProjectTestOperations.launchCommandUsingContextMenuWithoutWaitingForJobs(projectName, bot,
+					"Run Configurations...");
 
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Run Configurations", 10000);
 

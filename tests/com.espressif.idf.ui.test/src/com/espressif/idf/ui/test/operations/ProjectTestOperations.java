@@ -1777,8 +1777,31 @@ public class ProjectTestOperations
 
 	public static void launchCommandUsingContextMenu(String projectName, SWTWorkbenchBot bot, String contextMenuLabel)
 	{
-		// After a Debug-perspective test, Project Explorer / focus may still be on Debug UI —
-		// restore C/C++ and focus the main window so the context menu actually opens the dialog.
+		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
+		if (projectItem != null)
+		{
+			projectItem.select();
+			projectItem.contextMenu(contextMenuLabel).click();
+		}
+		WaitUtils.waitForJobs();
+	}
+
+	/**
+	 * Opens a project context-menu command and returns as soon as the command is clicked.
+	 * <p>
+	 * Does not call {@link WaitUtils#waitForJobs()}. Dialogs such as Run Configurations appear
+	 * immediately, while the Language Server may keep the workbench from going idle. Waiting here
+	 * blocks the caller until that wait fails, so {@code waitForDialogToAppear} never sees the shell.
+	 * Also restores the C/C++ perspective first: after a debug session the Project Explorer can still
+	 * be showing the Debug perspective, and the context menu then does not open the dialog.
+	 *
+	 * @param projectName      project to select in Project Explorer
+	 * @param bot              current SWT bot reference
+	 * @param contextMenuLabel context menu item to click
+	 */
+	public static void launchCommandUsingContextMenuWithoutWaitingForJobs(String projectName, SWTWorkbenchBot bot,
+			String contextMenuLabel)
+	{
 		openCCppPerspective(bot);
 		focusMainWindow(bot.shells());
 
@@ -1789,10 +1812,6 @@ public class ProjectTestOperations
 		}
 		projectItem.select();
 		projectItem.contextMenu(contextMenuLabel).click();
-		// Do not WaitUtils.waitForJobs() here. For dialogs like "Run Configurations" the shell
-		// appears immediately while background jobs (e.g. Language Server) may keep running;
-		// waiting for idle first makes the caller's waitForDialogToAppear miss a visible dialog
-		// or time out for the wrong reason. Callers that need jobs to finish should wait themselves.
 	}
 
 	public static void findInConsole(SWTWorkbenchBot bot, String consoleName, String findText) throws IOException
