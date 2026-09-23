@@ -50,14 +50,19 @@ public class HeapTracingAnalysisEditor extends MultiPageEditorPart
 		project = memoryDumpFile.getProject();
 		setPartName(project.getName());
 		elfSymbolsFile = new ProjectDescriptionReader(project).getAppElfFileLocation();
+		if (elfSymbolsFile == null || !elfSymbolsFile.isFile())
+		{
+			throw new PartInitException(Messages.TracingAnalysisEditor_MissingElfFile);
+		}
 		try
 		{
 			tracingJsonParser = new TracingJsonParser(memoryDumpFile.getRawLocation().toOSString(),
 					this.elfSymbolsFile, project);
 		}
-		catch (Exception execption)
+		catch (Exception exception)
 		{
-			Logger.log(execption);
+			Logger.log(exception);
+			throw new PartInitException(exception.getMessage(), exception);
 		}
 	}
 

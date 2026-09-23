@@ -18,6 +18,7 @@ public class Messages extends NLS
 	private static final String BUNDLE_NAME = "com.espressif.idf.ui.tracing.messages"; //$NON-NLS-1$
 
 	public static String TracingAnalysisEditor_OverviewTab;
+	public static String TracingAnalysisEditor_MissingElfFile;
 	public static String TracingAnalysisEditor_OverviewFromHeading;
 	public static String TracingAnalysisEditor_OverviewChartSectionHeading;
 	public static String TracingAnalysisEditor_OverviewDetailSectionHeading;
