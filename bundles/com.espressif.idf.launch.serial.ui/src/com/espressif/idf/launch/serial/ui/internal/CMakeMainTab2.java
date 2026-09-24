@@ -15,7 +15,6 @@
 package com.espressif.idf.launch.serial.ui.internal;
 
 import java.io.File;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.util.ArrayList;
@@ -82,6 +81,7 @@ import com.espressif.idf.ui.EclipseUtil;
 public class CMakeMainTab2 extends GenericMainTab
 {
 	private static final String DOCS_ESPRESSIF_FLASH_ENCRYPTION_HTML = "https://docs.espressif.com/projects/espressif-ide/en/latest/flashdevice.html#customize-flash-arguments"; //$NON-NLS-1$
+	private static final String WORKSPACE_LOC_VARIABLE = "workspace_loc"; //$NON-NLS-1$
 	private static final String DEFAULT_JTAG_CONFIG_OPTIONS = String.format("-s ${%s} ${%s}", //$NON-NLS-1$
 			OpenocdDynamicVariable.OPENOCD_SCRIPTS, JtagDynamicVariable.JTAG_FLASH_ARGS);
 	private Combo flashOverComboButton;
@@ -98,6 +98,7 @@ public class CMakeMainTab2 extends GenericMainTab
 	private Button checkOpenSerialMonitorButton;
 	private Combo fEncodingCombo;
 	private Button flashEncryptionCheckbox;
+	private Button useDefaultWorkDirButton;
 
 	public enum FlashInterface
 	{
@@ -227,9 +228,9 @@ public class CMakeMainTab2 extends GenericMainTab
 		createLocationComponent(defaultComposite);
 		createWorkDirectoryComponent(defaultComposite);
 
-		GridData locationAndWorkDirGroupData = new GridData(SWT.FILL, SWT.NONE, true, false);
-		locationField.getParent().setLayoutData(locationAndWorkDirGroupData);
-		workDirectoryField.getParent().setLayoutData(locationAndWorkDirGroupData);
+		// A GridData instance caches the computed size, so the groups must not share one
+		locationField.getParent().setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+		workDirectoryField.getParent().setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
 
 		uartAgrumentsField = new TextWithButton(parent, SWT.WRAP | SWT.BORDER);
 
@@ -322,7 +323,13 @@ public class CMakeMainTab2 extends GenericMainTab
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		fProjText.setLayoutData(gd);
 		Button fProjButton = createPushButton(projectGroup, LaunchMessages.Launch_common_Browse_1, null);
-		fProjText.addModifyListener(evt -> updateLaunchConfigurationDialog());
+		fProjText.addModifyListener(evt -> {
+			if (useDefaultWorkDirButton != null && useDefaultWorkDirButton.getSelection())
+			{
+				workDirectoryField.setText(getDefaultWorkingDirectory());
+			}
+			updateLaunchConfigurationDialog();
+		});
 		fProjButton.addSelectionListener(new SelectionAdapter()
 		{
 			@Override
@@ -554,6 +561,10 @@ public class CMakeMainTab2 extends GenericMainTab
 			}
 
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, fProjText.getText());
+			if (useDefaultWorkDirButton.getSelection())
+			{
+				wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, (String) null);
+			}
 			wc.setAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, isFlashOverJtag);
 			// For the case, when user wants to edit arguments line somehow and save changes
 
@@ -701,31 +712,112 @@ public class CMakeMainTab2 extends GenericMainTab
 	}
 
 	@Override
+	protected void createWorkDirectoryComponent(Composite parent)
+	{
+		super.createWorkDirectoryComponent(parent);
+
+		useDefaultWorkDirButton = new Button(workDirectoryField.getParent(), SWT.CHECK);
+		useDefaultWorkDirButton.setText(Messages.CMakeMainTab2_UseDefaultWorkingDirectory);
+		useDefaultWorkDirButton.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
+		useDefaultWorkDirButton.moveBelow(workDirectoryField);
+		useDefaultWorkDirButton.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				applyUseDefaultWorkingDirectory();
+				updateLaunchConfigurationDialog();
+			}
+		});
+	}
+
+	@Override
 	protected void updateWorkingDirectory(ILaunchConfiguration configuration)
 	{
 		super.updateWorkingDirectory(configuration);
-		File workingDir;
-		if (workDirectoryField.getText().isEmpty())
-		{
-			try
-			{
-				if (configuration.getMappedResources() == null)
-				{
-					return;
-				}
-				URI locationUri = configuration.getMappedResources()[0].getProject().getLocationURI();
-				if (locationUri != null)
-				{
-					workingDir = new File(configuration.getMappedResources()[0].getProject().getLocationURI());
-					workDirectoryField.setText(newVariableExpression("workspace_loc", workingDir.getName())); //$NON-NLS-1$
-				}
+		// The default is derived from the project, so the project field has to be in sync first
+		updateProjetFromConfig(configuration);
 
-			}
-			catch (CoreException e)
-			{
-				Logger.log(e);
-			}
+		String workingDirectory = StringUtil.EMPTY;
+		try
+		{
+			workingDirectory = configuration
+					.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, StringUtil.EMPTY).trim();
 		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+
+		useDefaultWorkDirButton.setSelection(isDefaultWorkingDirectory(workingDirectory));
+		applyUseDefaultWorkingDirectory();
+	}
+
+	/**
+	 * Shows the derived default and disables editing while the default is in use, following
+	 * {@code org.eclipse.cdt.launch.internal.ui.WorkingDirectoryBlock}. The default is never persisted so that
+	 * it keeps following the project, for example after a project rename.
+	 */
+	private void applyUseDefaultWorkingDirectory()
+	{
+		boolean useDefault = useDefaultWorkDirButton.getSelection();
+		if (useDefault)
+		{
+			workDirectoryField.setText(getDefaultWorkingDirectory());
+		}
+		workDirectoryField.setEnabled(!useDefault);
+		workspaceWorkingDirectoryButton.setEnabled(!useDefault);
+		fileWorkingDirectoryButton.setEnabled(!useDefault);
+		variablesWorkingDirectoryButton.setEnabled(!useDefault);
+	}
+
+	/**
+	 * Any stored value pointing at the project directory is treated as the default, so that configurations
+	 * written before the checkbox existed stop carrying a hard-coded project name. Those were written in
+	 * several spellings, for example {@code ${workspace_loc:name}}, {@code ${workspace_loc:/name}} and plain
+	 * absolute paths.
+	 */
+	private boolean isDefaultWorkingDirectory(String workingDirectory)
+	{
+		if (workingDirectory.isEmpty())
+		{
+			return true;
+		}
+		IProject project = getWorkingDirectoryProject();
+		if (project == null || project.getLocation() == null)
+		{
+			return false;
+		}
+		try
+		{
+			String resolved = VariablesPlugin.getDefault().getStringVariableManager()
+					.performStringSubstitution(workingDirectory);
+			return new File(resolved).equals(project.getLocation().toFile());
+		}
+		catch (CoreException e)
+		{
+			// The value references a resource that no longer exists, for instance a renamed project, so
+			// falling back to the default is more useful than keeping a path that cannot be launched
+			return true;
+		}
+	}
+
+	private String getDefaultWorkingDirectory()
+	{
+		IProject project = getWorkingDirectoryProject();
+		return project == null ? StringUtil.EMPTY : newVariableExpression(WORKSPACE_LOC_VARIABLE, project.getName());
+	}
+
+	private IProject getWorkingDirectoryProject()
+	{
+		String projectName = fProjText != null ? fProjText.getText().trim() : StringUtil.EMPTY;
+		if (projectName.isEmpty())
+		{
+			return null;
+		}
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+
+		return project.exists() ? project : null;
 	}
 
 	private void createOpenSerialMonitorGroup(Composite mainComposite)
