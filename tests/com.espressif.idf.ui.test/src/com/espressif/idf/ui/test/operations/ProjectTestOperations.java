@@ -905,8 +905,9 @@ public class ProjectTestOperations
 
 		bot.waitUntil(Conditions.widgetIsEnabled(bot.button("Debug")), 5000);
 		bot.button("Debug").click();
-		// Dialog usually appears later, when GDB suspends — also handled in waitForDebugSessionStarted.
-		acceptDebugPerspectiveSwitchIfPresent(bot, 5000);
+		// Do not switch perspective here. The Confirm Perspective Switch dialog appears while GDB
+		// is still printing, and accepting it cuts the console before
+		// "hit Temporary breakpoint ... app_main". waitForDebugSessionStarted accepts it afterwards.
 	}
 
 	/**
@@ -989,13 +990,9 @@ public class ProjectTestOperations
 
 		while (System.currentTimeMillis() < deadline)
 		{
-			if (!perspectiveHandled)
-			{
-				perspectiveHandled = acceptDebugPerspectiveSwitchIfPresent(bot, 1000);
-			}
-
-			// Do not flip Console pages while polling — that opens a sticky dropdown menu.
-			String consoleText = readVisibleConsoleText(bot);
+			// Read without show/setFocus, and do not accept the perspective dialog yet.
+			// Both steal focus while GDB is printing and leave the log at "[Switching to Thread".
+			String consoleText = readConsoleTextQuietly(bot);
 
 			if (consoleText.contains("shutdown command invoked")
 					|| consoleText.contains("dropped 'gdb' connection"))
@@ -1005,8 +1002,10 @@ public class ProjectTestOperations
 								+ consoleText);
 			}
 
-			if (isSuspendedAtBreakpoint(bot, consoleText))
+			if (isSuspendedAtBreakpoint(consoleText))
 			{
+				System.out.println("[IDFProjectDebugProcessTest] suspend recognized: "
+						+ describeSuspendSignal(consoleText));
 				if (!perspectiveHandled)
 				{
 					perspectiveHandled = acceptDebugPerspectiveSwitchIfPresent(bot, 30000);
@@ -1042,14 +1041,35 @@ public class ProjectTestOperations
 			SWTBotView view = bot.viewByPartName("Console");
 			view.show();
 			view.setFocus();
-			String text = view.bot().styledText().getText();
-			return text != null ? text : "";
+			return textOf(view);
 		}
 		catch (Exception e)
 		{
 			logger.debug("Could not read visible Console view: {}", e.getMessage());
 			return "";
 		}
+	}
+
+	/**
+	 * Reads the Console view without activating it. Used while GDB is still printing the suspend line.
+	 */
+	private static String readConsoleTextQuietly(SWTWorkbenchBot bot)
+	{
+		try
+		{
+			return textOf(bot.viewByPartName("Console"));
+		}
+		catch (Exception e)
+		{
+			logger.debug("Could not read Console view quietly: {}", e.getMessage());
+			return "";
+		}
+	}
+
+	private static String textOf(SWTBotView view)
+	{
+		String text = view.bot().styledText().getText();
+		return text != null ? text : "";
 	}
 
 	/**
@@ -1060,11 +1080,11 @@ public class ProjectTestOperations
 		return readVisibleConsoleText(bot);
 	}
 
-	private static boolean isSuspendedAtBreakpoint(SWTWorkbenchBot bot, String consoleText)
+	private static boolean isSuspendedAtBreakpoint(String consoleText)
 	{
-		// Prefer the debug model only while polling. Expanding the Debug view tree every
-		// second can leave SWTBot stuck if a Surefire timeout interrupts mid-expand.
-		return isSuspendedAtAppMainInDebugModel() || isSuspendedAtBreakpointInConsole(consoleText);
+		// Do not stop on "[Switching to Thread" or debug_reason=1. Those lines are printed
+		// before "hit Temporary breakpoint ... app_main", and leaving the wait there interrupts startup.
+		return isSuspendedAtBreakpointInConsole(consoleText);
 	}
 
 	private static boolean isSuspendedAtBreakpointInConsole(String consoleText)
@@ -1073,10 +1093,18 @@ public class ProjectTestOperations
 		{
 			return false;
 		}
-		return consoleText.contains("hit Temporary breakpoint")
-				|| consoleText.contains("hit Breakpoint")
+		return consoleText.contains("hit Temporary breakpoint") || consoleText.contains("hit Breakpoint")
 				|| consoleText.contains("hit breakpoint")
 				|| (consoleText.contains("Temporary breakpoint") && consoleText.contains("app_main"));
+	}
+
+	private static String describeSuspendSignal(String consoleText)
+	{
+		if (consoleText != null && consoleText.contains("hit Temporary breakpoint"))
+		{
+			return "console contains 'hit Temporary breakpoint ... app_main'";
+		}
+		return "console contains the app_main breakpoint line";
 	}
 
 	/**
@@ -1208,11 +1236,27 @@ public class ProjectTestOperations
 					}
 					for (IThread thread : target.getThreads())
 					{
-						if (thread == null || thread.isTerminated() || !thread.hasStackFrames())
+						if (thread == null || thread.isTerminated())
 						{
 							continue;
 						}
-						for (IStackFrame frame : thread.getStackFrames())
+						// FreeRTOS GDB often labels the halted main thread as Running, and
+						// hasStackFrames() is then false even though the UI shows app_main.
+						IStackFrame[] frames;
+						try
+						{
+							frames = thread.getStackFrames();
+						}
+						catch (DebugException e)
+						{
+							logger.debug("findThreadWithAppMainFrame: {}", e.getMessage());
+							continue;
+						}
+						if (frames == null)
+						{
+							continue;
+						}
+						for (IStackFrame frame : frames)
 						{
 							if (frame == null)
 							{
