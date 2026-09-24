@@ -80,31 +80,92 @@ public class IDFProjectDebugProcessTest
 	{
 		assumeTrue("Linux only: hardware debug test requires Linux CI/lab boards", SystemUtils.IS_OS_LINUX);
 
-		Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
-		Fixture.givenProjectNameIs(PROJECT_NAME);
-		Fixture.whenNewProjectIsSelected();
-		Fixture.whenTurnOffOpenSerialMonitorAfterFlashingInLaunchConfig();
-
-		String esp32SerialPort = Fixture.whenDetectAndSelectEsp32UartSerialPort();
-		assertTrue("No ESP32 UART target detected from Serial Port auto-detection",
-				esp32SerialPort != null);
-
-		Fixture.whenProjectIsBuiltUsingContextMenu();
-		Fixture.whenFlashProject();
-		Fixture.thenVerifyFlashDoneSuccessfully();
-
-		assertTrue("ESP32-ETHERNET-KIT board not detected in New ESP Target Board combo",
-				Fixture.whenSelectEsp32EthernetKitBoard());
+		runDebugStep("create project", () -> {
+			Fixture.givenNewEspressifIDFProjectIsSelected("EspressIf", "Espressif IDF Project");
+			Fixture.givenProjectNameIs(PROJECT_NAME);
+			Fixture.whenNewProjectIsSelected();
+		});
+		runDebugStep("turn off serial monitor after flashing",
+				() -> Fixture.whenTurnOffOpenSerialMonitorAfterFlashingInLaunchConfig());
+		runDebugStep("detect ESP32 UART port", () -> {
+			String esp32SerialPort = Fixture.whenDetectAndSelectEsp32UartSerialPort();
+			assertTrue("No ESP32 UART target detected from Serial Port auto-detection", esp32SerialPort != null);
+		});
+		runDebugStep("build project", () -> Fixture.whenProjectIsBuiltUsingContextMenu());
+		runDebugStep("flash project via UART", () -> Fixture.whenFlashProject());
+		runDebugStep("verify flash finished", () -> Fixture.thenVerifyFlashDoneSuccessfully());
+		runDebugStep("select ESP32-ETHERNET-KIT", () -> assertTrue(
+				"ESP32-ETHERNET-KIT board not detected in New ESP Target Board combo",
+				Fixture.whenSelectEsp32EthernetKitBoard()));
 
 		// Start debug only via Debug As — do not flip Launch Bar mode/config first.
 		// LaunchBarListener toggles RUN↔DEBUG on descriptor changes and can terminate
 		// an active OpenOCD session when the Debug perspective opens.
-		Fixture.whenStartDebuggingUsingContextMenu();
-		Fixture.thenVerifyDebugSessionStarted();
-		Fixture.thenVerifyNoFatalOpenOcdErrors();
-		Fixture.whenStepOver();
-		Fixture.thenVerifyDebugSessionStillActive();
-		Fixture.whenStopDebugging();
+		runDebugStep("start debugging", () -> Fixture.whenStartDebuggingUsingContextMenu());
+		runDebugStep("wait until suspended at app_main", () -> Fixture.thenVerifyDebugSessionStarted());
+		runDebugStep("check OpenOCD console after suspend", () -> Fixture.thenVerifyNoFatalOpenOcdErrors());
+		runDebugStep("Step Over", () -> Fixture.whenStepOver());
+		runDebugStep("check session still active after Step Over", () -> Fixture.thenVerifyDebugSessionStillActive());
+		runDebugStep("stop debugging", () -> Fixture.whenStopDebugging());
+	}
+
+	@FunctionalInterface
+	private interface DebugStep
+	{
+		void run() throws Exception;
+	}
+
+	/**
+	 * Runs one debug-test step and always reports the step name. The hardware runner summary prints
+	 * only {@code exception class: message}, and SWTBot sometimes throws {@link AssertionError} with
+	 * an empty message, so the step name and a short cause are put into the message itself.
+	 */
+	private static void runDebugStep(String step, DebugStep action) throws Exception
+	{
+		System.out.println("[IDFProjectDebugProcessTest] START " + step);
+		long started = System.currentTimeMillis();
+		try
+		{
+			action.run();
+			System.out.println("[IDFProjectDebugProcessTest] OK " + step + " in "
+					+ (System.currentTimeMillis() - started) + " ms");
+		}
+		catch (Throwable failure)
+		{
+			long elapsed = System.currentTimeMillis() - started;
+			String detail = describeFailure(failure) + "\n" + Fixture.failureContext();
+			System.err.println("[IDFProjectDebugProcessTest] FAIL " + step + " after " + elapsed + " ms\n" + detail);
+			AssertionError reported = new AssertionError(
+					"Debug test failed at step [" + step + "] after " + elapsed + " ms. " + detail);
+			reported.initCause(failure);
+			throw reported;
+		}
+	}
+
+	private static String describeFailure(Throwable failure)
+	{
+		StringBuilder detail = new StringBuilder();
+		Throwable current = failure;
+		int depth = 0;
+		while (current != null && depth < 4)
+		{
+			if (depth > 0)
+			{
+				detail.append(" Caused by: ");
+			}
+			detail.append(current.getClass().getName());
+			String message = current.getMessage();
+			detail.append(": ").append(message == null || message.trim().isEmpty() ? "<empty message>" : message.trim());
+			StackTraceElement[] stack = current.getStackTrace();
+			int frames = Math.min(stack.length, 6);
+			for (int i = 0; i < frames; i++)
+			{
+				detail.append("\n    at ").append(stack[i]);
+			}
+			current = current.getCause();
+			depth++;
+		}
+		return detail.toString();
 	}
 
 	private static class Fixture
@@ -360,6 +421,41 @@ public class IDFProjectDebugProcessTest
 		private static void stopDebugSessionAndKillProcesses()
 		{
 			ProjectTestOperations.stopDebugSessionAndKillProcesses(bot);
+		}
+
+		/**
+		 * Short snapshot attached to a failed step. Kept bounded so the runner summary stays readable.
+		 */
+		private static String failureContext()
+		{
+			StringBuilder context = new StringBuilder();
+			try
+			{
+				context.append("activeLaunch=").append(ProjectTestOperations.hasActiveLaunch());
+			}
+			catch (Throwable failure)
+			{
+				context.append("activeLaunch=<unavailable ").append(failure.getClass().getSimpleName()).append(">");
+			}
+			try
+			{
+				String console = bot == null ? "" : ProjectTestOperations.readDebugRelatedConsoleText(bot);
+				if (console.length() > 1200)
+				{
+					console = console.substring(console.length() - 1200);
+				}
+				context.append("\nconsoleTail:\n").append(console.isEmpty() ? "<empty>" : console);
+			}
+			catch (Throwable failure)
+			{
+				context.append("\nconsoleTail=<unavailable ").append(failure.getClass().getSimpleName());
+				if (failure.getMessage() != null)
+				{
+					context.append(": ").append(failure.getMessage());
+				}
+				context.append(">");
+			}
+			return context.toString();
 		}
 
 		private static void cleanupEnvironment()
