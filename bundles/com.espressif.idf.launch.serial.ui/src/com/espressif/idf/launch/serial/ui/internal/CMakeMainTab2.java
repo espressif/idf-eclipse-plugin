@@ -14,7 +14,6 @@
 
 package com.espressif.idf.launch.serial.ui.internal;
 
-import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.util.ArrayList;
@@ -561,8 +560,12 @@ public class CMakeMainTab2 extends GenericMainTab
 			}
 
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, fProjText.getText());
-			if (useDefaultWorkDirButton.getSelection())
+			boolean useDefaultWorkingDir = useDefaultWorkDirButton.getSelection();
+			wc.setAttribute(IDFLaunchConstants.USE_DEFAULT_WORKING_DIR, useDefaultWorkingDir);
+			if (useDefaultWorkingDir)
 			{
+				// Leaving it unset keeps the working directory following the project, the launch delegates
+				// fall back to the project location
 				wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, (String) null);
 			}
 			wc.setAttribute(IDFLaunchConstants.FLASH_OVER_JTAG, isFlashOverJtag);
@@ -734,9 +737,11 @@ public class CMakeMainTab2 extends GenericMainTab
 	@Override
 	protected void updateWorkingDirectory(ILaunchConfiguration configuration)
 	{
-		super.updateWorkingDirectory(configuration);
-		// The default is derived from the project, so the project field has to be in sync first
+		// The project field feeds the derived default, and changing it rewrites the working directory while
+		// the checkbox still holds the previously shown configuration's state. Syncing it first lets the
+		// stored value below win.
 		updateProjetFromConfig(configuration);
+		super.updateWorkingDirectory(configuration);
 
 		String workingDirectory = StringUtil.EMPTY;
 		try
@@ -749,7 +754,7 @@ public class CMakeMainTab2 extends GenericMainTab
 			Logger.log(e);
 		}
 
-		useDefaultWorkDirButton.setSelection(isDefaultWorkingDirectory(workingDirectory));
+		useDefaultWorkDirButton.setSelection(isUsingDefaultWorkingDirectory(configuration, workingDirectory));
 		applyUseDefaultWorkingDirectory();
 	}
 
@@ -771,35 +776,40 @@ public class CMakeMainTab2 extends GenericMainTab
 		variablesWorkingDirectoryButton.setEnabled(!useDefault);
 	}
 
+	private boolean isUsingDefaultWorkingDirectory(ILaunchConfiguration configuration, String workingDirectory)
+	{
+		try
+		{
+			return configuration.getAttribute(IDFLaunchConstants.USE_DEFAULT_WORKING_DIR,
+					isLegacyDefaultWorkingDirectory(workingDirectory));
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
+
+		return isLegacyDefaultWorkingDirectory(workingDirectory);
+	}
+
 	/**
-	 * Any stored value pointing at the project directory is treated as the default, so that configurations
-	 * written before the checkbox existed stop carrying a hard-coded project name. Those were written in
-	 * several spellings, for example {@code ${workspace_loc:name}}, {@code ${workspace_loc:/name}} and plain
-	 * absolute paths.
+	 * Decides for configurations written before the checkbox existed, which have no flag to read. Those
+	 * either stored nothing or stored the project directory in one of the two forms the tab used to write.
+	 * Anything else was chosen by the user and stays an explicit working directory.
 	 */
-	private boolean isDefaultWorkingDirectory(String workingDirectory)
+	private boolean isLegacyDefaultWorkingDirectory(String workingDirectory)
 	{
 		if (workingDirectory.isEmpty())
 		{
 			return true;
 		}
 		IProject project = getWorkingDirectoryProject();
-		if (project == null || project.getLocation() == null)
+		if (project == null)
 		{
 			return false;
 		}
-		try
-		{
-			String resolved = VariablesPlugin.getDefault().getStringVariableManager()
-					.performStringSubstitution(workingDirectory);
-			return new File(resolved).equals(project.getLocation().toFile());
-		}
-		catch (CoreException e)
-		{
-			// The value references a resource that no longer exists, for instance a renamed project, so
-			// falling back to the default is more useful than keeping a path that cannot be launched
-			return true;
-		}
+
+		return workingDirectory.equals(newVariableExpression(WORKSPACE_LOC_VARIABLE, project.getName()))
+				|| workingDirectory.equals(newVariableExpression(WORKSPACE_LOC_VARIABLE, "/" + project.getName())); //$NON-NLS-1$
 	}
 
 	private String getDefaultWorkingDirectory()
