@@ -4,8 +4,6 @@
  *******************************************************************************/
 package com.espressif.idf.core.telemetry;
 
-import java.util.UUID;
-
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -17,10 +15,9 @@ import com.espressif.idf.core.IDFCorePreferenceConstants;
 import com.espressif.idf.core.logging.Logger;
 
 /**
- * Stores the opt-out flag and the anonymous state needed to count installations and updates.
+ * Stores the opt-out flag and the state needed to count installations and updates.
  * <p>
- * The anonymous identifier and the report timestamps live in the configuration scope so that all workspaces of one
- * installation are counted as a single user.
+ * Report timestamps live in the configuration scope so that all workspaces of one installation share them.
  *
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *
@@ -33,7 +30,6 @@ public final class TelemetryPreferences
 	/** Environment variable to disable telemetry, for instance <code>IDF_TELEMETRY=0</code>. */
 	public static final String TELEMETRY_ENV_VARIABLE = "IDF_TELEMETRY"; //$NON-NLS-1$
 
-	private static final String INSTALL_ID = "telemetryInstallId"; //$NON-NLS-1$
 	private static final String LAST_SESSION_REPORT = "telemetryLastSessionReport"; //$NON-NLS-1$
 	private static final String LAST_REPORTED_VERSION = "telemetryLastReportedVersion"; //$NON-NLS-1$
 	private static final String NOTICE_SHOWN = "telemetryNoticeShown"; //$NON-NLS-1$
@@ -117,22 +113,6 @@ public final class TelemetryPreferences
 		IEclipsePreferences node = getStateNode();
 		node.putBoolean(NOTICE_SHOWN, true);
 		flush(node);
-	}
-
-	/**
-	 * @return a random identifier created on first use, which is not derived from any machine or user attribute
-	 */
-	public static String getInstallId()
-	{
-		IEclipsePreferences node = getStateNode();
-		String installId = node.get(INSTALL_ID, null);
-		if (installId == null || installId.isBlank())
-		{
-			installId = UUID.randomUUID().toString();
-			node.put(INSTALL_ID, installId);
-			flush(node);
-		}
-		return installId;
 	}
 
 	public static long getLastSessionReport()

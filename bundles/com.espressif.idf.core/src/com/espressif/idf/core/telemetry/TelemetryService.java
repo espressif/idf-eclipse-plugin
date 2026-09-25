@@ -29,7 +29,7 @@ import com.espressif.idf.core.IDFCorePlugin;
 import com.espressif.idf.core.logging.Logger;
 
 /**
- * Reports anonymous usage events to Azure Application Insights so that installations, updates and active users of
+ * Reports pseudonymous usage events to Azure Application Insights so that installations, updates and active users of
  * Espressif-IDE can be counted.
  * <p>
  * Every report is best effort: it runs in a background job, never blocks the workbench and silently gives up when the
@@ -66,12 +66,14 @@ public final class TelemetryService
 
 	private static final Duration TIMEOUT = Duration.ofSeconds(15);
 	private static final String UNKNOWN = "unknown"; //$NON-NLS-1$
+	private static final String IDENTITY_VERSION = "2"; //$NON-NLS-1$
 
 	private static final TelemetryService INSTANCE = new TelemetryService();
 
 	private final String sessionId = UUID.randomUUID().toString();
 
 	private HttpClient httpClient;
+	private TelemetryMachineIdentity.Identity machineIdentity;
 
 	private TelemetryService()
 	{
@@ -84,7 +86,18 @@ public final class TelemetryService
 
 	public boolean isEnabled()
 	{
-		return TelemetryPreferences.isEnabled() && getConnection().isPresent();
+		return isProductionRuntime(System.getProperty("testRun"), Platform.inDevelopmentMode()) //$NON-NLS-1$
+				&& TelemetryPreferences.isEnabled() && getConnection().isPresent();
+	}
+
+	/**
+	 * @param testRunValue    value of the test runtime marker
+	 * @param developmentMode whether Eclipse runs from a development workspace
+	 * @return <code>true</code> only for a packaged, non-test runtime
+	 */
+	public static boolean isProductionRuntime(String testRunValue, boolean developmentMode)
+	{
+		return !Boolean.parseBoolean(testRunValue) && !developmentMode;
 	}
 
 	/**
@@ -150,7 +163,7 @@ public final class TelemetryService
 	}
 
 	/**
-	 * Queues an anonymous event. The call returns immediately and the event is dropped when telemetry is disabled.
+	 * Queues a pseudonymous event. The call returns immediately and the event is dropped when telemetry is disabled.
 	 *
 	 * @param eventName  name of the event
 	 * @param properties additional string properties, which must not contain personal or project specific data
@@ -186,7 +199,7 @@ public final class TelemetryService
 	private boolean send(String eventName, Map<String, String> properties)
 	{
 		Optional<TelemetryConnection> connection = getConnection();
-		if (connection.isEmpty())
+		if (connection.isEmpty() || !getMachineIdentity().isPersistent())
 		{
 			return false;
 		}
@@ -234,11 +247,22 @@ public final class TelemetryService
 		return httpClient;
 	}
 
+	private synchronized TelemetryMachineIdentity.Identity getMachineIdentity()
+	{
+		if (machineIdentity == null)
+		{
+			machineIdentity = TelemetryMachineIdentity.get();
+		}
+		return machineIdentity;
+	}
+
 	private Map<String, String> getTags()
 	{
+		TelemetryMachineIdentity.Identity identity = getMachineIdentity();
 		Map<String, String> tags = new LinkedHashMap<>();
-		tags.put("ai.user.id", TelemetryPreferences.getInstallId()); //$NON-NLS-1$
+		tags.put("ai.user.id", identity.id()); //$NON-NLS-1$
 		tags.put("ai.session.id", sessionId); //$NON-NLS-1$
+		tags.put("ai.device.id", identity.id()); //$NON-NLS-1$
 		tags.put("ai.application.ver", getPluginVersion()); //$NON-NLS-1$
 		tags.put("ai.device.osVersion", //$NON-NLS-1$
 				getSystemProperty("os.name") + ' ' + getSystemProperty("os.version")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -248,7 +272,11 @@ public final class TelemetryService
 
 	private Map<String, String> getCommonProperties()
 	{
+		TelemetryMachineIdentity.Identity identity = getMachineIdentity();
 		Map<String, String> properties = new LinkedHashMap<>();
+		properties.put("machineId", identity.id()); //$NON-NLS-1$
+		properties.put("machineIdSource", identity.source()); //$NON-NLS-1$
+		properties.put("identityVersion", IDENTITY_VERSION); //$NON-NLS-1$
 		properties.put("pluginVersion", getPluginVersion()); //$NON-NLS-1$
 		properties.put("ideVersion", getIdeVersion()); //$NON-NLS-1$
 		properties.put("eclipseVersion", getBundleVersion(PLATFORM_BUNDLE_ID)); //$NON-NLS-1$
