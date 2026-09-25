@@ -74,6 +74,7 @@ import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.core.variable.JtagDynamicVariable;
 import com.espressif.idf.core.variable.OpenocdDynamicVariable;
 import com.espressif.idf.launch.serial.util.ESPFlashUtil;
+import com.espressif.idf.swt.custom.LaunchTabControls;
 import com.espressif.idf.swt.custom.StyledInfoText;
 import com.espressif.idf.swt.custom.TextWithButton;
 import com.espressif.idf.ui.EclipseUtil;
@@ -134,6 +135,11 @@ public class CMakeMainTab2 extends GenericMainTab
 		createUartComposite(mainComposite);
 		createJtagflashComposite(mainComposite);
 		createDfuArgumentField(mainComposite);
+
+		LaunchTabControls.addRestoreDefaultsButton(mainComposite, () -> {
+			initializeFromDefaults();
+			scheduleUpdateJob();
+		});
 
 		argumentField = new Text(parent, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
 		argumentField.setVisible(false);
