@@ -7,6 +7,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: com.espressif.idf.tests
 Require-Bundle: org.eclipse.swtbot.go;bundle-version="2.7.0",
  org.eclipse.launchbar.core,
+ org.eclipse.debug.core,
  slf4j.api,
  com.espressif.idf.ui;bundle-version="1.0.1"
 Bundle-ActivationPolicy: lazy
