@@ -43,34 +43,37 @@ public class TelemetryNotice
 	}
 
 	/**
-	 * Shows the notice when this installation never showed it and usage statistics are actually reported. Safe to call
-	 * from any thread.
+	 * Shows the notice when this installation never showed the current disclosure and usage statistics are actually
+	 * reported. Safe to call from any thread.
+	 *
+	 * @return <code>true</code> when the notice was queued; session reporting is then started after the notice opens
 	 */
-	public static void showIfNeeded()
+	public static boolean showIfNeeded()
 	{
 		if (TelemetryPreferences.isNoticeShown() || !TelemetryService.getInstance().isEnabled()
 				|| !PlatformUI.isWorkbenchRunning())
 		{
-			return;
+			return false;
 		}
 
 		Display display = PlatformUI.getWorkbench().getDisplay();
 		if (display.isDisposed())
 		{
-			return;
+			return false;
 		}
 		TelemetryPreferences.setNoticeShown();
 		display.asyncExec(() -> open(display));
+		return true;
 	}
 
 	private static void open(Display display)
 	{
-		if (display.isDisposed())
+		if (!display.isDisposed())
 		{
-			return;
+			NotificationPopup.forDisplay(display).title(Messages.TelemetryNotice_Title, true)
+					.content(TelemetryNotice::createContent).delay(CLOSE_DELAY_MS).open();
 		}
-		NotificationPopup.forDisplay(display).title(Messages.TelemetryNotice_Title, true)
-				.content(TelemetryNotice::createContent).delay(CLOSE_DELAY_MS).open();
+		TelemetryService.getInstance().reportSessionStart();
 	}
 
 	private static Control createContent(Composite parent)

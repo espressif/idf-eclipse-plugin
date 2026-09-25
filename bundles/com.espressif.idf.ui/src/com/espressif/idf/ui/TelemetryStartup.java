@@ -19,7 +19,9 @@ public class TelemetryStartup implements IStartup
 	@Override
 	public void earlyStartup()
 	{
-		TelemetryNotice.showIfNeeded();
-		TelemetryService.getInstance().reportSessionStart();
+		if (!TelemetryNotice.showIfNeeded())
+		{
+			TelemetryService.getInstance().reportSessionStart();
+		}
 	}
 }
