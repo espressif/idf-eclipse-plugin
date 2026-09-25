@@ -23,7 +23,7 @@ import com.espressif.idf.core.telemetry.TelemetryPreferences;
 import com.espressif.idf.core.telemetry.TelemetryService;
 
 /**
- * Tells the user once per installation that anonymous usage statistics are reported, and offers to switch the
+ * Tells the user once per disclosure version that usage statistics are reported, and offers to switch the
  * reporting off right away.
  *
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>

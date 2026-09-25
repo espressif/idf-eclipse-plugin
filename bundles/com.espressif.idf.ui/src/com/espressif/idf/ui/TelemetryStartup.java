@@ -9,7 +9,7 @@ import org.eclipse.ui.IStartup;
 import com.espressif.idf.core.telemetry.TelemetryService;
 
 /**
- * Reports the anonymous installation, update and session events once the workbench is up.
+ * Reports the installation, update and session events once the workbench is up.
  *
  * @author Kondal Kolipaka <kondal.kolipaka@espressif.com>
  *

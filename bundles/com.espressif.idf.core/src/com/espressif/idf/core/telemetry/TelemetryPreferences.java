@@ -32,7 +32,8 @@ public final class TelemetryPreferences
 
 	private static final String LAST_SESSION_REPORT = "telemetryLastSessionReport"; //$NON-NLS-1$
 	private static final String LAST_REPORTED_VERSION = "telemetryLastReportedVersion"; //$NON-NLS-1$
-	private static final String NOTICE_SHOWN = "telemetryNoticeShown"; //$NON-NLS-1$
+	private static final String NOTICE_VERSION = "telemetryNoticeVersion"; //$NON-NLS-1$
+	private static final int CURRENT_NOTICE_VERSION = 2;
 
 	private TelemetryPreferences()
 	{
@@ -101,17 +102,17 @@ public final class TelemetryPreferences
 	}
 
 	/**
-	 * @return <code>true</code> once the installation told the user that usage statistics are reported
+	 * @return <code>true</code> once this installation has shown the current usage-statistics disclosure
 	 */
 	public static boolean isNoticeShown()
 	{
-		return getStateNode().getBoolean(NOTICE_SHOWN, false);
+		return getStateNode().getInt(NOTICE_VERSION, 0) >= CURRENT_NOTICE_VERSION;
 	}
 
 	public static void setNoticeShown()
 	{
 		IEclipsePreferences node = getStateNode();
-		node.putBoolean(NOTICE_SHOWN, true);
+		node.putInt(NOTICE_VERSION, CURRENT_NOTICE_VERSION);
 		flush(node);
 	}
 
