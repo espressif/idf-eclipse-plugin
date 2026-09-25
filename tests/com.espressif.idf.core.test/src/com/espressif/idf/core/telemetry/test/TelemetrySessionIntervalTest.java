@@ -44,4 +44,24 @@ public class TelemetrySessionIntervalTest
 	{
 		Assertions.assertTrue(TelemetryService.shouldReportSession(NOW + ONE_DAY, NOW));
 	}
+
+	@Test
+	void test_disables_reporting_during_tests()
+	{
+		Assertions.assertFalse(TelemetryService.isProductionRuntime("true", false));
+		Assertions.assertFalse(TelemetryService.isProductionRuntime("TRUE", false));
+	}
+
+	@Test
+	void test_disables_reporting_in_development_mode()
+	{
+		Assertions.assertFalse(TelemetryService.isProductionRuntime(null, true));
+	}
+
+	@Test
+	void test_enables_reporting_only_in_a_production_runtime()
+	{
+		Assertions.assertTrue(TelemetryService.isProductionRuntime(null, false));
+		Assertions.assertTrue(TelemetryService.isProductionRuntime("false", false));
+	}
 }
