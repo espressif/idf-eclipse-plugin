@@ -21,5 +21,6 @@ public final class IDFLaunchConstants
 	public static final String OPENOCD_USB_LOCATION = "OPENOCD_USB_ADAPTER_LOCATION"; //$NON-NLS-1$
 	public static final String OPENOCD_ADAPTER_SERIAL = "OPENOCD_ADAPTER_SERIAL"; //$NON-NLS-1$
 	public static final String FLASH_ENCRYPTION_ENABLED = "com.espressif.idf.launch.FLASH_ENCRYPTION_ENABLED"; //$NON-NLS-1$
+	public static final String USE_DEFAULT_WORKING_DIR = "com.espressif.idf.launch.USE_DEFAULT_WORKING_DIR"; //$NON-NLS-1$
 
 }
