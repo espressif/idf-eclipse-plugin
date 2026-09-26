@@ -6,7 +6,6 @@ package com.espressif.idf.core.tools;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,8 +20,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Optional;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -389,32 +386,7 @@ public class EimLoader
 
 	private Path unzip(Path zipPath, Path destDir) throws IOException
 	{
-		Files.createDirectories(destDir);
-		Path firstExecutable = null;
-
-		try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipPath.toFile())))
-		{
-			ZipEntry entry;
-			while ((entry = zis.getNextEntry()) != null)
-			{
-				Path newPath = destDir.resolve(entry.getName());
-				if (entry.isDirectory())
-				{
-					Files.createDirectories(newPath);
-				}
-				else
-				{
-					Files.createDirectories(newPath.getParent());
-					Files.copy(zis, newPath, StandardCopyOption.REPLACE_EXISTING);
-					if (firstExecutable == null && Files.isRegularFile(newPath))
-					{
-						newPath.toFile().setExecutable(true);
-						firstExecutable = newPath;
-					}
-				}
-			}
-		}
-		return firstExecutable != null ? firstExecutable : destDir;
+		return EimZipExtractor.extract(zipPath, destDir);
 	}
 
 	private String readProcessOutput(Process p) throws IOException
