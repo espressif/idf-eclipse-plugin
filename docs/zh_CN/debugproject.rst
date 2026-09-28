@@ -24,9 +24,8 @@
 4. 在 ``Debugger`` 标签页中，检查 ``Board`` 和 ``Config options`` 是否与你的开发板一致，然后点击 ``OK``。
 5. 点击 ``Debug`` 图标 |debug_icon| 以开始调试。
 
-.. TODO: Add media/unified_launch_config/switch_mode_and_edit.gif, then replace this comment with:
-   .. image:: ../../media/unified_launch_config/switch_mode_and_edit.gif
-      :alt: 切换启动模式并编辑配置
+.. image:: ../../media/unified_launch_config/switch_mode_and_edit.gif
+   :alt: 切换启动模式并编辑配置
 
 .. image:: https://github.com/espressif/idf-eclipse-plugin/assets/24419842/1fb0fb9b-a02a-4ed1-bdba-b4b4d36d100f
    :alt: 调试过程

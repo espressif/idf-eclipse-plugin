@@ -19,9 +19,8 @@ To edit the debug settings:
 
 To go back to the run settings, such as flash arguments or the build folder, change the **Launch Mode** back to ``Run`` and open the editor again.
 
-.. TODO: Add media/unified_launch_config/switch_mode_and_edit.gif, then replace this comment with:
-   .. image:: ../../media/unified_launch_config/switch_mode_and_edit.gif
-      :alt: Switching between Run and Debug mode and editing the configuration
+.. image:: ../../media/unified_launch_config/switch_mode_and_edit.gif
+   :alt: Switching between Run and Debug mode and editing the configuration
 
 Alternatively, right-click on the project, go to ``Debug As`` > ``Debug Configurations...``, and select your project's configuration under ``ESP-IDF Application``. Opening the dialog from ``Debug As`` always shows the debug tabs.
 

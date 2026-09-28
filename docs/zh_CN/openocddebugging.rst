@@ -19,9 +19,8 @@ ESP-IDF GDB OpenOCD 调试
 
 如需返回运行设置（如烧录参数或构建文件夹），请将 **启动模式** 切换回 ``Run``，然后重新打开编辑器。
 
-.. TODO: Add media/unified_launch_config/switch_mode_and_edit.gif, then replace this comment with:
-   .. image:: ../../media/unified_launch_config/switch_mode_and_edit.gif
-      :alt: 在 Run 和 Debug 模式之间切换并编辑配置
+.. image:: ../../media/unified_launch_config/switch_mode_and_edit.gif
+   :alt: 在 Run 和 Debug 模式之间切换并编辑配置
 
 也可以右键点击项目，前往 ``Debug As`` > ``Debug Configurations...``，然后在 ``ESP-IDF Application`` 下选择项目的配置。通过 ``Debug As`` 打开的对话框始终显示调试标签页。
 

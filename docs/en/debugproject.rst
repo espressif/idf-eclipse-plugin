@@ -24,9 +24,8 @@ In most cases, you only need to check that the board specified in the configurat
 4. In the ``Debugger`` tab, check that the ``Board`` and ``Config options`` match your board, then click ``OK``.
 5. Click on the ``Debug`` icon |debug_icon| to start debugging.
 
-.. TODO: Add media/unified_launch_config/switch_mode_and_edit.gif, then replace this comment with:
-   .. image:: ../../media/unified_launch_config/switch_mode_and_edit.gif
-      :alt: Switching the launch mode and editing the configuration
+.. image:: ../../media/unified_launch_config/switch_mode_and_edit.gif
+   :alt: Switching the launch mode and editing the configuration
 
 .. image:: https://github.com/espressif/idf-eclipse-plugin/assets/24419842/1fb0fb9b-a02a-4ed1-bdba-b4b4d36d100f
    :alt: Debugging process
