@@ -26,7 +26,7 @@ IDE 将 ``Build folder location`` 保存在每个启动配置中。在 **Launch 
 
 配置自定义构建目录的步骤如下：
 
-1. 选择一个项目，在顶部工具栏中点击启动配置的 ``Edit`` 按钮，打开 ``Edit Configuration`` 窗口。
+1. 选择一个项目，确保 **启动模式** 设置为 ``Run``，然后在顶部工具栏中点击启动配置的 ``Edit`` 按钮，打开 ``Edit Configuration`` 窗口。在 ``Debug`` 模式下编辑配置时不会显示 ``Build Settings`` 选项卡。
 2. 前往 ``Build Settings`` 选项卡。
 3. 在 ``Build folder location`` 字段中填写路径：
 

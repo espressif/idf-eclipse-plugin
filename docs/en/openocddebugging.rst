@@ -5,33 +5,29 @@ ESP-IDF GDB OpenOCD Debugging
 
 :link_to_translation:`zh_CN:[中文]`
 
-Create a New Debug Configuration
---------------------------------
+Edit the Debug Settings
+-----------------------
 
-Please follow the below steps to create a new debug configuration:
+The debug settings are part of the project's ``ESP-IDF Application`` launch configuration, which is used for both running and debugging. There is no need to create a separate debug configuration. The tabs shown in the configuration editor depend on the **Launch Mode** selected in the launch bar, so the debug tabs described on this page are only available in ``Debug`` mode.
 
-1. Right-click on the project.
-2. Go to ``Debug As`` > ``Debug Configurations...``. This will launch a debug configuration window.
-3. On the left panel, choose ``ESP-IDF GDB OpenOCD Debugging``.
-4. Right click and create ``New Configuration``. This will create a new debug configuration for your project.
+To edit the debug settings:
 
-Please navigate through each tab and configure project specific settings. 
+1. Select your project's configuration from the second dropdown in the launch bar.
+2. Change the **Launch Mode** (the first dropdown) from ``Run`` to ``Debug``.
+3. Click on the ``Edit`` (gear) icon next to the configuration. The editor opens with the ``Main``, ``Debugger``, ``Startup``, ``Source``, ``Common``, and ``SVD`` tabs.
+4. Navigate through the tabs and configure project-specific settings, then click ``OK``.
+
+To go back to the run settings, such as flash arguments or the build folder, change the **Launch Mode** back to ``Run`` and open the editor again.
+
+.. TODO: Add media/unified_launch_config/switch_mode_and_edit.gif, then replace this comment with:
+   .. image:: ../../media/unified_launch_config/switch_mode_and_edit.gif
+      :alt: Switching between Run and Debug mode and editing the configuration
+
+Alternatively, right-click on the project, go to ``Debug As`` > ``Debug Configurations...``, and select your project's configuration under ``ESP-IDF Application``. Opening the dialog from ``Debug As`` always shows the debug tabs.
 
 .. note::
 
     Most of the settings are auto-configured by the plugin. You can leave a text field empty to use that default; empty fields show ``(keep empty for default)``. Each **Main**, **Debugger**, **Startup**, and **SVD** tab (and the Run **Main** tab) has a **Restore defaults** button that fills that tab with the built-in values.
-
-.. image:: ../../media/OpenOCDDebug_4.png
-
-The other way to create a debug configuration is from the launch configuration bar:
-
-1. Expand list with launch/debug configurations.
-2. Click on ``New Launch Configuration...``.
-3. Select ``ESP-IDF GDB OpenOCD Debugging`` and double-click on it or on ``Next >`` button.
-4. In the ``Debugger`` tab, check if the ``Config options`` is right for your board.
-5. Click on ``Finish``.
-
-.. image:: ../../media/OpenOCDDebug_9.png
 
 Main Tab 
 --------
@@ -121,7 +117,7 @@ OpenOCD path is auto-configured based on the ``OPENOCD_SCRIPTS`` path defined in
 Start Debugging
 ---------------
 
-To start debugging, you need to select your debug configuration, change mode from ``Run`` to ``Debug`` and click on launch icon (i.e., bug icon).
+To start debugging, select your project's configuration, change the **Launch Mode** from ``Run`` to ``Debug``, and click on the launch icon (i.e., bug icon).
 
 .. image:: ../../media/OpenOCDDebug_10.png
 

@@ -177,7 +177,7 @@ How do I build multiple configurations in Espressif-IDE?
 Duplicate the launch configuration and set a different ``Build folder location`` for each one. Select the configuration in the **Launch Bar** so that build, ``sdkconfig``, flash, and debug use that folder.
 
 1. Create a new project.
-2. Open the ``Launch Configuration`` dialog.
+2. Set the **Launch Mode** to ``Run`` and open the ``Launch Configuration`` dialog.
 3. Navigate to the ``Build Settings`` tab and enter ``build_release`` in the ``Build folder location`` field. Here, ``build_release`` is a relative path under the project.
 4. Click the ``OK`` button to save the configuration.
 5. Reopen the ``Launch Configuration`` dialog.

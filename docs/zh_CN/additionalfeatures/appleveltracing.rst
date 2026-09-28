@@ -8,12 +8,12 @@ ESP-IDF 提供了一项用于程序行为分析的实用功能，称为 `应用�
 .. image::  ../../../media/AppLvlTracing_1.png
    :alt: 应用级跟踪项目创建
 
-在使用应用级跟踪之前，需要为项目创建调试配置，并选择所用的开发板，以便成功启动 OpenOCD 服务器。
+在使用应用级跟踪之前，需要在项目的启动配置中选择所用的开发板，以便成功启动 OpenOCD 服务器。将启动栏中的 **启动模式** 设置为 ``Debug``，编辑配置，并在 ``Debugger`` 标签页中选择开发板。详情请参阅 :ref:`ESP-IDF OpenOCD 调试 <OpenOCDDebugging>`。
 
 .. image::  ../../../media/AppLvlTracing_3.png
    :alt: 调试配置设置
 
-创建好调试配置后，在项目管理器中右键单击项目并选择 ``ESP-IDF: Application Level Tracing``。
+选择开发板后，在项目管理器中右键单击项目并选择 ``ESP-IDF: Application Level Tracing``。
 
 .. image::  ../../../media/AppLvlTracing_2.png
    :alt: 上下文菜单中的应用级跟踪选项

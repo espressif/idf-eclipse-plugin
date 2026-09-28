@@ -26,7 +26,7 @@ The IDE stores ``Build folder location`` on each launch configuration. Select th
 
 To configure a custom build directory:
 
-1. Select a project and click on the ``Edit`` button for the launch configuration in the top toolbar to open the ``Edit Configuration`` window.
+1. Select a project, make sure the **Launch Mode** is set to ``Run``, and click on the ``Edit`` button for the launch configuration in the top toolbar to open the ``Edit Configuration`` window. The ``Build Settings`` tab is not shown when the configuration is edited in ``Debug`` mode.
 2. Navigate to the ``Build Settings`` tab.
 3. In the ``Build folder location`` field, enter a path:
 

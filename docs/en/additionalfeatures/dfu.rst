@@ -35,7 +35,7 @@ After meeting the above requirements:
 
 After meeting the above requirements, you can proceed to build and flash via DFU. To use DFU:
 
-1. Edit the active launch configuration.
+1. Set the **Launch Mode** to ``Run`` and edit the active launch configuration.
 2. In the main tab, select the ``Flash over DFU`` option.
 3. Select a suitable IDF target for DFU.
 4. When using the build command, an extra file (``dfu.bin``) will be created, which can be used later for flashing.
