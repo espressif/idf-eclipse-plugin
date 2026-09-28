@@ -1086,7 +1086,8 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 			hasContent = true;
 		}
 
-		if (fTargetPortNumber != null && !isEmptyOrValidPort(fTargetPortNumber))
+		if ((fDoStartGdbServer == null || !fDoStartGdbServer.getSelection()) && fTargetPortNumber != null
+				&& !isEmptyOrValidPort(fTargetPortNumber))
 		{
 			setErrorMessage(Messages.TabDebugger_noGdbPort);
 			result = false;
@@ -1120,7 +1121,8 @@ public class TabDebugger extends AbstractLaunchConfigurationTab
 	public boolean canSave()
 	{
 		if (!isEmptyOrValidPort(fGdbServerGdbPort) || !isEmptyOrValidPort(fGdbServerTelnetPort)
-				|| !isEmptyOrValidPort(fTargetPortNumber))
+				|| ((fDoStartGdbServer == null || !fDoStartGdbServer.getSelection())
+						&& !isEmptyOrValidPort(fTargetPortNumber)))
 		{
 			return false;
 		}
