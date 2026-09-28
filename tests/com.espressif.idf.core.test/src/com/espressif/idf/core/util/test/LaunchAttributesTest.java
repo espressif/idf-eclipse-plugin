@@ -5,6 +5,7 @@
 package com.espressif.idf.core.util.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -59,6 +60,24 @@ class LaunchAttributesTest
 		when(configuration.getAttribute(KEY, DEFAULT_VALUE)).thenReturn(StringUtil.EMPTY);
 
 		assertEquals(DEFAULT_VALUE, LaunchAttributes.getString(configuration, KEY, DEFAULT_VALUE));
+	}
+
+	@Test
+	void getInt_parsesNumericText() throws CoreException
+	{
+		when(configuration.getAttribute(KEY, DEFAULT_VALUE)).thenReturn("6666"); //$NON-NLS-1$
+
+		assertEquals(6666, LaunchAttributes.getInt(configuration, KEY, DEFAULT_VALUE));
+	}
+
+	@Test
+	void getInt_rejectsNonNumericText() throws CoreException
+	{
+		when(configuration.getAttribute(KEY, DEFAULT_VALUE)).thenReturn("not-a-port"); //$NON-NLS-1$
+
+		CoreException exception = assertThrows(CoreException.class,
+				() -> LaunchAttributes.getInt(configuration, KEY, DEFAULT_VALUE));
+		assertEquals(NumberFormatException.class, exception.getStatus().getException().getClass());
 	}
 
 	@Test

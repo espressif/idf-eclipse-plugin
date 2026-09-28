@@ -8,6 +8,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
+import com.espressif.idf.core.IDFCorePlugin;
+
 /**
  * Helpers for launch configuration attributes. Missing keys and blank strings are treated as "use the default".
  */
@@ -22,6 +24,24 @@ public final class LaunchAttributes
 	{
 		String value = configuration.getAttribute(key, defaultValue);
 		return StringUtil.isEmpty(value) ? defaultValue : value;
+	}
+
+	/**
+	 * Reads a numeric attribute stored as text. Blank values use {@code defaultText}. Non-numeric text throws
+	 * {@link CoreException} instead of {@link NumberFormatException}.
+	 */
+	public static int getInt(ILaunchConfiguration configuration, String key, String defaultText) throws CoreException
+	{
+		String text = getString(configuration, key, defaultText).trim();
+		try
+		{
+			return Integer.parseInt(text);
+		}
+		catch (NumberFormatException e)
+		{
+			throw new CoreException(
+					IDFCorePlugin.errorStatus("Invalid numeric value for " + key + ": " + text, e)); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	}
 
 	/**

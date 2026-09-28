@@ -138,9 +138,8 @@ public class Configuration
 			lst.add("-c"); //$NON-NLS-1$
 			lst.add(String.format(fmtTelnetPort, port));
 
-			port = Integer.parseInt(LaunchAttributes.getString(configuration,
-					ConfigurationAttributes.GDB_SERVER_TCL_PORT_NUMBER,
-					DefaultPreferences.GDB_SERVER_TCL_PORT_NUMBER_DEFAULT));
+			port = LaunchAttributes.getInt(configuration, ConfigurationAttributes.GDB_SERVER_TCL_PORT_NUMBER,
+					DefaultPreferences.GDB_SERVER_TCL_PORT_NUMBER_DEFAULT);
 
 			lst.add("-c"); //$NON-NLS-1$
 			lst.add(String.format(fmtTclPort, port));
@@ -362,9 +361,9 @@ public class Configuration
 				DefaultPreferences.GDB_SERVER_TELNET_PORT_NUMBER_DEFAULT));
 		configuration.setAttribute(ConfigurationAttributes.GDB_SERVER_TELNET_PORT_NUMBER, telnetPort);
 
-		int tclPort = PortChecker.getAvailablePort(Integer.parseInt(LaunchAttributes.getString(configuration,
+		int tclPort = PortChecker.getAvailablePort(LaunchAttributes.getInt(configuration,
 				ConfigurationAttributes.GDB_SERVER_TCL_PORT_NUMBER,
-				DefaultPreferences.GDB_SERVER_TCL_PORT_NUMBER_DEFAULT)));
+				DefaultPreferences.GDB_SERVER_TCL_PORT_NUMBER_DEFAULT));
 		configuration.setAttribute(ConfigurationAttributes.GDB_SERVER_TCL_PORT_NUMBER, String.valueOf(tclPort));
 	}
 
