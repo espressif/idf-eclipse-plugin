@@ -112,7 +112,8 @@ public class IDFProjectJTAGFlashTest
 
 		private static void whenFlashProject() throws IOException
 		{
-			ProjectTestOperations.launchCommandUsingContextMenu(projectName, bot, "Run Configurations...");
+			ProjectTestOperations.launchCommandUsingContextMenuWithoutWaitingForJobs(projectName, bot,
+					"Run Configurations...");
 			TestWidgetWaitUtility.waitForDialogToAppear(bot, "Run Configurations", 10000);
 			bot.tree().getTreeItem("ESP-IDF Application").select();
 			bot.tree().getTreeItem("ESP-IDF Application").expand();
