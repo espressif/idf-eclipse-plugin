@@ -177,7 +177,7 @@ IDF Eclipse 插件使用 CMake 命令来构建项目，因此可以通过构建�
 复制启动配置，并为每个配置设置不同的 ``Build folder location``。在 **Launch Bar** 中选择该配置后，构建、``sdkconfig``、烧录和调试都会使用对应的文件夹。
 
 1. 创建一个新项目。
-2. 打开 ``Launch Configuration`` 对话框。
+2. 将 **启动模式** 设置为 ``Run``，然后打开 ``Launch Configuration`` 对话框。
 3. 进入 ``Build Settings`` 选项卡，在 ``Build folder location`` 中输入 ``build_release``。其中，``build_release`` 是相对于项目目录的路径。
 4. 点击 ``OK`` 按钮保存该配置。
 5. 重新打开 ``Launch Configuration`` 对话框。

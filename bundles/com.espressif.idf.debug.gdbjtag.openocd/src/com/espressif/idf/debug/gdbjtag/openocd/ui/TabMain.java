@@ -44,20 +44,37 @@ import org.eclipse.swt.widgets.Link;
 import com.espressif.idf.core.build.IDFLaunchConstants;
 import com.espressif.idf.core.logging.Logger;
 import com.espressif.idf.core.util.IDFUtil;
-import com.espressif.idf.debug.gdbjtag.openocd.Activator;
+import com.espressif.idf.core.util.LaunchAttributes;
+import com.espressif.idf.core.util.StringUtil;
 import com.espressif.idf.debug.gdbjtag.openocd.preferences.DefaultPreferences;
+import com.espressif.idf.swt.custom.LaunchTabControls;
 import com.espressif.idf.ui.EclipseUtil;
 
 public class TabMain extends CMainTab2
 {
 	/**
-	 * If the preference is set to true, check program and disable Debug button if not found. The default GDB Hardware
-	 * Debug plug-in behaviour is to do not check program, to allow project-less debug sessions.
+	 * Empty C/C++ Application means {@code ${default_app}}, so never treat a blank field as an error.
 	 */
 	public TabMain()
 	{
-		super((Activator.getInstance().getDefaultPreferences().getTabMainCheckProgram() ? 0
-				: CMainTab2.DONT_CHECK_PROGRAM) | CMainTab2.INCLUDE_BUILD_SETTINGS);
+		super(CMainTab2.DONT_CHECK_PROGRAM | CMainTab2.INCLUDE_BUILD_SETTINGS);
+	}
+
+	@Override
+	public void createControl(Composite parent)
+	{
+		super.createControl(parent);
+		LaunchTabControls.applyEmptyDefaultHint(fProgText);
+		LaunchTabControls.addRestoreDefaultsButtonToTab(getControl(), this::restoreDefaults);
+	}
+
+	private void restoreDefaults()
+	{
+		if (fProgText != null)
+		{
+			fProgText.setText(DefaultPreferences.PROGRAM_APP_DEFAULT);
+		}
+		scheduleUpdateJob();
 	}
 
 	/**
@@ -137,15 +154,17 @@ public class TabMain extends CMainTab2
 			String programName = EMPTY_STRING;
 			try
 			{
-				programName = config.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME,
-						DefaultPreferences.PROGRAM_APP_DEFAULT);
-				programName = programName.isBlank() ? DefaultPreferences.PROGRAM_APP_DEFAULT : programName;
+				programName = LaunchAttributes.getStoredString(config, ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME);
 			}
 			catch (CoreException ce)
 			{
 				Logger.log(ce);
 			}
 
+			if (DefaultPreferences.PROGRAM_APP_DEFAULT.equals(programName.trim()))
+			{
+				programName = EMPTY_STRING;
+			}
 			fProgText.setText(programName);
 		}
 	}
@@ -245,6 +264,15 @@ public class TabMain extends CMainTab2
 	{
 		Optional<IProject> selectedProject = EclipseUtil.getDefaultIDFProject();
 		selectedProject.ifPresent(project -> initializeDefaultProject(project, configuration));
+		try
+		{
+			LaunchAttributes.setStringIfEmpty(configuration, ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME,
+					DefaultPreferences.PROGRAM_APP_DEFAULT);
+		}
+		catch (CoreException e)
+		{
+			Logger.log(e);
+		}
 	}
 
 	private void initializeDefaultProject(IProject project, ILaunchConfigurationWorkingCopy configuration)
@@ -285,8 +313,13 @@ public class TabMain extends CMainTab2
 		}
 
 		config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, fProjText.getText());
-		config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME,
-				fProgText.getText().isBlank() ? DefaultPreferences.PROGRAM_APP_DEFAULT : fProgText.getText());
+		// CDT rejects a missing program name. An empty editor field means ${default_app}.
+		String programName = fProgText.getText();
+		if (StringUtil.isEmpty(programName))
+		{
+			programName = DefaultPreferences.PROGRAM_APP_DEFAULT;
+		}
+		LaunchAttributes.setOrClearString(config, ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, programName);
 		if (fCoreText != null)
 		{
 			config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_COREFILE_PATH, fCoreText.getText());

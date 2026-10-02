@@ -5,40 +5,35 @@ ESP-IDF GDB OpenOCD 调试
 
 :link_to_translation:`en:[English]`
 
-创建新的调试配置
-----------------
+编辑调试设置
+------------
 
-请按照以下步骤创建新的调试配置：
+调试设置属于项目的 ``ESP-IDF Application`` 启动配置，该配置同时用于运行和调试，无需单独创建调试配置。配置编辑器中显示的标签页取决于启动栏中所选的 **启动模式**，因此本页介绍的调试标签页仅在 ``Debug`` 模式下可用。
 
-1. 右键点击项目。
-2. 前往 ``Debug As`` > ``Debug Configurations...``，打开调试配置窗口。
-3. 在左侧面板中选择 ``ESP-IDF GDB OpenOCD Debugging``。
-4. 点击右键并创建 ``New Configuration``，为项目创建新的调试配置。
+编辑调试设置的步骤如下：
 
-请逐个查看标签页并配置项目专属设置。 
+1. 在启动栏的第二个下拉菜单中选择项目的配置。
+2. 将 **启动模式** （第一个下拉菜单）从 ``Run`` 切换为 ``Debug``。
+3. 点击配置旁边的 ``Edit`` （齿轮）图标。编辑器将显示 ``Main``、``Debugger``、``Startup``、``Source``、``Common`` 和 ``SVD`` 标签页。
+4. 逐个查看标签页并配置项目专属设置，然后点击 ``OK``。
+
+如需返回运行设置（如烧录参数或构建文件夹），请将 **启动模式** 切换回 ``Run``，然后重新打开编辑器。
+
+.. image:: ../../media/unified_launch_config/switch_mode_and_edit.gif
+   :alt: 在 Run 和 Debug 模式之间切换并编辑配置
+
+也可以右键点击项目，前往 ``Debug As`` > ``Debug Configurations...``，然后在 ``ESP-IDF Application`` 下选择项目的配置。通过 ``Debug As`` 打开的对话框始终显示调试标签页。
 
 .. note::
 
-    插件能自动配置大多数设置。
-
-.. image:: ../../media/OpenOCDDebug_4.png
-
-也可以通过启动配置栏来创建调试配置：
-
-1. 展开启动或调试配置的列表。 
-2. 点击 ``New Launch Configuration...``。
-3. 选择 ``ESP-IDF GDB OpenOCD Debugging`` 并双击此选项，也可以点击 ``Next >`` 按钮。
-4. 在 ``Debugger`` 标签页中，检查 ``Config options`` 是否适用于你的开发板。
-5. 点击 ``Finish``。
-
-.. image:: ../../media/OpenOCDDebug_9.png
+    插件能自动配置大多数设置。文本字段可以留空以使用默认值；留空时会显示 ``(keep empty for default)``\ （留空则使用默认值）。**Main**、**Debugger**、**Startup** 和 **SVD** 标签页（以及运行配置的 **Main** 标签页）均提供 **Restore defaults** 按钮，用于将该标签页恢复为内置默认值。
 
 Main 标签页
 ------------
 
 1. 输入此配置的 ``Name``，默认名称为 "{project_name} Configuration"。
 2. 在 ``Main`` 标签页中，找到 ``Project:`` 一栏，点击 ``Browse`` 按钮来选择或更改当前项目。
-3. 下一行的 ``C/C++ Application:`` 是指向 elf 文件的相对路径，例如 ``build/hello_world.elf``，对应 ``hello_world`` 项目。若不存在 elf 文件，则此项目可能尚未构建。构建项目后，该 elf 文件会出现，也可以点击 ``Browse`` 按钮进行更改。
+3. 下一行的 ``C/C++ Application:`` 是指向 elf 文件的相对路径，例如 ``build/hello_world.elf``，对应 ``hello_world`` 项目。若不存在 elf 文件，则此项目可能尚未构建。构建项目后，该 elf 文件会出现，也可以点击 ``Browse`` 按钮进行更改。也可以将该字段留空，以使用默认应用程序（``${default_app}``）。
 
 ``Main`` 标签页中的最后一栏是 ``Build (if required) before launching``。如果不想在每次点击 ``Debug`` 按钮时都构建项目，则选择 ``Disable auto build`` 选项。
 
@@ -49,7 +44,7 @@ Main 标签页
 Debugger 标签页
 ---------------
 
-在 ``Debugger`` 标签页中，所有参数都会自动配置以开始调试，你只需检查 ``Config options`` 是否适用于你的开发板即可。该选项会根据 ``Flash voltage`` 和 ``Board`` 选项自动调整。展开开发板列表时，只会显示与所选 ``Target`` 相匹配的条目。举例来说，如果所选目标芯片是 ``esp32``，列表中不会显示 ``ESP32-S2-KALUGA-1``。若希望显示该开发版，需要先将目标芯片改为 ``esp32s2``。``Debugger`` 标签页中的第二个选项是 ``GDB executable``，该选项同样依赖于所选目标芯片，并会根据目标自动进行配置
+在 ``Debugger`` 标签页中，所有参数都会自动配置以开始调试，你只需检查 ``Config options`` 是否适用于你的开发板即可。该选项会根据 ``Flash voltage`` 和 ``Board`` 选项自动调整。展开开发板列表时，只会显示与所选 ``Target`` 相匹配的条目。举例来说，如果所选目标芯片是 ``esp32``，列表中不会显示 ``ESP32-S2-KALUGA-1``。若希望显示该开发版，需要先将目标芯片改为 ``esp32s2``。``Debugger`` 标签页中的第二个选项是 ``GDB executable``，该选项同样依赖于所选目标芯片，并会根据目标自动进行配置。OpenOCD 路径、端口、配置选项和 GDB 相关字段均可留空，以使用插件默认值。
 
 还有一些其他选项，建议检查这些选项是否已自动正确配置：
 
@@ -121,7 +116,7 @@ OpenOCD 路径会根据 CDT 构建环境变量中定义的 ``OPENOCD_SCRIPTS`` �
 开始调试
 --------
 
-要开始调试，需要选择调试配置，将模式从 ``Run`` 改为 ``Debug``，并点击启动图标（即小甲虫图标）。
+要开始调试，需要选择项目的配置，将 **启动模式** 从 ``Run`` 改为 ``Debug``，并点击启动图标（即小甲虫图标）。
 
 .. image:: ../../media/OpenOCDDebug_10.png
 

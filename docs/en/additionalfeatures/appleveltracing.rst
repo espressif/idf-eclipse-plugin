@@ -8,12 +8,12 @@ ESP-IDF provides a useful feature for program behavior analysis called `Applicat
 .. image::  ../../../media/AppLvlTracing_1.png
    :alt: Application Level Tracing project creation
 
-Before using application-level tracing, create a debug configuration for the project where you must select the board you are using to successfully start the OpenOCD server.
+Before using application-level tracing, you must select the board you are using in the project's launch configuration to successfully start the OpenOCD server. Set the **Launch Mode** in the launch bar to ``Debug``, edit the configuration, and select your board in the ``Debugger`` tab. For more details, see :ref:`ESP-IDF OpenOCD Debugging <OpenOCDDebugging>`.
 
 .. image::  ../../../media/AppLvlTracing_3.png
    :alt: Debug configuration setup
 
-After creating the debug configuration, right-click on the project in the Project Explorer and select ``ESP-IDF: Application Level Tracing``.
+After selecting the board, right-click on the project in the Project Explorer and select ``ESP-IDF: Application Level Tracing``.
 
 .. image::  ../../../media/AppLvlTracing_2.png
    :alt: Application Level Tracing option in the context menu

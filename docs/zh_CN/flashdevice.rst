@@ -24,6 +24,7 @@
 
 如需提供自定义的启动配置和烧录参数，请按以下步骤操作：
 
+#. 确保启动栏中的 **启动模式** 设置为 ``Run``。在 ``Debug`` 模式下编辑配置时不会显示烧录设置。
 #. 点击 ``Launch Configuration`` 编辑按钮。
 #. 切换到 ``Main`` 选项卡。
 #. 指定应用需运行的 ``Location``。``idf.py`` 是一个 Python 文件，所以请配置 Python 系统路径。例如：``${system_path:python}``。
@@ -65,7 +66,7 @@ flash 加密
        :alt:  flash 加密 sdkconfig
    
 #.  先正常烧录一次应用。
-#.  打开 ``Launch Configuration`` 对话框，编辑该配置，并勾选 ``Enable Flash Encryption`` 复选框。
+#.  将 **启动模式** 设置为 ``Run``，打开 ``Launch Configuration`` 对话框，编辑该配置，并勾选 ``Enable Flash Encryption`` 复选框。
 
     .. image:: ../../media/flash_encryption_2.png
        :alt: flash 加密复选框
@@ -84,7 +85,7 @@ flash 加密
 
 上传应用程序的默认方式是使用 UART。若要改用 JTAG，请编辑项目的启动配置并选择相应选项。
 
-具体做法是，在启动配置栏中选择项目，点击齿轮图标以编辑启动配置：
+具体做法是，在启动配置栏中选择项目，确保 **启动模式** 设置为 ``Run``，然后点击齿轮图标以编辑启动配置：
 
 .. image:: ../../media/JtagFlash_1.png
    :alt: 编辑启动配置

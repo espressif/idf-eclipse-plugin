@@ -38,6 +38,7 @@ public class Messages extends NLS
 	public static String ToolsInitializationEimMissingMsgBoxMessage;
 
 	public static String RefreshingProjects_JobName;
+	public static String IDFBuildConfigurationSetup_JobName;
 	
 	public static String NoActiveEspIdfInWorkspaceMsgTitle;
 	public static String NoActiveEspIdfInWorkspaceMsg;

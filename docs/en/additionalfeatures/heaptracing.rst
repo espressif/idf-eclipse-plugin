@@ -47,9 +47,9 @@ Generating Dump File
    .. image:: ../../../media/HeapTracing/breakpoint_properties_actions_stop_attached.png
       :alt: Stop Heap Trace Action
 
-6. **Launch Debug Configuration**
+6. **Start Debugging**
 
-   Launch the debug configuration for your ESP32 board. When a breakpoint is hit, the IDE will prompt you to switch to the debugger perspective. Continue execution at each breakpoint to start or stop tracing, then refresh the project in the Project Explorer to view the dump file at the specified location.
+   Set the **Launch Mode** in the launch bar to ``Debug`` and launch your project's configuration for your ESP32 board. When a breakpoint is hit, the IDE will prompt you to switch to the debugger perspective. Continue execution at each breakpoint to start or stop tracing, then refresh the project in the Project Explorer to view the dump file at the specified location.
 
 Analyzing the Dump File
 -----------------------
