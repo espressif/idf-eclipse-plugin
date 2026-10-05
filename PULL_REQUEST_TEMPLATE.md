@@ -2,7 +2,7 @@
 
 Please include a summary of the change and which issue is fixed.
 
-Fixes # ([IEP-XXX](https://jira.espressif.com:8443/browse/IEP-XXX))
+Fixes # (https://athena.espressif.cn:6565/w/task-id or athena-task-uuid)
 
 ## Type of change
 
