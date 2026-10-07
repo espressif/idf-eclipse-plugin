@@ -39,7 +39,8 @@ However, if you are dealing with an existing project, please create a `.clangd` 
 CompileFlags:
   CompilationDatabase: build
   Remove: [-m*, -f*]
-```	
+  BuiltinHeaders: QueryDriver
+```
 
 ## Disable CDT Indexer
 With Espressif-IDE 3.0.0 (and higher), the CDT Indexer is disabled by default; instead, the LSP Indexer server will be used for code analysis.

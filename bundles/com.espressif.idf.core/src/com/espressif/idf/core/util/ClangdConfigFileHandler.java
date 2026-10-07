@@ -30,6 +30,12 @@ import com.espressif.idf.core.ILSPConstants;
  */
 public class ClangdConfigFileHandler
 {
+	private static final String COMPILE_FLAGS = "CompileFlags"; //$NON-NLS-1$
+	private static final String COMPILATION_DATABASE = "CompilationDatabase"; //$NON-NLS-1$
+	private static final String REMOVE = "Remove"; //$NON-NLS-1$
+	private static final String BUILTIN_HEADERS = "BuiltinHeaders"; //$NON-NLS-1$
+	private static final String BUILTIN_HEADERS_QUERY_DRIVER = "QueryDriver"; //$NON-NLS-1$
+
 	@SuppressWarnings("unchecked")
 	public void update(IProject project) throws CoreException, IOException
 	{
@@ -45,11 +51,11 @@ public class ClangdConfigFileHandler
 			Map<String, Object> data = createOrGetExistingYamlStructure(obj);
 
 			// Add or update CompileFlags section
-			Map<String, Object> compileFlags = (Map<String, Object>) data.get("CompileFlags"); //$NON-NLS-1$
+			Map<String, Object> compileFlags = (Map<String, Object>) data.get(COMPILE_FLAGS);
 			if (compileFlags == null)
 			{
 				compileFlags = new LinkedHashMap<>();
-				data.put("CompileFlags", compileFlags); //$NON-NLS-1$
+				data.put(COMPILE_FLAGS, compileFlags);
 			}
 			updateCompileFlagsSection(compileFlags, IDFUtil.getBuildDir(project));
 
@@ -81,9 +87,10 @@ public class ClangdConfigFileHandler
 
 	private void updateCompileFlagsSection(Map<String, Object> compileFlags, String buildFolderPath)
 	{
-		compileFlags.put("CompilationDatabase", //$NON-NLS-1$
+		compileFlags.put(COMPILATION_DATABASE,
 				buildFolderPath == null || buildFolderPath.isEmpty() ? IDFConstants.BUILD_FOLDER : buildFolderPath);
-		compileFlags.put("Remove", Arrays.asList("-m*", "-f*")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		compileFlags.put(REMOVE, Arrays.asList("-m*", "-f*")); //$NON-NLS-1$ //$NON-NLS-2$
+		compileFlags.put(BUILTIN_HEADERS, BUILTIN_HEADERS_QUERY_DRIVER);
 	}
 
 	private File getClangdConfigFile(IProject project) throws IOException, CoreException

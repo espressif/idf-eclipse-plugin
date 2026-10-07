@@ -47,6 +47,7 @@ Clangd 配置
     CompileFlags:
         CompilationDatabase: build
         Remove: [-m*, -f*]
+        BuiltinHeaders: QueryDriver
 
 如何解决在浏览 ESP-IDF 组件时出现的 "Unknown Argument" 错误
 -----------------------------------------------------------
