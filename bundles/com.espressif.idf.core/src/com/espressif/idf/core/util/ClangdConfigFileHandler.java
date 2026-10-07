@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.yaml.snakeyaml.Yaml;
 
+import com.espressif.idf.core.IDFConstants;
 import com.espressif.idf.core.ILSPConstants;
 
 /**
@@ -78,10 +79,10 @@ public class ClangdConfigFileHandler
 		return new LinkedHashMap<>();
 	}
 
-	private void updateCompileFlagsSection(Map<String, Object> compileFlags, String buildFolderName)
+	private void updateCompileFlagsSection(Map<String, Object> compileFlags, String buildFolderPath)
 	{
 		compileFlags.put("CompilationDatabase", //$NON-NLS-1$
-				buildFolderName == null || buildFolderName.isEmpty() ? "build" : buildFolderName); //$NON-NLS-1$
+				buildFolderPath == null || buildFolderPath.isEmpty() ? IDFConstants.BUILD_FOLDER : buildFolderPath);
 		compileFlags.put("Remove", Arrays.asList("-m*", "-f*")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 

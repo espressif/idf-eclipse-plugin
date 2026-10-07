@@ -65,6 +65,7 @@ import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.AbstractGnuMcuLaunchConfigura
 import org.eclipse.embedcdt.debug.gdbjtag.core.dsf.GnuMcuServerServicesLaunchSequence;
 
 import com.espressif.idf.core.logging.Logger;
+import com.espressif.idf.core.util.LaunchDefaults;
 import com.espressif.idf.core.variable.JtagVariableResolver;
 import com.espressif.idf.debug.gdbjtag.openocd.Activator;
 import com.espressif.idf.debug.gdbjtag.openocd.Configuration;
@@ -127,6 +128,7 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 			throws CoreException
 	{
 		ILaunchConfigurationWorkingCopy wc = configuration.getWorkingCopy();
+		LaunchDefaults.apply(wc);
 		if (Configuration.getDoStartGdbServer(wc))
 		{
 			Configuration.allocateServerPorts(wc);
@@ -325,9 +327,16 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 			return;
 		}
 
-		SessionType sessionType = LaunchUtils.getSessionType(config);
-		boolean attach = LaunchUtils.getIsAttach(config);
 		final Launch launch = (Launch) l;
+		// CDT reads ATTR_PROGRAM_NAME from this object. Empty C/C++ Application means
+		// ${default_app}; apply that on the launch working copy so the binary check
+		// does not report "Program file not specified".
+		ILaunchConfiguration source = launch.getLaunchConfiguration() != null ? launch.getLaunchConfiguration()
+				: config;
+		ILaunchConfiguration resolvedConfig = applyLaunchDefaults(source);
+
+		SessionType sessionType = LaunchUtils.getSessionType(resolvedConfig);
+		boolean attach = LaunchUtils.getIsAttach(resolvedConfig);
 
 		if (sessionType == SessionType.REMOTE)
 			monitor.subTask(LaunchMessages.getString("GdbLaunchDelegate.1"));
@@ -337,34 +346,35 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 			monitor.subTask(LaunchMessages.getString("GdbLaunchDelegate.3"));
 
 		if (!attach)
-			checkBinaryDetails(config);
+			checkBinaryDetails(resolvedConfig);
 
 		monitor.worked(1);
-		fIsNonStopSession = LaunchUtils.getIsNonStopMode(config);
+		fIsNonStopSession = LaunchUtils.getIsNonStopMode(resolvedConfig);
 
 		if (launch.getDoStartGdbClient())
 		{
-			String gdbVersion = getGDBVersion(config);
+			String gdbVersion = getGDBVersion(resolvedConfig);
 
-			if (LaunchUtils.getIsNonStopMode(config) && !isNonStopSupportedInGdbVersion(gdbVersion))
+			if (LaunchUtils.getIsNonStopMode(resolvedConfig) && !isNonStopSupportedInGdbVersion(gdbVersion))
 			{
 				cleanupLaunch(launch);
 				throw new DebugException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, DebugException.REQUEST_FAILED,
 						"Non-stop mode is not supported", null));
 			}
 
-			if (LaunchUtils.getIsPostMortemTracing(config) && !isPostMortemTracingSupportedInGdbVersion(gdbVersion))
+			if (LaunchUtils.getIsPostMortemTracing(resolvedConfig)
+					&& !isPostMortemTracingSupportedInGdbVersion(gdbVersion))
 			{
 				cleanupLaunch(launch);
 				throw new DebugException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, DebugException.REQUEST_FAILED,
 						"Post-mortem tracing is not supported", null));
 			}
 
-			launch.setServiceFactory(newServiceFactory(config, gdbVersion, launch.getLaunchMode()));
+			launch.setServiceFactory(newServiceFactory(resolvedConfig, gdbVersion, launch.getLaunchMode()));
 		}
 		else
 		{
-			launch.setServiceFactory(newServiceFactory(config, "7.0", launch.getLaunchMode()));
+			launch.setServiceFactory(newServiceFactory(resolvedConfig, "7.0", launch.getLaunchMode()));
 		}
 
 		launch.initialize();
@@ -590,10 +600,12 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 	@Override
 	protected IPath checkBinaryDetails(final ILaunchConfiguration config) throws CoreException
 	{
+		ILaunchConfiguration resolvedConfig = applyLaunchDefaults(config);
+
 		boolean doStartServer = true;
 		try
 		{
-			doStartServer = Configuration.getDoStartGdbServer(config);
+			doStartServer = Configuration.getDoStartGdbServer(resolvedConfig);
 		}
 		catch (CoreException e)
 		{
@@ -605,7 +617,7 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 			String configOptions = "";
 			try
 			{
-				configOptions = Configuration.getGdbServerOtherConfig(config);
+				configOptions = Configuration.getGdbServerOtherConfig(resolvedConfig);
 			}
 			catch (CoreException e)
 			{
@@ -618,7 +630,7 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 			// Abort early with a clear, actionable message when no board is selected for the active target. Otherwise
 			// OpenOCD would start without a board configuration and fail later with the cryptic
 			// "invalid command name \"program_esp_bins\"" error.
-			if (!isBoardConfigured(config))
+			if (!isBoardConfigured(resolvedConfig))
 			{
 				IStatus status = new Status(IStatus.OK, Activator.PLUGIN_ID, BOARD_NOT_SELECTED_STATUS_CODE,
 						"No board is selected for the debug target.", null); //$NON-NLS-1$
@@ -630,7 +642,20 @@ public class LaunchConfigurationDelegate extends AbstractGnuMcuLaunchConfigurati
 				throw new DebugException(Status.OK_STATUS);
 			}
 		}
-		return super.checkBinaryDetails(config);
+		return super.checkBinaryDetails(resolvedConfig);
+	}
+
+	/**
+	 * Fills empty attributes on a working copy, including C/C++ Application → {@code ${default_app}}. Mutates an
+	 * existing working copy in place so the Launch and CDT's program check share the same values.
+	 */
+	private ILaunchConfiguration applyLaunchDefaults(ILaunchConfiguration config) throws CoreException
+	{
+		ILaunchConfigurationWorkingCopy wc = config instanceof ILaunchConfigurationWorkingCopy workingCopy
+				? workingCopy
+				: config.getWorkingCopy();
+		LaunchDefaults.apply(wc);
+		return wc;
 	}
 
 	/**

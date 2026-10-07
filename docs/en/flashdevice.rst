@@ -24,6 +24,7 @@ Customize Flash Arguments
 
 To provide the customized launch configuration and flash arguments, follow the steps below:
 
+#. Make sure the **Launch Mode** in the launch bar is set to ``Run``. The flash settings are not shown when the configuration is edited in ``Debug`` mode.
 #. Click on the ``Launch Configuration`` edit button.
 #. Switch to the ``Main`` tab.
 #. Specify the ``Location`` where this application has to run. Since ``idf.py`` is a Python file, configure the Python system path. Example: ``${system_path:python}``.
@@ -65,7 +66,7 @@ To enable flash encryption in ESP-IDF, follow these steps:
        :alt: Flash encryption sdkconfig
    
 #.  Perform a normal flash of the application.
-#.  Open the ``Launch Configuration`` dialog, edit the configuration, and check the ``Enable Flash Encryption`` box.
+#.  With the **Launch Mode** set to ``Run``, open the ``Launch Configuration`` dialog, edit the configuration, and check the ``Enable Flash Encryption`` box.
 
     .. image:: ../../media/flash_encryption_2.png
        :alt: Flash encryption checkbox
@@ -84,7 +85,7 @@ Upload Application via JTAG
 
 The default method for uploading applications is UART. To switch to JTAG, edit the launch configuration of your project and select the appropriate option.
 
-To do so, select your project in the launch configuration bar and click on the gear icon to edit the launch configuration:
+To do so, select your project in the launch configuration bar, make sure the **Launch Mode** is set to ``Run``, and click on the gear icon to edit the launch configuration:
 
 .. image:: ../../media/JtagFlash_1.png
    :alt: Edit launch configuration

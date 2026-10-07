@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="com.espressif.idf.core" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appinfo>
+         <meta.schema plugin="com.espressif.idf.core" id="launchDefaultsContributor" name="Launch Defaults Contributor"/>
+      </appinfo>
+      <documentation>
+         Contributors supply default values for launch configuration attributes that are missing or empty. Implementations must not overwrite attributes the user already set. Called when a configuration is created and when an existing configuration is launched.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appinfo>
+            <meta.element />
+         </appinfo>
+      </annotation>
+      <complexType>
+         <choice minOccurs="1" maxOccurs="unbounded">
+            <element ref="contributor"/>
+         </choice>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="contributor">
+      <complexType>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Fully qualified name of a class that implements com.espressif.idf.core.util.ILaunchDefaultsContributor. The class must have a public no-argument constructor. One instance is created per extension and applyDefaults is called when a launch configuration is created and when an existing configuration is launched.
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":com.espressif.idf.core.util.ILaunchDefaultsContributor"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="since"/>
+      </appinfo>
+      <documentation>
+         v4.5.0
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="examples"/>
+      </appinfo>
+      <documentation>
+         Register a contributor from plugin.xml:
+
+         &lt;extension point="com.espressif.idf.core.launchDefaultsContributor"&gt;
+            &lt;contributor class="com.example.MyLaunchDefaultsContributor"/&gt;
+         &lt;/extension&gt;
+
+         MyLaunchDefaultsContributor implements ILaunchDefaultsContributor and writes only attributes that are missing or empty.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="apiinfo"/>
+      </appinfo>
+      <documentation>
+         Implement com.espressif.idf.core.util.ILaunchDefaultsContributor.applyDefaults(ILaunchConfigurationWorkingCopy). Do not overwrite attributes the user already set. Use com.espressif.idf.core.util.LaunchAttributes.setStringIfEmpty for strings, and LaunchAttributes.setIfAbsent for boolean and int attributes (false and 0 are valid user choices). com.espressif.idf.core.util.LaunchDefaults.apply loads every contributor and invokes applyDefaults. Contributors run in extension-registry order.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="implementation"/>
+      </appinfo>
+      <documentation>
+         com.espressif.idf.debug.gdbjtag.openocd contributes com.espressif.idf.debug.gdbjtag.openocd.preferences.OpenOCDDefaultsInjector. It fills missing OpenOCD and GDB debug attributes (server, client, SVD path, reset, image, and symbols) from the plugin preferences.
+      </documentation>
+   </annotation>
+
+
+</schema>
