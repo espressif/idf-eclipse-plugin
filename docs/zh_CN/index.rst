@@ -7,6 +7,10 @@ Espressif-IDE 是基于 `Eclipse CDT <https://github.com/eclipse-cdt/>`_ 的集�
 
 该插件可在 **macOS**、**Windows** 和 **Linux** 平台上运行。
 
+.. warning::
+
+    Espressif-IDE 4.5.0（2026 年 10 月 8 日）是 Espressif-IDE 与 ESP-IDF Eclipse 插件的最终功能版本。高严重性缺陷和安全修复的维护期至 2027 年 10 月 8 日。不建议用于新项目。详见 :doc:`support-policy`。
+
 .. note::
 
     Espressif-IDE 3.0 及以上版本支持 ESP-IDF 5.x 及以上版本。对于 ESP-IDF 4.x 及更早版本，请使用 Espressif-IDE `2.12.1 版本 <https://github.com/espressif/idf-eclipse-plugin/releases/tag/v2.12.1>`_。
@@ -44,6 +48,7 @@ Espressif-IDE 是基于 `Eclipse CDT <https://github.com/eclipse-cdt/>`_ 的集�
 .. toctree::
     :maxdepth: 1
 
+    支持政策 <support-policy>
     准备工作 <prerequisites>
     安装 <installation>
     启动项目 <startproject>

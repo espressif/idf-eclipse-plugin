@@ -5,6 +5,10 @@ Update Site Installation Guide
 
 :link_to_translation:`zh_CN:[中文]`
 
+.. note::
+
+   Version 4.5.0 is the final feature release of the plugin. Maintenance continues until 8 October 2027. See :doc:`support-policy`.
+
 The Espressif-IDE Eclipse Plugin can be installed using the following three methods:
 
 - :ref:`installUpdateSiteURL`

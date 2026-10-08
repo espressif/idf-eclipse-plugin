@@ -5,6 +5,10 @@
 
 :link_to_translation:`en:[English]`
 
+.. note::
+
+   4.5.0 是该插件的最终功能版本。维护期至 2027 年 10 月 8 日。详见 :doc:`support-policy`。
+
 可通过以下三种方式安装 Espressif-IDE Eclipse 插件：
 
 - :ref:`installUpdateSiteURL`

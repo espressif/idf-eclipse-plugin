@@ -36,6 +36,8 @@ Espressif-IDE is an Integrated Development Environment(IDE) based on Eclipse CDT
 
 You can find the latest Espressif-IDE release notes from [here](https://github.com/espressif/idf-eclipse-plugin/releases). Provided below are the direct download links for various platforms.
 
+Version 4.5.0 is the final feature release. Maintenance continues until 8 October 2027. See the [support policy](https://github.com/espressif/idf-eclipse-plugin/blob/master/SUPPORT_POLICY.md).
+
 | OS  | Download |
 | ------------- | ------------- |
 | Windows  | <a href ="https://dl.espressif.com/dl/idf-eclipse-plugin/ide/Espressif-IDE-win32.win32.x86_64/latest">Espressif-IDE-win32.win32.x86_64</a>  |

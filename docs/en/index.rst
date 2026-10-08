@@ -7,6 +7,10 @@ Espressif-IDE is an Integrated Development Environment (IDE) based on `Eclipse C
 
 The plug-in runs on **macOS**, **Windows** and **Linux** platforms.
 
+.. warning::
+
+    Espressif-IDE 4.5.0 (8 October 2026) is the final feature release of Espressif-IDE and the ESP-IDF Eclipse plugin. Maintenance for high-severity bugs and security fixes continues until 8 October 2027. This release is not recommended for new projects. See :doc:`support-policy`.
+
 .. note::
 
     Espressif-IDE version 3.0 and later supports ESP-IDF version 5.x and above. For ESP-IDF version 4.x and earlier, please use Espressif-IDE version `2.12.1 <https://github.com/espressif/idf-eclipse-plugin/releases/tag/v2.12.1>`_.
@@ -44,6 +48,7 @@ Contents
 .. toctree::
     :maxdepth: 1
 
+    Support Policy <support-policy>
     Prerequisites <prerequisites>
     Installation <installation>
     Start Your Project <startproject>
