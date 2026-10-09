@@ -47,6 +47,7 @@ If you are migrating a project from an older version, you need to create a ``.cl
     CompileFlags:
         CompilationDatabase: build
         Remove: [-m*, -f*]
+        BuiltinHeaders: QueryDriver
 
 How to Fix the "Unknown Argument" Error When Navigating to ESP-IDF Components
 -----------------------------------------------------------------------------

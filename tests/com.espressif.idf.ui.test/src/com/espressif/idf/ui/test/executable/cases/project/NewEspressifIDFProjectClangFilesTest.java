@@ -400,7 +400,8 @@ public class NewEspressifIDFProjectClangFilesTest
 			String buildPath = getExpectedBuildFolderPATH(projectName);
 			SWTBotEditor editor = editorFor(projectName, ILSPConstants.CLANGD_CONFIG_FILE);
 
-			String expectedText = "CompileFlags:\n  CompilationDatabase: " + buildPath + "\n  Remove: [-m*, -f*]";
+			String expectedText = "CompileFlags:\n  CompilationDatabase: " + buildPath
+					+ "\n  Remove: [-m*, -f*]\n  BuiltinHeaders: QueryDriver";
 			waitForEditorContent(editor, expectedText);
 
 			assertTextEqualsNormalized("Clangd file content with build path did not match", expectedText,
