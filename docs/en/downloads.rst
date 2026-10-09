@@ -7,6 +7,10 @@ Espressif-IDE Downloads
 
 You can find the latest Espressif-IDE release notes at `here <https://github.com/espressif/idf-eclipse-plugin/releases>`_. Direct download links for various platforms are provided below.
 
+.. note::
+
+   Version 4.5.0 is the final feature release. Maintenance continues until 8 October 2027. See :doc:`support-policy`.
+
 .. list-table::
    :header-rows: 1
    :widths: 20 80

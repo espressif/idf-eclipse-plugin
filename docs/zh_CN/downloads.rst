@@ -7,6 +7,10 @@
 
 点击 `此处 <https://github.com/espressif/idf-eclipse-plugin/releases>`_ 可查看最新的 Espressif-IDE 发行说明。下面提供了各平台的直接下载链接。
 
+.. note::
+
+   4.5.0 是最终功能版本。维护期至 2027 年 10 月 8 日。详见 :doc:`support-policy`。
+
 .. list-table::
    :header-rows: 1
    :widths: 20 80

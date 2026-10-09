@@ -26,6 +26,11 @@
 ---
 
 Espressif-IDE is a standalone, customized IDE built on Eclipse CDT for developing IoT applications with [ESP-IDF](https://github.com/espressif/esp-idf). It bundles the IDF Eclipse plugins, Eclipse CDT, and essential third-party plugins into a single ready-to-use environment for the entire ESP32 family of chips.
+
+## Support status
+
+Espressif-IDE 4.5.0, released on 8 October 2026, is the final feature release of Espressif-IDE and the ESP-IDF Eclipse plugin. Maintenance for high-severity bugs and security fixes continues until 8 October 2027. It is not recommended for new projects. See [SUPPORT_POLICY.md](SUPPORT_POLICY.md).
+
 ## Key Features
 
 ### Write
@@ -120,6 +125,7 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for development
 
 ## Resources
 
+- [Support Policy](SUPPORT_POLICY.md)
 - [Official Documentation](https://docs.espressif.com/projects/espressif-ide/en/latest/)
 - [ESP-IDF Programming Guide](https://docs.espressif.com/projects/esp-idf/en/latest/)
 - [Espressif on GitHub](https://github.com/espressif)
