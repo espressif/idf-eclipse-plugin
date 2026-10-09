@@ -1,15 +1,10 @@
 name: ESP Eclipse Plug-in Update Site Test
 
 on:
-  push:
-    paths:
-      - 'releng/update-site-tests/**'
-      - '.github/workflows/update-site-tests.yml'
-
   pull_request:
     paths:
       - 'releng/update-site-tests/**'
-      - '.github/workflows/update-site-tests.yml'
+      - '.github/workflows/update-site-test.yml'
 
   schedule:
     # Runs every day at 00:00 UTC
