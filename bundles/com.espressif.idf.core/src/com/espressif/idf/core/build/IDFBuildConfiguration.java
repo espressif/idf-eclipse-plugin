@@ -343,7 +343,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 			throws CoreException, IOException, CmakeBuildException
 	{
 		try (ErrorParserManager epm = new ErrorParserManager(project, getBuildDirectoryURI(), this,
-				getToolChain().getErrorParserIds()))
+				IdfKconfigNoteParser.prepend(getToolChain().getErrorParserIds())))
 		{
 			epm.setOutputStream(console.getOutputStream());
 
@@ -498,7 +498,7 @@ public class IDFBuildConfiguration extends CBuildConfiguration
 		}
 
 		try (ErrorParserManager epm = new ErrorParserManager(project, getBuildDirectoryURI(), this,
-				getToolChain().getErrorParserIds()))
+				IdfKconfigNoteParser.prepend(getToolChain().getErrorParserIds())))
 		{
 			epm.setOutputStream(console.getOutputStream());
 			watchProcess(new IConsoleParser[] { epm }, monitor);

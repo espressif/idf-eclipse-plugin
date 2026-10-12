@@ -21,6 +21,16 @@
             natureId="com.espressif.idf.core.idfNature">
       </provider>
    </extension>
+   <extension
+         id="IdfKconfigNoteParser"
+         name="%idfKconfigNoteParser.name"
+         point="org.eclipse.cdt.core.ErrorParser">
+      <errorparser
+            class="com.espressif.idf.core.build.IdfKconfigNoteParser"
+            id="com.espressif.idf.core.IdfKconfigNoteParser"
+            name="%idfKconfigNoteParser.name">
+      </errorparser>
+   </extension>
   <extension
         point="org.eclipse.cdt.cmake.core.toolChainProvider">
      <provider
