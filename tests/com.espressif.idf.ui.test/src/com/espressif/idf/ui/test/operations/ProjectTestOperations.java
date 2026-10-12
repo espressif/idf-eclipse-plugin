@@ -97,6 +97,9 @@ public class ProjectTestOperations
 	/** OpenOCD and GDB PIDs captured while Eclipse still owns the debug launch. */
 	private static final Set<Long> rememberedDebugProcessIds = new LinkedHashSet<>();
 
+	/** Last debug-test action, included in the one-line failure the runner summary prints. */
+	private static volatile String debugCheckpoint = "";
+
 	private static final int DELETE_PROJECT_TIMEOUT = 240000;
 
 	/**
@@ -913,6 +916,17 @@ public class ProjectTestOperations
 		}
 	}
 
+	public static void noteDebugCheckpoint(String checkpoint)
+	{
+		debugCheckpoint = checkpoint == null ? "" : checkpoint;
+		System.out.println("[IDFProjectDebugProcessTest] checkpoint " + debugCheckpoint);
+	}
+
+	public static String debugCheckpoint()
+	{
+		return debugCheckpoint == null ? "" : debugCheckpoint;
+	}
+
 	public static void startDebuggingUsingContextMenu(String projectName, SWTWorkbenchBot bot)
 	{
 		SWTBotTreeItem projectItem = fetchProjectFromProjectExplorer(projectName, bot);
@@ -921,11 +935,13 @@ public class ProjectTestOperations
 			throw new WidgetNotFoundException("Project not found in Project Explorer: " + projectName);
 		}
 
+		noteDebugCheckpoint("open Debug Configurations");
 		projectItem.select();
 		projectItem.contextMenu("Debug As").menu("Debug Configurations...").click();
 
 		TestWidgetWaitUtility.waitForDialogToAppear(bot, "Debug Configurations", 10000);
 
+		noteDebugCheckpoint("select ESP-IDF GDB OpenOCD debug configuration");
 		bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").select();
 		bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").expand();
 
@@ -949,6 +965,7 @@ public class ProjectTestOperations
 		}
 
 		bot.waitUntil(Conditions.widgetIsEnabled(bot.button("Debug")), 5000);
+		noteDebugCheckpoint("click Debug");
 		bot.button("Debug").click();
 		// Do not switch perspective here. The Confirm Perspective Switch dialog appears while GDB
 		// is still printing, and accepting it cuts the console before
@@ -1031,6 +1048,7 @@ public class ProjectTestOperations
 				DefaultPropertyFetcher.getLongPropertyValue(DEFAULT_FLASH_WAIT_PROPERTY, 120000),
 				180000);
 		long deadline = System.currentTimeMillis() + timeout;
+		long nextHeartbeat = System.currentTimeMillis();
 		boolean perspectiveHandled = false;
 
 		while (System.currentTimeMillis() < deadline)
@@ -1039,6 +1057,11 @@ public class ProjectTestOperations
 			// Both steal focus while GDB is printing and leave the log at "[Switching to Thread".
 			rememberDebugProcessIds(null);
 			String consoleText = readConsoleTextQuietly(bot);
+			if (System.currentTimeMillis() >= nextHeartbeat)
+			{
+				noteDebugCheckpoint("waiting for app_main breakpoint; " + consoleTail(consoleText));
+				nextHeartbeat = System.currentTimeMillis() + 15000;
+			}
 
 			if (consoleText.contains("shutdown command invoked")
 					|| consoleText.contains("dropped 'gdb' connection"))
@@ -1050,8 +1073,7 @@ public class ProjectTestOperations
 
 			if (isSuspendedAtBreakpoint(consoleText))
 			{
-				System.out.println("[IDFProjectDebugProcessTest] suspend recognized: "
-						+ describeSuspendSignal(consoleText));
+				noteDebugCheckpoint("suspend recognized: " + describeSuspendSignal(consoleText));
 				if (!perspectiveHandled)
 				{
 					perspectiveHandled = acceptDebugPerspectiveSwitchIfPresent(bot, 30000);
@@ -1153,6 +1175,21 @@ public class ProjectTestOperations
 		return "console contains the app_main breakpoint line";
 	}
 
+	private static String consoleTail(String consoleText)
+	{
+		if (consoleText == null || consoleText.isEmpty())
+		{
+			return "console=<empty>";
+		}
+		String[] lines = consoleText.split("\\R");
+		String last = lines[lines.length - 1].trim();
+		if (last.length() > 160)
+		{
+			last = last.substring(last.length() - 160);
+		}
+		return "console=\"" + last.replace('\t', ' ') + "\"";
+	}
+
 	/**
 	 * True when an active debug target has a thread whose stack includes {@code app_main}.
 	 * Prefer this over OpenOCD console text — GDB often suspends in the UI without printing
@@ -1175,6 +1212,7 @@ public class ProjectTestOperations
 	 */
 	public static void performDebugStepOver(String projectName, SWTWorkbenchBot bot)
 	{
+		noteDebugCheckpoint("Step Over: open Debug perspective");
 		acceptDebugPerspectiveSwitchIfPresent(bot, 2000);
 		openDebugPerspective(bot);
 		// Let Debug perspective / toolbar finish loading before probing Step Over controls.
@@ -1186,6 +1224,7 @@ public class ProjectTestOperations
 		}
 
 		final SWTWorkbenchBot workbenchBot = bot;
+		noteDebugCheckpoint("Step Over: wait until the toolbar or Debug view thread is ready");
 		try
 		{
 			workbenchBot.waitUntil(new DefaultCondition()
@@ -1230,13 +1269,17 @@ public class ProjectTestOperations
 
 		bot.sleep(1500);
 
+		noteDebugCheckpoint("Step Over: click toolbar button");
 		if (clickToolbarStepOver(bot))
 		{
+			noteDebugCheckpoint("Step Over: toolbar click done");
 			bot.sleep(3000);
 			return;
 		}
+		noteDebugCheckpoint("Step Over: click Debug view context menu");
 		if (clickDebugViewStepOver(bot))
 		{
+			noteDebugCheckpoint("Step Over: context menu click done");
 			bot.sleep(3000);
 			return;
 		}

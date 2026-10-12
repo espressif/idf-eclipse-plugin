@@ -25,9 +25,12 @@ import org.junit.AfterClass;
 import org.junit.AssumptionViolatedException;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
+import org.junit.runners.model.Statement;
 
 import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
@@ -61,6 +64,40 @@ public class IDFProjectDebugProcessTest
 			Pattern.compile("Connected to\\s+(ESP32[-A-Z0-9]*)\\b", Pattern.CASE_INSENSITIVE),
 			Pattern.compile("Chip type:\\s*(ESP32[-A-Z0-9]*)\\b", Pattern.CASE_INSENSITIVE),
 			Pattern.compile("Detecting chip type\\.\\.\\.\\s*(ESP32[-A-Z0-9]*)\\b", Pattern.CASE_INSENSITIVE)
+	};
+
+	/**
+	 * Rewrites a blank SWTBot {@link AssertionError} so the runner summary, which prints only
+	 * {@code class: message}, still shows the step and the last checkpoint.
+	 */
+	@Rule
+	public final TestRule reportDebugStep = (base, description) -> new Statement()
+	{
+		@Override
+		public void evaluate() throws Throwable
+		{
+			try
+			{
+				base.evaluate();
+			}
+			catch (AssumptionViolatedException skipped)
+			{
+				throw skipped;
+			}
+			catch (Throwable failure)
+			{
+				String message = failure.getMessage();
+				if (message != null && message.startsWith("Debug test failed at step ["))
+				{
+					throw failure;
+				}
+				String cause = failure.getClass().getSimpleName() + ": "
+						+ (message == null || message.trim().isEmpty() ? "<empty message>" : message.trim());
+				cause = cause.replace('\n', ' ').replace('\r', ' ');
+				throw new AssertionError("Debug test failed at step [" + ProjectTestOperations.debugCheckpoint()
+						+ "]. Cause: " + cause);
+			}
+		}
 	};
 
 	@BeforeClass
@@ -123,6 +160,7 @@ public class IDFProjectDebugProcessTest
 	 */
 	private static void runDebugStep(String step, DebugStep action) throws Exception
 	{
+		ProjectTestOperations.noteDebugCheckpoint(step);
 		System.out.println("[IDFProjectDebugProcessTest] START " + step);
 		long started = System.currentTimeMillis();
 		try
@@ -139,13 +177,30 @@ public class IDFProjectDebugProcessTest
 		catch (Throwable failure)
 		{
 			long elapsed = System.currentTimeMillis() - started;
-			String detail = describeFailure(failure) + "\n" + Fixture.failureContext();
-			System.err.println("[IDFProjectDebugProcessTest] FAIL " + step + " after " + elapsed + " ms\n" + detail);
-			AssertionError reported = new AssertionError(
-					"Debug test failed at step [" + step + "] after " + elapsed + " ms. " + detail);
-			reported.initCause(failure);
-			throw reported;
+			String checkpoint = ProjectTestOperations.debugCheckpoint();
+			String message = "Debug test failed at step [" + step + "]"
+					+ (checkpoint.isEmpty() || checkpoint.equals(step) ? "" : ", checkpoint [" + checkpoint + "]")
+					+ " after " + elapsed + " ms. Cause: " + oneLineCause(failure);
+			System.err.println("[IDFProjectDebugProcessTest] FAIL " + message);
+			System.err.println(describeFailure(failure));
+			System.err.println(Fixture.failureContext());
+			// No cause chain: the runner summary prints the root exception, and that used to be a
+			// blank SWTBot AssertionError.
+			throw new AssertionError(message);
 		}
+	}
+
+	private static String oneLineCause(Throwable failure)
+	{
+		String text = failure.getMessage();
+		String summary = failure.getClass().getSimpleName() + ": "
+				+ (text == null || text.trim().isEmpty() ? "<empty message>" : text.trim());
+		summary = summary.replace('\n', ' ').replace('\r', ' ');
+		if (summary.length() > 300)
+		{
+			summary = summary.substring(0, 300);
+		}
+		return summary;
 	}
 
 	private static String describeFailure(Throwable failure)
