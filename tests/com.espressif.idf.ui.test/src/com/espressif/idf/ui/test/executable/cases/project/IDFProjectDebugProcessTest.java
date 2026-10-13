@@ -15,7 +15,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.SystemUtils;
+import org.eclipse.core.resources.IBuildConfiguration;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.core.ILaunchMode;
+import org.eclipse.launchbar.core.ILaunchBarManager;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
@@ -32,6 +40,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.junit.runners.model.Statement;
 
+import com.espressif.idf.core.IDFCorePlugin;
+import com.espressif.idf.core.build.IDFBuildConfigurationProvider;
 import com.espressif.idf.ui.test.common.WorkBenchSWTBot;
 import com.espressif.idf.ui.test.common.utility.TestWidgetWaitUtility;
 import com.espressif.idf.ui.test.operations.EnvSetupOperations;
@@ -136,9 +146,9 @@ public class IDFProjectDebugProcessTest
 				"Skipping hardware debug test: ESP32-ETHERNET-KIT board was not detected",
 				Fixture.whenSelectEsp32EthernetKitBoard()));
 
-		// Start debug only via Debug As — do not flip Launch Bar mode/config first.
-		// LaunchBarListener toggles RUN↔DEBUG on descriptor changes and can terminate
-		// an active OpenOCD session when the Debug perspective opens.
+		// Run-mode steps stay above. The ESP-IDF Application configuration becomes the debug
+		// configuration only after Launch Mode changes from Run to Debug.
+		runDebugStep("switch Launch Mode to Debug", () -> Fixture.whenLaunchModeIsSwitchedToDebug());
 		runDebugStep("start debugging", () -> Fixture.whenStartDebuggingUsingContextMenu());
 		runDebugStep("wait until suspended at app_main", () -> Fixture.thenVerifyDebugSessionStarted());
 		runDebugStep("check OpenOCD console after suspend", () -> Fixture.thenVerifyNoFatalOpenOcdErrors());
@@ -430,6 +440,59 @@ public class IDFProjectDebugProcessTest
 			ProjectTestOperations.waitForProjectFlash(bot);
 		}
 
+		private static void whenLaunchModeIsSwitchedToDebug()
+		{
+			ProjectTestOperations.noteDebugCheckpoint("set Launch Mode to Debug");
+			ILaunchMode mode = DebugPlugin.getDefault().getLaunchManager().getLaunchMode(ILaunchManager.DEBUG_MODE);
+			if (mode == null)
+			{
+				throw new AssertionError("Unknown launch mode: " + ILaunchManager.DEBUG_MODE);
+			}
+			try
+			{
+				IDFCorePlugin.getService(ILaunchBarManager.class).setActiveLaunchMode(mode);
+			}
+			catch (Exception e)
+			{
+				throw new AssertionError("Unable to select the Debug launch mode", e);
+			}
+
+			String debugConfigPrefix = IDFBuildConfigurationProvider.ID + "/idf." + ILaunchManager.DEBUG_MODE + ".";
+			bot.waitUntil(new DefaultCondition()
+			{
+				@Override
+				public boolean test() throws Exception
+				{
+					return activeBuildConfigName().startsWith(debugConfigPrefix);
+				}
+
+				@Override
+				public String getFailureMessage()
+				{
+					return "Launch Mode is Debug, but the active build configuration is still "
+							+ activeBuildConfigName();
+				}
+			}, 30000, 500);
+			ProjectTestOperations.noteDebugCheckpoint("active configuration is " + activeBuildConfigName());
+		}
+
+		private static String activeBuildConfigName()
+		{
+			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+			if (!project.isAccessible())
+			{
+				return IBuildConfiguration.DEFAULT_CONFIG_NAME;
+			}
+			try
+			{
+				return project.getActiveBuildConfig().getName();
+			}
+			catch (Exception e)
+			{
+				return IBuildConfiguration.DEFAULT_CONFIG_NAME;
+			}
+		}
+
 		private static void whenStartDebuggingUsingContextMenu()
 		{
 			ProjectTestOperations.startDebuggingUsingContextMenu(projectName, bot);
@@ -528,6 +591,21 @@ public class IDFProjectDebugProcessTest
 			catch (Exception e)
 			{
 				System.err.println("leaveDebugUi failed: " + e.getMessage());
+			}
+
+			// Launch Mode is workbench-wide. Later tests edit the ESP-IDF Application configuration in Run.
+			try
+			{
+				ILaunchMode runMode = DebugPlugin.getDefault().getLaunchManager()
+						.getLaunchMode(ILaunchManager.RUN_MODE);
+				if (runMode != null)
+				{
+					IDFCorePlugin.getService(ILaunchBarManager.class).setActiveLaunchMode(runMode);
+				}
+			}
+			catch (Exception e)
+			{
+				System.err.println("restore Run launch mode failed: " + e.getMessage());
 			}
 
 			// Delete via workspace API first — UI deleteAllProjects calls WaitUtils.waitForJobs()

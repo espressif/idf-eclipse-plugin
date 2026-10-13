@@ -942,27 +942,7 @@ public class ProjectTestOperations
 		TestWidgetWaitUtility.waitForDialogToAppear(bot, "Debug Configurations", 10000);
 
 		noteDebugCheckpoint("select ESP-IDF GDB OpenOCD debug configuration");
-		bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").select();
-		bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").expand();
-
-		String primaryDebugConfig = projectName + " Debug";
-		String fallbackDebugConfig = projectName + " Configuration";
-		try
-		{
-			bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").getNode(primaryDebugConfig).select();
-		}
-		catch (WidgetNotFoundException e)
-		{
-			try
-			{
-				bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").getNode(fallbackDebugConfig).select();
-			}
-			catch (WidgetNotFoundException e2)
-			{
-				// Last resort: use the first child config under the OpenOCD type.
-				bot.tree().getTreeItem("ESP-IDF GDB OpenOCD Debugging").getNode(0).select();
-			}
-		}
+		selectDebugLaunchConfiguration(bot, projectName);
 
 		bot.waitUntil(Conditions.widgetIsEnabled(bot.button("Debug")), 5000);
 		noteDebugCheckpoint("click Debug");
@@ -970,6 +950,82 @@ public class ProjectTestOperations
 		// Do not switch perspective here. The Confirm Perspective Switch dialog appears while GDB
 		// is still printing, and accepting it cuts the console before
 		// "hit Temporary breakpoint ... app_main". waitForDebugSessionStarted accepts it afterwards.
+	}
+
+	/**
+	 * Selects the project's debug launch. Older IDF builds keep it under ESP-IDF GDB OpenOCD Debugging.
+	 * After launch and debug configurations were unified, the same project config lives under ESP-IDF
+	 * Application and is launched in debug mode.
+	 */
+	private static void selectDebugLaunchConfiguration(SWTWorkbenchBot bot, String projectName)
+	{
+		String[] configNames = { projectName + " Debug", projectName + " Configuration", projectName };
+		if (selectTreeConfig(bot, "ESP-IDF GDB OpenOCD Debugging", configNames))
+		{
+			noteDebugCheckpoint("selected OpenOCD debug configuration");
+			return;
+		}
+		if (selectTreeConfig(bot, "ESP-IDF Application", new String[] { projectName }))
+		{
+			noteDebugCheckpoint("selected ESP-IDF Application configuration for debug");
+			return;
+		}
+		throw new AssertionError("No debug launch configuration for " + projectName
+				+ ". Tree: " + visibleLaunchTreeItems(bot));
+	}
+
+	private static boolean selectTreeConfig(SWTWorkbenchBot bot, String launchType, String[] configNames)
+	{
+		SWTBotTreeItem typeItem;
+		try
+		{
+			typeItem = bot.tree().getTreeItem(launchType);
+		}
+		catch (WidgetNotFoundException e)
+		{
+			return false;
+		}
+		typeItem.select();
+		typeItem.expand();
+		String[] nodes = typeItem.getNodes();
+		for (String configName : configNames)
+		{
+			for (String node : nodes)
+			{
+				if (node.equals(configName))
+				{
+					typeItem.getNode(configName).select();
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private static String visibleLaunchTreeItems(SWTWorkbenchBot bot)
+	{
+		try
+		{
+			StringBuilder items = new StringBuilder();
+			for (SWTBotTreeItem item : bot.tree().getAllItems())
+			{
+				if (items.length() > 0)
+				{
+					items.append(", ");
+				}
+				items.append(item.getText());
+				item.expand();
+				for (String child : item.getNodes())
+				{
+					items.append(" / ").append(child);
+				}
+			}
+			return items.toString();
+		}
+		catch (RuntimeException e)
+		{
+			return "<unavailable " + e.getClass().getSimpleName() + ">";
+		}
 	}
 
 	/**
