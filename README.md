@@ -29,7 +29,7 @@ Espressif-IDE is a standalone, customized IDE built on Eclipse CDT for developin
 
 ## Support status
 
-Espressif-IDE 4.5.0, released on 8 October 2026, is the final feature release of Espressif-IDE and the ESP-IDF Eclipse plugin. Maintenance for high-severity bugs and security fixes continues until 8 October 2027. It is not recommended for new projects. See [SUPPORT_POLICY.md](SUPPORT_POLICY.md).
+Espressif-IDE 4.5.0, released on 14 October 2026, is the final feature release of Espressif-IDE and the ESP-IDF Eclipse plugin. Maintenance for high-severity bugs and security fixes continues until 14 October 2027. It is not recommended for new projects. See [SUPPORT_POLICY.md](SUPPORT_POLICY.md).
 
 ## Key Features
 

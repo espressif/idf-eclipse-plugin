@@ -9,7 +9,7 @@
 
 .. note::
 
-   4.5.0 是最终功能版本。维护期至 2027 年 10 月 8 日。详见 :doc:`support-policy`。
+   4.5.0 是最终功能版本。维护期至 2027 年 10 月 14 日。详见 :doc:`support-policy`。
 
 .. list-table::
    :header-rows: 1
