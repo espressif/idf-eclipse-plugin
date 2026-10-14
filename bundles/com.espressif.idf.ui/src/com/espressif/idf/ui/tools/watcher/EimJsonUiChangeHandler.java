@@ -36,6 +36,9 @@ import com.espressif.idf.ui.tools.manager.pages.ESPIDFMainTablePage;
  */
 public class EimJsonUiChangeHandler implements EimJsonChangeListener
 {
+	/** Keeps a second {@code eim_idf.json} prompt from stacking while one is already queued or visible. */
+	private static final String EIM_JSON_CHANGE_DIALOG = "eim_idf.json"; //$NON-NLS-1$
+
 	private Preferences preferences;
 
 	public EimJsonUiChangeHandler(Preferences preferences)
@@ -60,7 +63,7 @@ public class EimJsonUiChangeHandler implements EimJsonChangeListener
 
 	public void displayMessageToUser()
 	{
-		GlobalModalLock.showModal(() -> MessageDialog.openQuestion(EclipseUtil.getShell(),
+		GlobalModalLock.showModal(EIM_JSON_CHANGE_DIALOG, () -> MessageDialog.openQuestion(EclipseUtil.getShell(),
 				Messages.EimJsonChangedMsgTitle, Messages.EimJsonChangedMsgDetail), t -> {
 					try
 					{
