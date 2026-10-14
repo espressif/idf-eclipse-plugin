@@ -7,7 +7,7 @@ Update Site Installation Guide
 
 .. note::
 
-   Version 4.5.0 is the final feature release of the plugin. Maintenance continues until 8 October 2027. See :doc:`support-policy`.
+   Version 4.5.0 is the final feature release of the plugin. Maintenance continues until 14 October 2027. See :doc:`support-policy`.
 
 The Espressif-IDE Eclipse Plugin can be installed using the following three methods:
 
