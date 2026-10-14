@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
@@ -987,7 +988,7 @@ public class ProjectTestOperations
 		}
 		typeItem.select();
 		typeItem.expand();
-		String[] nodes = typeItem.getNodes();
+		List<String> nodes = typeItem.getNodes();
 		for (String configName : configNames)
 		{
 			for (String node : nodes)
