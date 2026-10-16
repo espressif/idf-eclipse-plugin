@@ -6,8 +6,6 @@ Espressif-IDE 4.5.0 is the final feature release of Espressif-IDE and the ESP-ID
 
 This guide shows how to open an existing ESP-IDF project in VS Code and reproduce the workflows you already know from Espressif-IDE: configure, build, flash, monitor, and debug.
 
-![Espressif-IDE and VS Code overview](docs_readme/images/migration/eclipse_vs_vscode_overview.png)
-
 ## What to expect
 
 You do **not** need to recreate your ESP-IDF project.
