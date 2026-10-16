@@ -278,6 +278,15 @@ No migration-specific changes are required for local custom components that are 
 
 If a component is referenced by an absolute path outside the project, verify that the path is still valid.
 
+## Hardware validation status
+
+Hardware-dependent validation is optional until the user authorizes access to
+the connected device.
+
+If hardware validation has not been authorized or cannot be performed, report
+the configuration migration as complete and mark the affected hardware checks
+as pending.
+
 ## Validation checklist
 
 Do not consider migration complete until the applicable items below pass:
