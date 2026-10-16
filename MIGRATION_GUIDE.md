@@ -63,6 +63,15 @@ In VS Code, the same workflow is split between the **ESP-IDF status bar**, the *
 
 ---
 
+## Optional: AI-assisted migration
+
+If your AI coding agent supports `AGENTS.md`, download the
+[migration `AGENTS.md`](docs_readme/migration/AGENTS.md)
+and place it in the root of your ESP-IDF project.
+
+It provides migration-specific instructions for moving an existing project
+from Espressif-IDE to the ESP-IDF VS Code Extension.
+
 # Migration walkthrough
 
 ## 1. Open the existing project
