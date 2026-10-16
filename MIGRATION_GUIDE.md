@@ -289,6 +289,7 @@ If your project depends on a custom build path:
    {
        "idf.buildPath": "${workspaceFolder}/custom-build"
    }
+   ```
 2. Reconfigure or clean generated state if necessary.
 3. Verify Menuconfig.
 4. Verify Build.
@@ -399,15 +400,13 @@ Use this checklist before considering the migration complete:
 - [ ] SDK Configuration Editor opens successfully.
 - [ ] Existing `sdkconfig` values are preserved.
 - [ ] Project builds successfully.
-- [ ] Managed components are resolved.
-- [ ] Local/custom components are resolved.
+- [ ] Local/custom/managed components are resolved.
 - [ ] UART and/or JTAG Flash works for the intended workflow.
 - [ ] Monitor shows expected runtime output.
 - [ ] Custom build directory is restored if required.
 - [ ] `.vscode/launch.json` exists for Debug users.
 - [ ] Default Debug starts successfully.
 - [ ] Custom Eclipse debug settings have been reviewed.
-- [ ] `.clang-format` / `.clangd` behavior has been verified if used.
 
 ---
 
