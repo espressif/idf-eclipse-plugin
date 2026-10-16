@@ -274,14 +274,23 @@ For example:
 ```xml
 <stringAttribute
     key="com.espressif.idf.launch.serial.core.idfBuildFolderPath"
-    value="/Users/.../Documents/CUSTOM"/>
+    value="/path/to/custom-build"/>
 ```
 
 VS Code supports a custom build directory, but this value is not currently imported automatically from Eclipse metadata.
 
 If your project depends on a custom build path:
 
-1. Configure the equivalent build directory in VS Code.
+1. Configure the equivalent build directory in VS Code using the
+   [`idf.buildPath`](https://github.com/espressif/vscode-esp-idf-extension/blob/master/docs_espressif/en/settings.rst#build)
+   setting.
+
+   For example:
+
+   ```json
+   {
+       "idf.buildPath": "${workspaceFolder}/custom-build"
+   }
 2. Reconfigure or clean generated state if necessary.
 3. Verify Menuconfig.
 4. Verify Build.
@@ -294,7 +303,7 @@ This matters not only for compilation. External scripts and Clangd may also depe
 
 ## JTAG / OpenOCD settings
 
-Some JTAG state can be stored in the Eclipse workspace under `.metadata`, including adapter-specific values.
+Some JTAG state can be stored in the Eclipse workspace under `<workspace>/.metadata`, including adapter-specific values.
 
 Examples found during migration testing included:
 
@@ -342,66 +351,25 @@ Start with a working default VS Code Debug configuration, then recreate only the
 
 ## Local custom components
 
-Local components remain portable when their paths are part of the ESP-IDF project configuration.
+No migration-specific changes are required for local custom components that are already configured as part of the ESP-IDF project.
 
-Example structure:
+VS Code uses the same ESP-IDF/CMake project configuration, including settings such as `EXTRA_COMPONENT_DIRS`, so existing local components should continue to work without modification.
 
-```text
-project/
-├── CMakeLists.txt
-├── main/
-└── extra_components/
-    └── migration_component/
-        ├── CMakeLists.txt
-        ├── migration_component.c
-        └── include/
-            └── migration_component.h
-```
-
-Root `CMakeLists.txt`:
-
-```cmake
-cmake_minimum_required(VERSION 3.22)
-
-set(EXTRA_COMPONENT_DIRS "extra_components")
-
-include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-project(my_project)
-```
-
-`main/CMakeLists.txt`:
-
-```cmake
-idf_component_register(
-    SRCS "main.c"
-    INCLUDE_DIRS "."
-    PRIV_REQUIRES migration_component
-)
-```
-
-If the component cannot be found after migration, verify the folder structure and `EXTRA_COMPONENT_DIRS`, then reconfigure the project.
+> **Note:** If a component is located outside the project and is referenced using an absolute path, verify that the path is still valid after migration.
 
 ---
 
-## `.clang-format` and `.clangd`
+## C/C++ code navigation and IntelliSense
 
-If `.clang-format` and `.clangd` are stored inside the project, keep them with the project and verify their behavior in VS Code.
+Espressif-IDE uses clangd for C/C++ code navigation, diagnostics, and header resolution.
 
-If a dot-file exists on disk but is hidden in the VS Code Explorer, check settings such as:
+In VS Code, the default ESP-IDF setup uses the Microsoft C/C++ extension.
 
-```json
-"files.exclude"
-```
+If you prefer to continue using clangd, install the clangd extension and run:
 
-and:
+**ESP-IDF: Configure project for ESP-Clang**
 
-```json
-"explorer.excludeGitIgnore"
-```
-
-before assuming the file was lost during migration.
-
-If the build directory changes, verify code intelligence as well because Clangd commonly relies on `compile_commands.json` generated in the build directory.
+See the [ESP-IDF VS Code Extension documentation](https://github.com/espressif/vscode-esp-idf-extension/blob/master/docs_espressif/en/configureproject.rst#c-and-c-code-navigation-and-syntax-highlighting) for more details.
 
 ---
 
