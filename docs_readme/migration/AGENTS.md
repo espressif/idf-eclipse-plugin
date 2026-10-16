@@ -55,6 +55,27 @@ After migration, report only:
 - When a setting cannot be mapped reliably, preserve the original value, explain the limitation, and ask the user to review it manually.
 - Inspect both the ESP-IDF project and the original Eclipse workspace metadata when the workspace is available.
 
+## Hardware actions
+
+Project inspection and migration of VS Code configuration may be performed
+automatically.
+
+Before performing an action that changes a connected device, ask the user
+for confirmation.
+
+This includes:
+
+- flashing firmware
+- erasing flash
+- starting a debug workflow that performs an automatic flash
+
+Do not treat a general migration request as authorization to modify the
+connected device.
+
+If the user explicitly asks to migrate and validate the project on hardware,
+that request may be treated as authorization for the requested hardware
+validation steps.
+
 ## Source-of-truth priority
 
 When target-related values conflict, prefer:
@@ -122,11 +143,15 @@ Verify that important existing values are preserved.
 
 ### 8. Flash and Monitor
 
-Run:
+Prepare and verify the Flash and Monitor configuration.
+
+Before flashing a connected device, ask the user for confirmation.
+
+After confirmation, run:
 
 `ESP-IDF: Flash your project`
 
-Then:
+Then run:
 
 `ESP-IDF: Monitor your device`
 
