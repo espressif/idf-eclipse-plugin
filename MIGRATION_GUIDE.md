@@ -20,7 +20,6 @@ Most project-level ESP-IDF configuration is portable and can be reused directly 
 - `idf_component.yml`
 - Managed components
 - Local/custom components
-- `.clang-format` and `.clangd` when stored in the project
 
 ### May require manual setup
 
@@ -53,11 +52,11 @@ Most project-level ESP-IDF configuration is portable and can be reused directly 
 
 ### Familiar controls, different locations
 
-Espressif-IDE exposes many project actions through the Eclipse toolbar:
+Espressif-IDE provides common project actions through the Eclipse toolbar:
 
 ![Espressif-IDE toolbar](docs_readme/images/migration/eclipse_toolbar.png)
 
-In VS Code, the same workflow is split between the **ESP-IDF status bar**, the **Command Palette**, and the **Run and Debug** view:
+In VS Code, equivalent actions are available through the **ESP-IDF status bar**, **Command Palette**, and **Run and Debug** view:
 
 ![VS Code ESP-IDF status bar](docs_readme/images/migration/vscode_status_bar.png)
 
@@ -69,8 +68,19 @@ If your AI coding agent supports `AGENTS.md`, download the
 [migration `AGENTS.md`](docs_readme/migration/AGENTS.md)
 and place it in the root of your ESP-IDF project.
 
-It provides migration-specific instructions for moving an existing project
-from Espressif-IDE to the ESP-IDF VS Code Extension.
+It provides migration-specific instructions for inspecting the existing project
+and Eclipse workspace metadata, then migrating supported build, JTAG/OpenOCD,
+and debug settings to their VS Code equivalents.
+
+You can start with a simple prompt:
+
+```text
+Migrate this existing Espressif-IDE project to the ESP-IDF VS Code Extension.
+```
+
+The agent should apply settings automatically when the mapping is unambiguous
+and report only what still requires manual review. Actions that modify a
+connected device, such as flashing firmware, should require user confirmation.
 
 # Migration walkthrough
 
@@ -156,16 +166,14 @@ Windows: COM3, COM4, ...
 
 Do not clean the project automatically unless it is necessary. First try to use the existing project normally.
 
-If Menuconfig or configuration fails because the inherited build cache references a different Python executable, ESP-IDF environment, or absolute path, run:
+If Menuconfig or project configuration fails because of stale or environment-specific build cache, run:
 
 **ESP-IDF: Full Clean**
 
 ![Full Clean](docs_readme/images/migration/05_full_clean.gif)
 
-A validated migration case contained a CMake cache created with `.../python`, while the VS Code environment used `.../python3`. Full Clean removed the incompatible generated state and allowed the project to reconfigure successfully.
-
 > [!NOTE]
-> A full project Build is not required just to recover Menuconfig after this type of cache problem. Full Clean followed by reopening the SDK Configuration Editor can be enough.
+> A full project Build is not required just to recover Menuconfig. Full Clean followed by reopening the SDK Configuration Editor can be enough.
 
 ---
 
@@ -212,9 +220,11 @@ If the editor reports that the project must be cleaned because of an incompatibl
 
 ---
 
-## 9. Flash the project
+## 9. Validate Flash
 
-After the target, flash method, and port/board are correct, run:
+After the project builds successfully, validate the hardware workflows you normally use.
+
+If Flash is part of your workflow, make sure the target, flash method, and port/board are correct, then run:
 
 **ESP-IDF: Flash your project**
 
@@ -226,20 +236,17 @@ UART flashing normally works once the correct serial port and target are configu
 
 ### JTAG users
 
-If JTAG Flash fails immediately with an OpenOCD adapter/device error, do not assume JTAG support is broken. First:
+If JTAG Flash fails with an OpenOCD adapter/device error:
 
-1. Re-select the target.
-2. Select the exact board/device configuration.
-3. Confirm the flash method is JTAG.
-4. Verify the adapter/device selection when multiple boards are connected.
-
-In migration testing, this restored the correct board OpenOCD configuration and JTAG Flash started working normally.
+1. Re-select the target and exact board/device configuration.
+2. Confirm the flash method is JTAG.
+3. Verify the intended adapter when multiple devices are connected.
 
 ---
 
-## 10. Start Serial Monitor
+## 10. Validate Serial Monitor
 
-Run:
+If Serial Monitor is part of your workflow, run:
 
 **ESP-IDF: Monitor your device**
 
@@ -251,7 +258,7 @@ This is also a convenient point to validate custom/local components because thei
 
 ---
 
-## 11. Configure and start Debug
+## 11. Configure and validate Debug
 
 Existing Espressif-IDE projects do not necessarily contain a VS Code debug configuration.
 
@@ -284,7 +291,7 @@ For example:
     value="/path/to/custom-build"/>
 ```
 
-VS Code supports a custom build directory, but this value is not currently imported automatically from Eclipse metadata.
+VS Code supports a custom build directory, but this value is not currently imported automatically.
 
 If your project depends on a custom build path:
 
@@ -302,8 +309,8 @@ If your project depends on a custom build path:
 2. Reconfigure or clean generated state if necessary.
 3. Verify Menuconfig.
 4. Verify Build.
-5. Verify Flash.
-6. Verify Debug.
+5. Verify Flash if it is part of your workflow.
+6. Verify Debug if it is part of your workflow.
 
 This matters not only for compilation. External scripts and Clangd may also depend on files such as `compile_commands.json` generated inside the active build directory.
 
@@ -311,61 +318,36 @@ This matters not only for compilation. External scripts and Clangd may also depe
 
 ## JTAG / OpenOCD settings
 
-Some JTAG state can be stored in the Eclipse workspace under `<workspace>/.metadata`, including adapter-specific values.
+JTAG board and adapter settings are IDE-specific and may need to be selected again in VS Code.
 
-Examples found during migration testing included:
+If JTAG Flash does not work after migration:
 
-```text
-OPENOCD_ADAPTER_SERIAL=...
-OPENOCD_USB_ADAPTER_LOCATION=...
-```
-
-If the migrated project builds successfully but JTAG Flash does not:
-
-1. Verify `IDF_TARGET`.
-2. Re-select the board/device in VS Code.
-3. Verify the OpenOCD board configuration.
-4. Verify JTAG as the flash method.
-5. Verify the intended adapter if multiple devices are connected.
-6. Confirm JTAG Flash before troubleshooting the Debug configuration.
+1. Verify the ESP-IDF target and re-select the exact board/device.
+2. Confirm JTAG is selected as the flash method.
+3. Verify the intended adapter when multiple devices are connected.
 
 ---
 
 ## Custom Eclipse debug configuration
 
-Eclipse debug settings may be stored in:
+Espressif-IDE debug settings are not automatically converted into VS Code debug settings.
 
-```text
-<workspace>/.metadata/.plugins/org.eclipse.debug.core/.launches/<project>.launch
-```
+Review the old Eclipse `.launch` configuration if your workflow uses custom values such as:
 
-Review the old `.launch` file if your workflow uses custom values such as:
-
-- GDB port
-- TCL port
-- Telnet port
+- GDB, TCL, or Telnet ports
 - `stopAt=app_main`
 - semihosting
-- flash-before-debug
-- reset sequence
-- custom GDB commands or timeouts
+- flash-before-debug behavior
+- reset/start behavior
+- custom GDB commands, arguments, or timeouts
 
-Start with a working default VS Code Debug configuration, then recreate only the custom behavior your project actually requires.
+Start from the standard VS Code Debug configuration, then migrate or recreate only the custom behavior your project actually requires.
 
 > [!CAUTION]
 > Eclipse workspace metadata can contain stale or duplicated values. Do not blindly copy every target-related value into VS Code. Prefer the actual ESP-IDF project configuration when resolving conflicts.
 
 ---
 
-## Local custom components
-
-No migration-specific changes are required for local custom components that are already configured as part of the ESP-IDF project.
-
-VS Code uses the same ESP-IDF/CMake project configuration, including settings such as `EXTRA_COMPONENT_DIRS`, so existing local components should continue to work without modification.
-
-> **Note:** If a component is located outside the project and is referenced using an absolute path, verify that the path is still valid after migration.
-
----
 
 ## C/C++ code navigation and IntelliSense
 
@@ -389,53 +371,25 @@ See the [ESP-IDF VS Code Extension documentation](https://github.com/espressif/v
 | JTAG Flash reports an FTDI/OpenOCD device error | Board/OpenOCD setup was not restored | Re-select target + exact board/device configuration. |
 | Target appears correct but JTAG still fails | Chip target and board/OpenOCD state are separate | Explicitly select the board/device again. |
 | Debug reports `.vscode/launch.json` is missing | Existing project has no VS Code debug config | Run **ESP-IDF: Add VS Code Configuration Folder**. |
-| Default Debug works but behavior differs from Eclipse | Custom Eclipse `.launch` values were not converted | Review and recreate required custom debug settings. |
+| Default Debug works but behavior differs from Eclipse | Custom Eclipse `.launch` values were not converted | Review and migrate/recreate the required custom debug settings. |
 | VS Code creates `project/build` instead of the old build path | Eclipse custom build path was not imported | Configure the custom build directory manually. |
-| Custom component header cannot be found | Incorrect `EXTRA_COMPONENT_DIRS`, folder layout, or stale cache | Verify CMake/component paths and reconfigure. |
 | Doctor reports unrelated configuration errors | Stale user/global extension settings | Check whether the reported setting is relevant to the current project. |
 
 ---
 
 # Final migration checklist
 
-Use this checklist before considering the migration complete:
+Before considering the migration complete:
 
-- [ ] Existing project opens directly in VS Code.
-- [ ] Correct ESP-IDF installation/version is selected.
-- [ ] Correct ESP-IDF target is selected.
-- [ ] Correct board/OpenOCD configuration is selected for JTAG projects.
-- [ ] Flash method is correct.
-- [ ] Serial port is correct when UART/Monitor is used.
-- [ ] SDK Configuration Editor opens successfully.
-- [ ] Existing `sdkconfig` values are preserved.
-- [ ] Project builds successfully.
-- [ ] Local/custom/managed components are resolved.
-- [ ] UART and/or JTAG Flash works for the intended workflow.
-- [ ] Monitor shows expected runtime output.
+- [ ] Project opens and builds with the expected ESP-IDF version and target.
+- [ ] Menuconfig opens and existing configuration values are preserved.
+- [ ] Board/OpenOCD, flash method, and serial port are correct for the workflows you use.
+- [ ] Flash / Monitor work if they are part of your workflow.
 - [ ] Custom build directory is restored if required.
-- [ ] `.vscode/launch.json` exists for Debug users.
-- [ ] Default Debug starts successfully.
-- [ ] Custom Eclipse debug settings have been reviewed.
+- [ ] Debug starts successfully and required custom Eclipse debug settings have been reviewed.
 
 ---
 
-# Where Eclipse-specific configuration may live
-
-Do not delete the original Eclipse workspace until migration validation is complete.
-
-Useful locations include:
-
-```text
-<workspace>/.metadata/.plugins/org.eclipse.debug.core/.launches/<project>.launch
-<workspace>/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.launchbar.core.prefs
-<workspace>/.metadata/.plugins/org.eclipse.core.runtime/.settings/com.espressif.idf.debug.gdbjtag.openocd.prefs
-<workspace>/.metadata/.plugins/org.eclipse.core.runtime/.settings/com.espressif.idf.launch.serial.ui.prefs
-<workspace>/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.cdt.core.prefs
-```
-
-If only the project directory is available and the original Eclipse workspace has already been deleted, workspace-level debug/JTAG settings may no longer be recoverable automatically.
-
----
 
 ## Related resources
 
