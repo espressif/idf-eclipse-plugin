@@ -54,7 +54,48 @@ Identify the ESP-IDF project directory (with root `CMakeLists.txt`) and the corr
 
 **Stop rule:** once the active setup, target, build path and (if available) OpenOCD `.cfg` are resolved, proceed to writing files. Do not launch repeated EIM/OpenOCD discovery rounds. If OpenOCD cannot be located, this is **not** a reason to delay unrelated mappings or ask for paths immediately.
 
-## 3. Create or merge `.vscode/settings.json`
+
+## 3. C/C++ code intelligence configuration
+
+Example of standard .vscode/c_cpp_properties.json file:
+
+```json
+{
+  "configurations": [
+    {
+      "name": "ESP-IDF",
+      "compilerPath": "",
+      "compileCommands": "${config:idf.buildPath}/compile_commands.json",
+      "intelliSenseMode": "gcc-x86",
+      "includePath": [
+        "${workspaceFolder}/**"
+      ],
+      "browse": {
+        "path": [
+          "${workspaceFolder}"
+        ],
+        "limitSymbolsToIncludedHeaders": true
+      }
+    }
+  ],
+  "version": 4
+}
+```
+
+- Preserve existing `.vscode/c_cpp_properties.json`.
+- If Microsoft C/C++ IntelliSense is used, generate or merge
+  `c_cpp_properties.json` with a compileCommands path
+  pointing to the actual ESP-IDF build directory.
+- Leave compilerPath empty when relying on the compilation
+  database, following the ESP-IDF extension convention.
+- If clangd is used, configure its compilation database
+  path instead; do not generate c_cpp_properties.json
+  unnecessarily.
+- Do not treat a missing c_cpp_properties.json as a
+  Build, Flash, or Debug migration failure.
+- Never run a full build solely to generate this file.
+
+## 4. Create or merge `.vscode/settings.json`
 
 Read existing VS Code JSON/JSONC without destroying unrelated keys or comments where practical. Apply **only verified mappings**:
 
@@ -103,53 +144,48 @@ Replace every placeholder from the **selected Eclipse project and active setup**
 
 Do **not** automatically populate `idf.customExtraVars` with `IDF_TARGET`, `IDF_PATH`, `ADF_PATH`, USB adapter location or a full toolchain PATH. The selected ESP-IDF setup already provides most of these. Only carry over an explicitly required, verified project-specific variable if it has a compatible effect; do not add a nonexistent `ADF_PATH`. Report conflicting inherited/user-level variables (especially `IDF_TARGET`) without modifying user-level settings. For USB-JTAG adapter serial/location, transfer only a verified, supported selector; otherwise report the unresolved hardware-specific mapping. Do not generate unrelated `clangd.*` settings unless explicitly requested or clearly sourced from Eclipse and validated.
 
-## 4. Generate or merge `.vscode/launch.json`
+## 5. Generate or merge `.vscode/launch.json`
 
-For ESP-IDF Extension debugging, use **`type: "gdbtarget"` and `request: "attach"`**. Keep unrelated profiles; update the matching migrated profile instead of creating a duplicate. Generate an attach configuration that **cannot automatically flash** (`buildFlashMonitor: false`).
+For ESP-IDF Extension debugging, use **`type: "gdbtarget"` and `request: "attach"`**. Keep unrelated profiles; update the matching migrated profile instead of creating a duplicate.
 
-Structural example (replace/omit placeholders; do not copy values blindly):
+Example of standard launch.json file for ESP-IDF v6.1 project:
 
 ```json
 {
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "ESP-IDF (migrated)",
       "type": "gdbtarget",
       "request": "attach",
-      "gdb": "${command:espIdf.getToolchainGdb}",
-      "program": "${config:idf.buildPath}/${command:espIdf.getProjectName}.elf",
-      "runOpenOCD": true,
-      "buildFlashMonitor": false,
-      "target": { "host": "localhost", "port": "<ECLIPSE_GDB_PORT>" },
-      "initialBreakpoint": "app_main"
+      "name": "Eclipse CDT GDB Adapter"
     }
   ]
 }
 ```
 
-- The `program` expression must resolve to the actual ELF. Prefer a verified ELF name if the project-name command does not correctly resolve the selected build. If a custom build path is mapped, use that directory rather than `${workspaceFolder}/build`.
-- Use `target.port` as a **string** when an explicit GDB port exists; omit it when no reliable override is necessary. Derive `runOpenOCD` and `initialBreakpoint` from Eclipse, not from example values.
+- Use `target.port` as a **string** when an explicit GDB port exists; omit it when no reliable override is necessary. Derive `initialBreakpoint` from Eclipse, not from example values.
+
+- Ignore `set remotetimeout` or `set mem inaccessible-by-default off` parameters. 
 
 | Eclipse `.launch` source | `gdbtarget` mapping / treatment |
 | --- | --- |
 | `org.eclipse.cdt.debug.gdbjtag.core.setStopAt` and `.stopAt` | `true` → `initialBreakpoint` with the exact symbol; `false` → `""` to disable the default `app_main` break. |
-| `...doStartGdbServer` | `runOpenOCD=true` for a local server started by the extension, `false` when externally managed. Confirm any non-local host/port separately. |
+| `...doStartGdbServer` | Ignore |
 | `...gdbServerGdbPortNumber`, consistent CDT `.portNumber` | `target.host` / `target.port`; agree with OpenOCD server configuration. |
-| `...gdbClientOtherCommands` | Decode command lines; use **only** supported `initCommands` or `target.connectCommands` when safe. `set mem inaccessible-by-default off` may be in `initCommands`; `set remotetimeout N` may be in `target.connectCommands` but can run **after** extension-managed connection commands, so exact pre-connect timing is not guaranteed. |
-| `...otherInitCommands` | Safe commands may use `initCommands`. Avoid duplicating automatically inserted reset/flush commands. Resolve `{IDF_TARGET_CPU_WATCHPOINT_NUM}` from verified target capability; never copy the token literally. |
-| `...doFirstReset`, `.firstResetType`, `.doSecondReset`, `.secondResetType` | Review actual reset sequence; do not claim automatic 1:1 equivalence. |
-| `...doFlashBeforeStart` | No exact 1:1. **Never** silently enable `buildFlashMonitor` or flash the device. |
-| `...doContinue`, CDT `.setResume` | Record as pending runtime equivalence where automatic resume behavior differs. |
+| `...gdbClientOtherCommands` | Ignore |
+| `...otherInitCommands` | Ignore |
+| `...doFirstReset`, `.firstResetType`, `.doSecondReset`, `.secondResetType` | Ignore |
+| `...doFlashBeforeStart` | Ignore |
+| `...doContinue`, CDT `.setResume` | Ignore |
 
 **GDB invariants (confirmed by hardware regression):**
 
 - **Never generate `preConnectCommands`.** It is not accepted by the tested `gdbtarget` schema.
-- **Never manually add `target remote`, `-target-select` or another remote-attach command** into `initCommands` or `target.connectCommands`: the ESP-IDF extension already handles its connection. This previously caused `"monitor" command not supported by this target`.
+- **Never manually add `target remote`, `-target-select` or another remote-attach command** into `initCommands` or `target.connectCommands`: the ESP-IDF extension already handles its connection.
 - The extension prepends generated GDB init/connect commands before user-defined `target.connectCommands`, and runs `initCommands` after connection. Preserve compatible custom commands without duplicating extension-managed connection/reset/flush operations.
 - Validate generated fields against the installed debugger's available schema when accessible. If a key is unsupported, **remove it and report the lost or partial equivalence**; do not invent another key.
 
-## 5. Report non-1:1 Eclipse settings; do not fabricate mappings
+## 6. Report non-1:1 Eclipse settings; do not fabricate mappings
 
 Report each unmapped custom item as **unsupported**, **ambiguous** or **pending runtime validation**; do not silently discard it:
 
@@ -160,7 +196,7 @@ Report each unmapped custom item as **unsupported**, **ambiguous** or **pending 
 - Eclipse `gdbServerOther`, `jtagFlashArguments`, Eclipse variables, and custom launch scripts: not automatically identical to `idf.openOcdLaunchArgs` / `idf.jtagFlashCommandExtraArgs`.
 - Eclipse-only CDT index, workbench and console preferences: skip unless an exact project-relevant equivalent is proven.
 
-## 6. Apply once, validate once, report and stop
+## 7. Apply once, validate once, report and stop
 
 1. Inspect the destination files; preserve a recoverable copy or minimal diff before changing them. Merge only justified values. Support JSONC (comments/trailing commas) when reading existing VS Code files; avoid rewriting comments or unrelated configuration unnecessarily.
 2. Write/merge `settings.json` and the **single** matching migrated attach profile. Do not rewrite source files or global settings. Never generate literal `<PLACEHOLDER>` text in final JSON.
@@ -168,6 +204,6 @@ Report each unmapped custom item as **unsupported**, **ambiguous** or **pending 
 4. When the environment/ELF/board is missing, mark that particular validation **pending** instead of blocking all others. Existing ELF can establish path availability; it does **not** prove a new build passed. Do not run a full build, flash, or hardware debugging unless separately requested and approved where needed.
 5. **Stop.** Report concisely: files changed, important mappings (including source-preserved custom ports), unsupported/partial mappings, configuration checks passed, build/hardware **not tested** or actual result, and unresolved external/global conflicts. Do not claim complete 1:1 equivalence when exceptions remain.
 
-**Expected one-line request:** `Migrate this existing Espressif-IDE project to the ESP-IDF VS Code Extension.`
+**Expected one-line request:** `Migrate this existing Eclipse Espressif-IDE project to the ESP-IDF VS Code Extension.`
 
 **Reference documentation:** [ESP-IDF extension settings](https://docs.espressif.com/projects/vscode-esp-idf-extension/en/latest/settings.html), [debug configuration](https://docs.espressif.com/projects/vscode-esp-idf-extension/en/latest/debugproject.html), [installation/EIM](https://docs.espressif.com/projects/vscode-esp-idf-extension/en/latest/installation.html). Use these as reference when a specific mapping is uncertain; do not repeatedly query documentation during a routine migration.
