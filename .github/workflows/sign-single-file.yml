@@ -1,9 +1,9 @@
 # Temporary workflow: sign one PE file with the same Azure Key Vault flow as windows-sign
-# in ci_release.yml. Remove this workflow and .github/signing-input/ after the signed file is downloaded.
+# in ci_release.yml. Close this pull request without merging after the signed artifact is downloaded.
 name: Sign single file
 
 on:
-  workflow_dispatch:
+  pull_request:
 
 permissions:
   contents: read
