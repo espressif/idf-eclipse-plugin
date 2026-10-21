@@ -49,6 +49,7 @@ Contents
     :maxdepth: 1
 
     Support Policy <support-policy>
+    Migration to VS Code Extension <migration-guide>
     Prerequisites <prerequisites>
     Installation <installation>
     Start Your Project <startproject>
