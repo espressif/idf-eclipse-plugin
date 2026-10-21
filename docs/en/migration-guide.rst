@@ -466,8 +466,8 @@ Before considering the migration complete:
 Related resources
 -----------------
 
-- `Espressif-IDE support status <README.md#support-status>`__
-- `Espressif-IDE support policy <SUPPORT_POLICY.md>`__
+- `Espressif-IDE support status <https://github.com/espressif/idf-eclipse-plugin/blob/master/README.md#support-status>`_
+- :doc:`Espressif-IDE support policy <support-policy>`
 - `ESP-IDF VS Code Extension <https://github.com/espressif/vscode-esp-idf-extension>`__
 - `ESP-IDF Programming Guide <https://docs.espressif.com/projects/esp-idf/en/latest/>`__
 
