@@ -1,0 +1,74 @@
+# Temporary workflow: sign one PE file with the same Azure Key Vault flow as windows-sign
+# in ci_release.yml. Remove this workflow and .github/signing-input/ after the signed file is downloaded.
+name: Sign single file
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sign-file:
+    runs-on: windows-latest
+    env:
+      SIGN_FILE: .github/signing-input/SignableFile-2.bin
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Verify input file
+        shell: pwsh
+        run: |
+          $filePath = Join-Path $PWD "${{ env.SIGN_FILE }}"
+          if (-not (Test-Path $filePath)) { throw "File not found at $filePath" }
+          Get-Item $filePath
+
+      - name: Install .NET 8 SDK and AzureSignTool
+        shell: pwsh
+        run: |
+          mkdir dotnet
+          cd dotnet
+          $dotnet_url="https://download.visualstudio.microsoft.com/download/pr/5af098e1-e433-4fda-84af-3f54fd27c108/6bd1c6e48e64e64871957289023ca590/dotnet-sdk-8.0.302-win-x64.zip"
+          Invoke-WebRequest -Uri $dotnet_url -OutFile dotnet-sdk-8.0.302-win-x64.zip
+          Expand-Archive -LiteralPath .\dotnet-sdk-8.0.302-win-x64.zip -DestinationPath .
+          $Env:DOTNET_ROOT="$($(Get-Location).Path)\dotnet-sdk-8.0.302-win-x64"
+          $Env:PATH="$Env:DOTNET_ROOT;$Env:PATH"
+          $Env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE=$true
+          dotnet tool install --global AzureSignTool
+          cd ..
+
+      - name: Sign file using AzureSignTool
+        shell: pwsh
+        run: |
+          $filePath = Join-Path $PWD "${{ env.SIGN_FILE }}"
+          if (-not (Test-Path $filePath)) { throw "File not found at $filePath" }
+
+          $Env:DOTNET_ROOT="$PWD\dotnet\dotnet-sdk-8.0.302-win-x64"
+          $Env:PATH="$Env:DOTNET_ROOT;$Env:PATH"
+
+          AzureSignTool.exe sign `
+            -kvu "${{ secrets.AZURE_KEYVAULT_URI }}" `
+            -kvc "${{ secrets.AZURE_KEYVAULT_CERT_NAME }}" `
+            -kvi "${{ secrets.AZURE_CLIENT_ID }}" `
+            -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" `
+            --azure-key-vault-tenant-id "${{ secrets.AZURE_TENANT_ID }}" `
+            -tr http://timestamp.globalsign.com/tsa/advanced `
+            -td sha256 `
+            "$filePath"
+
+      - name: Verify Signature
+        shell: pwsh
+        run: |
+          $filePath = Join-Path $PWD "${{ env.SIGN_FILE }}"
+          $signtool = Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits" -Recurse -Name "signtool.exe" | Select-Object -First 1
+          & "C:\Program Files (x86)\Windows Kits\$signtool" verify `
+            /pa `
+            "$filePath"
+
+      - name: Upload signed file
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: SignableFile-2-signed
+          path: .github/signing-input/SignableFile-2.bin
+          if-no-files-found: error
