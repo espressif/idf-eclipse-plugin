@@ -48,12 +48,6 @@ Contents
 .. toctree::
     :maxdepth: 1
 
-    Support Policy <support-policy>
-    Migrating from Espressif-IDE to the ESP-IDF VS Code Extension <migrate-to-vscode>
-    Migration walkthrough <migration-walkthrough>
-    Advanced migration cases <migration-advanced>
-    Migration Troubleshooting <migration-troubleshooting>
-    Final migration checklist <migration-checklist>
     Prerequisites <prerequisites>
     Installation <installation>
     Start Your Project <startproject>
@@ -68,3 +62,5 @@ Contents
     FAQs <faqs>
     Telemetry <telemetry>
     Downloads <downloads>
+    Support Policy <support-policy>
+    Migrating from Espressif-IDE to the ESP-IDF VS Code Extension <migrate-to-vscode>

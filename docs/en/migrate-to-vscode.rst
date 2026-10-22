@@ -109,4 +109,10 @@ You can start with a simple prompt:
 
 The agent should apply settings automatically when the mapping is unambiguous and report only what still requires manual review. Actions that modify a connected device, such as flashing firmware, should require user confirmation.
 
-Continue with the :doc:`migration-walkthrough`, then review :doc:`migration-advanced` and the :doc:`migration-checklist`.
+.. toctree::
+    :maxdepth: 1
+
+    Migration walkthrough <migration-walkthrough>
+    Advanced migration cases <migration-advanced>
+    Migration Troubleshooting <migration-troubleshooting>
+    Final migration checklist <migration-checklist>

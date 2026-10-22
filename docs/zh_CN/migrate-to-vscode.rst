@@ -109,4 +109,10 @@ Espressif-IDE 通过 Eclipse 工具栏提供常用项目操作：
 
 映射明确时，代理应自动应用设置，并只报告仍需人工确认的部分。会改动已连接设备的操作（例如烧录固件）应先征得用户确认。
 
-接下来请阅读 :doc:`migration-walkthrough`，然后查看 :doc:`migration-advanced` 和 :doc:`migration-checklist`。
+.. toctree::
+    :maxdepth: 1
+
+    迁移步骤 <migration-walkthrough>
+    进阶迁移场景 <migration-advanced>
+    迁移故障排查 <migration-troubleshooting>
+    迁移完成检查清单 <migration-checklist>
