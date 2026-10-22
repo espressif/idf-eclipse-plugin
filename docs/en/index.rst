@@ -49,7 +49,11 @@ Contents
     :maxdepth: 1
 
     Support Policy <support-policy>
-    Migration to VS Code Extension <migration-guide>
+    Migrating from Espressif-IDE to the ESP-IDF VS Code Extension <migrate-to-vscode>
+    Migration walkthrough <migration-walkthrough>
+    Advanced migration cases <migration-advanced>
+    Migration Troubleshooting <migration-troubleshooting>
+    Final migration checklist <migration-checklist>
     Prerequisites <prerequisites>
     Installation <installation>
     Start Your Project <startproject>

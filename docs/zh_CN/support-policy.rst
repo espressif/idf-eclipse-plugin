@@ -33,4 +33,4 @@ v4.5.0
 
 4.5.0 之前的版本不再更新。维护期内请使用 4.5.x。
 
-建议开发者在 2027 年 10 月 14 日之前，将现有项目迁移到 `ESP-IDF VS Code 扩展 <https://docs.espressif.com/projects/vscode-esp-idf-extension/zh_CN/latest/>`_。
+建议开发者在 2027 年 10 月 14 日之前，将现有项目迁移到 `ESP-IDF VS Code 扩展 <https://docs.espressif.com/projects/vscode-esp-idf-extension/zh_CN/latest/>`_。步骤见 :doc:`migrate-to-vscode`。
