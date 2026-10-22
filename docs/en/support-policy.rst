@@ -33,4 +33,4 @@ On 14 October 2027, Espressif-IDE and the ESP-IDF Eclipse plugin reach end of li
 
 Releases before 4.5.0 receive no further updates. Use 4.5.x for the remainder of the maintenance period.
 
-Developers are encouraged to move existing projects to the `ESP-IDF extension for VS Code <https://docs.espressif.com/projects/vscode-esp-idf-extension/en/latest/>`_ before 14 October 2027.
+Developers are encouraged to move existing projects to the `ESP-IDF extension for VS Code <https://docs.espressif.com/projects/vscode-esp-idf-extension/en/latest/>`_ before 14 October 2027. See :doc:`migrate-to-vscode`.

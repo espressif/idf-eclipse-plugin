@@ -48,7 +48,6 @@ Espressif-IDE 是基于 `Eclipse CDT <https://github.com/eclipse-cdt/>`_ 的集�
 .. toctree::
     :maxdepth: 1
 
-    支持政策 <support-policy>
     准备工作 <prerequisites>
     安装 <installation>
     启动项目 <startproject>
@@ -63,3 +62,5 @@ Espressif-IDE 是基于 `Eclipse CDT <https://github.com/eclipse-cdt/>`_ 的集�
     常见问题 <faqs>
     遥测数据 <telemetry>
     下载 <downloads>
+    从 Espressif-IDE 迁移到 ESP-IDF VS Code 扩展 <migrate-to-vscode>
+    支持政策 <support-policy>

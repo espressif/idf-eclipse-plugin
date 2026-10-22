@@ -2,7 +2,7 @@
 
 [English](./README.md)
 
-> **维护说明：** Espressif-IDE 4.5.0（2026 年 10 月 14 日）是 Espressif-IDE 与 ESP-IDF Eclipse 插件的最终功能版本。高严重性缺陷和安全修复的维护期至 2027 年 10 月 14 日。不建议用于新项目。详见 [支持政策](SUPPORT_POLICY_CN.md)。
+> **维护说明：** Espressif-IDE 4.5.0（2026 年 10 月 14 日）是 Espressif-IDE 与 ESP-IDF Eclipse 插件的最终功能版本。高严重性缺陷和安全修复的维护期至 2027 年 10 月 14 日。不建议用于新项目。详见 [支持政策](SUPPORT_POLICY_CN.md)。现有用户可将项目迁移到 ESP-IDF VS Code 扩展，见 [迁移指南](https://docs.espressif.com/projects/espressif-ide/zh_CN/latest/migrate-to-vscode.html)。
 
 # ESP-IDF Eclipse 插件
 
