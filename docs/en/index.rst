@@ -9,7 +9,7 @@ The plug-in runs on **macOS**, **Windows** and **Linux** platforms.
 
 .. warning::
 
-    Espressif-IDE 4.5.0 (14 October 2026) is the final feature release of Espressif-IDE and the ESP-IDF Eclipse plugin. Maintenance for high-severity bugs and security fixes continues until 14 October 2027. This release is not recommended for new projects. See :doc:`support-policy`.
+    Espressif-IDE 4.5.0 (14 October 2026) is the final feature release of Espressif-IDE and the ESP-IDF Eclipse plugin. Maintenance for high-severity bugs and security fixes continues until 14 October 2027. This release is not recommended for new projects. See the :doc:`support policy <support-policy>`.
 
 .. note::
 
@@ -62,5 +62,5 @@ Contents
     FAQs <faqs>
     Telemetry <telemetry>
     Downloads <downloads>
-    Support Policy <support-policy>
     Migrating from Espressif-IDE to the ESP-IDF VS Code Extension <migrate-to-vscode>
+    Support Policy <support-policy>
