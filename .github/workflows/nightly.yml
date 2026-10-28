@@ -24,6 +24,16 @@ jobs:
         java-version: '25'
         distribution: 'temurin'
 
+    - name: Set up Maven
+      uses: stCarolas/setup-maven@v5
+      with:
+        maven-version: 3.9.6
+
+    - name: Check build environment
+      run: |
+        mvn -version
+        java -version
+
     - name: Build with Maven
       run: |
         # We skip local signing because we will use Azure Cloud Signing next
