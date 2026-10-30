@@ -93,6 +93,43 @@ public class EspConfigParser
 		return voltages;
 	}
 
+	/**
+	 * Flash voltages OpenOCD accepts for {@code target}. The {@code ESP_FLASH_VOLTAGE} option lists its chips in
+	 * {@code targets}; classic ESP32 is the only one. Other chips, including ESP32-C6, get an empty list.
+	 *
+	 * @param target launch-target id, such as {@code esp32} or {@code esp32c6}
+	 * @return voltage choices, or an empty list when this target does not use the option
+	 */
+	public List<String> getEspFlashVoltages(String target)
+	{
+		if (target == null || target.isEmpty() || !isFlashVoltageSupported(target))
+		{
+			return List.of();
+		}
+		return getEspFlashVoltages();
+	}
+
+	/**
+	 * @param target launch-target id, such as {@code esp32} or {@code esp32c6}
+	 * @return {@code true} when {@code esp-config.json} lists {@code target} for {@code ESP_FLASH_VOLTAGE}
+	 */
+	public boolean isFlashVoltageSupported(String target)
+	{
+		if (target == null || target.isEmpty() || config == null || config.options() == null)
+		{
+			return false;
+		}
+		for (Option option : config.options())
+		{
+			if ("ESP_FLASH_VOLTAGE".equals(option.name())) //$NON-NLS-1$
+			{
+				List<String> targets = option.targets();
+				return targets != null && targets.contains(target);
+			}
+		}
+		return false;
+	}
+
 	public List<Board> getBoardsForTarget(String target)
 	{
 		List<Board> boardsForTarget = new ArrayList<>();
