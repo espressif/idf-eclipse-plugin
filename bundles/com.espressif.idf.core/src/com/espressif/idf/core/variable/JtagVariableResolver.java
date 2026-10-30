@@ -60,10 +60,28 @@ public class JtagVariableResolver implements IDynamicVariableResolver
 	private String generatePartOfConfigOptionsForVoltage()
 	{
 		ILaunchTarget activeILaunchTarget = getActiveLaunchTarget().orElseGet(() -> ILaunchTarget.NULL_TARGET);
-		var selectedVoltage = activeILaunchTarget.getAttribute(LaunchBarTargetConstants.FLASH_VOLTAGE, "default"); //$NON-NLS-1$
-		return selectedVoltage.equals("default") ? StringUtil.EMPTY //$NON-NLS-1$
-				: String.format("-c 'set ESP32_FLASH_VOLTAGE' %s' ", selectedVoltage); //$NON-NLS-1$
+		String selectedVoltage = activeILaunchTarget.getAttribute(LaunchBarTargetConstants.FLASH_VOLTAGE, "default"); //$NON-NLS-1$
+		String targetName = activeILaunchTarget.getAttribute(LaunchBarTargetConstants.TARGET, StringUtil.EMPTY);
+		boolean supported = new EspConfigParser().isFlashVoltageSupported(targetName);
+		return formatFlashVoltageArgument(selectedVoltage, supported);
+	}
 
+	/**
+	 * Builds the OpenOCD argument that selects the SPI flash voltage. The Tcl command and its value stay inside one pair
+	 * of quotes ({@code set ESP32_FLASH_VOLTAGE 3.3}). Targets that do not list {@code ESP_FLASH_VOLTAGE}, such as
+	 * ESP32-C6, receive no argument, because their board files never read the variable.
+	 *
+	 * @param selectedVoltage stored launch-target voltage, or {@code default}
+	 * @param targetSupportsVoltage {@code true} when the active target is listed for {@code ESP_FLASH_VOLTAGE}
+	 * @return the argument, including a trailing space, or an empty string
+	 */
+	public static String formatFlashVoltageArgument(String selectedVoltage, boolean targetSupportsVoltage)
+	{
+		if (!targetSupportsVoltage || StringUtil.isEmpty(selectedVoltage) || "default".equals(selectedVoltage)) //$NON-NLS-1$
+		{
+			return StringUtil.EMPTY;
+		}
+		return String.format("-c 'set ESP32_FLASH_VOLTAGE %s' ", selectedVoltage); //$NON-NLS-1$
 	}
 
 	private String generatePartOfConfigOptionsForBoard()

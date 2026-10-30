@@ -1,6 +1,7 @@
 package com.espressif.idf.core.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -62,6 +63,17 @@ public class EspConfigParserTest
 
 		assertNotNull(voltages);
 		assertEquals(List.of("default", "3.3", "1.8"), voltages); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+
+	@Test
+	public void testFlashVoltageIsLimitedToEsp32()
+	{
+		EspConfigParser parser = new EspConfigParser(tempJsonFile.getAbsolutePath());
+
+		assertTrue(parser.isFlashVoltageSupported("esp32")); //$NON-NLS-1$
+		assertEquals(List.of("default", "3.3", "1.8"), parser.getEspFlashVoltages("esp32")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		assertFalse(parser.isFlashVoltageSupported("esp32c6")); //$NON-NLS-1$
+		assertTrue(parser.getEspFlashVoltages("esp32c6").isEmpty()); //$NON-NLS-1$
 	}
 
 	@Test
