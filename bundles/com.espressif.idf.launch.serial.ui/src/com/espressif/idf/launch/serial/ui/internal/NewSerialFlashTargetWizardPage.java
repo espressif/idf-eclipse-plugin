@@ -84,6 +84,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 	private Display display;
 	private String serialPort;
 	private Combo fBoardCombo;
+	private Label fVoltageLbl;
 	private Combo fFlashVoltage;
 	private String previousBoard = null;
 	// Board combo display name -> serial_number from esp_detect_config.py
@@ -144,6 +145,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 			public void widgetSelected(SelectionEvent e)
 			{
 				String selectedTargetString = idfTargetCombo.getText();
+				updateFlashVoltageForTarget(selectedTargetString);
 				Shell shell = display.getActiveShell();
 				final List<String> boardDisplayNames = new ArrayList<>();
 				final String[] jsonHolder = new String[1];
@@ -351,7 +353,7 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 	private void setDefaultVoltage()
 	{
 		String flashVoltage = launchTarget.getAttribute(LaunchBarTargetConstants.FLASH_VOLTAGE, null);
-		if (flashVoltage != null)
+		if (flashVoltage != null && List.of(fFlashVoltage.getItems()).contains(flashVoltage))
 		{
 			fFlashVoltage.setText(flashVoltage);
 		}
@@ -405,11 +407,11 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 		jtaGroup.setLayout(new GridLayout(2, false));
 		jtaGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
 		jtaGroup.setText(Messages.jtagGroupLbl);
-		Label fVoltageLbl = new Label(jtaGroup, SWT.NONE);
+		fVoltageLbl = new Label(jtaGroup, SWT.NONE);
 		fVoltageLbl.setText(Messages.flashVoltageLabel);
 		fFlashVoltage = new Combo(jtaGroup, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
-		fFlashVoltage.setItems(parser.getEspFlashVoltages().toArray(new String[0]));
-		fFlashVoltage.setText("default"); //$NON-NLS-1$
+		fFlashVoltage.setToolTipText(Messages.flashVoltageToolTip);
+		updateFlashVoltageForTarget(getIDFTarget());
 		Label fTargetLbl = new Label(jtaGroup, SWT.NONE);
 		fTargetLbl.setText(Messages.configBoardLabel);
 		fBoardCombo = new Combo(jtaGroup, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
@@ -446,6 +448,36 @@ public class NewSerialFlashTargetWizardPage extends WizardPage
 	public String getVoltage()
 	{
 		return fFlashVoltage.getText();
+	}
+
+	/**
+	 * Flash voltage is an OpenOCD option for classic ESP32 only. Other targets, including ESP32-C6, keep the control on
+	 * {@code default} so the generated command does not add {@code ESP32_FLASH_VOLTAGE}.
+	 */
+	private void updateFlashVoltageForTarget(String target)
+	{
+		if (fFlashVoltage == null || fFlashVoltage.isDisposed())
+		{
+			return;
+		}
+		List<String> voltages = new EspConfigParser().getEspFlashVoltages(target);
+		String current = fFlashVoltage.getText();
+		boolean supported = !voltages.isEmpty();
+		fVoltageLbl.setEnabled(supported);
+		fFlashVoltage.setEnabled(supported);
+		if (!supported)
+		{
+			fFlashVoltage.setItems(new String[] { "default" }); //$NON-NLS-1$
+			fFlashVoltage.select(0);
+			return;
+		}
+		fFlashVoltage.setItems(voltages.toArray(String[]::new));
+		int index = voltages.indexOf(current);
+		if (index < 0)
+		{
+			index = Math.max(voltages.indexOf("default"), 0); //$NON-NLS-1$
+		}
+		fFlashVoltage.select(index);
 	}
 
 	public String getBoard()

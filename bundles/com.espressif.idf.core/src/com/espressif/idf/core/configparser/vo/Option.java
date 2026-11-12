@@ -2,6 +2,6 @@ package com.espressif.idf.core.configparser.vo;
 
 import java.util.List;
 
-public record Option(String name, List<String> values)
+public record Option(String name, List<String> values, List<String> targets)
 {
 }
