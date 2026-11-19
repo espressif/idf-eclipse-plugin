@@ -6,6 +6,9 @@ name: Nightly builds
 on:
   schedule:
     - cron: "0 0 * * *"
+  pull_request:
+    paths:
+      - '.github/workflows/nightly.yml'
 
 permissions:
   contents: read
@@ -13,6 +16,7 @@ permissions:
 
 jobs:
   build:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: macos-latest
 
     steps:
@@ -235,6 +239,12 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
       run: |
+        if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+          PUBLISH_PATH="nightly-preview/$GITHUB_RUN_ID"
+        else
+          PUBLISH_PATH="nightly"
+        fi
+
         ARCHIVE_DIR="/releng/com.espressif.idf.update/target/"
         ARCHIVE_NAME="com.espressif.idf.update*.zip"
         echo "${ARCHIVE_DIR}"
@@ -254,7 +264,13 @@ jobs:
         mv ${ARCHIVE_FILE_NAME} ${ARCHIVE_VERSION_NEW}
         mv releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg "releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64-${FOLDER_NAME}.dmg"
         mv releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg "releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64-${FOLDER_NAME}.dmg"
-        aws s3 rm s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/nightly --recursive
-        aws s3 cp --acl=public-read --recursive "./${FOLDER_NAME}/" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/nightly
-        aws s3 cp --acl=public-read "./releng/index.html" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/nightly/
-        aws cloudfront create-invalidation --distribution-id ${{ secrets.DL_DISTRIBUTION_ID }} --paths "/dl/idf-eclipse-plugin/updates/nightly/*"
+        if [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
+          aws s3 rm "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/nightly" --recursive
+        fi
+        aws s3 cp --acl=public-read --recursive "./${FOLDER_NAME}/" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/${PUBLISH_PATH}/"
+        aws s3 cp --acl=public-read "./releng/index.html" "s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/${PUBLISH_PATH}/"
+        if [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.DL_DISTRIBUTION_ID }} --paths "/dl/idf-eclipse-plugin/updates/nightly/*"
+        else
+          echo "Preview update site: https://dl.espressif.com/dl/idf-eclipse-plugin/updates/${PUBLISH_PATH}/" >> "$GITHUB_STEP_SUMMARY"
+        fi
