@@ -48,61 +48,99 @@ jobs:
         run: |
           mvn -e -X clean install -Djarsigner.skip=true -DskipTests=true
 
-      - name: Stage Espressif JARs for signing
+      - name: Download Jsign
         run: |
-          set -euo pipefail
-          REPO_DIR="releng/com.espressif.idf.update/target/repository"
-          STAGE_DIR="espressif-jars-to-sign"
-          rm -rf "$STAGE_DIR"
-          mkdir -p "$STAGE_DIR"
-          : > espressif-jars-sources.list
-          # release-sign signs every JAR under path. Stage only com.espressif update-site JARs.
-          while IFS= read -r -d '' file; do
-            if [[ "$file" =~ (plugins|features)/com\.espressif\. ]]; then
-              rel="${file#"$REPO_DIR"/}"
-              staged="${rel//\//__}"
-              cp "$file" "$STAGE_DIR/$staged"
-              printf '%s\t%s\n' "$staged" "$file" >> espressif-jars-sources.list
-              echo "Staged: $file"
-            fi
-          done < <(find "$REPO_DIR" -type f -name "*.jar" -print0)
-          if [ ! -s espressif-jars-sources.list ]; then
-            echo "No Espressif JARs found to sign"
-            exit 1
+          wget -q https://github.com/ebourg/jsign/releases/download/7.4/jsign-7.4.jar || \
+          curl -L -o jsign-7.4.jar https://github.com/ebourg/jsign/releases/download/7.4/jsign-7.4.jar
+          echo "Downloaded Jsign 7.4"
+
+      - name: Authenticate to Azure
+        run: |
+          # Login using service principal (--allow-no-subscriptions for Key Vault only access)
+          az login --service-principal \
+            --username ${{ secrets.AZURE_CLIENT_ID }} \
+            --password ${{ secrets.AZURE_CLIENT_SECRET }} \
+            --tenant ${{ secrets.AZURE_TENANT_ID }} \
+            --allow-no-subscriptions
+          
+          echo "Azure authentication successful"
+
+      - name: Get Azure Key Vault Access Token
+        id: get-token
+        run: |
+          # Get access token for Key Vault
+          TOKEN=$(az account get-access-token --resource https://vault.azure.net --query accessToken -o tsv)
+          echo "::add-mask::$TOKEN"
+          echo "token=$TOKEN" >> $GITHUB_OUTPUT
+
+      - name: Sign JAR files with jarsigner
+        env:
+          AZURE_TOKEN: ${{ steps.get-token.outputs.token }}
+          CERT_CHAIN: ${{ secrets.AZURE_KEYVAULT_CERTCHAIN }}
+        run: |
+          # Create certificate chain file if provided
+          CERTCHAIN_ARG=""
+          if [ -n "$CERT_CHAIN" ]; then
+            echo "$CERT_CHAIN" > certchain.p7b
+            CERTCHAIN_ARG="-certchain certchain.p7b"
+            echo "Using certificate chain file"
           fi
+          
+          REPO_DIR="releng/com.espressif.idf.update/target/repository"
+          SIGFILE="ECLIPSE"
+          
+          echo "Signing IDF plugin JARs in $REPO_DIR..."
+          echo "Only signing JARs matching com.espressif.* pattern..."
+          
+          find "$REPO_DIR" -type f -name "*.jar" | while read -r file; do
+            if [[ "$file" =~ (plugins|features)/com\.espressif\. ]]; then
+              echo "Signing IDF plugin/feature JAR: $file"
+              
+              jarsigner \
+                -J-cp -Jjsign-7.4.jar \
+                -J--add-modules -Jjava.sql \
+                -providerClass net.jsign.jca.JsignJcaProvider \
+                -providerArg "${{ secrets.AZURE_KEYVAULT_URI }}" \
+                -keystore NONE \
+                -storetype AZUREKEYVAULT \
+                -storepass "$AZURE_TOKEN" \
+                -sigfile "$SIGFILE" \
+                -digestalg SHA-256 \
+                -tsa http://timestamp.digicert.com \
+                $CERTCHAIN_ARG \
+                -certs \
+                -verbose \
+                "$file" \
+                "${{ secrets.AZURE_KEYVAULT_CERT_NAME }}"
+              
+              if [ $? -eq 0 ]; then
+                echo "Successfully signed: $file"
+              else
+                echo "Failed to sign: $file"
+                exit 1
+              fi
+            else
+              echo "Skipping non-IDF JAR: $file"
+            fi
+          done
+          
+          echo "JAR files signed!"
 
-      - name: Sign Espressif JARs
-        uses: espressif/release-sign@master
-        with:
-          path: espressif-jars-to-sign
-          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          azure-keyvault-uri: ${{ secrets.AZURE_KEYVAULT_URI }}
-          azure-keyvault-cert-name: ${{ secrets.AZURE_KEYVAULT_CERT_NAME }}
-          azure-keyvault-certchain: ${{ secrets.AZURE_KEYVAULT_CERTCHAIN }}
-
-      - name: Restore signed JARs
+      - name: Verify JAR signatures
         run: |
-          set -euo pipefail
-          while IFS=$'\t' read -r staged orig; do
-            [ -z "${staged:-}" ] && continue
-            cp "espressif-jars-to-sign/$staged" "$orig"
-            echo "Restored: $orig"
-          done < espressif-jars-sources.list
-
-      - name: Set up JDK 25
-        uses: actions/setup-java@v5
-        with:
-          java-version: '25'
-          distribution: 'temurin'
+          echo "Verifying JAR signatures..."
+          find releng/com.espressif.idf.update/target/repository -type f -name "*.jar" | while read -r file; do
+            echo "Verifying: $file"
+            # Note: Certificate chain warnings are expected if CA is not in Java truststore
+            jarsigner -verify -verbose "$file" || true
+          done
 
       - name: Regenerate P2 metadata after signing
         env:
           MAVEN_OPTS: "-Djdk.xml.maxGeneralEntitySizeLimit=0 -Djdk.xml.maxParameterEntitySizeLimit=0 -Djdk.xml.totalEntitySizeLimit=0 -Djdk.xml.entityExpansionLimit=0"
         run: |
           REPO_DIR="releng/com.espressif.idf.update/target/repository"
-
+          
           echo "Updating P2 metadata for signed JARs in $REPO_DIR..."
           mvn -f releng/com.espressif.idf.update/pom.xml \
             org.eclipse.tycho:tycho-p2-repository-plugin:fix-artifacts-metadata \
@@ -111,48 +149,71 @@ jobs:
           mvn -f releng/com.espressif.idf.update/pom.xml \
             org.eclipse.tycho:tycho-p2-repository-plugin:fix-artifacts-metadata \
             -DskipTests=true
-
+          
           echo "P2 metadata updated with correct hashes for signed JARs"
 
-      - name: Codesign Espressif-IDE applications
-        uses: espressif/release-sign@master
-        with:
-          path: releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa
-          macos-signing-identity: ${{ secrets.MACOS_CS_IDENTITY_ID }}
-          macos-certificate: ${{ secrets.MACOS_CS_CERTIFICATE }}
-          macos-certificate-pwd: ${{ secrets.MACOS_CS_CERTIFICATE_PWD }}
-          macos-entitlements: releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement
-
-      - name: Create DMG for macOS x86_64
-        run: $PWD/releng/ide-dmg-builder/ide-dmg-builder.sh
-
-      - name: Create DMG for macOS aarch64
-        run: $PWD/releng/ide-dmg-builder/ide-dmg-builder-aarch64.sh
-
-      - name: Stage macOS DMGs
+      - name: Cleanup
+        if: always()
         run: |
-          set -euo pipefail
-          mkdir -p macos-dmgs
-          mv releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg macos-dmgs/
-          mv releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg macos-dmgs/
+          az logout || true
+          rm -f jsign-7.4.jar || true
+          rm -f certchain.p7b || true
 
-      - name: Codesign and notarize macOS DMGs
-        uses: espressif/release-sign@master
-        with:
-          path: macos-dmgs
-          macos-signing-identity: ${{ secrets.MACOS_CS_IDENTITY_ID }}
-          macos-certificate: ${{ secrets.MACOS_CS_CERTIFICATE }}
-          macos-certificate-pwd: ${{ secrets.MACOS_CS_CERTIFICATE_PWD }}
-          notarization-username: ${{ secrets.NOTARIZATION_USERNAME }}
-          notarization-password: ${{ secrets.NOTARIZATION_PASSWORD }}
-          notarization-team-id: ${{ secrets.NOTARIZATION_TEAM_ID }}
-
-      - name: Restore signed DMGs
+      - name: Codesign Espressif-IDE
+        env: 
+          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+          MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
         run: |
-          set -euo pipefail
-          mv macos-dmgs/Espressif-IDE-macosx-cocoa-x86_64.dmg releng/ide-dmg-builder/
-          mv macos-dmgs/Espressif-IDE-macosx-cocoa-aarch64.dmg releng/ide-dmg-builder/
+            echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
+            /usr/bin/security create-keychain -p espressif build.keychain
+            /usr/bin/security default-keychain -s build.keychain
+            /usr/bin/security unlock-keychain -p espressif build.keychain
+            /usr/bin/security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
+            /usr/bin/security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k espressif build.keychain
+            
+            echo "codesigning espressif-ide-macosx.cocoa.x86_64"
+            /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app -v
+            /usr/bin/codesign -v -vvv --deep $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/x86_64/Espressif-IDE.app
+            
+            echo "codesigning espressif-ide-macosx.cocoa.aarch64"
+            /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/aarch64/Espressif-IDE.app -v
+            /usr/bin/codesign -v -vvv --deep $PWD/releng/com.espressif.idf.product/target/products/com.espressif.idf.product/macosx/cocoa/aarch64/Espressif-IDE.app
+            
+            echo "Creating dmg for espressif-ide-macosx.cocoa.x86_64"
+            $PWD/releng/ide-dmg-builder/ide-dmg-builder.sh
+            /usr/bin/codesign --entitlements $PWD/releng/com.espressif.idf.product/entitlements/espressif-ide.entitlement --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg -v
+            /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
+          
+            echo "Creating dmg for espressif-ide-macosx.cocoa.aarch64"
+            $PWD/releng/ide-dmg-builder/ide-dmg-builder-aarch64.sh
+            /usr/bin/codesign --options runtime --force -s "ESPRESSIF SYSTEMS (SHANGHAI) CO., LTD. (QWXF6GB4AV)" $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg -v
+            /usr/bin/codesign -v -vvv --deep $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
 
+      - name: Notarization of Espressif-IDE dmg files
+        env: 
+          NOTARIZATION_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
+          NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
+          NOTARIZATION_TEAM_ID: ${{ secrets.NOTARIZATION_TEAM_ID }}
+        run: |
+              echo "Create notary keychain"
+                /usr/bin/security create-keychain -p espressif notary.keychain
+                /usr/bin/security default-keychain -s notary.keychain
+                /usr/bin/security unlock-keychain -p espressif notary.keychain
+        
+                echo "Create keychain profile"
+                xcrun notarytool store-credentials "ide-notarytool-profile" --apple-id $NOTARIZATION_USERNAME --team-id $NOTARIZATION_TEAM_ID --password $NOTARIZATION_PASSWORD
+                xcrun notarytool submit $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg --keychain-profile "ide-notarytool-profile" --wait
+                
+                echo "Attach staple for x86_64.dmg"
+                xcrun stapler staple $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg
+                
+                echo "Unlock the notary keychain"
+                /usr/bin/security unlock-keychain -p espressif notary.keychain
+        
+                xcrun notarytool submit $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg --keychain-profile "ide-notarytool-profile" --wait
+                echo "Attach staple for aarch64.dmg"
+                xcrun stapler staple $PWD/releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg
+        
       - name: Upload Espressif-IDE-macosx-cocoa-x86_64.dmg
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
@@ -221,21 +282,38 @@ jobs:
           Expand-Archive -Path artifacts\*.zip -DestinationPath extracted -Force
           ls .\artifacts\*
 
-      - name: Verify espressif-ide.exe is present
+      - name: Install .NET 8 SDK and AzureSignTool
+        shell: pwsh
+        run: |
+          mkdir dotnet
+          cd dotnet
+          $dotnet_url="https://download.visualstudio.microsoft.com/download/pr/5af098e1-e433-4fda-84af-3f54fd27c108/6bd1c6e48e64e64871957289023ca590/dotnet-sdk-8.0.302-win-x64.zip"
+          Invoke-WebRequest -Uri $dotnet_url -OutFile dotnet-sdk-8.0.302-win-x64.zip
+          Expand-Archive -LiteralPath .\dotnet-sdk-8.0.302-win-x64.zip -DestinationPath .
+          $Env:DOTNET_ROOT="$($(Get-Location).Path)\dotnet-sdk-8.0.302-win-x64"
+          $Env:PATH="$Env:DOTNET_ROOT;$Env:PATH"
+          $Env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE=$true
+          dotnet tool install --global AzureSignTool
+          cd ..
+
+      - name: Sign EXE using AzureSignTool
         shell: pwsh
         run: |
           $exePath = Join-Path $PWD "${{ env.ARTIFACTS_PATH }}\espressif-ide.exe"
           if (-not (Test-Path $exePath)) { throw "espressif-ide.exe not found at $exePath" }
-
-      - name: Sign espressif-ide.exe
-        uses: espressif/release-sign@master
-        with:
-          path: ${{ env.ARTIFACTS_PATH }}/espressif-ide.exe
-          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          azure-keyvault-uri: ${{ secrets.AZURE_KEYVAULT_URI }}
-          azure-keyvault-cert-name: ${{ secrets.AZURE_KEYVAULT_CERT_NAME }}
+          
+          $Env:DOTNET_ROOT="$PWD\dotnet\dotnet-sdk-8.0.302-win-x64"
+          $Env:PATH="$Env:DOTNET_ROOT;$Env:PATH"
+          
+          AzureSignTool.exe sign `
+            -kvu "${{ secrets.AZURE_KEYVAULT_URI }}" `
+            -kvc "${{ secrets.AZURE_KEYVAULT_CERT_NAME }}" `
+            -kvi "${{ secrets.AZURE_CLIENT_ID }}" `
+            -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" `
+            --azure-key-vault-tenant-id "${{ secrets.AZURE_TENANT_ID }}" `
+            -tr http://timestamp.globalsign.com/tsa/advanced `
+            -td sha256 `
+            "$exePath"
 
       - name: Verify Signature
         shell: pwsh
