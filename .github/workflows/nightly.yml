@@ -184,10 +184,10 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
       run: |
+        set -euo pipefail
+        REPO_DIR="releng/com.espressif.idf.update/target/repository"
         ARCHIVE_DIR="/releng/com.espressif.idf.update/target/"
         ARCHIVE_NAME="com.espressif.idf.update*.zip"
-        echo "${ARCHIVE_DIR}"
-        echo ${PWD}${ARCHIVE_DIR}
         ARCHIVE_FILE_NAME="$(find ${PWD}${ARCHIVE_DIR}${ARCHIVE_NAME})"
         echo "${ARCHIVE_FILE_NAME}"
         ARCHIVE_PREFIX="com.espressif.idf.update-"
@@ -196,14 +196,12 @@ jobs:
         ARCHIVE_VERSION=${tmp%${ARCHIVE_SUFFIX}*}   # remove suffix
         echo "${ARCHIVE_VERSION}"
         FOLDER_NAME="v${ARCHIVE_VERSION}"
-        mkdir "${FOLDER_NAME}" && cd "${FOLDER_NAME}" && unzip -q ${ARCHIVE_FILE_NAME} && cd ..
-        echo ${PWD}
-        ARCHIVE_VERSION_NEW="${ARCHIVE_PREFIX}${ARCHIVE_VERSION}.zip"
-        echo ${ARCHIVE_VERSION_NEW}
-        mv ${ARCHIVE_FILE_NAME} ${ARCHIVE_VERSION_NEW}
+        # The Maven zip is created before JAR signing. Publish the repository
+        # directory, which holds the signed JARs and the repaired p2 metadata.
+        test -d "${REPO_DIR}"
         mv releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg "releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64-${FOLDER_NAME}.dmg"
         mv releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg "releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64-${FOLDER_NAME}.dmg"
         aws s3 rm s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/nightly --recursive
-        aws s3 cp --acl=public-read --recursive "./${FOLDER_NAME}/" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/nightly
+        aws s3 cp --acl=public-read --recursive "${REPO_DIR}/" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/nightly
         aws s3 cp --acl=public-read "./releng/index.html" s3://${{ secrets.DL_BUCKET }}/dl/idf-eclipse-plugin/updates/nightly/
         aws cloudfront create-invalidation --distribution-id ${{ secrets.DL_DISTRIBUTION_ID }} --paths "/dl/idf-eclipse-plugin/updates/nightly/*"
