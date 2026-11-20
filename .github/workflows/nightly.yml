@@ -124,16 +124,66 @@ jobs:
         mv releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-x86_64.dmg macos-dmgs/
         mv releng/ide-dmg-builder/Espressif-IDE-macosx-cocoa-aarch64.dmg macos-dmgs/
 
-    - name: Codesign and notarize macOS DMGs
+    - name: Codesign macOS DMGs
       uses: espressif/release-sign@master
       with:
         path: macos-dmgs
         macos-signing-identity: ${{ secrets.MACOS_CS_IDENTITY_ID }}
         macos-certificate: ${{ secrets.MACOS_CS_CERTIFICATE }}
         macos-certificate-pwd: ${{ secrets.MACOS_CS_CERTIFICATE_PWD }}
-        notarization-username: ${{ secrets.NOTARIZATION_USERNAME }}
-        notarization-password: ${{ secrets.NOTARIZATION_PASSWORD }}
-        notarization-team-id: ${{ secrets.NOTARIZATION_TEAM_ID }}
+
+    - name: Notarize macOS DMGs
+      env:
+        NOTARIZATION_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
+        NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
+        NOTARIZATION_TEAM_ID: ${{ secrets.NOTARIZATION_TEAM_ID }}
+      run: |
+        set -euo pipefail
+        # release-sign waits only 600 seconds, which these DMGs exceed while Apple
+        # is still reporting "In Progress". Stapling then fails with error 65.
+        KEYCHAIN_NAME="notary.keychain"
+        KEYCHAIN_PASSWORD="$(openssl rand -hex 32)"
+        KEYCHAIN_PATH="${HOME}/Library/Keychains/${KEYCHAIN_NAME}-db"
+        cleanup() {
+          security delete-keychain "$KEYCHAIN_NAME" >/dev/null 2>&1 || true
+        }
+        trap cleanup EXIT
+        security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
+        security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
+        security set-keychain-settings -lut 21600 "$KEYCHAIN_NAME"
+        xcrun notarytool store-credentials "ide-notarytool-profile" \
+          --apple-id "$NOTARIZATION_USERNAME" \
+          --team-id "$NOTARIZATION_TEAM_ID" \
+          --password "$NOTARIZATION_PASSWORD" \
+          --keychain "$KEYCHAIN_PATH"
+        unset NOTARIZATION_PASSWORD KEYCHAIN_PASSWORD
+        notarize() {
+          local item="$1"
+          local output status submission_id
+          echo "Notarizing ${item}"
+          set +e
+          output="$(xcrun notarytool submit "$item" \
+            --keychain-profile "ide-notarytool-profile" \
+            --keychain "$KEYCHAIN_PATH" \
+            --wait --timeout 60m 2>&1)"
+          status=$?
+          set -e
+          printf '%s\n' "$output"
+          if [ "$status" -ne 0 ]; then
+            submission_id="$(printf '%s\n' "$output" | grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' | head -n 1 || true)"
+            if [ -n "$submission_id" ]; then
+              echo "Apple rejection log for ${submission_id}:" >&2
+              xcrun notarytool log "$submission_id" \
+                --keychain-profile "ide-notarytool-profile" \
+                --keychain "$KEYCHAIN_PATH" >&2 || true
+            fi
+            exit "$status"
+          fi
+          xcrun stapler staple "$item"
+          echo "Stapled ${item}"
+        }
+        notarize macos-dmgs/Espressif-IDE-macosx-cocoa-x86_64.dmg
+        notarize macos-dmgs/Espressif-IDE-macosx-cocoa-aarch64.dmg
 
     - name: Restore signed DMGs
       run: |
