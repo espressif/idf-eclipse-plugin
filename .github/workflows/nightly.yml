@@ -159,26 +159,32 @@ jobs:
         unset NOTARIZATION_PASSWORD KEYCHAIN_PASSWORD
         notarize() {
           local item="$1"
-          local output status submission_id
+          local output_file status submission_id
+          output_file="$(mktemp)"
           echo "Notarizing ${item}"
           set +e
-          output="$(xcrun notarytool submit "$item" \
+          xcrun notarytool submit "$item" \
             --keychain-profile "ide-notarytool-profile" \
             --keychain "$KEYCHAIN_PATH" \
-            --wait --timeout 60m 2>&1)"
+            --wait --timeout 60m >"$output_file" 2>&1
           status=$?
           set -e
-          printf '%s\n' "$output"
-          if [ "$status" -ne 0 ]; then
-            submission_id="$(printf '%s\n' "$output" | grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' | head -n 1 || true)"
+          cat "$output_file"
+          # notarytool can exit 0 when Apple reports status Invalid. Stapling
+          # that result fails with error 65 because no ticket exists.
+          submission_id="$(grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' "$output_file" | head -n 1 || true)"
+          if [ "$status" -ne 0 ] || ! grep -q 'status: Accepted' "$output_file"; then
+            echo "Notarization was not accepted for ${item} (notarytool exit ${status})." >&2
             if [ -n "$submission_id" ]; then
               echo "Apple rejection log for ${submission_id}:" >&2
               xcrun notarytool log "$submission_id" \
                 --keychain-profile "ide-notarytool-profile" \
                 --keychain "$KEYCHAIN_PATH" >&2 || true
             fi
-            exit "$status"
+            rm -f "$output_file"
+            exit 1
           fi
+          rm -f "$output_file"
           xcrun stapler staple "$item"
           echo "Stapled ${item}"
         }
