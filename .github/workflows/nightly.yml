@@ -6,12 +6,6 @@ name: Nightly builds
 on:
   schedule:
     - cron: "0 0 * * *"
-  # Temporary: run on pull requests so signing can be verified before the next schedule.
-  pull_request:
-
-concurrency:
-  group: nightly-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -233,7 +227,6 @@ jobs:
         path: releng/com.espressif.idf.product/target/products/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
 
     - name: Upload build assets to dl.espressif.com
-      if: ${{ github.event_name == 'schedule' }}
       id: upload-release-asset-espressif
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
